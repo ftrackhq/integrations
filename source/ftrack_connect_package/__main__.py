@@ -20,6 +20,15 @@ import ftrack_connect.__main__
 
 
 if __name__ == '__main__':
+    arguments = sys.argv[1:]
+
+    if sys.platform == "darwin" and getattr(sys, 'frozen', False):
+        # Filter out PSN (process serial number) argument passed by OSX.
+        arguments = [
+            argument for argument in arguments
+            if '-psn_0_' not in argument
+        ]
+
     raise SystemExit(
-        ftrack_connect.__main__.main(arguments=sys.argv[1:])
+        ftrack_connect.__main__.main(arguments=arguments)
     )
