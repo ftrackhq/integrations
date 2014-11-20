@@ -33,6 +33,16 @@ OSX::
 
     $ python setup.py bdist_mac
 
+Known Issues
+============
+
+* On Windows, the process will sometimes segfault when building. Running build
+  again will solve the issue.
+
+* Sometimes the build process will fail with an error about a missing
+  'build_data' command. Running build again without changes should solve the
+  issue.
+
 Dependencies
 ============
 
