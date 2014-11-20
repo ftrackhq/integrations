@@ -62,8 +62,13 @@ if sys.platform in ('darwin', 'win32'):
 
     from cx_Freeze import setup, Executable
 
-    # Discover ftrack-connect resources that need to be included outside of the
-    # standard zipped bundle.
+    # Ensure ftrack-connect available for import and then discover
+    # ftrack-connect resources that need to be included outside of the standard
+    # zipped bundle.
+    Distribution(dict(
+        setup_requires=[configuration['install_requires'][0]],
+        dependency_links=[configuration['dependency_links'][0]]
+    ))
     resources = pkg_resources.resource_filename(
         pkg_resources.Requirement.parse('ftrack-connect'),
         'ftrack_connect_resource/hook'
