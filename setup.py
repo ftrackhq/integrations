@@ -104,7 +104,7 @@ if sys.platform in ('darwin', 'win32'):
 
     configuration['options']['build_exe'] = {
         'includes': [
-            'ftrack_connect.ui.application',
+            'ftrack',
             'atexit'  # Required for PySide
         ],
         'excludes': [
