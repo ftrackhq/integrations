@@ -22,6 +22,13 @@ with open(os.path.join(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
+connectInstallRequire = 'ftrack-connect >=0.1, < 1'
+# TODO: Update when ftrack-connect released.
+connectDependencyLink = (
+    'https://bitbucket.org/ftrack/ftrack-connect/get/backlog/'
+    'package-connect-for-download/package-repository.zip'
+    '#egg=ftrack-connect-0.1.0'
+)
 
 # General configuration.
 configuration = dict(
@@ -41,13 +48,14 @@ configuration = dict(
     setup_requires=[
     ],
     install_requires=[
-        'ftrack-connect >=0.1, < 1'
+        'ftrack-python-legacy-api',
+        connectInstallRequire
     ],
     dependency_links=[
-        # TODO: Update when ftrack-connect released.
-        ('https://bitbucket.org/ftrack/ftrack-connect/'
-         'get/backlog/package-connect-for-download/package-repository.zip'
-         '#egg=ftrack-connect-0.1.0')
+        'file://{0}#egg=ftrack-python-legacy-api'.format(
+            os.environ['FTRACK_PYTHON_LEGACY_API_PATH']
+        ),
+        connectDependencyLink
     ],
     options={}
 )
@@ -66,8 +74,8 @@ if sys.platform in ('darwin', 'win32'):
     # ftrack-connect resources that need to be included outside of the standard
     # zipped bundle.
     Distribution(dict(
-        setup_requires=[configuration['install_requires'][0]],
-        dependency_links=[configuration['dependency_links'][0]]
+        setup_requires=[connectInstallRequire],
+        dependency_links=[connectDependencyLink]
     ))
     resources = pkg_resources.resource_filename(
         pkg_resources.Requirement.parse('ftrack-connect'),
