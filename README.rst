@@ -18,6 +18,9 @@ Clone the public repository::
 Or download and extract the
 `zipball <https://bitbucket.org/ftrack/ftrack-connect-package/get/master.zip>`_
 
+Set the environment variable FTRACK_PYTHON_LEGACY_API_PATH to point to the
+ftrack-connect-legacy-api.
+
 Once you have a copy of the source build locally a standalone executable for the
 platform you are currently on::
 
@@ -47,6 +50,7 @@ Dependencies
 ============
 
 * `Python <http://python.org>`_ >= 2.6, < 3
+* `ftrack-connect-legacy-api`
 * `ftrack-connect <https://bitbucket.org/ftrack/ftrack-connect>`_ >= 0.1, < 1
 
 *********************

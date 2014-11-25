@@ -22,9 +22,9 @@ with open(os.path.join(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
-connectInstallRequire = 'ftrack-connect >=0.1, < 1'
+connect_install_require = 'ftrack-connect >=0.1, < 1'
 # TODO: Update when ftrack-connect released.
-connectDependencyLink = (
+connect_dependency_link = (
     'https://bitbucket.org/ftrack/ftrack-connect/get/backlog/'
     'package-connect-for-download/package-repository.zip'
     '#egg=ftrack-connect-0.1.0'
@@ -49,13 +49,13 @@ configuration = dict(
     ],
     install_requires=[
         'ftrack-python-legacy-api',
-        connectInstallRequire
+        connect_install_require
     ],
     dependency_links=[
         'file://{0}#egg=ftrack-python-legacy-api'.format(
             os.environ['FTRACK_PYTHON_LEGACY_API_PATH'].replace('\\', '/')
         ),
-        connectDependencyLink
+        connect_dependency_link
     ],
     options={}
 )
@@ -74,8 +74,8 @@ if sys.platform in ('darwin', 'win32'):
     # ftrack-connect resources that need to be included outside of the standard
     # zipped bundle.
     Distribution(dict(
-        setup_requires=[connectInstallRequire],
-        dependency_links=[connectDependencyLink]
+        setup_requires=[connect_install_require],
+        dependency_links=[connect_dependency_link]
     ))
     resources = pkg_resources.resource_filename(
         pkg_resources.Requirement.parse('ftrack-connect'),
