@@ -53,7 +53,7 @@ configuration = dict(
     ],
     dependency_links=[
         'file://{0}#egg=ftrack-python-legacy-api'.format(
-            os.environ['FTRACK_PYTHON_LEGACY_API_PATH']
+            os.environ['FTRACK_PYTHON_LEGACY_API_PATH'].replace('\\', '/')
         ),
         connectDependencyLink
     ],
