@@ -65,7 +65,15 @@ configuration = dict(
 if sys.platform in ('darwin', 'win32'):
 
     # Ensure cx_freeze available for import.
-    Distribution(dict(setup_requires='cx_freeze'))
+    Distribution(
+        dict(
+            setup_requires='cx-freeze == 4.3.3.ftrack',
+            dependency_links=[
+                'https://bitbucket.org/ftrack/cx-freeze/get/4.x.zip'
+                '#egg=cx-freeze-4.3.3.ftrack'
+            ]
+        )
+    )
     configuration['setup_requires'].append('cx_freeze')
 
     from cx_Freeze import setup, Executable
@@ -105,7 +113,12 @@ if sys.platform in ('darwin', 'win32'):
 
         configuration['options']['bdist_mac'] = {
             'iconfile': './logo.icns',
-            'bundle_name': 'ftrack_connect_package'
+            'bundle_name': 'ftrack-connect'
+        }
+
+        configuration['options']['bdist_dmg'] = {
+            'applications_shortcut': True,
+            'volume_label': 'ftrack-connect-{0}'.format(VERSION)
         }
 
     configuration['executables'] = executables
