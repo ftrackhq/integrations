@@ -11,6 +11,7 @@ from setuptools import setup, Distribution, find_packages
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
+RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
 
 
@@ -124,6 +125,7 @@ if sys.platform in ('darwin', 'win32'):
     configuration['executables'] = executables
 
     configuration['options']['build_exe'] = {
+        'init_script': os.path.join(RESOURCE_PATH, 'frozen_bootstrap.py'),
         'includes': [
             'ftrack',
             'atexit'  # Required for PySide
