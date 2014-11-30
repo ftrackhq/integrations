@@ -6,9 +6,7 @@ import sys
 import zipimport
 
 sys.frozen = True
-
-os.environ["TCL_LIBRARY"] = os.path.join(DIR_NAME, "tcl")
-os.environ["TK_LIBRARY"] = os.path.join(DIR_NAME, "tk")
+sys.path = sys.path[:4]
 
 # Inject common.zip
 COMMON_ZIP_PATH = os.path.join(
@@ -17,10 +15,16 @@ COMMON_ZIP_PATH = os.path.join(
 )
 sys.path.insert(0, COMMON_ZIP_PATH)
 
+os.environ["TCL_LIBRARY"] = os.path.join(DIR_NAME, "tcl")
+os.environ["TK_LIBRARY"] = os.path.join(DIR_NAME, "tk")
+
 m = __import__("__main__")
 importer = zipimport.zipimporter(INITSCRIPT_ZIP_FILE_NAME)
-name, ext = os.path.splitext(os.path.basename(os.path.normcase(FILE_NAME)))
-moduleName = "%s__main__" % name
+if INITSCRIPT_ZIP_FILE_NAME != SHARED_ZIP_FILE_NAME:
+    moduleName = m.__name__
+else:
+    name, ext = os.path.splitext(os.path.basename(os.path.normcase(FILE_NAME)))
+    moduleName = "%s__main__" % name
 code = importer.get_code(moduleName)
 exec(code, m.__dict__)
 
