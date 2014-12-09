@@ -1,0 +1,440 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2014 ftrack
+
+import tempfile
+import ftrack
+import getpass
+
+import FnAssetAPI.logging
+from FnAssetAPI.ui.toolkit import QtGui, QtCore
+
+from ftrack_connect import worker
+from ftrack_connect_hiero.ui import create_project_ui
+from ftrack_connect_hiero.ui.helper import (
+    treeDataFactory,
+    TagTreeOverlay,
+    timeFromTrackItem,
+    timecodeFromTrackItem,
+    sourceFromTrackItem
+)
+
+from ftrack_connect_hiero.ui.tag_tree_model import TagTreeModel
+from ftrack_connect_hiero.ui.tag_item import TagItem
+from ftrack_connect_hiero.processor import config
+import ftrack_connect_hiero
+
+
+class FTrackServerHelper(object):
+    def __init__(self):
+        self.server = ftrack.xmlServer
+        self.workflows = [item.get('name') for item in ftrack.getProjectSchemes()]
+        self.tasktypes = dict((k.get('name'), k.get('typeid')) for k in ftrack.getTaskTypes())
+
+    def createShow(self, name, workflow='VFX Scheme'):
+        ''' Create a show with the given name, and the given workflow
+        '''
+        schema_data = {'type': 'projectschemes'}
+        schema_response = self.server.action('get',schema_data)
+        workflow_ids = [result.get('schemeid') for result in schema_response if result.get('name') == workflow]
+
+        if not workflow_ids:
+            print 'no workflow found with name %s ' % workflow
+            return
+
+        workflow_id = workflow_ids[0]
+
+        data = {
+            'type':'show',
+            'projectschemeid':workflow_id,
+            'fullname':name,
+            'name':name
+        }
+        response = self.server.action('create',data)
+        return (response.get('showid'), 'show')
+
+    def setEntityData(self, entity_type, entity_id, trackItem,  start, end, resolution , fps, handles):
+        ''' Populate the entity data and metadata of the given entity_id and entity_type.
+        '''
+
+        data = {
+            'fstart': start,
+            'fend': end,
+            'fps': fps,
+            'resolution': '%sx%s' % (resolution.width(), resolution.height()),
+            'handles': handles
+        }
+
+        in_src, out_src, in_dst, out_dst = timecodeFromTrackItem(trackItem)
+        source = sourceFromTrackItem(trackItem)
+        metadata = {
+            'time code src In': in_src,
+            'time code src Out': out_src,
+            'time code dst In': in_dst,
+            'time code dst Out': out_src,
+            'source material': source
+        }
+
+        attributes = {
+            'type':'set',
+            'object': entity_type,
+            'id': entity_id,
+            'values':data
+        }
+
+        attribute_response = self.server.action('set', attributes)
+
+        # now let set the metadata, as we can't customize the attributes from here.
+        for data_key, data_value in metadata.items():
+            metadata = {
+                'type':'meta',
+                'object': entity_type,
+                'id': entity_id,
+                'key': data_key,
+                'value': data_value}
+
+            self.server.action('set', metadata)
+
+        return attribute_response
+
+    def _deleteAsset(self, asset_id):
+        ''' Delete the give asset id.
+        '''
+        asset_data = {
+            'type': 'delete',
+            'entityType': 'asset',
+            'entityId': asset_id,
+        }
+        try:
+            self.server.action('set', asset_data)
+        except ftrack.FTrackError as error:
+            FnAssetAPI.logging.debug(error)
+
+    def _renameAsset(self, asset_id, name):
+        ''' Rename the give asset_id with the given name
+        '''
+        asset_data = {
+            'type':'set',
+            'object':'asset',
+            'id':asset_id,
+            'values': {'name': name}
+        }
+        try:
+            self.server.action('set', asset_data)
+        except ftrack.FTrackError as error:
+            FnAssetAPI.logging.debug(error)
+            return
+
+    def createAsset(self, name, parent):
+        ''' Create and asset with the give name and with the given parent
+        '''
+        parent_id, parent_type = parent
+
+        asset_type = 'img'
+
+        asset_data = {
+            'type':'asset',
+            'parent_id': parent_id,
+            'parent_type': parent_type,
+            'name': name,
+            'assetType': asset_type
+        }
+        asset_response = self.server.action('create', asset_data)
+        return asset_response
+
+    def createAssetVersion(self, asset_id, parent):
+        ''' Create an asset version linked to the asset_id and parent (task)
+        '''
+        parent_id, parent_type = parent
+        version_data = {
+            'type':'assetversion',
+            'assetid': asset_id,
+            'taskid': parent_id,
+            'comment':'',
+            'ispublished': True
+        }
+
+        version_response = self.server.action('create', version_data)
+        version_id = version_response.get('versionid')
+        self.server.action('commit', {'type': 'assetversion', 'versionid': version_id})
+        return version_id
+
+    def createEntity(self, entity_type, name, parent):
+        ''' Create a new entity for the given type and name.
+        '''
+        parent_id, parent_type = parent
+        typeid = self.tasktypes.get(name)
+
+        data = {
+            'type': entity_type,
+            'parent_id': parent_id,
+            'parent_type': parent_type,
+            'name': name,
+            'typeid': typeid
+        }
+        response = self.server.action('create',data)
+        return response.get('taskid'), 'task'
+
+    def checkPermissions(self, username=None):
+        ''' Check the permission level of the given named user.
+        '''
+
+        allowed = ['Administrator']
+
+        username = username or getpass.getuser()
+
+        user_data = {
+            'type': 'user',
+            'id': username
+        }
+        try:
+            user_response = self.server.action('get', user_data)
+            user_id = user_response.get('userid')
+            role_data = {
+                'type':'roles',
+                'userid': user_id
+            }
+            role_response = self.server.action('get ', role_data)
+            roles = [role.get('name') for role in role_response]
+            # requires a better understanding of relation between show and roles.
+            return True
+
+        except Exception as error:
+            FnAssetAPI.logging.debug(error)
+            return False
+
+
+
+class ProjectTreeDialog(create_project_ui.Ui_CreateProject, QtGui.QDialog):
+
+    processor_ready = QtCore.Signal(object)
+
+    def __init__(self, data=None, parent=None):
+        super(ProjectTreeDialog, self).__init__(parent=parent)
+
+        self.serverHelper = FTrackServerHelper()
+        # user_is_allowed = self.serverHelper.checkPermissions()
+        # if not user_is_allowed:
+        #     FnAssetAPI.logging.warning(
+        #         'The user does not have enough permissions to run this application.'
+        #         'please check with your administrator your roles and permission level.'
+        #     )
+        #     return
+
+        self.setupUi(self)
+        self.processors = config()
+        self.data = data
+        self.setWindowTitle('Create ftrack project')
+        self.logo_icon = QtGui.QIcon(':icon-ftrack-box')
+        self.setWindowIcon(self.logo_icon)
+
+        # init empty tree
+        fake_root = TagItem({})
+        self.tag_model = TagTreeModel(tree_data=fake_root, parent=self)
+
+        # set the data tree asyncronus
+        self.worker = worker.Worker(treeDataFactory, [self.data])
+        self.worker.finished.connect(self.on_setTreeRoot)
+        self.project_worker = None
+
+        # create overlay
+        self.busyOverlay = TagTreeOverlay(self.treeView)
+        self.busyOverlay.hide()
+
+        # set model
+        self.treeView.setModel(self.tag_model)
+        self.treeView.setAnimated(True)
+        self.treeView.header().setResizeMode(QtGui.QHeaderView.ResizeMode.ResizeToContents)
+
+        # signals
+        self.pushButton_create.clicked.connect(self.on_create_project)
+        self.treeView.selectionModel().selectionChanged.connect(self.on_tree_item_selection)
+        self.worker.started.connect(self.busyOverlay.show)
+        self.worker.finished.connect(self.on_project_preview_done)
+
+        self.spinBox_offset.valueChanged.connect(self._refresh_tree)
+        self.spinBox_handles.valueChanged.connect(self._refresh_tree)
+        self.processor_ready.connect(self.on_processor_ready)
+
+        self.setDisabled(True)
+
+        # start populating the tree
+        self.worker.start()
+
+    def on_project_preview_done(self):
+        ''' Slot which will be called once the project preview have started populating.
+        '''
+
+        self.setEnabled(True)
+
+    def on_processor_ready(self, args):
+        ''' signal wich will be collecting the infomrations coming from the event and trigger the processor.
+        '''
+        plugins = ftrack_connect_hiero.PROCESSOR_PLUGINS
+        processor = args[0]
+        data = args[1]
+        plugin = plugins.get(processor)
+        plugin.process(data)
+
+    def on_setTreeRoot(self):
+        ''' signal wich will be used to populate the tree.
+        '''
+        self.busyOverlay.hide()
+        self.pushButton_create.setEnabled(True)
+        self.tag_model.setRoot(self.worker.result)
+
+    def on_treeCheck(self):
+        ''' signal to notify we are populating the tree.
+        '''
+        self.pushButton_create.setDisabled(True)
+        self.busyOverlay.show()
+
+    def on_tree_item_selection(self, selected, deselected):
+        ''' signal triggered when a tree item gets selected.
+        '''
+        self._reset_processors()
+
+        index = selected.indexes()[0]
+        item = index.model().data(index, role=self.tag_model.ITEM_ROLE)
+        processor = self.processors.get(item.name)
+
+        if not processor:
+            return
+
+        asset_names = processor.keys()
+        for asset_name in asset_names:
+            widget = QtGui.QWidget()
+            layout = QtGui.QVBoxLayout()
+            widget.setLayout(layout)
+
+            for component_name, component_fn in processor[asset_name].items():
+
+                data = QtGui.QGroupBox(component_name)
+                data_layout = QtGui.QVBoxLayout()
+                data.setLayout(data_layout)
+
+                layout.addWidget(data)
+                for node_name, knobs in component_fn.defaults.items():
+                    for knob, knob_value in knobs.items():
+                        knob_layout = QtGui.QHBoxLayout()
+                        label = QtGui.QLabel('%s:%s' % (node_name, knob))
+                        value = QtGui.QLineEdit(str(knob_value))
+                        value.setDisabled(True)
+                        knob_layout.addWidget(label)
+                        knob_layout.addWidget(value)
+                        data_layout.addLayout(knob_layout)
+
+            self.toolBox.addItem(widget, asset_name)
+
+    def on_create_project(self):
+        ''' Signal triggered when the create project button gets pressed.
+        '''
+        items = self.tag_model.root.children
+        self.project_worker = worker.Worker(self.create_project, (items, self.tag_model.root))
+        self.project_worker.finished.connect(self.on_project_created)
+        self.project_worker.start()
+
+        while self.project_worker.isRunning():
+            app = QtGui.QApplication.instance()
+            app.processEvents()
+
+        if self.project_worker.error:
+            raise self.project_worker.error[1], None, self.project_worker.error[2]
+
+        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
+        self.setDisabled(True)
+
+    def on_project_created(self):
+        ''' Signal triggered when the project creation finishes,
+        '''
+        QtGui.QApplication.restoreOverrideCursor()
+        QtGui.QMessageBox.information(self, "Done!", "The project has now been created\nPlease wait for the background processes to finish.");
+        self.setDisabled(False)
+
+    def _refresh_tree(self):
+        ''' Helper function to force the tree to refresh.
+        '''
+        self.tag_model.dataChanged.emit(QtCore.QModelIndex(), QtCore.QModelIndex())
+
+    def _reset_processors(self):
+        ''' Helper function to reset the processor widgets.
+        '''
+        while self.toolBox.count() > 0:
+            self.toolBox.removeItem(0)
+
+    def create_project(self, data, previous=None):
+        ''' Recursive function to create a new ftrack project on the server.
+        '''
+        selected_workflow = self.comboBox_workflow.currentText()
+        for datum in data:
+
+            # gather all the useful informations from the track
+            track_in = int(datum.track.sourceIn())
+            track_out = int(datum.track.sourceOut())
+            source = sourceFromTrackItem(datum.track)
+            start, end, in_, out = timeFromTrackItem(datum.track, self)
+            fps = self.comboBox_fps.currentText()
+            resolution = self.comboBox_resolution.currentFormat()
+            offset = self.spinBox_offset.value()
+            handles = self.spinBox_handles.value()
+
+            if datum.type == 'show':
+                if datum.exists:
+                    FnAssetAPI.logging.debug('%s %s exists as %s, reusing it.' % (datum.name, datum.type, datum.exists.get('showid')))
+                    result = (datum.exists.get('showid'), 'show')
+                else:
+                    FnAssetAPI.logging.debug('creating show %s' % datum.name)
+                    result = self.serverHelper.createShow(datum.name, selected_workflow)
+                    datum.exists = {'showid': result[0]}
+            else:
+                if datum.exists:
+                    FnAssetAPI.logging.debug('%s %s exists as %s, reusing it.' % (datum.name, datum.type, datum.exists.get('taskid')))
+                    result = (datum.exists.get('taskid'), 'task')
+                else:
+                    FnAssetAPI.logging.debug('creating %s %s' % (datum.type, datum.name))
+                    try:
+                        result = self.serverHelper.createEntity(datum.type, datum.name, previous)
+                    except ftrack.api.ftrackerror.PermissionDeniedError as error:
+                        datum.exists = 'error'
+                        continue
+                    datum.exists = {'taskid': result[0]}
+
+                if datum.type == 'shot':
+                    FnAssetAPI.logging.debug('Setting metadata to %s' % datum.name)
+                    self.serverHelper.setEntityData(result[1], result[0], datum.track, start, end, resolution , fps, handles)
+
+                if datum.type == 'task':
+                    processor = self.processors.get(datum.name)
+
+                    if not processor:
+                        continue
+
+                    asset_names = processor.keys()
+                    for asset_name in asset_names:
+                        asset = self.serverHelper.createAsset(asset_name, previous)
+                        asset_id = asset.get('assetid')
+
+                        version_id = self.serverHelper.createAssetVersion(asset_id, result)
+
+                        for component_name, component_fn in processor[asset_name].items():
+                            out_data = {
+                                'resolution': resolution,
+                                'source_in': track_in,
+                                'source_out': track_out,
+                                'source_file': source,
+                                'time_offset': offset-track_in,
+                                'destination_in': start,
+                                'destination_out': end,
+                                'fps': fps,
+                                'asset_version_id': version_id,
+                                'component_name': component_name,
+                                'handles': handles
+                                }
+
+                            processor_name = component_fn.getName()
+                            data = (processor_name,  out_data)
+                            self.processor_ready.emit(data)
+
+            self._refresh_tree()
+
+            if datum.children:
+                self.create_project(datum.children, result)

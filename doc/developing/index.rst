@@ -1,12 +1,11 @@
 ..
-    :copyright: Copyright (c) 2014 ftrack
+    :copyright: Copyright (c) 2013 ftrack
 
-**************************************
-Developing for ftrack with NUKE STUDIO
-**************************************
+********************************
+Developing for ftrack with HIERO
+********************************
 
-Discover how to develop and extend the default ftrack integration with
-NUKE STUDIO.
+Discover how to develop and extend the default ftrack integration with HIERO.
 
 .. toctree::
     :maxdepth: 1

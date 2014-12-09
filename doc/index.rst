@@ -1,11 +1,11 @@
 ..
-    :copyright: Copyright (c) 2014 ftrack
+    :copyright: Copyright (c) 2013 ftrack
 
-##########################
-ftrack connect NUKE STUDIO
-##########################
+####################
+ftrack connect HIERO
+####################
 
-ftrack integration with NUKE STUDIO.
+ftrack integration with HIERO.
 
 .. toctree::
     :maxdepth: 2
@@ -13,6 +13,7 @@ ftrack integration with NUKE STUDIO.
     using/index
     developing/index
     glossary
+    bugs
 
 ******************
 Indices and tables
