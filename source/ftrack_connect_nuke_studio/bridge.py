@@ -9,7 +9,7 @@ import FnAssetAPI
 import ftrack
 
 import ftrack_connect_foundry.bridge
-import ftrack_connect_hiero.event
+import ftrack_connect_nuke_studio.event
 
 
 class Bridge(ftrack_connect_foundry.bridge.Bridge):
@@ -23,19 +23,19 @@ class Bridge(ftrack_connect_foundry.bridge.Bridge):
         eventManager.registerListener(
             'hieroToNukeScriptAddClip',
             functools.partial(
-                ftrack_connect_hiero.event.hieroToNukeAddClip, self
+                ftrack_connect_nuke_studio.event.hieroToNukeAddClip, self
             )
         )
         eventManager.registerListener(
             'hieroToNukeScriptAddWrite',
             functools.partial(
-                ftrack_connect_hiero.event.hieroToNukeAddWrite, self
+                ftrack_connect_nuke_studio.event.hieroToNukeAddWrite, self
             )
         )
         eventManager.registerListener(
             'entityReferencesFromNukeNodes',
             functools.partial(
-                ftrack_connect_hiero.event.refsFromNukeNodes, self
+                ftrack_connect_nuke_studio.event.refsFromNukeNodes, self
             )
         )
 

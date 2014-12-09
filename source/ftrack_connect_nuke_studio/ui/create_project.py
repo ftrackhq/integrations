@@ -9,8 +9,8 @@ import FnAssetAPI.logging
 from FnAssetAPI.ui.toolkit import QtGui, QtCore
 
 from ftrack_connect import worker
-from ftrack_connect_hiero.ui import create_project_ui
-from ftrack_connect_hiero.ui.helper import (
+from ftrack_connect_nuke_studio.ui import create_project_ui
+from ftrack_connect_nuke_studio.ui.helper import (
     treeDataFactory,
     TagTreeOverlay,
     timeFromTrackItem,
@@ -18,10 +18,10 @@ from ftrack_connect_hiero.ui.helper import (
     sourceFromTrackItem
 )
 
-from ftrack_connect_hiero.ui.tag_tree_model import TagTreeModel
-from ftrack_connect_hiero.ui.tag_item import TagItem
-from ftrack_connect_hiero.processor import config
-import ftrack_connect_hiero
+from ftrack_connect_nuke_studio.ui.tag_tree_model import TagTreeModel
+from ftrack_connect_nuke_studio.ui.tag_item import TagItem
+from ftrack_connect_nuke_studio.processor import config
+import ftrack_connect_nuke_studio
 
 
 class FTrackServerHelper(object):
@@ -269,7 +269,7 @@ class ProjectTreeDialog(create_project_ui.Ui_CreateProject, QtGui.QDialog):
     def on_processor_ready(self, args):
         ''' signal wich will be collecting the infomrations coming from the event and trigger the processor.
         '''
-        plugins = ftrack_connect_hiero.PROCESSOR_PLUGINS
+        plugins = ftrack_connect_nuke_studio.PROCESSOR_PLUGINS
         processor = args[0]
         data = args[1]
         plugin = plugins.get(processor)

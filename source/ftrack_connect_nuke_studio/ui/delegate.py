@@ -6,7 +6,7 @@ import functools
 import FnAssetAPI
 from FnAssetAPI.ui.toolkit import QtGui
 from ftrack_connect_foundry.ui import delegate
-from ftrack_connect_hiero.ui.create_project import ProjectTreeDialog
+from ftrack_connect_nuke_studio.ui.create_project import ProjectTreeDialog
 
 
 

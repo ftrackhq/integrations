@@ -3,8 +3,8 @@
 
 import ftrack
 from ftrack_connect.ui.widget import overlay as _overlay
-from ftrack_connect_hiero.ui.tag_item import TagItem as _TagItem
-import ftrack_connect_hiero
+from ftrack_connect_nuke_studio.ui.tag_item import TagItem as _TagItem
+import ftrack_connect_nuke_studio
 import assetmgr_hiero
 
 import hiero
@@ -120,7 +120,7 @@ def treeDataFactory(tagDataList):
     ''' Build a tree of TagItem out of a set of ftags.
     '''
 
-    processors = ftrack_connect_hiero.processor.config()
+    processors = ftrack_connect_nuke_studio.processor.config()
 
     # Define tag type sort orders
     tag_sort_order = [

@@ -5,8 +5,8 @@ from hiero.core import events
 
 
 from ftrack_connect_foundry import manager
-from ftrack_connect_hiero.ftags.ftag import FTags
-from ftrack_connect_hiero.ftags.handler import TagDropHandler
+from ftrack_connect_nuke_studio.ftags.ftag import FTags
+from ftrack_connect_nuke_studio.ftags.handler import TagDropHandler
 
 
 class ManagerInterface(manager.ManagerInterface):

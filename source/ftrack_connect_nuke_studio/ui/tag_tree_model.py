@@ -4,7 +4,7 @@
 from FnAssetAPI.ui.toolkit import QtGui, QtCore
 import ftrack
 from ftrack_connect.ui.model.entity_tree import EntityTreeModel
-from ftrack_connect_hiero.ui.helper import timeFromTrackItem, timecodeFromTrackItem, sourceFromTrackItem
+from ftrack_connect_nuke_studio.ui.helper import timeFromTrackItem, timecodeFromTrackItem, sourceFromTrackItem
 
 
 class TagTreeModel(EntityTreeModel):

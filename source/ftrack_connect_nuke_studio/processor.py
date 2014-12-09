@@ -10,7 +10,7 @@ import tempfile
 
 import FnAssetAPI
 import assetmgr_hiero
-import ftrack_connect_hiero
+import ftrack_connect_nuke_studio
 
 
 def config():
@@ -23,8 +23,8 @@ def config():
     data = json.load(file(config, 'r'))
     processors = data.get('processor')
 
-    ftrack_connect_hiero.setup()
-    plugins = ftrack_connect_hiero.PROCESSOR_PLUGINS
+    ftrack_connect_nuke_studio.setup()
+    plugins = ftrack_connect_nuke_studio.PROCESSOR_PLUGINS
 
     def setup(node):
         ''' In Place replacement for processors in config'''

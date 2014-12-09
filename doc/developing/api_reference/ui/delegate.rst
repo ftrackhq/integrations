@@ -1,8 +1,8 @@
 ..
     :copyright: Copyright (c) 2013 ftrack
 
-ftrack_connect_hiero.ui.delegate
+ftrack_connect_nuke_studio.ui.delegate
 ================================
 
-.. automodule:: ftrack_connect_hiero.ui.foo
+.. automodule:: ftrack_connect_nuke_studio.ui.foo
 

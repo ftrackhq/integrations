@@ -1,5 +1,5 @@
 import tempfile
-from ftrack_connect_hiero.processor import BasePlugin
+from ftrack_connect_nuke_studio.processor import BasePlugin
 
 
 class PublishPlugin(BasePlugin):
@@ -10,7 +10,7 @@ class PublishPlugin(BasePlugin):
         self.defaults = {
             "OUT":{
                 'file_type': 'dpx',
-                'afterRender': 'from ftrack_connect_hiero.nuke_publish_cb import createComponent;createComponent()'
+                'afterRender': 'from ftrack_connect_nuke_studio.nuke_publish_cb import createComponent;createComponent()'
             }
          }
 
@@ -38,7 +38,7 @@ class ProxyPlugin(BasePlugin):
         self.defaults = {
             "OUT":{
                 'file_type': 'png',
-                'afterRender': 'from ftrack_connect_hiero.nuke_publish_cb import createComponent;createComponent()'
+                'afterRender': 'from ftrack_connect_nuke_studio.nuke_publish_cb import createComponent;createComponent()'
             },
             'REFORMAT':{
                 'type': "to box",
@@ -70,7 +70,7 @@ class ReviewPlugin(BasePlugin):
             'OUT':{
                 'file_type': 'mov',
                 'mov64_codec': 'jpeg',
-                'afterRender': 'from ftrack_connect_hiero.nuke_publish_cb import createReview;createReview()'
+                'afterRender': 'from ftrack_connect_nuke_studio.nuke_publish_cb import createReview;createReview()'
             }
         }
 
@@ -98,7 +98,7 @@ class ThumbnailPlugin(BasePlugin):
                 'file_type': 'jpeg',
                 'first': self.chosen_frame,
                 'last': self.chosen_frame,
-                'afterRender': 'from ftrack_connect_hiero.nuke_publish_cb import createThumbnail;createThumbnail()'
+                'afterRender': 'from ftrack_connect_nuke_studio.nuke_publish_cb import createThumbnail;createThumbnail()'
             }
         }
 
