@@ -23,11 +23,11 @@ with open(os.path.join(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
-connect_install_require = 'ftrack-connect >=0.1, < 1'
+connect_install_require = 'ftrack-connect'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/master.zip'
-    '#egg=ftrack-connect-0.1.0'
+    'https://bitbucket.org/ftrack/ftrack-connect/get/backlog/convert-legacy-plugins/refactor-plugins-from-launcher.zip'
+    '#egg=ftrack-connect'
 )
 
 # General configuration.
@@ -90,6 +90,18 @@ if sys.platform in ('darwin', 'win32'):
         'ftrack_connect_resource/hook'
     )
 
+    include_files = [
+        (resources, 'resource/hook')
+    ]
+
+    if os.environ.get('FTRACK_PYTHON_LEGACY_PLUGINS_PATH'):
+        include_files.append(
+            (
+                os.environ['FTRACK_PYTHON_LEGACY_PLUGINS_PATH'],
+                'resource/legacy_plugins'
+            )
+        )
+
     executables = []
     if sys.platform == 'win32':
         executables.append(
@@ -138,9 +150,7 @@ if sys.platform in ('darwin', 'win32'):
             'boto.compat._struct',
             'boto.compat._json'
         ],
-        'include_files': [
-            (resources, 'resource/hook')
-        ]
+        'include_files': include_files
     }
 
     configuration['setup_requires'].extend(
