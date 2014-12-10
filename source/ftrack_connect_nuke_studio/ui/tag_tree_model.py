@@ -11,6 +11,8 @@ class TagTreeModel(EntityTreeModel):
     ''' A morel representing the hierarchy tree of the context.
     '''
 
+    project_exists = QtCore.Signal(str)
+
     def __init__(self, tree_data=None, parent=None):
         '''Define a new TagTreeModel
 
@@ -56,11 +58,7 @@ class TagTreeModel(EntityTreeModel):
                 return item.type
 
             if item.type == 'show' and item.exists:
-                if self.parentWidget.comboBox_workflow.isEnabled():
-                    schema = ftrack.ProjectScheme(ftrack.getProject(item.name).get('projectschemeid')).get('name')
-                    index = self.parentWidget.comboBox_workflow.findText(schema)
-                    self.parentWidget.comboBox_workflow.setCurrentIndex(index)
-                    self.parentWidget.comboBox_workflow.setDisabled(True)
+                self.project_exists.emit(item.name)
 
             if item.type == 'shot':
                 start, end, in_, out = timeFromTrackItem(item.track, self.parentWidget)

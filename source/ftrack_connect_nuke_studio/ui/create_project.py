@@ -30,6 +30,25 @@ class FTrackServerHelper(object):
         self.workflows = [item.get('name') for item in ftrack.getProjectSchemes()]
         self.tasktypes = dict((k.get('name'), k.get('typeid')) for k in ftrack.getTaskTypes())
 
+    def getProjectSchema(self, name):
+
+        data = {'type':'frompath','path':name}
+        project = self.server.action('get',data)
+        scheme_id = project.get('projectschemeid')
+        scheme_data = {'type': 'project_scheme', 'id': scheme_id }
+        schema = self.server.action('get',scheme_data)
+        return schema.get('name')
+
+    def getProjectMeta(self, name, keys):
+        data = {'type':'frompath','path':name}
+        project = self.server.action('get',data)
+        show_id = project.get('showid')
+        result = {}
+        for key in keys:
+            value = self.getMetadata(show_id, key)
+            result[key] = value
+        return result
+
     def createShow(self, name, workflow='VFX Scheme'):
         ''' Create a show with the given name, and the given workflow
         '''
@@ -52,6 +71,23 @@ class FTrackServerHelper(object):
         response = self.server.action('create',data)
         return (response.get('showid'), 'show')
 
+    def getMetadata(self, entity_id, key):
+        data = {'type':'meta','id': entity_id,'key':key}
+        response = self.server.action('get', data)
+        return response
+
+    def addMetadata(self, entity_type, entity_id, metadata):
+        for data_key, data_value in metadata.items():
+            data = {
+                'type':'meta',
+                'object': entity_type,
+                'id': entity_id,
+                'key': data_key,
+                'value': data_value}
+
+            self.server.action('set', data)
+
+
     def setEntityData(self, entity_type, entity_id, trackItem,  start, end, resolution , fps, handles):
         ''' Populate the entity data and metadata of the given entity_id and entity_type.
         '''
@@ -66,6 +102,7 @@ class FTrackServerHelper(object):
 
         in_src, out_src, in_dst, out_dst = timecodeFromTrackItem(trackItem)
         source = sourceFromTrackItem(trackItem)
+
         metadata = {
             'time code src In': in_src,
             'time code src Out': out_src,
@@ -82,17 +119,7 @@ class FTrackServerHelper(object):
         }
 
         attribute_response = self.server.action('set', attributes)
-
-        # now let set the metadata, as we can't customize the attributes from here.
-        for data_key, data_value in metadata.items():
-            metadata = {
-                'type':'meta',
-                'object': entity_type,
-                'id': entity_id,
-                'key': data_key,
-                'value': data_value}
-
-            self.server.action('set', metadata)
+        self.addMetadata(entity_type, entity_id, metadata)
 
         return attribute_response
 
@@ -250,7 +277,7 @@ class ProjectTreeDialog(create_project_ui.Ui_CreateProject, QtGui.QDialog):
         self.treeView.selectionModel().selectionChanged.connect(self.on_tree_item_selection)
         self.worker.started.connect(self.busyOverlay.show)
         self.worker.finished.connect(self.on_project_preview_done)
-
+        self.tag_model.project_exists.connect(self.on_project_exists)
         self.spinBox_offset.valueChanged.connect(self._refresh_tree)
         self.spinBox_handles.valueChanged.connect(self._refresh_tree)
         self.processor_ready.connect(self.on_processor_ready)
@@ -259,6 +286,29 @@ class ProjectTreeDialog(create_project_ui.Ui_CreateProject, QtGui.QDialog):
 
         # start populating the tree
         self.worker.start()
+
+    def on_project_exists(self, name):
+        if self.comboBox_workflow.isEnabled():
+
+            schema = self.serverHelper.getProjectSchema(name)
+            index = self.comboBox_workflow.findText(schema)
+            self.comboBox_workflow.setCurrentIndex(index)
+            self.comboBox_workflow.setDisabled(True)
+
+            project_metadata = self.serverHelper.getProjectMeta(name, ['fps', 'resolution', 'offset', 'handles'])
+            fps = project_metadata.get('fps')
+            handles = project_metadata.get('handles')
+            offset = project_metadata.get('offset')
+            resolution = project_metadata.get('resolution')
+
+            self.comboBox_resolution.setCurrentFormat(resolution)
+
+            fps_index = self.comboBox_fps.findText(fps)
+            self.comboBox_fps.setCurrentIndex(fps_index)
+
+            self.spinBox_handles.setValue(int(handles))
+
+            self.spinBox_offset.setValue(int(offset))
 
     def on_project_preview_done(self):
         ''' Slot which will be called once the project preview have started populating.
@@ -385,6 +435,16 @@ class ProjectTreeDialog(create_project_ui.Ui_CreateProject, QtGui.QDialog):
                     FnAssetAPI.logging.debug('creating show %s' % datum.name)
                     result = self.serverHelper.createShow(datum.name, selected_workflow)
                     datum.exists = {'showid': result[0]}
+
+                show_meta = {
+                    'fps': fps,
+                    'resolution': str(resolution),
+                    'offset': offset,
+                    'handles': handles
+                }
+
+                self.serverHelper.addMetadata(result[1], result[0], show_meta)
+
             else:
                 if datum.exists:
                     FnAssetAPI.logging.debug('%s %s exists as %s, reusing it.' % (datum.name, datum.type, datum.exists.get('taskid')))
