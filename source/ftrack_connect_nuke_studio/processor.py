@@ -15,9 +15,9 @@ import ftrack_connect_nuke_studio
 
 def config():
 
-    config = os.getenv('FTRACK_HIERO_CONFIG')
+    config = os.getenv('FTRACK_NUKE_STUDIO_CONFIG')
     if not config or not os.path.exists(config):
-        FnAssetAPI.logging.error('please set FTRACK_HIERO_CONFIG environment variable to a valid json file')
+        FnAssetAPI.logging.error('please set FTRACK_NUKE_STUDIO_CONFIG environment variable to a valid json file')
         return
 
     data = json.load(file(config, 'r'))

@@ -1,7 +1,7 @@
 Setup
 *****
 
-ftrack connect hiero in order to work , requires to have a set of python modules and environment variables set up.
+ftrack connect nuke studio in order to work , requires to have a set of python modules and environment variables set up.
 
 Python Modules
 ==============
@@ -23,6 +23,6 @@ Environment variables
     export PYTHONPATH=${PYTHONPATH}:~/devel/python-api # ftrack core lib
     export PYTHONPATH=${PYTHONPATH}:~/devel/connector/ftrack-connect/source # ftrack connect lib
     export PYTHONPATH=${PYTHONPATH}:~/devel/connector/ftrack-connect-foundry/source # foundry's codebase
-    export PYTHONPATH=${PYTHONPATH}:~/devel/connector/ftrack-connect-hiero/source # hiero plugin
-    export FOUNDRY_ASSET_PLUGIN_PATH=~/devel/connector/ftrack-connect-hiero/resource/hiero
-    export HIERO_PLUGIN_PATH=~/devel/connector/ftrack-connect-hiero/resource/hiero
+    export PYTHONPATH=${PYTHONPATH}:~/devel/connector/ftrack-connect-nuke-studio/source # hiero plugin
+    export FOUNDRY_ASSET_PLUGIN_PATH=~/devel/connector/ftrack-connect-nuke-studio/resource/hiero
+    export HIERO_PLUGIN_PATH=~/devel/connector/ftrack-connect-nuke-studio/resource/hiero

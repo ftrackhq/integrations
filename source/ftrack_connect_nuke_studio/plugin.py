@@ -7,14 +7,14 @@ import ftrack_connect_nuke_studio.manager
 
 
 class Plugin(ftrack_connect_foundry.plugin.Plugin):
-    '''ftrack manager plugin for HIERO.'''
+    '''ftrack manager plugin for NUKE STUDIO.'''
 
     @classmethod
     def _initialiseBridge(cls):
         '''Initialise bridge.'''
         if cls._bridge is None:
             cls._bridge = ftrack_connect_nuke_studio.bridge.Bridge()
-    
+
     @classmethod
     def getInterface(cls):
         '''Return instance of manager interface.'''

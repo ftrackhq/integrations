@@ -35,7 +35,7 @@ define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
 }
 Root {
  inputs 0
- name /home/ftrack/devel/connector/ftrack-connect-hiero/resource/processors_plugins/publish.nk
+ name /home/ftrack/devel/connector/ftrack-connect-nuke-studio/resource/processors_plugins/publish.nk
  first_frame 0
  last_frame 1322
  lock_range true

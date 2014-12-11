@@ -5,7 +5,7 @@
 API reference
 *************
 
-Discover the API for ftrack and HIERO integration.
+Discover the API for ftrack and NUKE STUDIO integration.
 
 
 Submodules

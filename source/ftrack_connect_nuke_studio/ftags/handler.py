@@ -9,12 +9,12 @@ import FnAssetAPI.logging
 
 class TagDropHandler(object):
 
-    kTextMimeType = "text/plain"    
-  
+    kTextMimeType = "text/plain"
+
     def __init__(self):
-        ''' Initialize the class and register the handler. 
+        ''' Initialize the class and register the handler.
         '''
-        # hiero doesn't deal with drag and drop for text/plain data, so tell it to allow it
+        # nuke studio doesn't deal with drag and drop for text/plain data, so tell it to allow it
         hiero.ui.registerBinViewCustomMimeDataType(TagDropHandler.kTextMimeType)
         # register interest in the drop event now
         registerInterest((EventType.kDrop, EventType.kTimeline), self.dropHandler)
