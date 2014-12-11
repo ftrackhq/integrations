@@ -1,5 +1,5 @@
 ..
-    :copyright: Copyright (c) 2013 ftrack
+    :copyright: Copyright (c) 2014 ftrack
 
 ***********************
 Using ftrack with HIERO

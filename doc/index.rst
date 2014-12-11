@@ -1,11 +1,11 @@
 ..
-    :copyright: Copyright (c) 2013 ftrack
+    :copyright: Copyright (c) 2014 ftrack
 
-####################
-ftrack connect HIERO
-####################
+##########################
+ftrack connect NUKE STUDIO
+##########################
 
-ftrack integration with HIERO.
+ftrack integration with NUKE STUDIO.
 
 .. toctree::
     :maxdepth: 2
