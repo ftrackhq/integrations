@@ -62,10 +62,8 @@ def itemExists(item):
     '''
 
     path = []
-    # FnAssetAPI.logging.info('exists %s' % item)
 
     parent = item.parent
-    # FnAssetAPI.logging.info('parent %s' % parent)
 
     while parent:
         name = parent.name
@@ -77,7 +75,6 @@ def itemExists(item):
 
     path.reverse()
     path.append(item.name)
-    # FnAssetAPI.logging.info('path %s' % path)
 
     if not path:
         return False
