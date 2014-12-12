@@ -5,6 +5,8 @@
 
 import os
 import re
+import sys
+import mock
 
 # -- General ------------------------------------------------------------------
 
@@ -91,3 +93,20 @@ intersphinx_mapping = {'python': ('http://docs.python.org/', None)}
 
 def setup(app):
     app.connect('autodoc-skip-member', autodoc_skip)
+
+
+# -- Mock modules --------------------------------------------------------------
+MOCK_MODULES = [
+    'hiero',
+    'hiero.core',
+    'hiero.core.events',
+    'hiero.core.VersionScanner',
+    'hiero.ui'
+    'nuke',
+    'FnAssetAPI.ui.toolkit',
+    'QtCore',
+    'QtGui',
+    'events'
+]
+for mod_name in MOCK_MODULES:
+    sys.modules[mod_name] = mock.Mock()
