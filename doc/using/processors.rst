@@ -101,7 +101,46 @@ The full path to the nuke script which will be used.
 
 How do I customize its behaviour
 ################################
-The base plugin provide a method called manage_options, which will allow you to modify any data which will be set to the nuke script.
+The base plugin provide a method called *manage_options*, which will allow you to modify any data which will be set to the nuke script.
 In this method is common to define the output path for the OUT node, so can be unique.
+
+this method gets feed with some default informations coming from the clips, and are exposed as dictionary where the keys are :
+
+* resolution
+    * The final output resolution of the material.
+
+* source_in
+    * The start frame of the original material (excluding the handles).
+
+* source_out
+    * The end frame of the original material (excluding the handles).
+
+* source_file
+    * The path to the original source material.
+
+* time_offset
+    * The frame offset used for the frames.
+
+* destination_in
+    * The start frame of the processed material (inlcuding the offset).
+
+* destination_out
+    * The end frame of the processed material (inlcuding the offset).
+
+* handles
+    * The handles , in frames, which has been decided for the clips.
+
+* fps
+    * The frame per second which will be output the final material.
+
+* asset_version_id
+    * Internal reference for the ftrack's asset version id.
+
+* component_name
+    * Internal reference for the ftrack's component name, the material will be ending into.
+
+
+Each processor already provides a standard method, which should be extended, where these variables are handled.
+An example of how to extend them can be seen on the first code example on this page.
 
 
