@@ -13,3 +13,4 @@ Find out all the information you need to use ftrack with NUKE STUDIO day to day.
     setup
     ftags
     create_project
+    processors
