@@ -94,13 +94,21 @@ if sys.platform in ('darwin', 'win32'):
         (resources, 'resource/hook')
     ]
 
-    if os.environ.get('FTRACK_PYTHON_LEGACY_PLUGINS_PATH'):
-        include_files.append(
-            (
-                os.environ['FTRACK_PYTHON_LEGACY_PLUGINS_PATH'],
-                'resource/legacy_plugins'
-            )
-        )
+    legacy_plugins_path = os.environ['FTRACK_PYTHON_LEGACY_PLUGINS_PATH']
+
+    if legacy_plugins_path and os.path.isdir(legacy_plugins_path):
+        for child in os.listdir(
+            legacy_plugins_path
+        ):
+            if not child.startswith('.'):
+                include_files.append(
+                    (
+                        os.path.join(legacy_plugins_path, child),
+                        'resource/legacy_plugins/{child}'.format(
+                            child=child
+                        )
+                    )
+                )
 
     executables = []
     if sys.platform == 'win32':
