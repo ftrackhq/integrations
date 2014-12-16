@@ -30,6 +30,12 @@ connect_dependency_link = (
     '#egg=ftrack-connect-0.1.0'
 )
 
+cinesync_install_require = 'ftrack-connect-cinesync >=0.1, < 1'
+cinesync_dependency_link = (
+    'https://bitbucket.org/ftrack/ftrack-connect-cinesync/get/master.zip'
+    '#egg=ftrack-connect-cinesync'
+)
+
 # General configuration.
 configuration = dict(
     name='ftrack-connect-package',
@@ -49,13 +55,15 @@ configuration = dict(
     ],
     install_requires=[
         'ftrack-python-legacy-api',
-        connect_install_require
+        connect_install_require,
+        cinesync_install_require
     ],
     dependency_links=[
         'file://{0}#egg=ftrack-python-legacy-api'.format(
             os.environ['FTRACK_PYTHON_LEGACY_API_PATH'].replace('\\', '/')
         ),
-        connect_dependency_link
+        connect_dependency_link,
+        cinesync_dependency_link
     ],
     options={}
 )
@@ -78,20 +86,33 @@ if sys.platform in ('darwin', 'win32'):
 
     from cx_Freeze import setup, Executable
 
-    # Ensure ftrack-connect available for import and then discover
-    # ftrack-connect resources that need to be included outside of the standard
-    # zipped bundle.
+    # Ensure ftrack-connect and ftrack-connect-cinesync
+    # available for import and then discover ftrack-connect and
+    # ftrack-connect-cinesync resources that need to be included outside of
+    # the standard zipped bundle.
     Distribution(dict(
-        setup_requires=[connect_install_require],
-        dependency_links=[connect_dependency_link]
+        setup_requires=[connect_install_require, cinesync_install_require],
+        dependency_links=[cinesync_dependency_link, connect_dependency_link]
     ))
-    resources = pkg_resources.resource_filename(
+    connect_resource_hook = pkg_resources.resource_filename(
         pkg_resources.Requirement.parse('ftrack-connect'),
         'ftrack_connect_resource/hook'
     )
 
+    cinesync_resource_script = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-connect-cinesync'),
+        'ftrack_connect_cinesync_resource/script'
+    )
+
+    cinesync_resource_hook = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-connect-cinesync'),
+        'ftrack_connect_cinesync_resource/hook'
+    )
+
     include_files = [
-        (resources, 'resource/hook')
+        (connect_resource_hook, 'resource/hook'),
+        (cinesync_resource_hook, 'resource/hook'),
+        (cinesync_resource_script, 'resource/script')
     ]
 
     legacy_plugins_path = os.environ['FTRACK_PYTHON_LEGACY_PLUGINS_PATH']
@@ -147,7 +168,8 @@ if sys.platform in ('darwin', 'win32'):
         'init_script': os.path.join(RESOURCE_PATH, 'frozen_bootstrap.py'),
         'includes': [
             'ftrack',
-            'atexit'  # Required for PySide
+            'atexit',  # Required for PySide
+            'ftrack_connect_cinesync.cinesync_launcher'
         ],
         'excludes': [
             # The following don't actually exist, but are picked up by the
@@ -156,7 +178,11 @@ if sys.platform in ('darwin', 'win32'):
             'boto.compat._sre',
             'boto.compat.array',
             'boto.compat._struct',
-            'boto.compat._json'
+            'boto.compat._json',
+
+            # Compiled yaml uses unguarded pkg_resources.resource_filename which
+            # won't work in frozen package.
+            '_yaml'
         ],
         'include_files': include_files
     }
