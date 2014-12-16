@@ -156,7 +156,11 @@ if sys.platform in ('darwin', 'win32'):
             'boto.compat._sre',
             'boto.compat.array',
             'boto.compat._struct',
-            'boto.compat._json'
+            'boto.compat._json',
+
+            # Compiled yaml uses unguarded pkg_resources.resource_filename which
+            # won't work in frozen package.
+            '_yaml'
         ],
         'include_files': [
             (connect_resource_hook, 'resource/hook'),
