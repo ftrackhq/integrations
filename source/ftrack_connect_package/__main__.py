@@ -3,6 +3,8 @@
 
 import sys
 import os
+import argparse
+
 
 if getattr(sys, 'frozen', False):
     # Hooks use the ftrack event system. Set the FTRACK_EVENT_PLUGIN_PATH
@@ -44,11 +46,24 @@ if __name__ == '__main__':
             if '-psn_0_' not in argument
         ]
 
-    # If first argument is an executable python script, execute the file.
-    if arguments and _validatePythonScript(arguments[0]):
-        execfile(arguments[0])
+    parser = argparse.ArgumentParser()
 
-        sys.exit(0)
+    parser.add_argument(
+        'script',
+        help='Path to python script to execute.',
+        default=''
+    )
+
+    parsedArguments, unknownArguments = parser.parse_known_args(arguments)
+
+    # If first argument is an executable python script, execute the file.
+    if (
+        parsedArguments.script and
+        _validatePythonScript(parsedArguments.script)
+    ):
+        execfile(parsedArguments.script)
+
+        raise SystemExit()
 
     raise SystemExit(
         ftrack_connect.__main__.main(arguments=arguments)
