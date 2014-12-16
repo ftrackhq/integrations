@@ -51,7 +51,8 @@ if __name__ == '__main__':
     parser.add_argument(
         'script',
         help='Path to python script to execute.',
-        default=''
+        default='',
+        nargs='?'
     )
 
     parsedArguments, unknownArguments = parser.parse_known_args(arguments)
