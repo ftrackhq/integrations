@@ -27,7 +27,7 @@ connect_install_require = 'ftrack-connect >=0.1, < 1'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
     'https://bitbucket.org/ftrack/ftrack-connect/get/master.zip'
-    '#egg=ftrack-connect-0.1.0'
+    '#egg=ftrack-connect-0.1.2'
 )
 
 cinesync_install_require = 'ftrack-connect-cinesync >=0.1, < 1'
