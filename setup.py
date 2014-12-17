@@ -36,6 +36,14 @@ cinesync_dependency_link = (
     '#egg=ftrack-connect-cinesync-0.1.1'
 )
 
+connect_legacy_plugins_install_require = (
+    'ftrack-connect-legacy-plugins'
+    ' >=0.1, < 1'
+)
+connect_legacy_plugins_dependency_link = 'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.0'.format(
+    os.environ['FTRACK_CONNECT_LEGACY_PLUGINS_PATH'].replace('\\', '/')
+)
+
 # General configuration.
 configuration = dict(
     name='ftrack-connect-package',
@@ -56,14 +64,16 @@ configuration = dict(
     install_requires=[
         'ftrack-python-legacy-api',
         connect_install_require,
-        cinesync_install_require
+        cinesync_install_require,
+        connect_legacy_plugins_install_require
     ],
     dependency_links=[
         'file://{0}#egg=ftrack-python-legacy-api'.format(
             os.environ['FTRACK_PYTHON_LEGACY_API_PATH'].replace('\\', '/')
         ),
         connect_dependency_link,
-        cinesync_dependency_link
+        cinesync_dependency_link,
+        connect_legacy_plugins_dependency_link
     ],
     options={}
 )
@@ -91,8 +101,16 @@ if sys.platform in ('darwin', 'win32'):
     # ftrack-connect-cinesync resources that need to be included outside of
     # the standard zipped bundle.
     Distribution(dict(
-        setup_requires=[connect_install_require, cinesync_install_require],
-        dependency_links=[cinesync_dependency_link, connect_dependency_link]
+        setup_requires=[
+            connect_install_require,
+            cinesync_install_require,
+            connect_legacy_plugins_install_require
+        ],
+        dependency_links=[
+            cinesync_dependency_link,
+            connect_dependency_link,
+            connect_legacy_plugins_dependency_link
+        ]
     ))
     connect_resource_hook = pkg_resources.resource_filename(
         pkg_resources.Requirement.parse('ftrack-connect'),
@@ -109,27 +127,23 @@ if sys.platform in ('darwin', 'win32'):
         'ftrack_connect_cinesync_resource/hook'
     )
 
+    ftrack_connect_legacy_plugins_source = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-connect-legacy-plugins'),
+        'ftrack_connect_legacy_plugins/legacy_plugins'
+    )
+
+    ftrack_connect_legacy_plugins_hook = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-connect-legacy-plugins'),
+        'ftrack_connect_legacy_plugins/hook'
+    )
+
     include_files = [
         (connect_resource_hook, 'resource/hook'),
         (cinesync_resource_hook, 'resource/hook'),
-        (cinesync_resource_script, 'resource/script')
+        (cinesync_resource_script, 'resource/script'),
+        (ftrack_connect_legacy_plugins_source, 'resource/legacy_plugins'),
+        (ftrack_connect_legacy_plugins_hook, 'resource/hook')
     ]
-
-    legacy_plugins_path = os.environ['FTRACK_PYTHON_LEGACY_PLUGINS_PATH']
-
-    if legacy_plugins_path and os.path.isdir(legacy_plugins_path):
-        for child in os.listdir(
-            legacy_plugins_path
-        ):
-            if not child.startswith('.'):
-                include_files.append(
-                    (
-                        os.path.join(legacy_plugins_path, child),
-                        'resource/legacy_plugins/{child}'.format(
-                            child=child
-                        )
-                    )
-                )
 
     executables = []
     if sys.platform == 'win32':
