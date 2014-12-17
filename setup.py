@@ -33,7 +33,7 @@ connect_dependency_link = (
 cinesync_install_require = 'ftrack-connect-cinesync >=0.1, < 1'
 cinesync_dependency_link = (
     'https://bitbucket.org/ftrack/ftrack-connect-cinesync/get/master.zip'
-    '#egg=ftrack-connect-cinesync'
+    '#egg=ftrack-connect-cinesync-0.1.1'
 )
 
 # General configuration.
