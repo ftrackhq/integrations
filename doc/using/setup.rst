@@ -27,7 +27,7 @@ Environment variables
     export FTRACK_SERVER=https://<server address>
     export FTRACK_APIKEY=<api key>
     export LOGNAME=<log in name>
-    export PROJECT_ROOT=~/projects # this should be modified accordingly to the project needs.
+    export PROJECT_ROOT= /mnt/projects # this should be modified accordingly to the project needs.
 
     export PYTHONPATH=${PYTHONPATH}:~/devel/python-api # ftrack core lib
     export PYTHONPATH=${PYTHONPATH}:~/devel/connector/ftrack-connect/source # ftrack connect lib
