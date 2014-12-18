@@ -10,6 +10,14 @@ Python Modules
 * ftrack-connect
 * ftrack-connect-foundry
 
+Location Plugin
+===============
+
+In Order to know where to store the material, ftrack requires to have a location setup.
+
+.. note::
+    A *studio_default* location plugin is provided as part of the resources.
+    The variable $PROJECT_ROOT will have to be defined to set the root path.
 
 Environment variables
 =====================
@@ -19,14 +27,15 @@ Environment variables
     export FTRACK_SERVER=https://<server address>
     export FTRACK_APIKEY=<api key>
     export LOGNAME=<log in name>
+    export PROJECT_ROOT=~/projects # this should be modified accordingly to the project needs.
 
     export PYTHONPATH=${PYTHONPATH}:~/devel/python-api # ftrack core lib
     export PYTHONPATH=${PYTHONPATH}:~/devel/connector/ftrack-connect/source # ftrack connect lib
     export PYTHONPATH=${PYTHONPATH}:~/devel/connector/ftrack-connect-foundry/source # foundry's codebase
     export PYTHONPATH=${PYTHONPATH}:~/devel/connector/ftrack-connect-nuke-studio/source # hiero plugin
-    export FOUNDRY_ASSET_PLUGIN_PATH=~/devel/connector/ftrack-connect-nuke-studio/resource/hiero
 
-    # this is likely to be removed later on
+    # These are likely to be removed later on
+    export FOUNDRY_ASSET_PLUGIN_PATH=~/devel/connector/ftrack-connect-nuke-studio/resource/hiero
     export HIERO_PLUGIN_PATH=~/devel/connector/ftrack-connect-nuke-studio/resource/hiero
 
     # Define where the processor configuration live
@@ -34,6 +43,9 @@ Environment variables
 
     # Define where the processors live
     export FTRACK_PROCESSOR_PLUGIN_PATH=~/devel/connector/ftrack-connect-nuke-studio/resource/processors_plugins
+
+    # Define the location to be used
+    export FTRACK_LOCATION_PLUGIN_PATH=~/devel/connector/ftrack-connect-nuke-studio/resource/example_location
 
 
 Configuration file

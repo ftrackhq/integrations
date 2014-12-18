@@ -3,7 +3,7 @@ import ftrack
 
 
 location_name = 'studio_default'
-project_location = '~/ftrack_projects/' # This location has to be changed
+project_location = os.getenv('PROJECT_ROOT')
 
 
 def register(registry, **kw):
