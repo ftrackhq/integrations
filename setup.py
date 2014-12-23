@@ -183,7 +183,8 @@ if sys.platform in ('darwin', 'win32'):
         'includes': [
             'ftrack',
             'atexit',  # Required for PySide
-            'ftrack_connect_cinesync.cinesync_launcher'
+            'ftrack_connect_cinesync.cinesync_launcher',
+            'ftrack_connect.application'
         ],
         'excludes': [
             # The following don't actually exist, but are picked up by the
