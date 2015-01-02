@@ -61,8 +61,8 @@ class ProcessorPlugin(object):
     def __init__(self, name=None):
         '''Initialise processor plugin.'''
         self.name = name
-        self._defaults = {}
-        self._script = None
+        self.defaults = {}
+        self.script = None
 
     def __eq__(self, other):
         '''Return whether this plugin is the same as *other*.'''
@@ -71,34 +71,6 @@ class ProcessorPlugin(object):
     def getName(self):
         '''Return unique name of plugin.'''
         return self.name
-
-    @property
-    def defaults(self):
-        '''Return defaults.'''
-        return copy.deepcopy(self._defaults)
-
-    @defaults.setter
-    def defaults(self, defaults):
-        '''Set *defaults*.'''
-        self._defaults = defaults
-
-    @property
-    def script(self):
-        '''Return script.'''
-        return self._script
-
-    @script.setter
-    def script(self, script):
-        '''Set *script*.
-
-        *script* must exist on disk.
-
-        '''
-        script = os.path.expandvars(script)
-        if not os.path.exists(script):
-            FnAssetAPI.logging.error('{0} does not exist'.format(script))
-
-        self._script = script
 
     def _apply_options_to_nuke_script(self, options):
         '''Apply *options* to nuke script.'''
@@ -194,7 +166,7 @@ class ProcessorPlugin(object):
     def process(self, data):
         '''Run script against *data*.'''
         nuke.scriptClear()
-        nuke.nodePaste(self.script)
+        nuke.nodePaste(os.path.expandvars(self.script))
         read_node = nuke.toNode('IN')
         write_node = nuke.toNode('OUT')
 
