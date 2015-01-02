@@ -16,8 +16,8 @@ def config():
     config = os.getenv('FTRACK_NUKE_STUDIO_CONFIG')
     if not config or not os.path.exists(config):
         FnAssetAPI.logging.error(
-            'FTRACK_NUKE_STUDIO_CONFIG environment variable must be set and '
-            'point to a valid json file'
+            'FTRACK_NUKE_STUDIO_CONFIG environment variable not set. No '
+            'processor plugins will be configured.'
         )
         return
 
