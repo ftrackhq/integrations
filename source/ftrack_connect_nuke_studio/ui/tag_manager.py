@@ -13,7 +13,6 @@ class TagManager(object):
     def __init__(self, *args, **kwargs):
         ''' Initialize and create the needed Bin and Tags
         '''
-        self.icons = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'icons', '%s.png')
         FnAssetAPI.logging.debug('Creating Ftrack tags')
         self.project = hiero.core.project('Tag Presets')
         self.ftrack_bin_main = hiero.core.Bin('fTrack')
@@ -41,7 +40,7 @@ class TagManager(object):
 
         for task_type in task_types:
             ftag = hiero.core.Tag(task_type.getName())
-            ftag.setIcon(self.icons % 'task')
+            ftag.setIcon(':ftrack/image/dark/task')
 
             meta = ftag.metadata()
             meta.setValue('type', 'ftrack')
@@ -69,7 +68,12 @@ class TagManager(object):
             tag_name, tag_id, tag_re = context_tag
             
             ftag = hiero.core.Tag(context_tag[0])
-            ftag.setIcon(self.icons % tag_id)
+
+            icon = tag_id
+            if icon == 'sequence':
+                icon = 'folder'
+            ftag.setIcon(':ftrack/image/dark/{0}'.format(icon))
+
             meta = ftag.metadata()
             meta.setValue('type', 'ftrack')
             meta.setValue('ftrack.type', tag_id)
