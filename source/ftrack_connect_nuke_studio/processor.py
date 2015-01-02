@@ -33,7 +33,13 @@ def config():
             if isinstance(item, dict):
                 setup(item)
             else:
-                node[key] = plugins.get(item)
+                plugin = plugins.get(item)
+                if plugin is None:
+                    FnAssetAPI.logging.debug(
+                        'No processor plugin found with name "{0}"'.format(item)
+                    )
+                else:
+                    node[key] = plugin
 
     setup(processors)
     return processors
