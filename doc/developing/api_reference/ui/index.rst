@@ -10,8 +10,3 @@ ftrack_connect_nuke_studio.ui
 
     *
     */index
-
-
-
-
-
