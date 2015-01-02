@@ -40,6 +40,8 @@ setup(
         'mock'
     ],
     install_requires=[
+        'ftrack-connect >= 0.1.2, < 2',
+        'ftrack-connect-foundry >= 0.1.0, < 2'
     ],
     tests_require=[
     ],
