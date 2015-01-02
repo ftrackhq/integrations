@@ -57,7 +57,8 @@ Configuration file
 In order to work properly, a config file has to be provide as part of the environment variables.
 This file, json encoded, will contain the processors mapping against the task and the asset.
 
-When the task is about to be created this json file will be read to see which asset (in the example named BG) will have to be created.
+When the task is about to be created this json file will be read to see which asset (in the example named BG) will have
+to be created.
 The asset itself contains a mapping of which processor will be used to create and populate up the component created.
 
 

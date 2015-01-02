@@ -87,7 +87,8 @@ For example , this following example will be providing a standard start and end 
              }
 
 
-Each processor will have to express, as part of the defaults, the callback to be attached to the write node, which will enable it to publish to the ftrack server.
+Each processor will have to express, as part of the defaults, the callback to be attached to the write node, which will
+enable it to publish to the ftrack server.
 
 .. code-block:: python
 
@@ -104,7 +105,8 @@ The full path to the nuke script which will be used.
 
 How do I customize its behaviour
 ################################
-The base plugin provide a method called *manage_options*, which will allow you to modify any data which will be set to the nuke script.
+The base plugin provide a method called *manage_options*, which will allow you to modify any data which will be set to
+the nuke script.
 In this method is common to define the output path for the OUT node, so can be unique.
 
 this method gets feed with some default informations coming from the clips, and are exposed as dictionary where the keys are :

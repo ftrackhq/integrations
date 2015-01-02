@@ -17,7 +17,8 @@ Creating a project requires some simple stages.
 Shot Naming
 ============
 
-In order to have the context tags able to extract the names from the clip, these have to be named matching the regular expression defined in the tag.
+In order to have the context tags able to extract the names from the clip, these have to be named matching the regular
+expression defined in the tag.
 In case of the sequence, will be looking for **SQ**, for shot **SH** and for episodes **EP**.
 
 This function can be found under the shot context menu :
@@ -56,7 +57,8 @@ Which will show the tool dialog loading.
 .. image:: /image/create_project_loading.png
 
 During the loading process it will check the tag struture against what's already available on the server.
-As soon as the check is done, the interface will be displaying the preview of the project tree, showing all the data, which will be set to the shot.
+As soon as the check is done, the interface will be displaying the preview of the project tree, showing all the data,
+which will be set to the shot.
 This will be represented on the context treee, whith different colors.
 
 * **green**, for an exsting item.

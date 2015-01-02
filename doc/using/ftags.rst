@@ -29,7 +29,8 @@ This logic is expressed through a regular expression which will be taking care o
 .. image:: /image/ftag.png
 
 .. note::
-    Eg: the episode's tag, will be using the regular expression (\w+.)?EP(\d+) to match EP001_SH005 end extract the value of 001
+    Eg: the episode's tag, will be using the regular expression (\w+.)?EP(\d+) to match EP001_SH005 end extract the
+    value of 001
     where the shot one will be using (\w+.)?SH(\d+) to extract 005 from the same clip name.
 
     .. image:: /image/regex.png
