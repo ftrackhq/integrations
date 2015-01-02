@@ -57,9 +57,9 @@ def frame_range(track_item, frames, handles):
 class ProcessorPlugin(object):
     '''Processor plugin.'''
 
-    def __init__(self, name=None):
+    def __init__(self):
         '''Initialise processor plugin.'''
-        self.name = name
+        self.name = 'processor.base'
         self.defaults = {}
         self.script = None
 
