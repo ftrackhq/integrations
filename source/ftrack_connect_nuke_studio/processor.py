@@ -60,8 +60,8 @@ class ProcessorPlugin(object):
 
     def __init__(self, name=None):
         '''Initialise processor plugin.'''
+        self.name = name
         self._defaults = {}
-        self._name = name
         self._script = None
 
     def __eq__(self, other):
@@ -81,16 +81,6 @@ class ProcessorPlugin(object):
     def defaults(self, defaults):
         '''Set *defaults*.'''
         self._defaults = defaults
-
-    @property
-    def name(self):
-        '''Return name.'''
-        return self._name
-
-    @name.setter
-    def name(self, name):
-        '''Set *name*.'''
-        self._name = name
 
     @property
     def script(self):
