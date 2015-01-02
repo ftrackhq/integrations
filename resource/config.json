@@ -1,5 +1,5 @@
 {
-"processor": {
+    "processor": {
         "Pull": {
             "BG": {
                 "Ingest": "processor.publish",
