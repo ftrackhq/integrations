@@ -2,22 +2,25 @@
 # :copyright: Copyright (c) 2014 ftrack
 
 import os
-import nuke
 import copy
-
 import json
 import tempfile
 
+import nuke
 import FnAssetAPI
 import assetmgr_hiero
+
 import ftrack_connect_nuke_studio
 
 
 def config():
-
+    '''Configure processors.'''
     config = os.getenv('FTRACK_NUKE_STUDIO_CONFIG')
     if not config or not os.path.exists(config):
-        FnAssetAPI.logging.error('please set FTRACK_NUKE_STUDIO_CONFIG environment variable to a valid json file')
+        FnAssetAPI.logging.error(
+            'FTRACK_NUKE_STUDIO_CONFIG environment variable must be set and '
+            'point to a valid json file'
+        )
         return
 
     data = json.load(file(config, 'r'))
@@ -27,8 +30,7 @@ def config():
     plugins = ftrack_connect_nuke_studio.PROCESSOR_PLUGINS
 
     def setup(node):
-        ''' In Place replacement for processors in config'''
-
+        ''' In-place replacement for processors in config'''
         for key, item in node.items():
             if isinstance(item, dict):
                 setup(item)
@@ -39,79 +41,98 @@ def config():
     return processors
 
 
-def frame_range(trackItem, frames, handles):
+def frame_range(track_item, frames, handles):
+    '''Return frame range for *track_item*.'''
     opts = {
-        'numbering' : ('custom' ), # custom
-        'customNumberingStart' : frames,
-        'handles' : ('custom' ), # custom
-        'customHandleLength' : handles,
-        'includeRetiming' : True,
-        'clampToPositive' : True
+        'numbering': 'custom',
+        'customNumberingStart': frames,
+        'handles': 'custom',
+        'customHandleLength': handles,
+        'includeRetiming': True,
+        'clampToPositive': True
     }
 
-    return assetmgr_hiero.utils.track.timingsFromTrackItem(trackItem, opts)
+    return assetmgr_hiero.utils.track.timingsFromTrackItem(track_item, opts)
 
 
-
-class BasePlugin(object):
-
-    def __eq__(self, other):
-        return self._name == other._name
+class ProcessorPlugin(object):
+    '''Processor plugin.'''
 
     def __init__(self, name=None):
+        '''Initialise processor plugin.'''
         self._defaults = {}
         self._name = name
         self._widget = None
         self._script = None
 
+    def __eq__(self, other):
+        '''Return whether this plugin is the same as *other*.'''
+        return self.name == other.name
+
     def getName(self):
-        # this is required for the plugin compatibility
+        '''Return unique name of plugin.'''
         return self.name
 
     @property
     def defaults(self):
+        '''Return defaults.'''
         return copy.deepcopy(self._defaults)
 
     @defaults.setter
-    def defaults(self, data):
-        self._defaults = data
+    def defaults(self, defaults):
+        '''Set *defaults*.'''
+        self._defaults = defaults
 
     @property
     def name(self):
+        '''Return name.'''
         return self._name
 
     @name.setter
     def name(self, name):
+        '''Set *name*.'''
         self._name = name
 
     @property
     def script(self):
+        '''Return script.'''
         return self._script
 
     @script.setter
     def script(self, script):
+        '''Set *script*.
+
+        *script* must exist on disk.
+
+        '''
         script = os.path.expandvars(script)
         if not os.path.exists(script):
-            FnAssetAPI.logging.error('%s does not exist' % script)
+            FnAssetAPI.logging.error('{0} does not exist'.format(script))
 
         self._script = script
 
-    def _apply_options_to_nuke_script(self, values):
-        for node_name, node_values in values.items():
-            for kname, kvalue in node_values.items():
+    def _apply_options_to_nuke_script(self, options):
+        '''Apply *options* to nuke script.'''
+        for node_name, node_values in options.items():
+            for knob_name, knob_value in node_values.items():
                 node = nuke.toNode(node_name)
+
                 try:
-                    if kname == 'format':
-                        f = nuke.addFormat(str(kvalue))
-                        node[kname].setValue(f)
+                    if knob_name == 'format':
+                        format = nuke.addFormat(str(knob_value))
+                        node[knob_name].setValue(format)
                     else:
-                        node[kname].setValue(kvalue)
-                except Exception as error:
-                    FnAssetAPI.logging.debug('No knob %s on node %s: %s not applied' % (kname, node_name, kvalue))
+                        node[knob_name].setValue(knob_value)
+
+                except Exception:
+                    FnAssetAPI.logging.debug(
+                        'No knob {0} on node {1}: {2} not applied.'.format(
+                            knob_name, node_name, knob_value
+                        )
+                    )
 
     def _ensure_attributes(self, node):
-        ''' Provide some common attiributes to the node.
-        '''
+        '''Ensure standard attributes set on *node*.'''
         asset_version_id = 'asset_version_id'
         component_name = 'component_name'
         node_knobs = node.knobs()
@@ -124,9 +145,8 @@ class BasePlugin(object):
             component_name = nuke.String_Knob('component_name')
             node.addKnob(component_name)
 
-
     def manage_options(self, data):
-        '''
+        '''Return mapping to pass to script using input *data*.
 
         *data* is a dictionary containing data for generating the final output.
         this function is expected to return a dictioary within this format:
@@ -147,7 +167,6 @@ class BasePlugin(object):
         - component_name
 
         '''
-
         result = {
             'IN': {
                 'first': int(data['source_in']) - int(data['handles']),
@@ -174,24 +193,26 @@ class BasePlugin(object):
             }
         }
 
-        # update defaults
+        # Update defaults
         result.get('IN', {}).update(self.defaults.get('IN', {}))
         result.get('OUT', {}).update(self.defaults.get('OUT', {}))
-        result.get('REFORMAT', {}).update(self.defaults.get('REFORMAT',{}))
-        result.get('OFFSET', {}).update(self.defaults.get('OFFSET',{}))
-        result.get('root', {}).update(self.defaults.get('root',{}))
+        result.get('REFORMAT', {}).update(self.defaults.get('REFORMAT', {}))
+        result.get('OFFSET', {}).update(self.defaults.get('OFFSET', {}))
+        result.get('root', {}).update(self.defaults.get('root', {}))
+
         return result
 
     def process(self, data):
-        ''' Run the script with the given options.
-        '''
+        '''Run script against *data*.'''
         nuke.scriptClear()
         nuke.nodePaste(self.script)
         read_node = nuke.toNode('IN')
         write_node = nuke.toNode('OUT')
 
         if not all([read_node, write_node]):
-            raise ValueError('The nuke script requires tho have an IN and an OUT node !')
+            raise ValueError(
+                'Missing required IN and OUT nodes.'
+            )
 
         options = self.manage_options(data)
         self._ensure_attributes(write_node)
@@ -200,12 +221,20 @@ class BasePlugin(object):
         start = write_node['first'].value()
         end = write_node['last'].value()
 
-        tmp = tempfile.NamedTemporaryFile(suffix='.nk', delete=False, prefix=self.getName())
-        FnAssetAPI.logging.info('Saving tmp script to : %s' % tmp.name)
-        nuke.scriptSaveAs(tmp.name)
+        temporary_script = tempfile.NamedTemporaryFile(
+            suffix='.nk', delete=False, prefix=self.getName()
+        )
+        FnAssetAPI.logging.info(
+            'Saving temporary script to "{0}"'.format(temporary_script.name)
+        )
+        nuke.scriptSaveAs(temporary_script.name)
+
         nuke.executeBackgroundNuke(
-            nuke.EXE_PATH, [write_node],
-            nuke.FrameRanges([nuke.FrameRange('%s-%s'%(int(start), int(end)))]),
+            nuke.EXE_PATH,
+            [write_node],
+            nuke.FrameRanges([
+                nuke.FrameRange('{0:d}-{1:d}'.format(start, end))
+            ]),
             nuke.views(),
             {}
         )
