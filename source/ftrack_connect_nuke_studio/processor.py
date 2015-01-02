@@ -184,7 +184,7 @@ class ProcessorPlugin(object):
             nuke.EXE_PATH,
             [write_node],
             nuke.FrameRanges([
-                nuke.FrameRange('{0:d}-{1:d}'.format(start, end))
+                nuke.FrameRange('{0}-{1}'.format(int(start), int(end)))
             ]),
             nuke.views(),
             {}
