@@ -5,8 +5,8 @@ from hiero.core import events
 
 
 from ftrack_connect_foundry import manager
-from ftrack_connect_nuke_studio.ftags.ftag import FTags
-from ftrack_connect_nuke_studio.ftags.handler import TagDropHandler
+from ftrack_connect_nuke_studio.ui.tag_manager import TagManager
+from ftrack_connect_nuke_studio.ui.tag_drop_handler import TagDropHandler
 
 
 class ManagerInterface(manager.ManagerInterface):
@@ -18,7 +18,7 @@ class ManagerInterface(manager.ManagerInterface):
         # after the project load , create the ftrack tags.
         events.registerInterest(
             'kAfterProjectLoad',
-            FTags
+            TagManager
         )
 
 

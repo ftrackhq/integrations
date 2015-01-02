@@ -7,7 +7,7 @@ import ftrack
 import FnAssetAPI.logging
 
 
-class FTags(object):
+class TagManager(object):
     ''' Creates all the custom tags wrappping the ftrack's entities.
     '''
     def __init__(self, *args, **kwargs):
