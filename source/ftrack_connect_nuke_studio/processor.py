@@ -62,7 +62,6 @@ class ProcessorPlugin(object):
         '''Initialise processor plugin.'''
         self._defaults = {}
         self._name = name
-        self._widget = None
         self._script = None
 
     def __eq__(self, other):
