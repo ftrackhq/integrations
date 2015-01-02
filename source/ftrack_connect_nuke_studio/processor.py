@@ -7,7 +7,6 @@ import tempfile
 
 import nuke
 import FnAssetAPI
-import assetmgr_hiero
 
 import ftrack_connect_nuke_studio
 
@@ -38,20 +37,6 @@ def config():
 
     setup(processors)
     return processors
-
-
-def frame_range(track_item, frames, handles):
-    '''Return frame range for *track_item*.'''
-    opts = {
-        'numbering': 'custom',
-        'customNumberingStart': frames,
-        'handles': 'custom',
-        'customHandleLength': handles,
-        'includeRetiming': True,
-        'clampToPositive': True
-    }
-
-    return assetmgr_hiero.utils.track.timingsFromTrackItem(track_item, opts)
 
 
 class ProcessorPlugin(object):
