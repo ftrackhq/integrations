@@ -4,7 +4,6 @@ import os
 import re
 
 from setuptools import setup, find_packages
-from setuptools.command.test import test as TestCommand
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
