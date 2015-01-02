@@ -134,12 +134,12 @@ class ProcessorPlugin(object):
             component_name = nuke.String_Knob('component_name')
             node.addKnob(component_name)
 
-    def manage_options(self, data):
+    def get_script_options(self, data):
         '''Return mapping to pass to script using input *data*.
 
-        *data* is a dictionary containing data for generating the final output.
-        this function is expected to return a dictioary within this format:
-        {<NODE_NAME >:{<KNOB_NAME>:<VALUE>}}
+        *data* is a dictionary containing data for generating the final
+        output. this function is expected to return a dictionary within this
+        format: {<NODE_NAME >:{<KNOB_NAME>:<VALUE>}}
 
         the available keys of data are:
 
@@ -156,7 +156,7 @@ class ProcessorPlugin(object):
         - component_name
 
         '''
-        result = {
+        options = {
             'IN': {
                 'first': int(data['source_in']) - int(data['handles']),
                 'last': int(data['source_out']) + int(data['handles']),
@@ -183,13 +183,13 @@ class ProcessorPlugin(object):
         }
 
         # Update defaults
-        result.get('IN', {}).update(self.defaults.get('IN', {}))
-        result.get('OUT', {}).update(self.defaults.get('OUT', {}))
-        result.get('REFORMAT', {}).update(self.defaults.get('REFORMAT', {}))
-        result.get('OFFSET', {}).update(self.defaults.get('OFFSET', {}))
-        result.get('root', {}).update(self.defaults.get('root', {}))
+        options.get('IN', {}).update(self.defaults.get('IN', {}))
+        options.get('OUT', {}).update(self.defaults.get('OUT', {}))
+        options.get('REFORMAT', {}).update(self.defaults.get('REFORMAT', {}))
+        options.get('OFFSET', {}).update(self.defaults.get('OFFSET', {}))
+        options.get('root', {}).update(self.defaults.get('root', {}))
 
-        return result
+        return options
 
     def process(self, data):
         '''Run script against *data*.'''
@@ -203,7 +203,7 @@ class ProcessorPlugin(object):
                 'Missing required IN and OUT nodes.'
             )
 
-        options = self.manage_options(data)
+        options = self.get_script_options(data)
         self._ensure_attributes(write_node)
         self._apply_options_to_nuke_script(options)
 
