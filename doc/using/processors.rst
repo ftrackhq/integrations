@@ -39,10 +39,10 @@ Let start having a look at an example processor, which will be creating and publ
 
             self.script = '${FTRACK_PROCESSOR_PLUGIN_PATH}/publish.nk'
 
-        def get_script_options(self, data):
+        def prepare_data(self, data):
             ''' for informational purpose only here we show the manage_input function
             '''
-            options = super(PublishPlugin, self).get_script_options(data)
+            options = super(PublishPlugin, self).prepare_data(data)
             # define the output file sequence
             format = '.####.%s' % options['OUT']['file_type']
             name = self.name.replace('.', '_')
@@ -106,7 +106,7 @@ The full path to the nuke script which will be used.
 
 How do I customize its behaviour
 ################################
-The base plugin provide a method called *get_script_options*, which will allow you to modify any data which will be set to
+The base plugin provide a method called *prepare_data*, which will allow you to modify any data which will be set to
 the nuke script.
 In this method is common to define the output path for the OUT node, so can be unique.
 

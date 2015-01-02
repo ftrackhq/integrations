@@ -106,14 +106,14 @@ class ProcessorPlugin(object):
             component_name = nuke.String_Knob('component_name')
             node.addKnob(component_name)
 
-    def get_script_options(self, data):
-        '''Return mapping to pass to script using input *data*.
+    def prepare_data(self, data):
+        '''Return data mapping processed from input *data*.
 
         *data* is a dictionary containing data for generating the final
         output. this function is expected to return a dictionary within this
         format: {<NODE_NAME >:{<KNOB_NAME>:<VALUE>}}
 
-        the available keys of data are:
+        The available keys of data are:
 
         - resolution
         - source_in
@@ -175,9 +175,9 @@ class ProcessorPlugin(object):
                 'Missing required IN and OUT nodes.'
             )
 
-        options = self.get_script_options(data)
+        data = self.prepare_data(data)
         self._ensure_attributes(write_node)
-        self._apply_options_to_nuke_script(options)
+        self._apply_options_to_nuke_script(data)
 
         start = write_node['first'].value()
         end = write_node['last'].value()
