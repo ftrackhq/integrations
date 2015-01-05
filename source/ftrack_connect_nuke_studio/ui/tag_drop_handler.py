@@ -50,11 +50,11 @@ class TagDropHandler(object):
                     # somehow the tag.re is empty
                     continue
 
-            result = re.match(match, clip_name)
-            if result:
-                result_value = result.groups()[-1]
-                FnAssetAPI.logging.debug('setting %s to %s on %s' % (tag_name, result_value, clip_name))
-                meta.setValue('tag.value', result_value)
+                result = re.match(match, clip_name)
+                if result:
+                    result_value = result.groups()[-1]
+                    FnAssetAPI.logging.debug('setting %s to %s on %s' % (tag_name, result_value, clip_name))
+                    meta.setValue('tag.value', result_value)
 
     def unregister(self):
         ''' Unregister the handler.
