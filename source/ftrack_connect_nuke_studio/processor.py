@@ -171,8 +171,9 @@ class ProcessorPlugin(object):
                 'Missing required IN and OUT nodes.'
             )
 
+        self.logger.debug('Raw data: {0}'.format(data))
         data = self.prepare_data(data)
-        self.logger.info('Running processor with data: {0}'.format(data))
+        self.logger.debug('Prepared data: {0}'.format(data))
 
         self._ensure_attributes(write_node)
         self._apply_options_to_nuke_script(data)
