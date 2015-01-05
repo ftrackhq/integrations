@@ -141,7 +141,7 @@ class ProcessorPlugin(object):
                 'output_format': data['resolution']
             },
             'OFFSET': {
-                'time_offset': int(data['time_offset'])
+                'time_offset': int(data['time_offset']) + int(data['handles'])
             },
             'root': {
                 'first_frame': int(data['destination_in']),
