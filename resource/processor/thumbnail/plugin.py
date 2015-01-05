@@ -32,7 +32,6 @@ class ThumbnailPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
                 os.path.dirname(__file__), 'script.nk'
             )
         )
-        print os.path.exists(self.script), self.script
 
     def prepare_data(self, data):
         '''Return data mapping processed from input *data*.'''
