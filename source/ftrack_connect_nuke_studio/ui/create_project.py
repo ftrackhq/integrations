@@ -481,10 +481,10 @@ class ProjectTreeDialog(create_project_ui.Ui_CreateProject, QtGui.QDialog):
                                 'source_in': track_in,
                                 'source_out': track_out,
                                 'source_file': source,
-                                'time_offset': offset-track_in,
                                 'destination_in': start,
                                 'destination_out': end,
                                 'fps': fps,
+                                'offset': offset,
                                 'asset_version_id': version_id,
                                 'component_name': component_name,
                                 'handles': handles
