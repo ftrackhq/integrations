@@ -1,9 +1,12 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 
+from __future__ import absolute_import
+
 import os
 import json
 import tempfile
+import logging
 
 import nuke
 import FnAssetAPI
@@ -53,6 +56,9 @@ class ProcessorPlugin(object):
         self.name = 'processor.base'
         self.defaults = {}
         self.script = None
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
 
     def __eq__(self, other):
         '''Return whether this plugin is the same as *other*.'''
@@ -76,7 +82,7 @@ class ProcessorPlugin(object):
                         node[knob_name].setValue(knob_value)
 
                 except Exception:
-                    FnAssetAPI.logging.debug(
+                    self.logger.debug(
                         'No knob {0} on node {1}: {2} not applied.'.format(
                             knob_name, node_name, knob_value
                         )
@@ -166,6 +172,8 @@ class ProcessorPlugin(object):
             )
 
         data = self.prepare_data(data)
+        self.logger.info('Running processor with data: {0}'.format(data))
+
         self._ensure_attributes(write_node)
         self._apply_options_to_nuke_script(data)
 
@@ -175,7 +183,7 @@ class ProcessorPlugin(object):
         temporary_script = tempfile.NamedTemporaryFile(
             suffix='.nk', delete=False, prefix=self.getName()
         )
-        FnAssetAPI.logging.info(
+        self.logger.info(
             'Saving temporary script to "{0}"'.format(temporary_script.name)
         )
         nuke.scriptSaveAs(temporary_script.name)
