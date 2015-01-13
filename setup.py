@@ -61,6 +61,9 @@ configuration = dict(
         '': 'source'
     },
     setup_requires=[
+        'sphinx >= 1.2.2, < 2',
+        'sphinx_rtd_theme >= 0.1.6, < 2',
+        'lowdown >= 0.1.0, < 1'
     ],
     install_requires=[
         'ftrack-python-legacy-api',
@@ -74,7 +77,9 @@ configuration = dict(
         ),
         connect_dependency_link,
         cinesync_dependency_link,
-        connect_legacy_plugins_dependency_link
+        connect_legacy_plugins_dependency_link,
+        ('https://bitbucket.org/ftrack/lowdown/get/master.zip'
+         '#egg=lowdown-0.1.0')
     ],
     options={}
 )
