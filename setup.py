@@ -23,14 +23,14 @@ with open(os.path.join(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
-connect_install_require = 'ftrack-connect >=0.1, < 1'
+connect_install_require = 'ftrack-connect == 0.1.3'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
     'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.3.zip'
     '#egg=ftrack-connect-0.1.3'
 )
 
-cinesync_install_require = 'ftrack-connect-cinesync >=0.1, < 1'
+cinesync_install_require = 'ftrack-connect-cinesync == 0.1.2'
 cinesync_dependency_link = (
     'https://bitbucket.org/ftrack/ftrack-connect-cinesync/get/0.1.2.zip'
     '#egg=ftrack-connect-cinesync-0.1.2'
