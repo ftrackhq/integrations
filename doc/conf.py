@@ -48,9 +48,7 @@ release = _version
 exclude_patterns = ['_template']
 
 # A list of prefixes to ignore for module listings.
-modindex_common_prefix = [
-    'ftrack_connect.', 'ftrack_connect.ui.', 'ftrack_connect.ui.widget.'
-]
+modindex_common_prefix = []
 
 # -- HTML output --------------------------------------------------------------
 
@@ -61,9 +59,6 @@ if not on_rtd:  # only import and set the theme if we're building docs locally
     import sphinx_rtd_theme
     html_theme = 'sphinx_rtd_theme'
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-
-#html_static_path = ['_static']
-#html_style = 'ftrack.css'
 
 # If True, copy source rst files to output for reference.
 html_copy_source = True
@@ -86,11 +81,7 @@ def autodoc_skip(app, what, name, obj, skip, options):
 # -- Intersphinx --------------------------------------------------------------
 
 intersphinx_mapping = {
-    'python': ('http://docs.python.org/', None),
-    'ftrack': ('http://rtd.ftrack.com/docs/ftrack/en/3.0v1/', None),
-    'ftrack-connect': (
-        'http://rtd.ftrack.com/docs/ftrack-connect/en/latest/', None
-    )
+    'python': ('http://docs.python.org/', None)
 }
 
 
