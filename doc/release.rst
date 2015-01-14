@@ -10,7 +10,7 @@ Releases
 
     .. change:: changed
 
-        `Required ftrack server version is 3.0.3 <http://rtd.ftrack.com/docs/ftrack/en/3.0.3/release/release_notes.html>`_ or higher.
+        Required `ftrack server <http://rtd.ftrack.com/docs/ftrack/en/3.0.3/release/release_notes.html>`_ version is 3.0.3 or higher.
 
     .. change:: changed
 
@@ -42,7 +42,7 @@ Releases
 
     .. change:: changed
 
-        `Required ftrack server version is 3.0v1 <http://rtd.ftrack.com/docs/ftrack/en/3.0v1/>`_ or higher.
+        Required `ftrack server <http://rtd.ftrack.com/docs/ftrack/en/3.0v1/release/release_notes.html>`_ version is 3.0v1 or higher.
 
     .. change:: new
 
