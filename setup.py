@@ -23,17 +23,17 @@ with open(os.path.join(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
-connect_install_require = 'ftrack-connect >=0.1, < 1'
+connect_install_require = 'ftrack-connect == 0.1.3'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/master.zip'
-    '#egg=ftrack-connect-0.1.2'
+    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.3.zip'
+    '#egg=ftrack-connect-0.1.3'
 )
 
-cinesync_install_require = 'ftrack-connect-cinesync >=0.1, < 1'
+cinesync_install_require = 'ftrack-connect-cinesync == 0.1.2'
 cinesync_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-cinesync/get/master.zip'
-    '#egg=ftrack-connect-cinesync-0.1.1'
+    'https://bitbucket.org/ftrack/ftrack-connect-cinesync/get/0.1.2.zip'
+    '#egg=ftrack-connect-cinesync-0.1.2'
 )
 
 connect_legacy_plugins_install_require = (
@@ -61,6 +61,9 @@ configuration = dict(
         '': 'source'
     },
     setup_requires=[
+        'sphinx >= 1.2.2, < 2',
+        'sphinx_rtd_theme >= 0.1.6, < 2',
+        'lowdown >= 0.1.0, < 1'
     ],
     install_requires=[
         'ftrack-python-legacy-api',
@@ -74,7 +77,9 @@ configuration = dict(
         ),
         connect_dependency_link,
         cinesync_dependency_link,
-        connect_legacy_plugins_dependency_link
+        connect_legacy_plugins_dependency_link,
+        ('https://bitbucket.org/ftrack/lowdown/get/0.1.0.zip'
+         '#egg=lowdown-0.1.0')
     ],
     options={}
 )
