@@ -171,7 +171,7 @@ if sys.platform in ('darwin', 'win32'):
         (cinesync_resource_hook, 'resource/hook'),
         (cinesync_resource_script, 'resource/script'),
         (ftrack_connect_legacy_plugins_source, 'resource/legacy_plugins'),
-        (ftrack_connect_legacy_plugins_hook, 'resource/hook')
+        (ftrack_connect_legacy_plugins_hook, 'resource/hook'),
         (ftrack_connect_hieroplayer_hook, 'resource/hook'),
         (ftrack_connect_hieroplayer_source, 'resource/hieroplayer'),
         (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook')
