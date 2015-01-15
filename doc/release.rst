@@ -5,6 +5,13 @@
 Releases
 ########
 
+.. release:: next
+    :date: 2015-xx-xx
+
+    .. change:: new
+
+        `ftrack connect hieroplayer 0.1.0 <http://rtd.ftrack.com/docs/ftrack-connect-hieroplayer/en/0.1.0/>`_
+
 .. release:: 0.1.3
     :date: 2015-01-14
 
