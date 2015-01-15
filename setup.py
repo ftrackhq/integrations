@@ -78,7 +78,7 @@ configuration = dict(
         'ftrack-python-legacy-api',
         connect_install_require,
         cinesync_install_require,
-        connect_legacy_plugins_install_require
+        connect_legacy_plugins_install_require,
         connect_hieroplayer_install_require
     ],
     dependency_links=[
@@ -89,7 +89,7 @@ configuration = dict(
         cinesync_dependency_link,
         connect_legacy_plugins_dependency_link,
         ('https://bitbucket.org/ftrack/lowdown/get/0.1.0.zip'
-         '#egg=lowdown-0.1.0')
+         '#egg=lowdown-0.1.0'),
         connect_hieroplayer_dependency_link
     ],
     options={}
@@ -121,13 +121,13 @@ if sys.platform in ('darwin', 'win32'):
         setup_requires=[
             connect_install_require,
             cinesync_install_require,
-            connect_legacy_plugins_install_require
+            connect_legacy_plugins_install_require,
             connect_hieroplayer_install_require
         ],
         dependency_links=[
             cinesync_dependency_link,
             connect_dependency_link,
-            connect_legacy_plugins_dependency_link
+            connect_legacy_plugins_dependency_link,
             connect_hieroplayer_dependency_link
         ]
     ))
