@@ -173,7 +173,8 @@ if sys.platform in ('darwin', 'win32'):
         (ftrack_connect_legacy_plugins_source, 'resource/legacy_plugins'),
         (ftrack_connect_legacy_plugins_hook, 'resource/hook'),
         (ftrack_connect_hieroplayer_hook, 'resource/hook'),
-        (ftrack_connect_hieroplayer_source, 'resource/hieroplayer')
+        (ftrack_connect_hieroplayer_source, 'resource/hieroplayer'),
+        (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook')
     ]
 
     executables = []
