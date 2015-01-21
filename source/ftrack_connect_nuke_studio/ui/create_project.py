@@ -8,6 +8,8 @@ import getpass
 import FnAssetAPI.logging
 from FnAssetAPI.ui.toolkit import QtGui, QtCore
 
+from .widget import Resolution, Fps, Workflow
+
 from ftrack_connect import worker
 from ftrack_connect_nuke_studio.ui import create_project_ui
 from ftrack_connect_nuke_studio.ui.helper import (
@@ -231,7 +233,7 @@ class FTrackServerHelper(object):
 
 
 
-class ProjectTreeDialog(create_project_ui.Ui_CreateProject, QtGui.QDialog):
+class ProjectTreeDialog(QtGui.QDialog):
 
     processor_ready = QtCore.Signal(object)
 
@@ -247,7 +249,7 @@ class ProjectTreeDialog(create_project_ui.Ui_CreateProject, QtGui.QDialog):
         #     )
         #     return
 
-        self.setupUi(self)
+        self.create_ui_widgets()
         self.processors = config()
         self.data = data
         self.setWindowTitle('Create ftrack project')
@@ -272,8 +274,10 @@ class ProjectTreeDialog(create_project_ui.Ui_CreateProject, QtGui.QDialog):
         self.treeView.setAnimated(True)
         self.treeView.header().setResizeMode(QtGui.QHeaderView.ResizeMode.ResizeToContents)
 
-        # signals
+        # Connect signals.
         self.pushButton_create.clicked.connect(self.on_create_project)
+        self.close_button.clicked.connect(self.on_close_dialog)
+
         self.treeView.selectionModel().selectionChanged.connect(self.on_tree_item_selection)
         self.worker.started.connect(self.busyOverlay.show)
         self.worker.finished.connect(self.on_project_preview_done)
@@ -286,6 +290,119 @@ class ProjectTreeDialog(create_project_ui.Ui_CreateProject, QtGui.QDialog):
 
         # start populating the tree
         self.worker.start()
+
+    def create_ui_widgets(self):
+        '''Setup ui for create dialog.'''
+        self.setObjectName('CreateProject')
+        self.resize(900, 636)
+
+        self.verticalLayout_2 = QtGui.QVBoxLayout(self)
+        self.verticalLayout_2.setObjectName('verticalLayout_2')
+
+        self.groupBox = QtGui.QGroupBox('General Settings', parent=self)
+        self.groupBox.setMaximumSize(QtCore.QSize(16777215, 200))
+        self.groupBox.setObjectName('groupBox')
+
+        self.verticalLayout = QtGui.QVBoxLayout(self.groupBox)
+        self.verticalLayout.setObjectName('verticalLayout')
+
+        self.horizontalLayout = QtGui.QHBoxLayout()
+        self.horizontalLayout.setObjectName('horizontalLayout')
+
+        self.label = QtGui.QLabel('Workflow', parent=self.groupBox)
+        self.label.setObjectName('label')
+        self.horizontalLayout.addWidget(self.label)
+
+        self.comboBox_workflow = Workflow(self.groupBox)
+        self.comboBox_workflow.setObjectName('comboBox_workflow')
+        self.horizontalLayout.addWidget(self.comboBox_workflow)
+
+        self.verticalLayout.addLayout(self.horizontalLayout)
+
+        self.line = QtGui.QFrame(self.groupBox)
+        self.line.setFrameShape(QtGui.QFrame.HLine)
+        self.line.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line.setObjectName('line')
+        self.verticalLayout.addWidget(self.line)
+
+        self.horizontalLayout_2 = QtGui.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName('horizontalLayout_2')
+
+        self.resolutionLabel = QtGui.QLabel('Resolution', parent=self.groupBox)
+        self.resolutionLabel.setObjectName('resolutionLabel')
+        self.horizontalLayout_2.addWidget(self.resolutionLabel)
+
+        self.comboBox_resolution = Resolution(self.groupBox)
+        self.comboBox_resolution.setObjectName('comboBox_resolution')
+        self.horizontalLayout_2.addWidget(self.comboBox_resolution)
+        self.verticalLayout.addLayout(self.horizontalLayout_2)
+
+        self.horizontalLayout_3 = QtGui.QHBoxLayout()
+        self.horizontalLayout_3.setObjectName('horizontalLayout_3')
+
+        self.fpsLabel = QtGui.QLabel('Frames Per Second', parent=self.groupBox)
+        self.fpsLabel.setObjectName('label_3')
+        self.horizontalLayout_3.addWidget(self.fpsLabel)
+
+        self.comboBox_fps = Fps(self.groupBox)
+        self.comboBox_fps.setObjectName('comboBox_fps')
+        self.horizontalLayout_3.addWidget(self.comboBox_fps)
+
+        self.verticalLayout.addLayout(self.horizontalLayout_3)
+
+        self.horizontalLayout_4 = QtGui.QHBoxLayout()
+        self.horizontalLayout_4.setObjectName('horizontalLayout_4')
+
+        self.handlesLabel = QtGui.QLabel('Handles', parent=self.groupBox)
+        self.handlesLabel.setObjectName('handlesLabel')
+        self.horizontalLayout_4.addWidget(self.handlesLabel)
+
+        self.spinBox_handles = QtGui.QSpinBox(self.groupBox)
+        self.spinBox_handles.setProperty('value', 5)
+        self.spinBox_handles.setObjectName('spinBox_handles')
+        self.horizontalLayout_4.addWidget(self.spinBox_handles)
+
+        self.verticalLayout.addLayout(self.horizontalLayout_4)
+
+        self.horizontalLayout_5 = QtGui.QHBoxLayout()
+        self.horizontalLayout_5.setObjectName('horizontalLayout_5')
+
+        self.stratFrameOffsetLabel = QtGui.QLabel('Start frame offset', parent=self.groupBox)
+        self.stratFrameOffsetLabel.setObjectName('stratFrameOffsetLabel')
+        self.horizontalLayout_5.addWidget(self.stratFrameOffsetLabel)
+
+        self.spinBox_offset = QtGui.QSpinBox(self.groupBox)
+        self.spinBox_offset.setMaximum(9999)
+        self.spinBox_offset.setProperty('value', 1001)
+        self.spinBox_offset.setObjectName('spinBox_offset')
+        self.horizontalLayout_5.addWidget(self.spinBox_offset)
+        self.verticalLayout.addLayout(self.horizontalLayout_5)
+        self.verticalLayout_2.addWidget(self.groupBox)
+
+        self.splitter = QtGui.QSplitter(self)
+        self.splitter.setOrientation(QtCore.Qt.Horizontal)
+        self.splitter.setObjectName('splitter')
+        self.treeView = QtGui.QTreeView(self.splitter)
+        self.treeView.setObjectName('treeView')
+
+        self.toolBox = QtGui.QToolBox(self.splitter)
+        self.toolBox.setMinimumSize(QtCore.QSize(300, 0))
+        self.toolBox.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.toolBox.setObjectName('toolBox')
+
+        self.verticalLayout_2.addWidget(self.splitter)
+
+        self.bottom_button_layout = QtGui.QHBoxLayout()
+        self.verticalLayout_2.addLayout(self.bottom_button_layout)
+
+        self.close_button = QtGui.QPushButton('Close', parent=self)
+        self.bottom_button_layout.addWidget(self.close_button)
+
+        self.pushButton_create = QtGui.QPushButton('Create', parent=self)
+        self.pushButton_create.setObjectName('pushButton_create')
+        self.bottom_button_layout.addWidget(self.pushButton_create)
+
+        QtCore.QMetaObject.connectSlotsByName(self)
 
     def on_project_exists(self, name):
         if self.comboBox_workflow.isEnabled():
@@ -374,6 +491,10 @@ class ProjectTreeDialog(create_project_ui.Ui_CreateProject, QtGui.QDialog):
                         data_layout.addLayout(knob_layout)
 
             self.toolBox.addItem(widget, asset_name)
+
+    def on_close_dialog(self):
+        '''Signal trigged when close dialog button is pressed.'''
+        self.reject()
 
     def on_create_project(self):
         ''' Signal triggered when the create project button gets pressed.
