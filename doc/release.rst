@@ -16,6 +16,12 @@ Releases
 
         `ftrack connect hieroplayer 0.1.0 <http://rtd.ftrack.com/docs/ftrack-connect-hieroplayer/en/0.1.0/>`_
 
+    .. change:: new
+
+        :term:`Adobe Photoshop` added as application to launch from
+        :ref:`Actions <ftrack:using/actions>` on tasks and versions. Read more
+        about how to install and use the :ref:`Adobe Photoshop extension here <ftrack-connect-photoshop:installing>`.
+
 .. release:: 0.1.3
     :date: 2015-01-14
 
