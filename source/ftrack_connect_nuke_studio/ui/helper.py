@@ -113,6 +113,24 @@ class TagTreeOverlay(_overlay.BusyOverlay):
         ''')
 
 
+def is_valid_tag_structure(tag_data):
+    '''Return true if *tag_data* is valid.'''
+    for track_item, context_tags in tag_data:
+        if (
+            not context_tags or
+            not any([
+                tag.metadata().value('ftrack.type') == 'show'
+                for tag in context_tags
+            ])
+        ):
+            return False, (
+                'Project tag is missing from clip {0}. Use Tags to add '
+                'context on clips.'
+            ).format(track_item.name())
+
+    return True, 'Success'
+
+
 def treeDataFactory(tagDataList):
     ''' Build a tree of TagItem out of a set of ftags.
     '''
@@ -143,8 +161,12 @@ def treeDataFactory(tagDataList):
     # Create the root item
     root_item = _TagItem(root)
 
+    #print 'tagDataList', tagDataList
+
     # Look into the tags and start creating the hierarchy
     for trackItem, context in tagDataList:
+
+        #print 'trackItem', trackItem, 'context', context
 
         # A clip entry, therefore the previous item is root
         previous_item = root_item
@@ -179,5 +201,7 @@ def treeDataFactory(tagDataList):
                 previous_item = tag
 
             tag.exists = itemExists(tag)
+
+    #print 'Root item', root_item, root_item.type, root_item.entity ,dir(root_item)
 
     return root_item

@@ -17,7 +17,8 @@ from ftrack_connect_nuke_studio.ui.helper import (
     TagTreeOverlay,
     timeFromTrackItem,
     timecodeFromTrackItem,
-    sourceFromTrackItem
+    sourceFromTrackItem,
+    is_valid_tag_structure
 )
 
 from ftrack_connect_nuke_studio.ui.tag_tree_model import TagTreeModel
@@ -286,15 +287,21 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.spinBox_handles.valueChanged.connect(self._refresh_tree)
         self.processor_ready.connect(self.on_processor_ready)
 
-        self.setDisabled(True)
+        tag_strucutre_valid, reason = is_valid_tag_structure(self.data)
+        if not tag_strucutre_valid:
+            self.messageArea.setText('WARNING: ' + reason)
+            self.pushButton_create.setEnabled(False)
+            self.messageArea.setVisible(True)
+        else:
+            self.setDisabled(True)
 
-        # start populating the tree
-        self.worker.start()
+            # Start populating the tree.
+            self.worker.start()
 
     def create_ui_widgets(self):
         '''Setup ui for create dialog.'''
         self.setObjectName('CreateProject')
-        self.resize(900, 636)
+        self.resize(900, 640)
 
         self.verticalLayout_2 = QtGui.QVBoxLayout(self)
         self.verticalLayout_2.setObjectName('verticalLayout_2')
@@ -392,6 +399,23 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         self.verticalLayout_2.addWidget(self.splitter)
 
+        self.messageArea = QtGui.QLabel('', parent=self)
+        self.messageArea.resize(QtCore.QSize(900, 80))        
+        self.messageArea.setSizePolicy(
+            QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed
+        )
+        self.messageArea.setVisible(False)
+
+        #: TODO: Move styling to separate css / sass files.
+        self.messageArea.setStyleSheet('''
+            QLabel {
+                background-color: rgba(95, 58, 58, 200);
+                padding: 10px;
+                border: none;
+            }
+        ''')
+        self.verticalLayout_2.addWidget(self.messageArea)
+
         self.bottom_button_layout = QtGui.QHBoxLayout()
         self.verticalLayout_2.addLayout(self.bottom_button_layout)
 
@@ -448,12 +472,6 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.busyOverlay.hide()
         self.pushButton_create.setEnabled(True)
         self.tag_model.setRoot(self.worker.result)
-
-    def on_treeCheck(self):
-        ''' signal to notify we are populating the tree.
-        '''
-        self.pushButton_create.setDisabled(True)
-        self.busyOverlay.show()
 
     def on_tree_item_selection(self, selected, deselected):
         ''' signal triggered when a tree item gets selected.
