@@ -23,11 +23,11 @@ with open(os.path.join(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
-connect_install_require = 'ftrack-connect == 0.1.3'
+connect_install_require = 'ftrack-connect == 0.1.4'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.3.zip'
-    '#egg=ftrack-connect-0.1.3'
+    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.4.zip'
+    '#egg=ftrack-connect-0.1.4'
 )
 
 cinesync_install_require = 'ftrack-connect-cinesync == 0.1.2'
@@ -50,8 +50,8 @@ connect_hieroplayer_install_require = (
     ' >=0.1, < 1'
 )
 connect_hieroplayer_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-hieroplayer/get/0.1.0.zip'
-    '#egg=ftrack-connect-hieroplayer-0.1.0'
+    'https://bitbucket.org/ftrack/ftrack-connect-hieroplayer/get/0.1.1.zip'
+    '#egg=ftrack-connect-hieroplayer-0.1.1'
 )
 
 # General configuration.

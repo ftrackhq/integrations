@@ -5,16 +5,20 @@
 Releases
 ########
 
-.. release:: next
-    :date: 2015-xx-xx
+.. release:: 0.1.4
+    :date: 2015-01-23
 
     .. change:: changed
 
-        Required `ftrack server <http://rtd.ftrack.com/docs/ftrack/en/3.0.4/release/release_notes.html>`_ version is 3.0.4 or higher.
+        Required `ftrack server <http://rtd.ftrack.com/docs/ftrack/en/3.0.5/release/release_notes.html>`_ version is 3.0.5 or higher.
+
+    .. change:: changed
+
+        `ftrack connect 0.1.4 <http://rtd.ftrack.com/docs/ftrack-connect/en/0.1.4/>`_
 
     .. change:: new
 
-        `ftrack connect hieroplayer 0.1.0 <http://rtd.ftrack.com/docs/ftrack-connect-hieroplayer/en/0.1.0/>`_
+        `ftrack connect hieroplayer 0.1.1 <http://rtd.ftrack.com/docs/ftrack-connect-hieroplayer/en/0.1.1/>`_
 
     .. change:: new
 
