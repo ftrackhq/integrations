@@ -5,6 +5,27 @@
 Releases
 ########
 
+.. release:: 0.1.4
+    :date: 2015-01-23
+
+    .. change:: changed
+
+        Required `ftrack server <http://rtd.ftrack.com/docs/ftrack/en/3.0.5/release/release_notes.html>`_ version is 3.0.5 or higher.
+
+    .. change:: changed
+
+        `ftrack connect 0.1.4 <http://rtd.ftrack.com/docs/ftrack-connect/en/0.1.4/>`_
+
+    .. change:: new
+
+        `ftrack connect hieroplayer 0.1.1 <http://rtd.ftrack.com/docs/ftrack-connect-hieroplayer/en/0.1.1/>`_
+
+    .. change:: new
+
+        :term:`Adobe Photoshop` added as application to launch from
+        :ref:`Actions <ftrack:using/actions>` on tasks and versions. Read more
+        about how to install and use the :ref:`Adobe Photoshop extension here <ftrack-connect-photoshop:installing>`.
+
 .. release:: 0.1.3
     :date: 2015-01-14
 

@@ -23,11 +23,11 @@ with open(os.path.join(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
-connect_install_require = 'ftrack-connect == 0.1.3'
+connect_install_require = 'ftrack-connect == 0.1.4'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.3.zip'
-    '#egg=ftrack-connect-0.1.3'
+    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.4.zip'
+    '#egg=ftrack-connect-0.1.4'
 )
 
 cinesync_install_require = 'ftrack-connect-cinesync == 0.1.2'
@@ -43,6 +43,15 @@ connect_legacy_plugins_install_require = (
 connect_legacy_plugins_dependency_link = (
     'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.0'
     .format(os.environ['FTRACK_CONNECT_LEGACY_PLUGINS_PATH'].replace('\\', '/'))
+)
+
+connect_hieroplayer_install_require = (
+    'ftrack-connect-hieroplayer'
+    ' >=0.1, < 1'
+)
+connect_hieroplayer_dependency_link = (
+    'https://bitbucket.org/ftrack/ftrack-connect-hieroplayer/get/0.1.1.zip'
+    '#egg=ftrack-connect-hieroplayer-0.1.1'
 )
 
 # General configuration.
@@ -69,7 +78,8 @@ configuration = dict(
         'ftrack-python-legacy-api',
         connect_install_require,
         cinesync_install_require,
-        connect_legacy_plugins_install_require
+        connect_legacy_plugins_install_require,
+        connect_hieroplayer_install_require
     ],
     dependency_links=[
         'file://{0}#egg=ftrack-python-legacy-api'.format(
@@ -79,7 +89,8 @@ configuration = dict(
         cinesync_dependency_link,
         connect_legacy_plugins_dependency_link,
         ('https://bitbucket.org/ftrack/lowdown/get/0.1.0.zip'
-         '#egg=lowdown-0.1.0')
+         '#egg=lowdown-0.1.0'),
+        connect_hieroplayer_dependency_link
     ],
     options={}
 )
@@ -110,12 +121,14 @@ if sys.platform in ('darwin', 'win32'):
         setup_requires=[
             connect_install_require,
             cinesync_install_require,
-            connect_legacy_plugins_install_require
+            connect_legacy_plugins_install_require,
+            connect_hieroplayer_install_require
         ],
         dependency_links=[
             cinesync_dependency_link,
             connect_dependency_link,
-            connect_legacy_plugins_dependency_link
+            connect_legacy_plugins_dependency_link,
+            connect_hieroplayer_dependency_link
         ]
     ))
     connect_resource_hook = pkg_resources.resource_filename(
@@ -143,12 +156,25 @@ if sys.platform in ('darwin', 'win32'):
         'ftrack_connect_legacy_plugins/hook'
     )
 
+    ftrack_connect_hieroplayer_source = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-connect-hieroplayer'),
+        'ftrack_connect_hieroplayer_source'
+    )
+
+    ftrack_connect_hieroplayer_hook = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-connect-hieroplayer'),
+        'ftrack_connect_hieroplayer_resource/hook'
+    )
+
     include_files = [
         (connect_resource_hook, 'resource/hook'),
         (cinesync_resource_hook, 'resource/hook'),
         (cinesync_resource_script, 'resource/script'),
         (ftrack_connect_legacy_plugins_source, 'resource/legacy_plugins'),
-        (ftrack_connect_legacy_plugins_hook, 'resource/hook')
+        (ftrack_connect_legacy_plugins_hook, 'resource/hook'),
+        (ftrack_connect_hieroplayer_hook, 'resource/hook'),
+        (ftrack_connect_hieroplayer_source, 'resource/hieroplayer'),
+        (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook')
     ]
 
     executables = []
