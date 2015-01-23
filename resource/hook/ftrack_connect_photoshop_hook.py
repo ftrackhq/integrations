@@ -168,7 +168,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 expression=(
                     prefix +
                     ['Adobe', 'Adobe Photoshop CC .+',
-                     'Adobe Photoshop.exe']
+                     'Photoshop.exe']
                 ),
                 label='Photoshop CC {version}',
                 applicationIdentifier='photoshop_cc_{version}',
