@@ -36,7 +36,7 @@ OSX::
     
     $ npm install -g appdmg
     $ python setup.py bdist_mac
-    $ appdmg resource/appdmg.json build/ftrack-connect.dmg
+    $ appdmg resource/appdmg.json build/ftrack-connect-package-X.X.X.dmg
 
 Known Issues
 ============
