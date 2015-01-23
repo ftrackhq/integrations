@@ -2,17 +2,18 @@
 # :copyright: Copyright (c) 2014 ftrack
 
 import ftrack
-from ftrack_connect.ui.widget import overlay as _overlay
-from ftrack_connect_nuke_studio.ui.tag_item import TagItem as _TagItem
-import ftrack_connect_nuke_studio
-import assetmgr_hiero
-
 import hiero
 
+import assetmgr_hiero
 
-def sourceFromTrackItem(item):
-    ''' Extract the source material from the give nuke studio's trackItem.
-    '''
+from ftrack_connect.ui.widget import overlay as _overlay
+from ftrack_connect_nuke_studio.ui.tag_item import TagItem as _TagItem
+
+import ftrack_connect_nuke_studio
+
+
+def source_from_track_item(item):
+    '''Return source material from nuke studio's trackItem *item*.'''
     clip = item.source()
     media = clip.mediaSource()
     file_info = media.fileinfos()[0]
@@ -20,47 +21,49 @@ def sourceFromTrackItem(item):
     return file_path
 
 
-def timecodeFromTrackItem(item):
-    ''' Extract timecode infomrations from the given nuke studio's trackItem.
-    '''
+def timecode_from_track_item(item):
+    '''Return timecode information nuke studio's trackItem *item*.'''
     sourceTimecodeIn = item.source().timecodeStart() + item.sourceIn()
     sourceTimecodeOut = item.source().timecodeStart() + item.sourceOut()
 
-    destinationTimecodeIn = item.parentSequence().timecodeStart() + item.timelineIn()
-    destinationTimecodeOut = item.parentSequence().timecodeStart() + item.timelineOut()
+    destinationTimecodeIn = item.parentSequence(
+    ).timecodeStart() + item.timelineIn()
+    destinationTimecodeOut = item.parentSequence(
+    ).timecodeStart() + item.timelineOut()
 
     framerate = item.parentSequence().framerate()
-    _in_src = hiero.core.Timecode.timeToString(sourceTimecodeIn, framerate, hiero.core.Timecode.kDisplayTimecode, False)
-    _out_src = hiero.core.Timecode.timeToString(sourceTimecodeOut, framerate, hiero.core.Timecode.kDisplayTimecode, False)
+    _in_src = hiero.core.Timecode.timeToString(
+        sourceTimecodeIn, framerate, hiero.core.Timecode.kDisplayTimecode, False)
+    _out_src = hiero.core.Timecode.timeToString(
+        sourceTimecodeOut, framerate, hiero.core.Timecode.kDisplayTimecode, False)
 
-    _in_dst = hiero.core.Timecode.timeToString(destinationTimecodeIn, framerate, hiero.core.Timecode.kDisplayTimecode, False)
-    _out_dst = hiero.core.Timecode.timeToString(destinationTimecodeOut, framerate, hiero.core.Timecode.kDisplayTimecode, False)
+    _in_dst = hiero.core.Timecode.timeToString(
+        destinationTimecodeIn, framerate, hiero.core.Timecode.kDisplayTimecode, False)
+    _out_dst = hiero.core.Timecode.timeToString(
+        destinationTimecodeOut, framerate, hiero.core.Timecode.kDisplayTimecode, False)
 
     return _in_src, _out_src, _in_dst, _out_dst
 
 
-def timeFromTrackItem(item, parent):
-    ''' Extract time infomrations from the given nuke studio's trackItem.
-    '''
+def time_from_track_item(item, parent):
+    '''Return time information nuke studio's trackItem *item*.'''
     handles = parent.handles_spinbox.value()
     frames = parent.start_frame_offset_spinbox.value()
 
     opts = {
-        'numbering' : ('custom' ), # custom
-        'customNumberingStart' : frames,
-        'handles' : ('custom' ), # custom
-        'customHandleLength' : handles,
-        'includeRetiming' : True,
-        'clampToPositive' : True
+        'numbering': ('custom'),  # custom
+        'customNumberingStart': frames,
+        'handles': ('custom'),  # custom
+        'customHandleLength': handles,
+        'includeRetiming': True,
+        'clampToPositive': True
     }
 
     return assetmgr_hiero.utils.track.timingsFromTrackItem(item, opts)
 
 
-def itemExists(item):
-    ''' Check if the given item exists on the server already
-    '''
-
+def item_exists(item):
+    '''Return entity if *item* exists on the server, otherwise false.'''
     path = []
 
     parent = item.parent
@@ -79,19 +82,21 @@ def itemExists(item):
     if not path:
         return False
 
-    data = {'type':'frompath','path':path}
+    data = {'type': 'frompath', 'path': path}
     try:
-        result = ftrack.xmlServer.action('get',data)
+        result = ftrack.xmlServer.action('get', data)
     except ftrack.api.ftrackerror.FTrackError:
         result = False
 
     return result
 
 
-
+#: TODO: Remove this when styling is in a separate file.
 class TagTreeOverlay(_overlay.BusyOverlay):
-    '''custom reimplementation for style purposes'''
+    '''Custom reimplementation for style purposes'''
+
     def __init__(self, parent=None):
+        '''Initiate and set style sheet.'''
         super(TagTreeOverlay, self).__init__(parent=parent)
 
         self.setStyleSheet('''
@@ -131,63 +136,54 @@ def is_valid_tag_structure(tag_data):
     return True, 'Success'
 
 
-def treeDataFactory(tagDataList):
-    ''' Build a tree of TagItem out of a set of ftags.
-    '''
-
+def tree_data_factory(tag_data_list):
+    '''Return tree of TagItems out of a set of ftags om *tag_data_list*.'''
     processors = ftrack_connect_nuke_studio.processor.config()
 
-    # Define tag type sort orders
+    # Define tag type sort orders.
     tag_sort_order = [
         'root',
         'show',
         'episode',
         'sequence',
         'shot',
-        'task',
-        # 'asset',
-        # 'assetVersion',
-        # 'component'
+        'task'
     ]
 
-    # Create root node for the tree
+    # Create root node for the tree.
     root = {
-        'ftrack.id':'0',
-        'ftrack.type':'root',
+        'ftrack.id': '0',
+        'ftrack.type': 'root',
         'tag.value': 'root',
         'ftrack.name': 'ftrack'
     }
 
-    # Create the root item
+    # Create the root item.
     root_item = _TagItem(root)
 
-    #print 'tagDataList', tagDataList
+    # Look into the tags and start creating the hierarchy.
+    for trackItem, context in tag_data_list:
 
-    # Look into the tags and start creating the hierarchy
-    for trackItem, context in tagDataList:
-
-        #print 'trackItem', trackItem, 'context', context
-
-        # A clip entry, therefore the previous item is root
+        # A clip entry, therefore the previous item is root.
         previous_item = root_item
 
-        # Sort the tags, so we have them in the correct context order
+        # Sort the tags, so we have them in the correct context order.
         def sort_context(x):
             if x.metadata().value('ftrack.type') in tag_sort_order:
                 return tag_sort_order.index(x.metadata().value('ftrack.type'))
 
-        context = sorted(context, key=lambda x : sort_context(x))
+        context = sorted(context, key=lambda x: sort_context(x))
 
         for hiero_tag in context:
-
             tag = _TagItem(hiero_tag.metadata().dict())
             tag.track = trackItem
 
             if tag.type not in tag_sort_order:
-                # The given tag is not part of any known context
+                # The given tag is not part of any known context.
                 continue
 
-            # Check if this tag already is children of the previous item and, in case, re use it.
+            # Check if this tag already is children of the previous item and,
+            # in case, re use it.
             if tag in previous_item.children:
                 index = previous_item.children.index(tag)
                 tag = previous_item.children[index]
@@ -200,8 +196,6 @@ def treeDataFactory(tagDataList):
             else:
                 previous_item = tag
 
-            tag.exists = itemExists(tag)
-
-    #print 'Root item', root_item, root_item.type, root_item.entity ,dir(root_item)
+            tag.exists = item_exists(tag)
 
     return root_item

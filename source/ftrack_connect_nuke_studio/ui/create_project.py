@@ -13,11 +13,11 @@ from .widget import Resolution, Fps, Workflow
 from ftrack_connect import worker
 from ftrack_connect_nuke_studio.ui import create_project_ui
 from ftrack_connect_nuke_studio.ui.helper import (
-    treeDataFactory,
+    tree_data_factory,
     TagTreeOverlay,
-    timeFromTrackItem,
-    timecodeFromTrackItem,
-    sourceFromTrackItem,
+    time_from_track_item,
+    timecode_from_track_item,
+    source_from_track_item,
     is_valid_tag_structure
 )
 
@@ -112,8 +112,8 @@ class FTrackServerHelper(object):
             'handles': handles
         }
 
-        in_src, out_src, in_dst, out_dst = timecodeFromTrackItem(trackItem)
-        source = sourceFromTrackItem(trackItem)
+        in_src, out_src, in_dst, out_dst = timecode_from_track_item(trackItem)
+        source = source_from_track_item(trackItem)
 
         metadata = {
             'time code src In': in_src,
@@ -277,7 +277,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.tag_model = TagTreeModel(tree_data=fake_root, parent=self)
 
         # Set the data tree asyncronus.
-        self.worker = worker.Worker(treeDataFactory, [self.data])
+        self.worker = worker.Worker(tree_data_factory, [self.data])
         self.worker.finished.connect(self.on_set_tree_root)
         self.project_worker = None
 
@@ -509,6 +509,11 @@ class ProjectTreeDialog(QtGui.QDialog):
 
     def on_create_project(self):
         '''Handle signal triggered when the create project button gets pressed.'''
+        QtGui.QApplication.setOverrideCursor(
+            QtGui.QCursor(QtCore.Qt.WaitCursor)
+        )
+        self.setDisabled(True)
+
         items = self.tag_model.root.children
         self.project_worker = worker.Worker(
             self.create_project, (items, self.tag_model.root)
@@ -523,11 +528,6 @@ class ProjectTreeDialog(QtGui.QDialog):
         if self.project_worker.error:
             raise self.project_worker.error[1], None, self.project_worker.error[2]
 
-        QtGui.QApplication.setOverrideCursor(
-            QtGui.QCursor(QtCore.Qt.WaitCursor)
-        )
-        self.setDisabled(True)
-
     def on_project_created(self):
         '''Handle signal triggered when the project creation finishes.'''
         information = (
@@ -539,6 +539,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         QtGui.QMessageBox.information(
             self, 'Done!', information
         )
+
         self.setDisabled(False)
 
     def _refresh_tree(self):
@@ -560,8 +561,8 @@ class ProjectTreeDialog(QtGui.QDialog):
             # gather all the useful informations from the track
             track_in = int(datum.track.sourceIn())
             track_out = int(datum.track.sourceOut())
-            source = sourceFromTrackItem(datum.track)
-            start, end, in_, out = timeFromTrackItem(datum.track, self)
+            source = source_from_track_item(datum.track)
+            start, end, in_, out = time_from_track_item(datum.track, self)
             fps = self.fps_combobox.currentText()
             resolution = self.resolution_combobox.currentFormat()
             offset = self.start_frame_offset_spinbox.value()
@@ -607,10 +608,14 @@ class ProjectTreeDialog(QtGui.QDialog):
                     FnAssetAPI.logging.debug(
                         'Setting metadata to %s' % datum.name)
                     self.server_helper.set_entity_data(
-                        result[1], result[0], datum.track, start, end, resolution, fps, handles)
+                        result[1], result[0], datum.track,
+                        start, end, resolution, fps, handles
+                    )
 
                 if datum.type == 'task':
+                    print datum.name
                     processor = self.processors.get(datum.name)
+                    print processor
 
                     if not processor:
                         continue
@@ -618,11 +623,13 @@ class ProjectTreeDialog(QtGui.QDialog):
                     asset_names = processor.keys()
                     for asset_name in asset_names:
                         asset = self.server_helper.create_asset(
-                            asset_name, previous)
+                            asset_name, previous
+                        )
                         asset_id = asset.get('assetid')
 
                         version_id = self.server_helper.create_asset_version(
-                            asset_id, result)
+                            asset_id, result
+                        )
 
                         for component_name, component_fn in processor[asset_name].items():
                             out_data = {

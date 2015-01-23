@@ -4,7 +4,7 @@
 from FnAssetAPI.ui.toolkit import QtGui, QtCore
 import ftrack
 from ftrack_connect.ui.model.entity_tree import EntityTreeModel
-from ftrack_connect_nuke_studio.ui.helper import timeFromTrackItem, timecodeFromTrackItem, sourceFromTrackItem
+from ftrack_connect_nuke_studio.ui.helper import time_from_track_item, timecode_from_track_item, source_from_track_item
 
 
 class TagTreeModel(EntityTreeModel):
@@ -61,9 +61,9 @@ class TagTreeModel(EntityTreeModel):
                 self.project_exists.emit(item.name)
 
             if item.type == 'shot':
-                start, end, in_, out = timeFromTrackItem(item.track, self.parentWidget)
-                in_src, out_src, in_dst, out_dst = timecodeFromTrackItem(item.track)
-                source = sourceFromTrackItem(item.track)
+                start, end, in_, out = time_from_track_item(item.track, self.parentWidget)
+                in_src, out_src, in_dst, out_dst = timecode_from_track_item(item.track)
+                source = source_from_track_item(item.track)
 
                 if column_name == 'Start':
                     return start
