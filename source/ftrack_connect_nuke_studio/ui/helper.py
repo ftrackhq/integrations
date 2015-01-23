@@ -42,14 +42,14 @@ def timecodeFromTrackItem(item):
 def timeFromTrackItem(item, parent):
     ''' Extract time infomrations from the given nuke studio's trackItem.
     '''
-    hadles = parent.spinBox_handles.value()
-    frames = parent.spinBox_offset.value()
+    handles = parent.handles_spinbox.value()
+    frames = parent.start_frame_offset_spinbox.value()
 
     opts = {
         'numbering' : ('custom' ), # custom
         'customNumberingStart' : frames,
         'handles' : ('custom' ), # custom
-        'customHandleLength' : hadles,
+        'customHandleLength' : handles,
         'includeRetiming' : True,
         'clampToPositive' : True
     }

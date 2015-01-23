@@ -302,7 +302,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.worker.finished.connect(self.on_project_preview_done)
         self.tag_model.project_exists.connect(self.on_project_exists)
         self.start_frame_offset_spinbox.valueChanged.connect(self._refresh_tree)
-        self.spinBox_handles.valueChanged.connect(self._refresh_tree)
+        self.handles_spinbox.valueChanged.connect(self._refresh_tree)
         self.processor_ready.connect(self.on_processor_ready)
 
         # Validate tag structure and set warning if there are any errors.  
@@ -367,9 +367,9 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.handles_label = QtGui.QLabel('Handles', parent=self.group_box)
         self.handles_layout.addWidget(self.handles_label)
 
-        self.spinBox_handles = QtGui.QSpinBox(self.group_box)
-        self.spinBox_handles.setProperty('value', 5)
-        self.handles_layout.addWidget(self.spinBox_handles)
+        self.handles_spinbox = QtGui.QSpinBox(self.group_box)
+        self.handles_spinbox.setProperty('value', 5)
+        self.handles_layout.addWidget(self.handles_spinbox)
 
         self.group_box_layout.addLayout(self.handles_layout)
 
@@ -445,7 +445,7 @@ class ProjectTreeDialog(QtGui.QDialog):
             fps_index = self.fps_combobox.findText(fps)
             self.fps_combobox.setCurrentIndex(fps_index)
 
-            self.spinBox_handles.setValue(int(handles))
+            self.handles_spinbox.setValue(int(handles))
 
             self.start_frame_offset_spinbox.setValue(int(offset))
 
@@ -565,7 +565,7 @@ class ProjectTreeDialog(QtGui.QDialog):
             fps = self.fps_combobox.currentText()
             resolution = self.resolution_combobox.currentFormat()
             offset = self.start_frame_offset_spinbox.value()
-            handles = self.spinBox_handles.value()
+            handles = self.handles_spinbox.value()
 
             if datum.type == 'show':
                 if datum.exists:
