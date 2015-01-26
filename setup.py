@@ -200,7 +200,10 @@ if sys.platform in ('darwin', 'win32'):
 
         configuration['options']['bdist_mac'] = {
             'iconfile': './logo.icns',
-            'bundle_name': 'ftrack-connect'
+            'bundle_name': 'ftrack-connect',
+            'custom_info_plist': os.path.join(
+                RESOURCE_PATH, 'Info.plist'
+            )
         }
 
         configuration['options']['bdist_dmg'] = {
