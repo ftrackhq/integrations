@@ -27,7 +27,7 @@ connect_install_require = 'ftrack-connect == 0.1.5'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
     'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.5.zip'
-    '#egg=ftrack-connect-0.1.4'
+    '#egg=ftrack-connect-0.1.5'
 )
 
 cinesync_install_require = 'ftrack-connect-cinesync == 0.1.2'
@@ -41,7 +41,7 @@ connect_legacy_plugins_install_require = (
     ' >=0.1, < 1'
 )
 connect_legacy_plugins_dependency_link = (
-    'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.0'
+    'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.1'
     .format(os.environ['FTRACK_CONNECT_LEGACY_PLUGINS_PATH'].replace('\\', '/'))
 )
 
