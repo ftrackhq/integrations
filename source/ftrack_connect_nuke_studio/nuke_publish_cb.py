@@ -6,21 +6,24 @@ import nuke
 import ftrack
 from clique import Collection
 
+
 def createComponent():
     ''' Create component callback for nuke write nodes.
+
     This callback relies on two custom knobs:
-    asset_version_id , which refers to the asset id which this version belongs to
-    component_name, the component which will contain the node result.
+        * asset_version_id , which refers to the parent Asset.
+        * component_name, the component which will contain the node result.
+
     '''
     ftrack.setup()
 
-    # get the current node.
+    # Get the current node.
     node = nuke.thisNode()
 
     asset_id = node['asset_version_id'].value()
     version = ftrack.AssetVersion(id=asset_id)
 
-    # create the component and copy data to the most likely store
+    # Create the component and copy data to the most likely store
     component = node['component_name'].value()
     out = node['file'].value()
 
@@ -39,10 +42,14 @@ def createComponent():
 
 def createReview():
     ''' Create component callback for nuke write nodes.
+
     This callback relies on two custom knobs:
-    asset_version_id , which refers to the asset id which this version belongs to
-    component_name, the component which will contain the node result.
-    This callback will also trigger the upload and encoding of the generated quicktime.
+        * asset_version_id , which refers to the parent Asset.
+        * component_name, the component which will contain the node result.
+
+    This callback will also trigger the upload and encoding of the generated
+    quicktime.
+
     '''
     ftrack.setup()
     node = nuke.thisNode()
@@ -52,17 +59,20 @@ def createReview():
     component = node['component_name'].value()
     version.createComponent(component, out)
 
-    # this seems to be failing when called from wihtin the callback
-    # timeout doesn't seems to help
+    # TODO: This seems to be failing when called from within the callback
+    # and timeout doesn't seems to help.
     # ftrack.Review.makeReviewable(version=version, filePath=out)
 
 
 def createThumbnail():
     ''' Create component callback for nuke write nodes.
+
     This callback relies on two custom knobs:
-    asset_version_id , which refers to the asset id which this version belongs to
-    component_name, the component which will contain the node result.
+        * asset_version_id , which refers to the parent Asset.
+        * component_name, the component which will contain the node result.
+
     This callback will also trigger upload of the thumbnail on the server.
+
     '''
     ftrack.setup()
     node = nuke.thisNode()
