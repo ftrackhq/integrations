@@ -6,36 +6,36 @@ from ftrack_connect.ui.model.entity_tree import Item
 
 
 class TagItem(Item):
-    '''Tag Item representation for the tree.
-    '''
+    '''Tag Item representation for the tree.'''
+
     def __init__(self, entity):
+        '''Initialise with *entity*.'''
         super(TagItem, self).__init__(entity)
         self.exists = False
         self._track = None
         self._widgets = {}
 
     def __repr__(self):
-        return '<%s:%s>' % (self.id, self.name)
+        '''Return representation.'''
+        return '<{0}:{1}>'.format(self.id, self.name)
 
     def __eq__(self, other):
+        '''Return comparison of self and *other*.'''
         return self.__repr__() == other.__repr__()
 
     @property
     def track(self):
-        ''' Return the trackItem.
-        '''
+        '''Return the trackItem.'''
         return self._track
 
     @track.setter
     def track(self, track):
-        ''' Set the trackItem.
-        '''
+        '''Set the trackItem to *track*.'''
         self._track = track
 
     @property
     def icon(self):
-        '''Return icon.
-        '''
+        '''Return icon.'''
         icon = self.type
 
         if icon is None:
@@ -52,25 +52,21 @@ class TagItem(Item):
 
     @property
     def id(self):
-        '''Return id of item.
-        '''
+        '''Return id of item.'''
         return self.entity['ftrack.id']
 
     @property
     def name(self):
-        '''Return name of item.
-        '''
+        '''Return name of item.'''
         return self.entity['tag.value']
 
     @property
     def type(self):
-        '''Return type of item.
-        '''
+        '''Return type of item.'''
         return self.entity['ftrack.type']
 
     def mayHaveChildren(self):
-        '''Return whether item may have children.
-        '''
+        '''Return whether item may have children.'''
         if len(self.children) == 0:
             return False
 
