@@ -2,21 +2,22 @@
 # :copyright: Copyright (c) 2014 ftrack
 
 from FnAssetAPI.ui.toolkit import QtGui, QtCore
-import ftrack
 from ftrack_connect.ui.model.entity_tree import EntityTreeModel
-from ftrack_connect_nuke_studio.ui.helper import time_from_track_item, timecode_from_track_item, source_from_track_item
+from ftrack_connect_nuke_studio.ui.helper import (
+    time_from_track_item, timecode_from_track_item, source_from_track_item
+)
 
 
 class TagTreeModel(EntityTreeModel):
-    ''' A morel representing the hierarchy tree of the context.
-    '''
+    ''' A morel representing the hierarchy tree of the context.'''
 
     project_exists = QtCore.Signal(str)
 
     def __init__(self, tree_data=None, parent=None):
-        '''Define a new TagTreeModel
+        '''Define a new TagTreeModel with *tree_data* and *parent*.
 
         TagTreeModel represents the context structure defined by ftags items.
+
         '''
         super(TagTreeModel, self).__init__(parent=parent)
         self.root = tree_data
@@ -35,16 +36,13 @@ class TagTreeModel(EntityTreeModel):
         self.parentWidget = parent
 
     def setRoot(self, root):
-        ''' Set the root of the tree.
-        '''
+        ''' Set the root of the tree.'''
         self.beginResetModel()
         self.root = root
         self.endResetModel()
 
     def data(self, index, role):
-        ''' Set the data of the model for the given index and role.
-        '''
-
+        ''' Set the data of the model for the given index and role.'''
         item = index.internalPointer()
         column = index.column()
 
@@ -61,8 +59,12 @@ class TagTreeModel(EntityTreeModel):
                 self.project_exists.emit(item.name)
 
             if item.type == 'shot':
-                start, end, in_, out = time_from_track_item(item.track, self.parentWidget)
-                in_src, out_src, in_dst, out_dst = timecode_from_track_item(item.track)
+                start, end, in_, out = time_from_track_item(
+                    item.track, self.parentWidget
+                )
+                in_src, out_src, in_dst, out_dst = timecode_from_track_item(
+                    item.track
+                )
                 source = source_from_track_item(item.track)
 
                 if column_name == 'Start':
