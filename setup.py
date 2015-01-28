@@ -4,7 +4,6 @@ import os
 import re
 
 from setuptools import setup, find_packages
-from setuptools.command.test import test as TestCommand
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
@@ -37,9 +36,12 @@ setup(
     },
     setup_requires=[
         'sphinx >= 1.2.2, < 2',
-        'sphinx_rtd_theme >= 0.1.6, < 2'
+        'sphinx_rtd_theme >= 0.1.6, < 2',
+        'mock'
     ],
     install_requires=[
+        'ftrack-connect >= 0.1.2, < 2',
+        'ftrack-connect-foundry >= 0.1.0, < 2'
     ],
     tests_require=[
     ],

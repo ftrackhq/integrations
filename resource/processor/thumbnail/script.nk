@@ -1,0 +1,74 @@
+#! /usr/local/Nuke9.0v1/libnuke-9.0.1.so -nx
+#write_info OUT file:"" format:"2048 1556 1" chans:":rgba.red:rgba.green:rgba.blue:" framerange:"0 1322" fps:"0" colorspace:"default" datatype:"unknown" transfer:"unknown" views:"main"
+version 9.0 v1
+define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
+<layout version="1.0">
+    <window x="-9" y="-8" w="1938" h="1072" screen="0">
+        <splitter orientation="1">
+            <split size="1213"/>
+            <splitter orientation="1">
+                <split size="46"/>
+                <dock id="" hideTitles="1" activePageId="Toolbar.1">
+                    <page id="Toolbar.1"/>
+                </dock>
+                <split size="1163"/>
+                <splitter orientation="2">
+                    <split size="588"/>
+                    <dock id="" activePageId="Viewer.1">
+                        <page id="Viewer.1"/>
+                    </dock>
+                    <split size="414"/>
+                    <dock id="" activePageId="DAG.1">
+                        <page id="DAG.1"/>
+                        <page id="Curve Editor.1"/>
+                        <page id="DopeSheet.1"/>
+                    </dock>
+                </splitter>
+            </splitter>
+            <split size="701"/>
+            <dock id="" activePageId="Properties.1">
+                <page id="Properties.1"/>
+            </dock>
+        </splitter>
+    </window>
+</layout>
+}
+Root {
+ inputs 0
+ name /home/ftrack/devel/connector/ftrack-connect-nuke-studio/resource/processors_plugins/thumbnail.nk
+ first_frame 0
+ last_frame 1322
+ lock_range true
+ format "2048 1556 0 0 2048 1556 1 2K_Super_35(full-ap)"
+ proxy_type scale
+ proxy_format "1024 778 0 0 1024 778 1 1K_Super_35(full-ap)"
+}
+Read {
+ inputs 0
+ format "1280 720 0 0 1280 720 1 HD_720"
+ first 0
+ last 1322
+ origfirst 0
+ origlast 1322
+ origset true
+ name IN
+ selected true
+ xpos -14
+ ypos -225
+}
+TimeOffset {
+ time ""
+ name OFFSET
+ xpos -14
+ ypos -128
+}
+Reformat {
+ name REFORMAT
+ xpos -14
+ ypos -81
+}
+Write {
+ name OUT
+ xpos -14
+ ypos -34
+}

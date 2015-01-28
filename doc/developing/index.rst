@@ -5,8 +5,7 @@
 Developing for ftrack with NUKE STUDIO
 **************************************
 
-Discover how to develop and extend the default ftrack integration with
-NUKE STUDIO.
+Discover how to develop and extend the default ftrack integration with NUKE STUDIO.
 
 .. toctree::
     :maxdepth: 1

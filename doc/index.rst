@@ -13,6 +13,7 @@ ftrack integration with NUKE STUDIO.
     using/index
     developing/index
     glossary
+    bugs
 
 ******************
 Indices and tables

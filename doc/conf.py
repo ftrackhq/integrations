@@ -5,6 +5,8 @@
 
 import os
 import re
+import sys
+import mock
 
 # -- General ------------------------------------------------------------------
 
@@ -91,3 +93,16 @@ intersphinx_mapping = {'python': ('http://docs.python.org/', None)}
 
 def setup(app):
     app.connect('autodoc-skip-member', autodoc_skip)
+
+# -- Mock modules --------------------------------------------------------------
+
+sys.path.append('/usr/local/Nuke9.0v1/pythonextensions/site-packages')
+
+MOCK_MODULES = [
+    'FnAssetAPI.ui.toolkit',
+    '_fnpython',
+    'core',
+]
+
+for mod_name in MOCK_MODULES:
+    sys.modules[mod_name] = mock.Mock()

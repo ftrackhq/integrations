@@ -1,0 +1,12 @@
+{
+    "processor": {
+        "Animation": {
+            "BG": {
+                "Ingest": "processor.publish",
+                "Ingest_proxy": "processor.proxy",
+                "Thumbnail": "processor.thumbnail",
+                "Movie": "processor.review"
+            }
+        }
+    }
+}
