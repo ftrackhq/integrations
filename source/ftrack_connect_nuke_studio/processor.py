@@ -149,7 +149,7 @@ class ProcessorPlugin(object):
             'root': {
                 'first_frame': int(data['destination_in']),
                 'last_frame': int(data['destination_out']),
-                'fps': int(data['fps'])
+                'fps': float(data['fps'])
             }
         }
 
