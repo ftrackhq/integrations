@@ -23,11 +23,11 @@ with open(os.path.join(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
-connect_install_require = 'ftrack-connect == 0.1.5'
+connect_install_require = 'ftrack-connect == 0.1.6'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.5.zip'
-    '#egg=ftrack-connect-0.1.5'
+    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.6.zip'
+    '#egg=ftrack-connect-0.1.6'
 )
 
 cinesync_install_require = 'ftrack-connect-cinesync == 0.1.2'
@@ -41,7 +41,7 @@ connect_legacy_plugins_install_require = (
     ' >=0.1, < 1'
 )
 connect_legacy_plugins_dependency_link = (
-    'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.1'
+    'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.2'
     .format(os.environ['FTRACK_CONNECT_LEGACY_PLUGINS_PATH'].replace('\\', '/'))
 )
 
@@ -50,8 +50,8 @@ connect_hieroplayer_install_require = (
     ' >=0.1, < 1'
 )
 connect_hieroplayer_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-hieroplayer/get/0.1.1.zip'
-    '#egg=ftrack-connect-hieroplayer-0.1.1'
+    'https://bitbucket.org/ftrack/ftrack-connect-hieroplayer/get/0.1.2.zip'
+    '#egg=ftrack-connect-hieroplayer-0.1.2'
 )
 
 # General configuration.

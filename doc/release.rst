@@ -5,6 +5,21 @@
 Releases
 ########
 
+.. release:: 0.1.6
+    :date: 2015-01-30
+
+    .. change:: changed
+
+        `ftrack connect 0.1.6 <http://rtd.ftrack.com/docs/ftrack-connect/en/0.1.6/>`_
+
+    .. change:: changed
+
+        `ftrack connect hieroplayer 0.1.2 <http://rtd.ftrack.com/docs/ftrack-connect-hieroplayer/en/0.1.2/>`_
+
+    .. change:: changed
+
+        ftrack connect legacy plugins 0.1.2
+
 .. release:: 0.1.5
     :date: 2015-01-26
 
