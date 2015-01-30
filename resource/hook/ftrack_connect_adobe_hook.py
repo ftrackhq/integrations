@@ -10,12 +10,10 @@ import ftrack
 import ftrack_connect.application
 
 
-class PhotoshopLaunchAction(object):
-    '''Photoshop discover and launch action.'''
+class LaunchAction(object):
+    '''Adobe plugins discover and launch action.'''
 
-    identifier = 'ftrack-connect-launch-photoshop'
-
-    label = 'Photoshop'
+    identifier = 'ftrack-connect-launch-adobe'
 
     def __init__(self, applicationStore, launcher):
         '''Initialise action with *applicationStore* and *launcher*.
@@ -27,7 +25,7 @@ class PhotoshopLaunchAction(object):
         :class:`ftrack_connect.application.ApplicationLauncher`.
 
         '''
-        super(PhotoshopLaunchAction, self).__init__()
+        super(LaunchAction, self).__init__()
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -161,6 +159,15 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 icon='photoshop'
             ))
 
+            applications.extend(self._searchFilesystem(
+                expression=prefix + [
+                    'Adobe Premiere Pro CC .+', 'Adobe Premiere Pro CC .+.app'
+                ],
+                label='Premiere Pro CC {version}',
+                applicationIdentifier='premiere_pro_cc_{version}',
+                icon='premiere'
+            ))
+
         elif sys.platform == 'win32':
             prefix = ['C:\\', 'Program Files.*']
 
@@ -173,6 +180,17 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 label='Photoshop CC {version}',
                 applicationIdentifier='photoshop_cc_{version}',
                 icon='photoshop'
+            ))
+
+            applications.extend(self._searchFilesystem(
+                expression=(
+                    prefix +
+                    ['Adobe', 'Adobe Premiere Pro CC .+',
+                     'Adobe Premiere Pro.exe']
+                ),
+                label='Premiere Pro CC {version}',
+                applicationIdentifier='premiere_pro_cc_{version}',
+                icon='premiere'
             ))
 
         self.logger.debug(
@@ -217,6 +235,13 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
                         'psd'
                     )
 
+                if application['identifier'].startswith('premiere_pro_cc'):
+                    component = self._findLatestComponent(
+                        entity['entityId'],
+                        entity['entityType'],
+                        'prproj'
+                    )
+
                 if component is not None:
                     command.append(component.getFilesystemPath())
 
@@ -224,7 +249,7 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
 
 
 def register(registry, **kw):
-    '''Register hooks for Photoshop plugin.'''
+    '''Register hooks for Adobe plugins.'''
     applicationStore = ApplicationStore()
 
     launcher = ApplicationLauncher(
@@ -232,5 +257,5 @@ def register(registry, **kw):
     )
 
     # Create action and register to respond to discover and launch events.
-    action = PhotoshopLaunchAction(applicationStore, launcher)
+    action = LaunchAction(applicationStore, launcher)
     action.register()
