@@ -188,6 +188,12 @@ if sys.platform in ('darwin', 'win32'):
             )
         )
 
+        # Specify upgrade code to a random GUID to ensure the MSI
+        # package is upgraded when installing a new version.
+        configuration['options']['bdist_msi'] = {
+            'upgrade_code': '{e5666af3-56a5-426a-b308-54c2d6ad8704}'
+        }
+
     elif sys.platform == 'darwin':
         executables.append(
             Executable(
