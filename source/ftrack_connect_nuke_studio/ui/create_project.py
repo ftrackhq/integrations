@@ -282,7 +282,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.project_worker = None
 
         # Create overlay.
-        self.busy_overlay = TagTreeOverlay(self.tree_view)
+        self.busy_overlay = TagTreeOverlay(self)
         self.busy_overlay.hide()
 
         # Set model to the tree view.
@@ -519,7 +519,9 @@ class ProjectTreeDialog(QtGui.QDialog):
             self.create_project, (items, self.tag_model.root)
         )
         self.project_worker.finished.connect(self.on_project_created)
+        self.project_worker.finished.connect(self.busy_overlay.hide)
         self.project_worker.start()
+        self.busy_overlay.show()
 
         while self.project_worker.isRunning():
             app = QtGui.QApplication.instance()
