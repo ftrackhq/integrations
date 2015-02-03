@@ -5,6 +5,18 @@
 Releases
 ########
 
+.. release:: 0.1.7
+    :date: 2015-02-03
+
+    .. change:: changed
+
+        `ftrack connect 0.1.7 <http://rtd.ftrack.com/docs/ftrack-connect/en/0.1.7/>`_
+
+    .. change:: changed
+
+        `ftrack connect legacy plugins 0.1.2 <http://rtd.ftrack.com/docs/ftrack-connect/en/0.1.2/>`_,
+        includes various fixes for the Nuke and Maya integrations.
+
 .. release:: 0.1.6
     :date: 2015-01-30
 
@@ -15,10 +27,6 @@ Releases
     .. change:: changed
 
         `ftrack connect hieroplayer 0.1.2 <http://rtd.ftrack.com/docs/ftrack-connect-hieroplayer/en/0.1.2/>`_
-
-    .. change:: changed
-
-        ftrack connect legacy plugins 0.1.2
 
 .. release:: 0.1.5
     :date: 2015-01-26
