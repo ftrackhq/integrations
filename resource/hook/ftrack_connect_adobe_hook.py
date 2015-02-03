@@ -34,6 +34,16 @@ class LaunchAction(object):
         self.applicationStore = applicationStore
         self.launcher = launcher
 
+    def isValidSelection(self, selection):
+        '''Return true if the selection is valid.'''
+        if (
+            len(selection) != 1 or
+            selection[0]['entityType'] != 'task'
+        ):
+            return False
+
+        return True
+
     def register(self):
         '''Override register to filter discover actions on logged in user.'''
         ftrack.EVENT_HUB.subscribe(
@@ -53,6 +63,11 @@ class LaunchAction(object):
 
     def discover(self, event):
         '''Return discovered applications.'''
+        if not self.isValidSelection(
+            event['data'].get('selection', [])
+        ):
+            return
+
         items = []
         applications = self.applicationStore.applications
         applications = sorted(
