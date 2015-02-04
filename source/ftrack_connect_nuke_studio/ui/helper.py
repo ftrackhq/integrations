@@ -109,7 +109,7 @@ class TagTreeOverlay(_overlay.BusyOverlay):
                 padding: 0px;
                 border: 80px solid transparent;
                 background-color: transparent;
-                border-image: url(:ftrack/image/default/boxShadow) 140 stretch;
+                border-image: none;
             }
 
             BlockingOverlay QLabel {
