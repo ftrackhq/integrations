@@ -138,7 +138,7 @@ class ProcessorPlugin(object):
                 'use_limit': True
             },
             'REFORMAT': {
-                'output_format': data['resolution']
+                'format': data['resolution']
             },
             'OFFSET': {
                 'time_offset': (
