@@ -11,7 +11,6 @@ from FnAssetAPI.ui.toolkit import QtGui, QtCore
 from .widget import Resolution, Fps, Workflow
 
 from ftrack_connect import worker
-from ftrack_connect_nuke_studio.ui import create_project_ui
 from ftrack_connect_nuke_studio.ui.helper import (
     tree_data_factory,
     TagTreeOverlay,
