@@ -183,6 +183,15 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 icon='premiere'
             ))
 
+            applications.extend(self._searchFilesystem(
+                expression=prefix + [
+                    'Adobe After Effects CC .+', 'Adobe After Effects CC .+.app'
+                ],
+                label='After Effects CC {version}',
+                applicationIdentifier='after_effects_cc_{version}',
+                icon='after_effects'
+            ))
+
         elif sys.platform == 'win32':
             prefix = ['C:\\', 'Program Files.*']
 
@@ -206,6 +215,17 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 label='Premiere Pro CC {version}',
                 applicationIdentifier='premiere_pro_cc_{version}',
                 icon='premiere'
+            ))
+
+            applications.extend(self._searchFilesystem(
+                expression=(
+                    prefix +
+                    ['Adobe', 'Adobe After Effects CC .+', 'Support Files'
+                     'AfterFX.exe']
+                ),
+                label='After Effects CC {version}',
+                applicationIdentifier='after_effects_cc_{version}',
+                icon='after_effects'
             ))
 
         self.logger.debug(
@@ -243,19 +263,19 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
                 entity = selection[0]
                 component = None
 
-                if application['identifier'].startswith('photoshop_cc'):
-                    component = self._findLatestComponent(
-                        entity['entityId'],
-                        entity['entityType'],
-                        'psd'
-                    )
+                applicationExtensions = {
+                    'photoshop_cc': 'psd',
+                    'premiere_pro_cc': 'prproj',
+                    'after_effects_cc': 'aep'
+                }
 
-                if application['identifier'].startswith('premiere_pro_cc'):
-                    component = self._findLatestComponent(
-                        entity['entityId'],
-                        entity['entityType'],
-                        'prproj'
-                    )
+                for identifier, extension in applicationExtensions.items():
+                    if application['identifier'].startswith(identifier):
+                        component = self._findLatestComponent(
+                            entity['entityId'],
+                            entity['entityType'],
+                            extension
+                        )
 
                 if component is not None:
                     command.append(component.getFilesystemPath())

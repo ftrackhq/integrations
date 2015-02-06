@@ -5,6 +5,15 @@
 Releases
 ########
 
+.. release:: next
+    :date: 2015-XX-XX
+
+    .. change:: new
+
+        :term:`Adobe After Effects` added as application to launch from
+        :ref:`Actions <ftrack:using/actions>` on tasks and versions. Read more
+        about how to install and use the :ref:`Adobe After Effects extension here <ftrack-connect-after-effects:installing>`.
+
 .. release:: 0.1.7
     :date: 2015-02-03
 
