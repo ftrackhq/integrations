@@ -2,6 +2,8 @@
 # :copyright: Copyright (c) 2014 ftrack
 
 import os
+import threading
+
 import nuke
 import ftrack
 from clique import Collection
@@ -40,6 +42,14 @@ def createComponent():
     version.createComponent(component, str(collection))
 
 
+def publishReviewableComponent(version_id, component, out):
+    '''Publish a reviewable component to *version_id*'''
+    version = ftrack.AssetVersion(id=version_id)
+    version.createComponent(component, out)
+
+    ftrack.Review.makeReviewable(version=version, filePath=out)
+
+
 def createReview():
     ''' Create component callback for nuke write nodes.
 
@@ -53,15 +63,21 @@ def createReview():
     '''
     ftrack.setup()
     node = nuke.thisNode()
-    asset_id = node['asset_version_id'].value()
-    version = ftrack.AssetVersion(id=asset_id)
+    version_id = node['asset_version_id'].value()
     out = str(node['file'].value())
     component = node['component_name'].value()
-    version.createComponent(component, out)
 
-    # TODO: This seems to be failing when called from within the callback
-    # and timeout doesn't seems to help.
-    # ftrack.Review.makeReviewable(version=version, filePath=out)
+    # Create component in a separate thread. If this is done in the main thread
+    # the file is not properly written to disk.
+    _thread = threading.Thread(
+        target=publishReviewableComponent,
+        kwargs={
+        'version_id': version_id,
+        'component': component,
+        'out': out
+        }
+    )
+    _thread.start()
 
 
 def createThumbnail():

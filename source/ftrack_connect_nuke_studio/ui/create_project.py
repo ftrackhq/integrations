@@ -558,10 +558,21 @@ class ProjectTreeDialog(QtGui.QDialog):
         '''Recursive function to create a new ftrack project on the server.'''
         selected_workflow = self.workflow_combobox.currentText()
         for datum in data:
+            # Gather all the useful informations from the track
+            track_in = int(datum.track.source().sourceIn())
+            track_out = int(datum.track.source().sourceOut())
 
-            # gather all the useful informations from the track
-            track_in = int(datum.track.sourceIn())
-            track_out = int(datum.track.sourceOut())
+            if datum.track.source().mediaSource().singleFile():
+                # Adjust frame in and out if the media source is a single file.
+                # This fix is required because Hiero is reporting Frame in as 0
+                # for a .mov file while Nuke is expecting Frame in 1.
+                track_in += 1
+                track_out += 1
+                FnAssetAPI.logging.debug(
+                    'Single file detected, adjusting frame start and frame end '
+                    'to {0}-{1}'.format(track_in, track_out)
+                )
+
             source = source_from_track_item(datum.track)
             start, end, in_, out = time_from_track_item(datum.track, self)
             fps = self.fps_combobox.currentText()
