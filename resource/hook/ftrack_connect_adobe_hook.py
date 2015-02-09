@@ -220,7 +220,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
             applications.extend(self._searchFilesystem(
                 expression=(
                     prefix +
-                    ['Adobe', 'Adobe After Effects CC .+', 'Support Files'
+                    ['Adobe', 'Adobe After Effects CC .+', 'Support Files',
                      'AfterFX.exe']
                 ),
                 label='After Effects CC {version}',
