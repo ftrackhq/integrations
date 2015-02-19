@@ -19,11 +19,6 @@ with open(os.path.join(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
-connect_foundry_dependency_link = (
-    'file://{0}#egg=ftrack-connect-foundry-0.1.0'
-    .format(os.environ['FTRACK_CONNECT_FOUNDRY'].replace('\\', '/'))
-)
-
 
 def get_files_from_folder(folder):
     '''Get all files in a folder in resource folder.'''
@@ -91,7 +86,10 @@ setup(
         'ftrack-connect-foundry >= 0.1.0, < 2'
     ],
     dependency_links=[
-        connect_foundry_dependency_link
+        'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.7.zip'
+        '#egg=ftrack-connect-0.1.7',
+        'https://bitbucket.org/ftrack/ftrack-connect-foundry/get/0.1.0.zip'
+        '#egg=ftrack-connect-foundry-0.1.0'
     ],
     tests_require=[
     ],
