@@ -140,6 +140,16 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 launchArguments=['--studio']
             ))
 
+        elif sys.platform == 'linux2':
+
+            applications.extend(self._searchFilesystem(
+                expression=['/', 'usr', 'local', 'Nuke.*', 'Nuke\d.+'],
+                label='Nuke {version}',
+                applicationIdentifier='nuke_studio_{version}',
+                icon='nuke_studio',
+                launchArguments=['--studio']
+            ))
+
         self.logger.debug(
             'Discovered applications:\n{0}'.format(
                 pprint.pformat(applications)
@@ -153,7 +163,7 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
     '''Launch nuke studio.'''
 
     def _getApplicationEnvironment(self, application, context):
-        '''Modify and return environment with legacy plugins added.'''
+        '''Modify and return environment with nuke studio added.'''
         environment = super(
             ApplicationLauncher, self
         )._getApplicationEnvironment(
