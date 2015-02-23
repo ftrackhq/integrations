@@ -11,6 +11,8 @@ from FnAssetAPI.ui.toolkit import QtGui, QtCore
 from .widget import Resolution, Fps, Workflow
 
 from ftrack_connect import worker
+from ftrack_connect.ui.widget.header import HeaderWidget
+
 from ftrack_connect_nuke_studio.ui.helper import (
     tree_data_factory,
     TagTreeOverlay,
@@ -321,7 +323,17 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.resize(900, 640)
 
         self.main_vertical_layout = QtGui.QVBoxLayout(self)
+        self.setLayout(self.main_vertical_layout)
 
+        self.header_layout = QtGui.QVBoxLayout()
+        header = HeaderWidget(self)
+        header.ui.titleLabel.setText('Create Project')
+        self.header_layout.addWidget(header)
+        self.main_vertical_layout.addLayout(self.header_layout)
+
+        self.splitter = QtGui.QSplitter(self)
+        
+        # settings
         self.group_box = QtGui.QGroupBox('General Settings', parent=self)
         self.group_box.setMaximumSize(QtCore.QSize(16777215, 200))
 
@@ -386,7 +398,6 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.group_box_layout.addLayout(self.start_frame_offset_layout)
         self.main_vertical_layout.addWidget(self.group_box)
 
-        self.splitter = QtGui.QSplitter(self)
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.tree_view = QtGui.QTreeView(self.splitter)
 
@@ -411,7 +422,8 @@ class ProjectTreeDialog(QtGui.QDialog):
                 border: none;
             }
         ''')
-        self.main_vertical_layout.addWidget(self.message_area)
+
+        self.header_layout.addWidget(self.message_area)
 
         self.bottom_button_layout = QtGui.QHBoxLayout()
         self.main_vertical_layout.addLayout(self.bottom_button_layout)
