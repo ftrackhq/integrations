@@ -41,7 +41,7 @@ connect_legacy_plugins_install_require = (
     ' >=0.1, < 1'
 )
 connect_legacy_plugins_dependency_link = (
-    'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.2'
+    'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.3'
     .format(os.environ['FTRACK_CONNECT_LEGACY_PLUGINS_PATH'].replace('\\', '/'))
 )
 
@@ -52,6 +52,15 @@ connect_hieroplayer_install_require = (
 connect_hieroplayer_dependency_link = (
     'https://bitbucket.org/ftrack/ftrack-connect-hieroplayer/get/0.1.2.zip'
     '#egg=ftrack-connect-hieroplayer-0.1.2'
+)
+
+connect_nuke_dependency_link = (
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/0.1.0.zip'
+    '#egg=ftrack-connect-nuke-0.1.0'
+)
+connect_nuke_dependency_install_require = (
+    'ftrack-connect-nuke'
+    ' >=0.1, < 1'
 )
 
 # General configuration.
@@ -79,7 +88,8 @@ configuration = dict(
         connect_install_require,
         cinesync_install_require,
         connect_legacy_plugins_install_require,
-        connect_hieroplayer_install_require
+        connect_hieroplayer_install_require,
+        connect_nuke_dependency_install_require
     ],
     dependency_links=[
         'file://{0}#egg=ftrack-python-legacy-api'.format(
@@ -90,7 +100,8 @@ configuration = dict(
         connect_legacy_plugins_dependency_link,
         ('https://bitbucket.org/ftrack/lowdown/get/0.1.0.zip'
          '#egg=lowdown-0.1.0'),
-        connect_hieroplayer_dependency_link
+        connect_hieroplayer_dependency_link,
+        connect_nuke_dependency_link
     ],
     options={}
 )
@@ -122,13 +133,15 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             connect_install_require,
             cinesync_install_require,
             connect_legacy_plugins_install_require,
-            connect_hieroplayer_install_require
+            connect_hieroplayer_install_require,
+            connect_nuke_dependency_install_require
         ],
         dependency_links=[
             cinesync_dependency_link,
             connect_dependency_link,
             connect_legacy_plugins_dependency_link,
-            connect_hieroplayer_dependency_link
+            connect_hieroplayer_dependency_link,
+            connect_nuke_dependency_link
         ]
     ))
     connect_resource_hook = pkg_resources.resource_filename(
@@ -166,6 +179,16 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_hieroplayer_resource/hook'
     )
 
+    ftrack_connect_nuke_source = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-connect-nuke'),
+        'ftrack_connect_nuke/ftrack_connect_nuke'
+    )
+
+    ftrack_connect_nuke_hook = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-connect-nuke'),
+        'ftrack_connect_nuke/hook'
+    )
+
     include_files = [
         (connect_resource_hook, 'resource/hook'),
         (cinesync_resource_hook, 'resource/hook'),
@@ -174,7 +197,9 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         (ftrack_connect_legacy_plugins_hook, 'resource/hook'),
         (ftrack_connect_hieroplayer_hook, 'resource/hook'),
         (ftrack_connect_hieroplayer_source, 'resource/hieroplayer'),
-        (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook')
+        (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'),
+        (ftrack_connect_nuke_hook, 'resource/hook'),
+        (ftrack_connect_nuke_source, 'resource/ftrack_connect_nuke')
     ]
 
     executables = []
@@ -227,7 +252,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
                 icon='./logo.icns'
             )
         )
-        
+
         # Force Qt to be included.
         bin_includes = [
             'libQtCore.so',
@@ -245,7 +270,13 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             'ftrack',
             'atexit',  # Required for PySide
             'ftrack_connect_cinesync.cinesync_launcher',
-            'ftrack_connect.application'
+            'ftrack_connect.application',
+            'assetmgr_hiero',
+            'assetmgr_nuke',
+            'FnAssetAPI',
+            'ftrack_connect_nuke',
+            'ftrack_connect_nuke.plugin',
+            'ftrack_connect_nuke.logging'
         ],
         'excludes': [
             # The following don't actually exist, but are picked up by the

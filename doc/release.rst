@@ -5,6 +5,14 @@
 Releases
 ########
 
+.. release:: 0.1.8
+    :date: 2015-02-23
+
+    .. change:: new
+
+        `ftrack connect nuke 0.1.0 <http://rtd.ftrack.com/docs/ftrack-connect-nuke/en/0.1.0/>`_ 
+        included from it's own repository instead of from legacy plugins.
+
 .. release:: 0.1.7
     :date: 2015-02-03
 
