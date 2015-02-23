@@ -4,7 +4,7 @@
 import ftrack
 import hiero
 
-import assetmgr_hiero
+# import assetmgr_hiero
 
 from ftrack_connect.ui.widget import overlay as _overlay
 from ftrack_connect_nuke_studio.ui.tag_item import TagItem as _TagItem
