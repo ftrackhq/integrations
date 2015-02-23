@@ -331,10 +331,15 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.header_layout.addWidget(header)
         self.main_vertical_layout.addLayout(self.header_layout)
 
+        # create a central widget where to contain settings group and tree
+
         self.splitter = QtGui.QSplitter(self)
-        
+        self.central_widget = QtGui.QWidget(self.splitter)
+        self.central_layout = QtGui.QVBoxLayout()
+        self.central_widget.setLayout(self.central_layout)
+
         # settings
-        self.group_box = QtGui.QGroupBox('General Settings', parent=self)
+        self.group_box = QtGui.QGroupBox('General Settings')
         self.group_box.setMaximumSize(QtCore.QSize(16777215, 200))
 
         self.group_box_layout = QtGui.QVBoxLayout(self.group_box)
@@ -396,10 +401,12 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.start_frame_offset_spinbox.setProperty('value', 1001)
         self.start_frame_offset_layout.addWidget(self.start_frame_offset_spinbox)
         self.group_box_layout.addLayout(self.start_frame_offset_layout)
-        self.main_vertical_layout.addWidget(self.group_box)
+
+        self.central_layout.addWidget(self.group_box)
 
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
-        self.tree_view = QtGui.QTreeView(self.splitter)
+        self.tree_view = QtGui.QTreeView()
+        self.central_layout.addWidget(self.tree_view)
 
         self.tool_box = QtGui.QToolBox(self.splitter)
         self.tool_box.setMinimumSize(QtCore.QSize(300, 0))
