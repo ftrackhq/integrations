@@ -356,7 +356,7 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         self.header_layout = QtGui.QVBoxLayout()
         header = HeaderWidget(self)
-        header.ui.titleLabel.setText('FTrack Create Project')
+        header.ui.titleLabel.setText('Create Project')
         self.header_layout.addWidget(header)
         self.main_vertical_layout.addLayout(self.header_layout)
 
