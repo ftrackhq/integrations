@@ -278,7 +278,7 @@ class ProjectTreeDialog(QtGui.QDialog):
               min-height: 25px;
             }
 
-            QLabel#message_area {
+            QLabel#ftrack-message-area {
                 background-color: rgba(95, 58, 58, 200);
                 padding: 10px;
                 border: none;
@@ -449,7 +449,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.main_vertical_layout.addWidget(self.splitter)
 
         self.message_area = QtGui.QLabel('', parent=self)
-        self.message_area.setObjectName('message_area')
+        self.message_area.setObjectName('ftrack-message-area')
         self.message_area.resize(QtCore.QSize(900, 80))
         self.message_area.setSizePolicy(
             QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed
