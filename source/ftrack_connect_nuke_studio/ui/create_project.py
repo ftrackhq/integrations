@@ -438,8 +438,11 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.central_layout.addWidget(self.tree_view)
 
         self.tool_box = QtGui.QToolBox(self.splitter)
-        default_message = QtGui.QLabel('Make a selection to see the available properties')
-        self.tool_box.setCurrentWidget(default_message)
+
+        default_message = QtGui.QTextEdit('Make a selection to see the available properties')
+        default_message.readOnly = True
+        default_message.setAlignment(QtCore.Qt.AlignCenter)
+        self.tool_box.addItem(default_message , 'Processors')
         self.tool_box.setMinimumSize(QtCore.QSize(300, 0))
         self.tool_box.setFrameShape(QtGui.QFrame.StyledPanel)
 
