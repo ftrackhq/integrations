@@ -278,8 +278,20 @@ class ProjectTreeDialog(QtGui.QDialog):
               min-height: 25px;
             }
 
-            QLabel#ftrack-message-area {
+            QLabel#ftrack-message-area-error {
                 background-color: rgba(95, 58, 58, 200);
+                padding: 10px;
+                border: none;
+            }
+
+            QLabel#ftrack-message-area-info {
+                background-color: rgba(50, 147, 198, 200);
+                padding: 10px;
+                border: none;
+            }
+
+            QLabel#ftrack-message-area-warning {
+                background-color: rgba(238, 99, 76, 200);
                 padding: 10px;
                 border: none;
             }
@@ -339,6 +351,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         tag_strucutre_valid, reason = is_valid_tag_structure(self.data)
         if not tag_strucutre_valid:
             self.message_area.setText('WARNING: ' + reason)
+            self.message_area.setObjectName('ftrack-message-area-warning')
             self.create_project_button.setEnabled(False)
             self.message_area.setVisible(True)
         else:
@@ -449,21 +462,12 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.main_vertical_layout.addWidget(self.splitter)
 
         self.message_area = QtGui.QLabel('', parent=self)
-        self.message_area.setObjectName('ftrack-message-area')
+        self.message_area.setObjectName('ftrack-message-area-info')
         self.message_area.resize(QtCore.QSize(900, 80))
         self.message_area.setSizePolicy(
             QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed
         )
         self.message_area.setVisible(False)
-
-        #: TODO: Move styling to separate css / sass files.
-        self.message_area.setStyleSheet('''
-            QLabel {
-                background-color: rgba(95, 58, 58, 200);
-                padding: 10px;
-                border: none;
-            }
-        ''')
 
         self.header_layout.addWidget(self.message_area)
 
@@ -591,9 +595,9 @@ class ProjectTreeDialog(QtGui.QDialog):
         )
 
         QtGui.QApplication.restoreOverrideCursor()
-        QtGui.QMessageBox.information(
-            self, 'Done!', information
-        )
+        self.message_area.setText('INFO: the project has been succesfully created !')
+        self.message_area.setObjectName('ftrack-message-area-info')
+        self.message_area.setVisible(True)
 
         self.setDisabled(False)
 
@@ -679,9 +683,7 @@ class ProjectTreeDialog(QtGui.QDialog):
                     )
 
                 if datum.type == 'task':
-                    print datum.name
                     processor = self.processors.get(datum.name)
-                    print processor
 
                     if not processor:
                         continue
