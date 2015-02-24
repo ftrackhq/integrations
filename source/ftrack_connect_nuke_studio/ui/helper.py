@@ -4,7 +4,7 @@
 import ftrack
 import hiero
 
-import assetmgr_hiero
+from nuke.assetmgr.nukestudiohost.hostAdaptor.NukeStudioHostAdaptor import utils
 
 from ftrack_connect.ui.widget import overlay as _overlay
 from ftrack_connect_nuke_studio.ui.tag_item import TagItem as _TagItem
@@ -59,7 +59,7 @@ def time_from_track_item(item, parent):
         'clampToPositive': True
     }
 
-    return assetmgr_hiero.utils.track.timingsFromTrackItem(item, opts)
+    return utils.track.timingsFromTrackItem(item, opts)
 
 
 def item_exists(item):

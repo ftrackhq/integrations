@@ -34,10 +34,9 @@ class Delegate(delegate.Delegate):
         super(Delegate, self).populateUI(uiElement, specification, context)
 
         host = FnAssetAPI.SessionManager.currentSession().getHost()
-
-        if host and host.getIdentifier() == 'uk.co.foundry.hiero': 
-            import assetmgr_hiero
-            if context.locale.isOfType(assetmgr_hiero.specifications.HieroTimelineContextMenuLocale):                
+        if host and host.getIdentifier() == 'uk.co.foundry.nukestudio': 
+            import nuke.assetmgr
+            if context.locale.isOfType(nuke.assetmgr.nukestudiohost.hostAdaptor.NukeStudioHostAdaptor.specifications.HieroTimelineContextMenuLocale):                
                 data = context.locale.getData().get('event').sender.selection()
                 cmd = functools.partial(openCreateProjectUI, data)
                 action = QtGui.QAction(QtGui.QPixmap(':icon-ftrack-box'), 'Create Project', uiElement)
