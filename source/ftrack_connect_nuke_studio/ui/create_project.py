@@ -256,35 +256,6 @@ class ProjectTreeDialog(QtGui.QDialog):
         super(ProjectTreeDialog, self).__init__(parent=parent)
 
         self.server_helper = FTrackServerHelper()
-        style_sheet = '''
-            QSpinBox {
-              max-height: 25px;
-              min-height: 25px;
-            }
-
-            QComboBox {
-              max-height: 25px;
-              min-height: 25px;
-            }
-
-            QPushButton {
-              max-height: 25px;
-              min-height: 25px;
-            }
-
-
-            QLineEdit {
-              max-height: 25px;
-              min-height: 25px;
-            }
-
-            QLabel#message_area {
-                background-color: rgba(95, 58, 58, 200);
-                padding: 10px;
-                border: none;
-            }
-        '''
-        self.setStyleSheet(style_sheet)
 
         #: TODO: Consider if these permission checks are required. 
         # user_is_allowed = self.server_helper.check_permissions()
@@ -438,15 +409,12 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.central_layout.addWidget(self.tree_view)
 
         self.tool_box = QtGui.QToolBox(self.splitter)
-        default_message = QtGui.QLabel('Make a selection to see the available properties')
-        self.tool_box.setCurrentWidget(default_message)
         self.tool_box.setMinimumSize(QtCore.QSize(300, 0))
         self.tool_box.setFrameShape(QtGui.QFrame.StyledPanel)
 
         self.main_vertical_layout.addWidget(self.splitter)
 
         self.message_area = QtGui.QLabel('', parent=self)
-        self.message_area.setObjectName('message_area')
         self.message_area.resize(QtCore.QSize(900, 80))
         self.message_area.setSizePolicy(
             QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed
