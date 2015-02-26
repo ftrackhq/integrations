@@ -70,9 +70,13 @@ class TagManager(object):
             if icon == 'sequence':
                 icon = 'folder'
 
-            if icon == 'project':
+            if icon == 'episode':
+                icon == 'folder'
+
+            if icon == 'show':
                 icon = 'home'
 
+            FnAssetAPI.logging.info(icon)
             ftag.setIcon(':ftrack/image/studio/{0}'.format(icon))
 
             meta = ftag.metadata()
