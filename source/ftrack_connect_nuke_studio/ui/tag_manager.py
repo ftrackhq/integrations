@@ -38,7 +38,7 @@ class TagManager(object):
 
         for task_type in task_types:
             ftag = hiero.core.Tag(task_type.getName())
-            ftag.setIcon(':ftrack/image/dark/task')
+            ftag.setIcon(':ftrack/image/studio/task')
 
             meta = ftag.metadata()
             meta.setValue('type', 'ftrack')
@@ -57,6 +57,7 @@ class TagManager(object):
             ('episode', 'episode', '(\w+.)?EP(\d+)'),
             ('sequence', 'sequence', '(\w+.)?SQ(\d+)'),
             ('shot', 'shot', '(\w+.)?SH(\d+)')
+
         ]
 
         for context_tag in context_tags:
