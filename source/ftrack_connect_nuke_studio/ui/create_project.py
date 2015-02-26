@@ -624,6 +624,10 @@ class ProjectTreeDialog(QtGui.QDialog):
                         start, end, resolution, fps, handles
                     )
 
+                    datum.track.source().setEntityReference(
+                        'ftrack://{0}?entityType={1}'.format(result[0], result[1])
+                    )
+
                 if datum.type == 'task':
                     print datum.name
                     processor = self.processors.get(datum.name)

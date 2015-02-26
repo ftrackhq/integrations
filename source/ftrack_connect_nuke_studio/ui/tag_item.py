@@ -3,7 +3,7 @@
 
 from FnAssetAPI.ui.toolkit import QtGui
 from ftrack_connect.ui.model.entity_tree import Item
-
+from ftrack_connect.ui import resource
 
 class TagItem(Item):
     '''Tag Item representation for the tree.'''
