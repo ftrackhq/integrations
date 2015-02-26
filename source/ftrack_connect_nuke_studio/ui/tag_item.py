@@ -48,7 +48,7 @@ class TagItem(Item):
             icon = 'folder'
 
         icon = icon.lower()
-        return QtGui.QIcon(':ftrack/image/dark/{0}'.format(icon))
+        return QtGui.QIcon(':ftrack/image/studio/{0}'.format(icon))
 
     @property
     def id(self):

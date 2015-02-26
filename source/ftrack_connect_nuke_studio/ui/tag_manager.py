@@ -4,6 +4,7 @@
 import hiero.core
 import ftrack
 import FnAssetAPI.logging
+from ftrack_connect.ui import resource
 
 
 class TagManager(object):
@@ -66,7 +67,11 @@ class TagManager(object):
             icon = tag_id
             if icon == 'sequence':
                 icon = 'folder'
-            ftag.setIcon(':ftrack/image/dark/{0}'.format(icon))
+
+            if icon == 'project':
+                icon = 'home'
+
+            ftag.setIcon(':ftrack/image/studio/{0}'.format(icon))
 
             meta = ftag.metadata()
             meta.setValue('type', 'ftrack')
