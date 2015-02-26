@@ -625,7 +625,9 @@ class ProjectTreeDialog(QtGui.QDialog):
                     )
 
                 if datum.type == 'task':
+                    print datum.name
                     processor = self.processors.get(datum.name)
+                    print processor
 
                     if not processor:
                         continue
