@@ -26,6 +26,9 @@ from ftrack_connect_nuke_studio.ui.tag_tree_model import TagTreeModel
 from ftrack_connect_nuke_studio.ui.tag_item import TagItem
 from ftrack_connect_nuke_studio.processor import config
 import ftrack_connect_nuke_studio
+from ftrack_connect.ui.theme import applyTheme
+# These should be then merged with the actual dark style , for consistency.
+
 
 
 class FTrackServerHelper(object):
@@ -101,7 +104,7 @@ class FTrackServerHelper(object):
 
             self.server.action('set', data)
 
-    def set_entity_data(self, entity_type, entity_id, trackItem,  start, end, 
+    def set_entity_data(self, entity_type, entity_id, trackItem,  start, end,
         resolution, fps, handles
     ):
         '''Populate data of the given *entity_id* and *entity_type*.'''
@@ -180,7 +183,7 @@ class FTrackServerHelper(object):
 
     def create_asset_version(self, asset_id, parent):
         '''Create an asset version linked to the *asset_id* and *parent*.
-        
+
         *parent* must be a task.
 
         '''
@@ -215,8 +218,8 @@ class FTrackServerHelper(object):
         response = self.server.action('create', data)
         return response.get('taskid'), 'task'
 
-    #: TODO: Not sure how this is supposed to work. Consider removing it if 
-    # not used. 
+    #: TODO: Not sure how this is supposed to work. Consider removing it if
+    # not used.
     def check_permissions(self, username=None):
         '''Check the permission level of the given named user.'''
 
@@ -254,51 +257,9 @@ class ProjectTreeDialog(QtGui.QDialog):
     def __init__(self, data=None, parent=None):
         '''Initiate dialog and create ui.'''
         super(ProjectTreeDialog, self).__init__(parent=parent)
-
         self.server_helper = FTrackServerHelper()
-        style_sheet = '''
-            QSpinBox {
-              max-height: 25px;
-              min-height: 25px;
-            }
-
-            QComboBox {
-              max-height: 25px;
-              min-height: 25px;
-            }
-
-            QPushButton {
-              max-height: 25px;
-              min-height: 25px;
-            }
-
-
-            QLineEdit {
-              max-height: 25px;
-              min-height: 25px;
-            }
-
-            QLabel#ftrack-message-area-error {
-                background-color: rgba(95, 58, 58, 200);
-                padding: 10px;
-                border: none;
-            }
-
-            QLabel#ftrack-message-area-info {
-                background-color: rgba(50, 147, 198, 200);
-                padding: 10px;
-                border: none;
-            }
-
-            QLabel#ftrack-message-area-warning {
-                background-color: rgba(238, 99, 76, 200);
-                padding: 10px;
-                border: none;
-            }
-        '''
-        self.setStyleSheet(style_sheet)
-
-        #: TODO: Consider if these permission checks are required. 
+        applyTheme(self, 'integration')
+        #: TODO: Consider if these permission checks are required.
         # user_is_allowed = self.server_helper.check_permissions()
         # if not user_is_allowed:
         #     FnAssetAPI.logging.warning(
@@ -347,13 +308,11 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.handles_spinbox.valueChanged.connect(self._refresh_tree)
         self.processor_ready.connect(self.on_processor_ready)
 
-        # Validate tag structure and set warning if there are any errors.  
+        # Validate tag structure and set warning if there are any errors.
         tag_strucutre_valid, reason = is_valid_tag_structure(self.data)
         if not tag_strucutre_valid:
-            self.message_area.setText('WARNING: ' + reason)
-            self.message_area.setObjectName('ftrack-message-area-warning')
+            self.header.setMessage('WARNING: %s' % reason)
             self.create_project_button.setEnabled(False)
-            self.message_area.setVisible(True)
         else:
             self.setDisabled(True)
 
@@ -362,16 +321,12 @@ class ProjectTreeDialog(QtGui.QDialog):
 
     def create_ui_widgets(self):
         '''Setup ui for create dialog.'''
-        self.resize(900, 640)
+        self.resize(1024, 640)
 
         self.main_vertical_layout = QtGui.QVBoxLayout(self)
         self.setLayout(self.main_vertical_layout)
-
-        self.header_layout = QtGui.QVBoxLayout()
-        header = HeaderWidget(self)
-        header.ui.titleLabel.setText('FTrack Create Project')
-        self.header_layout.addWidget(header)
-        self.main_vertical_layout.addLayout(self.header_layout)
+        self.header = HeaderWidget()
+        self.main_vertical_layout.addWidget(self.header)
 
         # create a central widget where to contain settings group and tree
 
@@ -460,16 +415,6 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.tool_box.setFrameShape(QtGui.QFrame.StyledPanel)
 
         self.main_vertical_layout.addWidget(self.splitter)
-
-        self.message_area = QtGui.QLabel('', parent=self)
-        self.message_area.setObjectName('ftrack-message-area-info')
-        self.message_area.resize(QtCore.QSize(900, 80))
-        self.message_area.setSizePolicy(
-            QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed
-        )
-        self.message_area.setVisible(False)
-
-        self.header_layout.addWidget(self.message_area)
 
         self.bottom_button_layout = QtGui.QHBoxLayout()
         self.main_vertical_layout.addLayout(self.bottom_button_layout)
@@ -595,10 +540,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         )
 
         QtGui.QApplication.restoreOverrideCursor()
-        self.message_area.setText('INFO: the project has been succesfully created !')
-        self.message_area.setObjectName('ftrack-message-area-info')
-        self.message_area.setVisible(True)
-
+        self.header.setMessage('INFO: the project has been succesfully created !', 'info')
         self.setDisabled(False)
 
     def _refresh_tree(self):
