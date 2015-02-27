@@ -70,9 +70,6 @@ class TagManager(object):
             if icon == 'sequence':
                 icon = 'folder'
 
-            if icon == 'episode':
-                icon == 'folder'
-
             if icon == 'show':
                 icon = 'home'
 

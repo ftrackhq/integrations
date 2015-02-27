@@ -311,7 +311,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         # Validate tag structure and set warning if there are any errors.
         tag_strucutre_valid, reason = is_valid_tag_structure(self.data)
         if not tag_strucutre_valid:
-            self.header.setMessage('WARNING: %s' % reason)
+            self.header.setMessage('WARNING: %s' % reason, 'warning')
             self.create_project_button.setEnabled(False)
         else:
             self.setDisabled(True)
