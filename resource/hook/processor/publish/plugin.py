@@ -98,10 +98,11 @@ class PublishPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
         input = event['data'].get('input', {})
         self.process(input)
 
-    def register(self, classifier):
-        '''Register processor with *classifier*.'''
+    def register(self):
+        '''Register processor'''
         ftrack.EVENT_HUB.subscribe(
-            'topic=ftrack.processor.discover and {0}'.format(classifier),
+            'topic=ftrack.processor.discover and data.name=Animation and '
+            'data.object_type=task',
             self.discover
         )
         ftrack.EVENT_HUB.subscribe(
@@ -113,6 +114,6 @@ class PublishPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
 
 
 def register(registry, **kw):
-    '''Register hooks for publish processor.'''
-    proxyPlugin = PublishPlugin()
-    proxyPlugin.register('data.name=Animation and data.object_type=task')
+    '''Register hooks thumbnail processor.'''
+    plugin = PublishPlugin()
+    plugin.register()
