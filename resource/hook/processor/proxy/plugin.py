@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014 ftrack
+# :copyright: Copyright (c) 2015 ftrack
 
 import os
 import tempfile
@@ -88,6 +88,7 @@ class ProxyPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
         return data
 
     def discover(self, event):
+        '''Return discover data for *event*.'''
         return {
             'defaults': self.defaults,
             'name': 'Ingest proxy',
@@ -96,10 +97,12 @@ class ProxyPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
         }
 
     def launch(self, event):
+        '''Launch processor from *event*.'''
         input = event['data'].get('input', {})
         self.process(input)
 
     def register(self, classifier):
+        '''Register processor with *classifier*.'''
         ftrack.EVENT_HUB.subscribe(
             'topic=ftrack.processor.discover and {0}'.format(classifier),
             self.discover
@@ -113,6 +116,6 @@ class ProxyPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
 
 
 def register(registry, **kw):
-    '''Register hooks for ftrack connect legacy plugins.'''
+    '''Register hooks for proxy processor.'''
     proxyPlugin = ProxyPlugin()
     proxyPlugin.register('data.name=Animation and data.object_type=task')
