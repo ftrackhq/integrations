@@ -288,7 +288,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         #     return
 
         self.create_ui_widgets()
-        # self.processors = config()
+
         self.data = data
         self.setWindowTitle('Create ftrack project')
         self.logo_icon = QtGui.QIcon(':ftrack/image/dark/ftrackLogoColor')
