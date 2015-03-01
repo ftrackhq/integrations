@@ -176,12 +176,6 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
         environment['FOUNDRY_ASSET_PLUGIN_PATH'] = os.path.join(
             FTRACK_CONNECT_NUKE_STUDIO_PATH, 'hiero'
         )
-        environment['FTRACK_NUKE_STUDIO_CONFIG'] = os.path.join(
-            FTRACK_CONNECT_NUKE_STUDIO_PATH, 'config.json'
-        )
-        environment['FTRACK_PROCESSOR_PLUGIN_PATH'] = os.path.join(
-            FTRACK_CONNECT_NUKE_STUDIO_PATH, 'processor'
-        )
 
         return environment
 

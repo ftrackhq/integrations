@@ -14,40 +14,6 @@ import FnAssetAPI
 import ftrack_connect_nuke_studio
 
 
-def config():
-    '''Configure processors.'''
-    config = os.getenv('FTRACK_NUKE_STUDIO_CONFIG')
-    if not config or not os.path.exists(config):
-        FnAssetAPI.logging.error(
-            'FTRACK_NUKE_STUDIO_CONFIG environment variable not set. No '
-            'processor plugins will be configured.'
-        )
-        return
-
-    data = json.load(file(config, 'r'))
-    processors = data.get('processor')
-
-    ftrack_connect_nuke_studio.setup()
-    plugins = ftrack_connect_nuke_studio.PROCESSOR_PLUGINS
-
-    def setup(node):
-        ''' In-place replacement for processors in config'''
-        for key, item in node.items():
-            if isinstance(item, dict):
-                setup(item)
-            else:
-                plugin = plugins.get(item)
-                if plugin is None:
-                    FnAssetAPI.logging.debug(
-                        'No processor plugin found with name "{0}"'.format(item)
-                    )
-                else:
-                    node[key] = plugin
-
-    setup(processors)
-    return processors
-
-
 class ProcessorPlugin(object):
     '''Processor plugin.'''
 

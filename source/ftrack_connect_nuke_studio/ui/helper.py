@@ -138,7 +138,6 @@ def is_valid_tag_structure(tag_data):
 
 def tree_data_factory(tag_data_list):
     '''Return tree of TagItems out of a set of ftags om *tag_data_list*.'''
-    processors = ftrack_connect_nuke_studio.processor.config()
 
     # Define tag type sort orders.
     tag_sort_order = [

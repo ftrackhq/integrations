@@ -22,7 +22,6 @@ from ftrack_connect_nuke_studio.ui.helper import (
 
 from ftrack_connect_nuke_studio.ui.tag_tree_model import TagTreeModel
 from ftrack_connect_nuke_studio.ui.tag_item import TagItem
-from ftrack_connect_nuke_studio.processor import config
 import ftrack_connect_nuke_studio
 
 
@@ -243,6 +242,30 @@ class FTrackServerHelper(object):
             FnAssetAPI.logging.debug(error)
             return False
 
+def gather_processors(name, type):
+    '''Retrieve processors from *name* and *type* grouped by asset name.'''
+    processors = ftrack.EVENT_HUB.publish(
+        ftrack.Event(
+            topic='ftrack.processor.discover',
+            data=dict(
+                name=name,
+                object_type=type
+            )
+        ),
+        synchronous=True
+    )
+
+    processor_groups = {}
+    for processor in processors:
+        asset_name = processor['asset_name']
+
+        if asset_name not in processor_groups:
+            processor_groups[asset_name] = []
+
+        processor_groups[asset_name].append(processor)
+
+    return processor_groups
+
 
 class ProjectTreeDialog(QtGui.QDialog):
     '''Create project dialog.'''
@@ -265,7 +288,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         #     return
 
         self.create_ui_widgets()
-        self.processors = config()
+        # self.processors = config()
         self.data = data
         self.setWindowTitle('Create ftrack project')
         self.logo_icon = QtGui.QIcon(':ftrack/image/dark/ftrackLogoColor')
@@ -454,11 +477,19 @@ class ProjectTreeDialog(QtGui.QDialog):
 
     def on_processor_ready(self, args):
         '''Handle processor ready signal.'''
-        plugins = ftrack_connect_nuke_studio.PROCESSOR_PLUGINS
-        processor = args[0]
+        processor_name = args[0]
         data = args[1]
-        plugin = plugins.get(processor)
-        plugin.process(data)
+
+        ftrack.EVENT_HUB.publish(
+            ftrack.Event(
+                topic='ftrack.processor.launch',
+                data=dict(
+                    name=processor_name,
+                    input=data
+                )
+            ),
+            synchronous=True
+        )
 
     def on_set_tree_root(self):
         '''Handle signal and populate the tree.'''
@@ -472,25 +503,27 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         index = selected.indexes()[0]
         item = index.model().data(index, role=self.tag_model.ITEM_ROLE)
-        processor = self.processors.get(item.name)
 
-        if not processor:
+        processor_groups = gather_processors(item.name, item.type)
+
+        if not processor_groups:
             return
 
-        asset_names = processor.keys()
-        for asset_name in asset_names:
+        for asset_name, processors in processor_groups.iteritems():
             widget = QtGui.QWidget()
             layout = QtGui.QVBoxLayout()
             widget.setLayout(layout)
 
-            for component_name, component_fn in processor[asset_name].items():
+            for processor in processors:
+                processor_name = processor['name']
+                defaults = processor['defaults']
 
-                data = QtGui.QGroupBox(component_name)
+                data = QtGui.QGroupBox(processor_name)
                 data_layout = QtGui.QVBoxLayout()
                 data.setLayout(data_layout)
 
                 layout.addWidget(data)
-                for node_name, knobs in component_fn.defaults.items():
+                for node_name, knobs in defaults.iteritems():
                     for knob, knob_value in knobs.items():
                         knob_layout = QtGui.QHBoxLayout()
                         label = QtGui.QLabel('%s:%s' % (node_name, knob))
@@ -629,14 +662,13 @@ class ProjectTreeDialog(QtGui.QDialog):
                     )
 
                 if datum.type == 'task':
-                    print datum.name
-                    processor = self.processors.get(datum.name)
-                    print processor
 
-                    if not processor:
+                    processor_groups = gather_processors(datum.name, datum.type)
+
+                    if not processor_groups:
                         continue
 
-                    asset_names = processor.keys()
+                    asset_names = processor_groups.keys()
                     for asset_name in asset_names:
                         asset = self.server_helper.create_asset(
                             asset_name, previous
@@ -647,7 +679,7 @@ class ProjectTreeDialog(QtGui.QDialog):
                             asset_id, result
                         )
 
-                        for component_name, component_fn in processor[asset_name].items():
+                        for processor in processor_groups[asset_name]:
                             out_data = {
                                 'resolution': resolution,
                                 'source_in': track_in,
@@ -658,11 +690,11 @@ class ProjectTreeDialog(QtGui.QDialog):
                                 'fps': fps,
                                 'offset': offset,
                                 'asset_version_id': version_id,
-                                'component_name': component_name,
+                                'component_name': processor['name'],
                                 'handles': handles
                             }
 
-                            processor_name = component_fn.getName()
+                            processor_name = processor['processor_name']
                             data = (processor_name,  out_data)
                             self.processor_ready.emit(data)
 
