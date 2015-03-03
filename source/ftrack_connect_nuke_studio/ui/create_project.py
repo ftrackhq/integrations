@@ -27,8 +27,6 @@ from ftrack_connect_nuke_studio.ui.tag_item import TagItem
 from ftrack_connect_nuke_studio.processor import config
 import ftrack_connect_nuke_studio
 from ftrack_connect.ui.theme import applyTheme
-# These should be then merged with the actual dark style , for consistency.
-
 
 
 class FTrackServerHelper(object):
