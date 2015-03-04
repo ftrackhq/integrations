@@ -281,7 +281,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.project_worker = None
 
         # Create overlay.
-        self.busy_overlay = TagTreeOverlay(self.tree_view)
+        self.busy_overlay = TagTreeOverlay(self)
         self.busy_overlay.hide()
 
         # Set model to the tree view.
@@ -518,7 +518,9 @@ class ProjectTreeDialog(QtGui.QDialog):
             self.create_project, (items, self.tag_model.root)
         )
         self.project_worker.finished.connect(self.on_project_created)
+        self.project_worker.finished.connect(self.busy_overlay.hide)
         self.project_worker.start()
+        self.busy_overlay.show()
 
         while self.project_worker.isRunning():
             app = QtGui.QApplication.instance()
@@ -556,10 +558,21 @@ class ProjectTreeDialog(QtGui.QDialog):
         '''Recursive function to create a new ftrack project on the server.'''
         selected_workflow = self.workflow_combobox.currentText()
         for datum in data:
+            # Gather all the useful informations from the track
+            track_in = int(datum.track.source().sourceIn())
+            track_out = int(datum.track.source().sourceOut())
 
-            # gather all the useful informations from the track
-            track_in = int(datum.track.sourceIn())
-            track_out = int(datum.track.sourceOut())
+            if datum.track.source().mediaSource().singleFile():
+                # Adjust frame in and out if the media source is a single file.
+                # This fix is required because Hiero is reporting Frame in as 0
+                # for a .mov file while Nuke is expecting Frame in 1.
+                track_in += 1
+                track_out += 1
+                FnAssetAPI.logging.debug(
+                    'Single file detected, adjusting frame start and frame end '
+                    'to {0}-{1}'.format(track_in, track_out)
+                )
+
             source = source_from_track_item(datum.track)
             start, end, in_, out = time_from_track_item(datum.track, self)
             fps = self.fps_combobox.currentText()
@@ -609,6 +622,10 @@ class ProjectTreeDialog(QtGui.QDialog):
                     self.server_helper.set_entity_data(
                         result[1], result[0], datum.track,
                         start, end, resolution, fps, handles
+                    )
+
+                    datum.track.source().setEntityReference(
+                        'ftrack://{0}?entityType={1}'.format(result[0], result[1])
                     )
 
                 if datum.type == 'task':

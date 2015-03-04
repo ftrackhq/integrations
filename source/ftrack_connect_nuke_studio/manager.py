@@ -17,7 +17,7 @@ class ManagerInterface(manager.ManagerInterface):
 
         # after the project load , create the ftrack tags.
         events.registerInterest(
-            'kAfterProjectLoad',
+            'kStartup',
             TagManager
         )
 
