@@ -1,3 +1,6 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2015 ftrack
+
 # This initializes the FnAssetAPI host
 import nuke.assetmgr
 import ftrack_connect_nuke_studio.plugin
