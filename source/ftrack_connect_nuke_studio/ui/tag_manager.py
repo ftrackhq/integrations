@@ -38,7 +38,7 @@ class TagManager(object):
 
         for task_type in task_types:
             ftag = hiero.core.Tag(task_type.getName())
-            ftag.setIcon(':ftrack/image/studio/task')
+            ftag.setIcon(':ftrack/image/integration/task')
 
             meta = ftag.metadata()
             meta.setValue('type', 'ftrack')
@@ -74,7 +74,7 @@ class TagManager(object):
                 icon = 'home'
 
             FnAssetAPI.logging.info(icon)
-            ftag.setIcon(':ftrack/image/studio/{0}'.format(icon))
+            ftag.setIcon(':ftrack/image/integration/{0}'.format(icon))
 
             meta = ftag.metadata()
             meta.setValue('type', 'ftrack')
