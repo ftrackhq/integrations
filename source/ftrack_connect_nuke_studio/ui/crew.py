@@ -23,6 +23,20 @@ from ftrack_connect.ui.widget.header import Header
 session = ftrack.Session()
 
 
+def get_shots_from_clips():
+    '''Return a list of shot ids from clips in the scene.'''
+    shot_ids = []
+    for item in hiero.core.findItems():
+        if hasattr(item, 'entityReference'):
+            reference = item.entityReference()
+            if reference and reference.startswith('ftrack://'):
+
+                url = urlparse.urlparse(reference)
+                shot_ids.append(url.netloc)
+
+    return shot_ids
+
+
 class NukeCrewHub(ftrack_connect.crew_hub.SignalCrewHub):
 
     def isInterested(self, data):
@@ -32,6 +46,8 @@ class NukeCrewHub(ftrack_connect.crew_hub.SignalCrewHub):
         # are visible in the list.
         return True
 
+#: TODO: Re-run classifier when a new project loads or clips in timeline are
+# assetised, added or removed.
 
 class UserClassifier(object):
     '''Class to classify users based on your context.'''
@@ -44,15 +60,7 @@ class UserClassifier(object):
 
         self._lookup = dict()
 
-        shot_ids = []
-        for item in hiero.core.findItems():
-            if hasattr(item, 'entityReference'):
-                reference = item.entityReference()
-                if reference and reference.startswith('ftrack://'):
-
-                    url = urlparse.urlparse(reference)
-                    shot_ids.append(url.netloc)
-
+        shot_ids = get_shots_from_clips()
         logging.info(
             'Classifying shot ids: "{0}"'.format(
                 shot_ids
@@ -210,6 +218,7 @@ class NukeCrew(QtGui.QDialog):
         '''Read context from environment.'''
         context = collections.defaultdict(list)
 
-        #: TODO: Add contexts from scene.
+        for id in get_shots_from_clips():
+            context['task'].append(id)
 
         return context
