@@ -9,7 +9,6 @@ from ftrack_connect_foundry.ui import delegate
 from ftrack_connect_nuke_studio.ui.create_project import ProjectTreeDialog
 
 
-
 def openCreateProjectUI(*args, **kwargs):
     ''' Function to be triggered from createProject custom menu.
     '''
@@ -30,6 +29,30 @@ class Delegate(delegate.Delegate):
     def __init__(self, bridge):
         super(Delegate, self).__init__(bridge)
 
+    def populate_ftrack(self):
+
+        import nuke
+        from nukescripts import panels
+
+        from ftrack_connect_nuke_studio.ui.crew import NukeCrew
+
+        # Populate the ui
+        nukeMenu = nuke.menu("Nuke")
+        ftrackMenu = nukeMenu.addMenu("&ftrack")
+
+        # Create the crew dialog entry in the menu
+        panels.registerWidgetAsPanel(
+            'ftrack_connect_nuke_studio.ui.crew.NukeCrew',
+            'Crew',
+            'widget.Crew'
+        )
+        ftrackMenu.addCommand(
+            'Crew',
+            'pane = nuke.getPaneFor("Properties.1");'
+            'panel = nukescripts.restorePanel("widget.Crew");'
+            'panel.addToPane(pane)'
+        )
+
     def populateUI(self, uiElement, specification, context):
         super(Delegate, self).populateUI(uiElement, specification, context)
 
@@ -42,3 +65,6 @@ class Delegate(delegate.Delegate):
                 action = QtGui.QAction(QtGui.QPixmap(':icon-ftrack-box'), 'Create Project', uiElement)
                 action.triggered.connect(cmd)
                 uiElement.addAction( action )
+
+            self.populate_ftrack()
+

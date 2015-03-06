@@ -7,7 +7,7 @@ import sys
 import pprint
 import logging
 
-import ftrack
+import ftrack_legacy as ftrack
 import ftrack_connect.application
 
 FTRACK_CONNECT_NUKE_STUDIO_PATH = os.environ.get(

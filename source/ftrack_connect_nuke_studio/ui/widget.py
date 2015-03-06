@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014 ftrack
 
 import hiero
-import ftrack
+import ftrack_legacy as ftrack
 from FnAssetAPI.ui.toolkit import QtGui
 
 

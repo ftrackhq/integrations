@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014 ftrack
 
 import tempfile
-import ftrack
+import ftrack_legacy as ftrack
 import getpass
 
 import FnAssetAPI.logging
@@ -323,8 +323,8 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         self.main_vertical_layout = QtGui.QVBoxLayout(self)
         self.setLayout(self.main_vertical_layout)
-        self.header = HeaderWidget()
-        self.main_vertical_layout.addWidget(self.header)
+        self.header = ftrack_connect.ui.widget.header.Header(getpass.getuser())
+        self.main_vertical_layout.addWidget(self.header, stretch=0)
 
         # create a central widget where to contain settings group and tree
 

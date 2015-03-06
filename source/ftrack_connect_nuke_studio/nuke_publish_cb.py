@@ -5,7 +5,7 @@ import os
 import threading
 
 import nuke
-import ftrack
+import ftrack_legacy as ftrack
 from clique import Collection
 
 
