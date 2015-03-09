@@ -170,9 +170,10 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
             application, context
         )
 
-        environment['HIERO_PLUGIN_PATH'] = os.path.join(
-            FTRACK_CONNECT_NUKE_STUDIO_PATH, 'hiero'
+        environment['NUKE_PATH'] = os.path.join(
+            FTRACK_CONNECT_NUKE_STUDIO_PATH, 'hiero', 'nuke'
         )
+
         environment['FOUNDRY_ASSET_PLUGIN_PATH'] = os.path.join(
             FTRACK_CONNECT_NUKE_STUDIO_PATH, 'hiero'
         )
@@ -187,8 +188,15 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
         # hooks.
         environment = ftrack_connect.application.appendPath(
             os.path.join(
-                self.plugin_path, 'crew_hook'
+                FTRACK_CONNECT_NUKE_STUDIO_PATH, 'crew_hook'
             ), 'FTRACK_EVENT_PLUGIN_PATH', environment
+        )
+
+        environment = ftrack_connect.application.appendPath(
+            os.path.join(
+                FTRACK_CONNECT_NUKE_STUDIO_PATH, '..',
+                'ftrack_python_api'
+            ), 'FTRACK_PYTHON_API_PLUGIN_PATH', environment
         )
 
         return environment
