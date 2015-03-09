@@ -93,11 +93,13 @@ class TagTreeModel(EntityTreeModel):
 
         elif role == QtCore.Qt.ForegroundRole:
             if item.exists == 'error':
-                return QtGui.QColor('red')
-            elif item.exists:
-                return QtGui.QColor('green')
-            else:
                 return QtGui.QColor('orange')
+
+            elif item.exists:
+                return QtGui.QColor('white')
+
+            else:
+                return QtGui.QColor('#278F74')
 
         elif role == QtCore.Qt.TextAlignmentRole:
                 return QtCore.Qt.AlignLeft

@@ -35,6 +35,8 @@ class TagDropHandler(object):
         currentTags = event.items
 
         for currentTag in currentTags:
+            currentTag = currentTag.copy()
+            current_item = event.trackItem
             tag_name = currentTag.name()
             meta = currentTag.metadata()
 
@@ -56,7 +58,7 @@ class TagDropHandler(object):
                 meta.setValue('tag.value', project)
 
             # Handle a tag with a regular expression.
-            if meta.hasKey('tag.re'):
+            elif meta.hasKey('tag.re'):
                 match = meta.value('tag.re')
                 if not match:
                     # If the regular expression is empty skip it.
@@ -71,6 +73,9 @@ class TagDropHandler(object):
                         )
                     )
                     meta.setValue('tag.value', result_value)
+
+            current_item.addTag(currentTag)
+            event.dropEvent.accept()
 
     def unregister(self):
         ''' Unregister the handler.'''
