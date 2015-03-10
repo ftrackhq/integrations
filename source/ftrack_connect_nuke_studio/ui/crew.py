@@ -10,6 +10,7 @@ from PySide import QtGui
 from FnAssetAPI import logging
 import nuke
 import hiero.core
+import hiero.core.events
 import ftrack_connect.crew_hub
 import ftrack
 import ftrack_legacy
@@ -167,9 +168,10 @@ class NukeCrew(QtGui.QDialog):
         self.setObjectName('Crew')
         self.setWindowTitle('Crew')
 
-        # :TODO: Bind listener to refresh scene when clips are added or changed,
-        # or if the selection changes.
-        self.on_refresh_event()
+        hiero.core.events.registerInterest(
+            'kAfterProjectLoad',
+            self.on_refresh_event
+        )
 
         self._enter_chat()
 
@@ -193,7 +195,7 @@ class NukeCrew(QtGui.QDialog):
 
         self._hub.enter(data)
 
-    def on_refresh_event(self):
+    def on_refresh_event(self, *args, **kwargs):
         '''Handle refresh events.'''
         context = self._read_context_from_environment()
         self._update_notification_context(context)
