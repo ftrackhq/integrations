@@ -3,7 +3,7 @@
 
 from FnAssetAPI.ui.toolkit import QtGui
 from ftrack_connect.ui.model.entity_tree import Item
-
+from ftrack_connect.ui import resource
 
 class TagItem(Item):
     '''Tag Item representation for the tree.'''
@@ -48,7 +48,7 @@ class TagItem(Item):
             icon = 'folder'
 
         icon = icon.lower()
-        return QtGui.QIcon(':ftrack/image/dark/{0}'.format(icon))
+        return QtGui.QIcon(':ftrack/image/integration/{0}'.format(icon))
 
     @property
     def id(self):
