@@ -54,6 +54,6 @@ def callback(event):
 def register(registry, **kw):
     '''Register hook.'''
     ftrack_legacy.EVENT_HUB.subscribe(
-        'topic=ftrack.connect.notification.get-events',
+        'topic=ftrack.crew.notification.get-events',
         callback
     )

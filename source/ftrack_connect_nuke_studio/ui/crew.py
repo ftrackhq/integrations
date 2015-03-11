@@ -24,57 +24,6 @@ from ftrack_connect.ui.widget.header import Header
 session = ftrack.Session()
 
 
-def get_shots_from_clips():
-    '''Return a list of shot ids from clips in the scene.'''
-    shot_ids = []
-    for item in hiero.core.findItems():
-        if hasattr(item, 'entityReference'):
-            reference = item.entityReference()
-            if reference and reference.startswith('ftrack://'):
-
-                url = urlparse.urlparse(reference)
-                query = urlparse.parse_qs(url.query)
-                entityType = query.get('entityType')[0]
-
-                if entityType == 'task':
-                    shot_ids.append(url.netloc)
-
-    logging.debug('shot_ids: {0}'.format(shot_ids))
-
-    return shot_ids
-
-
-def get_versions_from_clips():
-    '''Return a list of version ids from clips in the scene.'''
-    component_ids = []
-    for item in hiero.core.findItems():
-        if hasattr(item, 'entityReference'):
-            reference = item.entityReference()
-            if reference and reference.startswith('ftrack://'):
-
-                url = urlparse.urlparse(reference)
-                query = urlparse.parse_qs(url.query)
-                entityType = query.get('entityType')[0]
-                if entityType == 'component':
-                    component_ids.append(url.netloc)
-
-    version_ids = []
-    if component_ids:
-        components = session.query(
-            'select version.id from Component where id in'
-            ' ({0})'.format(','.join(component_ids))
-        ).all()
-
-        for component in components:
-            version_ids.append(
-                component['version']['id']
-            )
-
-    logging.debug('version_ids: {0}'.format(version_ids))
-
-    return version_ids
-
-
 class NukeCrewHub(ftrack_connect.crew_hub.SignalCrewHub):
 
     def isInterested(self, data):
@@ -84,8 +33,8 @@ class NukeCrewHub(ftrack_connect.crew_hub.SignalCrewHub):
         # are visible in the list.
         return True
 
-#: TODO: Re-run classifier when a new project loads or clips in timeline are
-# assetised, added or removed.
+#: TODO: Re-run classifier when clips in timeline are assetised, added or 
+# removed.
 
 class UserClassifier(object):
     '''Class to classify users based on your context.'''
@@ -95,36 +44,35 @@ class UserClassifier(object):
         super(UserClassifier, self).__init__()
 
         logging.info('Initialise classifier')
-
         self._lookup = dict()
 
-        shot_ids = get_shots_from_clips()
-        version_ids = get_versions_from_clips()
+    def update_context(self, context):
+        '''Update based on *context*.'''
+        self._lookup = dict()
+
         logging.info(
-            'Classifying shot ids: "{0}"'.format(
-                shot_ids
-            )
+            'Classifying based context: "{0}"'.format(context)
         )
-        if shot_ids:
+        if context['shot']:
             tasks = session.query(
                 (
                     'select assignments, name from Task where parent_id in '
                     '({0})'
                 ).format(
-                  ', '.join(shot_ids)
+                  ', '.join(context['shot'])
                 )
             )
             for task in tasks:
                 for resource in task['assignments']:
                     self._lookup[resource['resource_id']] = 'related'
 
-        if version_ids:
+        if context['asset_version']:
             versions = session.query(
                 (
                     'select user from AssetVersion where id in '
                     '({0})'
                 ).format(
-                  ', '.join(version_ids)
+                  ', '.join(context['asset_version'])
                 )
             )
             for version in versions:
@@ -255,24 +203,47 @@ class NukeCrew(QtGui.QDialog):
 
     def _update_notification_context(self, context):
         '''Update the notification list context on refresh.'''
+        logging.info(
+            'Update notification based context: "{0}"'.format(context)
+        )
         self.notification_list.clearContext(_reload=False)
 
-        for task in context['task']:
+        for task in context['shot']:
             self.notification_list.addContext(task, 'task', False)
 
         self.notification_list.reload()
 
     def _update_crew_context(self, context):
         '''Update crew context and re-classify online users.'''
+        self._classifier.update_context(context)
+        self.chat.classifyOnlineUsers()
 
     def _read_context_from_environment(self):
         '''Read context from environment.'''
         context = collections.defaultdict(list)
 
-        for id in get_shots_from_clips():
-            context['task'].append(id)
+        component_ids = []
+        for item in hiero.core.findItems():
+            if hasattr(item, 'entityReference'):
+                reference = item.entityReference()
+                if reference and reference.startswith('ftrack://'):
 
-        for id in get_versions_from_clips():
-            context['asset'].append(id)
+                    url = urlparse.urlparse(reference)
+                    query = urlparse.parse_qs(url.query)
+                    entityType = query.get('entityType')[0]
+
+                    if entityType == 'task':
+                        context['shot'].append(url.netloc)
+                    elif entityType == 'component':
+                        component_ids.append(url.netloc)
+
+        if component_ids:
+            components = session.query(
+                'select version.id from Component where id in'
+                ' ({0})'.format(','.join(component_ids))
+            ).all()
+
+            for component in components:
+                context['asset_version'].append(component['version']['id'])
 
         return context
