@@ -4,9 +4,14 @@
 import functools
 
 import FnAssetAPI
+import nuke
+
 from FnAssetAPI.ui.toolkit import QtGui
 from ftrack_connect_foundry.ui import delegate
+from nukescripts import panels
+
 from ftrack_connect_nuke_studio.ui.create_project import ProjectTreeDialog
+from ftrack_connect_nuke_studio.ui.crew import NukeCrew
 
 
 def openCreateProjectUI(*args, **kwargs):
@@ -29,12 +34,8 @@ class Delegate(delegate.Delegate):
     def __init__(self, bridge):
         super(Delegate, self).__init__(bridge)
 
-    def populate_ftrack(self):
-
-        import nuke
-        from nukescripts import panels
-
-        from ftrack_connect_nuke_studio.ui.crew import NukeCrew
+    def populateFtrackMenu(self):
+        '''Populate ftrack menu.'''
 
         # Populate the ui
         nukeMenu = nuke.menu("Nuke")
@@ -66,5 +67,5 @@ class Delegate(delegate.Delegate):
                 action.triggered.connect(cmd)
                 uiElement.addAction( action )
 
-            self.populate_ftrack()
+            self.populateFtrackMenu()
 
