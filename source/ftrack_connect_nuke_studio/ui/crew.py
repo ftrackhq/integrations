@@ -33,9 +33,46 @@ def get_shots_from_clips():
             if reference and reference.startswith('ftrack://'):
 
                 url = urlparse.urlparse(reference)
-                shot_ids.append(url.netloc)
+                query = urlparse.parse_qs(url.query)
+                entityType = query.get('entityType')[0]
+
+                if entityType == 'task':
+                    shot_ids.append(url.netloc)
+
+    logging.debug('shot_ids: {0}'.format(shot_ids))
 
     return shot_ids
+
+
+def get_versions_from_clips():
+    '''Return a list of version ids from clips in the scene.'''
+    component_ids = []
+    for item in hiero.core.findItems():
+        if hasattr(item, 'entityReference'):
+            reference = item.entityReference()
+            if reference and reference.startswith('ftrack://'):
+
+                url = urlparse.urlparse(reference)
+                query = urlparse.parse_qs(url.query)
+                entityType = query.get('entityType')[0]
+                if entityType == 'component':
+                    component_ids.append(url.netloc)
+
+    version_ids = []
+    if component_ids:
+        components = session.query(
+            'select version.id from Component where id in'
+            ' ({0})'.format(','.join(component_ids))
+        ).all()
+
+        for component in components:
+            version_ids.append(
+                component['version']['id']
+            )
+
+    logging.debug('version_ids: {0}'.format(version_ids))
+
+    return version_ids
 
 
 class NukeCrewHub(ftrack_connect.crew_hub.SignalCrewHub):
@@ -62,6 +99,7 @@ class UserClassifier(object):
         self._lookup = dict()
 
         shot_ids = get_shots_from_clips()
+        version_ids = get_versions_from_clips()
         logging.info(
             'Classifying shot ids: "{0}"'.format(
                 shot_ids
@@ -79,6 +117,18 @@ class UserClassifier(object):
             for task in tasks:
                 for resource in task['assignments']:
                     self._lookup[resource['resource_id']] = 'related'
+
+        if version_ids:
+            versions = session.query(
+                (
+                    'select user from AssetVersion where id in '
+                    '({0})'
+                ).format(
+                  ', '.join(version_ids)
+                )
+            )
+            for version in versions:
+                self._lookup[version['user']['id']] = 'contributor'
 
         logging.info(
             '_lookup contains "{0}"'.format(str(self._lookup))
@@ -122,7 +172,7 @@ class NukeCrew(QtGui.QDialog):
 
         self._classifier = UserClassifier()
 
-        groups = ['Related']
+        groups = ['contributor', 'related']
         self.chat = _crew.Crew(
             groups, hub=self._hub, classifier=self._classifier, parent=self
         )
@@ -173,6 +223,8 @@ class NukeCrew(QtGui.QDialog):
             self.on_refresh_event
         )
 
+        self.on_refresh_event()
+
         self._enter_chat()
 
     def _enter_chat(self):
@@ -185,7 +237,7 @@ class NukeCrew(QtGui.QDialog):
             },
             'application': {
                 'identifier': 'nuke',
-                'label': 'Nuke {0}'.format(nuke.NUKE_VERSION_STRING)
+                'label': 'Nuke {0}'.format('Studio')
             },
             'context': {
                 'project_id': 'my_project_id',
@@ -205,9 +257,6 @@ class NukeCrew(QtGui.QDialog):
         '''Update the notification list context on refresh.'''
         self.notification_list.clearContext(_reload=False)
 
-        for asset in context['asset']:
-            self.notification_list.addContext(asset, 'asset', False)
-
         for task in context['task']:
             self.notification_list.addContext(task, 'task', False)
 
@@ -222,5 +271,8 @@ class NukeCrew(QtGui.QDialog):
 
         for id in get_shots_from_clips():
             context['task'].append(id)
+
+        for id in get_versions_from_clips():
+            context['asset'].append(id)
 
         return context
