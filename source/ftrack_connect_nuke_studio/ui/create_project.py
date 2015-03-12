@@ -575,7 +575,10 @@ class ProjectTreeDialog(QtGui.QDialog):
             track_in = int(datum.track.source().sourceIn())
             track_out = int(datum.track.source().sourceOut())
             # NOTE: effectTrack are not used atm
-            effects = [effect for effect in datum.track.linkedItems() if isinstance(effect, hiero.core.EffectTrackItem)]
+            effects = [
+                effect for effect in datum.track.linkedItems()
+                if isinstance(effect, hiero.core.EffectTrackItem)
+            ]
 
             if datum.track.source().mediaSource().singleFile():
                 # Adjust frame in and out if the media source is a single file.
