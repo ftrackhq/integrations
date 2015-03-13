@@ -7,6 +7,7 @@ import os
 import json
 import tempfile
 import logging
+import uuid
 
 import nuke
 import FnAssetAPI
@@ -184,13 +185,15 @@ class ProcessorPlugin(object):
         start = write_node['first'].value()
         end = write_node['last'].value()
 
-        temporary_script = tempfile.NamedTemporaryFile(
-            suffix='.nk', delete=False, prefix=self.getName()
+        temporary_script_name = '{tempdir}/{prefix}-{random}.nk'.format(
+            tempdir=tempfile.gettempdir(), prefix=self.getName(),
+            random=uuid.uuid4().hex
         )
+
         self.logger.info(
-            'Saving temporary script to "{0}"'.format(temporary_script.name)
+            'Saving temporary script to "{0}"'.format(temporary_script_name)
         )
-        nuke.scriptSaveAs(temporary_script.name)
+        nuke.scriptSaveAs(temporary_script_name)
 
         nuke.executeBackgroundNuke(
             nuke.EXE_PATH,
