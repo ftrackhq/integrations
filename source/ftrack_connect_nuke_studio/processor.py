@@ -185,9 +185,12 @@ class ProcessorPlugin(object):
         start = write_node['first'].value()
         end = write_node['last'].value()
 
-        temporary_script_name = '{tempdir}/{prefix}-{random}.nk'.format(
-            tempdir=tempfile.gettempdir(), prefix=self.getName(),
-            random=uuid.uuid4().hex
+        temporary_script_name = os.path.join(
+            tempfile.gettempdir(),
+            '{prefix}-{random}.nk'.format(
+                prefix=self.getName(),
+                random=uuid.uuid4().hex
+            )
         )
 
         self.logger.info(
