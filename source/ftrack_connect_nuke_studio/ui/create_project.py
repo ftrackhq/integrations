@@ -4,6 +4,7 @@
 import tempfile
 import ftrack
 import getpass
+import hiero
 
 import FnAssetAPI.logging
 from FnAssetAPI.ui.toolkit import QtGui, QtCore
@@ -11,7 +12,7 @@ from FnAssetAPI.ui.toolkit import QtGui, QtCore
 from .widget import Resolution, Fps, Workflow
 
 from ftrack_connect import worker
-from ftrack_connect.ui.widget.header import HeaderWidget
+import ftrack_connect.ui.widget.header
 
 from ftrack_connect_nuke_studio.ui.helper import (
     tree_data_factory,
@@ -309,7 +310,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         # Validate tag structure and set warning if there are any errors.
         tag_strucutre_valid, reason = is_valid_tag_structure(self.data)
         if not tag_strucutre_valid:
-            self.header.setMessage('WARNING: %s' % reason, 'warning')
+            self.header.setMessage(reason, 'warning')
             self.create_project_button.setEnabled(False)
         else:
             self.setDisabled(True)
@@ -323,15 +324,26 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         self.main_vertical_layout = QtGui.QVBoxLayout(self)
         self.setLayout(self.main_vertical_layout)
-        self.header = HeaderWidget()
+        self.header = ftrack_connect.ui.widget.header.Header(
+            getpass.getuser(), self
+        )
         self.main_vertical_layout.addWidget(self.header)
 
+        self.central_horizontal_widget = QtGui.QWidget()
+        self.central_horizontal_layout = QtGui.QHBoxLayout()
+        self.central_horizontal_widget.setLayout(
+            self.central_horizontal_layout
+        )
+        self.main_vertical_layout.addWidget(
+            self.central_horizontal_widget, stretch=1
+        )
         # create a central widget where to contain settings group and tree
 
         self.splitter = QtGui.QSplitter(self)
         self.central_widget = QtGui.QWidget(self.splitter)
         self.central_layout = QtGui.QVBoxLayout()
         self.central_widget.setLayout(self.central_layout)
+        self.central_horizontal_layout.addWidget(self.central_widget, stretch=2)
 
         # settings
         self.group_box = QtGui.QGroupBox('General Settings')
@@ -409,10 +421,11 @@ class ProjectTreeDialog(QtGui.QDialog):
         default_message.readOnly = True
         default_message.setAlignment(QtCore.Qt.AlignCenter)
         self.tool_box.addItem(default_message , 'Processors')
+        self.tool_box.setContentsMargins(0, 15, 0, 0)
         self.tool_box.setMinimumSize(QtCore.QSize(300, 0))
         self.tool_box.setFrameShape(QtGui.QFrame.StyledPanel)
 
-        self.main_vertical_layout.addWidget(self.splitter)
+        self.central_horizontal_layout.addWidget(self.splitter, stretch=1)
 
         self.bottom_button_layout = QtGui.QHBoxLayout()
         self.main_vertical_layout.addLayout(self.bottom_button_layout)
@@ -538,7 +551,9 @@ class ProjectTreeDialog(QtGui.QDialog):
         )
 
         QtGui.QApplication.restoreOverrideCursor()
-        self.header.setMessage('INFO: the project has been succesfully created !', 'info')
+        self.header.setMessage(
+            'The project has been succesfully created !', 'info'
+        )
         self.setDisabled(False)
 
     def _refresh_tree(self):
@@ -559,6 +574,11 @@ class ProjectTreeDialog(QtGui.QDialog):
             # Gather all the useful informations from the track
             track_in = int(datum.track.source().sourceIn())
             track_out = int(datum.track.source().sourceOut())
+            # NOTE: effectTrack are not used atm
+            effects = [
+                effect for effect in datum.track.linkedItems()
+                if isinstance(effect, hiero.core.EffectTrackItem)
+            ]
 
             if datum.track.source().mediaSource().singleFile():
                 # Adjust frame in and out if the media source is a single file.
