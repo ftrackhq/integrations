@@ -17,6 +17,8 @@ def openCreateProjectUI(*args, **kwargs):
     ftags = []
     trackItems = args[0]
     for item in trackItems:
+        if not isinstance(item,  hiero.core.TrackItem):
+            continue
         tags = item.tags()
         tags = [tag for tag in tags if tag.metadata().hasKey('ftrack.type')]
         ftags.append((item, tags))
