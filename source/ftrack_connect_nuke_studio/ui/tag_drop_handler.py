@@ -74,6 +74,9 @@ class TagDropHandler(object):
                     )
                     meta.setValue('tag.value', result_value)
 
+            if not isinstance(current_item, hiero.core.TrackItem):
+                continue
+
             current_item.addTag(currentTag)
             event.dropEvent.accept()
 
