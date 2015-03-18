@@ -5,6 +5,17 @@
 Releases
 ########
 
+.. release:: 0.1.10
+    :date: 2015-03-18
+
+    .. change:: changed
+
+        `ftrack connect nuke 0.1.2 <http://rtd.ftrack.com/docs/ftrack-connect-nuke/en/0.1.2/>`_ 
+
+    .. change:: changed
+
+        `ftrack connect 0.1.9 <http://rtd.ftrack.com/docs/ftrack-connect/en/0.1.9/>`_
+
 .. release:: 0.1.9
     :date: 2015-03-02
 
