@@ -96,10 +96,10 @@ class TagTreeModel(EntityTreeModel):
                 return QtGui.QColor('orange')
 
             elif item.exists:
-                return QtGui.QColor('white')
+                return QtGui.QColor('#278F74')
 
             else:
-                return QtGui.QColor('#278F74')
+                return QtGui.QColor('white')
 
         elif role == QtCore.Qt.TextAlignmentRole:
                 return QtCore.Qt.AlignLeft

@@ -72,7 +72,7 @@ connect_ftrack_new_api_dependency_link = (
 
 connect_dependency_link = (
     'https://bitbucket.org/ftrack/ftrack-connect/get/backlog/crew/integrate-with-nuke.zip'
-    '#egg=ftrack-connect-0.1.7'
+    '#egg=ftrack-connect-0.1.8'
 )
 
 connect_foundry_dependency_link = (
