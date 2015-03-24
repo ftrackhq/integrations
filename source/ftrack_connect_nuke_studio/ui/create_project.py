@@ -270,7 +270,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.create_ui_widgets()
         self.processors = config()
         self.data = data
-        self.setWindowTitle('Create ftrack project')
+        self.setWindowTitle('Export project')
         self.logo_icon = QtGui.QIcon(':ftrack/image/dark/ftrackLogoColor')
         self.setWindowIcon(self.logo_icon)
 
