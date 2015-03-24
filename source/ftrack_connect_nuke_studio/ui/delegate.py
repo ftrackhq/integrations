@@ -7,7 +7,9 @@ import FnAssetAPI
 from FnAssetAPI.ui.toolkit import QtGui
 from ftrack_connect_foundry.ui import delegate
 from ftrack_connect_nuke_studio.ui.create_project import ProjectTreeDialog
-
+from ftrack_connect_foundry.ui.info_view import (
+    WorkingTaskInfoView as _WorkingTaskInfoView
+)
 
 
 def openCreateProjectUI(*args, **kwargs):
@@ -32,6 +34,32 @@ class Delegate(delegate.Delegate):
     def __init__(self, bridge):
         super(Delegate, self).__init__(bridge)
 
+    def populate_ftrack(self):
+        '''Populate the ftrack menu with items.
+
+        .. note ::
+
+            This method is using the nuke module which will not work if the
+            plugin run in Hiero.
+
+        '''
+        # Inline to not break if plugin run in Hiero.
+        import nuke
+
+        mainMenu = nuke.menu('Nuke')
+        ftrackMenu = mainMenu.addMenu('&ftrack')
+
+        ftrackMenu.addSeparator()
+
+        ftrackMenu.addCommand(
+            'Info',
+            'pane = nuke.getPaneFor("Properties.1");'
+            'panel = nukescripts.restorePanel("{identifier}");'
+            'panel.addToPane(pane)'.format(
+                identifier=_WorkingTaskInfoView.getIdentifier()
+            )
+        )
+
     def populateUI(self, uiElement, specification, context):
         super(Delegate, self).populateUI(uiElement, specification, context)
 
@@ -44,3 +72,5 @@ class Delegate(delegate.Delegate):
                 action = QtGui.QAction(QtGui.QPixmap(':icon-ftrack-box'), 'Create Project', uiElement)
                 action.triggered.connect(cmd)
                 uiElement.addAction( action )
+
+            self.populate_ftrack()
