@@ -9,7 +9,7 @@ import hiero
 import FnAssetAPI.logging
 from FnAssetAPI.ui.toolkit import QtGui, QtCore
 
-from .widget import Resolution, Fps, Workflow
+from .widget import Resolution, Fps, Workflow, ProjectSelector
 
 from ftrack_connect import worker
 import ftrack_connect.ui.widget.header
@@ -347,10 +347,15 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         # settings
         self.group_box = QtGui.QGroupBox('General Settings')
-        self.group_box.setMaximumSize(QtCore.QSize(16777215, 200))
+        self.group_box.setMaximumSize(QtCore.QSize(16777215, 350))
 
         self.group_box_layout = QtGui.QVBoxLayout(self.group_box)
 
+        # Create project selector and label.
+        self.project_selector = ProjectSelector(self.group_box)
+        self.group_box_layout.addWidget(self.project_selector)
+
+        # Create Workflow selector and label.
         self.workflow_layout = QtGui.QHBoxLayout()
 
         self.label = QtGui.QLabel('Workflow', parent=self.group_box)
@@ -462,9 +467,16 @@ class ProjectTreeDialog(QtGui.QDialog):
 
             self.start_frame_offset_spinbox.setValue(int(offset))
 
+        if self.project_selector.isEnabled():
+            self.project_selector.select_existing_project(name)
+
     def on_project_preview_done(self):
         '''Handle signal once the project preview have started populating.'''
         self.setEnabled(True)
+
+        for child in self.tag_model.root.children:
+            if child.type == 'show':
+                self.project_selector.new_project_name_edit.setText(child.name)
 
     def on_processor_ready(self, args):
         '''Handle processor ready signal.'''
@@ -604,9 +616,10 @@ class ProjectTreeDialog(QtGui.QDialog):
                         datum.name, datum.type, datum.exists.get('showid')))
                     result = (datum.exists.get('showid'), 'show')
                 else:
-                    FnAssetAPI.logging.debug('creating show %s' % datum.name)
+                    project_name = self.project_selector.get_new_name()
+                    FnAssetAPI.logging.debug('creating show %s' % project_name)
                     result = self.server_helper.create_project(
-                        datum.name, selected_workflow)
+                        project_name, selected_workflow)
                     datum.exists = {'showid': result[0]}
 
                 show_meta = {
