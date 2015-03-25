@@ -10,7 +10,7 @@ from ftrack_connect.ui import resource
 DEFAULT_CONTEXT_TAGS = [
     ('project', 'show', None),
     ('episode', 'episode', '(\w+.)?EP(\d+)'),
-    ('sequence', 'sequence', '(\w+.)?SEQ(\d+)'),
+    ('sequence', 'sequence', '(\w+.)?SQ(\d+)'),
     ('shot', 'shot', '(\w+.)?SH(\d+)')
 
 ]
