@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014 ftrack
+# :copyright: Copyright (c) 2015 ftrack
 
 import FnAssetAPI.logging
 import ftrack
@@ -27,7 +27,7 @@ class ContextTags(object):
         ]
 
     def register(self):
-        '''Register processor'''
+        '''Register hook.'''
         ftrack.EVENT_HUB.subscribe(
             'topic=ftrack.connect.nuke-studio.get-context-tags',
             self.launch
@@ -35,6 +35,6 @@ class ContextTags(object):
 
 
 def register(registry, **kw):
-    '''Register hooks thumbnail processor.'''
+    '''Register hooks for context tags.'''
     plugin = ContextTags()
     plugin.register()
