@@ -131,7 +131,8 @@ class NukeCrew(QtGui.QDialog):
         ):
             if user['username'] != getpass.getuser():
                 self.chat.addUser(
-                    user['first_name'], user['id']
+                    u'{0} {1}'.format(user['first_name'], user['last_name']),
+                    user['id']
                 )
 
         self.tab_panel = QtGui.QTabWidget(parent=self)
