@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2015 ftrack
 
 import FnAssetAPI.logging
-import ftrack
+import ftrack_legacy as ftrack
 
 
 class ContextTags(object):
