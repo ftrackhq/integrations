@@ -11,7 +11,6 @@ from ftrack_connect_nuke_studio.ui.widget.info_view import (
     InfoView as _InfoView
 )
 
-
 def openCreateProjectUI(*args, **kwargs):
     ''' Function to be triggered from createProject custom menu.
     '''
@@ -20,7 +19,7 @@ def openCreateProjectUI(*args, **kwargs):
     ftags = []
     trackItems = args[0]
     for item in trackItems:
-        if not isinstance(item,  hiero.core.TrackItem):
+        if not isinstance(item, hiero.core.TrackItem):
             continue
         tags = item.tags()
         tags = [tag for tag in tags if tag.metadata().hasKey('ftrack.type')]
@@ -79,13 +78,18 @@ class Delegate(delegate.Delegate):
         super(Delegate, self).populateUI(uiElement, specification, context)
 
         host = FnAssetAPI.SessionManager.currentSession().getHost()
-        if host and host.getIdentifier() == 'uk.co.foundry.nukestudio': 
+        if host and host.getIdentifier() == 'uk.co.foundry.nukestudio':
             import nuke.assetmgr
-            if context.locale.isOfType(nuke.assetmgr.nukestudiohost.hostAdaptor.NukeStudioHostAdaptor.specifications.HieroTimelineContextMenuLocale):                
+            if context.locale.isOfType(
+                nuke.assetmgr.nukestudiohost.hostAdaptor.NukeStudioHostAdaptor.specifications.HieroTimelineContextMenuLocale
+            ):
                 data = context.locale.getData().get('event').sender.selection()
                 cmd = functools.partial(openCreateProjectUI, data)
-                action = QtGui.QAction(QtGui.QPixmap(':icon-ftrack-box'), 'Create Project', uiElement)
+                action = QtGui.QAction(
+                    QtGui.QPixmap(':icon-ftrack-box'),
+                    'Export project', uiElement
+                )
                 action.triggered.connect(cmd)
-                uiElement.addAction( action )
+                uiElement.addAction(action)
 
-            self.populate_ftrack()
+                self.populate_ftrack()
