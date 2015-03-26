@@ -4,12 +4,19 @@
 import functools
 
 import FnAssetAPI
+import nuke
+
 from FnAssetAPI.ui.toolkit import QtGui
 from ftrack_connect_foundry.ui import delegate
+
+from nukescripts import panels
+
 from ftrack_connect_nuke_studio.ui.create_project import ProjectTreeDialog
+from ftrack_connect_nuke_studio.ui.crew import NukeCrew
 from ftrack_connect_nuke_studio.ui.widget.info_view import (
     InfoView as _InfoView
 )
+
 
 def openCreateProjectUI(*args, **kwargs):
     ''' Function to be triggered from createProject custom menu.
@@ -49,19 +56,24 @@ class Delegate(delegate.Delegate):
             self._widgetMapping[identifier] = boundWidgetClass
 
     def populate_ftrack(self):
-        '''Populate the ftrack menu with items.
+        '''Populate the ftrack menu with items.'''
 
-        .. note ::
+        # Populate the ui
+        nukeMenu = nuke.menu('Nuke')
+        ftrackMenu = nukeMenu.addMenu('&ftrack')
 
-            This method is using the nuke module which will not work if the
-            plugin run in Hiero.
-
-        '''
-        # Inline to not break if plugin run in Hiero.
-        import nuke
-
-        mainMenu = nuke.menu('Nuke')
-        ftrackMenu = mainMenu.addMenu('&ftrack')
+        # Create the crew dialog entry in the menu
+        panels.registerWidgetAsPanel(
+            'ftrack_connect_nuke_studio.ui.crew.NukeCrew',
+            'Crew',
+            'widget.Crew'
+        )
+        ftrackMenu.addCommand(
+            'Crew',
+            'pane = nuke.getPaneFor("Properties.1");'
+            'panel = nukescripts.restorePanel("widget.Crew");'
+            'panel.addToPane(pane)'
+        )
 
         ftrackMenu.addSeparator()
 
@@ -92,4 +104,4 @@ class Delegate(delegate.Delegate):
                 action.triggered.connect(cmd)
                 uiElement.addAction(action)
 
-                self.populate_ftrack()
+            self.populate_ftrack()

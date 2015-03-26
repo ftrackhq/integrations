@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 
-import ftrack
+import ftrack_legacy as ftrack
 import hiero
 
 from nuke.assetmgr.nukestudiohost.hostAdaptor.NukeStudioHostAdaptor import utils

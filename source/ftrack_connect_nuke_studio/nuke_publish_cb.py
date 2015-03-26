@@ -5,7 +5,7 @@ import os
 import threading
 
 import nuke
-import ftrack
+import ftrack_legacy as ftrack
 from clique import Collection
 
 
@@ -39,7 +39,8 @@ def createComponent():
         padding=len(str(end_frame)),
         indexes=set(range(start_frame, end_frame+1))
     )
-    version.createComponent(component, str(collection))
+    component = version.createComponent(component, str(collection))
+    component.setMeta('img_main', True)
 
 
 def publishReviewableComponent(version_id, component, out):

@@ -6,7 +6,7 @@ import functools
 
 import FnAssetAPI
 
-import ftrack
+import ftrack_legacy as ftrack
 
 ftrack.setup()
 

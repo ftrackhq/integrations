@@ -3,7 +3,7 @@
 
 import os
 
-from ftrack import Registry
+from ftrack_legacy import Registry
 
 from ._version import __version__
 

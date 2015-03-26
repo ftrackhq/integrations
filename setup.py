@@ -11,6 +11,11 @@ SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 
+connect_ftrack_new_api_dependency_link = (
+    'file://{0}#egg=ftrack-python-api'
+    .format(os.environ['FTRACK_PYTHON_API'].replace('\\', '/'))
+)
+
 # Read version from source.
 with open(os.path.join(
     SOURCE_PATH, 'ftrack_connect_nuke_studio', '_version.py'
@@ -60,6 +65,20 @@ data_files.append(
     )
 )
 
+connect_ftrack_new_api_dependency_link = (
+    'file://{0}#egg=ftrack-python-api'
+    .format(os.environ['FTRACK_PYTHON_API'].replace('\\', '/'))
+)
+
+connect_dependency_link = (
+    'https://bitbucket.org/ftrack/ftrack-connect/get/backlog/crew/integrate-with-nuke.zip'
+    '#egg=ftrack-connect-0.1.8'
+)
+
+connect_foundry_dependency_link = (
+    'https://bitbucket.org/ftrack/ftrack-connect-foundry/get/backlog/switch-to-new-api.zip'
+    '#egg=ftrack-connect-foundry-0.1.0'
+)
 
 # Call main setup.
 setup(
@@ -82,14 +101,14 @@ setup(
         'mock'
     ],
     install_requires=[
+        'ftrack-python-api',
         'ftrack-connect >= 0.1.2, < 2',
         'ftrack-connect-foundry >= 0.1.0, < 2'
     ],
     dependency_links=[
-        'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.7.zip'
-        '#egg=ftrack-connect-0.1.7',
-        'https://bitbucket.org/ftrack/ftrack-connect-foundry/get/master.zip'
-        '#egg=ftrack-connect-foundry-0.1.0'
+        connect_dependency_link,
+        connect_ftrack_new_api_dependency_link,
+        connect_foundry_dependency_link
     ],
     tests_require=[
     ],
