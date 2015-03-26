@@ -199,6 +199,8 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
             ), 'FTRACK_PYTHON_API_PLUGIN_PATH', environment
         )
 
+        environment['NUKE_USE_FNASSETAPI'] = '1'
+
         return environment
 
 
