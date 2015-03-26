@@ -104,4 +104,4 @@ class Delegate(delegate.Delegate):
                 action.triggered.connect(cmd)
                 uiElement.addAction(action)
 
-                self.populate_ftrack()
+            self.populate_ftrack()
