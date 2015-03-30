@@ -1,7 +1,7 @@
 {
     "processor": {
         "Editing": {
-            "Plate": {
+            "plate": {
                 "main": "processor.publish",
                 "proxy": "processor.proxy",
                 "thumbnail": "processor.thumbnail",
