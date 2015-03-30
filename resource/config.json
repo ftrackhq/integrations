@@ -1,6 +1,6 @@
 {
     "processor": {
-        "Animation": {
+        "Editing": {
             "BG": {
                 "Ingest": "processor.publish",
                 "Ingest_proxy": "processor.proxy",
