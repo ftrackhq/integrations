@@ -256,7 +256,7 @@ class ProjectTreeDialog(QtGui.QDialog):
 
     processor_ready = QtCore.Signal(object)
 
-    def __init__(self, data=None, parent=None):
+    def __init__(self, data=None, parent=None, sequence=None):
         '''Initiate dialog and create ui.'''
         super(ProjectTreeDialog, self).__init__(parent=parent)
         self.server_helper = FTrackServerHelper()
@@ -276,13 +276,16 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.setWindowTitle('Export project')
         self.logo_icon = QtGui.QIcon(':ftrack/image/dark/ftrackLogoColor')
         self.setWindowIcon(self.logo_icon)
+        self.sequence = sequence
 
         # Create tree model with fake tag.
         fake_root = TagItem({})
         self.tag_model = TagTreeModel(tree_data=fake_root, parent=self)
 
         # Set the data tree asyncronus.
-        self.worker = worker.Worker(tree_data_factory, [self.data])
+        self.worker = worker.Worker(
+            tree_data_factory, [self.data, self.get_project_tag()]
+        )
         self.worker.finished.connect(self.on_set_tree_root)
         self.project_worker = None
 
@@ -310,6 +313,28 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.handles_spinbox.valueChanged.connect(self._refresh_tree)
         self.processor_ready.connect(self.on_processor_ready)
 
+        self.project_selector.project_selected.connect(
+            self.update_project_tag
+        )
+
+        self.start_worker()
+
+    def update_project_tag(self, project_code):
+        '''.'''
+        for tag in self.sequence.tags():
+            meta = tag.metadata()
+            if not meta.hasKey('type') or meta.value('type') != 'ftrack':
+                continue
+
+            if tag.name() == 'project':
+                meta.setValue('tag.value', project_code)
+                break
+
+        self.worker.args = [self.data, self.get_project_tag()]
+        self.start_worker()
+
+    def start_worker(self):
+        '''Validate tag structure and start worker.'''
         # Validate tag structure and set warning if there are any errors.
         tag_strucutre_valid, reason = is_valid_tag_structure(self.data)
         if not tag_strucutre_valid:
@@ -320,6 +345,32 @@ class ProjectTreeDialog(QtGui.QDialog):
 
             # Start populating the tree.
             self.worker.start()
+
+    def get_project_tag(self):
+        '''Return project tag.'''
+        project_tag = hiero.core.findProjectTags(
+            hiero.core.project('Tag Presets'), 'project'
+        )[0].copy()
+
+        project_meta = project_tag.metadata()
+
+        attached_tag = None
+
+        for tag in self.sequence.tags():
+            meta = tag.metadata()
+            if not meta.hasKey('type') or meta.value('type') != 'ftrack':
+                continue
+
+            if tag.name() == project_tag.name():
+                attached_tag = tag
+                break
+        else:
+            project_meta.setValue('tag.value', self.sequence.project().name())
+            project_meta.setValue('ftrack.id', None)
+            self.sequence.addTag(project_tag)
+            attached_tag = project_tag
+
+        return attached_tag
 
     def create_ui_widgets(self):
         '''Setup ui for create dialog.'''

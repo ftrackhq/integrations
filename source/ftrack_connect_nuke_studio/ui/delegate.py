@@ -11,6 +11,7 @@ from ftrack_connect_nuke_studio.ui.widget.info_view import (
     InfoView as _InfoView
 )
 
+
 def openCreateProjectUI(*args, **kwargs):
     ''' Function to be triggered from createProject custom menu.
     '''
@@ -25,7 +26,9 @@ def openCreateProjectUI(*args, **kwargs):
         tags = [tag for tag in tags if tag.metadata().hasKey('ftrack.type')]
         ftags.append((item, tags))
 
-    dialog = ProjectTreeDialog(data=ftags, parent=parent)
+    dialog = ProjectTreeDialog(
+        data=ftags, parent=parent, sequence=item.sequence()
+    )
     dialog.exec_()
 
 
