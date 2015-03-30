@@ -9,7 +9,8 @@ import hiero
 import FnAssetAPI.logging
 from FnAssetAPI.ui.toolkit import QtGui, QtCore
 
-from .widget import Resolution, Fps, Workflow, ProjectSelector
+from .widget import Resolution, Fps, Workflow
+from .project_selector import ProjectSelector
 
 from ftrack_connect import worker
 import ftrack_connect.ui.widget.header
