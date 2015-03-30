@@ -9,8 +9,7 @@ import hiero
 import FnAssetAPI.logging
 from FnAssetAPI.ui.toolkit import QtGui, QtCore
 
-from .project_selector import ProjectSelector
-
+from .widget.project_selector import ProjectSelector
 from .widget.fps import Fps
 from .widget.workflow import Workflow
 from .widget.resolution import Resolution
