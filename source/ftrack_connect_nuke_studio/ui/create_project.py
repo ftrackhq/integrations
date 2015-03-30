@@ -9,8 +9,11 @@ import hiero
 import FnAssetAPI.logging
 from FnAssetAPI.ui.toolkit import QtGui, QtCore
 
-from .widget import Resolution, Fps, Workflow
 from .project_selector import ProjectSelector
+
+from .widget.fps import Fps
+from .widget.workflow import Workflow
+from .widget.resolution import Resolution
 
 from ftrack_connect import worker
 import ftrack_connect.ui.widget.header
@@ -271,7 +274,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.create_ui_widgets()
         self.processors = config()
         self.data = data
-        self.setWindowTitle('Create ftrack project')
+        self.setWindowTitle('Export project')
         self.logo_icon = QtGui.QIcon(':ftrack/image/dark/ftrackLogoColor')
         self.setWindowIcon(self.logo_icon)
 
@@ -295,7 +298,7 @@ class ProjectTreeDialog(QtGui.QDialog):
             QtGui.QHeaderView.ResizeMode.ResizeToContents)
 
         # Connect signals.
-        self.create_project_button.clicked.connect(self.on_create_project)
+        self.export_project_button.clicked.connect(self.on_export_project)
         self.close_button.clicked.connect(self.on_close_dialog)
 
         self.tree_view.selectionModel().selectionChanged.connect(
@@ -312,7 +315,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         tag_strucutre_valid, reason = is_valid_tag_structure(self.data)
         if not tag_strucutre_valid:
             self.header.setMessage(reason, 'warning')
-            self.create_project_button.setEnabled(False)
+            self.export_project_button.setEnabled(False)
         else:
             self.setDisabled(True)
 
@@ -439,8 +442,8 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.close_button = QtGui.QPushButton('Close', parent=self)
         self.bottom_button_layout.addWidget(self.close_button)
 
-        self.create_project_button = QtGui.QPushButton('Create', parent=self)
-        self.bottom_button_layout.addWidget(self.create_project_button)
+        self.export_project_button = QtGui.QPushButton('Export', parent=self)
+        self.bottom_button_layout.addWidget(self.export_project_button)
 
         QtCore.QMetaObject.connectSlotsByName(self)
 
@@ -490,7 +493,7 @@ class ProjectTreeDialog(QtGui.QDialog):
     def on_set_tree_root(self):
         '''Handle signal and populate the tree.'''
         self.busy_overlay.hide()
-        self.create_project_button.setEnabled(True)
+        self.export_project_button.setEnabled(True)
         self.tag_model.setRoot(self.worker.result)
 
     def on_tree_item_selection(self, selected, deselected):
@@ -533,8 +536,8 @@ class ProjectTreeDialog(QtGui.QDialog):
         '''Handle signal trigged when close dialog button is pressed.'''
         self.reject()
 
-    def on_create_project(self):
-        '''Handle signal triggered when the create project button gets pressed.'''
+    def on_export_project(self):
+        '''Handle signal triggered when the export project button gets pressed.'''
         QtGui.QApplication.setOverrideCursor(
             QtGui.QCursor(QtCore.Qt.WaitCursor)
         )
