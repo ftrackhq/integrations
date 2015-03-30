@@ -123,6 +123,14 @@ class ProjectSelector(QtGui.QWidget):
 
     def _on_existing_project_toggled(self):
         '''Handle existing project toggle event.'''
+        self._toggle_existing_state()
+
+    def _toggle_existing_state(self, silent=False):
+        '''Toggle to existing state.
+
+        Set *silent* to disable `project_selected` signal.
+
+        '''
         self.set_state(self.EXISTING_PROJECT)
         self.new_project_name_edit.hide()
         self.new_project_label.hide()
@@ -137,11 +145,17 @@ class ProjectSelector(QtGui.QWidget):
                     project.getName(), project
                 )
 
+        if not silent:
+            project = self.existing_project_selector.itemData(
+                self.existing_project_selector.currentIndex()
+            )
+            self.project_selected.emit(project.getName())
+
     def select_existing_project(self, name):
         '''Select existing project with *name*.'''
 
         if self.EXISTING_PROJECT == self.get_state():
-            self._on_existing_project_toggled()
+            self._toggle_existing_state(True)
             self.existing_project_radio_button.setChecked(True)
 
         index = self.existing_project_selector.findText(name)

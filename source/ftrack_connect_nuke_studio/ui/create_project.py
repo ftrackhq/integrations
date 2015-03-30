@@ -320,7 +320,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.start_worker()
 
     def update_project_tag(self, project_code):
-        '''.'''
+        '''Update project tag on sequence with *project_code*.'''
         for tag in self.sequence.tags():
             meta = tag.metadata()
             if not meta.hasKey('type') or meta.value('type') != 'ftrack':
@@ -521,8 +521,7 @@ class ProjectTreeDialog(QtGui.QDialog):
 
             self.start_frame_offset_spinbox.setValue(int(offset))
 
-        if self.project_selector.isEnabled():
-            self.project_selector.select_existing_project(name)
+        self.project_selector.select_existing_project(name)
 
     def on_project_preview_done(self):
         '''Handle signal once the project preview have started populating.'''
