@@ -3,12 +3,20 @@
 
 import urlparse
 import pprint
+import functools
 
 import ftrack_legacy
 import ftrack
 
 from FnAssetAPI import logging
 import hiero
+
+
+def _callback(item):
+    '''Switch to max version on *item*.'''
+    # TODO: Set the version more sophisticated based on
+    # version number.
+    print item.maxVersion()
 
 
 def callback(event):
@@ -36,7 +44,7 @@ def callback(event):
 
         # Only try to version up track items.
         if isinstance(item, hiero.core.TrackItem):
-            
+
             # User the source to be able to match against entity reference.
             clip = item.source()
             if hasattr(clip, 'entityReference'):
@@ -53,9 +61,12 @@ def callback(event):
                             str(item)
                         ))
 
-                        # TODO: Set the version more sophisticated based on
-                        # version number.
-                        item.maxVersion()
+                        hiero.ui.ScanForVersions.VersionScannerThreaded(
+                        ).scanForVersions(
+                            [item.maxVersion()],
+                            functools.partial(_callback, item),
+                            False
+                        )
 
 
 def register(registry, **kw):
