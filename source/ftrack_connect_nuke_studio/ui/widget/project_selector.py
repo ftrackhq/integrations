@@ -110,53 +110,37 @@ class ProjectSelector(QtGui.QWidget):
         project = self.existing_project_selector.itemData(index)
         self.project_selected.emit(project.getName())
 
-    def _on_new_project_toggled(self):
+    def _on_new_project_toggled(self, toggled):
         '''Handle new project toggle event.'''
-        self.set_state(self.NEW_PROJECT)
-        self.existing_project_selector.hide()
-        self.existing_project_label.hide()
 
-        self.new_project_name_edit.show()
-        self.new_project_label.show()
+        if toggled:
+            self.set_state(self.NEW_PROJECT)
+            self.existing_project_selector.hide()
+            self.existing_project_label.hide()
 
-        self.project_selected.emit(self.get_new_name())
+            self.new_project_name_edit.show()
+            self.new_project_label.show()
 
-    def _on_existing_project_toggled(self):
+            self.project_selected.emit(self.get_new_name())
+
+    def _on_existing_project_toggled(self, toggled):
         '''Handle existing project toggle event.'''
-        self._toggle_existing_state()
 
-    def _toggle_existing_state(self, silent=False):
-        '''Toggle to existing state.
+        if toggled:
+            self.set_state(self.EXISTING_PROJECT)
+            self.new_project_name_edit.hide()
+            self.new_project_label.hide()
 
-        Set *silent* to disable `project_selected` signal.
+            self.existing_project_selector.show()
+            self.existing_project_label.show()
 
-        '''
-        self.set_state(self.EXISTING_PROJECT)
-        self.new_project_name_edit.hide()
-        self.new_project_label.hide()
+            if self._projects is None:
+                self._projects = ftrack.getProjects()
+                for project in self._projects:
+                    self.existing_project_selector.addItem(
+                        project.getName(), project
+                    )
 
-        self.existing_project_selector.show()
-        self.existing_project_label.show()
-
-        if self._projects is None:
-            self._projects = ftrack.getProjects()
-            for project in self._projects:
-                self.existing_project_selector.addItem(
-                    project.getName(), project
-                )
-
-        if not silent:
-            project = self.existing_project_selector.itemData(
+            self._on_existing_project_selected(
                 self.existing_project_selector.currentIndex()
             )
-            self.project_selected.emit(project.getName())
-
-    def select_existing_project(self, name):
-        '''Select existing project with *name*.'''
-
-        if self.EXISTING_PROJECT == self.get_state():
-            self._toggle_existing_state(True)
-            self.existing_project_radio_button.setChecked(True)
-
-        index = self.existing_project_selector.findText(name)
-        self.existing_project_selector.setCurrentIndex(index)

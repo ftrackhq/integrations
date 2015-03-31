@@ -521,8 +521,6 @@ class ProjectTreeDialog(QtGui.QDialog):
 
             self.start_frame_offset_spinbox.setValue(int(offset))
 
-        self.project_selector.select_existing_project(name)
-
     def on_project_preview_done(self):
         '''Handle signal once the project preview have started populating.'''
         self.setEnabled(True)
