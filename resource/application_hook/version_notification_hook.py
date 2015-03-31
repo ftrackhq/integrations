@@ -61,6 +61,9 @@ def callback(event):
                             str(item)
                         ))
 
+                        # Use hiero version scanner to scan for new versions
+                        # before switching to the wanted version to make sure
+                        # that it exists in the stack.
                         hiero.ui.ScanForVersions.VersionScannerThreaded(
                         ).scanForVersions(
                             [item.maxVersion()],
