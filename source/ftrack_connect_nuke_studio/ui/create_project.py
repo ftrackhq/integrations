@@ -1,7 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 
-import tempfile
 import ftrack
 import getpass
 import hiero
@@ -106,7 +105,8 @@ class FTrackServerHelper(object):
 
             self.server.action('set', data)
 
-    def set_entity_data(self, entity_type, entity_id, trackItem,  start, end,
+    def set_entity_data(
+        self, entity_type, entity_id, trackItem, start, end,
         resolution, fps, handles
     ):
         '''Populate data of the given *entity_id* and *entity_type*.'''
@@ -270,13 +270,14 @@ class ProjectTreeDialog(QtGui.QDialog):
         #     )
         #     return
 
+        self.sequence = sequence
+
         self.create_ui_widgets()
         self.processors = config()
         self.data = data
         self.setWindowTitle('Export project')
         self.logo_icon = QtGui.QIcon(':ftrack/image/dark/ftrackLogoColor')
         self.setWindowIcon(self.logo_icon)
-        self.sequence = sequence
 
         # Create tree model with fake tag.
         fake_root = TagItem({})
@@ -405,8 +406,14 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         self.group_box_layout = QtGui.QVBoxLayout(self.group_box)
 
+        project_tag = self.get_project_tag()
+        project_tag_metadata = project_tag.metadata()
+
         # Create project selector and label.
-        self.project_selector = ProjectSelector(self.group_box)
+        self.project_selector = ProjectSelector(
+            project_name=project_tag_metadata.value('tag.value'),
+            parent=self.group_box
+        )
         self.group_box_layout.addWidget(self.project_selector)
 
         # Create Workflow selector and label.
@@ -524,10 +531,6 @@ class ProjectTreeDialog(QtGui.QDialog):
     def on_project_preview_done(self):
         '''Handle signal once the project preview have started populating.'''
         self.setEnabled(True)
-
-        for child in self.tag_model.root.children:
-            if child.type == 'show':
-                self.project_selector.new_project_name_edit.setText(child.name)
 
     def on_processor_ready(self, args):
         '''Handle processor ready signal.'''

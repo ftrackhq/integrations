@@ -13,8 +13,8 @@ class ProjectSelector(QtGui.QWidget):
     NEW_PROJECT = 'NEW_PROJECT'
     EXISTING_PROJECT = 'EXISTING_PROJECT'
 
-    def __init__(self, parent=None):
-        '''Instantiate the project options.'''
+    def __init__(self, project_name='', parent=None):
+        '''Instantiate the project options with optional *project_name*.'''
         super(ProjectSelector, self).__init__(parent=parent)
 
         self.setLayout(QtGui.QVBoxLayout())
@@ -60,8 +60,8 @@ class ProjectSelector(QtGui.QWidget):
         new_project_layout = QtGui.QHBoxLayout()
         new_project_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.new_project_label = QtGui.QLabel('Project name')
-        self.new_project_name_edit = QtGui.QLineEdit()
+        self.new_project_label = QtGui.QLabel('Enter manually')
+        self.new_project_name_edit = QtGui.QLineEdit(project_name)
 
         self.new_project_name_edit.editingFinished.connect(
             self._on_new_project_changed
