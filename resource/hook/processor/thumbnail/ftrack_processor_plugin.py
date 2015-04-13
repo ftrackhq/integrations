@@ -6,66 +6,57 @@ import tempfile
 
 import ftrack
 import nuke
-from clique import Collection
 
 import ftrack_connect_nuke_studio.processor
 
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
-def createComponent():
+def createThumbnail():
     ''' Create component callback for nuke write nodes.
 
     This callback relies on two custom knobs:
         * asset_version_id , which refers to the parent Asset.
         * component_name, the component which will contain the node result.
 
+    This callback will also trigger upload of the thumbnail on the server.
+
     '''
     ftrack.setup()
-
-    # Get the current node.
     node = nuke.thisNode()
 
     asset_id = node['asset_version_id'].value()
     version = ftrack.AssetVersion(id=asset_id)
-
-    # Create the component and copy data to the most likely store
-    component = node['component_name'].value()
     out = node['file'].value()
+    version.createThumbnail(out)
 
-    prefix = out.split('.')[0] + '.'
-    ext = os.path.splitext(out)[-1]
-    start_frame = int(node['first'].value())
-    end_frame = int(node['last'].value())
-    collection = Collection(
-        head=prefix,
-        tail=ext,
-        padding=len(str(end_frame)),
-        indexes=set(range(start_frame, end_frame + 1))
-    )
-    component = version.createComponent(component, str(collection))
+    shot = version.getAsset().getParent()
+    shot.createThumbnail(out)
+
+    if version.get('taskid'):
+        task = version.getTask()
+        task.createThumbnail(out)
 
 
-class ProxyPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
-    '''Generate proxies.'''
+class ThumbnailPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
+    '''Generate thumbnails.'''
 
     def __init__(self):
         '''Initialise processor.'''
-        super(ProxyPlugin, self).__init__()
-        self.name = 'processor.proxy'
+        super(ThumbnailPlugin, self).__init__()
+        self.name = 'processor.thumbnail'
+        self.chosen_frame = 1001
         self.defaults = {
             'OUT': {
-                'file_type': 'png',
+                'file_type': 'jpeg',
+                'first': self.chosen_frame,
+                'last': self.chosen_frame,
                 'afterRender': (
                     'import sys;'
                     'sys.path.append("{path}");'
-                    'import plugin;'
-                    'plugin.createComponent()'
+                    'import ftrack_processor_plugin;'
+                    'ftrack_processor_plugin.createThumbnail()'
                 ).format(path=FILE_PATH)
-            },
-            'REFORMAT': {
-                'type': 'to box',
-                'scale': 0.5
             }
         }
         self.script = os.path.abspath(
@@ -76,10 +67,10 @@ class ProxyPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
 
     def prepare_data(self, data):
         '''Return data mapping processed from input *data*.'''
-        data = super(ProxyPlugin, self).prepare_data(data)
+        data = super(ThumbnailPlugin, self).prepare_data(data)
 
         # Define output file sequence.
-        format = '.####.{0}'.format(data['OUT']['file_type'])
+        format = '.{0}.{1}'.format(self.chosen_frame, data['OUT']['file_type'])
         name = self.name.replace('.', '_')
         temporary_path = tempfile.NamedTemporaryFile(
             prefix=name, suffix=format, delete=False
@@ -92,7 +83,7 @@ class ProxyPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
         '''Return discover data for *event*.'''
         return {
             'defaults': self.defaults,
-            'name': 'Ingest proxy',
+            'name': 'Thumbnail',
             'processor_name': self.name,
             'asset_name': 'BG'
         }
@@ -119,5 +110,5 @@ class ProxyPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
 
 def register(registry, **kw):
     '''Register hooks thumbnail processor.'''
-    plugin = ProxyPlugin()
+    plugin = ThumbnailPlugin()
     plugin.register()

@@ -3,71 +3,69 @@
 
 import os
 import tempfile
-import threading
 
 import ftrack
 import nuke
+from clique import Collection
 
 import ftrack_connect_nuke_studio.processor
 
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
-def publishReviewableComponent(version_id, component, out):
-    '''Publish a reviewable component to *version_id*'''
-    version = ftrack.AssetVersion(id=version_id)
-    version.createComponent(component, out)
-
-    ftrack.Review.makeReviewable(version=version, filePath=out)
-
-
-def createReview():
+def createComponent():
     ''' Create component callback for nuke write nodes.
 
     This callback relies on two custom knobs:
         * asset_version_id , which refers to the parent Asset.
         * component_name, the component which will contain the node result.
 
-    This callback will also trigger the upload and encoding of the generated
-    quicktime.
-
     '''
     ftrack.setup()
+
+    # Get the current node.
     node = nuke.thisNode()
-    version_id = node['asset_version_id'].value()
-    out = str(node['file'].value())
+
+    asset_id = node['asset_version_id'].value()
+    version = ftrack.AssetVersion(id=asset_id)
+
+    # Create the component and copy data to the most likely store
     component = node['component_name'].value()
+    out = node['file'].value()
 
-    # Create component in a separate thread. If this is done in the main thread
-    # the file is not properly written to disk.
-    _thread = threading.Thread(
-        target=publishReviewableComponent,
-        kwargs={
-            'version_id': version_id,
-            'component': component,
-            'out': out
-        }
+    prefix = out.split('.')[0] + '.'
+    ext = os.path.splitext(out)[-1]
+    start_frame = int(node['first'].value())
+    end_frame = int(node['last'].value())
+    collection = Collection(
+        head=prefix,
+        tail=ext,
+        padding=len(str(end_frame)),
+        indexes=set(range(start_frame, end_frame + 1))
     )
-    _thread.start()
+    component = version.createComponent(component, str(collection))
 
 
-class ReviewPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
-    '''Generate review media.'''
+class ProxyPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
+    '''Generate proxies.'''
 
     def __init__(self):
         '''Initialise processor.'''
-        super(ReviewPlugin, self).__init__()
-        self.name = 'processor.review'
+        super(ProxyPlugin, self).__init__()
+        self.name = 'processor.proxy'
         self.defaults = {
             'OUT': {
-                'file_type': 'mov',
-                'mov64_codec': 'jpeg',
+                'file_type': 'png',
                 'afterRender': (
                     'import sys;'
                     'sys.path.append("{path}");'
-                    'import plugin;'
-                    'plugin.createReview()'
+                    'import ftrack_processor_plugin;'
+                    'ftrack_processor_plugin.createComponent()'
                 ).format(path=FILE_PATH)
+            },
+            'REFORMAT': {
+                'type': 'to box',
+                'scale': 0.5
             }
         }
         self.script = os.path.abspath(
@@ -75,16 +73,16 @@ class ReviewPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
                 os.path.dirname(__file__), 'script.nk'
             )
         )
-        self.format = '.mov'
 
     def prepare_data(self, data):
         '''Return data mapping processed from input *data*.'''
-        data = super(ReviewPlugin, self).prepare_data(data)
+        data = super(ProxyPlugin, self).prepare_data(data)
 
-        # Define output file.
+        # Define output file sequence.
+        format = '.####.{0}'.format(data['OUT']['file_type'])
         name = self.name.replace('.', '_')
         temporary_path = tempfile.NamedTemporaryFile(
-            prefix=name, suffix=self.format, delete=False
+            prefix=name, suffix=format, delete=False
         )
         data['OUT']['file'] = temporary_path.name.replace('\\', '/')
 
@@ -94,7 +92,7 @@ class ReviewPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
         '''Return discover data for *event*.'''
         return {
             'defaults': self.defaults,
-            'name': 'Review',
+            'name': 'Ingest proxy',
             'processor_name': self.name,
             'asset_name': 'BG'
         }
@@ -121,5 +119,5 @@ class ReviewPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
 
 def register(registry, **kw):
     '''Register hooks thumbnail processor.'''
-    plugin = ReviewPlugin()
+    plugin = ProxyPlugin()
     plugin.register()
