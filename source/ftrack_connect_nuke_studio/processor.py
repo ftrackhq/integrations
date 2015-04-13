@@ -97,7 +97,8 @@ class ProcessorPlugin(object):
         - fps
         - asset_version_id
         - component_name
-        - object_id
+        - entity_id
+        - entity_type
 
         '''
         options = {
