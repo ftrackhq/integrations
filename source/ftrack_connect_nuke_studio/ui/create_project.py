@@ -4,13 +4,18 @@
 import tempfile
 import ftrack
 import getpass
+import hiero
 
 import FnAssetAPI.logging
 from FnAssetAPI.ui.toolkit import QtGui, QtCore
 
-from .widget import Resolution, Fps, Workflow
+from .widget.fps import Fps
+from .widget.workflow import Workflow
+from .widget.resolution import Resolution
 
 from ftrack_connect import worker
+import ftrack_connect.ui.widget.header
+
 from ftrack_connect_nuke_studio.ui.helper import (
     tree_data_factory,
     TagTreeOverlay,
@@ -23,6 +28,7 @@ from ftrack_connect_nuke_studio.ui.helper import (
 from ftrack_connect_nuke_studio.ui.tag_tree_model import TagTreeModel
 from ftrack_connect_nuke_studio.ui.tag_item import TagItem
 import ftrack_connect_nuke_studio
+from ftrack_connect.ui.theme import applyTheme
 
 
 class FTrackServerHelper(object):
@@ -98,7 +104,7 @@ class FTrackServerHelper(object):
 
             self.server.action('set', data)
 
-    def set_entity_data(self, entity_type, entity_id, trackItem,  start, end, 
+    def set_entity_data(self, entity_type, entity_id, trackItem,  start, end,
         resolution, fps, handles
     ):
         '''Populate data of the given *entity_id* and *entity_type*.'''
@@ -177,7 +183,7 @@ class FTrackServerHelper(object):
 
     def create_asset_version(self, asset_id, parent):
         '''Create an asset version linked to the *asset_id* and *parent*.
-        
+
         *parent* must be a task.
 
         '''
@@ -212,8 +218,8 @@ class FTrackServerHelper(object):
         response = self.server.action('create', data)
         return response.get('taskid'), 'task'
 
-    #: TODO: Not sure how this is supposed to work. Consider removing it if 
-    # not used. 
+    #: TODO: Not sure how this is supposed to work. Consider removing it if
+    # not used.
     def check_permissions(self, username=None):
         '''Check the permission level of the given named user.'''
 
@@ -275,10 +281,9 @@ class ProjectTreeDialog(QtGui.QDialog):
     def __init__(self, data=None, parent=None):
         '''Initiate dialog and create ui.'''
         super(ProjectTreeDialog, self).__init__(parent=parent)
-
         self.server_helper = FTrackServerHelper()
-
-        #: TODO: Consider if these permission checks are required. 
+        applyTheme(self, 'integration')
+        #: TODO: Consider if these permission checks are required.
         # user_is_allowed = self.server_helper.check_permissions()
         # if not user_is_allowed:
         #     FnAssetAPI.logging.warning(
@@ -290,7 +295,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.create_ui_widgets()
 
         self.data = data
-        self.setWindowTitle('Create ftrack project')
+        self.setWindowTitle('Export project')
         self.logo_icon = QtGui.QIcon(':ftrack/image/dark/ftrackLogoColor')
         self.setWindowIcon(self.logo_icon)
 
@@ -314,7 +319,7 @@ class ProjectTreeDialog(QtGui.QDialog):
             QtGui.QHeaderView.ResizeMode.ResizeToContents)
 
         # Connect signals.
-        self.create_project_button.clicked.connect(self.on_create_project)
+        self.export_project_button.clicked.connect(self.on_export_project)
         self.close_button.clicked.connect(self.on_close_dialog)
 
         self.tree_view.selectionModel().selectionChanged.connect(
@@ -327,12 +332,11 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.handles_spinbox.valueChanged.connect(self._refresh_tree)
         self.processor_ready.connect(self.on_processor_ready)
 
-        # Validate tag structure and set warning if there are any errors.  
+        # Validate tag structure and set warning if there are any errors.
         tag_strucutre_valid, reason = is_valid_tag_structure(self.data)
         if not tag_strucutre_valid:
-            self.message_area.setText('WARNING: ' + reason)
-            self.create_project_button.setEnabled(False)
-            self.message_area.setVisible(True)
+            self.header.setMessage(reason, 'warning')
+            self.export_project_button.setEnabled(False)
         else:
             self.setDisabled(True)
 
@@ -341,11 +345,33 @@ class ProjectTreeDialog(QtGui.QDialog):
 
     def create_ui_widgets(self):
         '''Setup ui for create dialog.'''
-        self.resize(900, 640)
+        self.resize(1024, 640)
 
         self.main_vertical_layout = QtGui.QVBoxLayout(self)
+        self.setLayout(self.main_vertical_layout)
+        self.header = ftrack_connect.ui.widget.header.Header(
+            getpass.getuser(), self
+        )
+        self.main_vertical_layout.addWidget(self.header)
 
-        self.group_box = QtGui.QGroupBox('General Settings', parent=self)
+        self.central_horizontal_widget = QtGui.QWidget()
+        self.central_horizontal_layout = QtGui.QHBoxLayout()
+        self.central_horizontal_widget.setLayout(
+            self.central_horizontal_layout
+        )
+        self.main_vertical_layout.addWidget(
+            self.central_horizontal_widget, stretch=1
+        )
+        # create a central widget where to contain settings group and tree
+
+        self.splitter = QtGui.QSplitter(self)
+        self.central_widget = QtGui.QWidget(self.splitter)
+        self.central_layout = QtGui.QVBoxLayout()
+        self.central_widget.setLayout(self.central_layout)
+        self.central_horizontal_layout.addWidget(self.central_widget, stretch=2)
+
+        # settings
+        self.group_box = QtGui.QGroupBox('General Settings')
         self.group_box.setMaximumSize(QtCore.QSize(16777215, 200))
 
         self.group_box_layout = QtGui.QVBoxLayout(self.group_box)
@@ -407,34 +433,24 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.start_frame_offset_spinbox.setProperty('value', 1001)
         self.start_frame_offset_layout.addWidget(self.start_frame_offset_spinbox)
         self.group_box_layout.addLayout(self.start_frame_offset_layout)
-        self.main_vertical_layout.addWidget(self.group_box)
 
-        self.splitter = QtGui.QSplitter(self)
+        self.central_layout.addWidget(self.group_box)
+
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
-        self.tree_view = QtGui.QTreeView(self.splitter)
+        self.tree_view = QtGui.QTreeView()
+        self.central_layout.addWidget(self.tree_view)
 
         self.tool_box = QtGui.QToolBox(self.splitter)
+
+        default_message = QtGui.QTextEdit('Make a selection to see the available properties')
+        default_message.readOnly = True
+        default_message.setAlignment(QtCore.Qt.AlignCenter)
+        self.tool_box.addItem(default_message , 'Processors')
+        self.tool_box.setContentsMargins(0, 15, 0, 0)
         self.tool_box.setMinimumSize(QtCore.QSize(300, 0))
         self.tool_box.setFrameShape(QtGui.QFrame.StyledPanel)
 
-        self.main_vertical_layout.addWidget(self.splitter)
-
-        self.message_area = QtGui.QLabel('', parent=self)
-        self.message_area.resize(QtCore.QSize(900, 80))
-        self.message_area.setSizePolicy(
-            QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed
-        )
-        self.message_area.setVisible(False)
-
-        #: TODO: Move styling to separate css / sass files.
-        self.message_area.setStyleSheet('''
-            QLabel {
-                background-color: rgba(95, 58, 58, 200);
-                padding: 10px;
-                border: none;
-            }
-        ''')
-        self.main_vertical_layout.addWidget(self.message_area)
+        self.central_horizontal_layout.addWidget(self.splitter, stretch=1)
 
         self.bottom_button_layout = QtGui.QHBoxLayout()
         self.main_vertical_layout.addLayout(self.bottom_button_layout)
@@ -442,8 +458,8 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.close_button = QtGui.QPushButton('Close', parent=self)
         self.bottom_button_layout.addWidget(self.close_button)
 
-        self.create_project_button = QtGui.QPushButton('Create', parent=self)
-        self.bottom_button_layout.addWidget(self.create_project_button)
+        self.export_project_button = QtGui.QPushButton('Export', parent=self)
+        self.bottom_button_layout.addWidget(self.export_project_button)
 
         QtCore.QMetaObject.connectSlotsByName(self)
 
@@ -494,7 +510,7 @@ class ProjectTreeDialog(QtGui.QDialog):
     def on_set_tree_root(self):
         '''Handle signal and populate the tree.'''
         self.busy_overlay.hide()
-        self.create_project_button.setEnabled(True)
+        self.export_project_button.setEnabled(True)
         self.tag_model.setRoot(self.worker.result)
 
     def on_tree_item_selection(self, selected, deselected):
@@ -539,8 +555,8 @@ class ProjectTreeDialog(QtGui.QDialog):
         '''Handle signal trigged when close dialog button is pressed.'''
         self.reject()
 
-    def on_create_project(self):
-        '''Handle signal triggered when the create project button gets pressed.'''
+    def on_export_project(self):
+        '''Handle signal triggered when the export project button gets pressed.'''
         QtGui.QApplication.setOverrideCursor(
             QtGui.QCursor(QtCore.Qt.WaitCursor)
         )
@@ -570,10 +586,9 @@ class ProjectTreeDialog(QtGui.QDialog):
         )
 
         QtGui.QApplication.restoreOverrideCursor()
-        QtGui.QMessageBox.information(
-            self, 'Done!', information
+        self.header.setMessage(
+            'The project has been succesfully created !', 'info'
         )
-
         self.setDisabled(False)
 
     def _refresh_tree(self):
@@ -594,6 +609,11 @@ class ProjectTreeDialog(QtGui.QDialog):
             # Gather all the useful informations from the track
             track_in = int(datum.track.source().sourceIn())
             track_out = int(datum.track.source().sourceOut())
+            # NOTE: effectTrack are not used atm
+            effects = [
+                effect for effect in datum.track.linkedItems()
+                if isinstance(effect, hiero.core.EffectTrackItem)
+            ]
 
             if datum.track.source().mediaSource().singleFile():
                 # Adjust frame in and out if the media source is a single file.

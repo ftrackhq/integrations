@@ -177,6 +177,8 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
             FTRACK_CONNECT_NUKE_STUDIO_PATH, 'hiero'
         )
 
+        environment['NUKE_USE_FNASSETAPI'] = '1'
+
         return environment
 
 

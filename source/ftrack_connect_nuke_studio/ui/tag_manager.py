@@ -4,6 +4,16 @@
 import hiero.core
 import ftrack
 import FnAssetAPI.logging
+from ftrack_connect.ui import resource
+
+# Default context tags.
+DEFAULT_CONTEXT_TAGS = [
+    ('project', 'show', None),
+    ('episode', 'episode', '(\w+.)?EP(\d+)'),
+    ('sequence', 'sequence', '(\w+.)?SQ(\d+)'),
+    ('shot', 'shot', '(\w+.)?SH(\d+)')
+
+]
 
 
 class TagManager(object):
@@ -37,7 +47,7 @@ class TagManager(object):
 
         for task_type in task_types:
             ftag = hiero.core.Tag(task_type.getName())
-            ftag.setIcon(':ftrack/image/dark/task')
+            ftag.setIcon(':ftrack/image/integration/task')
 
             meta = ftag.metadata()
             meta.setValue('type', 'ftrack')
@@ -51,12 +61,20 @@ class TagManager(object):
         '''Create context tags from the common ftrack tasks.'''
         FnAssetAPI.logging.debug('Creating Ftrack context tags')
 
-        context_tags = [
-            ('project', 'show', None),
-            ('episode', 'episode', '(\w+.)?EP(\d+)'),
-            ('sequence', 'sequence', '(\w+.)?SQ(\d+)'),
-            ('shot', 'shot', '(\w+.)?SH(\d+)')
-        ]
+        result = ftrack.EVENT_HUB.publish(
+            ftrack.Event(
+                topic='ftrack.connect.nuke-studio.get-context-tags'
+            ),
+            synchronous=True
+        )
+
+        context_tags = []
+        if not result:
+            context_tags = DEFAULT_CONTEXT_TAGS
+        else:
+
+            for tags in result:
+                context_tags += tags
 
         for context_tag in context_tags:
             # explode the tag touples
@@ -67,7 +85,12 @@ class TagManager(object):
             icon = tag_id
             if icon == 'sequence':
                 icon = 'folder'
-            ftag.setIcon(':ftrack/image/dark/{0}'.format(icon))
+
+            if icon == 'show':
+                icon = 'home'
+
+            FnAssetAPI.logging.info(icon)
+            ftag.setIcon(':ftrack/image/integration/{0}'.format(icon))
 
             meta = ftag.metadata()
             meta.setValue('type', 'ftrack')
