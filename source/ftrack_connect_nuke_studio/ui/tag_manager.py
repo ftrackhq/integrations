@@ -24,7 +24,7 @@ class TagManager(object):
         FnAssetAPI.logging.debug('Creating Ftrack tags')
         self.project = hiero.core.project('Tag Presets')
         self.project.setEditable(True)
-        self.ftrack_bin_main = hiero.core.Bin('fTrack')
+        self.ftrack_bin_main = hiero.core.Bin('ftrack')
         self.ftrack_bin_context = hiero.core.Bin('Context')
         self.ftrack_bin_task = hiero.core.Bin('Task')
 
