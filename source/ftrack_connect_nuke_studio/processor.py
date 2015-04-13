@@ -69,6 +69,14 @@ class ProcessorPlugin(object):
             component_name = nuke.String_Knob('component_name')
             node.addKnob(component_name)
 
+        if 'entity_id' not in node_knobs:
+            entity_id = nuke.String_Knob('entity_id')
+            node.addKnob(entity_id)
+
+        if 'entity_type' not in node_knobs:
+            entity_type = nuke.String_Knob('entity_type')
+            node.addKnob(entity_type)
+
     def prepare_data(self, data):
         '''Return data mapping processed from input *data*.
 
@@ -89,6 +97,7 @@ class ProcessorPlugin(object):
         - fps
         - asset_version_id
         - component_name
+        - object_id
 
         '''
         options = {
@@ -100,8 +109,10 @@ class ProcessorPlugin(object):
             'OUT': {
                 'first': int(data['destination_in']),
                 'last': int(data['destination_out']),
-                'component_name': data['component_name'],
-                'asset_version_id': data['asset_version_id'],
+                'component_name': data.get('component_name', ''),
+                'asset_version_id': data.get('asset_version_id', ''),
+                'entity_id': data['entity_id'],
+                'entity_type': data['entity_type'],
                 'use_limit': True
             },
             'REFORMAT': {

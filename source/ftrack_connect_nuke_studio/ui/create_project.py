@@ -4,8 +4,9 @@
 import tempfile
 import ftrack
 import getpass
-import hiero
+import collections
 
+import hiero
 import FnAssetAPI.logging
 from FnAssetAPI.ui.toolkit import QtGui, QtCore
 
@@ -181,17 +182,19 @@ class FTrackServerHelper(object):
         asset_response = self.server.action('create', asset_data)
         return asset_response
 
-    def create_asset_version(self, asset_id, parent):
-        '''Create an asset version linked to the *asset_id* and *parent*.
+    def create_asset_version(self, asset_id, task=None):
+        '''Create an asset version linked to the *asset_id* and *task*.
 
-        *parent* must be a task.
+        *task* must be a task or None.
 
         '''
-        parent_id, parent_type = parent
+        task_id = None
+        if task:
+            task_id, _ = task
         version_data = {
             'type': 'assetversion',
             'assetid': asset_id,
-            'taskid': parent_id,
+            'taskid': task_id,
             'comment': '',
             'ispublished': True
         }
@@ -260,17 +263,7 @@ def gather_processors(name, type):
         ),
         synchronous=True
     )
-
-    processor_groups = {}
-    for processor in processors:
-        asset_name = processor['asset_name']
-
-        if asset_name not in processor_groups:
-            processor_groups[asset_name] = []
-
-        processor_groups[asset_name].append(processor)
-
-    return processor_groups
+    return processors
 
 
 class ProjectTreeDialog(QtGui.QDialog):
@@ -520,12 +513,15 @@ class ProjectTreeDialog(QtGui.QDialog):
         index = selected.indexes()[0]
         item = index.model().data(index, role=self.tag_model.ITEM_ROLE)
 
-        processor_groups = gather_processors(item.name, item.type)
+        processor_groups = collections.defaultdict(list)
+        for processor in gather_processors(item.name, item.type):
+            if 'asset_name' in processor:
+                group_name = 'Asset: ' + processor['asset_name']
+            else:
+                group_name = 'Others'
+            processor_groups[group_name].append(processor)
 
-        if not processor_groups:
-            return
-
-        for asset_name, processors in processor_groups.iteritems():
+        for group_name, processors in processor_groups.iteritems():
             widget = QtGui.QWidget()
             layout = QtGui.QVBoxLayout()
             widget.setLayout(layout)
@@ -549,7 +545,7 @@ class ProjectTreeDialog(QtGui.QDialog):
                         knob_layout.addWidget(value)
                         data_layout.addLayout(knob_layout)
 
-            self.tool_box.addItem(widget, asset_name)
+            self.tool_box.addItem(widget, group_name)
 
     def on_close_dialog(self):
         '''Handle signal trigged when close dialog button is pressed.'''
@@ -632,6 +628,8 @@ class ProjectTreeDialog(QtGui.QDialog):
             resolution = self.resolution_combobox.currentFormat()
             offset = self.start_frame_offset_spinbox.value()
             handles = self.handles_spinbox.value()
+            asset_parent = None
+            asset_task = None
 
             if datum.type == 'show':
                 if datum.exists:
@@ -680,43 +678,58 @@ class ProjectTreeDialog(QtGui.QDialog):
                     datum.track.source().setEntityReference(
                         'ftrack://{0}?entityType={1}'.format(result[0], result[1])
                     )
+                    asset_parent = result
+                    asset_task = None
 
                 if datum.type == 'task':
+                    asset_parent = previous
+                    asset_task = result
 
-                    processor_groups = gather_processors(datum.name, datum.type)
+                processors = gather_processors(datum.name, datum.type)
 
-                    if not processor_groups:
-                        continue
+                if processors:
+                    assets = dict()
 
-                    asset_names = processor_groups.keys()
-                    for asset_name in asset_names:
-                        asset = self.server_helper.create_asset(
-                            asset_name, previous
-                        )
-                        asset_id = asset.get('assetid')
+                    for processor in processors:
 
-                        version_id = self.server_helper.create_asset_version(
-                            asset_id, result
-                        )
+                        version_id = None
+                        asset_name = processor.get('asset_name')
+                        if asset_name is not None:
+                            if asset_name not in assets:
+                                asset = self.server_helper.create_asset(
+                                    asset_name, asset_parent
+                                )
+                                asset_id = asset.get('assetid')
+                                version_id = self.server_helper.create_asset_version(
+                                    asset_id, asset_task
+                                )
+                                assets[asset_name] = version_id
+                            else:
+                                version_id = assets[asset_name]
 
-                        for processor in processor_groups[asset_name]:
-                            out_data = {
-                                'resolution': resolution,
-                                'source_in': track_in,
-                                'source_out': track_out,
-                                'source_file': source,
-                                'destination_in': start,
-                                'destination_out': end,
-                                'fps': fps,
-                                'offset': offset,
+                        out_data = {
+                            'resolution': resolution,
+                            'source_in': track_in,
+                            'source_out': track_out,
+                            'source_file': source,
+                            'destination_in': start,
+                            'destination_out': end,
+                            'fps': fps,
+                            'offset': offset,
+                            'entity_id': result[0],
+                            'entity_type': result[1],
+                            'handles': handles
+                        }
+
+                        if version_id:
+                            out_data.update({
                                 'asset_version_id': version_id,
-                                'component_name': processor['name'],
-                                'handles': handles
-                            }
+                                'component_name': processor['name']
+                            })
 
-                            processor_name = processor['processor_name']
-                            data = (processor_name,  out_data)
-                            self.processor_ready.emit(data)
+                        processor_name = processor['processor_name']
+                        data = (processor_name,  out_data)
+                        self.processor_ready.emit(data)
 
             self._refresh_tree()
 

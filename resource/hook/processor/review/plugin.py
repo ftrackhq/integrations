@@ -10,7 +10,7 @@ import nuke
 
 import ftrack_connect_nuke_studio.processor
 
-FILE_PATH = os.path.abspath(__file__)
+FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
 def publishReviewableComponent(version_id, component, out):
@@ -63,10 +63,11 @@ class ReviewPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
                 'file_type': 'mov',
                 'mov64_codec': 'jpeg',
                 'afterRender': (
-                    'import imp;'
-                    'processor = imp.load_source("{module}", "{path}");'
-                    'processor.createReview()'
-                ).format(module='plugin', path=FILE_PATH)
+                    'import sys;'
+                    'sys.path.append("{path}");'
+                    'import plugin;'
+                    'plugin.createReview()'
+                ).format(path=FILE_PATH)
             }
         }
         self.script = os.path.abspath(
@@ -106,8 +107,8 @@ class ReviewPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
     def register(self):
         '''Register processor'''
         ftrack.EVENT_HUB.subscribe(
-            'topic=ftrack.processor.discover and data.name=Animation and '
-            'data.object_type=task',
+            'topic=ftrack.processor.discover and '
+            'data.object_type=shot',
             self.discover
         )
         ftrack.EVENT_HUB.subscribe(

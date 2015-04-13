@@ -9,7 +9,7 @@ import nuke
 
 import ftrack_connect_nuke_studio.processor
 
-FILE_PATH = os.path.abspath(__file__)
+FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
 def createThumbnail():
@@ -30,6 +30,13 @@ def createThumbnail():
     out = node['file'].value()
     version.createThumbnail(out)
 
+    shot = version.getAsset().getParent()
+    shot.createThumbnail(out)
+
+    if version.get('taskid'):
+        task = version.getTask()
+        task.createThumbnail(out)
+
 
 class ThumbnailPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
     '''Generate thumbnails.'''
@@ -45,10 +52,11 @@ class ThumbnailPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
                 'first': self.chosen_frame,
                 'last': self.chosen_frame,
                 'afterRender': (
-                    'import imp;'
-                    'processor = imp.load_source("{module}", "{path}");'
-                    'processor.createThumbnail()'
-                ).format(module='plugin', path=FILE_PATH)
+                    'import sys;'
+                    'sys.path.append("{path}");'
+                    'import plugin;'
+                    'plugin.createThumbnail()'
+                ).format(path=FILE_PATH)
             }
         }
         self.script = os.path.abspath(
@@ -88,8 +96,8 @@ class ThumbnailPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
     def register(self):
         '''Register processor'''
         ftrack.EVENT_HUB.subscribe(
-            'topic=ftrack.processor.discover and data.name=Animation and '
-            'data.object_type=task',
+            'topic=ftrack.processor.discover and '
+            'data.object_type=shot',
             self.discover
         )
         ftrack.EVENT_HUB.subscribe(

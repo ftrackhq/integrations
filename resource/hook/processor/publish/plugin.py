@@ -10,7 +10,7 @@ from clique import Collection
 
 import ftrack_connect_nuke_studio.processor
 
-FILE_PATH = os.path.abspath(__file__)
+FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
 def createComponent():
@@ -58,10 +58,11 @@ class PublishPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
             'OUT': {
                 'file_type': 'dpx',
                 'afterRender': (
-                    'import imp;'
-                    'processor = imp.load_source("{module}", "{path}");'
-                    'processor.createComponent()'
-                ).format(module='plugin', path=FILE_PATH)
+                    'import sys;'
+                    'sys.path.append("{path}");'
+                    'import plugin;'
+                    'plugin.createComponent()'
+                ).format(path=FILE_PATH)
             }
         }
         self.script = os.path.abspath(
@@ -101,8 +102,8 @@ class PublishPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
     def register(self):
         '''Register processor'''
         ftrack.EVENT_HUB.subscribe(
-            'topic=ftrack.processor.discover and data.name=Animation and '
-            'data.object_type=task',
+            'topic=ftrack.processor.discover and '
+            'data.object_type=shot',
             self.discover
         )
         ftrack.EVENT_HUB.subscribe(
