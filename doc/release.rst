@@ -5,6 +5,15 @@
 Releases
 ########
 
+.. release:: 0.1.11
+    :date: 2015-04-15
+
+    .. change:: changed
+
+        `ftrack API 3.0.21 <http://ftrack.rtd.ftrack.com/en/3.0.21/release/release_notes.html#release-3.0.21>`_
+        fix issue when trying to login using username containing special
+        characters such as `@` or `+`.
+
 .. release:: 0.1.10
     :date: 2015-03-18
 
