@@ -8,7 +8,8 @@ Processors
 Processors are automated processes which runs on top of each defined task through the config file,
 in order to produce a defined output from the source material.
 
-By default a set of ready to use processors is provided under the resource folder into the defaults.py file.
+By default a set of ready to use processors is provided under the 
+resource/hook/processor folder.
 
 
 What are the processors
@@ -33,11 +34,21 @@ Let start having a look at an example processor, which will be creating and publ
             self.defaults = {
                 "OUT":{
                     'file_type': 'dpx',
-                    'afterRender': 'from ftrack_connect_nuke_studio.nuke_publish_cb import createComponent;createComponent()'
+                    'afterRender': (
+                        'import sys;'
+                        'sys.path.append("{path}");'
+                        'import plugin;'
+                        'plugin.createComponent()'
+                    ).format(path=FILE_PATH)
                 }
-             }
+            }
 
-            self.script = '${FTRACK_PROCESSOR_PLUGIN_PATH}/publish.nk'
+            self.script = os.path.abspath(
+                os.path.join(
+                    os.path.dirname(__file__), 'script.nk'
+                )
+            )
+
 
         def prepare_data(self, data):
             ''' for informational purpose only here we show the manage_input function
@@ -95,9 +106,15 @@ enable it to publish to the ftrack server.
 
             self.defaults = {
                 "OUT":{
-                    'afterRender': 'from ftrack_connect_nuke_studio.nuke_publish_cb import createComponent;createComponent()'
+                    'file_type': 'dpx',
+                    'afterRender': (
+                        'import sys;'
+                        'sys.path.append("{path}");'
+                        'import plugin;'
+                        'plugin.createComponent()'
+                    ).format(path=FILE_PATH)
                 }
-             }
+            }
 
 
 script
@@ -145,6 +162,11 @@ this method gets feed with some default informations coming from the clips, and 
 * component_name
     * Internal reference for the ftrack's component name, the material will be ending into.
 
+* entity_id
+    * Id of the object where the processor runs.
+
+* entity_type
+    * Type of the object where the processor runs.
 
 Each processor already provides a standard method, which should be extended, where these variables are handled.
 An example of how to extend them can be seen on the first code example on this page.

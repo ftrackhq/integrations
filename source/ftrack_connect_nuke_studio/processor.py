@@ -15,40 +15,6 @@ import FnAssetAPI
 import ftrack_connect_nuke_studio
 
 
-def config():
-    '''Configure processors.'''
-    config = os.getenv('FTRACK_NUKE_STUDIO_CONFIG')
-    if not config or not os.path.exists(config):
-        FnAssetAPI.logging.error(
-            'FTRACK_NUKE_STUDIO_CONFIG environment variable not set. No '
-            'processor plugins will be configured.'
-        )
-        return
-
-    data = json.load(file(config, 'r'))
-    processors = data.get('processor')
-
-    ftrack_connect_nuke_studio.setup()
-    plugins = ftrack_connect_nuke_studio.PROCESSOR_PLUGINS
-
-    def setup(node):
-        ''' In-place replacement for processors in config'''
-        for key, item in node.items():
-            if isinstance(item, dict):
-                setup(item)
-            else:
-                plugin = plugins.get(item)
-                if plugin is None:
-                    FnAssetAPI.logging.debug(
-                        'No processor plugin found with name "{0}"'.format(item)
-                    )
-                else:
-                    node[key] = plugin
-
-    setup(processors)
-    return processors
-
-
 class ProcessorPlugin(object):
     '''Processor plugin.'''
 
@@ -103,6 +69,14 @@ class ProcessorPlugin(object):
             component_name = nuke.String_Knob('component_name')
             node.addKnob(component_name)
 
+        if 'entity_id' not in node_knobs:
+            entity_id = nuke.String_Knob('entity_id')
+            node.addKnob(entity_id)
+
+        if 'entity_type' not in node_knobs:
+            entity_type = nuke.String_Knob('entity_type')
+            node.addKnob(entity_type)
+
     def prepare_data(self, data):
         '''Return data mapping processed from input *data*.
 
@@ -123,6 +97,8 @@ class ProcessorPlugin(object):
         - fps
         - asset_version_id
         - component_name
+        - entity_id
+        - entity_type
 
         '''
         options = {
@@ -134,8 +110,10 @@ class ProcessorPlugin(object):
             'OUT': {
                 'first': int(data['destination_in']),
                 'last': int(data['destination_out']),
-                'component_name': data['component_name'],
-                'asset_version_id': data['asset_version_id'],
+                'component_name': data.get('component_name', ''),
+                'asset_version_id': data.get('asset_version_id', ''),
+                'entity_id': data['entity_id'],
+                'entity_type': data['entity_type'],
                 'use_limit': True
             },
             'REFORMAT': {
