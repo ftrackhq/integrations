@@ -322,6 +322,9 @@ class ProjectTreeDialog(QtGui.QDialog):
 
     def update_project_tag(self, project_code):
         '''Update project tag on sequence with *project_code*.'''
+
+        self.workflow_combobox.setDisabled(False)
+
         for tag in self.sequence.tags():
             meta = tag.metadata()
             if not meta.hasKey('type') or meta.value('type') != 'ftrack':
