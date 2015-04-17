@@ -49,13 +49,16 @@ class TagDropHandler(object):
 
             clip_name = event.trackItem.name()
             if tag_name == 'project':
-                project = event.trackItem.project().name()
+                # Skip project tags since it's added by the create project
+                # dialog.
                 FnAssetAPI.logging.debug(
-                    'Setting {0} to {1} on {2}'.format(
-                        tag_name, project, clip_name
-                    )
+                    '{0} is not a valid track tag type'.format(tag_name)
                 )
-                meta.setValue('tag.value', project)
+
+                # Accept the event to prevent further processing of the
+                # the dropped tags.
+                event.dropEvent.accept()
+                continue
 
             # Handle a tag with a regular expression.
             elif meta.hasKey('tag.re'):
