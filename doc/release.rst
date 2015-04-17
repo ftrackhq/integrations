@@ -5,6 +5,24 @@
 Releases
 ########
 
+.. release:: 0.1.12
+    :date: 2015-04-17
+
+    .. change:: changed
+
+        `ftrack connect nuke 0.1.3 <http://rtd.ftrack.com/docs/ftrack-connect-nuke/en/0.1.3/>`_,
+        includes support for launching plugin on Centos.
+
+    .. change:: changed
+
+        `ftrack connect hieroplayer 0.1.3 <http://rtd.ftrack.com/docs/ftrack-connect-hieroplayer/en/0.1.3/>`_,
+        includes support for launching plugin on Centos.
+
+    .. change:: changed
+
+        ftrack connect legacy plugins 0.1.5, includes support for launching 
+        plugin on Centos.
+
 .. release:: 0.1.11
     :date: 2015-04-15
 

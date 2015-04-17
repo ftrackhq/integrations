@@ -41,7 +41,7 @@ connect_legacy_plugins_install_require = (
     ' >=0.1, < 1'
 )
 connect_legacy_plugins_dependency_link = (
-    'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.4'
+    'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.5'
     .format(os.environ['FTRACK_CONNECT_LEGACY_PLUGINS_PATH'].replace('\\', '/'))
 )
 
@@ -50,13 +50,13 @@ connect_hieroplayer_install_require = (
     ' >=0.1, < 1'
 )
 connect_hieroplayer_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-hieroplayer/get/0.1.2.zip'
-    '#egg=ftrack-connect-hieroplayer-0.1.2'
+    'https://bitbucket.org/ftrack/ftrack-connect-hieroplayer/get/0.1.3.zip'
+    '#egg=ftrack-connect-hieroplayer-0.1.3'
 )
 
 connect_nuke_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/0.1.2.zip'
-    '#egg=ftrack-connect-nuke-0.1.2'
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/0.1.3.zip'
+    '#egg=ftrack-connect-nuke-0.1.3'
 )
 connect_nuke_dependency_install_require = (
     'ftrack-connect-nuke'
