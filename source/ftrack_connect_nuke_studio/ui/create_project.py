@@ -4,8 +4,9 @@
 import tempfile
 import ftrack
 import getpass
-import hiero
+import collections
 
+import hiero
 import FnAssetAPI.logging
 from FnAssetAPI.ui.toolkit import QtGui, QtCore
 
@@ -27,7 +28,6 @@ from ftrack_connect_nuke_studio.ui.helper import (
 
 from ftrack_connect_nuke_studio.ui.tag_tree_model import TagTreeModel
 from ftrack_connect_nuke_studio.ui.tag_item import TagItem
-from ftrack_connect_nuke_studio.processor import config
 import ftrack_connect_nuke_studio
 from ftrack_connect.ui.theme import applyTheme
 
@@ -182,17 +182,19 @@ class FTrackServerHelper(object):
         asset_response = self.server.action('create', asset_data)
         return asset_response
 
-    def create_asset_version(self, asset_id, parent):
-        '''Create an asset version linked to the *asset_id* and *parent*.
+    def create_asset_version(self, asset_id, task=None):
+        '''Create an asset version linked to the *asset_id* and *task*.
 
-        *parent* must be a task.
+        *task* must be a task or None.
 
         '''
-        parent_id, parent_type = parent
+        task_id = None
+        if task:
+            task_id, _ = task
         version_data = {
             'type': 'assetversion',
             'assetid': asset_id,
-            'taskid': parent_id,
+            'taskid': task_id,
             'comment': '',
             'ispublished': True
         }
@@ -249,6 +251,20 @@ class FTrackServerHelper(object):
             FnAssetAPI.logging.debug(error)
             return False
 
+def gather_processors(name, type):
+    '''Retrieve processors from *name* and *type* grouped by asset name.'''
+    processors = ftrack.EVENT_HUB.publish(
+        ftrack.Event(
+            topic='ftrack.processor.discover',
+            data=dict(
+                name=name,
+                object_type=type
+            )
+        ),
+        synchronous=True
+    )
+    return processors
+
 
 class ProjectTreeDialog(QtGui.QDialog):
     '''Create project dialog.'''
@@ -270,7 +286,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         #     return
 
         self.create_ui_widgets()
-        self.processors = config()
+
         self.data = data
         self.setWindowTitle('Export project')
         self.logo_icon = QtGui.QIcon(':ftrack/image/dark/ftrackLogoColor')
@@ -470,11 +486,19 @@ class ProjectTreeDialog(QtGui.QDialog):
 
     def on_processor_ready(self, args):
         '''Handle processor ready signal.'''
-        plugins = ftrack_connect_nuke_studio.PROCESSOR_PLUGINS
-        processor = args[0]
+        processor_name = args[0]
         data = args[1]
-        plugin = plugins.get(processor)
-        plugin.process(data)
+
+        ftrack.EVENT_HUB.publish(
+            ftrack.Event(
+                topic='ftrack.processor.launch',
+                data=dict(
+                    name=processor_name,
+                    input=data
+                )
+            ),
+            synchronous=True
+        )
 
     def on_set_tree_root(self):
         '''Handle signal and populate the tree.'''
@@ -488,25 +512,30 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         index = selected.indexes()[0]
         item = index.model().data(index, role=self.tag_model.ITEM_ROLE)
-        processor = self.processors.get(item.name)
 
-        if not processor:
-            return
+        processor_groups = collections.defaultdict(list)
+        for processor in gather_processors(item.name, item.type):
+            if 'asset_name' in processor:
+                group_name = 'Asset: ' + processor['asset_name']
+            else:
+                group_name = 'Others'
+            processor_groups[group_name].append(processor)
 
-        asset_names = processor.keys()
-        for asset_name in asset_names:
+        for group_name, processors in processor_groups.iteritems():
             widget = QtGui.QWidget()
             layout = QtGui.QVBoxLayout()
             widget.setLayout(layout)
 
-            for component_name, component_fn in processor[asset_name].items():
+            for processor in processors:
+                processor_name = processor['name']
+                defaults = processor['defaults']
 
-                data = QtGui.QGroupBox(component_name)
+                data = QtGui.QGroupBox(processor_name)
                 data_layout = QtGui.QVBoxLayout()
                 data.setLayout(data_layout)
 
                 layout.addWidget(data)
-                for node_name, knobs in component_fn.defaults.items():
+                for node_name, knobs in defaults.iteritems():
                     for knob, knob_value in knobs.items():
                         knob_layout = QtGui.QHBoxLayout()
                         label = QtGui.QLabel('%s:%s' % (node_name, knob))
@@ -516,7 +545,7 @@ class ProjectTreeDialog(QtGui.QDialog):
                         knob_layout.addWidget(value)
                         data_layout.addLayout(knob_layout)
 
-            self.tool_box.addItem(widget, asset_name)
+            self.tool_box.addItem(widget, group_name)
 
     def on_close_dialog(self):
         '''Handle signal trigged when close dialog button is pressed.'''
@@ -599,6 +628,8 @@ class ProjectTreeDialog(QtGui.QDialog):
             resolution = self.resolution_combobox.currentFormat()
             offset = self.start_frame_offset_spinbox.value()
             handles = self.handles_spinbox.value()
+            asset_parent = None
+            asset_task = None
 
             if datum.type == 'show':
                 if datum.exists:
@@ -647,44 +678,58 @@ class ProjectTreeDialog(QtGui.QDialog):
                     datum.track.source().setEntityReference(
                         'ftrack://{0}?entityType={1}'.format(result[0], result[1])
                     )
+                    asset_parent = result
+                    asset_task = None
 
                 if datum.type == 'task':
-                    print datum.name
-                    processor = self.processors.get(datum.name)
-                    print processor
+                    asset_parent = previous
+                    asset_task = result
 
-                    if not processor:
-                        continue
+                processors = gather_processors(datum.name, datum.type)
 
-                    asset_names = processor.keys()
-                    for asset_name in asset_names:
-                        asset = self.server_helper.create_asset(
-                            asset_name, previous
-                        )
-                        asset_id = asset.get('assetid')
+                if processors:
+                    assets = dict()
 
-                        version_id = self.server_helper.create_asset_version(
-                            asset_id, result
-                        )
+                    for processor in processors:
 
-                        for component_name, component_fn in processor[asset_name].items():
-                            out_data = {
-                                'resolution': resolution,
-                                'source_in': track_in,
-                                'source_out': track_out,
-                                'source_file': source,
-                                'destination_in': start,
-                                'destination_out': end,
-                                'fps': fps,
-                                'offset': offset,
+                        version_id = None
+                        asset_name = processor.get('asset_name')
+                        if asset_name is not None:
+                            if asset_name not in assets:
+                                asset = self.server_helper.create_asset(
+                                    asset_name, asset_parent
+                                )
+                                asset_id = asset.get('assetid')
+                                version_id = self.server_helper.create_asset_version(
+                                    asset_id, asset_task
+                                )
+                                assets[asset_name] = version_id
+                            else:
+                                version_id = assets[asset_name]
+
+                        out_data = {
+                            'resolution': resolution,
+                            'source_in': track_in,
+                            'source_out': track_out,
+                            'source_file': source,
+                            'destination_in': start,
+                            'destination_out': end,
+                            'fps': fps,
+                            'offset': offset,
+                            'entity_id': result[0],
+                            'entity_type': result[1],
+                            'handles': handles
+                        }
+
+                        if version_id:
+                            out_data.update({
                                 'asset_version_id': version_id,
-                                'component_name': component_name,
-                                'handles': handles
-                            }
+                                'component_name': processor['name']
+                            })
 
-                            processor_name = component_fn.getName()
-                            data = (processor_name,  out_data)
-                            self.processor_ready.emit(data)
+                        processor_name = processor['processor_name']
+                        data = (processor_name,  out_data)
+                        self.processor_ready.emit(data)
 
             self._refresh_tree()
 
