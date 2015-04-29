@@ -46,7 +46,7 @@ def getAPI():
             api.setup(actions=False)
             logger.info('ftrack Python API loaded.')
         except ImportError:
-            logger.warning(
+            logger.exception(
                 'Could not load ftrack Python API. Please check it is '
                 'available on the PYTHONPATH.'
             )
@@ -272,17 +272,81 @@ def ftrackCompare(data):
         rv.commands.setFrame(startFrame)
 
 
-def ftrackGenerateUrl(params=None):
-    try:
-        urlParams = "&"
-        for key,values in json.loads(params).iteritems():
-            for value in values:
-                urlParams += "%s=%s&" % (key,value)
-        return urlParams[:-1] if params else ""
+def _getEntityFromEnvironment():
+    # Check for environment variable specifying additional information to
+    # use when loading.
+    eventEnvironmentVariable = 'FTRACK_CONNECT_EVENT'
 
-    except:
-        print traceback.format_exc()
-        return ""
+    eventData = os.environ.get(eventEnvironmentVariable)
+    if eventData is not None:
+        try:
+            decodedEventData = json.loads(base64.b64decode(eventData))
+        except (TypeError, ValueError):
+            logger.exception(
+                'Failed to decode {0}: {1}'
+                .format(eventEnvironmentVariable, eventData)
+            )
+        else:
+            selection = decodedEventData.get('selection', [])
+
+            # At present only a single entity which should represent an
+            # ftrack List is supported.
+            if selection:
+                try:
+                    entity = selection[0]
+                    entityId = entity.get('entityId')
+                    entityType = entity.get('entityType')
+                    return entityId, entityType
+                except (IndexError, AttributeError, KeyError):
+                    logger.exception(
+                        'Failed to extract selection information from: {0}'
+                        .format(selection)
+                    )
+    else:
+        logger.debug(
+            'No event data retrieved. {0} not set.'
+            .format(eventEnvironmentVariable)
+        )
+
+    return None, None
+
+
+def getNavigationURL(params=None):
+    '''Return URL to navigation panel based on *params*.'''
+    return _generateURL(params, 'review_navigation')
+
+
+def getActionURL(params=None):
+    '''Return URL to action panel based on *params*.'''
+    return _generateURL(params, 'review_action')
+
+
+def _generateURL(params=None, panelName=None):
+    '''Return URL to panel in ftrack based on *params* or *panel*.'''
+    entityId = None
+    entityType = None
+
+    url = ''
+    if params:
+        panelName = panelName or params
+
+        try:
+            params = json.loads(params)
+            entityId = params['entityId']
+            entityType = params['entityType']
+        except Exception:
+            entityId, entityType = _getEntityFromEnvironment()
+
+        try:
+            url = getAPI().getWebWidgetUrl(
+                panelName, 'tf', entityId=entityId, entityType=entityType
+            )
+        except Exception as exception:
+            logger.exception(str(exception))
+
+    logger.info('Returning url "{0}"'.format(url))
+
+    return url
 
 
 def ftrackFilePath(id):
@@ -326,14 +390,3 @@ def ftrackJumpTo(index=0, startFrame=1):
             frameNumber += (add)
     
     rv.commands.setFrame(frameNumber + startFrame)
-
-
-def pprint(value=""):
-    import pprint
-    printer = pprint.PrettyPrinter(indent=2)
-
-    try:
-        printer.pprint(value)
-    except:
-        print traceback.format_exc()
-        print value  
