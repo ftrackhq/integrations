@@ -1,0 +1,22 @@
+package: FTrack
+author: ftrack AB
+organization: ftrack AB
+contact: support@ftrack.com
+version: 3.0.6
+url: http://www.ftrack.com
+optional: true
+rv: 3.12.19
+requires: ''
+
+modes: 
+  - file: ftrack.mu
+    load: immediate
+files:
+  - file: noserver.html
+    location: SupportFiles/$PACKAGE
+
+description: |
+
+  <h2>ftrack review</h2>
+  <p>ftrack connect review plugin for Tweak software's RV.</p>
+
