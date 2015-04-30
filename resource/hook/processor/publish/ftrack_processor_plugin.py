@@ -13,7 +13,7 @@ import ftrack_connect_nuke_studio.processor
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
-def createComponent():
+def updateComponent():
     ''' Create component callback for nuke write nodes.
 
     This callback relies on two custom knobs:
@@ -30,7 +30,7 @@ def createComponent():
     version = ftrack.AssetVersion(id=asset_id)
 
     # Create the component and copy data to the most likely store
-    component = node['component_name'].value()
+    component = version.getComponent(node['component_name'].value())
     out = node['file'].value()
 
     prefix = out.split('.')[0] + '.'
@@ -43,8 +43,14 @@ def createComponent():
         padding=len(str(end_frame)),
         indexes=set(range(start_frame, end_frame + 1))
     )
-    component = version.createComponent(component, str(collection))
-    component.setMeta('img_main', True)
+
+    origin = ftrack.LOCATION_PLUGINS.get('ftrack.origin')
+
+    component.setResourceIdentifier(str(collection))
+    component = origin.addComponent(component, recursive=False)
+
+    location = ftrack.pickLocation()
+    location.addComponent(component)
 
 
 class PublishPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
@@ -61,7 +67,7 @@ class PublishPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
                     'import sys;'
                     'sys.path.append("{path}");'
                     'import ftrack_processor_plugin;'
-                    'ftrack_processor_plugin.createComponent()'
+                    'ftrack_processor_plugin.updateComponent()'
                 ).format(path=FILE_PATH)
             }
         }
@@ -112,6 +118,20 @@ class PublishPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
             ),
             self.launch
         )
+
+    def process(self, data):
+        component = ftrack.createComponent(
+            name=data['component_name'],
+            versionId=data['asset_version_id'],
+            systemType='sequence'
+        )
+        component.setMeta('img_main', True)
+
+        track_item = data['application_object']
+        track_item.source().setEntityReference(
+            component.getEntityRef()
+        )
+        super(PublishPlugin, self).process(data)
 
 
 def register(registry, **kw):
