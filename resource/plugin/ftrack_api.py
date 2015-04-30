@@ -332,8 +332,8 @@ def _generateURL(params=None, panelName=None):
 
         try:
             params = json.loads(params)
-            entityId = params['entityId']
-            entityType = params['entityType']
+            entityId = params['entityId'][0]
+            entityType = params['entityType'][0]
         except Exception:
             entityId, entityType = _getEntityFromEnvironment()
 
