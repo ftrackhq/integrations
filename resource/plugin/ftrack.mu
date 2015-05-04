@@ -46,7 +46,6 @@ class: FtrackMode : MinorMode
     int             _currentSource;
     
     
-    python.PyObject _pyGenerateUrl;
     python.PyObject _pyFilePath;
     python.PyObject _pyUUID;
     python.PyObject _getAttachmentId;
@@ -61,23 +60,30 @@ class: FtrackMode : MinorMode
         }
     }
     
-    method: callApi (void; string action, string params) {
+    method: callApi (string; string action, string params) {
         pprint("Call to ftrack python api: %s" % action);
         pprint("With params: %s" % params);
         
         _apiObject = python.PyObject_GetAttr (_pyApi, action);
+        return to_string(python.PyObject_CallObject (_apiObject, params));
 
-        python.PyObject_CallObject (_apiObject, params);
     }
 
-    method: generateUrl (string; string params)
+    method: generateUrl (string; string params, string name)
     {
 
-        if(params neq nil) {
-            return to_string(python.PyObject_CallObject (_pyGenerateUrl, params));
+        if(params eq nil) {
+            params = "None";
         }
         
+        if (name == "review_navigation") {
+            return callApi("getNavigationURL", params);
+        }
         
+        if (name == "review_action") {
+            return callApi("getActionURL", params);
+        }
+
         return "";
     }
 
@@ -233,7 +239,6 @@ class: FtrackMode : MinorMode
         
         //SETUP PYTHON API
         _pyApi    = python.PyImport_Import ("ftrack_api");
-        _pyGenerateUrl  = python.PyObject_GetAttr (_pyApi, "ftrackGenerateUrl");
         _pyFilePath     = python.PyObject_GetAttr (_pyApi, "ftrackFilePath");
         _pyUUID         = python.PyObject_GetAttr (_pyApi, "ftrackUUID");
         _getAttachmentId    = python.PyObject_GetAttr (_pyApi, "ftrackGetAttachmentId");
@@ -248,8 +253,7 @@ class: FtrackMode : MinorMode
             showProg  = bool("false"),
             startSize = int ("500");
 
-            let params  = generateUrl(commandLineFlag("params", nil));
-            url = _ftrackUrl + "/widget?view=freview_action_v1&itemId=freview&controller=widget" + params;
+            url  = generateUrl(commandLineFlag("params", nil), "review_action");
 
             _dockActionWidget = QDockWidget(title, mainWindowWidget(), Qt.Widget);
             
@@ -296,27 +300,19 @@ class: FtrackMode : MinorMode
         _currentSource = -1;
 
         _ftrackUrl  = commandLineFlag("ftrackUrl", nil);
-        let url = "";
-        //setenv("FTRACK_SERVER","http://localhost:5005", true);
         if (_ftrackUrl eq nil) {
-            try {
-                _ftrackUrl = getenv("FTRACK_SERVER");
-            }
-            catch (...) {
-                pprint ("No FTRACK_SERVER environment variable set");
-            }
+            _ftrackUrl = getenv("FTRACK_SERVER");
         }
 
-        if (_ftrackUrl neq nil) {
-            url = url + _ftrackUrl;
-            let params  = generateUrl(commandLineFlag("params", nil));
-            url = _ftrackUrl + "/widget?view=freview_nav_v1&itemId=freview&controller=widget" + params;
-        } else {
+        let url = "";
+
+        url  = generateUrl(commandLineFlag("params", nil), "review_navigation");
+
+        if (url == "") {
             let noServer = path.join(supportPath("ftrack", "ftrack"), "noserver.html");
             let urlPrefix = if (runtime.build_os() == "WINDOWS") then "file:///" else "file://";
             url = urlPrefix + noServer;
         }
-        //let qurl = QUrl("file:///Users/carlclaesson/Desktop/noserver.html");
 
         let title = "",
         showTitle = bool("false"),
