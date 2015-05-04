@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014 ftrack
 
 import tempfile
-import ftrack_legacy as ftrack
+import ftrack
 import getpass
 import hiero
 

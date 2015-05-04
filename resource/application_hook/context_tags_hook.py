@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2015 ftrack
 
 import FnAssetAPI.logging
-import ftrack_legacy as ftrack
+import ftrack
 
 
 class ContextTags(object):
@@ -36,5 +36,12 @@ class ContextTags(object):
 
 def register(registry, **kw):
     '''Register hooks for context tags.'''
+
+    # Validate that registry is instance of ftrack.Registry, if not
+    # return early since the register method probably is called
+    # from the new API.
+    if not isinstance(registry, ftrack.Registry):
+        return
+
     plugin = ContextTags()
     plugin.register()

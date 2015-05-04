@@ -5,15 +5,11 @@ import urlparse
 import pprint
 import functools
 
-import ftrack_legacy
 import ftrack
+import ftrack_api
 
 from FnAssetAPI import logging
 import hiero
-
-# TODO: Move these hooks to new API so that we don't need to recreate
-# the session.
-_session = ftrack.Session()
 
 
 def _callback(item, ftrack_version):
@@ -68,6 +64,10 @@ def callback(event):
         pprint.pformat(event['data']))
     )
 
+    # TODO: Move these hooks to new API so that we don't need to recreate
+    # the session.
+    _session = ftrack_api.Session()
+
     version = _session.query(
         'select components, components.id from AssetVersion where id '
         'is "{0}"'.format(version_id)
@@ -116,9 +116,15 @@ def callback(event):
 def register(registry, **kw):
     '''Register hook.'''
 
+    # Validate that registry is instance of ftrack.Registry, if not
+    # return early since the register method probably is called
+    # from the new API.
+    if not isinstance(registry, ftrack.Registry):
+        return
+
     logging.info('Register version notification hook')
 
-    ftrack_legacy.EVENT_HUB.subscribe(
+    ftrack.EVENT_HUB.subscribe(
         'topic=ftrack.crew.notification.version',
         callback
     )

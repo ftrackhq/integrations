@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015 ftrack
 
-import ftrack_legacy as ftrack
+import ftrack
 from FnAssetAPI.ui.toolkit import QtGui
 
 
