@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014 ftrack
 
 import hiero.core
-import ftrack_legacy as ftrack
+import ftrack
 import FnAssetAPI.logging
 from ftrack_connect.ui import resource
 

@@ -4,7 +4,7 @@
 import os
 import tempfile
 
-import ftrack_legacy as ftrack
+import ftrack
 
 
 def register(registry, **kw):

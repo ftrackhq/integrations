@@ -12,8 +12,8 @@ import nuke
 import hiero.core
 import hiero.core.events
 import ftrack_connect.crew_hub
+import ftrack_api
 import ftrack
-import ftrack_legacy
 from ftrack_connect.ui.widget import notification_list as _notification_list
 from ftrack_connect.ui.widget import crew as _crew
 import ftrack_connect.ui.theme
@@ -21,7 +21,7 @@ import ftrack_connect.ui.theme
 from ftrack_connect.ui.widget.header import Header
 
 
-session = ftrack.Session()
+session = ftrack_api.Session()
 
 
 class NukeCrewHub(ftrack_connect.crew_hub.SignalCrewHub):
@@ -33,7 +33,7 @@ class NukeCrewHub(ftrack_connect.crew_hub.SignalCrewHub):
         # are visible in the list.
         return True
 
-#: TODO: Re-run classifier when clips in timeline are assetised, added or 
+#: TODO: Re-run classifier when clips in timeline are assetised, added or
 # removed.
 
 class UserClassifier(object):
@@ -178,7 +178,7 @@ class NukeCrew(QtGui.QDialog):
 
     def _enter_chat(self):
         '''.'''
-        user = ftrack_legacy.getUser(getpass.getuser())
+        user = ftrack.getUser(getpass.getuser())
         data = {
             'user': {
                 'name': user.getName(),

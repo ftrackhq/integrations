@@ -3,16 +3,18 @@
 
 import logging
 
-import ftrack_legacy
 import ftrack
+import ftrack_api
 
-session = ftrack.Session()
 log = logging.getLogger(__name__)
 
 
 def callback(event):
     '''Handle get events callback.'''
     log.warning('Get events!')
+
+    session = ftrack_api.Session()
+
     context = event['data']['context']
     cases = []
     events = []
@@ -53,7 +55,14 @@ def callback(event):
 
 def register(registry, **kw):
     '''Register hook.'''
-    ftrack_legacy.EVENT_HUB.subscribe(
+
+    # Validate that registry is instance of ftrack.Registry, if not
+    # return early since the register method probably is called
+    # from the new API.
+    if not isinstance(registry, ftrack.Registry):
+        return
+
+    ftrack.EVENT_HUB.subscribe(
         'topic=ftrack.crew.notification.get-events',
         callback
     )
