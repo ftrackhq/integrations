@@ -44,10 +44,11 @@ def updateComponent():
     ext = os.path.splitext(out)[-1]
     start_frame = int(node['first'].value())
     end_frame = int(node['last'].value())
+    padding = len(str(end_frame))
     collection = Collection(
         head=prefix,
         tail=ext,
-        padding=len(str(end_frame)),
+        padding=padding,
         indexes=set(range(start_frame, end_frame + 1))
     )
 
@@ -55,8 +56,6 @@ def updateComponent():
 
     # Get container component and update resource identifier.
     container = version.getComponent(node['component_name'].value())
-    container.setResourceIdentifier(str(collection))
-    container = origin.addComponent(container, recursive=False)
 
     # Create member components.
     containerSize = 0
@@ -73,10 +72,17 @@ def updateComponent():
             padding=None  # Padding not relevant for 'file' type.
         )
 
+    container.set({
+        'size': containerSize,
+        'padding': padding,
+        'filetype': ext
+    })
+
+    container.setResourceIdentifier(collection.format('{head}{padding}{tail}'))
+    container = origin.addComponent(container, recursive=False)
+
     location = ftrack.pickLocation()
     location.addComponent(container)
-
-    container.set('size', containerSize)
 
 
 class PublishPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
