@@ -45,6 +45,7 @@ class TagManager(object):
 
         task_types = ftrack.getTaskTypes()
 
+        task_type_tags = []
         for task_type in task_types:
             ftag = hiero.core.Tag(task_type.getName())
             ftag.setIcon(':ftrack/image/integration/task')
@@ -55,7 +56,14 @@ class TagManager(object):
             meta.setValue('ftrack.id', task_type.getId())
             meta.setValue('ftrack.name', task_type.getName())
             meta.setValue('tag.value', task_type.getName())
-            self.ftrack_bin_task.addItem(ftag)
+            task_type_tags.append((task_type.getName(), ftag))
+
+        task_type_tags = sorted(
+            task_type_tags, key=lambda tag_tuple: tag_tuple[0].lower()
+        )
+
+        for _, tag in task_type_tags:
+            self.ftrack_bin_task.addItem(tag)
 
     def _setContextTags(self):
         '''Create context tags from the common ftrack tasks.'''
