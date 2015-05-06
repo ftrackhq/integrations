@@ -13,6 +13,15 @@ import ftrack_connect_nuke_studio.processor
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
+def _getSize(path):
+    '''Return size from *path*'''
+    try:
+        size = os.path.getsize(path)
+    except OSError:
+        size = 0
+    return size
+
+
 def updateComponent():
     ''' Create component callback for nuke write nodes.
 
@@ -29,8 +38,6 @@ def updateComponent():
     asset_id = node['asset_version_id'].value()
     version = ftrack.AssetVersion(id=asset_id)
 
-    # Create the component and copy data to the most likely store
-    component = version.getComponent(node['component_name'].value())
     out = node['file'].value()
 
     prefix = out.split('.')[0] + '.'
@@ -46,11 +53,30 @@ def updateComponent():
 
     origin = ftrack.LOCATION_PLUGINS.get('ftrack.origin')
 
-    component.setResourceIdentifier(str(collection))
-    component = origin.addComponent(component, recursive=False)
+    # Get container component and update resource identifier.
+    container = version.getComponent(node['component_name'].value())
+    container.setResourceIdentifier(str(collection))
+    container = origin.addComponent(container, recursive=False)
+
+    # Create member components.
+    containerSize = 0
+    for item in collection:
+        size = _getSize(item)
+        containerSize += size
+        ftrack.createComponent(
+            name=collection.match(item).group('index'),
+            path=item,
+            systemType='file',
+            location=None,
+            size=size,
+            containerId=container.getId(),
+            padding=None  # Padding not relevant for 'file' type.
+        )
 
     location = ftrack.pickLocation()
-    location.addComponent(component)
+    location.addComponent(container)
+
+    container.set('size', containerSize)
 
 
 class PublishPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
@@ -120,6 +146,10 @@ class PublishPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
         )
 
     def process(self, data):
+        '''Process *data* and assetise related track item.'''
+
+        # The component has to be created before the render job is kicked off
+        # in order to assetise the track_item.
         component = ftrack.createComponent(
             name=data['component_name'],
             versionId=data['asset_version_id'],
