@@ -14,7 +14,7 @@ Releases
 
     .. change:: changed
 
-        `ftrack connect nuke 0.1.3 <http://rtd.ftrack.com/docs/ftrack-connect-nuke/en/0.1.4/>`_
+        `ftrack connect nuke 0.1.4 <http://rtd.ftrack.com/docs/ftrack-connect-nuke/en/0.1.4/>`_
 
 .. release:: 0.1.12
     :date: 2015-04-17
