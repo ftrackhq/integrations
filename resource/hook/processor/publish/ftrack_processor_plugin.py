@@ -146,7 +146,9 @@ class PublishPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
         '''Process *data* and assetise related track item.'''
 
         # The component has to be created before the render job is kicked off
-        # in order to assetise the track_item.
+        # in order to assetise the track_item. This is required since the render
+        # job is asynchronous and might be offloaded to another machine in 
+        # future versions. 
         component = ftrack.createComponent(
             name=data['component_name'],
             versionId=data['asset_version_id'],
