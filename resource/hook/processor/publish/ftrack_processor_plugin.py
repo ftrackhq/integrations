@@ -14,7 +14,7 @@ FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
 def update_component():
-    ''' Create component callback for nuke write nodes.
+    '''Update component callback for nuke write nodes.
 
     This callback relies on two custom knobs:
         * asset_version_id , which refers to the parent Asset.
