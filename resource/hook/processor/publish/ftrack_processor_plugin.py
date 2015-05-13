@@ -13,15 +13,6 @@ import ftrack_connect_nuke_studio.processor
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
-def _get_size(path):
-    '''Return size from *path*'''
-    try:
-        size = os.path.getsize(path)
-    except OSError:
-        size = 0
-    return size
-
-
 def update_component():
     ''' Create component callback for nuke write nodes.
 
@@ -60,7 +51,7 @@ def update_component():
     # Create member components.
     container_size = 0
     for item in collection:
-        size = _get_size(item)
+        size = os.path.getsize(item)
         container_size += size
         ftrack.createComponent(
             name=collection.match(item).group('index'),
