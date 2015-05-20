@@ -743,9 +743,6 @@ class ProjectTreeDialog(QtGui.QDialog):
                         start, end, resolution, fps, handles
                     )
 
-                    datum.track.source().setEntityReference(
-                        'ftrack://{0}?entityType={1}'.format(result[0], result[1])
-                    )
                     asset_parent = result
                     asset_task = None
 
@@ -786,7 +783,8 @@ class ProjectTreeDialog(QtGui.QDialog):
                             'offset': offset,
                             'entity_id': result[0],
                             'entity_type': result[1],
-                            'handles': handles
+                            'handles': handles,
+                            'application_object': datum.track
                         }
 
                         if version_id:
