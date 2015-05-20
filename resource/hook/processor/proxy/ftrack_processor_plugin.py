@@ -13,7 +13,7 @@ import ftrack_connect_nuke_studio.processor
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
-def createComponent():
+def create_component():
     ''' Create component callback for nuke write nodes.
 
     This callback relies on two custom knobs:
@@ -60,7 +60,7 @@ class ProxyPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
                     'import sys;'
                     'sys.path.append("{path}");'
                     'import ftrack_processor_plugin;'
-                    'ftrack_processor_plugin.createComponent()'
+                    'ftrack_processor_plugin.create_component()'
                 ).format(path=FILE_PATH)
             },
             'REFORMAT': {

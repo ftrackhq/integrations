@@ -13,8 +13,8 @@ import ftrack_connect_nuke_studio.processor
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
-def createComponent():
-    ''' Create component callback for nuke write nodes.
+def update_component():
+    '''Update component callback for nuke write nodes.
 
     This callback relies on two custom knobs:
         * asset_version_id , which refers to the parent Asset.
@@ -29,22 +29,51 @@ def createComponent():
     asset_id = node['asset_version_id'].value()
     version = ftrack.AssetVersion(id=asset_id)
 
-    # Create the component and copy data to the most likely store
-    component = node['component_name'].value()
     out = node['file'].value()
 
     prefix = out.split('.')[0] + '.'
     ext = os.path.splitext(out)[-1]
     start_frame = int(node['first'].value())
     end_frame = int(node['last'].value())
+    padding = len(str(end_frame))
     collection = Collection(
         head=prefix,
         tail=ext,
-        padding=len(str(end_frame)),
+        padding=padding,
         indexes=set(range(start_frame, end_frame + 1))
     )
-    component = version.createComponent(component, str(collection))
-    component.setMeta('img_main', True)
+
+    origin = ftrack.LOCATION_PLUGINS.get('ftrack.origin')
+
+    # Get container component and update resource identifier.
+    container = version.getComponent(node['component_name'].value())
+
+    # Create member components.
+    container_size = 0
+    for item in collection:
+        size = os.path.getsize(item)
+        container_size += size
+        ftrack.createComponent(
+            name=collection.match(item).group('index'),
+            path=item,
+            systemType='file',
+            location=None,
+            size=size,
+            containerId=container.getId(),
+            padding=None  # Padding not relevant for 'file' type.
+        )
+
+    container.set({
+        'size': container_size,
+        'padding': padding,
+        'filetype': ext
+    })
+
+    container.setResourceIdentifier(collection.format('{head}{padding}{tail}'))
+    container = origin.addComponent(container, recursive=False)
+
+    location = ftrack.pickLocation()
+    location.addComponent(container)
 
 
 class PublishPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
@@ -61,7 +90,7 @@ class PublishPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
                     'import sys;'
                     'sys.path.append("{path}");'
                     'import ftrack_processor_plugin;'
-                    'ftrack_processor_plugin.createComponent()'
+                    'ftrack_processor_plugin.update_component()'
                 ).format(path=FILE_PATH)
             }
         }
@@ -112,6 +141,26 @@ class PublishPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
             ),
             self.launch
         )
+
+    def process(self, data):
+        '''Process *data* and assetise related track item.'''
+
+        # The component has to be created before the render job is kicked off
+        # in order to assetise the track_item. This is required since the render
+        # job is asynchronous and might be offloaded to another machine in 
+        # future versions. 
+        component = ftrack.createComponent(
+            name=data['component_name'],
+            versionId=data['asset_version_id'],
+            systemType='sequence'
+        )
+        component.setMeta('img_main', True)
+
+        track_item = data['application_object']
+        track_item.source().setEntityReference(
+            component.getEntityRef()
+        )
+        super(PublishPlugin, self).process(data)
 
 
 def register(registry, **kw):

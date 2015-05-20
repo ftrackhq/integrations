@@ -13,7 +13,7 @@ import ftrack_connect_nuke_studio.processor
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
-def publishReviewableComponent(version_id, component, out):
+def publish_reviewable_component(version_id, component, out):
     '''Publish a reviewable component to *version_id*'''
     version = ftrack.AssetVersion(id=version_id)
     version.createComponent(component, out)
@@ -21,7 +21,7 @@ def publishReviewableComponent(version_id, component, out):
     ftrack.Review.makeReviewable(version=version, filePath=out)
 
 
-def createReview():
+def create_review():
     ''' Create component callback for nuke write nodes.
 
     This callback relies on two custom knobs:
@@ -41,7 +41,7 @@ def createReview():
     # Create component in a separate thread. If this is done in the main thread
     # the file is not properly written to disk.
     _thread = threading.Thread(
-        target=publishReviewableComponent,
+        target=publish_reviewable_component,
         kwargs={
             'version_id': version_id,
             'component': component,
@@ -66,7 +66,7 @@ class ReviewPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
                     'import sys;'
                     'sys.path.append("{path}");'
                     'import ftrack_processor_plugin;'
-                    'ftrack_processor_plugin.createReview()'
+                    'ftrack_processor_plugin.create_review()'
                 ).format(path=FILE_PATH)
             }
         }

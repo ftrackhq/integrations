@@ -12,7 +12,7 @@ import ftrack_connect_nuke_studio.processor
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
-def createThumbnail():
+def create_thumbnail():
     ''' Create component callback for nuke write nodes.
 
     This callback relies on two custom knobs:
@@ -55,7 +55,7 @@ class ThumbnailPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
                     'import sys;'
                     'sys.path.append("{path}");'
                     'import ftrack_processor_plugin;'
-                    'ftrack_processor_plugin.createThumbnail()'
+                    'ftrack_processor_plugin.create_thumbnail()'
                 ).format(path=FILE_PATH)
             }
         }
