@@ -25,14 +25,19 @@ def openCreateProjectUI(*args, **kwargs):
     parent = hiero.ui.mainWindow()
     ftags = []
     trackItems = args[0]
+
+    sequence = None
     for item in trackItems:
         if not isinstance(item, hiero.core.TrackItem):
             continue
         tags = item.tags()
         tags = [tag for tag in tags if tag.metadata().hasKey('ftrack.type')]
         ftags.append((item, tags))
+        sequence = item.sequence()
 
-    dialog = ProjectTreeDialog(data=ftags, parent=parent)
+    dialog = ProjectTreeDialog(
+        data=ftags, parent=parent, sequence=sequence
+    )
     dialog.exec_()
 
 
@@ -101,6 +106,10 @@ class Delegate(delegate.Delegate):
                     QtGui.QPixmap(':icon-ftrack-box'),
                     'Export project', uiElement
                 )
+
+                if not data:
+                    action.setEnabled(False)
+
                 action.triggered.connect(cmd)
                 uiElement.addAction(action)
 

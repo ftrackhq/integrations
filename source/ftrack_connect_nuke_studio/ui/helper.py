@@ -121,24 +121,17 @@ class TagTreeOverlay(_overlay.BusyOverlay):
 def is_valid_tag_structure(tag_data):
     '''Return true if *tag_data* is valid.'''
     for track_item, context_tags in tag_data:
-        if (
-            not context_tags or
-            not any([
-                tag.metadata().value('ftrack.type') == 'show'
-                for tag in context_tags
-            ])
-        ):
+        if (not context_tags):
             return False, (
-                'Project tag is missing from clip {0}. Use Tags to add '
+                'Context tags is missing from clip {0}. Use Tags to add '
                 'context on clips.'
             ).format(track_item.name())
 
     return True, 'Success'
 
 
-def tree_data_factory(tag_data_list):
+def tree_data_factory(tag_data_list, project_tag):
     '''Return tree of TagItems out of a set of ftags om *tag_data_list*.'''
-    processors = ftrack_connect_nuke_studio.processor.config()
 
     # Define tag type sort orders.
     tag_sort_order = [
@@ -174,7 +167,7 @@ def tree_data_factory(tag_data_list):
 
         context = sorted(context, key=lambda x: sort_context(x))
 
-        for hiero_tag in context:
+        for hiero_tag in [project_tag] + context:
             tag = _TagItem(hiero_tag.metadata().dict())
             tag.track = trackItem
 
