@@ -11,7 +11,7 @@ from FnAssetAPI import logging
 import nuke
 import hiero.core
 import hiero.core.events
-import ftrack_connect.crew_hub
+import ftrack_connect_nuke_studio.crew_hub
 import ftrack_api
 import ftrack
 from ftrack_connect.ui.widget import notification_list as _notification_list
@@ -24,18 +24,8 @@ from ftrack_connect.ui.widget.header import Header
 session = ftrack_api.Session()
 
 
-class NukeCrewHub(ftrack_connect.crew_hub.SignalCrewHub):
-
-    def isInterested(self, data):
-        '''Return if interested in user with *data*.'''
-
-        # In first version we are interested in all users since all users
-        # are visible in the list.
-        return True
-
 #: TODO: Re-run classifier when clips in timeline are assetised, added or
 # removed.
-
 class UserClassifier(object):
     '''Class to classify users based on your context.'''
 
@@ -116,7 +106,7 @@ class NukeCrew(QtGui.QDialog):
             self
         )
 
-        self._hub = NukeCrewHub()
+        self._hub = ftrack_connect_nuke_studio.crew_hub._crew_hub
 
         self._classifier = UserClassifier()
 
@@ -173,28 +163,6 @@ class NukeCrew(QtGui.QDialog):
         )
 
         self.on_refresh_event()
-
-        self._enter_chat()
-
-    def _enter_chat(self):
-        '''.'''
-        user = ftrack.getUser(getpass.getuser())
-        data = {
-            'user': {
-                'name': user.getName(),
-                'id': user.getId()
-            },
-            'application': {
-                'identifier': 'nuke',
-                'label': 'Nuke {0}'.format('Studio')
-            },
-            'context': {
-                'project_id': 'my_project_id',
-                'containers': []
-            }
-        }
-
-        self._hub.enter(data)
 
     def on_refresh_event(self, *args, **kwargs):
         '''Handle refresh events.'''

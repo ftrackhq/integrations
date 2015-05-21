@@ -8,8 +8,6 @@ import FnAssetAPI
 
 import ftrack
 
-ftrack.setup()
-
 import ftrack_connect_foundry.bridge
 import ftrack_connect_nuke_studio.event
 
