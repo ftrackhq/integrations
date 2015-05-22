@@ -106,7 +106,7 @@ class NukeCrew(QtGui.QDialog):
             self
         )
 
-        self._hub = ftrack_connect_nuke_studio.crew_hub._crew_hub
+        self._hub = ftrack_connect_nuke_studio.crew_hub.crew_hub
 
         self._classifier = UserClassifier()
 

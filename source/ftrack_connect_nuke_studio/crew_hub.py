@@ -37,4 +37,4 @@ class CrewHub(ftrack_connect.crew_hub.SignalCrewHub):
         return True
 
 # Create global crew hub which can connect before UI is created.
-_crew_hub = CrewHub()
+crew_hub = CrewHub()
