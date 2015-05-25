@@ -14,6 +14,9 @@ import ftrack_connect.event_hub_thread
 eventHubThread = ftrack_connect.event_hub_thread.EventHubThread()
 eventHubThread.start()
 
+# Import crew hub to instantiate a global crew hub.
+import ftrack_connect_nuke_studio.crew_hub
+
 ftrack_connect.ui.theme.applyFont()
 
 
