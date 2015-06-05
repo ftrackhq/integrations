@@ -5,6 +5,17 @@
 Releases
 ########
 
+.. release:: 0.2.0
+    :date: 2015-06-05
+
+    .. change:: changed
+
+        Required `ftrack server <http://ftrack.rtd.ftrack.com/en/3.1.0/release/release_notes.html#release-3.1.0>`_ version is 3.1.0 or higher.
+
+    .. change:: changed
+
+        `ftrack connect 0.1.11 <http://rtd.ftrack.com/docs/ftrack-connect/en/0.1.11/>`_
+
 .. release:: 0.1.13
     :date: 2015-05-06
 

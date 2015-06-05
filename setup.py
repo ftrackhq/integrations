@@ -23,11 +23,11 @@ with open(os.path.join(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
-connect_install_require = 'ftrack-connect == 0.1.10'
+connect_install_require = 'ftrack-connect == 0.1.11'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.10.zip'
-    '#egg=ftrack-connect-0.1.10'
+    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.11.zip'
+    '#egg=ftrack-connect-0.1.11'
 )
 
 cinesync_install_require = 'ftrack-connect-cinesync == 0.1.2'
