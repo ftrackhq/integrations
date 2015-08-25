@@ -1,32 +1,68 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 
-import ftrack_connect_foundry.plugin
-import ftrack_connect_nuke_studio.bridge
-import ftrack_connect_nuke_studio.manager
+import functools
+
+from PySide import QtGui
+import hiero.ui
+import hiero.core
+
+from ftrack_connect_nuke_studio.ui.create_project import ProjectTreeDialog
+from ftrack_connect_nuke_studio.ui.tag_drop_handler import TagDropHandler
+from ftrack_connect_nuke_studio.ui.tag_manager import TagManager
+
+import ftrack
+
+# Run setup to discover any Location or Event plugins for ftrack.
+ftrack.setup()
 
 
-class Plugin(ftrack_connect_foundry.plugin.Plugin):
-    '''ftrack manager plugin for NUKE STUDIO.'''
+def open_export_dialog(*args, **kwargs):
+    '''Open export project from timeline context menu.'''
+    parent = hiero.ui.mainWindow()
+    ftags = []
+    trackItems = args[0]
 
-    @classmethod
-    def _initialiseBridge(cls):
-        '''Initialise bridge.'''
-        if cls._bridge is None:
-            cls._bridge = ftrack_connect_nuke_studio.bridge.Bridge()
+    sequence = None
+    for item in trackItems:
+        if not isinstance(item, hiero.core.TrackItem):
+            continue
+        tags = item.tags()
+        tags = [tag for tag in tags if tag.metadata().hasKey('ftrack.type')]
+        ftags.append((item, tags))
+        sequence = item.sequence()
 
-    @classmethod
-    def getInterface(cls):
-        '''Return instance of manager interface.'''
-        cls._initialiseBridge()
-        return ftrack_connect_nuke_studio.manager.ManagerInterface(cls._bridge)
+    dialog = ProjectTreeDialog(
+        data=ftags, parent=parent, sequence=sequence
+    )
+    dialog.exec_()
 
-    @classmethod
-    def getUIDelegate(cls, interfaceInstance):
-        '''Return instance of UI delegate.'''
-        cls._initialiseBridge()
 
-        # This import is here as certain ui modules should not be loaded
-        # unless a ui delegate is requested.
-        import ftrack_connect_nuke_studio.ui.delegate
-        return ftrack_connect_nuke_studio.ui.delegate.Delegate(cls._bridge)
+def on_context_menu_event(event):
+    menu = event.menu.addMenu('ftrack')
+
+    action_callback = functools.partial(
+        open_export_dialog, event.sender.selection()
+    )
+
+    action = QtGui.QAction(
+        QtGui.QPixmap(':icon-ftrack-box'), 'Export project', menu,
+        triggered=action_callback
+    )
+
+    menu.addAction(action)
+
+hiero.core.events.registerInterest(
+    (
+        hiero.core.events.EventType.kShowContextMenu,
+        hiero.core.events.EventType.kTimeline
+    ), on_context_menu_event
+)
+
+tag_handler = TagDropHandler()
+
+hiero.core.events.registerInterest(
+    'kStartup', TagManager
+)
+
+hiero.ui.setWorkspace('dev')

@@ -2,10 +2,10 @@
 # :copyright: Copyright (c) 2014 ftrack
 
 import re
+import logging
 
 import hiero
 from hiero.core.events import *
-import FnAssetAPI.logging
 
 
 class TagDropHandler(object):
@@ -42,7 +42,7 @@ class TagDropHandler(object):
 
             # Filter out any non ftrack tag
             if not meta.hasKey('type') or meta.value('type') != 'ftrack':
-                FnAssetAPI.logging.debug(
+                logging.debug(
                     '{0} is not a valid track tag type'.format(tag_name)
                 )
                 continue
@@ -51,7 +51,7 @@ class TagDropHandler(object):
             if tag_name == 'project':
                 # Skip project tags since it's added by the create project
                 # dialog.
-                FnAssetAPI.logging.debug(
+                logging.debug(
                     '{0} is not a valid track tag type'.format(tag_name)
                 )
 
@@ -70,7 +70,7 @@ class TagDropHandler(object):
                 result = re.match(match, clip_name)
                 if result:
                     result_value = result.groups()[-1]
-                    FnAssetAPI.logging.debug(
+                    logging.debug(
                         'Setting {0} to {1} on {2}'.format(
                             tag_name, result_value, clip_name
                         )
