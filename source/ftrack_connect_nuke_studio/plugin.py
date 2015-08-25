@@ -39,15 +39,22 @@ def open_export_dialog(*args, **kwargs):
 
 
 def on_context_menu_event(event):
-    menu = event.menu.addMenu('ftrack')
+    menu = event.menu.addMenu(
+        QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'), 'ftrack'
+    )
 
     action_callback = functools.partial(
         open_export_dialog, event.sender.selection()
     )
 
     action = QtGui.QAction(
-        QtGui.QPixmap(':icon-ftrack-box'), 'Export project', menu,
+        'Export project', menu,
         triggered=action_callback
+    )
+
+    # Disable the Export option if no track items are selected.
+    action.setDisabled(
+        len(event.sender.selection()) == 0
     )
 
     menu.addAction(action)
