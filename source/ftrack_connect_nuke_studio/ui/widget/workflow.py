@@ -1,8 +1,9 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015 ftrack
 
+from PySide import QtGui
+
 import ftrack
-from FnAssetAPI.ui.toolkit import QtGui
 
 
 class Workflow(QtGui.QComboBox):
