@@ -28,6 +28,17 @@ if getattr(sys, 'frozen', False):
         )
     )
 
+    # Set the path to certificate file in resource folder. This allows requests
+    # module to read it outside frozen zip file.
+    os.environ.setdefault(
+        'REQUESTS_CA_BUNDLE',
+        os.path.abspath(
+            os.path.join(
+                os.path.dirname(sys.executable), 'resource', 'cacert.pem'
+            )
+        )
+    )
+
 import ftrack_connect.__main__
 
 

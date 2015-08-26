@@ -5,6 +5,7 @@ import sys
 import os
 import re
 import pkg_resources
+import opcode
 
 from setuptools import setup, Distribution, find_packages
 
@@ -81,7 +82,9 @@ configuration = dict(
     setup_requires=[
         'sphinx >= 1.2.2, < 2',
         'sphinx_rtd_theme >= 0.1.6, < 2',
-        'lowdown >= 0.1.0, < 1'
+        'lowdown >= 0.1.0, < 1',
+        'pyopenssl',
+        'requests >= 2, <3'
     ],
     install_requires=[
         'ftrack-python-legacy-api',
@@ -189,6 +192,9 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_nuke/hook'
     )
 
+    # Add requests certificates to resource folder.
+    import requests.certs
+
     include_files = [
         (connect_resource_hook, 'resource/hook'),
         (cinesync_resource_hook, 'resource/hook'),
@@ -199,7 +205,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         (ftrack_connect_hieroplayer_source, 'resource/hieroplayer'),
         (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'),
         (ftrack_connect_nuke_hook, 'resource/hook'),
-        (ftrack_connect_nuke_source, 'resource/ftrack_connect_nuke')
+        (ftrack_connect_nuke_source, 'resource/ftrack_connect_nuke'),
+        (requests.certs.where(), 'resource/cacert.pem')
     ]
 
     executables = []
@@ -264,6 +271,15 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
 
     configuration['executables'] = executables
 
+    # opcode is not a virtualenv module, so we can use it to find the stdlib.
+    # This is the same trick used by distutils itself it installs itself into
+    # the virtualenv
+    distutils_path = os.path.join(
+        os.path.dirname(opcode.__file__), 'distutils'
+    )
+
+    include_files.append((distutils_path, 'distutils'))
+
     configuration['options']['build_exe'] = {
         'init_script': os.path.join(RESOURCE_PATH, 'frozen_bootstrap.py'),
         'includes': [
@@ -289,7 +305,11 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
 
             # Compiled yaml uses unguarded pkg_resources.resource_filename which
             # won't work in frozen package.
-            '_yaml'
+            '_yaml',
+
+            # Exclude distutils from virtualenv due to entire package with
+            # sub-modules not being copied to virtualenv.
+            'distutils'
         ],
         'include_files': include_files,
         'bin_includes': bin_includes
