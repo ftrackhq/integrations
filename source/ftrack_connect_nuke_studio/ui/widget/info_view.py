@@ -26,6 +26,9 @@ class InfoView(
             'kSelectionChanged', self.on_selection_changed
         )
 
+        self.setWindowTitle(self._display_name)
+        self.setObjectName(self._identifier)
+
     @classmethod
     def get_identifier(self):
         '''Return identifier for widget.'''
