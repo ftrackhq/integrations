@@ -211,6 +211,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
 
     executables = []
     bin_includes = []
+    includes = []
     if sys.platform == 'win32':
         executables.append(
             Executable(
@@ -226,6 +227,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         configuration['options']['bdist_msi'] = {
             'upgrade_code': '{e5666af3-56a5-426a-b308-54c2d6ad8704}'
         }
+
+        includes.append('dbhash')
 
     elif sys.platform == 'darwin':
         executables.append(
@@ -280,20 +283,22 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
 
     include_files.append((distutils_path, 'distutils'))
 
+    includes.extend([
+        'ftrack',
+        'atexit',  # Required for PySide
+        'ftrack_connect_cinesync.cinesync_launcher',
+        'ftrack_connect.application',
+        'assetmgr_hiero',
+        'assetmgr_nuke',
+        'FnAssetAPI',
+        'ftrack_connect_nuke',
+        'ftrack_connect_nuke.plugin',
+        'ftrack_connect_nuke.logging'
+    ])
+
     configuration['options']['build_exe'] = {
         'init_script': os.path.join(RESOURCE_PATH, 'frozen_bootstrap.py'),
-        'includes': [
-            'ftrack',
-            'atexit',  # Required for PySide
-            'ftrack_connect_cinesync.cinesync_launcher',
-            'ftrack_connect.application',
-            'assetmgr_hiero',
-            'assetmgr_nuke',
-            'FnAssetAPI',
-            'ftrack_connect_nuke',
-            'ftrack_connect_nuke.plugin',
-            'ftrack_connect_nuke.logging'
-        ],
+        'includes': includes,
         'excludes': [
             # The following don't actually exist, but are picked up by the
             # dependency walker somehow.
