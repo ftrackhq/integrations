@@ -20,34 +20,19 @@ import ftrack
 # Run setup to discover any Location or Event plugins for ftrack.
 ftrack.setup()
 
+
 def populate_ftrack():
-    '''Populate the ftrack menu with items.
-
-    .. note ::
-
-        This method is using the nuke module which will not work if the
-        plugin run in Hiero.
-
-    '''
-    # Inline to not break if plugin run in Hiero.
-    import nuke
-
+    '''Populate the ftrack menu with items.'''
     mainMenu = nuke.menu('Nuke')
     ftrackMenu = mainMenu.addMenu('&ftrack')
 
-    panels.registerWidgetAsPanel(
-        'ftrack_connect_nuke_studio.ui.widget.info_view.InfoView',
-        ftrack_connect_nuke_studio.ui.widget.info_view.InfoView.get_display_name(),
-        ftrack_connect_nuke_studio.ui.widget.info_view.InfoView.get_identifier()
-    )
+    information_view = ftrack_connect_nuke_studio.ui.widget.info_view.InfoView()
+    window_manager = hiero.ui.windowManager()
+    window_manager.addWindow(information_view)
+
     ftrackMenu.addCommand(
         ftrack_connect_nuke_studio.ui.widget.info_view.InfoView.get_display_name(),
-        'import ftrack_connect_nuke_studio;'
-        'pane = nuke.getPaneFor("Properties.1");'
-        'panel = nukescripts.restorePanel("{0}");'
-        'panel.addToPane(pane)'.format(
-            ftrack_connect_nuke_studio.ui.widget.info_view.InfoView.get_identifier()
-        )
+        functools.partial(window_manager.showWindow, information_view)
     )
 
 
