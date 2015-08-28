@@ -7,7 +7,6 @@ from PySide import QtGui
 import hiero.ui
 import hiero.core
 import nuke
-from nukescripts import panels
 
 from ftrack_connect_nuke_studio.ui.create_project import ProjectTreeDialog
 from ftrack_connect_nuke_studio.ui.tag_drop_handler import TagDropHandler
