@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 
-from FnAssetAPI.ui.toolkit import QtGui, QtCore
+from PySide import QtGui, QtCore
 from ftrack_connect.ui.model.entity_tree import EntityTreeModel
 from ftrack_connect_nuke_studio.ui.helper import (
     time_from_track_item, timecode_from_track_item, source_from_track_item

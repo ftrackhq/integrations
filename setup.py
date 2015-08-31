@@ -82,14 +82,11 @@ setup(
         'mock'
     ],
     install_requires=[
-        'ftrack-connect >= 0.1.2, < 2',
-        'ftrack-connect-foundry >= 0.1.0, < 2'
+        'ftrack-connect >= 0.1.2, < 2'
     ],
     dependency_links=[
         'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.7.zip'
-        '#egg=ftrack-connect-0.1.7',
-        'https://bitbucket.org/ftrack/ftrack-connect-foundry/get/master.zip'
-        '#egg=ftrack-connect-foundry-0.1.0'
+        '#egg=ftrack-connect-0.1.7'
     ],
     tests_require=[
     ],

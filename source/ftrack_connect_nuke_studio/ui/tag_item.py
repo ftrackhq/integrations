@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 
-from FnAssetAPI.ui.toolkit import QtGui
+from PySide import QtGui
 from ftrack_connect.ui.model.entity_tree import Item
 from ftrack_connect.ui import resource
 

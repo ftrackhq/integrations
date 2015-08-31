@@ -4,15 +4,11 @@
 from __future__ import absolute_import
 
 import os
-import json
 import tempfile
 import logging
 import uuid
 
 import nuke
-import FnAssetAPI
-
-import ftrack_connect_nuke_studio
 
 
 class ProcessorPlugin(object):

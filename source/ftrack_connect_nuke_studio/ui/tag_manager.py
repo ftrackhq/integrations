@@ -1,9 +1,11 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 
+import logging
+
 import hiero.core
 import ftrack
-import FnAssetAPI.logging
+
 from ftrack_connect.ui import resource
 
 # Default context tags.
@@ -21,7 +23,7 @@ class TagManager(object):
 
     def __init__(self, *args, **kwargs):
         ''' Initialize and create the needed Bin and Tags.'''
-        FnAssetAPI.logging.debug('Creating Ftrack tags')
+        logging.debug('Creating Ftrack tags')
         self.project = hiero.core.project('Tag Presets')
         self.project.setEditable(True)
         self.ftrack_bin_main = hiero.core.Bin('ftrack')
@@ -41,7 +43,7 @@ class TagManager(object):
 
     def _setTasksTags(self):
         '''Create task tags from ftrack tasks.'''
-        FnAssetAPI.logging.debug('Creating Ftrack task tags')
+        logging.debug('Creating Ftrack task tags')
 
         task_types = ftrack.getTaskTypes()
 
@@ -67,7 +69,7 @@ class TagManager(object):
 
     def _setContextTags(self):
         '''Create context tags from the common ftrack tasks.'''
-        FnAssetAPI.logging.debug('Creating Ftrack context tags')
+        logging.debug('Creating Ftrack context tags')
 
         result = ftrack.EVENT_HUB.publish(
             ftrack.Event(
@@ -97,7 +99,7 @@ class TagManager(object):
             if icon == 'show':
                 icon = 'home'
 
-            FnAssetAPI.logging.info(icon)
+            logging.info(icon)
             ftag.setIcon(':ftrack/image/integration/{0}'.format(icon))
 
             meta = ftag.metadata()
