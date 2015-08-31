@@ -67,7 +67,10 @@ class TagManager(object):
 
     def __init__(self, *args, **kwargs):
         ''' Initialize and create the needed Bin and Tags.'''
-        logging.debug('Creating Ftrack tags')
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+        self.logger.debug('Creating Ftrack tags')
         self.project = hiero.core.project('Tag Presets')
         self.project.setEditable(True)
         self.ftrack_bin_main = hiero.core.Bin('ftrack')
@@ -87,7 +90,7 @@ class TagManager(object):
 
     def _setTasksTags(self):
         '''Create task tags from ftrack tasks.'''
-        logging.debug('Creating Ftrack task tags')
+        self.logger.debug('Creating Ftrack task tags')
 
         task_types = ftrack.getTaskTypes()
 
@@ -108,12 +111,18 @@ class TagManager(object):
             task_type_tags, key=lambda tag_tuple: tag_tuple[0].lower()
         )
 
+        self.logger.debug(
+            u'Added task type tags: {0}'.format(
+                task_type_tags
+            )
+        )
+
         for _, tag in task_type_tags:
             self.ftrack_bin_task.addItem(tag)
 
     def _setContextTags(self):
         '''Create context tags from the common ftrack tasks.'''
-        logging.debug('Creating Ftrack context tags')
+        self.logger.debug('Creating Ftrack context tags')
 
         result = ftrack.EVENT_HUB.publish(
             ftrack.Event(
@@ -124,11 +133,20 @@ class TagManager(object):
 
         context_tags = []
         if not result:
+            self.logger.debug(
+                'Retrieved 0 tags form hook. Using default tags'
+            )
             context_tags = DEFAULT_CONTEXT_TAGS
         else:
 
             for tags in result:
                 context_tags += tags
+
+        self.logger.debug(
+            u'Added context tags: {0}'.format(
+                context_tags
+            )
+        )
 
         for context_tag in context_tags:
             # explode the tag touples

@@ -10,22 +10,21 @@ import hiero.ui
 import hiero.core
 import nuke
 
+# Setup logging for ftrack.
+# TODO: Check with The Foundry if there is any better way to customise logging.
+from . import logging as _logging
+_logging.setup()
+
 from ftrack_connect_nuke_studio.ui.create_project import ProjectTreeDialog
 from ftrack_connect_nuke_studio.ui.tag_drop_handler import TagDropHandler
 import ftrack_connect_nuke_studio.ui.tag_manager
 import ftrack_connect_nuke_studio.ui.widget.info_view
-
-# Setup logging for ftrack.
-# TODO: Check with The Foundry if there is any better way to customise logging.
-from . import logging as _logging
 
 import ftrack
 
 # Run setup to discover any Location or Event plugins for ftrack.
 ftrack.setup()
 
-# Setup logging.
-_logging.setup()
 
 def populate_ftrack():
     '''Populate the ftrack menu with items.'''
