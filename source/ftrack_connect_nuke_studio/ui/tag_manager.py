@@ -2,11 +2,13 @@
 # :copyright: Copyright (c) 2014 ftrack
 
 import logging
+import re
 
 import hiero.core
 import ftrack
 
 from ftrack_connect.ui import resource
+
 
 # Default context tags.
 DEFAULT_CONTEXT_TAGS = [
@@ -16,6 +18,48 @@ DEFAULT_CONTEXT_TAGS = [
     ('shot', 'shot', '(\w+.)?SH(\d+)')
 
 ]
+
+
+def update_tag_value_from_name(track_item):
+    '''Update meta on ftrack tags on *track_item*.
+
+    Uses the tag.re field to extract the context from the name,
+    and set it back to the applied tag.
+
+    '''
+    logger = logging.getLogger('{0}.update_tag_value_from_name'.format(
+        __name__
+    ))
+    name = track_item.name()
+    tags = track_item.tags()
+
+    for tag in tags:
+        tag_name = tag.name()
+        meta = tag.metadata()
+
+        # Filter out any non ftrack tag
+        if not meta.hasKey('type') or meta.value('type') != 'ftrack':
+            logger.debug(
+                '{0} is not a valid track tag type'.format(tag_name)
+            )
+            continue
+
+        # Handle a tag with a regular expression.
+        if meta.hasKey('tag.re'):
+            match = meta.value('tag.re')
+            if not match:
+                # If the regular expression is empty skip it.
+                continue
+
+            result = re.match(match, name)
+            if result:
+                result_value = result.groups()[-1]
+                logger.debug(
+                    'Setting {0} to {1} on {2}'.format(
+                        tag_name, result_value, name
+                    )
+                )
+                meta.setValue('tag.value', result_value)
 
 
 class TagManager(object):
