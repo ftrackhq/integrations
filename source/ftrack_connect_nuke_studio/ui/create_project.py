@@ -4,10 +4,10 @@
 import ftrack
 import getpass
 import collections
+import logging
 
 import hiero
-import FnAssetAPI.logging
-from FnAssetAPI.ui.toolkit import QtGui, QtCore
+from PySide import QtGui, QtCore
 
 from .widget.project_selector import ProjectSelector
 from .widget.fps import Fps
@@ -28,7 +28,6 @@ from ftrack_connect_nuke_studio.ui.helper import (
 
 from ftrack_connect_nuke_studio.ui.tag_tree_model import TagTreeModel
 from ftrack_connect_nuke_studio.ui.tag_item import TagItem
-import ftrack_connect_nuke_studio
 from ftrack_connect.ui.theme import applyTheme
 
 
@@ -151,7 +150,7 @@ class FTrackServerHelper(object):
         try:
             self.server.action('set', asset_data)
         except ftrack.FTrackError as error:
-            FnAssetAPI.logging.debug(error)
+            logging.debug(error)
 
     def _rename_asset(self, asset_id, name):
         '''Rename the give *asset_id* with the given *name*'''
@@ -164,7 +163,7 @@ class FTrackServerHelper(object):
         try:
             self.server.action('set', asset_data)
         except ftrack.FTrackError as error:
-            FnAssetAPI.logging.debug(error)
+            logging.debug(error)
             return
 
     def create_asset(self, name, parent):
@@ -213,7 +212,8 @@ class FTrackServerHelper(object):
         typeid = self.tasktypes.get(name)
 
         data = {
-            'type': entity_type,
+            'type': 'context',
+            'objectType': entity_type,
             'parent_id': parent_id,
             'parent_type': parent_type,
             'name': name,
@@ -249,7 +249,7 @@ class FTrackServerHelper(object):
             return True
 
         except Exception as error:
-            FnAssetAPI.logging.debug(error)
+            logging.debug(error)
             return False
 
 def gather_processors(name, type):
@@ -280,7 +280,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         #: TODO: Consider if these permission checks are required.
         # user_is_allowed = self.server_helper.check_permissions()
         # if not user_is_allowed:
-        #     FnAssetAPI.logging.warning(
+        #     logging.warning(
         #         'The user does not have enough permissions to run this application.'
         #         'please check with your administrator your roles and permission level.'
         #     )
@@ -683,7 +683,7 @@ class ProjectTreeDialog(QtGui.QDialog):
                 # for a .mov file while Nuke is expecting Frame in 1.
                 track_in += 1
                 track_out += 1
-                FnAssetAPI.logging.debug(
+                logging.debug(
                     'Single file detected, adjusting frame start and frame end '
                     'to {0}-{1}'.format(track_in, track_out)
                 )
@@ -699,12 +699,12 @@ class ProjectTreeDialog(QtGui.QDialog):
 
             if datum.type == 'show':
                 if datum.exists:
-                    FnAssetAPI.logging.debug('%s %s exists as %s, reusing it.' % (
+                    logging.debug('%s %s exists as %s, reusing it.' % (
                         datum.name, datum.type, datum.exists.get('showid')))
                     result = (datum.exists.get('showid'), 'show')
                 else:
                     project_name = self.project_selector.get_new_name()
-                    FnAssetAPI.logging.debug('creating show %s' % project_name)
+                    logging.debug('creating show %s' % project_name)
                     result = self.server_helper.create_project(
                         project_name, selected_workflow)
                     datum.exists = {'showid': result[0]}
@@ -720,11 +720,11 @@ class ProjectTreeDialog(QtGui.QDialog):
 
             else:
                 if datum.exists:
-                    FnAssetAPI.logging.debug('%s %s exists as %s, reusing it.' % (
+                    logging.debug('%s %s exists as %s, reusing it.' % (
                         datum.name, datum.type, datum.exists.get('taskid')))
                     result = (datum.exists.get('taskid'), 'task')
                 else:
-                    FnAssetAPI.logging.debug(
+                    logging.debug(
                         'creating %s %s' % (datum.type, datum.name))
                     try:
                         result = self.server_helper.create_entity(
@@ -735,7 +735,7 @@ class ProjectTreeDialog(QtGui.QDialog):
                     datum.exists = {'taskid': result[0]}
 
                 if datum.type == 'shot':
-                    FnAssetAPI.logging.debug(
+                    logging.debug(
                         'Setting metadata to %s' % datum.name)
                     self.server_helper.set_entity_data(
                         result[1], result[0], datum.track,

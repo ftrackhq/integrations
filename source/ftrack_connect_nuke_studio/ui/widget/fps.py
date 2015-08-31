@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2015 ftrack
 
 import hiero
-from FnAssetAPI.ui.toolkit import QtGui
+from PySide import QtGui
 
 
 class Fps(QtGui.QComboBox):
