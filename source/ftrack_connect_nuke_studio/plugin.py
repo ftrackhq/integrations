@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
-
 import functools
+import logging
 
 from PySide import QtGui
 import hiero.ui
@@ -17,6 +17,7 @@ from ftrack_connect_nuke_studio.ui.tag_drop_handler import TagDropHandler
 from ftrack_connect_nuke_studio.ui.tag_manager import TagManager
 
 import ftrack_connect_nuke_studio.ui.widget.info_view
+import ftrack_connect_nuke_studio.ui.crew
 
 # Run setup to discover any Location or Event plugins for ftrack.
 ftrack.setup()
@@ -27,19 +28,30 @@ eventHubThread.start()
 
 ftrack_connect.ui.theme.applyFont()
 
+logger = logging.getLogger(__name__)
 
-def populate_ftrack():
+
+def populate_ftrack(event):
     '''Populate the ftrack menu with items.'''
     mainMenu = nuke.menu('Nuke')
     ftrackMenu = mainMenu.addMenu('&ftrack')
 
-    information_view = ftrack_connect_nuke_studio.ui.widget.info_view.InfoView()
     window_manager = hiero.ui.windowManager()
+
+    information_view = ftrack_connect_nuke_studio.ui.widget.info_view.InfoView()
     window_manager.addWindow(information_view)
 
     ftrackMenu.addCommand(
         ftrack_connect_nuke_studio.ui.widget.info_view.InfoView.get_display_name(),
         functools.partial(window_manager.showWindow, information_view)
+    )
+
+    crew = ftrack_connect_nuke_studio.ui.crew.NukeCrew()
+
+    window_manager.addWindow(crew)
+
+    ftrackMenu.addCommand(
+        'Crew', functools.partial(window_manager.showWindow, crew)
     )
 
 
@@ -87,6 +99,7 @@ def on_context_menu_event(event):
 
 
 # Register for Context menu events in the Timeline.
+logger.debug('Setup event listeners for timeline.')
 hiero.core.events.registerInterest(
     (
         hiero.core.events.EventType.kShowContextMenu,
@@ -95,13 +108,14 @@ hiero.core.events.registerInterest(
 )
 
 # Setup the TagManager and TagDropHandler.
+logger.debug('Setup tag manager and tag drop handler.')
 tag_handler = TagDropHandler()
 hiero.core.events.registerInterest(
     'kStartup', TagManager
 )
 
 # Trigger population of the ftrack menu.
-populate_ftrack()
-
-hiero.ui.setWorkspace('dev')
-
+logger.debug('Populate the ftrack menu')
+hiero.core.events.registerInterest(
+    'kStartup', populate_ftrack
+)

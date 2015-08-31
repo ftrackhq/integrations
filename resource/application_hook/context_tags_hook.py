@@ -1,8 +1,11 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015 ftrack
 
-import FnAssetAPI.logging
+import logging
+
 import ftrack
+
+logger = logging.getLogger(__name__)
 
 
 class ContextTags(object):
@@ -17,7 +20,7 @@ class ContextTags(object):
 
         '''
 
-        FnAssetAPI.logging.debug('Loading context tags from hook.')
+        logging.debug('Loading context tags from hook.')
 
         return [
             ('project', 'show', None),

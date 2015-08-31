@@ -4,10 +4,10 @@
 import urlparse
 import getpass
 import collections
+import logging
 
 from PySide import QtGui
 
-from FnAssetAPI import logging
 import nuke
 import hiero.core
 import hiero.core.events
@@ -43,14 +43,17 @@ class UserClassifier(object):
         '''Initialise classifier.'''
         super(UserClassifier, self).__init__()
 
-        logging.info('Initialise classifier')
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+        self.logger.info('Initialise classifier')
         self._lookup = dict()
 
     def update_context(self, context):
         '''Update based on *context*.'''
         self._lookup = dict()
 
-        logging.info(
+        self.logger.info(
             'Classifying based context: "{0}"'.format(context)
         )
         if context['shot']:
@@ -78,7 +81,7 @@ class UserClassifier(object):
             for version in versions:
                 self._lookup[version['user']['id']] = 'contributor'
 
-        logging.info(
+        self.logger.info(
             '_lookup contains "{0}"'.format(str(self._lookup))
         )
 
@@ -96,6 +99,11 @@ class NukeCrew(QtGui.QDialog):
         '''Initialise widget with *parent*.'''
         super(NukeCrew, self).__init__(parent=parent)
 
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+
+        self.logger.debug('Apply *integration* theme.')
         ftrack_connect.ui.theme.applyTheme(self, 'integration')
 
         self.setMinimumWidth(400)
@@ -161,7 +169,7 @@ class NukeCrew(QtGui.QDialog):
             }
         ''')
 
-        self.vertical_layout.setContentsMargins(0, 0, 0, 0)
+        self.vertical_layout.setContentsMargins(10, 10, 10, 10)
         self.vertical_layout.addLayout(self.horizontal_layout)
 
         self.setObjectName('Crew')
@@ -171,8 +179,6 @@ class NukeCrew(QtGui.QDialog):
             'kAfterProjectLoad',
             self.on_refresh_event
         )
-
-        self.on_refresh_event()
 
         self._enter_chat()
 
@@ -196,15 +202,16 @@ class NukeCrew(QtGui.QDialog):
 
         self._hub.enter(data)
 
-    def on_refresh_event(self, *args, **kwargs):
+    def on_refresh_event(self, event):
         '''Handle refresh events.'''
+        print 'on_refresh_event'
         context = self._read_context_from_environment()
         self._update_notification_context(context)
         self._update_crew_context(context)
 
     def _update_notification_context(self, context):
         '''Update the notification list context on refresh.'''
-        logging.info(
+        self.logger.info(
             'Update notification based context: "{0}"'.format(context)
         )
         self.notification_list.clearContext(_reload=False)
@@ -240,11 +247,13 @@ class NukeCrew(QtGui.QDialog):
 
         if component_ids:
             components = session.query(
-                'select version.id from Component where id in'
+                'select version.asset.context_id from Component where id in'
                 ' ({0})'.format(','.join(component_ids))
             ).all()
 
             for component in components:
-                context['asset_version'].append(component['version']['id'])
+                context['shot'].append(
+                    component['version']['asset']['context_id']
+                )
 
         return context
