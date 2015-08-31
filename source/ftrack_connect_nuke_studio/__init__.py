@@ -3,12 +3,14 @@
 
 import os
 
-from ftrack import Registry
+import ftrack
+ftrack.setup()
+
 
 from ._version import __version__
 
 
-PROCESSOR_PLUGINS = Registry(
+PROCESSOR_PLUGINS = ftrack.Registry(
     os.environ.get('FTRACK_PROCESSOR_PLUGIN_PATH', '').split(os.pathsep)
 )
 
