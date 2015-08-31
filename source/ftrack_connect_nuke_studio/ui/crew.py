@@ -11,7 +11,7 @@ from PySide import QtGui
 import nuke
 import hiero.core
 import hiero.core.events
-import ftrack_connect.crew_hub
+import ftrack_connect_nuke_studio.crew_hub
 import ftrack_api
 import ftrack
 from ftrack_connect.ui.widget import notification_list as _notification_list
@@ -24,18 +24,8 @@ from ftrack_connect.ui.widget.header import Header
 session = ftrack_api.Session()
 
 
-class NukeCrewHub(ftrack_connect.crew_hub.SignalCrewHub):
-
-    def isInterested(self, data):
-        '''Return if interested in user with *data*.'''
-
-        # In first version we are interested in all users since all users
-        # are visible in the list.
-        return True
-
 #: TODO: Re-run classifier when clips in timeline are assetised, added or
 # removed.
-
 class UserClassifier(object):
     '''Class to classify users based on your context.'''
 
@@ -124,7 +114,7 @@ class NukeCrew(QtGui.QDialog):
             self
         )
 
-        self._hub = NukeCrewHub()
+        self._hub = ftrack_connect_nuke_studio.crew_hub.crew_hub
 
         self._classifier = UserClassifier()
 
@@ -176,8 +166,7 @@ class NukeCrew(QtGui.QDialog):
         self.setWindowTitle('Crew')
 
         hiero.core.events.registerInterest(
-            'kAfterProjectLoad',
-            self.on_refresh_event
+            'kAfterProjectLoad', self.on_refresh_event
         )
 
         self._enter_chat()
@@ -202,9 +191,9 @@ class NukeCrew(QtGui.QDialog):
 
         self._hub.enter(data)
 
-    def on_refresh_event(self, event):
+    def on_refresh_event(self, *args, **kwargs):
         '''Handle refresh events.'''
-        print 'on_refresh_event'
+
         context = self._read_context_from_environment()
         self._update_notification_context(context)
         self._update_crew_context(context)

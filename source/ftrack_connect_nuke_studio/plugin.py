@@ -10,7 +10,6 @@ import nuke
 
 import ftrack_connect.ui.theme
 import ftrack_connect.event_hub_thread
-import ftrack
 
 from ftrack_connect_nuke_studio.ui.create_project import ProjectTreeDialog
 from ftrack_connect_nuke_studio.ui.tag_drop_handler import TagDropHandler
@@ -19,12 +18,13 @@ from ftrack_connect_nuke_studio.ui.tag_manager import TagManager
 import ftrack_connect_nuke_studio.ui.widget.info_view
 import ftrack_connect_nuke_studio.ui.crew
 
-# Run setup to discover any Location or Event plugins for ftrack.
-ftrack.setup()
 
 # Start thread to handle events from ftrack.
 eventHubThread = ftrack_connect.event_hub_thread.EventHubThread()
 eventHubThread.start()
+
+# Import crew hub to instantiate a global crew hub.
+import ftrack_connect_nuke_studio.crew_hub
 
 ftrack_connect.ui.theme.applyFont()
 
