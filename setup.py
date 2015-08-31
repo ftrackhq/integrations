@@ -82,7 +82,8 @@ setup(
         'mock'
     ],
     install_requires=[
-        'ftrack-connect >= 0.1.2, < 2'
+        'ftrack-connect >= 0.1.2, < 2',
+        'ftrack-python-api >= 0.5.1, < 1'
     ],
     dependency_links=[
         'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.7.zip'
