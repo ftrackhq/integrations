@@ -39,6 +39,17 @@ if getattr(sys, 'frozen', False):
         )
     )
 
+    # Set the path to the included Nuke studio plugin.
+    os.environ.setdefault(
+        'FTRACK_CONNECT_NUKE_STUDIO_PATH',
+        os.path.abspath(
+            os.path.join(
+                os.path.dirname(sys.executable), 'resource',
+                'ftrack_connect_nuke_studio'
+            )
+        )
+    )
+
 import ftrack_connect.__main__
 
 
