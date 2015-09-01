@@ -28,6 +28,7 @@ class ContextTags(object):
 
         self.logger.debug('Loading context tags from hook.')
 
+
         return [
             ('project', 'show', None),
             ('episode', 'episode', '(\w+.)?EP(\d+)'),

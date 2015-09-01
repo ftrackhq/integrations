@@ -4,12 +4,15 @@
 import urlparse
 import pprint
 import functools
+import logging
 
 import ftrack
 import ftrack_api
 
-from FnAssetAPI import logging
 import hiero
+
+
+logger = logging.getLogger(__name__)
 
 
 def _callback(item, ftrack_version):
@@ -60,7 +63,7 @@ def callback(event):
     '''
     version_id = event['data']['version_id']
 
-    logging.info('Update track to latest versions based on:\n{0}'.format(
+    logger.info('Update track to latest versions based on:\n{0}'.format(
         pprint.pformat(event['data']))
     )
 
@@ -98,7 +101,7 @@ def callback(event):
                     # Check if entityReference is a related component.
                     if url.netloc in related_component_ids:
 
-                        logging.info('Setting new version on "{0}"'.format(
+                        logger.info('Setting new version on "{0}"'.format(
                             str(item)
                         ))
 
@@ -122,7 +125,7 @@ def register(registry, **kw):
     if not isinstance(registry, ftrack.Registry):
         return
 
-    logging.info('Register version notification hook')
+    logger.info('Register version notification hook')
 
     ftrack.EVENT_HUB.subscribe(
         'topic=ftrack.crew.notification.version',
