@@ -10,6 +10,11 @@ class Workflow(QtGui.QComboBox):
     '''Expose availble workflows from ftrack's server.'''
     def __init__(self, parent=None):
         super(Workflow, self).__init__(parent=parent)
-        self._schema = ftrack.getProjectSchemes()
-        for schemata in self._schema:
+        self._schemas = ftrack.getProjectSchemes()
+        for schemata in self._schemas:
             self.addItem(schemata.get('name'))
+
+    def currentItem(self):
+        '''Return the currently selected index.'''
+        currentIndex = self.currentIndex()
+        return self._schemas[currentIndex]
