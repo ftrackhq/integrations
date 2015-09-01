@@ -5,11 +5,17 @@ import logging
 
 import ftrack
 
-logger = logging.getLogger(__name__)
-
 
 class ContextTags(object):
     '''Return context tags for Nuke Studio.'''
+
+    def __init__(self, *args, **kwargs):
+        '''Initialise context tags hook.'''
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+
+        super(ContextTags, self).__init__(*args, **kwargs)
 
     def launch(self, event):
         '''Return context tags.
@@ -20,7 +26,8 @@ class ContextTags(object):
 
         '''
 
-        logging.debug('Loading context tags from hook.')
+        self.logger.debug('Loading context tags from hook.')
+
 
         return [
             ('project', 'show', None),
