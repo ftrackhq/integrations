@@ -6,6 +6,7 @@ import getpass
 import collections
 import logging
 
+import ftrack_api
 import hiero
 from PySide import QtGui, QtCore
 
@@ -275,6 +276,11 @@ class ProjectTreeDialog(QtGui.QDialog):
     def __init__(self, data=None, parent=None, sequence=None):
         '''Initiate dialog and create ui.'''
         super(ProjectTreeDialog, self).__init__(parent=parent)
+
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+
         self.server_helper = FTrackServerHelper()
         applyTheme(self, 'integration')
         #: TODO: Consider if these permission checks are required.
@@ -294,6 +300,11 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.setWindowTitle('Export project')
         self.logo_icon = QtGui.QIcon(':ftrack/image/dark/ftrackLogoColor')
         self.setWindowIcon(self.logo_icon)
+
+        # Create API session.
+        self.session = ftrack_api.Session(
+            auto_connect_event_hub=False
+        )
 
         # Create tree model with fake tag.
         fake_root = TagItem({})
@@ -333,6 +344,8 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.project_selector.project_selected.connect(
             self.update_project_tag
         )
+
+        self.validate()
 
         self.start_worker()
 
@@ -443,6 +456,8 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         self.workflow_combobox = Workflow(self.group_box)
         self.workflow_layout.addWidget(self.workflow_combobox)
+
+        self.workflow_combobox.currentIndexChanged.connect(self.validate)
 
         self.group_box_layout.addLayout(self.workflow_layout)
 
@@ -664,6 +679,61 @@ class ProjectTreeDialog(QtGui.QDialog):
         '''Reset the processor widgets.'''
         while self.tool_box.count() > 0:
             self.tool_box.removeItem(0)
+
+    def validate(self):
+        '''Validate UI and enable/disable export button based on result.'''
+        if all([
+                self._validate_task_tags_against_workflow()
+        ]):
+            self.export_project_button.setEnabled(True)
+            self.header.dismissMessage()
+        else:
+            self.export_project_button.setEnabled(False)
+
+    def _validate_task_tags_against_workflow(self):
+        '''Validate the task tags against the selected workflow.'''
+        task_types = {}
+        for track_data in self.data:
+            for tag in track_data[1]:
+                metadata = tag.metadata()
+                if metadata.value('ftrack.type') == 'task':
+                    task_types[metadata.value('ftrack.id')] = metadata.value('ftrack.name')
+
+        self.logger.debug(
+            'Found task type tags on track items: {0}'.format(
+                task_types
+            )
+        )
+
+        project_schema = self.session.query(
+            'ProjectSchema where name is "{0}"'.format(
+                self.workflow_combobox.currentText()
+            )
+        ).one()
+
+        valid_task_types = project_schema.get_types('Task')
+        valid_ids = [task_type['id'] for task_type in valid_task_types]
+        invalid_names = []
+
+        for type_id, type_name in task_types.items():
+            if type_id not in valid_ids:
+                self.logger.warning(
+                    'Task type {0} is not valid for current schema.'.format(
+                        type_name
+                    )
+                )
+                invalid_names.append(type_name)
+
+        if invalid_names:
+            message = (
+                u'The Task tags "{0}" are not valid for the selected workflow '
+                u'"{1}".'
+            ).format('", "'.join(invalid_names), project_schema['name'])
+            self.header.setMessage(message, 'warning')
+            return False
+        else:
+            return True
+
 
     def create_project(self, data, previous=None):
         '''Recursive function to create a new ftrack project on the server.'''
