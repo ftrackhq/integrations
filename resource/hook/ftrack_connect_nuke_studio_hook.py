@@ -171,7 +171,7 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
         )
 
         hiero_plugin_path = os.path.join(
-            FTRACK_CONNECT_NUKE_STUDIO_PATH, 'hiero'
+            FTRACK_CONNECT_NUKE_STUDIO_PATH, 'plugin'
         )
 
         environment = ftrack_connect.application.appendPath(
@@ -179,7 +179,7 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
         )
 
         processors_hooks_path = os.path.join(
-            FTRACK_CONNECT_NUKE_STUDIO_PATH, 'hook', 'processor'
+            FTRACK_CONNECT_NUKE_STUDIO_PATH, 'processor'
         )
 
         environment = ftrack_connect.application.appendPath(
