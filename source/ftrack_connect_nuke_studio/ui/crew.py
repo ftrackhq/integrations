@@ -172,7 +172,7 @@ class NukeCrew(QtGui.QDialog):
         self._enter_chat()
 
     def _enter_chat(self):
-        '''.'''
+        '''Enter chat as current user.'''
         user = ftrack.getUser(getpass.getuser())
         data = {
             'user': {
