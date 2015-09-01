@@ -20,6 +20,10 @@ from . import logging as _logging
 _logging.setup()
 
 
+import ftrack
+ftrack.setup()
+
+
 from ftrack_connect_nuke_studio.ui.create_project import ProjectTreeDialog
 from ftrack_connect_nuke_studio.ui.tag_drop_handler import TagDropHandler
 import ftrack_connect_nuke_studio.ui.tag_manager
