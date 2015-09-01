@@ -29,8 +29,8 @@ def callback(event):
         )
 
         cases.append(
-            'parent_id in ({task_ids}) and action in '
-            '("change.status.shot", "change.status.task")'.format(
+            'parent_id in ({task_ids}) and action like '
+            '"change.status.%"'.format(
                 task_ids=','.join(context['task'])
             )
         )
