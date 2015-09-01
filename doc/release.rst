@@ -5,6 +5,28 @@
 Releases
 ########
 
+.. release:: 0.2.2
+    :date: 2015-09-01
+
+    .. change:: changed
+
+        Required `ftrack server <http://ftrack.rtd.ftrack.com/en/3.2.1/release/release_notes.html#release-3.2.1>`_ version is 3.2.1 or higher.
+
+    .. change:: changed
+
+        `ftrack connect 0.1.13 <http://rtd.ftrack.com/docs/ftrack-connect/en/0.1.13/>`_
+
+.. release:: 0.2.1
+    :date: 2015-08-24
+
+    .. change:: changed
+
+        Required `ftrack server <http://ftrack.rtd.ftrack.com/en/3.2.0/release/release_notes.html#release-3.2.0>`_ version is 3.2.0 or higher.
+
+    .. change:: changed
+
+        `ftrack connect 0.1.12 <http://rtd.ftrack.com/docs/ftrack-connect/en/0.1.12/>`_
+
 .. release:: 0.2.0
     :date: 2015-06-05
 
