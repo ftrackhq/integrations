@@ -1,6 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 
+from __future__ import absolute_import
+
 import functools
 
 from PySide import QtGui
@@ -8,10 +10,14 @@ import hiero.ui
 import hiero.core
 import nuke
 
+# Setup logging for ftrack.
+# TODO: Check with The Foundry if there is any better way to customise logging.
+from . import logging as _logging
+_logging.setup()
+
 from ftrack_connect_nuke_studio.ui.create_project import ProjectTreeDialog
 from ftrack_connect_nuke_studio.ui.tag_drop_handler import TagDropHandler
-from ftrack_connect_nuke_studio.ui.tag_manager import TagManager
-
+import ftrack_connect_nuke_studio.ui.tag_manager
 import ftrack_connect_nuke_studio.ui.widget.info_view
 
 import ftrack
@@ -45,6 +51,11 @@ def open_export_dialog(*args, **kwargs):
     for item in trackItems:
         if not isinstance(item, hiero.core.TrackItem):
             continue
+
+        ftrack_connect_nuke_studio.ui.tag_manager.update_tag_value_from_name(
+            item
+        )
+
         tags = item.tags()
         tags = [tag for tag in tags if tag.metadata().hasKey('ftrack.type')]
         ftags.append((item, tags))
@@ -89,7 +100,7 @@ hiero.core.events.registerInterest(
 # Setup the TagManager and TagDropHandler.
 tag_handler = TagDropHandler()
 hiero.core.events.registerInterest(
-    'kStartup', TagManager
+    'kStartup', ftrack_connect_nuke_studio.ui.tag_manager.TagManager
 )
 
 # Trigger population of the ftrack menu.
