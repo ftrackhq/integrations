@@ -650,13 +650,14 @@ class ProjectTreeDialog(QtGui.QDialog):
                 raise self.project_worker.error[1], None, self.project_worker.error[2]
             except ftrack_connect_nuke_studio.exception.PermissionDeniedError as error:
                 self.header.setMessage(error.message, 'warning')
+        else:
+            self.header.setMessage(
+                'The project has been exported!', 'info'
+            )
 
     def on_project_created(self):
         '''Handle signal triggered when the project creation finishes.'''
         QtGui.QApplication.restoreOverrideCursor()
-        self.header.setMessage(
-            'The project has been succesfully created !', 'info'
-        )
         self.setDisabled(False)
 
     def _refresh_tree(self):
