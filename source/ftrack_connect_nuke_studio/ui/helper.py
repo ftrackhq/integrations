@@ -224,7 +224,7 @@ class TagTreeOverlay(_overlay.BusyOverlay):
 
 
 def validate_tag_structure(tag_data):
-    '''Return true if *tag_data* is valid.'''
+    '''Raise a ValidationError if tag structure is not valid.'''
     for track_item, context_tags in tag_data:
         if (not context_tags):
             message = (
@@ -234,8 +234,6 @@ def validate_tag_structure(tag_data):
             raise ftrack_connect_nuke_studio.exception.ValidationError(
                 message
             )
-
-    return True
 
 
 def tree_data_factory(tag_data_list, project_tag):
