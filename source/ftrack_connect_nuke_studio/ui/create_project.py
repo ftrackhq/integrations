@@ -17,6 +17,7 @@ from .widget.resolution import Resolution
 
 from ftrack_connect import worker
 import ftrack_connect.ui.widget.header
+import ftrack_connect_nuke_studio.exception
 
 from ftrack_connect_nuke_studio.ui.helper import (
     tree_data_factory,
@@ -24,7 +25,7 @@ from ftrack_connect_nuke_studio.ui.helper import (
     time_from_track_item,
     timecode_from_track_item,
     source_from_track_item,
-    is_valid_tag_structure
+    validate_tag_structure
 )
 
 from ftrack_connect_nuke_studio.ui.tag_tree_model import TagTreeModel
@@ -345,9 +346,9 @@ class ProjectTreeDialog(QtGui.QDialog):
             self.update_project_tag
         )
 
-        self.validate()
-
         self.start_worker()
+
+        self.validate()
 
     def update_project_tag(self, project_code):
         '''Update project tag on sequence with *project_code*.'''
@@ -367,17 +368,9 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.start_worker()
 
     def start_worker(self):
-        '''Validate tag structure and start worker.'''
-        # Validate tag structure and set warning if there are any errors.
-        tag_strucutre_valid, reason = is_valid_tag_structure(self.data)
-        if not tag_strucutre_valid:
-            self.header.setMessage(reason, 'warning')
-            self.export_project_button.setEnabled(False)
-        else:
-            self.setDisabled(True)
-
-            # Start populating the tree.
-            self.worker.start()
+        '''Start worker.'''
+        # Start populating the tree.
+        self.worker.start()
 
     def get_project_tag(self):
         '''Return project tag.'''
@@ -585,7 +578,6 @@ class ProjectTreeDialog(QtGui.QDialog):
     def on_set_tree_root(self):
         '''Handle signal and populate the tree.'''
         self.busy_overlay.hide()
-        self.export_project_button.setEnabled(True)
         self.tag_model.setRoot(self.worker.result)
 
     def on_tree_item_selection(self, selected, deselected):
@@ -682,13 +674,20 @@ class ProjectTreeDialog(QtGui.QDialog):
 
     def validate(self):
         '''Validate UI and enable/disable export button based on result.'''
-        if all([
-                self._validate_task_tags_against_workflow()
-        ]):
+        try:
+            # Validate tags.
+            validate_tag_structure(self.data)
+
+            # Validate workflow.
+            self._validate_task_tags_against_workflow()
+
+        except ftrack_connect_nuke_studio.exception.ValidationError as error:
+            self.header.setMessage(error.message, 'warning')
+            self.export_project_button.setEnabled(False)
+        else:
+            # All validations passed, enable export button.
             self.export_project_button.setEnabled(True)
             self.header.dismissMessage()
-        else:
-            self.export_project_button.setEnabled(False)
 
     def _validate_task_tags_against_workflow(self):
         '''Validate the task tags against the selected workflow.'''
@@ -729,10 +728,10 @@ class ProjectTreeDialog(QtGui.QDialog):
                 u'The Task tags "{0}" are not valid for the selected workflow '
                 u'"{1}".'
             ).format('", "'.join(invalid_names), project_schema['name'])
-            self.header.setMessage(message, 'warning')
-            return False
-        else:
-            return True
+
+            raise ftrack_connect_nuke_studio.exception.ValidationError(
+                message
+            )
 
 
     def create_project(self, data, previous=None):
