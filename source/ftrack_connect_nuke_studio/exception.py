@@ -44,3 +44,8 @@ class ValidationError(Error):
     '''Raise when an validation error occurs.'''
 
     default_message = 'Validation error.'
+
+class PermissionDeniedError(Error):
+    '''Raise when permission is denied.'''
+
+    default_message = 'Permission denied.'

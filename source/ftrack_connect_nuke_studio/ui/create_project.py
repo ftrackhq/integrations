@@ -646,15 +646,13 @@ class ProjectTreeDialog(QtGui.QDialog):
             app.processEvents()
 
         if self.project_worker.error:
-            raise self.project_worker.error[1], None, self.project_worker.error[2]
+            try:
+                raise self.project_worker.error[1], None, self.project_worker.error[2]
+            except ftrack_connect_nuke_studio.exception.PermissionDeniedError as error:
+                self.header.setMessage(error.message, 'warning')
 
     def on_project_created(self):
         '''Handle signal triggered when the project creation finishes.'''
-        information = (
-            'The project has now been created\nPlease wait for '
-            'the background processes to finish.'
-        )
-
         QtGui.QApplication.restoreOverrideCursor()
         self.header.setMessage(
             'The project has been succesfully created !', 'info'
@@ -733,7 +731,6 @@ class ProjectTreeDialog(QtGui.QDialog):
                 message
             )
 
-
     def create_project(self, data, previous=None):
         '''Recursive function to create a new ftrack project on the server.'''
         selected_workflow = self.workflow_combobox.currentText()
@@ -775,8 +772,14 @@ class ProjectTreeDialog(QtGui.QDialog):
                 else:
                     project_name = self.project_selector.get_new_name()
                     logging.debug('creating show %s' % project_name)
-                    result = self.server_helper.create_project(
-                        project_name, selected_workflow)
+                    try:
+                        result = self.server_helper.create_project(
+                            project_name, selected_workflow
+                        )
+                    except ftrack.api.ftrackerror.PermissionDeniedError:
+                        raise ftrack_connect_nuke_studio.exception.PermissionDeniedError(
+                            'You are not allowed to create projects.'
+                        )
                     datum.exists = {'showid': result[0]}
 
                 show_meta = {
@@ -800,8 +803,11 @@ class ProjectTreeDialog(QtGui.QDialog):
                         result = self.server_helper.create_entity(
                             datum.type, datum.name, previous)
                     except ftrack.api.ftrackerror.PermissionDeniedError as error:
-                        datum.exists = 'error'
-                        continue
+                        raise ftrack_connect_nuke_studio.exception.PermissionDeniedError(
+                            'You are not allowed to create {0}.'.format(
+                                datum.type
+                            )
+                        )
                     datum.exists = {'taskid': result[0]}
 
                 if datum.type == 'shot':
