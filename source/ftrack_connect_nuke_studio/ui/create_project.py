@@ -6,6 +6,7 @@ import getpass
 import collections
 import logging
 
+import ftrack_api
 import hiero
 from PySide import QtGui, QtCore
 
@@ -16,6 +17,7 @@ from .widget.resolution import Resolution
 
 from ftrack_connect import worker
 import ftrack_connect.ui.widget.header
+import ftrack_connect_nuke_studio.exception
 
 from ftrack_connect_nuke_studio.ui.helper import (
     tree_data_factory,
@@ -23,7 +25,7 @@ from ftrack_connect_nuke_studio.ui.helper import (
     time_from_track_item,
     timecode_from_track_item,
     source_from_track_item,
-    is_valid_tag_structure
+    validate_tag_structure
 )
 
 from ftrack_connect_nuke_studio.ui.tag_tree_model import TagTreeModel
@@ -275,6 +277,11 @@ class ProjectTreeDialog(QtGui.QDialog):
     def __init__(self, data=None, parent=None, sequence=None):
         '''Initiate dialog and create ui.'''
         super(ProjectTreeDialog, self).__init__(parent=parent)
+
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+
         self.server_helper = FTrackServerHelper()
         applyTheme(self, 'integration')
         #: TODO: Consider if these permission checks are required.
@@ -294,6 +301,11 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.setWindowTitle('Export project')
         self.logo_icon = QtGui.QIcon(':ftrack/image/dark/ftrackLogoColor')
         self.setWindowIcon(self.logo_icon)
+
+        # Create API session.
+        self.session = ftrack_api.Session(
+            auto_connect_event_hub=False
+        )
 
         # Create tree model with fake tag.
         fake_root = TagItem({})
@@ -336,6 +348,8 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         self.start_worker()
 
+        self.validate()
+
     def update_project_tag(self, project_code):
         '''Update project tag on sequence with *project_code*.'''
 
@@ -354,17 +368,9 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.start_worker()
 
     def start_worker(self):
-        '''Validate tag structure and start worker.'''
-        # Validate tag structure and set warning if there are any errors.
-        tag_strucutre_valid, reason = is_valid_tag_structure(self.data)
-        if not tag_strucutre_valid:
-            self.header.setMessage(reason, 'warning')
-            self.export_project_button.setEnabled(False)
-        else:
-            self.setDisabled(True)
-
-            # Start populating the tree.
-            self.worker.start()
+        '''Start worker.'''
+        # Start populating the tree.
+        self.worker.start()
 
     def get_project_tag(self):
         '''Return project tag.'''
@@ -443,6 +449,8 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         self.workflow_combobox = Workflow(self.group_box)
         self.workflow_layout.addWidget(self.workflow_combobox)
+
+        self.workflow_combobox.currentIndexChanged.connect(self.validate)
 
         self.group_box_layout.addLayout(self.workflow_layout)
 
@@ -570,7 +578,6 @@ class ProjectTreeDialog(QtGui.QDialog):
     def on_set_tree_root(self):
         '''Handle signal and populate the tree.'''
         self.busy_overlay.hide()
-        self.export_project_button.setEnabled(True)
         self.tag_model.setRoot(self.worker.result)
 
     def on_tree_item_selection(self, selected, deselected):
@@ -639,19 +646,18 @@ class ProjectTreeDialog(QtGui.QDialog):
             app.processEvents()
 
         if self.project_worker.error:
-            raise self.project_worker.error[1], None, self.project_worker.error[2]
+            try:
+                raise self.project_worker.error[1], None, self.project_worker.error[2]
+            except ftrack_connect_nuke_studio.exception.PermissionDeniedError as error:
+                self.header.setMessage(error.message, 'warning')
+        else:
+            self.header.setMessage(
+                'The project has been exported!', 'info'
+            )
 
     def on_project_created(self):
         '''Handle signal triggered when the project creation finishes.'''
-        information = (
-            'The project has now been created\nPlease wait for '
-            'the background processes to finish.'
-        )
-
         QtGui.QApplication.restoreOverrideCursor()
-        self.header.setMessage(
-            'The project has been succesfully created !', 'info'
-        )
         self.setDisabled(False)
 
     def _refresh_tree(self):
@@ -664,6 +670,67 @@ class ProjectTreeDialog(QtGui.QDialog):
         '''Reset the processor widgets.'''
         while self.tool_box.count() > 0:
             self.tool_box.removeItem(0)
+
+    def validate(self):
+        '''Validate UI and enable/disable export button based on result.'''
+        try:
+            # Validate tags.
+            validate_tag_structure(self.data)
+
+            # Validate workflow.
+            self._validate_task_tags_against_workflow()
+
+        except ftrack_connect_nuke_studio.exception.ValidationError as error:
+            self.header.setMessage(error.message, 'warning')
+            self.export_project_button.setEnabled(False)
+        else:
+            # All validations passed, enable export button.
+            self.export_project_button.setEnabled(True)
+            self.header.dismissMessage()
+
+    def _validate_task_tags_against_workflow(self):
+        '''Validate the task tags against the selected workflow.'''
+        task_types = {}
+        for track_data in self.data:
+            for tag in track_data[1]:
+                metadata = tag.metadata()
+                if metadata.value('ftrack.type') == 'task':
+                    task_types[metadata.value('ftrack.id')] = metadata.value('ftrack.name')
+
+        self.logger.debug(
+            'Found task type tags on track items: {0}'.format(
+                task_types
+            )
+        )
+
+        project_schema = self.session.query(
+            'ProjectSchema where name is "{0}"'.format(
+                self.workflow_combobox.currentText()
+            )
+        ).one()
+
+        valid_task_types = project_schema.get_types('Task')
+        valid_ids = [task_type['id'] for task_type in valid_task_types]
+        invalid_names = []
+
+        for type_id, type_name in task_types.items():
+            if type_id not in valid_ids:
+                self.logger.warning(
+                    'Task type {0} is not valid for current schema.'.format(
+                        type_name
+                    )
+                )
+                invalid_names.append(type_name)
+
+        if invalid_names:
+            message = (
+                u'The Task tags "{0}" are not valid for the selected workflow '
+                u'"{1}".'
+            ).format('", "'.join(invalid_names), project_schema['name'])
+
+            raise ftrack_connect_nuke_studio.exception.ValidationError(
+                message
+            )
 
     def create_project(self, data, previous=None):
         '''Recursive function to create a new ftrack project on the server.'''
@@ -706,8 +773,14 @@ class ProjectTreeDialog(QtGui.QDialog):
                 else:
                     project_name = self.project_selector.get_new_name()
                     logging.debug('creating show %s' % project_name)
-                    result = self.server_helper.create_project(
-                        project_name, selected_workflow)
+                    try:
+                        result = self.server_helper.create_project(
+                            project_name, selected_workflow
+                        )
+                    except ftrack.api.ftrackerror.PermissionDeniedError:
+                        raise ftrack_connect_nuke_studio.exception.PermissionDeniedError(
+                            'You are not allowed to create projects.'
+                        )
                     datum.exists = {'showid': result[0]}
 
                 show_meta = {
@@ -731,8 +804,11 @@ class ProjectTreeDialog(QtGui.QDialog):
                         result = self.server_helper.create_entity(
                             datum.type, datum.name, previous)
                     except ftrack.api.ftrackerror.PermissionDeniedError as error:
-                        datum.exists = 'error'
-                        continue
+                        raise ftrack_connect_nuke_studio.exception.PermissionDeniedError(
+                            'You are not allowed to create {0}.'.format(
+                                datum.type
+                            )
+                        )
                     datum.exists = {'taskid': result[0]}
 
                 if datum.type == 'shot':
