@@ -235,6 +235,20 @@ def validate_tag_structure(tag_data):
                 message
             )
 
+        # Verify that all context tags match.
+        for tag in context_tags:
+            if not tag.metadata().value('tag.value'):
+                raise ftrack_connect_nuke_studio.exception.ValidationError(
+                    (
+                        'The tag "{0}" did not match the name of your track '
+                        'items, please rename your track items to match it or '
+                        'remove the tag.'
+                    ).format(
+                        tag.metadata().value('ftrack.name')
+                    )
+                )
+
+
 
 def tree_data_factory(tag_data_list, project_tag):
     '''Return tree of TagItems out of a set of ftags om *tag_data_list*.'''
