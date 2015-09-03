@@ -228,8 +228,8 @@ def validate_tag_structure(tag_data):
     for track_item, context_tags in tag_data:
         if (not context_tags):
             message = (
-                u'Context tags is missing from clip {0}. Use Tags to add '
-                u'context on clips.'
+                u'No ftrack context tag was found on track item "{0}". Please '
+                u'add a ftrack context tag to the track item and try again.'
             ).format(track_item.name())
             raise ftrack_connect_nuke_studio.exception.ValidationError(
                 message
@@ -241,10 +241,11 @@ def validate_tag_structure(tag_data):
                 raise ftrack_connect_nuke_studio.exception.ValidationError(
                     (
                         'The tag "{0}" did not match the name of your track '
-                        'items, please rename your track items to match it or '
-                        'remove the tag.'
+                        'item "{1}", please rename your track items to match '
+                        'it or remove the tag.'
                     ).format(
-                        tag.metadata().value('ftrack.name')
+                        tag.metadata().value('ftrack.name'),
+                        track_item.name()
                     )
                 )
 
