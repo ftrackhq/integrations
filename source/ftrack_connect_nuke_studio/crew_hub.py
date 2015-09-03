@@ -7,7 +7,7 @@ import ftrack
 import ftrack_connect.crew_hub
 
 
-class CrewHub(ftrack_connect.crew_hub.SignalCrewHub):
+class CrewHub(ftrack_connect.crew_hub.SignalConversationHub):
 
     def __init__(self, *args, **kwargs):
         '''Instantiate CrewHub.'''

@@ -125,6 +125,24 @@ class NukeCrew(QtGui.QDialog):
             parent=self
         )
 
+        self.chat.chat.busyOverlay.setStyleSheet('''
+            BlockingOverlay {
+                background-color: rgba(58, 58, 58, 200);
+                border: none;
+            }
+
+            BlockingOverlay QFrame#content {
+                padding: 0px;
+                border: 80px solid transparent;
+                background-color: transparent;
+                border-image: none;
+            }
+
+            BlockingOverlay QLabel {
+                background: transparent;
+            }
+        ''')
+
         for user in session.query(
             'select id, username, first_name, last_name'
             ' from User where is_active is True'
