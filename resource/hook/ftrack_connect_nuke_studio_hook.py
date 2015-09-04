@@ -110,7 +110,9 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
             dict(
                 'identifier': 'name_version',
-                'label': 'Name version',
+                'label': 'Name',
+                'variant': 'version',
+                'description': 'description',
                 'path': 'Absolute path to the file',
                 'version': 'Version of the application',
                 'icon': 'URL or name of predefined icon'
@@ -124,7 +126,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
             applications.extend(self._searchFilesystem(
                 expression=prefix + ['Nuke.*', 'NukeStudio\d[\w.]+.app'],
-                label='Nuke Studio {version}',
+                label='Nuke Studio',
                 applicationIdentifier='nuke_studio_{version}',
                 icon='nuke_studio'
             ))
@@ -134,7 +136,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
             applications.extend(self._searchFilesystem(
                 expression=prefix + ['Nuke.*', 'Nuke\d.+.exe'],
-                label='Nuke Studio {version}',
+                label='Nuke Studio',
                 applicationIdentifier='nuke_studio_{version}',
                 icon='nuke_studio',
                 launchArguments=['--studio']
