@@ -153,7 +153,9 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
             dict(
                 'identifier': 'name_version',
-                'label': 'Name version',
+                'label': 'Name',
+                'variant': 'version',
+                'description': 'description',
                 'path': 'Absolute path to the file',
                 'version': 'Version of the application',
                 'icon': 'URL or name of predefined icon'
@@ -169,7 +171,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 expression=prefix + [
                     'Adobe Photoshop CC .+', 'Adobe Photoshop CC .+.app'
                 ],
-                label='Photoshop CC {version}',
+                label='Photoshop CC',
                 applicationIdentifier='photoshop_cc_{version}',
                 icon='photoshop'
             ))
@@ -178,7 +180,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 expression=prefix + [
                     'Adobe Premiere Pro CC .+', 'Adobe Premiere Pro CC .+.app'
                 ],
-                label='Premiere Pro CC {version}',
+                label='Premiere Pro CC',
                 applicationIdentifier='premiere_pro_cc_{version}',
                 icon='premiere'
             ))
@@ -192,7 +194,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                     ['Adobe', 'Adobe Photoshop CC .+',
                      'Photoshop.exe']
                 ),
-                label='Photoshop CC {version}',
+                label='Photoshop CC',
                 applicationIdentifier='photoshop_cc_{version}',
                 icon='photoshop'
             ))
@@ -203,7 +205,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                     ['Adobe', 'Adobe Premiere Pro CC .+',
                      'Adobe Premiere Pro.exe']
                 ),
-                label='Premiere Pro CC {version}',
+                label='Premiere Pro CC',
                 applicationIdentifier='premiere_pro_cc_{version}',
                 icon='premiere'
             ))
