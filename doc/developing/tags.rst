@@ -2,7 +2,7 @@
     :copyright: Copyright (c) 2014 ftrack
 
 *****
-ftags
+Tags
 *****
 
 A new tools has been made available to simplify the creation of the project

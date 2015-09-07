@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 
-'''ftrack connect NUKE STUDIO documentation build configuration file'''
+'''ftrack connect nuke studio documentation build configuration file'''
 
 import os
 import re
@@ -25,7 +25,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'ftrack connect NUKE STUDIO'
+project = u'ftrack connect nuke studio'
 copyright = u'2014, ftrack'
 
 # Version
