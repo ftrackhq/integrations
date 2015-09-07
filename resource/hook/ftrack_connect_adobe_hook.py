@@ -80,15 +80,19 @@ class LaunchAction(object):
             items.append({
                 'actionIdentifier': self.identifier,
                 'label': label,
+                'variant': application.get('variant', None),
+                'description': application.get('description', None),
                 'icon': application.get('icon', 'default'),
                 'applicationIdentifier': applicationIdentifier
             })
 
             items.append({
                 'actionIdentifier': self.identifier,
-                'label': '{label} with latest version'.format(
-                    label=label
+                'label': label,
+                'variant': '{variant} with latest version'.format(
+                    variant=application.get('variant', '')
                 ),
+                'description': application.get('description', None),
                 'icon': application.get('icon', 'default'),
                 'launchWithLatest': True,
                 'applicationIdentifier': applicationIdentifier
@@ -172,6 +176,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                     'Adobe Photoshop CC .+', 'Adobe Photoshop CC .+.app'
                 ],
                 label='Photoshop CC',
+                variant='{version}',
                 applicationIdentifier='photoshop_cc_{version}',
                 icon='photoshop'
             ))
@@ -181,6 +186,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                     'Adobe Premiere Pro CC .+', 'Adobe Premiere Pro CC .+.app'
                 ],
                 label='Premiere Pro CC',
+                variant='{version}',
                 applicationIdentifier='premiere_pro_cc_{version}',
                 icon='premiere'
             ))
@@ -195,6 +201,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                      'Photoshop.exe']
                 ),
                 label='Photoshop CC',
+                variant='{version}',
                 applicationIdentifier='photoshop_cc_{version}',
                 icon='photoshop'
             ))
@@ -206,6 +213,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                      'Adobe Premiere Pro.exe']
                 ),
                 label='Premiere Pro CC',
+                variant='{version}',
                 applicationIdentifier='premiere_pro_cc_{version}',
                 icon='premiere'
             ))
