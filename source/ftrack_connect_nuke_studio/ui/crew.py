@@ -118,20 +118,45 @@ class NukeCrew(QtGui.QDialog):
 
         self._classifier = UserClassifier()
 
+        current_user = ftrack.getUser(getpass.getuser())
         groups = ['contributor', 'related']
         self.chat = _crew.Crew(
-            groups, hub=self._hub, classifier=self._classifier, parent=self
+            groups, current_user, hub=self._hub, classifier=self._classifier,
+            parent=self
         )
 
-        for user in session.query(
+        self.chat.chat.busyOverlay.setStyleSheet('''
+            BlockingOverlay {
+                background-color: rgba(58, 58, 58, 200);
+                border: none;
+            }
+
+            BlockingOverlay QFrame#content {
+                padding: 0px;
+                border: 80px solid transparent;
+                background-color: transparent;
+                border-image: none;
+            }
+
+            BlockingOverlay QLabel {
+                background: transparent;
+            }
+        ''')
+
+        added_user_ids = []
+        for _user in session.query(
             'select id, username, first_name, last_name'
             ' from User where is_active is True'
         ):
-            if user['username'] != getpass.getuser():
+            if _user['id'] != current_user.getId():
                 self.chat.addUser(
-                    u'{0} {1}'.format(user['first_name'], user['last_name']),
-                    user['id']
+                    u'{0} {1}'.format(_user['first_name'], _user['last_name']),
+                    _user['id']
                 )
+
+                added_user_ids.append(_user['id'])
+
+        self._hub.populateUnreadConversations(current_user.getId(), added_user_ids)
 
         self.tab_panel = QtGui.QTabWidget(parent=self)
         self.tab_panel.addTab(self.chat, 'Chat')
