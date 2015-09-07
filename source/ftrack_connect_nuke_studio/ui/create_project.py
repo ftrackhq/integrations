@@ -219,7 +219,7 @@ class FTrackServerHelper(object):
             'parent_id': parent_id,
             'parent_type': parent_type,
             'name': name,
-            'typeid': typeid
+            'typeId': typeid
         }
         response = self.server.action('create', data)
         return response.get('taskid'), 'task'
