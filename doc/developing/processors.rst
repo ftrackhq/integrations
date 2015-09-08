@@ -8,15 +8,16 @@ Processors
 **********
 
 Processors in Nuke studio build upon the event system used in ftrack. As such,
-each processor receives a single argument which is an instance of ftrack.Event.
+each processor's discover and launch method receives a single argument which
+is an instance of ftrack.Event.
 
 The built-in processors can be extended by creating new processors and placing
 them in a directory. Then configure the environment by setting the
 ``FTRACK_EVENT_PLUGIN_PATH`` environment variable.
 
-The processors make use two events ``ftrack.processor.discover`` and
-``ftrack.processor.launch`` that are fired for each object being created when
-exporting the project.
+The processors make use of two events ``ftrack.processor.discover`` and
+``ftrack.processor.launch`` that are emitted for each object being created when
+running :ref:`Export project <using/export_project>`.
 
 ftrack.processor.discover
 =========================
@@ -34,9 +35,11 @@ The structure of the event is::
         )
     )
 
-To register a processor on all shot creations::
+To make a processor available for on all shot creations you have to subscribe 
+to the event hub::
     
-    def discover():
+    def discover(event):
+        '''Return processor configuration for *event*.'''
         return dict(
             defaults=dict(
                 # Default values.
@@ -51,7 +54,7 @@ To register a processor on all shot creations::
         discover
     )
 
-The dictionary returned by the discover contains the following keys:
+The dictionary returned by the discover contains the following values:
 
 *   **defaults** - Must be a :py:class:`dict` and is rendered in the UI to
     communicate to the end-user any defaults that will be used when running the
@@ -68,7 +71,7 @@ ftrack.processor.launch
 =======================
 
 The launch event, ``ftrack.processor.launch``, is emitted to launch the
-processor when it has been created on the :term:`ftrack server`.
+processor when it is available on the :term:`ftrack server`.
 
 The structure of the event is:: 
 
@@ -93,8 +96,8 @@ Optional values are:
 *   **component_name** - the suggested name of the component inferred from the
     processor nice name passed in the discover event.
 
-
-To register a processor to run when the launch event is emitted::
+To make a processor launch for on all shot creations you have to subscribe 
+to the event hub::
 
     def launch(event):
         '''Launch processor with *event*.'''
