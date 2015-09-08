@@ -36,9 +36,9 @@ Project settings
 ================
 
 From this interface you'll be able to set the attributes for all the shots,
-such as resolution, fps, and handles. You will also be able to pick the workflow
-schema for the project creation. You will also be able to define some other
-attributes such as handles and and the start frame offset.
+such as resolution, fps, and handles.  You will also be able to pick the
+workflow schema for the project creation and define other attributes such as
+handles and the start frame offset.
 
 All the project settings will be added as attributes to the shot.
 
@@ -46,9 +46,8 @@ All the project settings will be added as attributes to the shot.
 
 .. note::
 
-    Some attributes, such as timecode related ones, are added for the moment as
-    metadata. This might be change in the future.
-
+    Some attributes, such as timecode related ones, are stored as metadata. This
+    might change in the future.
 
 Exporting
 =========
@@ -59,8 +58,12 @@ displayed.
 
 .. image:: /image/create_project_done.png
 
+At this point the project are created on your
+:term:`ftrack server <ftrack server>` and from the Project spreadsheet it is
+possible to see the project and the structure that was defined in Nuke Studio.
+
 At this point you can go and have a look on the
-:term:`ftrack server <ftrack server>` for the result. In here you will be able
+` for the result. In here you will be able
 to see your project and the structure as was defined from within Nuke Studio.
 
 .. image:: /image/create_project_remote_result.png
