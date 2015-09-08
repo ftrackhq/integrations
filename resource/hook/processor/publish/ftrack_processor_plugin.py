@@ -10,6 +10,7 @@ import nuke
 from clique import Collection
 
 import ftrack_connect_nuke_studio.processor
+import ftrack_connect_nuke_studio.entity_reference
 
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -158,9 +159,11 @@ class PublishPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
         component.setMeta('img_main', True)
 
         track_item = data['application_object']
-        track_item.source().setEntityReference(
-            component.getEntityRef()
+
+        ftrack_connect_nuke_studio.entity_reference.set(
+            track_item, component
         )
+
         super(PublishPlugin, self).process(data)
 
 
