@@ -14,3 +14,4 @@ Find out all information you need to use the nuke studio with ftrack.
     tags
     exporting_project
     processors
+    info_panel
