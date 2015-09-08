@@ -11,11 +11,6 @@ SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 
-connect_ftrack_new_api_dependency_link = (
-    'file://{0}#egg=ftrack-python-api'
-    .format(os.environ['FTRACK_PYTHON_API'].replace('\\', '/'))
-)
-
 # Read version from source.
 with open(os.path.join(
     SOURCE_PATH, 'ftrack_connect_nuke_studio', '_version.py'
