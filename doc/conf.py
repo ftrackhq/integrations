@@ -16,6 +16,7 @@ extensions = [
     'sphinx.ext.extlinks',
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
+    'lowdown'
 ]
 
 # The suffix of source filenames.

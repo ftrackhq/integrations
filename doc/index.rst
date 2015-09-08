@@ -13,6 +13,7 @@ ftrack connect nuke studio
     using/index
     developing/index
     glossary
+    release/index
 
 ******************
 Indices and tables
