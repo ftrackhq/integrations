@@ -20,6 +20,7 @@ import ftrack_connect.ui.theme
 
 from ftrack_connect.ui.widget.header import Header
 
+import ftrack_connect_nuke_studio.entity_reference
 
 session = ftrack_api.Session()
 
@@ -218,18 +219,16 @@ class NukeCrew(QtGui.QDialog):
 
         component_ids = []
         for item in hiero.core.findItems():
-            if hasattr(item, 'entityReference'):
-                reference = item.entityReference()
-                if reference and reference.startswith('ftrack://'):
+            if isinstance(item, hiero.core.TrackItem):
+                entity = ftrack_connect_nuke_studio.entity_reference.get(item)
 
-                    url = urlparse.urlparse(reference)
-                    query = urlparse.parse_qs(url.query)
-                    entityType = query.get('entityType')[0]
+                if not entity:
+                    continue
 
-                    if entityType == 'task':
-                        context['shot'].append(url.netloc)
-                    elif entityType == 'component':
-                        component_ids.append(url.netloc)
+                if entity._type == 'task':
+                    context['shot'].append(entity.getId())
+                elif entity._type == 'component':
+                    component_ids.append(entity.getId())
 
         if component_ids:
             components = session.query(
