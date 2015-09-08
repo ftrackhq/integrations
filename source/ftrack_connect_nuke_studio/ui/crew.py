@@ -23,6 +23,23 @@ from ftrack_connect.ui.widget.header import Header
 
 session = ftrack_api.Session()
 
+NUKE_STUDIO_OVERLAY_STYLE = '''
+    BlockingOverlay {
+        background-color: rgba(58, 58, 58, 200);
+        border: none;
+    }
+
+    BlockingOverlay QFrame#content {
+        padding: 0px;
+        border: 80px solid transparent;
+        background-color: transparent;
+        border-image: none;
+    }
+
+    BlockingOverlay QLabel {
+        background: transparent;
+    }
+'''
 
 #: TODO: Re-run classifier when clips in timeline are assetised, added or
 # removed.
@@ -125,23 +142,7 @@ class NukeCrew(QtGui.QDialog):
             parent=self
         )
 
-        self.chat.chat.busyOverlay.setStyleSheet('''
-            BlockingOverlay {
-                background-color: rgba(58, 58, 58, 200);
-                border: none;
-            }
-
-            BlockingOverlay QFrame#content {
-                padding: 0px;
-                border: 80px solid transparent;
-                background-color: transparent;
-                border-image: none;
-            }
-
-            BlockingOverlay QLabel {
-                background: transparent;
-            }
-        ''')
+        self.chat.chat.busyOverlay.setStyleSheet(NUKE_STUDIO_OVERLAY_STYLE)
 
         added_user_ids = []
         for _user in session.query(
@@ -156,8 +157,6 @@ class NukeCrew(QtGui.QDialog):
 
                 added_user_ids.append(_user['id'])
 
-        self._hub.populateUnreadConversations(current_user.getId(), added_user_ids)
-
         self.tab_panel = QtGui.QTabWidget(parent=self)
         self.tab_panel.addTab(self.chat, 'Chat')
         self.tab_panel.addTab(self.notification_list, 'Notifications')
@@ -166,23 +165,7 @@ class NukeCrew(QtGui.QDialog):
 
         # TODO: This styling should probably be done in a global stylesheet
         # for the entire Nuke plugin.
-        self.notification_list.overlay.setStyleSheet('''
-            BlockingOverlay {
-                background-color: rgba(58, 58, 58, 200);
-                border: none;
-            }
-
-            BlockingOverlay QFrame#content {
-                padding: 0px;
-                border: 80px solid transparent;
-                background-color: transparent;
-                border-image: none;
-            }
-
-            BlockingOverlay QLabel {
-                background: transparent;
-            }
-        ''')
+        self.notification_list.overlay.setStyleSheet(NUKE_STUDIO_OVERLAY_STYLE)
 
         self.vertical_layout.setContentsMargins(10, 10, 10, 10)
         self.vertical_layout.addLayout(self.horizontal_layout)
@@ -193,6 +176,17 @@ class NukeCrew(QtGui.QDialog):
         hiero.core.events.registerInterest(
             'kAfterProjectLoad', self.on_refresh_event
         )
+
+        if not self._hub.compatibleServerVersion:
+            self.logger.warn('Incompatible server version.')
+
+            self.blockingOverlay = ftrack_connect.ui.widget.overlay.BlockingOverlay(
+                self, message='Incompatible server version.'
+            )
+            self.blockingOverlay.setStyleSheet(NUKE_STUDIO_OVERLAY_STYLE)
+            self.blockingOverlay.show()
+        else:
+            self._hub.populateUnreadConversations(current_user.getId(), added_user_ids)
 
     def on_refresh_event(self, *args, **kwargs):
         '''Handle refresh events.'''
