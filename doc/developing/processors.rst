@@ -71,7 +71,8 @@ ftrack.processor.launch
 =======================
 
 The launch event, ``ftrack.processor.launch``, is emitted to launch the
-processor when it is available on the :term:`ftrack server`.
+processor when an object has become available on the :term:`ftrack server`. E.g.
+a new Shot or Task has been created. 
 
 The structure of the event is:: 
 
@@ -83,8 +84,8 @@ The structure of the event is::
         )
     )
 
-Where *data* is a dictionary containing contextual about the object being
-processed. The dictionary contains the following information: resolution,
+Where *data* is a dictionary containing contextual information about the object
+being processed. The dictionary contains the following information: resolution,
 source_in, source_out, source_file, destination_in, destination_out, fps,
 offset, entity_id, entity_type, handles. Where entity_id and entity_type points
 to the object being created in ftrack.
@@ -96,7 +97,7 @@ Optional values are:
 *   **component_name** - the suggested name of the component inferred from the
     processor nice name passed in the discover event.
 
-To make a processor launch for on all shot creations you have to subscribe 
+To make a processor launch on all shot creations you have to subscribe 
 to the event hub::
 
     def launch(event):
