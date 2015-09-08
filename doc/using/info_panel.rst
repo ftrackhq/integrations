@@ -18,5 +18,5 @@ ftrack:
 
 .. note::
 
-    The track item must have a related shot in ftrack created or updated using
-    the export dialog.
+    The track item must have a related shot in ftrack that has been created or
+    updated using the export dialog.
