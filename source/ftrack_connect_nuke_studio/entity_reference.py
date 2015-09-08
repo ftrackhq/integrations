@@ -12,16 +12,11 @@ def get(item):
     # Inline to avoid circular import.
     import hiero
 
-    _item = item
-
     identifier = None
     entity_type = None
 
-    if isinstance(_item, hiero.core.TrackItem):
-        _item = item.source()
-
-    if isinstance(_item, hiero.core.Clip):
-        for tag in _item.tags():
+    if isinstance(item, hiero.core.TrackItem):
+        for tag in item.tags():
             if (
                 tag.name() == 'ftrack.entity_reference'
                 and tag.metadata().hasKey('ftrack.identifier')
@@ -50,21 +45,21 @@ def get(item):
 
 
 def set(item, entity):
-    '''Set *entity* as reference on *item*.'''
+    '''Set *entity* as reference on *item*.
+
+    Raise :exc:`TypeError` if *item* is not of type `hiero.core.TrackItem`.
+
+    '''
     # Inline to avoid circular import.
     import hiero
 
-    _item = item
-
-    if isinstance(_item, hiero.core.TrackItem):
-        _item = item.source()
-
-    if isinstance(_item, hiero.core.Clip):
+    if isinstance(item, hiero.core.TrackItem):
         tag = hiero.core.Tag('ftrack.entity_reference')
         tag.metadata().setValue('ftrack.identifier', entity.getId())
         tag.metadata().setValue('ftrack.entity_type', entity._type)
-        _item.addTag(tag)
+        tag.setVisible(False)
+        item.addTag(tag)
     else:
-        raise ValueError(
-            'Unsupported item type. Needs to be `hiero.core.Clip`'
+        raise TypeError(
+            'Unsupported item type. Needs to be `hiero.core.TrackItem`'
         )

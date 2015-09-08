@@ -161,7 +161,7 @@ class PublishPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
         track_item = data['application_object']
 
         ftrack_connect_nuke_studio.entity_reference.set(
-            track_item.source(), component
+            track_item, component
         )
 
         super(PublishPlugin, self).process(data)
