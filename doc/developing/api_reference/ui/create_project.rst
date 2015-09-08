@@ -5,4 +5,3 @@ ftrack_connect_nuke_studio.ui.create_project
 ============================================
 
 .. automodule:: ftrack_connect_nuke_studio.ui.create_project
-
