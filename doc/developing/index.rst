@@ -5,11 +5,11 @@
 Developing
 **********
 
-Discover how to develop and extend the default ftrack integration with NUKE STUDIO.
+Discover how to develop and extend the default ftrack integration with Nuke
+studio.
 
 .. toctree::
     :maxdepth: 1
 
     processors
-    tags
     api_reference/index
