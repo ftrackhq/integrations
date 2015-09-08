@@ -27,8 +27,8 @@ with open(os.path.join(
 connect_install_require = 'ftrack-connect == 0.1.13'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/master.zip'
-    '#egg=ftrack-connect-0.1.13'
+    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.14.zip'
+    '#egg=ftrack-connect-0.1.14'
 )
 
 cinesync_install_require = 'ftrack-connect-cinesync == 0.1.2'
@@ -56,8 +56,8 @@ connect_hieroplayer_dependency_link = (
 )
 
 connect_nuke_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/0.1.4.zip'
-    '#egg=ftrack-connect-nuke-0.1.4'
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/0.1.5.zip'
+    '#egg=ftrack-connect-nuke-0.1.5'
 )
 connect_nuke_dependency_install_require = (
     'ftrack-connect-nuke'
@@ -65,8 +65,8 @@ connect_nuke_dependency_install_require = (
 )
 
 connect_nuke_studio_dependency_link = (
-    'file://{0}#egg=ftrack-connect-nuke-studio-0.1.0'
-    .format(os.environ['FTRACK_CONNECT_NUKE_STUDIO_PATH'].replace('\\', '/'))
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke-studio/get/0.1.0.zip'
+    '#egg=ftrack-connect-nuke-studio-0.1.0'
 )
 connect_nuke_studio_dependency_install_require = (
     'ftrack-connect-nuke-studio'
