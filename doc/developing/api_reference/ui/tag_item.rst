@@ -5,4 +5,3 @@ ftrack_connect_nuke_studio.ui.tag_item
 ======================================
 
 .. automodule:: ftrack_connect_nuke_studio.ui.tag_item
-

@@ -170,33 +170,21 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
             application, context
         )
 
-        environment['NUKE_PATH'] = os.path.join(
-            FTRACK_CONNECT_NUKE_STUDIO_PATH, 'hiero', 'nuke'
-        )
-
-        environment['FOUNDRY_ASSET_PLUGIN_PATH'] = os.path.join(
-            FTRACK_CONNECT_NUKE_STUDIO_PATH, 'hiero'
-        )
-        environment['FTRACK_EVENT_PLUGIN_PATH'] = os.path.join(
-            FTRACK_CONNECT_NUKE_STUDIO_PATH, 'hook', 'processor'
-        )
-
-        # Set the FTRACK_EVENT_PLUGIN_PATH to include the notification callback
-        # hooks.
-        environment = ftrack_connect.application.appendPath(
-            os.path.join(
-                FTRACK_CONNECT_NUKE_STUDIO_PATH, 'crew_hook'
-            ), 'FTRACK_EVENT_PLUGIN_PATH', environment
+        hiero_plugin_path = os.path.join(
+            FTRACK_CONNECT_NUKE_STUDIO_PATH, 'plugin'
         )
 
         environment = ftrack_connect.application.appendPath(
-            os.path.join(
-                FTRACK_CONNECT_NUKE_STUDIO_PATH, '..',
-                'ftrack_python_api'
-            ), 'FTRACK_PYTHON_API_PLUGIN_PATH', environment
+            hiero_plugin_path, 'HIERO_PLUGIN_PATH', environment
         )
 
-        environment['NUKE_USE_FNASSETAPI'] = '1'
+        processors_hooks_path = os.path.join(
+            FTRACK_CONNECT_NUKE_STUDIO_PATH, 'processor'
+        )
+
+        environment = ftrack_connect.application.appendPath(
+            processors_hooks_path, 'FTRACK_EVENT_PLUGIN_PATH', environment
+        )
 
         return environment
 
