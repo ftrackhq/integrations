@@ -4,40 +4,66 @@
 from __future__ import absolute_import
 
 import functools
+import logging
 
 from PySide import QtGui
 import hiero.ui
 import hiero.core
 import nuke
 
+import ftrack_connect.ui.theme
+import ftrack_connect.event_hub_thread
+
 # Setup logging for ftrack.
 # TODO: Check with The Foundry if there is any better way to customise logging.
 from . import logging as _logging
 _logging.setup()
 
+
+import ftrack
+ftrack.setup()
+
+
 from ftrack_connect_nuke_studio.ui.create_project import ProjectTreeDialog
 from ftrack_connect_nuke_studio.ui.tag_drop_handler import TagDropHandler
 import ftrack_connect_nuke_studio.ui.tag_manager
 import ftrack_connect_nuke_studio.ui.widget.info_view
-
-import ftrack
-
-# Run setup to discover any Location or Event plugins for ftrack.
-ftrack.setup()
+import ftrack_connect_nuke_studio.ui.crew
 
 
-def populate_ftrack():
+# Start thread to handle events from ftrack.
+eventHubThread = ftrack_connect.event_hub_thread.EventHubThread()
+eventHubThread.start()
+
+# Import crew hub to instantiate a global crew hub.
+import ftrack_connect_nuke_studio.crew_hub
+
+ftrack_connect.ui.theme.applyFont()
+
+logger = logging.getLogger(__name__)
+
+
+def populate_ftrack(event):
     '''Populate the ftrack menu with items.'''
     mainMenu = nuke.menu('Nuke')
     ftrackMenu = mainMenu.addMenu('&ftrack')
 
-    information_view = ftrack_connect_nuke_studio.ui.widget.info_view.InfoView()
     window_manager = hiero.ui.windowManager()
+
+    information_view = ftrack_connect_nuke_studio.ui.widget.info_view.InfoView()
     window_manager.addWindow(information_view)
 
     ftrackMenu.addCommand(
         ftrack_connect_nuke_studio.ui.widget.info_view.InfoView.get_display_name(),
         functools.partial(window_manager.showWindow, information_view)
+    )
+
+    crew = ftrack_connect_nuke_studio.ui.crew.NukeCrew()
+
+    window_manager.addWindow(crew)
+
+    ftrackMenu.addCommand(
+        'Crew', functools.partial(window_manager.showWindow, crew)
     )
 
 
@@ -90,6 +116,7 @@ def on_context_menu_event(event):
 
 
 # Register for Context menu events in the Timeline.
+logger.debug('Setup event listeners for timeline.')
 hiero.core.events.registerInterest(
     (
         hiero.core.events.EventType.kShowContextMenu,
@@ -98,12 +125,14 @@ hiero.core.events.registerInterest(
 )
 
 # Setup the TagManager and TagDropHandler.
+logger.debug('Setup tag manager and tag drop handler.')
 tag_handler = TagDropHandler()
 hiero.core.events.registerInterest(
     'kStartup', ftrack_connect_nuke_studio.ui.tag_manager.TagManager
 )
 
 # Trigger population of the ftrack menu.
-populate_ftrack()
-
-hiero.ui.setWorkspace('dev')
+logger.debug('Populate the ftrack menu')
+hiero.core.events.registerInterest(
+    'kStartup', populate_ftrack
+)

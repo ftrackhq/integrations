@@ -28,6 +28,7 @@ class ContextTags(object):
 
         self.logger.debug('Loading context tags from hook.')
 
+
         return [
             ('project', 'show', None),
             ('episode', 'episode', '(\w+.)?EP(\d+)'),
@@ -45,5 +46,12 @@ class ContextTags(object):
 
 def register(registry, **kw):
     '''Register hooks for context tags.'''
+
+    # Validate that registry is instance of ftrack.Registry, if not
+    # return early since the register method probably is called
+    # from the new API.
+    if not isinstance(registry, ftrack.Registry):
+        return
+
     plugin = ContextTags()
     plugin.register()

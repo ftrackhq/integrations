@@ -60,6 +60,10 @@ data_files.append(
     )
 )
 
+connect_dependency_link = (
+    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.14.zip'
+    '#egg=ftrack-connect-0.1.14'
+)
 
 # Call main setup.
 setup(
@@ -85,8 +89,7 @@ setup(
         'ftrack-python-api >= 0.5.1, < 1'
     ],
     dependency_links=[
-        'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.7.zip'
-        '#egg=ftrack-connect-0.1.7'
+        connect_dependency_link
     ],
     tests_require=[
     ],

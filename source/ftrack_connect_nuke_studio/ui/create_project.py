@@ -404,10 +404,9 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         self.main_vertical_layout = QtGui.QVBoxLayout(self)
         self.setLayout(self.main_vertical_layout)
-        self.header = ftrack_connect.ui.widget.header.Header(
-            getpass.getuser(), self
-        )
-        self.main_vertical_layout.addWidget(self.header)
+
+        self.header = ftrack_connect.ui.widget.header.Header(getpass.getuser())
+        self.main_vertical_layout.addWidget(self.header, stretch=0)
 
         self.central_horizontal_widget = QtGui.QWidget()
         self.central_horizontal_layout = QtGui.QHBoxLayout()
