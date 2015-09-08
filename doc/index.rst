@@ -2,18 +2,18 @@
     :copyright: Copyright (c) 2014 ftrack
 
 ##########################
-ftrack connect NUKE STUDIO
+ftrack connect nuke studio
 ##########################
-
-ftrack integration with NUKE STUDIO.
 
 .. toctree::
     :maxdepth: 2
 
+    about
+    installing
     using/index
     developing/index
     glossary
-    bugs
+    release/index
 
 ******************
 Indices and tables
