@@ -7,7 +7,12 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: upcoming
+
+    .. change:: changed
+
+        Updated default export values for `fps`, `resolution` and `handles`.
+
 
     .. change:: fixed
         :tags: Processors, Web playable component
