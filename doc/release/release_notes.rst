@@ -7,6 +7,12 @@
 Release Notes
 *************
 
+.. release:: upcoming
+
+    .. change:: fixed
+
+        Dropping several tags of same type causes export to fail.
+
 .. release:: 0.1.0
     :date: 2015-09-08
 
