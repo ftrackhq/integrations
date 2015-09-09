@@ -736,8 +736,12 @@ class ProjectTreeDialog(QtGui.QDialog):
         selected_workflow = self.workflow_combobox.currentText()
         for datum in data:
             # Gather all the useful informations from the track
-            track_in = int(datum.track.source().sourceIn())
-            track_out = int(datum.track.source().sourceOut())
+            track_in = int(
+                datum.track.sourceIn() + datum.track.source().sourceIn()
+            )
+            track_out = int(
+                datum.track.sourceOut() + datum.track.source().sourceOut()
+            )
             # NOTE: effectTrack are not used atm
             effects = [
                 effect for effect in datum.track.linkedItems()
