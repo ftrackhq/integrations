@@ -79,6 +79,16 @@ class TagDropHandler(object):
                 )
                 continue
 
+            if (
+                not meta.hasKey('ftrack.id')
+                or meta.value('ftrack.id') == 'show'
+            ):
+                self.logger.debug(
+                    '{0} is not a valid track tag type'.format(tag_name)
+                )
+                event.dropEvent.accept()
+                continue
+
             track_item.addTag(tag)
             event.dropEvent.accept()
 
