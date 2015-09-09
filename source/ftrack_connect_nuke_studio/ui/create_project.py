@@ -464,6 +464,8 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.resolution_layout.addWidget(self.resolution_label)
 
         self.resolution_combobox = Resolution(self.group_box)
+        # Set resolution default to 1080p.
+        self.resolution_combobox.setCurrentIndex(5)
         self.resolution_layout.addWidget(self.resolution_combobox)
         self.group_box_layout.addLayout(self.resolution_layout)
 
@@ -473,6 +475,8 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.label_layout.addWidget(self.fps_label)
 
         self.fps_combobox = Fps(self.group_box)
+        # Set fps default to 25.
+        self.fps_combobox.setCurrentIndex(7)
         self.label_layout.addWidget(self.fps_combobox)
 
         self.group_box_layout.addLayout(self.label_layout)
@@ -483,7 +487,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.handles_layout.addWidget(self.handles_label)
 
         self.handles_spinbox = QtGui.QSpinBox(self.group_box)
-        self.handles_spinbox.setProperty('value', 5)
+        self.handles_spinbox.setProperty('value', 0)
         self.handles_layout.addWidget(self.handles_spinbox)
 
         self.group_box_layout.addLayout(self.handles_layout)
