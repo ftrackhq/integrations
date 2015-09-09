@@ -7,6 +7,12 @@
 Release Notes
 *************
 
+.. release:: upcoming
+
+    .. change:: changed
+
+        Updated default export values for `fps`, `resolution` and `handles`.
+
 .. release:: 0.1.0
     :date: 2015-09-08
 
