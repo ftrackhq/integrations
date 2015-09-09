@@ -129,7 +129,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         dict(
             setup_requires='cx-freeze == 4.3.3.ftrack',
             dependency_links=[
-                'https://bitbucket.org/ftrack/cx-freeze/get/nuke-studio.zip'
+                'https://bitbucket.org/ftrack/cx-freeze/get/ftrack.zip'
                 '#egg=cx-freeze-4.3.3.ftrack'
             ]
         )
