@@ -45,26 +45,44 @@ logger = logging.getLogger(__name__)
 
 def populate_ftrack(event):
     '''Populate the ftrack menu with items.'''
-    mainMenu = nuke.menu('Nuke')
-    ftrackMenu = mainMenu.addMenu('&ftrack')
+    parent = hiero.ui.mainWindow()
+    menu_bar = hiero.ui.menuBar()
+
+    ftrack_menu = menu_bar.addMenu(
+        QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'), 'ftrack'
+    )
 
     window_manager = hiero.ui.windowManager()
 
-    information_view = ftrack_connect_nuke_studio.ui.widget.info_view.InfoView()
+    information_view = ftrack_connect_nuke_studio.ui.widget.info_view.InfoView(
+        parent=parent
+    )
     window_manager.addWindow(information_view)
 
-    ftrackMenu.addCommand(
+    information_view_action = QtGui.QAction(
         ftrack_connect_nuke_studio.ui.widget.info_view.InfoView.get_display_name(),
+        ftrack_menu
+    )
+
+    information_view_action.triggered.connect(
         functools.partial(window_manager.showWindow, information_view)
     )
+
+    ftrack_menu.addAction(information_view_action)
 
     crew = ftrack_connect_nuke_studio.ui.crew.NukeCrew()
 
     window_manager.addWindow(crew)
 
-    ftrackMenu.addCommand(
-        'Crew', functools.partial(window_manager.showWindow, crew)
+    crew_action = QtGui.QAction(
+        'Crew', ftrack_menu
     )
+
+    crew_action.triggered.connect(
+        functools.partial(window_manager.showWindow, crew)
+    )
+
+    ftrack_menu.addAction(crew_action)
 
 
 def open_export_dialog(*args, **kwargs):
