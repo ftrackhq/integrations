@@ -38,8 +38,12 @@ class TagDropHandler(object):
         Filter out any non ftrack tag.
 
         '''
+        try:
+            track_item = event.trackItem
+        except AttributeError:
+            return
+
         dropped_tags = event.items
-        track_item = event.trackItem
         existing_ftrack_tag_names = []
 
         # Create a list of ftrack tags on the target track item. This is used to
@@ -73,9 +77,6 @@ class TagDropHandler(object):
                 self.logger.debug(
                     '{0} is not a valid track tag type'.format(tag_name)
                 )
-                continue
-
-            if not isinstance(track_item, hiero.core.TrackItem):
                 continue
 
             track_item.addTag(tag)
