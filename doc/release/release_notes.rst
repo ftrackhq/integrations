@@ -10,11 +10,12 @@ Release Notes
 .. release:: upcoming
 
     .. change:: fixed
+        Dropping several tags of same type causes export to fail.
 
+    .. change:: fixed
         Segmentation fault when closing down Nuke Studio with plugin loaded.
 
     .. change:: changed
-
         Updated default export values for `fps`, `resolution` and `handles`.
 
     .. change:: fixed
@@ -27,5 +28,4 @@ Release Notes
     :date: 2015-09-08
 
     .. change:: new
-
         Initial release of ftrack connect Nuke studio plugin.
