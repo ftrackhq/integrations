@@ -9,10 +9,13 @@ Release Notes
 
 .. release:: upcoming
 
+    .. change:: fixed
+
+        Segmentation fault when closing down Nuke Studio with plugin loaded.
+
     .. change:: changed
 
         Updated default export values for `fps`, `resolution` and `handles`.
-
 
     .. change:: fixed
         :tags: Processors, Web playable component
