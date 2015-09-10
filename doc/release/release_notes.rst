@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: changed
+
+        Read default export values for `fps` and `resolution` from the
+        project settings.
+
 .. release:: 0.1.1
     :date: 2015-09-10
 
