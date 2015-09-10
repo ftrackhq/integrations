@@ -398,6 +398,23 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         return attached_tag
 
+    def get_default_settings(self):
+        '''Return default settings for project.'''
+        result = ftrack.EVENT_HUB.publish(
+            ftrack.Event(
+                topic='ftrack.connect.nuke-studio.get-default-settings',
+                data=dict(
+                    nuke_studio_project=self.sequence.project()
+                )
+            ),
+            synchronous=True
+        )
+
+        if result:
+            return result[0]
+
+        return dict()
+
     def create_ui_widgets(self):
         '''Setup ui for create dialog.'''
         self.resize(1024, 640)
@@ -453,6 +470,8 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         self.group_box_layout.addLayout(self.workflow_layout)
 
+        default_settings = self.get_default_settings()
+
         self.line = QtGui.QFrame(self.group_box)
         self.line.setFrameShape(QtGui.QFrame.HLine)
         self.line.setFrameShadow(QtGui.QFrame.Sunken)
@@ -463,9 +482,10 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.resolution_label = QtGui.QLabel('Resolution', parent=self.group_box)
         self.resolution_layout.addWidget(self.resolution_label)
 
-        self.resolution_combobox = Resolution(self.group_box)
-        # Set resolution default to 1080p.
-        self.resolution_combobox.setCurrentIndex(5)
+        self.resolution_combobox = Resolution(
+            self.group_box, default_value=default_settings.get('resolution')
+        )
+
         self.resolution_layout.addWidget(self.resolution_combobox)
         self.group_box_layout.addLayout(self.resolution_layout)
 
@@ -474,9 +494,9 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.fps_label = QtGui.QLabel('Frames Per Second', parent=self.group_box)
         self.label_layout.addWidget(self.fps_label)
 
-        self.fps_combobox = Fps(self.group_box)
-        # Set fps default to 25.
-        self.fps_combobox.setCurrentIndex(7)
+        self.fps_combobox = Fps(
+            self.group_box, default_value=default_settings.get('framerate')
+        )
         self.label_layout.addWidget(self.fps_combobox)
 
         self.group_box_layout.addLayout(self.label_layout)
