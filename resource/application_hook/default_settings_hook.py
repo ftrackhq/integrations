@@ -30,7 +30,7 @@ class DefaultExportSettings(object):
 
 
 def register(registry, **kw):
-    '''Register hooks for default fps setting.'''
+    '''Register hooks for default settings.'''
 
     # Validate that registry is instance of ftrack.Registry, if not
     # return early since the register method probably is called
