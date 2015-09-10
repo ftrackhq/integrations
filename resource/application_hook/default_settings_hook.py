@@ -11,7 +11,7 @@ class DefaultExportSettings(object):
         '''Return default settings.
 
         The `data` dictionary of the *event* should contain
-        nuke studio project called `nuke_studio_ project`.
+        nuke studio project called `nuke_studio_project`.
 
         '''
         nuke_studio_project = event['data']['nuke_studio_project']
