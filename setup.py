@@ -24,11 +24,11 @@ with open(os.path.join(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
-connect_install_require = 'ftrack-connect == 0.1.13'
+connect_install_require = 'ftrack-connect == 0.1.14'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.13.zip'
-    '#egg=ftrack-connect-0.1.13'
+    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.14.zip'
+    '#egg=ftrack-connect-0.1.14'
 )
 
 cinesync_install_require = 'ftrack-connect-cinesync == 0.1.2'
@@ -42,7 +42,7 @@ connect_legacy_plugins_install_require = (
     ' >=0.1, < 1'
 )
 connect_legacy_plugins_dependency_link = (
-    'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.5'
+    'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.6'
     .format(os.environ['FTRACK_CONNECT_LEGACY_PLUGINS_PATH'].replace('\\', '/'))
 )
 
@@ -51,16 +51,25 @@ connect_hieroplayer_install_require = (
     ' >=0.1, < 1'
 )
 connect_hieroplayer_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-hieroplayer/get/0.1.3.zip'
-    '#egg=ftrack-connect-hieroplayer-0.1.3'
+    'https://bitbucket.org/ftrack/ftrack-connect-hieroplayer/get/0.1.4.zip'
+    '#egg=ftrack-connect-hieroplayer-0.1.4'
 )
 
 connect_nuke_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/0.1.4.zip'
-    '#egg=ftrack-connect-nuke-0.1.4'
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/0.1.5.zip'
+    '#egg=ftrack-connect-nuke-0.1.5'
 )
 connect_nuke_dependency_install_require = (
     'ftrack-connect-nuke'
+    ' >=0.1, < 1'
+)
+
+connect_nuke_studio_dependency_link = (
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke-studio/get/0.1.1.zip'
+    '#egg=ftrack-connect-nuke-studio-0.1.1'
+)
+connect_nuke_studio_dependency_install_require = (
+    'ftrack-connect-nuke-studio'
     ' >=0.1, < 1'
 )
 
@@ -92,7 +101,8 @@ configuration = dict(
         cinesync_install_require,
         connect_legacy_plugins_install_require,
         connect_hieroplayer_install_require,
-        connect_nuke_dependency_install_require
+        connect_nuke_dependency_install_require,
+        connect_nuke_studio_dependency_install_require
     ],
     dependency_links=[
         'file://{0}#egg=ftrack-python-legacy-api'.format(
@@ -104,7 +114,8 @@ configuration = dict(
         ('https://bitbucket.org/ftrack/lowdown/get/0.1.0.zip'
          '#egg=lowdown-0.1.0'),
         connect_hieroplayer_dependency_link,
-        connect_nuke_dependency_link
+        connect_nuke_dependency_link,
+        connect_nuke_studio_dependency_link
     ],
     options={}
 )
@@ -137,14 +148,16 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             cinesync_install_require,
             connect_legacy_plugins_install_require,
             connect_hieroplayer_install_require,
-            connect_nuke_dependency_install_require
+            connect_nuke_dependency_install_require,
+            connect_nuke_studio_dependency_install_require
         ],
         dependency_links=[
             cinesync_dependency_link,
             connect_dependency_link,
             connect_legacy_plugins_dependency_link,
             connect_hieroplayer_dependency_link,
-            connect_nuke_dependency_link
+            connect_nuke_dependency_link,
+            connect_nuke_studio_dependency_link
         ]
     ))
     connect_resource_hook = pkg_resources.resource_filename(
@@ -192,6 +205,16 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_nuke/hook'
     )
 
+    ftrack_connect_nuke_studio_source = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-connect-nuke-studio'),
+        'ftrack_connect_nuke_studio/resource'
+    )
+
+    ftrack_connect_nuke_studio_hook = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-connect-nuke-studio'),
+        'ftrack_connect_nuke_studio/hook'
+    )
+
     # Add requests certificates to resource folder.
     import requests.certs
 
@@ -206,7 +229,13 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'),
         (ftrack_connect_nuke_hook, 'resource/hook'),
         (ftrack_connect_nuke_source, 'resource/ftrack_connect_nuke'),
-        (requests.certs.where(), 'resource/cacert.pem')
+        (requests.certs.where(), 'resource/cacert.pem'),
+        (
+            ftrack_connect_nuke_studio_source,
+            'resource/ftrack_connect_nuke_studio'
+        ),
+        (ftrack_connect_nuke_studio_hook, 'resource/hook')
+
     ]
 
     executables = []
