@@ -5,6 +5,33 @@
 Releases
 ########
 
+.. release:: 0.2.3
+    :date: 2015-09-10
+
+    .. change:: new
+
+        Nuke Studio plugin added as new application and can be started using
+        :ref:`actions <ftrack:using/actions>`.
+
+        .. seealso:: `ftrack connect nuke studio 0.1.1 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/0.1.1/>`_
+
+    .. change:: changed
+
+        `ftrack connect 0.1.14 <http://ftrack-connect.rtd.ftrack.com/en/0.1.14/>`_
+
+    .. change:: changed
+
+        `ftrack connect nuke 0.1.5 <http://ftrack-connect-nuke.rtd.ftrack.com/en/0.1.5/>`_
+
+    .. change:: changed
+
+        `ftrack connect legacy plugins 0.1.6 <http://ftrack-connect-legacy-plugins.rtd.ftrack.com/en/0.1.6/>`_
+
+    .. change:: changed
+
+        `ftrack connect hieroplayer 0.1.4 <http://ftrack-connect-hieroplayer.rtd.ftrack.com/en/0.1.4/>`_
+
+
 .. release:: 0.2.2
     :date: 2015-09-01
 
