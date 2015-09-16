@@ -238,7 +238,7 @@ class: FtrackMode : MinorMode
         
         
         //SETUP PYTHON API
-        _pyApi    = python.PyImport_Import ("ftrack_api");
+        _pyApi    = python.PyImport_Import ("ftrack_rv_api");
         _pyFilePath     = python.PyObject_GetAttr (_pyApi, "ftrackFilePath");
         _pyUUID         = python.PyObject_GetAttr (_pyApi, "ftrackUUID");
         _getAttachmentId    = python.PyObject_GetAttr (_pyApi, "ftrackGetAttachmentId");
