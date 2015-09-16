@@ -9,6 +9,11 @@ Release Notes
 
 .. release:: Upcoming
 
+    .. change:: fixed
+
+        Incomplete version number displayed for Nuke Studio application when
+        discovered.
+
     .. change:: changed
 
         Read default export values for `fps` and `resolution` from the
