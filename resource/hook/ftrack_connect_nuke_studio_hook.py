@@ -6,6 +6,7 @@ import getpass
 import sys
 import pprint
 import logging
+import re
 
 import ftrack
 import ftrack_connect.application
@@ -137,8 +138,16 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
         elif sys.platform == 'win32':
             prefix = ['C:\\', 'Program Files.*']
 
+            # Specify custom expression for Nuke Studio to ensure the complete
+            # version number (e.g. 9.0v3) is picked up including any special
+            # builds (e.g. 9.0FnAssetAPI.000013a).
+            version_expression = re.compile(
+                r'Nuke(?P<version>[\d.]+[\w\d.]*)'
+            )
+
             applications.extend(self._searchFilesystem(
                 expression=prefix + ['Nuke.*', 'Nuke\d.+.exe'],
+                versionExpression=version_expression,
                 label='Nuke Studio',
                 variant='{version}',
                 applicationIdentifier='nuke_studio_{version}',
