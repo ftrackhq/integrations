@@ -50,19 +50,19 @@ def update_tag_value_from_name(track_item):
                 # If the regular expression is empty skip it.
                 continue
 
-            result = re.search(expression, name)
-            if result:
-                result_value = result.groupdict().get('value')
-                if not result_value:
+            match = re.search(expression, name)
+            if match:
+                value = match.groupdict().get('value')
+                if not value:
                     # No match.
                     continue
 
                 logger.debug(
                     'Setting {0} to {1} on {2}'.format(
-                        tag_name, result_value, name
+                        tag_name, value, name
                     )
                 )
-                meta.setValue('tag.value', result_value)
+                meta.setValue('tag.value', value)
 
 
 class TagManager(object):
