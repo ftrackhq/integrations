@@ -13,9 +13,9 @@ from ftrack_connect.ui import resource
 # Default context tags that are used when no hook discovered.
 DEFAULT_CONTEXT_TAGS = [
     ('project', 'show', None),
-    ('episode', 'episode', 'EP(?P<value>\d+)'),
-    ('sequence', 'sequence', 'SQ(?P<value>\d+)'),
-    ('shot', 'shot', 'SH(?P<value>\d+)')
+    ('episode', 'episode', 'EP(?P<value>\d+)|(?P<value>.+)'),
+    ('sequence', 'sequence', 'SQ(?P<value>\d+)|(?P<value>.+)'),
+    ('shot', 'shot', 'SH(?P<value>\d+)|(?P<value>.+)')
 ]
 
 
@@ -48,21 +48,40 @@ def update_tag_value_from_name(track_item):
             expression = meta.value('tag.re')
             if not expression:
                 # If the regular expression is empty skip it.
+                logger.debug(
+                    'Skipping {0!r} tag with no expression defined.'
+                    .format(tag_name)
+                )
                 continue
 
-            match = re.search(expression, name)
-            if match:
-                value = match.groupdict().get('value')
-                if not value:
-                    # No match.
-                    continue
-
+            # Python does not support multiple groups of the same name even when
+            # part of a OR expression so manually split expression for now.
+            # Note: This logic could be improved to avoid false positives.
+            expressions = expression.split('|')
+            for expression in expressions:
                 logger.debug(
-                    'Setting {0} to {1} on {2}'.format(
-                        tag_name, value, name
-                    )
+                    'Testing {0!r} tag {1!r} expression against name {2!r}.'
+                    .format(tag_name, expression, name)
                 )
-                meta.setValue('tag.value', value)
+                match = re.search(expression, name)
+                if match:
+                    value = match.groupdict().get('value')
+                    if not value:
+                        logger.debug('Expression matched, but missing "value".')
+                        # No match.
+                        continue
+
+                    logger.debug('Expression matched.')
+                    logger.debug(
+                        'Setting {0} to {1} on {2}'.format(
+                            tag_name, value, name
+                        )
+                    )
+                    meta.setValue('tag.value', value)
+                    break
+
+                else:
+                    logger.debug('Expression did not match.')
 
 
 class TagManager(object):

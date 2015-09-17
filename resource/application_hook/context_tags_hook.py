@@ -30,9 +30,9 @@ class ContextTags(object):
         # Define tag regular expressions.
         return [
             ('project', 'show', None),
-            ('episode', 'episode', 'EP(?P<value>\d+)'),
-            ('sequence', 'sequence', 'SQ(?P<value>\d+)'),
-            ('shot', 'shot', 'SH(?P<value>\d+)')
+            ('episode', 'episode', 'EP(?P<value>\d+)|(?P<value>.+)'),
+            ('sequence', 'sequence', 'SQ(?P<value>\d+)|(?P<value>.+)'),
+            ('shot', 'shot', 'SH(?P<value>\d+)|(?P<value>.+)')
         ]
 
     def register(self):
