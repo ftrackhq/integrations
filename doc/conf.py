@@ -7,6 +7,8 @@ import os
 import re
 import sys
 
+import mock
+
 # -- General ------------------------------------------------------------------
 
 # Extensions
@@ -82,6 +84,13 @@ def autodoc_skip(app, what, name, obj, skip, options):
         return False
 
     return skip
+
+
+# Packages / modules to mock so that build does not fail.
+for module in [
+    'hiero', 'hiero.ui', 'hiero.core', 'hiero.core.events', 'nuke'
+]:
+    sys.modules[module] = mock.MagicMock()
 
 
 # -- Intersphinx --------------------------------------------------------------
