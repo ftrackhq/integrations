@@ -46,12 +46,12 @@ def update_tag_value_from_name(track_item):
 
         # Handle a tag with a regular expression.
         if meta.hasKey('tag.re'):
-            match = meta.value('tag.re')
-            if not match:
+            expression = meta.value('tag.re')
+            if not expression:
                 # If the regular expression is empty skip it.
                 continue
 
-            result = re.match(match, name)
+            result = re.match(expression, name)
             if result:
                 result_value = result.groups()[-1]
                 logger.debug(
