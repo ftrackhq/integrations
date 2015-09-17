@@ -28,12 +28,12 @@ class ContextTags(object):
 
         self.logger.debug('Loading context tags from hook.')
 
-
+        # Define tag regular expressions.
         return [
             ('project', 'show', None),
-            ('episode', 'episode', '(\w+.)?EP(\d+)'),
-            ('sequence', 'sequence', '(\w+.)?SQ(\d+)'),
-            ('shot', 'shot', '(\w+.)?SH(\d+)')
+            ('episode', 'episode', 'EP(\d+)'),
+            ('sequence', 'sequence', 'SQ(\d+)'),
+            ('shot', 'shot', 'SH(\d+)')
         ]
 
     def register(self):

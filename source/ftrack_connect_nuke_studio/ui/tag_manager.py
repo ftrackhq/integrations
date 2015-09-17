@@ -10,13 +10,12 @@ import ftrack
 from ftrack_connect.ui import resource
 
 
-# Default context tags.
+# Default context tags that are used when no hook discovered.
 DEFAULT_CONTEXT_TAGS = [
     ('project', 'show', None),
-    ('episode', 'episode', '(\w+.)?EP(\d+)'),
-    ('sequence', 'sequence', '(\w+.)?SQ(\d+)'),
-    ('shot', 'shot', '(\w+.)?SH(\d+)')
-
+    ('episode', 'episode', 'EP(\d+)'),
+    ('sequence', 'sequence', 'SQ(\d+)'),
+    ('shot', 'shot', 'SH(\d+)')
 ]
 
 
@@ -51,7 +50,7 @@ def update_tag_value_from_name(track_item):
                 # If the regular expression is empty skip it.
                 continue
 
-            result = re.match(expression, name)
+            result = re.search(expression, name)
             if result:
                 result_value = result.groups()[-1]
                 logger.debug(
