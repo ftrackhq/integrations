@@ -25,8 +25,7 @@ class ContextTags(object):
             ('tag_id', 'ftrack_type_id', 'regexp')
 
         '''
-
-        self.logger.debug('Loading context tags from hook.')
+        self.logger.debug('Configuring context tags.')
 
         # Define tag regular expressions.
         return [
