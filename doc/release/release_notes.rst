@@ -9,6 +9,20 @@ Release Notes
 
 .. release:: Upcoming
 
+    .. change:: changed
+
+        Default tag expressions now check for either the previous syntax or
+        as-is naming to support a wider variety of use cases out of the box.
+
+        .. warning::
+
+            As part of this change the regular expressions must now define a
+            "value" named group in order to work.
+
+        .. seealso::
+
+            :ref:`event_list/ftrack.connect.nuke-studio.get-context-tags`
+
     .. change:: fixed
 
         Changes to context tags hook not being respected.
