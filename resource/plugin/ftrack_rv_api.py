@@ -388,5 +388,5 @@ def ftrackJumpTo(index=0, startFrame=1):
             add = (data.get('endFrame',0) - data.get('startFrame',0)) + 1
             add = 1 if add == 0 else add
             frameNumber += (add)
-    
+
     rv.commands.setFrame(frameNumber + startFrame)
