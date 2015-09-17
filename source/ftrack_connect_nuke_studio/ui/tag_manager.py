@@ -13,9 +13,9 @@ from ftrack_connect.ui import resource
 # Default context tags that are used when no hook discovered.
 DEFAULT_CONTEXT_TAGS = [
     ('project', 'show', None),
-    ('episode', 'episode', 'EP(\d+)'),
-    ('sequence', 'sequence', 'SQ(\d+)'),
-    ('shot', 'shot', 'SH(\d+)')
+    ('episode', 'episode', 'EP(?P<value>\d+)'),
+    ('sequence', 'sequence', 'SQ(?P<value>\d+)'),
+    ('shot', 'shot', 'SH(?P<value>\d+)')
 ]
 
 
@@ -52,7 +52,11 @@ def update_tag_value_from_name(track_item):
 
             result = re.search(expression, name)
             if result:
-                result_value = result.groups()[-1]
+                result_value = result.groupdict().get('value')
+                if not result_value:
+                    # No match.
+                    continue
+
                 logger.debug(
                     'Setting {0} to {1} on {2}'.format(
                         tag_name, result_value, name
