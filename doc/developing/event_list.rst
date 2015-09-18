@@ -18,7 +18,7 @@ ftrack.connect.nuke-studio.get-context-tags
 Synchronous. Published to retrieve context tag configuration.::
 
     Event(
-        topic='ftrack.api.session.construct-entity-type'
+        topic='ftrack.connect.nuke-studio.get-context-tags'
     )
 
 Expects returned data to be a list of tuples with each tuple of the form
