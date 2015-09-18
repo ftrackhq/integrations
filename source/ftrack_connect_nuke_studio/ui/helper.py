@@ -226,22 +226,20 @@ class TagTreeOverlay(_overlay.BusyOverlay):
 def validate_tag_structure(tag_data):
     '''Raise a ValidationError if tag structure is not valid.'''
     for track_item, context_tags in tag_data:
-        if (not context_tags):
-            message = (
-                u'No ftrack context tag was found on track item "{0}". Please '
-                u'add a ftrack context tag to the track item and try again.'
-            ).format(track_item.name())
+        if not context_tags:
             raise ftrack_connect_nuke_studio.exception.ValidationError(
-                message
+                u'No ftrack context tag was found on track item {0!r}. Please '
+                u'add an ftrack context tag to the track item and try again.'
+                .format(track_item.name())
             )
 
         # Verify that all context tags match.
         for tag in context_tags:
             if not tag.metadata().value('tag.value'):
                 raise ftrack_connect_nuke_studio.exception.ValidationError(
-                    'Track item {0!r} does not match {1!r} tag expression '
-                    '\'{2}\'. Please rename the track item to match the '
-                    'expression or remove the tag.'.format(
+                    u'Track item {0!r} does not match {1!r} tag expression '
+                    u'\'{2}\'. Please rename the track item to match the '
+                    u'expression or remove the tag.'.format(
                         track_item.name(),
                         tag.metadata().value('ftrack.name'),
                         tag.metadata().value('tag.re')
