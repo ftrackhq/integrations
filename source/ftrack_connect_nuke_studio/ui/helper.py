@@ -239,13 +239,12 @@ def validate_tag_structure(tag_data):
         for tag in context_tags:
             if not tag.metadata().value('tag.value'):
                 raise ftrack_connect_nuke_studio.exception.ValidationError(
-                    (
-                        'The tag "{0}" did not match the name of your track '
-                        'item "{1}", please rename your track items to match '
-                        'it or remove the tag.'
-                    ).format(
+                    'Track item {0!r} does not match {1!r} tag expression '
+                    '\'{2}\'. Please rename the track item to match the '
+                    'expression or remove the tag.'.format(
+                        track_item.name(),
                         tag.metadata().value('ftrack.name'),
-                        track_item.name()
+                        tag.metadata().value('tag.re')
                     )
                 )
 
