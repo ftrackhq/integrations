@@ -25,15 +25,14 @@ class ContextTags(object):
             ('tag_id', 'ftrack_type_id', 'regexp')
 
         '''
+        self.logger.debug('Configuring context tags.')
 
-        self.logger.debug('Loading context tags from hook.')
-
-
+        # Define tag regular expressions.
         return [
             ('project', 'show', None),
-            ('episode', 'episode', '(\w+.)?EP(\d+)'),
-            ('sequence', 'sequence', '(\w+.)?SQ(\d+)'),
-            ('shot', 'shot', '(\w+.)?SH(\d+)')
+            ('episode', 'episode', 'EP(?P<value>\d+)|(?P<value>.+)'),
+            ('sequence', 'sequence', 'SQ(?P<value>\d+)|(?P<value>.+)'),
+            ('shot', 'shot', 'SH(?P<value>\d+)|(?P<value>.+)')
         ]
 
     def register(self):

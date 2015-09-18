@@ -12,4 +12,5 @@ studio.
     :maxdepth: 1
 
     processors
+    event_list
     api_reference/index

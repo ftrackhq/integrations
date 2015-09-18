@@ -82,7 +82,9 @@ setup(
     },
     setup_requires=[
         'sphinx >= 1.2.2, < 2',
-        'sphinx_rtd_theme >= 0.1.6, < 2'
+        'sphinx_rtd_theme >= 0.1.6, < 2',
+        'lowdown >= 0.1.0, < 1',
+        'mock >= 1.3, < 2'
     ],
     install_requires=[
         'ftrack-connect >= 0.1.2, < 2',
