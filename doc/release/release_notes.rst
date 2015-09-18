@@ -9,6 +9,10 @@ Release Notes
 
 .. release:: Upcoming
 
+    .. change:: changed
+
+        Improved error messages shown when tag expression does not match.
+
     .. change:: fixed
 
         Changes to context tags hook not being respected.
