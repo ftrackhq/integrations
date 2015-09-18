@@ -23,6 +23,10 @@ Release Notes
 
             :ref:`event_list/ftrack.connect.nuke-studio.get-context-tags`
 
+    .. change:: changed
+
+        Improved error messages shown when tag expression does not match.
+
     .. change:: fixed
 
         Changes to context tags hook not being respected.
