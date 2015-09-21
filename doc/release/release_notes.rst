@@ -29,6 +29,11 @@ Release Notes
 
     .. change:: fixed
 
+        Incomplete version number displayed for Nuke Studio application when
+        discovered.
+
+    .. change:: fixed
+
         Changes to context tags hook not being respected.
 
     .. change:: changed
