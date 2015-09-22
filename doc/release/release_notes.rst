@@ -11,6 +11,10 @@ Release Notes
 
     .. change:: fixed
 
+        Processors not working correct on Windows.
+
+    .. change:: fixed
+
         Incomplete version number displayed for Nuke Studio application when
         discovered.
 
