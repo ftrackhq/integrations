@@ -62,7 +62,7 @@ class ProxyPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
                     'sys.path.append("{path}");'
                     'import ftrack_processor_plugin;'
                     'ftrack_processor_plugin.create_component()'
-                ).format(path=FILE_PATH)
+                ).format(path=self.escape_file_path(FILE_PATH))
             },
             'REFORMAT': {
                 'type': 'to box',

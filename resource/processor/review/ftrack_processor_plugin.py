@@ -68,7 +68,7 @@ class ReviewPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
                     'sys.path.append("{path}");'
                     'import ftrack_processor_plugin;'
                     'ftrack_processor_plugin.create_review()'
-                ).format(path=FILE_PATH)
+                ).format(path=self.escape_file_path(FILE_PATH))
             }
         }
         self.script = os.path.abspath(
