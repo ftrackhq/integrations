@@ -6,6 +6,7 @@ import os
 import re
 import pkg_resources
 import opcode
+import logging
 
 from setuptools import setup, Distribution, find_packages
 
@@ -241,6 +242,17 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
     executables = []
     bin_includes = []
     includes = []
+
+    # Different modules are used on different platforms. Make sure to include
+    # all found.
+    for dbmodule in ['dbhash', 'gdbm', 'dbm', 'dumbdbm']:
+        try:
+            __import__(dbmodule)
+        except ImportError:
+            logging.warning('"{0}" module not available.'.format(dbmodule))
+        else:
+            includes.append(dbmodule)
+
     if sys.platform == 'win32':
         executables.append(
             Executable(
@@ -256,8 +268,6 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         configuration['options']['bdist_msi'] = {
             'upgrade_code': '{e5666af3-56a5-426a-b308-54c2d6ad8704}'
         }
-
-        includes.append('dbhash')
 
     elif sys.platform == 'darwin':
         executables.append(
