@@ -5,6 +5,13 @@
 Releases
 ########
 
+.. release:: 0.2.5
+    :date: 2015-09-25
+
+    .. change:: fixed
+
+        Missing python modules on some versions of Centos.
+
 .. release:: 0.2.4
     :date: 2015-09-22
 
