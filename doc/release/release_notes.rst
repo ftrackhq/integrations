@@ -7,6 +7,16 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: changed
+
+        Propagate thumbnails to tasks on export by default.
+
+        .. seealso::
+
+            :ref:`Thumbnail processor <using/processors/thumbnail>`
+
 .. release:: 0.1.2
     :date: 2015-09-22
 
