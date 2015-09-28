@@ -8,7 +8,11 @@ Release Notes
 *************
 
 .. release:: Upcoming
-    
+
+    .. change:: changed
+
+        Publish and Procy processors disabled as default.
+
     .. change:: changed
 
         Store reference to outermost ftrack entity in hierarchy when exporting
