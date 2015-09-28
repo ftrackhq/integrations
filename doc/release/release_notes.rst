@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+    
+    .. change:: changed
+
+        Store reference to outermost ftrack entity in hierarchy when exporting
+        track items.
+
 .. release:: 0.1.2
     :date: 2015-09-22
 
