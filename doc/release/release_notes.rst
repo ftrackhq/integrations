@@ -17,6 +17,19 @@ Release Notes
 
             :ref:`Thumbnail processor <using/processors/thumbnail>`
 
+    .. change:: changed
+
+        Publish and Proxy processors disabled as default.
+
+    .. change:: changed
+
+        Store reference to outermost ftrack entity in hierarchy when exporting
+        track items.
+
+    .. change:: fixed
+
+        Info panel not updating if track item has effect track.
+
 .. release:: 0.1.2
     :date: 2015-09-22
 

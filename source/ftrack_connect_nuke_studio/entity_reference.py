@@ -3,6 +3,7 @@
 
 import ftrack
 
+
 def get(item):
     '''Return ftrack entity reference for item.
 
@@ -44,21 +45,46 @@ def get(item):
     return entity
 
 
-def set(item, entity):
-    '''Set *entity* as reference on *item*.
+def set(item, entity=None, entity_id=None, entity_type=None):
+    '''Set entity reference on *item*.
+
+    Either accepts *entity* of type :py:class:`ftrack.Task` or an
+    *entity_id* and *entity_type*.
 
     Raise :exc:`TypeError` if *item* is not of type `hiero.core.TrackItem`.
+
+    Raise :exc:`ValueError` if not *entity* or *entity_id* and *entity_type*
+    are specified.
 
     '''
     # Inline to avoid circular import.
     import hiero
 
+    if entity is None and entity_id is None and entity_type is None:
+        raise ValueError(
+            'Need to specify either *entity* or *entity_type* and *entity_id*.'
+        )
+
+    if entity:
+        entity_id = entity.getId()
+
+        # Use private `_type` since `entityType` not supported on
+        # ftrack.AssetVersion.
+        entity_type = entity._type
+
     if isinstance(item, hiero.core.TrackItem):
+        for _tag in item.tags()[:]:
+            if _tag.name() == 'ftrack.entity_reference':
+                item.removeTag(_tag)
+
         tag = hiero.core.Tag('ftrack.entity_reference')
-        tag.metadata().setValue('ftrack.identifier', entity.getId())
-        tag.metadata().setValue('ftrack.entity_type', entity._type)
+
+        tag.metadata().setValue('ftrack.identifier', entity_id)
+        tag.metadata().setValue('ftrack.entity_type', entity_type)
         tag.setVisible(False)
+
         item.addTag(tag)
+
     else:
         raise TypeError(
             'Unsupported item type. Needs to be `hiero.core.TrackItem`'
