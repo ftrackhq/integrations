@@ -8,7 +8,6 @@ import logging
 import ftrack
 import nuke
 
-import ftrack_connect_nuke_studio
 import ftrack_connect_nuke_studio.processor
 
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -39,12 +38,9 @@ def create_thumbnail():
         task = version.getTask()
         task.createThumbnail(out)
 
-    try:
-        disable_propagation = ftrack_connect_nuke_studio.DISABLE_THUMBNAIL_PROPAGATION
-    except AttributeError:
-        disable_thumbnail_propagation = False
-
-    if not disable_thumbnail_propagation:
+    if not os.environ.get(
+        'FTRACK_CONNECT_NUKE_STUDIO_STOP_THUMBNAIL_PROPAGATION', False
+    ):
         for task in asset_parent.getTasks():
             task.createThumbnail(out)
 
