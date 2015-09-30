@@ -11,7 +11,7 @@ Release Notes
 
     .. change:: changed
 
-        Publish and Procy processors disabled as default.
+        Publish and Proxy processors disabled as default.
 
     .. change:: changed
 
