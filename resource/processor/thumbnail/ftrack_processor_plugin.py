@@ -31,12 +31,18 @@ def create_thumbnail():
     out = node['file'].value()
     version.createThumbnail(out)
 
-    shot = version.getAsset().getParent()
-    shot.createThumbnail(out)
+    asset_parent = version.getAsset().getParent()
+    asset_parent.createThumbnail(out)
 
     if version.get('taskid'):
         task = version.getTask()
         task.createThumbnail(out)
+
+    if not os.environ.get(
+        'FTRACK_CONNECT_NUKE_STUDIO_STOP_THUMBNAIL_PROPAGATION', False
+    ):
+        for task in asset_parent.getTasks():
+            task.createThumbnail(out)
 
 
 class ThumbnailPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):

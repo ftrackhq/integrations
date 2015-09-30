@@ -30,12 +30,24 @@ In the image above we can see that four processors will run for the selected
 shot: Ingest proxy, Ingest, Review and Thumbnail. These are the four default
 processers that are packaged with the ftrack Nuke Studio plugin.
 
+.. _using/processors/thumbnail:
+
 Thumbnail
 =========
 
 The thumbnail will be generate from the source material and set as thumbnail on
-the version and the shot. If the processor is tweaked to run on a task it will
-also set the thumbnail on that task.
+the version, the shot and all child tasks of the shot.
+
+To disable thumbnail propagation to tasks open a script editor,
+:menuselection:`Window->Script editor` in NukeStudio before export and run::
+    
+    import os
+    os.environ['FTRACK_CONNECT_NUKE_STUDIO_STOP_THUMBNAIL_PROPAGATION'] = 'True'
+
+To enable propagation if disabled run::
+    
+    import os
+    os.environ.pop('FTRACK_CONNECT_NUKE_STUDIO_STOP_THUMBNAIL_PROPAGATION', None)
 
 Ingest / Plate
 ==============
