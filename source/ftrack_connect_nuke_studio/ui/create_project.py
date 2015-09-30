@@ -18,6 +18,7 @@ from .widget.resolution import Resolution
 from ftrack_connect import worker
 import ftrack_connect.ui.widget.header
 import ftrack_connect_nuke_studio.exception
+import ftrack_connect_nuke_studio.entity_reference
 
 from ftrack_connect_nuke_studio.ui.helper import (
     tree_data_factory,
@@ -254,6 +255,7 @@ class FTrackServerHelper(object):
             logging.debug(error)
             return False
 
+
 def gather_processors(name, type):
     '''Retrieve processors from *name* and *type* grouped by asset name.'''
     processors = ftrack.EVENT_HUB.publish(
@@ -273,6 +275,8 @@ class ProjectTreeDialog(QtGui.QDialog):
     '''Create project dialog.'''
 
     processor_ready = QtCore.Signal(object)
+
+    update_entity_reference = QtCore.Signal(object, object, object)
 
     def __init__(self, data=None, parent=None, sequence=None):
         '''Initiate dialog and create ui.'''
@@ -329,6 +333,8 @@ class ProjectTreeDialog(QtGui.QDialog):
             QtGui.QHeaderView.ResizeMode.ResizeToContents)
 
         # Connect signals.
+        self.update_entity_reference.connect(self.on_update_entity_reference)
+
         self.export_project_button.clicked.connect(self.on_export_project)
         self.close_button.clicked.connect(self.on_close_dialog)
 
@@ -349,6 +355,12 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.start_worker()
 
         self.validate()
+
+    def on_update_entity_reference(self, track_item, entity_id, entity_type):
+        '''Set *entity_id* and *entity_type* as reference on *track_item*.'''
+        ftrack_connect_nuke_studio.entity_reference.set(
+            track_item, entity_id=entity_id, entity_type=entity_type
+        )
 
     def update_project_tag(self, project_code):
         '''Update project tag on sequence with *project_code*.'''
@@ -852,6 +864,13 @@ class ProjectTreeDialog(QtGui.QDialog):
                 if datum.type == 'task':
                     asset_parent = previous
                     asset_task = result
+
+                if datum.type not in ('task', 'show'):
+                    # Set entity reference if the type is not task.
+                    # Cannot modify tags in thread, therefore emit signal.
+                    self.update_entity_reference.emit(
+                        datum.track, datum.exists['taskid'], 'task'
+                    )
 
                 processors = gather_processors(datum.name, datum.type)
 

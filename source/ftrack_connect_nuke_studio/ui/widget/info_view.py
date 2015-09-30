@@ -78,6 +78,12 @@ class InfoView(
     def on_selection_changed(self, event):
         '''Handle selection changed events.'''
         selection = event.sender.selection()
+
+        selection = [
+            _item for _item in selection
+            if isinstance(_item, hiero.core.TrackItem)
+        ]
+
         if len(selection) != 1:
             return
 
