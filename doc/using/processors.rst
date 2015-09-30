@@ -39,15 +39,15 @@ The thumbnail will be generate from the source material and set as thumbnail on
 the version, the shot and all child tasks of the shot.
 
 To disable thumbnail propagation to tasks open a script editor,
-:menuselection:`Window->Script editor` in NukeStudio before export and run::
-    
-    import os
-    os.environ['FTRACK_CONNECT_NUKE_STUDIO_STOP_THUMBNAIL_PROPAGATION'] = 'True'
+:menuselection:`Window->Script editor` in Nuke Studio before export and run::
+
+    import ftrack_connect_nuke_studio
+    ftrack_connect_nuke_studio.DISABLE_THUMBNAIL_PROPAGATION = True
 
 To enable propagation if disabled run::
-    
-    import os
-    os.environ.pop('FTRACK_CONNECT_NUKE_STUDIO_STOP_THUMBNAIL_PROPAGATION', None)
+
+    import ftrack_connect_nuke_studio
+    ftrack_connect_nuke_studio.DISABLE_THUMBNAIL_PROPAGATION = False
 
 Ingest / Plate
 ==============
