@@ -42,9 +42,9 @@ def create_thumbnail():
     try:
         disable_propagation = ftrack_connect_nuke_studio.DISABLE_THUMBNAIL_PROPAGATION
     except AttributeError:
-        disable_thumbnail_propagation = False
+        disable_propagation = False
 
-    if not disable_thumbnail_propagation:
+    if not disable_propagation:
         for task in asset_parent.getTasks():
             task.createThumbnail(out)
 
