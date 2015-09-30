@@ -85,9 +85,6 @@ def set(item, entity=None, entity_id=None, entity_type=None):
 
         item.addTag(tag)
 
-        if entity_id:
-            entity = ftrack.Task(entity_id)
-        print '##: ', item, entity, tag, tag.metadata(), tag.metadata().value('ftrack.identifier') == entity.getId()
     else:
         raise TypeError(
             'Unsupported item type. Needs to be `hiero.core.TrackItem`'
