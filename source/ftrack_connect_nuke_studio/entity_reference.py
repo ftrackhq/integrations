@@ -73,19 +73,21 @@ def set(item, entity=None, entity_id=None, entity_type=None):
         entity_type = entity._type
 
     if isinstance(item, hiero.core.TrackItem):
-        tag = None
-        for _tag in item.tags():
+        for _tag in item.tags()[:]:
             if _tag.name() == 'ftrack.entity_reference':
-                tag = _tag
-                break
+                item.removeTag(_tag)
 
-        if not tag:
-            tag = hiero.core.Tag('ftrack.entity_reference')
-            item.addTag(tag)
+        tag = hiero.core.Tag('ftrack.entity_reference')
 
         tag.metadata().setValue('ftrack.identifier', entity_id)
         tag.metadata().setValue('ftrack.entity_type', entity_type)
         tag.setVisible(False)
+
+        item.addTag(tag)
+
+        if entity_id:
+            entity = ftrack.Task(entity_id)
+        print '##: ', item, entity, tag, tag.metadata(), tag.metadata().value('ftrack.identifier') == entity.getId()
     else:
         raise TypeError(
             'Unsupported item type. Needs to be `hiero.core.TrackItem`'
