@@ -5,6 +5,12 @@
 Releases
 ########
 
+.. release:: 0.2.6
+
+    .. change:: changed
+
+        `ftrack connect nuke studio 0.1.2 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/0.1.3/>`_
+
 .. release:: 0.2.5
     :date: 2015-09-25
 
