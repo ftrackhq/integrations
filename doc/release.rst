@@ -6,6 +6,7 @@ Releases
 ########
 
 .. release:: 0.2.6
+    :date: 2015-10-01
 
     .. change:: changed
 
