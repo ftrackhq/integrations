@@ -41,7 +41,7 @@ def register(registry, **kw):
     '''Register version information hook.'''
 
     logger = logging.getLogger(
-        'ftrack_plugin:ftrack_connect_package.register'
+        'ftrack_connect_package_version_information:register'
     )
 
     # Validate that registry is an instance of ftrack.Registry. If not,
