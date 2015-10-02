@@ -28,9 +28,6 @@ with open(os.path.join(
 
 def get_version_information(event):
     '''Return version information for ftrack connect package.'''
-
-    # TODO: Read version information from package to avoid having to update
-    # this manually.
     return [
         dict(
             name='ftrack connect package',
