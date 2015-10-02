@@ -235,8 +235,10 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             ftrack_connect_nuke_studio_source,
             'resource/ftrack_connect_nuke_studio'
         ),
-        (ftrack_connect_nuke_studio_hook, 'resource/hook')
-
+        (ftrack_connect_nuke_studio_hook, 'resource/hook'),
+        (os.path.join(
+            SOURCE_PATH, 'ftrack_connect_package', '_version.py'
+        ), 'resource/ftrack_connect_package_version.py')
     ]
 
     executables = []
