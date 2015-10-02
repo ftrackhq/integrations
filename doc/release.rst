@@ -5,6 +5,13 @@
 Releases
 ########
 
+.. release:: 0.2.7
+    :date: 2015-10-02
+
+    .. change:: changed
+
+        `ftrack connect 0.1.16 <http://ftrack-connect.rtd.ftrack.com/en/0.1.16/>`_
+
 .. release:: 0.2.6
     :date: 2015-10-01
 
