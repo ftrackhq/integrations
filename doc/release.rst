@@ -5,6 +5,13 @@
 Releases
 ########
 
+.. release:: 0.3.0
+    :date: 2015-10-02
+
+    .. change:: changed
+
+        Required `ftrack server <http://ftrack.rtd.ftrack.com/en/3.3.0/release/release_notes.html#release-3.3.0>`_ version is 3.3.0 or higher.
+
 .. release:: 0.2.7
     :date: 2015-10-02
 
