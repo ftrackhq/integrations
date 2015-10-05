@@ -76,7 +76,7 @@ Customising tag expressions
 ===========================
 
 It is possible to customise the tag expressions used when matching the clip
-names to work with your own naming convention. This can be done it two
+names to work with your own naming convention. This can be done in two
 different ways, either per session or persisted in Connect.
 
 Modify for a single session
