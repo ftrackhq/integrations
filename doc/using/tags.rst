@@ -8,7 +8,7 @@ Tags
 ****
 
 As part of the project setup process tags are used to link Nuke Studio shots
-with sequences, shots and tasks in ftrack and in order for the context tags to
+with sequences, shots and tasks in ftrack. In order for the context tags to
 successfully extract the names from the shot, these have to be named matching
 the expression defined in the tag.
 
