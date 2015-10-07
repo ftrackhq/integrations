@@ -7,9 +7,8 @@
 Exporting a project
 *******************
 
-***************************
 Setup the project structure
-***************************
+===========================
 
 As part of the project export process tags are used to link Nuke Studio clips
 with sequences, shots and tasks in ftrack. In order for the context tags to
@@ -17,7 +16,7 @@ successfully extract the names from the clip, these have to be named matching
 the expression defined in the tag.
 
 Tagging
-=======
+-------
 
 Let's walk through how to tag your timeline to be able to export to ftrack.
 
@@ -56,7 +55,7 @@ If adding task type tags the the same clip the hierarchy will look like this:
     :ref:`Customising tag expressions <developing/customising_tag_expressions>`
 
 Rename shots
-------------
+^^^^^^^^^^^^
 
 To quickly rename a bunch of clips to match the tag patterns you can use the
 builtin Rename Shots dialog. It is located in the context menu under
@@ -72,7 +71,7 @@ builtin Rename Shots dialog. It is located in the context menu under
     `Renaming clips in Nuke Studio <http://help.thefoundry.co.uk/nuke/9.0/#timeline_environment/conforming/renaming_track_items.html>`_
 
 Apply tags
-----------
+^^^^^^^^^^
 
 When the shots are correctly named, you are ready to start the tagging process.
 Select the context tags you want to use and drop them on your clips.
@@ -93,7 +92,7 @@ single tag, from the clip name.
 When done tagging your're ready to export you project.
 
 Preview project structure
-=========================
+-------------------------
 
 To preview and export the project and its attributes you'll have to open the
 ``Export project`` dialog:
@@ -115,7 +114,7 @@ the project. The objects in ftrack are colored differently:
 .. _using/project_settings:
 
 Project settings
-================
+----------------
 
 From this interface you'll be able to set the attributes for all the shots,
 such as resolution, fps, and handles.  You will also be able to pick the
@@ -132,7 +131,7 @@ All the project settings will be added as attributes to the shot.
     might change in the future.
 
 Exporting
-=========
+---------
 
 Once you are happy with the configuration, all you have to do will be to
 press the Export button. As soon as the export finishes, a message will be
