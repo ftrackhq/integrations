@@ -106,9 +106,9 @@ should look something like this::
 
             return [
                 ('project', 'show', None),
-                ('episode', 'episode', '(\w+.)?EP(\d+)'),
-                ('sequence', 'sequence', '(\w+.)?SQ(\d+)'),
-                ('shot', 'shot', '(\w+.)?SH(\d+)')
+                ('episode', 'episode', 'EP(?P<value>\d+)|(?P<value>.+)'),
+                ('sequence', 'sequence', 'SQ(?P<value>\d+)|(?P<value>.+)'),
+                ('shot', 'shot', 'SH(?P<value>\d+)|(?P<value>.+)')
             ]
 
         def register(self):
@@ -135,9 +135,9 @@ The part you need to focus on is the one returning the actual tags::
 
     return [
         ('project', 'show', None),
-        ('episode', 'episode', '(\w+.)?EP(\d+)'),
-        ('sequence', 'sequence', '(\w+.)?SQ(\d+)'),
-        ('shot', 'shot', '(\w+.)?SH(\d+)')
+        ('episode', 'episode', 'EP(?P<value>\d+)|(?P<value>.+)'),
+        ('sequence', 'sequence', 'SQ(?P<value>\d+)|(?P<value>.+)'),
+        ('shot', 'shot', 'SH(?P<value>\d+)|(?P<value>.+)')
     ]
 
 Edit the value for each context type to desired expression, below is a modified
@@ -146,7 +146,7 @@ example with the
 
     return [
         ('project', 'show', None),
-        ('episode', 'episode', r'(\w+.)?EP(\d+)'),
+        ('episode', 'episode', 'EP(?P<value>\d+)|(?P<value>.+)'),
         ('sequence', 'sequence', r'(\_)(?P<value>\.+)'),
         ('shot', 'shot', r'(?P<value>\.+)\_')
     ]
