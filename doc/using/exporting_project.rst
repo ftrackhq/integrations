@@ -47,7 +47,7 @@ name and yield a hierarchy looking like this:
 
 .. image:: /image/hierarchy_second.png
 
-If adding task type tags the the same clip the hierarchy will look like this::
+If adding task type tags the the same clip the hierarchy will look like this:
 
 .. image:: /image/hierarchy_with_tasks.png
 
