@@ -72,6 +72,8 @@ builtin Rename Shots dialog. It is located in the context menu under
     Rename shots works on a selection of shots. The ### will be replaced by the
     increment value and the number of selected shots.
 
+.. seealso::
+
     `Renaming clips in Nuke Studio <http://help.thefoundry.co.uk/nuke/9.0/#timeline_environment/conforming/renaming_track_items.html>`_
 
 Apply tags
