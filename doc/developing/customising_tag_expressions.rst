@@ -177,7 +177,7 @@ Sequence    (?P<value>\\.+)\_
 Shot        (\_)(?P<value>\.+)
 ========    ====================
 
-Given three shots named **001_A010**, **001_B010** and **002_010** would generate
-a hierarchy like:
+Given three shots named **001_A010**, **001_B010** and **002_010** would
+generate a hierarchy like:
 
 .. image:: /image/example_expression.png
