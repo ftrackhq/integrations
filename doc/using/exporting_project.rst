@@ -58,7 +58,7 @@ this:
     
     :ref:`Customising tag expressions <developing/customising_tag_expressions>`
 
-Rename shots
+Rename clips
 ^^^^^^^^^^^^
 
 To quickly rename a bunch of clips to match the tag patterns you can use the
@@ -69,8 +69,8 @@ builtin Rename Shots dialog. It is located in the context menu under
 
 .. note::
 
-    Rename shots works on a selection of shots. The ### will be replaced by the
-    increment value and the number of selected shots.
+    Rename works on a selection of clips. The ### will be replaced by the
+    increment value and the number of selected clips.
 
 .. seealso::
 
@@ -79,7 +79,7 @@ builtin Rename Shots dialog. It is located in the context menu under
 Apply tags
 ^^^^^^^^^^
 
-When the shots are correctly named, you are ready to start the tagging process.
+When the clips are correctly named, you are ready to start the tagging process.
 Select the context tags you want to use and drop them on your clips.
 
 .. seealso::
@@ -122,12 +122,12 @@ the project. The objects in ftrack are colored differently:
 Project settings
 ----------------
 
-From this interface you'll be able to set the attributes for all the shots,
-such as resolution, fps, and handles.  You will also be able to pick the
+From this interface you'll be able to set the attributes for all the mapped
+shots, such as resolution, fps, and handles.  You will also be able to pick the
 workflow schema for the project creation and define other attributes such as
 handles and the start frame offset.
 
-All the project settings will be added as attributes to the shot.
+All the project settings will be added as attributes to each mapped shot.
 
 .. image:: /image/create_project_settings.png
 
@@ -155,7 +155,8 @@ to see your project and the structure as was defined from within Nuke Studio.
 
 .. image:: /image/create_project_remote_result.png
 
-As well as the attributes and metadata, which have been added to the shot.
+As well as the attributes and metadata, which have been added to the mapped
+shots.
 
 .. image:: /image/create_project_remote_result_attributes.png
 
