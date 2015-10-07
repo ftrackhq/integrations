@@ -195,7 +195,8 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 expression=prefix + [
                     'Adobe After Effects CC .+', 'Adobe After Effects CC .+.app'
                 ],
-                label='After Effects CC {version}',
+                label='After Effects CC',
+                variant='{version}',
                 applicationIdentifier='after_effects_cc_{version}',
                 icon='after_effects'
             ))
@@ -233,7 +234,8 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                     ['Adobe', 'Adobe After Effects CC .+', 'Support Files',
                      'AfterFX.exe']
                 ),
-                label='After Effects CC {version}',
+                label='After Effects CC',
+                variant='{version}',
                 applicationIdentifier='after_effects_cc_{version}',
                 icon='after_effects'
             ))
