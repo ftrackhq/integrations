@@ -44,12 +44,13 @@ context tags applied it will yield a structure like this:
 
 .. image:: /image/hierarchy_first.png
 
-If the clip instead named *SQ001_010* the shot tag will match the entire 
-name and yield a hierarchy looking like this:
+However, if the clip was named *SQ001_010* then the shot tag will match the
+entire name and yield a hierarchy looking like this:
 
 .. image:: /image/hierarchy_second.png
 
-If adding task type tags the the same clip the hierarchy will look like this:
+If adding task type tags to the same clip then the hierarchy will look like
+this:
 
 .. image:: /image/hierarchy_with_tasks.png
 
