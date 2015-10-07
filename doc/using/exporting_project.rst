@@ -97,30 +97,34 @@ single tag, from the clip name.
 
 When done tagging your're ready to export you project.
 
-Preview project structure
--------------------------
+Exporting
+=========
 
-To preview and export the project and its attributes you'll have to open the
-``Export project`` dialog:
+With the project structure setup, it is time to export the project to ftrack.
+
+Open the :guilabel:`Export project` dialog to get started:
 
 .. image:: /image/create_project_context_menu.png
 
-This will open Export project dialog. When the dialog opens it will check
-against the server to see what's already available and existing on the server.
+Preview
+-------
 
-As soon as the check is done, the interface will be displaying the preview of
-the project. The objects in ftrack are colored differently:
+When the dialog opens it will check against the server to see what's already
+been created.
 
-* **green**, for an exsting object.
-* **white**, for a new object.
-* **red**, for an error which prevented the object to be created.
+As soon as the check is done, the interface will display the preview of the
+project. The items are colour coded:
+
+* **green** - an existing object.
+* **white** - a new object.
+* **red** - an error occurred regarding this object.
 
 .. image:: /image/create_project_dialog.png
 
 .. _using/project_settings:
 
-Project settings
-----------------
+Configure project settings
+--------------------------
 
 From this interface you'll be able to set the attributes for all the mapped
 shots, such as resolution, fps, and handles.  You will also be able to pick the
@@ -136,16 +140,16 @@ All the project settings will be added as attributes to each mapped shot.
     Some attributes, such as timecode related ones, are stored as metadata. This
     might change in the future.
 
-Exporting
----------
+Export
+------
 
-Once you are happy with the configuration, all you have to do will be to
-press the Export button. As soon as the export finishes, a message will be
+Once you are happy with the configuration, all you have to do is press the
+:guilabel:`Export` button. As soon as the export finishes, a message will be
 displayed.
 
 .. image:: /image/create_project_done.png
 
-At this point the project are created on your
+At this point the project has been created on your
 :term:`ftrack server <ftrack server>` and from the Project spreadsheet it is
 possible to see the project and the structure that was defined in Nuke Studio.
 
