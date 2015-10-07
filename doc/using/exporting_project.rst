@@ -32,9 +32,12 @@ tags are used to create tasks.
 Before tagging, we first need to rename our clips to match our naming structure.
 By default the different context tags will match:
 
-* Episodes: **EP** followed by any numbers. If not found the entire clip name will be used.
-* Sequence: **SQ** followed by any numbers. If not found the entire clip name will be used.
-* Shot: **SH** followed by any numbers. If not found the entire clip name will be used.
+* Episodes: **EP** followed by any numbers.
+  If not found the entire clip name will be used.
+* Sequence: **SQ** followed by any numbers.
+  If not found the entire clip name will be used.
+* Shot: **SH** followed by any numbers.
+  If not found the entire clip name will be used.
 
 For example, if a clip named *SQ001_SH010* has the shot and sequence
 context tags applied it will yield a structure like this:
