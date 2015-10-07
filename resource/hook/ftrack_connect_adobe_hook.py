@@ -80,15 +80,19 @@ class LaunchAction(object):
             items.append({
                 'actionIdentifier': self.identifier,
                 'label': label,
+                'variant': application.get('variant', None),
+                'description': application.get('description', None),
                 'icon': application.get('icon', 'default'),
                 'applicationIdentifier': applicationIdentifier
             })
 
             items.append({
                 'actionIdentifier': self.identifier,
-                'label': '{label} with latest version'.format(
-                    label=label
+                'label': label,
+                'variant': '{variant} with latest version'.format(
+                    variant=application.get('variant', '')
                 ),
+                'description': application.get('description', None),
                 'icon': application.get('icon', 'default'),
                 'launchWithLatest': True,
                 'applicationIdentifier': applicationIdentifier
@@ -153,7 +157,9 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
             dict(
                 'identifier': 'name_version',
-                'label': 'Name version',
+                'label': 'Name',
+                'variant': 'version',
+                'description': 'description',
                 'path': 'Absolute path to the file',
                 'version': 'Version of the application',
                 'icon': 'URL or name of predefined icon'
@@ -169,7 +175,8 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 expression=prefix + [
                     'Adobe Photoshop CC .+', 'Adobe Photoshop CC .+.app'
                 ],
-                label='Photoshop CC {version}',
+                label='Photoshop CC',
+                variant='{version}',
                 applicationIdentifier='photoshop_cc_{version}',
                 icon='photoshop'
             ))
@@ -178,7 +185,8 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 expression=prefix + [
                     'Adobe Premiere Pro CC .+', 'Adobe Premiere Pro CC .+.app'
                 ],
-                label='Premiere Pro CC {version}',
+                label='Premiere Pro CC',
+                variant='{version}',
                 applicationIdentifier='premiere_pro_cc_{version}',
                 icon='premiere'
             ))
@@ -201,7 +209,8 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                     ['Adobe', 'Adobe Photoshop CC .+',
                      'Photoshop.exe']
                 ),
-                label='Photoshop CC {version}',
+                label='Photoshop CC',
+                variant='{version}',
                 applicationIdentifier='photoshop_cc_{version}',
                 icon='photoshop'
             ))
@@ -212,7 +221,8 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                     ['Adobe', 'Adobe Premiere Pro CC .+',
                      'Adobe Premiere Pro.exe']
                 ),
-                label='Premiere Pro CC {version}',
+                label='Premiere Pro CC',
+                variant='{version}',
                 applicationIdentifier='premiere_pro_cc_{version}',
                 icon='premiere'
             ))
@@ -285,6 +295,21 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
 
 def register(registry, **kw):
     '''Register hooks for Adobe plugins.'''
+
+    logger = logging.getLogger(
+        'ftrack_plugin:ftrack_connect_adobe_hook.register'
+    )
+
+    # Validate that registry is an instance of ftrack.Registry. If not,
+    # assume that register is being called from a new or incompatible API and
+    # return without doing anything.
+    if not isinstance(registry, ftrack.Registry):
+        logger.debug(
+            'Not subscribing plugin as passed argument {0!r} is not an '
+            'ftrack.Registry instance.'.format(registry)
+        )
+        return
+
     applicationStore = ApplicationStore()
 
     launcher = ApplicationLauncher(
