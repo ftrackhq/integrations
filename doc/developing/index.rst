@@ -13,4 +13,5 @@ studio.
 
     processors
     event_list
+    customising_tag_expressions
     api_reference/index
