@@ -153,9 +153,9 @@ At this point the project has been created on your
 :term:`ftrack server <ftrack server>` and from the Project spreadsheet it is
 possible to see the project and the structure that was defined in Nuke Studio.
 
-At this point you can go and have a look on the
-` for the result. In here you will be able
-to see your project and the structure as was defined from within Nuke Studio.
+At this point you can go and have a look on your ftrack server for the result.
+In here you will be able to see your project and the structure as was defined
+from within Nuke Studio.
 
 .. image:: /image/create_project_remote_result.png
 
