@@ -135,9 +135,9 @@ The part you need to focus on is the one returning the actual tags::
 
     return [
         ('project', 'show', None),
-        ('episode', 'episode', 'EP(?P<value>\d+)|(?P<value>.+)'),
-        ('sequence', 'sequence', 'SQ(?P<value>\d+)|(?P<value>.+)'),
-        ('shot', 'shot', 'SH(?P<value>\d+)|(?P<value>.+)')
+        ('episode', 'episode', r'EP(?P<value>\d+)|(?P<value>.+)'),
+        ('sequence', 'sequence', r'SQ(?P<value>\d+)|(?P<value>.+)'),
+        ('shot', 'shot', r'SH(?P<value>\d+)|(?P<value>.+)')
     ]
 
 Edit the value for each context type to desired expression, below is a modified
@@ -146,13 +146,10 @@ example with the
 
     return [
         ('project', 'show', None),
-        ('episode', 'episode', 'EP(?P<value>\d+)|(?P<value>.+)'),
-        ('sequence', 'sequence', r'(\_)(?P<value>\.+)'),
-        ('shot', 'shot', r'(?P<value>\.+)\_')
+        ('episode', 'episode', r'EP(?P<value>\d+)|(?P<value>.+)'),
+        ('sequence', 'sequence', r'_(?P<value>.+)'),
+        ('shot', 'shot', r'(?P<value>.+)_')
     ]
-
-In this example we're returning raw string to avoid the expression being
-escaped.
 
 .. seealso::
     
@@ -173,8 +170,8 @@ this:
 ========    ====================
 Context     Expression
 ========    ====================
-Sequence    (?P<value>\\.+)\_
-Shot        (\_)(?P<value>\.+)
+Sequence    (?P<value>.+)_
+Shot        _(?P<value>.+)
 ========    ====================
 
 Given three shots named **001_A010**, **001_B010** and **002_010** would
