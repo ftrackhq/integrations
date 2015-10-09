@@ -147,8 +147,8 @@ example with the
     return [
         ('project', 'show', None),
         ('episode', 'episode', r'EP(?P<value>\d+)|(?P<value>.+)'),
-        ('sequence', 'sequence', r'_(?P<value>.+)'),
-        ('shot', 'shot', r'(?P<value>.+)_')
+        ('sequence', 'sequence', r'(?P<value>.+)_'),
+        ('shot', 'shot', r'_(?P<value>.+)')
     ]
 
 .. seealso::
