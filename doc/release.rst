@@ -5,7 +5,7 @@
 Releases
 ########
 
-.. release:: Upcoming
+.. release:: 0.3.1
 
     .. change:: new
 
