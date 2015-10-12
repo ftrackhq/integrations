@@ -5,7 +5,17 @@
 Releases
 ########
 
+.. release:: Upcoming
+
+    .. change:: changed
+
+        When launching :term:`Adobe Photoshop`, :term:`Adobe Premiere` or 
+        :term:`Adobe After Effects` with the latest version, the version will
+        first be copied to a temporary location to avoid overwriting a
+        previously published version.
+
 .. release:: 0.3.1
+    :date: 2015-10-12
 
     .. change:: new
 

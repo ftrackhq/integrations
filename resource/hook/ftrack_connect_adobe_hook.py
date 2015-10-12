@@ -5,6 +5,9 @@ import getpass
 import sys
 import pprint
 import logging
+import tempfile
+import os
+import shutil
 
 import ftrack
 import ftrack_connect.application
@@ -251,6 +254,21 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
 class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
 
+    def _getTemporaryCopy(self, filePath):
+        '''Copy file at *filePath* to a temporary directory and return path.
+
+        .. note::
+
+            The copied file does not retain the original files meta data or
+            permissions.
+        '''
+        temporaryDirectory = tempfile.mkdtemp(prefix='ftrack_connect')
+        targetPath = os.path.join(
+            temporaryDirectory, os.path.basename(filePath)
+        )
+        shutil.copyfile(filePath, targetPath)
+        return targetPath
+
     def _getApplicationLaunchCommand(self, application, context=None):
         '''Return *application* command based on OS and *context*.
 
@@ -270,6 +288,9 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
         # Figure out if the command should be started with the file path of
         # the latest published version.
         if command is not None and context is not None:
+            self.logger.debug(
+                u'Launching action with context {0!r}'.format(context)
+            )
             selection = context.get('selection')
             if selection and context.get('launchWithLatest', False):
                 entity = selection[0]
@@ -290,7 +311,20 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
                         )
 
                 if component is not None:
-                    command.append(component.getFilesystemPath())
+                    filePath = self._getTemporaryCopy(
+                        component.getFilesystemPath()
+                    )
+                    self.logger.info(
+                        u'Launching application with file {0!r}'.format(
+                            filePath
+                        )
+                    )
+                    command.append(filePath)
+                else:
+                    self.logger.warning(
+                        'Unable to find an appropriate component when '
+                        'launching with latest version.'
+                    )
 
         return command
 
