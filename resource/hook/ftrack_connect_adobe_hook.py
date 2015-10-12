@@ -175,8 +175,8 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 expression=prefix + [
                     'Adobe Photoshop CC .+', 'Adobe Photoshop CC .+.app'
                 ],
-                label='Photoshop CC',
-                variant='{version}',
+                label='Photoshop',
+                variant='CC {version}',
                 applicationIdentifier='photoshop_cc_{version}',
                 icon='photoshop'
             ))
@@ -185,8 +185,8 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 expression=prefix + [
                     'Adobe Premiere Pro CC .+', 'Adobe Premiere Pro CC .+.app'
                 ],
-                label='Premiere Pro CC',
-                variant='{version}',
+                label='Premiere Pro',
+                variant='CC {version}',
                 applicationIdentifier='premiere_pro_cc_{version}',
                 icon='premiere'
             ))
@@ -195,8 +195,8 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 expression=prefix + [
                     'Adobe After Effects CC .+', 'Adobe After Effects CC .+.app'
                 ],
-                label='After Effects CC',
-                variant='{version}',
+                label='After Effects',
+                variant='CC {version}',
                 applicationIdentifier='after_effects_cc_{version}',
                 icon='after_effects'
             ))
@@ -210,8 +210,8 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                     ['Adobe', 'Adobe Photoshop CC .+',
                      'Photoshop.exe']
                 ),
-                label='Photoshop CC',
-                variant='{version}',
+                label='Photoshop',
+                variant='CC {version}',
                 applicationIdentifier='photoshop_cc_{version}',
                 icon='photoshop'
             ))
@@ -222,8 +222,8 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                     ['Adobe', 'Adobe Premiere Pro CC .+',
                      'Adobe Premiere Pro.exe']
                 ),
-                label='Premiere Pro CC',
-                variant='{version}',
+                label='Premiere Pro',
+                variant='CC {version}',
                 applicationIdentifier='premiere_pro_cc_{version}',
                 icon='premiere'
             ))
@@ -234,8 +234,8 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                     ['Adobe', 'Adobe After Effects CC .+', 'Support Files',
                      'AfterFX.exe']
                 ),
-                label='After Effects CC',
-                variant='{version}',
+                label='After Effects',
+                variant='CC {version}',
                 applicationIdentifier='after_effects_cc_{version}',
                 icon='after_effects'
             ))
