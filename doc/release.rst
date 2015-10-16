@@ -5,7 +5,8 @@
 Releases
 ########
 
-.. release:: Upcoming
+.. release:: 0.3.2
+    :date: 2015-10-16
 
     .. change:: changed
 

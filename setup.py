@@ -66,8 +66,8 @@ connect_nuke_dependency_install_require = (
 )
 
 connect_nuke_studio_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke-studio/get/0.1.3.zip'
-    '#egg=ftrack-connect-nuke-studio-0.1.3'
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke-studio/get/0.1.4.zip'
+    '#egg=ftrack-connect-nuke-studio-0.1.4'
 )
 connect_nuke_studio_dependency_install_require = (
     'ftrack-connect-nuke-studio'
