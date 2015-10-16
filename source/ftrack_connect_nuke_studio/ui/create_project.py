@@ -674,18 +674,18 @@ class ProjectTreeDialog(QtGui.QDialog):
 
                 if datum.type == 'shot':
                     logging.debug(
-                        'Setting metadata to %s' % datum.name)
+                        'Setting metadata to %s' % datum.name
+                    )
 
-                    # data = {
-                    #     'fstart': start,
-                    #     'fend': end,
-                    #     'fps': fps,
-                    #     'resolution': '%sx%s' % (resolution.width(), resolution.height()),
-                    #     'handles': handles
-                    # }
-                    #
-                    # for key, value in data.items():
-                    #     current['custom_attribute']['key'] = value
+                    current['custom_attributes']['fstart'] = start
+                    current['custom_attributes']['fend'] = end
+                    current['custom_attributes']['fps'] = fps
+                    current['custom_attributes']['resolution'] = (
+                        '{0}x{1}'.format(
+                            resolution.width(), resolution.height()
+                        )
+                    )
+                    current['custom_attributes']['handles'] = handles
 
                     in_src, out_src, in_dst, out_dst = timecode_from_track_item(
                         datum.track
