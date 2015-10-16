@@ -6,6 +6,7 @@ import getpass
 import sys
 import pprint
 import logging
+import re
 
 import ftrack
 import ftrack_connect.application
@@ -75,6 +76,8 @@ class LaunchAction(object):
             items.append({
                 'actionIdentifier': self.identifier,
                 'label': label,
+                'variant': application.get('variant', None),
+                'description': application.get('description', None),
                 'icon': application.get('icon', 'default'),
                 'applicationIdentifier': applicationIdentifier
             })
@@ -110,7 +113,9 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
             dict(
                 'identifier': 'name_version',
-                'label': 'Name version',
+                'label': 'Name',
+                'variant': 'version',
+                'description': 'description',
                 'path': 'Absolute path to the file',
                 'version': 'Version of the application',
                 'icon': 'URL or name of predefined icon'
@@ -124,7 +129,8 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
             applications.extend(self._searchFilesystem(
                 expression=prefix + ['Nuke.*', 'NukeStudio\d[\w.]+.app'],
-                label='Nuke Studio {version}',
+                label='Nuke Studio',
+                variant='{version}',
                 applicationIdentifier='nuke_studio_{version}',
                 icon='nuke_studio'
             ))
@@ -132,9 +138,18 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
         elif sys.platform == 'win32':
             prefix = ['C:\\', 'Program Files.*']
 
+            # Specify custom expression for Nuke Studio to ensure the complete
+            # version number (e.g. 9.0v3) is picked up including any special
+            # builds (e.g. 9.0FnAssetAPI.000013a).
+            version_expression = re.compile(
+                r'Nuke(?P<version>[\d.]+[\w\d.]*)'
+            )
+
             applications.extend(self._searchFilesystem(
                 expression=prefix + ['Nuke.*', 'Nuke\d.+.exe'],
-                label='Nuke Studio {version}',
+                versionExpression=version_expression,
+                label='Nuke Studio',
+                variant='{version}',
                 applicationIdentifier='nuke_studio_{version}',
                 icon='nuke_studio',
                 launchArguments=['--studio']
@@ -144,7 +159,8 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
             applications.extend(self._searchFilesystem(
                 expression=['/', 'usr', 'local', 'Nuke.*', 'Nuke\d.+'],
-                label='Nuke Studio {version}',
+                label='Nuke Studio',
+                variant='{version}',
                 applicationIdentifier='nuke_studio_{version}',
                 icon='nuke_studio',
                 launchArguments=['--studio']
@@ -170,17 +186,29 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
             application, context
         )
 
-        environment['HIERO_PLUGIN_PATH'] = os.path.join(
-            FTRACK_CONNECT_NUKE_STUDIO_PATH, 'hiero'
-        )
-        environment['FOUNDRY_ASSET_PLUGIN_PATH'] = os.path.join(
-            FTRACK_CONNECT_NUKE_STUDIO_PATH, 'hiero'
-        )
-        environment['FTRACK_EVENT_PLUGIN_PATH'] = os.path.join(
-            FTRACK_CONNECT_NUKE_STUDIO_PATH, 'hook', 'processor'
+        hiero_plugin_path = os.path.join(
+            FTRACK_CONNECT_NUKE_STUDIO_PATH, 'plugin'
         )
 
-        environment['NUKE_USE_FNASSETAPI'] = '1'
+        environment = ftrack_connect.application.appendPath(
+            hiero_plugin_path, 'HIERO_PLUGIN_PATH', environment
+        )
+
+        processors_hooks_path = os.path.join(
+            FTRACK_CONNECT_NUKE_STUDIO_PATH, 'processor'
+        )
+
+        environment = ftrack_connect.application.appendPath(
+            processors_hooks_path, 'FTRACK_EVENT_PLUGIN_PATH', environment
+        )
+
+        application_hooks_path = os.path.join(
+            FTRACK_CONNECT_NUKE_STUDIO_PATH, 'application_hook'
+        )
+
+        environment = ftrack_connect.application.appendPath(
+            application_hooks_path, 'FTRACK_EVENT_PLUGIN_PATH', environment
+        )
 
         return environment
 

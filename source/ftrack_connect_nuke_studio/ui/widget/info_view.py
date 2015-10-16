@@ -4,10 +4,10 @@
 import urlparse
 
 import hiero.core
-
 import ftrack_connect.ui.widget.web_view
-
 import ftrack
+
+import ftrack_connect_nuke_studio.entity_reference
 
 
 class InfoView(
@@ -78,42 +78,21 @@ class InfoView(
     def on_selection_changed(self, event):
         '''Handle selection changed events.'''
         selection = event.sender.selection()
+
+        selection = [
+            _item for _item in selection
+            if isinstance(_item, hiero.core.TrackItem)
+        ]
+
         if len(selection) != 1:
             return
 
         item = selection[0]
-        if not isinstance(item, hiero.core.TrackItem):
+        entity = ftrack_connect_nuke_studio.entity_reference.get(
+            item
+        )
+
+        if not entity:
             return
-
-        identifier = item.source().entityReference()
-
-        if 'ftrack://' not in identifier:
-            return
-
-        url = urlparse.urlparse(identifier)
-        query = urlparse.parse_qs(url.query)
-        entity_type = query.get('entityType')[0]
-
-        identifier = url.netloc
-
-        entity = None
-        try:
-            if entity_type == 'component':
-                entity = ftrack.Component(identifier)
-
-            elif entity_type == 'asset_version':
-                entity = ftrack.AssetVersion(identifier)
-
-            elif entity_type == 'asset':
-                entity = ftrack.Asset(identifier)
-
-            elif entity_type == 'show':
-                entity = ftrack.Project(identifier)
-
-            elif entity_type == 'task':
-                entity = ftrack.Task(identifier)
-
-        except Exception:
-            pass
 
         self.set_entity(entity)

@@ -1,11 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 
-import re
 import logging
 
 import hiero
-from hiero.core.events import *
+import hiero.core.events
 
 
 class TagDropHandler(object):
@@ -13,7 +12,11 @@ class TagDropHandler(object):
     kTextMimeType = "text/plain"
 
     def __init__(self):
-        ''' Initialize the class and register the handler.'''
+        '''Initialize the class and register the handler.'''
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+
         # Nuke studio doesn't deal with drag and drop for text/plain data, so
         # tell it to allow it
         hiero.ui.registerBinViewCustomMimeDataType(
@@ -21,72 +24,82 @@ class TagDropHandler(object):
         )
 
         # Register interest drop event.
-        registerInterest(
-            (EventType.kDrop, EventType.kTimeline), self.dropHandler
+        hiero.core.events.registerInterest(
+            (
+                hiero.core.events.EventType.kDrop,
+                hiero.core.events.EventType.kTimeline
+            ),
+            self.dropHandler
         )
 
     def dropHandler(self, event):
-        ''' Intercept the drop *event* on the timeline.
+        '''Intercept the drop *event* on the timeline.
 
-        Filter out any non ftrack tag, and uses the tag.re field to extract
-        the context from the clip name, and set it back to the applied tag.
+        Filter out any non ftrack tag.
 
         '''
-        currentTags = event.items
+        try:
+            track_item = event.trackItem
+        except AttributeError:
+            return
 
-        for currentTag in currentTags:
-            currentTag = currentTag.copy()
-            current_item = event.trackItem
-            tag_name = currentTag.name()
-            meta = currentTag.metadata()
+        dropped_tags = event.items
+        existing_ftrack_tag_names = []
 
-            # Filter out any non ftrack tag
-            if not meta.hasKey('type') or meta.value('type') != 'ftrack':
-                logging.debug(
-                    '{0} is not a valid track tag type'.format(tag_name)
-                )
-                continue
-
-            clip_name = event.trackItem.name()
-            if tag_name == 'project':
-                # Skip project tags since it's added by the create project
-                # dialog.
-                logging.debug(
-                    '{0} is not a valid track tag type'.format(tag_name)
+        # Create a list of ftrack tags on the target track item. This is used to
+        # filter out duplicates.
+        for existing_tag in track_item.tags():
+            meta = existing_tag.metadata()
+            if meta.hasKey('type') and meta.value('type') == 'ftrack':
+                existing_ftrack_tag_names.append(
+                    existing_tag.name()
                 )
 
-                # Accept the event to prevent further processing of the
-                # the dropped tags.
+        self.logger.debug(
+            'Existing ftrack tags names: {0}'.format(existing_ftrack_tag_names)
+        )
+
+        for tag in dropped_tags:
+            tag = tag.copy()
+            tag_name = tag.name()
+            meta = tag.metadata()
+
+            # Skip adding tag if it already exists on the track item.
+            if tag_name in existing_ftrack_tag_names:
+                self.logger.debug(
+                    '{0} already exists on {1}'.format(tag_name, track_item)
+                )
                 event.dropEvent.accept()
                 continue
 
-            # Handle a tag with a regular expression.
-            elif meta.hasKey('tag.re'):
-                match = meta.value('tag.re')
-                if not match:
-                    # If the regular expression is empty skip it.
-                    continue
-
-                result = re.match(match, clip_name)
-                if result:
-                    result_value = result.groups()[-1]
-                    logging.debug(
-                        'Setting {0} to {1} on {2}'.format(
-                            tag_name, result_value, clip_name
-                        )
-                    )
-                    meta.setValue('tag.value', result_value)
-
-            if not isinstance(current_item, hiero.core.TrackItem):
+            # Filter out any non ftrack tags.
+            if not meta.hasKey('type') or meta.value('type') != 'ftrack':
+                self.logger.debug(
+                    '{0} is not a valid track tag type'.format(tag_name)
+                )
                 continue
 
-            current_item.addTag(currentTag)
+            if (
+                not meta.hasKey('ftrack.id')
+                or meta.value('ftrack.id') == 'show'
+            ):
+                self.logger.debug(
+                    '{0} is not a valid track tag type'.format(tag_name)
+                )
+                event.dropEvent.accept()
+                continue
+
+            track_item.addTag(tag)
             event.dropEvent.accept()
 
     def unregister(self):
-        ''' Unregister the handler.'''
-        unregisterInterest(
-            (EventType.kDrop, EventType.kTimeline), self.dropHandler
+        '''Unregister the handler.'''
+        hiero.core.events.unregisterInterest(
+            (
+                hiero.core.events.EventType.kDrop,
+                hiero.core.events.EventType.kTimeline
+            ),
+            self.dropHandler
         )
 
         hiero.ui.unregisterBinViewCustomMimeDataType(

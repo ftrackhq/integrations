@@ -1,16 +1,22 @@
 ..
     :copyright: Copyright (c) 2014 ftrack
 
-*****************************
-Using ftrack with NUKE STUDIO
-*****************************
+*****
+Using
+*****
 
-Find out all the information you need to use ftrack with NUKE STUDIO day to day.
+Find out all information you need to use the nuke studio with ftrack.
 
 .. toctree::
     :maxdepth: 1
 
-    setup
-    ftags
-    create_project
+    launching
+    exporting_project
     processors
+    info_panel
+    crew
+
+.. note::
+
+    In order for the Nuke studio plugin to work properly you will not to have
+    Shot, Sequence and Episode objects available on the :term:`ftrack server`.

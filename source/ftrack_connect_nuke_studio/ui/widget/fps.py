@@ -1,16 +1,26 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015 ftrack
 
-import hiero
 from PySide import QtGui
+
+import hiero
 
 
 class Fps(QtGui.QComboBox):
     '''Extract fps from hiero and expose them.'''
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, default_value=None):
         super(Fps, self).__init__(parent=parent)
         for fps in hiero.core.defaultFrameRates():
             if fps.is_integer():
-                self.addItem(str(int(fps)))
+                safe_fps = str(int(fps))
             else:
-                self.addItem(str(fps))
+                safe_fps = str(fps)
+
+            self.addItem(safe_fps)
+
+        if default_value:
+            index = self.findText(str(default_value))
+
+            if index:
+                self.setCurrentIndex(index)
+

@@ -1,12 +1,21 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015 ftrack
 
-import FnAssetAPI.logging
+import logging
+
 import ftrack
 
 
 class ContextTags(object):
     '''Return context tags for Nuke Studio.'''
+
+    def __init__(self, *args, **kwargs):
+        '''Initialise context tags hook.'''
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+
+        super(ContextTags, self).__init__(*args, **kwargs)
 
     def launch(self, event):
         '''Return context tags.
@@ -16,14 +25,14 @@ class ContextTags(object):
             ('tag_id', 'ftrack_type_id', 'regexp')
 
         '''
+        self.logger.debug('Configuring context tags.')
 
-        FnAssetAPI.logging.debug('Loading context tags from hook.')
-
+        # Define tag regular expressions.
         return [
             ('project', 'show', None),
-            ('episode', 'episode', '(\w+.)?EP(\d+)'),
-            ('sequence', 'sequence', '(\w+.)?SQ(\d+)'),
-            ('shot', 'shot', '(\w+.)?SH(\d+)')
+            ('episode', 'episode', 'EP(?P<value>\d+)|(?P<value>.+)'),
+            ('sequence', 'sequence', 'SQ(?P<value>\d+)|(?P<value>.+)'),
+            ('shot', 'shot', 'SH(?P<value>\d+)|(?P<value>.+)')
         ]
 
     def register(self):
@@ -36,5 +45,12 @@ class ContextTags(object):
 
 def register(registry, **kw):
     '''Register hooks for context tags.'''
+
+    # Validate that registry is instance of ftrack.Registry, if not
+    # return early since the register method probably is called
+    # from the new API.
+    if not isinstance(registry, ftrack.Registry):
+        return
+
     plugin = ContextTags()
     plugin.register()

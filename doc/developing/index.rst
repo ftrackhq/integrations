@@ -1,13 +1,17 @@
 ..
     :copyright: Copyright (c) 2014 ftrack
 
-**************************************
-Developing for ftrack with NUKE STUDIO
-**************************************
+**********
+Developing
+**********
 
-Discover how to develop and extend the default ftrack integration with NUKE STUDIO.
+Discover how to develop and extend the default ftrack integration with Nuke
+studio.
 
 .. toctree::
     :maxdepth: 1
 
+    processors
+    event_list
+    customising_tag_expressions
     api_reference/index

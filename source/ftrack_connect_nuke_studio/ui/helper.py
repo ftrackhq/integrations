@@ -7,6 +7,7 @@ import math
 import ftrack
 import hiero
 
+import ftrack_connect_nuke_studio.exception
 from ftrack_connect.ui.widget import overlay as _overlay
 from ftrack_connect_nuke_studio.ui.tag_item import TagItem as _TagItem
 
@@ -222,16 +223,29 @@ class TagTreeOverlay(_overlay.BusyOverlay):
         ''')
 
 
-def is_valid_tag_structure(tag_data):
-    '''Return true if *tag_data* is valid.'''
+def validate_tag_structure(tag_data):
+    '''Raise a ValidationError if tag structure is not valid.'''
     for track_item, context_tags in tag_data:
-        if (not context_tags):
-            return False, (
-                'Context tags is missing from clip {0}. Use Tags to add '
-                'context on clips.'
-            ).format(track_item.name())
+        if not context_tags:
+            raise ftrack_connect_nuke_studio.exception.ValidationError(
+                u'No ftrack context tag was found on track item {0!r}. Please '
+                u'add an ftrack context tag to the track item and try again.'
+                .format(track_item.name())
+            )
 
-    return True, 'Success'
+        # Verify that all context tags match.
+        for tag in context_tags:
+            if not tag.metadata().value('tag.value'):
+                raise ftrack_connect_nuke_studio.exception.ValidationError(
+                    u'Track item {0!r} does not match {1!r} tag expression '
+                    u'\'{2}\'. Please rename the track item to match the '
+                    u'expression or remove the tag.'.format(
+                        track_item.name(),
+                        tag.metadata().value('ftrack.name'),
+                        tag.metadata().value('tag.re')
+                    )
+                )
+
 
 
 def tree_data_factory(tag_data_list, project_tag):
