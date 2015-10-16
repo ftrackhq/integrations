@@ -7,7 +7,6 @@ import getpass
 import collections
 import logging
 
-import ftrack_api
 import hiero
 from PySide import QtGui, QtCore
 
@@ -226,36 +225,6 @@ class FTrackServerHelper(object):
         response = self.server.action('create', data)
         return response.get('taskid'), 'task'
 
-    #: TODO: Not sure how this is supposed to work. Consider removing it if
-    # not used.
-    def check_permissions(self, username=None):
-        '''Check the permission level of the given named user.'''
-
-        allowed = ['Administrator']
-
-        username = username or getpass.getuser()
-
-        user_data = {
-            'type': 'user',
-            'id': username
-        }
-        try:
-            user_response = self.server.action('get', user_data)
-            user_id = user_response.get('userid')
-            role_data = {
-                'type': 'roles',
-                'userid': user_id
-            }
-            role_response = self.server.action('get ', role_data)
-            roles = [role.get('name') for role in role_response]
-            # requires a better understanding of relation between show and
-            # roles.
-            return True
-
-        except Exception as error:
-            logging.debug(error)
-            return False
-
 
 def gather_processors(name, type):
     '''Retrieve processors from *name* and *type* grouped by asset name.'''
@@ -289,14 +258,6 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         self.server_helper = FTrackServerHelper()
         applyTheme(self, 'integration')
-        #: TODO: Consider if these permission checks are required.
-        # user_is_allowed = self.server_helper.check_permissions()
-        # if not user_is_allowed:
-        #     logging.warning(
-        #         'The user does not have enough permissions to run this application.'
-        #         'please check with your administrator your roles and permission level.'
-        #     )
-        #     return
 
         self.sequence = sequence
 
@@ -494,7 +455,9 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         self.resolution_layout = QtGui.QHBoxLayout()
 
-        self.resolution_label = QtGui.QLabel('Resolution', parent=self.group_box)
+        self.resolution_label = QtGui.QLabel(
+            'Resolution', parent=self.group_box
+        )
         self.resolution_layout.addWidget(self.resolution_label)
 
         self.resolution_combobox = Resolution(
@@ -506,7 +469,9 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         self.label_layout = QtGui.QHBoxLayout()
 
-        self.fps_label = QtGui.QLabel('Frames Per Second', parent=self.group_box)
+        self.fps_label = QtGui.QLabel(
+            'Frames Per Second', parent=self.group_box
+        )
         self.label_layout.addWidget(self.fps_label)
 
         self.fps_combobox = Fps(
@@ -537,7 +502,9 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.start_frame_offset_spinbox = QtGui.QSpinBox(self.group_box)
         self.start_frame_offset_spinbox.setMaximum(9999)
         self.start_frame_offset_spinbox.setProperty('value', 1001)
-        self.start_frame_offset_layout.addWidget(self.start_frame_offset_spinbox)
+        self.start_frame_offset_layout.addWidget(
+            self.start_frame_offset_spinbox
+        )
         self.group_box_layout.addLayout(self.start_frame_offset_layout)
 
         self.central_layout.addWidget(self.group_box)
@@ -548,10 +515,12 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         self.tool_box = QtGui.QToolBox(self.splitter)
 
-        default_message = QtGui.QTextEdit('Make a selection to see the available properties')
+        default_message = QtGui.QTextEdit(
+            'Make a selection to see the available properties'
+        )
         default_message.readOnly = True
         default_message.setAlignment(QtCore.Qt.AlignCenter)
-        self.tool_box.addItem(default_message , 'Processors')
+        self.tool_box.addItem(default_message, 'Processors')
         self.tool_box.setContentsMargins(0, 15, 0, 0)
         self.tool_box.setMinimumSize(QtCore.QSize(300, 0))
         self.tool_box.setFrameShape(QtGui.QFrame.StyledPanel)
@@ -664,7 +633,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.reject()
 
     def on_export_project(self):
-        '''Handle signal triggered when the export project button gets pressed.'''
+        '''Handle signal triggered when the export project button is pressed.'''
         QtGui.QApplication.setOverrideCursor(
             QtGui.QCursor(QtCore.Qt.WaitCursor)
         )
@@ -710,10 +679,12 @@ class ProjectTreeDialog(QtGui.QDialog):
             self.tool_box.removeItem(0)
 
     def get_type_and_status_from_name(self, object_type, name):
-        '''Return a default status and type as a tuple from *name* and *object_type*.'''
+        '''Return defaults as a tuple from *name* and *object_type*.'''
         selected_workflow = self.workflow_combobox.currentItem()
 
-        selected_workflow = self.session.get('ProjectSchema', selected_workflow.getId())
+        selected_workflow = self.session.get(
+            'ProjectSchema', selected_workflow.getId()
+        )
 
         types = selected_workflow.get_types(object_type)
 
@@ -721,7 +692,9 @@ class ProjectTreeDialog(QtGui.QDialog):
         if object_type == 'Task':
             for _type in types:
                 if _type['name'] == name:
-                    statuses = selected_workflow.get_statuses(object_type, _type)
+                    statuses = selected_workflow.get_statuses(
+                        object_type, _type
+                    )
                     return (_type, statuses[0])
 
         statuses = selected_workflow.get_statuses(object_type)
@@ -755,7 +728,9 @@ class ProjectTreeDialog(QtGui.QDialog):
             for tag in track_data[1]:
                 metadata = tag.metadata()
                 if metadata.value('ftrack.type') == 'task':
-                    task_types[metadata.value('ftrack.id')] = metadata.value('ftrack.name')
+                    task_types[metadata.value('ftrack.id')] = (
+                        metadata.value('ftrack.name')
+                    )
 
         self.logger.debug(
             'Found task type tags on track items: {0}'.format(
@@ -804,12 +779,6 @@ class ProjectTreeDialog(QtGui.QDialog):
             track_out = int(
                 datum.track.sourceOut() + datum.track.source().sourceOut()
             )
-            # NOTE: effectTrack are not used atm
-            effects = [
-                effect for effect in datum.track.linkedItems()
-                if isinstance(effect, hiero.core.EffectTrackItem)
-            ]
-
             if datum.track.source().mediaSource().singleFile():
                 # Adjust frame in and out if the media source is a single file.
                 # This fix is required because Hiero is reporting Frame in as 0
@@ -832,7 +801,9 @@ class ProjectTreeDialog(QtGui.QDialog):
                 if datum.exists:
                     logging.debug('%s %s exists as %s, reusing it.' % (
                         datum.name, datum.type, datum.exists.get('showid')))
-                    current = self.session.get('Project', datum.exists.get('showid'))
+                    current = self.session.get(
+                        'Project', datum.exists.get('showid')
+                    )
                 else:
                     project_name = self.project_selector.get_new_name()
                     logging.debug('creating show %s' % project_name)
@@ -861,13 +832,17 @@ class ProjectTreeDialog(QtGui.QDialog):
                 if datum.exists:
                     logging.debug('%s %s exists as %s, reusing it.' % (
                         datum.name, datum.type, datum.exists.get('taskid')))
-                    current = self.session.get('TypedContext', datum.exists.get('taskid'))
+                    current = self.session.get(
+                        'TypedContext', datum.exists.get('taskid')
+                    )
                 else:
                     logging.debug(
                         'creating %s %s' % (datum.type, datum.name))
                     object_type = datum.type.title()
 
-                    result = self.get_type_and_status_from_name(object_type, datum.name)
+                    result = self.get_type_and_status_from_name(
+                        object_type, datum.name
+                    )
                     current = self.session.create(object_type, {
                         'name': datum.name,
                         'parent': previous,
@@ -895,7 +870,9 @@ class ProjectTreeDialog(QtGui.QDialog):
                     # for key, value in data.items():
                     #     current['custom_attribute']['key'] = value
 
-                    in_src, out_src, in_dst, out_dst = timecode_from_track_item(datum.track)
+                    in_src, out_src, in_dst, out_dst = timecode_from_track_item(
+                        datum.track
+                    )
                     source = source_from_track_item(datum.track)
 
                     metadata = {
@@ -939,10 +916,12 @@ class ProjectTreeDialog(QtGui.QDialog):
                                     'context_id': asset_parent_id,
                                     'type_id': self.asset_type_id
                                 })
-                                asset_version = self.session.create('AssetVersion', {
-                                    'asset_id': asset['id'],
-                                    'task_id': asset_task_id
-                                })
+                                asset_version = self.session.create(
+                                    'AssetVersion', {
+                                        'asset_id': asset['id'],
+                                        'task_id': asset_task_id
+                                    }
+                                )
                                 assets[asset_name] = asset_version['id']
                             else:
                                 version_id = assets[asset_name]
@@ -969,7 +948,7 @@ class ProjectTreeDialog(QtGui.QDialog):
                             })
 
                         processor_name = processor['processor_name']
-                        processor_data.append((processor_name,  out_data))
+                        processor_data.append((processor_name, out_data))
 
             if datum.children:
                 self.create_project(datum.children, current)
