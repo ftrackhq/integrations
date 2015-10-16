@@ -7,6 +7,7 @@ import getpass
 import collections
 import logging
 
+import ftrack_api
 import hiero
 from PySide import QtGui, QtCore
 
@@ -17,6 +18,8 @@ from .widget.resolution import Resolution
 
 from ftrack_connect import worker
 import ftrack_connect.ui.widget.header
+import ftrack_connect_nuke_studio.exception
+import ftrack_connect_nuke_studio.entity_reference
 
 from ftrack_connect_nuke_studio.ui.helper import (
     tree_data_factory,
@@ -24,7 +27,7 @@ from ftrack_connect_nuke_studio.ui.helper import (
     time_from_track_item,
     timecode_from_track_item,
     source_from_track_item,
-    is_valid_tag_structure
+    validate_tag_structure
 )
 
 from ftrack_connect_nuke_studio.ui.tag_tree_model import TagTreeModel
@@ -218,7 +221,7 @@ class FTrackServerHelper(object):
             'parent_id': parent_id,
             'parent_type': parent_type,
             'name': name,
-            'typeid': typeid
+            'typeId': typeid
         }
         response = self.server.action('create', data)
         return response.get('taskid'), 'task'
@@ -253,6 +256,7 @@ class FTrackServerHelper(object):
             logging.debug(error)
             return False
 
+
 def gather_processors(name, type):
     '''Retrieve processors from *name* and *type* grouped by asset name.'''
     processors = ftrack.EVENT_HUB.publish(
@@ -273,9 +277,16 @@ class ProjectTreeDialog(QtGui.QDialog):
 
     processor_ready = QtCore.Signal(object)
 
+    update_entity_reference = QtCore.Signal(object, object, object)
+
     def __init__(self, data=None, parent=None, sequence=None):
         '''Initiate dialog and create ui.'''
         super(ProjectTreeDialog, self).__init__(parent=parent)
+
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+
         self.server_helper = FTrackServerHelper()
         applyTheme(self, 'integration')
         #: TODO: Consider if these permission checks are required.
@@ -325,6 +336,8 @@ class ProjectTreeDialog(QtGui.QDialog):
             QtGui.QHeaderView.ResizeMode.ResizeToContents)
 
         # Connect signals.
+        self.update_entity_reference.connect(self.on_update_entity_reference)
+
         self.export_project_button.clicked.connect(self.on_export_project)
         self.close_button.clicked.connect(self.on_close_dialog)
 
@@ -344,6 +357,14 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         self.start_worker()
 
+        self.validate()
+
+    def on_update_entity_reference(self, track_item, entity_id, entity_type):
+        '''Set *entity_id* and *entity_type* as reference on *track_item*.'''
+        ftrack_connect_nuke_studio.entity_reference.set(
+            track_item, entity_id=entity_id, entity_type=entity_type
+        )
+
     def update_project_tag(self, project_code):
         '''Update project tag on sequence with *project_code*.'''
 
@@ -362,17 +383,9 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.start_worker()
 
     def start_worker(self):
-        '''Validate tag structure and start worker.'''
-        # Validate tag structure and set warning if there are any errors.
-        tag_strucutre_valid, reason = is_valid_tag_structure(self.data)
-        if not tag_strucutre_valid:
-            self.header.setMessage(reason, 'warning')
-            self.export_project_button.setEnabled(False)
-        else:
-            self.setDisabled(True)
-
-            # Start populating the tree.
-            self.worker.start()
+        '''Start worker.'''
+        # Start populating the tree.
+        self.worker.start()
 
     def get_project_tag(self):
         '''Return project tag.'''
@@ -400,16 +413,32 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         return attached_tag
 
+    def get_default_settings(self):
+        '''Return default settings for project.'''
+        result = ftrack.EVENT_HUB.publish(
+            ftrack.Event(
+                topic='ftrack.connect.nuke-studio.get-default-settings',
+                data=dict(
+                    nuke_studio_project=self.sequence.project()
+                )
+            ),
+            synchronous=True
+        )
+
+        if result:
+            return result[0]
+
+        return dict()
+
     def create_ui_widgets(self):
         '''Setup ui for create dialog.'''
         self.resize(1024, 640)
 
         self.main_vertical_layout = QtGui.QVBoxLayout(self)
         self.setLayout(self.main_vertical_layout)
-        self.header = ftrack_connect.ui.widget.header.Header(
-            getpass.getuser(), self
-        )
-        self.main_vertical_layout.addWidget(self.header)
+
+        self.header = ftrack_connect.ui.widget.header.Header(getpass.getuser())
+        self.main_vertical_layout.addWidget(self.header, stretch=0)
 
         self.central_horizontal_widget = QtGui.QWidget()
         self.central_horizontal_layout = QtGui.QHBoxLayout()
@@ -452,7 +481,11 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.workflow_combobox = Workflow(self.group_box)
         self.workflow_layout.addWidget(self.workflow_combobox)
 
+        self.workflow_combobox.currentIndexChanged.connect(self.validate)
+
         self.group_box_layout.addLayout(self.workflow_layout)
+
+        default_settings = self.get_default_settings()
 
         self.line = QtGui.QFrame(self.group_box)
         self.line.setFrameShape(QtGui.QFrame.HLine)
@@ -464,7 +497,10 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.resolution_label = QtGui.QLabel('Resolution', parent=self.group_box)
         self.resolution_layout.addWidget(self.resolution_label)
 
-        self.resolution_combobox = Resolution(self.group_box)
+        self.resolution_combobox = Resolution(
+            self.group_box, default_value=default_settings.get('resolution')
+        )
+
         self.resolution_layout.addWidget(self.resolution_combobox)
         self.group_box_layout.addLayout(self.resolution_layout)
 
@@ -473,7 +509,9 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.fps_label = QtGui.QLabel('Frames Per Second', parent=self.group_box)
         self.label_layout.addWidget(self.fps_label)
 
-        self.fps_combobox = Fps(self.group_box)
+        self.fps_combobox = Fps(
+            self.group_box, default_value=default_settings.get('framerate')
+        )
         self.label_layout.addWidget(self.fps_combobox)
 
         self.group_box_layout.addLayout(self.label_layout)
@@ -484,7 +522,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.handles_layout.addWidget(self.handles_label)
 
         self.handles_spinbox = QtGui.QSpinBox(self.group_box)
-        self.handles_spinbox.setProperty('value', 5)
+        self.handles_spinbox.setProperty('value', 0)
         self.handles_layout.addWidget(self.handles_spinbox)
 
         self.group_box_layout.addLayout(self.handles_layout)
@@ -578,7 +616,6 @@ class ProjectTreeDialog(QtGui.QDialog):
     def on_set_tree_root(self):
         '''Handle signal and populate the tree.'''
         self.busy_overlay.hide()
-        self.export_project_button.setEnabled(True)
         self.tag_model.setRoot(self.worker.result)
 
     def on_tree_item_selection(self, selected, deselected):
@@ -647,19 +684,18 @@ class ProjectTreeDialog(QtGui.QDialog):
             app.processEvents()
 
         if self.project_worker.error:
-            raise self.project_worker.error[1], None, self.project_worker.error[2]
+            try:
+                raise self.project_worker.error[1], None, self.project_worker.error[2]
+            except ftrack_connect_nuke_studio.exception.PermissionDeniedError as error:
+                self.header.setMessage(error.message, 'warning')
+        else:
+            self.header.setMessage(
+                'The project has been exported!', 'info'
+            )
 
     def on_project_created(self):
         '''Handle signal triggered when the project creation finishes.'''
-        information = (
-            'The project has now been created\nPlease wait for '
-            'the background processes to finish.'
-        )
-
         QtGui.QApplication.restoreOverrideCursor()
-        self.header.setMessage(
-            'The project has been succesfully created !', 'info'
-        )
         self.setDisabled(False)
 
     def _refresh_tree(self):
@@ -695,6 +731,66 @@ class ProjectTreeDialog(QtGui.QDialog):
             statuses[0] if statuses else None
         )
 
+    def validate(self):
+        '''Validate UI and enable/disable export button based on result.'''
+        try:
+            # Validate tags.
+            validate_tag_structure(self.data)
+
+            # Validate workflow.
+            self._validate_task_tags_against_workflow()
+
+        except ftrack_connect_nuke_studio.exception.ValidationError as error:
+            self.header.setMessage(error.message, 'warning')
+            self.export_project_button.setEnabled(False)
+        else:
+            # All validations passed, enable export button.
+            self.export_project_button.setEnabled(True)
+            self.header.dismissMessage()
+
+    def _validate_task_tags_against_workflow(self):
+        '''Validate the task tags against the selected workflow.'''
+        task_types = {}
+        for track_data in self.data:
+            for tag in track_data[1]:
+                metadata = tag.metadata()
+                if metadata.value('ftrack.type') == 'task':
+                    task_types[metadata.value('ftrack.id')] = metadata.value('ftrack.name')
+
+        self.logger.debug(
+            'Found task type tags on track items: {0}'.format(
+                task_types
+            )
+        )
+
+        project_schema = self.session.query(
+            'ProjectSchema where name is "{0}"'.format(
+                self.workflow_combobox.currentText()
+            )
+        ).one()
+
+        valid_task_types = project_schema.get_types('Task')
+        valid_ids = [task_type['id'] for task_type in valid_task_types]
+        invalid_names = []
+
+        for type_id, type_name in task_types.items():
+            if type_id not in valid_ids:
+                self.logger.warning(
+                    'Task type {0} is not valid for current schema.'.format(
+                        type_name
+                    )
+                )
+                invalid_names.append(type_name)
+
+        if invalid_names:
+            message = (
+                u'The Task tags "{0}" are not valid for the selected workflow '
+                u'"{1}".'
+            ).format('", "'.join(invalid_names), project_schema['name'])
+
+            raise ftrack_connect_nuke_studio.exception.ValidationError(
+                message
+            )
 
     def create_project(self, data, previous=None):
         '''Recursive function to create a new ftrack project on the server.'''
@@ -702,8 +798,12 @@ class ProjectTreeDialog(QtGui.QDialog):
         selected_workflow = self.workflow_combobox.currentItem()
         for datum in data:
             # Gather all the useful informations from the track
-            track_in = int(datum.track.source().sourceIn())
-            track_out = int(datum.track.source().sourceOut())
+            track_in = int(
+                datum.track.sourceIn() + datum.track.source().sourceIn()
+            )
+            track_out = int(
+                datum.track.sourceOut() + datum.track.source().sourceOut()
+            )
             # NOTE: effectTrack are not used atm
             effects = [
                 effect for effect in datum.track.linkedItems()
@@ -737,6 +837,8 @@ class ProjectTreeDialog(QtGui.QDialog):
                     project_name = self.project_selector.get_new_name()
                     logging.debug('creating show %s' % project_name)
 
+                    #: TODO: Handle permission denied error and communicate to
+                    # end user.
                     current = self.session.create('Project', {
                         'name': project_name,
                         'full_name': project_name,
@@ -772,6 +874,9 @@ class ProjectTreeDialog(QtGui.QDialog):
                         'type': result[0],
                         'status': result[1]
                     })
+
+                    #: TODO: Handle permission denied error and communicate to
+                    # user.
 
                     datum.exists = {'taskid': current['id']}
 
@@ -810,6 +915,13 @@ class ProjectTreeDialog(QtGui.QDialog):
                 if datum.type == 'task':
                     asset_parent_id = previous['id']
                     asset_task_id = current['id']
+
+                if datum.type not in ('task', 'show'):
+                    # Set entity reference if the type is not task.
+                    # Cannot modify tags in thread, therefore emit signal.
+                    self.update_entity_reference.emit(
+                        datum.track, datum.exists['taskid'], 'task'
+                    )
 
                 processors = gather_processors(datum.name, datum.type)
 

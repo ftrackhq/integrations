@@ -1,11 +1,12 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 
-'''ftrack connect NUKE STUDIO documentation build configuration file'''
+'''ftrack connect nuke studio documentation build configuration file'''
 
 import os
 import re
 import sys
+
 import mock
 
 # -- General ------------------------------------------------------------------
@@ -16,6 +17,7 @@ extensions = [
     'sphinx.ext.extlinks',
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
+    'lowdown'
 ]
 
 # The suffix of source filenames.
@@ -25,7 +27,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'ftrack connect NUKE STUDIO'
+project = u'ftrack connect nuke studio'
 copyright = u'2014, ftrack'
 
 # Version
@@ -84,6 +86,13 @@ def autodoc_skip(app, what, name, obj, skip, options):
     return skip
 
 
+# Packages / modules to mock so that build does not fail.
+for module in [
+    'hiero', 'hiero.ui', 'hiero.core', 'hiero.core.events', 'nuke', 'ftrack'
+]:
+    sys.modules[module] = mock.MagicMock()
+
+
 # -- Intersphinx --------------------------------------------------------------
 
 intersphinx_mapping = {'python': ('http://docs.python.org/', None)}
@@ -93,16 +102,3 @@ intersphinx_mapping = {'python': ('http://docs.python.org/', None)}
 
 def setup(app):
     app.connect('autodoc-skip-member', autodoc_skip)
-
-# -- Mock modules --------------------------------------------------------------
-
-sys.path.append('/usr/local/Nuke9.0v1/pythonextensions/site-packages')
-
-MOCK_MODULES = [
-    'FnAssetAPI.ui.toolkit',
-    '_fnpython',
-    'core',
-]
-
-for mod_name in MOCK_MODULES:
-    sys.modules[mod_name] = mock.Mock()

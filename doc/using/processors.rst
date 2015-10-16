@@ -1,174 +1,73 @@
 ..
-    :copyright: Copyright (c) 2014 ftrack
+    :copyright: Copyright (c) 2015 ftrack
+
+.. _using/processors:
 
 **********
 Processors
 **********
 
-Processors are automated processes which runs on top of each defined task through the config file,
-in order to produce a defined output from the source material.
+After the project structure is created a series of processors run for each of
+the Nuke Studio shots. The processors are small scripts that renders plates,
+proxies, thumbnails and web playeable clips. They are written in Python and easy
+to extend.
 
-By default a set of ready to use processors is provided under the 
-resource/hook/processor folder.
+.. seealso::
 
+    To learn more about developing your own custom processors please refer to
+    this :ref:`article <developing/processors>`.
 
-What are the processors
-#######################
+Export project dialog
+=====================
 
-Processors are a plugins , which rely on nuke to work.
-Each plugin will self contain all the logic, code and resources needed for the material to be produced.
+To see which processors will be running you can click on an item in the Export
+project dialog. This will show the name of the asset being published and the
+components.
 
-How do I create a new processor
-###############################
-Let start having a look at an example processor, which will be creating and publishing the frames, and break it down.
+.. image:: /image/processors.png
 
-.. code-block:: python
+In the image above we can see that four processors will run for the selected
+shot: Ingest proxy, Ingest, Review and Thumbnail. These are the four default
+processers that are packaged with the ftrack Nuke Studio plugin.
 
-    from ftrack_connect_nuke_studio.processor import BasePlugin
+.. _using/processors/thumbnail:
 
-    class PublishPlugin(BasePlugin):
-        def __init__(self):
-            name = 'processor.publish'
-            super(PublishPlugin, self).__init__(name=name)
+Thumbnail
+=========
 
-            self.defaults = {
-                "OUT":{
-                    'file_type': 'dpx',
-                    'afterRender': (
-                        'import sys;'
-                        'sys.path.append("{path}");'
-                        'import plugin;'
-                        'plugin.createComponent()'
-                    ).format(path=FILE_PATH)
-                }
-            }
+The thumbnail will be generate from the source material and set as thumbnail on
+the version, the shot and all child tasks of the shot.
 
-            self.script = os.path.abspath(
-                os.path.join(
-                    os.path.dirname(__file__), 'script.nk'
-                )
-            )
+To disable thumbnail propagation to tasks open a script editor,
+:menuselection:`Window->Script editor` in NukeStudio before export and run::
+    
+    import os
+    os.environ['FTRACK_CONNECT_NUKE_STUDIO_STOP_THUMBNAIL_PROPAGATION'] = 'True'
 
+To enable propagation if disabled run::
+    
+    import os
+    os.environ.pop('FTRACK_CONNECT_NUKE_STUDIO_STOP_THUMBNAIL_PROPAGATION', None)
 
-        def prepare_data(self, data):
-            ''' for informational purpose only here we show the manage_input function
-            '''
-            options = super(PublishPlugin, self).prepare_data(data)
-            # define the output file sequence
-            format = '.####.%s' % options['OUT']['file_type']
-            name = self.name.replace('.', '_')
-            tmp = tempfile.NamedTemporaryFile(suffix=format, delete=False, prefix=name)
-            options['OUT']['file'] = tmp.name
-            return options
+Ingest / Plate
+==============
 
+The plate is rendered from the source material based on the configured FPS and
+Resolution. See :ref:`project settings <using/project_settings>`
 
-    def register(registry):
-        # create and register plugin instances
-        plugin_publish = PublishPlugin()
-        registry.add(plugin_publish)
+Proxy
+=====
 
+The proxy is a lower resolution version of the ingest. By default the proxy is 
+half the resolution of the ingest.
 
-
-As any other plugin, you need an interface to stick to , and the main processor module provide a BasePlugin to inherit from.
-
-.. code-block:: python
-
-    from ftrack_connect_nuke_studio.processor import BasePlugin
-
-
-Each processor has a set of properties, which have to be filled up in order to have it working, let see them.
-
-name
-====
-Uniquely identify the processor among the others.
-
-defaults
-========
-A set of default set of options for the processor.
-
-Defaults, is a dictionary which contains a reference of the nuke node in the provided script and the value it will be set to.
-For example , this following example will be providing a standard start and end frame for the input node IN:
-
-.. code-block:: python
-
-            self.defaults = {
-                "IN":{
-                    'first': 1001,
-                    'last': 1003
-                }
-             }
-
-
-Each processor will have to express, as part of the defaults, the callback to be attached to the write node, which will
-enable it to publish to the ftrack server.
-
-.. code-block:: python
-
-            self.defaults = {
-                "OUT":{
-                    'file_type': 'dpx',
-                    'afterRender': (
-                        'import sys;'
-                        'sys.path.append("{path}");'
-                        'import plugin;'
-                        'plugin.createComponent()'
-                    ).format(path=FILE_PATH)
-                }
-            }
-
-
-script
+Review
 ======
-The full path to the nuke script which will be used.
 
-How do I customize its behaviour
-################################
-The base plugin provide a method called *prepare_data*, which will allow you to modify any data which will be set to
-the nuke script.
-In this method is common to define the output path for the OUT node, so can be unique.
+Along with the other components a web reviewable video clip is generated.
 
-this method gets feed with some default informations coming from the clips, and are exposed as dictionary where the keys are :
+.. note::
 
-* resolution
-    * The final output resolution of the material.
-
-* source_in
-    * The start frame of the original material (excluding the handles).
-
-* source_out
-    * The end frame of the original material (excluding the handles).
-
-* source_file
-    * The path to the original source material.
-
-* time_offset
-    * The frame offset used for the frames.
-
-* destination_in
-    * The start frame of the processed material (inlcuding the offset).
-
-* destination_out
-    * The end frame of the processed material (inlcuding the offset).
-
-* handles
-    * The handles , in frames, which has been decided for the clips.
-
-* fps
-    * The frame per second which will be output the final material.
-
-* asset_version_id
-    * Internal reference for the ftrack's asset version id.
-
-* component_name
-    * Internal reference for the ftrack's component name, the material will be ending into.
-
-* entity_id
-    * Id of the object where the processor runs.
-
-* entity_type
-    * Type of the object where the processor runs.
-
-Each processor already provides a standard method, which should be extended, where these variables are handled.
-An example of how to extend them can be seen on the first code example on this page.
-
-
+    For the default web reviewable to work the
+    :term:`ftrack server <ftrack server>` must be hosted by ftrack. Local
+    installations will need to modify this hook in order for it work properly.

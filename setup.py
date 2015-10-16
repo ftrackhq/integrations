@@ -60,6 +60,10 @@ data_files.append(
     )
 )
 
+connect_dependency_link = (
+    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.15.zip'
+    '#egg=ftrack-connect-0.1.15'
+)
 
 # Call main setup.
 setup(
@@ -79,14 +83,15 @@ setup(
     setup_requires=[
         'sphinx >= 1.2.2, < 2',
         'sphinx_rtd_theme >= 0.1.6, < 2',
-        'mock'
+        'lowdown >= 0.1.0, < 1',
+        'mock >= 1.3, < 2'
     ],
     install_requires=[
-        'ftrack-connect >= 0.1.2, < 2'
+        'ftrack-connect >= 0.1.2, < 2',
+        'ftrack-python-api >= 0.5.1, < 1'
     ],
     dependency_links=[
-        'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.7.zip'
-        '#egg=ftrack-connect-0.1.7'
+        connect_dependency_link
     ],
     tests_require=[
     ],

@@ -7,6 +7,7 @@ import os
 import tempfile
 import logging
 import uuid
+import sys
 
 import nuke
 
@@ -182,3 +183,10 @@ class ProcessorPlugin(object):
             {}
         )
         nuke.scriptClear()
+
+    def escape_file_path(self, file_path):
+        '''Return escaped file path based on OS.'''
+        if sys.platform == 'win32':
+            file_path = file_path.replace('\\', '\\\\')
+
+        return file_path
