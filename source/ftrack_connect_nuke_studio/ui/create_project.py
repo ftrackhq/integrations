@@ -34,198 +34,6 @@ from ftrack_connect_nuke_studio.ui.tag_item import TagItem
 from ftrack_connect.ui.theme import applyTheme
 
 
-class FTrackServerHelper(object):
-    '''Handle interaction with ftrack server.'''
-
-    def __init__(self):
-        '''Initiate ftrack server helper and pre load data.'''
-        self.server = ftrack.xmlServer
-        self.workflows = [item.get('name')
-                          for item in ftrack.getProjectSchemes()]
-        self.tasktypes = dict((k.get('name'), k.get('typeid'))
-                              for k in ftrack.getTaskTypes())
-
-    def get_project_schema(self, name):
-        '''Return project schema based on project *name*.'''
-        data = {'type': 'frompath', 'path': name}
-        project = self.server.action('get', data)
-        scheme_id = project.get('projectschemeid')
-        scheme_data = {'type': 'project_scheme', 'id': scheme_id}
-        schema = self.server.action('get', scheme_data)
-        return schema.get('name')
-
-    def get_project_meta(self, name, keys):
-        '''Return meta data with *keys* from project *name*.'''
-        data = {'type': 'frompath', 'path': name}
-        project = self.server.action('get', data)
-        show_id = project.get('showid')
-        result = {}
-        for key in keys:
-            value = self.get_metadata(show_id, key)
-            result[key] = value
-        return result
-
-    def create_project(self, name, workflow='VFX Scheme'):
-        '''Create a show with the given *name*, and the given *workflow*.'''
-        schema_data = {'type': 'projectschemes'}
-        schema_response = self.server.action('get', schema_data)
-        workflow_ids = [
-            result.get('schemeid')
-            for result in schema_response if result.get('name') == workflow
-        ]
-
-        if not workflow_ids:
-            return
-
-        workflow_id = workflow_ids[0]
-
-        data = {
-            'type': 'show',
-            'projectschemeid': workflow_id,
-            'fullname': name,
-            'name': name
-        }
-
-        response = self.server.action('create', data)
-        return (response.get('showid'), 'show')
-
-    def get_metadata(self, entity_id, key):
-        '''Return metadata for *entity_id* and *keys*.'''
-        data = {'type': 'meta', 'id': entity_id, 'key': key}
-        response = self.server.action('get', data)
-        return response
-
-    def add_metadata(self, entity_type, entity_id, metadata):
-        '''Add *metadata* to entity with *entity_type* and *entity_id*.'''
-        for data_key, data_value in metadata.items():
-            data = {
-                'type': 'meta',
-                'object': entity_type,
-                'id': entity_id,
-                'key': data_key,
-                'value': data_value}
-
-            self.server.action('set', data)
-
-    def set_entity_data(
-        self, entity_type, entity_id, trackItem, start, end,
-        resolution, fps, handles
-    ):
-        '''Populate data of the given *entity_id* and *entity_type*.'''
-        data = {
-            'fstart': start,
-            'fend': end,
-            'fps': fps,
-            'resolution': '%sx%s' % (resolution.width(), resolution.height()),
-            'handles': handles
-        }
-
-        in_src, out_src, in_dst, out_dst = timecode_from_track_item(trackItem)
-        source = source_from_track_item(trackItem)
-
-        metadata = {
-            'time code src In': in_src,
-            'time code src Out': out_src,
-            'time code dst In': in_dst,
-            'time code dst Out': out_src,
-            'source material': source
-        }
-
-        attributes = {
-            'type': 'set',
-            'object': entity_type,
-            'id': entity_id,
-            'values': data
-        }
-
-        attribute_response = self.server.action('set', attributes)
-        self.add_metadata(entity_type, entity_id, metadata)
-
-        return attribute_response
-
-    def _delete_asset(self, asset_id):
-        '''Delete the give *asset_id*.'''
-        asset_data = {
-            'type': 'delete',
-            'entityType': 'asset',
-            'entityId': asset_id,
-        }
-        try:
-            self.server.action('set', asset_data)
-        except ftrack.FTrackError as error:
-            logging.debug(error)
-
-    def _rename_asset(self, asset_id, name):
-        '''Rename the give *asset_id* with the given *name*'''
-        asset_data = {
-            'type': 'set',
-            'object': 'asset',
-            'id': asset_id,
-            'values': {'name': name}
-        }
-        try:
-            self.server.action('set', asset_data)
-        except ftrack.FTrackError as error:
-            logging.debug(error)
-            return
-
-    def create_asset(self, name, parent):
-        '''Create asset with the give *name* and with the given *parent*.'''
-        parent_id, parent_type = parent
-
-        asset_type = 'img'
-
-        asset_data = {
-            'type': 'asset',
-            'parent_id': parent_id,
-            'parent_type': parent_type,
-            'name': name,
-            'assetType': asset_type
-        }
-        asset_response = self.server.action('create', asset_data)
-        return asset_response
-
-    def create_asset_version(self, asset_id, task=None):
-        '''Create an asset version linked to the *asset_id* and *task*.
-
-        *task* must be a task or None.
-
-        '''
-        task_id = None
-        if task:
-            task_id, _ = task
-        version_data = {
-            'type': 'assetversion',
-            'assetid': asset_id,
-            'taskid': task_id,
-            'comment': '',
-            'ispublished': True
-        }
-
-        version_response = self.server.action('create', version_data)
-        version_id = version_response.get('versionid')
-        self.server.action(
-            'commit', {'type': 'assetversion', 'versionid': version_id}
-        )
-        return version_id
-
-    def create_entity(self, entity_type, name, parent):
-        '''Create entity on *parent* with *entity_type* and *name*.'''
-        parent_id, parent_type = parent
-        typeid = self.tasktypes.get(name)
-
-        data = {
-            'type': 'context',
-            'objectType': entity_type,
-            'parent_id': parent_id,
-            'parent_type': parent_type,
-            'name': name,
-            'typeId': typeid
-        }
-        response = self.server.action('create', data)
-        return response.get('taskid'), 'task'
-
-
 def gather_processors(name, type):
     '''Retrieve processors from *name* and *type* grouped by asset name.'''
     processors = ftrack.EVENT_HUB.publish(
@@ -256,7 +64,6 @@ class ProjectTreeDialog(QtGui.QDialog):
             __name__ + '.' + self.__class__.__name__
         )
 
-        self.server_helper = FTrackServerHelper()
         applyTheme(self, 'integration')
 
         self.sequence = sequence
@@ -538,20 +345,30 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         QtCore.QMetaObject.connectSlotsByName(self)
 
-    def on_project_exists(self, name):
-        '''Handle on project exists signal.'''
+    def on_project_exists(self, project_name):
+        '''Handle on project exists signal.
+
+        *project_name* is the name of the project that is exists.
+
+        '''
         if self.workflow_combobox.isEnabled():
-            schema = self.server_helper.get_project_schema(name)
-            index = self.workflow_combobox.findText(schema)
+            project = self.session.query(
+                unicode(
+                    'select project_schema.name, metadata from Project '
+                    'where name is '
+                ) + project_name
+            ).one()
+            index = self.workflow_combobox.findText(
+                project['project_schema']['name']
+            )
             self.workflow_combobox.setCurrentIndex(index)
             self.workflow_combobox.setDisabled(True)
 
-            project_metadata = self.server_helper.get_project_meta(
-                name, ['fps', 'resolution', 'offset', 'handles'])
-            fps = project_metadata.get('fps')
-            handles = project_metadata.get('handles')
-            offset = project_metadata.get('offset')
-            resolution = project_metadata.get('resolution')
+            project_metadata = project['metadata']
+            fps = str(project_metadata.get('fps'))
+            handles = str(project_metadata.get('handles'))
+            offset = str(project_metadata.get('offset'))
+            resolution = str(project_metadata.get('resolution'))
 
             self.resolution_combobox.setCurrentFormat(resolution)
 
