@@ -7,6 +7,27 @@
 Release Notes
 *************
 
+.. release:: 0.1.4
+    :date: 2015-10-16
+
+    .. change:: changed
+
+        Default tag expressions now check for either the previous syntax or
+        as-is naming to support a wider variety of use cases out of the box.
+
+        .. note::
+
+            As part of this change the regular expressions must now define a
+            "value" named group in order to work.
+
+        .. seealso::
+
+            :ref:`developing/customising_tag_expressions`
+
+    .. change:: changed
+
+        Improved error messages shown when tag expression does not match.
+
 .. release:: 0.1.3
     :date: 2015-10-01
 
@@ -37,24 +58,6 @@ Release Notes
     .. change:: fixed
 
         Processors not working correct on Windows.
-
-    .. change:: changed
-
-        Default tag expressions now check for either the previous syntax or
-        as-is naming to support a wider variety of use cases out of the box.
-
-        .. note::
-
-            As part of this change the regular expressions must now define a
-            "value" named group in order to work.
-
-        .. seealso::
-
-            :ref:`developing/customising_tag_expressions`
-
-    .. change:: changed
-
-        Improved error messages shown when tag expression does not match.
 
     .. change:: fixed
 
