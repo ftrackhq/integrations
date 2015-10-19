@@ -335,7 +335,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_nuke',
         'ftrack_connect_nuke.plugin',
         'ftrack_connect_nuke.logging',
-        'ftrack_connect_legacy_plugins'
+        'ftrack_connect_legacy_plugins',
+        'ftrack_connect_hieroplayer'
     ])
 
     configuration['options']['build_exe'] = {
