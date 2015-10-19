@@ -64,6 +64,7 @@ class ProjectTreeDialog(QtGui.QDialog):
             __name__ + '.' + self.__class__.__name__
         )
 
+        self._cached_type_and_status = dict()
         applyTheme(self, 'integration')
 
         self.sequence = sequence
@@ -81,6 +82,9 @@ class ProjectTreeDialog(QtGui.QDialog):
         )
         asset_type = self.session.query('AssetType where short is img').one()
         self.asset_type_id = asset_type['id']
+        # Force session to cache name for all types since we will
+        # be using name in get_type_and_status_from_name.
+        self.session.query('select name, id from Type').all()
 
         # Create tree model with fake tag.
         fake_root = TagItem({})
@@ -497,6 +501,16 @@ class ProjectTreeDialog(QtGui.QDialog):
 
     def get_type_and_status_from_name(self, object_type, name):
         '''Return defaults as a tuple from *name* and *object_type*.'''
+        key = object_type
+        if object_type == 'Task':
+            # Chache using name to allow per sub-type status overrides if
+            # object type is a task. E.g. an animation task can have a different
+            # set of statuses.
+            key += '_' + name
+
+        if key in self._cached_type_and_status:
+            return self._cached_type_and_status[key]
+
         selected_workflow = self.workflow_combobox.currentItem()
 
         selected_workflow = self.session.get(
@@ -505,6 +519,7 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         types = selected_workflow.get_types(object_type)
 
+        data = None
         # Tasks should have type based on the *name*.
         if object_type == 'Task':
             for _type in types:
@@ -512,14 +527,18 @@ class ProjectTreeDialog(QtGui.QDialog):
                     statuses = selected_workflow.get_statuses(
                         object_type, _type
                     )
-                    return (_type, statuses[0])
+                    data = (_type, statuses[0])
 
-        statuses = selected_workflow.get_statuses(object_type)
+        if data is None:
+            statuses = selected_workflow.get_statuses(object_type)
+            data = (
+                types[0] if types else None,
+                statuses[0] if statuses else None
+            )
 
-        return (
-            types[0] if types else None,
-            statuses[0] if statuses else None
-        )
+        self._cached_type_and_status[key] = data
+
+        return self._cached_type_and_status[key]
 
     def validate(self):
         '''Validate UI and enable/disable export button based on result.'''
@@ -584,8 +603,12 @@ class ProjectTreeDialog(QtGui.QDialog):
                 message
             )
 
-    def create_project(self, data, previous=None):
-        '''Recursive function to create a new ftrack project on the server.'''
+    def _create_structure(self, data, previous):
+        '''Create structure recursively from *data* and *previous*.
+
+        Return metadata for processors.
+
+        '''
         processor_data = []
         selected_workflow = self.workflow_combobox.currentItem()
         for datum in data:
@@ -635,15 +658,12 @@ class ProjectTreeDialog(QtGui.QDialog):
 
                     datum.exists = {'showid': current['id']}
 
-                metadata = {
-                    'fps': fps,
-                    'resolution': str(resolution),
-                    'offset': offset,
-                    'handles': handles
-                }
-
-                for key, value in metadata.items():
-                    current['metadata'][key] = value
+                    current['metadata'] = {
+                        'fps': fps,
+                        'resolution': str(resolution),
+                        'offset': offset,
+                        'handles': handles
+                    }
 
             else:
                 if datum.exists:
@@ -657,14 +677,14 @@ class ProjectTreeDialog(QtGui.QDialog):
                         'creating %s %s' % (datum.type, datum.name))
                     object_type = datum.type.title()
 
-                    result = self.get_type_and_status_from_name(
+                    sub_type, status = self.get_type_and_status_from_name(
                         object_type, datum.name
                     )
                     current = self.session.create(object_type, {
                         'name': datum.name,
                         'parent': previous,
-                        'type': result[0],
-                        'status': result[1]
+                        'type': sub_type,
+                        'status': status
                     })
 
                     #: TODO: Handle permission denied error and communicate to
@@ -772,7 +792,18 @@ class ProjectTreeDialog(QtGui.QDialog):
                         processor_data.append((processor_name, out_data))
 
             if datum.children:
-                self.create_project(datum.children, current)
+                processor_data.extend(
+                    self._create_structure(datum.children, current)
+                )
+
+        return processor_data
+
+    def create_project(self, data, previous=None):
+        '''Create project from *data*.'''
+        import time
+        _ = time.time()
+        self.session.usage = collections.defaultdict(float)
+        processor_data = self._create_structure(data, previous)
 
         # Commit the new project.
         self.session.commit()
