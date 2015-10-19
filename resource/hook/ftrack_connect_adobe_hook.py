@@ -64,6 +64,11 @@ class LaunchAction(object):
             self.launch
         )
 
+        ftrack.EVENT_HUB.subscribe(
+            'topic=ftrack.connect.plugin.debug-information',
+            self.get_version_information
+        )
+
     def discover(self, event):
         '''Return discovered applications.'''
         if not self.isValidSelection(
@@ -149,6 +154,24 @@ class LaunchAction(object):
         return self.launcher.launch(
             applicationIdentifier, context
         )
+
+    def get_version_information(self, event):
+        '''Return version information.'''
+        # Set version number to empty string since we don't know the version
+        # of the plugins at the moment. Once ExManCMD is bundled with Connect
+        # we can update this to return information about installed extensions.
+        return [
+            dict(
+                name='ftrack connect photoshop',
+                version='-'
+            ), dict(
+                name='ftrack connect premiere',
+                version='-'
+            ), dict(
+                name='ftrack connect after effects',
+                version='-'
+            )
+        ]
 
 
 class ApplicationStore(ftrack_connect.application.ApplicationStore):
