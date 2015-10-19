@@ -11,6 +11,8 @@ import re
 import ftrack
 import ftrack_connect.application
 
+import ftrack_connect_rv
+
 
 class LaunchApplicationAction(object):
     '''Discover and launch action.'''
@@ -77,6 +79,11 @@ class LaunchApplicationAction(object):
             self.launch
         )
 
+        ftrack.EVENT_HUB.subscribe(
+            'topic=ftrack.connect.plugin.debug-information',
+            self.get_version_information
+        )
+
     def discover(self, event):
         '''Return discovered applications.'''
         items = []
@@ -122,6 +129,13 @@ class LaunchApplicationAction(object):
 
         return self.launcher.launch(
             applicationIdentifier, context
+        )
+
+    def get_version_information(self, event):
+        '''Return version information.'''
+        return dict(
+            name='ftrack connect rv',
+            version=ftrack_connect_rv.__version__
         )
 
 
