@@ -334,7 +334,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'FnAssetAPI',
         'ftrack_connect_nuke',
         'ftrack_connect_nuke.plugin',
-        'ftrack_connect_nuke.logging'
+        'ftrack_connect_nuke.logging',
+        'ftrack_connect_legacy_plugins'
     ])
 
     configuration['options']['build_exe'] = {
