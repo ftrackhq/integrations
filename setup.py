@@ -3,6 +3,7 @@
 
 import os
 import re
+import glob
 
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
@@ -68,5 +69,11 @@ setup(
     ],
     cmdclass={
         'test': PyTest
-    }
+    },
+    data_files=[
+        (
+            'ftrack_connect_rv_resource/hook',
+            glob.glob(os.path.join(ROOT_PATH, 'resource', 'hook', '*.py'))
+        )
+    ]
 )
