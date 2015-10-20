@@ -1,8 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 
-import ftrack_api
-import ftrack
 import getpass
 import collections
 import logging
@@ -15,7 +13,11 @@ from .widget.fps import Fps
 from .widget.workflow import Workflow
 from .widget.resolution import Resolution
 
+
+import ftrack
 from ftrack_connect import worker
+import ftrack_api.exception
+import ftrack_connect.session
 import ftrack_connect.ui.widget.header
 import ftrack_connect_nuke_studio.exception
 import ftrack_connect_nuke_studio.entity_reference
@@ -64,6 +66,8 @@ class ProjectTreeDialog(QtGui.QDialog):
             __name__ + '.' + self.__class__.__name__
         )
 
+        self.session = ftrack_connect.session.get_session()
+
         self._cached_type_and_status = dict()
         applyTheme(self, 'integration')
 
@@ -76,10 +80,6 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.logo_icon = QtGui.QIcon(':ftrack/image/dark/ftrackLogoColor')
         self.setWindowIcon(self.logo_icon)
 
-        # Create an API session.
-        self.session = ftrack_api.Session(
-            auto_connect_event_hub=False
-        )
         asset_type = self.session.query('AssetType where short is img').one()
         self.asset_type_id = asset_type['id']
         # Force session to cache name for all types since we will
@@ -250,7 +250,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.label = QtGui.QLabel('Workflow', parent=self.group_box)
         self.workflow_layout.addWidget(self.label)
 
-        self.workflow_combobox = Workflow(self.group_box)
+        self.workflow_combobox = Workflow(self.session, self.group_box)
         self.workflow_layout.addWidget(self.workflow_combobox)
 
         self.workflow_combobox.currentIndexChanged.connect(self.validate)
@@ -513,10 +513,6 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         selected_workflow = self.workflow_combobox.currentItem()
 
-        selected_workflow = self.session.get(
-            'ProjectSchema', selected_workflow.getId()
-        )
-
         types = selected_workflow.get_types(object_type)
 
         data = None
@@ -653,7 +649,7 @@ class ProjectTreeDialog(QtGui.QDialog):
                     current = self.session.create('Project', {
                         'name': project_name,
                         'full_name': project_name,
-                        'project_schema_id': selected_workflow.getId()
+                        'project_schema_id': selected_workflow['id']
                     })
 
                     datum.exists = {'showid': current['id']}
@@ -802,8 +798,26 @@ class ProjectTreeDialog(QtGui.QDialog):
         '''Create project from *data*.'''
         processor_data = self._create_structure(data, previous)
 
-        # Commit the new project.
-        self.session.commit()
+        try:
+            # Commit the new project.
+            self.session.commit()
+        except ftrack_api.exception.ServerError as error:
+            if 'permission denied' in error.message:
+                raise (
+                    ftrack_connect_nuke_studio.exception.PermissionDeniedError(
+                        'You are not permitted to create necessary items in '
+                        'ftrack. Make sure you have necessary create / update '
+                        'permissions.'
+                    )
+                )
+            else:
+                self.logger.error('Un-expected error during commit.')
+                raise (
+                    ftrack_connect_nuke_studio.exception.PermissionDeniedError(
+                        'A server error occured while creating the project, '
+                        'please check logs for more information.'
+                    )
+                )
 
         self._refresh_tree()
 
