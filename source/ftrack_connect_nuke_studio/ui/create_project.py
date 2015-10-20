@@ -800,9 +800,6 @@ class ProjectTreeDialog(QtGui.QDialog):
 
     def create_project(self, data, previous=None):
         '''Create project from *data*.'''
-        import time
-        _ = time.time()
-        self.session.usage = collections.defaultdict(float)
         processor_data = self._create_structure(data, previous)
 
         # Commit the new project.
