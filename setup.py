@@ -78,7 +78,7 @@ connect_rv_dependency_install_require = 'ftrack-connect-rv >=0.1, < 1'
 
 connect_rv_dependency_link = (
     'https://bitbucket.org/ftrack/ftrack-connect-rv/get/0.1.0.zip'
-    '#egg=ftrack-connect-nuke-studio-0.1.0'
+    '#egg=ftrack-connect-rv-0.1.0'
 )
 
 # General configuration.
