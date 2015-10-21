@@ -74,6 +74,13 @@ connect_nuke_studio_dependency_install_require = (
     ' >=0.1, < 1'
 )
 
+connect_rv_dependency_install_require = 'ftrack-connect-rv >=0.1, < 1'
+
+connect_rv_dependency_link = (
+    'https://bitbucket.org/ftrack/ftrack-connect-rv/get/0.1.0.zip'
+    '#egg=ftrack-connect-rv-0.1.0'
+)
+
 # General configuration.
 configuration = dict(
     name='ftrack-connect-package',
@@ -103,7 +110,8 @@ configuration = dict(
         connect_legacy_plugins_install_require,
         connect_hieroplayer_install_require,
         connect_nuke_dependency_install_require,
-        connect_nuke_studio_dependency_install_require
+        connect_nuke_studio_dependency_install_require,
+        connect_rv_dependency_install_require
     ],
     dependency_links=[
         'file://{0}#egg=ftrack-python-legacy-api'.format(
@@ -116,7 +124,8 @@ configuration = dict(
          '#egg=lowdown-0.1.0'),
         connect_hieroplayer_dependency_link,
         connect_nuke_dependency_link,
-        connect_nuke_studio_dependency_link
+        connect_nuke_studio_dependency_link,
+        connect_rv_dependency_link
     ],
     options={}
 )
@@ -150,7 +159,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             connect_legacy_plugins_install_require,
             connect_hieroplayer_install_require,
             connect_nuke_dependency_install_require,
-            connect_nuke_studio_dependency_install_require
+            connect_nuke_studio_dependency_install_require,
+            connect_rv_dependency_install_require
         ],
         dependency_links=[
             cinesync_dependency_link,
@@ -158,7 +168,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             connect_legacy_plugins_dependency_link,
             connect_hieroplayer_dependency_link,
             connect_nuke_dependency_link,
-            connect_nuke_studio_dependency_link
+            connect_nuke_studio_dependency_link,
+            connect_rv_dependency_link
         ]
     ))
     connect_resource_hook = pkg_resources.resource_filename(
@@ -216,6 +227,11 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_nuke_studio/hook'
     )
 
+    ftrack_connect_rv_hook = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-connect-rv'),
+        'ftrack_connect_rv_resource/hook'
+    )
+
     # Add requests certificates to resource folder.
     import requests.certs
 
@@ -227,6 +243,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         (ftrack_connect_legacy_plugins_hook, 'resource/hook'),
         (ftrack_connect_hieroplayer_hook, 'resource/hook'),
         (ftrack_connect_hieroplayer_source, 'resource/hieroplayer'),
+        (ftrack_connect_rv_hook, 'resource/hook'),
         (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'),
         (ftrack_connect_nuke_hook, 'resource/hook'),
         (ftrack_connect_nuke_source, 'resource/ftrack_connect_nuke'),
@@ -334,7 +351,10 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'FnAssetAPI',
         'ftrack_connect_nuke',
         'ftrack_connect_nuke.plugin',
-        'ftrack_connect_nuke.logging'
+        'ftrack_connect_nuke.logging',
+        'ftrack_connect_legacy_plugins',
+        'ftrack_connect_hieroplayer',
+        'ftrack_connect_rv'
     ])
 
     configuration['options']['build_exe'] = {
