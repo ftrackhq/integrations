@@ -14,7 +14,8 @@ extensions = [
     'sphinx.ext.extlinks',
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
-    'sphinx.ext.viewcode'
+    'sphinx.ext.viewcode',
+    'lowdown'
 ]
 
 
@@ -84,7 +85,11 @@ def autodoc_skip(app, what, name, obj, skip, options):
 # -- Intersphinx --------------------------------------------------------------
 
 intersphinx_mapping = {
-    'python': ('http://docs.python.org/', None)
+    'python': ('http://docs.python.org/', None),
+    'ftrack': ('http://rtd.ftrack.com/docs/ftrack/en/latest/', None),
+    'ftrack-connect': (
+        'http://rtd.ftrack.com/docs/ftrack-connect/en/latest/', None
+    )
 }
 
 

@@ -14,6 +14,7 @@ Repository for ftrack connect rv.
     using
     api_reference/index
     glossary
+    release/index
 
 ******************
 Indices and tables
