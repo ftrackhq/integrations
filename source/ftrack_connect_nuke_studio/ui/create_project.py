@@ -759,7 +759,7 @@ class ProjectTreeDialog(QtGui.QDialog):
                     }
 
                     for key, value in metadata.items():
-                        current['metadata']['key'] = value
+                        current['metadata'][key] = value
 
                 asset_parent = current
                 asset_task_id = None
