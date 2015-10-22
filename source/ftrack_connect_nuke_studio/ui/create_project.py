@@ -17,6 +17,8 @@ from .widget.resolution import Resolution
 import ftrack
 from ftrack_connect import worker
 import ftrack_api.exception
+import ftrack_api.inspection
+import ftrack_api.symbol
 import ftrack_connect.session
 import ftrack_connect.ui.widget.header
 import ftrack_connect_nuke_studio.exception
@@ -608,6 +610,33 @@ class ProjectTreeDialog(QtGui.QDialog):
                 message
             )
 
+    def _get_or_create_asset(self, asset_name, asset_parent):
+        '''Return or create an asset with *asset_name* and *asset_parent*.'''
+        asset_parent_exists = not (
+            ftrack_api.inspection.state(asset_parent) is
+            ftrack_api.symbol.CREATED
+        )
+
+        if asset_parent_exists:
+            try:
+                return self.session.query(
+                    u'Asset where name is "{0}" and '
+                    u'context_id is "{1}" and type_id is "{2}"'
+                    .format(
+                        asset_name, asset_parent['id'],
+                        self.asset_type_id
+                    )
+                ).one()
+            except ftrack_api.exception.NoResultFoundError:
+                # Asset parent exists but there is no asset created yet.
+                pass
+
+        return self.session.create('Asset', {
+            'name': asset_name,
+            'context_id': asset_parent['id'],
+            'type_id': self.asset_type_id
+        })
+
     def _create_structure(self, data, previous):
         '''Create structure recursively from *data* and *previous*.
 
@@ -732,11 +761,11 @@ class ProjectTreeDialog(QtGui.QDialog):
                     for key, value in metadata.items():
                         current['metadata']['key'] = value
 
-                asset_parent_id = current['id']
+                asset_parent = current
                 asset_task_id = None
 
                 if datum.type == 'task':
-                    asset_parent_id = previous['id']
+                    asset_parent = previous
                     asset_task_id = current['id']
 
                 if datum.type not in ('task', 'show'):
@@ -757,11 +786,11 @@ class ProjectTreeDialog(QtGui.QDialog):
                         asset_name = processor.get('asset_name')
                         if asset_name is not None:
                             if asset_name not in assets:
-                                asset = self.session.create('Asset', {
-                                    'name': asset_name,
-                                    'context_id': asset_parent_id,
-                                    'type_id': self.asset_type_id
-                                })
+                                asset = self._get_or_create_asset(
+                                    asset_name,
+                                    asset_parent
+                                )
+
                                 asset_version = self.session.create(
                                     'AssetVersion', {
                                         'asset_id': asset['id'],
@@ -769,8 +798,8 @@ class ProjectTreeDialog(QtGui.QDialog):
                                     }
                                 )
                                 assets[asset_name] = asset_version['id']
-                            else:
-                                version_id = assets[asset_name]
+
+                            version_id = assets[asset_name]
 
                         out_data = {
                             'resolution': resolution,
