@@ -513,7 +513,11 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         selected_workflow = self.workflow_combobox.currentItem()
 
-        types = selected_workflow.get_types(object_type)
+        try:
+            types = selected_workflow.get_types(object_type)
+        except ValueError:
+            # Catch value error if no types are available for object_type.
+            types = []
 
         data = None
         # Tasks should have type based on the *name*.
@@ -526,7 +530,12 @@ class ProjectTreeDialog(QtGui.QDialog):
                     data = (_type, statuses[0])
 
         if data is None:
-            statuses = selected_workflow.get_statuses(object_type)
+            try:
+                statuses = selected_workflow.get_statuses(object_type)
+            except ValueError:
+                # Catch value error if no statuses are available for
+                # object_type.
+                statuses = []
             data = (
                 types[0] if types else None,
                 statuses[0] if statuses else None
