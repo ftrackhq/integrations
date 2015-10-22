@@ -682,8 +682,6 @@ class ProjectTreeDialog(QtGui.QDialog):
                     project_name = self.project_selector.get_new_name()
                     logging.debug('creating show %s' % project_name)
 
-                    #: TODO: Handle permission denied error and communicate to
-                    # end user.
                     current = self.session.create('Project', {
                         'name': project_name,
                         'full_name': project_name,
@@ -720,9 +718,6 @@ class ProjectTreeDialog(QtGui.QDialog):
                         'type': sub_type,
                         'status': status
                     })
-
-                    #: TODO: Handle permission denied error and communicate to
-                    # user.
 
                     datum.exists = {'taskid': current['id']}
 
