@@ -663,12 +663,12 @@ class ProjectTreeDialog(QtGui.QDialog):
 
                     datum.exists = {'showid': current['id']}
 
-                    current['metadata'] = {
-                        'fps': fps,
-                        'resolution': str(resolution),
-                        'offset': offset,
-                        'handles': handles
-                    }
+                current['metadata'] = {
+                    'fps': fps,
+                    'resolution': str(resolution),
+                    'offset': offset,
+                    'handles': handles
+                }
 
             else:
                 if datum.exists:
