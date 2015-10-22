@@ -355,12 +355,12 @@ class ProjectTreeDialog(QtGui.QDialog):
         *project_name* is the name of the project that is exists.
 
         '''
-        if self.workflow_combobox.isEnabled():
+        if self.workflow_combobox.isEnabled() and project_name:
             project = self.session.query(
-                unicode(
-                    'select project_schema.name, metadata from Project '
-                    'where name is '
-                ) + project_name
+                (
+                    u'select project_schema.name, metadata from Project '
+                    u'where name is "{0}"'
+                ).format(project_name)
             ).one()
             index = self.workflow_combobox.findText(
                 project['project_schema']['name']
