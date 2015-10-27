@@ -9,7 +9,6 @@ import logging
 from PySide import QtGui
 import hiero.ui
 import hiero.core
-import nuke
 
 import ftrack_connect.ui.theme
 import ftrack_connect.event_hub_thread
@@ -95,10 +94,6 @@ def open_export_dialog(*args, **kwargs):
     for item in trackItems:
         if not isinstance(item, hiero.core.TrackItem):
             continue
-
-        ftrack_connect_nuke_studio.ui.tag_manager.update_tag_value_from_name(
-            item
-        )
 
         tags = item.tags()
         tags = [tag for tag in tags if tag.metadata().hasKey('ftrack.type')]
