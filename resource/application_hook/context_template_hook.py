@@ -21,20 +21,26 @@ class ContextTemplates(object):
         '''Return context templates.'''
         # Define tag regular expressions.
         return [{
-            'name': 'Sequence and shot',
+            'name': 'Classic, sequence and shot)',
             'description': (
                 'Template matching sequences and shots separated by'
                 ' underscore. Eg. "SQ001_SH010" will be matched as '
                 'Sequence with name SQ001 and a shot named SH010.'
             ),
-            'template': '(?P<Sequence>.+)_(?P<Shot>.+)'
+            'expression': 'SQ{Sequence:.+}_SH{Shot:.+}'
         }, {
-            'name': 'Shot',
+            'name': 'Classic, shot only',
             'description': (
                 'Template matching entire clip name or digits after "SH". Eg.'
                 '"SH001" will match 001 while "Shot_010" will use entire name.'
             ),
-            'template': '(?P<Sequence>.+)_(?P<Shot>.+)'
+            'expression': 'SH{Shot:.+}'
+        }, {
+            'name': 'Full name, shot only',
+            'description': (
+                'Template matching entire clip name.'
+            ),
+            'expression': '{Shot:.+}'
         }]
 
     def register(self):
