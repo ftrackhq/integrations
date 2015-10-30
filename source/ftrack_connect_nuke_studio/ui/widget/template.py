@@ -18,8 +18,16 @@ class TemplateDelegate(QtGui.QStyledItemDelegate):
         style.drawControl(QtGui.QStyle.CE_ItemViewItem, options, painter)
         ctx = QtGui.QAbstractTextDocumentLayout.PaintContext()
 
+        if options.state & QtGui.QStyle.State_Selected:
+            ctx.palette.setColor(
+                QtGui.QPalette.Text,
+                options.palette.color(
+                    QtGui.QPalette.Active, QtGui.QPalette.HighlightedText
+                )
+            )
+
         doc = QtGui.QTextDocument()
-        doc.setHtml('<b>{0}</b><br>{1}<br>'.format(
+        doc.setHtml('<h4>{0}</h4><p>{1}</p><br>'.format(
             data['name'], data['description']
         ))
         doc.adjustSize()
@@ -42,7 +50,7 @@ class TemplateDelegate(QtGui.QStyledItemDelegate):
         self.initStyleOption(options, index)
 
         doc = QtGui.QTextDocument()
-        doc.setHtml('<b>{0}</b><br>{1}<br>'.format(
+        doc.setHtml('<h4>{0}</h4><p>{1}</p>'.format(
             data['name'], data['description']
         ))
         doc.adjustSize()
