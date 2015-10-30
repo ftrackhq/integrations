@@ -1,71 +1,21 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015 ftrack
 
-from PySide import QtCore
-from PySide import QtGui
+import ftrack_connect.ui.widget.html_combobox
 
 
 import ftrack_connect_nuke_studio.template as template_manager
 
 
-class TemplateDelegate(QtGui.QStyledItemDelegate):
-
-    def paint(self, painter, options, index):
-        '''Override paint to display title and description.'''
-        data = self.parent().itemData(index.row())
-
-        style = QtGui.QApplication.style()
-        style.drawControl(QtGui.QStyle.CE_ItemViewItem, options, painter)
-        ctx = QtGui.QAbstractTextDocumentLayout.PaintContext()
-
-        if options.state & QtGui.QStyle.State_Selected:
-            ctx.palette.setColor(
-                QtGui.QPalette.Text,
-                options.palette.color(
-                    QtGui.QPalette.Active, QtGui.QPalette.HighlightedText
-                )
-            )
-
-        doc = QtGui.QTextDocument()
-        doc.setHtml('<h4>{0}</h4><p>{1}</p><br>'.format(
-            data['name'], data['description']
-        ))
-        doc.adjustSize()
-        options.text = ''
-        textRect = style.subElementRect(
-            QtGui.QStyle.SE_ItemViewItemText, options, None
-        )
-
-        painter.save()
-        painter.translate(textRect.topLeft())
-        painter.setClipRect(textRect.translated(-textRect.topLeft()))
-
-        doc.documentLayout().draw(painter, ctx)
-
-        painter.restore()
-
-    def sizeHint(self, options, index):
-        '''Returns the size needed to display the item in a QSize object.'''
-        data = self.parent().itemData(index.row())
-        self.initStyleOption(options, index)
-
-        doc = QtGui.QTextDocument()
-        doc.setHtml('<h4>{0}</h4><p>{1}</p>'.format(
-            data['name'], data['description']
-        ))
-        doc.adjustSize()
-
-        return QtCore.QSize(doc.idealWidth(), doc.size().height())
-
-
-class Template(QtGui.QComboBox):
+class Template(ftrack_connect.ui.widget.html_combobox.HtmlComboBox):
     '''Template combobox.'''
 
     def __init__(self, project, parent=None):
-        super(Template, self).__init__(parent=parent)
+        '''Initialise template combobox.'''
 
-        delegate = TemplateDelegate(self)
-        self.setItemDelegate(delegate)
+        super(Template, self).__init__(
+            self.format, parent=parent
+        )
 
         self._templates = template_manager.available_templates(project)
 
@@ -85,3 +35,10 @@ class Template(QtGui.QComboBox):
     def selected_template(self):
         '''Return currently selected template.'''
         return self.itemData(self.currentIndex())
+
+    def format(self, data):
+        '''Return data formatted as string.'''
+        return (
+            '<p><b>{0}</b><br>{1}</p>'
+            .format(data.get('name'), data.get('description'))
+        )
