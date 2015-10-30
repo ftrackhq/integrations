@@ -5,6 +5,7 @@ from PySide import QtGui
 from ftrack_connect.ui.model.entity_tree import Item
 from ftrack_connect.ui import resource
 
+
 class TagItem(Item):
     '''Tag Item representation for the tree.'''
 
@@ -44,11 +45,8 @@ class TagItem(Item):
         elif icon == 'show':
             icon = 'home'
 
-        elif icon not in ('episode', 'shot', 'task'):
-            icon = 'folder'
-
         icon = icon.lower()
-        return QtGui.QIcon(':ftrack/image/integration/{0}'.format(icon))
+        return QtGui.QIcon(':ftrack/image/dark/object_type/{0}'.format(icon))
 
     @property
     def id(self):
