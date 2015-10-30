@@ -68,7 +68,7 @@ def _get_project_template(project):
     return template
 
 
-def _save_project_template(project, template):
+def save_project_template(project, template):
     '''Store *template* on *project*.'''
 
     # Store the template in a tag on all sequences on the project.
