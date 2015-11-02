@@ -345,7 +345,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.templates_layout.addWidget(self.handles_label)
 
         self.template_combobox = Template(self.sequence.project(), self)
-        self.templates_layout.addWidget(self.template_combobox)
+        self.templates_layout.addWidget(self.template_combobox, stretch=1)
 
         self.central_layout.addLayout(self.templates_layout)
 
