@@ -6,12 +6,12 @@ from ftrack_connect.ui.model.entity_tree import Item
 from ftrack_connect.ui import resource
 
 
-class TagItem(Item):
+class TreeItem(Item):
     '''Tag Item representation for the tree.'''
 
     def __init__(self, entity):
         '''Initialise with *entity*.'''
-        super(TagItem, self).__init__(entity)
+        super(TreeItem, self).__init__(entity)
         self.exists = False
         self._track = None
         self._widgets = {}

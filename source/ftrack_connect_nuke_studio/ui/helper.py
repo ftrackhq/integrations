@@ -11,7 +11,7 @@ import ftrack_connect_nuke_studio.exception
 import ftrack_connect_nuke_studio.template
 
 from ftrack_connect.ui.widget import overlay as _overlay
-from ftrack_connect_nuke_studio.ui.tag_item import TagItem as _TagItem
+from ftrack_connect_nuke_studio.ui.tree_item import TreeItem as _TreeItem
 
 
 kTimingOption_numbering = 'numbering'
@@ -73,7 +73,7 @@ def timings_from_track_item(track_item, options):
         start = clip.timelineOffset()
         # Make sure we factor in the in point of the TrackItem, its relative
         # The floor is to account for re-times
-        start += math.floor(trackItem.sourceIn())
+        start += math.floor(track_item.sourceIn())
 
     handles = opts[kTimingOption_handles]
     try:
@@ -86,7 +86,7 @@ def timings_from_track_item(track_item, options):
         # If its a single frame clip then don't include retiming, as it'll be '0',
         # which though correct, isnt helpfull here.
         if clip.duration() != 1:
-          editLength = math.ceil(editLength * track_item.playbackSpeed())
+            editLength = math.ceil(editLength * track_item.playbackSpeed())
 
 
     # We want to anchor the 'in' point to the chosen starting frame number, and
@@ -227,7 +227,7 @@ class TagTreeOverlay(_overlay.BusyOverlay):
 
 
 def tree_data_factory(track_item_data, project_tag, template):
-    '''Return tree of TagItems out of a set of track items in *track_item_data*.
+    '''Return tree of TreeItems out of a set of track items in *track_item_data*.
 
     *project_tag* should be a `hiero.core.Tag` with metadata referring to
     the project in ftrack.
@@ -244,10 +244,10 @@ def tree_data_factory(track_item_data, project_tag, template):
     }
 
     # Create the root item.
-    root_item = _TagItem(root)
+    root_item = _TreeItem(root)
 
     project_name = project_tag.metadata().value('tag.value')
-    project_item = _TagItem({
+    project_item = _TreeItem({
         'name': project_name,
         'ftrack.id': None,
         'ftrack.type': 'show',
@@ -256,7 +256,7 @@ def tree_data_factory(track_item_data, project_tag, template):
     })
     project_item.exists = item_exists(project_item)
 
-    not_matching_item = _TagItem({
+    not_matching_item = _TreeItem({
         'name': project_name,
         'ftrack.id': 'not_matching_template',
         'ftrack.type': 'report',
@@ -278,7 +278,7 @@ def tree_data_factory(track_item_data, project_tag, template):
             )
         except ftrack_connect_nuke_studio.exception.TemplateError:
             # The track item did not match the selected template.
-            item = _TagItem({
+            item = _TreeItem({
                 'name': project_name,
                 'ftrack.id': None,
                 'ftrack.type': 'close',
@@ -294,7 +294,7 @@ def tree_data_factory(track_item_data, project_tag, template):
             # First generate the structure for contexts matching the given
             # template.
             for entity in contexts:
-                item = _TagItem({
+                item = _TreeItem({
                     'name': entity['name'],
                     'ftrack.id': None,
                     'ftrack.type': entity['object_type'].lower(),
@@ -315,7 +315,13 @@ def tree_data_factory(track_item_data, project_tag, template):
 
             # Generate tasks based on the task type tags on the track item.
             for task_type in task_types:
-                item = _TagItem(task_type.metadata().dict())
+                metadata = task_type.metadata().dict()
+
+                # Skip any tag not of task type.
+                if metadata.get('ftrack.type') != 'task':
+                    continue
+
+                item = _TreeItem(metadata)
                 item.track = track_item
 
                 previous_item.addChild(item)

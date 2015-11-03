@@ -38,7 +38,6 @@ class Template(ftrack_connect.ui.widget.html_combobox.HtmlComboBox):
 
     def format(self, data):
         '''Return data formatted as string.'''
-        return (
-            '<p><b>{0}</b><br>{1}</p>'
-            .format(data.get('name'), data.get('description'))
+        return u'<p><b>{0}</b><br>{1}</p>'.format(
+            data.get('name'), data.get('description')
         )

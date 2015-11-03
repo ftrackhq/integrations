@@ -26,7 +26,7 @@ import ftrack_connect_nuke_studio.entity_reference
 
 import ftrack_connect_nuke_studio.ui.helper as ui_helper
 from ftrack_connect_nuke_studio.ui.tag_tree_model import TagTreeModel
-from ftrack_connect_nuke_studio.ui.tag_item import TagItem
+from ftrack_connect_nuke_studio.ui.tree_item import TreeItem as _TreeItem
 from ftrack_connect_nuke_studio.ui.widget.template import Template
 
 from ftrack_connect.ui.theme import applyTheme
@@ -83,7 +83,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.session.query('select name, id from Type').all()
 
         # Create tree model with fake tag.
-        fake_root = TagItem({})
+        fake_root = _TreeItem({})
         self.tag_model = TagTreeModel(tree_data=fake_root, parent=self)
 
         # Set the data tree asyncronus.
