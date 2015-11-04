@@ -14,3 +14,4 @@ migration notes to be aware of when switching to a new version.
     :maxdepth: 1
 
     release_notes
+    migration
