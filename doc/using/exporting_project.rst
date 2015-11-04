@@ -33,8 +33,9 @@ get different results. For example if we have a selection of clips in the timeli
 
 .. image:: /image/example_timeline.png
 
-The clips have been renamed to a format of `vfx_SQ###_SH###` where `###` is
-replaced with a sequential number.
+All clips, except for the last one, have been renamed to a format of `vfx_SQ###_SH###` where `###` is
+replaced with a sequential number. The last clip is named `vfx_SQ002_003`
+without `SH` and we'll see how that affects the result.
 
 If we apply the different templates to all the clips in the timeline we'll get
 these different results:
@@ -44,7 +45,8 @@ these different results:
     Classic, sequence and shot
 
     This template will generate a structure containing both sequences and shots.
-    Any clips not matching the entire template is displayed in orange and will
+    Due to that the last clip is missing `SH` the template won't match and any
+    clip not matching the entire template is displayed in orange and will
     not yield any entites in ftrack.
 
 .. figure:: /image/classic_shot_preview.png
@@ -52,7 +54,9 @@ these different results:
     Classic, shot only
 
     This template will generate a structure containing only shots and as you can
-    see only one clip does not match this template.
+    see the same clip as before do not match the template. You can also see
+    that due to not using the sequence name shots from different sequences
+    has been grouped.
 
 .. figure:: /image/full_name_shot_preview.png
 
@@ -99,11 +103,8 @@ To see available tags open the tag window,
     
     `Tagging in Nuke Studio <http://help.thefoundry.co.uk/nuke/9.0/#timeline_environment/usingtags/tagging_track_items.html>`_
 
-Select the tasks you want to create and drop them on the clips.
-
-.. image:: /image/ftag_drop.png
-
-To review which tags have been applied just click on the tag icon on the clip.
+Select the tasks you want to create and drop them on the clips. To review which
+tags have been applied just click on the tag icon on the clip.
 
 .. image:: /image/applied_ftags.png
 
@@ -159,7 +160,7 @@ Select template
 ^^^^^^^^^^^^^^^
 
 Select the template you want to use when exporting the project. When selecting
-a template the preview window will update with the new hierarchy::
+a template the preview window will update with the new hierarchy:
 
 .. image:: /image/select_template_preview.png
 
