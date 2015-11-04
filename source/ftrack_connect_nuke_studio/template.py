@@ -114,6 +114,12 @@ def match(item, template):
 
     hierarchy = []
     for object_type, object_name in objects.items():
+
+        # Skip special `_` group used to remove things from name.
+        if object_type == '_':
+            continue
+
+        # TODO: Add object type validation.
         hierarchy.append(dict(
             object_type=object_type, name=object_name
         ))
