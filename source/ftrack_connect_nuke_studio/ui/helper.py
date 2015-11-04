@@ -8,8 +8,11 @@ import ftrack
 import hiero
 
 import ftrack_connect_nuke_studio.exception
+import ftrack_connect_nuke_studio.template
+
 from ftrack_connect.ui.widget import overlay as _overlay
-from ftrack_connect_nuke_studio.ui.tag_item import TagItem as _TagItem
+from ftrack_connect_nuke_studio.ui.tree_item import TreeItem as _TreeItem
+
 
 kTimingOption_numbering = 'numbering'
 kTimingOption_customNumberingStart = 'customNumberingStart'
@@ -70,7 +73,7 @@ def timings_from_track_item(track_item, options):
         start = clip.timelineOffset()
         # Make sure we factor in the in point of the TrackItem, its relative
         # The floor is to account for re-times
-        start += math.floor(trackItem.sourceIn())
+        start += math.floor(track_item.sourceIn())
 
     handles = opts[kTimingOption_handles]
     try:
@@ -83,7 +86,7 @@ def timings_from_track_item(track_item, options):
         # If its a single frame clip then don't include retiming, as it'll be '0',
         # which though correct, isnt helpfull here.
         if clip.duration() != 1:
-          editLength = math.ceil(editLength * track_item.playbackSpeed())
+            editLength = math.ceil(editLength * track_item.playbackSpeed())
 
 
     # We want to anchor the 'in' point to the chosen starting frame number, and
@@ -223,44 +226,15 @@ class TagTreeOverlay(_overlay.BusyOverlay):
         ''')
 
 
-def validate_tag_structure(tag_data):
-    '''Raise a ValidationError if tag structure is not valid.'''
-    for track_item, context_tags in tag_data:
-        if not context_tags:
-            raise ftrack_connect_nuke_studio.exception.ValidationError(
-                u'No ftrack context tag was found on track item {0!r}. Please '
-                u'add an ftrack context tag to the track item and try again.'
-                .format(track_item.name())
-            )
+def tree_data_factory(track_item_data, project_tag, template):
+    '''Return tree of TreeItems out of a set of track items in *track_item_data*.
 
-        # Verify that all context tags match.
-        for tag in context_tags:
-            if not tag.metadata().value('tag.value'):
-                raise ftrack_connect_nuke_studio.exception.ValidationError(
-                    u'Track item {0!r} does not match {1!r} tag expression '
-                    u'\'{2}\'. Please rename the track item to match the '
-                    u'expression or remove the tag.'.format(
-                        track_item.name(),
-                        tag.metadata().value('ftrack.name'),
-                        tag.metadata().value('tag.re')
-                    )
-                )
+    *project_tag* should be a `hiero.core.Tag` with metadata referring to
+    the project in ftrack.
 
+    *template* should be a context template.
 
-
-def tree_data_factory(tag_data_list, project_tag):
-    '''Return tree of TagItems out of a set of ftags om *tag_data_list*.'''
-
-    # Define tag type sort orders.
-    tag_sort_order = [
-        'root',
-        'show',
-        'episode',
-        'sequence',
-        'shot',
-        'task'
-    ]
-
+    '''
     # Create root node for the tree.
     root = {
         'ftrack.id': '0',
@@ -270,43 +244,90 @@ def tree_data_factory(tag_data_list, project_tag):
     }
 
     # Create the root item.
-    root_item = _TagItem(root)
+    root_item = _TreeItem(root)
 
-    # Look into the tags and start creating the hierarchy.
-    for trackItem, context in tag_data_list:
+    project_name = project_tag.metadata().value('tag.value')
+    project_item = _TreeItem({
+        'name': project_name,
+        'ftrack.id': None,
+        'ftrack.type': 'show',
+        'ftrack.name': project_name,
+        'tag.value': project_name
+    })
+    project_item.exists = item_exists(project_item)
 
-        # A clip entry, therefore the previous item is root.
-        previous_item = root_item
+    not_matching_item = _TreeItem({
+        'name': project_name,
+        'ftrack.id': 'not_matching_template',
+        'ftrack.type': 'report',
+        'ftrack.name': 'clips not matching the selected template',
+        'tag.value': 'clips not matching the selected template'
+    })
 
-        # Sort the tags, so we have them in the correct context order.
-        def sort_context(x):
-            if x.metadata().value('ftrack.type') in tag_sort_order:
-                return tag_sort_order.index(x.metadata().value('ftrack.type'))
+    not_matching_item.exists = 'error'
+    root_item.addChild(project_item)
 
-        context = sorted(context, key=lambda x: sort_context(x))
+    for track_item, task_types in track_item_data:
 
-        for hiero_tag in [project_tag] + context:
-            tag = _TagItem(hiero_tag.metadata().dict())
-            tag.track = trackItem
+        # A new track item, therefore the previous item is the project.
+        previous_item = project_item
 
-            if tag.type not in tag_sort_order:
-                # The given tag is not part of any known context.
-                continue
+        try:
+            contexts = ftrack_connect_nuke_studio.template.match(
+                track_item, template
+            )
+        except ftrack_connect_nuke_studio.exception.TemplateError:
+            # The track item did not match the selected template.
+            item = _TreeItem({
+                'name': project_name,
+                'ftrack.id': None,
+                'ftrack.type': 'close',
+                'ftrack.name': track_item.name(),
+                'tag.value': track_item.name(),
+                'existing': False
+            })
 
-            # Check if this tag already is children of the previous item and,
-            # in case, re use it.
-            if tag in previous_item.children:
-                index = previous_item.children.index(tag)
-                tag = previous_item.children[index]
+            item.exists = 'error'
+            not_matching_item.addChild(item)
 
-            previous_item.addChild(tag)
+        else:
+            # First generate the structure for contexts matching the given
+            # template.
+            for entity in contexts:
+                item = _TreeItem({
+                    'name': entity['name'],
+                    'ftrack.id': None,
+                    'ftrack.type': entity['object_type'].lower(),
+                    'ftrack.name': entity['name'],
+                    'tag.value': entity['name']
+                })
 
-            if tag.type == tag_sort_order[-1]:
-                # We got to a leaf, use the parent as previous item.
-                previous_item = tag.parent
-            else:
-                previous_item = tag
+                item.track = track_item
 
-            tag.exists = item_exists(tag)
+                if item in previous_item.children:
+                    index = previous_item.children.index(item)
+                    item = previous_item.children[index]
+
+                previous_item.addChild(item)
+
+                previous_item = item
+                item.exists = item_exists(item)
+
+            # Generate tasks based on the task type tags on the track item.
+            for task_type in task_types:
+                metadata = task_type.metadata().dict()
+
+                # Skip any tag not of task type.
+                if metadata.get('ftrack.type') != 'task':
+                    continue
+
+                item = _TreeItem(metadata)
+                item.track = track_item
+
+                previous_item.addChild(item)
+                item.exists = item_exists(item)
+
+    if not_matching_item.children:
+        root_item.addChild(not_matching_item)
 
     return root_item

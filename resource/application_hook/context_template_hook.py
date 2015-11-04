@@ -21,7 +21,7 @@ class ContextTemplates(object):
         '''Return context templates.'''
         # Define tag regular expressions.
         return [{
-            'name': 'Classic, sequence and shot)',
+            'name': 'Classic, sequence and shot',
             'description': (
                 'Template matching sequences and shots separated by'
                 ' underscore. Eg. "SQ001_SH010" will be matched as '

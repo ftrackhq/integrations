@@ -23,12 +23,11 @@ import ftrack
 ftrack.setup()
 
 
-from ftrack_connect_nuke_studio.ui.create_project import ProjectTreeDialog
 from ftrack_connect_nuke_studio.ui.tag_drop_handler import TagDropHandler
 import ftrack_connect_nuke_studio.ui.tag_manager
 import ftrack_connect_nuke_studio.ui.widget.info_view
 import ftrack_connect_nuke_studio.ui.crew
-
+import ftrack_connect_nuke_studio.ui.create_project
 
 # Start thread to handle events from ftrack.
 eventHubThread = ftrack_connect.event_hub_thread.EventHubThread()
@@ -87,7 +86,7 @@ def populate_ftrack(event):
 def open_export_dialog(*args, **kwargs):
     '''Open export project from timeline context menu.'''
     parent = hiero.ui.mainWindow()
-    ftags = []
+    valid_track_items = []
     trackItems = args[0]
 
     sequence = None
@@ -97,11 +96,11 @@ def open_export_dialog(*args, **kwargs):
 
         tags = item.tags()
         tags = [tag for tag in tags if tag.metadata().hasKey('ftrack.type')]
-        ftags.append((item, tags))
+        valid_track_items.append((item, tags))
         sequence = item.sequence()
 
-    dialog = ProjectTreeDialog(
-        data=ftags, parent=parent, sequence=sequence
+    dialog = ftrack_connect_nuke_studio.ui.create_project.ProjectTreeDialog(
+        data=valid_track_items, parent=parent, sequence=sequence
     )
     dialog.exec_()
 
