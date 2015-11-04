@@ -23,22 +23,23 @@ class ContextTemplates(object):
         return [{
             'name': 'Classic, sequence and shot',
             'description': (
-                'Template matching sequences and shots separated by'
-                ' underscore. Eg. "SQ001_SH010" will be matched as '
-                'Sequence with name SQ001 and a shot named SH010.'
+                'Match SQ or SH and any subsequent numbers. '
+                'Example: SQ001_SH010 will be matched as Sequence with name '
+                '001 and a shot named 010.'
             ),
-            'expression': 'SQ{Sequence:.+}_SH{Shot:.+}'
+            'expression': 'SQ{Sequence:\d+}_SH{Shot:\d+}'
         }, {
             'name': 'Classic, shot only',
             'description': (
-                'Template matching entire clip name or digits after "SH". Eg.'
-                '"SH001" will match 001 while "Shot_010" will use entire name.'
+                'Match SH and any subsequent digits. '
+                'Example: vfx_SH001 will match 001.'
             ),
-            'expression': 'SH{Shot:.+}'
+            'expression': '.+SH{Shot:\d+}'
         }, {
             'name': 'Full name, shot only',
             'description': (
-                'Template matching entire clip name.'
+                'Match entire clip name. '
+                'Example: vfx_SH001 will match vfx_SH001.'
             ),
             'expression': '{Shot:.+}'
         }]
