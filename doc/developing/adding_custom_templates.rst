@@ -134,7 +134,7 @@ A template has the structure::
     )
 
 The `name` and `description` are regular strings and will be displayed in the
-interface. The `expression` use a flavor of
+interface and can contain HTML if desired. The `expression` use a flavor of
 `regular expressions <https://docs.python.org/2/library/re.html>`_ to define
 the object types to match.
 
