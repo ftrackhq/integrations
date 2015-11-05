@@ -19,28 +19,12 @@ from ftrack_connect.ui.widget import crew as _crew
 import ftrack_connect.ui.theme
 
 from ftrack_connect.ui.widget.header import Header
+from ftrack_connect_nuke_studio.ui import NUKE_STUDIO_OVERLAY_STYLE
 
 import ftrack_connect_nuke_studio.entity_reference
 
 session = ftrack_api.Session()
 
-NUKE_STUDIO_OVERLAY_STYLE = '''
-    BlockingOverlay {
-        background-color: rgba(58, 58, 58, 200);
-        border: none;
-    }
-
-    BlockingOverlay QFrame#content {
-        padding: 0px;
-        border: 80px solid transparent;
-        background-color: transparent;
-        border-image: none;
-    }
-
-    BlockingOverlay QLabel {
-        background: transparent;
-    }
-'''
 
 #: TODO: Re-run classifier when clips in timeline are assetised, added or
 # removed.

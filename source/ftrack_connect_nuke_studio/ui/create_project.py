@@ -16,6 +16,10 @@ from .widget.resolution import Resolution
 
 import ftrack
 from ftrack_connect import worker
+from ftrack_connect.ui.widget.overlay import (
+    BlockingOverlay as _BlockingOverlay
+)
+
 import ftrack_api.exception
 import ftrack_api.inspection
 import ftrack_api.symbol
@@ -23,6 +27,7 @@ import ftrack_connect.session
 import ftrack_connect.ui.widget.header
 import ftrack_connect_nuke_studio.exception
 import ftrack_connect_nuke_studio.entity_reference
+from ftrack_connect_nuke_studio.ui import NUKE_STUDIO_OVERLAY_STYLE
 
 from ftrack_connect_nuke_studio.ui.helper import (
     tree_data_factory,
@@ -132,6 +137,20 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.start_worker()
 
         self.validate()
+
+        if not self.compatible_server_version():
+            self.logger.warn('Incompatible server version.')
+
+            self.blockingOverlay = _BlockingOverlay(
+                self, message='Incompatible server version.'
+            )
+
+            self.blockingOverlay.setStyleSheet(NUKE_STUDIO_OVERLAY_STYLE)
+            self.blockingOverlay.show()
+
+    def compatible_server_version(self):
+        '''Return if server is compatible.'''
+        return 'Disk' in self.session.types
 
     def on_update_entity_reference(self, track_item, entity_id, entity_type):
         '''Set *entity_id* and *entity_type* as reference on *track_item*.'''
