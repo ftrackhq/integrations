@@ -27,14 +27,14 @@ class ContextTemplates(object):
                 'Example: SQ001_SH010 will be matched as Sequence with name '
                 '001 and a shot named 010.'
             ),
-            'expression': '{_:.+}SQ{Sequence:\d+}{_:.+}SH{Shot:\d+}'
+            'expression': 'SQ{Sequence:\d+}{_:.+}SH{Shot:\d+}'
         }, {
             'name': 'Classic, shot only',
             'description': (
                 'Match SH and any subsequent digits. '
                 'Example: vfx_SH001 will match 001.'
             ),
-            'expression': '{_:.+}SH{Shot:\d+}'
+            'expression': 'SH{Shot:\d+}'
         }, {
             'name': 'Full name, shot only',
             'description': (

@@ -59,7 +59,7 @@ should look something like this::
                     'Example: SQ001_SH010 will be matched as Sequence with name '
                     '001 and a shot named 010.'
                 ),
-                'expression': 'SQ{Sequence:\d+}_SH{Shot:\d+}'
+                'expression': 'SQ{Sequence:\d+}{_:.+}SH{Shot:\d+}'
             }, {
                 'name': 'Classic, shot only',
                 'description': (
@@ -105,14 +105,14 @@ The part you need to focus on is the one returning the actual templates::
             'Example: SQ001_SH010 will be matched as Sequence with name '
             '001 and a shot named 010.'
         ),
-        'expression': '{_:.+}SQ{Sequence:\d+}{_:.+}H{Shot:\d+}'
+        'expression': 'SQ{Sequence:\d+}{_:.+}H{Shot:\d+}'
     }, {
         'name': 'Classic, shot only',
         'description': (
             'Match SH and any subsequent digits. '
             'Example: vfx_SH001 will match 001.'
         ),
-        'expression': '{_:.+}SH{Shot:\d+}'
+        'expression': 'SH{Shot:\d+}'
     }, {
         'name': 'Full name, shot only',
         'description': (
@@ -156,8 +156,7 @@ This template will match clips named `EP001_SH001`, `EP001_SH002` and so on.
 To exclude things in the name you need to use our custom exclude group with
 name `_`.
 
-As you can see in the `Classic, shot only` expression it begins with `{_:.+}`.
-This will match all characters until `SH` and exclude them from the matching.
-The `_` group can be used several times to skip things, see 
-`Classic, sequence and shot` which excludes characters in the beginning and in
-the middle.
+As you can see in the `Classic, sequence and shot` expression it use this
+group in the middle, `{_:.+}`. This enables the name to have any characters
+in between the `SQ` and `SH`. The `_` group can be used several times in the
+same expression.

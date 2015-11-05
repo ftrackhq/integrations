@@ -96,7 +96,7 @@ def match(item, template):
     '''Return list of entites based on name of *clip* and *template*.'''
     expression = template['expression']
     lucidity_template = lucidity.template.Template(
-        template['name'], expression
+        template['name'], expression, anchor=None
     )
 
     item_name = item.name()
