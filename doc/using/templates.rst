@@ -10,7 +10,7 @@ Context templates
 Context templates are used to define the hierarchy to generate in ftrack
 when exporting from Nuke Studio. The plugin comes with a set of default
 templates. Too read more about how they are used see
-`Exporting a project <using/export_project>`. Below is a list of available
+:ref:`Exporting a project <using/export_project>`. Below is a list of available
 default templates:
 
 ==========================  ====================
