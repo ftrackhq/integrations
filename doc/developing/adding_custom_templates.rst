@@ -16,13 +16,13 @@ different locations depending on how you are running the Nuke Studio plugin.
 If you are using a built ftrack connect package application, the file can
 be found in the following locations:
 
-========    ====================
-Platform    Path
-========    ====================
-OS X        /Applications/ftrack-connect.app/Contents/MacOS/resource/ftrack_connect_nuke_studio/application_hook
-Windows     C:/\Program Files/\ftrack-connect package/\resource/\ftrack_connect_nuke_studio/\application_hook
-Centos      <Installation directory>/ftrack-connect-package/resource/ftrack_connect_nuke_studio/application_hook
-========    ====================
+=========    ====================
+Platform     Path
+=========    ====================
+Mac OS X     /Applications/ftrack-connect.app/Contents/MacOS/resource/ftrack_connect_nuke_studio/application_hook
+Windows      C:/\Program Files/\ftrack-connect package/\resource/\ftrack_connect_nuke_studio/\application_hook
+CentOS       <Installation directory>/ftrack-connect-package/resource/ftrack_connect_nuke_studio/application_hook
+=========    ====================
 
 If running from source the hooks can be found in **resource/application_hook/**
 in the plugin project folder.
@@ -148,7 +148,7 @@ it could look something like this::
     dict(
         name='Episode and shot',
         description='Match `EP` or `SH` and any subsequent numbers',
-        expression='EP{Episode:.+}_SH{Shot:.+}'
+        expression='EP{Episode:\d+}_SH{Shot:\d+}'
     )
 
 This template will match clips named `EP001_SH001`, `EP001_SH002` and so on.
