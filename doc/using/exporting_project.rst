@@ -18,7 +18,7 @@ The template is applied to each clip and will use the name of the clip to
 determine what entities to create.
 
 The plugin comes with a couple of default templates which will create some
-different structures. Lets look at two of the templates:
+different structures. Lets look at some of those now:
 
 ==========================  ====================
 Template                    Description
