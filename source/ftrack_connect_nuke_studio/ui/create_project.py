@@ -1,12 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 
-import ftrack
 import getpass
 import collections
 import logging
 
-import ftrack_api
 import hiero
 from PySide import QtGui, QtCore
 
@@ -15,10 +13,21 @@ from .widget.fps import Fps
 from .widget.workflow import Workflow
 from .widget.resolution import Resolution
 
+
+import ftrack
 from ftrack_connect import worker
+from ftrack_connect.ui.widget.overlay import (
+    BlockingOverlay as _BlockingOverlay
+)
+
+import ftrack_api.exception
+import ftrack_api.inspection
+import ftrack_api.symbol
+import ftrack_connect.session
 import ftrack_connect.ui.widget.header
 import ftrack_connect_nuke_studio.exception
 import ftrack_connect_nuke_studio.entity_reference
+from ftrack_connect_nuke_studio.ui import NUKE_STUDIO_OVERLAY_STYLE
 
 from ftrack_connect_nuke_studio.ui.helper import (
     tree_data_factory,
@@ -32,228 +41,6 @@ from ftrack_connect_nuke_studio.ui.helper import (
 from ftrack_connect_nuke_studio.ui.tag_tree_model import TagTreeModel
 from ftrack_connect_nuke_studio.ui.tag_item import TagItem
 from ftrack_connect.ui.theme import applyTheme
-
-
-class FTrackServerHelper(object):
-    '''Handle interaction with ftrack server.'''
-
-    def __init__(self):
-        '''Initiate ftrack server helper and pre load data.'''
-        self.server = ftrack.xmlServer
-        self.workflows = [item.get('name')
-                          for item in ftrack.getProjectSchemes()]
-        self.tasktypes = dict((k.get('name'), k.get('typeid'))
-                              for k in ftrack.getTaskTypes())
-
-    def get_project_schema(self, name):
-        '''Return project schema based on project *name*.'''
-        data = {'type': 'frompath', 'path': name}
-        project = self.server.action('get', data)
-        scheme_id = project.get('projectschemeid')
-        scheme_data = {'type': 'project_scheme', 'id': scheme_id}
-        schema = self.server.action('get', scheme_data)
-        return schema.get('name')
-
-    def get_project_meta(self, name, keys):
-        '''Return meta data with *keys* from project *name*.'''
-        data = {'type': 'frompath', 'path': name}
-        project = self.server.action('get', data)
-        show_id = project.get('showid')
-        result = {}
-        for key in keys:
-            value = self.get_metadata(show_id, key)
-            result[key] = value
-        return result
-
-    def create_project(self, name, workflow='VFX Scheme'):
-        '''Create a show with the given *name*, and the given *workflow*.'''
-        schema_data = {'type': 'projectschemes'}
-        schema_response = self.server.action('get', schema_data)
-        workflow_ids = [
-            result.get('schemeid')
-            for result in schema_response if result.get('name') == workflow
-        ]
-
-        if not workflow_ids:
-            return
-
-        workflow_id = workflow_ids[0]
-
-        data = {
-            'type': 'show',
-            'projectschemeid': workflow_id,
-            'fullname': name,
-            'name': name
-        }
-
-        response = self.server.action('create', data)
-        return (response.get('showid'), 'show')
-
-    def get_metadata(self, entity_id, key):
-        '''Return metadata for *entity_id* and *keys*.'''
-        data = {'type': 'meta', 'id': entity_id, 'key': key}
-        response = self.server.action('get', data)
-        return response
-
-    def add_metadata(self, entity_type, entity_id, metadata):
-        '''Add *metadata* to entity with *entity_type* and *entity_id*.'''
-        for data_key, data_value in metadata.items():
-            data = {
-                'type': 'meta',
-                'object': entity_type,
-                'id': entity_id,
-                'key': data_key,
-                'value': data_value}
-
-            self.server.action('set', data)
-
-    def set_entity_data(
-        self, entity_type, entity_id, trackItem, start, end,
-        resolution, fps, handles
-    ):
-        '''Populate data of the given *entity_id* and *entity_type*.'''
-        data = {
-            'fstart': start,
-            'fend': end,
-            'fps': fps,
-            'resolution': '%sx%s' % (resolution.width(), resolution.height()),
-            'handles': handles
-        }
-
-        in_src, out_src, in_dst, out_dst = timecode_from_track_item(trackItem)
-        source = source_from_track_item(trackItem)
-
-        metadata = {
-            'time code src In': in_src,
-            'time code src Out': out_src,
-            'time code dst In': in_dst,
-            'time code dst Out': out_src,
-            'source material': source
-        }
-
-        attributes = {
-            'type': 'set',
-            'object': entity_type,
-            'id': entity_id,
-            'values': data
-        }
-
-        attribute_response = self.server.action('set', attributes)
-        self.add_metadata(entity_type, entity_id, metadata)
-
-        return attribute_response
-
-    def _delete_asset(self, asset_id):
-        '''Delete the give *asset_id*.'''
-        asset_data = {
-            'type': 'delete',
-            'entityType': 'asset',
-            'entityId': asset_id,
-        }
-        try:
-            self.server.action('set', asset_data)
-        except ftrack.FTrackError as error:
-            logging.debug(error)
-
-    def _rename_asset(self, asset_id, name):
-        '''Rename the give *asset_id* with the given *name*'''
-        asset_data = {
-            'type': 'set',
-            'object': 'asset',
-            'id': asset_id,
-            'values': {'name': name}
-        }
-        try:
-            self.server.action('set', asset_data)
-        except ftrack.FTrackError as error:
-            logging.debug(error)
-            return
-
-    def create_asset(self, name, parent):
-        '''Create asset with the give *name* and with the given *parent*.'''
-        parent_id, parent_type = parent
-
-        asset_type = 'img'
-
-        asset_data = {
-            'type': 'asset',
-            'parent_id': parent_id,
-            'parent_type': parent_type,
-            'name': name,
-            'assetType': asset_type
-        }
-        asset_response = self.server.action('create', asset_data)
-        return asset_response
-
-    def create_asset_version(self, asset_id, task=None):
-        '''Create an asset version linked to the *asset_id* and *task*.
-
-        *task* must be a task or None.
-
-        '''
-        task_id = None
-        if task:
-            task_id, _ = task
-        version_data = {
-            'type': 'assetversion',
-            'assetid': asset_id,
-            'taskid': task_id,
-            'comment': '',
-            'ispublished': True
-        }
-
-        version_response = self.server.action('create', version_data)
-        version_id = version_response.get('versionid')
-        self.server.action(
-            'commit', {'type': 'assetversion', 'versionid': version_id}
-        )
-        return version_id
-
-    def create_entity(self, entity_type, name, parent):
-        '''Create entity on *parent* with *entity_type* and *name*.'''
-        parent_id, parent_type = parent
-        typeid = self.tasktypes.get(name)
-
-        data = {
-            'type': 'context',
-            'objectType': entity_type,
-            'parent_id': parent_id,
-            'parent_type': parent_type,
-            'name': name,
-            'typeId': typeid
-        }
-        response = self.server.action('create', data)
-        return response.get('taskid'), 'task'
-
-    #: TODO: Not sure how this is supposed to work. Consider removing it if
-    # not used.
-    def check_permissions(self, username=None):
-        '''Check the permission level of the given named user.'''
-
-        allowed = ['Administrator']
-
-        username = username or getpass.getuser()
-
-        user_data = {
-            'type': 'user',
-            'id': username
-        }
-        try:
-            user_response = self.server.action('get', user_data)
-            user_id = user_response.get('userid')
-            role_data = {
-                'type': 'roles',
-                'userid': user_id
-            }
-            role_response = self.server.action('get ', role_data)
-            roles = [role.get('name') for role in role_response]
-            # requires a better understanding of relation between show and
-            # roles.
-            return True
-
-        except Exception as error:
-            logging.debug(error)
-            return False
 
 
 def gather_processors(name, type):
@@ -286,16 +73,10 @@ class ProjectTreeDialog(QtGui.QDialog):
             __name__ + '.' + self.__class__.__name__
         )
 
-        self.server_helper = FTrackServerHelper()
+        self.session = ftrack_connect.session.get_session()
+
+        self._cached_type_and_status = dict()
         applyTheme(self, 'integration')
-        #: TODO: Consider if these permission checks are required.
-        # user_is_allowed = self.server_helper.check_permissions()
-        # if not user_is_allowed:
-        #     logging.warning(
-        #         'The user does not have enough permissions to run this application.'
-        #         'please check with your administrator your roles and permission level.'
-        #     )
-        #     return
 
         self.sequence = sequence
 
@@ -306,10 +87,11 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.logo_icon = QtGui.QIcon(':ftrack/image/dark/ftrackLogoColor')
         self.setWindowIcon(self.logo_icon)
 
-        # Create API session.
-        self.session = ftrack_api.Session(
-            auto_connect_event_hub=False
-        )
+        asset_type = self.session.query('AssetType where short is img').one()
+        self.asset_type_id = asset_type['id']
+        # Force session to cache name for all types since we will
+        # be using name in get_type_and_status_from_name.
+        self.session.query('select name, id from Type').all()
 
         # Create tree model with fake tag.
         fake_root = TagItem({})
@@ -355,6 +137,20 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.start_worker()
 
         self.validate()
+
+        if not self.compatible_server_version():
+            self.logger.warn('Incompatible server version.')
+
+            self.blockingOverlay = _BlockingOverlay(
+                self, message='Incompatible server version.'
+            )
+
+            self.blockingOverlay.setStyleSheet(NUKE_STUDIO_OVERLAY_STYLE)
+            self.blockingOverlay.show()
+
+    def compatible_server_version(self):
+        '''Return if server is compatible.'''
+        return 'Disk' in self.session.types
 
     def on_update_entity_reference(self, track_item, entity_id, entity_type):
         '''Set *entity_id* and *entity_type* as reference on *track_item*.'''
@@ -475,7 +271,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.label = QtGui.QLabel('Workflow', parent=self.group_box)
         self.workflow_layout.addWidget(self.label)
 
-        self.workflow_combobox = Workflow(self.group_box)
+        self.workflow_combobox = Workflow(self.session, self.group_box)
         self.workflow_layout.addWidget(self.workflow_combobox)
 
         self.workflow_combobox.currentIndexChanged.connect(self.validate)
@@ -491,7 +287,9 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         self.resolution_layout = QtGui.QHBoxLayout()
 
-        self.resolution_label = QtGui.QLabel('Resolution', parent=self.group_box)
+        self.resolution_label = QtGui.QLabel(
+            'Resolution', parent=self.group_box
+        )
         self.resolution_layout.addWidget(self.resolution_label)
 
         self.resolution_combobox = Resolution(
@@ -503,7 +301,9 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         self.label_layout = QtGui.QHBoxLayout()
 
-        self.fps_label = QtGui.QLabel('Frames Per Second', parent=self.group_box)
+        self.fps_label = QtGui.QLabel(
+            'Frames Per Second', parent=self.group_box
+        )
         self.label_layout.addWidget(self.fps_label)
 
         self.fps_combobox = Fps(
@@ -534,7 +334,9 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.start_frame_offset_spinbox = QtGui.QSpinBox(self.group_box)
         self.start_frame_offset_spinbox.setMaximum(9999)
         self.start_frame_offset_spinbox.setProperty('value', 1001)
-        self.start_frame_offset_layout.addWidget(self.start_frame_offset_spinbox)
+        self.start_frame_offset_layout.addWidget(
+            self.start_frame_offset_spinbox
+        )
         self.group_box_layout.addLayout(self.start_frame_offset_layout)
 
         self.central_layout.addWidget(self.group_box)
@@ -545,10 +347,12 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         self.tool_box = QtGui.QToolBox(self.splitter)
 
-        default_message = QtGui.QTextEdit('Make a selection to see the available properties')
+        default_message = QtGui.QTextEdit(
+            'Make a selection to see the available properties'
+        )
         default_message.readOnly = True
         default_message.setAlignment(QtCore.Qt.AlignCenter)
-        self.tool_box.addItem(default_message , 'Processors')
+        self.tool_box.addItem(default_message, 'Processors')
         self.tool_box.setContentsMargins(0, 15, 0, 0)
         self.tool_box.setMinimumSize(QtCore.QSize(300, 0))
         self.tool_box.setFrameShape(QtGui.QFrame.StyledPanel)
@@ -566,20 +370,30 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         QtCore.QMetaObject.connectSlotsByName(self)
 
-    def on_project_exists(self, name):
-        '''Handle on project exists signal.'''
-        if self.workflow_combobox.isEnabled():
-            schema = self.server_helper.get_project_schema(name)
-            index = self.workflow_combobox.findText(schema)
+    def on_project_exists(self, project_name):
+        '''Handle on project exists signal.
+
+        *project_name* is the name of the project that is exists.
+
+        '''
+        if self.workflow_combobox.isEnabled() and project_name:
+            project = self.session.query(
+                (
+                    u'select project_schema.name, metadata from Project '
+                    u'where name is "{0}"'
+                ).format(project_name)
+            ).one()
+            index = self.workflow_combobox.findText(
+                project['project_schema']['name']
+            )
             self.workflow_combobox.setCurrentIndex(index)
             self.workflow_combobox.setDisabled(True)
 
-            project_metadata = self.server_helper.get_project_meta(
-                name, ['fps', 'resolution', 'offset', 'handles'])
-            fps = project_metadata.get('fps')
-            handles = project_metadata.get('handles')
-            offset = project_metadata.get('offset')
-            resolution = project_metadata.get('resolution')
+            project_metadata = project['metadata']
+            fps = str(project_metadata.get('fps'))
+            handles = str(project_metadata.get('handles'))
+            offset = str(project_metadata.get('offset'))
+            resolution = str(project_metadata.get('resolution'))
 
             self.resolution_combobox.setCurrentFormat(resolution)
 
@@ -661,7 +475,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.reject()
 
     def on_export_project(self):
-        '''Handle signal triggered when the export project button gets pressed.'''
+        '''Handle signal triggered when the export project button is pressed.'''
         QtGui.QApplication.setOverrideCursor(
             QtGui.QCursor(QtCore.Qt.WaitCursor)
         )
@@ -706,6 +520,52 @@ class ProjectTreeDialog(QtGui.QDialog):
         while self.tool_box.count() > 0:
             self.tool_box.removeItem(0)
 
+    def get_type_and_status_from_name(self, object_type, name):
+        '''Return defaults as a tuple from *name* and *object_type*.'''
+        key = object_type
+        if object_type == 'Task':
+            # Chache using name to allow per sub-type status overrides if
+            # object type is a task. E.g. an animation task can have a different
+            # set of statuses.
+            key += '_' + name
+
+        if key in self._cached_type_and_status:
+            return self._cached_type_and_status[key]
+
+        selected_workflow = self.workflow_combobox.currentItem()
+
+        try:
+            types = selected_workflow.get_types(object_type)
+        except ValueError:
+            # Catch value error if no types are available for object_type.
+            types = []
+
+        data = None
+        # Tasks should have type based on the *name*.
+        if object_type == 'Task':
+            for _type in types:
+                if _type['name'] == name:
+                    statuses = selected_workflow.get_statuses(
+                        object_type, _type
+                    )
+                    data = (_type, statuses[0])
+
+        if data is None:
+            try:
+                statuses = selected_workflow.get_statuses(object_type)
+            except ValueError:
+                # Catch value error if no statuses are available for
+                # object_type.
+                statuses = []
+            data = (
+                types[0] if types else None,
+                statuses[0] if statuses else None
+            )
+
+        self._cached_type_and_status[key] = data
+
+        return self._cached_type_and_status[key]
+
     def validate(self):
         '''Validate UI and enable/disable export button based on result.'''
         try:
@@ -730,7 +590,9 @@ class ProjectTreeDialog(QtGui.QDialog):
             for tag in track_data[1]:
                 metadata = tag.metadata()
                 if metadata.value('ftrack.type') == 'task':
-                    task_types[metadata.value('ftrack.id')] = metadata.value('ftrack.name')
+                    task_types[metadata.value('ftrack.id')] = (
+                        metadata.value('ftrack.name')
+                    )
 
         self.logger.debug(
             'Found task type tags on track items: {0}'.format(
@@ -767,9 +629,41 @@ class ProjectTreeDialog(QtGui.QDialog):
                 message
             )
 
-    def create_project(self, data, previous=None):
-        '''Recursive function to create a new ftrack project on the server.'''
-        selected_workflow = self.workflow_combobox.currentText()
+    def _get_or_create_asset(self, asset_name, asset_parent):
+        '''Return or create an asset with *asset_name* and *asset_parent*.'''
+        asset_parent_exists = not (
+            ftrack_api.inspection.state(asset_parent) is
+            ftrack_api.symbol.CREATED
+        )
+
+        if asset_parent_exists:
+            try:
+                return self.session.query(
+                    u'Asset where name is "{0}" and '
+                    u'context_id is "{1}" and type_id is "{2}"'
+                    .format(
+                        asset_name, asset_parent['id'],
+                        self.asset_type_id
+                    )
+                ).one()
+            except ftrack_api.exception.NoResultFoundError:
+                # Asset parent exists but there is no asset created yet.
+                pass
+
+        return self.session.create('Asset', {
+            'name': asset_name,
+            'context_id': asset_parent['id'],
+            'type_id': self.asset_type_id
+        })
+
+    def _create_structure(self, data, previous):
+        '''Create structure recursively from *data* and *previous*.
+
+        Return metadata for processors.
+
+        '''
+        processor_data = []
+        selected_workflow = self.workflow_combobox.currentItem()
         for datum in data:
             # Gather all the useful informations from the track
             track_in = int(
@@ -778,12 +672,6 @@ class ProjectTreeDialog(QtGui.QDialog):
             track_out = int(
                 datum.track.sourceOut() + datum.track.source().sourceOut()
             )
-            # NOTE: effectTrack are not used atm
-            effects = [
-                effect for effect in datum.track.linkedItems()
-                if isinstance(effect, hiero.core.EffectTrackItem)
-            ]
-
             if datum.track.source().mediaSource().singleFile():
                 # Adjust frame in and out if the media source is a single file.
                 # This fix is required because Hiero is reporting Frame in as 0
@@ -801,69 +689,98 @@ class ProjectTreeDialog(QtGui.QDialog):
             resolution = self.resolution_combobox.currentFormat()
             offset = self.start_frame_offset_spinbox.value()
             handles = self.handles_spinbox.value()
-            asset_parent = None
-            asset_task = None
 
             if datum.type == 'show':
                 if datum.exists:
                     logging.debug('%s %s exists as %s, reusing it.' % (
                         datum.name, datum.type, datum.exists.get('showid')))
-                    result = (datum.exists.get('showid'), 'show')
+                    current = self.session.get(
+                        'Project', datum.exists.get('showid')
+                    )
                 else:
                     project_name = self.project_selector.get_new_name()
                     logging.debug('creating show %s' % project_name)
-                    try:
-                        result = self.server_helper.create_project(
-                            project_name, selected_workflow
-                        )
-                    except ftrack.api.ftrackerror.PermissionDeniedError:
-                        raise ftrack_connect_nuke_studio.exception.PermissionDeniedError(
-                            'You are not allowed to create projects.'
-                        )
-                    datum.exists = {'showid': result[0]}
 
-                show_meta = {
+                    current = self.session.create('Project', {
+                        'name': project_name,
+                        'full_name': project_name,
+                        'project_schema_id': selected_workflow['id']
+                    })
+
+                    datum.exists = {'showid': current['id']}
+
+                current['metadata'] = {
                     'fps': fps,
                     'resolution': str(resolution),
                     'offset': offset,
                     'handles': handles
                 }
 
-                self.server_helper.add_metadata(result[1], result[0], show_meta)
-
             else:
                 if datum.exists:
                     logging.debug('%s %s exists as %s, reusing it.' % (
                         datum.name, datum.type, datum.exists.get('taskid')))
-                    result = (datum.exists.get('taskid'), 'task')
+                    current = self.session.get(
+                        'TypedContext', datum.exists.get('taskid')
+                    )
                 else:
                     logging.debug(
                         'creating %s %s' % (datum.type, datum.name))
-                    try:
-                        result = self.server_helper.create_entity(
-                            datum.type, datum.name, previous)
-                    except ftrack.api.ftrackerror.PermissionDeniedError as error:
-                        raise ftrack_connect_nuke_studio.exception.PermissionDeniedError(
-                            'You are not allowed to create {0}.'.format(
-                                datum.type
-                            )
-                        )
-                    datum.exists = {'taskid': result[0]}
+                    object_type = datum.type.title()
+
+                    sub_type, status = self.get_type_and_status_from_name(
+                        object_type, datum.name
+                    )
+                    current = self.session.create(object_type, {
+                        'name': datum.name,
+                        'parent': previous,
+                        'type': sub_type,
+                        'status': status
+                    })
+
+                    datum.exists = {'taskid': current['id']}
 
                 if datum.type == 'shot':
                     logging.debug(
                         'Setting metadata to %s' % datum.name)
-                    self.server_helper.set_entity_data(
-                        result[1], result[0], datum.track,
-                        start, end, resolution, fps, handles
-                    )
 
-                    asset_parent = result
-                    asset_task = None
+                    data = {
+                        'fstart': start,
+                        'fend': end,
+                        'fps': fps,
+                        'resolution': '{0}x{1}'.format(
+                            resolution.width(), resolution.height()
+                        ),
+                        'handles': handles
+                    }
+
+                    valid_keys = current['custom_attributes'].keys()
+                    for key, value in data.items():
+                        if key in valid_keys:
+                            current['custom_attributes'][key] = value
+
+                    in_src, out_src, in_dst, out_dst = timecode_from_track_item(
+                        datum.track
+                    )
+                    source = source_from_track_item(datum.track)
+
+                    metadata = {
+                        'time code src In': in_src,
+                        'time code src Out': out_src,
+                        'time code dst In': in_dst,
+                        'time code dst Out': out_src,
+                        'source material': source
+                    }
+
+                    for key, value in metadata.items():
+                        current['metadata'][key] = value
+
+                asset_parent = current
+                asset_task_id = None
 
                 if datum.type == 'task':
                     asset_parent = previous
-                    asset_task = result
+                    asset_task_id = current['id']
 
                 if datum.type not in ('task', 'show'):
                     # Set entity reference if the type is not task.
@@ -883,16 +800,20 @@ class ProjectTreeDialog(QtGui.QDialog):
                         asset_name = processor.get('asset_name')
                         if asset_name is not None:
                             if asset_name not in assets:
-                                asset = self.server_helper.create_asset(
-                                    asset_name, asset_parent
+                                asset = self._get_or_create_asset(
+                                    asset_name,
+                                    asset_parent
                                 )
-                                asset_id = asset.get('assetid')
-                                version_id = self.server_helper.create_asset_version(
-                                    asset_id, asset_task
+
+                                asset_version = self.session.create(
+                                    'AssetVersion', {
+                                        'asset_id': asset['id'],
+                                        'task_id': asset_task_id
+                                    }
                                 )
-                                assets[asset_name] = version_id
-                            else:
-                                version_id = assets[asset_name]
+                                assets[asset_name] = asset_version['id']
+
+                            version_id = assets[asset_name]
 
                         out_data = {
                             'resolution': resolution,
@@ -903,8 +824,8 @@ class ProjectTreeDialog(QtGui.QDialog):
                             'destination_out': end,
                             'fps': fps,
                             'offset': offset,
-                            'entity_id': result[0],
-                            'entity_type': result[1],
+                            'entity_id': current['id'],
+                            'entity_type': 'task',
                             'handles': handles,
                             'application_object': datum.track
                         }
@@ -916,10 +837,42 @@ class ProjectTreeDialog(QtGui.QDialog):
                             })
 
                         processor_name = processor['processor_name']
-                        data = (processor_name,  out_data)
-                        self.processor_ready.emit(data)
-
-            self._refresh_tree()
+                        processor_data.append((processor_name, out_data))
 
             if datum.children:
-                self.create_project(datum.children, result)
+                processor_data.extend(
+                    self._create_structure(datum.children, current)
+                )
+
+        return processor_data
+
+    def create_project(self, data, previous=None):
+        '''Create project from *data*.'''
+        processor_data = self._create_structure(data, previous)
+
+        try:
+            # Commit the new project.
+            self.session.commit()
+        except ftrack_api.exception.ServerError as error:
+            if 'permission denied' in error.message:
+                raise (
+                    ftrack_connect_nuke_studio.exception.PermissionDeniedError(
+                        'You are not permitted to create necessary items in '
+                        'ftrack. Make sure you have necessary create / update '
+                        'permissions.'
+                    )
+                )
+            else:
+                self.logger.error('Un-expected error during commit.')
+                raise (
+                    ftrack_connect_nuke_studio.exception.PermissionDeniedError(
+                        'A server error occured while creating the project, '
+                        'please check logs for more information.'
+                    )
+                )
+
+        self._refresh_tree()
+
+        # Run all processors once project has been created.
+        for data in processor_data:
+            self.processor_ready.emit(data)
