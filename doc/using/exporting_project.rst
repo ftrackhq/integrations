@@ -18,7 +18,7 @@ The template is applied to each clip and will use the name of the clip to
 determine what entities to create.
 
 The plugin comes with a couple of default templates which will create some
-different structures. Lets look at two of the templates:
+different structures. Lets look at some of those now:
 
 ==========================  ====================
 Template                    Description
@@ -33,9 +33,10 @@ get different results. For example if we have a selection of clips in the timeli
 
 .. image:: /image/example_timeline.png
 
-All clips, except for the last one, have been renamed to a format of `vfx_SQ###_SH###` where `###` is
-replaced with a sequential number. The last clip is named `vfx_SQ002_003`
-without `SH` and we'll see how that affects the result.
+All clips, except for the last one, have been renamed to a format of
+`vfx_SQ###_SH###` where `###` is replaced with a sequential number. The last
+clip is named `vfx_SQ002_003` without `SH` and we'll see how that affects the
+result.
 
 If we apply the different templates to all the clips in the timeline we'll get
 these different results:
@@ -45,25 +46,26 @@ these different results:
     Classic, sequence and shot
 
     This template will generate a structure containing both sequences and shots.
-    Due to that the last clip is missing `SH` the template won't match and any
-    clip not matching the entire template is displayed in orange and will
-    not yield any entites in ftrack.
+    The last clip is missing `SH` and so does not match the template. As a
+    result it is excluded from further processing and displayed under a special
+    heading in the preview tree.
 
 .. figure:: /image/classic_shot_preview.png
 
     Classic, shot only
 
-    This template will generate a structure containing only shots and as you can
-    see the same clip as before do not match the template. You can also see
-    that due to not using the sequence name shots from different sequences
-    has been grouped.
+    This template will generate a structure containing only shots and, as you
+    can see, the same clip as before does not match this template either. You
+    can also see that, due to the template not using the sequence name,
+    shots from different sequences have been collated as a single shot.
 
 .. figure:: /image/full_name_shot_preview.png
 
     Full name, shot only
 
-    This template will generate a structure containing only shots and as you can
-    see all clips match the template since using the entire name of the clip.
+    This template will generate a structure containing only shots, but based on
+    whatever name the clip has. In this case all clips match and corresponding
+    shot names produced.
 
 .. seealso::
     
@@ -73,7 +75,7 @@ Rename clips
 ^^^^^^^^^^^^
 
 To quickly rename a bunch of clips to match the :term:`Context template` you
-are using the builtin Rename Shots dialog can be used. It is located in the
+can use the standard :guilabel:`Rename Shots` dialog. It is located in the
 context menu under :menuselection:`Editorial --> Rename Shots (Alt+Shift+/)`
 
 .. image:: /image/rename.png
@@ -164,8 +166,8 @@ a template the preview window will update with the new hierarchy:
 
 .. image:: /image/select_template_preview.png
 
-Any clips not matching the selected template are displayed in red in the group
-called `Clips not matching template`.
+Any clips not matching the selected template are displayed in the group called
+`Clips not matching template`.
 
 .. note::
     
