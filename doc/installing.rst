@@ -78,6 +78,7 @@ Dependencies
 
 * `Python <http://python.org>`_ >= 2.6, < 3
 * `ftrack connect <https://bitbucket.org/ftrack/ftrack-connect>`_ >= 0.1.2, < 2
+* `Nuke Studio <https://www.thefoundry.co.uk/products/nuke/studio/>`_ >= 9.0v1, < 9.1
 
 Additional For building
 -----------------------
