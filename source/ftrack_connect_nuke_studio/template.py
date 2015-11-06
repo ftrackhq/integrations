@@ -29,7 +29,7 @@ def available_templates(project):
     for response in responses:
         templates += response
 
-    project_template = _get_project_template(project)
+    project_template = get_project_template(project)
 
     if project_template:
         for template in templates:
@@ -42,7 +42,7 @@ def available_templates(project):
     return templates
 
 
-def _get_project_template(project):
+def get_project_template(project):
     '''Return template stored on *project*.'''
     template = None
     # Fetch the templates from tags on sequences on the project.
