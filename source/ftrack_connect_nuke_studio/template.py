@@ -119,7 +119,8 @@ def match(item, template):
         if object_type == '_':
             continue
 
-        # TODO: Add object type validation.
+        # TODO: Validate that object type exist in ftrack. If not should
+        # be marked as error.
         hierarchy.append(dict(
             object_type=object_type, name=object_name
         ))
