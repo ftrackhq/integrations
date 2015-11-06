@@ -14,7 +14,8 @@ import ftrack_connect_nuke_studio.exception
 def available_templates(project):
     '''Return available templates for *project*.
 
-    If default template exist the template will contain a `default` key
+    If a template has been saved on the project using
+    :meth:`save_project_template` that template will contain a `default` key
     set to True.
 
     '''
