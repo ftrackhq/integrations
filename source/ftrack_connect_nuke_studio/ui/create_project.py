@@ -29,17 +29,11 @@ import ftrack_connect_nuke_studio.exception
 import ftrack_connect_nuke_studio.entity_reference
 from ftrack_connect_nuke_studio.ui import NUKE_STUDIO_OVERLAY_STYLE
 
-from ftrack_connect_nuke_studio.ui.helper import (
-    tree_data_factory,
-    TagTreeOverlay,
-    time_from_track_item,
-    timecode_from_track_item,
-    source_from_track_item,
-    validate_tag_structure
-)
-
+import ftrack_connect_nuke_studio.ui.helper as ui_helper
 from ftrack_connect_nuke_studio.ui.tag_tree_model import TagTreeModel
-from ftrack_connect_nuke_studio.ui.tag_item import TagItem
+from ftrack_connect_nuke_studio.ui.tree_item import TreeItem as _TreeItem
+from ftrack_connect_nuke_studio.ui.widget.template import Template
+
 from ftrack_connect.ui.theme import applyTheme
 
 
@@ -94,25 +88,30 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.session.query('select name, id from Type').all()
 
         # Create tree model with fake tag.
-        fake_root = TagItem({})
+        fake_root = _TreeItem({})
         self.tag_model = TagTreeModel(tree_data=fake_root, parent=self)
 
         # Set the data tree asyncronus.
         self.worker = worker.Worker(
-            tree_data_factory, [self.data, self.get_project_tag()]
+            ui_helper.tree_data_factory,
+            [
+                self.data,
+                self.get_project_tag(),
+                self.template_combobox.selected_template()
+            ]
         )
         self.worker.finished.connect(self.on_set_tree_root)
         self.project_worker = None
-
-        # Create overlay.
-        self.busy_overlay = TagTreeOverlay(self)
-        self.busy_overlay.hide()
 
         # Set model to the tree view.
         self.tree_view.setModel(self.tag_model)
         self.tree_view.setAnimated(True)
         self.tree_view.header().setResizeMode(
             QtGui.QHeaderView.ResizeMode.ResizeToContents)
+
+        # Create overlay.
+        self.busy_overlay = ui_helper.TagTreeOverlay(self)
+        self.busy_overlay.hide()
 
         # Connect signals.
         self.update_entity_reference.connect(self.on_update_entity_reference)
@@ -125,13 +124,20 @@ class ProjectTreeDialog(QtGui.QDialog):
         )
         self.worker.started.connect(self.busy_overlay.show)
         self.worker.finished.connect(self.on_project_preview_done)
+
         self.tag_model.project_exists.connect(self.on_project_exists)
-        self.start_frame_offset_spinbox.valueChanged.connect(self._refresh_tree)
+        self.start_frame_offset_spinbox.valueChanged.connect(
+            self._refresh_tree
+        )
         self.handles_spinbox.valueChanged.connect(self._refresh_tree)
         self.processor_ready.connect(self.on_processor_ready)
 
         self.project_selector.project_selected.connect(
             self.update_project_tag
+        )
+
+        self.template_combobox.currentIndexChanged.connect(
+            self.on_template_selected
         )
 
         self.start_worker()
@@ -168,11 +174,22 @@ class ProjectTreeDialog(QtGui.QDialog):
             if not meta.hasKey('type') or meta.value('type') != 'ftrack':
                 continue
 
-            if tag.name() == 'project':
+            if tag.name() == 'ftrack.project':
                 meta.setValue('tag.value', project_code)
                 break
 
-        self.worker.args = [self.data, self.get_project_tag()]
+        self.worker.args = [
+            self.data, tag,
+            self.template_combobox.selected_template()
+        ]
+        self.start_worker()
+
+    def on_template_selected(self, index):
+        '''Handle template selected.'''
+        self.worker.args = [
+            self.data, self.get_project_tag(),
+            self.template_combobox.selected_template()
+        ]
         self.start_worker()
 
     def start_worker(self):
@@ -182,12 +199,6 @@ class ProjectTreeDialog(QtGui.QDialog):
 
     def get_project_tag(self):
         '''Return project tag.'''
-        project_tag = hiero.core.findProjectTags(
-            hiero.core.project('Tag Presets'), 'project'
-        )[0].copy()
-
-        project_meta = project_tag.metadata()
-
         attached_tag = None
 
         for tag in self.sequence.tags():
@@ -195,12 +206,16 @@ class ProjectTreeDialog(QtGui.QDialog):
             if not meta.hasKey('type') or meta.value('type') != 'ftrack':
                 continue
 
-            if tag.name() == project_tag.name():
+            if tag.name() == 'ftrack.project':
                 attached_tag = tag
                 break
         else:
-            project_meta.setValue('tag.value', self.sequence.project().name())
-            project_meta.setValue('ftrack.id', None)
+            project_tag = hiero.core.Tag('ftrack.project')
+            project_tag.metadata().setValue(
+                'tag.value', self.sequence.project().name()
+            )
+            project_tag.metadata().setValue('ftrack.id', None)
+            project_tag.metadata().setValue('type', 'ftrack')
             self.sequence.addTag(project_tag)
             attached_tag = project_tag
 
@@ -225,7 +240,7 @@ class ProjectTreeDialog(QtGui.QDialog):
 
     def create_ui_widgets(self):
         '''Setup ui for create dialog.'''
-        self.resize(1024, 640)
+        self.resize(1024, 1024)
 
         self.main_vertical_layout = QtGui.QVBoxLayout(self)
         self.setLayout(self.main_vertical_layout)
@@ -342,6 +357,17 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.central_layout.addWidget(self.group_box)
 
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
+
+        self.templates_layout = QtGui.QHBoxLayout()
+
+        self.handles_label = QtGui.QLabel('Template', parent=self)
+        self.templates_layout.addWidget(self.handles_label)
+
+        self.template_combobox = Template(self.sequence.project(), self)
+        self.templates_layout.addWidget(self.template_combobox, stretch=1)
+
+        self.central_layout.addLayout(self.templates_layout)
+
         self.tree_view = QtGui.QTreeView()
         self.central_layout.addWidget(self.tree_view)
 
@@ -429,6 +455,9 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.busy_overlay.hide()
         self.tag_model.setRoot(self.worker.result)
 
+        # Expand all nodes in the tree view.
+        self.tree_view.expandAll()
+
     def on_tree_item_selection(self, selected, deselected):
         '''Handle signal triggered when a tree item gets selected.'''
         self._reset_processors()
@@ -475,11 +504,15 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.reject()
 
     def on_export_project(self):
-        '''Handle signal triggered when the export project button is pressed.'''
+        '''Handle export project signal.'''
         QtGui.QApplication.setOverrideCursor(
             QtGui.QCursor(QtCore.Qt.WaitCursor)
         )
         self.setDisabled(True)
+
+        ftrack_connect_nuke_studio.template.save_project_template(
+            self.sequence.project(), self.template_combobox.selected_template()
+        )
 
         items = self.tag_model.root.children
         self.project_worker = worker.Worker(
@@ -569,9 +602,6 @@ class ProjectTreeDialog(QtGui.QDialog):
     def validate(self):
         '''Validate UI and enable/disable export button based on result.'''
         try:
-            # Validate tags.
-            validate_tag_structure(self.data)
-
             # Validate workflow.
             self._validate_task_tags_against_workflow()
 
@@ -665,26 +695,12 @@ class ProjectTreeDialog(QtGui.QDialog):
         processor_data = []
         selected_workflow = self.workflow_combobox.currentItem()
         for datum in data:
-            # Gather all the useful informations from the track
-            track_in = int(
-                datum.track.sourceIn() + datum.track.source().sourceIn()
-            )
-            track_out = int(
-                datum.track.sourceOut() + datum.track.source().sourceOut()
-            )
-            if datum.track.source().mediaSource().singleFile():
-                # Adjust frame in and out if the media source is a single file.
-                # This fix is required because Hiero is reporting Frame in as 0
-                # for a .mov file while Nuke is expecting Frame in 1.
-                track_in += 1
-                track_out += 1
-                logging.debug(
-                    'Single file detected, adjusting frame start and frame end '
-                    'to {0}-{1}'.format(track_in, track_out)
-                )
 
-            source = source_from_track_item(datum.track)
-            start, end, in_, out = time_from_track_item(datum.track, self)
+            # Skip all items under the 'Not matching template' node in the
+            # model.
+            if datum.id == 'not_matching_template':
+                continue
+
             fps = self.fps_combobox.currentText()
             resolution = self.resolution_combobox.currentFormat()
             offset = self.start_frame_offset_spinbox.value()
@@ -717,6 +733,31 @@ class ProjectTreeDialog(QtGui.QDialog):
                 }
 
             else:
+
+                # Gather all the useful informations from the track
+                track_in = int(
+                    datum.track.sourceIn() + datum.track.source().sourceIn()
+                )
+                track_out = int(
+                    datum.track.sourceOut() + datum.track.source().sourceOut()
+                )
+                if datum.track.source().mediaSource().singleFile():
+                    # Adjust frame in and out if the media source is a single
+                    # file. This fix is required because Hiero is reporting
+                    # Frame in as 0 for a .mov file while Nuke is expecting
+                    # Frame in 1.
+                    track_in += 1
+                    track_out += 1
+                    logging.debug(
+                        'Single file detected, adjusting frame start and '
+                        'frame end to {0}-{1}'.format(track_in, track_out)
+                    )
+
+                source = ui_helper.source_from_track_item(datum.track)
+                start, end, in_, out = ui_helper.time_from_track_item(
+                    datum.track, self
+                )
+
                 if datum.exists:
                     logging.debug('%s %s exists as %s, reusing it.' % (
                         datum.name, datum.type, datum.exists.get('taskid')))
@@ -759,10 +800,10 @@ class ProjectTreeDialog(QtGui.QDialog):
                         if key in valid_keys:
                             current['custom_attributes'][key] = value
 
-                    in_src, out_src, in_dst, out_dst = timecode_from_track_item(
+                    in_src, out_src, in_dst, out_dst = ui_helper.timecode_from_track_item(
                         datum.track
                     )
-                    source = source_from_track_item(datum.track)
+                    source = ui_helper.source_from_track_item(datum.track)
 
                     metadata = {
                         'time code src In': in_src,

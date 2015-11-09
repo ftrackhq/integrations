@@ -10,60 +10,73 @@ Exporting a project
 Setup the project structure
 ===========================
 
-As part of the project export process tags are used to link Nuke Studio clips
-with sequences, shots and tasks in ftrack. In order for the context tags to
-successfully extract the names from the clip, these have to be named matching
-the expression defined in the tag.
+As part of the project export process 
+:term:`Context templates <Context template>` are used to define the hierarchy
+to create in ftrack.
 
-Tagging
--------
+The template is applied to each clip and will use the name of the clip to
+determine what entities to create.
 
-Let's walk through how to tag your timeline to be able to export to ftrack.
+The plugin comes with a couple of default templates which will create some
+different structures. Lets look at some of those now:
 
-To see available tags open the tag window,
-:menuselection:`Window --> Tags` and navigating to the *ftrack folder*.
+==========================  ====================
+Template                    Description
+==========================  ====================
+Classic, sequence and shot  Match `SQ` or `SH` and any subsequent numbers. Example: `SQ001_SH010` will be matched as Sequence with name `001` and a shot named `010`.
+Classic, shot only          Match `SH` and any subsequent digits. Example: `vfx_SH001` will match `001`.
+Full name, shot only        Match entire clip name. Example: `vfx_SH001` will match `vfx_SH001`.
+==========================  ====================
 
-.. image:: /image/tags.png
+By applying different templates to the same selection in the timeline we'll
+get different results. For example if we have a selection of clips in the timeline:
 
-In the ftrack folder you can see both context tags and task type tags. The
-context tags are used to generate the hierarchy in ftrack and the task type
-tags are used to create tasks.
+.. image:: /image/example_timeline.png
 
-Before tagging, we first need to rename our clips to match our naming structure.
-By default the different context tags will match:
+All clips, except for the last one, have been renamed to a format of
+`vfx_SQ###_SH###` where `###` is replaced with a sequential number. The last
+clip is named `vfx_SQ002_003` without `SH` and we'll see how that affects the
+result.
 
-* Episodes: **EP** followed by any numbers.
-  If not found the entire clip name will be used.
-* Sequence: **SQ** followed by any numbers.
-  If not found the entire clip name will be used.
-* Shot: **SH** followed by any numbers.
-  If not found the entire clip name will be used.
+If we apply the different templates to all the clips in the timeline we'll get
+these different results:
 
-For example, if a clip named *SQ001_SH010* has the shot and sequence
-context tags applied it will yield a structure like this:
+.. figure:: /image/classic_sequence_shot_preview.png
 
-.. image:: /image/hierarchy_first.png
+    Classic, sequence and shot
 
-However, if the clip was named *SQ001_010* then the shot tag will match the
-entire name and yield a hierarchy looking like this:
+    This template will generate a structure containing both sequences and shots.
+    The last clip is missing `SH` and so does not match the template. As a
+    result it is excluded from further processing and displayed under a special
+    heading in the preview tree.
 
-.. image:: /image/hierarchy_second.png
+.. figure:: /image/classic_shot_preview.png
 
-If adding task type tags to the same clip then the hierarchy will look like
-this:
+    Classic, shot only
 
-.. image:: /image/hierarchy_with_tasks.png
+    This template will generate a structure containing only shots and, as you
+    can see, the same clip as before does not match this template either. You
+    can also see that, due to the template not using the sequence name,
+    shots from different sequences have been collated as a single shot.
+
+.. figure:: /image/full_name_shot_preview.png
+
+    Full name, shot only
+
+    This template will generate a structure containing only shots, but based on
+    whatever name the clip has. In this case all clips match and corresponding
+    shot names produced.
 
 .. seealso::
     
-    :ref:`Customising tag expressions <developing/customising_tag_expressions>`
+    :ref:`All available templates <using/templates>`
 
 Rename clips
 ^^^^^^^^^^^^
 
-To quickly rename a bunch of clips to match the tag patterns you can use the
-builtin Rename Shots dialog. It is located in the context menu under
-:menuselection:`Editorial --> Rename Shots (Alt+Shift+/)`
+To quickly rename a bunch of clips to match the :term:`Context template` you
+can use the standard :guilabel:`Rename Shots` dialog. It is located in the
+context menu under :menuselection:`Editorial --> Rename Shots (Alt+Shift+/)`
 
 .. image:: /image/rename.png
 
@@ -76,26 +89,30 @@ builtin Rename Shots dialog. It is located in the context menu under
 
     `Renaming clips in Nuke Studio <http://help.thefoundry.co.uk/nuke/9.0/#timeline_environment/conforming/renaming_track_items.html>`_
 
-Apply tags
-^^^^^^^^^^
+Apply task tags
+^^^^^^^^^^^^^^^
 
-When the clips are correctly named, you are ready to start the tagging process.
-Select the context tags you want to use and drop them on your clips.
+When the clips are correctly named to match the :term:`Context template` you
+can apply tags to specify which tasks you want to generate. If you don't want
+to create any tasks you can jump straight to :ref:`exporting <using/export_project/exporting>`
+
+To see available tags open the tag window,
+:menuselection:`Window --> Tags` and navigating to the *ftrack folder*.
+
+.. image:: /image/tags.png
 
 .. seealso::
     
     `Tagging in Nuke Studio <http://help.thefoundry.co.uk/nuke/9.0/#timeline_environment/usingtags/tagging_track_items.html>`_
 
-.. image:: /image/ftag_drop.png
-
-To review which tags have been applied just click on the tag icon on the clip.
+Select the tasks you want to create and drop them on the clips. To review which
+tags have been applied just click on the tag icon on the clip.
 
 .. image:: /image/applied_ftags.png
 
-In this window you'll be able to see which values have been extracted, for the
-single tag, from the clip name.
-
 When done tagging your're ready to export you project.
+
+.. _using/export_project/exporting:
 
 Exporting
 =========
@@ -107,13 +124,13 @@ Open the :guilabel:`Export project` dialog to get started:
 .. image:: /image/create_project_context_menu.png
 
 Preview
--------
+^^^^^^^
 
 When the dialog opens it will check against the server to see what's already
 been created.
 
 As soon as the check is done, the interface will display the preview of the
-project. The items are colour coded:
+project. The items are color coded:
 
 * **green** - an existing object.
 * **white** - a new object.
@@ -124,7 +141,7 @@ project. The items are colour coded:
 .. _using/project_settings:
 
 Configure project settings
---------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 From this interface you'll be able to set the attributes for all the mapped
 shots, such as resolution, fps, and handles.  You will also be able to pick the
@@ -140,8 +157,25 @@ All the project settings will be added as attributes to each mapped shot.
     Some attributes, such as timecode related ones, are stored as metadata. This
     might change in the future.
 
+
+Select template
+^^^^^^^^^^^^^^^
+
+Select the template you want to use when exporting the project. When selecting
+a template the preview window will update with the new hierarchy:
+
+.. image:: /image/select_template_preview.png
+
+Any clips not matching the selected template are displayed in the group called
+`Clips not matching template`.
+
+.. note::
+    
+    The selected template will be stored in the Nuke Studio project file and
+    will be preselected if running export again.
+
 Export
-------
+^^^^^^
 
 Once you are happy with the configuration, all you have to do is press the
 :guilabel:`Export` button. As soon as the export finishes, a message will be

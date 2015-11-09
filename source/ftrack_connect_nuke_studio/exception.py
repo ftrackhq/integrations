@@ -45,7 +45,14 @@ class ValidationError(Error):
 
     default_message = 'Validation error.'
 
+
 class PermissionDeniedError(Error):
     '''Raise when permission is denied.'''
 
     default_message = 'Permission denied.'
+
+
+class TemplateError(Error):
+    '''Raise when an template error occurs.'''
+
+    default_message = 'Template error'

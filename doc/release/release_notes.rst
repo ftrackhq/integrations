@@ -7,6 +7,18 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+    
+    .. change:: new
+        :tags: Context template, Context tag
+
+        Introduced :term:`Context templates <Context template>` to simplify
+        configuration of project structure on export.
+
+        .. seealso::
+
+            :ref:`Updated export project tutorial <using/export_project>`
+
 .. release:: 0.1.4
     :date: 2015-10-16
 
