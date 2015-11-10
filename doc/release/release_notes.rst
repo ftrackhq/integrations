@@ -20,6 +20,10 @@ Release Notes
 
             :ref:`Updated export project tutorial <using/export_project>`
 
+        .. note::
+
+            A ftrack server version of 3.3.4 or higher is required.
+
 .. release:: 0.1.4
     :date: 2015-10-16
 
