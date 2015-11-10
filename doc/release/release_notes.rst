@@ -7,8 +7,9 @@
 Release Notes
 *************
 
-.. release:: Upcoming
-    
+.. release:: 0.2.0
+    :date: 2015-11-10
+
     .. change:: new
         :tags: Context template, Context tag
 
