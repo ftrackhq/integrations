@@ -5,6 +5,18 @@
 Releases
 ########
 
+
+.. release:: 0.3.3
+    :date: 2015-11-13
+
+    .. change:: changed
+
+        `ftrack connect nuke studio 0.2.0 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/0.2.0/>`_
+
+        .. note::
+
+            Required `ftrack server <http://ftrack.rtd.ftrack.com/en/latest/release/release_notes.html#release-3.3.4>`_ version is 3.3.4 or higher.
+
 .. release:: 0.3.2
     :date: 2015-10-16
 

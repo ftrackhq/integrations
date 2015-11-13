@@ -25,11 +25,11 @@ with open(os.path.join(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
-connect_install_require = 'ftrack-connect == 0.1.17'
+connect_install_require = 'ftrack-connect == 0.1.18'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.17.zip'
-    '#egg=ftrack-connect-0.1.17'
+    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.18.zip'
+    '#egg=ftrack-connect-0.1.18'
 )
 
 cinesync_install_require = 'ftrack-connect-cinesync == 0.1.2'
@@ -66,8 +66,8 @@ connect_nuke_dependency_install_require = (
 )
 
 connect_nuke_studio_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke-studio/get/0.1.4.zip'
-    '#egg=ftrack-connect-nuke-studio-0.1.4'
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke-studio/get/0.2.0.zip'
+    '#egg=ftrack-connect-nuke-studio-0.2.0'
 )
 connect_nuke_studio_dependency_install_require = (
     'ftrack-connect-nuke-studio'
@@ -334,7 +334,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'FnAssetAPI',
         'ftrack_connect_nuke',
         'ftrack_connect_nuke.plugin',
-        'ftrack_connect_nuke.logging'
+        'ftrack_connect_nuke.logging',
+        'lucidity'
     ])
 
     configuration['options']['build_exe'] = {
