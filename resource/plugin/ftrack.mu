@@ -34,22 +34,21 @@ class: FtrackMode : MinorMode
     
     string          _tmpFolder;
     string          _filePath;
-    string          _attachmentId;
     string          _ftrackUrl;
     string          _token;
     
     
     string[]        _doUpload;
     int[]           _annotatedFrames;
-    string[]        _attachmentIds;
     
     int             _currentSource;
     
     
     python.PyObject _pyFilePath;
     python.PyObject _pyUUID;
-    python.PyObject _getAttachmentId;
-    
+    python.PyObject _create_component;
+    python.PyObject _upload_component;
+
     python.PyObject _pyApi;
     python.PyObject _apiObject;
 
@@ -95,11 +94,6 @@ class: FtrackMode : MinorMode
     method: uuid()
     {
         return to_string(python.PyObject_CallObject (_pyUUID,""));
-    }
-    
-    method: getAttachmentId(string;string s)
-    {
-        return to_string(python.PyObject_CallObject (_getAttachmentId,s));
     }
 
     method: viewLoaded (void; QWidget view, bool ok)
@@ -241,7 +235,8 @@ class: FtrackMode : MinorMode
         _pyApi    = python.PyImport_Import ("ftrack_rv_api");
         _pyFilePath     = python.PyObject_GetAttr (_pyApi, "ftrackFilePath");
         _pyUUID         = python.PyObject_GetAttr (_pyApi, "ftrackUUID");
-        _getAttachmentId    = python.PyObject_GetAttr (_pyApi, "ftrackGetAttachmentId");
+        _create_component = python.PyObject_GetAttr(_pyApi, "create_component");
+        _upload_component = python.PyObject_GetAttr(_pyApi, "upload_component");
     }
 
     method: createActionWindow(void;)
@@ -383,21 +378,6 @@ class: FtrackMode : MinorMode
         
     }
 
-    method: uploadProgress (void; Event event) {
-        pprint ("uploadProgress\n");
-    }
-    
-    method: uploadDone (void; Event event) {
-        pprint ("uploadDone\n");
-        
-        
-        string data_string = "{\"type\":\"uploadEnded\",\"id\":\"" + getAttachmentId( event.contents() ) + "\"}";
-        byte[] data = encoding.string_to_utf8 (data_string);
-        data = encoding.to_base64 ( data );     
-        
-        _webActionWidget.page().mainFrame().evaluateJavaScript("FT.updateFtrack(\"" + encoding.utf8_to_string( data ) + "\")");
-    }
-    
     method: frameChanged (void;Event event) {
         
         let source  = int(regex.smatch("[a-zA-Z]+([0-9]+)", sourcesAtFrame(frame())[0]).back());
@@ -443,10 +423,11 @@ class: FtrackMode : MinorMode
     }
     
     method: uploadAll(void;) {
+        pprint("Uploading all annotated frames");
+
         for_index (i; _doUpload)
         {   
-            pprint("Upload: " + _doUpload[i]);
-            uploadOne(_doUpload[i],_annotatedFrames[i],_attachmentIds[i]);
+            upload_annotation(_doUpload[i], _annotatedFrames[i]);
         }
     }
     
@@ -468,7 +449,6 @@ class: FtrackMode : MinorMode
           
         _filePath = getFilePath("");
         string[] tmpUpload = {};
-        string[] tmpIds = {};
         let _uuid = uuid();
                
         // Get all the annotated frames
@@ -490,15 +470,11 @@ class: FtrackMode : MinorMode
             let f = frames[i];
             let fpadd = "%04d" % f;
             tmpUpload.push_back("%s_%s.jpg" % (_uuid,fpadd));
-            let id = uuid();
-            startUploadSpinners(id);
-            tmpIds.push_back(id);
             
             if (i > 0) print(timestr, ",");
             print(timestr, "%d" % f);
         }
         _doUpload = tmpUpload;
-        _attachmentIds = tmpIds;
         string[] args = 
         {
             makeTempSession(), 
@@ -509,86 +485,48 @@ class: FtrackMode : MinorMode
         pprint(_doUpload.size());
         uploadingCount(_doUpload.size());
         if (_doUpload.size() > 0) {
+            pprint("Exporting Annotated Frames\n");
             rvio("Export Annotated Frames", args, uploadAll);
         }
     }
-    
-    method: startUploadSpinners(void;string id) {
-        string data_string = "{\"type\":\"uploadStarted\",\"attachment\":\"" + id + "\"}";
-        byte[] data = encoding.string_to_utf8 (data_string);
-        data = encoding.to_base64 ( data );
+
+    /** 
+     * Upload a single annotation saved as *filename*.
+     *
+     * Creates a component, adds the component to the note form and then
+     * adds the component to the ftrack.server location.
+     */
+    method: upload_annotation(void; string filename, int frame) {
+        pprint("Uploading file: %s" % filename);
+
+        string encoded_args = "{\"file_name\":\"" + filename + "\",\"frame\":\"" + frame + "\"}";
+        string component_id = to_string(python.PyObject_CallObject(_create_component, encoded_args));
+        pprint("Created component: %s" % component_id);
+        on_upload_started(component_id);
+
+        python.PyObject_CallObject(_upload_component, component_id);
+        pprint("Upload complete");
+        on_upload_complete(component_id);
+    }
+
+    /** Update ftrack when upload has started. */
+    method: on_upload_started(void; string component_id) {
+        string data_string = "{\"type\": \"uploadStarted\", \"attachment\": \"" + component_id + "\"}";
+        _update_ftrack(data_string);
+    }
+
+    /** Update ftrack when upload has completed. */
+    method: on_upload_complete(void; string component_id) {
+        string data_string = "{\"type\": \"uploadEnded\", \"id\": \"" + component_id + "\"}";
+        _update_ftrack(data_string);
+    }
+
+    /** Update ftrack with json-formatedd *data_string*. */
+    method: _update_ftrack(void; string data_string) {
+        byte[] data = encoding.string_to_utf8(data_string);
+        data = encoding.to_base64(data);
         _webActionWidget.page().mainFrame().evaluateJavaScript("FT.updateFtrack(\"" + encoding.utf8_to_string( data ) + "\")");
     }
-   
-    
-    method: uploadOne (void; string filename, int frame,string id)
-    {
-        
-        
-        pprint ("Upload event\n");
-        // Set the upload URL
-        string url = _ftrackUrl + "/attachment/imageUpload";
-        string uploadToken = _token;
-        let _attachmentId = id;
-        string _fileName = "Frame_%s.jpg" % sourceFrame(frame);
-        
-        _filePath = "%s/%s" % (getFilePath(""),filename);
-        //exportCurrentFrame(_filePath);
-        
-        
-        let file  = io.ifstream (_filePath, io.stream.In | io.stream.Binary),
-            bytes = io.read_all_bytes (file),
-            b64   = encoding.to_base64 (bytes);
-
-
-        string boundary = "00---------------------------7d03135102b8";
-
-        string contents = "";
-        contents += "--%s\r\nContent-Disposition: form-data; name=\"%s\"\r\n\r\n%s\r\n" % (boundary, "attachmentid", _attachmentId);
-        contents += "--%s\r\nContent-Disposition: form-data; name=\"%s\"\r\n\r\n%s\r\n" % (boundary, "auth_token", uploadToken);
-        contents += "--%s\r\nContent-Disposition: form-data; name=\"%s\"\r\n\r\n%s\r\n" % (boundary, "name", "file");
-        contents += "--%s\r\n" % boundary;
-        contents += "Content-Disposition: form-data; "; 
-
-        contents += "name=\"file\"; ";
-
-        contents += "filename=\"%s\"\r\n" % _fileName;
-        contents += "Content-Type: image/jpeg\r\n";
-        contents += "Content-Length: %s\r\n\r\n" % string(bytes.size());
-
-        \: byteAppend (void; byte[] b, string s)
-        {
-            for (int i = 0; i < s.size(); ++i) b.push_back(byte(s[i]));
-
-        }
-        \: byteAppend (void; byte[] b, byte[] b2)
-        {
-            for (int i = 0; i < b2.size(); ++i) b.push_back(b2[i]);
-        }
-
-        byte[] finalBytes = byte[]();
-
-        let start = theTime();
-
-        byteAppend (finalBytes, contents);
-        byteAppend (finalBytes, bytes);
-        byteAppend (finalBytes, "\r\n--%s--\r\n\r\n" % boundary);
-
-        [(string,string)] headers;
-
-        headers = ("Connection", "close") : headers;
-        headers = ("Content-Type", "multipart/form-data; boundary=%s" % boundary) : headers;
-        headers = ("Content-Length", string(finalBytes.size())) : headers;
-        headers = ("Accept-Encoding", "identity") : headers;
-
-        app_utils.bind ("ftrack-upload-done", uploadDone);
-        app_utils.bind ("ftrack-uploading", uploadProgress);
-
-        httpPost (url, headers, finalBytes, "ftrack-upload-done", nil, "ftrack-uploading", true);  
-    }
-    
-    
-
 }
 
 \: theMode (FtrackMode; )
