@@ -30,6 +30,7 @@ class: FtrackMode : MinorMode
     bool           _firstRender;
     bool           _isHidden;
     bool           _debug;
+    bool           _showOnStartup;
     
     
     string          _tmpFolder;
@@ -142,8 +143,26 @@ class: FtrackMode : MinorMode
         if (_dockActionWidget neq nil) _dockActionWidget.show();
     }
     
+    method: showUiToggle (void; Event event) {
+        if(!_showOnStartup) {
+            commands.writeSetting("ftrack", "showOnStartUp", SettingsValue.Bool(true));
+            _showOnStartup = true;
+            pprint("show on startup: %s" % _showOnStartup);
+        }
+        else {
+            commands.writeSetting("ftrack", "showOnStartUp", SettingsValue.Bool(false));
+            _showOnStartup = false;
+            pprint("show on startup: %s" % _showOnStartup);
+        }
+    }
+    
+    method: showUiState(int;) {
+        pprint("show on startup: %s" % _showOnStartup);
+        if(_showOnStartup) then CheckedMenuState else UncheckedMenuState;
+    }
+    
     method: panelState(int;) {
-        pprint("Panels: %s" % _debug);
+        pprint("Panels: %s" % _isHidden);
         if(_isHidden) then UncheckedMenuState else CheckedMenuState;
     }
     
@@ -199,16 +218,19 @@ class: FtrackMode : MinorMode
     
     method: FtrackMode (FtrackMode; string name)
     {
-        _debug = true;
-
+        let SettingsValue.Bool b1 = commands.readSetting("ftrack", "showOnStartUp", SettingsValue.Bool(false));
+        _showOnStartup = b1 ;
+        let SettingsValue.Bool b2 = commands.readSetting("ftrack", "debug", SettingsValue.Bool(false));
+        _debug = b2;
         init(name,
         [ ("before-session-deletion", shutdown, "") ],
         nil,
         Menu {
              {"ftrackReview", Menu {
                      {"Toggle panels", ftrackToggle, "control shift t",panelState},
-                     {"Developer", Menu {
-                            {"Debug print", debugToggle, "control shift d",debugPrintState},    
+                     {"Preferences", Menu {
+                            {"Debug print", debugToggle, "control shift d",debugPrintState},
+                            {"show Ui on Startup", showUiToggle, "", showUiState},
                         }
                      },
                  }
@@ -221,27 +243,18 @@ class: FtrackMode : MinorMode
         
         _dockActionWidget = nil;
 
-        //BIND EVENTS
-        
-        app_utils.bind("ftrack-event", ftrackEvent, "Update action window");
-        app_utils.bind("ftrack-timeline-loaded", createActionWindow, "User is logged in, create action window");
-
-        app_utils.bind("ftrack-toggle-floating", toggleFloating, "Toggle floating panel");
-
-        app_utils.bind("ftrack-upload-frame", ftrackExportAll, "Upload frame to FTrack");
-        app_utils.bind("ftrack-upload-frames", ftrackExportAll, "Upload all annotated frames to FTrack");
-        app_utils.bind("frame-changed", frameChanged, "New frame");
-        app_utils.bind("ftrack-changed-group",navGroupChanged,"New group selected");
-
         app_utils.bind("key-down--control--T", ftrackToggle, "Toggle ftrackReview panels");
         app_utils.bind("key-down--control--D", debugToggle, "Toggle ftrackReview debug prints");
         
+        // init the ui based on setting s
+        if (_showOnStartup) {
+            _isHidden = false;
+            initUi();
+        }
+        else {
+            _isHidden = true;
+        }
         
-        //SETUP PYTHON API
-        _pyApi    = python.PyImport_Import ("ftrack_rv_api");
-        _pyFilePath     = python.PyObject_GetAttr (_pyApi, "ftrackFilePath");
-        _pyUUID         = python.PyObject_GetAttr (_pyApi, "ftrackUUID");
-        _getAttachmentId    = python.PyObject_GetAttr (_pyApi, "ftrackGetAttachmentId");
     }
 
     method: createActionWindow(void;)
@@ -290,12 +303,31 @@ class: FtrackMode : MinorMode
         
     }
 
-    method: render(Event event)
+    method: initUi(void;)
     {
-    event.reject();
     if (_firstRender)
     {
 
+    
+        //BIND EVENTS
+        
+        app_utils.bind("ftrack-event", ftrackEvent, "Update action window");
+        app_utils.bind("ftrack-timeline-loaded", createActionWindow, "User is logged in, create action window");
+
+        app_utils.bind("ftrack-toggle-floating", toggleFloating, "Toggle floating panel");
+
+        app_utils.bind("ftrack-upload-frame", ftrackExportAll, "Upload frame to FTrack");
+        app_utils.bind("ftrack-upload-frames", ftrackExportAll, "Upload all annotated frames to FTrack");
+        app_utils.bind("frame-changed", frameChanged, "New frame");
+        app_utils.bind("ftrack-changed-group",navGroupChanged,"New group selected");
+
+        
+        //SETUP PYTHON API
+        _pyApi    = python.PyImport_Import ("ftrack_rv_api");
+        _pyFilePath     = python.PyObject_GetAttr (_pyApi, "ftrackFilePath");
+        _pyUUID         = python.PyObject_GetAttr (_pyApi, "ftrackUUID");
+        _getAttachmentId    = python.PyObject_GetAttr (_pyApi, "ftrackGetAttachmentId");
+        
         _firstRender = false;
         _currentSource = -1;
 
@@ -354,10 +386,12 @@ class: FtrackMode : MinorMode
         _baseNavigationWidget.show();
         _dockNavigationWidget.show();  
 
-        _isHidden = false; 
+        //_isHidden = false; 
         mainWindowWidget().show();
         // mainWindowWidget().showMaximized();
-        showConsole();
+        //showConsole();
+        //_isHidden = true;
+        //hidePanels();
     }
     }
         
@@ -422,6 +456,7 @@ class: FtrackMode : MinorMode
         if (_isHidden) {
             _isHidden = false;
             showPanels();
+            initUi(); // initUi checks if it has been called already...
         }
         else {
             _isHidden = true;
@@ -434,9 +469,11 @@ class: FtrackMode : MinorMode
     {
         if (_debug) {
             _debug = false;
+            commands.writeSetting("ftrack", "debug", SettingsValue.Bool(false));
         }
         else {
             _debug = true;
+            commands.writeSetting("ftrack", "debug", SettingsValue.Bool(true));
         }
         
         pprint ("Debug print: " + _debug);
