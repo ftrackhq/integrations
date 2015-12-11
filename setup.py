@@ -5,6 +5,8 @@ import sys
 import os
 import re
 import pkg_resources
+import opcode
+import logging
 
 from setuptools import setup, Distribution, find_packages
 
@@ -23,11 +25,11 @@ with open(os.path.join(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
-connect_install_require = 'ftrack-connect == 0.1.10'
+connect_install_require = 'ftrack-connect == 0.1.18'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
     'https://bitbucket.org/ftrack/ftrack-connect/get/backlog/refactor-maya-plugin/story.zip'
-    '#egg=ftrack-connect-0.1.10'
+    '#egg=ftrack-connect-0.1.18'
 )
 
 cinesync_install_require = 'ftrack-connect-cinesync == 0.1.2'
@@ -41,7 +43,7 @@ connect_legacy_plugins_install_require = (
     ' >=0.1, < 1'
 )
 connect_legacy_plugins_dependency_link = (
-    'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.5'
+    'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.6'
     .format(os.environ['FTRACK_CONNECT_LEGACY_PLUGINS_PATH'].replace('\\', '/'))
 )
 
@@ -50,13 +52,13 @@ connect_hieroplayer_install_require = (
     ' >=0.1, < 1'
 )
 connect_hieroplayer_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-hieroplayer/get/0.1.3.zip'
-    '#egg=ftrack-connect-hieroplayer-0.1.3'
+    'https://bitbucket.org/ftrack/ftrack-connect-hieroplayer/get/0.1.4.zip'
+    '#egg=ftrack-connect-hieroplayer-0.1.4'
 )
 
 connect_nuke_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/0.1.4.zip'
-    '#egg=ftrack-connect-nuke-0.1.4'
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/0.1.6.zip'
+    '#egg=ftrack-connect-nuke-0.1.6'
 )
 connect_nuke_dependency_install_require = (
     'ftrack-connect-nuke'
@@ -70,6 +72,22 @@ connect_maya_dependency_link = (
 connect_maya_dependency_install_require = (
     'ftrack-connect-maya'
     ' >=0.1, < 1'
+)
+
+connect_nuke_studio_dependency_link = (
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke-studio/get/0.2.0.zip'
+    '#egg=ftrack-connect-nuke-studio-0.2.0'
+)
+connect_nuke_studio_dependency_install_require = (
+    'ftrack-connect-nuke-studio'
+    ' >=0.1, < 1'
+)
+
+connect_rv_dependency_install_require = 'ftrack-connect-rv >=0.1, < 1'
+
+connect_rv_dependency_link = (
+    'https://bitbucket.org/ftrack/ftrack-connect-rv/get/0.1.0.zip'
+    '#egg=ftrack-connect-rv-0.1.0'
 )
 
 # General configuration.
@@ -90,7 +108,9 @@ configuration = dict(
     setup_requires=[
         'sphinx >= 1.2.2, < 2',
         'sphinx_rtd_theme >= 0.1.6, < 2',
-        'lowdown >= 0.1.0, < 1'
+        'lowdown >= 0.1.0, < 1',
+        'pyopenssl',
+        'requests >= 2, <3'
     ],
     install_requires=[
         'ftrack-python-legacy-api',
@@ -99,7 +119,9 @@ configuration = dict(
         connect_legacy_plugins_install_require,
         connect_hieroplayer_install_require,
         connect_nuke_dependency_install_require,
-        connect_maya_dependency_install_require
+        connect_maya_dependency_install_require,
+        connect_nuke_studio_dependency_install_require,
+        connect_rv_dependency_install_require
     ],
     dependency_links=[
         'file://{0}#egg=ftrack-python-legacy-api'.format(
@@ -111,8 +133,10 @@ configuration = dict(
         ('https://bitbucket.org/ftrack/lowdown/get/0.1.0.zip'
          '#egg=lowdown-0.1.0'),
         connect_hieroplayer_dependency_link,
+        connect_maya_dependency_link,
         connect_nuke_dependency_link,
-        connect_maya_dependency_link
+        connect_nuke_studio_dependency_link,
+        connect_rv_dependency_link
     ],
     options={}
 )
@@ -145,16 +169,20 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             cinesync_install_require,
             connect_legacy_plugins_install_require,
             connect_hieroplayer_install_require,
+            connect_maya_dependency_install_require,
             connect_nuke_dependency_install_require,
-            connect_maya_dependency_install_require
+            connect_nuke_studio_dependency_install_require,
+            connect_rv_dependency_install_require
         ],
         dependency_links=[
             cinesync_dependency_link,
             connect_dependency_link,
             connect_legacy_plugins_dependency_link,
             connect_hieroplayer_dependency_link,
+            connect_maya_dependency_link,
             connect_nuke_dependency_link,
-            connect_maya_dependency_link
+            connect_nuke_studio_dependency_link,
+            connect_rv_dependency_link
         ]
     ))
     connect_resource_hook = pkg_resources.resource_filename(
@@ -212,6 +240,24 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_maya/hook'
     )
 
+    ftrack_connect_nuke_studio_source = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-connect-nuke-studio'),
+        'ftrack_connect_nuke_studio/resource'
+    )
+
+    ftrack_connect_nuke_studio_hook = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-connect-nuke-studio'),
+        'ftrack_connect_nuke_studio/hook'
+    )
+
+    ftrack_connect_rv_hook = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-connect-rv'),
+        'ftrack_connect_rv_resource/hook'
+    )
+
+    # Add requests certificates to resource folder.
+    import requests.certs
+
     include_files = [
         (connect_resource_hook, 'resource/hook'),
         (cinesync_resource_hook, 'resource/hook'),
@@ -220,15 +266,37 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         (ftrack_connect_legacy_plugins_hook, 'resource/hook'),
         (ftrack_connect_hieroplayer_hook, 'resource/hook'),
         (ftrack_connect_hieroplayer_source, 'resource/hieroplayer'),
+        (ftrack_connect_rv_hook, 'resource/hook'),
         (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'),
+        (ftrack_connect_maya_hook, 'resource/hook'),
+        (ftrack_connect_maya_source, 'resource/ftrack_connect_maya'),
         (ftrack_connect_nuke_hook, 'resource/hook'),
         (ftrack_connect_nuke_source, 'resource/ftrack_connect_nuke'),
-        (ftrack_connect_maya_hook, 'resource/hook'),
-        (ftrack_connect_maya_source, 'resource/ftrack_connect_maya')
+        (requests.certs.where(), 'resource/cacert.pem'),
+        (
+            ftrack_connect_nuke_studio_source,
+            'resource/ftrack_connect_nuke_studio'
+        ),
+        (ftrack_connect_nuke_studio_hook, 'resource/hook'),
+        (os.path.join(
+            SOURCE_PATH, 'ftrack_connect_package', '_version.py'
+        ), 'resource/ftrack_connect_package_version.py')
     ]
 
     executables = []
     bin_includes = []
+    includes = []
+
+    # Different modules are used on different platforms. Make sure to include
+    # all found.
+    for dbmodule in ['dbhash', 'gdbm', 'dbm', 'dumbdbm']:
+        try:
+            __import__(dbmodule)
+        except ImportError:
+            logging.warning('"{0}" module not available.'.format(dbmodule))
+        else:
+            includes.append(dbmodule)
+
     if sys.platform == 'win32':
         executables.append(
             Executable(
@@ -289,21 +357,36 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
 
     configuration['executables'] = executables
 
+    # opcode is not a virtualenv module, so we can use it to find the stdlib.
+    # This is the same trick used by distutils itself it installs itself into
+    # the virtualenv
+    distutils_path = os.path.join(
+        os.path.dirname(opcode.__file__), 'distutils'
+    )
+
+    include_files.append((distutils_path, 'distutils'))
+
+    includes.extend([
+        'ftrack',
+        'atexit',  # Required for PySide
+        'ftrack_connect_cinesync.cinesync_launcher',
+        'ftrack_connect.application',
+        'assetmgr_hiero',
+        'assetmgr_nuke',
+        'FnAssetAPI',
+        'ftrack_connect_nuke',
+        'ftrack_connect_nuke.plugin',
+        'ftrack_connect_nuke.logging',
+        'ftrack_connect_legacy_plugins',
+        'ftrack_connect_hieroplayer',
+        'ftrack_connect_rv',
+        'lucidity',
+        'ftrack_connect_maya'
+    ])
+
     configuration['options']['build_exe'] = {
         'init_script': os.path.join(RESOURCE_PATH, 'frozen_bootstrap.py'),
-        'includes': [
-            'ftrack',
-            'atexit',  # Required for PySide
-            'ftrack_connect_cinesync.cinesync_launcher',
-            'ftrack_connect.application',
-            'assetmgr_hiero',
-            'assetmgr_nuke',
-            'FnAssetAPI',
-            'ftrack_connect_nuke',
-            'ftrack_connect_nuke.plugin',
-            'ftrack_connect_nuke.logging',
-            'ftrack_connect_maya'
-        ],
+        'includes': includes,
         'excludes': [
             # The following don't actually exist, but are picked up by the
             # dependency walker somehow.
@@ -315,7 +398,11 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
 
             # Compiled yaml uses unguarded pkg_resources.resource_filename which
             # won't work in frozen package.
-            '_yaml'
+            '_yaml',
+
+            # Exclude distutils from virtualenv due to entire package with
+            # sub-modules not being copied to virtualenv.
+            'distutils'
         ],
         'include_files': include_files,
         'bin_includes': bin_includes

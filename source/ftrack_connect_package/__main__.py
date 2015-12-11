@@ -28,6 +28,37 @@ if getattr(sys, 'frozen', False):
         )
     )
 
+    # Set the path to certificate file in resource folder. This allows requests
+    # module to read it outside frozen zip file.
+    os.environ.setdefault(
+        'REQUESTS_CA_BUNDLE',
+        os.path.abspath(
+            os.path.join(
+                os.path.dirname(sys.executable), 'resource', 'cacert.pem'
+            )
+        )
+    )
+
+    # Set the path to the included Nuke studio plugin.
+    os.environ.setdefault(
+        'FTRACK_CONNECT_NUKE_STUDIO_PATH',
+        os.path.abspath(
+            os.path.join(
+                os.path.dirname(sys.executable), 'resource',
+                'ftrack_connect_nuke_studio'
+            )
+        )
+    )
+
+    os.environ.setdefault(
+        'FTRACK_CONNECT_PACKAGE_RESOURCE_PATH',
+        os.path.abspath(
+            os.path.join(
+                os.path.dirname(sys.executable), 'resource'
+            )
+        )
+    )
+
 import ftrack_connect.__main__
 
 

@@ -5,6 +5,9 @@ import getpass
 import sys
 import pprint
 import logging
+import tempfile
+import os
+import shutil
 
 import ftrack
 import ftrack_connect.application
@@ -61,6 +64,11 @@ class LaunchAction(object):
             self.launch
         )
 
+        ftrack.EVENT_HUB.subscribe(
+            'topic=ftrack.connect.plugin.debug-information',
+            self.get_version_information
+        )
+
     def discover(self, event):
         '''Return discovered applications.'''
         if not self.isValidSelection(
@@ -80,15 +88,19 @@ class LaunchAction(object):
             items.append({
                 'actionIdentifier': self.identifier,
                 'label': label,
+                'variant': application.get('variant', None),
+                'description': application.get('description', None),
                 'icon': application.get('icon', 'default'),
                 'applicationIdentifier': applicationIdentifier
             })
 
             items.append({
                 'actionIdentifier': self.identifier,
-                'label': '{label} with latest version'.format(
-                    label=label
+                'label': label,
+                'variant': '{variant} with latest version'.format(
+                    variant=application.get('variant', '')
                 ),
+                'description': application.get('description', None),
                 'icon': application.get('icon', 'default'),
                 'launchWithLatest': True,
                 'applicationIdentifier': applicationIdentifier
@@ -143,6 +155,24 @@ class LaunchAction(object):
             applicationIdentifier, context
         )
 
+    def get_version_information(self, event):
+        '''Return version information.'''
+        # Set version number to empty string since we don't know the version
+        # of the plugins at the moment. Once ExManCMD is bundled with Connect
+        # we can update this to return information about installed extensions.
+        return [
+            dict(
+                name='ftrack connect photoshop',
+                version='-'
+            ), dict(
+                name='ftrack connect premiere',
+                version='-'
+            ), dict(
+                name='ftrack connect after effects',
+                version='-'
+            )
+        ]
+
 
 class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
@@ -153,7 +183,9 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
             dict(
                 'identifier': 'name_version',
-                'label': 'Name version',
+                'label': 'Name',
+                'variant': 'version',
+                'description': 'description',
                 'path': 'Absolute path to the file',
                 'version': 'Version of the application',
                 'icon': 'URL or name of predefined icon'
@@ -169,7 +201,8 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 expression=prefix + [
                     'Adobe Photoshop CC .+', 'Adobe Photoshop CC .+.app'
                 ],
-                label='Photoshop CC {version}',
+                label='Photoshop',
+                variant='CC {version}',
                 applicationIdentifier='photoshop_cc_{version}',
                 icon='photoshop'
             ))
@@ -178,9 +211,20 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 expression=prefix + [
                     'Adobe Premiere Pro CC .+', 'Adobe Premiere Pro CC .+.app'
                 ],
-                label='Premiere Pro CC {version}',
+                label='Premiere Pro',
+                variant='CC {version}',
                 applicationIdentifier='premiere_pro_cc_{version}',
                 icon='premiere'
+            ))
+
+            applications.extend(self._searchFilesystem(
+                expression=prefix + [
+                    'Adobe After Effects CC .+', 'Adobe After Effects CC .+.app'
+                ],
+                label='After Effects',
+                variant='CC {version}',
+                applicationIdentifier='after_effects_cc_{version}',
+                icon='after_effects'
             ))
 
         elif sys.platform == 'win32':
@@ -192,7 +236,8 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                     ['Adobe', 'Adobe Photoshop CC .+',
                      'Photoshop.exe']
                 ),
-                label='Photoshop CC {version}',
+                label='Photoshop',
+                variant='CC {version}',
                 applicationIdentifier='photoshop_cc_{version}',
                 icon='photoshop'
             ))
@@ -203,9 +248,22 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                     ['Adobe', 'Adobe Premiere Pro CC .+',
                      'Adobe Premiere Pro.exe']
                 ),
-                label='Premiere Pro CC {version}',
+                label='Premiere Pro',
+                variant='CC {version}',
                 applicationIdentifier='premiere_pro_cc_{version}',
                 icon='premiere'
+            ))
+
+            applications.extend(self._searchFilesystem(
+                expression=(
+                    prefix +
+                    ['Adobe', 'Adobe After Effects CC .+', 'Support Files',
+                     'AfterFX.exe']
+                ),
+                label='After Effects',
+                variant='CC {version}',
+                applicationIdentifier='after_effects_cc_{version}',
+                icon='after_effects'
             ))
 
         self.logger.debug(
@@ -218,6 +276,21 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
 
 class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
+
+    def _getTemporaryCopy(self, filePath):
+        '''Copy file at *filePath* to a temporary directory and return path.
+
+        .. note::
+
+            The copied file does not retain the original files meta data or
+            permissions.
+        '''
+        temporaryDirectory = tempfile.mkdtemp(prefix='ftrack_connect')
+        targetPath = os.path.join(
+            temporaryDirectory, os.path.basename(filePath)
+        )
+        shutil.copyfile(filePath, targetPath)
+        return targetPath
 
     def _getApplicationLaunchCommand(self, application, context=None):
         '''Return *application* command based on OS and *context*.
@@ -238,27 +311,43 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
         # Figure out if the command should be started with the file path of
         # the latest published version.
         if command is not None and context is not None:
+            self.logger.debug(
+                u'Launching action with context {0!r}'.format(context)
+            )
             selection = context.get('selection')
             if selection and context.get('launchWithLatest', False):
                 entity = selection[0]
                 component = None
 
-                if application['identifier'].startswith('photoshop_cc'):
-                    component = self._findLatestComponent(
-                        entity['entityId'],
-                        entity['entityType'],
-                        'psd'
-                    )
+                applicationExtensions = {
+                    'photoshop_cc': 'psd',
+                    'premiere_pro_cc': 'prproj',
+                    'after_effects_cc': 'aep'
+                }
 
-                if application['identifier'].startswith('premiere_pro_cc'):
-                    component = self._findLatestComponent(
-                        entity['entityId'],
-                        entity['entityType'],
-                        'prproj'
-                    )
+                for identifier, extension in applicationExtensions.items():
+                    if application['identifier'].startswith(identifier):
+                        component = self._findLatestComponent(
+                            entity['entityId'],
+                            entity['entityType'],
+                            extension
+                        )
 
                 if component is not None:
-                    command.append(component.getFilesystemPath())
+                    filePath = self._getTemporaryCopy(
+                        component.getFilesystemPath()
+                    )
+                    self.logger.info(
+                        u'Launching application with file {0!r}'.format(
+                            filePath
+                        )
+                    )
+                    command.append(filePath)
+                else:
+                    self.logger.warning(
+                        'Unable to find an appropriate component when '
+                        'launching with latest version.'
+                    )
 
         return command
 
