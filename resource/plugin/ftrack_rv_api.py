@@ -32,6 +32,9 @@ sequenceSourceNode = None
 stackSourceNode = None
 layoutSourceNode = None
 
+# Store references to annotation components being uploaded between methods.
+annotation_components = {}
+
 
 def getAPI():
     '''Return the ftrack api
@@ -368,11 +371,6 @@ def ftrackUUID(short):
     return str(uuid())
 
 
-def ftrackGetAttachmentId(s):
-    obj = json.loads(s)
-    return str(obj.get('attachment',{}).get('attachmentid',''))
-
-
 def ftrackJumpTo(index=0, startFrame=1):
     '''Move playhead to an index
 
@@ -390,3 +388,43 @@ def ftrackJumpTo(index=0, startFrame=1):
             frameNumber += (add)
 
     rv.commands.setFrame(frameNumber + startFrame)
+
+
+def create_component(encoded_args):
+    '''Create component without adding it to a location.
+
+    *encoded_args* should be a JSON encoded dictionary containing file_name and
+    frame.
+
+    Store reference in annotation_components.
+    '''
+    args = json.loads(encoded_args)
+    file_name = args['file_name']
+    frame = args['frame']
+
+    component_name = 'Frame_{0}'.format(frame)
+    file_path = os.path.join(ftrackFilePath(''), file_name)
+    logger.info(u'Creating component: {0!r}'.format(
+        file_path
+    ))
+    api = getAPI()
+    component = api.createComponent(
+        component_name,
+        path=file_path,
+        location=None
+    )
+    component_id = component.getId()
+    annotation_components[component_id] = component
+    return component_id
+
+
+def upload_component(component_id):
+    '''Add component with *component_id* to ftrack server location.'''
+    logger.info(u'Adding component {0!r} to ftrack server location.'.format(
+        component_id
+    ))
+    component = annotation_components[component_id]
+    server_location = api.Location('ftrack.server')
+    server_location.addComponent(component)
+    del annotation_components[component_id]
+    return component_id
