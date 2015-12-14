@@ -213,7 +213,7 @@ class: FtrackMode : MinorMode
     method: FtrackMode (FtrackMode; string name)
     {
         let SettingsValue.Bool _showPanelsOnStartUpBool = commands.readSetting(
-            "ftrack", "showPanelsOnStartUp", SettingsValue.Bool(false)
+            "ftrack", "showPanelsOnStartUp", SettingsValue.Bool(true)
         );
         _showPanelsOnStartup = _showPanelsOnStartUpBool;
         let SettingsValue.Bool _debugBool = commands.readSetting(
