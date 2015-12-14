@@ -30,6 +30,7 @@ class: FtrackMode : MinorMode
     bool           _firstRender;
     bool           _isHidden;
     bool           _debug;
+    bool           _showPanelsOnStartup;
     
     
     string          _tmpFolder;
@@ -136,8 +137,26 @@ class: FtrackMode : MinorMode
         if (_dockActionWidget neq nil) _dockActionWidget.show();
     }
     
+    method: showPanelsOnStartupToggle (void; Event event) {
+        if(!_showPanelsOnStartup) {
+            commands.writeSetting("ftrack", "showPanelsOnStartUp", SettingsValue.Bool(true));
+            _showPanelsOnStartup = true;
+            pprint("show on startup: %s" % _showPanelsOnStartup);
+        }
+        else {
+            commands.writeSetting("ftrack", "showPanelsOnStartUp", SettingsValue.Bool(false));
+            _showPanelsOnStartup = false;
+            pprint("show on startup: %s" % _showPanelsOnStartup);
+        }
+    }
+    
+    method: showPanelsOnStartupState(int;) {
+        pprint("show on startup: %s" % _showPanelsOnStartup);
+        if(_showPanelsOnStartup) then CheckedMenuState else UncheckedMenuState;
+    }
+    
     method: panelState(int;) {
-        pprint("Panels: %s" % _debug);
+        pprint("Panels: %s" % _isHidden);
         if(_isHidden) then UncheckedMenuState else CheckedMenuState;
     }
     
@@ -193,7 +212,14 @@ class: FtrackMode : MinorMode
     
     method: FtrackMode (FtrackMode; string name)
     {
-        _debug = true;
+        let SettingsValue.Bool _showPanelsOnStartUpBool = commands.readSetting(
+            "ftrack", "showPanelsOnStartUp", SettingsValue.Bool(true)
+        );
+        _showPanelsOnStartup = _showPanelsOnStartUpBool;
+        let SettingsValue.Bool _debugBool = commands.readSetting(
+            "ftrack", "debug", SettingsValue.Bool(false)
+        );
+        _debug = _debugBool;
 
         init(name,
         [ ("before-session-deletion", shutdown, "") ],
@@ -201,8 +227,9 @@ class: FtrackMode : MinorMode
         Menu {
              {"ftrackReview", Menu {
                      {"Toggle panels", ftrackToggle, "control shift t",panelState},
-                     {"Developer", Menu {
-                            {"Debug print", debugToggle, "control shift d",debugPrintState},    
+                     {"Preferences", Menu {
+                            {"Debug print", debugToggle, "control shift d",debugPrintState},
+                            {"Show panels on startup", showPanelsOnStartupToggle, "", showPanelsOnStartupState},
                         }
                      },
                  }
@@ -215,28 +242,16 @@ class: FtrackMode : MinorMode
         
         _dockActionWidget = nil;
 
-        //BIND EVENTS
-        
-        app_utils.bind("ftrack-event", ftrackEvent, "Update action window");
-        app_utils.bind("ftrack-timeline-loaded", createActionWindow, "User is logged in, create action window");
-
-        app_utils.bind("ftrack-toggle-floating", toggleFloating, "Toggle floating panel");
-
-        app_utils.bind("ftrack-upload-frame", ftrackExportAll, "Upload frame to FTrack");
-        app_utils.bind("ftrack-upload-frames", ftrackExportAll, "Upload all annotated frames to FTrack");
-        app_utils.bind("frame-changed", frameChanged, "New frame");
-        app_utils.bind("ftrack-changed-group",navGroupChanged,"New group selected");
-
         app_utils.bind("key-down--control--T", ftrackToggle, "Toggle ftrackReview panels");
         app_utils.bind("key-down--control--D", debugToggle, "Toggle ftrackReview debug prints");
         
-        
-        //SETUP PYTHON API
-        _pyApi    = python.PyImport_Import ("ftrack_rv_api");
-        _pyFilePath     = python.PyObject_GetAttr (_pyApi, "ftrackFilePath");
-        _pyUUID         = python.PyObject_GetAttr (_pyApi, "ftrackUUID");
-        _create_component = python.PyObject_GetAttr(_pyApi, "create_component");
-        _upload_component = python.PyObject_GetAttr(_pyApi, "upload_component");
+        if (_showPanelsOnStartup) {
+            _isHidden = false;
+            initUi();
+        }
+        else {
+            _isHidden = true;
+        }
     }
 
     method: createActionWindow(void;)
@@ -285,11 +300,27 @@ class: FtrackMode : MinorMode
         
     }
 
-    method: render(Event event)
+    method: initUi(void;)
     {
-    event.reject();
     if (_firstRender)
     {
+        //BIND EVENTS
+        app_utils.bind("ftrack-event", ftrackEvent, "Update action window");
+        app_utils.bind("ftrack-timeline-loaded", createActionWindow, "User is logged in, create action window");
+
+        app_utils.bind("ftrack-toggle-floating", toggleFloating, "Toggle floating panel");
+
+        app_utils.bind("ftrack-upload-frame", ftrackExportAll, "Upload frame to FTrack");
+        app_utils.bind("ftrack-upload-frames", ftrackExportAll, "Upload all annotated frames to FTrack");
+        app_utils.bind("frame-changed", frameChanged, "New frame");
+        app_utils.bind("ftrack-changed-group",navGroupChanged,"New group selected");
+
+        //SETUP PYTHON API
+        _pyApi    = python.PyImport_Import ("ftrack_rv_api");
+        _pyFilePath     = python.PyObject_GetAttr (_pyApi, "ftrackFilePath");
+        _pyUUID         = python.PyObject_GetAttr (_pyApi, "ftrackUUID");
+        _create_component = python.PyObject_GetAttr(_pyApi, "create_component");
+        _upload_component = python.PyObject_GetAttr(_pyApi, "upload_component");
 
         _firstRender = false;
         _currentSource = -1;
@@ -349,10 +380,7 @@ class: FtrackMode : MinorMode
         _baseNavigationWidget.show();
         _dockNavigationWidget.show();  
 
-        _isHidden = false; 
         mainWindowWidget().show();
-        // mainWindowWidget().showMaximized();
-        showConsole();
     }
     }
         
@@ -402,6 +430,7 @@ class: FtrackMode : MinorMode
         if (_isHidden) {
             _isHidden = false;
             showPanels();
+            initUi(); // initUi checks if it has been called already...
         }
         else {
             _isHidden = true;
@@ -414,9 +443,11 @@ class: FtrackMode : MinorMode
     {
         if (_debug) {
             _debug = false;
+            commands.writeSetting("ftrack", "debug", SettingsValue.Bool(false));
         }
         else {
             _debug = true;
+            commands.writeSetting("ftrack", "debug", SettingsValue.Bool(true));
         }
         
         pprint ("Debug print: " + _debug);
