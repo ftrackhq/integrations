@@ -30,7 +30,7 @@ class: FtrackMode : MinorMode
     bool           _firstRender;
     bool           _isHidden;
     bool           _debug;
-    bool           _showOnStartup;
+    bool           _showPanelsOnStartup;
     
     
     string          _tmpFolder;
@@ -137,22 +137,22 @@ class: FtrackMode : MinorMode
         if (_dockActionWidget neq nil) _dockActionWidget.show();
     }
     
-    method: showUiToggle (void; Event event) {
-        if(!_showOnStartup) {
-            commands.writeSetting("ftrack", "showOnStartUp", SettingsValue.Bool(true));
-            _showOnStartup = true;
-            pprint("show on startup: %s" % _showOnStartup);
+    method: showPanelsOnStartupToggle (void; Event event) {
+        if(!_showPanelsOnStartup) {
+            commands.writeSetting("ftrack", "showPanelsOnStartUp", SettingsValue.Bool(true));
+            _showPanelsOnStartup = true;
+            pprint("show on startup: %s" % _showPanelsOnStartup);
         }
         else {
-            commands.writeSetting("ftrack", "showOnStartUp", SettingsValue.Bool(false));
-            _showOnStartup = false;
-            pprint("show on startup: %s" % _showOnStartup);
+            commands.writeSetting("ftrack", "showPanelsOnStartUp", SettingsValue.Bool(false));
+            _showPanelsOnStartup = false;
+            pprint("show on startup: %s" % _showPanelsOnStartup);
         }
     }
     
-    method: showUiState(int;) {
-        pprint("show on startup: %s" % _showOnStartup);
-        if(_showOnStartup) then CheckedMenuState else UncheckedMenuState;
+    method: showPanelsOnStartupState(int;) {
+        pprint("show on startup: %s" % _showPanelsOnStartup);
+        if(_showPanelsOnStartup) then CheckedMenuState else UncheckedMenuState;
     }
     
     method: panelState(int;) {
@@ -212,10 +212,15 @@ class: FtrackMode : MinorMode
     
     method: FtrackMode (FtrackMode; string name)
     {
-        let SettingsValue.Bool b1 = commands.readSetting("ftrack", "showOnStartUp", SettingsValue.Bool(false));
-        _showOnStartup = b1 ;
-        let SettingsValue.Bool b2 = commands.readSetting("ftrack", "debug", SettingsValue.Bool(false));
-        _debug = b2;
+        let SettingsValue.Bool _showPanelsOnStartUpBool = commands.readSetting(
+            "ftrack", "showPanelsOnStartUp", SettingsValue.Bool(false)
+        );
+        _showPanelsOnStartup = _showPanelsOnStartUpBool;
+        let SettingsValue.Bool _debugBool = commands.readSetting(
+            "ftrack", "debug", SettingsValue.Bool(false)
+        );
+        _debug = _debugBool;
+
         init(name,
         [ ("before-session-deletion", shutdown, "") ],
         nil,
@@ -224,7 +229,7 @@ class: FtrackMode : MinorMode
                      {"Toggle panels", ftrackToggle, "control shift t",panelState},
                      {"Preferences", Menu {
                             {"Debug print", debugToggle, "control shift d",debugPrintState},
-                            {"show Ui on Startup", showUiToggle, "", showUiState},
+                            {"Show panels on startup", showPanelsOnStartupToggle, "", showPanelsOnStartupState},
                         }
                      },
                  }
@@ -240,15 +245,13 @@ class: FtrackMode : MinorMode
         app_utils.bind("key-down--control--T", ftrackToggle, "Toggle ftrackReview panels");
         app_utils.bind("key-down--control--D", debugToggle, "Toggle ftrackReview debug prints");
         
-        // init the ui based on setting s
-        if (_showOnStartup) {
+        if (_showPanelsOnStartup) {
             _isHidden = false;
             initUi();
         }
         else {
             _isHidden = true;
         }
-
     }
 
     method: createActionWindow(void;)
@@ -301,10 +304,7 @@ class: FtrackMode : MinorMode
     {
     if (_firstRender)
     {
-
-    
         //BIND EVENTS
-        
         app_utils.bind("ftrack-event", ftrackEvent, "Update action window");
         app_utils.bind("ftrack-timeline-loaded", createActionWindow, "User is logged in, create action window");
 
@@ -380,12 +380,7 @@ class: FtrackMode : MinorMode
         _baseNavigationWidget.show();
         _dockNavigationWidget.show();  
 
-        //_isHidden = false; 
         mainWindowWidget().show();
-        // mainWindowWidget().showMaximized();
-        //showConsole();
-        //_isHidden = true;
-        //hidePanels();
     }
     }
         
