@@ -25,11 +25,11 @@ with open(os.path.join(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
-connect_install_require = 'ftrack-connect == 0.1.18'
+connect_install_require = 'ftrack-connect == 0.1.19'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.18.zip'
-    '#egg=ftrack-connect-0.1.18'
+    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.19.zip'
+    '#egg=ftrack-connect-0.1.19'
 )
 
 cinesync_install_require = 'ftrack-connect-cinesync == 0.1.2'
@@ -62,6 +62,15 @@ connect_nuke_dependency_link = (
 )
 connect_nuke_dependency_install_require = (
     'ftrack-connect-nuke'
+    ' >=0.1, < 1'
+)
+
+connect_maya_dependency_link = (
+    'https://bitbucket.org/ftrack/ftrack-connect-maya/get/0.2.0.zip'
+    '#egg=ftrack-connect-maya-0.2.0'
+)
+connect_maya_dependency_install_require = (
+    'ftrack-connect-maya'
     ' >=0.1, < 1'
 )
 
@@ -110,6 +119,7 @@ configuration = dict(
         connect_legacy_plugins_install_require,
         connect_hieroplayer_install_require,
         connect_nuke_dependency_install_require,
+        connect_maya_dependency_install_require,
         connect_nuke_studio_dependency_install_require,
         connect_rv_dependency_install_require
     ],
@@ -123,6 +133,7 @@ configuration = dict(
         ('https://bitbucket.org/ftrack/lowdown/get/0.1.0.zip'
          '#egg=lowdown-0.1.0'),
         connect_hieroplayer_dependency_link,
+        connect_maya_dependency_link,
         connect_nuke_dependency_link,
         connect_nuke_studio_dependency_link,
         connect_rv_dependency_link
@@ -158,6 +169,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             cinesync_install_require,
             connect_legacy_plugins_install_require,
             connect_hieroplayer_install_require,
+            connect_maya_dependency_install_require,
             connect_nuke_dependency_install_require,
             connect_nuke_studio_dependency_install_require,
             connect_rv_dependency_install_require
@@ -167,6 +179,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             connect_dependency_link,
             connect_legacy_plugins_dependency_link,
             connect_hieroplayer_dependency_link,
+            connect_maya_dependency_link,
             connect_nuke_dependency_link,
             connect_nuke_studio_dependency_link,
             connect_rv_dependency_link
@@ -217,6 +230,16 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_nuke/hook'
     )
 
+    ftrack_connect_maya_source = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-connect-maya'),
+        'ftrack_connect_maya/ftrack_connect_maya'
+    )
+
+    ftrack_connect_maya_hook = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-connect-maya'),
+        'ftrack_connect_maya/hook'
+    )
+
     ftrack_connect_nuke_studio_source = pkg_resources.resource_filename(
         pkg_resources.Requirement.parse('ftrack-connect-nuke-studio'),
         'ftrack_connect_nuke_studio/resource'
@@ -245,6 +268,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         (ftrack_connect_hieroplayer_source, 'resource/hieroplayer'),
         (ftrack_connect_rv_hook, 'resource/hook'),
         (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'),
+        (ftrack_connect_maya_hook, 'resource/hook'),
+        (ftrack_connect_maya_source, 'resource/ftrack_connect_maya'),
         (ftrack_connect_nuke_hook, 'resource/hook'),
         (ftrack_connect_nuke_source, 'resource/ftrack_connect_nuke'),
         (requests.certs.where(), 'resource/cacert.pem'),
@@ -355,7 +380,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_legacy_plugins',
         'ftrack_connect_hieroplayer',
         'ftrack_connect_rv',
-        'lucidity'
+        'lucidity',
+        'ftrack_connect_maya'
     ])
 
     configuration['options']['build_exe'] = {
