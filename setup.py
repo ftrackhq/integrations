@@ -25,11 +25,11 @@ with open(os.path.join(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
-connect_install_require = 'ftrack-connect == 0.1.18'
+connect_install_require = 'ftrack-connect == 0.1.19'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/backlog/refactor-maya-plugin/story.zip'
-    '#egg=ftrack-connect-0.1.18'
+    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.19.zip'
+    '#egg=ftrack-connect-0.1.19'
 )
 
 cinesync_install_require = 'ftrack-connect-cinesync == 0.1.2'
@@ -66,8 +66,8 @@ connect_nuke_dependency_install_require = (
 )
 
 connect_maya_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-maya/get/backlog/refactor-maya-plugin/story.zip'
-    '#egg=ftrack-connect-maya-0.1.0'
+    'https://bitbucket.org/ftrack/ftrack-connect-maya/get/0.2.0.zip'
+    '#egg=ftrack-connect-maya-0.2.0'
 )
 connect_maya_dependency_install_require = (
     'ftrack-connect-maya'
