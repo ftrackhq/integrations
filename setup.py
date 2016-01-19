@@ -121,7 +121,8 @@ configuration = dict(
         connect_nuke_dependency_install_require,
         connect_maya_dependency_install_require,
         connect_nuke_studio_dependency_install_require,
-        connect_rv_dependency_install_require
+        connect_rv_dependency_install_require,
+        'boto == 2.28.0'
     ],
     dependency_links=[
         'file://{0}#egg=ftrack-python-legacy-api'.format(
@@ -381,7 +382,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_hieroplayer',
         'ftrack_connect_rv',
         'lucidity',
-        'ftrack_connect_maya'
+        'ftrack_connect_maya',
+        'boto'
     ])
 
     configuration['options']['build_exe'] = {
