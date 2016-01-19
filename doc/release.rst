@@ -9,7 +9,7 @@ Releases
 
     .. change:: new
 
-        Added :py:mod:`boto==0.28.0` to packaged modules.
+        Added :py:mod:`boto==2.28.0` to packaged modules.
 
 .. release:: 0.3.4
     :date: 2016-01-18
