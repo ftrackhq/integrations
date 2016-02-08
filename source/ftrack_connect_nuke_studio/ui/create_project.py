@@ -708,14 +708,14 @@ class ProjectTreeDialog(QtGui.QDialog):
 
             if datum.type == 'show':
                 if datum.exists:
-                    logging.debug('%s %s exists as %s, reusing it.' % (
+                    self.logger.debug('%s %s exists as %s, reusing it.' % (
                         datum.name, datum.type, datum.exists.get('showid')))
                     current = self.session.get(
                         'Project', datum.exists.get('showid')
                     )
                 else:
                     project_name = self.project_selector.get_new_name()
-                    logging.debug('creating show %s' % project_name)
+                    self.logger.debug('creating show %s' % project_name)
 
                     current = self.session.create('Project', {
                         'name': project_name,
@@ -748,7 +748,7 @@ class ProjectTreeDialog(QtGui.QDialog):
                     # Frame in 1.
                     track_in += 1
                     track_out += 1
-                    logging.debug(
+                    self.logger.debug(
                         'Single file detected, adjusting frame start and '
                         'frame end to {0}-{1}'.format(track_in, track_out)
                     )
@@ -759,13 +759,13 @@ class ProjectTreeDialog(QtGui.QDialog):
                 )
 
                 if datum.exists:
-                    logging.debug('%s %s exists as %s, reusing it.' % (
+                    self.logger.debug('%s %s exists as %s, reusing it.' % (
                         datum.name, datum.type, datum.exists.get('taskid')))
                     current = self.session.get(
                         'TypedContext', datum.exists.get('taskid')
                     )
                 else:
-                    logging.debug(
+                    self.logger.debug(
                         'creating %s %s' % (datum.type, datum.name))
                     object_type = datum.type.title()
 
@@ -782,7 +782,7 @@ class ProjectTreeDialog(QtGui.QDialog):
                     datum.exists = {'taskid': current['id']}
 
                 if datum.type == 'shot':
-                    logging.debug(
+                    self.logger.debug(
                         'Setting metadata to %s' % datum.name)
 
                     data = {
