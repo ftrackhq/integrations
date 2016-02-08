@@ -668,7 +668,7 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         if asset_parent_exists:
             try:
-                return self.session.query(
+                asset = self.session.query(
                     u'Asset where name is "{0}" and '
                     u'context_id is "{1}" and type_id is "{2}"'
                     .format(
@@ -676,15 +676,31 @@ class ProjectTreeDialog(QtGui.QDialog):
                         self.asset_type_id
                     )
                 ).one()
+
+                self.logger.debug(
+                    'Found existing asset: {0!r}.'.format(
+                        asset['id']
+                    )
+                )
+
+                return asset
             except ftrack_api.exception.NoResultFoundError:
                 # Asset parent exists but there is no asset created yet.
                 pass
 
-        return self.session.create('Asset', {
+        asset_data = {
             'name': asset_name,
             'context_id': asset_parent['id'],
             'type_id': self.asset_type_id
-        })
+        }
+
+        self.logger.debug(
+            u'No existing asset found, creating new: {0!r}.'.format(
+                asset_data
+            )
+        )
+
+        return self.session.create('Asset', asset_data)
 
     def _create_structure(self, data, previous):
         '''Create structure recursively from *data* and *previous*.
@@ -846,6 +862,12 @@ class ProjectTreeDialog(QtGui.QDialog):
                                     asset_parent
                                 )
 
+                                self.logger.debug(
+                                    u'Creating asset version on asset with id: '
+                                    u'{0!r}'.format(
+                                        asset['id']
+                                    )
+                                )
                                 asset_version = self.session.create(
                                     'AssetVersion', {
                                         'asset_id': asset['id'],
