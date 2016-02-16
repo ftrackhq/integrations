@@ -7,6 +7,12 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: fixed
+
+        Meta data on project is overwritten when an existing project is updated.
+
 .. release:: 0.2.0
     :date: 2015-11-10
 
