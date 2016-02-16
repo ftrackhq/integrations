@@ -725,12 +725,15 @@ class ProjectTreeDialog(QtGui.QDialog):
 
                     datum.exists = {'showid': current['id']}
 
-                current['metadata'] = {
+                metadata = {
                     'fps': fps,
                     'resolution': str(resolution),
                     'offset': offset,
                     'handles': handles
                 }
+
+                for key, value in metadata.items():
+                    current['metadata'][key] = value
 
             else:
 
