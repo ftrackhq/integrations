@@ -668,7 +668,7 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         if asset_parent_exists:
             try:
-                return self.session.query(
+                asset = self.session.query(
                     u'Asset where name is "{0}" and '
                     u'context_id is "{1}" and type_id is "{2}"'
                     .format(
@@ -676,15 +676,31 @@ class ProjectTreeDialog(QtGui.QDialog):
                         self.asset_type_id
                     )
                 ).one()
+
+                self.logger.debug(
+                    'Found existing asset: {0!r}.'.format(
+                        asset['id']
+                    )
+                )
+
+                return asset
             except ftrack_api.exception.NoResultFoundError:
                 # Asset parent exists but there is no asset created yet.
                 pass
 
-        return self.session.create('Asset', {
+        asset_data = {
             'name': asset_name,
             'context_id': asset_parent['id'],
             'type_id': self.asset_type_id
-        })
+        }
+
+        self.logger.debug(
+            u'No existing asset found, creating new: {0!r}.'.format(
+                asset_data
+            )
+        )
+
+        return self.session.create('Asset', asset_data)
 
     def _create_structure(self, data, previous):
         '''Create structure recursively from *data* and *previous*.
@@ -708,14 +724,14 @@ class ProjectTreeDialog(QtGui.QDialog):
 
             if datum.type == 'show':
                 if datum.exists:
-                    logging.debug('%s %s exists as %s, reusing it.' % (
+                    self.logger.debug('%s %s exists as %s, reusing it.' % (
                         datum.name, datum.type, datum.exists.get('showid')))
                     current = self.session.get(
                         'Project', datum.exists.get('showid')
                     )
                 else:
                     project_name = self.project_selector.get_new_name()
-                    logging.debug('creating show %s' % project_name)
+                    self.logger.debug('creating show %s' % project_name)
 
                     current = self.session.create('Project', {
                         'name': project_name,
@@ -748,7 +764,7 @@ class ProjectTreeDialog(QtGui.QDialog):
                     # Frame in 1.
                     track_in += 1
                     track_out += 1
-                    logging.debug(
+                    self.logger.debug(
                         'Single file detected, adjusting frame start and '
                         'frame end to {0}-{1}'.format(track_in, track_out)
                     )
@@ -759,13 +775,13 @@ class ProjectTreeDialog(QtGui.QDialog):
                 )
 
                 if datum.exists:
-                    logging.debug('%s %s exists as %s, reusing it.' % (
+                    self.logger.debug('%s %s exists as %s, reusing it.' % (
                         datum.name, datum.type, datum.exists.get('taskid')))
                     current = self.session.get(
                         'TypedContext', datum.exists.get('taskid')
                     )
                 else:
-                    logging.debug(
+                    self.logger.debug(
                         'creating %s %s' % (datum.type, datum.name))
                     object_type = datum.type.title()
 
@@ -782,7 +798,7 @@ class ProjectTreeDialog(QtGui.QDialog):
                     datum.exists = {'taskid': current['id']}
 
                 if datum.type == 'shot':
-                    logging.debug(
+                    self.logger.debug(
                         'Setting metadata to %s' % datum.name)
 
                     data = {
@@ -846,6 +862,12 @@ class ProjectTreeDialog(QtGui.QDialog):
                                     asset_parent
                                 )
 
+                                self.logger.debug(
+                                    u'Creating asset version on asset with id: '
+                                    u'{0!r}'.format(
+                                        asset['id']
+                                    )
+                                )
                                 asset_version = self.session.create(
                                     'AssetVersion', {
                                         'asset_id': asset['id'],
