@@ -11,6 +11,10 @@ Releases
 
         Added :py:mod:`boto==2.28.0` to packaged modules.
 
+    .. change:: new
+
+        Added :py:mod:`csv` to packaged modules
+
 .. release:: 0.3.4
     :date: 2016-01-18
 
