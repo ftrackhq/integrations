@@ -15,6 +15,10 @@ Releases
 
         Added :py:mod:`csv` to packaged modules
 
+    .. change:: changed
+
+        `ftrack connect 0.1.20 <http://ftrack-connect.rtd.ftrack.com/en/0.1.20/>`_
+
 .. release:: 0.3.4
     :date: 2016-01-18
 
