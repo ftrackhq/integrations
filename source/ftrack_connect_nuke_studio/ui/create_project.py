@@ -752,6 +752,11 @@ class ProjectTreeDialog(QtGui.QDialog):
                 for key, value in metadata.items():
                     current['metadata'][key] = value
 
+                self.logger.debug('Commit project.')
+                #: TODO: Remove this commit when the api issue with order of 
+                # operations is fixed.
+                self.session.commit()
+
             else:
 
                 # Gather all the useful informations from the track
@@ -849,6 +854,11 @@ class ProjectTreeDialog(QtGui.QDialog):
                     self.update_entity_reference.emit(
                         datum.track, datum.exists['taskid'], 'task'
                     )
+
+                self.logger.debug('Commit partial structure.')
+                #: TODO: Remove this commit when the api issue with order of 
+                # operations is fixed.
+                self.session.commit()
 
                 processors = gather_processors(
                     datum.name, datum.type, datum.track
