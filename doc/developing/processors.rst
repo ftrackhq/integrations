@@ -31,9 +31,13 @@ The structure of the event is::
         topic='ftrack.processor.discover',
         data=dict(
             name='010',
-            object_type='Shot'
+            object_type='Shot',
+            application_object=track_item
         )
     )
+
+Where `track_item` is a core.Hiero.Python.TrackItem corresponding to the
+object.
 
 To make a processor available for on all shot creations you have to subscribe 
 to the event hub::

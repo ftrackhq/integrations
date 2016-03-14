@@ -9,6 +9,12 @@ Release Notes
 
 .. release:: Upcoming
 
+    .. change:: changed
+        :tags: Processor, Development
+
+        Track item is passed as `application_object` when discovering
+        processors.
+
     .. change:: fixed
         :tags: Create project
 

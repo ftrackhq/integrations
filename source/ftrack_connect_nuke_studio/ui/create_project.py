@@ -37,14 +37,15 @@ from ftrack_connect_nuke_studio.ui.widget.template import Template
 from ftrack_connect.ui.theme import applyTheme
 
 
-def gather_processors(name, type):
-    '''Retrieve processors from *name* and *type* grouped by asset name.'''
+def gather_processors(name, type, track_item):
+    '''Retrieve processors for *name*, *type* and *track_item*.'''
     processors = ftrack.EVENT_HUB.publish(
         ftrack.Event(
             topic='ftrack.processor.discover',
             data=dict(
                 name=name,
-                object_type=type
+                object_type=type,
+                application_object=track_item
             )
         ),
         synchronous=True
@@ -466,7 +467,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         item = index.model().data(index, role=self.tag_model.ITEM_ROLE)
 
         processor_groups = collections.defaultdict(list)
-        for processor in gather_processors(item.name, item.type):
+        for processor in gather_processors(item.name, item.type, item.track):
             if 'asset_name' in processor:
                 group_name = 'Asset: ' + processor['asset_name']
             else:
@@ -854,13 +855,14 @@ class ProjectTreeDialog(QtGui.QDialog):
                         datum.track, datum.exists['taskid'], 'task'
                     )
 
-
                 self.logger.debug('Commit partial structure.')
                 #: TODO: Remove this commit when the api issue with order of 
                 # operations is fixed.
                 self.session.commit()
 
-                processors = gather_processors(datum.name, datum.type)
+                processors = gather_processors(
+                    datum.name, datum.type, datum.track
+                )
 
                 if processors:
                     assets = dict()
