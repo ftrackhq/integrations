@@ -10,6 +10,12 @@ Release Notes
 .. release:: Upcoming
 
     .. change:: fixed
+        :tags: Create project
+
+        Fix issue where a project cannot be created or updated from the Create
+        dialog.
+
+    .. change:: fixed
 
         Meta data on project is overwritten when an existing project is updated.
 
