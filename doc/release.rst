@@ -7,6 +7,10 @@ Releases
 
 .. release:: Upcoming
 
+    .. change:: changed
+
+        `ftrack connect nuke studio 0.2.1 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/0.2.1/>`_
+
     .. change:: new
 
         Added :py:mod:`boto==2.28.0` to packaged modules.
