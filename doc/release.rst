@@ -5,11 +5,8 @@
 Releases
 ########
 
-.. release:: Upcoming
-
-    .. change:: changed
-
-        `ftrack connect nuke studio 0.2.1 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/0.2.1/>`_
+.. release:: 0.3.5
+    :date: 2016-03-16
 
     .. change:: new
 
@@ -18,6 +15,10 @@ Releases
     .. change:: new
 
         Added :py:mod:`csv` to packaged modules
+
+    .. change:: changed
+
+        `ftrack connect nuke studio 0.2.1 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/0.2.1/>`_
 
     .. change:: changed
 
