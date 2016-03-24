@@ -117,10 +117,7 @@ class ProcessorPlugin(object):
                 'format': data['resolution']
             },
             'OFFSET': {
-                'time_offset': (
-                    int(data['offset'])
-                    - (int(data['source_in']) - int(data['handles']))
-                )
+                'time_offset': int(data['offset']) - int(data['source_in'])
             },
             'root': {
                 'first_frame': int(data['destination_in']),

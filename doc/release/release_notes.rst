@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: fixed
+        :tags: Processor
+
+        Handles are not treated correctly when publishing through processors.
+
 .. release:: 0.2.1
     :date: 2016-03-14
 
