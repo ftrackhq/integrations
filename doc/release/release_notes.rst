@@ -7,7 +7,8 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 0.2.2
+    :date: 2016-04-04
 
     .. change:: fixed
         :tags: Processor
