@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: fixed
+        :tags: Compatibility
+
+        Plugin doesn't work with Nuke Studio 10.0v1 beta.
+
 .. release:: 0.2.2
     :date: 2016-04-04
 
