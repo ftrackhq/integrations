@@ -5,6 +5,12 @@
 Releases
 ########
 
+.. release:: Upcoming
+
+    .. change:: changed
+
+        `ftrack connect maya 0.2.1 <http://ftrack-connect-maya.rtd.ftrack.com/en/0.2.1/>`_
+
 .. release:: 0.3.7
     :date: 2016-04-04
 
