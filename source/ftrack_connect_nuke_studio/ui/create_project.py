@@ -120,7 +120,8 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.export_project_button.clicked.connect(self.on_export_project)
         self.close_button.clicked.connect(self.on_close_dialog)
 
-        self.tree_view.selectionModel().selectionChanged.connect(
+        selection_model = self.tree_view.selectionModel()
+        selection_model.selectionChanged.connect(
             self.on_tree_item_selection
         )
         self.worker.started.connect(self.busy_overlay.show)
@@ -215,7 +216,7 @@ class ProjectTreeDialog(QtGui.QDialog):
             project_tag.metadata().setValue(
                 'tag.value', self.sequence.project().name()
             )
-            project_tag.metadata().setValue('ftrack.id', None)
+            project_tag.metadata().setValue('ftrack.id', '')
             project_tag.metadata().setValue('type', 'ftrack')
             self.sequence.addTag(project_tag)
             attached_tag = project_tag
