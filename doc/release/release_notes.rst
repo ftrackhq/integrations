@@ -7,7 +7,8 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 0.2.3
+    :date: 2016-05-02
 
     .. change:: fixed
         :tags: Compatibility
