@@ -5,11 +5,24 @@
 Releases
 ########
 
-.. release:: Upcoming
+.. release:: 0.3.8
+    :date: 2016-05-02
 
     .. change:: changed
 
         `ftrack connect maya 0.2.1 <http://ftrack-connect-maya.rtd.ftrack.com/en/0.2.1/>`_
+
+    .. change:: changed
+
+        `ftrack connect nuke 0.1.7 <http://ftrack-connect-nuke.rtd.ftrack.com/en/0.1.7/>`_
+
+    .. change:: changed
+
+        `ftrack connect nuke studio 0.2.3 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/0.2.3/>`_
+
+    .. change:: changed
+
+        `ftrack connect 0.1.22 <http://ftrack-connect.rtd.ftrack.com/en/0.1.22/>`_
 
 .. release:: 0.3.7
     :date: 2016-04-04
