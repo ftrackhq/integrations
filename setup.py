@@ -66,8 +66,8 @@ connect_nuke_dependency_install_require = (
 )
 
 connect_maya_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-maya/get/0.2.1.zip'
-    '#egg=ftrack-connect-maya-0.2.1'
+    'https://bitbucket.org/ftrack/ftrack-connect-maya/get/0.2.2.zip'
+    '#egg=ftrack-connect-maya-0.2.2'
 )
 connect_maya_dependency_install_require = (
     'ftrack-connect-maya'
