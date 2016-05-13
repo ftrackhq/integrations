@@ -418,7 +418,7 @@ class ProjectTreeDialog(QtGui.QDialog):
                 QtCore.Qt.MatchExactly
             )
 
-            self.logger.debug('Setting current workflow index to %s for schema %s and project %s' % (
+            self.logger.debug('Setting current workflow index to {0} for schema {1} and project {2}'.format(
                 index, project['project_schema']['name'], project['name']
                 )
             )
