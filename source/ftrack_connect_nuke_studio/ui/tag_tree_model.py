@@ -1,8 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
+import logging
 
 from PySide import QtGui, QtCore
-import logging
 
 from ftrack_connect.ui.model.entity_tree import EntityTreeModel
 from ftrack_connect_nuke_studio.ui.helper import (
