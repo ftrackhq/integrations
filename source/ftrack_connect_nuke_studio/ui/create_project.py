@@ -427,24 +427,24 @@ class ProjectTreeDialog(QtGui.QDialog):
             self.workflow_combobox.setDisabled(True)
 
             project_metadata = project['metadata']
-            fps = str(project_metadata.get('fps'))
-            handles = str(project_metadata.get('handles'))
-            offset = str(project_metadata.get('offset'))
-            resolution = str(project_metadata.get('resolution'))
+            fps = project_metadata.get('fps')
+            handles = project_metadata.get('handles')
+            offset = project_metadata.get('offset')
+            resolution = project_metadata.get('resolution')
 
             # If the project has been created manually might not be having these attrs.
             if resolution:
-                self.resolution_combobox.setCurrentFormat(resolution)
+                self.resolution_combobox.setCurrentFormat(str(resolution))
 
             if fps:
-                fps_index = self.fps_combobox.findText(fps)
+                fps_index = self.fps_combobox.findText(str(fps))
                 self.fps_combobox.setCurrentIndex(fps_index)
 
             if handles:
-                self.handles_spinbox.setValue(int(handles))
+                self.handles_spinbox.setValue(int(str(handles)))
 
             if offset:
-                self.start_frame_offset_spinbox.setValue(int(offset))
+                self.start_frame_offset_spinbox.setValue(int(str(offset)))
 
     def on_project_preview_done(self):
         '''Handle signal once the project preview have started populating.'''
