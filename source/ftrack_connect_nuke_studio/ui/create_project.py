@@ -414,7 +414,7 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         '''
         self.workflow_combobox.setDisabled(True)
-        self.logger.debug('On Existing project : %s' % project_name)
+        self.logger.debug('On Existing project : {0}'.format(project_name))
 
         if project_name:
             project = self.session.query(
