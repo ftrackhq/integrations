@@ -166,10 +166,19 @@ class ProjectTreeDialog(QtGui.QDialog):
             track_item, entity_id=entity_id, entity_type=entity_type
         )
 
-    def update_project_tag(self, project_code):
+    def update_project_tag(self, project_code, project_status):
         '''Update project tag on sequence with *project_code*.'''
+        self.logger.debug('Update project tag, project code: {0} and status {1}'.format(
+            project_code, project_status
+            )
+        )
 
-        self.workflow_combobox.setDisabled(False)
+        self.workflow_combobox.setDisabled(True)
+        self.logger.debug('Disabling Workflow Compboxbox')
+
+        if project_status == self.project_selector.NEW_PROJECT:
+            self.logger.debug('Enabling Workflow Compboxbox')
+            self.workflow_combobox.setDisabled(False)
 
         for tag in self.sequence.tags():
             meta = tag.metadata()
@@ -404,8 +413,10 @@ class ProjectTreeDialog(QtGui.QDialog):
         *project_name* is the name of the project that is exists.
 
         '''
+        self.workflow_combobox.setDisabled(True)
+        self.logger.debug('On Existing project : %s' % project_name)
 
-        if self.workflow_combobox.isEnabled() and project_name:
+        if project_name:
             project = self.session.query(
                 (
                     u'select project_schema.name, metadata from Project '
@@ -424,7 +435,6 @@ class ProjectTreeDialog(QtGui.QDialog):
             )
 
             self.workflow_combobox.setCurrentIndex(index)
-            self.workflow_combobox.setDisabled(True)
 
             project_metadata = project['metadata']
             fps = project_metadata.get('fps')
@@ -582,7 +592,6 @@ class ProjectTreeDialog(QtGui.QDialog):
             return self._cached_type_and_status[key]
 
         selected_workflow = self.workflow_combobox.currentItem()
-
         try:
             types = selected_workflow.get_types(object_type)
         except ValueError:
@@ -726,6 +735,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         '''
         processor_data = []
         selected_workflow = self.workflow_combobox.currentItem()
+
         for datum in data:
 
             # Skip all items under the 'Not matching template' node in the
