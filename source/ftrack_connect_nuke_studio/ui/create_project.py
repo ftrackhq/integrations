@@ -404,6 +404,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         *project_name* is the name of the project that is exists.
 
         '''
+
         if self.workflow_combobox.isEnabled() and project_name:
             project = self.session.query(
                 (
@@ -411,9 +412,17 @@ class ProjectTreeDialog(QtGui.QDialog):
                     u'where name is "{0}"'
                 ).format(project_name)
             ).one()
+
             index = self.workflow_combobox.findText(
-                project['project_schema']['name']
+                project['project_schema']['name'],
+                QtCore.Qt.MatchExactly
             )
+
+            self.logger.debug('Setting current workflow index to %s for schema %s and project %s' % (
+                index, project['project_schema']['name'], project['name']
+                )
+            )
+
             self.workflow_combobox.setCurrentIndex(index)
             self.workflow_combobox.setDisabled(True)
 
@@ -423,14 +432,19 @@ class ProjectTreeDialog(QtGui.QDialog):
             offset = str(project_metadata.get('offset'))
             resolution = str(project_metadata.get('resolution'))
 
-            self.resolution_combobox.setCurrentFormat(resolution)
+            # If the project has been created manually might not be having these attrs.
+            if resolution:
+                self.resolution_combobox.setCurrentFormat(resolution)
 
-            fps_index = self.fps_combobox.findText(fps)
-            self.fps_combobox.setCurrentIndex(fps_index)
+            if fps:
+                fps_index = self.fps_combobox.findText(fps)
+                self.fps_combobox.setCurrentIndex(fps_index)
 
-            self.handles_spinbox.setValue(int(handles))
+            if handles:
+                self.handles_spinbox.setValue(int(handles))
 
-            self.start_frame_offset_spinbox.setValue(int(offset))
+            if offset:
+                self.start_frame_offset_spinbox.setValue(int(offset))
 
     def on_project_preview_done(self):
         '''Handle signal once the project preview have started populating.'''

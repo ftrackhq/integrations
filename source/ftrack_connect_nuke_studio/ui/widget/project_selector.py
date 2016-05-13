@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2015 ftrack
 
 from PySide import QtGui, QtCore
+import logging
 
 import ftrack
 
@@ -17,6 +18,10 @@ class ProjectSelector(QtGui.QWidget):
     def __init__(self, project_name='', parent=None):
         '''Instantiate the project options with optional *project_name*.'''
         super(ProjectSelector, self).__init__(parent=parent)
+
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
 
         self.setLayout(QtGui.QVBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
@@ -103,10 +108,13 @@ class ProjectSelector(QtGui.QWidget):
 
     def _on_new_project_changed(self):
         '''Handle text changed events.'''
+        self.logger.debug('On new project changed: %s' % self.get_new_name())
         self.project_selected.emit(self.get_new_name())
 
     def _on_existing_project_selected(self, index):
         '''Handle select events in project selector.'''
+        project = self.existing_project_selector.itemData(index)
+        self.logger.debug('On existing project selected: %s' % project.getName())
 
         project = self.existing_project_selector.itemData(index)
         self.project_selected.emit(project.getName())
@@ -115,12 +123,15 @@ class ProjectSelector(QtGui.QWidget):
         '''Handle new project toggle event.'''
 
         if toggled:
+
             self.set_state(self.NEW_PROJECT)
             self.existing_project_selector.hide()
             self.existing_project_label.hide()
 
             self.new_project_name_edit.show()
             self.new_project_label.show()
+
+            self.logger.debug('On new project toggled: %s' % self.get_new_name())
 
             self.project_selected.emit(self.get_new_name())
 

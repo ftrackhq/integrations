@@ -2,6 +2,8 @@
 # :copyright: Copyright (c) 2014 ftrack
 
 from PySide import QtGui, QtCore
+import logging
+
 from ftrack_connect.ui.model.entity_tree import EntityTreeModel
 from ftrack_connect_nuke_studio.ui.helper import (
     time_from_track_item, timecode_from_track_item, source_from_track_item
@@ -12,6 +14,7 @@ class TagTreeModel(EntityTreeModel):
     ''' A morel representing the hierarchy tree of the context.'''
 
     project_exists = QtCore.Signal(str)
+    project_checked = []
 
     def __init__(self, tree_data=None, parent=None):
         '''Define a new TagTreeModel with *tree_data* and *parent*.
@@ -20,6 +23,10 @@ class TagTreeModel(EntityTreeModel):
 
         '''
         super(TagTreeModel, self).__init__(parent=parent)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+
         self.root = tree_data
         self.columns = [
             'Name',
@@ -56,7 +63,9 @@ class TagTreeModel(EntityTreeModel):
                 return item.type
 
             if item.type == 'show' and item.exists:
-                self.project_exists.emit(item.name)
+                if item.name not in self.project_checked:
+                    self.project_exists.emit(item.name)
+                    self.project_checked.append(item.name)
 
             if item.type == 'shot':
                 start, end, in_, out = time_from_track_item(
