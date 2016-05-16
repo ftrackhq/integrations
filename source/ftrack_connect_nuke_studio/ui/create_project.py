@@ -173,7 +173,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.workflow_combobox.setDisabled(True)
         self.logger.debug('Disabling Workflow Compboxbox')
 
-        if project_status == self.project_selector.NEW_PROJECT:
+        if self.project_selector.get_state() == self.project_selector.NEW_PROJECT:
             self.logger.debug('Enabling Workflow Compboxbox')
             self.workflow_combobox.setDisabled(False)
 
