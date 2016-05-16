@@ -166,12 +166,9 @@ class ProjectTreeDialog(QtGui.QDialog):
             track_item, entity_id=entity_id, entity_type=entity_type
         )
 
-    def update_project_tag(self, project_code, project_status):
+    def update_project_tag(self, project_code):
         '''Update project tag on sequence with *project_code*.'''
-        self.logger.debug('Update project tag, project code: {0} and status {1}'.format(
-            project_code, project_status
-            )
-        )
+        self.logger.debug('Update project tag, project code: {0}'.format(project_code))
 
         self.workflow_combobox.setDisabled(True)
         self.logger.debug('Disabling Workflow Compboxbox')

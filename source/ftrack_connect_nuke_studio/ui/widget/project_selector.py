@@ -10,7 +10,7 @@ import ftrack
 class ProjectSelector(QtGui.QWidget):
     '''Create or select existing project.'''
 
-    project_selected = QtCore.Signal((object, object))
+    project_selected = QtCore.Signal(object)
 
     NEW_PROJECT = 'NEW_PROJECT'
     EXISTING_PROJECT = 'EXISTING_PROJECT'
@@ -109,14 +109,14 @@ class ProjectSelector(QtGui.QWidget):
     def _on_new_project_changed(self):
         '''Handle text changed events.'''
         self.logger.debug('On new project changed:{0}'.format(self.get_new_name()))
-        self.project_selected.emit(self.get_new_name(), self.NEW_PROJECT)
+        self.project_selected.emit(self.get_new_name())
 
     def _on_existing_project_selected(self, index):
         '''Handle select events in project selector.'''
         project = self.existing_project_selector.itemData(index)
         self.logger.debug('On existing project selected: {0}'.format(project.getName()))
 
-        self.project_selected.emit(project.getName(), self.EXISTING_PROJECT)
+        self.project_selected.emit(project.getName())
 
     def _on_new_project_toggled(self, toggled):
         '''Handle new project toggle event.'''
@@ -132,7 +132,7 @@ class ProjectSelector(QtGui.QWidget):
 
             self.logger.debug('On new project toggled: {0}'.format(self.get_new_name()))
 
-            self.project_selected.emit(self.get_new_name(), self.NEW_PROJECT)
+            self.project_selected.emit(self.get_new_name())
 
     def _on_existing_project_toggled(self, toggled):
         '''Handle existing project toggle event.'''
