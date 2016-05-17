@@ -14,7 +14,6 @@ class TagTreeModel(EntityTreeModel):
     ''' A morel representing the hierarchy tree of the context.'''
 
     project_exists = QtCore.Signal(str)
-    project_checked = []
 
     def __init__(self, tree_data=None, parent=None):
         '''Define a new TagTreeModel with *tree_data* and *parent*.
@@ -63,9 +62,7 @@ class TagTreeModel(EntityTreeModel):
                 return item.type
 
             if item.type == 'show' and item.exists:
-                if item.name not in self.project_checked:
-                    self.project_exists.emit(item.name)
-                    self.project_checked.append(item.name)
+                self.project_exists.emit(item.name)
 
             if item.type == 'shot':
                 start, end, in_, out = time_from_track_item(
