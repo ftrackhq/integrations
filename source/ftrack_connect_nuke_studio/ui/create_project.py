@@ -410,48 +410,48 @@ class ProjectTreeDialog(QtGui.QDialog):
         *project_name* is the name of the project that is exists.
 
         '''
+        # If the project exists already, disable the workflow selection.
         self.workflow_combobox.setDisabled(True)
         self.logger.debug('On Existing project : {0}'.format(project_name))
 
-        if project_name:
-            project = self.session.query(
-                (
-                    u'select project_schema.name, metadata from Project '
-                    u'where name is "{0}"'
-                ).format(project_name)
-            ).one()
+        project = self.session.query(
+            (
+                u'select project_schema.name, metadata from Project '
+                u'where name is "{0}"'
+            ).format(project_name)
+        ).one()
 
-            index = self.workflow_combobox.findText(
-                project['project_schema']['name'],
-                QtCore.Qt.MatchExactly
+        index = self.workflow_combobox.findText(
+            project['project_schema']['name'],
+            QtCore.Qt.MatchExactly
+        )
+
+        self.logger.debug('Setting current workflow index to {0} for schema {1} and project {2}'.format(
+            index, project['project_schema']['name'], project['name']
             )
+        )
 
-            self.logger.debug('Setting current workflow index to {0} for schema {1} and project {2}'.format(
-                index, project['project_schema']['name'], project['name']
-                )
-            )
+        self.workflow_combobox.setCurrentIndex(index)
 
-            self.workflow_combobox.setCurrentIndex(index)
+        project_metadata = project['metadata']
+        fps = project_metadata.get('fps')
+        handles = project_metadata.get('handles')
+        offset = project_metadata.get('offset')
+        resolution = project_metadata.get('resolution')
 
-            project_metadata = project['metadata']
-            fps = project_metadata.get('fps')
-            handles = project_metadata.get('handles')
-            offset = project_metadata.get('offset')
-            resolution = project_metadata.get('resolution')
+        # If the project has been created outside of NS might not be having these attrs.
+        if resolution:
+            self.resolution_combobox.setCurrentFormat(str(resolution))
 
-            # If the project has been created manually might not be having these attrs.
-            if resolution:
-                self.resolution_combobox.setCurrentFormat(str(resolution))
+        if fps:
+            fps_index = self.fps_combobox.findText(str(fps))
+            self.fps_combobox.setCurrentIndex(fps_index)
 
-            if fps:
-                fps_index = self.fps_combobox.findText(str(fps))
-                self.fps_combobox.setCurrentIndex(fps_index)
+        if handles:
+            self.handles_spinbox.setValue(int(str(handles)))
 
-            if handles:
-                self.handles_spinbox.setValue(int(str(handles)))
-
-            if offset:
-                self.start_frame_offset_spinbox.setValue(int(str(offset)))
+        if offset:
+            self.start_frame_offset_spinbox.setValue(int(str(offset)))
 
     def on_project_preview_done(self):
         '''Handle signal once the project preview have started populating.'''
