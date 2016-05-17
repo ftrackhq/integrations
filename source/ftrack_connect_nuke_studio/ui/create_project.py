@@ -127,7 +127,6 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.worker.started.connect(self.busy_overlay.show)
         self.worker.finished.connect(self.on_project_preview_done)
 
-        self.tag_model.project_exists.connect(self.on_project_exists)
         self.start_frame_offset_spinbox.valueChanged.connect(
             self._refresh_tree
         )
@@ -286,6 +285,7 @@ class ProjectTreeDialog(QtGui.QDialog):
             project_name=project_tag_metadata.value('tag.value'),
             parent=self.group_box
         )
+        self.project_selector.project_selected.connect(self.on_project_exists)
         self.group_box_layout.addWidget(self.project_selector)
 
         # Create Workflow selector and label.
