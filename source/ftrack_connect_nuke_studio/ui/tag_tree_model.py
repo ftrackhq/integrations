@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 
+import logging
+
 from PySide import QtGui, QtCore
+
 from ftrack_connect.ui.model.entity_tree import EntityTreeModel
 from ftrack_connect_nuke_studio.ui.helper import (
     time_from_track_item, timecode_from_track_item, source_from_track_item
@@ -20,6 +23,10 @@ class TagTreeModel(EntityTreeModel):
 
         '''
         super(TagTreeModel, self).__init__(parent=parent)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+
         self.root = tree_data
         self.columns = [
             'Name',

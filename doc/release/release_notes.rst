@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: fixed
+        :tags: Ui
+
+        Schema selection is not in sync with the selected exiting project.
+
 .. release:: 0.2.3
     :date: 2016-05-02
 

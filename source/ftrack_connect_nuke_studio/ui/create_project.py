@@ -127,7 +127,6 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.worker.started.connect(self.busy_overlay.show)
         self.worker.finished.connect(self.on_project_preview_done)
 
-        self.tag_model.project_exists.connect(self.on_project_exists)
         self.start_frame_offset_spinbox.valueChanged.connect(
             self._refresh_tree
         )
@@ -168,8 +167,14 @@ class ProjectTreeDialog(QtGui.QDialog):
 
     def update_project_tag(self, project_code):
         '''Update project tag on sequence with *project_code*.'''
+        self.logger.debug('Update project tag, project code: {0}'.format(project_code))
 
-        self.workflow_combobox.setDisabled(False)
+        self.workflow_combobox.setDisabled(True)
+        self.logger.debug('Disabling Workflow Combobox')
+
+        if self.project_selector.get_state() == self.project_selector.NEW_PROJECT:
+            self.logger.debug('Enabling Workflow Combobox')
+            self.workflow_combobox.setDisabled(False)
 
         for tag in self.sequence.tags():
             meta = tag.metadata()
@@ -280,6 +285,7 @@ class ProjectTreeDialog(QtGui.QDialog):
             project_name=project_tag_metadata.value('tag.value'),
             parent=self.group_box
         )
+        self.project_selector.project_selected.connect(self.on_project_exists)
         self.group_box_layout.addWidget(self.project_selector)
 
         # Create Workflow selector and label.
@@ -404,33 +410,52 @@ class ProjectTreeDialog(QtGui.QDialog):
         *project_name* is the name of the project that is exists.
 
         '''
-        if self.workflow_combobox.isEnabled() and project_name:
-            project = self.session.query(
-                (
-                    u'select project_schema.name, metadata from Project '
-                    u'where name is "{0}"'
-                ).format(project_name)
-            ).one()
-            index = self.workflow_combobox.findText(
-                project['project_schema']['name']
+        # If the project exists already, disable the workflow selection.
+        self.workflow_combobox.setDisabled(True)
+        self.logger.debug('On existing project: {0}'.format(project_name))
+
+        project = self.session.query(
+            (
+                u'select project_schema.name, metadata from Project '
+                u'where name is "{0}"'
+            ).format(project_name)
+        ).one()
+
+        index = self.workflow_combobox.findText(
+            project['project_schema']['name'],
+            QtCore.Qt.MatchExactly
+        )
+
+        self.logger.debug(
+            'Setting current workflow index to {0} for schema {1}'
+            ' and project {2}'.format(
+                index, project['project_schema']['name'], project['name']
             )
-            self.workflow_combobox.setCurrentIndex(index)
-            self.workflow_combobox.setDisabled(True)
+        )
 
-            project_metadata = project['metadata']
-            fps = str(project_metadata.get('fps'))
-            handles = str(project_metadata.get('handles'))
-            offset = str(project_metadata.get('offset'))
-            resolution = str(project_metadata.get('resolution'))
+        self.workflow_combobox.setCurrentIndex(index)
 
-            self.resolution_combobox.setCurrentFormat(resolution)
+        project_metadata = project['metadata']
+        fps = project_metadata.get('fps')
+        handles = project_metadata.get('handles')
+        offset = project_metadata.get('offset')
+        resolution = project_metadata.get('resolution')
 
-            fps_index = self.fps_combobox.findText(fps)
+        # If the project has been created outside of Nuke Studio
+        # might not be having these attributes/
+
+        if resolution:
+            self.resolution_combobox.setCurrentFormat(str(resolution))
+
+        if fps:
+            fps_index = self.fps_combobox.findText(str(fps))
             self.fps_combobox.setCurrentIndex(fps_index)
 
-            self.handles_spinbox.setValue(int(handles))
+        if handles:
+            self.handles_spinbox.setValue(int(str(handles)))
 
-            self.start_frame_offset_spinbox.setValue(int(offset))
+        if offset:
+            self.start_frame_offset_spinbox.setValue(int(str(offset)))
 
     def on_project_preview_done(self):
         '''Handle signal once the project preview have started populating.'''
@@ -568,7 +593,6 @@ class ProjectTreeDialog(QtGui.QDialog):
             return self._cached_type_and_status[key]
 
         selected_workflow = self.workflow_combobox.currentItem()
-
         try:
             types = selected_workflow.get_types(object_type)
         except ValueError:
@@ -712,6 +736,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         '''
         processor_data = []
         selected_workflow = self.workflow_combobox.currentItem()
+
         for datum in data:
 
             # Skip all items under the 'Not matching template' node in the
