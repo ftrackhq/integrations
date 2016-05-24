@@ -1,8 +1,9 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015 ftrack
 
-from PySide import QtGui
 import logging
+
+from PySide import QtGui
 
 
 class Workflow(QtGui.QComboBox):
@@ -19,7 +20,11 @@ class Workflow(QtGui.QComboBox):
         self.session = session
         self._schemas = self.session.query('ProjectSchema').all()
         for index, schema in enumerate(self._schemas):
-            self.logger.debug('Adding schema : %s, with index %s' % (schema['name'], index))
+            self.logger.debug(
+                'Adding schema : {0}, with index {1}'.format(
+                    schema['name'], index)
+            )
+
             self.addItem(schema['name'])
 
     def currentItem(self):

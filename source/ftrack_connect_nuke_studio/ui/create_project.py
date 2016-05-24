@@ -170,10 +170,10 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.logger.debug('Update project tag, project code: {0}'.format(project_code))
 
         self.workflow_combobox.setDisabled(True)
-        self.logger.debug('Disabling Workflow Compboxbox')
+        self.logger.debug('Disabling Workflow Combobox')
 
         if self.project_selector.get_state() == self.project_selector.NEW_PROJECT:
-            self.logger.debug('Enabling Workflow Compboxbox')
+            self.logger.debug('Enabling Workflow Combobox')
             self.workflow_combobox.setDisabled(False)
 
         for tag in self.sequence.tags():
@@ -412,7 +412,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         '''
         # If the project exists already, disable the workflow selection.
         self.workflow_combobox.setDisabled(True)
-        self.logger.debug('On Existing project : {0}'.format(project_name))
+        self.logger.debug('On existing project: {0}'.format(project_name))
 
         project = self.session.query(
             (
@@ -426,8 +426,10 @@ class ProjectTreeDialog(QtGui.QDialog):
             QtCore.Qt.MatchExactly
         )
 
-        self.logger.debug('Setting current workflow index to {0} for schema {1} and project {2}'.format(
-            index, project['project_schema']['name'], project['name']
+        self.logger.debug(
+            'Setting current workflow index to {0} for schema {1}'
+            ' and project {2}'.format(
+                index, project['project_schema']['name'], project['name']
             )
         )
 
@@ -439,7 +441,9 @@ class ProjectTreeDialog(QtGui.QDialog):
         offset = project_metadata.get('offset')
         resolution = project_metadata.get('resolution')
 
-        # If the project has been created outside of NS might not be having these attrs.
+        # If the project has been created outside of Nuke Studio
+        # might not be having these attributes/
+
         if resolution:
             self.resolution_combobox.setCurrentFormat(str(resolution))
 
