@@ -90,6 +90,13 @@ connect_rv_dependency_link = (
     '#egg=ftrack-connect-rv-0.1.0'
 )
 
+connect_cinema_4d_dependency_install_require = 'ftrack-connect-cinema-4d >=0.1, < 1'
+
+connect_cinema_4d_dependency_link = (
+    'https://bitbucket.org/ftrack/ftrack-connect-cinema-4d/get/0.1.0.zip'
+    '#egg=ftrack-connect-cinema-4d-0.1.0'
+)
+
 # General configuration.
 configuration = dict(
     name='ftrack-connect-package',
@@ -122,6 +129,7 @@ configuration = dict(
         connect_maya_dependency_install_require,
         connect_nuke_studio_dependency_install_require,
         connect_rv_dependency_install_require,
+        connect_cinema_4d_dependency_install_require,
         'boto == 2.28.0'
     ],
     dependency_links=[
@@ -137,7 +145,8 @@ configuration = dict(
         connect_maya_dependency_link,
         connect_nuke_dependency_link,
         connect_nuke_studio_dependency_link,
-        connect_rv_dependency_link
+        connect_rv_dependency_link,
+        connect_cinema_4d_dependency_link
     ],
     options={}
 )
@@ -173,7 +182,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             connect_maya_dependency_install_require,
             connect_nuke_dependency_install_require,
             connect_nuke_studio_dependency_install_require,
-            connect_rv_dependency_install_require
+            connect_rv_dependency_install_require,
+            connect_cinema_4d_dependency_install_require
         ],
         dependency_links=[
             cinesync_dependency_link,
@@ -183,7 +193,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             connect_maya_dependency_link,
             connect_nuke_dependency_link,
             connect_nuke_studio_dependency_link,
-            connect_rv_dependency_link
+            connect_rv_dependency_link,
+            connect_cinema_4d_dependency_link
         ]
     ))
     connect_resource_hook = pkg_resources.resource_filename(
@@ -256,6 +267,11 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_rv_resource/hook'
     )
 
+    ftrack_connect_cinema_4d_hook = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-connect-cinema-4d'),
+        'ftrack_connect_cinema_4d_hook/hook'
+    )
+
     # Add requests certificates to resource folder.
     import requests.certs
 
@@ -268,6 +284,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         (ftrack_connect_hieroplayer_hook, 'resource/hook'),
         (ftrack_connect_hieroplayer_source, 'resource/hieroplayer'),
         (ftrack_connect_rv_hook, 'resource/hook'),
+        (ftrack_connect_cinema_4d_hook, 'resource/hook'),
         (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'),
         (ftrack_connect_maya_hook, 'resource/hook'),
         (ftrack_connect_maya_source, 'resource/ftrack_connect_maya'),
@@ -381,6 +398,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_legacy_plugins',
         'ftrack_connect_hieroplayer',
         'ftrack_connect_rv',
+        'ftrack_connect_cinema_4d',
         'lucidity',
         'ftrack_connect_maya',
         'boto'
