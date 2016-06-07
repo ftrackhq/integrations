@@ -5,7 +5,7 @@
 Releases
 ########
 
-.. release:: Upcoming
+.. release:: 0.4.0
 
     .. change:: new
 
@@ -18,8 +18,23 @@ Releases
 
     .. change:: changed
 
-        `ftrack connect maya 0.2.2 <http://ftrack-connect-maya.rtd.ftrack.com/en/0.2.2/>`_
+        `ftrack connect hieroplayer 0.1.5 <http://ftrack-connect-hieroplayer.rtd.ftrack.com/en/0.1.5/>`_
 
+    .. change:: changed
+
+        `ftrack connect nuke 0.1.8 <http://ftrack-connect-nuke.rtd.ftrack.com/en/0.1.8/>`_
+
+    .. change:: changed
+
+        `ftrack connect nuke studio 0.2.4 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/0.2.4/>`_
+
+    .. change:: changed
+
+        `ftrack connect maya 0.2.3 <http://ftrack-connect-maya.rtd.ftrack.com/en/0.2.3/>`_
+
+    .. change:: changed
+
+        `ftrack connect 0.1.25 <http://ftrack-connect.rtd.ftrack.com/en/0.1.25/>`_
 
 .. release:: 0.3.9
     :date: 2016-05-06
