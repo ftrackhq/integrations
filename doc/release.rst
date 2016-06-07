@@ -7,6 +7,15 @@ Releases
 
 .. release:: Upcoming
 
+    .. change:: new
+
+        `ftrack connect cinema 4d <http://ftrack-connect-cinema-4d.rtd.ftrack.com/en/stable/>`_
+
+        .. note::
+
+            The plugin must be installed manually, for instructions please
+            see the `documentation <http://ftrack-connect-cinema-4d.rtd.ftrack.com/en/stable/>`_.
+
     .. change:: changed
 
         `ftrack connect maya 0.2.2 <http://ftrack-connect-maya.rtd.ftrack.com/en/0.2.2/>`_
