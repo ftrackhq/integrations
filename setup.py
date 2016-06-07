@@ -93,7 +93,7 @@ connect_rv_dependency_link = (
 connect_cinema_4d_dependency_install_require = 'ftrack-connect-cinema-4d >=0.1, < 1'
 
 connect_cinema_4d_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-cinema-4d/get/fd7597e6e172ebe4d01dedb954ebe49ef30319b8.zip'
+    'https://bitbucket.org/ftrack/ftrack-connect-cinema-4d/get/0.1.0.zip'
     '#egg=ftrack-connect-cinema-4d-0.1.0'
 )
 
