@@ -269,7 +269,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
 
     ftrack_connect_cinema_4d_hook = pkg_resources.resource_filename(
         pkg_resources.Requirement.parse('ftrack-connect-cinema-4d'),
-        'ftrack_connect_cinema_4d_hook/hook'
+        'ftrack_connect_cinema_4d/hook'
     )
 
     # Add requests certificates to resource folder.
