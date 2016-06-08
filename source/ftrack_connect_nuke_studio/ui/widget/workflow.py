@@ -32,5 +32,5 @@ class Workflow(QtGui.QComboBox):
         '''Return the currently selected item.'''
         currentIndex = self.currentIndex()
         result = self._schemas[currentIndex]
-        self.logger.debug('Current Item: %s' % result)
+        self.logger.debug(u'Current Item: %s' % result)
         return result

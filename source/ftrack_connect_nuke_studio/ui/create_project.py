@@ -812,14 +812,14 @@ class ProjectTreeDialog(QtGui.QDialog):
                 )
 
                 if datum.exists:
-                    self.logger.debug('%s %s exists as %s, reusing it.' % (
+                    self.logger.debug(u'%s %s exists as %s, reusing it.' % (
                         datum.name, datum.type, datum.exists.get('taskid')))
                     current = self.session.get(
                         'TypedContext', datum.exists.get('taskid')
                     )
                 else:
                     self.logger.debug(
-                        'creating %s %s' % (datum.type, datum.name))
+                        u'creating %s %s' % (datum.type, datum.name))
                     object_type = datum.type.title()
 
                     sub_type, status = self.get_type_and_status_from_name(
@@ -836,7 +836,7 @@ class ProjectTreeDialog(QtGui.QDialog):
 
                 if datum.type == 'shot':
                     self.logger.debug(
-                        'Setting metadata to %s' % datum.name)
+                        u'Setting metadata to %s' % datum.name)
 
                     data = {
                         'fstart': start,
