@@ -110,7 +110,7 @@ class ProjectSelector(QtGui.QWidget):
     def _on_new_project_changed(self):
         '''Handle text changed events.'''
         self.logger.debug(
-            'On new project changed: {0}'.format(self.get_new_name())
+            u'On new project changed: {0}'.format(self.get_new_name())
         )
         self.project_selected.emit(self.get_new_name())
 
@@ -118,7 +118,7 @@ class ProjectSelector(QtGui.QWidget):
         '''Handle select events in project selector.'''
         project = self.existing_project_selector.itemData(index)
         self.logger.debug(
-            'On existing project selected: {0}'.format(project.getName())
+            u'On existing project selected: {0}'.format(project.getName())
         )
 
         self.project_selected.emit(project.getName())
@@ -136,7 +136,7 @@ class ProjectSelector(QtGui.QWidget):
             self.new_project_label.show()
 
             self.logger.debug(
-                'On new project toggled: {0}'.format(self.get_new_name())
+                u'On new project toggled: {0}'.format(self.get_new_name())
             )
 
             self.project_selected.emit(self.get_new_name())

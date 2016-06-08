@@ -167,7 +167,9 @@ class ProjectTreeDialog(QtGui.QDialog):
 
     def update_project_tag(self, project_code):
         '''Update project tag on sequence with *project_code*.'''
-        self.logger.debug('Update project tag, project code: {0}'.format(project_code))
+        self.logger.debug(
+            u'Update project tag, project code: {0}'.format(project_code)
+        )
 
         self.workflow_combobox.setDisabled(True)
         self.logger.debug('Disabling Workflow Combobox')
@@ -412,7 +414,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         '''
         # If the project exists already, disable the workflow selection.
         self.workflow_combobox.setDisabled(True)
-        self.logger.debug('On existing project: {0}'.format(project_name))
+        self.logger.debug(u'On existing project: {0}'.format(project_name))
 
         project = self.session.query(
             (
@@ -427,8 +429,8 @@ class ProjectTreeDialog(QtGui.QDialog):
         )
 
         self.logger.debug(
-            'Setting current workflow index to {0} for schema {1}'
-            ' and project {2}'.format(
+            u'Setting current workflow index to {0} for schema {1}'
+            u' and project {2}'.format(
                 index, project['project_schema']['name'], project['name']
             )
         )
@@ -810,14 +812,14 @@ class ProjectTreeDialog(QtGui.QDialog):
                 )
 
                 if datum.exists:
-                    self.logger.debug('%s %s exists as %s, reusing it.' % (
+                    self.logger.debug(u'%s %s exists as %s, reusing it.' % (
                         datum.name, datum.type, datum.exists.get('taskid')))
                     current = self.session.get(
                         'TypedContext', datum.exists.get('taskid')
                     )
                 else:
                     self.logger.debug(
-                        'creating %s %s' % (datum.type, datum.name))
+                        u'creating %s %s' % (datum.type, datum.name))
                     object_type = datum.type.title()
 
                     sub_type, status = self.get_type_and_status_from_name(
@@ -834,7 +836,7 @@ class ProjectTreeDialog(QtGui.QDialog):
 
                 if datum.type == 'shot':
                     self.logger.debug(
-                        'Setting metadata to %s' % datum.name)
+                        u'Setting metadata to %s' % datum.name)
 
                     data = {
                         'fstart': start,

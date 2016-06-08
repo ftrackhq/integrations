@@ -21,8 +21,9 @@ class Workflow(QtGui.QComboBox):
         self._schemas = self.session.query('ProjectSchema').all()
         for index, schema in enumerate(self._schemas):
             self.logger.debug(
-                'Adding schema : {0}, with index {1}'.format(
-                    schema['name'], index)
+                u'Adding schema: {0}, with index {1}'.format(
+                    schema['name'], index
+                )
             )
 
             self.addItem(schema['name'])
@@ -31,5 +32,5 @@ class Workflow(QtGui.QComboBox):
         '''Return the currently selected item.'''
         currentIndex = self.currentIndex()
         result = self._schemas[currentIndex]
-        self.logger.debug('Current Item: %s' % result)
+        self.logger.debug(u'Current Item: %s' % result)
         return result
