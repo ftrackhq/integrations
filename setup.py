@@ -25,11 +25,11 @@ with open(os.path.join(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
-connect_install_require = 'ftrack-connect == 0.1.19'
+connect_install_require = 'ftrack-connect == 0.1.25'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.19.zip'
-    '#egg=ftrack-connect-0.1.19'
+    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.25.zip'
+    '#egg=ftrack-connect-0.1.25'
 )
 
 cinesync_install_require = 'ftrack-connect-cinesync == 0.1.2'
@@ -52,13 +52,13 @@ connect_hieroplayer_install_require = (
     ' >=0.1, < 1'
 )
 connect_hieroplayer_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-hieroplayer/get/0.1.4.zip'
-    '#egg=ftrack-connect-hieroplayer-0.1.4'
+    'https://bitbucket.org/ftrack/ftrack-connect-hieroplayer/get/0.1.5.zip'
+    '#egg=ftrack-connect-hieroplayer-0.1.5'
 )
 
 connect_nuke_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/0.1.6.zip'
-    '#egg=ftrack-connect-nuke-0.1.6'
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/0.1.8.zip'
+    '#egg=ftrack-connect-nuke-0.1.8'
 )
 connect_nuke_dependency_install_require = (
     'ftrack-connect-nuke'
@@ -66,8 +66,8 @@ connect_nuke_dependency_install_require = (
 )
 
 connect_maya_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-maya/get/0.2.0.zip'
-    '#egg=ftrack-connect-maya-0.2.0'
+    'https://bitbucket.org/ftrack/ftrack-connect-maya/get/0.2.3.zip'
+    '#egg=ftrack-connect-maya-0.2.3'
 )
 connect_maya_dependency_install_require = (
     'ftrack-connect-maya'
@@ -75,8 +75,8 @@ connect_maya_dependency_install_require = (
 )
 
 connect_nuke_studio_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke-studio/get/0.2.0.zip'
-    '#egg=ftrack-connect-nuke-studio-0.2.0'
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke-studio/get/0.2.4.zip'
+    '#egg=ftrack-connect-nuke-studio-0.2.4'
 )
 connect_nuke_studio_dependency_install_require = (
     'ftrack-connect-nuke-studio'
@@ -88,6 +88,13 @@ connect_rv_dependency_install_require = 'ftrack-connect-rv >=0.1, < 1'
 connect_rv_dependency_link = (
     'https://bitbucket.org/ftrack/ftrack-connect-rv/get/0.1.0.zip'
     '#egg=ftrack-connect-rv-0.1.0'
+)
+
+connect_cinema_4d_dependency_install_require = 'ftrack-connect-cinema-4d >=0.1, < 1'
+
+connect_cinema_4d_dependency_link = (
+    'https://bitbucket.org/ftrack/ftrack-connect-cinema-4d/get/0.1.0.zip'
+    '#egg=ftrack-connect-cinema-4d-0.1.0'
 )
 
 # General configuration.
@@ -122,6 +129,7 @@ configuration = dict(
         connect_maya_dependency_install_require,
         connect_nuke_studio_dependency_install_require,
         connect_rv_dependency_install_require,
+        connect_cinema_4d_dependency_install_require,
         'boto == 2.28.0'
     ],
     dependency_links=[
@@ -137,7 +145,8 @@ configuration = dict(
         connect_maya_dependency_link,
         connect_nuke_dependency_link,
         connect_nuke_studio_dependency_link,
-        connect_rv_dependency_link
+        connect_rv_dependency_link,
+        connect_cinema_4d_dependency_link
     ],
     options={}
 )
@@ -173,7 +182,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             connect_maya_dependency_install_require,
             connect_nuke_dependency_install_require,
             connect_nuke_studio_dependency_install_require,
-            connect_rv_dependency_install_require
+            connect_rv_dependency_install_require,
+            connect_cinema_4d_dependency_install_require
         ],
         dependency_links=[
             cinesync_dependency_link,
@@ -183,7 +193,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             connect_maya_dependency_link,
             connect_nuke_dependency_link,
             connect_nuke_studio_dependency_link,
-            connect_rv_dependency_link
+            connect_rv_dependency_link,
+            connect_cinema_4d_dependency_link
         ]
     ))
     connect_resource_hook = pkg_resources.resource_filename(
@@ -256,6 +267,11 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_rv_resource/hook'
     )
 
+    ftrack_connect_cinema_4d_hook = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-connect-cinema-4d'),
+        'ftrack_connect_cinema_4d/hook'
+    )
+
     # Add requests certificates to resource folder.
     import requests.certs
 
@@ -268,6 +284,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         (ftrack_connect_hieroplayer_hook, 'resource/hook'),
         (ftrack_connect_hieroplayer_source, 'resource/hieroplayer'),
         (ftrack_connect_rv_hook, 'resource/hook'),
+        (ftrack_connect_cinema_4d_hook, 'resource/hook'),
         (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'),
         (ftrack_connect_maya_hook, 'resource/hook'),
         (ftrack_connect_maya_source, 'resource/ftrack_connect_maya'),
@@ -290,7 +307,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
 
     # Different modules are used on different platforms. Make sure to include
     # all found.
-    for dbmodule in ['dbhash', 'gdbm', 'dbm', 'dumbdbm']:
+    for dbmodule in ['dbhash', 'gdbm', 'dbm', 'dumbdbm', 'csv']:
         try:
             __import__(dbmodule)
         except ImportError:
@@ -381,6 +398,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_legacy_plugins',
         'ftrack_connect_hieroplayer',
         'ftrack_connect_rv',
+        'ftrack_connect_cinema_4d',
         'lucidity',
         'ftrack_connect_maya',
         'boto'

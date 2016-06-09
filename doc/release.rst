@@ -5,11 +5,95 @@
 Releases
 ########
 
-.. release:: Upcoming
+.. release:: 0.4.0
+
+    .. change:: new
+
+        `ftrack connect cinema 4d <http://ftrack-connect-cinema-4d.rtd.ftrack.com/en/stable/>`_
+
+        .. note::
+
+            The plugin must be installed manually, for instructions please
+            see the `documentation <http://ftrack-connect-cinema-4d.rtd.ftrack.com/en/stable/>`_.
+
+    .. change:: changed
+
+        `ftrack connect hieroplayer 0.1.5 <http://ftrack-connect-hieroplayer.rtd.ftrack.com/en/0.1.5/>`_
+
+    .. change:: changed
+
+        `ftrack connect nuke 0.1.8 <http://ftrack-connect-nuke.rtd.ftrack.com/en/0.1.8/>`_
+
+    .. change:: changed
+
+        `ftrack connect nuke studio 0.2.4 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/0.2.4/>`_
+
+    .. change:: changed
+
+        `ftrack connect maya 0.2.3 <http://ftrack-connect-maya.rtd.ftrack.com/en/0.2.3/>`_
+
+    .. change:: changed
+
+        `ftrack connect 0.1.25 <http://ftrack-connect.rtd.ftrack.com/en/0.1.25/>`_
+
+.. release:: 0.3.9
+    :date: 2016-05-06
+
+    .. change:: changed
+
+        `ftrack connect 0.1.23 <http://ftrack-connect.rtd.ftrack.com/en/0.1.23/>`_
+
+.. release:: 0.3.8
+    :date: 2016-05-02
+
+    .. change:: changed
+
+        `ftrack connect maya 0.2.1 <http://ftrack-connect-maya.rtd.ftrack.com/en/0.2.1/>`_
+
+    .. change:: changed
+
+        `ftrack connect nuke 0.1.7 <http://ftrack-connect-nuke.rtd.ftrack.com/en/0.1.7/>`_
+
+    .. change:: changed
+
+        `ftrack connect nuke studio 0.2.3 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/0.2.3/>`_
+
+    .. change:: changed
+
+        `ftrack connect 0.1.22 <http://ftrack-connect.rtd.ftrack.com/en/0.1.22/>`_
+
+.. release:: 0.3.7
+    :date: 2016-04-04
+
+    .. change:: changed
+
+        `ftrack connect nuke studio 0.2.2 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/0.2.2/>`_
+
+.. release:: 0.3.6
+    :date: 2016-03-30
+
+    .. change:: changed
+
+        `ftrack connect 0.1.21 <http://ftrack-connect.rtd.ftrack.com/en/0.1.21/>`_
+
+.. release:: 0.3.5
+    :date: 2016-03-16
 
     .. change:: new
 
         Added :py:mod:`boto==2.28.0` to packaged modules.
+
+    .. change:: new
+
+        Added :py:mod:`csv` to packaged modules
+
+    .. change:: changed
+
+        `ftrack connect nuke studio 0.2.1 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/0.2.1/>`_
+
+    .. change:: changed
+
+        `ftrack connect 0.1.20 <http://ftrack-connect.rtd.ftrack.com/en/0.1.20/>`_
 
 .. release:: 0.3.4
     :date: 2016-01-18
