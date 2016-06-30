@@ -5,6 +5,15 @@
 Releases
 ########
 
+
+.. release:: Upcoming
+
+    .. change:: changed
+
+        Removed ftrack connect cinesync from Connect package. Starting with CineSync
+        version 3.7, ftrack support is included. Read more at
+        `cinesync.com/partners <https://www.cinesync.com/partners/#ftrack>`_.
+
 .. release:: 0.4.0
 
     .. change:: new
