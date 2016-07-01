@@ -8,10 +8,16 @@ import logging
 import tempfile
 import os
 import shutil
+import re
 
 import ftrack
 import ftrack_connect.application
 
+#: Custom version expression to match versions `2015.5` and `2015`
+#  as distinct versions.
+ADOBE_VERSION_EXPRESSION = re.compile(
+    r'(?P<version>\d[\d.]*)[^\w\d]'
+)
 
 class LaunchAction(object):
     '''Adobe plugins discover and launch action.'''
@@ -204,6 +210,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 label='Photoshop',
                 variant='CC {version}',
                 applicationIdentifier='photoshop_cc_{version}',
+                versionExpression=ADOBE_VERSION_EXPRESSION,
                 icon='photoshop'
             ))
 
@@ -214,6 +221,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 label='Premiere Pro',
                 variant='CC {version}',
                 applicationIdentifier='premiere_pro_cc_{version}',
+                versionExpression=ADOBE_VERSION_EXPRESSION,
                 icon='premiere'
             ))
 
@@ -224,6 +232,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 label='After Effects',
                 variant='CC {version}',
                 applicationIdentifier='after_effects_cc_{version}',
+                versionExpression=ADOBE_VERSION_EXPRESSION,
                 icon='after_effects'
             ))
 
@@ -239,6 +248,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 label='Photoshop',
                 variant='CC {version}',
                 applicationIdentifier='photoshop_cc_{version}',
+                versionExpression=ADOBE_VERSION_EXPRESSION,
                 icon='photoshop'
             ))
 
@@ -251,6 +261,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 label='Premiere Pro',
                 variant='CC {version}',
                 applicationIdentifier='premiere_pro_cc_{version}',
+                versionExpression=ADOBE_VERSION_EXPRESSION,
                 icon='premiere'
             ))
 
@@ -263,6 +274,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 label='After Effects',
                 variant='CC {version}',
                 applicationIdentifier='after_effects_cc_{version}',
+                versionExpression=ADOBE_VERSION_EXPRESSION,
                 icon='after_effects'
             ))
 

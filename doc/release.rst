@@ -8,6 +8,11 @@ Releases
 
 .. release:: Upcoming
 
+    .. change:: fixed
+
+        Adobe actions does not differentiate between patch versions, e.g.
+        CC 2015 and CC 2015.5.
+
     .. change:: changed
 
         Removed ftrack connect cinesync from Connect package. Starting with CineSync
