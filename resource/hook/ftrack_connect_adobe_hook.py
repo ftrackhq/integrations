@@ -77,11 +77,7 @@ class LaunchAction(object):
 
     def discover(self, event):
         '''Return discovered applications.'''
-        if not self.isValidSelection(
-            event['data'].get('selection', [])
-        ):
-            return
-
+        selection = event['data'].get('selection', [])
         items = []
         applications = self.applicationStore.applications
         applications = sorted(
@@ -100,17 +96,18 @@ class LaunchAction(object):
                 'applicationIdentifier': applicationIdentifier
             })
 
-            items.append({
-                'actionIdentifier': self.identifier,
-                'label': label,
-                'variant': '{variant} with latest version'.format(
-                    variant=application.get('variant', '')
-                ),
-                'description': application.get('description', None),
-                'icon': application.get('icon', 'default'),
-                'launchWithLatest': True,
-                'applicationIdentifier': applicationIdentifier
-            })
+            if selection:
+                items.append({
+                    'actionIdentifier': self.identifier,
+                    'label': label,
+                    'variant': '{variant} with latest version'.format(
+                        variant=application.get('variant', '')
+                    ),
+                    'description': application.get('description', None),
+                    'icon': application.get('icon', 'default'),
+                    'launchWithLatest': True,
+                    'applicationIdentifier': applicationIdentifier
+                })
 
         return {
             'items': items
@@ -135,13 +132,17 @@ class LaunchAction(object):
 
         context = event['data'].copy()
         context['source'] = event['source']
+        selection = context.get('selection', [])
 
         # If the selected entity is an asset version, change the selection
         # to parent task/shot instead since it is not possible to publish
         # to an asset version in ftrack connect.
-        if context['selection'][0]['entityType'] == 'assetversion':
+        if (
+            selection and
+            selection[0]['entityType'] == 'assetversion'
+        ):
             assetVersion = ftrack.AssetVersion(
-                context['selection'][0]['entityId']
+                selection[0]['entityId']
             )
 
             entityId = assetVersion.get('taskid')
