@@ -32,6 +32,13 @@ connect_dependency_link = (
     '#egg=ftrack-connect-0.1.25'
 )
 
+connect_3ds_max_install_require = 'ftrack-connect-3dsmax >=0.1, < 1'
+
+connect_3ds_max_dependency_link = (
+    'file://{0}#egg=ftrack-connect-3dsmax-0.2.3'
+    .format(os.environ['FTRACK_CONNECT_3DS_MAX_PATH'].replace('\\', '/'))
+)
+
 connect_legacy_plugins_install_require = (
     'ftrack-connect-legacy-plugins'
     ' >=0.1, < 1'
@@ -116,6 +123,7 @@ configuration = dict(
     install_requires=[
         'ftrack-python-legacy-api',
         connect_install_require,
+        connect_3ds_max_install_require,
         connect_legacy_plugins_install_require,
         connect_hieroplayer_install_require,
         connect_nuke_dependency_install_require,
@@ -133,6 +141,7 @@ configuration = dict(
         connect_legacy_plugins_dependency_link,
         ('https://bitbucket.org/ftrack/lowdown/get/0.1.0.zip'
          '#egg=lowdown-0.1.0'),
+        connect_3ds_max_dependency_link,
         connect_hieroplayer_dependency_link,
         connect_maya_dependency_link,
         connect_nuke_dependency_link,
@@ -168,6 +177,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
     Distribution(dict(
         setup_requires=[
             connect_install_require,
+            connect_3ds_max_install_require,
             connect_legacy_plugins_install_require,
             connect_hieroplayer_install_require,
             connect_maya_dependency_install_require,
@@ -178,6 +188,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         ],
         dependency_links=[
             connect_dependency_link,
+            connect_3ds_max_dependency_link,
             connect_legacy_plugins_dependency_link,
             connect_hieroplayer_dependency_link,
             connect_maya_dependency_link,
@@ -252,11 +263,23 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_cinema_4d/hook'
     )
 
+    ftrack_connect_3ds_max_source = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-connect-3dsmax'),
+        'ftrack_connect_3dsmax/ftrack_connect_3dsmax'
+    )
+
+    ftrack_connect_3ds_max_hook = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-connect-3dsmax'),
+        'ftrack_connect_3dsmax/hook'
+    )
+
     # Add requests certificates to resource folder.
     import requests.certs
 
     include_files = [
         (connect_resource_hook, 'resource/hook'),
+        (ftrack_connect_3ds_max_hook, 'resource/hook'),
+        (ftrack_connect_3ds_max_source, 'resource/ftrack_connect_3dsmax'),
         (ftrack_connect_legacy_plugins_source, 'resource/legacy_plugins'),
         (ftrack_connect_legacy_plugins_hook, 'resource/hook'),
         (ftrack_connect_hieroplayer_hook, 'resource/hook'),
@@ -370,6 +393,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'assetmgr_nuke',
         'FnAssetAPI',
         'ftrack_connect_nuke',
+        'ftrack_connect_3dsmax',
         'ftrack_connect_nuke.plugin',
         'ftrack_connect_nuke.logging',
         'ftrack_connect_legacy_plugins',
