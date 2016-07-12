@@ -8,6 +8,11 @@ Releases
 
 .. release:: Upcoming
 
+    .. change:: changed
+
+        Adobe actions does no long require a specific action context to be
+        launched.
+
     .. change:: fixed
 
         Adobe actions does not differentiate between patch versions, e.g.
