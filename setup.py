@@ -37,7 +37,7 @@ connect_legacy_plugins_install_require = (
     ' >=0.1, < 1'
 )
 connect_legacy_plugins_dependency_link = (
-    'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.6'
+    'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.7'
     .format(os.environ['FTRACK_CONNECT_LEGACY_PLUGINS_PATH'].replace('\\', '/'))
 )
 

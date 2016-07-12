@@ -10,6 +10,10 @@ Releases
 
     .. change:: changed
 
+        `ftrack connect legacy plugins 0.1.7 <http://ftrack-connect-legacy-plugins.rtd.ftrack.com/en/0.1.7/>`_
+
+    .. change:: changed
+
         Adobe actions does no long require a specific action context to be
         launched.
 
