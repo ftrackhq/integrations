@@ -10,6 +10,16 @@ Releases
 
     .. change:: changed
 
+        Adobe actions does no long require a specific action context to be
+        launched.
+
+    .. change:: fixed
+
+        Adobe actions does not differentiate between patch versions, e.g.
+        CC 2015 and CC 2015.5.
+
+    .. change:: changed
+
         Removed ftrack connect cinesync from Connect package. Starting with CineSync
         version 3.7, ftrack support is included. Read more at
         `cinesync.com/partners <https://www.cinesync.com/partners/#ftrack>`_.
