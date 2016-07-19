@@ -6,7 +6,12 @@ Releases
 ########
 
 
-.. release:: Upcoming
+.. release:: 0.4.1
+    :date: 2016-07-19
+
+    .. change:: changed
+
+        `ftrack connect 0.1.25 <http://ftrack-connect.rtd.ftrack.com/en/0.1.25/>`_
 
     .. change:: changed
 
@@ -29,6 +34,7 @@ Releases
         `cinesync.com/partners <https://www.cinesync.com/partners/#ftrack>`_.
 
 .. release:: 0.4.0
+    :date: 2016-06-08
 
     .. change:: new
 
