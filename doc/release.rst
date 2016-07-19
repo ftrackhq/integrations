@@ -11,7 +11,7 @@ Releases
 
     .. change:: changed
 
-        `ftrack connect 0.1.25 <http://ftrack-connect.rtd.ftrack.com/en/0.1.25/>`_
+        `ftrack connect 0.1.26 <http://ftrack-connect.rtd.ftrack.com/en/0.1.26/>`_
 
     .. change:: changed
 
