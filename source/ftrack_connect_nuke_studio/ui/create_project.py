@@ -795,7 +795,7 @@ class ProjectTreeDialog(QtGui.QDialog):
                     datum.track.sourceOut() + datum.track.source().sourceOut()
                 )
                 if (
-                    hiero.core.env.get('ProductNumber') == 9 or
+                    hiero.core.env.get('VersionMajor') is None or
                     hiero.core.env.get('VersionString') == 'NukeStudio 10.0v1' or
                     hiero.core.env.get('VersionString') == 'NukeStudio 10.0v2'
                 ):
