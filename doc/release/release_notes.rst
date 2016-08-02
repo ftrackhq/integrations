@@ -7,6 +7,14 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: fixed
+        :tags: Processor
+
+        Processors fail in NukeStudio 10.0v3 and later for single-file track
+        items.
+
 .. release:: 0.2.4
     :date: 2016-06-07
 
