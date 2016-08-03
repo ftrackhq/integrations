@@ -794,17 +794,22 @@ class ProjectTreeDialog(QtGui.QDialog):
                 track_out = int(
                     datum.track.sourceOut() + datum.track.source().sourceOut()
                 )
-                if datum.track.source().mediaSource().singleFile():
-                    # Adjust frame in and out if the media source is a single
-                    # file. This fix is required because Hiero is reporting
-                    # Frame in as 0 for a .mov file while Nuke is expecting
-                    # Frame in 1.
-                    track_in += 1
-                    track_out += 1
-                    self.logger.debug(
-                        'Single file detected, adjusting frame start and '
-                        'frame end to {0}-{1}'.format(track_in, track_out)
-                    )
+                if (
+                    hiero.core.env.get('VersionMajor') is None or
+                    hiero.core.env.get('VersionString') == 'NukeStudio 10.0v1' or
+                    hiero.core.env.get('VersionString') == 'NukeStudio 10.0v2'
+                ):
+                    if datum.track.source().mediaSource().singleFile():
+                        # Adjust frame in and out if the media source is a
+                        # single file. This fix is required in earlier versions
+                        # since Hiero is reporting Frame in as 0 for a .mov file
+                        # while Nuke is expecting Frame in 1.
+                        track_in += 1
+                        track_out += 1
+                        self.logger.debug(
+                            'Single file detected, adjusting frame start and '
+                            'frame end to {0}-{1}'.format(track_in, track_out)
+                        )
 
                 source = ui_helper.source_from_track_item(datum.track)
                 start, end, in_, out = ui_helper.time_from_track_item(
