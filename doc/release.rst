@@ -8,6 +8,10 @@ Releases
 
 .. release:: Upcoming
 
+    .. change:: new
+
+        `ftrack connect 3ds max <http://ftrack-connect-cinema-3dsmax.rtd.ftrack.com/en/stable/>`_
+
     .. change:: changed
 
         Removed ftrack connect cinesync from Connect package. Starting with CineSync
