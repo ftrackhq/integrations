@@ -35,8 +35,8 @@ connect_dependency_link = (
 connect_3ds_max_install_require = 'ftrack-connect-3dsmax >=0.1, < 1'
 
 connect_3ds_max_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-3dsmax/get/master.zip'
-    '#egg=ftrack-connect-3dsmax-0.1.0'
+    'file://{0}#egg=ftrack-connect-3dsmax-0.2.7'
+    .format(os.environ['FTRACK_CONNECT_3DS_MAX_PATH'].replace('\\', '/'))
 )
 
 connect_legacy_plugins_install_require = (
