@@ -8,6 +8,10 @@ Releases
 
 .. release:: Upcoming
 
+    .. change:: new
+
+        `ftrack connect 3ds max <http://ftrack-connect-cinema-3dsmax.rtd.ftrack.com/en/stable/>`_
+
     .. change:: changed
 
         `ftrack connect nuke studio 0.2.5 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/0.2.5/>`_
