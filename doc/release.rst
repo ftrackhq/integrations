@@ -6,7 +6,7 @@ Releases
 ########
 
 
-.. release:: 0.4.2
+.. release:: 0.5.0
     :date: 2016-08-08
 
     .. change:: new
