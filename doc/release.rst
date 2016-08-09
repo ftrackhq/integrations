@@ -6,6 +6,12 @@ Releases
 ########
 
 
+.. release:: Upcoming
+
+    .. change:: changed
+
+        `ftrack connect 3ds max 0.2.8 <http://ftrack-connect-cinema-3dsmax.rtd.ftrack.com/en/0.2.8/>`_
+
 .. release:: 0.5.0
     :date: 2016-08-08
 
