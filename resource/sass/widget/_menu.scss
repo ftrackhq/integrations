@@ -1,0 +1,18 @@
+QMenu {
+    background: $white;
+}
+
+QMenu::item {
+    background: $white;
+    border: 0px;
+    padding: 5px;
+    color: $text-color;
+}
+
+QMenu::item:selected:enabled {
+    background: darken($white, 5%);
+}
+
+QMenu::item:pressed:enabled {
+    background: darken($white, 10%);
+}

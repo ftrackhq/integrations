@@ -1,0 +1,13 @@
+// Fonts
+$font-family-sans-serif:  'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+$font-family-serif:       Georgia, 'Times New Roman', Times, serif;
+$font-family-monospace:   Menlo, Monaco, Consolas, 'Courier New', monospace;
+$font-family-base:        $font-family-sans-serif;
+
+// Input
+$input-background: $white;
+$input-border-color: darken($input-background, 10%);
+$input-border-color-focus: $brand-primary;
+$input-border-color-invalid: $brand-danger;
+$input-padding: 4px;
+$input-border-radius: 2px;

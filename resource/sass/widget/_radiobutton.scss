@@ -1,0 +1,28 @@
+QRadioButton::indicator {
+    width: 13px;
+    height: 13px;
+}
+
+QRadioButton::indicator::unchecked {
+    image: theme-image('radiobutton_unchecked');
+}
+
+QRadioButton::indicator:unchecked:hover {
+    image: theme-image('radiobutton_unchecked_hover');
+}
+
+QRadioButton::indicator:unchecked:pressed {
+    image: theme-image('radiobutton_unchecked_pressed');
+}
+
+QRadioButton::indicator::checked {
+    image: theme-image('radiobutton_checked');
+}
+
+QRadioButton::indicator:checked:hover {
+    image: theme-image('radiobutton_checked_hover');
+}
+
+QRadioButton::indicator:checked:pressed {
+    image: theme-image('radiobutton_checked_pressed');
+}
