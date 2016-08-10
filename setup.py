@@ -7,7 +7,6 @@ import re
 import subprocess
 
 from setuptools import setup, find_packages, Command
-from distutils.command.build import build as BuildCommand
 from setuptools.command.test import test as TestCommand
 
 
@@ -120,15 +119,6 @@ class BuildResources(Command):
             )
 
 
-class Build(BuildCommand):
-    '''Custom build to pre-build resources.'''
-
-    def run(self):
-        '''Run build ensuring build_resources called first.'''
-        self.run_command('build_resources')
-        BuildCommand.run(self)
-
-
 # Configuration.
 setup(
     name='ftrack-connect-pipeline',
@@ -144,11 +134,13 @@ setup(
     package_dir={
         '': 'source'
     },
-    setup_requires=[
-        'pyScss >= 1.2.0, < 2',
+    build_sphinx_requires=[
         'sphinx >= 1.2.2, < 2',
         'sphinx_rtd_theme >= 0.1.6, < 2',
         'lowdown >= 0.1.0, < 2'
+    ],
+    build_resources_requires=[
+        'pyScss >= 1.2.0, < 2'
     ],
     install_requires=[
     ],
@@ -159,7 +151,6 @@ setup(
         'pyblish-base'
     ],
     cmdclass={
-        'build': Build,
         'build_resources': BuildResources,
         'test': PyTest
     },
