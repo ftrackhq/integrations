@@ -25,17 +25,18 @@ with open(os.path.join(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
-connect_install_require = 'ftrack-connect == 0.1.25'
+connect_install_require = 'ftrack-connect == 0.1.27'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.25.zip'
-    '#egg=ftrack-connect-0.1.25'
+    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.27.zip'
+    '#egg=ftrack-connect-0.1.27'
 )
 
-cinesync_install_require = 'ftrack-connect-cinesync == 0.1.2'
-cinesync_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-cinesync/get/0.1.2.zip'
-    '#egg=ftrack-connect-cinesync-0.1.2'
+connect_3ds_max_install_require = 'ftrack-connect-3dsmax >=0.1, < 1'
+
+connect_3ds_max_dependency_link = (
+    'https://bitbucket.org/ftrack/ftrack-connect-3dsmax/get/0.2.8.zip'
+    '#egg=ftrack-connect-3dsmax-0.2.8'
 )
 
 connect_legacy_plugins_install_require = (
@@ -43,7 +44,7 @@ connect_legacy_plugins_install_require = (
     ' >=0.1, < 1'
 )
 connect_legacy_plugins_dependency_link = (
-    'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.6'
+    'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.7'
     .format(os.environ['FTRACK_CONNECT_LEGACY_PLUGINS_PATH'].replace('\\', '/'))
 )
 
@@ -75,8 +76,8 @@ connect_maya_dependency_install_require = (
 )
 
 connect_nuke_studio_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke-studio/get/0.2.4.zip'
-    '#egg=ftrack-connect-nuke-studio-0.2.4'
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke-studio/get/0.2.5.zip'
+    '#egg=ftrack-connect-nuke-studio-0.2.5'
 )
 connect_nuke_studio_dependency_install_require = (
     'ftrack-connect-nuke-studio'
@@ -122,7 +123,7 @@ configuration = dict(
     install_requires=[
         'ftrack-python-legacy-api',
         connect_install_require,
-        cinesync_install_require,
+        connect_3ds_max_install_require,
         connect_legacy_plugins_install_require,
         connect_hieroplayer_install_require,
         connect_nuke_dependency_install_require,
@@ -137,10 +138,10 @@ configuration = dict(
             os.environ['FTRACK_PYTHON_LEGACY_API_PATH'].replace('\\', '/')
         ),
         connect_dependency_link,
-        cinesync_dependency_link,
         connect_legacy_plugins_dependency_link,
         ('https://bitbucket.org/ftrack/lowdown/get/0.1.0.zip'
          '#egg=lowdown-0.1.0'),
+        connect_3ds_max_dependency_link,
         connect_hieroplayer_dependency_link,
         connect_maya_dependency_link,
         connect_nuke_dependency_link,
@@ -169,14 +170,14 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
 
     from cx_Freeze import setup, Executable
 
-    # Ensure ftrack-connect and ftrack-connect-cinesync
+    # Ensure ftrack-connect is
     # available for import and then discover ftrack-connect and
-    # ftrack-connect-cinesync resources that need to be included outside of
+    # resources that need to be included outside of
     # the standard zipped bundle.
     Distribution(dict(
         setup_requires=[
             connect_install_require,
-            cinesync_install_require,
+            connect_3ds_max_install_require,
             connect_legacy_plugins_install_require,
             connect_hieroplayer_install_require,
             connect_maya_dependency_install_require,
@@ -186,8 +187,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             connect_cinema_4d_dependency_install_require
         ],
         dependency_links=[
-            cinesync_dependency_link,
             connect_dependency_link,
+            connect_3ds_max_dependency_link,
             connect_legacy_plugins_dependency_link,
             connect_hieroplayer_dependency_link,
             connect_maya_dependency_link,
@@ -200,16 +201,6 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
     connect_resource_hook = pkg_resources.resource_filename(
         pkg_resources.Requirement.parse('ftrack-connect'),
         'ftrack_connect_resource/hook'
-    )
-
-    cinesync_resource_script = pkg_resources.resource_filename(
-        pkg_resources.Requirement.parse('ftrack-connect-cinesync'),
-        'ftrack_connect_cinesync_resource/script'
-    )
-
-    cinesync_resource_hook = pkg_resources.resource_filename(
-        pkg_resources.Requirement.parse('ftrack-connect-cinesync'),
-        'ftrack_connect_cinesync_resource/hook'
     )
 
     ftrack_connect_legacy_plugins_source = pkg_resources.resource_filename(
@@ -272,13 +263,23 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_cinema_4d/hook'
     )
 
+    ftrack_connect_3ds_max_source = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-connect-3dsmax'),
+        'ftrack_connect_3dsmax/ftrack_connect_3dsmax'
+    )
+
+    ftrack_connect_3ds_max_hook = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-connect-3dsmax'),
+        'ftrack_connect_3dsmax/hook'
+    )
+
     # Add requests certificates to resource folder.
     import requests.certs
 
     include_files = [
         (connect_resource_hook, 'resource/hook'),
-        (cinesync_resource_hook, 'resource/hook'),
-        (cinesync_resource_script, 'resource/script'),
+        (ftrack_connect_3ds_max_hook, 'resource/hook'),
+        (ftrack_connect_3ds_max_source, 'resource/ftrack_connect_3dsmax'),
         (ftrack_connect_legacy_plugins_source, 'resource/legacy_plugins'),
         (ftrack_connect_legacy_plugins_hook, 'resource/hook'),
         (ftrack_connect_hieroplayer_hook, 'resource/hook'),
@@ -387,12 +388,12 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
     includes.extend([
         'ftrack',
         'atexit',  # Required for PySide
-        'ftrack_connect_cinesync.cinesync_launcher',
         'ftrack_connect.application',
         'assetmgr_hiero',
         'assetmgr_nuke',
         'FnAssetAPI',
         'ftrack_connect_nuke',
+        'ftrack_connect_3dsmax',
         'ftrack_connect_nuke.plugin',
         'ftrack_connect_nuke.logging',
         'ftrack_connect_legacy_plugins',

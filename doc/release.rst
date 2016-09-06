@@ -5,7 +5,57 @@
 Releases
 ########
 
+
+.. release:: Upcoming
+
+    .. change:: changed
+
+        `ftrack connect 3ds max 0.2.8 <http://ftrack-connect-cinema-3dsmax.rtd.ftrack.com/en/0.2.8/>`_
+
+.. release:: 0.5.0
+    :date: 2016-08-08
+
+    .. change:: new
+
+        `ftrack connect 3ds max <http://ftrack-connect-cinema-3dsmax.rtd.ftrack.com/en/stable/>`_
+
+    .. change:: changed
+
+        `ftrack connect nuke studio 0.2.5 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/0.2.5/>`_
+
+    .. change:: changed
+
+        `ftrack connect 0.1.27 <http://ftrack-connect.rtd.ftrack.com/en/0.1.27/>`_
+
+.. release:: 0.4.1
+    :date: 2016-07-19
+
+    .. change:: changed
+
+        `ftrack connect 0.1.26 <http://ftrack-connect.rtd.ftrack.com/en/0.1.26/>`_
+
+    .. change:: changed
+
+        `ftrack connect legacy plugins 0.1.7 <http://ftrack-connect-legacy-plugins.rtd.ftrack.com/en/0.1.7/>`_
+
+    .. change:: changed
+
+        Adobe actions does no long require a specific action context to be
+        launched.
+
+    .. change:: fixed
+
+        Adobe actions does not differentiate between patch versions, e.g.
+        CC 2015 and CC 2015.5.
+
+    .. change:: changed
+
+        Removed ftrack connect cinesync from Connect package. Starting with CineSync
+        version 3.7, ftrack support is included. Read more at
+        `cinesync.com/partners <https://www.cinesync.com/partners/#ftrack>`_.
+
 .. release:: 0.4.0
+    :date: 2016-06-08
 
     .. change:: new
 

@@ -8,10 +8,16 @@ import logging
 import tempfile
 import os
 import shutil
+import re
 
 import ftrack
 import ftrack_connect.application
 
+#: Custom version expression to match versions `2015.5` and `2015`
+#  as distinct versions.
+ADOBE_VERSION_EXPRESSION = re.compile(
+    r'(?P<version>\d[\d.]*)[^\w\d]'
+)
 
 class LaunchAction(object):
     '''Adobe plugins discover and launch action.'''
@@ -71,11 +77,7 @@ class LaunchAction(object):
 
     def discover(self, event):
         '''Return discovered applications.'''
-        if not self.isValidSelection(
-            event['data'].get('selection', [])
-        ):
-            return
-
+        selection = event['data'].get('selection', [])
         items = []
         applications = self.applicationStore.applications
         applications = sorted(
@@ -94,17 +96,18 @@ class LaunchAction(object):
                 'applicationIdentifier': applicationIdentifier
             })
 
-            items.append({
-                'actionIdentifier': self.identifier,
-                'label': label,
-                'variant': '{variant} with latest version'.format(
-                    variant=application.get('variant', '')
-                ),
-                'description': application.get('description', None),
-                'icon': application.get('icon', 'default'),
-                'launchWithLatest': True,
-                'applicationIdentifier': applicationIdentifier
-            })
+            if selection:
+                items.append({
+                    'actionIdentifier': self.identifier,
+                    'label': label,
+                    'variant': '{variant} with latest version'.format(
+                        variant=application.get('variant', '')
+                    ),
+                    'description': application.get('description', None),
+                    'icon': application.get('icon', 'default'),
+                    'launchWithLatest': True,
+                    'applicationIdentifier': applicationIdentifier
+                })
 
         return {
             'items': items
@@ -129,13 +132,17 @@ class LaunchAction(object):
 
         context = event['data'].copy()
         context['source'] = event['source']
+        selection = context.get('selection', [])
 
         # If the selected entity is an asset version, change the selection
         # to parent task/shot instead since it is not possible to publish
         # to an asset version in ftrack connect.
-        if context['selection'][0]['entityType'] == 'assetversion':
+        if (
+            selection and
+            selection[0]['entityType'] == 'assetversion'
+        ):
             assetVersion = ftrack.AssetVersion(
-                context['selection'][0]['entityId']
+                selection[0]['entityId']
             )
 
             entityId = assetVersion.get('taskid')
@@ -204,6 +211,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 label='Photoshop',
                 variant='CC {version}',
                 applicationIdentifier='photoshop_cc_{version}',
+                versionExpression=ADOBE_VERSION_EXPRESSION,
                 icon='photoshop'
             ))
 
@@ -214,6 +222,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 label='Premiere Pro',
                 variant='CC {version}',
                 applicationIdentifier='premiere_pro_cc_{version}',
+                versionExpression=ADOBE_VERSION_EXPRESSION,
                 icon='premiere'
             ))
 
@@ -224,6 +233,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 label='After Effects',
                 variant='CC {version}',
                 applicationIdentifier='after_effects_cc_{version}',
+                versionExpression=ADOBE_VERSION_EXPRESSION,
                 icon='after_effects'
             ))
 
@@ -239,6 +249,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 label='Photoshop',
                 variant='CC {version}',
                 applicationIdentifier='photoshop_cc_{version}',
+                versionExpression=ADOBE_VERSION_EXPRESSION,
                 icon='photoshop'
             ))
 
@@ -251,6 +262,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 label='Premiere Pro',
                 variant='CC {version}',
                 applicationIdentifier='premiere_pro_cc_{version}',
+                versionExpression=ADOBE_VERSION_EXPRESSION,
                 icon='premiere'
             ))
 
@@ -263,6 +275,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 label='After Effects',
                 variant='CC {version}',
                 applicationIdentifier='after_effects_cc_{version}',
+                versionExpression=ADOBE_VERSION_EXPRESSION,
                 icon='after_effects'
             ))
 
