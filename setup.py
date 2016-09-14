@@ -308,7 +308,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
 
     # Different modules are used on different platforms. Make sure to include
     # all found.
-    for dbmodule in ['dbhash', 'gdbm', 'dbm', 'dumbdbm', 'csv']:
+    for dbmodule in ['dbhash', 'gdbm', 'dbm', 'dumbdbm', 'csv', 'sqlite3']:
         try:
             __import__(dbmodule)
         except ImportError:
