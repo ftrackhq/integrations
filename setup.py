@@ -25,18 +25,18 @@ with open(os.path.join(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
-connect_install_require = 'ftrack-connect == 0.1.27'
+connect_install_require = 'ftrack-connect == 0.1.29'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.27.zip'
-    '#egg=ftrack-connect-0.1.27'
+    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.29.zip'
+    '#egg=ftrack-connect-0.1.29'
 )
 
 connect_3ds_max_install_require = 'ftrack-connect-3dsmax >=0.1, < 1'
 
 connect_3ds_max_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-3dsmax/get/0.2.8.zip'
-    '#egg=ftrack-connect-3dsmax-0.2.8'
+    'https://bitbucket.org/ftrack/ftrack-connect-3dsmax/get/0.2.9.zip'
+    '#egg=ftrack-connect-3dsmax-0.2.9'
 )
 
 connect_legacy_plugins_install_require = (
@@ -44,7 +44,7 @@ connect_legacy_plugins_install_require = (
     ' >=0.1, < 1'
 )
 connect_legacy_plugins_dependency_link = (
-    'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.7'
+    'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.8'
     .format(os.environ['FTRACK_CONNECT_LEGACY_PLUGINS_PATH'].replace('\\', '/'))
 )
 
@@ -58,8 +58,8 @@ connect_hieroplayer_dependency_link = (
 )
 
 connect_nuke_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/0.1.8.zip'
-    '#egg=ftrack-connect-nuke-0.1.8'
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/0.1.9.zip'
+    '#egg=ftrack-connect-nuke-0.1.9'
 )
 connect_nuke_dependency_install_require = (
     'ftrack-connect-nuke'
@@ -67,8 +67,8 @@ connect_nuke_dependency_install_require = (
 )
 
 connect_maya_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-maya/get/0.2.3.zip'
-    '#egg=ftrack-connect-maya-0.2.3'
+    'https://bitbucket.org/ftrack/ftrack-connect-maya/get/0.2.4.zip'
+    '#egg=ftrack-connect-maya-0.2.4'
 )
 connect_maya_dependency_install_require = (
     'ftrack-connect-maya'
@@ -117,6 +117,9 @@ configuration = dict(
         'sphinx >= 1.2.2, < 2',
         'sphinx_rtd_theme >= 0.1.6, < 2',
         'lowdown >= 0.1.0, < 1',
+        # The latest version of the cryptography library does not have a wheel
+        # and building it fails.
+        'cryptography == 1.4',
         'pyopenssl',
         'requests >= 2, <3'
     ],
@@ -402,7 +405,9 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_cinema_4d',
         'lucidity',
         'ftrack_connect_maya',
-        'boto'
+        'boto',
+        'PySide.QtSvg',
+        'PySide.QtXml'
     ])
 
     configuration['options']['build_exe'] = {
