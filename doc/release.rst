@@ -6,12 +6,23 @@ Releases
 ########
 
 
+.. release:: 0.5.2
+    :date: 2016-09-23
+
+    .. change:: changed
+
+        `ftrack connect 3ds max 0.2.10 <http://ftrack-connect-cinema-3dsmax.rtd.ftrack.com/en/0.2.10/>`_
+
+    .. change:: changed
+
+        `ftrack connect 0.1.30 <http://ftrack-connect.rtd.ftrack.com/en/0.1.30/>`_
+
 .. release:: 0.5.1
     :date: 2016-09-16
 
     .. change:: changed
 
-        `ftrack connect 3ds max 0.2.9 <http://ftrack-connect-cinema-3dsmax.rtd.ftrack.com/en/0.2.8/>`_
+        `ftrack connect 3ds max 0.2.9 <http://ftrack-connect-cinema-3dsmax.rtd.ftrack.com/en/0.2.9/>`_
 
     .. change:: changed
 

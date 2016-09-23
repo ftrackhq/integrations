@@ -25,18 +25,18 @@ with open(os.path.join(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
-connect_install_require = 'ftrack-connect == 0.1.29'
+connect_install_require = 'ftrack-connect == 0.1.30'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.29.zip'
-    '#egg=ftrack-connect-0.1.29'
+    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.30.zip'
+    '#egg=ftrack-connect-0.1.30'
 )
 
 connect_3ds_max_install_require = 'ftrack-connect-3dsmax >=0.1, < 1'
 
 connect_3ds_max_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-3dsmax/get/0.2.9.zip'
-    '#egg=ftrack-connect-3dsmax-0.2.9'
+    'https://bitbucket.org/ftrack/ftrack-connect-3dsmax/get/0.2.10.zip'
+    '#egg=ftrack-connect-3dsmax-0.2.10'
 )
 
 connect_legacy_plugins_install_require = (
