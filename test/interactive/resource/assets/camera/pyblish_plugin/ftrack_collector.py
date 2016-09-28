@@ -1,3 +1,4 @@
+
 import os
 
 import pyblish.api
@@ -16,3 +17,5 @@ class FtrackPublishCollector(pyblish.api.ContextPlugin):
             'Context', os.environ['FTRACK_CONTEXT_ID']
         )
         context.data['ftrack_entity'] = ftrack_entity
+
+pyblish.api.register_plugin(FtrackPublishCollector)

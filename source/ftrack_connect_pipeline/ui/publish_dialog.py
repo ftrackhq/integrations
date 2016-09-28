@@ -1,44 +1,37 @@
-import collections
 import string
 import functools
-
-import pyblish.util
-import pyblish.api
-import pyblish.logic
 
 from PySide import QtGui, QtCore
 
 
-class SelectableInstanceWidget(QtGui.QListWidgetItem):
-    '''A selectable instance widget.'''
+class SelectableItemWidget(QtGui.QListWidgetItem):
+    '''A selectable item widget.'''
 
-    def __init__(self, instance):
-        '''Instanstiate widget from *instance*.'''
-        super(SelectableInstanceWidget, self).__init__()
-        self._pyblish_instance = instance
-        self.setText(instance.name)
+    def __init__(self, item):
+        '''Instanstiate widget from *item*.'''
+        super(SelectableItemWidget, self).__init__()
+        self._item = item
+        self.setText(item['label'])
         self.setFlags(self.flags() | QtCore.Qt.ItemIsUserCheckable)
 
         self.setCheckState(
-            QtCore.Qt.Checked
-            if instance.data.get('publish') is True
-            else QtCore.Qt.Unchecked
+            QtCore.Qt.Checked if item.get('value') else QtCore.Qt.Unchecked
         )
 
-    def pyblish_instance(self):
+    def item(self):
         '''Return pyblish instance.'''
-        return self._pyblish_instance
+        return self._item
 
 
-class InstanceListWidget(QtGui.QListWidget):
-    '''List of instances.'''
+class ListItemsWidget(QtGui.QListWidget):
+    '''List of items that can be published.'''
 
-    def __init__(self, instances):
-        '''Instanstiate and generate list from *instances*.'''
-        super(InstanceListWidget, self).__init__()
+    def __init__(self, items):
+        '''Instanstiate and generate list from *items*.'''
+        super(ListItemsWidget, self).__init__()
 
-        for instance in instances:
-            item = SelectableInstanceWidget(instance)
+        for item in items:
+            item = SelectableItemWidget(item)
             self.addItem(item)
 
 
@@ -133,73 +126,24 @@ class ActionSettingsWidget(QtGui.QWidget):
 class BaseSettingsProvider(object):
     '''Provides qt widgets to configure settings for a pyblish entity.'''
 
-    def __init__(self, pyblish_plugins):
+    def __init__(self):
         '''Instantiate provider with *pyblish_plugins*.'''
         super(BaseSettingsProvider, self).__init__()
 
-        self.pyblish_plugins = pyblish_plugins
-        self._compatible_context_plugins = []
-        self._compatible_instance_plugins = []
-
-        for plugin in self.pyblish_plugins:
-            if plugin.order >= pyblish.api.ExtractorOrder:
-                #: TODO: Change to better way to determine if it is a context
-                # plugin.
-                if plugin.__contextEnabled__:
-                    self._compatible_context_plugins.append(plugin)
-                else:
-                    self._compatible_instance_plugins.append(plugin)
-
-    def __call__(self, pyblish_entity):
-        '''Return a qt widget from *pyblish_entity*.'''
+    def __call__(self, label, options):
+        '''Return a qt widget from *item*.'''
         tooltip = None
-        label = ''
-        compatible_plugins = []
-
-        if isinstance(pyblish_entity, pyblish.api.Context):
-            compatible_plugins = self._compatible_context_plugins[:]
-            label = 'Publish options'
-            tooltip = (
-                'These options will be saved in the Pyblish Context and used '
-                'in validation, extraction and integration steps.'
-            )
-
-        elif isinstance(pyblish_entity, pyblish.api.Instance):
-            for plugin in self._compatible_instance_plugins:
-                if (
-                    pyblish_entity.data['family'] in plugin.families
-                ):
-                    compatible_plugins.append(plugin)
-
-            label = pyblish_entity.name
-            tooltip = (
-                'These options will be saved in the {0} Pyblish Instance and '
-                'used in validation, extraction and integration steps.'.format(
-                    pyblish_entity.name
-                )
-            )
-
-        else:
-            raise ValueError(
-                'Must provide a valid pyblish instance or context. {0!r} is '
-                'unknown.'.format(pyblish_entity)
-            )
-
         settings_widget = QtGui.QGroupBox(label)
         settings_widget.setLayout(QtGui.QVBoxLayout())
         if tooltip:
             settings_widget.setToolTip(tooltip)
 
-        for plugin in compatible_plugins:
-            if hasattr(plugin, '_ftrack_options'):
-                options = plugin._ftrack_options(pyblish_entity)
-
-                if isinstance(options, QtGui.QWidget):
-                    settings_widget.layout().addWidget(options)
-                else:
-                    settings_widget.layout().addWidget(
-                        ActionSettingsWidget(pyblish_entity.data, options)
-                    )
+        if isinstance(options, QtGui.QWidget):
+            settings_widget.layout().addWidget(options)
+        else:
+            settings_widget.layout().addWidget(
+                ActionSettingsWidget(dict(), options)
+            )
 
         return settings_widget
 
@@ -208,33 +152,30 @@ class PublishDialog(QtGui.QDialog):
     '''Publish dialog.'''
 
     def __init__(
-        self, label, description, instance_filter, settings_provider=None,
+        self, label, description, publish_asset, settings_provider=None,
         parent=None
     ):
         '''Display instances that can be published.'''
         super(PublishDialog, self).__init__()
         self.setMinimumSize(800, 600)
 
-        self._pyblish_plugins = pyblish.api.discover()
+        self.publish_asset = publish_asset
+        self.publish_data = self.publish_asset.prepare_publish()
 
         self.settings_provider = settings_provider
         if self.settings_provider is None:
-            self.settings_provider = BaseSettingsProvider(self._pyblish_plugins)
+            self.settings_provider = BaseSettingsProvider()
 
         self.settings_map = {}
-        self._pyblish_context = pyblish.api.Context()
-
-        self.instance_filter = instance_filter
-
         list_instances_widget = QtGui.QWidget()
         self._list_instances_layout = QtGui.QVBoxLayout()
         list_instances_widget.setLayout(self._list_instances_layout)
 
         list_instance_settings_widget = QtGui.QWidget()
-        self._list_instance_settings_layout = QtGui.QVBoxLayout()
-        self._list_instance_settings_layout.addStretch(1)
+        self._list_items_settings_layout = QtGui.QVBoxLayout()
+        self._list_items_settings_layout.addStretch(1)
         list_instance_settings_widget.setLayout(
-            self._list_instance_settings_layout
+            self._list_items_settings_layout
         )
 
         configuration_layout = QtGui.QHBoxLayout()
@@ -276,69 +217,59 @@ class PublishDialog(QtGui.QDialog):
     def refresh(self):
         '''Refresh content.'''
         layout = self._list_instances_layout
-        context = pyblish.util.collect(context=self._pyblish_context)
+        settings_widget = self.settings_provider(
+            'General',
+            self.publish_asset.get_options(self.publish_data)
+        )
+        self._list_items_settings_layout.insertWidget(0, settings_widget)
 
-        settings_widget = self.settings_provider(context)
-        self._list_instance_settings_layout.insertWidget(0, settings_widget)
+        items = self.publish_asset.get_publish_items(self.publish_data)
 
-        groups = collections.defaultdict(list)
-        for instance in context:
-            if self.instance_filter(instance):
-                group_key = instance.data.get('family', 'other')
-                groups[group_key].append(instance)
-
-        for group_key, instances in groups.items():
-            view = InstanceListWidget(instances)
-            view.itemChanged.connect(self.on_selection_changed)
-            layout.addWidget(
-                QtGui.QLabel(
-                    'Select {0}(s) to publish'.format(
-                        string.capitalize(group_key)
-                    )
+        view = ListItemsWidget(items)
+        view.itemChanged.connect(self.on_selection_changed)
+        layout.addWidget(
+            QtGui.QLabel(
+                'Select {0}(s) to publish'.format(
+                    string.capitalize(self.publish_asset.label)
                 )
             )
-            layout.addWidget(view, stretch=0)
+        )
+        layout.addWidget(view, stretch=0)
 
-            for instance in instances:
-                if instance.data.get('publish') is True:
-                    self.add_instance_settings(instance)
+        for item in items:
+            if item.get('value') is True:
+                self.add_instance_settings(item)
 
         layout.addStretch(1)
 
-    def on_selection_changed(self, item):
+    def on_selection_changed(self, widget):
         '''Handle selection changed.'''
-        instance = item.pyblish_instance()
+        item = widget.item()
 
-        if item.checkState() is QtCore.Qt.CheckState.Checked:
-            instance.data['publish'] = True
-            self.add_instance_settings(instance)
+        if widget.checkState() is QtCore.Qt.CheckState.Checked:
+            self.add_instance_settings(item)
         else:
-            instance.data['publish'] = False
-            self.remove_instance_settings(instance)
+            self.remove_instance_settings(item)
 
-    def add_instance_settings(self, instance):
-        '''Generate settings for *instance*.'''
-        instance_settings_widget = self.settings_provider(instance)
-        self.settings_map[id(instance)] = instance_settings_widget
-        self._list_instance_settings_layout.insertWidget(
-            0, instance_settings_widget
+    def add_instance_settings(self, item):
+        '''Generate settings for *item*.'''
+        item_settings_widget = self.settings_provider(
+            item['label'],
+            self.publish_asset.get_item_options(self.publish_data, item['name'])
+        )
+        self.settings_map[item['name']] = item_settings_widget
+        self._list_items_settings_layout.insertWidget(
+            0, item_settings_widget
         )
 
-    def remove_instance_settings(self, instance):
-        '''Remove *instance*.'''
-        instance_settings_widget = self.settings_map.pop(id(instance))
-        self._list_instance_settings_layout.removeWidget(
-            instance_settings_widget
+    def remove_instance_settings(self, item):
+        '''Remove *item*.'''
+        item_settings_widget = self.settings_map.pop(item['name'])
+        self._list_items_settings_layout.removeWidget(
+            item_settings_widget
         )
-        instance_settings_widget.setParent(None)
+        item_settings_widget.setParent(None)
 
     def on_publish_clicked(self):
         '''Handle publish clicked event.'''
-        assert self._pyblish_context is not None
-        context = self._pyblish_context
-        non_collector_plugins = [
-            plugin for plugin in self._pyblish_plugins
-            if plugin.order > pyblish.api.CollectorOrder
-        ]
-
-        pyblish.util.publish(context=context, plugins=non_collector_plugins)
+        self.publish_asset.publish(self.publish_data)
