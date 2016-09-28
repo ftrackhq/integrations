@@ -108,18 +108,18 @@ class PublishAsset(object):
         '''Return general options for.'''
         from ftrack_connect_pipeline.ui.widget import asset_selector
         asset_selector = asset_selector.AssetSelector(
-            publish_data.data['ftrack_entity']
+            ftrack_connect_pipeline.util.get_ftrack_entity()
         )
 
-        def handle_change(value):
-            publish_data.data['options'] = {}
-            publish_data.data['options']['asset_name'] = value['asset_name']
-            publish_data.data['options']['asset_type'] = value['asset_type']
+        # def handle_change(value):
+        #     publish_data.data['options'] = {}
+        #     publish_data.data['options']['asset_name'] = value['asset_name']
+        #     publish_data.data['options']['asset_type'] = value['asset_type']
 
-        asset_selector.asset_changed.connect(handle_change)
+        # asset_selector.asset_changed.connect(handle_change)
 
         return asset_selector
 
-    def publish_asset(self, publish_data, options):
+    def publish(self, publish_data, item_options, general_options):
         '''Publish or raise exception if not valid.'''
         raise NotImplementedError()

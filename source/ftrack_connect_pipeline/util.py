@@ -3,8 +3,11 @@
 
 import threading
 import sys
+import os
 
 from PySide import QtCore
+
+import ftrack_api
 
 
 def asynchronous(method):
@@ -121,3 +124,12 @@ def invoke_in_main_thread(fn, *args, **kwargs):
         _invoker,
         InvokeEvent(fn, *args, **kwargs)
     )
+
+
+def get_ftrack_entity():
+    '''Return current ftrack entity.'''
+    session = ftrack_api.Session()
+    ftrack_entity = session.get(
+        'Context', os.environ['FTRACK_CONTEXT_ID']
+    )
+    return ftrack_entity

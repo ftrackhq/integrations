@@ -5,29 +5,6 @@ import ftrack_connect_pipeline.asset
 IDENTIFIER = 'camera'
 
 
-class ImportCamera(ftrack_connect_pipeline.asset.ImportAsset):
-    '''Handle import of maya camera.'''
-
-    def discover(self, event):
-        '''Discover import camera.'''
-        asset_type_short = (
-            event['component']['version']['asset']['asset_type']['short']
-        )
-        if asset_type_short == 'camera':
-            return {
-                'label': 'Import as reference',
-                'identifier': IDENTIFIER
-            }
-
-    def get_options(self, component):
-        '''Return import options from *component*.'''
-        return []
-
-    def import_asset(self, component, options):
-        '''Import *component* based on *options*.'''
-        pass
-
-
 class PublishCamera(ftrack_connect_pipeline.asset.PyblishAsset):
     '''Handle publish of maya camera.'''
 
@@ -77,7 +54,6 @@ def register(session):
 
     camera_asset = ftrack_connect_pipeline.asset.Asset(
         identifier=IDENTIFIER,
-        import_asset=ImportCamera(),
         publish_asset=PublishCamera(
             label='Camera',
             description='publish maya cameras to ftrack.',
