@@ -1,17 +1,8 @@
-import os
-import logging
-
-import pyblish
-import pyblish.plugin
-import pyblish.api
-import pyblish.util
 import ftrack_api
 
 import ftrack_connect_pipeline.asset
 
 IDENTIFIER = 'camera'
-
-logging.basicConfig(level=logging.INFO)
 
 
 class ImportCamera(ftrack_connect_pipeline.asset.ImportAsset):
@@ -37,34 +28,8 @@ class ImportCamera(ftrack_connect_pipeline.asset.ImportAsset):
         pass
 
 
-class PublishCamera(ftrack_connect_pipeline.asset.PublishAsset):
+class PublishCamera(ftrack_connect_pipeline.asset.PyblishAsset):
     '''Handle publish of maya camera.'''
-
-    icon_url = 'http://www.clipartbest.com/cliparts/9Tp/erx/9Tperxqrc.png'
-
-    label = 'Camera'
-
-    description = 'publish maya cameras to ftrack.'
-
-    def __init__(self):
-        '''Instantiate and let pyblish know about the plugins.'''
-        pyblish.plugin.register_plugin_path(
-            os.path.normpath(
-                os.path.join(
-                    os.path.abspath(
-                        os.path.dirname(__file__)
-                    ),
-                    '..',
-                    'pyblish_plugin'
-                )
-            )
-        )
-
-    def prepare_publish(self):
-        '''Return context for publishing.'''
-        context = pyblish.api.Context()
-        context = pyblish.util.collect(context=context)
-        return context
 
     def get_publish_items(self, publish_data):
         '''Return list of items that can be published.'''
@@ -76,8 +41,6 @@ class PublishCamera(ftrack_connect_pipeline.asset.PublishAsset):
                     'name': instance.id,
                     'value': True
                 })
-
-        logging.info('Building interface from {0}'.format(options))
 
         return options
 
@@ -106,32 +69,6 @@ class PublishCamera(ftrack_connect_pipeline.asset.PublishAsset):
 
         return options
 
-    def get_options(self, publish_data):
-        '''Return general options for.'''
-        # Get options like asset type etc. from super class.
-        options = super(PublishCamera, self).get_options(publish_data)
-        
-        from ftrack_connect_pipeline.ui.widget import asset_selector
-        asset_selector = asset_selector.AssetSelector(
-            publish_data.data['ftrack_entity']
-        )
-
-        def handle_change(value):
-            publish_data.data['options'] = {}
-            publish_data.data['options']['asset_name'] = value['asset_name']
-            publish_data.data['options']['asset_type'] = value['asset_type']
-
-        asset_selector.asset_changed.connect(handle_change)
-
-        return asset_selector
-
-    def publish(self, publish_data, options):
-        '''Publish or raise exception if not valid.'''
-        publish_data['options'] = options
-        pyblish.util.validate(publish_data)
-        pyblish.util.integrate(publish_data)
-        pyblish.util.extract(publish_data)
-
 
 def register(session):
     '''Subscribe to *session*.'''
@@ -141,7 +78,11 @@ def register(session):
     camera_asset = ftrack_connect_pipeline.asset.Asset(
         identifier=IDENTIFIER,
         import_asset=ImportCamera(),
-        publish_asset=PublishCamera()
+        publish_asset=PublishCamera(
+            label='Camera',
+            description='publish maya cameras to ftrack.',
+            icon='http://www.clipartbest.com/cliparts/9Tp/erx/9Tperxqrc.png'
+        )
     )
     # Register camera asset on session. This makes sure that discover is called
     # for import and publish.

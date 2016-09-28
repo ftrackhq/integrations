@@ -130,7 +130,7 @@ class BaseSettingsProvider(object):
         '''Instantiate provider with *pyblish_plugins*.'''
         super(BaseSettingsProvider, self).__init__()
 
-    def __call__(self, label, options):
+    def __call__(self, label, options, store):
         '''Return a qt widget from *item*.'''
         tooltip = None
         settings_widget = QtGui.QGroupBox(label)
@@ -142,7 +142,7 @@ class BaseSettingsProvider(object):
             settings_widget.layout().addWidget(options)
         else:
             settings_widget.layout().addWidget(
-                ActionSettingsWidget(dict(), options)
+                ActionSettingsWidget(store, options)
             )
 
         return settings_widget
@@ -161,6 +161,8 @@ class PublishDialog(QtGui.QDialog):
 
         self.publish_asset = publish_asset
         self.publish_data = self.publish_asset.prepare_publish()
+        self.item_options_store = {}
+        self.general_options_store = {}
 
         self.settings_provider = settings_provider
         if self.settings_provider is None:
@@ -219,7 +221,8 @@ class PublishDialog(QtGui.QDialog):
         layout = self._list_instances_layout
         settings_widget = self.settings_provider(
             'General',
-            self.publish_asset.get_options(self.publish_data)
+            self.publish_asset.get_options(self.publish_data),
+            self.general_options_store
         )
         self._list_items_settings_layout.insertWidget(0, settings_widget)
 
@@ -253,9 +256,13 @@ class PublishDialog(QtGui.QDialog):
 
     def add_instance_settings(self, item):
         '''Generate settings for *item*.'''
+        save_options_to = self.item_options_store[item['name']] = dict()
         item_settings_widget = self.settings_provider(
             item['label'],
-            self.publish_asset.get_item_options(self.publish_data, item['name'])
+            self.publish_asset.get_item_options(
+                self.publish_data, item['name']
+            ),
+            save_options_to
         )
         self.settings_map[item['name']] = item_settings_widget
         self._list_items_settings_layout.insertWidget(
@@ -272,4 +279,8 @@ class PublishDialog(QtGui.QDialog):
 
     def on_publish_clicked(self):
         '''Handle publish clicked event.'''
-        self.publish_asset.publish(self.publish_data)
+        self.publish_asset.publish(
+            self.publish_data,
+            self.item_options_store,
+            self.general_options_store
+        )
