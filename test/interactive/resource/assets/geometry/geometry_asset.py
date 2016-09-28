@@ -31,19 +31,29 @@ class ImportGeometry(ftrack_connect_pipeline.asset.ImportAsset):
 class PublishGeometry(ftrack_connect_pipeline.asset.PublishAsset):
     '''Handle publish of maya geometry.'''
 
+    def prepare_publish(self):
+        '''Prepare publish and populate with items.'''
+        publish_data = super(PublishGeometry, self).prepare_publish()
+        # Loop over maya scene and scan for maya models to publish.
+        publish_data['items'] = ['maya_model_xyz']
+        return publish_data
+
     def get_publish_items(self, publish_data):
         '''Return list of items that can be published.'''
+        # Loop items and create a list of what can be published.
         options = []
-        options.append({
-            'label': 'maya_model_xyz',
-            'name': 'maya_model_xyz',
-            'value': True
-        })
+        for item in publish_data['items']:
+            options.append({
+                'label': item,
+                'name': item,
+                'value': True
+            })
 
         return options
 
     def get_item_options(self, publish_data, name):
         '''Return options for publishable item with *name*.'''
+        # Return options, if any, for a geometry with the given name name.
         options = [{
             'type': 'boolean',
             'label': 'Do stuff with geometry',
@@ -52,9 +62,10 @@ class PublishGeometry(ftrack_connect_pipeline.asset.PublishAsset):
 
         return options
 
-    def publish(self, publish_data, item_options, general_options):
+    def publish(self, publish_data):
         '''Publish or raise exception if not valid.'''
-        print '!', publish_data, item_options, general_options
+        # Publish asset based on options in publish_data.
+        print 'Publish using', publish_data
 
 
 def register(session):

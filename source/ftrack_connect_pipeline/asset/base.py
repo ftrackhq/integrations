@@ -120,6 +120,13 @@ class PublishAsset(object):
 
         return asset_selector
 
-    def publish(self, publish_data, item_options, general_options):
+    def update_with_options(
+        self, publish_data, item_options, general_options
+    ):
+        '''Update *publish_data* with *item_options* and *general_options*.'''
+        publish_data['options'] = general_options
+        publish_data['item_options'] = item_options
+
+    def publish(self, publish_data):
         '''Publish or raise exception if not valid.'''
         raise NotImplementedError()

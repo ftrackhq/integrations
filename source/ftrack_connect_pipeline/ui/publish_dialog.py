@@ -279,8 +279,9 @@ class PublishDialog(QtGui.QDialog):
 
     def on_publish_clicked(self):
         '''Handle publish clicked event.'''
-        self.publish_asset.publish(
+        self.publish_asset.update_with_options(
             self.publish_data,
             self.item_options_store,
             self.general_options_store
         )
+        self.publish_asset.publish(self.publish_data)
