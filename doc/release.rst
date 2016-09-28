@@ -6,6 +6,13 @@ Releases
 ########
 
 
+.. release:: 0.5.3
+    :date: 2016-09-28
+
+    .. change:: changed
+
+        `ftrack connect legacy plugins 0.1.9 <http://ftrack-connect-legacy-plugins.rtd.ftrack.com/en/0.1.9/>`_
+
 .. release:: 0.5.2
     :date: 2016-09-23
 
