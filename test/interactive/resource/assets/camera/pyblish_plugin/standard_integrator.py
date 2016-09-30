@@ -6,23 +6,6 @@ class IntegratorCreateAsset(pyblish.api.ContextPlugin):
 
     order = pyblish.api.IntegratorOrder
 
-    @classmethod
-    def _ftrack_options(cls, context):
-        '''Return options.'''
-        from ftrack_connect_pipeline.ui.widget import asset_selector
-        asset_selector = asset_selector.AssetSelector(
-            context.data['ftrack_entity']
-        )
-
-        def handle_change(value):
-            context.data['options'] = {}
-            context.data['options']['asset_name'] = value['asset_name']
-            context.data['options']['asset_type'] = value['asset_type']
-
-        asset_selector.asset_changed.connect(handle_change)
-
-        return asset_selector
-
     def process(self, context):
         '''Process *context* create asset.'''
         ftrack_entity = context.data['ftrack_entity']

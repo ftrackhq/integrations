@@ -30,27 +30,6 @@ class ExtractMayaBinaryCamera(pyblish.api.InstancePlugin):
 
     families = ['camera']
 
-    @classmethod
-    def _ftrack_options(cls, instance):
-        '''Return options.'''
-        return [{
-            'type': 'boolean',
-            'label': 'Bake camera',
-            'name': 'bake_camera'
-        }, {
-            'type': 'boolean',
-            'label': 'Lock camera',
-            'name': 'lock_camera'
-        }, {
-            'type': 'number',
-            'label': 'Start frame',
-            'name': 'start_frame_camera'
-        }, {
-            'type': 'number',
-            'label': 'End frame',
-            'name': 'end_frame_camera'
-        }]
-
     def process(self, instance):
         '''Process *instance* and extract maya camera.'''
         if instance.data.get('publish'):
@@ -76,15 +55,6 @@ class ExtractMayaAlembicCamera(pyblish.api.InstancePlugin):
     families = ['camera']
 
     optional = True
-
-    @classmethod
-    def _ftrack_options(cls, instance):
-        '''Return options.'''
-        return [{
-            'type': 'boolean',
-            'label': 'Include animation',
-            'name': 'alembic_include_animation'
-        }]
 
     def process(self, instance):
         '''Process *instance* and extract maya camera.'''
