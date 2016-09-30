@@ -106,19 +106,16 @@ class PublishAsset(object):
 
     def get_options(self, publish_data):
         '''Return general options for.'''
-        from ftrack_connect_pipeline.ui.widget import asset_selector
+        from ftrack_connect_pipeline.ui.widget.field import asset_selector
         asset_selector = asset_selector.AssetSelector(
             ftrack_connect_pipeline.util.get_ftrack_entity()
         )
 
-        # def handle_change(value):
-        #     publish_data.data['options'] = {}
-        #     publish_data.data['options']['asset_name'] = value['asset_name']
-        #     publish_data.data['options']['asset_type'] = value['asset_type']
-
-        # asset_selector.asset_changed.connect(handle_change)
-
-        return asset_selector
+        return [{
+            'widget': asset_selector,
+            'type': 'qt_widget',
+            'name': 'asset'
+        }]
 
     def update_with_options(
         self, publish_data, item_options, general_options

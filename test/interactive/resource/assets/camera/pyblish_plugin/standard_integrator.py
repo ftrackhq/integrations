@@ -11,8 +11,8 @@ class IntegratorCreateAsset(pyblish.api.ContextPlugin):
         ftrack_entity = context.data['ftrack_entity']
         session = ftrack_entity.session
 
-        asset_type_id = context.data['options']['asset_type']
-        asset_name = context.data['options']['asset_name']
+        asset_type_id = context.data['options']['asset']['asset_type']
+        asset_name = context.data['options']['asset']['asset_name']
         context_id = ftrack_entity['id']
 
         asset = session.query(

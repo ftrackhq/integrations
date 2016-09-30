@@ -1,5 +1,6 @@
 
 import pyblish.api
+import ftrack_connect_pipeline.util
 
 
 class FtrackPublishCollector(pyblish.api.ContextPlugin):

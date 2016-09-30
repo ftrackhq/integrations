@@ -39,6 +39,8 @@ class PyblishAsset(PublishAsset):
     ):
         '''Update *publish_data* with *item_options* and *general_options*.'''
         publish_data.data['options'] = general_options
+        print 'DATA!'
+        print publish_data.data
         print publish_data.data['options']
 
         for instance in publish_data:
@@ -48,5 +50,5 @@ class PyblishAsset(PublishAsset):
     def publish(self, publish_data):
         '''Publish or raise exception if not valid.'''
         pyblish.util.validate(publish_data)
-        pyblish.util.integrate(publish_data)
         pyblish.util.extract(publish_data)
+        pyblish.util.integrate(publish_data)

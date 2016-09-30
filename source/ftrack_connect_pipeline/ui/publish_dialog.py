@@ -47,11 +47,15 @@ class ActionSettingsWidget(QtGui.QWidget):
 
         for option in options:
             type_ = option['type']
-            label = option['label']
+            label = option.get('label', '')
             name = option['name']
             value = option.get('value')
             if name in data_dict.get('options', {}):
                 value = data_dict['options'][name]
+
+            if value is not None and name not in data_dict:
+                # Set default value from options.
+                data_dict[name] = value
 
             field = None
 
@@ -105,6 +109,20 @@ class ActionSettingsWidget(QtGui.QWidget):
                     )
                 )
 
+            if type_ == 'qt_widget':
+                field = option['widget']
+                field.value_changed.connect(
+                    functools.partial(
+                        self.update_on_change,
+                        data_dict,
+                        field,
+                        name,
+                        lambda custom_field: (
+                            custom_field.value()
+                        )
+                    )
+                )
+
             if field is not None:
                 label_widget = QtGui.QLabel(label)
                 self.layout().addRow(
@@ -117,10 +135,7 @@ class ActionSettingsWidget(QtGui.QWidget):
     ):
         '''Update *instance* options from *form_widget*.'''
         value = value_provider(form_widget)
-        if 'options' not in data_dict:
-            data_dict['options'] = {}
-
-        data_dict['options'][name] = value
+        data_dict[name] = value
 
 
 class BaseSettingsProvider(object):

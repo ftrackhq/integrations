@@ -1,12 +1,10 @@
 
+from .base import BaseField
 from PySide import QtGui, QtCore
 
 
-class AssetSelector(QtGui.QWidget):
+class AssetSelector(BaseField):
     '''Select or create a new asset.'''
-
-    #: Signal to emit when an asset is changed.
-    asset_changed = QtCore.Signal(object)
 
     def __init__(self, ftrack_entity):
         '''Instantiate asset selector with *ftrack_entity*.'''
@@ -64,7 +62,7 @@ class AssetSelector(QtGui.QWidget):
 
     def notify_changed(self, *args, **kwargs):
         '''Notify the world about the changes.'''
-        self.asset_changed.emit(self.value())
+        self.value_changed.emit(self.value())
 
     def value(self):
         '''Return value.'''
