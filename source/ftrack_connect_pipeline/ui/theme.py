@@ -23,7 +23,4 @@ def applyTheme(widget, theme='light', baseTheme=None):
     stream = QtCore.QTextStream(fileObject)
     styleSheetContent = stream.readAll()
 
-    print '!!!!!'
-    print styleSheetContent
-
     widget.setStyleSheet(styleSheetContent)

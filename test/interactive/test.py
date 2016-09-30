@@ -15,28 +15,18 @@ BASE_DIR = os.path.abspath(
     )
 )
 
-print os.path.join(
-            BASE_DIR,
-            'resource',
-            'hook'
-        )
-
 session = ftrack_api.Session(
     plugin_paths=[
         os.path.join(
             BASE_DIR,
-            'resource',
-            'hook'
+            'resource'
         )
     ]
 )
 
+import ftrack_connect_pipeline.asset
 
-os.environ['PYBLISHPLUGINPATH'] = os.path.join(
-    BASE_DIR,
-    'resource',
-    'pyblish_plugin'
-)
+# ftrack_connect_pipeline.asset.discover(session, 'interactive-test')
 
 sys.path.append(
     os.path.join(
