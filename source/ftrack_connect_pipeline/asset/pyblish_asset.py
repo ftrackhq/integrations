@@ -4,6 +4,7 @@ import pyblish.plugin
 import pyblish.api
 import pyblish.util
 
+import ftrack_connect_pipeline.ui.display_pyblish_result
 from .base import PublishAsset
 
 
@@ -55,3 +56,11 @@ class PyblishAsset(PublishAsset):
         pyblish.util.validate(publish_data)
         pyblish.util.extract(publish_data)
         pyblish.util.integrate(publish_data)
+        self.show_detailed_result(publish_data)
+
+    def show_detailed_result(self, publish_data):
+        '''Show detailed results for *publish_data*.'''
+        dialog = ftrack_connect_pipeline.ui.display_pyblish_result.Dialog(
+            publish_data.data['results']
+        )
+        dialog.exec_()
