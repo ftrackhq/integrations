@@ -34,16 +34,27 @@ class PublishCamera(ftrack_connect_pipeline.asset.PyblishAsset):
                     'type': 'boolean',
                     'label': 'Lock camera',
                     'name': 'lock_camera'
-                }, {
-                    'type': 'number',
-                    'label': 'Start frame',
-                    'name': 'start_frame_camera'
-                }, {
-                    'type': 'number',
-                    'label': 'End frame',
-                    'name': 'end_frame_camera'
                 }]
 
+        return options
+
+    def get_options(self, publish_data):
+        '''Return global options for publishing.'''
+        options = super(PublishCamera, self).get_options(publish_data)
+        options.append({
+            'type': 'group',
+            'name': 'camera_options',
+            'label': 'Camera options',
+            'options': [{
+                'type': 'number',
+                'label': 'Start frame',
+                'name': 'start_frame_camera'
+            }, {
+                'type': 'number',
+                'label': 'End frame',
+                'name': 'end_frame_camera'
+            }]
+        })
         return options
 
 

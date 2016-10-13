@@ -118,11 +118,13 @@ class PublishAsset(object):
         }]
 
     def update_with_options(
-        self, publish_data, item_options, general_options
+        self, publish_data, item_options, general_options, selected_items
     ):
         '''Update *publish_data* with *item_options* and *general_options*.'''
         publish_data['options'] = general_options
         publish_data['item_options'] = item_options
+        publish_data['selected_items'] = selected_items
+        print '!! DATA', publish_data
 
     def publish(self, publish_data):
         '''Publish or raise exception if not valid.'''

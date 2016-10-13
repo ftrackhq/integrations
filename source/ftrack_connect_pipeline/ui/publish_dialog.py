@@ -59,6 +59,17 @@ class ActionSettingsWidget(QtGui.QWidget):
 
             field = None
 
+            if type_ == 'group':
+                nested_dict = data_dict[name] = dict()
+                settings_widget = QtGui.QGroupBox(label)
+                settings_widget.setLayout(QtGui.QVBoxLayout())
+                settings_widget.layout().addWidget(
+                    ActionSettingsWidget(
+                        nested_dict, option.get('options', [])
+                    )
+                )
+                self.layout().addRow(settings_widget)
+
             if type_ == 'boolean':
                 field = QtGui.QCheckBox()
                 if value is True:
@@ -124,11 +135,11 @@ class ActionSettingsWidget(QtGui.QWidget):
                 )
 
             if field is not None:
-                label_widget = QtGui.QLabel(label)
-                self.layout().addRow(
-                    label_widget,
-                    field
-                )
+                if label:
+                    label_widget = QtGui.QLabel(label)
+                    self.layout().addRow(label_widget, field)
+                else:
+                    self.layout().addRow(field)
 
     def update_on_change(
         self, data_dict, form_widget, name, value_provider, *args
@@ -234,12 +245,15 @@ class PublishDialog(QtGui.QDialog):
     def refresh(self):
         '''Refresh content.'''
         layout = self._list_instances_layout
-        settings_widget = self.settings_provider(
-            'General',
-            self.publish_asset.get_options(self.publish_data),
-            self.general_options_store
-        )
-        self._list_items_settings_layout.insertWidget(0, settings_widget)
+
+        general_options = self.publish_asset.get_options(self.publish_data)
+        if general_options:
+            settings_widget = self.settings_provider(
+                'General',
+                general_options,
+                self.general_options_store
+            )
+            self._list_items_settings_layout.insertWidget(0, settings_widget)
 
         items = self.publish_asset.get_publish_items(self.publish_data)
 
@@ -272,31 +286,40 @@ class PublishDialog(QtGui.QDialog):
     def add_instance_settings(self, item):
         '''Generate settings for *item*.'''
         save_options_to = self.item_options_store[item['name']] = dict()
-        item_settings_widget = self.settings_provider(
-            item['label'],
-            self.publish_asset.get_item_options(
-                self.publish_data, item['name']
-            ),
-            save_options_to
+        item_options = self.publish_asset.get_item_options(
+            self.publish_data, item['name']
         )
-        self.settings_map[item['name']] = item_settings_widget
-        self._list_items_settings_layout.insertWidget(
-            0, item_settings_widget
-        )
+        if item_options:
+            item_settings_widget = self.settings_provider(
+                item['label'],
+                item_options,
+                save_options_to
+            )
+            self.settings_map[item['name']] = item_settings_widget
+            self._list_items_settings_layout.insertWidget(
+                0, item_settings_widget
+            )
 
     def remove_instance_settings(self, item):
         '''Remove *item*.'''
-        item_settings_widget = self.settings_map.pop(item['name'])
-        self._list_items_settings_layout.removeWidget(
-            item_settings_widget
-        )
-        item_settings_widget.setParent(None)
+        try:
+            item_settings_widget = self.settings_map.pop(item['name'])
+        except IndexError:
+            pass
+        else:
+            self._list_items_settings_layout.removeWidget(
+                item_settings_widget
+            )
+            item_settings_widget.setParent(None)
 
     def on_publish_clicked(self):
         '''Handle publish clicked event.'''
         self.publish_asset.update_with_options(
             self.publish_data,
             self.item_options_store,
-            self.general_options_store
+            self.general_options_store,
+            # TODO: Remove this hack and figure out the checked items in another
+            # way.
+            self.settings_map.keys()
         )
         self.publish_asset.publish(self.publish_data)

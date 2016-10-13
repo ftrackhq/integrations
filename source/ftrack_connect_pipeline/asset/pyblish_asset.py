@@ -35,7 +35,7 @@ class PyblishAsset(PublishAsset):
         return context
 
     def update_with_options(
-        self, publish_data, item_options, general_options
+        self, publish_data, item_options, general_options, selected_items
     ):
         '''Update *publish_data* with *item_options* and *general_options*.'''
         publish_data.data['options'] = general_options
@@ -45,7 +45,10 @@ class PyblishAsset(PublishAsset):
 
         for instance in publish_data:
             instance.data['options'] = item_options.get(instance.id, {})
-            print instance.data['options']
+            instance.data['publish'] = instance.id in selected_items
+            print(
+                instance.id, instance.data['publish'], instance.data['options']
+            )
 
     def publish(self, publish_data):
         '''Publish or raise exception if not valid.'''
