@@ -34,6 +34,16 @@ class ListItemsWidget(QtGui.QListWidget):
             item = SelectableItemWidget(item)
             self.addItem(item)
 
+    def get_checked_items(self):
+        '''Return checked items.'''
+        checked_items = []
+        for index in xrange(self.count()):
+            item = self.item(index)
+            if item.checkState() is QtCore.Qt.Checked:
+                checked_items.append(item.item())
+
+        return checked_items
+
 
 class ActionSettingsWidget(QtGui.QWidget):
     '''A widget to display settings.'''
@@ -257,8 +267,8 @@ class PublishDialog(QtGui.QDialog):
 
         items = self.publish_asset.get_publish_items(self.publish_data)
 
-        view = ListItemsWidget(items)
-        view.itemChanged.connect(self.on_selection_changed)
+        self.list_items_view = ListItemsWidget(items)
+        self.list_items_view.itemChanged.connect(self.on_selection_changed)
         layout.addWidget(
             QtGui.QLabel(
                 'Select {0}(s) to publish'.format(
@@ -266,7 +276,7 @@ class PublishDialog(QtGui.QDialog):
                 )
             )
         )
-        layout.addWidget(view, stretch=0)
+        layout.addWidget(self.list_items_view, stretch=0)
 
         for item in items:
             if item.get('value') is True:
@@ -314,12 +324,14 @@ class PublishDialog(QtGui.QDialog):
 
     def on_publish_clicked(self):
         '''Handle publish clicked event.'''
+        selected_item_names = []
+        for item in self.list_items_view.get_checked_items():
+            selected_item_names.append(item['name'])
+
         self.publish_asset.update_with_options(
             self.publish_data,
             self.item_options_store,
             self.general_options_store,
-            # TODO: Remove this hack and figure out the checked items in another
-            # way.
-            self.settings_map.keys()
+            selected_item_names
         )
         self.publish_asset.publish(self.publish_data)
