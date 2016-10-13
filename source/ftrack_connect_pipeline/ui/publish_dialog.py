@@ -304,7 +304,7 @@ class PublishDialog(QtGui.QDialog):
         '''Remove *item*.'''
         try:
             item_settings_widget = self.settings_map.pop(item['name'])
-        except IndexError:
+        except KeyError:
             pass
         else:
             self._list_items_settings_layout.removeWidget(
