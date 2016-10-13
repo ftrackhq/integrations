@@ -35,7 +35,7 @@ class PublishGeometry(ftrack_connect_pipeline.asset.PublishAsset):
         '''Prepare publish and populate with items.'''
         publish_data = super(PublishGeometry, self).prepare_publish()
         # Loop over maya scene and scan for maya models to publish.
-        publish_data['items'] = ['maya_model_xyz']
+        publish_data['items'] = ['maya_model_xyz', 'some_other_model', 'foo']
         return publish_data
 
     def get_publish_items(self, publish_data):
@@ -66,6 +66,10 @@ class PublishGeometry(ftrack_connect_pipeline.asset.PublishAsset):
         '''Publish or raise exception if not valid.'''
         # Publish asset based on options in publish_data.
         print 'Publish using', publish_data
+
+    def get_scene_selection(self):
+        '''Return a list of names for scene selection.'''
+        return ['foo', 'some_other_model']
 
 
 def register(session):

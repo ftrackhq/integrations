@@ -129,3 +129,7 @@ class PublishAsset(object):
     def publish(self, publish_data):
         '''Publish or raise exception if not valid.'''
         raise NotImplementedError()
+
+    def get_scene_selection(self):
+        '''Return a list of names for scene selection.'''
+        raise NotImplementedError()

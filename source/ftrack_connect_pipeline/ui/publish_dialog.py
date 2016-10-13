@@ -38,11 +38,22 @@ class ListItemsWidget(QtGui.QListWidget):
         '''Return checked items.'''
         checked_items = []
         for index in xrange(self.count()):
-            item = self.item(index)
-            if item.checkState() is QtCore.Qt.Checked:
-                checked_items.append(item.item())
+            widget_item = self.item(index)
+            if widget_item.checkState() is QtCore.Qt.Checked:
+                checked_items.append(widget_item.item())
 
         return checked_items
+
+    def update_selection(self, new_selection):
+        '''Update selection from *new_selection*.'''
+        for index in xrange(self.count()):
+            widget_item = self.item(index)
+            item = widget_item.item()
+            should_select = item['name'] in new_selection
+            print item['name'], new_selection, should_select
+            widget_item.setCheckState(
+                QtCore.Qt.Checked if should_select else QtCore.Qt.Unchecked
+            )
 
 
 class ActionSettingsWidget(QtGui.QWidget):
@@ -276,6 +287,14 @@ class PublishDialog(QtGui.QDialog):
                 )
             )
         )
+
+        toolbar = QtGui.QToolBar()
+        action = toolbar.addAction('Scene selection')
+        action.triggered.connect(
+            self._on_sync_scene_selection
+        )
+        layout.addWidget(toolbar)
+
         layout.addWidget(self.list_items_view, stretch=0)
 
         for item in items:
@@ -335,3 +354,11 @@ class PublishDialog(QtGui.QDialog):
             selected_item_names
         )
         self.publish_asset.publish(self.publish_data)
+
+    def _on_sync_scene_selection(self):
+        '''Handle sync scene selection event.'''
+        scene_selection_names = set(self.publish_asset.get_scene_selection())
+        print 'Syncing scene selection', scene_selection_names
+        self.list_items_view.update_selection(
+            scene_selection_names
+        )
