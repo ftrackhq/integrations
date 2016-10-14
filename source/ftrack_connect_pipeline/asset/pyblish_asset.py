@@ -40,16 +40,9 @@ class PyblishAsset(PublishAsset):
     ):
         '''Update *publish_data* with *item_options* and *general_options*.'''
         publish_data.data['options'] = general_options
-        print 'DATA!'
-        print publish_data.data
-        print publish_data.data['options']
-
         for instance in publish_data:
-            instance.data['options'] = item_options.get(instance.id, {})
-            instance.data['publish'] = instance.id in selected_items
-            print(
-                instance.id, instance.data['publish'], instance.data['options']
-            )
+            instance.data['options'] = item_options.get(instance.name, {})
+            instance.data['publish'] = instance.name in selected_items
 
     def publish(self, publish_data):
         '''Publish or raise exception if not valid.'''
