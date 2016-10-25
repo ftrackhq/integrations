@@ -1,6 +1,6 @@
 
 from .base import BaseField
-from QtExt import QtCore, QtWidgets
+from QtExt import QtGui, QtCore, QtWidgets
 
 
 class AssetSelector(BaseField):

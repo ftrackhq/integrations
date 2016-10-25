@@ -4,7 +4,7 @@ import functools
 from QtExt import QtGui, QtCore, QtWidgets
 
 
-class SelectableItemWidget(QtGui.QListWidgetItem):
+class SelectableItemWidget(QtWidgets.QListWidgetItem):
     '''A selectable item widget.'''
 
     def __init__(self, item):
@@ -23,7 +23,7 @@ class SelectableItemWidget(QtGui.QListWidgetItem):
         return self._item
 
 
-class ListItemsWidget(QtGui.QListWidget):
+class ListItemsWidget(QtWidgets.QListWidget):
     '''List of items that can be published.'''
 
     def __init__(self, items):
@@ -56,14 +56,14 @@ class ListItemsWidget(QtGui.QListWidget):
             )
 
 
-class ActionSettingsWidget(QtGui.QWidget):
+class ActionSettingsWidget(QtWidgets.QWidget):
     '''A widget to display settings.'''
 
     def __init__(self, data_dict, options):
         '''Instanstiate settings from *options*.'''
         super(ActionSettingsWidget, self).__init__()
 
-        self.setLayout(QtGui.QFormLayout())
+        self.setLayout(QtWidgets.QFormLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
 
         for option in options:
@@ -82,8 +82,8 @@ class ActionSettingsWidget(QtGui.QWidget):
 
             if type_ == 'group':
                 nested_dict = data_dict[name] = dict()
-                settings_widget = QtGui.QGroupBox(label)
-                settings_widget.setLayout(QtGui.QVBoxLayout())
+                settings_widget = QtWidgets.QGroupBox(label)
+                settings_widget.setLayout(QtWidgets.QVBoxLayout())
                 settings_widget.layout().addWidget(
                     ActionSettingsWidget(
                         nested_dict, option.get('options', [])
@@ -92,7 +92,7 @@ class ActionSettingsWidget(QtGui.QWidget):
                 self.layout().addRow(settings_widget)
 
             if type_ == 'boolean':
-                field = QtGui.QCheckBox()
+                field = QtWidgets.QCheckBox()
                 if value is True:
                     field.setCheckState(QtCore.Qt.Checked)
 
@@ -110,7 +110,7 @@ class ActionSettingsWidget(QtGui.QWidget):
                 )
 
             if type_ in ('number', 'text'):
-                field = QtGui.QLineEdit()
+                field = QtWidgets.QLineEdit()
                 if value is not None:
                     field.insert(unicode(value))
 
@@ -125,7 +125,7 @@ class ActionSettingsWidget(QtGui.QWidget):
                 )
 
             if type_ == 'enumerator':
-                field = QtGui.QComboBox()
+                field = QtWidgets.QComboBox()
                 for item in option['data']:
                     field.addItem(item['label'])
 
@@ -157,7 +157,7 @@ class ActionSettingsWidget(QtGui.QWidget):
 
             if field is not None:
                 if label:
-                    label_widget = QtGui.QLabel(label)
+                    label_widget = QtWidgets.QLabel(label)
                     self.layout().addRow(label_widget, field)
                 else:
                     self.layout().addRow(field)
@@ -180,12 +180,12 @@ class BaseSettingsProvider(object):
     def __call__(self, label, options, store):
         '''Return a qt widget from *item*.'''
         tooltip = None
-        settings_widget = QtGui.QGroupBox(label)
-        settings_widget.setLayout(QtGui.QVBoxLayout())
+        settings_widget = QtWidgets.QGroupBox(label)
+        settings_widget.setLayout(QtWidgets.QVBoxLayout())
         if tooltip:
             settings_widget.setToolTip(tooltip)
 
-        if isinstance(options, QtGui.QWidget):
+        if isinstance(options, QtWidgets.QWidget):
             settings_widget.layout().addWidget(options)
         else:
             settings_widget.layout().addWidget(
@@ -195,7 +195,7 @@ class BaseSettingsProvider(object):
         return settings_widget
 
 
-class PublishDialog(QtGui.QDialog):
+class PublishDialog(QtWidgets.QDialog):
     '''Publish dialog.'''
 
     def __init__(
@@ -216,43 +216,43 @@ class PublishDialog(QtGui.QDialog):
             self.settings_provider = BaseSettingsProvider()
 
         self.settings_map = {}
-        list_instances_widget = QtGui.QWidget()
-        self._list_instances_layout = QtGui.QVBoxLayout()
+        list_instances_widget = QtWidgets.QWidget()
+        self._list_instances_layout = QtWidgets.QVBoxLayout()
         list_instances_widget.setLayout(self._list_instances_layout)
 
-        list_instance_settings_widget = QtGui.QWidget()
-        self._list_items_settings_layout = QtGui.QVBoxLayout()
+        list_instance_settings_widget = QtWidgets.QWidget()
+        self._list_items_settings_layout = QtWidgets.QVBoxLayout()
         self._list_items_settings_layout.addStretch(1)
         list_instance_settings_widget.setLayout(
             self._list_items_settings_layout
         )
 
-        configuration_layout = QtGui.QHBoxLayout()
+        configuration_layout = QtWidgets.QHBoxLayout()
         configuration_layout.addWidget(list_instances_widget, stretch=1)
         configuration_layout.addWidget(list_instance_settings_widget, stretch=1)
-        configuration = QtGui.QWidget()
+        configuration = QtWidgets.QWidget()
         configuration.setLayout(configuration_layout)
 
-        information_layout = QtGui.QHBoxLayout()
-        information_layout.addWidget(QtGui.QLabel('<h3>{0}</h3>'.format(label)))
+        information_layout = QtWidgets.QHBoxLayout()
+        information_layout.addWidget(QtWidgets.QLabel('<h3>{0}</h3>'.format(label)))
         information_layout.addWidget(
-            QtGui.QLabel('<i>{0}</i>'.format(description)),
+            QtWidgets.QLabel('<i>{0}</i>'.format(description)),
             stretch=1
         )
-        information = QtGui.QWidget()
+        information = QtWidgets.QWidget()
         information.setLayout(information_layout)
 
-        publish_button = QtGui.QPushButton('Publish')
+        publish_button = QtWidgets.QPushButton('Publish')
         publish_button.clicked.connect(self.on_publish_clicked)
 
-        main_layout = QtGui.QVBoxLayout(self)
+        main_layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(main_layout)
 
-        scroll = QtGui.QScrollArea(self)
+        scroll = QtWidgets.QScrollArea(self)
 
         scroll.setWidgetResizable(True)
         scroll.setLineWidth(0)
-        scroll.setFrameShape(QtGui.QFrame.NoFrame)
+        scroll.setFrameShape(QtWidgets.QFrame.NoFrame)
         scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
         scroll.setWidget(configuration)
@@ -281,14 +281,14 @@ class PublishDialog(QtGui.QDialog):
         self.list_items_view = ListItemsWidget(items)
         self.list_items_view.itemChanged.connect(self.on_selection_changed)
         layout.addWidget(
-            QtGui.QLabel(
+            QtWidgets.QLabel(
                 'Select {0}(s) to publish'.format(
                     string.capitalize(self.publish_asset.label)
                 )
             )
         )
 
-        toolbar = QtGui.QToolBar()
+        toolbar = QtWidgets.QToolBar()
         action = toolbar.addAction('Scene selection')
         action.triggered.connect(
             self._on_sync_scene_selection

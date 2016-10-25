@@ -1,6 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015 ftrack
-from QtExt import QtCore, QtWidgets
+from QtExt import QtGui, QtCore, QtWidgets
 
 
 class FlowLayout(QtWidgets.QLayout):
@@ -67,14 +67,14 @@ class FlowLayout(QtWidgets.QLayout):
             wid = item.widget()
 
             spaceX = self.spacing() + wid.style().layoutSpacing(
-                QtGui.QSizePolicy.PushButton,
-                QtGui.QSizePolicy.PushButton,
+                QtWidgets.QSizePolicy.PushButton,
+                QtWidgets.QSizePolicy.PushButton,
                 QtCore.Qt.Horizontal
             )
 
             spaceY = self.spacing() + wid.style().layoutSpacing(
-                QtGui.QSizePolicy.PushButton,
-                QtGui.QSizePolicy.PushButton,
+                QtWidgets.QSizePolicy.PushButton,
+                QtWidgets.QSizePolicy.PushButton,
                 QtCore.Qt.Vertical
             )
 

@@ -4,17 +4,17 @@ from QtExt import QtGui, QtCore, QtWidgets
 import ftrack_connect_pipeline.ui.widget.item_list
 
 
-class PyblishResult(QtGui.QWidget):
+class PyblishResult(QtWidgets.QWidget):
     '''Represents a pyblish result.'''
 
     def __init__(self, item):
         '''Instantiate from *item*.'''
         super(PyblishResult, self).__init__()
 
-        self.setLayout(QtGui.QHBoxLayout())
+        self.setLayout(QtWidgets.QHBoxLayout())
 
-        widget = QtGui.QWidget()
-        widget.setLayout(QtGui.QVBoxLayout())
+        widget = QtWidgets.QWidget()
+        widget.setLayout(QtWidgets.QVBoxLayout())
 
         main_info = ''
         if item['error']:
@@ -28,9 +28,9 @@ class PyblishResult(QtGui.QWidget):
             )
 
         main_info += item['plugin'].__name__
-        widget.layout().addWidget(QtGui.QLabel(main_info))
+        widget.layout().addWidget(QtWidgets.QLabel(main_info))
         widget.layout().addWidget(
-            QtGui.QLabel(
+            QtWidgets.QLabel(
                 'Duraction: {0}, Running for instance: {1}'.format(
                     round(item['duration'], 4), item['instance']
                 )
@@ -41,7 +41,7 @@ class PyblishResult(QtGui.QWidget):
         if item['error']:
             number_of_logs += 1
 
-        button = QtGui.QPushButton('Show logs ({0})'.format(number_of_logs))
+        button = QtWidgets.QPushButton('Show logs ({0})'.format(number_of_logs))
         button.clicked.connect(
             self._on_button_clicked
         )
@@ -66,7 +66,7 @@ class PyblishResult(QtGui.QWidget):
             )
         report += '<br />' + '<br />'.join(logs_entries)
 
-        dialog = QtGui.QDialog()
+        dialog = QtWidgets.QDialog()
         dialog.setMinimumSize(800, 600)
         dialog.setLayout(QtGui.QVBoxLayout())
 
@@ -82,14 +82,14 @@ class PyblishResult(QtGui.QWidget):
         dialog.exec_()
 
 
-class Dialog(QtGui.QDialog):
+class Dialog(QtWidgets.QDialog):
     '''Dialog to inspect detailed pyblish results.'''
 
     def __init__(self, results):
         '''Instantiate and show results.'''
         super(Dialog, self).__init__()
         self.setMinimumSize(600, 600)
-        main_layout = QtGui.QVBoxLayout(self)
+        main_layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(main_layout)
 
         list_widget = ftrack_connect_pipeline.ui.widget.item_list.ItemList(

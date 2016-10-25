@@ -41,11 +41,11 @@ class BusyIndicator(QtWidgets.QWidget):
 
     def paintEvent(self, event):
         '''Paint widget.'''
-        painter = QtWidgets.QPainter()
+        painter = QtGui.QPainter()
         painter.begin(self)
 
         try:
-            painter.setRenderHint(QtWidgets.QPainter.Antialiasing)
+            painter.setRenderHint(QtGui.QPainter.Antialiasing)
             area = QtCore.QRect(
                 0, 0, painter.device().width(), painter.device().height()
             )
