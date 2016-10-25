@@ -267,16 +267,12 @@ class PublishDialog(QtWidgets.QDialog):
         main_layout.addWidget(scroll, stretch=1)
         main_layout.addWidget(publish_button)
 
-
         self._publish_overlay = BusyOverlay(
             self,
             message='Publishing Assets...'
         )
-
-        self._publish_overlay.hide()
-        self._publish_worker = ftrack_connect_pipeline.util.Worker(self.do_publish)
-        self._publish_worker.started.connect(self._publish_overlay.show)
-        self._publish_worker.finished.connect(self._publish_overlay.hide)
+        self._publish_overlay.setVisible(False)
+        publish_button.clicked.connect(self._publish_overlay.indicator.show)
 
         self.refresh()
 
@@ -364,7 +360,10 @@ class PublishDialog(QtWidgets.QDialog):
             )
             item_settings_widget.setParent(None)
 
-    def do_publish(self):
+    def on_publish_clicked(self):
+        '''Handle publish clicked event.'''
+        self._publish_overlay.setVisible(True)
+
         selected_item_names = []
         for item in self.list_items_view.get_checked_items():
             selected_item_names.append(item['name'])
@@ -377,14 +376,13 @@ class PublishDialog(QtWidgets.QDialog):
         )
 
         self.publish_asset.publish(self.publish_data)
+        self._publish_overlay.indicator.stop()
+        self._publish_overlay.indicator.hide()
+        self._publish_overlay.setVisible(False)
+        self._hideOverlayAfterTimeout(self.OVERLAY_MESSAGE_TIMEOUT)
 
-    def on_publish_clicked(self):
-        '''Handle publish clicked event.'''
-        self._publish_worker.start()
-        while self._publish_worker.isRunning():
-            app = QtGui.QApplication.instance()
-            app.processEvents()
-
+        # once is all published, raise the detal window
+        self.publish_asset.show_detailed_result(self.publish_data)
 
     def _on_sync_scene_selection(self):
         '''Handle sync scene selection event.'''
