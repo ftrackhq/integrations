@@ -1,6 +1,6 @@
 import ftrack_connect_pipeline.ui.widget.actions
 
-from PySide import QtGui
+from QtExt import QtGui, QtCore, QtWidgets
 
 
 class PublishActionsDialog(ftrack_connect_pipeline.ui.widget.actions.Actions):

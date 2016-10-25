@@ -5,8 +5,8 @@ import json
 import time
 import logging
 
-from PySide import QtGui
-from PySide import QtCore
+from QtExt import QtCore, QtWidgets
+
 import ftrack
 import ftrack_api.event.base
 
@@ -62,7 +62,7 @@ class ActionSection(flow_layout.ScrollingFlowWidget):
         '''Forward beforeActionLaunch signal.'''
         self.beforeActionLaunch.emit(action)
 
-class Actions(QtGui.QWidget):
+class Actions(QtWidgets.QWidget):
     '''Actions widget. Displays and runs actions with a selectable context.'''
 
     RECENT_METADATA_KEY = 'ftrack_recent_actions'
@@ -81,14 +81,14 @@ class Actions(QtGui.QWidget):
         )
         self._session = session
 
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
         self._currentUserId = None
         self._recentActions = []
         self._actions = []
 
-        self._recentLabel = QtGui.QLabel('Recent')
+        self._recentLabel = QtWidgets.QLabel('Recent')
         layout.addWidget(self._recentLabel)
         self._recentSection = ActionSection(self)
         self._recentSection.setFixedHeight(100)
@@ -96,7 +96,7 @@ class Actions(QtGui.QWidget):
         self._recentSection.actionLaunched.connect(self._onActionLaunched)
         layout.addWidget(self._recentSection)
 
-        self._allLabel = QtGui.QLabel('Discovering actions..')
+        self._allLabel = QtWidgets.QLabel('Discovering actions..')
         self._allLabel.setAlignment(QtCore.Qt.AlignCenter)
         layout.addWidget(self._allLabel)
         self._allSection = ActionSection(self)

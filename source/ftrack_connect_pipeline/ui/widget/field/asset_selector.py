@@ -1,6 +1,6 @@
 
 from .base import BaseField
-from PySide import QtGui, QtCore
+from QtExt import QtCore, QtWidgets
 
 
 class AssetSelector(BaseField):
@@ -17,21 +17,21 @@ class AssetSelector(BaseField):
             )
         ).all()
 
-        main_layout = QtGui.QVBoxLayout(self)
+        main_layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(main_layout)
 
-        self.asset_selector = QtGui.QComboBox(self)
+        self.asset_selector = QtWidgets.QComboBox(self)
         main_layout.addWidget(self.asset_selector)
 
         self.asset_selector.addItem('Create new')
         for asset in self.assets:
             self.asset_selector.addItem(asset['name'])
 
-        self.asset_name = QtGui.QLineEdit(self)
+        self.asset_name = QtWidgets.QLineEdit(self)
         self.asset_name.setPlaceholderText('Asset name...')
         main_layout.addWidget(self.asset_name)
 
-        self.asset_type_selector = QtGui.QComboBox(self)
+        self.asset_type_selector = QtWidgets.QComboBox(self)
 
         self.asset_types = ftrack_entity.session.query(
             'select name, id from AssetType'

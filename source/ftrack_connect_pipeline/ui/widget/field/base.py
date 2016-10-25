@@ -1,6 +1,6 @@
 import abc
 
-from PySide import QtGui, QtCore
+from QtExt import QtGui, QtCore, QtWidgets
 
 
 class BaseField(QtGui.QWidget):

@@ -1,12 +1,12 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 
-from PySide import QtGui, QtCore
+from QtExt import QtGui, QtCore, QtWidgets
 
 import ftrack_connect_pipeline.ui.widget.list
 
 
-class ItemList(QtGui.QFrame):
+class ItemList(QtWidgets.QFrame):
     '''Manage a list of items represented by widgets.'''
 
     itemsChanged = QtCore.Signal()
@@ -26,8 +26,10 @@ class ItemList(QtGui.QFrame):
 
         super(ItemList, self).__init__(parent=parent)
 
-        self.setLayout(QtGui.QVBoxLayout())
-        self.setFrameStyle(QtGui.QFrame.StyledPanel | QtGui.QFrame.NoFrame)
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.setFrameStyle(
+            QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.NoFrame
+        )
 
         # List
         self.list = ftrack_connect_pipeline.ui.widget.list.List()

@@ -1,7 +1,7 @@
 import string
 import functools
 
-from PySide import QtGui, QtCore
+from QtExt import QtGui, QtCore, QtWidgets
 
 
 class SelectableItemWidget(QtGui.QListWidgetItem):

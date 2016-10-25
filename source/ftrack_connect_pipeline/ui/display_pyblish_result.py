@@ -1,5 +1,5 @@
 
-from PySide import QtGui
+from QtExt import QtGui, QtCore, QtWidgets
 
 import ftrack_connect_pipeline.ui.widget.item_list
 

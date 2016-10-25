@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015 ftrack
 
-from PySide import QtGui, QtCore
+from QtExt import QtCore, QtWidgets
 import logging
 
 import ftrack
@@ -11,7 +11,7 @@ import ftrack_connect_pipeline.util
 from ftrack_connect_pipeline.ui.widget.thumbnail import ActionIcon
 
 
-class ActionItem(QtGui.QWidget):
+class ActionItem(QtWidgets.QWidget):
     '''Widget representing an action item.'''
 
     #: Emitted before an action is launched with action
@@ -47,7 +47,7 @@ class ActionItem(QtGui.QWidget):
 
         self.setMouseTracking(True)
         self.setFixedSize(QtCore.QSize(80, 80))
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.setAlignment(QtCore.Qt.AlignCenter)
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -85,7 +85,7 @@ class ActionItem(QtGui.QWidget):
         self._iconLabel.setFixedSize(QtCore.QSize(80, 45))
         layout.addWidget(self._iconLabel)
 
-        self._textLabel = QtGui.QLabel(self)
+        self._textLabel = QtWidgets.QLabel(self)
         self._textLabel.setAlignment(
             QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop
         )
@@ -105,13 +105,13 @@ class ActionItem(QtGui.QWidget):
         '''
         if self._multiple:
             self.logger.debug('Launching menu to select action variant')
-            menu = QtGui.QMenu(self)
+            menu = QtWidgets.QMenu(self)
             for index, variant in enumerate(self._variants):
-                action = QtGui.QAction(variant, self)
+                action = QtWidgets.QAction(variant, self)
                 action.setData(index)
                 menu.addAction(action)
 
-            result = menu.exec_(QtGui.QCursor.pos())
+            result = menu.exec_(QtWidgets.QCursor.pos())
             if result is None:
                 return
 

@@ -4,7 +4,7 @@
 import os
 import urllib2
 
-from PySide import QtGui, QtCore
+from QtExt import QtGui, QtCore, QtWidgets
 import ftrack
 import ftrack_connect_pipeline.util
 
@@ -12,14 +12,14 @@ import ftrack_connect_pipeline.util
 IMAGE_CACHE = dict()
 
 
-class Base(QtGui.QLabel):
+class Base(QtWidgets.QLabel):
     '''Widget to load thumbnails from ftrack server.'''
 
     def __init__(self, parent=None):
         super(Base, self).__init__(parent)
 
         self.thumbnailCache = {}
-        self.setFrameStyle(QtGui.QFrame.StyledPanel)
+        self.setFrameStyle(QtWidgets.QFrame.StyledPanel)
         self.setAlignment(QtCore.Qt.AlignCenter)
 
         self.placholderThumbnail = (
@@ -37,7 +37,7 @@ class Base(QtGui.QLabel):
 
         if self._worker and self._worker.isRunning():
             while self._worker:
-                app = QtGui.QApplication.instance()
+                app = QtWidgets.QApplication.instance()
                 app.processEvents()
 
         self._worker = ftrack_connect_pipeline.util.Worker(
@@ -93,6 +93,7 @@ class Base(QtGui.QLabel):
             html = response.read()
 
         return html
+
 
 class EllipseBase(Base):
     '''Thumbnail which is drawn as an ellipse.'''

@@ -1,10 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 
-from PySide import QtGui, QtCore, QtSvg
+from QtExt import QtCore, QtGui, QtWidgets, QtSvg
 
 
-class BusyIndicator(QtGui.QWidget):
+class BusyIndicator(QtWidgets.QWidget):
     '''Draw a busy indicator.'''
 
     def __init__(self, parent=None):
@@ -41,11 +41,11 @@ class BusyIndicator(QtGui.QWidget):
 
     def paintEvent(self, event):
         '''Paint widget.'''
-        painter = QtGui.QPainter()
+        painter = QtWidgets.QPainter()
         painter.begin(self)
 
         try:
-            painter.setRenderHint(QtGui.QPainter.Antialiasing)
+            painter.setRenderHint(QtWidgets.QPainter.Antialiasing)
             area = QtCore.QRect(
                 0, 0, painter.device().width(), painter.device().height()
             )
