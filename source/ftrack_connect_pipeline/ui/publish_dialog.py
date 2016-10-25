@@ -1,7 +1,11 @@
 import string
 import functools
+import time
 
 from QtExt import QtGui, QtCore, QtWidgets
+
+from ftrack_connect_pipeline.ui.widget.overlay import BusyOverlay
+import ftrack_connect_pipeline.util
 
 
 class SelectableItemWidget(QtWidgets.QListWidgetItem):
@@ -198,6 +202,8 @@ class BaseSettingsProvider(object):
 class PublishDialog(QtWidgets.QDialog):
     '''Publish dialog.'''
 
+    OVERLAY_MESSAGE_TIMEOUT = 1
+
     def __init__(
         self, label, description, publish_asset, settings_provider=None,
         parent=None
@@ -261,6 +267,17 @@ class PublishDialog(QtWidgets.QDialog):
         main_layout.addWidget(scroll, stretch=1)
         main_layout.addWidget(publish_button)
 
+
+        self._publish_overlay = BusyOverlay(
+            self,
+            message='Publishing Assets...'
+        )
+
+        self._publish_overlay.hide()
+        self._publish_worker = ftrack_connect_pipeline.util.Worker(self.do_publish)
+        self._publish_worker.started.connect(self._publish_overlay.show)
+        self._publish_worker.finished.connect(self._publish_overlay.hide)
+
         self.refresh()
 
     def refresh(self):
@@ -303,6 +320,12 @@ class PublishDialog(QtWidgets.QDialog):
 
         layout.addStretch(1)
 
+    @ftrack_connect_pipeline.util.asynchronous
+    def _hideOverlayAfterTimeout(self, timeout):
+        '''Hide overlay after *timeout* seconds.'''
+        time.sleep(timeout)
+        self._publish_overlay.setVisible(False)
+
     def on_selection_changed(self, widget):
         '''Handle selection changed.'''
         item = widget.item()
@@ -341,8 +364,7 @@ class PublishDialog(QtWidgets.QDialog):
             )
             item_settings_widget.setParent(None)
 
-    def on_publish_clicked(self):
-        '''Handle publish clicked event.'''
+    def do_publish(self):
         selected_item_names = []
         for item in self.list_items_view.get_checked_items():
             selected_item_names.append(item['name'])
@@ -353,7 +375,16 @@ class PublishDialog(QtWidgets.QDialog):
             self.general_options_store,
             selected_item_names
         )
+
         self.publish_asset.publish(self.publish_data)
+
+    def on_publish_clicked(self):
+        '''Handle publish clicked event.'''
+        self._publish_worker.start()
+        while self._publish_worker.isRunning():
+            app = QtGui.QApplication.instance()
+            app.processEvents()
+
 
     def _on_sync_scene_selection(self):
         '''Handle sync scene selection event.'''
