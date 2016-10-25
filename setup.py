@@ -5,6 +5,7 @@ import os
 import sys
 import re
 import subprocess
+import fileinput
 
 from setuptools import setup, find_packages, Command
 from setuptools.command.test import test as TestCommand
@@ -63,6 +64,22 @@ class BuildResources(Command):
         )
         self.resource_target_path = RESOURCE_TARGET_PATH
 
+    def _replace_imports_(self):
+        '''Replace imports in resource files to QtExt instead of QtCore.
+
+        This allows the resource file to work with many different versions of
+        Qt.
+
+        '''
+        replace = 'from QtExt import QtCore'
+        for line in fileinput.input(self.resource_target_path, inplace=True):
+            if 'import QtCore' in line:
+                # Calling print will yield a new line in the resource file.
+                print line.replace(line, replace)
+            else:
+                # Calling print will yield a new line in the resource file.
+                print line
+
     def run(self):
         '''Run build.'''
         try:
@@ -118,6 +135,8 @@ class BuildResources(Command):
                 'it to your PATH. See README for more information.'
             )
 
+        self._replace_imports_()
+
 
 # Configuration.
 setup(
@@ -140,9 +159,11 @@ setup(
         'lowdown >= 0.1.0, < 2'
     ],
     build_resources_requires=[
+        'qtext'
         'pyScss >= 1.2.0, < 2'
     ],
     install_requires=[
+        'qtext'
     ],
     tests_require=[
         'pytest >= 2.3.5, < 3',
@@ -154,5 +175,8 @@ setup(
         'build_resources': BuildResources,
         'test': PyTest
     },
+    dependency_links=[
+        'git+https://bitbucket.org/ftrack/qtext/get/0.1.0.zip#egg=QtExt-0.1.0'
+    ],
     zip_safe=False
 )
