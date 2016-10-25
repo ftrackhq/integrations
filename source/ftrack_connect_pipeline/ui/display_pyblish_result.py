@@ -11,6 +11,7 @@ class PyblishResult(QtWidgets.QWidget):
         '''Instantiate from *item*.'''
         super(PyblishResult, self).__init__()
 
+
         self.setLayout(QtWidgets.QHBoxLayout())
 
         widget = QtWidgets.QWidget()
@@ -68,9 +69,9 @@ class PyblishResult(QtWidgets.QWidget):
 
         dialog = QtWidgets.QDialog()
         dialog.setMinimumSize(800, 600)
-        dialog.setLayout(QtGui.QVBoxLayout())
+        dialog.setLayout(QtWidgets.QVBoxLayout())
 
-        log_output = QtGui.QTextEdit()
+        log_output = QtWidgets.QTextEdit()
         log_output.setReadOnly(True)
 
         log_output.append(report)
