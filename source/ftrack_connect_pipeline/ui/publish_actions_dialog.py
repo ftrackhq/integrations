@@ -28,8 +28,8 @@ class PublishActionsDialog(ftrack_connect_pipeline.ui.widget.actions.Actions):
 
 def show(session):
     '''Show actions list dialog.'''
-    dialog = QtGui.QDialog()
-    layout = QtGui.QVBoxLayout()
+    dialog = QtWidgets.QDialog()
+    layout = QtWidgets.QVBoxLayout()
     dialog.setLayout(layout)
     layout.addWidget(PublishActionsDialog(session))
     dialog.setMinimumSize(600, 400)

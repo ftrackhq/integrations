@@ -5,7 +5,7 @@ import threading
 import sys
 import os
 
-from PySide import QtCore
+from QtExt import QtCore
 
 import ftrack_api
 
