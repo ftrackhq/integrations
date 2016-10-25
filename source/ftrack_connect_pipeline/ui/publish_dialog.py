@@ -272,7 +272,6 @@ class PublishDialog(QtWidgets.QDialog):
             message='Publishing Assets...'
         )
         self._publish_overlay.setVisible(False)
-        publish_button.clicked.connect(self._publish_overlay.indicator.show)
 
         self.refresh()
 
@@ -376,9 +375,9 @@ class PublishDialog(QtWidgets.QDialog):
         )
 
         self.publish_asset.publish(self.publish_data)
-        self._publish_overlay.indicator.stop()
-        self._publish_overlay.indicator.hide()
+
         self._publish_overlay.setVisible(False)
+
         self._hideOverlayAfterTimeout(self.OVERLAY_MESSAGE_TIMEOUT)
 
         # once is all published, raise the detal window
