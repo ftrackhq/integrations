@@ -1,6 +1,8 @@
+from QtExt import QtGui, QtCore, QtWidgets
+
 import ftrack_connect_pipeline.ui.widget.actions
 
-from QtExt import QtGui, QtCore, QtWidgets
+from ftrack_connect_pipeline.config import configure_logging
 
 
 class PublishActionsDialog(ftrack_connect_pipeline.ui.widget.actions.Actions):
@@ -14,7 +16,7 @@ class PublishActionsDialog(ftrack_connect_pipeline.ui.widget.actions.Actions):
     def __init__(self, *args, **kwargs):
         '''Instantiate publish actions dialog.'''
         super(PublishActionsDialog, self).__init__(*args, **kwargs)
-
+        configure_logging('ftrack_connect_pipeline')
         layout = self.layout()
         item = layout.itemAt(0)
         item.widget().hide()
