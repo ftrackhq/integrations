@@ -153,6 +153,9 @@ setup(
     package_dir={
         '': 'source'
     },
+    setup_requires=[
+        'qtext'
+    ],
     build_sphinx_requires=[
         'sphinx >= 1.2.2, < 2',
         'sphinx_rtd_theme >= 0.1.6, < 2',
@@ -163,6 +166,7 @@ setup(
         'pyScss >= 1.2.0, < 2'
     ],
     install_requires=[
+        'appdirs == 1.4.0',
         'qtext'
     ],
     tests_require=[
