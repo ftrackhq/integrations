@@ -33,7 +33,6 @@ class PublishResult(QtWidgets.QDialog):
         self.details_button.clicked.connect(self.on_show_details)
 
     def on_show_details(self):
-        print 'SHOW DETAILS!'
         self.publish_asset.show_detailed_result(self.publish_data)
 
 
@@ -83,7 +82,6 @@ class ListItemsWidget(QtWidgets.QListWidget):
             widget_item = self.item(index)
             item = widget_item.item()
             should_select = item['name'] in new_selection
-            print item['name'], new_selection, should_select
             widget_item.setCheckState(
                 QtCore.Qt.Checked if should_select else QtCore.Qt.Unchecked
             )
@@ -241,7 +239,6 @@ class PublishDialog(QtWidgets.QDialog):
         super(PublishDialog, self).__init__()
         self.setMinimumSize(800, 600)
         self.session = ftrack_connect_pipeline.util.get_session()
-        print self.session
         self.header = Header(self.session)
 
         self.publish_asset = publish_asset
@@ -423,7 +420,6 @@ class PublishDialog(QtWidgets.QDialog):
     def _on_sync_scene_selection(self):
         '''Handle sync scene selection event.'''
         scene_selection_names = set(self.publish_asset.get_scene_selection())
-        print 'Syncing scene selection', scene_selection_names
         self.list_items_view.update_selection(
             scene_selection_names
         )

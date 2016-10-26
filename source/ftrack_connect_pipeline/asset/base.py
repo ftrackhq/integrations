@@ -124,7 +124,6 @@ class PublishAsset(object):
         publish_data['options'] = general_options
         publish_data['item_options'] = item_options
         publish_data['selected_items'] = selected_items
-        print '!! DATA', publish_data
 
     def publish(self, publish_data):
         '''Publish or raise exception if not valid.'''
