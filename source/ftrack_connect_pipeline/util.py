@@ -133,3 +133,17 @@ def get_ftrack_entity():
         'Context', os.environ['FTRACK_CONTEXT_ID']
     )
     return ftrack_entity
+
+
+def get_session():
+    '''Return new ftrack_api session configure without plugins or events.'''
+    # Create API session using credentials as stored by the application
+    # when logging in.
+    # TODO: Once API is thread-safe, consider switching to a shared session.
+    return ftrack_api.Session(
+        server_url=os.environ['FTRACK_SERVER'],
+        api_key=os.environ['FTRACK_APIKEY'],
+        api_user=os.environ['LOGNAME'],
+        auto_connect_event_hub=False,
+        plugin_paths=[]
+    )

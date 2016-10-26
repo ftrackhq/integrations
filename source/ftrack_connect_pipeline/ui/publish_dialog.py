@@ -5,6 +5,7 @@ import time
 from QtExt import QtGui, QtCore, QtWidgets
 
 from ftrack_connect_pipeline.ui.widget.overlay import BusyOverlay
+from ftrack_connect_pipeline.ui.widget.header import Header
 import ftrack_connect_pipeline.util
 
 
@@ -211,6 +212,9 @@ class PublishDialog(QtWidgets.QDialog):
         '''Display instances that can be published.'''
         super(PublishDialog, self).__init__()
         self.setMinimumSize(800, 600)
+        self.session = ftrack_connect_pipeline.util.get_session()
+        print self.session
+        self.header = Header(self.session)
 
         self.publish_asset = publish_asset
         self.publish_data = self.publish_asset.prepare_publish()
@@ -253,6 +257,8 @@ class PublishDialog(QtWidgets.QDialog):
 
         main_layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(main_layout)
+
+        main_layout.addWidget(self.header)
 
         scroll = QtWidgets.QScrollArea(self)
 

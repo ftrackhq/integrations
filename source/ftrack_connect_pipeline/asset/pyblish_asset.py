@@ -58,3 +58,4 @@ class PyblishAsset(PublishAsset):
                 errors
             )
             dialog.exec_()
+
