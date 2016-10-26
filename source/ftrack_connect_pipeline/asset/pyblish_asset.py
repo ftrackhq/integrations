@@ -52,7 +52,9 @@ class PyblishAsset(PublishAsset):
 
     def show_detailed_result(self, publish_data):
         '''Show detailed results for *publish_data*.'''
-        dialog = ftrack_connect_pipeline.ui.display_pyblish_result.Dialog(
-            publish_data.data['results']
-        )
-        dialog.exec_()
+        errors = [item for item in publish_data.data['results'] if item['error']]
+        if errors:
+            dialog = ftrack_connect_pipeline.ui.display_pyblish_result.Dialog(
+                errors
+            )
+            dialog.exec_()
