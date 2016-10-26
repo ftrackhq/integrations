@@ -16,11 +16,15 @@ class PublishResult(QtWidgets.QDialog):
         self.publish_data = publish_data
         self.publish_asset = publish_asset
 
+        results = [
+            item for item in publish_data if item.data.get('publish') is True
+        ]
+
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
 
         label = QtWidgets.QLabel(
-            '<b>%s </b>the assets have been published' % 3
+            '<b>%s </b> components have been published' % (len(results))
         )
         main_layout.addWidget(label)
 
@@ -29,6 +33,7 @@ class PublishResult(QtWidgets.QDialog):
         self.details_button.clicked.connect(self.on_show_details)
 
     def on_show_details(self):
+        print 'SHOW DETAILS!'
         self.publish_asset.show_detailed_result(self.publish_data)
 
 
