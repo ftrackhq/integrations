@@ -9,6 +9,29 @@ from ftrack_connect_pipeline.ui.widget.header import Header
 import ftrack_connect_pipeline.util
 
 
+class PublishResult(QtWidgets.QDialog):
+
+    def __init__(self, publish_asset, publish_data, parent):
+        super(PublishResult, self).__init__(parent=parent)
+        self.publish_data = publish_data
+        self.publish_asset = publish_asset
+
+        main_layout = QtWidgets.QVBoxLayout()
+        self.setLayout(main_layout)
+
+        label = QtWidgets.QLabel(
+            '<b>%s </b>the assets have been published' % 3
+        )
+        main_layout.addWidget(label)
+
+        self.details_button = QtWidgets.QPushButton('Show Details')
+        main_layout.addWidget(self.details_button)
+        self.details_button.clicked.connect(self.on_show_details)
+
+    def on_show_details(self):
+        self.publish_asset.show_detailed_result(self.publish_data)
+
+
 class SelectableItemWidget(QtWidgets.QListWidgetItem):
     '''A selectable item widget.'''
 
@@ -386,8 +409,11 @@ class PublishDialog(QtWidgets.QDialog):
 
         self._hideOverlayAfterTimeout(self.OVERLAY_MESSAGE_TIMEOUT)
 
-        # once is all published, raise the detal window
-        self.publish_asset.show_detailed_result(self.publish_data)
+        self.result_win = PublishResult(
+            self.publish_asset, self.publish_data, self
+        )
+
+        self.result_win.exec_()
 
     def _on_sync_scene_selection(self):
         '''Handle sync scene selection event.'''
