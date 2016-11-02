@@ -75,7 +75,7 @@ class PublishResult(QtWidgets.QDialog):
             '&view=versions_v1'
             '&itemId=projects'
             '&entityId={project_id}'
-            '&entityType=showSent'
+            '&entityType=show'
         ).format(**data)
 
         webbrowser.open_new_tab(url_template)
