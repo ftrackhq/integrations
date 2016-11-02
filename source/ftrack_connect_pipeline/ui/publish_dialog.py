@@ -1,6 +1,7 @@
 import string
 import functools
 import time
+import webbrowser
 
 from QtExt import QtGui, QtCore, QtWidgets
 
@@ -15,6 +16,9 @@ class PublishResult(QtWidgets.QDialog):
         super(PublishResult, self).__init__(parent=parent)
         self.publish_data = publish_data
         self.publish_asset = publish_asset
+
+        self.session = self.publish_data.data['ftrack_entity'].session
+
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
 
@@ -59,7 +63,18 @@ class PublishResult(QtWidgets.QDialog):
         self.publish_asset.show_detailed_result(self.publish_data)
 
     def on_open_in_ftrack(self):
-        pass
+        data = {
+            'server_url': self.session.server_url,
+            'version_id': self.publish_data.data.get('asset_version'),
+            'project_id': None
+        }
+
+        print data
+
+        # url_template = '''
+        # {session.server_url}/#slideEntityId={version_id}&slideEntityType=assetversion&view=versions_v1&itemId=projects&entityId={version.asset.parent.project.id}&entityType=showSent
+        # '''.format()
+        # webbrowser.open_new_tab(url_template)
 
 
 class SelectableItemWidget(QtWidgets.QListWidgetItem):
@@ -438,7 +453,9 @@ class PublishDialog(QtWidgets.QDialog):
         self._hideOverlayAfterTimeout(self.OVERLAY_MESSAGE_TIMEOUT)
 
         self.result_win = PublishResult(
-            self.publish_asset, self.publish_data, self
+            self.publish_asset,
+            self.publish_data,
+            self
         )
 
         self.result_win.exec_()
