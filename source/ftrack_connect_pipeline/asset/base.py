@@ -108,7 +108,8 @@ class PublishAsset(object):
         '''Return general options for.'''
         from ftrack_connect_pipeline.ui.widget.field import asset_selector
         asset_selector = asset_selector.AssetSelector(
-            ftrack_connect_pipeline.util.get_ftrack_entity()
+            ftrack_connect_pipeline.util.get_ftrack_entity(),
+            self.label
         )
 
         return [

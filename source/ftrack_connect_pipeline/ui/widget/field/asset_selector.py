@@ -6,7 +6,7 @@ from QtExt import QtGui, QtCore, QtWidgets
 class AssetSelector(BaseField):
     '''Select or create a new asset.'''
 
-    def __init__(self, ftrack_entity):
+    def __init__(self, ftrack_entity, asset_label=None):
         '''Instantiate asset selector with *ftrack_entity*.'''
         super(AssetSelector, self).__init__()
 
@@ -39,6 +39,15 @@ class AssetSelector(BaseField):
 
         for asset_type in self.asset_types:
             self.asset_type_selector.addItem(asset_type['name'])
+
+        # automatically set the correct asset type
+        if asset_label:
+            found_asset_type = self.asset_type_selector.findText(
+                asset_label
+            )
+
+            if found_asset_type != -1:  # -1 has not been found
+                self.asset_type_selector.setCurrentIndex(found_asset_type)
 
         main_layout.addWidget(self.asset_type_selector)
 

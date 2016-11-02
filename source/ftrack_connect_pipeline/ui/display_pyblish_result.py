@@ -11,7 +11,6 @@ class PyblishResult(QtWidgets.QWidget):
         '''Instantiate from *item*.'''
         super(PyblishResult, self).__init__()
 
-
         self.setLayout(QtWidgets.QHBoxLayout())
 
         widget = QtWidgets.QWidget()
@@ -42,7 +41,9 @@ class PyblishResult(QtWidgets.QWidget):
         if item['error']:
             number_of_logs += 1
 
-        button = QtWidgets.QPushButton('Show logs ({0})'.format(number_of_logs))
+        button = QtWidgets.QPushButton(
+            'Show logs ({0})'.format(number_of_logs)
+        )
         button.clicked.connect(
             self._on_button_clicked
         )
