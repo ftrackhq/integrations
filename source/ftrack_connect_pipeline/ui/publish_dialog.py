@@ -6,7 +6,6 @@ from QtExt import QtGui, QtCore, QtWidgets
 
 from ftrack_connect_pipeline.ui.widget.overlay import BusyOverlay
 from ftrack_connect_pipeline.ui.widget.header import Header
-from ftrack_connect_pipeline.ui.widget.indicator import BusyIndicator
 import ftrack_connect_pipeline.util
 
 
@@ -36,7 +35,7 @@ class PublishResult(QtWidgets.QDialog):
 
         congrat_label = QtWidgets.QLabel('Publish Successful!')
         success_label = QtWidgets.QLabel(
-            'Your <b>%s </b> has been successfully published.' % publish_asset.label
+            'Your <b>%s</b> has been successfully published.' % publish_asset.label
         )
         congrat_label.setAlignment(QtCore.Qt.AlignCenter)
         success_label.setAlignment(QtCore.Qt.AlignCenter)
