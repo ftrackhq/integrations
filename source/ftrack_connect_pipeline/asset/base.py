@@ -111,11 +111,18 @@ class PublishAsset(object):
             ftrack_connect_pipeline.util.get_ftrack_entity()
         )
 
-        return [{
-            'widget': asset_selector,
-            'type': 'qt_widget',
-            'name': 'asset'
-        }]
+        return [
+            {
+                'type': 'text',
+                'name': 'comment',
+                'label': 'Comment'
+            },
+            {
+                'widget': asset_selector,
+                'type': 'qt_widget',
+                'name': 'asset'
+            }
+        ]
 
     def update_with_options(
         self, publish_data, item_options, general_options, selected_items
