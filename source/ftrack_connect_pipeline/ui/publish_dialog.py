@@ -63,19 +63,21 @@ class PublishResult(QtWidgets.QDialog):
         self.publish_asset.show_detailed_result(self.publish_data)
 
     def on_open_in_ftrack(self):
-        print 'PUBLISH_DATA:', self.publish_data.data
-
         data = {
             'server_url': self.session.server_url,
-            'version_id': self.publish_data.data.get('asset_version'),
-            'project_id': None
+            'version_id': self.publish_data.data['asset_version']['id'],
+            'project_id': self.publish_data.data['asset_version']['asset']['parent']['project']['id']
         }
 
-        print data
+        url_template = (
+            '{server_url}/#slideEntityId={version_id}'
+            '&slideEntityType=assetversion'
+            '&view=versions_v1'
+            '&itemId=projects'
+            '&entityId={project_id}'
+            '&entityType=showSent'
+        ).format(**data)
 
-        url_template = '''
-        {session.server_url}/#slideEntityId={version_id}&slideEntityType=assetversion&view=versions_v1&itemId=projects&entityId={version.asset.parent.project.id}&entityType=showSent
-        '''.format()
         webbrowser.open_new_tab(url_template)
 
 
