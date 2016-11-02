@@ -6,6 +6,7 @@ from QtExt import QtGui, QtCore, QtWidgets
 
 from ftrack_connect_pipeline.ui.widget.overlay import BusyOverlay
 from ftrack_connect_pipeline.ui.widget.header import Header
+from ftrack_connect_pipeline.ui.widget.indicator import BusyIndicator
 import ftrack_connect_pipeline.util
 
 
@@ -15,25 +16,51 @@ class PublishResult(QtWidgets.QDialog):
         super(PublishResult, self).__init__(parent=parent)
         self.publish_data = publish_data
         self.publish_asset = publish_asset
-
-        results = [
-            item for item in publish_data if item.data.get('publish') is True
-        ]
-
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
 
-        label = QtWidgets.QLabel(
-            '<b>%s </b> components have been published' % (len(results))
-        )
-        main_layout.addWidget(label)
+        icon = QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor')
+        icon = icon.scaled(
+            QtCore.QSize(85, 85),
+            QtCore.Qt.KeepAspectRatio,
+            QtCore.Qt.SmoothTransformation
 
-        self.details_button = QtWidgets.QPushButton('Show Details')
-        main_layout.addWidget(self.details_button)
+        )
+
+        self.ftrack_icon = QtWidgets.QLabel()
+        self.ftrack_icon.setPixmap(icon)
+
+        main_layout.insertWidget(
+            1, self.ftrack_icon, alignment=QtCore.Qt.AlignCenter
+        )
+
+        congrat_label = QtWidgets.QLabel('Publish Successful!')
+        success_label = QtWidgets.QLabel(
+            'Your <b>%s </b> has been successfully published.' % publish_asset.label
+        )
+        congrat_label.setAlignment(QtCore.Qt.AlignCenter)
+        success_label.setAlignment(QtCore.Qt.AlignCenter)
+        main_layout.addWidget(congrat_label)
+        main_layout.addWidget(success_label)
+
+        buttons_layout = QtWidgets.QHBoxLayout()
+
+        main_layout.addLayout(buttons_layout)
+
+        self.details_button = QtWidgets.QPushButton('Details')
+        self.open_in_ftrack = QtWidgets.QPushButton('Open In Ftrack')
+
+        buttons_layout.addWidget(self.details_button)
+        buttons_layout.addWidget(self.open_in_ftrack)
+
         self.details_button.clicked.connect(self.on_show_details)
+        self.open_in_ftrack.clicked.connect(self.on_open_in_ftrack)
 
     def on_show_details(self):
         self.publish_asset.show_detailed_result(self.publish_data)
+
+    def on_open_in_ftrack(self):
+        pass
 
 
 class SelectableItemWidget(QtWidgets.QListWidgetItem):
