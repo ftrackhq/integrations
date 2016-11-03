@@ -16,6 +16,8 @@ from ftrack_connect_pipeline.ui.widget import (
     action_item, flow_layout, overlay
 )
 
+from ftrack_connect_pipeline.ui.style import OVERLAY_DARK_STYLE
+
 
 class ActionBase(dict):
     '''Wrapper for an action dict.'''
@@ -105,6 +107,7 @@ class Actions(QtWidgets.QWidget):
         layout.addWidget(self._allSection)
 
         self._overlay = overlay.BusyOverlay(self, message='Launching...')
+        self._overlay.setStyleSheet(OVERLAY_DARK_STYLE)
         self._overlay.setVisible(False)
 
         self.recentActionsChanged.connect(self._updateRecentSection)

@@ -7,13 +7,16 @@ from QtExt import QtGui, QtCore, QtWidgets
 
 from ftrack_connect_pipeline.ui.widget.overlay import BusyOverlay
 from ftrack_connect_pipeline.ui.widget.header import Header
+from ftrack_connect_pipeline.ui.widget.overlay import Overlay
+from ftrack_connect_pipeline.ui.style import OVERLAY_DARK_STYLE
 import ftrack_connect_pipeline.util
 
 
-class PublishResult(QtWidgets.QDialog):
+class PublishResult(Overlay):
 
     def __init__(self, publish_asset, publish_data, parent):
         super(PublishResult, self).__init__(parent=parent)
+
         self.publish_data = publish_data
         self.publish_asset = publish_asset
 
@@ -58,6 +61,7 @@ class PublishResult(QtWidgets.QDialog):
 
         self.details_button.clicked.connect(self.on_show_details)
         self.open_in_ftrack.clicked.connect(self.on_open_in_ftrack)
+        self.setStyleSheet(OVERLAY_DARK_STYLE)
 
     def on_show_details(self):
         self.publish_asset.show_detailed_result(self.publish_data)
@@ -347,7 +351,15 @@ class PublishDialog(QtWidgets.QDialog):
             self,
             message='Publishing Assets...'
         )
+        self._publish_overlay.setStyleSheet(OVERLAY_DARK_STYLE)
         self._publish_overlay.setVisible(False)
+
+        self.result_win = PublishResult(
+            self.publish_asset,
+            self.publish_data,
+            self
+        )
+        self.result_win.setVisible(False)
 
         self.refresh()
 
@@ -456,13 +468,7 @@ class PublishDialog(QtWidgets.QDialog):
 
         self._hideOverlayAfterTimeout(self.OVERLAY_MESSAGE_TIMEOUT)
 
-        self.result_win = PublishResult(
-            self.publish_asset,
-            self.publish_data,
-            self
-        )
-
-        self.result_win.exec_()
+        self.result_win.setVisible(True)
 
     def _on_sync_scene_selection(self):
         '''Handle sync scene selection event.'''
