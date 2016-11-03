@@ -61,7 +61,6 @@ class PublishResult(Overlay):
 
         self.details_button.clicked.connect(self.on_show_details)
         self.open_in_ftrack.clicked.connect(self.on_open_in_ftrack)
-        self.setStyleSheet(OVERLAY_DARK_STYLE)
 
     def on_show_details(self):
         self.publish_asset.show_detailed_result(self.publish_data)
@@ -359,6 +358,7 @@ class PublishDialog(QtWidgets.QDialog):
             self.publish_data,
             self
         )
+        self.result_win.setStyleSheet(OVERLAY_DARK_STYLE)
         self.result_win.setVisible(False)
 
         self.refresh()
@@ -450,6 +450,8 @@ class PublishDialog(QtWidgets.QDialog):
     def on_publish_clicked(self):
         '''Handle publish clicked event.'''
         self._publish_overlay.setVisible(True)
+        app = QtWidgets.QApplication.instance()
+        app.processEvents()
 
         selected_item_names = []
         for item in self.list_items_view.get_checked_items():
