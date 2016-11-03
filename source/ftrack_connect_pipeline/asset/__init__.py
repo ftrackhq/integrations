@@ -1,3 +1,5 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2014 ftrack
 
 from .base import (
     open_publish_dialog, Asset, ImportAsset, PublishAsset

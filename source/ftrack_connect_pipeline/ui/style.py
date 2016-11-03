@@ -1,3 +1,6 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2014 ftrack
+
 from ftrack_connect_pipeline.ui import resource
 
 

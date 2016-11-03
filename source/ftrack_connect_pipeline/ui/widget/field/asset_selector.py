@@ -1,3 +1,5 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2014 ftrack
 
 from .base import BaseField
 from QtExt import QtGui, QtCore, QtWidgets
