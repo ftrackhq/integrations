@@ -299,20 +299,22 @@ class PublishDialog(QtWidgets.QDialog):
 
         self.publish_asset = publish_asset
 
-        result = self.session.event_hub.publish(
-            Event(
-                topic='ftrack.pipeline.get-plugin-information'
-            ),
-            asynchronous=True
-        )
+        # result = self.session.event_hub.publish(
+        #     Event(
+        #         topic='ftrack.pipeline.get-plugin-information'
+        #     ),
+        #     synchronous=True
+        # )
 
-        send_usage(
-            'USED-FTRACK-CONNECT-PIPELINE-PUBLISH',
-            {
-                'asset_type': publish_asset.label,
-                'plugin_information': result
-            }
-        )
+        # print 'INFO-RESULT', result
+
+        # send_usage(
+        #     'USED-FTRACK-CONNECT-PIPELINE-PUBLISH',
+        #     {
+        #         'asset_type': publish_asset.label,
+        #         'plugin_information': result
+        #     }
+        # )
 
         self.publish_data = self.publish_asset.prepare_publish()
         self.item_options_store = {}
