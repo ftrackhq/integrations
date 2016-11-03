@@ -8,12 +8,16 @@ import webbrowser
 
 from QtExt import QtGui, QtCore, QtWidgets
 
+from ftrack_api.event.base import Event
+
 from ftrack_connect_pipeline.ui.widget.overlay import BusyOverlay
 from ftrack_connect_pipeline.ui.widget.header import Header
 from ftrack_connect_pipeline.ui.widget.overlay import Overlay
-from ftrack_connect_pipeline.ui.usage import send_event
+from ftrack_connect_pipeline.ui.usage import send_event as send_usage
 from ftrack_connect_pipeline.ui.style import OVERLAY_DARK_STYLE
 import ftrack_connect_pipeline.util
+
+
 
 
 class PublishResult(Overlay):
@@ -295,13 +299,20 @@ class PublishDialog(QtWidgets.QDialog):
 
         self.publish_asset = publish_asset
 
-        # send_event(
-        #     'USED-FTRACK-CONNECT-PIPELINE-PUBLISH',
-        #     {
-        #         'asset_type': publish_asset.label,
-        #         'application': '?'
-        #     }
-        # )
+        result = self.session.event_hub.publish(
+            Event(
+                topic='ftrack.pipeline.get-plugin-information'
+            ),
+            asynchronous=True
+        )
+
+        send_usage(
+            'USED-FTRACK-CONNECT-PIPELINE-PUBLISH',
+            {
+                'asset_type': publish_asset.label,
+                'plugin_information': result
+            }
+        )
 
         self.publish_data = self.publish_asset.prepare_publish()
         self.item_options_store = {}
