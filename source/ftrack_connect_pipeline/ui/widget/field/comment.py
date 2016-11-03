@@ -21,11 +21,13 @@ class CommentField(BaseField):
         main_layout.addWidget(group_box)
         box_layout.addWidget(self.comment)
 
+        self.comment.textChanged.connect(self.notify_changed)
+
     def notify_changed(self, *args, **kwargs):
         '''Notify the world about the changes.'''
         self.value_changed.emit(self.value())
 
     def value(self):
         return {
-            'comment': self.comment.text()
+            'comment': self.comment.toPlainText()
         }

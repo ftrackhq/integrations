@@ -119,7 +119,7 @@ class PublishAsset(object):
         return [
             {
                 'widget': comment_field,
-                'name': 'comment',
+                'name': 'comment_field',
                 'type': 'qt_widget'
             },
             {
