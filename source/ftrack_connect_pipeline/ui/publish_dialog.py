@@ -11,6 +11,7 @@ from QtExt import QtGui, QtCore, QtWidgets
 from ftrack_connect_pipeline.ui.widget.overlay import BusyOverlay
 from ftrack_connect_pipeline.ui.widget.header import Header
 from ftrack_connect_pipeline.ui.widget.overlay import Overlay
+from ftrack_connect_pipeline.ui.usage import send_event
 from ftrack_connect_pipeline.ui.style import OVERLAY_DARK_STYLE
 import ftrack_connect_pipeline.util
 
@@ -293,6 +294,15 @@ class PublishDialog(QtWidgets.QDialog):
         self.header = Header(self.session)
 
         self.publish_asset = publish_asset
+
+        # send_event(
+        #     'USED-FTRACK-CONNECT-PIPELINE-PUBLISH',
+        #     {
+        #         'asset_type': publish_asset.label,
+        #         'application': '?'
+        #     }
+        # )
+
         self.publish_data = self.publish_asset.prepare_publish()
         self.item_options_store = {}
         self.general_options_store = {}
