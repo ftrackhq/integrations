@@ -84,6 +84,12 @@ def configure_logging(logger_name, level=None, format=None):
             },
             'pyblish': {
                 'level': 'ERROR'
+            },
+            'requests': {
+                'level': 'ERROR'
+            },
+            'urllib3': {
+                'level': 'ERROR'
             }
         }
     }
