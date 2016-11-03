@@ -107,6 +107,10 @@ class PublishAsset(object):
     def get_options(self, publish_data):
         '''Return general options for.'''
         from ftrack_connect_pipeline.ui.widget.field import asset_selector
+        from ftrack_connect_pipeline.ui.widget.field import comment
+
+        comment_field = comment.CommentField()
+
         asset_selector = asset_selector.AssetSelector(
             ftrack_connect_pipeline.util.get_ftrack_entity(),
             self.label
@@ -114,14 +118,14 @@ class PublishAsset(object):
 
         return [
             {
-                'type': 'text',
+                'widget': comment_field,
                 'name': 'comment',
-                'label': 'Comment'
+                'type': 'qt_widget'
             },
             {
                 'widget': asset_selector,
-                'type': 'qt_widget',
-                'name': 'asset'
+                'name': 'asset',
+                'type': 'qt_widget'
             }
         ]
 
