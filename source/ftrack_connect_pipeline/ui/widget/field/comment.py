@@ -7,6 +7,8 @@ from QtExt import QtCore, QtWidgets
 
 
 class CommentField(BaseField):
+    '''Create new comment.'''
+
     def __init__(self):
         super(CommentField, self).__init__()
         main_layout = QtWidgets.QVBoxLayout()
@@ -28,6 +30,7 @@ class CommentField(BaseField):
         self.value_changed.emit(self.value())
 
     def value(self):
+        '''Return value.'''
         return {
             'comment': self.comment.toPlainText()
         }
