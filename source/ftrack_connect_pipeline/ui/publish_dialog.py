@@ -288,33 +288,30 @@ class PublishDialog(QtWidgets.QDialog):
     OVERLAY_MESSAGE_TIMEOUT = 1
 
     def __init__(
-        self, label, description, publish_asset, settings_provider=None,
-        parent=None
+        self, label, description, publish_asset, session,
+        settings_provider=None, parent=None
     ):
         '''Display instances that can be published.'''
         super(PublishDialog, self).__init__()
         self.setMinimumSize(800, 600)
-        self.session = ftrack_connect_pipeline.util.get_session()
+        self.session = session
         self.header = Header(self.session)
 
         self.publish_asset = publish_asset
 
-        # result = self.session.event_hub.publish(
-        #     Event(
-        #         topic='ftrack.pipeline.get-plugin-information'
-        #     ),
-        #     synchronous=True
-        # )
-
-        # print 'INFO-RESULT', result
-
-        # send_usage(
-        #     'USED-FTRACK-CONNECT-PIPELINE-PUBLISH',
-        #     {
-        #         'asset_type': publish_asset.label,
-        #         'plugin_information': result
-        #     }
-        # )
+        result = self.session.event_hub.publish(
+            Event(
+                topic='ftrack.pipeline.get-plugin-information'
+            ),
+            synchronous=True
+        )
+        send_usage(
+            'USED-FTRACK-CONNECT-PIPELINE-PUBLISH',
+            {
+                'asset_type': publish_asset.label,
+                'plugin_information': result
+            }
+        )
 
         self.publish_data = self.publish_asset.prepare_publish()
         self.item_options_store = {}

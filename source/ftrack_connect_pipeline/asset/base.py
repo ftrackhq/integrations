@@ -9,12 +9,13 @@ import ftrack_connect_pipeline.ui.publish_dialog
 import logging
 
 
-def open_publish_dialog(publish_asset):
+def open_publish_dialog(publish_asset, session):
     '''Open publish dialog for *publish_asset*.'''
     dialog = ftrack_connect_pipeline.ui.publish_dialog.PublishDialog(
         label=publish_asset.label,
         description=publish_asset.description,
-        publish_asset=publish_asset
+        publish_asset=publish_asset,
+        session=session
     )
     dialog.exec_()
 
@@ -50,7 +51,9 @@ class Asset(object):
     def launch_publish(self, event):
         '''Callback method for publish action.'''
         ftrack_connect_pipeline.util.invoke_in_main_thread(
-            functools.partial(open_publish_dialog, self.publish_asset)
+            functools.partial(
+                open_publish_dialog, self.publish_asset, self._session
+            )
         )
 
         return {
