@@ -6,8 +6,8 @@ import functools
 import ftrack_connect_pipeline.util
 import ftrack_connect_pipeline.ui.publish_dialog
 
-
 import logging
+
 
 def open_publish_dialog(publish_asset):
     '''Open publish dialog for *publish_asset*.'''
@@ -24,6 +24,14 @@ class Asset(object):
 
     def __init__(self, identifier, publish_asset=None, import_asset=None):
         '''Instantiate with manager for publish and import.'''
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+
+        self.logger.debug(
+            'Registering new asset: %s ', identifier
+        )
+
         self.publish_asset = publish_asset
         self.import_asset = import_asset
         self.identifier = identifier
@@ -37,7 +45,6 @@ class Asset(object):
                 'actionIdentifier': self.identifier
             }]
         }
-
         return item
 
     def launch_publish(self, event):
@@ -89,12 +96,13 @@ class PublishAsset(object):
 
     def __init__(self, label, description, icon=None):
         '''Instantiate publish asset with *label* and *description*.'''
-        self.label = label
-        self.description = description
-        self.icon = icon
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+
+        self.label = label
+        self.description = description
+        self.icon = icon
 
     def discover(self, event):
         '''Discover import camera.'''
@@ -124,7 +132,7 @@ class PublishAsset(object):
             self.label
         )
 
-        return [
+        options = [
             {
                 'widget': comment_field,
                 'name': 'comment_field',
@@ -136,6 +144,8 @@ class PublishAsset(object):
                 'type': 'qt_widget'
             }
         ]
+        self.logger.debug('context option: %s', options)
+        return options
 
     def update_with_options(
         self, publish_data, item_options, general_options, selected_items

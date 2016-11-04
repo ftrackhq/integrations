@@ -6,6 +6,7 @@ import os
 import pyblish.plugin
 import pyblish.api
 import pyblish.util
+import logging
 
 import ftrack_connect_pipeline.ui.display_pyblish_result
 from .base import PublishAsset
@@ -17,6 +18,9 @@ class PyblishAsset(PublishAsset):
     def __init__(self, *args, **kwargs):
         '''Instantiate and let pyblish know about the plugins.'''
         super(PyblishAsset, self).__init__(*args, **kwargs)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
         self.register_pyblish_plugin_path()
 
     def register_pyblish_plugin_path(self):
@@ -30,7 +34,7 @@ class PyblishAsset(PublishAsset):
                 'pyblish_plugin'
             )
         )
-        self.logger.debug('registering plugin path: %s', path)
+        self.logger.debug('registering pyblish plugin path: %s', path)
         pyblish.plugin.register_plugin_path(path)
 
     def prepare_publish(self):
@@ -65,7 +69,9 @@ class PyblishAsset(PublishAsset):
 
     def show_detailed_result(self, publish_data):
         '''Show detailed results for *publish_data*.'''
-
+        self.logger.debug(
+            'publish results %s', publish_data.data['results']
+        )
         # filter for items with meaningful informations for the users.
         filtered_results = [
             item for item in publish_data.data['results'] if (
