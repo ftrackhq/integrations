@@ -10,6 +10,7 @@ import logging
 
 import ftrack_connect_pipeline.ui.display_pyblish_result
 from .base import PublishAsset
+from pprint import pformat
 
 
 class PyblishAsset(PublishAsset):
@@ -67,11 +68,12 @@ class PyblishAsset(PublishAsset):
         pyblish.util.extract(publish_data)
         pyblish.util.integrate(publish_data)
 
+        for record in publish_data.data['results']:
+            if record['error']:
+                self.logger.error(record)
+
     def show_detailed_result(self, publish_data):
         '''Show detailed results for *publish_data*.'''
-        self.logger.debug(
-            'publish results %s', publish_data.data['results']
-        )
         # filter for items with meaningful informations for the users.
         filtered_results = [
             item for item in publish_data.data['results'] if (
