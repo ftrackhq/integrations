@@ -7,6 +7,8 @@ import ftrack_connect_pipeline.util
 import ftrack_connect_pipeline.ui.publish_dialog
 
 
+import logging
+
 def open_publish_dialog(publish_asset):
     '''Open publish dialog for *publish_asset*.'''
     dialog = ftrack_connect_pipeline.ui.publish_dialog.PublishDialog(
@@ -90,6 +92,9 @@ class PublishAsset(object):
         self.label = label
         self.description = description
         self.icon = icon
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
 
     def discover(self, event):
         '''Discover import camera.'''
