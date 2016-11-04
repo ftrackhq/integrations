@@ -21,6 +21,7 @@ class AssetSelector(BaseField):
 
         main_layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(main_layout)
+        main_layout.setContentsMargins(0,0,0,0)
 
         self.asset_selector = QtWidgets.QComboBox(self)
         main_layout.addWidget(self.asset_selector)

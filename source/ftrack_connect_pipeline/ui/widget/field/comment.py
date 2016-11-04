@@ -13,6 +13,7 @@ class CommentField(BaseField):
         super(CommentField, self).__init__()
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
+        main_layout.setContentsMargins(0,0,0,0)
 
         group_box = QtWidgets.QGroupBox("Comment")
         box_layout = QtWidgets.QVBoxLayout()
