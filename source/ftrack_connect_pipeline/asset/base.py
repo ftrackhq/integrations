@@ -130,8 +130,13 @@ class PublishAsset(object):
 
         comment_field = comment.CommentField()
 
+        context = ftrack_connect_pipeline.util.get_ftrack_entity()
+        if isinstance(context, context.session.types['Task']):
+            # Publish to task parent.
+            context = context['parent']
+
         asset_selector = asset_selector.AssetSelector(
-            ftrack_connect_pipeline.util.get_ftrack_entity(),
+            context,
             self.label
         )
 
