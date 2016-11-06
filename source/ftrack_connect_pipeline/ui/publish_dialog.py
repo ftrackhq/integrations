@@ -18,13 +18,15 @@ from ftrack_connect_pipeline.ui.style import OVERLAY_DARK_STYLE
 import ftrack_connect_pipeline.util
 
 
-
-
 class PublishResult(Overlay):
+    '''Publish result overlay.'''
 
-    def __init__(self, publish_asset, publish_data, parent):
+    def __init__(self, parent):
+        '''Instantiate publish result overlay.'''
         super(PublishResult, self).__init__(parent=parent)
 
+    def populate(self, publish_asset, publish_data):
+        '''Populate with content.'''
         self.publish_data = publish_data
         self.publish_asset = publish_asset
 
@@ -38,24 +40,44 @@ class PublishResult(Overlay):
             QtCore.QSize(85, 85),
             QtCore.Qt.KeepAspectRatio,
             QtCore.Qt.SmoothTransformation
-
         )
 
         self.ftrack_icon = QtWidgets.QLabel()
         self.ftrack_icon.setPixmap(icon)
 
+        main_layout.addStretch(1)
         main_layout.insertWidget(
             1, self.ftrack_icon, alignment=QtCore.Qt.AlignCenter
         )
 
-        congrat_label = QtWidgets.QLabel('Publish Successful!')
-        success_label = QtWidgets.QLabel(
-            'Your <b>%s</b> has been successfully published.' % publish_asset.label
+        failed = any(
+            [result['error'] for result in publish_data.data['results']]
         )
+        print '!!!!!'
+        print [result['error'] for result in publish_data.data['results']]
+
+        if not failed:
+            congrat_label = QtWidgets.QLabel('<h2>Publish Successful!</h2>')
+            success_label = QtWidgets.QLabel(
+                'Your <b>{0}</b> has been successfully published.'.format(
+                    publish_asset.label
+                )
+            )
+        else:
+            congrat_label = QtWidgets.QLabel('<h2>Publish Failed!</h2>')
+            success_label = QtWidgets.QLabel(
+                'Your <b>{0}</b> failed to published. See details for more '
+                'information.'.format(
+                    publish_asset.label
+                )
+            )
+
         congrat_label.setAlignment(QtCore.Qt.AlignCenter)
         success_label.setAlignment(QtCore.Qt.AlignCenter)
+
         main_layout.addWidget(congrat_label)
         main_layout.addWidget(success_label)
+        main_layout.addStretch(1)
 
         buttons_layout = QtWidgets.QHBoxLayout()
 
@@ -71,9 +93,11 @@ class PublishResult(Overlay):
         self.open_in_ftrack.clicked.connect(self.on_open_in_ftrack)
 
     def on_show_details(self):
+        '''Handle show of details.'''
         self.publish_asset.show_detailed_result(self.publish_data)
 
     def on_open_in_ftrack(self):
+        '''Open result in ftrack.'''
         data = {
             'server_url': self.session.server_url,
             'version_id': self.publish_data.data['asset_version']['id'],
@@ -340,7 +364,9 @@ class PublishDialog(QtWidgets.QDialog):
         configuration.setLayout(configuration_layout)
 
         information_layout = QtWidgets.QHBoxLayout()
-        information_layout.addWidget(QtWidgets.QLabel('<h3>{0}</h3>'.format(label)))
+        information_layout.addWidget(
+            QtWidgets.QLabel('<h3>{0}</h3>'.format(label))
+        )
         information_layout.addWidget(
             QtWidgets.QLabel('<i>{0}</i>'.format(description)),
             stretch=1
@@ -376,11 +402,7 @@ class PublishDialog(QtWidgets.QDialog):
         self._publish_overlay.setStyleSheet(OVERLAY_DARK_STYLE)
         self._publish_overlay.setVisible(False)
 
-        self.result_win = PublishResult(
-            self.publish_asset,
-            self.publish_data,
-            self
-        )
+        self.result_win = PublishResult(self)
         self.result_win.setStyleSheet(OVERLAY_DARK_STYLE)
         self.result_win.setVisible(False)
 
@@ -494,6 +516,7 @@ class PublishDialog(QtWidgets.QDialog):
         self._hideOverlayAfterTimeout(self.OVERLAY_MESSAGE_TIMEOUT)
 
         self.result_win.setVisible(True)
+        self.result_win.populate(self.publish_asset, self.publish_data)
 
     def _on_sync_scene_selection(self):
         '''Handle sync scene selection event.'''
