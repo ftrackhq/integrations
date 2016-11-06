@@ -30,7 +30,7 @@ class Asset(object):
         )
 
         self.logger.debug(
-            'Registering new asset: %s ', identifier
+            'Registering new asset: {0!r}.'.format(identifier)
         )
 
         self.publish_asset = publish_asset
@@ -147,7 +147,7 @@ class PublishAsset(object):
                 'type': 'qt_widget'
             }
         ]
-        self.logger.debug('context option: %s', options)
+        self.logger.debug('Context option: {0!r}.'.format(options))
         return options
 
     def update_with_options(

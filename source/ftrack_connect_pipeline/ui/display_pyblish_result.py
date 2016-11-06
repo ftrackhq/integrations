@@ -33,7 +33,7 @@ class PyblishResult(QtWidgets.QWidget):
         widget.layout().addWidget(QtWidgets.QLabel(main_info))
         widget.layout().addWidget(
             QtWidgets.QLabel(
-                'Duraction: {0}, Running for instance: {1}'.format(
+                'Duration: {0}, Running for instance: {1}'.format(
                     round(item['duration'], 4), item['instance']
                 )
             )
@@ -64,7 +64,7 @@ class PyblishResult(QtWidgets.QWidget):
         logs_entries = []
         for record in self.item['records']:
             logs_entries.append(
-                '{record.module} - {record.created}: {record.message}'.format(
+                '{record.funcName}|{record.asctime}: {record.message}'.format(
                     record=record
                 )
             )

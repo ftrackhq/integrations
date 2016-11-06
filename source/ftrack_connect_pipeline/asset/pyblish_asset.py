@@ -10,7 +10,6 @@ import logging
 
 import ftrack_connect_pipeline.ui.display_pyblish_result
 from .base import PublishAsset
-from pprint import pformat
 
 
 class PyblishAsset(PublishAsset):
@@ -35,14 +34,18 @@ class PyblishAsset(PublishAsset):
                 'pyblish_plugin'
             )
         )
-        self.logger.debug('registering pyblish plugin path: %s', path)
+        logging.debug(
+            'Registering pyblish plugin path: {0!r}.'.format(path)
+        )
         pyblish.plugin.register_plugin_path(path)
 
     def prepare_publish(self):
         '''Return context for publishing.'''
         context = pyblish.api.Context()
         context = pyblish.util.collect(context=context)
-        self.logger.debug('preparing publish with context: %s', context)
+        self.logger.debug(
+            'Preparing publish with context: {0!r}.'.format(context)
+        )
         return context
 
     def update_with_options(
@@ -50,17 +53,20 @@ class PyblishAsset(PublishAsset):
     ):
         '''Update *publish_data* with *item_options* and *general_options*.'''
         self.logger.debug(
-            'updating publish_data with options: %s', general_options
+            'Updating publish_data with options: {0!r}'.format(general_options)
         )
 
         publish_data.data['options'] = general_options
         for instance in publish_data:
-            self.logger.debug(
-                'updating instance data with : %s', instance
-            )
-
             instance.data['options'] = item_options.get(instance.name, {})
             instance.data['publish'] = instance.name in selected_items
+            self.logger.debug(
+                'Updating instance {0!r} with data: {0!r}. Publish flag set to '
+                '{0!r}'.format(
+                    instance.name, instance.data['options'],
+                    instance.data['publish']
+                )
+            )
 
     def publish(self, publish_data):
         '''Publish or raise exception if not valid.'''
