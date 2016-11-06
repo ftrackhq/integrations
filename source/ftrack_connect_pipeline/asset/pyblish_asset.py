@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2014 ftrack
 
 import os
+import sys
 
 import pyblish.plugin
 import pyblish.api
@@ -28,10 +29,11 @@ class PyblishAsset(PublishAsset):
         path = os.path.normpath(
             os.path.join(
                 os.path.abspath(
-                    os.path.dirname(__file__)
+                    os.path.dirname(
+                        sys.modules[self.__module__].__file__
+                    )
                 ),
-                '..',
-                'pyblish_plugin'
+                'pyblish_plugins'
             )
         )
         logging.debug(
