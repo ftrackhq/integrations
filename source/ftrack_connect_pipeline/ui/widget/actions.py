@@ -74,7 +74,7 @@ class Actions(QtWidgets.QWidget):
     #: Emitted when recent actions has been modified
     recentActionsChanged = QtCore.Signal(name='recentActionsChanged')
 
-    def __init__(self, session, parent=None):
+    def __init__(self, session, all_section_text='All actions', parent=None):
         '''Initiate a actions view.'''
         super(Actions, self).__init__(parent)
 
@@ -82,6 +82,8 @@ class Actions(QtWidgets.QWidget):
             __name__ + '.' + self.__class__.__name__
         )
         self._session = session
+
+        self._action_label_text = all_section_text
 
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
@@ -215,7 +217,7 @@ class Actions(QtWidgets.QWidget):
         if self._actions:
             self._allSection.addActions(self._actions, self._session)
             self._allLabel.setAlignment(QtCore.Qt.AlignLeft)
-            self._allLabel.setText('All actions')
+            self._allLabel.setText(self._action_label_text)
         else:
             self._allLabel.setAlignment(QtCore.Qt.AlignCenter)
             self._allLabel.setText(
