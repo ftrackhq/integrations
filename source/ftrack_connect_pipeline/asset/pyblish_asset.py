@@ -82,13 +82,7 @@ class PyblishAsset(PublishAsset):
 
     def show_detailed_result(self, publish_data):
         '''Show detailed results for *publish_data*.'''
-        # filter for items with meaningful informations for the users.
-        filtered_results = [
-            item for item in publish_data.data['results'] if (
-                item['error'] or item['records']
-            )
-        ]
         dialog = ftrack_connect_pipeline.ui.display_pyblish_result.Dialog(
-            filtered_results
+            publish_data.data['results']
         )
         dialog.exec_()
