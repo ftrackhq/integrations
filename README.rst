@@ -2,14 +2,9 @@
 ftrack-connect-pipeline
 ###############################
 
-Common building blocks for building pipeline development
+Common building blocks for building pipeline development, used by:
 
-*************
-Documentation
-*************
-
-Full documentation, including installation and setup guides, can be found at
-http://ftrack-connect-pipeline.rtd.ftrack.com/en/stable/
+* https://bitbucket.org/ftrack/ftrack-connect-maya-publish
 
 *********************
 Copyright and license
