@@ -12,6 +12,13 @@ Release Notes
     .. change:: new
         :tags: Field, Widget
 
+        Added a textarea field.
+
+.. release:: Upcoming
+
+    .. change:: new
+        :tags: Field, Widget
+
         Added a frame range field.
 
 .. release:: 0.1.0
