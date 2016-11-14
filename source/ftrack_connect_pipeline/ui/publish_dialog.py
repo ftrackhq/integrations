@@ -223,7 +223,7 @@ class ActionSettingsWidget(QtWidgets.QWidget):
             if type_ == 'text_area':
                 field = QtWidgets.QTextEdit()
                 if value is not None:
-                    field.insert(unicode(value))
+                    field.setPlainText(unicode(value))
                     field.textChanged.connect(
                         functools.partial(
                             self.update_on_change,
