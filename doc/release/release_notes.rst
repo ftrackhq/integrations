@@ -12,7 +12,7 @@ Release Notes
     .. change:: new
         :tags: Field, Widget
 
-        Added separete widget for number.
+        Added separate widget for number.
 
 .. release:: Upcoming
 
