@@ -126,7 +126,6 @@ class PublishAsset(object):
     def get_options(self, publish_data):
         '''Return general options for.'''
         from ftrack_connect_pipeline.ui.widget.field import asset_selector
-        from ftrack_connect_pipeline.ui.widget.field import comment
 
         context = ftrack_connect_pipeline.util.get_ftrack_entity()
         if isinstance(context, context.session.types['Task']):
