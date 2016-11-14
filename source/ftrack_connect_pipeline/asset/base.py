@@ -141,7 +141,7 @@ class PublishAsset(object):
             {
                 'name': 'comment_field',
                 'type': 'text_area',
-                'value': 'Please add a comment.'
+                'value': 'no comment set'
             },
             {
                 'widget': asset_selector,
