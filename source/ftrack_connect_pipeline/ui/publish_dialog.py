@@ -220,7 +220,7 @@ class ActionSettingsWidget(QtWidgets.QWidget):
                     )
                 )
 
-            if type_ in ('number', 'text'):
+            if type_ == 'text':
                 field = QtWidgets.QLineEdit()
                 if value is not None:
                     field.insert(unicode(value))
@@ -232,6 +232,21 @@ class ActionSettingsWidget(QtWidgets.QWidget):
                         field,
                         name,
                         lambda line_edit: line_edit.text()
+                    )
+                )
+
+            if type_ == 'number':
+                field = QtWidgets.QDoubleSpinBox()
+                if value is not None:
+                    field.setValue(float(value))
+
+                field.textChanged.connect(
+                    functools.partial(
+                        self.update_on_change,
+                        data_dict,
+                        field,
+                        name,
+                        lambda spin_box: spin_box.value()
                     )
                 )
 
