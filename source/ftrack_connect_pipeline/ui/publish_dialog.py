@@ -220,7 +220,7 @@ class ActionSettingsWidget(QtWidgets.QWidget):
                     )
                 )
 
-            if type_ == 'text_area':
+            if type_ == 'textarea':
                 field = QtWidgets.QTextEdit()
                 if value is not None:
                     field.setPlainText(unicode(value))
