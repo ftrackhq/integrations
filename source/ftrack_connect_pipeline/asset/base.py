@@ -140,7 +140,7 @@ class PublishAsset(object):
         options = [
             {
                 'name': 'comment_field',
-                'type': 'text_area',
+                'type': 'textarea',
                 'value': 'no comment set'
             },
             {
