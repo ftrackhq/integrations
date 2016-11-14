@@ -128,8 +128,6 @@ class PublishAsset(object):
         from ftrack_connect_pipeline.ui.widget.field import asset_selector
         from ftrack_connect_pipeline.ui.widget.field import comment
 
-        comment_field = comment.CommentField()
-
         context = ftrack_connect_pipeline.util.get_ftrack_entity()
         if isinstance(context, context.session.types['Task']):
             # Publish to task parent.
@@ -142,9 +140,8 @@ class PublishAsset(object):
 
         options = [
             {
-                'widget': comment_field,
                 'name': 'comment_field',
-                'type': 'qt_widget'
+                'type': 'text_area'
             },
             {
                 'widget': asset_selector,
