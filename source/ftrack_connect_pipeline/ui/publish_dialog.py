@@ -240,7 +240,7 @@ class ActionSettingsWidget(QtWidgets.QWidget):
                 if value is not None:
                     field.setValue(float(value))
 
-                field.textChanged.connect(
+                field.valueChanged.connect(
                     functools.partial(
                         self.update_on_change,
                         data_dict,
