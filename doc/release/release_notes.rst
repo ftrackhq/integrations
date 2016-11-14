@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: new
+        :tags: Field, Widget
+
+        Added a frame range field.
+
 .. release:: 0.1.0
     :date: 2016-11-08
 
