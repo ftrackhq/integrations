@@ -139,14 +139,14 @@ class PublishAsset(object):
 
         options = [
             {
-                'name': 'comment_field',
-                'type': 'textarea',
-                'value': 'no comment set'
-            },
-            {
                 'widget': asset_selector,
                 'name': 'asset',
                 'type': 'qt_widget'
+            },
+            {
+                'label': 'Comment',
+                'name': 'comment',
+                'type': 'textarea'
             }
         ]
         self.logger.debug('Context option: {0!r}.'.format(options))

@@ -224,15 +224,16 @@ class ActionSettingsWidget(QtWidgets.QWidget):
                 field = QtWidgets.QTextEdit()
                 if value is not None:
                     field.setPlainText(unicode(value))
-                    field.textChanged.connect(
-                        functools.partial(
-                            self.update_on_change,
-                            data_dict,
-                            field,
-                            name,
-                            lambda text_area: text_area.toPlainText()
-                        )
+
+                field.textChanged.connect(
+                    functools.partial(
+                        self.update_on_change,
+                        data_dict,
+                        field,
+                        name,
+                        lambda text_area: text_area.toPlainText()
                     )
+                )
 
             if type_ in ('number', 'text'):
                 field = QtWidgets.QLineEdit()
