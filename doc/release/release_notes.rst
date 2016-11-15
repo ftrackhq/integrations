@@ -12,6 +12,11 @@ Release Notes
     .. change:: new
         :tags: Field, Widget
 
+        Added separate widget for number.
+
+    .. change:: new
+        :tags: Field, Widget
+
         Added a textarea field.
 
 .. release:: Upcoming
