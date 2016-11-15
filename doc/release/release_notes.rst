@@ -14,6 +14,11 @@ Release Notes
 
         Added separate widget for number.
 
+    .. change:: new
+        :tags: Field, Widget
+
+        Added a textarea field.
+
 .. release:: Upcoming
 
     .. change:: new
