@@ -7,7 +7,8 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 0.1.1
+    :date: 2016-11-15
 
     .. change:: new
         :tags: Field, Widget
@@ -18,8 +19,6 @@ Release Notes
         :tags: Field, Widget
 
         Added a textarea field.
-
-.. release:: Upcoming
 
     .. change:: new
         :tags: Field, Widget
