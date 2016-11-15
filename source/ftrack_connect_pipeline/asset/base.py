@@ -126,9 +126,6 @@ class PublishAsset(object):
     def get_options(self, publish_data):
         '''Return general options for.'''
         from ftrack_connect_pipeline.ui.widget.field import asset_selector
-        from ftrack_connect_pipeline.ui.widget.field import comment
-
-        comment_field = comment.CommentField()
 
         context = ftrack_connect_pipeline.util.get_ftrack_entity()
         if isinstance(context, context.session.types['Task']):
@@ -142,14 +139,14 @@ class PublishAsset(object):
 
         options = [
             {
-                'widget': comment_field,
-                'name': 'comment_field',
-                'type': 'qt_widget'
-            },
-            {
                 'widget': asset_selector,
                 'name': 'asset',
                 'type': 'qt_widget'
+            },
+            {
+                'label': 'Comment',
+                'name': 'comment',
+                'type': 'textarea'
             }
         ]
         self.logger.debug('Context option: {0!r}.'.format(options))
