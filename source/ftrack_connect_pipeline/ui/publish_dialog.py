@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2016 ftrack
 
+import sys
 import string
 import functools
 import time
@@ -254,6 +255,9 @@ class ActionSettingsWidget(QtWidgets.QWidget):
                 field = QtWidgets.QDoubleSpinBox()
                 if value is not None:
                     field.setValue(float(value))
+
+                field.setMaximum(sys.maxint)
+                field.setMinimum(-sys.maxint)
 
                 field.valueChanged.connect(
                     functools.partial(
