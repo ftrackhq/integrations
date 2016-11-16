@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2016 ftrack
 
+import os
 import sys
 import string
 import functools
@@ -362,6 +363,7 @@ class PublishDialog(QtWidgets.QDialog):
         self.context_selector = ContextSelector(None)
         self.context_selector.setEntity(old_entity)
         self.context_selector.setStyleSheet(OVERLAY_DARK_STYLE)
+        self.context_selector.entityChanged.connect(self.on_context_changed)
 
         self.publish_asset = publish_asset
 
@@ -496,6 +498,9 @@ class PublishDialog(QtWidgets.QDialog):
         '''Hide overlay after *timeout* seconds.'''
         time.sleep(timeout)
         self._publish_overlay.setVisible(False)
+
+    def on_context_changed(self, entity):
+        os.environ['FTRACK_CONTEXT_ID'] = entity.id
 
     def on_selection_changed(self, widget):
         '''Handle selection changed.'''
