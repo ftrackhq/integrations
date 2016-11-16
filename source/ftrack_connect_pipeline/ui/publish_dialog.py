@@ -14,6 +14,7 @@ from ftrack_api.event.base import Event
 from ftrack_connect_pipeline.ui.widget.overlay import BusyOverlay
 from ftrack_connect_pipeline.ui.widget.header import Header
 from ftrack_connect_pipeline.ui.widget.overlay import Overlay
+from ftrack_connect_pipeline.ui.widget.context_selector import ContextSelector
 from ftrack_connect_pipeline.ui.usage import send_event as send_usage
 from ftrack_connect_pipeline.ui.style import OVERLAY_DARK_STYLE
 import ftrack_connect_pipeline.util
@@ -355,6 +356,8 @@ class PublishDialog(QtWidgets.QDialog):
         self.session = session
         self.header = Header(self.session)
 
+        self.context_selector = ContextSelector(None)
+
         self.publish_asset = publish_asset
 
         result = self.session.event_hub.publish(
@@ -415,6 +418,7 @@ class PublishDialog(QtWidgets.QDialog):
         self.setLayout(main_layout)
 
         main_layout.addWidget(self.header)
+        main_layout.addWidget(self.context_selector)
 
         scroll = QtWidgets.QScrollArea(self)
 
