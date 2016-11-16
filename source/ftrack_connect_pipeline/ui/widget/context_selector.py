@@ -13,6 +13,18 @@ import ftrack_connect.ui.widget.overlay
 from ftrack_connect_pipeline import util
 
 
+def _get_entity_parents(entity):
+    parents = [entity]
+    parent = entity['parent']
+    parents.append(parent)
+    while parent:
+        parent = parent['parent']
+        if parent:
+            parents.append(parent)
+    parents.reverse()
+    return parents
+
+
 class EntityBrowser(QtWidgets.QDialog):
     '''Entity browser.'''
 
@@ -350,17 +362,19 @@ class EntityPath(QtWidgets.QLineEdit):
         '''Set the *entity* for this widget.'''
         names = []
         entities = [entity]
+        session = entity.session
         try:
-            entities.extend(entity.getParents())
+            parents = _get_entity_parents(entity)
+            entities.extend(parents)
         except AttributeError:
             pass
 
         for entity in entities:
             if entity:
-                if isinstance(entity, ftrack.Show):
-                    names.append(entity.getFullName())
+                if isinstance(entity, session.types['Project']):
+                    names.append(entity['full_name'])
                 else:
-                    names.append(entity.getName())
+                    names.append(entity['name'])
 
         # Reverse names since project should be first.
         names.reverse()
@@ -414,21 +428,21 @@ class ContextSelector(QtWidgets.QWidget):
         if self._entity is not None:
             location = []
             try:
-                parents = self._entity.getParents()
+                parents = _get_entity_parents(self._entity)
             except AttributeError:
                 pass
             else:
                 for parent in parents:
-                    location.append(parent.getId())
 
-            location.reverse()
             self.entityBrowser.setLocation(location)
 
         # Launch browser.
         if self.entityBrowser.exec_():
             selected = self.entityBrowser.selected()
+            session = selected[0].session
+
             if selected:
-                self.setEntity(ftrack.Task(selected[0]['id']))
+                self.setEntity(session.get('Context', selected[0]['id']))
             else:
                 self.setEntity(None)
 

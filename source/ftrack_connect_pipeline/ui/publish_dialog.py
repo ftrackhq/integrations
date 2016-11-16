@@ -358,9 +358,7 @@ class PublishDialog(QtWidgets.QDialog):
         self.session = session
         self.header = Header(self.session)
         entity = ftrack_connect_pipeline.util.get_ftrack_entity()
-        # temp fix while working on the context selector update
-        old_entity = ftrack.Task(entity['id'])
-        self.context_selector = ContextSelector(old_entity)
+        self.context_selector = ContextSelector(entity)
         self.context_selector.setStyleSheet(OVERLAY_DARK_STYLE)
         self.context_selector.entityChanged.connect(self.on_context_changed)
 
@@ -499,7 +497,7 @@ class PublishDialog(QtWidgets.QDialog):
         self._publish_overlay.setVisible(False)
 
     def on_context_changed(self, entity):
-        context_id = entity.getId()
+        context_id = entity['id']
         os.environ['FTRACK_CONTEXT_ID'] = context_id
 
     def on_selection_changed(self, widget):
