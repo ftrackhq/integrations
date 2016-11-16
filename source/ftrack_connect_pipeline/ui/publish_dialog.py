@@ -9,6 +9,7 @@ import webbrowser
 
 from QtExt import QtGui, QtCore, QtWidgets
 
+import ftrack
 from ftrack_api.event.base import Event
 
 from ftrack_connect_pipeline.ui.widget.overlay import BusyOverlay
@@ -355,8 +356,11 @@ class PublishDialog(QtWidgets.QDialog):
         self.setMinimumSize(800, 600)
         self.session = session
         self.header = Header(self.session)
-
-        self.context_selector = ContextSelector(None)
+        entity = ftrack_connect_pipeline.util.get_ftrack_entity()
+        # temp fix while working on the context selector update
+        old_entity = ftrack.Task(entity['id'])
+        self.context_selector = ContextSelector(old_entity)
+        self.context_selector.setStyleSheet(OVERLAY_DARK_STYLE)
 
         self.publish_asset = publish_asset
 
