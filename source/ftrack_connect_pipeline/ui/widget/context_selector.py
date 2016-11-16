@@ -395,6 +395,7 @@ class ContextSelector(QtWidgets.QWidget):
         self.entityBrowser.selectionChanged.connect(
             self._onEntityBrowserSelectionChanged
         )
+        self.setEntity(self._entity)
 
     def reset(self, entity=None):
         '''Reset browser to the given *entity* or the default one.'''
