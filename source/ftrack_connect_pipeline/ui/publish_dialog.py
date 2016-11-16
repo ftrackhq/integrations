@@ -499,7 +499,8 @@ class PublishDialog(QtWidgets.QDialog):
         self._publish_overlay.setVisible(False)
 
     def on_context_changed(self, entity):
-        os.environ['FTRACK_CONTEXT_ID'] = entity.id
+        context_id = entity.getId()
+        os.environ['FTRACK_CONTEXT_ID'] = context_id
 
     def on_selection_changed(self, widget):
         '''Handle selection changed.'''
