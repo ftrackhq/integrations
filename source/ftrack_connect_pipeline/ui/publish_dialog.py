@@ -359,7 +359,8 @@ class PublishDialog(QtWidgets.QDialog):
         entity = ftrack_connect_pipeline.util.get_ftrack_entity()
         # temp fix while working on the context selector update
         old_entity = ftrack.Task(entity['id'])
-        self.context_selector = ContextSelector(old_entity)
+        self.context_selector = ContextSelector(None)
+        self.context_selector.setEntity(old_entity)
         self.context_selector.setStyleSheet(OVERLAY_DARK_STYLE)
 
         self.publish_asset = publish_asset
