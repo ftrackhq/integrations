@@ -357,10 +357,6 @@ class PublishDialog(QtWidgets.QDialog):
         self.setMinimumSize(800, 600)
         self.session = session
         self.header = Header(self.session)
-        entity = ftrack_connect_pipeline.util.get_ftrack_entity()
-        self.context_selector = ContextSelector(entity)
-        self.context_selector.entityChanged.connect(self.on_context_changed)
-
         self.publish_asset = publish_asset
 
         result = self.session.event_hub.publish(
@@ -378,6 +374,11 @@ class PublishDialog(QtWidgets.QDialog):
         )
 
         self.publish_data = self.publish_asset.prepare_publish()
+
+        entity = self.publish_asset.get_entity(self.publish_data)
+        self.context_selector = ContextSelector(entity)
+        self.context_selector.entityChanged.connect(self.on_context_changed)
+
         self.item_options_store = {}
         self.general_options_store = {}
 
