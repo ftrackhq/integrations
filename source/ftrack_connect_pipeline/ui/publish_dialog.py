@@ -497,8 +497,7 @@ class PublishDialog(QtWidgets.QDialog):
 
     def on_context_changed(self, entity):
         '''Set the current context to the given *entity*.'''
-        context_id = entity['id']
-        os.environ['FTRACK_CONTEXT_ID'] = context_id
+        self.publish_asset.switch_entity(entity, self.publish_data)
 
     def on_selection_changed(self, widget):
         '''Handle selection changed.'''

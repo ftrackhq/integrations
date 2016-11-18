@@ -167,3 +167,7 @@ class PublishAsset(object):
     def get_scene_selection(self):
         '''Return a list of names for scene selection.'''
         raise NotImplementedError()
+
+    def switch_entity(self, entity, publish_data):
+        '''Change current context of **publish_data* to the given *entity*'''
+        publish_data.data['ftrack_entity'] = entity
