@@ -363,11 +363,8 @@ class EntityPath(QtWidgets.QLineEdit):
         names = []
         entities = [entity]
         session = entity.session
-        try:
-            parents = _get_entity_parents(entity)
-            entities.extend(parents)
-        except AttributeError:
-            pass
+        parents = _get_entity_parents(entity)
+        entities.extend(parents)
 
         for entity in entities:
             if entity:
