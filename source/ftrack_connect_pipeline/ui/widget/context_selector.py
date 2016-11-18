@@ -363,12 +363,10 @@ class EntityPath(QtWidgets.QLineEdit):
     def setEntity(self, entity):
         '''Set the *entity* for this widget.'''
         names = []
-        entities = [entity]
         session = entity.session
         parents = _get_entity_parents(entity)
-        entities.extend(parents)
 
-        for entity in entities:
+        for entity in parents:
             if entity:
                 if isinstance(entity, session.types['Project']):
                     names.append(entity['full_name'])
@@ -376,7 +374,6 @@ class EntityPath(QtWidgets.QLineEdit):
                     names.append(entity['name'])
 
         # Reverse names since project should be first.
-        names.reverse()
         self.setText(' / '.join(names))
 
 
