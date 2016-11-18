@@ -1,7 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2016 ftrack
 
-import os
 import sys
 import string
 import functools
@@ -10,7 +9,6 @@ import webbrowser
 
 from QtExt import QtGui, QtCore, QtWidgets
 
-import ftrack
 from ftrack_api.event.base import Event
 
 from ftrack_connect_pipeline.ui.widget.overlay import BusyOverlay
@@ -57,8 +55,6 @@ class PublishResult(Overlay):
         failed = any(
             [result['error'] for result in publish_data.data['results']]
         )
-        print '!!!!!'
-        print [result['error'] for result in publish_data.data['results']]
 
         if not failed:
             congrat_label = QtWidgets.QLabel('<h2>Publish Successful!</h2>')
