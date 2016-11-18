@@ -86,3 +86,11 @@ class PyblishAsset(PublishAsset):
             publish_data.data['results']
         )
         dialog.exec_()
+
+    def get_entity(self, publish_data):
+        '''Return the current context entity.'''
+        return publish_data.data['ftrack_entity']
+
+    def switch_entity(self, entity, publish_data):
+        '''Change current context of **publish_data* to the given *entity*.'''
+        publish_data.data['ftrack_entity'] = entity

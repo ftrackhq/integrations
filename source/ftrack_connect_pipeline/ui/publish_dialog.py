@@ -1,7 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2016 ftrack
 
-import os
 import sys
 import string
 import functools
@@ -10,7 +9,6 @@ import webbrowser
 
 from QtExt import QtGui, QtCore, QtWidgets
 
-import ftrack
 from ftrack_api.event.base import Event
 
 from ftrack_connect_pipeline.ui.widget.overlay import BusyOverlay
@@ -57,8 +55,6 @@ class PublishResult(Overlay):
         failed = any(
             [result['error'] for result in publish_data.data['results']]
         )
-        print '!!!!!'
-        print [result['error'] for result in publish_data.data['results']]
 
         if not failed:
             congrat_label = QtWidgets.QLabel('<h2>Publish Successful!</h2>')
@@ -357,10 +353,6 @@ class PublishDialog(QtWidgets.QDialog):
         self.setMinimumSize(800, 600)
         self.session = session
         self.header = Header(self.session)
-        entity = ftrack_connect_pipeline.util.get_ftrack_entity()
-        self.context_selector = ContextSelector(entity)
-        self.context_selector.entityChanged.connect(self.on_context_changed)
-
         self.publish_asset = publish_asset
 
         result = self.session.event_hub.publish(
@@ -378,6 +370,11 @@ class PublishDialog(QtWidgets.QDialog):
         )
 
         self.publish_data = self.publish_asset.prepare_publish()
+
+        entity = self.publish_asset.get_entity(self.publish_data)
+        self.context_selector = ContextSelector(entity)
+        self.context_selector.entityChanged.connect(self.on_context_changed)
+
         self.item_options_store = {}
         self.general_options_store = {}
 
