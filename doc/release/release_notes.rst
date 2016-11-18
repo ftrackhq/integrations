@@ -7,7 +7,7 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 0.1.2
     .. change:: new
         :tags: Widget
 
