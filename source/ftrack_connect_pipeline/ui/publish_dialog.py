@@ -26,7 +26,7 @@ class PublishResult(Overlay):
         '''Instantiate publish result overlay.'''
         super(PublishResult, self).__init__(parent=parent)
 
-    def populate(self, publish_asset, publish_data):
+    def populate(self, label, publish_asset, publish_data):
         '''Populate with content.'''
         self.publish_data = publish_data
         self.publish_asset = publish_asset
@@ -61,7 +61,7 @@ class PublishResult(Overlay):
             congrat_label = QtWidgets.QLabel('<h2>Publish Successful!</h2>')
             success_label = QtWidgets.QLabel(
                 'Your <b>{0}</b> has been successfully published.'.format(
-                    publish_asset.label
+                    label
                 )
             )
         else:
@@ -69,7 +69,7 @@ class PublishResult(Overlay):
             success_label = QtWidgets.QLabel(
                 'Your <b>{0}</b> failed to published. See details for more '
                 'information.'.format(
-                    publish_asset.label
+                    label
                 )
             )
 
@@ -355,6 +355,7 @@ class PublishDialog(QtWidgets.QDialog):
         self.session = session
         self.header = Header(self.session)
 
+        self._label = label
         self.publish_asset = publish_asset
 
         result = self.session.event_hub.publish(
@@ -366,7 +367,7 @@ class PublishDialog(QtWidgets.QDialog):
         send_usage(
             'USED-FTRACK-CONNECT-PIPELINE-PUBLISH',
             {
-                'asset_type': publish_asset.label,
+                'asset_type': label,
                 'plugin_information': result
             }
         )
@@ -462,7 +463,7 @@ class PublishDialog(QtWidgets.QDialog):
         layout.addWidget(
             QtWidgets.QLabel(
                 'Select {0}(s) to publish'.format(
-                    string.capitalize(self.publish_asset.label)
+                    string.capitalize(self._label)
                 )
             )
         )
@@ -550,7 +551,9 @@ class PublishDialog(QtWidgets.QDialog):
         self._hideOverlayAfterTimeout(self.OVERLAY_MESSAGE_TIMEOUT)
 
         self.result_win.setVisible(True)
-        self.result_win.populate(self.publish_asset, self.publish_data)
+        self.result_win.populate(
+            self._label, self.publish_asset, self.publish_data
+        )
 
     def _on_sync_scene_selection(self):
         '''Handle sync scene selection event.'''

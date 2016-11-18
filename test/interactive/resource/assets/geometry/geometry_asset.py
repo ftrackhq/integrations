@@ -72,6 +72,18 @@ class PublishGeometry(ftrack_connect_pipeline.asset.PublishAsset):
         return ['foo', 'some_other_model']
 
 
+def create_asset_publish():
+    '''Return new asset publisher.'''
+    return PublishGeometry(
+        description='Publish maya geometry to ftrack.'
+    )
+
+
+def create_asset_import():
+    '''Return new asset import.'''
+    return ImportGeometry()
+
+
 def register(session):
     '''Subscribe to *session*.'''
     if not isinstance(session, ftrack_api.Session):
@@ -79,12 +91,10 @@ def register(session):
 
     geometry_asset = ftrack_connect_pipeline.asset.Asset(
         identifier=IDENTIFIER,
-        import_asset=ImportGeometry(),
-        publish_asset=PublishGeometry(
-            label='Geometry',
-            description='Publish maya geometry to ftrack.',
-            icon='http://www.clipartbest.com/cliparts/9Tp/erx/9Tperxqrc.png'
-        )
+        label='Geometry',
+        icon='http://www.clipartbest.com/cliparts/9Tp/erx/9Tperxqrc.png',
+        create_asset_import=create_asset_import,
+        create_asset_publish=create_asset_publish
     )
     # Register geometry asset on session. This makes sure that discover is
     # called for import and publish.

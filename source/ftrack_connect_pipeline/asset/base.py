@@ -9,11 +9,11 @@ import ftrack_connect_pipeline.ui.publish_dialog
 import logging
 
 
-def open_publish_dialog(publish_asset, session):
+def open_publish_dialog(label, description, publish_asset, session):
     '''Open publish dialog for *publish_asset*.'''
     dialog = ftrack_connect_pipeline.ui.publish_dialog.PublishDialog(
-        label=publish_asset.label,
-        description=publish_asset.description,
+        label=label,
+        description=description,
         publish_asset=publish_asset,
         session=session
     )
@@ -23,7 +23,10 @@ def open_publish_dialog(publish_asset, session):
 class Asset(object):
     '''Manage assets.'''
 
-    def __init__(self, identifier, publish_asset=None, import_asset=None):
+    def __init__(
+        self, identifier, icon, label, create_asset_publish=None,
+        create_asset_import=None
+    ):
         '''Instantiate with manager for publish and import.'''
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -32,17 +35,19 @@ class Asset(object):
         self.logger.debug(
             'Registering new asset: {0!r}.'.format(identifier)
         )
+        self.icon = icon
+        self.label = label
 
-        self.publish_asset = publish_asset
-        self.import_asset = import_asset
+        self.create_asset_publish = create_asset_publish
+        self.create_asset_import = create_asset_import
         self.identifier = identifier
 
     def discover_publish(self, event):
         '''Discover publish camera.'''
         item = {
             'items': [{
-                'label': self.publish_asset.label,
-                'icon': self.publish_asset.icon,
+                'label': self.label,
+                'icon': self.icon,
                 'actionIdentifier': self.identifier
             }]
         }
@@ -50,9 +55,12 @@ class Asset(object):
 
     def launch_publish(self, event):
         '''Callback method for publish action.'''
+        publish_asset = self.create_asset_publish()
+
         ftrack_connect_pipeline.util.invoke_in_main_thread(
             functools.partial(
-                open_publish_dialog, self.publish_asset, self._session
+                open_publish_dialog, self.label, publish_asset.description,
+                publish_asset, self._session
             )
         )
 
@@ -97,15 +105,13 @@ class ImportAsset(object):
 class PublishAsset(object):
     '''Manage publish of an asset.'''
 
-    def __init__(self, label, description, icon=None):
+    def __init__(self, description):
         '''Instantiate publish asset with *label* and *description*.'''
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
 
-        self.label = label
         self.description = description
-        self.icon = icon
 
     def discover(self, event):
         '''Discover import camera.'''
@@ -133,8 +139,7 @@ class PublishAsset(object):
             context = context['parent']
 
         asset_selector = asset_selector.AssetSelector(
-            context,
-            self.label
+            context
         )
 
         options = [
