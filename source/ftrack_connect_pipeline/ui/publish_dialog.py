@@ -486,6 +486,8 @@ class PublishDialog(QtWidgets.QDialog):
 
         layout.addStretch(1)
 
+        self.list_items_view.setFocus()
+
     @ftrack_connect_pipeline.util.asynchronous
     def _hideOverlayAfterTimeout(self, timeout):
         '''Hide overlay after *timeout* seconds.'''
