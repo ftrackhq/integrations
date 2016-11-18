@@ -7,8 +7,8 @@ from QtExt import QtWidgets
 from QtExt import QtCore
 from QtExt import QtGui
 
-import ftrack_connect.ui.model.entity_tree
-import ftrack_connect.ui.widget.overlay
+import ftrack_connect_pipeline.ui.model.entity_tree
+import ftrack_connect_pipeline.ui.widget.overlay
 
 from ftrack_connect_pipeline import util
 
@@ -95,9 +95,9 @@ class EntityBrowser(QtWidgets.QDialog):
 
         self.contentSplitter.addWidget(self.view)
 
-        proxy = ftrack_connect.ui.model.entity_tree.EntityTreeProxyModel(self)
-        model = ftrack_connect.ui.model.entity_tree.EntityTreeModel(
-            root=ftrack_connect.ui.model.entity_tree.ItemFactory(
+        proxy = ftrack_connect_pipeline.ui.model.entity_tree.EntityTreeProxyModel(self)
+        model = ftrack_connect_pipeline.ui.model.entity_tree.EntityTreeModel(
+            root=ftrack_connect_pipeline.ui.model.entity_tree.ItemFactory(
                 self._session, self._root
             ),
             parent=self
@@ -122,7 +122,7 @@ class EntityBrowser(QtWidgets.QDialog):
 
         self.layout().addLayout(self.footerLayout)
 
-        self.overlay = ftrack_connect.ui.widget.overlay.BusyOverlay(
+        self.overlay = ftrack_connect_pipeline.ui.widget.overlay.BusyOverlay(
             self.view, message='Loading'
         )
 
