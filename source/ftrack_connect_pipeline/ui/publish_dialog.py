@@ -14,6 +14,7 @@ from ftrack_api.event.base import Event
 from ftrack_connect_pipeline.ui.widget.overlay import BusyOverlay
 from ftrack_connect_pipeline.ui.widget.header import Header
 from ftrack_connect_pipeline.ui.widget.overlay import Overlay
+from ftrack_connect_pipeline.ui.widget.context_selector import ContextSelector
 from ftrack_connect_pipeline.ui.usage import send_event as send_usage
 from ftrack_connect_pipeline.ui.style import OVERLAY_DARK_STYLE
 import ftrack_connect_pipeline.util
@@ -54,8 +55,6 @@ class PublishResult(Overlay):
         failed = any(
             [result['error'] for result in publish_data.data['results']]
         )
-        print '!!!!!'
-        print [result['error'] for result in publish_data.data['results']]
 
         if not failed:
             congrat_label = QtWidgets.QLabel('<h2>Publish Successful!</h2>')
@@ -354,7 +353,6 @@ class PublishDialog(QtWidgets.QDialog):
         self.setMinimumSize(800, 600)
         self.session = session
         self.header = Header(self.session)
-
         self.publish_asset = publish_asset
 
         result = self.session.event_hub.publish(
@@ -372,6 +370,11 @@ class PublishDialog(QtWidgets.QDialog):
         )
 
         self.publish_data = self.publish_asset.prepare_publish()
+
+        entity = self.publish_asset.get_entity(self.publish_data)
+        self.context_selector = ContextSelector(entity)
+        self.context_selector.entityChanged.connect(self.on_context_changed)
+
         self.item_options_store = {}
         self.general_options_store = {}
 
@@ -415,6 +418,7 @@ class PublishDialog(QtWidgets.QDialog):
         self.setLayout(main_layout)
 
         main_layout.addWidget(self.header)
+        main_layout.addWidget(self.context_selector)
 
         scroll = QtWidgets.QScrollArea(self)
 
@@ -482,11 +486,17 @@ class PublishDialog(QtWidgets.QDialog):
 
         layout.addStretch(1)
 
+        self.list_items_view.setFocus()
+
     @ftrack_connect_pipeline.util.asynchronous
     def _hideOverlayAfterTimeout(self, timeout):
         '''Hide overlay after *timeout* seconds.'''
         time.sleep(timeout)
         self._publish_overlay.setVisible(False)
+
+    def on_context_changed(self, entity):
+        '''Set the current context to the given *entity*.'''
+        self.publish_asset.switch_entity(entity, self.publish_data)
 
     def on_selection_changed(self, widget):
         '''Handle selection changed.'''

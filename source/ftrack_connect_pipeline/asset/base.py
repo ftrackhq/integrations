@@ -113,6 +113,7 @@ class PublishAsset(object):
 
     def prepare_publish(self):
         '''Return context for publishing.'''
+        self.ftrack_entity = ftrack_connect_pipeline.util.get_ftrack_entity()
         return dict()
 
     def get_publish_items(self, publish_data):
@@ -167,3 +168,11 @@ class PublishAsset(object):
     def get_scene_selection(self):
         '''Return a list of names for scene selection.'''
         raise NotImplementedError()
+
+    def get_entity(self, publish_data):
+        '''Return the current context entity.'''
+        return self.ftrack_entity
+
+    def switch_entity(self, entity, publish_data):
+        '''Change current context of **publish_data* to the given *entity*.'''
+        self.ftrack_entity = entity
