@@ -373,7 +373,6 @@ class EntityPath(QtWidgets.QLineEdit):
                 else:
                     names.append(entity['name'])
 
-        # Reverse names since project should be first.
         self.setText(' / '.join(names))
 
 
