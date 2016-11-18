@@ -14,6 +14,7 @@ from ftrack_connect_pipeline import util
 
 
 def _get_entity_parents(entity):
+    '''Return the list of ancestors of the providede *entity*'''
     parents = [entity]
     parent = entity['parent']
     parents.append(parent)

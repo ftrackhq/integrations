@@ -496,6 +496,7 @@ class PublishDialog(QtWidgets.QDialog):
         self._publish_overlay.setVisible(False)
 
     def on_context_changed(self, entity):
+        '''Set the current context to the given *entity*.'''
         context_id = entity['id']
         os.environ['FTRACK_CONTEXT_ID'] = context_id
 
