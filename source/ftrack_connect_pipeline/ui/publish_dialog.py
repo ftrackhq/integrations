@@ -14,6 +14,7 @@ from ftrack_api.event.base import Event
 from ftrack_connect_pipeline.ui.widget.overlay import BusyOverlay
 from ftrack_connect_pipeline.ui.widget.header import Header
 from ftrack_connect_pipeline.ui.widget.overlay import Overlay
+from ftrack_connect_pipeline.ui.widget.context_selector import ContextSelector
 from ftrack_connect_pipeline.ui.usage import send_event as send_usage
 from ftrack_connect_pipeline.ui.style import OVERLAY_DARK_STYLE
 import ftrack_connect_pipeline.util
@@ -54,8 +55,6 @@ class PublishResult(Overlay):
         failed = any(
             [result['error'] for result in publish_data.data['results']]
         )
-        print '!!!!!'
-        print [result['error'] for result in publish_data.data['results']]
 
         if not failed:
             congrat_label = QtWidgets.QLabel('<h2>Publish Successful!</h2>')
@@ -354,8 +353,7 @@ class PublishDialog(QtWidgets.QDialog):
         self.setMinimumSize(800, 600)
         self.session = session
         self.header = Header(self.session)
-
-        self._label = label
+        self._label_text = label
         self.publish_asset = publish_asset
 
         result = self.session.event_hub.publish(
@@ -367,12 +365,17 @@ class PublishDialog(QtWidgets.QDialog):
         send_usage(
             'USED-FTRACK-CONNECT-PIPELINE-PUBLISH',
             {
-                'asset_type': label,
+                'asset_type': self._label_text,
                 'plugin_information': result
             }
         )
 
-        self.publish_data = self.publish_asset.prepare_publish()
+        self.publish_asset.prepare_publish()
+
+        entity = self.publish_asset.get_entity()
+        self.context_selector = ContextSelector(entity)
+        self.context_selector.entityChanged.connect(self.on_context_changed)
+
         self.item_options_store = {}
         self.general_options_store = {}
 
@@ -400,7 +403,7 @@ class PublishDialog(QtWidgets.QDialog):
 
         information_layout = QtWidgets.QHBoxLayout()
         information_layout.addWidget(
-            QtWidgets.QLabel('<h3>{0}</h3>'.format(label))
+            QtWidgets.QLabel('<h3>{0}</h3>'.format(self._label_text))
         )
         information_layout.addWidget(
             QtWidgets.QLabel('<i>{0}</i>'.format(description)),
@@ -416,6 +419,7 @@ class PublishDialog(QtWidgets.QDialog):
         self.setLayout(main_layout)
 
         main_layout.addWidget(self.header)
+        main_layout.addWidget(self.context_selector)
 
         scroll = QtWidgets.QScrollArea(self)
 
@@ -447,7 +451,7 @@ class PublishDialog(QtWidgets.QDialog):
         '''Refresh content.'''
         layout = self._list_instances_layout
 
-        general_options = self.publish_asset.get_options(self.publish_data)
+        general_options = self.publish_asset.get_options()
         if general_options:
             settings_widget = self.settings_provider(
                 'General',
@@ -456,14 +460,14 @@ class PublishDialog(QtWidgets.QDialog):
             )
             self._list_items_settings_layout.insertWidget(0, settings_widget)
 
-        items = self.publish_asset.get_publish_items(self.publish_data)
+        items = self.publish_asset.get_publish_items()
 
         self.list_items_view = ListItemsWidget(items)
         self.list_items_view.itemChanged.connect(self.on_selection_changed)
         layout.addWidget(
             QtWidgets.QLabel(
                 'Select {0}(s) to publish'.format(
-                    string.capitalize(self._label)
+                    string.capitalize(self._label_text)
                 )
             )
         )
@@ -483,11 +487,17 @@ class PublishDialog(QtWidgets.QDialog):
 
         layout.addStretch(1)
 
+        self.list_items_view.setFocus()
+
     @ftrack_connect_pipeline.util.asynchronous
     def _hideOverlayAfterTimeout(self, timeout):
         '''Hide overlay after *timeout* seconds.'''
         time.sleep(timeout)
         self._publish_overlay.setVisible(False)
+
+    def on_context_changed(self, entity):
+        '''Set the current context to the given *entity*.'''
+        self.publish_asset.switch_entity(entity)
 
     def on_selection_changed(self, widget):
         '''Handle selection changed.'''
@@ -501,9 +511,7 @@ class PublishDialog(QtWidgets.QDialog):
     def add_instance_settings(self, item):
         '''Generate settings for *item*.'''
         save_options_to = self.item_options_store[item['name']] = dict()
-        item_options = self.publish_asset.get_item_options(
-            self.publish_data, item['name']
-        )
+        item_options = self.publish_asset.get_item_options(item['name'])
         if item_options:
             item_settings_widget = self.settings_provider(
                 item['label'],
@@ -537,22 +545,23 @@ class PublishDialog(QtWidgets.QDialog):
         for item in self.list_items_view.get_checked_items():
             selected_item_names.append(item['name'])
 
-        self.publish_asset.update_with_options(
-            self.publish_data,
+        self.publish_asset.publish(
             self.item_options_store,
             self.general_options_store,
             selected_item_names
         )
-
-        self.publish_asset.publish(self.publish_data)
 
         self._publish_overlay.setVisible(False)
 
         self._hideOverlayAfterTimeout(self.OVERLAY_MESSAGE_TIMEOUT)
 
         self.result_win.setVisible(True)
+
+        #: TODO: This must be fixed, cannot pass pyblish context to result
+        # window.
         self.result_win.populate(
-            self._label, self.publish_asset, self.publish_data
+            self._label_text, self.publish_asset,
+            self.publish_asset.pyblish_context
         )
 
     def _on_sync_scene_selection(self):

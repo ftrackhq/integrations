@@ -45,21 +45,20 @@ class PyblishAsset(PublishAsset):
         '''Return context for publishing.'''
         context = pyblish.api.Context()
         context = pyblish.util.collect(context=context)
+        self.pyblish_context = context
+
         self.logger.debug(
             'Preparing publish with context: {0!r}.'.format(context)
         )
-        return context
 
-    def update_with_options(
-        self, publish_data, item_options, general_options, selected_items
-    ):
-        '''Update *publish_data* with *item_options* and *general_options*.'''
+    def publish(self, item_options, general_options, selected_items):
+        '''Publish or raise exception if not valid.'''
         self.logger.debug(
             'Updating publish_data with options: {0!r}'.format(general_options)
         )
 
-        publish_data.data['options'] = general_options
-        for instance in publish_data:
+        self.pyblish_context.data['options'] = general_options
+        for instance in self.pyblish_context:
             instance.data['options'] = item_options.get(instance.name, {})
             instance.data['publish'] = instance.name in selected_items
             self.logger.debug(
@@ -70,19 +69,25 @@ class PyblishAsset(PublishAsset):
                 )
             )
 
-    def publish(self, publish_data):
-        '''Publish or raise exception if not valid.'''
-        pyblish.util.validate(publish_data)
-        pyblish.util.extract(publish_data)
-        pyblish.util.integrate(publish_data)
+        pyblish.util.validate(self.pyblish_context)
+        pyblish.util.extract(self.pyblish_context)
+        pyblish.util.integrate(self.pyblish_context)
 
-        for record in publish_data.data['results']:
+        for record in self.pyblish_context.data['results']:
             if record['error']:
                 self.logger.error(record)
 
-    def show_detailed_result(self, publish_data):
+    def show_detailed_result(self):
         '''Show detailed results for *publish_data*.'''
         dialog = ftrack_connect_pipeline.ui.display_pyblish_result.Dialog(
-            publish_data.data['results']
+            self.pyblish_context.data['results']
         )
         dialog.exec_()
+
+    def get_entity(self):
+        '''Return the current context entity.'''
+        return self.pyblish_context.data['ftrack_entity']
+
+    def switch_entity(self, entity):
+        '''Change current context of **publish_data* to the given *entity*.'''
+        self.pyblish_context.data['ftrack_entity'] = entity

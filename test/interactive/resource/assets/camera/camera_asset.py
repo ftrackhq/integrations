@@ -8,10 +8,10 @@ IDENTIFIER = 'camera'
 class PublishCamera(ftrack_connect_pipeline.asset.PyblishAsset):
     '''Handle publish of maya camera.'''
 
-    def get_publish_items(self, publish_data):
+    def get_publish_items(self):
         '''Return list of items that can be published.'''
         options = []
-        for instance in publish_data:
+        for instance in self.pyblish_context:
             if instance.data['family'] in ('camera', ):
                 options.append({
                     'label': instance.name,
@@ -21,10 +21,10 @@ class PublishCamera(ftrack_connect_pipeline.asset.PyblishAsset):
 
         return options
 
-    def get_item_options(self, publish_data, name):
+    def get_item_options(self, name):
         '''Return options for publishable item with *name*.'''
         options = []
-        for instance in publish_data:
+        for instance in self.pyblish_context:
             if instance.data['family'] in ('camera', ):
                 options = [{
                     'type': 'boolean',
@@ -38,9 +38,9 @@ class PublishCamera(ftrack_connect_pipeline.asset.PyblishAsset):
 
         return options
 
-    def get_options(self, publish_data):
+    def get_options(self):
         '''Return global options for publishing.'''
-        options = super(PublishCamera, self).get_options(publish_data)
+        options = super(PublishCamera, self).get_options()
         options.append({
             'type': 'group',
             'name': 'camera_options',

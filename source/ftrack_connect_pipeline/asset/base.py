@@ -5,6 +5,7 @@ import functools
 
 import ftrack_connect_pipeline.util
 import ftrack_connect_pipeline.ui.publish_dialog
+from ftrack_connect_pipeline.ui.widget.field import asset_selector
 
 import logging
 
@@ -119,32 +120,32 @@ class PublishAsset(object):
 
     def prepare_publish(self):
         '''Return context for publishing.'''
-        return dict()
+        self.ftrack_entity = ftrack_connect_pipeline.util.get_ftrack_entity()
+        self.publish_data = dict()
 
-    def get_publish_items(self, publish_data):
+    def get_publish_items(self):
         '''Return list of items that can be published.'''
         return []
 
-    def get_item_options(self, publish_data, key):
+    def get_item_options(self, key):
         '''Return options for publishable item with *key*.'''
         return []
 
-    def get_options(self, publish_data):
+    def get_options(self):
         '''Return general options for.'''
-        from ftrack_connect_pipeline.ui.widget.field import asset_selector
 
         context = ftrack_connect_pipeline.util.get_ftrack_entity()
         if isinstance(context, context.session.types['Task']):
             # Publish to task parent.
             context = context['parent']
 
-        asset_selector = asset_selector.AssetSelector(
+        asset_selector_widget = asset_selector.AssetSelector(
             context
         )
 
         options = [
             {
-                'widget': asset_selector,
+                'widget': asset_selector_widget,
                 'name': 'asset',
                 'type': 'qt_widget'
             },
@@ -157,18 +158,18 @@ class PublishAsset(object):
         self.logger.debug('Context option: {0!r}.'.format(options))
         return options
 
-    def update_with_options(
-        self, publish_data, item_options, general_options, selected_items
-    ):
-        '''Update *publish_data* with *item_options* and *general_options*.'''
-        publish_data['options'] = general_options
-        publish_data['item_options'] = item_options
-        publish_data['selected_items'] = selected_items
-
-    def publish(self, publish_data):
+    def publish(self, item_options, general_options, selected_items):
         '''Publish or raise exception if not valid.'''
         raise NotImplementedError()
 
     def get_scene_selection(self):
         '''Return a list of names for scene selection.'''
         raise NotImplementedError()
+
+    def get_entity(self):
+        '''Return the current context entity.'''
+        return self.ftrack_entity
+
+    def switch_entity(self, entity):
+        '''Change current context of **publish_data* to the given *entity*.'''
+        self.ftrack_entity = entity

@@ -33,16 +33,15 @@ class PublishGeometry(ftrack_connect_pipeline.asset.PublishAsset):
 
     def prepare_publish(self):
         '''Prepare publish and populate with items.'''
-        publish_data = super(PublishGeometry, self).prepare_publish()
+        super(PublishGeometry, self).prepare_publish()
         # Loop over maya scene and scan for maya models to publish.
-        publish_data['items'] = ['maya_model_xyz', 'some_other_model', 'foo']
-        return publish_data
+        self.publish_items = ['maya_model_xyz', 'some_other_model', 'foo']
 
-    def get_publish_items(self, publish_data):
+    def get_publish_items(self):
         '''Return list of items that can be published.'''
         # Loop items and create a list of what can be published.
         options = []
-        for item in publish_data['items']:
+        for item in self.publish_items:
             options.append({
                 'label': item,
                 'name': item,
@@ -51,7 +50,7 @@ class PublishGeometry(ftrack_connect_pipeline.asset.PublishAsset):
 
         return options
 
-    def get_item_options(self, publish_data, name):
+    def get_item_options(self, name):
         '''Return options for publishable item with *name*.'''
         # Return options, if any, for a geometry with the given name name.
         options = [{
@@ -62,10 +61,10 @@ class PublishGeometry(ftrack_connect_pipeline.asset.PublishAsset):
 
         return options
 
-    def publish(self, publish_data):
+    def publish(self, item_options, general_options, selected_items):
         '''Publish or raise exception if not valid.'''
-        # Publish asset based on options in publish_data.
-        print 'Publish using', publish_data
+        # Publish asset based using options.
+        print 'Publish using', item_options, general_options, selected_items
 
     def get_scene_selection(self):
         '''Return a list of names for scene selection.'''
