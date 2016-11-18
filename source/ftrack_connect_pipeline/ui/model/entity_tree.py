@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 #             Copyright (c) 2014 Martin Pengelly-Phillips
-# :notice: Derived from Riffle (https://github.com/4degrees/riffle)
+# :notice: Derived from Riffle (https://gitlab.com/4degrees/riffle)
 
 from QtExt import QtWidgets, QtCore, QtGui
 
