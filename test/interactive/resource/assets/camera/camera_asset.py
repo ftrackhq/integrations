@@ -62,6 +62,7 @@ def create_asset_publish():
     '''Return publish camera.'''
     return PublishCamera(
         description='publish maya cameras to ftrack.',
+        asset_type_short='camera'
     )
 
 

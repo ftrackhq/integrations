@@ -74,7 +74,8 @@ class PublishGeometry(ftrack_connect_pipeline.asset.PublishAsset):
 def create_asset_publish():
     '''Return new asset publisher.'''
     return PublishGeometry(
-        description='Publish maya geometry to ftrack.'
+        description='Publish maya geometry to ftrack.',
+        asset_type_short='geo'
     )
 
 

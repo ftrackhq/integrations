@@ -2,13 +2,13 @@
 # :copyright: Copyright (c) 2016 ftrack
 
 from .base import BaseField
-from QtExt import QtGui, QtCore, QtWidgets
+from QtExt import QtWidgets
 
 
 class AssetSelector(BaseField):
     '''Select or create a new asset.'''
 
-    def __init__(self, ftrack_entity, asset_label=None):
+    def __init__(self, ftrack_entity, hint=None):
         '''Instantiate asset selector with *ftrack_entity*.'''
         super(AssetSelector, self).__init__()
 
@@ -21,7 +21,7 @@ class AssetSelector(BaseField):
 
         main_layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(main_layout)
-        main_layout.setContentsMargins(0,0,0,0)
+        main_layout.setContentsMargins(0, 0, 0, 0)
 
         self.asset_selector = QtWidgets.QComboBox(self)
         main_layout.addWidget(self.asset_selector)
@@ -37,20 +37,18 @@ class AssetSelector(BaseField):
         self.asset_type_selector = QtWidgets.QComboBox(self)
 
         self.asset_types = ftrack_entity.session.query(
-            'select name, id from AssetType'
+            'select name, short, id from AssetType'
         ).all()
 
         for asset_type in self.asset_types:
             self.asset_type_selector.addItem(asset_type['name'])
 
         # automatically set the correct asset type
-        if asset_label:
-            found_asset_type = self.asset_type_selector.findText(
-                asset_label
-            )
-
-            if found_asset_type != -1:  # -1 has not been found
-                self.asset_type_selector.setCurrentIndex(found_asset_type)
+        if hint:
+            for index, asset_type in enumerate(self.asset_types):
+                if asset_type['short'] == hint:
+                    self.asset_type_selector.setCurrentIndex(index)
+                    break
 
         main_layout.addWidget(self.asset_type_selector)
 

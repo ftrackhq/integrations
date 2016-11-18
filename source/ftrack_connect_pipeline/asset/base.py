@@ -106,13 +106,14 @@ class ImportAsset(object):
 class PublishAsset(object):
     '''Manage publish of an asset.'''
 
-    def __init__(self, description):
+    def __init__(self, description, asset_type_short=None):
         '''Instantiate publish asset with *label* and *description*.'''
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
 
         self.description = description
+        self.asset_type_short = asset_type_short
 
     def discover(self, event):
         '''Discover import camera.'''
@@ -140,7 +141,7 @@ class PublishAsset(object):
             context = context['parent']
 
         asset_selector_widget = asset_selector.AssetSelector(
-            context
+            context, hint=self.asset_type_short
         )
 
         options = [
