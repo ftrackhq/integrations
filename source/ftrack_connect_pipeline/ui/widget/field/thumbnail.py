@@ -6,7 +6,7 @@ from ftrack_connect_pipeline.ui.widget.field.base import BaseField
 from ftrack_connect_pipeline.ui.widget import thumbnail_drop_zone
 
 
-class ThumbnailField(BaseField, thumbnail_drop_zone.TumbnailWidget):
+class ThumbnailField(BaseField, thumbnail_drop_zone.ThumbnailDropZone):
 
     def __init__(self, parent=None):
         super(ThumbnailField, self).__init__(parent=parent)
@@ -18,5 +18,5 @@ class ThumbnailField(BaseField, thumbnail_drop_zone.TumbnailWidget):
     def value(self):
         '''Return value.'''
         return {
-            'thumbnail': self.drop_zone._filePath,
+            'thumbnail': self._filePath,
         }

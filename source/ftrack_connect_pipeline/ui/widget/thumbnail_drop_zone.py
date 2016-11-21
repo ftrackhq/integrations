@@ -18,29 +18,7 @@ class ConnectThumbnailValidationError(Exception):
     pass
 
 
-class TumbnailWidget(QtWidgets.QWidget):
-
-    def __init__(self, parent=None):
-        super(TumbnailWidget, self).__init__(parent=parent)
-        layout = QtWidgets.QHBoxLayout()
-        self.setLayout(layout)
-
-        self.drop_zone = ThumbnailDropZone()
-        self.button = QtGui.QPushButton('Import')
-
-        self.layout().addWidget(self.drop_zone)
-        self.layout().addWidget(self.button)
-
-        self.button.clicked.connect(self.on_button_clicked)
-
-    def on_button_clicked(self):
-        fname, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self, 'Select Thumbnail'
-        )
-        self.drop_zone.setThumbnail(fname)
-
-
-class ThumbnailDropZone(QtWidgets.QFrame):
+class ThumbnailDropZone(QtWidgets.QWidget):
     '''Thumbnail widget with support for drag and drop and preview.'''
 
     def __init__(self, *args, **kwargs):
@@ -61,9 +39,9 @@ class ThumbnailDropZone(QtWidgets.QFrame):
         self._imageWidth = 200
         self._imageHeight = 50
 
-        self.imageLabel = QtWidgets.QLabel()
+        self.imageLabel = QtWidgets.QPushButton('Import')
         self.setDropZoneText()
-        layout.addWidget(self.imageLabel, alignment=QtCore.Qt.AlignLeft)
+        layout.addWidget(self.imageLabel)
 
         # TODO: Add theme support.
         removeIcon = QtGui.QIcon(
@@ -74,7 +52,16 @@ class ThumbnailDropZone(QtWidgets.QFrame):
         self.removeButton.setFlat(True)
         self.removeButton.setIcon(removeIcon)
         self.removeButton.clicked.connect(self.removeThumbnail)
-        layout.addWidget(self.removeButton, alignment=QtCore.Qt.AlignRight)
+        layout.addWidget(self.removeButton)
+        self.imageLabel.clicked.connect(self.on_button_clicked)
+
+    def on_button_clicked(self):
+        fname, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self, 'Select Thumbnail'
+        )
+
+        if fname:
+            self.setThumbnail(fname)
 
     def _getFilePathFromEvent(self, event):
         '''Get file path from *event*.
@@ -119,7 +106,10 @@ class ThumbnailDropZone(QtWidgets.QFrame):
         pixmap = QtGui.QPixmap(self._filePath).scaled(
             self._imageWidth, self._imageHeight, QtCore.Qt.KeepAspectRatio
         )
-        self.imageLabel.setPixmap(pixmap)
+        self.imageLabel.setIcon(pixmap)
+        self.imageLabel.setIconSize(pixmap.rect().size())
+        self.imageLabel.setText('')
+
         self.removeButton.setVisible(True)
 
     def setDropZoneText(self, text=None):
@@ -132,6 +122,7 @@ class ThumbnailDropZone(QtWidgets.QFrame):
         '''Remove thumbnail.'''
         self.setDropZoneText()
         self._filePath = None
+        self.imageLabel.setIcon(QtGui.QPixmap())
         self.removeButton.setVisible(False)
 
     def _setDropZoneState(self, state='default'):
