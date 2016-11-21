@@ -21,6 +21,8 @@ class ConnectThumbnailValidationError(Exception):
 class ThumbnailDropZone(QtWidgets.QWidget):
     '''Thumbnail widget with support for drag and drop and preview.'''
 
+    updated = QtCore.Signal(object)
+
     def __init__(self, *args, **kwargs):
         '''Initialise widget.'''
         super(ThumbnailDropZone, self).__init__(*args, **kwargs)
@@ -114,6 +116,7 @@ class ThumbnailDropZone(QtWidgets.QWidget):
         self.imageLabel.setText('')
 
         self.removeButton.setVisible(True)
+        self.updated.emit(self._filePath)
 
     def setDropZoneText(self, text=None):
         '''Set and display drop zone label text as *text*.'''
