@@ -56,8 +56,11 @@ class ThumbnailDropZone(QtWidgets.QWidget):
         self.imageLabel.clicked.connect(self.on_button_clicked)
 
     def on_button_clicked(self):
+        file_filtering = ';;'.join(
+            ['%s Files (*.%s)' % (T.upper(), T) for T in THUMBNAIL_UPLOAD_VALID_FILE_TYPES]
+        )
         fname, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self, 'Select Thumbnail'
+            self, 'Select Thumbnail', '/', file_filtering
         )
 
         if fname:
