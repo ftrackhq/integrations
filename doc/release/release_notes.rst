@@ -7,6 +7,12 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+    .. change:: new
+        :tags: Widget
+
+        Added thumbnail selector.
+
 .. release:: 0.1.2
     .. change:: new
         :tags: Widget
