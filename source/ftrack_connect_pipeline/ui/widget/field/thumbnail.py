@@ -9,8 +9,8 @@ from ftrack_connect_pipeline.ui.widget import thumbnail_drop_zone
 class ThumbnailField(BaseField, thumbnail_drop_zone.ThumbnailDropZone):
 
     def __init__(self):
+        '''Initialize widget'''
         super(ThumbnailField, self).__init__()
-
         self.updated.connect(self.notify_changed)
 
     def notify_changed(self, *args, **kwargs):
