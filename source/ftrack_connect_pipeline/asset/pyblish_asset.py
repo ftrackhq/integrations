@@ -51,10 +51,14 @@ class PyblishAsset(PublishAsset):
             'Preparing publish with context: {0!r}.'.format(context)
         )
 
-    def publish(self, item_options, general_options, selected_items):
-        '''Publish or raise exception if not valid.'''
+    def update_with_options(
+        self, item_options, general_options, selected_items
+    ):
+        '''Update *item_options* and *general_options*.'''
         self.logger.debug(
-            'Updating publish_data with options: {0!r}'.format(general_options)
+            'Update context with options: {0!r}'.format(
+                general_options
+            )
         )
 
         self.pyblish_context.data['options'] = general_options
@@ -68,6 +72,10 @@ class PyblishAsset(PublishAsset):
                     instance.data['publish']
                 )
             )
+
+    def publish(self, item_options, general_options, selected_items):
+        '''Publish or raise exception if not valid.'''
+        self.update_with_options(item_options, general_options, selected_items)
 
         pyblish.util.validate(self.pyblish_context)
         pyblish.util.extract(self.pyblish_context)
