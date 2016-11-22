@@ -73,9 +73,16 @@ class PyblishAsset(PublishAsset):
         pyblish.util.extract(self.pyblish_context)
         pyblish.util.integrate(self.pyblish_context)
 
+        success = True
         for record in self.pyblish_context.data['results']:
             if record['error']:
+                success = False
                 self.logger.error(record)
+
+        return {
+            'success': success,
+            'asset_version': self.pyblish_context.data['asset_version']
+        }
 
     def show_detailed_result(self):
         '''Show detailed results for *publish_data*.'''

@@ -65,6 +65,10 @@ class PublishGeometry(ftrack_connect_pipeline.asset.PublishAsset):
         '''Publish or raise exception if not valid.'''
         # Publish asset based using options.
         print 'Publish using', item_options, general_options, selected_items
+        return {
+            'success': True,
+            'asset_version': None
+        }
 
     def get_scene_selection(self):
         '''Return a list of names for scene selection.'''

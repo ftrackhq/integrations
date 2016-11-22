@@ -23,16 +23,19 @@ import ftrack_connect_pipeline.util
 class PublishResult(Overlay):
     '''Publish result overlay.'''
 
-    def __init__(self, parent):
+    def __init__(self, session, parent):
         '''Instantiate publish result overlay.'''
         super(PublishResult, self).__init__(parent=parent)
+        self.session = session
 
-    def populate(self, label, publish_asset, publish_data):
+    def populate(
+        self, label, details_window_callback, result
+    ):
         '''Populate with content.'''
-        self.publish_data = publish_data
-        self.publish_asset = publish_asset
+        self.details_window_callback = details_window_callback
 
-        self.session = self.publish_data.data['ftrack_entity'].session
+        self.asset_version = result['asset_version']
+        success = result['success']
 
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
@@ -52,11 +55,7 @@ class PublishResult(Overlay):
             1, self.ftrack_icon, alignment=QtCore.Qt.AlignCenter
         )
 
-        failed = any(
-            [result['error'] for result in publish_data.data['results']]
-        )
-
-        if not failed:
+        if success:
             congrat_label = QtWidgets.QLabel('<h2>Publish Successful!</h2>')
             success_label = QtWidgets.QLabel(
                 'Your <b>{0}</b> has been successfully published.'.format(
@@ -84,24 +83,29 @@ class PublishResult(Overlay):
         main_layout.addLayout(buttons_layout)
 
         self.details_button = QtWidgets.QPushButton('Details')
-        self.open_in_ftrack = QtWidgets.QPushButton('Open In Ftrack')
-
         buttons_layout.addWidget(self.details_button)
-        buttons_layout.addWidget(self.open_in_ftrack)
-
         self.details_button.clicked.connect(self.on_show_details)
+
+        if self.details_window_callback is None:
+            self.details_button.setDisabled(True)
+
+        self.open_in_ftrack = QtWidgets.QPushButton('Open In Ftrack')
+        buttons_layout.addWidget(self.open_in_ftrack)
         self.open_in_ftrack.clicked.connect(self.on_open_in_ftrack)
+
+        if self.asset_version is None:
+            self.open_in_ftrack.setDisabled(True)
 
     def on_show_details(self):
         '''Handle show of details.'''
-        self.publish_asset.show_detailed_result(self.publish_data)
+        self.details_window_callback()
 
     def on_open_in_ftrack(self):
         '''Open result in ftrack.'''
         data = {
             'server_url': self.session.server_url,
-            'version_id': self.publish_data.data['asset_version']['id'],
-            'project_id': self.publish_data.data['asset_version']['asset']['parent']['project']['id']
+            'version_id': self.asset_version['id'],
+            'project_id': self.asset_version['asset']['parent']['project']['id']
         }
 
         url_template = (
@@ -441,7 +445,7 @@ class PublishDialog(QtWidgets.QDialog):
         self._publish_overlay.setStyleSheet(OVERLAY_DARK_STYLE)
         self._publish_overlay.setVisible(False)
 
-        self.result_win = PublishResult(self)
+        self.result_win = PublishResult(self.session, self)
         self.result_win.setStyleSheet(OVERLAY_DARK_STYLE)
         self.result_win.setVisible(False)
 
@@ -545,7 +549,7 @@ class PublishDialog(QtWidgets.QDialog):
         for item in self.list_items_view.get_checked_items():
             selected_item_names.append(item['name'])
 
-        self.publish_asset.publish(
+        result = self.publish_asset.publish(
             self.item_options_store,
             self.general_options_store,
             selected_item_names
@@ -556,12 +560,12 @@ class PublishDialog(QtWidgets.QDialog):
         self._hideOverlayAfterTimeout(self.OVERLAY_MESSAGE_TIMEOUT)
 
         self.result_win.setVisible(True)
-
-        #: TODO: This must be fixed, cannot pass pyblish context to result
-        # window.
         self.result_win.populate(
-            self._label_text, self.publish_asset,
-            self.publish_asset.pyblish_context
+            label=self._label_text,
+            details_window_callback=getattr(
+                self.publish_asset, 'show_detailed_result', None
+            ),
+            result=result
         )
 
     def _on_sync_scene_selection(self):
