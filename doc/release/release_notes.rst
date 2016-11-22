@@ -7,6 +7,14 @@
 Release Notes
 *************
 
+.. release:: 0.1.3
+    :date: 2016-11-22
+
+    .. change:: changed
+        :tags: Publish, Pyblish
+
+        Centralised shared pyblish plugins.
+
 .. release:: 0.1.2
     :date: 2016-11-18
 
