@@ -19,3 +19,5 @@ class FtrackPublishCollector(pyblish.api.ContextPlugin):
         ftrack_entity = ftrack_connect_pipeline.util.get_ftrack_entity()
         context.data['ftrack_entity'] = ftrack_entity
         logger.debug('Collected ftrack entity {0}.'.format(ftrack_entity))
+
+pyblish.api.register_plugin(FtrackPublishCollector)
