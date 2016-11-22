@@ -77,7 +77,8 @@ class IntegratorCreateComponents(pyblish.api.InstancePlugin):
 
     order = pyblish.api.IntegratorOrder + 0.1
 
-    families = ['*']
+    families = ['ftrack']
+    match = pyblish.api.Subset
 
     def process(self, instance):
         '''Process *instance* and create components.'''
