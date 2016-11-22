@@ -23,16 +23,19 @@ import ftrack_connect_pipeline.util
 class PublishResult(Overlay):
     '''Publish result overlay.'''
 
-    def __init__(self, parent):
+    def __init__(self, session, parent):
         '''Instantiate publish result overlay.'''
         super(PublishResult, self).__init__(parent=parent)
+        self.session = session
 
-    def populate(self, publish_asset, publish_data):
+    def populate(
+        self, label, details_window_callback, result
+    ):
         '''Populate with content.'''
-        self.publish_data = publish_data
-        self.publish_asset = publish_asset
+        self.details_window_callback = details_window_callback
 
-        self.session = self.publish_data.data['ftrack_entity'].session
+        self.asset_version = result['asset_version']
+        success = result['success']
 
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
@@ -52,15 +55,11 @@ class PublishResult(Overlay):
             1, self.ftrack_icon, alignment=QtCore.Qt.AlignCenter
         )
 
-        failed = any(
-            [result['error'] for result in publish_data.data['results']]
-        )
-
-        if not failed:
+        if success:
             congrat_label = QtWidgets.QLabel('<h2>Publish Successful!</h2>')
             success_label = QtWidgets.QLabel(
                 'Your <b>{0}</b> has been successfully published.'.format(
-                    publish_asset.label
+                    label
                 )
             )
         else:
@@ -68,7 +67,7 @@ class PublishResult(Overlay):
             success_label = QtWidgets.QLabel(
                 'Your <b>{0}</b> failed to published. See details for more '
                 'information.'.format(
-                    publish_asset.label
+                    label
                 )
             )
 
@@ -84,24 +83,29 @@ class PublishResult(Overlay):
         main_layout.addLayout(buttons_layout)
 
         self.details_button = QtWidgets.QPushButton('Details')
-        self.open_in_ftrack = QtWidgets.QPushButton('Open In Ftrack')
-
         buttons_layout.addWidget(self.details_button)
-        buttons_layout.addWidget(self.open_in_ftrack)
-
         self.details_button.clicked.connect(self.on_show_details)
+
+        if self.details_window_callback is None:
+            self.details_button.setDisabled(True)
+
+        self.open_in_ftrack = QtWidgets.QPushButton('Open In Ftrack')
+        buttons_layout.addWidget(self.open_in_ftrack)
         self.open_in_ftrack.clicked.connect(self.on_open_in_ftrack)
+
+        if self.asset_version is None:
+            self.open_in_ftrack.setDisabled(True)
 
     def on_show_details(self):
         '''Handle show of details.'''
-        self.publish_asset.show_detailed_result(self.publish_data)
+        self.details_window_callback()
 
     def on_open_in_ftrack(self):
         '''Open result in ftrack.'''
         data = {
             'server_url': self.session.server_url,
-            'version_id': self.publish_data.data['asset_version']['id'],
-            'project_id': self.publish_data.data['asset_version']['asset']['parent']['project']['id']
+            'version_id': self.asset_version['id'],
+            'project_id': self.asset_version['asset']['parent']['project']['id']
         }
 
         url_template = (
@@ -353,6 +357,7 @@ class PublishDialog(QtWidgets.QDialog):
         self.setMinimumSize(800, 600)
         self.session = session
         self.header = Header(self.session)
+        self._label_text = label
         self.publish_asset = publish_asset
 
         result = self.session.event_hub.publish(
@@ -364,14 +369,14 @@ class PublishDialog(QtWidgets.QDialog):
         send_usage(
             'USED-FTRACK-CONNECT-PIPELINE-PUBLISH',
             {
-                'asset_type': publish_asset.label,
+                'asset_type': self._label_text,
                 'plugin_information': result
             }
         )
 
-        self.publish_data = self.publish_asset.prepare_publish()
+        self.publish_asset.prepare_publish()
 
-        entity = self.publish_asset.get_entity(self.publish_data)
+        entity = self.publish_asset.get_entity()
         self.context_selector = ContextSelector(entity)
         self.context_selector.entityChanged.connect(self.on_context_changed)
 
@@ -402,7 +407,7 @@ class PublishDialog(QtWidgets.QDialog):
 
         information_layout = QtWidgets.QHBoxLayout()
         information_layout.addWidget(
-            QtWidgets.QLabel('<h3>{0}</h3>'.format(label))
+            QtWidgets.QLabel('<h3>{0}</h3>'.format(self._label_text))
         )
         information_layout.addWidget(
             QtWidgets.QLabel('<i>{0}</i>'.format(description)),
@@ -440,7 +445,7 @@ class PublishDialog(QtWidgets.QDialog):
         self._publish_overlay.setStyleSheet(OVERLAY_DARK_STYLE)
         self._publish_overlay.setVisible(False)
 
-        self.result_win = PublishResult(self)
+        self.result_win = PublishResult(self.session, self)
         self.result_win.setStyleSheet(OVERLAY_DARK_STYLE)
         self.result_win.setVisible(False)
 
@@ -450,7 +455,7 @@ class PublishDialog(QtWidgets.QDialog):
         '''Refresh content.'''
         layout = self._list_instances_layout
 
-        general_options = self.publish_asset.get_options(self.publish_data)
+        general_options = self.publish_asset.get_options()
         if general_options:
             settings_widget = self.settings_provider(
                 'General',
@@ -459,14 +464,14 @@ class PublishDialog(QtWidgets.QDialog):
             )
             self._list_items_settings_layout.insertWidget(0, settings_widget)
 
-        items = self.publish_asset.get_publish_items(self.publish_data)
+        items = self.publish_asset.get_publish_items()
 
         self.list_items_view = ListItemsWidget(items)
         self.list_items_view.itemChanged.connect(self.on_selection_changed)
         layout.addWidget(
             QtWidgets.QLabel(
                 'Select {0}(s) to publish'.format(
-                    string.capitalize(self.publish_asset.label)
+                    string.capitalize(self._label_text)
                 )
             )
         )
@@ -496,7 +501,7 @@ class PublishDialog(QtWidgets.QDialog):
 
     def on_context_changed(self, entity):
         '''Set the current context to the given *entity*.'''
-        self.publish_asset.switch_entity(entity, self.publish_data)
+        self.publish_asset.switch_entity(entity)
 
     def on_selection_changed(self, widget):
         '''Handle selection changed.'''
@@ -510,9 +515,7 @@ class PublishDialog(QtWidgets.QDialog):
     def add_instance_settings(self, item):
         '''Generate settings for *item*.'''
         save_options_to = self.item_options_store[item['name']] = dict()
-        item_options = self.publish_asset.get_item_options(
-            self.publish_data, item['name']
-        )
+        item_options = self.publish_asset.get_item_options(item['name'])
         if item_options:
             item_settings_widget = self.settings_provider(
                 item['label'],
@@ -546,21 +549,24 @@ class PublishDialog(QtWidgets.QDialog):
         for item in self.list_items_view.get_checked_items():
             selected_item_names.append(item['name'])
 
-        self.publish_asset.update_with_options(
-            self.publish_data,
+        result = self.publish_asset.publish(
             self.item_options_store,
             self.general_options_store,
             selected_item_names
         )
-
-        self.publish_asset.publish(self.publish_data)
 
         self._publish_overlay.setVisible(False)
 
         self._hideOverlayAfterTimeout(self.OVERLAY_MESSAGE_TIMEOUT)
 
         self.result_win.setVisible(True)
-        self.result_win.populate(self.publish_asset, self.publish_data)
+        self.result_win.populate(
+            label=self._label_text,
+            details_window_callback=getattr(
+                self.publish_asset, 'show_detailed_result', None
+            ),
+            result=result
+        )
 
     def _on_sync_scene_selection(self):
         '''Handle sync scene selection event.'''
