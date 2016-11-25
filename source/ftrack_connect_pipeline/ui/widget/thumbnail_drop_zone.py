@@ -9,7 +9,7 @@ from QtExt import QtWidgets, QtCore, QtGui
 # Thumbnail limits from ftrack server.
 THUMBNAIL_UPLOAD_MAX_SIZE = 10 * (1024 ** 2)  # 10 MiB in Bytes
 THUMBNAIL_UPLOAD_VALID_FILE_TYPES = (
-    'bmp', 'gif', 'jpeg', 'jpg', 'png', 'tif', 'tiff'
+    '*', 'bmp', 'gif', 'jpeg', 'jpg', 'png', 'tif', 'tiff'
 )
 
 
