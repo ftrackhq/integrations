@@ -60,11 +60,11 @@ class ThumbnailDropZone(QtWidgets.QWidget):
 
     def on_button_clicked(self):
         any_supported_format = 'Any (%s)' % ' '.join(
-            ['*.%s' % fmt for fmt in THUMBNAIL_UPLOAD_VALID_FILE_TYPES]
+            ['*.%s' % _format for _format in THUMBNAIL_UPLOAD_VALID_FILE_TYPES]
         )
 
         supported_formats = ';;'.join(
-            ['%s Files (*.%s)' % (T.upper(), T) for T in THUMBNAIL_UPLOAD_VALID_FILE_TYPES]
+            ['%s Files (*.%s)' % (_format.upper(), _format) for _format in THUMBNAIL_UPLOAD_VALID_FILE_TYPES]
         )
 
         format_filtering = any_supported_format + ';;' + supported_formats
