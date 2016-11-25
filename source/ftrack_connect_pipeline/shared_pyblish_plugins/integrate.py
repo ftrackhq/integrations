@@ -3,6 +3,8 @@
 
 import pyblish.api
 
+from ftrack_connect_pipeline import constant
+
 
 class IntegratorCreateAsset(pyblish.api.ContextPlugin):
     '''Create asset and prepare publish.'''
@@ -14,9 +16,13 @@ class IntegratorCreateAsset(pyblish.api.ContextPlugin):
         ftrack_entity = context.data['ftrack_entity']
         session = ftrack_entity.session
 
-        asset_type_id = context.data['options']['asset']['asset_type']
-        asset_name = context.data['options']['asset']['asset_name']
-        comment = context.data['options'].get('comment', '')
+        asset_options = context.data['options'][constant.ASSET_OPTION_NAME]
+        asset_type_id = asset_options['asset_type']
+        asset_name = asset_options['asset_name']
+        comment = context.data['options'].get(
+            constant.ASSET_VERSION_COMMENT_OPTION_NAME,
+            ''
+        )
 
         if isinstance(ftrack_entity, session.types['Task']):
             parent_context_id = ftrack_entity['parent_id']

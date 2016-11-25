@@ -11,6 +11,7 @@ import logging
 
 import ftrack_connect_pipeline.ui.display_pyblish_result
 from .base import PublishAsset
+from ftrack_connect_pipeline import constant
 
 
 class PyblishAsset(PublishAsset):
@@ -56,15 +57,25 @@ class PyblishAsset(PublishAsset):
     ):
         '''Update *item_options* and *general_options*.'''
         self.logger.debug(
-            'Update context with options: {0!r}'.format(
-                general_options
-            )
+            'Update context with options: {0!r}'.format(general_options)
         )
+
+        scene_families = set(constant.SCENE_FAMILY_PYBLISH)
 
         self.pyblish_context.data['options'] = general_options
         for instance in self.pyblish_context:
             instance.data['options'] = item_options.get(instance.name, {})
             instance.data['publish'] = instance.name in selected_items
+
+            instance_families = set(instance.data['families'])
+            if (
+                scene_families == instance_families and
+                general_options.get(
+                    constant.SCENE_AS_REFERENCE_OPTION_NAME, False
+                )
+            ):
+                instance.data['publish'] = True
+
             self.logger.debug(
                 'Updating instance {0!r} with data: {0!r}. Publish flag set to '
                 '{0!r}'.format(
