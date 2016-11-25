@@ -59,6 +59,7 @@ class ThumbnailDropZone(QtWidgets.QWidget):
         self.thumbnail_button.clicked.connect(self.on_button_clicked)
 
     def on_button_clicked(self):
+        '''Open file dialog with supported formats'''
         any_supported_format = 'Any ({0})'.format(' '.join(
             ['*.%s' % _format for _format in THUMBNAIL_UPLOAD_VALID_FILE_TYPES]
         ))
