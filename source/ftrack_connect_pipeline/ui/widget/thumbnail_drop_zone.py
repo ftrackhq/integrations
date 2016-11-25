@@ -41,9 +41,9 @@ class ThumbnailDropZone(QtWidgets.QWidget):
         self._imageWidth = 200
         self._imageHeight = 50
 
-        self.imageLabel = QtWidgets.QPushButton('Import')
+        self.thumbnail_button = QtWidgets.QPushButton('Import')
         self.setDropZoneText()
-        layout.addWidget(self.imageLabel)
+        layout.addWidget(self.thumbnail_button, 10)
 
         # TODO: Add theme support.
         removeIcon = QtGui.QIcon(
@@ -54,8 +54,9 @@ class ThumbnailDropZone(QtWidgets.QWidget):
         self.removeButton.setFlat(True)
         self.removeButton.setIcon(removeIcon)
         self.removeButton.clicked.connect(self.removeThumbnail)
-        layout.addWidget(self.removeButton)
-        self.imageLabel.clicked.connect(self.on_button_clicked)
+
+        layout.addWidget(self.removeButton, 0)
+        self.thumbnail_button.clicked.connect(self.on_button_clicked)
 
     def on_button_clicked(self):
         any_supported_format = 'Any (%s)' % ' '.join(
@@ -118,9 +119,9 @@ class ThumbnailDropZone(QtWidgets.QWidget):
         pixmap = QtGui.QPixmap(self._filePath).scaled(
             self._imageWidth, self._imageHeight, QtCore.Qt.KeepAspectRatio
         )
-        self.imageLabel.setIcon(pixmap)
-        self.imageLabel.setIconSize(pixmap.rect().size())
-        self.imageLabel.setText('')
+        self.thumbnail_button.setIcon(pixmap)
+        self.thumbnail_button.setIconSize(pixmap.rect().size())
+        self.thumbnail_button.setText('')
 
         self.removeButton.setVisible(True)
         self.updated.emit(self._filePath)
@@ -129,13 +130,13 @@ class ThumbnailDropZone(QtWidgets.QWidget):
         '''Set and display drop zone label text as *text*.'''
         if not text:
             text = 'Drop a file here to add a thumbnail.'
-        self.imageLabel.setText(text)
+        self.thumbnail_button.setText(text)
 
     def removeThumbnail(self):
         '''Remove thumbnail.'''
         self.setDropZoneText()
         self._filePath = None
-        self.imageLabel.setIcon(QtGui.QPixmap())
+        self.thumbnail_button.setIcon(QtGui.QPixmap())
         self.removeButton.setVisible(False)
 
     def _setDropZoneState(self, state='default'):
