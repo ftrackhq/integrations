@@ -19,6 +19,4 @@ class ThumbnailField(BaseField, thumbnail_drop_zone.ThumbnailDropZone):
 
     def value(self):
         '''Return value.'''
-        return {
-            'thumbnail_path': self.getFilePath(),
-        }
+        return self.getFilePath()
