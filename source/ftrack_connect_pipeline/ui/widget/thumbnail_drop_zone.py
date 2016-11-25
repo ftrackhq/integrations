@@ -9,7 +9,7 @@ from QtExt import QtWidgets, QtCore, QtGui
 # Thumbnail limits from ftrack server.
 THUMBNAIL_UPLOAD_MAX_SIZE = 10 * (1024 ** 2)  # 10 MiB in Bytes
 THUMBNAIL_UPLOAD_VALID_FILE_TYPES = (
-    '*', 'bmp', 'gif', 'jpeg', 'jpg', 'png', 'tif', 'tiff'
+    'bmp', 'gif', 'jpeg', 'jpg', 'png', 'tif', 'tiff'
 )
 
 
@@ -58,11 +58,18 @@ class ThumbnailDropZone(QtWidgets.QWidget):
         self.imageLabel.clicked.connect(self.on_button_clicked)
 
     def on_button_clicked(self):
-        file_filtering = ';;'.join(
+        any_supported_format = 'Any (%s)' % ' '.join(
+            ['*.%s' % fmt for fmt in THUMBNAIL_UPLOAD_VALID_FILE_TYPES]
+        )
+
+        supported_formats = ';;'.join(
             ['%s Files (*.%s)' % (T.upper(), T) for T in THUMBNAIL_UPLOAD_VALID_FILE_TYPES]
         )
+
+        format_filtering = any_supported_format + ';;' + supported_formats
+
         fname, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self, 'Select Thumbnail', '/', file_filtering
+            self, 'Select Thumbnail', '/', format_filtering
         )
 
         if fname:
