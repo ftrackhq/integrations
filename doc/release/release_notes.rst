@@ -13,6 +13,12 @@ Release Notes
 
         Added thumbnail selector.
 
+.. release:: Upcoming
+    .. change:: fix
+        :tags: Api
+
+        Qt breaks on setting text from another thread.
+
 .. release:: 0.1.3
     :date: 2016-11-22
 
