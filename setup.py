@@ -8,6 +8,7 @@ import subprocess
 import fileinput
 
 from setuptools import setup, find_packages, Command
+from distutils.command.build import build as BuildCommand
 from setuptools.command.test import test as TestCommand
 
 
@@ -138,6 +139,15 @@ class BuildResources(Command):
         self._replace_imports_()
 
 
+class Build(BuildCommand):
+    '''Custom build to pre-build resources.'''
+
+    def run(self):
+        '''Run build ensuring build_resources called first.'''
+        self.run_command('build_resources')
+        BuildCommand.run(self)
+
+
 # Configuration.
 setup(
     name='ftrack-connect-pipeline',
@@ -176,6 +186,7 @@ setup(
         'pyblish-base'
     ],
     cmdclass={
+        'build': Build,
         'build_resources': BuildResources,
         'test': PyTest
     },
