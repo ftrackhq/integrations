@@ -11,6 +11,12 @@ Release Notes
     .. change:: fix
         :tags: Api
 
+        Resources are not built during the installation.
+
+.. release:: Upcoming
+    .. change:: fix
+        :tags: Api
+
         Qt breaks on setting text from another thread.
 
 .. release:: 0.1.3
