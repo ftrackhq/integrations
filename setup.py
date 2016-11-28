@@ -9,6 +9,7 @@ import fileinput
 
 from setuptools import setup, find_packages, Command
 from distutils.command.build import build as BuildCommand
+from setuptools.command.bdist_egg import bdist_egg as BuildEggCommand
 from setuptools.command.test import test as TestCommand
 
 
@@ -139,6 +140,22 @@ class BuildResources(Command):
         self._replace_imports_()
 
 
+class BuildEgg(BuildEggCommand):
+    '''Custom egg build to ensure resources built.
+
+    .. note::
+
+        Required because when this project is a dependency for another project,
+        only bdist_egg will be called and *not* build.
+
+    '''
+
+    def run(self):
+        '''Run egg build ensuring build_resources called first.'''
+        self.run_command('build_resources')
+        BuildEggCommand.run(self)
+
+
 class Build(BuildCommand):
     '''Custom build to pre-build resources.'''
 
@@ -187,6 +204,7 @@ setup(
     ],
     cmdclass={
         'build': Build,
+        'bdist_egg': BuildEgg,
         'build_resources': BuildResources,
         'test': PyTest
     },
