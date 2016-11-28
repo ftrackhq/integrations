@@ -353,11 +353,14 @@ class EntityBrowser(QtWidgets.QDialog):
 class EntityPath(QtWidgets.QLineEdit):
     '''Entity path widget.'''
 
+    path_ready = QtCore.Signal(object)
+
     def __init__(self, *args, **kwargs):
         '''Instantiate the entity path widget.'''
         super(EntityPath, self).__init__(*args, **kwargs)
         self.setReadOnly(True)
         self.setDisabled(True)
+        self.path_ready.connect(self.on_path_ready)
 
     @util.asynchronous
     def setEntity(self, entity):
@@ -373,6 +376,9 @@ class EntityPath(QtWidgets.QLineEdit):
                 else:
                     names.append(entity['name'])
 
+        self.path_ready.emit(names)
+
+    def on_path_ready(self, names):
         self.setText(' / '.join(names))
 
 
