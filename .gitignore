@@ -37,4 +37,4 @@ Thumbs.db
 .pydevproject
 .settings
 .idea/
-source/ftrack_connect/ui/resource.py
+source/ftrack_connect_pipeline/ui/resource.py
