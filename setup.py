@@ -183,6 +183,7 @@ setup(
     setup_requires=[
         'qtext',
         'pyScss >= 1.2.0, < 2',
+        'PySide >= 1.2.2, < 2',
     ],
     build_sphinx_requires=[
         'sphinx >= 1.2.2, < 2',
