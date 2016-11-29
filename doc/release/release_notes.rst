@@ -9,11 +9,10 @@ Release Notes
 
 .. release:: Upcoming
     .. change:: fix
-        :tags: Api
+        :tags: Installation
 
         Resources are not built during the installation.
 
-.. release:: Upcoming
     .. change:: fix
         :tags: Api
 
