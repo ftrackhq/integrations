@@ -144,10 +144,19 @@ class PublishAsset(object):
             context, hint=self.asset_type_short
         )
 
+        from ftrack_connect_pipeline.ui.widget.field import thumbnail
+
+        thumbnail = thumbnail.ThumbnailField()
+
         options = [
             {
                 'widget': asset_selector_widget,
                 'name': 'asset',
+                'type': 'qt_widget'
+            },
+            {
+                'widget': thumbnail,
+                'name': 'thumbnail',
                 'type': 'qt_widget'
             },
             {

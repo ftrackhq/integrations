@@ -8,6 +8,11 @@ Release Notes
 *************
 
 .. release:: Upcoming
+    .. change:: new
+        :tags: Widget
+
+        Added thumbnail selector.
+
     .. change:: fix
         :tags: Installation
 
