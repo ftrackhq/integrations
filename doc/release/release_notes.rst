@@ -7,6 +7,24 @@
 Release Notes
 *************
 
+.. release:: 0.2.0
+    :date: 2016-11-29
+
+    .. change:: new
+        :tags: Widget
+
+        Added thumbnail selector.
+
+    .. change:: fix
+        :tags: Installation
+
+        Resources are not built during the installation.
+
+    .. change:: fix
+        :tags: Api
+
+        Qt breaks on setting text from another thread.
+
 .. release:: 0.1.3
     :date: 2016-11-22
 

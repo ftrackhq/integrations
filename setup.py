@@ -8,6 +8,8 @@ import subprocess
 import fileinput
 
 from setuptools import setup, find_packages, Command
+from distutils.command.build import build as BuildCommand
+from setuptools.command.bdist_egg import bdist_egg as BuildEggCommand
 from setuptools.command.test import test as TestCommand
 
 
@@ -110,16 +112,16 @@ class BuildResources(Command):
                 print('Compiled {0}'.format(css_target))
 
         try:
-            pyside_rcc_command = 'pyside-rcc'
+            import PySide
+            pyside_rcc_command = os.path.join(
+                os.path.dirname(PySide.__file__),
+                'pyside-rcc'
+            )
 
             # On Windows, pyside-rcc is not automatically available on the
             # PATH so try to find it manually.
             if sys.platform == 'win32':
-                import PySide
-                pyside_rcc_command = os.path.join(
-                    os.path.dirname(PySide.__file__),
-                    'pyside-rcc.exe'
-                )
+                pyside_rcc_command += '.exe'
 
             subprocess.check_call([
                 pyside_rcc_command,
@@ -128,7 +130,6 @@ class BuildResources(Command):
                 self.resource_source_path
             ])
         except (subprocess.CalledProcessError, OSError):
-            raise
             raise RuntimeError(
                 'Error compiling resource.py using pyside-rcc. Possibly '
                 'pyside-rcc could not be found. You might need to manually add '
@@ -136,6 +137,31 @@ class BuildResources(Command):
             )
 
         self._replace_imports_()
+
+
+class BuildEgg(BuildEggCommand):
+    '''Custom egg build to ensure resources built.
+
+    .. note::
+
+        Required because when this project is a dependency for another project,
+        only bdist_egg will be called and *not* build.
+
+    '''
+
+    def run(self):
+        '''Run egg build ensuring build_resources called first.'''
+        self.run_command('build_resources')
+        BuildEggCommand.run(self)
+
+
+class Build(BuildCommand):
+    '''Custom build to pre-build resources.'''
+
+    def run(self):
+        '''Run build ensuring build_resources called first.'''
+        self.run_command('build_resources')
+        BuildCommand.run(self)
 
 
 # Configuration.
@@ -154,7 +180,9 @@ setup(
         '': 'source'
     },
     setup_requires=[
-        'qtext'
+        'qtext',
+        'pyScss >= 1.2.0, < 2',
+        'PySide >= 1.2.2, < 2',
     ],
     build_sphinx_requires=[
         'sphinx >= 1.2.2, < 2',
@@ -176,6 +204,8 @@ setup(
         'pyblish-base'
     ],
     cmdclass={
+        'build': Build,
+        'bdist_egg': BuildEgg,
         'build_resources': BuildResources,
         'test': PyTest
     },

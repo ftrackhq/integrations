@@ -100,7 +100,7 @@ class PyblishAsset(PublishAsset):
 
         return {
             'success': success,
-            'asset_version': self.pyblish_context.data['asset_version']
+            'asset_version': self.pyblish_context.data.get('asset_version')
         }
 
     def show_detailed_result(self):

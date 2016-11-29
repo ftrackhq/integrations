@@ -32,7 +32,6 @@
     <qresource prefix='ftrack/style'>
         <file alias='light'>style_light.css</file>
         <file alias='dark'>style_dark.css</file>
-        <file alias='integration'>integration.css</file>
     </qresource>
 
     <qresource prefix='ftrack/font'>

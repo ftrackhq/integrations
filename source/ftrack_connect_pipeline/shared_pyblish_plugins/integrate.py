@@ -1,6 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2016 ftrack
 
+import os
+
 import pyblish.api
 
 from ftrack_connect_pipeline import constant
@@ -72,6 +74,23 @@ class IntegratorCreateAsset(pyblish.api.ContextPlugin):
         )
 
         session.commit()
+
+        thumbnail_path = context.data['options'].get('thumbnail')
+
+        if os.path.isfile(thumbnail_path):
+            self.log.debug(
+                'Got thumbnail from options: {0!r}.'.format(
+                    thumbnail_path
+                )
+            )
+            asset_version.create_thumbnail(thumbnail_path)
+            session.commit()
+        else:
+            self.log.debug(
+                'Thumbnail file did not exist: {0!r}.'.format(
+                    thumbnail_path
+                )
+            )
 
         context.data['asset_version'] = asset_version
 
