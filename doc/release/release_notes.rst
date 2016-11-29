@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: new
+        :tags: Publish
+
+        Added support to attach scene as reference when publishing.
+
 .. release:: 0.2.0
     :date: 2016-11-29
 
