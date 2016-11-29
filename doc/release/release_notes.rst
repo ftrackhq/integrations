@@ -13,7 +13,6 @@ Release Notes
 
         Added thumbnail selector.
 
-.. release:: Upcoming
     .. change:: fix
         :tags: Api
 
