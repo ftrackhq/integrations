@@ -7,7 +7,7 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 0.3.0
 
     .. change:: changed
         :tags: Publish
