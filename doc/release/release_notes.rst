@@ -7,7 +7,9 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 0.2.0
+    :date: 2016-11-29
+
     .. change:: new
         :tags: Widget
 
