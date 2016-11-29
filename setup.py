@@ -181,7 +181,8 @@ setup(
         '': 'source'
     },
     setup_requires=[
-        'qtext'
+        'qtext',
+        'pyScss >= 1.2.0, < 2',
     ],
     build_sphinx_requires=[
         'sphinx >= 1.2.2, < 2',
