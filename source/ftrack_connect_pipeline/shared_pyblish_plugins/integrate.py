@@ -77,7 +77,7 @@ class IntegratorCreateAsset(pyblish.api.ContextPlugin):
 
         thumbnail_path = context.data['options'].get('thumbnail')
 
-        if os.path.isfile(thumbnail_path):
+        if thumbnail_path and os.path.isfile(thumbnail_path):
             self.log.debug(
                 'Got thumbnail from options: {0!r}.'.format(
                     thumbnail_path
