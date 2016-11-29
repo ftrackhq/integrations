@@ -7,6 +7,23 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: changed
+        :tags: Publish
+
+        Improved result window for publishing using `Pyblish`.
+
+    .. change:: fixed
+        :tags: Publish, Thumbnail
+
+        Publish fails if no thumbnail is selected.
+
+    .. change:: new
+        :tags: Publish
+
+        Added support to attach scene as reference when publishing.
+
 .. release:: 0.2.0
     :date: 2016-11-29
 
@@ -15,12 +32,12 @@ Release Notes
 
         Added thumbnail selector.
 
-    .. change:: fix
+    .. change:: fixed
         :tags: Installation
 
         Resources are not built during the installation.
 
-    .. change:: fix
+    .. change:: fixed
         :tags: Api
 
         Qt breaks on setting text from another thread.

@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2016 ftrack
 
-from QtExt import QtGui, QtCore, QtWidgets
+from QtExt import QtWidgets
 
 import ftrack_connect_pipeline.ui.widget.item_list
 
@@ -20,16 +20,11 @@ class PyblishResult(QtWidgets.QWidget):
 
         main_info = ''
         if item['error']:
-            self.setStyleSheet('''
-                QWidget {
-                    background-color: #f05b48;
-                }
-            ''')
-            main_info += '{0}: {1}'.format(
+            main_info += '<b>{0}: {1}</b>'.format(
                 type(item['error']).__name__, item['error']
             )
 
-        main_info += item['plugin'].__name__
+        main_info += ' ' + item['plugin'].__name__
         widget.layout().addWidget(QtWidgets.QLabel(main_info))
         widget.layout().addWidget(
             QtWidgets.QLabel(
@@ -49,6 +44,12 @@ class PyblishResult(QtWidgets.QWidget):
         button.clicked.connect(
             self._on_button_clicked
         )
+        if item['error']:
+            button.setStyleSheet('''
+                QWidget {
+                    background-color: #f05b48;
+                }
+            ''')
         self.layout().addWidget(widget, stretch=1)
         self.layout().addWidget(button)
 
@@ -56,33 +57,35 @@ class PyblishResult(QtWidgets.QWidget):
 
     def _on_button_clicked(self, *args, **kwargs):
         '''Handle button clicked event.'''
-        report = ''
-        if self.item['error']:
-            report += str(self.item['error'].traceback)
-            report += '<br />' + 30 * '-'
+        error = self.item.get('error')
+        report_items = []
+        if error:
+            report_items.append(
+                '{0}: {1}'.format(type(error).__name__, error)
+            )
+            report_items.append(str(self.item['error'].traceback))
+            report_items.append(30 * '-')
 
-        logs_entries = []
         for record in self.item['records']:
-            logs_entries.append(
+            report_items.append(
                 '{record.funcName}|{record.asctime}: {record.message}'.format(
                     record=record
                 )
             )
-        report += '<br />' + '<br />'.join(logs_entries)
 
         dialog = QtWidgets.QDialog()
         dialog.setMinimumSize(800, 600)
         dialog.setLayout(QtWidgets.QVBoxLayout())
 
-        log_output = QtWidgets.QTextEdit()
-        log_output.setReadOnly(True)
+        log_output_widget = QtWidgets.QTextEdit()
+        log_output_widget.setReadOnly(True)
 
-        log_output.append(report)
-        font = log_output.font()
-        font.setFamily("Courier")
+        log_output_widget.append('<br />'.join(report_items))
+        font = log_output_widget.font()
+        font.setFamily('Courier')
         font.setPointSize(10)
 
-        dialog.layout().addWidget(log_output)
+        dialog.layout().addWidget(log_output_widget)
         dialog.exec_()
 
 

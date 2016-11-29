@@ -4,7 +4,7 @@
 import pyblish.api
 
 
-class FtrackPublishCollector(pyblish.api.ContextPlugin):
+class FtrackEntityCollector(pyblish.api.ContextPlugin):
     '''Prepare ftrack publish.'''
 
     order = pyblish.api.CollectorOrder
@@ -17,4 +17,4 @@ class FtrackPublishCollector(pyblish.api.ContextPlugin):
         self.log.debug('Collected ftrack entity {0}.'.format(ftrack_entity))
 
 
-pyblish.api.register_plugin(FtrackPublishCollector)
+pyblish.api.register_plugin(FtrackEntityCollector)

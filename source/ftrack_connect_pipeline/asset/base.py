@@ -6,6 +6,8 @@ import functools
 import ftrack_connect_pipeline.util
 import ftrack_connect_pipeline.ui.publish_dialog
 from ftrack_connect_pipeline.ui.widget.field import asset_selector
+from ftrack_connect_pipeline import constant
+
 
 import logging
 
@@ -106,7 +108,10 @@ class ImportAsset(object):
 class PublishAsset(object):
     '''Manage publish of an asset.'''
 
-    def __init__(self, description, asset_type_short=None):
+    def __init__(
+        self, description, asset_type_short=None,
+        enable_scene_as_reference=True
+    ):
         '''Instantiate publish asset with *label* and *description*.'''
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -114,6 +119,7 @@ class PublishAsset(object):
 
         self.description = description
         self.asset_type_short = asset_type_short
+        self.enable_scene_as_reference = enable_scene_as_reference
 
     def discover(self, event):
         '''Discover import camera.'''
@@ -151,7 +157,7 @@ class PublishAsset(object):
         options = [
             {
                 'widget': asset_selector_widget,
-                'name': 'asset',
+                'name': constant.ASSET_OPTION_NAME,
                 'type': 'qt_widget'
             },
             {
@@ -161,10 +167,18 @@ class PublishAsset(object):
             },
             {
                 'label': 'Comment',
-                'name': 'comment',
+                'name': constant.ASSET_VERSION_COMMENT_OPTION_NAME,
                 'type': 'textarea'
             }
         ]
+
+        if self.enable_scene_as_reference:
+            options.append({
+                'label': 'Attach scene as reference',
+                'name': constant.SCENE_AS_REFERENCE_OPTION_NAME,
+                'type': 'boolean'
+            })
+
         self.logger.debug('Context option: {0!r}.'.format(options))
         return options
 
