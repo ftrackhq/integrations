@@ -3,10 +3,10 @@
 
 from Qt import QtWidgets
 
-from . import workflow_selector
+from ftrack_connect_pipeline.ui.publish import workflow_selector
 import ftrack_connect_pipeline.ui.widget.header
 from ftrack_connect_pipeline.ui.widget.context_selector import ContextSelector
-import ftrack_connect_pipeline.ui.publish_workflow
+import ftrack_connect_pipeline.ui.publish.workflow
 import ftrack_connect_pipeline.util
 
 
@@ -65,7 +65,7 @@ class Dialog(QtWidgets.QDialog):
 
     def set_active_workflow(self, workflow):
         new_workflow = (
-            ftrack_connect_pipeline.ui.publish_workflow.PublishWorkflow(
+            ftrack_connect_pipeline.ui.publish.workflow.Workflow(
                 **workflow
             )
         )

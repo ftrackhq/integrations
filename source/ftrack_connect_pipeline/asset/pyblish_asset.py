@@ -9,7 +9,7 @@ import pyblish.api
 import pyblish.util
 import logging
 
-import ftrack_connect_pipeline.ui.display_pyblish_result
+from ftrack_connect_pipeline.ui.publish import display_pyblish_result
 from .base import PublishAsset
 from ftrack_connect_pipeline import constant
 
@@ -105,7 +105,7 @@ class PyblishAsset(PublishAsset):
 
     def show_detailed_result(self):
         '''Show detailed results for *publish_data*.'''
-        dialog = ftrack_connect_pipeline.ui.display_pyblish_result.Dialog(
+        dialog = display_pyblish_result.Dialog(
             self.pyblish_context.data['results']
         )
         dialog.exec_()
