@@ -326,7 +326,12 @@ class BaseSettingsProvider(object):
     def __call__(self, label, options, store):
         '''Return a qt widget from *item*.'''
         tooltip = None
-        settings_widget = QtWidgets.QGroupBox(label)
+
+        if label is not None:
+            settings_widget = QtWidgets.QGroupBox(label)
+        else:
+            settings_widget = QtWidgets.QWidget()
+
         settings_widget.setLayout(QtWidgets.QVBoxLayout())
         if tooltip:
             settings_widget.setToolTip(tooltip)
@@ -383,6 +388,7 @@ class Workflow(QtWidgets.QWidget):
         list_instances_widget = QtWidgets.QWidget()
         self._list_instances_layout = QtWidgets.QVBoxLayout()
         list_instances_widget.setLayout(self._list_instances_layout)
+        self._list_instances_layout.setContentsMargins(0, 0, 0, 0)
 
         list_instance_settings_widget = QtWidgets.QWidget()
         self._list_items_settings_layout = QtWidgets.QVBoxLayout()
@@ -390,12 +396,14 @@ class Workflow(QtWidgets.QWidget):
         list_instance_settings_widget.setLayout(
             self._list_items_settings_layout
         )
+        self._list_items_settings_layout.setContentsMargins(0, 0, 0, 0)
 
         configuration_layout = QtWidgets.QHBoxLayout()
         configuration_layout.addWidget(list_instances_widget, stretch=1)
         configuration_layout.addWidget(list_instance_settings_widget, stretch=1)
         configuration = QtWidgets.QWidget()
         configuration.setLayout(configuration_layout)
+        configuration_layout.setContentsMargins(0, 0, 0, 0)
 
         information_layout = QtWidgets.QHBoxLayout()
         information_layout.addWidget(
@@ -407,12 +415,14 @@ class Workflow(QtWidgets.QWidget):
         )
         information = QtWidgets.QWidget()
         information.setLayout(information_layout)
+        information_layout.setContentsMargins(0, 0, 0, 0)
 
         publish_button = QtWidgets.QPushButton('Publish')
         publish_button.clicked.connect(self.on_publish_clicked)
 
         main_layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(main_layout)
+        self.layout().setContentsMargins(0, 0, 0, 0)
 
         scroll = QtWidgets.QScrollArea(self)
 
@@ -447,9 +457,9 @@ class Workflow(QtWidgets.QWidget):
         general_options = self.publish_asset.get_options()
         if general_options:
             settings_widget = self.settings_provider(
-                'General',
-                general_options,
-                self.general_options_store
+                label=None,
+                options=general_options,
+                store=self.general_options_store
             )
             self._list_items_settings_layout.insertWidget(0, settings_widget)
 
@@ -508,9 +518,7 @@ class Workflow(QtWidgets.QWidget):
                 save_options_to
             )
             self.settings_map[item['name']] = item_settings_widget
-            self._list_items_settings_layout.insertWidget(
-                0, item_settings_widget
-            )
+            self._list_items_settings_layout.addWidget(item_settings_widget)
 
     def remove_instance_settings(self, item):
         '''Remove *item*.'''

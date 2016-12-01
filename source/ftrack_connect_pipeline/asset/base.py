@@ -48,6 +48,7 @@ class Asset(object):
 
         return {
             'success': True,
+            'message': '',
             'workflow': dict(
                 label=self.label,
                 description=publish_asset.description,
