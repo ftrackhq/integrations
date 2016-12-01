@@ -88,7 +88,7 @@ setup(
     ],
     install_requires=[
         'ftrack-connect >= 0.1.2, < 2',
-        'ftrack-python-api >= 0.5.1, < 1',
+        'ftrack-python-api >= 1, < 2',
         'lucidity >= 1.5, < 2'
     ],
     dependency_links=[
