@@ -3,6 +3,7 @@
 
 from Qt import QtWidgets
 
+import ftrack_connect_pipeline.ui.widget.overlay
 from ftrack_connect_pipeline.ui.publish import workflow_selector
 import ftrack_connect_pipeline.ui.widget.header
 from ftrack_connect_pipeline.ui.widget.context_selector import ContextSelector
@@ -20,6 +21,7 @@ class Dialog(QtWidgets.QDialog):
 
         self.setLayout(QtWidgets.QVBoxLayout())
 
+        #: TOOD: Change how the ftrack entity is collected.
         entity = ftrack_connect_pipeline.util.get_ftrack_entity()
         self.context_selector = ContextSelector(entity)
         self.context_selector.entityChanged.connect(self.on_context_changed)
@@ -31,10 +33,15 @@ class Dialog(QtWidgets.QDialog):
 
         self.publish_container = QtWidgets.QWidget()
         self.publish_container.setLayout(QtWidgets.QHBoxLayout())
+        self.publish_container.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().addWidget(self.publish_container)
 
+        overlay_widget = ftrack_connect_pipeline.ui.widget.overlay.BusyOverlay(
+            self, message='Preparing publish...'
+        )
+
         selector_widget = workflow_selector.WorkflowSelector(
-            self.session
+            self.session, overlay=overlay_widget
         )
         selector_widget.setFixedWidth(100)
         selector_widget._allSection.actionLaunched.connect(
@@ -54,6 +61,7 @@ class Dialog(QtWidgets.QDialog):
         self.publish_asset.switch_entity(entity)
 
     def _handle_actions_launched(self, action, results):
+        '''Handle launch of action *action* and *results*.'''
         if len(results) != 1:
             raise ValueError(
                 'Only one action allowed, got: {0!r}.'.format(results)
@@ -61,14 +69,13 @@ class Dialog(QtWidgets.QDialog):
 
         result = results.pop()
         workflow = result['workflow']
-        print workflow
-
         ftrack_connect_pipeline.util.invoke_in_main_thread(
             self.set_active_workflow,
             workflow
         )
 
     def set_active_workflow(self, workflow):
+        '''Set the active *workflow*.'''
         publish_widget = self.publish_container.layout().itemAt(1).widget()
         self.publish_container.layout().removeWidget(publish_widget)
         publish_widget.setParent(None)

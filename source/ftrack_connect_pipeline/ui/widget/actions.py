@@ -13,7 +13,7 @@ import ftrack_api.event.base
 import ftrack_connect_pipeline.util
 
 from ftrack_connect_pipeline.ui.widget import (
-    action_item, flow_layout, overlay
+    action_item, flow_layout, overlay as overlay_
 )
 
 from ftrack_connect_pipeline.ui.style import OVERLAY_DARK_STYLE
@@ -74,7 +74,9 @@ class Actions(QtWidgets.QWidget):
     #: Emitted when recent actions has been modified
     recentActionsChanged = QtCore.Signal(name='recentActionsChanged')
 
-    def __init__(self, session, all_section_text='All actions', parent=None):
+    def __init__(
+        self, session, all_section_text='All actions', overlay=None, parent=None
+    ):
         '''Initiate a actions view.'''
         super(Actions, self).__init__(parent)
 
@@ -87,6 +89,7 @@ class Actions(QtWidgets.QWidget):
 
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
+        self.layout().setContentsMargins(0, 0, 0, 0)
 
         self._currentUserId = None
         self._recentActions = []
@@ -108,7 +111,11 @@ class Actions(QtWidgets.QWidget):
         self._allSection.actionLaunched.connect(self._onActionLaunched)
         layout.addWidget(self._allSection)
 
-        self._overlay = overlay.BusyOverlay(self, message='Launching...')
+        if overlay is None:
+            self._overlay = overlay_.BusyOverlay(self, message='Launching...')
+        else:
+            self._overlay = overlay
+
         self._overlay.setStyleSheet(OVERLAY_DARK_STYLE)
         self._overlay.setVisible(False)
 
