@@ -18,8 +18,6 @@ class Dialog(QtWidgets.QDialog):
         self.session = session
         super(Dialog, self).__init__()
 
-        self.current_workflow = None
-
         self.setLayout(QtWidgets.QVBoxLayout())
 
         entity = ftrack_connect_pipeline.util.get_ftrack_entity()
@@ -38,10 +36,17 @@ class Dialog(QtWidgets.QDialog):
         selector_widget = workflow_selector.WorkflowSelector(
             self.session
         )
+        selector_widget.setFixedWidth(100)
         selector_widget._allSection.actionLaunched.connect(
             self._handle_actions_launched
         )
         self.publish_container.layout().addWidget(selector_widget)
+        self.publish_container.layout().addWidget(
+            QtWidgets.QLabel(
+                '<center><h3>Select what to publish</h3></center>'
+            ),
+            stretch=1
+        )
 
     def on_context_changed(self, entity):
         '''Set the current context to the given *entity*.'''
@@ -64,16 +69,12 @@ class Dialog(QtWidgets.QDialog):
         )
 
     def set_active_workflow(self, workflow):
-        new_workflow = (
+        publish_widget = self.publish_container.layout().itemAt(1).widget()
+        self.publish_container.layout().removeWidget(publish_widget)
+        publish_widget.setParent(None)
+
+        self.publish_container.layout().addWidget(
             ftrack_connect_pipeline.ui.publish.workflow.Workflow(
                 **workflow
             )
         )
-
-        if self.current_workflow is not None:
-            self.publish_container.layout().removeWidget(self.current_workflow)
-            self.current_workflow.setParent(None)
-
-        self.publish_container.layout().addWidget(new_workflow)
-
-        self.current_workflow = new_workflow

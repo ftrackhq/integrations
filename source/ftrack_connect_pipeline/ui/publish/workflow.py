@@ -352,7 +352,6 @@ class Workflow(QtWidgets.QWidget):
     ):
         '''Display instances that can be published.'''
         super(Workflow, self).__init__()
-        self.setMinimumSize(800, 600)
         self.session = session
         self._label_text = label
         self.publish_asset = publish_asset

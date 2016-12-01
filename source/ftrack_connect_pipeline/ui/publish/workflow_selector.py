@@ -17,7 +17,7 @@ class WorkflowSelector(ftrack_connect_pipeline.ui.widget.actions.Actions):
         '''Instantiate publish actions dialog.'''
         super(WorkflowSelector, self).__init__(
             session,
-            all_section_text='<h3>Select what to publish</h3>',
+            all_section_text='',
             **kwargs
         )
         configure_logging('ftrack_connect_pipeline')
