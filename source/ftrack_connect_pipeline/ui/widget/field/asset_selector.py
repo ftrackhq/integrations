@@ -26,7 +26,7 @@ class AssetSelector(BaseField):
         self.asset_selector = QtWidgets.QComboBox(self)
         main_layout.addWidget(self.asset_selector)
 
-        self.asset_selector.addItem('Create new')
+        self.asset_selector.addItem('Create new asset')
         for asset in self.assets:
             self.asset_selector.addItem(asset['name'])
 
