@@ -12,9 +12,7 @@ from QtExt import QtGui, QtCore, QtWidgets
 from ftrack_api.event.base import Event
 
 from ftrack_connect_pipeline.ui.widget.overlay import BusyOverlay
-from ftrack_connect_pipeline.ui.widget.header import Header
 from ftrack_connect_pipeline.ui.widget.overlay import Overlay
-from ftrack_connect_pipeline.ui.widget.context_selector import ContextSelector
 from ftrack_connect_pipeline.ui.usage import send_event as send_usage
 from ftrack_connect_pipeline.ui.style import OVERLAY_DARK_STYLE
 import ftrack_connect_pipeline.util
@@ -343,7 +341,7 @@ class BaseSettingsProvider(object):
         return settings_widget
 
 
-class PublishDialog(QtWidgets.QDialog):
+class Workflow(QtWidgets.QWidget):
     '''Publish dialog.'''
 
     OVERLAY_MESSAGE_TIMEOUT = 1
@@ -353,10 +351,9 @@ class PublishDialog(QtWidgets.QDialog):
         settings_provider=None, parent=None
     ):
         '''Display instances that can be published.'''
-        super(PublishDialog, self).__init__()
+        super(Workflow, self).__init__()
         self.setMinimumSize(800, 600)
         self.session = session
-        self.header = Header(self.session)
         self._label_text = label
         self.publish_asset = publish_asset
 
@@ -375,10 +372,6 @@ class PublishDialog(QtWidgets.QDialog):
         )
 
         self.publish_asset.prepare_publish()
-
-        entity = self.publish_asset.get_entity()
-        self.context_selector = ContextSelector(entity)
-        self.context_selector.entityChanged.connect(self.on_context_changed)
 
         self.item_options_store = {}
         self.general_options_store = {}
@@ -421,9 +414,6 @@ class PublishDialog(QtWidgets.QDialog):
 
         main_layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(main_layout)
-
-        main_layout.addWidget(self.header)
-        main_layout.addWidget(self.context_selector)
 
         scroll = QtWidgets.QScrollArea(self)
 
@@ -498,10 +488,6 @@ class PublishDialog(QtWidgets.QDialog):
         '''Hide overlay after *timeout* seconds.'''
         time.sleep(timeout)
         self._publish_overlay.setVisible(False)
-
-    def on_context_changed(self, entity):
-        '''Set the current context to the given *entity*.'''
-        self.publish_asset.switch_entity(entity)
 
     def on_selection_changed(self, widget):
         '''Handle selection changed.'''

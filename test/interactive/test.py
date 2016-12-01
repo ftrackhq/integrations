@@ -46,5 +46,5 @@ import ftrack_connect_pipeline.ui.theme
 ftrack_connect_pipeline.ui.theme.applyFont()
 ftrack_connect_pipeline.ui.theme.applyTheme(application, 'light', 'cleanlooks')
 
-import ftrack_connect_pipeline.ui.publish_actions_dialog
-ftrack_connect_pipeline.ui.publish_actions_dialog.show(session)
+import ftrack_connect_pipeline.ui.publish
+ftrack_connect_pipeline.ui.publish.open(session)
