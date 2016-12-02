@@ -3,6 +3,7 @@
 
 
 def open(session):
+    '''Open publish dialog using *session*.'''
     from . import dialog
     publish_dialog = dialog.Dialog(session)
     publish_dialog.setMinimumSize(800, 600)
