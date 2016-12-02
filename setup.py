@@ -25,18 +25,18 @@ with open(os.path.join(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
-connect_install_require = 'ftrack-connect == 0.1.30'
+connect_install_require = 'ftrack-connect == 0.1.32'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.30.zip'
-    '#egg=ftrack-connect-0.1.30'
+    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.32.zip'
+    '#egg=ftrack-connect-0.1.32'
 )
 
 connect_3ds_max_install_require = 'ftrack-connect-3dsmax >=0.1, < 1'
 
 connect_3ds_max_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-3dsmax/get/0.2.10.zip'
-    '#egg=ftrack-connect-3dsmax-0.2.10'
+    'https://bitbucket.org/ftrack/ftrack-connect-3dsmax/get/0.2.11.zip'
+    '#egg=ftrack-connect-3dsmax-0.2.11'
 )
 
 connect_legacy_plugins_install_require = (
@@ -44,7 +44,7 @@ connect_legacy_plugins_install_require = (
     ' >=0.1, < 1'
 )
 connect_legacy_plugins_dependency_link = (
-    'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.9'
+    'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.10'
     .format(os.environ['FTRACK_CONNECT_LEGACY_PLUGINS_PATH'].replace('\\', '/'))
 )
 
@@ -58,8 +58,8 @@ connect_hieroplayer_dependency_link = (
 )
 
 connect_nuke_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/0.1.9.zip'
-    '#egg=ftrack-connect-nuke-0.1.9'
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/0.1.11.zip'
+    '#egg=ftrack-connect-nuke-0.1.11'
 )
 connect_nuke_dependency_install_require = (
     'ftrack-connect-nuke'
@@ -67,8 +67,8 @@ connect_nuke_dependency_install_require = (
 )
 
 connect_maya_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-maya/get/0.2.4.zip'
-    '#egg=ftrack-connect-maya-0.2.4'
+    'https://bitbucket.org/ftrack/ftrack-connect-maya/get/0.2.5.zip'
+    '#egg=ftrack-connect-maya-0.2.5'
 )
 connect_maya_dependency_install_require = (
     'ftrack-connect-maya'
@@ -76,8 +76,8 @@ connect_maya_dependency_install_require = (
 )
 
 connect_nuke_studio_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke-studio/get/0.2.5.zip'
-    '#egg=ftrack-connect-nuke-studio-0.2.5'
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke-studio/get/0.2.6.zip'
+    '#egg=ftrack-connect-nuke-studio-0.2.6'
 )
 connect_nuke_studio_dependency_install_require = (
     'ftrack-connect-nuke-studio'

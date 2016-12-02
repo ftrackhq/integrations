@@ -6,6 +6,33 @@ Releases
 ########
 
 
+.. release:: 0.5.4
+    :date: 2016-12-01
+
+    .. change:: changed
+
+        `ftrack connect legacy plugins 0.1.10 <http://ftrack-connect-legacy-plugins.rtd.ftrack.com/en/0.1.10/>`_
+
+    .. change:: changed
+
+        `ftrack connect 0.1.32 <http://ftrack-connect.rtd.ftrack.com/en/0.1.32/>`_
+
+    .. change:: changed
+
+        `ftrack connect 3ds max 0.2.11 <http://ftrack-connect-cinema-3dsmax.rtd.ftrack.com/en/0.2.11/>`_
+
+    .. change:: changed
+
+        `ftrack connect maya 0.2.5 <http://ftrack-connect-maya.rtd.ftrack.com/en/0.2.5/>`_
+
+    .. change:: changed
+
+        `ftrack connect nuke 0.1.11 <http://ftrack-connect-nuke.rtd.ftrack.com/en/0.1.11/>`_
+
+    .. change:: changed
+
+        `ftrack connect nuke studio 0.2.6 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/0.2.6/>`_
+
 .. release:: 0.5.3
     :date: 2016-09-28
 
