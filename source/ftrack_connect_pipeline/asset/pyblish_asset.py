@@ -42,9 +42,11 @@ class PyblishAsset(PublishAsset):
         )
         pyblish.plugin.register_plugin_path(path)
 
-    def prepare_publish(self):
-        '''Return context for publishing.'''
+    def prepare_publish(self, ftrack_entity):
+        '''Prepare publish using *ftrack_entity*.'''
         context = pyblish.api.Context()
+        context.data['ftrack_entity'] = ftrack_entity
+
         context = pyblish.util.collect(context=context)
         self.pyblish_context = context
 
@@ -109,10 +111,6 @@ class PyblishAsset(PublishAsset):
             self.pyblish_context.data['results']
         )
         dialog.exec_()
-
-    def get_entity(self):
-        '''Return the current context entity.'''
-        return self.pyblish_context.data['ftrack_entity']
 
     def switch_entity(self, entity):
         '''Change current context of **publish_data* to the given *entity*.'''

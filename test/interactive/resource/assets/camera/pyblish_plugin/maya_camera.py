@@ -8,7 +8,9 @@ class CollectMayaCamera(pyblish.api.ContextPlugin):
 
     def process(self, context):
         '''Process *context* and add maya camera instances.'''
-        instance = context.create_instance('camera1', family='camera')
+        instance = context.create_instance(
+            'camera1', families=['ftrack', 'camera']
+        )
         instance.data['publish'] = True
         instance.data['options'] = {
             'bake_camera': True,
@@ -17,7 +19,9 @@ class CollectMayaCamera(pyblish.api.ContextPlugin):
         }
         instance.data['ftrack_components'] = []
 
-        instance2 = context.create_instance('camera2', family='camera')
+        instance2 = context.create_instance(
+            'camera2', families=['ftrack', 'camera']
+        )
         instance2.data['ftrack_components'] = []
 
 
