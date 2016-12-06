@@ -14,16 +14,17 @@ import ftrack_connect_pipeline.util
 class Dialog(QtWidgets.QDialog):
     '''Publish dialog that lists workflows and content.'''
 
-    def __init__(self, session, entity):
+    def __init__(self, session):
         '''Instantiate with *session*.'''
         self.session = session
         super(Dialog, self).__init__()
 
-        self.active_workflow = None
-
         self.setLayout(QtWidgets.QVBoxLayout())
 
+        #: TOOD: Change how the ftrack entity is collected.
+        entity = ftrack_connect_pipeline.util.get_ftrack_entity()
         self.context_selector = ContextSelector(entity)
+        self.context_selector.entityChanged.connect(self.on_context_changed)
 
         self.layout().addWidget(
             ftrack_connect_pipeline.ui.widget.header.Header(session)
@@ -54,6 +55,11 @@ class Dialog(QtWidgets.QDialog):
             stretch=1
         )
 
+    def on_context_changed(self, entity):
+        '''Set the current context to the given *entity*.'''
+        # :TODO: Fix this and connect to the real entity.
+        self.publish_asset.switch_entity(entity)
+
     def _handle_actions_launched(self, action, results):
         '''Handle launch of action *action* and *results*.'''
         if len(results) != 1:
@@ -62,26 +68,20 @@ class Dialog(QtWidgets.QDialog):
             )
 
         result = results.pop()
-        publish_asset = result['publish_asset']
+        workflow = result['workflow']
         ftrack_connect_pipeline.util.invoke_in_main_thread(
             self.set_active_workflow,
-            action['label'],
-            publish_asset
+            workflow
         )
 
-    def set_active_workflow(self, label, publish_asset):
-        '''Set the active *publish_asset*.'''
+    def set_active_workflow(self, workflow):
+        '''Set the active *workflow*.'''
         publish_widget = self.publish_container.layout().itemAt(1).widget()
         self.publish_container.layout().removeWidget(publish_widget)
         publish_widget.setParent(None)
 
-        self.active_workflow = (
+        self.publish_container.layout().addWidget(
             ftrack_connect_pipeline.ui.publish.workflow.Workflow(
-                label=label,
-                publish_asset=publish_asset,
-                context_selector=self.context_selector,
-                session=self.session
+                **workflow
             )
         )
-
-        self.publish_container.layout().addWidget(self.active_workflow)

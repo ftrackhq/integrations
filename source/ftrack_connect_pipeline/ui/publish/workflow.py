@@ -352,7 +352,7 @@ class Workflow(QtWidgets.QWidget):
     OVERLAY_MESSAGE_TIMEOUT = 1
 
     def __init__(
-        self, label, publish_asset, context_selector, session,
+        self, label, description, publish_asset, session,
         settings_provider=None, parent=None
     ):
         '''Display instances that can be published.'''
@@ -360,7 +360,6 @@ class Workflow(QtWidgets.QWidget):
         self.session = session
         self._label_text = label
         self.publish_asset = publish_asset
-        description = publish_asset.description
 
         result = self.session.event_hub.publish(
             Event(
@@ -376,8 +375,7 @@ class Workflow(QtWidgets.QWidget):
             }
         )
 
-        context_selector.entityChanged.connect(self.on_context_changed)
-        self.publish_asset.prepare_publish(context_selector.getEntity())
+        self.publish_asset.prepare_publish()
 
         self.item_options_store = {}
         self.general_options_store = {}
@@ -569,7 +567,3 @@ class Workflow(QtWidgets.QWidget):
         self.list_items_view.update_selection(
             scene_selection_names
         )
-
-    def on_context_changed(self, entity):
-        '''Switch entity of publish asset to *entity*.'''
-        self.publish_asset.switch_entity(entity)

@@ -49,7 +49,12 @@ class Asset(object):
         return {
             'success': True,
             'message': '',
-            'publish_asset': publish_asset
+            'workflow': dict(
+                label=self.label,
+                description=publish_asset.description,
+                publish_asset=publish_asset,
+                session=self._session
+            )
         }
 
     def register(self, session):
@@ -105,9 +110,9 @@ class PublishAsset(object):
         '''Discover import camera.'''
         raise NotImplementedError()
 
-    def prepare_publish(self, ftrack_entity):
-        '''Prepare publish using *ftrack_entity*.'''
-        self.ftrack_entity = ftrack_entity
+    def prepare_publish(self):
+        '''Return context for publishing.'''
+        self.ftrack_entity = ftrack_connect_pipeline.util.get_ftrack_entity()
         self.publish_data = dict()
 
     def get_publish_items(self):
@@ -169,6 +174,10 @@ class PublishAsset(object):
     def get_scene_selection(self):
         '''Return a list of names for scene selection.'''
         raise NotImplementedError()
+
+    def get_entity(self):
+        '''Return the current context entity.'''
+        return self.ftrack_entity
 
     def switch_entity(self, entity):
         '''Change current context of **publish_data* to the given *entity*.'''
