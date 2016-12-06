@@ -352,7 +352,7 @@ class Workflow(QtWidgets.QWidget):
     OVERLAY_MESSAGE_TIMEOUT = 1
 
     def __init__(
-        self, label, description, publish_asset, session,
+        self, label, description, publish_asset, ftrack_entity, session,
         settings_provider=None, parent=None
     ):
         '''Display instances that can be published.'''
@@ -375,7 +375,7 @@ class Workflow(QtWidgets.QWidget):
             }
         )
 
-        self.publish_asset.prepare_publish()
+        self.publish_asset.prepare_publish(ftrack_entity)
 
         self.item_options_store = {}
         self.general_options_store = {}

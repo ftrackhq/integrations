@@ -110,9 +110,9 @@ class PublishAsset(object):
         '''Discover import camera.'''
         raise NotImplementedError()
 
-    def prepare_publish(self):
+    def prepare_publish(self, ftrack_entity):
         '''Return context for publishing.'''
-        self.ftrack_entity = ftrack_connect_pipeline.util.get_ftrack_entity()
+        self.ftrack_entity = ftrack_entity
         self.publish_data = dict()
 
     def get_publish_items(self):

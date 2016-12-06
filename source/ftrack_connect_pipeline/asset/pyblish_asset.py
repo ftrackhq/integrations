@@ -42,7 +42,7 @@ class PyblishAsset(PublishAsset):
         )
         pyblish.plugin.register_plugin_path(path)
 
-    def prepare_publish(self):
+    def prepare_publish(self, ftrack_entity):
         '''Return context for publishing.'''
         context = pyblish.api.Context()
         context = pyblish.util.collect(context=context)

@@ -31,9 +31,9 @@ class ImportGeometry(ftrack_connect_pipeline.asset.ImportAsset):
 class PublishGeometry(ftrack_connect_pipeline.asset.PublishAsset):
     '''Handle publish of maya geometry.'''
 
-    def prepare_publish(self):
+    def prepare_publish(self, ftrack_entity):
         '''Prepare publish and populate with items.'''
-        super(PublishGeometry, self).prepare_publish()
+        super(PublishGeometry, self).prepare_publish(ftrack_entity)
         # Loop over maya scene and scan for maya models to publish.
         self.publish_items = ['maya_model_xyz', 'some_other_model', 'foo']
 

@@ -46,5 +46,8 @@ import ftrack_connect_pipeline.ui.theme
 ftrack_connect_pipeline.ui.theme.applyFont()
 ftrack_connect_pipeline.ui.theme.applyTheme(application, 'light', 'cleanlooks')
 
+import ftrack_connect_pipeline.shared_pyblish_plugins
+ftrack_connect_pipeline.shared_pyblish_plugins.register()
+
 import ftrack_connect_pipeline.ui.publish
 ftrack_connect_pipeline.ui.publish.open(session)

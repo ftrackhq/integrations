@@ -423,6 +423,10 @@ class ContextSelector(QtWidgets.QWidget):
         self._entity = entity
         self.entityChanged.emit(entity)
 
+    def getEntity(self):
+        '''Return selected entity.'''
+        return self._entity
+
     def _onEntityBrowseButtonClicked(self):
         '''Handle entity browse button clicked.'''
         # Ensure browser points to parent of currently selected entity.

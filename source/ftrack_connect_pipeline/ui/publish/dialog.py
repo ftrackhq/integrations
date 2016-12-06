@@ -14,16 +14,16 @@ import ftrack_connect_pipeline.util
 class Dialog(QtWidgets.QDialog):
     '''Publish dialog that lists workflows and content.'''
 
-    def __init__(self, session):
+    def __init__(self, ftrack_entity, session):
         '''Instantiate with *session*.'''
         self.session = session
         super(Dialog, self).__init__()
 
         self.setLayout(QtWidgets.QVBoxLayout())
 
-        #: TOOD: Change how the ftrack entity is collected.
-        entity = ftrack_connect_pipeline.util.get_ftrack_entity()
-        self.context_selector = ContextSelector(entity)
+        self.active_workflow_widget = None
+
+        self.context_selector = ContextSelector(ftrack_entity)
         self.context_selector.entityChanged.connect(self.on_context_changed)
 
         self.layout().addWidget(
@@ -47,18 +47,33 @@ class Dialog(QtWidgets.QDialog):
         selector_widget._allSection.actionLaunched.connect(
             self._handle_actions_launched
         )
+
+        self.placeholder_widget = QtWidgets.QLabel(
+            '<center><h3>Select what to publish</h3></center>'
+        )
+
         self.publish_container.layout().addWidget(selector_widget)
         self.publish_container.layout().addWidget(
-            QtWidgets.QLabel(
-                '<center><h3>Select what to publish</h3></center>'
-            ),
+            self.placeholder_widget,
             stretch=1
         )
 
-    def on_context_changed(self, entity):
-        '''Set the current context to the given *entity*.'''
-        # :TODO: Fix this and connect to the real entity.
-        self.publish_asset.switch_entity(entity)
+    def on_context_changed(self, ftrack_entity):
+        '''Set the current context to the given *ftrack_entity*.'''
+        if self.active_workflow_widget:
+            self.remove_active_workflow_widget()
+            self.publish_container.layout().addWidget(
+                self.placeholder_widget,
+                stretch=1
+            )
+
+    def remove_active_workflow_widget(self):
+        '''Remove active workflow widget from container.'''
+        self.publish_container.layout().removeWidget(
+            self.active_workflow_widget
+        )
+        self.active_workflow_widget.setParent(None)
+        self.active_workflow_widget = None
 
     def _handle_actions_launched(self, action, results):
         '''Handle launch of action *action* and *results*.'''
@@ -76,12 +91,16 @@ class Dialog(QtWidgets.QDialog):
 
     def set_active_workflow(self, workflow):
         '''Set the active *workflow*.'''
-        publish_widget = self.publish_container.layout().itemAt(1).widget()
-        self.publish_container.layout().removeWidget(publish_widget)
-        publish_widget.setParent(None)
+        if self.active_workflow_widget:
+            self.remove_active_workflow_widget()
+        else:
+            self.publish_container.layout().removeWidget(
+                self.placeholder_widget
+            )
 
-        self.publish_container.layout().addWidget(
+        self.active_workflow_widget = (
             ftrack_connect_pipeline.ui.publish.workflow.Workflow(
-                **workflow
+                ftrack_entity=self.context_selector.getEntity(), **workflow
             )
         )
+        self.publish_container.layout().addWidget(self.active_workflow_widget)
