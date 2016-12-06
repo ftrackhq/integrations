@@ -2,6 +2,8 @@
 # :copyright: Copyright (c) 2016 ftrack
 
 import ftrack_connect_pipeline.util
+
+
 from ftrack_connect_pipeline.ui.widget.field import asset_selector
 from ftrack_connect_pipeline import constant
 
@@ -45,16 +47,10 @@ class Asset(object):
     def launch_publish(self, event):
         '''Callback method for publish action.'''
         publish_asset = self.create_asset_publish()
-
         return {
             'success': True,
             'message': '',
-            'workflow': dict(
-                label=self.label,
-                description=publish_asset.description,
-                publish_asset=publish_asset,
-                session=self._session
-            )
+            'publish_asset': publish_asset
         }
 
     def register(self, session):
@@ -110,9 +106,9 @@ class PublishAsset(object):
         '''Discover import camera.'''
         raise NotImplementedError()
 
-    def prepare_publish(self, ftrack_entity):
+    def prepare_publish(self):
         '''Return context for publishing.'''
-        self.ftrack_entity = ftrack_entity
+        self.ftrack_entity = ftrack_connect_pipeline.util.get_ftrack_entity()
         self.publish_data = dict()
 
     def get_publish_items(self):

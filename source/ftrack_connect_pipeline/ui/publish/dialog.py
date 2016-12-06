@@ -60,6 +60,7 @@ class Dialog(QtWidgets.QDialog):
 
     def on_context_changed(self, ftrack_entity):
         '''Set the current context to the given *ftrack_entity*.'''
+        ftrack_connect_pipeline.util.set_ftrack_entity(ftrack_entity['id'])
         if self.active_workflow_widget:
             self.remove_active_workflow_widget()
             self.publish_container.layout().addWidget(
@@ -83,13 +84,13 @@ class Dialog(QtWidgets.QDialog):
             )
 
         result = results.pop()
-        workflow = result['workflow']
+        publish_asset = result['publish_asset']
         ftrack_connect_pipeline.util.invoke_in_main_thread(
             self.set_active_workflow,
-            workflow
+            action['label'], publish_asset
         )
 
-    def set_active_workflow(self, workflow):
+    def set_active_workflow(self, label, publish_asset):
         '''Set the active *workflow*.'''
         if self.active_workflow_widget:
             self.remove_active_workflow_widget()
@@ -100,7 +101,10 @@ class Dialog(QtWidgets.QDialog):
 
         self.active_workflow_widget = (
             ftrack_connect_pipeline.ui.publish.workflow.Workflow(
-                ftrack_entity=self.context_selector.getEntity(), **workflow
+                label=label,
+                description=publish_asset.description,
+                publish_asset=publish_asset,
+                session=self.session
             )
         )
         self.publish_container.layout().addWidget(self.active_workflow_widget)

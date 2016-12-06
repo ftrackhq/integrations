@@ -24,9 +24,6 @@ session = ftrack_api.Session(
     ]
 )
 
-import ftrack_connect_pipeline.asset
-
-# ftrack_connect_pipeline.asset.discover(session, 'interactive-test')
 
 sys.path.append(
     os.path.join(

@@ -126,6 +126,10 @@ def invoke_in_main_thread(fn, *args, **kwargs):
     )
 
 
+def set_ftrack_entity(entity_id):
+    '''Return current ftrack entity.'''
+    os.environ['FTRACK_CONTEXT_ID'] = entity_id
+
 def get_ftrack_entity():
     '''Return current ftrack entity.'''
     session = get_session()
