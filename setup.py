@@ -319,6 +319,38 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         else:
             includes.append(dbmodule)
 
+    # MSI shotcut table list
+    shortcut_table = [
+        (
+            "DesktopShortcut",       
+            "DesktopFolder",         
+             "ftrack_connect_package", 
+             "TARGETDIR",             
+             "[TARGETDIR]ftrack_connect_package.exe",
+             None,                    
+             None,                     
+             None,                    
+             None,                    
+             None,                     
+             None,                     
+             'TARGETDIR'              
+         ),
+        (
+            "ProgramMenuShortcut",        
+             "ProgramMenuFolder",         
+             "ftrack_connect_package",          
+             "TARGETDIR",             
+             "[TARGETDIR]ftrack_connect_package.exe",
+             None,                     
+             None,                     
+             None,                    
+             None,                   
+             None,                    
+             None,                    
+             'TARGETDIR'              
+         )
+    ]
+
     if sys.platform == 'win32':
         executables.append(
             Executable(
@@ -326,7 +358,6 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
                 base='Win32GUI',
                 targetName='ftrack_connect_package.exe',
                 icon='./logo.ico',
-                shortcutDir="ProgramMenuFolder"
             )
         )
 
@@ -334,6 +365,11 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         # package is upgraded when installing a new version.
         configuration['options']['bdist_msi'] = {
             'upgrade_code': '{e5666af3-56a5-426a-b308-54c2d6ad8704}'
+        }
+
+        # Specify shortucut list for MSI installer
+        configuration['options']['bdist_msi'] = {
+            'data': {"Shortcut": shortcut_table}
         }
 
     elif sys.platform == 'darwin':
