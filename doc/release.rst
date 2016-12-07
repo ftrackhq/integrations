@@ -5,6 +5,10 @@
 Releases
 ########
 
+.. release::Upcoming
+    .. change:: changed
+
+        Windows installation does not create shortcuts.
 
 .. release:: 0.5.4
     :date: 2016-12-01
