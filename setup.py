@@ -325,7 +325,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
                 script='source/ftrack_connect_package/__main__.py',
                 base='Win32GUI',
                 targetName='ftrack_connect_package.exe',
-                icon='./logo.ico'
+                icon='./logo.ico',
+                shortcutDir="ProgramMenuFolder"
             )
         )
 
