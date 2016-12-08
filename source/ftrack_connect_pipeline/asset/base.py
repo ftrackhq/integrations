@@ -1,26 +1,14 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2016 ftrack
 
-import functools
-
 import ftrack_connect_pipeline.util
-import ftrack_connect_pipeline.ui.publish_dialog
+
+
 from ftrack_connect_pipeline.ui.widget.field import asset_selector
 from ftrack_connect_pipeline import constant
 
 
 import logging
-
-
-def open_publish_dialog(label, description, publish_asset, session):
-    '''Open publish dialog for *publish_asset*.'''
-    dialog = ftrack_connect_pipeline.ui.publish_dialog.PublishDialog(
-        label=label,
-        description=description,
-        publish_asset=publish_asset,
-        session=session
-    )
-    dialog.exec_()
 
 
 class Asset(object):
@@ -59,17 +47,10 @@ class Asset(object):
     def launch_publish(self, event):
         '''Callback method for publish action.'''
         publish_asset = self.create_asset_publish()
-
-        ftrack_connect_pipeline.util.invoke_in_main_thread(
-            functools.partial(
-                open_publish_dialog, self.label, publish_asset.description,
-                publish_asset, self._session
-            )
-        )
-
         return {
             'success': True,
-            'message': 'Custom publish action started successfully!'
+            'message': '',
+            'publish_asset': publish_asset
         }
 
     def register(self, session):

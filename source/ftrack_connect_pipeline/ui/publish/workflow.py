@@ -12,9 +12,7 @@ from QtExt import QtGui, QtCore, QtWidgets
 from ftrack_api.event.base import Event
 
 from ftrack_connect_pipeline.ui.widget.overlay import BusyOverlay
-from ftrack_connect_pipeline.ui.widget.header import Header
 from ftrack_connect_pipeline.ui.widget.overlay import Overlay
-from ftrack_connect_pipeline.ui.widget.context_selector import ContextSelector
 from ftrack_connect_pipeline.ui.usage import send_event as send_usage
 from ftrack_connect_pipeline.ui.style import OVERLAY_DARK_STYLE
 import ftrack_connect_pipeline.util
@@ -328,7 +326,12 @@ class BaseSettingsProvider(object):
     def __call__(self, label, options, store):
         '''Return a qt widget from *item*.'''
         tooltip = None
-        settings_widget = QtWidgets.QGroupBox(label)
+
+        if label is not None:
+            settings_widget = QtWidgets.QGroupBox(label)
+        else:
+            settings_widget = QtWidgets.QWidget()
+
         settings_widget.setLayout(QtWidgets.QVBoxLayout())
         if tooltip:
             settings_widget.setToolTip(tooltip)
@@ -343,7 +346,7 @@ class BaseSettingsProvider(object):
         return settings_widget
 
 
-class PublishDialog(QtWidgets.QDialog):
+class Workflow(QtWidgets.QWidget):
     '''Publish dialog.'''
 
     OVERLAY_MESSAGE_TIMEOUT = 1
@@ -353,10 +356,8 @@ class PublishDialog(QtWidgets.QDialog):
         settings_provider=None, parent=None
     ):
         '''Display instances that can be published.'''
-        super(PublishDialog, self).__init__()
-        self.setMinimumSize(800, 600)
+        super(Workflow, self).__init__()
         self.session = session
-        self.header = Header(self.session)
         self._label_text = label
         self.publish_asset = publish_asset
 
@@ -376,10 +377,6 @@ class PublishDialog(QtWidgets.QDialog):
 
         self.publish_asset.prepare_publish()
 
-        entity = self.publish_asset.get_entity()
-        self.context_selector = ContextSelector(entity)
-        self.context_selector.entityChanged.connect(self.on_context_changed)
-
         self.item_options_store = {}
         self.general_options_store = {}
 
@@ -391,6 +388,7 @@ class PublishDialog(QtWidgets.QDialog):
         list_instances_widget = QtWidgets.QWidget()
         self._list_instances_layout = QtWidgets.QVBoxLayout()
         list_instances_widget.setLayout(self._list_instances_layout)
+        self._list_instances_layout.setContentsMargins(0, 0, 0, 0)
 
         list_instance_settings_widget = QtWidgets.QWidget()
         self._list_items_settings_layout = QtWidgets.QVBoxLayout()
@@ -398,12 +396,14 @@ class PublishDialog(QtWidgets.QDialog):
         list_instance_settings_widget.setLayout(
             self._list_items_settings_layout
         )
+        self._list_items_settings_layout.setContentsMargins(0, 0, 0, 0)
 
         configuration_layout = QtWidgets.QHBoxLayout()
         configuration_layout.addWidget(list_instances_widget, stretch=1)
         configuration_layout.addWidget(list_instance_settings_widget, stretch=1)
         configuration = QtWidgets.QWidget()
         configuration.setLayout(configuration_layout)
+        configuration_layout.setContentsMargins(0, 0, 0, 0)
 
         information_layout = QtWidgets.QHBoxLayout()
         information_layout.addWidget(
@@ -415,15 +415,14 @@ class PublishDialog(QtWidgets.QDialog):
         )
         information = QtWidgets.QWidget()
         information.setLayout(information_layout)
+        information_layout.setContentsMargins(0, 0, 0, 0)
 
         publish_button = QtWidgets.QPushButton('Publish')
         publish_button.clicked.connect(self.on_publish_clicked)
 
         main_layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(main_layout)
-
-        main_layout.addWidget(self.header)
-        main_layout.addWidget(self.context_selector)
+        self.layout().setContentsMargins(0, 0, 0, 0)
 
         scroll = QtWidgets.QScrollArea(self)
 
@@ -458,9 +457,9 @@ class PublishDialog(QtWidgets.QDialog):
         general_options = self.publish_asset.get_options()
         if general_options:
             settings_widget = self.settings_provider(
-                'General',
-                general_options,
-                self.general_options_store
+                label=None,
+                options=general_options,
+                store=self.general_options_store
             )
             self._list_items_settings_layout.insertWidget(0, settings_widget)
 
@@ -499,10 +498,6 @@ class PublishDialog(QtWidgets.QDialog):
         time.sleep(timeout)
         self._publish_overlay.setVisible(False)
 
-    def on_context_changed(self, entity):
-        '''Set the current context to the given *entity*.'''
-        self.publish_asset.switch_entity(entity)
-
     def on_selection_changed(self, widget):
         '''Handle selection changed.'''
         item = widget.item()
@@ -523,9 +518,7 @@ class PublishDialog(QtWidgets.QDialog):
                 save_options_to
             )
             self.settings_map[item['name']] = item_settings_widget
-            self._list_items_settings_layout.insertWidget(
-                0, item_settings_widget
-            )
+            self._list_items_settings_layout.addWidget(item_settings_widget)
 
     def remove_instance_settings(self, item):
         '''Remove *item*.'''

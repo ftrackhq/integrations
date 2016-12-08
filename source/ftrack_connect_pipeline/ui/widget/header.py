@@ -1,12 +1,11 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015 ftrack
 
-import os
-
 from QtExt import QtCore, QtWidgets, QtGui
 
-import ftrack
 from ftrack_connect_pipeline.ui import resource
+
+import ftrack_connect_pipeline.util
 import thumbnail
 
 
@@ -48,7 +47,7 @@ class Header(QtWidgets.QFrame):
 
         username = str(session.api_user)
         self.logo = Logo(self)
-        self.user = User(username, self)
+        self.user = User(username, session, self)
 
         self.id_container_layout.addWidget(self.logo)
         self.id_container_layout.addItem(spacer)
@@ -109,7 +108,7 @@ class Logo(QtWidgets.QLabel):
 class User(QtWidgets.QWidget):
     '''User name and logo widget.'''
 
-    def __init__(self, username, parent=None):
+    def __init__(self, username, session, parent=None):
         '''Instantiate user name and logo widget using *username*.'''
 
         super(User, self).__init__(parent=parent)
@@ -121,6 +120,8 @@ class User(QtWidgets.QWidget):
         )
         self.setLayout(self.main_layout)
 
+        self.session = session
+
         self.label = QtWidgets.QLabel(self)
         self.image = thumbnail.User(self)
         self.image.setFixedSize(35, 35)
@@ -128,12 +129,33 @@ class User(QtWidgets.QWidget):
         self.main_layout.addWidget(self.label)
         self.main_layout.addWidget(self.image)
 
+        self.username = username
         self.image.load(username)
 
-        if username not in NAME_CACHE:
-            NAME_CACHE[username] = username
+        if username in NAME_CACHE:
+            self.set_user_fullname()
+        else:
+            self.load_user_fullname()
 
-        self.label.setText(NAME_CACHE[username])
+    @ftrack_connect_pipeline.util.asynchronous
+    def load_user_fullname(self):
+        '''Load user fullname.'''
+        user = self.session.query(
+            'select first_name, last_name from User where username is '
+            '"{0}"'.format(self.username)
+        ).first()
+
+        if user:
+            NAME_CACHE[self.username] = '{0} {1}'.format(
+                user['first_name'], user['last_name']
+            )
+            ftrack_connect_pipeline.util.invoke_in_main_thread(
+                self.set_user_fullname
+            )
+
+    def set_user_fullname(self):
+        '''Set user fullname from cache.'''
+        self.label.setText(NAME_CACHE[self.username])
 
 
 class MessageBox(QtWidgets.QWidget):
