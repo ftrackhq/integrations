@@ -319,35 +319,35 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         else:
             includes.append(dbmodule)
 
-    # MSI shotcut table list
+    # MSI shotcut table list.
     shortcut_table = [
         (
-            "DesktopShortcut",       
-            "DesktopFolder",         
-             "ftrack_connect_package", 
-             "TARGETDIR",             
-             "[TARGETDIR]ftrack_connect_package.exe",
-             None,                    
-             None,                     
-             None,                    
-             None,                    
-             None,                     
-             None,                     
-             'TARGETDIR'              
+            'DesktopShortcut',
+            'DesktopFolder',
+            'ftrack_connect_package',
+            'TARGETDIR',
+            '[TARGETDIR]ftrack_connect_package.exe',
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            'TARGETDIR'
          ),
         (
-            "ProgramMenuShortcut",        
-             "ProgramMenuFolder",         
-             "ftrack_connect_package",          
-             "TARGETDIR",             
-             "[TARGETDIR]ftrack_connect_package.exe",
-             None,                     
-             None,                     
-             None,                    
-             None,                   
-             None,                    
-             None,                    
-             'TARGETDIR'              
+            'ProgramMenuShortcut',
+            'ProgramMenuFolder',
+            'ftrack_connect_package',
+            'TARGETDIR',
+            '[TARGETDIR]ftrack_connect_package.exe',
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            'TARGETDIR'
          )
     ]
 
@@ -369,7 +369,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
 
         # Specify shortucut list for MSI installer
         configuration['options']['bdist_msi'] = {
-            'data': {"Shortcut": shortcut_table}
+            'data': {'Shortcut': shortcut_table}
         }
 
     elif sys.platform == 'darwin':
