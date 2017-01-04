@@ -324,7 +324,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         (
             'DesktopShortcut',
             'DesktopFolder',
-            'ftrack_connect_package',
+            'ftrack-connect',
             'TARGETDIR',
             '[TARGETDIR]ftrack_connect_package.exe',
             None,
@@ -338,7 +338,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         (
             'ProgramMenuShortcut',
             'ProgramMenuFolder',
-            'ftrack_connect_package',
+            'ftrack-connect',
             'TARGETDIR',
             '[TARGETDIR]ftrack_connect_package.exe',
             None,
