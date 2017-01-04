@@ -6,6 +6,11 @@ Releases
 ########
 
 .. release::Upcoming
+
+    .. change:: changed
+
+        `ftrack connect nuke 0.1.13 <http://ftrack-connect-nuke.rtd.ftrack.com/en/0.1.13/>`_
+
     .. change:: changed
 
         Windows installation does not create shortcuts.
