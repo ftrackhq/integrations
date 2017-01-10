@@ -70,6 +70,7 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         self.session = ftrack_connect.session.get_session()
 
+        self._valid_shot_custom_attribute_keys = None
         self._cached_type_and_status = dict()
         applyTheme(self, 'integration')
 
@@ -405,6 +406,28 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.bottom_button_layout.addWidget(self.export_project_button)
 
         QtCore.QMetaObject.connectSlotsByName(self)
+
+    @property
+    def valid_shot_custom_attribute_keys(self):
+        '''Return list of valid custom attribute keys.'''
+        if self._valid_shot_custom_attribute_keys is None:
+            shot_schema = filter(
+                lambda schema: schema['id'] == 'Shot', self.session.schemas
+            )
+            shot_object_type_id = (
+                shot_schema[0]['properties']['object_type_id']['default']
+            )
+            self._valid_shot_custom_attribute_keys = [
+                configuration['key'] for configuration in self.session.query(
+                    'select key from CustomAttributeConfiguration '
+                    'where entity_type is "task" and object_type_id is "{0}"'
+                    .format(
+                        shot_object_type_id
+                    )
+                )
+            ]
+
+        return self._valid_shot_custom_attribute_keys
 
     def on_project_exists(self, project_name):
         '''Handle on project exists signal.
@@ -853,9 +876,8 @@ class ProjectTreeDialog(QtGui.QDialog):
                         'handles': handles
                     }
 
-                    valid_keys = current['custom_attributes'].keys()
                     for key, value in data.items():
-                        if key in valid_keys:
+                        if key in self.valid_shot_custom_attribute_keys:
                             current['custom_attributes'][key] = value
 
                     in_src, out_src, in_dst, out_dst = ui_helper.timecode_from_track_item(
