@@ -3,6 +3,7 @@
 
 from QtExt import QtWidgets
 
+import ftrack_connect_pipeline
 import ftrack_connect_pipeline.ui.widget.item_list
 
 
@@ -106,6 +107,15 @@ class Dialog(QtWidgets.QDialog):
         main_layout.addWidget(list_widget)
         for item in results:
             list_widget.addItem(item)
+
+        open_log_folder_button = QtWidgets.QPushButton('Open log directory')
+        open_log_folder_button.clicked.connect(self._on_logging_button_clicked)
+        main_layout.addWidget(open_log_folder_button)
+
+    def _on_logging_button_clicked(self):
+        '''Handle logging button clicked.'''
+        directory = ftrack_connect_pipeline.config.get_log_directory()
+        ftrack_connect_pipeline.util.open_directory(directory)
 
     def create_widget(self, item):
         '''Create widget from *item*.'''
