@@ -7,6 +7,14 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: fixed
+        :tags: Custom attributes
+
+        Cannot set custom attributes when used in combination with new api
+        and ftrack server version.
+
 .. release:: 0.2.6
     :date: 2016-12-01
 
