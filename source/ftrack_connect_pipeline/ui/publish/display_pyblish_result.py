@@ -4,7 +4,6 @@
 from QtExt import QtWidgets, QtGui
 
 import ftrack_connect_pipeline
-import ftrack_connect_pipeline.ui.widget.item_list
 import ftrack_connect_pipeline.ui.model.log_table
 
 
@@ -29,7 +28,7 @@ class Dialog(QtWidgets.QDialog):
 
         log_list = QtWidgets.QTableView()
         log_list.horizontalHeader().setStretchLastSection(True)
-        log_items = self.parse_results(results)
+        log_items = self._parse_results(results)
 
         log_model = ftrack_connect_pipeline.ui.model.log_table.LogTableModel(
             self, log_items
@@ -45,7 +44,8 @@ class Dialog(QtWidgets.QDialog):
         open_log_folder_button.clicked.connect(self._on_logging_button_clicked)
         main_layout.addWidget(open_log_folder_button)
 
-    def parse_results(self, results):
+    def _parse_results(self, results):
+        '''Parse raw results and return a list of LogItem.'''
         items = []
         for result in results:
             for record in result['records']:
@@ -66,5 +66,6 @@ class Dialog(QtWidgets.QDialog):
         ftrack_connect_pipeline.util.open_directory(directory)
 
     def on_search(self):
+        '''Search in the current model.'''
         value = self.filter_field.text()
         self.log_sort_model.setFilterWildcard(value)
