@@ -1,9 +1,13 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2016 ftrack
+
 from QtExt import QtCore, QtGui
 
 
 class LogItem(object):
 
     def __init__(self):
+        '''LogItem initialization'''
         self._status = None
         self._duration = None
         self._name = None
@@ -11,49 +15,67 @@ class LogItem(object):
         self._time = None
 
     @property
+    def id(self):
+        '''Return a unique identifier of the log entry.'''
+        return '{0}_{1}'.format(
+            self._name, self.time
+        )
+
+    @property
     def status(self):
+        '''Return the status of the log entry.'''
         return self._status
 
     @status.setter
     def status(self, value):
+        '''Set the current status of the log entry.'''
         self._status = value
 
     @property
     def duration(self):
+        '''Return the duration of the log entry.'''
         return self._duration
 
     @duration.setter
     def duration(self, value):
+        '''Set the duration of the log entry.'''
         self._duration = value
 
     @property
     def name(self):
+        '''Return the name of the log entry.'''
         return self._instance
 
     @name.setter
     def name(self, value):
+        '''Set the name of the log entry.'''
         self._instance = value
 
     @property
     def record(self):
+        '''Return the record of the log entry.'''
         return self._record
 
     @record.setter
     def record(self, value):
+        '''Set the record of the log entry.'''
         self._record = value
 
     @property
     def time(self):
+        '''Return the time of the log entry.'''
         return self._time
 
     @time.setter
     def time(self, value):
+        '''Set the time of the log entry.'''
         self._time = value
 
 
 class FilterProxyModel(QtGui.QSortFilterProxyModel):
 
     def __init__(self, parent=None):
+        '''Initialize the FilterProxyModel'''
         super(FilterProxyModel, self).__init__(parent=parent)
 
         self.setDynamicSortFilter(True)
@@ -61,11 +83,13 @@ class FilterProxyModel(QtGui.QSortFilterProxyModel):
         self.setFilterKeyColumn(-1)
 
     def filterAcceptsRowItself(self, source_row, source_parent):
+        '''Provide a way to filter internal values.'''
         return super(FilterProxyModel, self).filterAcceptsRow(
             source_row, source_parent
         )
 
     def filterAcceptsRow(self, source_row, source_parent):
+        '''Override filterAcceptRow to filter to any entry.'''
         if self.filterAcceptsRowItself(source_row, source_parent):
             return True
 
@@ -81,6 +105,7 @@ class FilterProxyModel(QtGui.QSortFilterProxyModel):
         return False
 
     def lessThan(self, left, right):
+        '''Allow to sort the model.'''
         left_data = self.sourceModel().item(left)
         right_data = self.sourceModel().item(right)
         return left_data.id > right_data.id
@@ -93,12 +118,15 @@ class LogTableModel(QtCore.QAbstractTableModel):
         self._data = items
 
     def rowCount(self, parent):
+        '''Return the row count for the internal data.'''
         return len(self._data)
 
     def columnCount(self, parent):
+        '''Return the column count for the internal data.'''
         return len(self._headers)
 
     def data(self, index, role):
+        '''Return the data provided in the given *index* and with *role*'''
         if not index.isValid():
             return None
 
@@ -108,6 +136,7 @@ class LogTableModel(QtCore.QAbstractTableModel):
         return getattr(self._data[index.row()], self._headers[index.column()])
 
     def headerData(self, col, orientation, role):
+        '''Provide header data'''
         if (
             orientation == QtCore.Qt.Horizontal and
             role == QtCore.Qt.DisplayRole
