@@ -9,12 +9,12 @@ class LogItem(object):
 
     def __init__(self):
         '''LogItem initialization'''
-        self._status = None
         self._duration = None
-        self._name = None
-        self._record = None
-        self._time = None
-        self._method = None
+        self.status = None
+        self.name = None
+        self.record = None
+        self.time = None
+        self.method = None
 
     @property
     def id(self):
@@ -22,16 +22,6 @@ class LogItem(object):
         return '{0}.{1}.{2}'.format(
             self._name, self._method, self.time
         )
-
-    @property
-    def status(self):
-        '''Return the status of the log entry.'''
-        return self._status
-
-    @status.setter
-    def status(self, value):
-        '''Set the current status of the log entry.'''
-        self._status = value
 
     @property
     def duration(self):
@@ -42,46 +32,6 @@ class LogItem(object):
     def duration(self, value):
         '''Set the duration of the log entry.'''
         self._duration = value
-
-    @property
-    def name(self):
-        '''Return the name of the log entry.'''
-        return self._instance
-
-    @name.setter
-    def name(self, value):
-        '''Set the name of the log entry.'''
-        self._instance = value
-
-    @property
-    def record(self):
-        '''Return the record of the log entry.'''
-        return self._record
-
-    @record.setter
-    def record(self, value):
-        '''Set the record of the log entry.'''
-        self._record = value
-
-    @property
-    def time(self):
-        '''Return the time of the log entry.'''
-        return self._time
-
-    @time.setter
-    def time(self, value):
-        '''Set the time of the log entry.'''
-        self._time = value
-
-    @property
-    def method(self):
-        '''Return the method of the log entry.'''
-        return self._method
-
-    @method.setter
-    def method(self, value):
-        '''Set the method of the log entry.'''
-        self._method = value
 
 
 class FilterProxyModel(QtGui.QSortFilterProxyModel):
