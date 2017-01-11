@@ -13,6 +13,7 @@ class LogItem(object):
         self._name = None
         self._record = None
         self._time = None
+        self._method = None
 
     @property
     def id(self):
@@ -71,6 +72,16 @@ class LogItem(object):
         '''Set the time of the log entry.'''
         self._time = value
 
+    @property
+    def method(self):
+        '''Return the method of the log entry.'''
+        return self._method
+
+    @method.setter
+    def method(self, value):
+        '''Set the method of the log entry.'''
+        self._method = value
+
 
 class FilterProxyModel(QtGui.QSortFilterProxyModel):
 
@@ -99,9 +110,6 @@ class FilterProxyModel(QtGui.QSortFilterProxyModel):
                 return True
             parent = parent.parent()
 
-        if self.hasAcceptedChildren(source_row, source_parent):
-            return True
-
         return False
 
     def lessThan(self, left, right):
@@ -114,7 +122,7 @@ class FilterProxyModel(QtGui.QSortFilterProxyModel):
 class LogTableModel(QtCore.QAbstractTableModel):
     def __init__(self, parent, items):
         super(LogTableModel, self).__init__(parent)
-        self._headers = ['status', 'time', 'duration', 'name', 'record']
+        self._headers = ['status', 'time', 'duration', 'name', 'method', 'record']
         self._data = items
 
     def rowCount(self, parent):

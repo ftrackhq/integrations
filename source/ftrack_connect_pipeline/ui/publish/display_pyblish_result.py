@@ -27,6 +27,8 @@ class Dialog(QtWidgets.QDialog):
         main_layout.addLayout(filter_layout)
 
         log_list = QtWidgets.QTableView()
+        log_list.setAlternatingRowColors(True)
+        log_list.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         log_list.horizontalHeader().setStretchLastSection(True)
         log_items = self._parse_results(results)
 
@@ -54,6 +56,7 @@ class Dialog(QtWidgets.QDialog):
                 new_item.status = 'ERROR' if result['error'] else 'OK'
                 new_item.record = record.message
                 new_item.time = record.asctime
+                new_item.method = record.funcName
                 new_item.duration = result['duration']
                 new_item.name = result['plugin'].__name__
                 items.append(new_item)
