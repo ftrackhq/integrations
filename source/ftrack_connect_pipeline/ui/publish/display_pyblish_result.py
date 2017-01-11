@@ -50,11 +50,22 @@ class Dialog(QtWidgets.QDialog):
         '''Parse raw results and return a list of LogItem.'''
         items = []
         for result in results:
-            for record in result['records']:
-                print record
+            if result['success']:
+                # create entry for success entry
+                for record in result['records']:
+                    new_item = ftrack_connect_pipeline.ui.model.log_table.LogItem()
+                    new_item.status = 'OK'
+                    new_item.record = record.message
+                    new_item.time = record.asctime
+                    new_item.method = record.funcName
+                    new_item.duration = result['duration']
+                    new_item.name = result['plugin'].__name__
+                    items.append(new_item)
+
+            else:
                 new_item = ftrack_connect_pipeline.ui.model.log_table.LogItem()
-                new_item.status = 'ERROR' if result['error'] else 'OK'
-                new_item.record = record.message
+                new_item.status = 'ERROR'
+                new_item.record = str(result['error'].traceback)
                 new_item.time = record.asctime
                 new_item.method = record.funcName
                 new_item.duration = result['duration']
