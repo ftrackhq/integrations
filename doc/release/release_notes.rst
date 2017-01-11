@@ -7,7 +7,8 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 0.2.7
+    :date: 2017-01-11
 
     .. change:: fixed
         :tags: Custom attributes
