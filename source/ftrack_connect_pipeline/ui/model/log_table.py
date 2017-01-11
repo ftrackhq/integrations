@@ -18,8 +18,8 @@ class LogItem(object):
     @property
     def id(self):
         '''Return a unique identifier of the log entry.'''
-        return '{0}_{1}'.format(
-            self._name, self.time
+        return '{0}.{1}.{2}'.format(
+            self._name, self._method, self.time
         )
 
     @property
@@ -121,8 +121,13 @@ class FilterProxyModel(QtGui.QSortFilterProxyModel):
 
 class LogTableModel(QtCore.QAbstractTableModel):
     def __init__(self, parent, items):
+        '''Initialize model model with *items*.'''
+
         super(LogTableModel, self).__init__(parent)
-        self._headers = ['status', 'time', 'duration', 'name', 'method', 'record']
+        self._headers = [
+            'status', 'time', 'duration', 'name', 'method', 'record'
+        ]
+
         self._data = items
 
     def rowCount(self, parent):
@@ -135,13 +140,20 @@ class LogTableModel(QtCore.QAbstractTableModel):
 
     def data(self, index, role):
         '''Return the data provided in the given *index* and with *role*'''
+
+        row = index.row()
+        column = index.column()
+
         if not index.isValid():
             return None
 
-        elif role != QtCore.Qt.DisplayRole:
-            return None
-
-        return getattr(self._data[index.row()], self._headers[index.column()])
+        elif role == QtCore.Qt.DisplayRole:
+            return getattr(
+                self._data[row],
+                self._headers[column]
+            )
+        elif role == QtCore.Qt.TextAlignmentRole and column == 0:
+            return QtCore.Qt.AlignCenter
 
     def headerData(self, col, orientation, role):
         '''Provide header data'''
