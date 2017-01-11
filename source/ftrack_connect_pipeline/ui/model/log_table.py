@@ -5,6 +5,7 @@ from QtExt import QtCore, QtGui
 
 
 class LogItem(object):
+    '''Represents a Logging Item'''
 
     def __init__(self):
         '''LogItem initialization'''
