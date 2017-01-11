@@ -18,6 +18,8 @@ class Dialog(QtWidgets.QDialog):
         '''Instantiate with *session*.'''
         self.session = session
         super(Dialog, self).__init__()
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        theme.applyTheme(self, theme='dark')
 
         self.setLayout(QtWidgets.QVBoxLayout())
 

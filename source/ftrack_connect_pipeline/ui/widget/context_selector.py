@@ -350,7 +350,7 @@ class EntityBrowser(QtWidgets.QDialog):
         self.model.reloadChildren(currentRootIndex)
 
 
-class EntityPath(QtWidgets.QLineEdit):
+class EntityPath(QtWidgets.QLabel):
     '''Entity path widget.'''
 
     path_ready = QtCore.Signal(object)
@@ -358,8 +358,8 @@ class EntityPath(QtWidgets.QLineEdit):
     def __init__(self, *args, **kwargs):
         '''Instantiate the entity path widget.'''
         super(EntityPath, self).__init__(*args, **kwargs)
-        self.setReadOnly(True)
-        self.setDisabled(True)
+        # self.setReadOnly(True)
+        # self.setDisabled(True)
         self.path_ready.connect(self.on_path_ready)
 
     @util.asynchronous
@@ -379,7 +379,9 @@ class EntityPath(QtWidgets.QLineEdit):
         self.path_ready.emit(names)
 
     def on_path_ready(self, names):
-        self.setText(' / '.join(names))
+        result = ' / '.join(names)
+        result = 'Publish to: {0}'.format(result)
+        self.setText(result)
 
 
 class ContextSelector(QtWidgets.QWidget):
@@ -394,7 +396,8 @@ class ContextSelector(QtWidgets.QWidget):
         self.entityBrowser = EntityBrowser()
         self.entityBrowser.setMinimumWidth(600)
         self.entityPath = EntityPath()
-        self.entityBrowseButton = QtWidgets.QPushButton('Browse')
+        self.entityBrowseButton = QtWidgets.QPushButton('Change')
+        self.entityBrowseButton.setFixedWidth(110)
         layout = QtWidgets.QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
 
