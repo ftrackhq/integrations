@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2016 ftrack
 
-from QtExt import QtCore, QtGui
+from QtExt import QtCore, QtGui, QtWidgets
 
 
 class LogItem(object):
@@ -34,7 +34,7 @@ class LogItem(object):
         self._duration = value
 
 
-class FilterProxyModel(QtGui.QSortFilterProxyModel):
+class FilterProxyModel(QtCore.QSortFilterProxyModel):
 
     def __init__(self, parent=None):
         '''Initialize the FilterProxyModel'''
