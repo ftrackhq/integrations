@@ -380,7 +380,7 @@ class EntityPath(QtWidgets.QLabel):
 
     def on_path_ready(self, names):
         result = ' / '.join(names)
-        result = 'Publish to: {0}'.format(result)
+        result = 'Publish to: <b>{0}</b>'.format(result)
         self.setText(result)
 
 

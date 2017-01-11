@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2016 ftrack
 
-from Qt import QtWidgets
+from Qt import QtWidgets, QtCore
 
 import ftrack_connect_pipeline.ui.widget.overlay
 from ftrack_connect_pipeline.ui.publish import workflow_selector
@@ -9,6 +9,7 @@ import ftrack_connect_pipeline.ui.widget.header
 from ftrack_connect_pipeline.ui.widget.context_selector import ContextSelector
 import ftrack_connect_pipeline.ui.publish.workflow
 import ftrack_connect_pipeline.util
+from ftrack_connect_pipeline.ui import theme 
 
 
 class Dialog(QtWidgets.QDialog):
@@ -18,9 +19,8 @@ class Dialog(QtWidgets.QDialog):
         '''Instantiate with *session*.'''
         self.session = session
         super(Dialog, self).__init__()
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         theme.applyTheme(self, theme='dark')
-
+        theme.applyFont()
         self.setLayout(QtWidgets.QVBoxLayout())
 
         self.active_workflow_widget = None
