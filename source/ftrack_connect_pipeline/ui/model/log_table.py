@@ -35,7 +35,7 @@ class LogItem(object):
     @property
     def duration(self):
         '''Return the duration of the log entry.'''
-        return self._duration
+        return round(self._duration, 4)
 
     @duration.setter
     def duration(self, value):
@@ -161,5 +161,5 @@ class LogTableModel(QtCore.QAbstractTableModel):
             orientation == QtCore.Qt.Horizontal and
             role == QtCore.Qt.DisplayRole
         ):
-            return self._headers[col]
+            return self._headers[col].capitalize()
         return None
