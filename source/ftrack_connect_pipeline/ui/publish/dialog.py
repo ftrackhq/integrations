@@ -21,7 +21,10 @@ class Dialog(QtWidgets.QDialog):
         super(Dialog, self).__init__()
         theme.applyTheme(self, theme='dark')
         theme.applyFont()
+
         self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
+
 
         self.active_workflow_widget = None
 
