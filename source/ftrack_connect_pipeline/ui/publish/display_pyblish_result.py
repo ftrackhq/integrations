@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2016 ftrack
 
-from QtExt import QtWidgets, QtGui
+from QtExt import QtWidgets
 
 import ftrack_connect_pipeline
 import ftrack_connect_pipeline.ui.model.log_table
@@ -28,7 +28,7 @@ class Dialog(QtWidgets.QDialog):
 
         log_list = QtWidgets.QTableView()
         log_list.setAlternatingRowColors(True)
-        log_list.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        log_list.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         log_list.horizontalHeader().setStretchLastSection(True)
         log_items = self._parse_results(results)
 
