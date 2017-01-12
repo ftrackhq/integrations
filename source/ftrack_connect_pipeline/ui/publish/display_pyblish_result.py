@@ -13,7 +13,7 @@ class Dialog(QtWidgets.QDialog):
     def __init__(self, results):
         '''Instantiate and show results.'''
         super(Dialog, self).__init__()
-        self.setMinimumSize(600, 600)
+        self.setMinimumSize(1080, 720)
         main_layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(main_layout)
 
