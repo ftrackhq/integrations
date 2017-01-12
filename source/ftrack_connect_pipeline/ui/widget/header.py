@@ -26,6 +26,7 @@ class Header(QtWidgets.QFrame):
             QtCore.Qt.AlignTop
         )
         self.setLayout(self.main_layout)
+        # self.main_layout.setContentsMargins(0, 0, 0, 0)
 
         # Logo & User ID
         self.id_container = QtWidgets.QWidget(self)
@@ -123,7 +124,7 @@ class User(QtWidgets.QWidget):
 
         self.label = QtWidgets.QLabel(self)
         self.image = thumbnail.User(self)
-        self.image.setFixedSize(20, 20)
+        self.image.setFixedSize(30, 30)
 
         self.main_layout.addWidget(self.label)
         self.main_layout.addWidget(self.image)

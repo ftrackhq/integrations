@@ -358,8 +358,6 @@ class EntityPath(QtWidgets.QLabel):
     def __init__(self, *args, **kwargs):
         '''Instantiate the entity path widget.'''
         super(EntityPath, self).__init__(*args, **kwargs)
-        # self.setReadOnly(True)
-        # self.setDisabled(True)
         self.path_ready.connect(self.on_path_ready)
 
     @util.asynchronous
@@ -384,7 +382,7 @@ class EntityPath(QtWidgets.QLabel):
         self.setText(result)
 
 
-class ContextSelector(QtWidgets.QWidget):
+class ContextSelector(QtWidgets.QFrame):
     '''Context browser with entity path field.'''
 
     entityChanged = QtCore.Signal(object)
@@ -392,15 +390,19 @@ class ContextSelector(QtWidgets.QWidget):
     def __init__(self, currentEntity, parent=None):
         '''Initialise with the *currentEntity* and *parent* widget.'''
         super(ContextSelector, self).__init__(parent=parent)
+        self.setObjectName('context-selector-widget')
         self._entity = currentEntity
         self.entityBrowser = EntityBrowser()
         self.entityBrowser.setMinimumWidth(600)
         self.entityPath = EntityPath()
+
         self.entityBrowseButton = QtWidgets.QPushButton('Change')
         self.entityBrowseButton.setFixedWidth(110)
+        self.entityBrowseButton.setFixedHeight(35)
+
         layout = QtWidgets.QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
-
+        self.setMinimumHeight(50)
         self.setLayout(layout)
 
         layout.addWidget(self.entityPath)

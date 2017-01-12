@@ -24,8 +24,7 @@ class Dialog(QtWidgets.QDialog):
 
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
-
-
+        self.layout().setSpacing(0)
         self.active_workflow_widget = None
 
         self.context_selector = ContextSelector(ftrack_entity)
