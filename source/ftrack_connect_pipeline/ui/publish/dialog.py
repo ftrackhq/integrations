@@ -23,7 +23,7 @@ class Dialog(QtWidgets.QDialog):
         theme.applyFont()
 
         self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().setContentsMargins(0, 0, 0, 5)
         self.layout().setSpacing(0)
         self.active_workflow_widget = None
 

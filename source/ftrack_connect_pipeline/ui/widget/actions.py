@@ -64,7 +64,8 @@ class ActionSection(flow_layout.ScrollingFlowWidget):
         '''Forward beforeActionLaunch signal.'''
         self.beforeActionLaunch.emit(action)
 
-class Actions(QtWidgets.QWidget):
+
+class Actions(QtWidgets.QFrame):
     '''Actions widget. Displays and runs actions with a selectable context.'''
 
     RECENT_METADATA_KEY = 'ftrack_recent_actions'
@@ -75,7 +76,7 @@ class Actions(QtWidgets.QWidget):
     recentActionsChanged = QtCore.Signal(name='recentActionsChanged')
 
     def __init__(
-        self, session, all_section_text='All actions', overlay=None, parent=None
+        self, session, all_section_text=None, overlay=None, parent=None
     ):
         '''Initiate a actions view.'''
         super(Actions, self).__init__(parent)
@@ -101,7 +102,7 @@ class Actions(QtWidgets.QWidget):
         self._recentSection.setFixedHeight(100)
         self._recentSection.beforeActionLaunch.connect(self._onBeforeActionLaunched)
         self._recentSection.actionLaunched.connect(self._onActionLaunched)
-        layout.addWidget(self._recentSection)
+        # layout.addWidget(self._recentSection)
 
         self._allLabel = QtWidgets.QLabel('Discovering actions..')
         self._allLabel.setAlignment(QtCore.Qt.AlignCenter)
@@ -224,7 +225,8 @@ class Actions(QtWidgets.QWidget):
         if self._actions:
             self._allSection.addActions(self._actions, self._session)
             self._allLabel.setAlignment(QtCore.Qt.AlignLeft)
-            self._allLabel.setText(self._action_label_text)
+            if self._action_label_text:
+                self._allLabel.setText(self._action_label_text)
         else:
             self._allLabel.setAlignment(QtCore.Qt.AlignCenter)
             self._allLabel.setText(
