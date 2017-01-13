@@ -12,6 +12,7 @@ def applyFont(font=':/ftrack/font/main'):
 def applyTheme(widget, theme='light', baseTheme=None):
     '''Apply *theme* to *widget*.'''
     # Set base style.
+
     if baseTheme and QtWidgets.QApplication.style().objectName() != baseTheme:
         QtWidgets.QApplication.setStyle(baseTheme)
 

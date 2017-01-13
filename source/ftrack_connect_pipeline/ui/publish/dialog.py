@@ -19,8 +19,6 @@ class Dialog(QtWidgets.QDialog):
         '''Instantiate with *session*.'''
         self.session = session
         super(Dialog, self).__init__()
-        theme.applyTheme(self, theme='dark')
-        theme.applyFont()
 
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 5)
@@ -61,6 +59,7 @@ class Dialog(QtWidgets.QDialog):
             self.placeholder_widget,
             stretch=1
         )
+        self.applyStyle(self)
 
     def on_context_changed(self, ftrack_entity):
         '''Set the current context to the given *ftrack_entity*.'''
@@ -112,3 +111,7 @@ class Dialog(QtWidgets.QDialog):
             )
         )
         self.publish_container.layout().addWidget(self.active_workflow_widget)
+
+    def applyStyle(self, widget):
+        theme.applyTheme(widget, theme='dark')
+        theme.applyFont()

@@ -68,6 +68,15 @@ class Header(QtWidgets.QFrame):
         self.main_layout.addWidget(self.id_container)
         self.main_layout.addWidget(self.message_container)
 
+        # UNCOMMENT HERE TO ENABLE THE HEADER COLOR
+
+        # self.setStyleSheet('''
+        #     Header {
+        #         background-color: #151515;
+        #         border: 0px;
+        #     }
+        # ''')
+
     def setMessage(self, message, level='info'):
         '''Set *message* with severity *level*.'''
         self.message_container.show()
