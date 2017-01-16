@@ -10,6 +10,8 @@ class FtrackEnvironmentValidator(pyblish.api.Validator):
     optional = False
 
     def process(self, context):
+        '''Validate basic ftrack environment variables.'''
+
         self.log.debug('Validating ftrack environment')
 
         import os
@@ -24,12 +26,13 @@ class FtrackLocationValidator(pyblish.api.Validator):
     optional = False
 
     def process(self, context):
+        '''Run basic checks on the current location.'''
+
         self.log.debug('Validating ftrack location')
 
         import ftrack_api
         session = ftrack_api.Session()
         location = session.pick_location()
-        self.log.debug('ftrack location = %s' % location['name'])
         assert(location['name'] != 'ftrack.unmanaged')
 
 pyblish.api.register_plugin(FtrackEnvironmentValidator)
