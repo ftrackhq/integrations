@@ -11,7 +11,7 @@ import ftrack_connect_pipeline.util
 from ftrack_connect_pipeline.ui.widget.thumbnail import ActionIcon
 
 
-class ActionItem(QtWidgets.QWidget):
+class ActionItem(QtWidgets.QFrame):
     '''Widget representing an action item.'''
 
     #: Emitted before an action is launched with action
@@ -40,6 +40,7 @@ class ActionItem(QtWidgets.QWidget):
         multiple actions are specified.
         '''
         super(ActionItem, self).__init__(parent=parent)
+        self.setObjectName('ftrack-action-item')
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )

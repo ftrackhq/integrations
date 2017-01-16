@@ -10,3 +10,30 @@ QFrame#context-selector-widget {
     border-bottom-width: medium;
     border-bottom-color: darken($white-almost, 5%);
 }
+
+
+QFrame#ftrack-workflow-selector {
+    border-style: solid;
+    border-right-width: medium;
+    border-right-color: darken($white-almost, 5%);
+}
+
+
+QFrame#ftrack-action-item {
+    background-color: darken($white-almost, 5%);
+    border-radius : 4px;
+}
+
+QFrame#ftrack-action-item:hover {
+    background-color: $brand-primary;
+    border-style: solid;
+    border: 3px;
+    border-color : $brand-primary;
+}
+
+QFrame#ftrack-action-item:pressed {
+    background-color: $brand-primary;
+    border-style: solid;
+    border: 3px;
+    border-color : $brand-primary;
+}

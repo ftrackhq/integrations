@@ -104,7 +104,7 @@ class Actions(QtWidgets.QFrame):
         self._recentSection.actionLaunched.connect(self._onActionLaunched)
         # layout.addWidget(self._recentSection)
 
-        self._allLabel = QtWidgets.QLabel('Discovering actions..')
+        self._allLabel = QtWidgets.QLabel()
         self._allLabel.setAlignment(QtCore.Qt.AlignCenter)
         layout.addWidget(self._allLabel)
         self._allSection = ActionSection(self)

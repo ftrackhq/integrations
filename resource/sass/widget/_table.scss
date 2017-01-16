@@ -3,6 +3,7 @@ QTableView {
     border: 1px solid #dadada;
     outline: 0;
 }
+
 QTableView::item
 {
     border: 0px;
@@ -10,9 +11,10 @@ QTableView::item
     background: $white;
     color: $text-color;
 }
+
 QTableView::item:selected
 {
-    background: $gray-lighter;
+    background: $brand-primary;
 }
 
 QHeaderView {
