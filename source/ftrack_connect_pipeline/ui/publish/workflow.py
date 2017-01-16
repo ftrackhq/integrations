@@ -32,7 +32,7 @@ class PublishResult(Overlay):
         '''Populate with content.'''
         self.details_window_callback = details_window_callback
 
-        self.asset_version = result['asset_version']
+        self.asset_version = result.get('asset_version', None)
         success = result['success']
 
         main_layout = QtWidgets.QVBoxLayout()
@@ -61,13 +61,22 @@ class PublishResult(Overlay):
                 )
             )
         else:
-            congrat_label = QtWidgets.QLabel('<h2>Publish Failed!</h2>')
-            success_label = QtWidgets.QLabel(
-                'Your <b>{0}</b> failed to published. See details for more '
-                'information.'.format(
-                    label
+            if result['stage'] == 'validation':
+                congrat_label = QtWidgets.QLabel('<h2>Validation Failed!</h2>')
+                success_label = QtWidgets.QLabel(
+                    'Your <b>{0}</b> failed to validate. See details for more '
+                    'information.'.format(
+                        label
+                    )
                 )
-            )
+            else:
+                congrat_label = QtWidgets.QLabel('<h2>Publish Failed!</h2>')
+                success_label = QtWidgets.QLabel(
+                    'Your <b>{0}</b> failed to published. See details for more '
+                    'information.'.format(
+                        label
+                    )
+                )
 
         congrat_label.setAlignment(QtCore.Qt.AlignCenter)
         success_label.setAlignment(QtCore.Qt.AlignCenter)
