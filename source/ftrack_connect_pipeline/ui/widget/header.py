@@ -4,7 +4,6 @@
 from QtExt import QtCore, QtWidgets, QtGui
 
 from ftrack_connect_pipeline.ui import resource
-
 import ftrack_connect_pipeline.util
 import thumbnail
 
@@ -26,7 +25,6 @@ class Header(QtWidgets.QFrame):
             QtCore.Qt.AlignTop
         )
         self.setLayout(self.main_layout)
-        # self.main_layout.setContentsMargins(0, 0, 0, 0)
 
         # Logo & User ID
         self.id_container = QtWidgets.QWidget(self)
@@ -67,15 +65,6 @@ class Header(QtWidgets.QFrame):
         # Add (Logo & User ID) & Message
         self.main_layout.addWidget(self.id_container)
         self.main_layout.addWidget(self.message_container)
-
-        # UNCOMMENT HERE TO ENABLE THE HEADER COLOR
-
-        # self.setStyleSheet('''
-        #     Header {
-        #         background-color: #151515;
-        #         border: 0px;
-        #     }
-        # ''')
 
     def setMessage(self, message, level='info'):
         '''Set *message* with severity *level*.'''
