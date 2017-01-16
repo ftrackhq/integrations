@@ -26,15 +26,7 @@ class PublishResult(Overlay):
         super(PublishResult, self).__init__(parent=parent)
         self.session = session
 
-    def populate(
-        self, label, details_window_callback, result
-    ):
-        '''Populate with content.'''
-        self.details_window_callback = details_window_callback
-
-        self.asset_version = result.get('asset_version', None)
-        success = result['success']
-
+    def create_overlay_widgets(self, congrat_text, success_text):
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
 
@@ -53,32 +45,10 @@ class PublishResult(Overlay):
             1, self.ftrack_icon, alignment=QtCore.Qt.AlignCenter
         )
 
-        if success:
-            congrat_label = QtWidgets.QLabel('<h2>Publish Successful!</h2>')
-            success_label = QtWidgets.QLabel(
-                'Your <b>{0}</b> has been successfully published.'.format(
-                    label
-                )
-            )
-        else:
-            if result['stage'] == 'validation':
-                congrat_label = QtWidgets.QLabel('<h2>Validation Failed!</h2>')
-                success_label = QtWidgets.QLabel(
-                    'Your <b>{0}</b> failed to validate. See details for more '
-                    'information.'.format(
-                        label
-                    )
-                )
-            else:
-                congrat_label = QtWidgets.QLabel('<h2>Publish Failed!</h2>')
-                success_label = QtWidgets.QLabel(
-                    'Your <b>{0}</b> failed to published. See details for more '
-                    'information.'.format(
-                        label
-                    )
-                )
-
+        congrat_label = QtWidgets.QLabel(congrat_text)
         congrat_label.setAlignment(QtCore.Qt.AlignCenter)
+
+        success_label = QtWidgets.QLabel(success_text)
         success_label.setAlignment(QtCore.Qt.AlignCenter)
 
         main_layout.addWidget(congrat_label)
@@ -102,6 +72,65 @@ class PublishResult(Overlay):
 
         if self.asset_version is None:
             self.open_in_ftrack.setDisabled(True)
+
+    def create_validate_failed_overlay_widgets(self, label, failed_validators):
+        congrat_text = '<h2>Validation Failed!</h2>'
+        success_text = 'Your <b>{0}</b> failed to validate.'.format(label)
+
+        main_layout = QtWidgets.QVBoxLayout()
+        self.setLayout(main_layout)
+
+        congrat_label = QtWidgets.QLabel(congrat_text)
+        congrat_label.setAlignment(QtCore.Qt.AlignCenter)
+
+        success_label = QtWidgets.QLabel(success_text)
+        success_label.setAlignment(QtCore.Qt.AlignCenter)
+
+        main_layout.addWidget(congrat_label)
+        main_layout.addWidget(success_label)
+        main_layout.addStretch(1)
+
+        for validator in failed_validators:
+            label = QtWidgets.QLabel(validator)
+            label.setAlignment(QtCore.Qt.AlignCenter)
+            main_layout.addWidget(label)
+
+        main_layout.addStretch(1)
+        label = QtWidgets.QLabel('See details for more information.')
+        label.setAlignment(QtCore.Qt.AlignCenter)
+        main_layout.addWidget(label)
+
+        buttons_layout = QtWidgets.QHBoxLayout()
+        main_layout.addLayout(buttons_layout)
+
+        self.details_button = QtWidgets.QPushButton('Details')
+        buttons_layout.addWidget(self.details_button)
+        self.details_button.clicked.connect(self.on_show_details)
+
+        if self.details_window_callback is None:
+            self.details_button.setDisabled(True)
+
+    def populate(
+        self, label, details_window_callback, result
+    ):
+        '''Populate with content.'''
+        self.details_window_callback = details_window_callback
+
+        self.asset_version = result.get('asset_version', None)
+        success = result['success']
+
+        if not success and result['stage'] == 'validation':
+            self.create_validate_failed_overlay_widgets(label, result['failed_plugins'])
+            return
+
+        if success:
+            congrat_text = '<h2>Publish Successful!</h2>'
+            success_text = 'Your <b>{0}</b> has been successfully published.'
+        else:
+            congrat_label = '<h2>Publish Failed!</h2>'
+            success_label = 'Your <b>{0}</b> failed to published. See details for more information.'
+
+        self.create_overlay_widgets(congrat_text, success_text.format(label))
 
     def on_show_details(self):
         '''Handle show of details.'''
