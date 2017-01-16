@@ -401,7 +401,7 @@ class ContextSelector(QtWidgets.QFrame):
         self.entityBrowseButton.setFixedHeight(35)
 
         layout = QtWidgets.QHBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setContentsMargins(10, 0, 10, 0)
         self.setMinimumHeight(50)
         self.setLayout(layout)
 

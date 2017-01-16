@@ -113,5 +113,5 @@ class Dialog(QtWidgets.QDialog):
         self.publish_container.layout().addWidget(self.active_workflow_widget)
 
     def applyStyle(self, widget):
-        theme.applyTheme(widget, theme='dark')
+        theme.applyTheme(widget)
         theme.applyFont()

@@ -3,3 +3,10 @@ QFrame#ftrack-header-widget {
     background-color: darken($white-almost, 5%);
     border: 0px;
 }
+
+
+QFrame#context-selector-widget {
+    border-style: solid;
+    border-bottom-width: medium;
+    border-bottom-color: darken($white-almost, 5%);
+}

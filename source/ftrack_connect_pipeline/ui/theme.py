@@ -9,7 +9,7 @@ def applyFont(font=':/ftrack/font/main'):
     QtGui.QFontDatabase.addApplicationFont(font)
 
 
-def applyTheme(widget, theme='light', baseTheme=None):
+def applyTheme(widget, baseTheme=None):
     '''Apply *theme* to *widget*.'''
     # Set base style.
 
@@ -17,7 +17,7 @@ def applyTheme(widget, theme='light', baseTheme=None):
         QtWidgets.QApplication.setStyle(baseTheme)
 
     # Load stylesheet from resource file and apply.
-    fileObject = QtCore.QFile(':/ftrack/style/{0}'.format(theme))
+    fileObject = QtCore.QFile(':/ftrack/newstyle/dark')
     fileObject.open(
         QtCore.QFile.ReadOnly | QtCore.QFile.Text
     )
