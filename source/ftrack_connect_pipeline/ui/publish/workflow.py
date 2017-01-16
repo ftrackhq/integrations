@@ -445,7 +445,6 @@ class Workflow(QtWidgets.QWidget):
         self._publish_overlay.setVisible(False)
 
         self.result_win = PublishResult(self.session, self)
-        self.result_win.setStyleSheet(OVERLAY_DARK_STYLE)
         self.result_win.setVisible(False)
 
         self.refresh()
