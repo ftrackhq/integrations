@@ -89,9 +89,24 @@ class PyblishAsset(PublishAsset):
         self.update_with_options(item_options, general_options, selected_items)
 
         pyblish.util.validate(self.pyblish_context)
-        pyblish.util.extract(self.pyblish_context)
-        pyblish.util.integrate(self.pyblish_context)
+        # Fail if validation failed.
+        for record in self.pyblish_context.data['results']:
+            if record['error']:
+                return {
+                    'success': False,
+                    'stage': 'validation'
+                }
 
+        pyblish.util.extract(self.pyblish_context)
+        # Fail if extraction failed.
+        for record in self.pyblish_context.data['results']:
+            if record['error']:
+                return {
+                    'success': False,
+                    'stage': 'extraction'
+                }
+
+        pyblish.util.integrate(self.pyblish_context)
         success = True
         for record in self.pyblish_context.data['results']:
             if record['error']:
@@ -100,6 +115,7 @@ class PyblishAsset(PublishAsset):
 
         return {
             'success': success,
+            'stage': 'integration',
             'asset_version': self.pyblish_context.data.get('asset_version')
         }
 
