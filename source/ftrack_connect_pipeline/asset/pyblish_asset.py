@@ -84,38 +84,47 @@ class PyblishAsset(PublishAsset):
                 )
             )
 
+    def collect_failed_plugins(self):
+        failed_plugins = []
+        for record in self.pyblish_context.data['results']:
+            if record['error']:
+                failed_plugins.append(record['plugin'].__name__)
+
+        return failed_plugins
+
     def publish(self, item_options, general_options, selected_items):
         '''Publish or raise exception if not valid.'''
         self.update_with_options(item_options, general_options, selected_items)
 
         pyblish.util.validate(self.pyblish_context)
-        # Fail if validation failed.
-        for record in self.pyblish_context.data['results']:
-            if record['error']:
-                return {
-                    'success': False,
-                    'stage': 'validation'
-                }
+        failed_validators = self.collect_failed_plugins()
+        if failed_validators:
+            return {
+                'success': False,
+                'stage': 'validation',
+                'failed_plugins': failed_validators
+            }
 
         pyblish.util.extract(self.pyblish_context)
-        # Fail if extraction failed.
-        for record in self.pyblish_context.data['results']:
-            if record['error']:
-                return {
-                    'success': False,
-                    'stage': 'extraction'
-                }
+        failed_extractors = self.collect_failed_plugins()
+        if failed_extractors:
+            return {
+                'success': False,
+                'stage': 'extraction',
+                'failed_plugins': failed_extractors
+            }
 
         pyblish.util.integrate(self.pyblish_context)
-        success = True
-        for record in self.pyblish_context.data['results']:
-            if record['error']:
-                success = False
-                self.logger.error(record)
+        failed_integrators = self.collect_failed_plugins()
+        if failed_integrators:
+            return {
+                'success': False,
+                'stage': 'integration',
+                'failed_plugins': failed_integrators
+            }
 
         return {
-            'success': success,
-            'stage': 'integration',
+            'success': True,
             'asset_version': self.pyblish_context.data.get('asset_version')
         }
 
