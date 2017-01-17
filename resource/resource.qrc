@@ -292,7 +292,7 @@
         <file alias='action'>image/dark/actions.svg</file>
         <file alias='play'>image/dark/play.svg</file>
         <file alias='menu'>image/dark/menu.svg</file>
-        <file alias='remove'>image/light/remove.svg</file>
+        <file alias='remove'>image/dark/remove.svg</file>
         <file alias='reload'>image/dark/refresh.svg</file>
         <file alias='project'>image/dark/project.svg</file>
         <file alias='ftrackLogoColor'>image/logo_colour.svg</file>
