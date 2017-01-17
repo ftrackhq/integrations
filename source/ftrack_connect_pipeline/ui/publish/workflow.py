@@ -15,6 +15,7 @@ from ftrack_connect_pipeline.ui.widget.overlay import BusyOverlay
 from ftrack_connect_pipeline.ui.widget.overlay import Overlay
 from ftrack_connect_pipeline.ui.usage import send_event as send_usage
 from ftrack_connect_pipeline.ui.style import OVERLAY_DARK_STYLE
+from ftrack_connect_pipeline.ui import resource
 import ftrack_connect_pipeline.util
 
 
@@ -88,12 +89,31 @@ class PublishResult(Overlay):
 
         main_layout.addWidget(congrat_label)
         main_layout.addWidget(success_label)
-        main_layout.addStretch(1)
 
-        for validator in failed_validators:
-            label = QtWidgets.QLabel(validator)
-            label.setAlignment(QtCore.Qt.AlignCenter)
-            main_layout.addWidget(label)
+        validators_table = QtWidgets.QTableWidget()
+
+        validators_table.setColumnCount(2)
+        validators_table.setHorizontalHeaderLabels(['Validator', 'Error'])
+        validators_table.horizontalHeader().setResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        validators_table.horizontalHeader().setResizeMode(1, QtWidgets.QHeaderView.Stretch)
+        validators_table.horizontalHeader().setVisible(True)
+
+        validators_table.setRowCount(len(failed_validators))
+        validators_table.verticalHeader().setVisible(False)
+
+        icon = QtWidgets.QIcon(':ftrack/image/dark/remove')
+        font = QtGui.QFont()
+        font.setBold(True)
+
+        for row, validator in enumerate(failed_validators):
+            item = QtGui.QTableWidgetItem(icon, validator[0])
+            item.setFont(font)
+            validators_table.setItem(row, 0, item)
+
+            item = QtGui.QTableWidgetItem(validator[1])
+            validators_table.setItem(row, 1, item)
+
+        main_layout.addWidget(validators_table)
 
         main_layout.addStretch(1)
         label = QtWidgets.QLabel('See details for more information.')

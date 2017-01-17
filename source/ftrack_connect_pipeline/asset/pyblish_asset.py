@@ -88,7 +88,10 @@ class PyblishAsset(PublishAsset):
         failed_plugins = []
         for record in self.pyblish_context.data['results']:
             if record['error']:
-                failed_plugins.append(record['plugin'].__name__)
+                failed_plugins.append((
+                    record['plugin'].__name__,
+                    '@{1}:{3}'.format(*record['error'].traceback)
+                    ))
 
         return failed_plugins
 
