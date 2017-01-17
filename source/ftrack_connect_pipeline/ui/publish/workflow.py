@@ -28,6 +28,7 @@ class PublishResult(Overlay):
         self.session = session
 
     def create_overlay_widgets(self, congrat_text, success_text):
+        '''Create overlay widgets to report publish result.'''
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
 
@@ -75,6 +76,7 @@ class PublishResult(Overlay):
             self.open_in_ftrack.setDisabled(True)
 
     def create_validate_failed_overlay_widgets(self, label, failed_validators):
+        '''Create overlay widgets to report validation failures.'''
         congrat_text = '<h2>Validation Failed!</h2>'
         success_text = 'Your <b>{0}</b> failed to validate.'.format(label)
 
@@ -91,6 +93,8 @@ class PublishResult(Overlay):
         main_layout.addWidget(success_label)
 
         validators_table = QtWidgets.QTableWidget()
+        validators_table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows)
+        validators_table.setSelectionMode(QtWidgets.QTableWidget.NoSelection)
 
         validators_table.setColumnCount(2)
         validators_table.setHorizontalHeaderLabels(['Validator', 'Error'])
@@ -106,11 +110,11 @@ class PublishResult(Overlay):
         font.setBold(True)
 
         for row, validator in enumerate(failed_validators):
-            item = QtGui.QTableWidgetItem(icon, validator[0])
+            item = QtWidgets.QTableWidgetItem(icon, validator[0])
             item.setFont(font)
             validators_table.setItem(row, 0, item)
 
-            item = QtGui.QTableWidgetItem(validator[1])
+            item = QtWidgets.QTableWidgetItem(validator[1])
             validators_table.setItem(row, 1, item)
 
         main_layout.addWidget(validators_table)

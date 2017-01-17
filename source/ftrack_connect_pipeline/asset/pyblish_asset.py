@@ -85,6 +85,7 @@ class PyblishAsset(PublishAsset):
             )
 
     def collect_failed_plugins(self):
+        '''Build a list of plugins that failed and error messages.'''
         failed_plugins = []
         for record in self.pyblish_context.data['results']:
             if record['error']:
