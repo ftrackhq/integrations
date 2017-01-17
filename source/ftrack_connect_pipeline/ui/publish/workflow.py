@@ -435,7 +435,7 @@ class Workflow(QtWidgets.QWidget):
 
         main_layout.addWidget(information)
         main_layout.addWidget(scroll, stretch=1)
-        main_layout.addWidget(publish_button)
+        self._list_items_settings_layout.addWidget(publish_button)
 
         self._publish_overlay = BusyOverlay(
             self,

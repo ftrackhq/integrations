@@ -25,15 +25,40 @@ QFrame#ftrack-action-item {
 }
 
 QFrame#ftrack-action-item:hover {
-    background-color: $brand-primary;
     border-style: solid;
-    border: 3px;
+    border-width: 3px;
     border-color : $brand-primary;
 }
 
 QFrame#ftrack-action-item:pressed {
     background-color: $brand-primary;
     border-style: solid;
-    border: 3px;
     border-color : $brand-primary;
 }
+
+QLabel#ftrack-action-item-label {
+    background-color:lighten($white-almost, 5%);
+    color: $text-color;
+    height: 25px;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px; 
+
+}
+
+QLabel#ftrack-action-item-label:hover {
+    border-style: solid;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-color : $brand-primary;
+    color: $white-almost;
+    height: 25px;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px; 
+
+}
+
+QLabel#ftrack-action-item-label:pressed {
+    background-color: $brand-primary;
+    border-style: solid;
+    border-color : $brand-primary;

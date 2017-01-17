@@ -45,7 +45,7 @@ class Dialog(QtWidgets.QDialog):
         selector_widget = workflow_selector.WorkflowSelector(
             self.session, overlay=overlay_widget
         )
-        selector_widget.setFixedWidth(100)
+        selector_widget.setFixedWidth(105)
         selector_widget._allSection.actionLaunched.connect(
             self._handle_actions_launched
         )

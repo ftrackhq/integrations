@@ -87,8 +87,9 @@ class ActionItem(QtWidgets.QFrame):
         layout.addWidget(self._iconLabel)
 
         self._textLabel = QtWidgets.QLabel(self)
+        self._textLabel.setObjectName('ftrack-action-item-label')
         self._textLabel.setAlignment(
-            QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop
+            QtCore.Qt.AlignHCenter
         )
         self._textLabel.setWordWrap(True)
         self._textLabel.setFixedSize(QtCore.QSize(80, 35))

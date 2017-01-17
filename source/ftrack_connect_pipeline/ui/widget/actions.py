@@ -99,7 +99,7 @@ class Actions(QtWidgets.QFrame):
         self._recentLabel = QtWidgets.QLabel('Recent')
         layout.addWidget(self._recentLabel)
         self._recentSection = ActionSection(self)
-        self._recentSection.setFixedHeight(100)
+        # self._recentSection.setFixedHeight(100)
         self._recentSection.beforeActionLaunch.connect(self._onBeforeActionLaunched)
         self._recentSection.actionLaunched.connect(self._onActionLaunched)
         # layout.addWidget(self._recentSection)
