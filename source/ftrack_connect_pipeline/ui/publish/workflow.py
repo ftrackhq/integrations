@@ -143,6 +143,7 @@ class ListItemsWidget(QtWidgets.QListWidget):
     def __init__(self, items):
         '''Instanstiate and generate list from *items*.'''
         super(ListItemsWidget, self).__init__()
+        self.setObjectName('ftrack-list-widget')
 
         for item in items:
             item = SelectableItemWidget(item)
@@ -357,6 +358,7 @@ class Workflow(QtWidgets.QWidget):
     ):
         '''Display instances that can be published.'''
         super(Workflow, self).__init__()
+        self.setObjectName('ftrack-workflow-widget')
         self.session = session
         self._label_text = label
         self.publish_asset = publish_asset
@@ -385,18 +387,23 @@ class Workflow(QtWidgets.QWidget):
             self.settings_provider = BaseSettingsProvider()
 
         self.settings_map = {}
-        list_instances_widget = QtWidgets.QWidget()
-        self._list_instances_layout = QtWidgets.QVBoxLayout()
-        list_instances_widget.setLayout(self._list_instances_layout)
-        self._list_instances_layout.setContentsMargins(0, 0, 0, 0)
+        list_instances_widget = QtWidgets.QFrame()
+        list_instances_widget.setObjectName('ftrack-instances-widget')
 
-        list_instance_settings_widget = QtWidgets.QWidget()
+        self._list_instances_layout = QtWidgets.QVBoxLayout()
+
+        list_instances_widget.setLayout(self._list_instances_layout)
+        self._list_instances_layout.setContentsMargins(5, 5, 5, 5)
+
+        list_instance_settings_widget = QtWidgets.QFrame()
+        list_instance_settings_widget.setObjectName('ftrack-instances-widget')
+
         self._list_items_settings_layout = QtWidgets.QVBoxLayout()
         self._list_items_settings_layout.addStretch(1)
         list_instance_settings_widget.setLayout(
             self._list_items_settings_layout
         )
-        self._list_items_settings_layout.setContentsMargins(0, 0, 0, 0)
+        self._list_items_settings_layout.setContentsMargins(5, 5, 5, 5)
 
         configuration_layout = QtWidgets.QHBoxLayout()
         configuration_layout.addWidget(list_instances_widget, stretch=1)
@@ -433,7 +440,8 @@ class Workflow(QtWidgets.QWidget):
 
         scroll.setWidget(configuration)
 
-        main_layout.addWidget(information)
+        self._list_instances_layout.addWidget(information)
+
         main_layout.addWidget(scroll, stretch=1)
         self._list_items_settings_layout.addWidget(publish_button)
 
@@ -466,16 +474,10 @@ class Workflow(QtWidgets.QWidget):
 
         self.list_items_view = ListItemsWidget(items)
         self.list_items_view.itemChanged.connect(self.on_selection_changed)
-        layout.addWidget(
-            QtWidgets.QLabel(
-                'Select {0}(s) to publish'.format(
-                    string.capitalize(self._label_text)
-                )
-            )
-        )
 
         toolbar = QtWidgets.QToolBar()
         action = toolbar.addAction('Scene selection')
+
         action.triggered.connect(
             self._on_sync_scene_selection
         )
@@ -487,7 +489,7 @@ class Workflow(QtWidgets.QWidget):
             if item.get('value') is True:
                 self.add_instance_settings(item)
 
-        layout.addStretch(1)
+        # layout.addStretch(1)
 
         self.list_items_view.setFocus()
 
