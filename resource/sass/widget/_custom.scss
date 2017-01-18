@@ -67,19 +67,6 @@ QFrame#ftrack-configuration-widget {
 }
 
 
-QTableView#ftrack-log-view {
-     show-decoration-selected: 1; 
-}
-
-QTableView#ftrack-log-view{
-    background-color: darken($white-almost, 5%);
-
-}
-
-QListView::item:alternatew#ftrack-log-view {
-    background: $white-almost;
-}
-
 
 QDoubleSpinBox {
     border-radius: 2px;
@@ -106,3 +93,5 @@ QCheckBox {
         border-color: $brand-primary;
     }
 }
+
+

@@ -21,6 +21,7 @@ class Dialog(QtWidgets.QDialog):
         filter_layout = QtWidgets.QHBoxLayout()
         filter_label = QtWidgets.QLabel('Filter log')
         self.filter_field = QtWidgets.QLineEdit()
+        self.filter_field.setObjectName('ftrack-log-filter-field')
         self.filter_field.textChanged.connect(self.on_search)
 
         filter_layout.addWidget(filter_label)
