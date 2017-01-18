@@ -37,9 +37,15 @@ QFrame#ftrack-action-item:pressed {
 }
 
 QListWidget#ftrack-list-widget {
+     show-decoration-selected:1 ;
      background-color: darken($white-almost, 5%);
      border: 0px;
      color: $text-color;
+}
+
+QListWidget::item:selected#ftrack-list-widget{
+    selection-background-color: $brand-primary;
+    color: $text-color;
 }
 
 
@@ -60,13 +66,18 @@ QFrame#ftrack-configuration-widget {
     background-color: darken($white-almost, 5%);
 }
 
-QListWidgetItem#ftrack-list-widget-item:selected {
-    border-radius: 2px;
-    padding: $input-padding;
-    background: darken($white-almost, 5%);
-    selection-background-color: $brand-primary;
-    color: $text-color;
 
+QTableView#ftrack-log-view {
+     show-decoration-selected: 1; 
+}
+
+QTableView#ftrack-log-view{
+    background-color: darken($white-almost, 5%);
+
+}
+
+QListView::item:alternatew#ftrack-log-view {
+    background: $white-almost;
 }
 
 

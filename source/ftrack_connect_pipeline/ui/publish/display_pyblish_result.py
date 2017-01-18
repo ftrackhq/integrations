@@ -28,6 +28,7 @@ class Dialog(QtWidgets.QDialog):
         main_layout.addLayout(filter_layout)
 
         log_list = QtWidgets.QTableView()
+        log_list.setObjectName('ftrack-log-view')
         log_list.setAlternatingRowColors(True)
         log_list.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         log_list.horizontalHeader().setStretchLastSection(True)
