@@ -408,7 +408,8 @@ class Workflow(QtWidgets.QWidget):
         configuration_layout = QtWidgets.QHBoxLayout()
         configuration_layout.addWidget(list_instances_widget, stretch=1)
         configuration_layout.addWidget(list_instance_settings_widget, stretch=1)
-        configuration = QtWidgets.QWidget()
+        configuration = QtWidgets.QFrame()
+        configuration.setObjectName('ftrack-configuration-widget')
         configuration.setLayout(configuration_layout)
         configuration_layout.setContentsMargins(0, 0, 0, 0)
 
@@ -420,7 +421,8 @@ class Workflow(QtWidgets.QWidget):
             QtWidgets.QLabel('<i>{0}</i>'.format(description)),
             stretch=1
         )
-        information = QtWidgets.QWidget()
+        information = QtWidgets.QFrame()
+        information.setObjectName('ftrack-information-widget')
         information.setLayout(information_layout)
         information_layout.setContentsMargins(0, 0, 0, 0)
 
@@ -475,13 +477,12 @@ class Workflow(QtWidgets.QWidget):
         self.list_items_view = ListItemsWidget(items)
         self.list_items_view.itemChanged.connect(self.on_selection_changed)
 
-        toolbar = QtWidgets.QToolBar()
-        action = toolbar.addAction('Scene selection')
+        scene_select_button = QtWidgets.QPushButton('Scene selection')
 
-        action.triggered.connect(
+        scene_select_button.clicked.connect(
             self._on_sync_scene_selection
         )
-        layout.addWidget(toolbar)
+        layout.addWidget(scene_select_button)
 
         layout.addWidget(self.list_items_view, stretch=0)
 

@@ -8,13 +8,12 @@ QLabel[title] {
 }
 
 QLineEdit,
-QTextEdit,
-QComboBox {
+QTextEdit{
     border: 1px solid $input-border-color;
     border-radius: 2px;
     padding: $input-padding;
     background: $input-background;
-    selection-background-color: $input-border-color;
+    selection-background-color: $brand-primary;
     color: $text-color;
 
     &:hover {
@@ -25,3 +24,20 @@ QComboBox {
         border: 1px solid $input-border-color-focus;
     }
 }
+
+QComboBox {
+    border-radius: 2px;
+    padding: $input-padding;
+    background: $gray-dark;
+    selection-background-color: $brand-primary;
+    color: $text-color;
+
+    &:hover {
+        border-color: darken($input-border-color, 5%);
+    }
+
+    &:focus {
+        border: 1px solid $input-border-color-focus;
+    }
+}
+
