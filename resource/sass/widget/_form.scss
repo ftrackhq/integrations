@@ -8,7 +8,7 @@ QLabel[title] {
 }
 
 QLineEdit,
-QTextEdit{
+QTextEdit {
     border: 1px solid $input-border-color;
     border-radius: 2px;
     padding: $input-padding;
