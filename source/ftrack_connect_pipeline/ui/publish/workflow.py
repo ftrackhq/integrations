@@ -491,8 +491,6 @@ class Workflow(QtWidgets.QWidget):
             if item.get('value') is True:
                 self.add_instance_settings(item)
 
-        # layout.addStretch(1)
-
         self.list_items_view.setFocus()
 
     @ftrack_connect_pipeline.util.asynchronous
