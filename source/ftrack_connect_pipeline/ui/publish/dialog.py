@@ -59,7 +59,7 @@ class Dialog(QtWidgets.QDialog):
             self.placeholder_widget,
             stretch=1
         )
-        self.applyStyle(self)
+        self.apply_style(self)
 
     def on_context_changed(self, ftrack_entity):
         '''Set the current context to the given *ftrack_entity*.'''
@@ -112,7 +112,7 @@ class Dialog(QtWidgets.QDialog):
         )
         self.publish_container.layout().addWidget(self.active_workflow_widget)
 
-    def applyStyle(self, widget):
+    def apply_style(self, widget):
         '''Apply ftrack_connect_pipeline style to the given *widget*.'''
         theme.applyTheme(widget)
         theme.applyFont()
