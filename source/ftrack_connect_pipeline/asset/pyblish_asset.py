@@ -92,7 +92,7 @@ class PyblishAsset(PublishAsset):
                 failed_plugins.append((
                     record['plugin'].__name__,
                     '@{1}:{3}'.format(*record['error'].traceback)
-                    ))
+                ))
 
         return failed_plugins
 

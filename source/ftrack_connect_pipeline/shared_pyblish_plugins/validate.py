@@ -9,39 +9,44 @@ from ftrack_connect_pipeline import constant
 
 
 class FtrackEnvironmentValidator(pyblish.api.Validator):
+    '''Validate ftrack environment variables.'''
 
     label = 'Validate Ftrack environment'
     optional = False
 
     def process(self, context):
-        '''Validate basic ftrack environment variables.'''
+        '''Check that some basic ftrack environment variables are defined.'''
 
-        assert 'FTRACK_SERVER' in os.environ, \
+        assert 'FTRACK_SERVER' in os.environ, (
                'FTRACK_SERVER environment variable not defined.'
+        )
 
 
 class FtrackLocationValidator(pyblish.api.Validator):
+    '''Validate Ftrack location.'''
 
     label = 'Validate Ftrack location'
     optional = False
 
     def process(self, context):
-        '''Run basic checks on the current location.'''
+        '''Check that the Ftrack location is not unmanaged.'''
 
         import ftrack_api
         session = ftrack_api.Session()
         location = session.pick_location()
-        assert location['name'] != 'ftrack.unmanaged', \
+        assert location['name'] != 'ftrack.unmanaged', (
                'Ftrack location is unmanaged.'
+        )
 
 
 class AssetNameValidator(pyblish.api.Validator):
+    '''Validate asset names.'''
 
     label = 'Validate Asset name'
     optional = False
 
     def process(self, context):
-        '''Validate asset name.'''
+        '''Check that the asset name is not empty.'''
 
         try:
             asset_options = context.data['options'][constant.ASSET_OPTION_NAME]
@@ -49,8 +54,9 @@ class AssetNameValidator(pyblish.api.Validator):
         except KeyError:
             asset_name = ''
 
-        assert asset_name != '', \
+        assert asset_name != '', (
                'Asset name is empty.'
+        )
 
 
 pyblish.api.register_plugin(FtrackEnvironmentValidator)

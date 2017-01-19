@@ -94,15 +94,18 @@ class PublishResult(Overlay):
 
         validators_table = QtWidgets.QTableWidget()
         validators_table.setSelectionBehavior(
-            QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows)
+            QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows
+        )
         validators_table.setSelectionMode(QtWidgets.QTableWidget.NoSelection)
 
         validators_table.setColumnCount(2)
         validators_table.setHorizontalHeaderLabels(['Validator', 'Error'])
         validators_table.horizontalHeader().setResizeMode(
-            0, QtWidgets.QHeaderView.ResizeToContents)
+            0, QtWidgets.QHeaderView.ResizeToContents
+        )
         validators_table.horizontalHeader().setResizeMode(
-            1, QtWidgets.QHeaderView.Stretch)
+            1, QtWidgets.QHeaderView.Stretch
+        )
         validators_table.horizontalHeader().setVisible(True)
 
         validators_table.setRowCount(len(failed_validators))
@@ -148,7 +151,8 @@ class PublishResult(Overlay):
 
         if not success and result['stage'] == 'validation':
             self.create_validate_failed_overlay_widgets(
-                label, result['failed_plugins'])
+                label, result['failed_plugins']
+            )
             return
 
         if success:
@@ -156,8 +160,9 @@ class PublishResult(Overlay):
             success_text = 'Your <b>{0}</b> has been successfully published.'
         else:
             congrat_label = '<h2>Publish Failed!</h2>'
-            success_label = 'Your <b>{0}</b> failed to published.' \
-                            'See details for more information.'
+            success_label = (
+                'Your <b>{0}</b> failed to published.'
+                'See details for more information.')
 
         self.create_overlay_widgets(congrat_text, success_text.format(label))
 
