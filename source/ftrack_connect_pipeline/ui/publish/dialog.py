@@ -113,5 +113,6 @@ class Dialog(QtWidgets.QDialog):
         self.publish_container.layout().addWidget(self.active_workflow_widget)
 
     def applyStyle(self, widget):
+        '''Apply ftrack_connect_pipeline style to the given *widget*.'''
         theme.applyTheme(widget)
         theme.applyFont()
