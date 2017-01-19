@@ -29,7 +29,7 @@
 
     </qresource>
 
-    <qresource prefix='ftrack/newstyle'>
+    <qresource prefix='ftrack/pipeline'>
         <file alias='dark'>style_dark.css</file>
     </qresource>
 

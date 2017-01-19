@@ -17,7 +17,7 @@ def applyTheme(widget, baseTheme=None):
         QtWidgets.QApplication.setStyle(baseTheme)
 
     # Load stylesheet from resource file and apply.
-    fileObject = QtCore.QFile(':/ftrack/newstyle/dark')
+    fileObject = QtCore.QFile(':/ftrack/pipeline/dark')
     fileObject.open(
         QtCore.QFile.ReadOnly | QtCore.QFile.Text
     )
