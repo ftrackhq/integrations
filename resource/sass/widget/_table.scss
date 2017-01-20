@@ -3,6 +3,7 @@ QTableView {
     border: 1px solid #dadada;
     outline: 0;
     background: $white-almost;
+    border-color: darken($white-almost, 5%);
 }
 
 QTableView::item
