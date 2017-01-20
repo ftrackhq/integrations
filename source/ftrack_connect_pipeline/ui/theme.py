@@ -4,12 +4,12 @@
 from QtExt import QtGui, QtCore, QtWidgets
 
 
-def applyFont(font=':/ftrack/font/main'):
+def apply_font(font=':/ftrack/font/main'):
     '''Add application font.'''
     QtGui.QFontDatabase.addApplicationFont(font)
 
 
-def applyTheme(widget, baseTheme=None):
+def apply_theme(widget, baseTheme=None):
     '''Apply *theme* to *widget*.'''
     # Set base style.
 

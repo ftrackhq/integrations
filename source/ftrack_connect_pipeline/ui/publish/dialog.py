@@ -114,5 +114,5 @@ class Dialog(QtWidgets.QDialog):
 
     def apply_style(self, widget):
         '''Apply ftrack_connect_pipeline style to the given *widget*.'''
-        theme.applyTheme(widget)
-        theme.applyFont()
+        theme.apply_theme(widget)
+        theme.apply_font()

@@ -10,7 +10,7 @@ import pyblish.util
 import logging
 
 from ftrack_connect_pipeline.ui.publish import display_pyblish_result
-from ftrack_connect_pipeline.ui.theme import applyTheme
+from ftrack_connect_pipeline.ui import theme
 from .base import PublishAsset
 from ftrack_connect_pipeline import constant
 
@@ -109,7 +109,7 @@ class PyblishAsset(PublishAsset):
         dialog = display_pyblish_result.Dialog(
             self.pyblish_context.data['results']
         )
-        applyTheme(dialog)
+        theme.apply_theme(dialog)
         dialog.exec_()
 
     def get_entity(self):
