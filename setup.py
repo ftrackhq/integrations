@@ -195,7 +195,8 @@ setup(
     ],
     install_requires=[
         'appdirs == 1.4.0',
-        'qtext'
+        'qtext',
+        'ftrack-python-api'
     ],
     tests_require=[
         'pytest >= 2.3.5, < 3',
