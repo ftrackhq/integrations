@@ -147,9 +147,9 @@ class PublishAsset(object):
                 'type': 'qt_widget'
             },
             {
-                'label': 'Comment',
+                'label': '',
                 'name': constant.ASSET_VERSION_COMMENT_OPTION_NAME,
-                'type': 'textarea'
+                'type': 'textarea',
             }
         ]
 

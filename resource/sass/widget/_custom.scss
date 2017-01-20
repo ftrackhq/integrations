@@ -1,0 +1,97 @@
+
+QFrame#ftrack-header-widget {
+    background-color: darken($white-almost, 5%);
+    border: 0px;
+}
+
+
+QFrame#context-selector-widget {
+    border-style: solid;
+    border-bottom-width: medium;
+    border-bottom-color: darken($white-almost, 5%);
+}
+
+
+QFrame#ftrack-workflow-selector {
+    border-style: solid;
+    border-right-width: medium;
+    border-right-color: darken($white-almost, 5%);
+}
+
+
+QFrame#ftrack-action-item {
+    background-color: darken($white-almost, 5%);
+    border-radius : 4px;
+}
+
+QFrame#ftrack-action-item:hover {
+    border-style: solid;
+    border-width: 2px;
+    border-color : $brand-primary;
+}
+
+QFrame#ftrack-action-item:pressed {
+    background-color: $brand-primary;
+    border-style: solid;
+    border-color : $brand-primary;
+}
+
+QListWidget#ftrack-list-widget {
+     show-decoration-selected:1 ;
+     background-color: darken($white-almost, 5%);
+     border: 0px;
+     color: $text-color;
+}
+
+QListWidget::item:selected#ftrack-list-widget{
+    selection-background-color: $brand-primary;
+    color: $text-color;
+}
+
+
+QFrame#ftrack-instances-widget {
+    background-color: $white-almost;
+    border-right-width: medium;
+    border-right-color: darken($white-almost, 5%);
+}
+
+QFrame#ftrack-instances-settings-widget {
+    background-color: red;
+    border-width: medium;
+    border-color: blue;
+}
+
+
+QFrame#ftrack-configuration-widget {
+    background-color: darken($white-almost, 5%);
+}
+
+
+
+QDoubleSpinBox {
+    border-radius: 2px;
+    padding: $input-padding;
+    background: darken($white-almost, 5%);
+    selection-background-color: $brand-primary;
+    color: $text-color;
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+
+    &:hover {
+        border-color: darken($input-border-color, 5%);
+    }
+
+    &:focus {
+        border: 1px solid $input-border-color-focus;
+    }
+}
+
+QCheckBox {
+    background: darken($white-almost, 5%);
+    selection-background-color: $brand-primary;
+    &:hover {
+        border-color: $brand-primary;
+    }
+}
+
+

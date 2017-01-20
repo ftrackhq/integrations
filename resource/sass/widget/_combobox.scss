@@ -15,7 +15,7 @@ QComboBox::down-arrow {
 }
 
 QComboBox QAbstractItemView {
-    background: $input-background;
+    background: $gray-dark;
     color: $text-color;
     outline: 0;
     border: 1px solid $input-border-color;
@@ -27,7 +27,7 @@ QComboBox QAbstractItemView::item {
 }
 
 QComboBox QAbstractItemView::item:selected {
-    background-color: $gray-lighter;
+    background-color: $brand-primary;
     color: $text-color;
 }
 

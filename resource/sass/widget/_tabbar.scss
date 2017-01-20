@@ -24,5 +24,6 @@ QTabBar#application-tab-bar::tab:selected {
     background-image: theme-image('selectedTab');
     background-position: bottom center;
     background-repeat: none;
+    background-color: $brand-primary;
     color: $text-color;
 }

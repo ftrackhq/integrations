@@ -2,19 +2,23 @@
 QTableView {
     border: 1px solid #dadada;
     outline: 0;
+    background: $white-almost;
+    border-color: darken($white-almost, 5%);
 }
+
 QTableView::item
 {
     border: 0px;
     padding: 5px;
-    background: $white;
+    background: $white-almost;
     color: $text-color;
 }
+
 QTableView::item:selected
 {
-    background: $gray-lighter;
+    background: $brand-primary;
 }
 
 QHeaderView {
-    background-color: $gray-lighter;
+    background-color: darken($white-almost, 5%);
 }

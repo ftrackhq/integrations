@@ -11,7 +11,7 @@ import ftrack_connect_pipeline.util
 from ftrack_connect_pipeline.ui.widget.thumbnail import ActionIcon
 
 
-class ActionItem(QtWidgets.QWidget):
+class ActionItem(QtWidgets.QFrame):
     '''Widget representing an action item.'''
 
     #: Emitted before an action is launched with action
@@ -40,6 +40,7 @@ class ActionItem(QtWidgets.QWidget):
         multiple actions are specified.
         '''
         super(ActionItem, self).__init__(parent=parent)
+        self.setObjectName('ftrack-action-item')
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
@@ -86,11 +87,13 @@ class ActionItem(QtWidgets.QWidget):
         layout.addWidget(self._iconLabel)
 
         self._textLabel = QtWidgets.QLabel(self)
+        self._textLabel.setObjectName('ftrack-action-item-label')
         self._textLabel.setAlignment(
             QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop
         )
         self._textLabel.setWordWrap(True)
-        self._textLabel.setFixedSize(QtCore.QSize(80, 35))
+
+        self._textLabel.setFixedSize(QtCore.QSize(80, 45))
         layout.addWidget(self._textLabel)
 
         self.setText(self._label)

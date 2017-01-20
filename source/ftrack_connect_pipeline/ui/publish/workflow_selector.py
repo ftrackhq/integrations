@@ -17,11 +17,12 @@ class WorkflowSelector(ftrack_connect_pipeline.ui.widget.actions.Actions):
         '''Instantiate publish actions dialog.'''
         super(WorkflowSelector, self).__init__(
             session,
-            all_section_text='<center><h3>Workflows</h3></center>',
             **kwargs
         )
         configure_logging('ftrack_connect_pipeline')
+        self.setObjectName('ftrack-workflow-selector')
         layout = self.layout()
+        layout.setContentsMargins(0, 0, 0, 0)
         item = layout.itemAt(0)
         item.widget().hide()
         self._recentLabel.hide()

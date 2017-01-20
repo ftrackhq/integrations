@@ -97,9 +97,9 @@ class BuildResources(Command):
         )
 
         themes = [
-            'style_light',
             'style_dark'
         ]
+
         for theme in themes:
             scss_source = os.path.join(self.sass_path, '{0}.scss'.format(theme))
             css_target = os.path.join(self.css_path, '{0}.css'.format(theme))
