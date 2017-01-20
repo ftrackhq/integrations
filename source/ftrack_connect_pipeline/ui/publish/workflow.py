@@ -159,8 +159,8 @@ class PublishResult(Overlay):
             congrat_text = '<h2>Publish Successful!</h2>'
             success_text = 'Your <b>{0}</b> has been successfully published.'
         else:
-            congrat_label = '<h2>Publish Failed!</h2>'
-            success_label = (
+            congrat_text = '<h2>Publish Failed!</h2>'
+            success_text = (
                 'Your <b>{0}</b> failed to published.'
                 'See details for more information.')
 
