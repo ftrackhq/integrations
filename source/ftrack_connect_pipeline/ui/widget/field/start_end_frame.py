@@ -15,6 +15,7 @@ class StartEndFrameField(BaseField):
         '''Instantiate start and end frame field.'''
         super(StartEndFrameField, self).__init__()
         self.setLayout(QtWidgets.QHBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
 
         self.start_frame = QtWidgets.QDoubleSpinBox()
         self.start_frame.setValue(start_frame)
