@@ -4,7 +4,6 @@
 from QtExt import QtCore, QtWidgets, QtGui
 
 from ftrack_connect_pipeline.ui import resource
-
 import ftrack_connect_pipeline.util
 import thumbnail
 
@@ -22,7 +21,6 @@ class Header(QtWidgets.QFrame):
         super(Header, self).__init__(parent=parent)
         self.setObjectName('ftrack-header-widget')
         self.main_layout = QtWidgets.QVBoxLayout()
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setAlignment(
             QtCore.Qt.AlignTop
         )
@@ -124,7 +122,7 @@ class User(QtWidgets.QWidget):
 
         self.label = QtWidgets.QLabel(self)
         self.image = thumbnail.User(self)
-        self.image.setFixedSize(35, 35)
+        self.image.setFixedSize(30, 30)
 
         self.main_layout.addWidget(self.label)
         self.main_layout.addWidget(self.image)
