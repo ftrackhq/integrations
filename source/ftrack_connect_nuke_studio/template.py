@@ -130,4 +130,16 @@ def match(item, template):
         hierarchy, key=lambda x: expression.index(x['object_type'])
     )
 
+    ftrack.EVENT_HUB.publish(
+        ftrack.Event(
+            topic='ftrack.connect.nuke-studio.after-template-match',
+            data={
+                'application_object': item,
+                'template': template,
+                'structure': hierarchy
+            }
+        ),
+        synchronous=True
+    )
+
     return hierarchy

@@ -160,3 +160,43 @@ As you can see in the `Classic, sequence and shot` expression it use this
 group in the middle, `{_:.+}`. This enables the name to have any characters
 in between the `SQ` and `SH`. The `_` group can be used several times in the
 same expression.
+
+.. _developing/customise_template_output:
+
+Customise template output
+=========================
+
+In some scenarios the templates cannot fully satisfy the naming requirements of
+a Studio and some custom logic is required. E.g. always adding a certain string
+to an entity name or placing entities in a custom Folder.
+
+This can be solved by subscribing to the
+:ref:`event_list/ftrack.connect.nuke-studio.after-template-match` and modifying the
+`structure`::
+
+    import ftrack
+
+    def after_template_match(event):
+        '''Modify structure on *event*.'''
+
+        # Always place shots in a folder named "Shots".
+        event['data']['structure'].insert(
+            0, {'object_type': u'Folder', 'name': 'Shots'}
+        )
+
+        # Add string to shot name.
+        event['data']['structure'][-1]['name'] += 'MyCustomString'
+
+    def register(registry, **kw):
+        '''Register hook for after template match.'''
+
+        # Validate that registry is instance of ftrack.Registry, if not
+        # return early since the register method probably is called
+        # from the new API.
+        if not isinstance(registry, ftrack.Registry):
+            return
+
+        ftrack.EVENT_HUB.subscribe(
+            'topic=ftrack.connect.nuke-studio.after-template-match',
+            after_template_match
+        )
