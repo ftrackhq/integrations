@@ -131,6 +131,7 @@ def set_ftrack_entity(entity_id):
     '''Return current ftrack entity.'''
     os.environ['FTRACK_CONTEXT_ID'] = entity_id
 
+
 def get_ftrack_entity():
     '''Return current ftrack entity.'''
     session = get_session()
@@ -185,3 +186,28 @@ def open_directory(path):
 
     else:
         subprocess.Popen(['xdg-open', directory])
+
+
+def ensure_asset_type(session, asset_type, asset_type_short):
+    '''Ensure *asset_type* with *asset_type_short* exist.'''
+
+    type_found = session.query(
+        'select name , short from AssetType'
+        ' where short is "{0}" and name is "{1}"'.format(
+            asset_type_short, asset_type
+        )
+    ).first()
+
+    if not type_found:
+        try:
+            session.create('AssetType', {
+                'short': asset_type_short,
+                'name': asset_type
+            })
+        except Exception as e:
+            session.logger.debug(e)
+            return False
+
+        return True
+
+    return True
