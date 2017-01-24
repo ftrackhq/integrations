@@ -188,39 +188,39 @@ def open_directory(path):
         subprocess.Popen(['xdg-open', directory])
 
 
-def ensure_asset_type(session, asset_type, asset_type_short):
-    '''Ensure *asset_type* with *asset_type_short* exist.'''
-
-    # check if any asset exist with the given short name
+def asset_type_exists(session, asset_type_short):
+    # check if any asset exist with the given *asset_type_short*
     asset_type_found = session.query(
         'select name , short from AssetType'
         ' where short is "{0}"'.format(
             asset_type_short
         )
     ).first()
+    return bool(asset_type_found)
 
-    # If the asset short exist, but the name is different, bail out
-    # as we do not want to have more than one asset with the same short.
 
-    if asset_type_found['name'] != asset_type:
-        session.logger.warning(
-            'Asset type {0} exist already with name {0}'.format(
-                asset_type, asset_type_found['name']
+def create_asset_type(session, asset_type, asset_type_short):
+    '''Ensure *asset_type* with *asset_type_short* exist.'''
+
+    # If does not exist, we are free to create one with the given label
+    try:
+        session.create('AssetType', {
+            'short': asset_type_short,
+            'name': asset_type
+        })
+    except Exception as e:
+        session.logger.warning(e)
+        return {
+            'status': False,
+            'message': str(e)
+        }
+
+    return {
+        'status': True,
+        'message': (
+            'Asset short {0} and name {1}'
+            ' has been succesfully created.'.format(
+                asset_type_short, asset_type
             )
         )
-        return False
-
-    # if does not exist, we are free to create one with the given label
-    if not asset_type_found:
-        try:
-            session.create('AssetType', {
-                'short': asset_type_short,
-                'name': asset_type
-            })
-        except Exception as e:
-            session.logger.warning(e)
-            return False
-
-        return True
-
-    return True
+    }

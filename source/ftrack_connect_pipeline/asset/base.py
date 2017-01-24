@@ -56,17 +56,6 @@ class Asset(object):
     def register(self, session):
         '''Register listeners on *session*.'''
         self._session = session
-        asset_type_exist = ftrack_connect_pipeline.util.ensure_asset_type(
-            self._session, self.label, self.identifier
-        )
-
-        if not asset_type_exist:
-            logging.error(
-                'AssetType name:{0} short: {1}, do not exist'
-                ' and can not be created.Please check logging'
-                ' for more informations.'.format(self.label, self.identifier)
-            )
-            return
 
         self._session.event_hub.subscribe(
             'topic=ftrack.action.discover',

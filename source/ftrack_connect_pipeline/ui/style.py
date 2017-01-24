@@ -36,4 +36,19 @@ OVERLAY_DARK_STYLE = '''
     PublishResult QLabel {
         background: transparent;
     }
+
+    CreateAssetOverlay {
+        background-color: rgba(58, 58, 58, 250);
+        border: none;
+    }
+
+    CreateAssetOverlay QFrame#content {
+        padding: 0px;
+        border: 80px solid transparent;
+        border-image: none;
+    }
+
+    CreateAssetOverlay QLabel {
+        background: transparent;
+    }
 '''
