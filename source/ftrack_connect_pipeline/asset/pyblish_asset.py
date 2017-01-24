@@ -92,7 +92,7 @@ class PyblishAsset(PublishAsset):
             if record['error']:
                 failed_plugins.append((
                     record['plugin'].__name__,
-                    '@{1}:{3}'.format(*record['error'].traceback)
+                    '{3}'.format(*record['error'].traceback)
                 ))
 
         return failed_plugins
@@ -107,7 +107,7 @@ class PyblishAsset(PublishAsset):
             return {
                 'success': False,
                 'stage': 'validation',
-                'failed_plugins': failed_validators
+                'errors': failed_validators
             }
 
         pyblish.util.extract(self.pyblish_context)
@@ -116,7 +116,7 @@ class PyblishAsset(PublishAsset):
             return {
                 'success': False,
                 'stage': 'extraction',
-                'failed_plugins': failed_extractors
+                'errors': failed_extractors
             }
 
         pyblish.util.integrate(self.pyblish_context)
@@ -125,7 +125,7 @@ class PyblishAsset(PublishAsset):
             return {
                 'success': False,
                 'stage': 'integration',
-                'failed_plugins': failed_integrators
+                'errors': failed_integrators
             }
 
         return {
