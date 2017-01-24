@@ -66,11 +66,10 @@ class Dialog(QtWidgets.QDialog):
                     new_item.duration = result['duration']
                     new_item.name = result['plugin'].__name__
                     items.append(new_item)
-
             else:
                 new_item = ftrack_connect_pipeline.ui.model.log_table.LogItem()
                 new_item.status = 'ERROR'
-                new_item.record = '@{1}:{3}'.format(*result['error'].traceback)
+                new_item.record = '{3}'.format(*result['error'].traceback)
                 new_item.time = record.asctime
                 new_item.method = record.funcName
                 new_item.duration = result['duration']
