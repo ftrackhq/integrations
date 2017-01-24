@@ -13,6 +13,7 @@ class Dialog(QtWidgets.QDialog):
     def __init__(self, results):
         '''Instantiate and show results.'''
         super(Dialog, self).__init__()
+        self.setObjectName('ftrack-result-dialog')
         self.setMinimumSize(1080, 720)
         main_layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(main_layout)
@@ -20,6 +21,7 @@ class Dialog(QtWidgets.QDialog):
         filter_layout = QtWidgets.QHBoxLayout()
         filter_label = QtWidgets.QLabel('Filter log')
         self.filter_field = QtWidgets.QLineEdit()
+        self.filter_field.setObjectName('ftrack-log-filter-field')
         self.filter_field.textChanged.connect(self.on_search)
 
         filter_layout.addWidget(filter_label)
@@ -27,6 +29,9 @@ class Dialog(QtWidgets.QDialog):
         main_layout.addLayout(filter_layout)
 
         log_list = QtWidgets.QTableView()
+        log_list.verticalHeader().hide()
+
+        log_list.setObjectName('ftrack-log-view')
         log_list.setAlternatingRowColors(True)
         log_list.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         log_list.horizontalHeader().setStretchLastSection(True)

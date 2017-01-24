@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2016 ftrack
 
-from Qt import QtWidgets
+from Qt import QtWidgets, QtCore
 
 import ftrack_connect_pipeline.ui.widget.overlay
 from ftrack_connect_pipeline.ui.publish import workflow_selector
@@ -9,6 +9,7 @@ import ftrack_connect_pipeline.ui.widget.header
 from ftrack_connect_pipeline.ui.widget.context_selector import ContextSelector
 import ftrack_connect_pipeline.ui.publish.workflow
 import ftrack_connect_pipeline.util
+from ftrack_connect_pipeline.ui import theme 
 
 
 class Dialog(QtWidgets.QDialog):
@@ -20,7 +21,8 @@ class Dialog(QtWidgets.QDialog):
         super(Dialog, self).__init__()
 
         self.setLayout(QtWidgets.QVBoxLayout())
-
+        self.layout().setContentsMargins(0, 0, 0, 5)
+        self.layout().setSpacing(0)
         self.active_workflow_widget = None
 
         self.context_selector = ContextSelector(ftrack_entity)
@@ -43,7 +45,7 @@ class Dialog(QtWidgets.QDialog):
         selector_widget = workflow_selector.WorkflowSelector(
             self.session, overlay=overlay_widget
         )
-        selector_widget.setFixedWidth(100)
+        selector_widget.setFixedWidth(105)
         selector_widget._allSection.actionLaunched.connect(
             self._handle_actions_launched
         )
@@ -57,6 +59,7 @@ class Dialog(QtWidgets.QDialog):
             self.placeholder_widget,
             stretch=1
         )
+        self.apply_style(self)
 
     def on_context_changed(self, ftrack_entity):
         '''Set the current context to the given *ftrack_entity*.'''
@@ -108,3 +111,8 @@ class Dialog(QtWidgets.QDialog):
             )
         )
         self.publish_container.layout().addWidget(self.active_workflow_widget)
+
+    def apply_style(self, widget):
+        '''Apply ftrack_connect_pipeline style to the given *widget*.'''
+        theme.apply_theme(widget)
+        theme.apply_font()
