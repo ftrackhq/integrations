@@ -92,6 +92,11 @@ class PublishResult(Overlay):
         main_layout.addWidget(congrat_label)
         main_layout.addWidget(success_label)
 
+        validators_table_container = QtWidgets.QWidget()
+        table_layout = QtWidgets.QVBoxLayout()
+        table_layout.setContentsMargins(15, 15, 15, 15)
+        validators_table_container.setLayout(table_layout)
+
         validators_table = QtWidgets.QTableWidget()
         validators_table.setSelectionBehavior(
             QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows
@@ -103,8 +108,8 @@ class PublishResult(Overlay):
         validators_table.horizontalHeader().setResizeMode(
             0, QtWidgets.QHeaderView.ResizeToContents
         )
-        validators_table.horizontalHeader().setResizeMode(
-            1, QtWidgets.QHeaderView.Stretch
+        validators_table.horizontalHeader().setSectionResizeMode(
+            QtWidgets.QHeaderView.Stretch
         )
         validators_table.horizontalHeader().setVisible(True)
 
@@ -123,7 +128,8 @@ class PublishResult(Overlay):
             item = QtWidgets.QTableWidgetItem(validator[1])
             validators_table.setItem(row, 1, item)
 
-        main_layout.addWidget(validators_table)
+        table_layout.addWidget(validators_table)
+        main_layout.addWidget(validators_table_container)
 
         main_layout.addStretch(1)
         label = QtWidgets.QLabel('See details for more information.')
