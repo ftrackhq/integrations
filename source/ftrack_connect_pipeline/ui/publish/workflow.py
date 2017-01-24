@@ -25,10 +25,6 @@ class CreateAssetOverlay(Overlay):
         super(CreateAssetOverlay, self).__init__(parent=parent)
         self.session = session
 
-    def populate(self, asset_type_short, asset_type):
-        self.asset_type = asset_type
-        self.asset_type_short = asset_type_short
-
         self.main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(self.main_layout)
 
@@ -50,7 +46,7 @@ class CreateAssetOverlay(Overlay):
 
         # create asset type widget
         self.create_asset_widget = QtWidgets.QFrame()
-        self.create_asset_widget.setVisible(True)
+        self.create_asset_widget.setVisible(False)
 
         create_asset_layout = QtWidgets.QVBoxLayout()
         create_asset_layout.setContentsMargins(20, 20, 20, 20)
@@ -58,10 +54,7 @@ class CreateAssetOverlay(Overlay):
         buttons_layout = QtWidgets.QHBoxLayout()
         self.create_asset_widget.setLayout(create_asset_layout)
 
-        self.create_asset_label_top = QtWidgets.QLabel(
-            '<h2>The asset type {0}, does not '
-            'seem to be existing.</h2>'.format(self.asset_type)
-        )
+        self.create_asset_label_top = QtWidgets.QLabel()
 
         self.create_asset_label_bottom = QtWidgets.QLabel(
             '<h4>Do you want to create one ?</h4>'
@@ -144,6 +137,19 @@ class CreateAssetOverlay(Overlay):
         self.close_button.clicked.connect(self.on_fail)
         self.cancel_asset_button.clicked.connect(self.on_fail)
 
+    def populate(self, asset_type_short, asset_type):
+        self.create_asset_widget.setVisible(True)
+        self.create_asset_widget_result.setVisible(False)
+        self.create_asset_widget_error.setVisible(False)
+
+        self.asset_type = asset_type
+        self.asset_type_short = asset_type_short
+
+        self.create_asset_label_top.setText(
+            '<h2>The asset type {0}, does not '
+            'seem to be existing.</h2>'.format(self.asset_type)
+        )
+
     def on_fail(self):
         self.asset_creation_failed.emit()
         self.setVisible(False)
@@ -163,6 +169,7 @@ class CreateAssetOverlay(Overlay):
             )
             self.create_asset_widget_result.setVisible(True)
         else:
+            self.create_asset_widget.setVisible(False)
             self.create_asset_label_error.setText(
                 "<h2>{0}</h2>".format(result['message'])
             )
