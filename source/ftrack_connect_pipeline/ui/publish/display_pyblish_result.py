@@ -5,6 +5,10 @@ from QtExt import QtWidgets
 
 import ftrack_connect_pipeline
 import ftrack_connect_pipeline.ui.model.log_table
+from ftrack_connect_pipeline.util import (
+    extractErrorMessageFromRecord,
+    extractPluginNameFromRecord
+)
 
 
 class Dialog(QtWidgets.QDialog):
@@ -55,6 +59,8 @@ class Dialog(QtWidgets.QDialog):
         '''Parse raw results and return a list of LogItem.'''
         items = []
         for result in results:
+            plugin_name = extractPluginNameFromRecord(result)
+
             if result['success']:
                 # create entry for success entry
                 for record in result['records']:
@@ -64,16 +70,16 @@ class Dialog(QtWidgets.QDialog):
                     new_item.time = record.asctime
                     new_item.method = record.funcName
                     new_item.duration = result['duration']
-                    new_item.name = getattr(result['plugin'], 'label', result['plugin'].__name__)
+                    new_item.name = plugin_name
                     items.append(new_item)
             else:
                 new_item = ftrack_connect_pipeline.ui.model.log_table.LogItem()
                 new_item.status = 'ERROR'
-                new_item.record = '{3}'.format(*result['error'].traceback)
-                new_item.time = record.asctime
-                new_item.method = record.funcName
+                new_item.record = extractErrorMessageFromRecord(result)
+                new_item.time = ''
+                new_item.method = ''
                 new_item.duration = result['duration']
-                new_item.name = getattr(result['plugin'], 'label', result['plugin'].__name__)
+                new_item.name = plugin_name
                 items.append(new_item)
 
         return items
