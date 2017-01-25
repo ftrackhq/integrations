@@ -64,7 +64,7 @@ class Dialog(QtWidgets.QDialog):
                     new_item.time = record.asctime
                     new_item.method = record.funcName
                     new_item.duration = result['duration']
-                    new_item.name = result['plugin'].__name__
+                    new_item.name = getattr(result['plugin'], 'label', result['plugin'].__name__)
                     items.append(new_item)
             else:
                 new_item = ftrack_connect_pipeline.ui.model.log_table.LogItem()
@@ -73,7 +73,7 @@ class Dialog(QtWidgets.QDialog):
                 new_item.time = record.asctime
                 new_item.method = record.funcName
                 new_item.duration = result['duration']
-                new_item.name = result['plugin'].__name__
+                new_item.name = getattr(result['plugin'], 'label', result['plugin'].__name__)
                 items.append(new_item)
 
         return items
