@@ -85,22 +85,51 @@ class PyblishAsset(PublishAsset):
                 )
             )
 
+    def collect_failed_plugins(self):
+        '''Build a list of plugins that failed and error messages.'''
+        failed_plugins = []
+        for record in self.pyblish_context.data['results']:
+            if record['error']:
+                failed_plugins.append((
+                    getattr(record['plugin'], 'label', record['plugin'].__name__),
+                    '{3}'.format(*record['error'].traceback)
+                ))
+
+        return failed_plugins
+
     def publish(self, item_options, general_options, selected_items):
         '''Publish or raise exception if not valid.'''
         self.update_with_options(item_options, general_options, selected_items)
 
         pyblish.util.validate(self.pyblish_context)
-        pyblish.util.extract(self.pyblish_context)
-        pyblish.util.integrate(self.pyblish_context)
+        failed_validators = self.collect_failed_plugins()
+        if failed_validators:
+            return {
+                'success': False,
+                'stage': 'validation',
+                'errors': failed_validators
+            }
 
-        success = True
-        for record in self.pyblish_context.data['results']:
-            if record['error']:
-                success = False
-                self.logger.error(record)
+        pyblish.util.extract(self.pyblish_context)
+        failed_extractors = self.collect_failed_plugins()
+        if failed_extractors:
+            return {
+                'success': False,
+                'stage': 'extraction',
+                'errors': failed_extractors
+            }
+
+        pyblish.util.integrate(self.pyblish_context)
+        failed_integrators = self.collect_failed_plugins()
+        if failed_integrators:
+            return {
+                'success': False,
+                'stage': 'integration',
+                'errors': failed_integrators
+            }
 
         return {
-            'success': success,
+            'success': True,
             'asset_version': self.pyblish_context.data.get('asset_version')
         }
 
