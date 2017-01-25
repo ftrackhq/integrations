@@ -18,11 +18,11 @@ from ftrack_connect_pipeline.ui.style import OVERLAY_DARK_STYLE
 import ftrack_connect_pipeline.util
 
 
-class CreateAssetOverlay(Overlay):
+class CreateAssetTypeOverlay(Overlay):
     asset_creation_failed = QtCore.Signal()
 
     def __init__(self, session, parent):
-        super(CreateAssetOverlay, self).__init__(parent=parent)
+        super(CreateAssetTypeOverlay, self).__init__(parent=parent)
         self.session = session
 
         self.main_layout = QtWidgets.QVBoxLayout()

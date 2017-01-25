@@ -62,7 +62,7 @@ class Dialog(QtWidgets.QDialog):
             stretch=1
         )
 
-        self.create_asset = ftrack_connect_pipeline.ui.publish.workflow.CreateAssetOverlay(
+        self.create_asset = ftrack_connect_pipeline.ui.publish.workflow.CreateAssetTypeOverlay(
             self.session, self
         )
         self.create_asset.setVisible(False)
