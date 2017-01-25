@@ -83,6 +83,8 @@ class PublishResult(Overlay):
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
 
+        main_layout.addStretch(1)
+
         congrat_label = QtWidgets.QLabel(congrat_text)
         congrat_label.setAlignment(QtCore.Qt.AlignCenter)
 
@@ -94,7 +96,7 @@ class PublishResult(Overlay):
 
         validators_table_container = QtWidgets.QWidget()
         table_layout = QtWidgets.QVBoxLayout()
-        table_layout.setContentsMargins(15, 15, 15, 15)
+        table_layout.setContentsMargins(15, 10, 15, 10)
         validators_table_container.setLayout(table_layout)
 
         validators_table = QtWidgets.QTableWidget()
@@ -125,7 +127,13 @@ class PublishResult(Overlay):
             item.setFont(font)
             validators_table.setItem(row, 0, item)
 
-            item = QtWidgets.QTableWidgetItem(validator[1])
+            error_msg = validator[1]
+
+            # Remove quotes from error message, if present.
+            if (error_msg[0] == error_msg[-1]) and error_msg.startswith(("'", '"')):
+                error_msg = error_msg[1:-1]
+
+            item = QtWidgets.QTableWidgetItem(error_msg)
             validators_table.setItem(row, 1, item)
 
         table_layout.addWidget(validators_table)
