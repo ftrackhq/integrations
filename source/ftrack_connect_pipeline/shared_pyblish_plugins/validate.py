@@ -11,7 +11,7 @@ from ftrack_connect_pipeline import constant
 class FtrackEnvironmentValidator(pyblish.api.Validator):
     '''Validate ftrack environment variables.'''
 
-    label = 'Validate Ftrack environment'
+    label = 'Validate ftrack environment'
     optional = False
 
     def process(self, context):
@@ -25,7 +25,7 @@ class FtrackEnvironmentValidator(pyblish.api.Validator):
 class FtrackLocationValidator(pyblish.api.Validator):
     '''Validate Ftrack location.'''
 
-    label = 'Validate Ftrack location'
+    label = 'Validate ftrack location'
     optional = False
 
     def process(self, context):
@@ -42,7 +42,7 @@ class FtrackLocationValidator(pyblish.api.Validator):
 class AssetNameValidator(pyblish.api.Validator):
     '''Validate asset names.'''
 
-    label = 'Validate Asset name'
+    label = 'Validate asset name'
     optional = False
 
     def process(self, context):
