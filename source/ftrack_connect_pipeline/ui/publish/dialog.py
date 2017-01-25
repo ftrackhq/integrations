@@ -124,7 +124,7 @@ class Dialog(QtWidgets.QDialog):
             self.session, publish_asset.asset_type_short
         )
 
-        if not asset_type_exist:
+        if asset_type_exist:
             self.create_asset.populate(
                 asset_type_short=publish_asset.asset_type_short,
                 asset_type=label

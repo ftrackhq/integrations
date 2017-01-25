@@ -9,6 +9,7 @@ import subprocess
 from QtExt import QtCore
 
 import ftrack_api
+from ftrack_api.exception import PermissionDeniedError, MultipleResultsFoundError
 
 
 def asynchronous(method):
@@ -204,15 +205,20 @@ def create_asset_type(session, asset_type, asset_type_short):
 
     # If does not exist, we are free to create one with the given label
     try:
-        session.create('AssetType', {
-            'short': asset_type_short,
-            'name': asset_type
-        })
-    except Exception as e:
+        session.ensure('AssetType',
+            {
+                'short': asset_type_short,
+                'name': asset_type
+            },
+            identifying_keys=['short']
+        )
+    except (PermissionDeniedError, MultipleResultsFoundError) as e:
         session.logger.warning(e)
         return {
             'status': False,
-            'message': str(e)
+            'message': 'ERROR could not create asset type {0}: {1}'.format(
+                asset_type_short, e
+            )
         }
 
     return {

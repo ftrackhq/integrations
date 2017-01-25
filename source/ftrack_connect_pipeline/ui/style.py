@@ -6,7 +6,7 @@ from ftrack_connect_pipeline.ui import resource
 
 OVERLAY_DARK_STYLE = '''
     BlockingOverlay  {
-        background-color: rgba(58, 58, 58, 200);
+        background-color: rgba(34, 34, 34, 250);
         border: none;
     }
 
@@ -22,14 +22,14 @@ OVERLAY_DARK_STYLE = '''
     }
 
     PublishResult  {
-        background-color: rgba(58, 58, 58, 200);
+        background-color: rgba(34, 34, 34, 250);
         border: none;
     }
 
     PublishResult QFrame#content {
         padding: 0px;
         border: 80px solid transparent;
-        background-color: rgba(58, 58, 58, 200);
+        background-color: rgba(34, 34, 34, 250);
         border-image: none;
     }
 
@@ -38,7 +38,7 @@ OVERLAY_DARK_STYLE = '''
     }
 
     CreateAssetTypeOverlay {
-        background-color: rgba(58, 58, 58, 250);
+        background-color: rgba(34, 34, 34, 250);
         border: none;
     }
 
