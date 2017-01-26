@@ -7,6 +7,17 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: new
+        :tags: Template, Structure
+
+        Add new event to allow modification of the template output structure.
+
+        .. seealso::
+
+            :ref:`Updated template tutorial <developing/customise_template_output>`
+
 .. release:: 0.2.7
     :date: 2017-01-11
 
