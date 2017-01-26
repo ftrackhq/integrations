@@ -11,6 +11,10 @@ import logging
 
 from ftrack_connect_pipeline.ui.publish import display_pyblish_result
 from ftrack_connect_pipeline.ui import theme
+from ftrack_connect_pipeline.util import (
+    extract_error_message_from_record,
+    extract_plugin_name_from_record
+)
 from .base import PublishAsset
 from ftrack_connect_pipeline import constant
 
@@ -91,8 +95,8 @@ class PyblishAsset(PublishAsset):
         for record in self.pyblish_context.data['results']:
             if record['error']:
                 failed_plugins.append((
-                    getattr(record['plugin'], 'label', record['plugin'].__name__),
-                    '{3}'.format(*record['error'].traceback)
+                    extract_plugin_name_from_record(record),
+                    extract_error_message_from_record(record)
                 ))
 
         return failed_plugins
