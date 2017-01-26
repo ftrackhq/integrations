@@ -185,6 +185,20 @@ class ActionIcon(Base):
         pixmap.load(resource)
         self._scaleAndSetPixmap(pixmap)
 
+    def _updatePixmapData(self, data):
+        '''Update thumbnail with *data*.'''
+        pixmap = QtGui.QPixmap()
+        pixmap.loadFromData(data)
+
+        # force icon color
+        painter = QtGui.QPainter(pixmap)
+        painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceIn)
+
+        painter.fillRect(pixmap.rect(), QtGui.QColor(140, 84, 184))
+        painter.end()
+
+        self._scaleAndSetPixmap(pixmap)
+
     def _scaleAndSetPixmap(self, pixmap):
         '''Scale *pixmap* to fit within current bounds'''
         scaledPixmap = pixmap.scaled(
