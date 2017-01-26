@@ -6,8 +6,8 @@ from QtExt import QtWidgets
 import ftrack_connect_pipeline
 import ftrack_connect_pipeline.ui.model.log_table
 from ftrack_connect_pipeline.util import (
-    extractErrorMessageFromRecord,
-    extractPluginNameFromRecord
+    extract_error_message_from_record,
+    extract_plugin_name_from_record
 )
 
 
@@ -59,7 +59,7 @@ class Dialog(QtWidgets.QDialog):
         '''Parse raw results and return a list of LogItem.'''
         items = []
         for result in results:
-            plugin_name = extractPluginNameFromRecord(result)
+            plugin_name = extract_plugin_name_from_record(result)
 
             if result['success']:
                 # create entry for success entry
@@ -75,7 +75,7 @@ class Dialog(QtWidgets.QDialog):
             else:
                 new_item = ftrack_connect_pipeline.ui.model.log_table.LogItem()
                 new_item.status = 'ERROR'
-                new_item.record = extractErrorMessageFromRecord(result)
+                new_item.record = extract_error_message_from_record(result)
                 new_item.time = ''
                 new_item.method = ''
                 new_item.duration = result['duration']

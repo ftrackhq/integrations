@@ -186,8 +186,8 @@ def open_directory(path):
     else:
         subprocess.Popen(['xdg-open', directory])
 
-def extractPluginNameFromRecord(record):
-    '''Extract the plugin name from a Pyblish record.'''
+def extract_plugin_name_from_record(record):
+    '''Return plugin name from pyblish *record*.'''
     # The default label is '', so doing getattr(label, plugin.__name__)
     # returns an empty string if label is not defined.
     # Instead, we need to test if the plugin_name is empty after getattr.
@@ -198,13 +198,13 @@ def extractPluginNameFromRecord(record):
 
     return plugin_name
 
-def extractErrorMessageFromRecord(record):
-    '''Extract the error message from a Pyblish record.'''
+def extract_error_message_from_record(record):
+    '''Return error message from pyblish *record*.'''
     traceback = record['error'].traceback
 
-    if traceback[3] != None:
-        return str(traceback[3])
+    if traceback[3] is not None:
+        return unicode(traceback[3])
     else:
         # If the error message in the traceback is None,
         # default to formatting the exception as a string.
-        return str(record['error'])
+        return unicode(record['error'])
