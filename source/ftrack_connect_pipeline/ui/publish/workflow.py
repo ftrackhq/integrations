@@ -2,7 +2,6 @@
 # :copyright: Copyright (c) 2016 ftrack
 
 import sys
-import string
 import functools
 import time
 import webbrowser
@@ -11,18 +10,22 @@ from QtExt import QtGui, QtCore, QtWidgets
 
 from ftrack_api.event.base import Event
 
-from ftrack_connect_pipeline.ui.widget.overlay import BusyOverlay, BlockingOverlay
+from ftrack_connect_pipeline.ui.widget.overlay import BusyOverlay
 from ftrack_connect_pipeline.ui.widget.overlay import Overlay
 from ftrack_connect_pipeline.ui.usage import send_event as send_usage
 from ftrack_connect_pipeline.ui.style import OVERLAY_DARK_STYLE
 from ftrack_connect_pipeline.ui import resource
+
 import ftrack_connect_pipeline.util
 
 
 class CreateAssetTypeOverlay(Overlay):
+    '''Create asset type overlay.'''
+
     asset_creation_failed = QtCore.Signal()
 
     def __init__(self, session, parent):
+        '''Instantiate with *session*.'''
         super(CreateAssetTypeOverlay, self).__init__(parent=parent)
         self.session = session
 
@@ -139,6 +142,7 @@ class CreateAssetTypeOverlay(Overlay):
         self.cancel_asset_button.clicked.connect(self.on_fail)
 
     def populate(self, asset_type_short, asset_type):
+        '''Populate with *asset_type_short* and *asset_type*.'''
         self.create_asset_widget.setVisible(True)
         self.create_asset_widget_result.setVisible(False)
         self.create_asset_widget_error.setVisible(False)
@@ -152,13 +156,16 @@ class CreateAssetTypeOverlay(Overlay):
         )
 
     def on_fail(self):
+        '''Handle fail.'''
         self.asset_creation_failed.emit()
         self.setVisible(False)
 
     def on_continue(self):
+        '''Handle continue.'''
         self.setVisible(False)
 
     def on_create_asset(self):
+        '''Handle asset created.'''
         result = ftrack_connect_pipeline.util.create_asset_type(
             self.session, self.asset_type, self.asset_type_short
         )
@@ -288,7 +295,10 @@ class PublishResult(Overlay):
             error_msg = validator[1]
 
             # Remove quotes from error message, if present.
-            if (error_msg[0] == error_msg[-1]) and error_msg.startswith(("'", '"')):
+            if (
+                (error_msg[0] == error_msg[-1]) and
+                error_msg.startswith(("'", '"'))
+            ):
                 error_msg = error_msg[1:-1]
 
             item = QtWidgets.QTableWidgetItem(error_msg)

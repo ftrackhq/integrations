@@ -9,7 +9,7 @@ import subprocess
 from QtExt import QtCore
 
 import ftrack_api
-from ftrack_api.exception import PermissionDeniedError, MultipleResultsFoundError
+import ftrack_api.exception
 
 
 def asynchronous(method):
@@ -72,7 +72,7 @@ class Worker(QtCore.QThread):
                     None,
                     'Error',
                     'An unhandled error occurred:'
-                    '\\n{0}'.format(error)
+                    '{0}'.format(error)
                 )
 
         '''
@@ -190,14 +190,14 @@ def open_directory(path):
 
 
 def asset_type_exists(session, asset_type_short):
-    # check if any asset exist with the given *asset_type_short*
+    '''Return true if *asset_type_short* exists.'''
     asset_type_found = session.query(
-        'select name , short from AssetType'
+        'select name, short from AssetType'
         ' where short is "{0}"'.format(
             asset_type_short
         )
     ).first()
-    return bool(asset_type_found)
+    return asset_type_found is not None
 
 
 def create_asset_type(session, asset_type, asset_type_short):
@@ -205,27 +205,31 @@ def create_asset_type(session, asset_type, asset_type_short):
 
     # If does not exist, we are free to create one with the given label
     try:
-        session.ensure('AssetType',
+        session.ensure(
+            'AssetType',
             {
                 'short': asset_type_short,
                 'name': asset_type
             },
             identifying_keys=['short']
         )
-    except (PermissionDeniedError, MultipleResultsFoundError) as e:
-        session.logger.warning(e)
+    except (
+        ftrack_api.exception.PermissionDeniedError,
+        ftrack_api.exception.MultipleResultsFoundError
+    ) as error:
+        session.logger.warning(error)
         return {
             'status': False,
-            'message': 'ERROR could not create asset type {0}: {1}'.format(
-                asset_type_short, e
+            'message': 'Could not create asset type {0}: {1}.'.format(
+                asset_type_short, error
             )
         }
 
     return {
         'status': True,
         'message': (
-            'Asset short {0} and name {1}'
-            ' has been succesfully created.'.format(
+            'Asset short {0} and name {1}  has been succesfully created.'
+            .format(
                 asset_type_short, asset_type
             )
         )

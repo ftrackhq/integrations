@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2016 ftrack
 
-from Qt import QtWidgets, QtCore
+from Qt import QtWidgets
 
 import ftrack_connect_pipeline.ui.widget.overlay
 from ftrack_connect_pipeline.ui.publish import workflow_selector
@@ -62,8 +62,10 @@ class Dialog(QtWidgets.QDialog):
             stretch=1
         )
 
-        self.create_asset = ftrack_connect_pipeline.ui.publish.workflow.CreateAssetTypeOverlay(
-            self.session, self
+        self.create_asset = (
+            ftrack_connect_pipeline.ui.publish.workflow.CreateAssetTypeOverlay(
+                self.session, self
+            )
         )
         self.create_asset.setVisible(False)
         self.create_asset.asset_creation_failed.connect(
@@ -73,6 +75,7 @@ class Dialog(QtWidgets.QDialog):
         self.apply_style(self)
 
     def on_asset_creation_failed(self):
+        '''Handle asset creation failed.'''
         self.remove_active_workflow_widget()
         self.publish_container.layout().addWidget(
             self.placeholder_widget,
@@ -124,7 +127,7 @@ class Dialog(QtWidgets.QDialog):
             self.session, publish_asset.asset_type_short
         )
 
-        if asset_type_exist:
+        if not asset_type_exist:
             self.create_asset.populate(
                 asset_type_short=publish_asset.asset_type_short,
                 asset_type=label
