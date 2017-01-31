@@ -123,7 +123,7 @@ class IntegratorCreateComponents(pyblish.api.InstancePlugin):
         self.log.debug('Picked location {0!r}.'.format(location['name']))
 
         for component_item in instance.data.get('ftrack_components', []):
-            session.create_component(
+            new_component = session.create_component(
                 component_item['path'],
                 {
                     'version_id': asset_version['id'],
@@ -134,6 +134,16 @@ class IntegratorCreateComponents(pyblish.api.InstancePlugin):
             self.log.debug(
                 'Created component from data: {0!r}.'.format(component_item)
             )
+
+            # Save authoring software information (name, version, ...)
+            # into the component metadata, if available.
+            if 'software' in context.data:
+                self.log.debug('Found software metadata.')
+                self.log.debug('Software = {0}'.format(context.data['software']))
+                new_component['metadata']['software'] = context.data['software']['name']
+                new_component['metadata']['software_version'] = context.data['software']['version']
+            else:
+                self.log.debug('No software metadata found.')
 
         session.commit()
 
