@@ -2,7 +2,6 @@
 # :copyright: Copyright (c) 2016 ftrack
 
 import sys
-import string
 import functools
 import time
 import webbrowser
@@ -16,7 +15,175 @@ from ftrack_connect_pipeline.ui.widget.overlay import Overlay
 from ftrack_connect_pipeline.ui.usage import send_event as send_usage
 from ftrack_connect_pipeline.ui.style import OVERLAY_DARK_STYLE
 from ftrack_connect_pipeline.ui import resource
+
 import ftrack_connect_pipeline.util
+
+
+class CreateAssetTypeOverlay(Overlay):
+    '''Create asset type overlay.'''
+
+    asset_creation_failed = QtCore.Signal()
+
+    def __init__(self, session, parent):
+        '''Instantiate with *session*.'''
+        super(CreateAssetTypeOverlay, self).__init__(parent=parent)
+        self.session = session
+
+        self.main_layout = QtWidgets.QVBoxLayout()
+        self.setLayout(self.main_layout)
+
+        icon = QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor')
+        icon = icon.scaled(
+            QtCore.QSize(85, 85),
+            QtCore.Qt.KeepAspectRatio,
+            QtCore.Qt.SmoothTransformation
+        )
+        self.ftrack_icon = QtWidgets.QLabel()
+        self.ftrack_icon.setPixmap(icon)
+
+        self.main_layout.addStretch(1)
+        self.main_layout.insertWidget(
+            1, self.ftrack_icon, alignment=QtCore.Qt.AlignCenter
+        )
+        self.main_layout.addStretch(1)
+        self.main_layout.setContentsMargins(20, 20, 20, 20)
+
+        # create asset type widget
+        self.create_asset_widget = QtWidgets.QFrame()
+        self.create_asset_widget.setVisible(False)
+
+        create_asset_layout = QtWidgets.QVBoxLayout()
+        create_asset_layout.setContentsMargins(20, 20, 20, 20)
+        create_asset_layout.addStretch(1)
+        buttons_layout = QtWidgets.QHBoxLayout()
+        self.create_asset_widget.setLayout(create_asset_layout)
+
+        self.create_asset_label_top = QtWidgets.QLabel()
+
+        self.create_asset_label_bottom = QtWidgets.QLabel(
+            '<h4>Do you want to create one ?</h4>'
+        )
+
+        create_asset_layout.insertWidget(
+            1,
+            self.create_asset_label_top,
+            alignment=QtCore.Qt.AlignCenter
+        )
+        create_asset_layout.insertWidget(
+            2,
+            self.create_asset_label_bottom,
+            alignment=QtCore.Qt.AlignCenter
+        )
+        self.create_asset_button = QtWidgets.QPushButton('Create')
+        self.cancel_asset_button = QtWidgets.QPushButton('Cancel')
+        create_asset_layout.addLayout(buttons_layout)
+        buttons_layout.addWidget(self.create_asset_button)
+        buttons_layout.addWidget(self.cancel_asset_button)
+
+        # result create asset type
+        self.create_asset_widget_result = QtWidgets.QFrame()
+        self.create_asset_widget_result.setVisible(False)
+
+        create_asset_layout_result = QtWidgets.QVBoxLayout()
+        create_asset_layout_result.setContentsMargins(20, 20, 20, 20)
+        create_asset_layout_result.addStretch(1)
+
+        self.create_asset_widget_result.setLayout(create_asset_layout_result)
+        self.create_asset_label_result = QtWidgets.QLabel()
+        self.continue_button = QtWidgets.QPushButton('Continue')
+
+        create_asset_layout_result.insertWidget(
+            1,
+            self.create_asset_label_result,
+            alignment=QtCore.Qt.AlignCenter
+        )
+
+        create_asset_layout_result.insertWidget(
+            2,
+            self.continue_button,
+            alignment=QtCore.Qt.AlignCenter
+        )
+
+        # error on create asset
+        self.create_asset_widget_error = QtWidgets.QFrame()
+        self.create_asset_widget_error.setVisible(False)
+
+        create_asset_layout_error = QtWidgets.QVBoxLayout()
+        create_asset_layout_error.setContentsMargins(20, 20, 20, 20)
+        create_asset_layout_error.addStretch(1)
+
+        self.create_asset_widget_error.setLayout(create_asset_layout_error)
+        self.create_asset_label_error = QtWidgets.QLabel()
+        self.close_button = QtWidgets.QPushButton('Close')
+
+        create_asset_layout_error.insertWidget(
+            1,
+            self.create_asset_label_error,
+            alignment=QtCore.Qt.AlignCenter
+        )
+
+        create_asset_layout_error.insertWidget(
+            2,
+            self.close_button,
+            alignment=QtCore.Qt.AlignCenter
+        )
+
+        # parent all.
+        self.main_layout.addWidget(self.create_asset_widget)
+        self.main_layout.addWidget(self.create_asset_widget_result)
+        self.main_layout.addWidget(self.create_asset_widget_error)
+
+        self.main_layout.addStretch(1)
+
+        # signals
+        self.create_asset_button.clicked.connect(self.on_create_asset)
+        self.continue_button.clicked.connect(self.on_continue)
+        self.close_button.clicked.connect(self.on_fail)
+        self.cancel_asset_button.clicked.connect(self.on_fail)
+
+    def populate(self, asset_type_short, asset_type):
+        '''Populate with *asset_type_short* and *asset_type*.'''
+        self.create_asset_widget.setVisible(True)
+        self.create_asset_widget_result.setVisible(False)
+        self.create_asset_widget_error.setVisible(False)
+
+        self.asset_type = asset_type
+        self.asset_type_short = asset_type_short
+
+        self.create_asset_label_top.setText(
+            '<h2>The required asset type {0} ({1}) does not exist on your '
+            'ftrack instance.</h2>'.format(
+                self.asset_type, self.asset_type_short
+            )
+        )
+
+    def on_fail(self):
+        '''Handle fail.'''
+        self.asset_creation_failed.emit()
+        self.setVisible(False)
+
+    def on_continue(self):
+        '''Handle continue.'''
+        self.setVisible(False)
+
+    def on_create_asset(self):
+        '''Handle asset created.'''
+        result = ftrack_connect_pipeline.util.create_asset_type(
+            self.session, self.asset_type, self.asset_type_short
+        )
+
+        if result['status']:
+            self.create_asset_widget.setVisible(False)
+            self.create_asset_label_result.setText(
+                '<center><h2>{0}</h2></center>'.format(result['message'])
+            )
+            self.create_asset_widget_result.setVisible(True)
+        else:
+            self.create_asset_widget.setVisible(False)
+            self.create_asset_label_error.setText(
+                '<center><h2>{0}</h2></center>'.format(result['message'])
+            )
+            self.create_asset_widget_error.setVisible(True)
 
 
 class PublishResult(Overlay):
@@ -130,7 +297,10 @@ class PublishResult(Overlay):
             error_msg = validator[1]
 
             # Remove quotes from error message, if present.
-            if (error_msg[0] == error_msg[-1]) and error_msg.startswith(("'", '"')):
+            if (
+                (error_msg[0] == error_msg[-1]) and
+                error_msg.startswith(("'", '"'))
+            ):
                 error_msg = error_msg[1:-1]
 
             item = QtWidgets.QTableWidgetItem(error_msg)

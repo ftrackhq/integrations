@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2016 ftrack
 
-from Qt import QtWidgets, QtCore
+from Qt import QtWidgets
 
 import ftrack_connect_pipeline.ui.widget.overlay
 from ftrack_connect_pipeline.ui.publish import workflow_selector
@@ -9,7 +9,8 @@ import ftrack_connect_pipeline.ui.widget.header
 from ftrack_connect_pipeline.ui.widget.context_selector import ContextSelector
 import ftrack_connect_pipeline.ui.publish.workflow
 import ftrack_connect_pipeline.util
-from ftrack_connect_pipeline.ui import theme 
+from ftrack_connect_pipeline.ui import theme
+from ftrack_connect_pipeline.ui.style import OVERLAY_DARK_STYLE
 
 
 class Dialog(QtWidgets.QDialog):
@@ -45,6 +46,7 @@ class Dialog(QtWidgets.QDialog):
         selector_widget = workflow_selector.WorkflowSelector(
             self.session, overlay=overlay_widget
         )
+
         selector_widget.setFixedWidth(105)
         selector_widget._allSection.actionLaunched.connect(
             self._handle_actions_launched
@@ -59,7 +61,26 @@ class Dialog(QtWidgets.QDialog):
             self.placeholder_widget,
             stretch=1
         )
+
+        self.create_asset_type = (
+            ftrack_connect_pipeline.ui.publish.workflow.CreateAssetTypeOverlay(
+                self.session, self
+            )
+        )
+        self.create_asset_type.setVisible(False)
+        self.create_asset_type.asset_creation_failed.connect(
+            self.on_asset_creation_failed
+        )
+
         self.apply_style(self)
+
+    def on_asset_creation_failed(self):
+        '''Handle asset creation failed.'''
+        self.remove_active_workflow_widget()
+        self.publish_container.layout().addWidget(
+            self.placeholder_widget,
+            stretch=1
+        )
 
     def on_context_changed(self, ftrack_entity):
         '''Set the current context to the given *ftrack_entity*.'''
@@ -95,22 +116,37 @@ class Dialog(QtWidgets.QDialog):
 
     def set_active_workflow(self, label, publish_asset):
         '''Set the active *workflow*.'''
-        if self.active_workflow_widget:
-            self.remove_active_workflow_widget()
-        else:
-            self.publish_container.layout().removeWidget(
-                self.placeholder_widget
-            )
-
-        self.active_workflow_widget = (
-            ftrack_connect_pipeline.ui.publish.workflow.Workflow(
-                label=label,
-                description=publish_asset.description,
-                publish_asset=publish_asset,
-                session=self.session
-            )
+        asset_type_exist = ftrack_connect_pipeline.util.asset_type_exists(
+            self.session, publish_asset.asset_type_short
         )
-        self.publish_container.layout().addWidget(self.active_workflow_widget)
+
+        if not asset_type_exist:
+            self.create_asset_type.populate(
+                asset_type_short=publish_asset.asset_type_short,
+                asset_type=label
+            )
+            self.create_asset_type.setStyleSheet(OVERLAY_DARK_STYLE)
+            self.create_asset_type.setVisible(True)
+
+        else:
+            if self.active_workflow_widget:
+                self.remove_active_workflow_widget()
+            else:
+                self.publish_container.layout().removeWidget(
+                    self.placeholder_widget
+                )
+
+            self.active_workflow_widget = (
+                ftrack_connect_pipeline.ui.publish.workflow.Workflow(
+                    label=label,
+                    description=publish_asset.description,
+                    publish_asset=publish_asset,
+                    session=self.session
+                )
+            )
+            self.publish_container.layout().addWidget(
+                self.active_workflow_widget
+            )
 
     def apply_style(self, widget):
         '''Apply ftrack_connect_pipeline style to the given *widget*.'''
