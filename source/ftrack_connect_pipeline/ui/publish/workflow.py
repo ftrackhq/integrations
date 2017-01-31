@@ -151,8 +151,10 @@ class CreateAssetTypeOverlay(Overlay):
         self.asset_type_short = asset_type_short
 
         self.create_asset_label_top.setText(
-            '<h2>The asset type {0}, does not '
-            'seem to be existing.</h2>'.format(self.asset_type)
+            '<h2>The required asset type {0} ({1}) does not exist on your '
+            'ftrack instance.</h2>'.format(
+                self.asset_type, self.asset_type_short
+            )
         )
 
     def on_fail(self):

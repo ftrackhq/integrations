@@ -62,13 +62,13 @@ class Dialog(QtWidgets.QDialog):
             stretch=1
         )
 
-        self.create_asset = (
+        self.create_asset_type = (
             ftrack_connect_pipeline.ui.publish.workflow.CreateAssetTypeOverlay(
                 self.session, self
             )
         )
-        self.create_asset.setVisible(False)
-        self.create_asset.asset_creation_failed.connect(
+        self.create_asset_type.setVisible(False)
+        self.create_asset_type.asset_creation_failed.connect(
             self.on_asset_creation_failed
         )
 
@@ -128,12 +128,12 @@ class Dialog(QtWidgets.QDialog):
         )
 
         if not asset_type_exist:
-            self.create_asset.populate(
+            self.create_asset_type.populate(
                 asset_type_short=publish_asset.asset_type_short,
                 asset_type=label
             )
-            self.create_asset.setStyleSheet(OVERLAY_DARK_STYLE)
-            self.create_asset.setVisible(True)
+            self.create_asset_type.setStyleSheet(OVERLAY_DARK_STYLE)
+            self.create_asset_type.setVisible(True)
 
         self.active_workflow_widget = (
             ftrack_connect_pipeline.ui.publish.workflow.Workflow(
