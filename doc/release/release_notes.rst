@@ -7,6 +7,19 @@
 Release Notes
 *************
 
+.. release:: 0.5.0
+    :date: 2017-01-31
+
+    .. change:: new
+    :tags: Publish
+
+    Application version and name is saved as metadata on component.
+
+    .. change:: new
+    :tags: Publish
+
+    Added support for creation of asset type if they do not exist.
+
 .. release:: 0.4.0
     :date: 2017-01-25
 
