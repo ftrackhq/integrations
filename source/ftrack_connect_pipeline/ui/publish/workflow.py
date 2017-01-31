@@ -118,7 +118,7 @@ class PublishResult(Overlay):
         validators_table.setRowCount(len(failed_validators))
         validators_table.verticalHeader().setVisible(False)
 
-        icon = QtWidgets.QIcon(':ftrack/image/dark/remove')
+        icon = QtGui.QIcon(':ftrack/image/dark/remove')
         font = QtGui.QFont()
         font.setBold(True)
 
