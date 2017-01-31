@@ -215,22 +215,28 @@ def create_asset_type(session, asset_type, asset_type_short):
         )
     except (
         ftrack_api.exception.PermissionDeniedError,
-        ftrack_api.exception.MultipleResultsFoundError
+        ftrack_api.exception.MultipleResultsFoundError,
+        ftrack_api.exception.ServerError
     ) as error:
         session.logger.warning(error)
+        session.rollback()
         return {
             'status': False,
-            'message': 'Could not create asset type {0}: {1}.'.format(
-                asset_type_short, error
+            'message': (
+                'Could not create asset type {0} ({1}). This may be '
+                'caused by insufficient permissions. <br />Contact your system '
+                'administrator or ftrack support.'.format(
+                    asset_type, asset_type_short
+                )
             )
         }
 
     return {
         'status': True,
         'message': (
-            'Asset short {0} and name {1}  has been succesfully created.'
+            'Asset type {0} ({1}) has been succesfully created.'
             .format(
-                asset_type_short, asset_type
+                asset_type, asset_type_short
             )
         )
     }

@@ -175,13 +175,13 @@ class CreateAssetTypeOverlay(Overlay):
         if result['status']:
             self.create_asset_widget.setVisible(False)
             self.create_asset_label_result.setText(
-                "<h2>{0}</h2>".format(result['message'])
+                '<center><h2>{0}</h2></center>'.format(result['message'])
             )
             self.create_asset_widget_result.setVisible(True)
         else:
             self.create_asset_widget.setVisible(False)
             self.create_asset_label_error.setText(
-                "<h2>{0}</h2>".format(result['message'])
+                '<center><h2>{0}</h2></center>'.format(result['message'])
             )
             self.create_asset_widget_error.setVisible(True)
 

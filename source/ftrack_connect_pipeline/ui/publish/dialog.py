@@ -116,13 +116,6 @@ class Dialog(QtWidgets.QDialog):
 
     def set_active_workflow(self, label, publish_asset):
         '''Set the active *workflow*.'''
-        if self.active_workflow_widget:
-            self.remove_active_workflow_widget()
-        else:
-            self.publish_container.layout().removeWidget(
-                self.placeholder_widget
-            )
-
         asset_type_exist = ftrack_connect_pipeline.util.asset_type_exists(
             self.session, publish_asset.asset_type_short
         )
@@ -135,15 +128,25 @@ class Dialog(QtWidgets.QDialog):
             self.create_asset_type.setStyleSheet(OVERLAY_DARK_STYLE)
             self.create_asset_type.setVisible(True)
 
-        self.active_workflow_widget = (
-            ftrack_connect_pipeline.ui.publish.workflow.Workflow(
-                label=label,
-                description=publish_asset.description,
-                publish_asset=publish_asset,
-                session=self.session
+        else:
+            if self.active_workflow_widget:
+                self.remove_active_workflow_widget()
+            else:
+                self.publish_container.layout().removeWidget(
+                    self.placeholder_widget
+                )
+
+            self.active_workflow_widget = (
+                ftrack_connect_pipeline.ui.publish.workflow.Workflow(
+                    label=label,
+                    description=publish_asset.description,
+                    publish_asset=publish_asset,
+                    session=self.session
+                )
             )
-        )
-        self.publish_container.layout().addWidget(self.active_workflow_widget)
+            self.publish_container.layout().addWidget(
+                self.active_workflow_widget
+            )
 
     def apply_style(self, widget):
         '''Apply ftrack_connect_pipeline style to the given *widget*.'''
