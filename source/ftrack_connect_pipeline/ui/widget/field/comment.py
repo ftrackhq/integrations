@@ -1,5 +1,6 @@
 
 from ftrack_connect_pipeline.ui.widget.field.base import BaseField
+from ftrack_connect_pipeline.ui.widget import comment
 
 from QtExt import QtWidgets
 
@@ -12,7 +13,7 @@ class CommentField(BaseField):
         layout = QtWidgets.QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
-        self.comment = QtWidgets.QTextEdit()
+        self.comment = comment.Comment()
         self.layout().addWidget(self.comment)
         self.comment.textChanged.connect(self.notify_changed)
 
@@ -22,4 +23,5 @@ class CommentField(BaseField):
 
     def value(self):
         '''Return value.'''
-        return self.thumbnail.text()
+        current_text = self.comment.toPlainText()
+        return current_text
