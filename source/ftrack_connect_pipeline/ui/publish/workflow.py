@@ -405,6 +405,17 @@ class ListItemsWidget(QtWidgets.QListWidget):
             item = SelectableItemWidget(item)
             self.addItem(item)
 
+    def paintEvent(self, event):
+        root_index = self.rootIndex()
+        model = self.model()
+
+        if model and model.rowCount(root_index) > 0:
+            super(ListItemsWidget, self).paintEvent(event)
+        else:
+            painter = QtGui.QPainter(self.viewport())
+            rect = self.rect()
+            painter.drawText(rect, QtCore.Qt.AlignCenter, 'No Items found.')
+
     def get_checked_items(self):
         '''Return checked items.'''
         checked_items = []
