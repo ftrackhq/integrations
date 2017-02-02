@@ -1,3 +1,5 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2016 ftrack
 
 from ftrack_connect_pipeline.ui.widget.field.base import BaseField
 from ftrack_connect_pipeline.ui.widget import comment
