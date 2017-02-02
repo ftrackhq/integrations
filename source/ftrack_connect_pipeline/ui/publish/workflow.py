@@ -406,6 +406,7 @@ class ListItemsWidget(QtWidgets.QListWidget):
             self.addItem(item)
 
     def paintEvent(self, event):
+        '''Draw placeholder text.'''
         root_index = self.rootIndex()
         model = self.model()
 
@@ -414,7 +415,11 @@ class ListItemsWidget(QtWidgets.QListWidget):
         else:
             painter = QtGui.QPainter(self.viewport())
             rect = self.rect()
-            painter.drawText(rect, QtCore.Qt.AlignCenter, 'No Items found to publish.')
+            painter.drawText(
+                rect,
+                QtCore.Qt.AlignCenter,
+                'No items found to publish.'
+            )
 
     def get_checked_items(self):
         '''Return checked items.'''

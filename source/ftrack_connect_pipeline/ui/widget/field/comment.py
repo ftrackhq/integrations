@@ -8,9 +8,10 @@ from QtExt import QtWidgets
 
 
 class CommentField(BaseField):
+    '''Comment field.'''
 
     def __init__(self):
-        '''Initialize widget'''
+        '''Initialize widget.'''
         super(CommentField, self).__init__()
         layout = QtWidgets.QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
