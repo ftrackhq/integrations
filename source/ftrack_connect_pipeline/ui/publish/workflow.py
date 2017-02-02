@@ -414,7 +414,7 @@ class ListItemsWidget(QtWidgets.QListWidget):
         else:
             painter = QtGui.QPainter(self.viewport())
             rect = self.rect()
-            painter.drawText(rect, QtCore.Qt.AlignCenter, 'No Items found.')
+            painter.drawText(rect, QtCore.Qt.AlignCenter, 'No Items found to publish.')
 
     def get_checked_items(self):
         '''Return checked items.'''
