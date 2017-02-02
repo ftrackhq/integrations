@@ -1,4 +1,4 @@
-from QtExt import QtCore, QtGui, QtWidgets
+from QtExt import QtWidgets
 
 
 class Comment(QtWidgets.QTextEdit):
