@@ -67,7 +67,6 @@ QFrame#ftrack-configuration-widget {
 }
 
 
-
 QDoubleSpinBox {
     border-radius: 2px;
     padding: $input-padding;
@@ -92,6 +91,27 @@ QCheckBox {
     &:hover {
         border-color: $brand-primary;
     }
+    &:focus {
+        border: 1px solid $input-border-color-focus;
+    }
 }
 
 
+QCheckBox::indicator#ftrack-item-widget {
+    background: lighten($white-almost, 10%);
+    selection-background-color: $brand-primary;
+    border: 1px solid $input-border-color-focus;
+
+    &:checked {
+        background: $brand-primary
+    }
+
+    &:unchecked {
+        background: darken($white-almost, 5%)
+    }
+
+    &:focus {
+        border: 1px solid $input-border-color-focus;
+        background: lighten($brand-primary, 10%)
+    }
+}

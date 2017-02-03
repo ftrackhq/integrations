@@ -374,23 +374,26 @@ class PublishResult(Overlay):
         webbrowser.open_new_tab(url_template)
 
 
-class SelectableItemWidget(QtWidgets.QListWidgetItem):
-    '''A selectable item widget.'''
-
-    def __init__(self, item):
-        '''Instanstiate widget from *item*.'''
-        super(SelectableItemWidget, self).__init__()
+class SelectableItemWidget(QtWidgets.QWidget):
+    #     '''A selectable item widget.'''
+    def __init__(self, item, parent=None):
+        super(SelectableItemWidget, self).__init__(parent=parent)
         self._item = item
-        self.setText(item['label'])
-        self.setFlags(self.flags() | QtCore.Qt.ItemIsUserCheckable)
+        layout = QtWidgets.QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(layout)
 
-        self.setCheckState(
-            QtCore.Qt.Checked if item.get('value') else QtCore.Qt.Unchecked
-        )
+        self._checkbox = QtWidgets.QCheckBox(item['label'])
+        self._checkbox.setObjectName('ftrack-item-widget')
+        self.layout().addWidget(self._checkbox)
 
     def item(self):
         '''Return pyblish instance.'''
         return self._item
+
+    def checkState(self):
+        '''Return the state of the checkbox.'''
+        return self._checkbox.checkState()
 
 
 class ListItemsWidget(QtWidgets.QListWidget):
@@ -401,9 +404,13 @@ class ListItemsWidget(QtWidgets.QListWidget):
         super(ListItemsWidget, self).__init__()
         self.setObjectName('ftrack-list-widget')
 
-        for item in items:
-            item = SelectableItemWidget(item)
-            self.addItem(item)
+        for idx, item in enumerate(items):
+            widget_item = QtGui.QListWidgetItem(self)
+            self.addItem(widget_item)
+
+            item_widget = SelectableItemWidget(item)
+            widget_item.setSizeHint(item_widget.sizeHint())
+            self.setItemWidget(widget_item, item_widget)
 
     def paintEvent(self, event):
         '''Draw placeholder text.'''
