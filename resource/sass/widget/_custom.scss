@@ -43,6 +43,10 @@ QListWidget#ftrack-list-widget {
      color: $text-color;
 }
 
+QListWidget#ftrack-list-widget::indicator:unchecked {
+    border: 1px solid lighten($white-almost, 10%);
+}
+
 QListWidget::item:selected#ftrack-list-widget{
     selection-background-color: $brand-primary;
     color: $text-color;
@@ -93,25 +97,5 @@ QCheckBox {
     }
     &:focus {
         border: 1px solid $input-border-color-focus;
-    }
-}
-
-
-QCheckBox::indicator#ftrack-item-widget {
-    background: lighten($white-almost, 10%);
-    selection-background-color: $brand-primary;
-    border: 1px solid $input-border-color-focus;
-
-    &:checked {
-        background: $brand-primary
-    }
-
-    &:unchecked {
-        background: darken($white-almost, 5%)
-    }
-
-    &:focus {
-        border: 1px solid $input-border-color-focus;
-        background: lighten($brand-primary, 10%)
     }
 }

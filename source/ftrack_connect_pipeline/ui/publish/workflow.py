@@ -374,26 +374,24 @@ class PublishResult(Overlay):
         webbrowser.open_new_tab(url_template)
 
 
-class SelectableItemWidget(QtWidgets.QWidget):
-    #     '''A selectable item widget.'''
-    def __init__(self, item, parent=None):
-        super(SelectableItemWidget, self).__init__(parent=parent)
-        self._item = item
-        layout = QtWidgets.QHBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(layout)
 
-        self._checkbox = QtWidgets.QCheckBox(item['label'])
-        self._checkbox.setObjectName('ftrack-item-widget')
-        self.layout().addWidget(self._checkbox)
+class SelectableItemWidget(QtWidgets.QListWidgetItem):
+    '''A selectable item widget.'''
+
+    def __init__(self, item):
+        '''Instanstiate widget from *item*.'''
+        super(SelectableItemWidget, self).__init__()
+        self._item = item
+        self.setText(item['label'])
+        self.setFlags(self.flags() | QtCore.Qt.ItemIsUserCheckable)
+
+        self.setCheckState(
+            QtCore.Qt.Checked if item.get('value') else QtCore.Qt.Unchecked
+        )
 
     def item(self):
         '''Return pyblish instance.'''
         return self._item
-
-    def checkState(self):
-        '''Return the state of the checkbox.'''
-        return self._checkbox.checkState()
 
 
 class ListItemsWidget(QtWidgets.QListWidget):
@@ -403,21 +401,16 @@ class ListItemsWidget(QtWidgets.QListWidget):
         '''Instanstiate and generate list from *items*.'''
         super(ListItemsWidget, self).__init__()
         self.setObjectName('ftrack-list-widget')
-
-        for idx, item in enumerate(items):
-            widget_item = QtGui.QListWidgetItem(self)
-            self.addItem(widget_item)
-
-            item_widget = SelectableItemWidget(item)
-            widget_item.setSizeHint(item_widget.sizeHint())
-            self.setItemWidget(widget_item, item_widget)
+        for item in items:
+            item = SelectableItemWidget(item)
+            self.addItem(item)
 
     def paintEvent(self, event):
         '''Draw placeholder text.'''
         root_index = self.rootIndex()
         model = self.model()
 
-        if model and model.rowCount(root_index) > 0:
+        if model and model.rowCount(root_index):
             super(ListItemsWidget, self).paintEvent(event)
         else:
             painter = QtGui.QPainter(self.viewport())
@@ -425,7 +418,27 @@ class ListItemsWidget(QtWidgets.QListWidget):
             painter.drawText(
                 rect,
                 QtCore.Qt.AlignCenter,
-                'No items found to publish.'
+                'No items found to publish'
+            )
+
+    def get_checked_items(self):
+        '''Return checked items.'''
+        checked_items = []
+        for index in xrange(self.count()):
+            widget_item = self.item(index)
+            if widget_item.checkState() is QtCore.Qt.Checked:
+                checked_items.append(widget_item.item())
+
+        return checked_items
+
+    def update_selection(self, new_selection):
+        '''Update selection from *new_selection*.'''
+        for index in xrange(self.count()):
+            widget_item = self.item(index)
+            item = widget_item.item()
+            should_select = item['name'] in new_selection
+            widget_item.setCheckState(
+                QtCore.Qt.Checked if should_select else QtCore.Qt.Unchecked
             )
 
     def get_checked_items(self):
