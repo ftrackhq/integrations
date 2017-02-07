@@ -150,6 +150,7 @@ class PublishAsset(object):
                 'label': '',
                 'name': constant.ASSET_VERSION_COMMENT_OPTION_NAME,
                 'type': 'textarea',
+                'empty_text': 'Please add a description...'
             }
         ]
 
