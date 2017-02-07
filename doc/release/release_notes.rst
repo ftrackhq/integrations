@@ -7,6 +7,14 @@
 Release Notes
 *************
 
+.. release:: 0.5.2
+    :date: 2017-02-07
+
+    .. change:: changed
+        :tags: Publish
+
+        Added support for closing failed validation overlay.
+
 .. release:: 0.5.1
     :date: 2017-02-07
 
