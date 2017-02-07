@@ -132,10 +132,8 @@ class PublishAsset(object):
         )
 
         from ftrack_connect_pipeline.ui.widget.field import thumbnail
-        from ftrack_connect_pipeline.ui.widget.field import comment
 
         thumbnail = thumbnail.ThumbnailField()
-        comment = comment.CommentField()
 
         options = [
             {
@@ -149,9 +147,10 @@ class PublishAsset(object):
                 'type': 'qt_widget'
             },
             {
-                'widget': comment,
+                'label': '',
                 'name': constant.ASSET_VERSION_COMMENT_OPTION_NAME,
-                'type': 'qt_widget',
+                'type': 'textarea',
+                'empty_text': 'Please add a description...'
             }
         ]
 

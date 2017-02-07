@@ -1,13 +1,16 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2016 ftrack
+# :copyright: Copyright (c) 2017 ftrack
 
 from QtExt import QtWidgets
 
 
-class Comment(QtWidgets.QTextEdit):
-    def __init__(self, parent=None):
-        super(Comment, self).__init__(parent=parent)
-        self._placeholder_text = 'Please add a comment...'
+class TextArea(QtWidgets.QTextEdit):
+    '''Text area with placeholder.'''
+
+    def __init__(self, placeholder_text, parent=None):
+        '''Instantiate text area.'''
+        super(TextArea, self).__init__(parent=parent)
+        self._placeholder_text = placeholder_text
         self.set_placeholder_text(self._placeholder_text)
 
     def set_placeholder_text(self, text):
@@ -20,11 +23,11 @@ class Comment(QtWidgets.QTextEdit):
         current_text = self.toPlainText()
         if not current_text or current_text == self._placeholder_text:
             self.clear()
-        super(Comment, self).focusInEvent(event)
+        super(TextArea, self).focusInEvent(event)
 
     def focusOutEvent(self, event):
         '''Handle In Focus *event*.'''
         current_text = self.toPlainText()
         if not current_text:
             self.set_placeholder_text(self._placeholder_text)
-        super(Comment, self).focusOutEvent(event)
+        super(TextArea, self).focusOutEvent(event)

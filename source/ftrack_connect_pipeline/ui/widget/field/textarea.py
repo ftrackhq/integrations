@@ -2,23 +2,23 @@
 # :copyright: Copyright (c) 2016 ftrack
 
 from ftrack_connect_pipeline.ui.widget.field.base import BaseField
-from ftrack_connect_pipeline.ui.widget import comment
+from ftrack_connect_pipeline.ui.widget import textarea
 
 from QtExt import QtWidgets
 
 
-class CommentField(BaseField):
-    '''Comment field.'''
+class TextAreaField(BaseField):
+    '''Textarea field.'''
 
-    def __init__(self):
+    def __init__(self, placeholder):
         '''Initialize widget.'''
-        super(CommentField, self).__init__()
+        super(TextAreaField, self).__init__()
         layout = QtWidgets.QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
-        self.comment = comment.Comment()
-        self.layout().addWidget(self.comment)
-        self.comment.textChanged.connect(self.notify_changed)
+        self.textarea = textarea.TextArea(placeholder)
+        self.layout().addWidget(self.textarea)
+        self.textarea.textChanged.connect(self.notify_changed)
 
     def notify_changed(self, *args, **kwargs):
         '''Notify the world about the changes.'''
@@ -26,5 +26,5 @@ class CommentField(BaseField):
 
     def value(self):
         '''Return value.'''
-        current_text = self.comment.toPlainText()
+        current_text = self.textarea.toPlainText()
         return current_text

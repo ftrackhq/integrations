@@ -12,6 +12,7 @@ from ftrack_api.event.base import Event
 
 from ftrack_connect_pipeline.ui.widget.overlay import BusyOverlay
 from ftrack_connect_pipeline.ui.widget.overlay import Overlay
+from ftrack_connect_pipeline.ui.widget.field import textarea
 from ftrack_connect_pipeline.ui.usage import send_event as send_usage
 from ftrack_connect_pipeline.ui.style import OVERLAY_DARK_STYLE
 from ftrack_connect_pipeline.ui import resource
@@ -235,7 +236,7 @@ class PublishResult(Overlay):
         if self.details_window_callback is None:
             self.details_button.setDisabled(True)
 
-        self.open_in_ftrack = QtWidgets.QPushButton('Open In Ftrack')
+        self.open_in_ftrack = QtWidgets.QPushButton('Open in ftrack')
         buttons_layout.addWidget(self.open_in_ftrack)
         self.open_in_ftrack.clicked.connect(self.on_open_in_ftrack)
 
@@ -374,7 +375,6 @@ class PublishResult(Overlay):
         webbrowser.open_new_tab(url_template)
 
 
-
 class SelectableItemWidget(QtWidgets.QListWidgetItem):
     '''A selectable item widget.'''
 
@@ -477,6 +477,7 @@ class ActionSettingsWidget(QtWidgets.QWidget):
             label = option.get('label', '')
             name = option['name']
             value = option.get('value')
+            empty_text = option.get('empty_text')
             if name in data_dict.get('options', {}):
                 value = data_dict['options'][name]
 
@@ -516,17 +517,17 @@ class ActionSettingsWidget(QtWidgets.QWidget):
                 )
 
             if type_ == 'textarea':
-                field = QtWidgets.QTextEdit()
+                field = textarea.TextAreaField(empty_text or '')
                 if value is not None:
                     field.setPlainText(unicode(value))
 
-                field.textChanged.connect(
+                field.value_changed.connect(
                     functools.partial(
                         self.update_on_change,
                         data_dict,
                         field,
                         name,
-                        lambda text_area: text_area.toPlainText()
+                        lambda textarea_widget: textarea_widget.value()
                     )
                 )
 
