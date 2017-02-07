@@ -194,11 +194,16 @@ class PublishResult(Overlay):
         '''Instantiate publish result overlay.'''
         super(PublishResult, self).__init__(parent=parent)
         self.session = session
+        self.activeWidget = None
+        self.setLayout(QtWidgets.QVBoxLayout())
 
     def create_overlay_widgets(self, congrat_text, success_text):
         '''Create overlay widgets to report publish result.'''
-        main_layout = QtWidgets.QVBoxLayout()
-        self.setLayout(main_layout)
+
+        self.activeWidget = QtWidgets.QWidget()
+        self.activeWidget.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().addWidget(self.activeWidget)
+        main_layout = self.activeWidget.layout()
 
         icon = QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor')
         icon = icon.scaled(
@@ -248,8 +253,10 @@ class PublishResult(Overlay):
         congrat_text = '<h2>Validation Failed!</h2>'
         success_text = 'Your <b>{0}</b> failed to validate.'.format(label)
 
-        main_layout = QtWidgets.QVBoxLayout()
-        self.setLayout(main_layout)
+        self.activeWidget = QtWidgets.QWidget()
+        self.activeWidget.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().addWidget(self.activeWidget)
+        main_layout = self.activeWidget.layout()
 
         main_layout.addStretch(1)
 
@@ -322,14 +329,25 @@ class PublishResult(Overlay):
         buttons_layout.addWidget(self.details_button)
         self.details_button.clicked.connect(self.on_show_details)
 
+        self.close_button = QtWidgets.QPushButton('Close')
+        buttons_layout.addWidget(self.close_button)
+        self.close_button.clicked.connect(self.close_window_callback)
+
         if self.details_window_callback is None:
             self.details_button.setDisabled(True)
 
     def populate(
-        self, label, details_window_callback, result
+        self, label, details_window_callback, close_window_callback, result
     ):
         '''Populate with content.'''
+
+        if self.activeWidget:
+            self.layout().removeWidget(self.activeWidget)
+            self.activeWidget.setParent(None)
+            self.activeWidget = None
+
         self.details_window_callback = details_window_callback
+        self.close_window_callback = close_window_callback
 
         self.asset_version = result.get('asset_version', None)
         success = result['success']
@@ -841,7 +859,6 @@ class Workflow(QtWidgets.QWidget):
             self.general_options_store,
             selected_item_names
         )
-
         self._publish_overlay.setVisible(False)
 
         self._hideOverlayAfterTimeout(self.OVERLAY_MESSAGE_TIMEOUT)
@@ -852,8 +869,14 @@ class Workflow(QtWidgets.QWidget):
             details_window_callback=getattr(
                 self.publish_asset, 'show_detailed_result', None
             ),
+            close_window_callback=self.on_close_callback,
             result=result
         )
+
+    def on_close_callback(self):
+        '''Handle close callback.'''
+        self.result_win.setVisible(False)
+        self.publish_asset.prepare_publish()
 
     def _on_sync_scene_selection(self):
         '''Handle sync scene selection event.'''
