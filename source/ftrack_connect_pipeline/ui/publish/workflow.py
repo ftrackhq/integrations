@@ -378,7 +378,7 @@ class PublishResult(Overlay):
         data = {
             'server_url': self.session.server_url,
             'version_id': self.asset_version['id'],
-            'project_id': self.asset_version['asset']['parent']['project']['id']
+            'project_id': self.asset_version['link'][-1]['id']
         }
 
         url_template = (
