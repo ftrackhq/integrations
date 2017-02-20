@@ -156,53 +156,30 @@ class IntegratorCreateReviewableComponents(pyblish.api.InstancePlugin):
 
     def process(self, instance):
         '''Process *instance* and create reviwable components.'''
-        import json
 
         context = instance.context
         asset_version = context.data['asset_version']
         session = asset_version.session
+        asset_version_object = session.get('AssetVersion', asset_version['id'])
 
-        # Retrive ftrack.server location.
-        server_location = session.query(
-            'Location where name is "ftrack.server"'
-        ).one()
-
-        # Extract relevant informations from the
-        # ftrack_reviewable_component_data field
         reviewable_component_data = instance.data.get(
             'ftrack_reviewable_component_data'
         )
 
         if not reviewable_component_data:
+            self.log.debug(
+                'No reviewable component found to publish.'
+            )
             return
 
-        reviewable_component_path = reviewable_component_data['path']
-        frame_in = reviewable_component_data['frame_in']
-        frame_out = reviewable_component_data['frame_out']
-        frame_rate = reviewable_component_data['frame_rate']
-
-        new_reviewable_component = session.create_component(
-            path=reviewable_component_path,
-            data={
-                'version_id': asset_version['id'],
-                'name': 'ftrackreview-mp4'
-            },
-            location=server_location
-        )
-
-        new_reviewable_component['metadata']['ftr_meta'] = json.dumps({
-            'frameIn': frame_in,
-            'frameOut': frame_out,
-            'frameRate': frame_rate
-        })
-
-        new_reviewable_component.session.commit()
+        asset_version_object.encode_media(reviewable_component_data)
+        session.commit()
 
 
 class IntegratorPublishVersion(pyblish.api.ContextPlugin):
     '''Mark asset version as published.'''
 
-    order = pyblish.api.IntegratorOrder + 0.2
+    order = pyblish.api.IntegratorOrder + 0.3
 
     def process(self, context):
         '''Process *context*.'''
