@@ -149,7 +149,7 @@ class IntegratorCreateComponents(pyblish.api.InstancePlugin):
 
 
 class IntegratorCreateReviewableComponents(pyblish.api.InstancePlugin):
-    '''Extract and publish available revieweable component.'''
+    '''Extract and publish available reviewable component.'''
 
     order = pyblish.api.IntegratorOrder + 0.2
 
