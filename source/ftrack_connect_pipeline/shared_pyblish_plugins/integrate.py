@@ -149,6 +149,8 @@ class IntegratorCreateComponents(pyblish.api.InstancePlugin):
 
 
 class IntegratorCreateReviewableComponents(pyblish.api.InstancePlugin):
+    '''Extract and publish available revieweable component.'''
+
     order = pyblish.api.IntegratorOrder + 0.2
 
     families = ['ftrack']
@@ -158,21 +160,21 @@ class IntegratorCreateReviewableComponents(pyblish.api.InstancePlugin):
         '''Process *instance* and create reviwable components.'''
 
         context = instance.context
-        asset_version = context.data['asset_version']
+        asset_version = context.data['asset_vesrion']
         session = asset_version.session
         asset_version_object = session.get('AssetVersion', asset_version['id'])
 
-        reviewable_component_data = instance.data.get(
-            'ftrack_reviewable_component_data'
+        reviewable_component = instance.data.get(
+            'ftrack_reviewable_component'
         )
 
-        if not reviewable_component_data:
+        if not reviewable_component:
             self.log.debug(
                 'No reviewable component found to publish.'
             )
             return
 
-        asset_version_object.encode_media(reviewable_component_data)
+        asset_version_object.encode_media(reviewable_component)
         session.commit()
 
 
