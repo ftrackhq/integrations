@@ -165,7 +165,7 @@ class IntegratorCreateReviewableComponents(pyblish.api.InstancePlugin):
         asset_version_object = session.get('AssetVersion', asset_version['id'])
 
         reviewable_component = instance.data.get(
-            'ftrack_reviewable_component'
+            constant.REVIEWABLE_COMPONENT_OPTION_NAME
         )
 
         if not reviewable_component:
