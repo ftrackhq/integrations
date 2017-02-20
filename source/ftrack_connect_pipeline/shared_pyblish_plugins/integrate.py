@@ -158,12 +158,11 @@ class IntegratorCreateReviewableComponents(pyblish.api.ContextPlugin):
 
     def process(self, context):
         '''Process *instance* and create reviwable components.'''
-        asset_options = context.data['options'][constant.ASSET_OPTION_NAME]
-        asset_version = asset_options['asset_version']
+        asset_version = context.data['asset_version']
         session = asset_version.session
 
         has_reviwable = context.data['options'].get(
-            constant.constant.ASSET_VERSION_COMMENT_OPTION_NAME
+            constant.REVIEWABLE_COMPONENT_OPTION_NAME
         )
         if not has_reviwable:
             return

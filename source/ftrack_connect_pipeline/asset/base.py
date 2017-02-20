@@ -91,7 +91,8 @@ class PublishAsset(object):
 
     def __init__(
         self, description, asset_type_short=None,
-        enable_scene_as_reference=True
+        enable_scene_as_reference=True,
+        enable_reviewable_component=True
     ):
         '''Instantiate publish asset with *label* and *description*.'''
         self.logger = logging.getLogger(
@@ -101,6 +102,7 @@ class PublishAsset(object):
         self.description = description
         self.asset_type_short = asset_type_short
         self.enable_scene_as_reference = enable_scene_as_reference
+        self.enable_reviewable_component = enable_reviewable_component
 
     def discover(self, event):
         '''Discover import camera.'''
@@ -158,6 +160,13 @@ class PublishAsset(object):
             options.append({
                 'label': 'Attach scene as reference',
                 'name': constant.SCENE_AS_REFERENCE_OPTION_NAME,
+                'type': 'boolean'
+            })
+
+        if self.enable_reviewable_component:
+            options.append({
+                'label': 'Add Reviewable Component',
+                'name': constant.REVIEWABLE_COMPONENT_OPTION_NAME,
                 'type': 'boolean'
             })
 
