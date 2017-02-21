@@ -4,7 +4,7 @@
 import os
 import urllib2
 
-from QtExt import QtGui, QtCore, QtWidgets
+from QtExt import QtGui, QtCore, QtWidgets, QtSvg
 import ftrack
 import ftrack_connect_pipeline.util
 
@@ -174,22 +174,27 @@ class ActionIcon(Base):
         elif self.AVAILABLE_ICONS.get(icon):
             url = os.environ['FTRACK_SERVER'] + self.AVAILABLE_ICONS[icon]
             self.load(url)
+        elif QtCore.QFile.exists(':ftrack/image/light/object_type/' + icon):
+            self.loadResource(':ftrack/image/light/object_type/' + icon)
         else:
             self.loadResource(':/ftrack/image/light/action')
 
     def loadResource(self, resource):
         '''Update current pixmap using *resource*.'''
-        pixmap = QtGui.QPixmap(
-            QtCore.QSize(self.width(), self.height())
+        svg_renderer = QtSvg.QSvgRenderer(resource)
+        maximum = max(self.width(), self.height())
+        image = QtGui.QImage(
+            maximum, maximum, QtGui.QImage.Format_ARGB32
         )
-        pixmap.load(resource)
+        # Set the ARGB to 0 to prevent rendering artifacts.
+        image.fill(0x00000000)
+        svg_renderer.render(QtGui.QPainter(image))
+        pixmap = QtGui.QPixmap.fromImage(image)
+
+        self._fillColor(pixmap)
         self._scaleAndSetPixmap(pixmap)
 
-    def _updatePixmapData(self, data):
-        '''Update thumbnail with *data*.'''
-        pixmap = QtGui.QPixmap()
-        pixmap.loadFromData(data)
-
+    def _fillColor(self, pixmap):
         # force icon color
         painter = QtGui.QPainter(pixmap)
         painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceIn)
@@ -197,12 +202,16 @@ class ActionIcon(Base):
         painter.fillRect(pixmap.rect(), QtGui.QColor(140, 84, 184))
         painter.end()
 
+    def _updatePixmapData(self, data):
+        '''Update thumbnail with *data*.'''
+        pixmap = QtGui.QPixmap()
+        pixmap.loadFromData(data)
         self._scaleAndSetPixmap(pixmap)
 
     def _scaleAndSetPixmap(self, pixmap):
-        '''Scale *pixmap* to fit within current bounds'''
+        '''Scale *pixmap* to fit within current bounds.'''
         scaledPixmap = pixmap.scaled(
-            self.width(), self.height(), QtCore.Qt.KeepAspectRatio, 
+            self.width(), self.height(), QtCore.Qt.KeepAspectRatio,
             QtCore.Qt.SmoothTransformation
         )
         self.setPixmap(scaledPixmap)
