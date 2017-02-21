@@ -66,6 +66,7 @@ class PyblishAsset(PublishAsset):
         )
 
         scene_families = set(constant.SCENE_FAMILY_PYBLISH)
+        review_families = set(constant.REVIEW_FAMILY_PYBLISH)
 
         self.pyblish_context.data['options'] = general_options
         for instance in self.pyblish_context:
@@ -77,6 +78,14 @@ class PyblishAsset(PublishAsset):
                 scene_families == instance_families and
                 general_options.get(
                     constant.SCENE_AS_REFERENCE_OPTION_NAME, False
+                )
+            ):
+                instance.data['publish'] = True
+
+            if (
+                review_families == instance_families and
+                general_options.get(
+                    constant.REVIEWABLE_COMPONENT_OPTION_NAME, False
                 )
             ):
                 instance.data['publish'] = True
