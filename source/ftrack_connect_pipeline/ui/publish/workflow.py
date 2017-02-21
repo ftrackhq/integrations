@@ -375,10 +375,11 @@ class PublishResult(Overlay):
 
     def on_open_in_ftrack(self):
         '''Open result in ftrack.'''
+
         data = {
             'server_url': self.session.server_url,
             'version_id': self.asset_version['id'],
-            'project_id': self.asset_version['asset']['parent']['project']['id']
+            'project_id': self.asset_version['link'][0]['id']
         }
 
         url_template = (
