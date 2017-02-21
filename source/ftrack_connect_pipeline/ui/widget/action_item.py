@@ -126,9 +126,10 @@ class ActionItem(QtWidgets.QFrame):
 
     def enterEvent(self, event):
         '''Show hover icon on mouse enter.'''
-        self._iconLabel.loadResource(
-            '{0}{1}'.format(':/ftrack/image/light/', self._hoverIcon)
-        )
+        if self._multiple:
+            self._iconLabel.loadResource(
+                '{0}{1}'.format(':/ftrack/image/light/', self._hoverIcon)
+            )
 
     def leaveEvent(self, event):
         '''Reset action icon on mouse leave.'''
