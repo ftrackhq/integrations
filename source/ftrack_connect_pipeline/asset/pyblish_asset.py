@@ -68,7 +68,7 @@ class PyblishAsset(PublishAsset):
                 reviewable_items.append(
                     {
                         'label': instance.name,
-                        'value': instance.name
+                        'value': instance.id
                     }
                 )
 
@@ -91,8 +91,8 @@ class PyblishAsset(PublishAsset):
 
         self.pyblish_context.data['options'] = general_options
         for instance in self.pyblish_context:
-            instance.data['options'] = item_options.get(instance.name, {})
-            instance.data['publish'] = instance.name in selected_items
+            instance.data['options'] = item_options.get(instance.id, {})
+            instance.data['publish'] = instance.id in selected_items
 
             instance_families = set(instance.data['families'])
             if (
@@ -105,16 +105,16 @@ class PyblishAsset(PublishAsset):
 
             if (
                 review_families == instance_families and
-                instance.name == review_options.get(
+                instance.id == review_options.get(
                     constant.REVIEWABLE_COMPONENT_OPTION_NAME
                 )
             ):
                 instance.data['publish'] = True
 
             self.logger.debug(
-                'Updating instance {0!r} with data: {0!r}. Publish flag set to '
-                '{0!r}'.format(
-                    instance.name, instance.data['options'],
+                u'Updating instance {0!r} ({1!r}) with data: {2!r}. Publish '
+                u'flag set to {3!r}'.format(
+                    instance.name, instance.id, instance.data['options'],
                     instance.data['publish']
                 )
             )
