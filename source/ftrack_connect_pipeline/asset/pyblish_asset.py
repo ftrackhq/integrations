@@ -9,6 +9,7 @@ import pyblish.api
 import pyblish.util
 import logging
 
+import ftrack_connect_pipeline.constant
 from ftrack_connect_pipeline.ui.publish import display_pyblish_result
 from ftrack_connect_pipeline.ui import theme
 from ftrack_connect_pipeline.util import (
@@ -57,6 +58,22 @@ class PyblishAsset(PublishAsset):
             'Preparing publish with context: {0!r}.'.format(context)
         )
 
+    def get_reviewable_items(self):
+        '''Return a list of reviewable items.'''
+        match = set(ftrack_connect_pipeline.constant.REVIEW_FAMILY_PYBLISH)
+
+        reviewable_items = []
+        for instance in self.pyblish_context:
+            if match.issubset(instance.data['families']):
+                reviewable_items.append(
+                    {
+                        'label': instance.name,
+                        'value': instance.name
+                    }
+                )
+
+        return reviewable_items
+
     def update_with_options(
         self, item_options, general_options, selected_items
     ):
@@ -66,6 +83,11 @@ class PyblishAsset(PublishAsset):
         )
 
         scene_families = set(constant.SCENE_FAMILY_PYBLISH)
+        review_families = set(constant.REVIEW_FAMILY_PYBLISH)
+
+        review_options = general_options.get(
+            constant.REVIEWABLE_OPTION_NAME, {}
+        )
 
         self.pyblish_context.data['options'] = general_options
         for instance in self.pyblish_context:
@@ -77,6 +99,14 @@ class PyblishAsset(PublishAsset):
                 scene_families == instance_families and
                 general_options.get(
                     constant.SCENE_AS_REFERENCE_OPTION_NAME, False
+                )
+            ):
+                instance.data['publish'] = True
+
+            if (
+                review_families == instance_families and
+                instance.name == review_options.get(
+                    constant.REVIEWABLE_COMPONENT_OPTION_NAME
                 )
             ):
                 instance.data['publish'] = True

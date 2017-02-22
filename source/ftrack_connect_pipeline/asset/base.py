@@ -117,6 +117,10 @@ class PublishAsset(object):
         '''Return list of items that can be published.'''
         return []
 
+    def get_reviewable_items(self):
+        '''Return a list of reviewable items.'''
+        return []
+
     def get_item_options(self, key):
         '''Return options for publishable item with *key*.'''
         return []
@@ -164,11 +168,26 @@ class PublishAsset(object):
             })
 
         if self.enable_reviewable_component:
-            options.append({
-                'label': 'Add Reviewable Component',
-                'name': constant.REVIEWABLE_COMPONENT_OPTION_NAME,
-                'type': 'boolean'
-            })
+            reviewable_items = self.get_reviewable_items()
+            if reviewable_items:
+                reviewable_items.insert(
+                    0,
+                    {
+                        'label': '-- No reviewable --',
+                        'value': None
+                    }
+                )
+                options.append({
+                    'type': 'group',
+                    'label': 'Web reviewable',
+                    'name': constant.REVIEWABLE_OPTION_NAME,
+                    'options': [{
+                        'type': 'enumerator',
+                        'name': constant.REVIEWABLE_COMPONENT_OPTION_NAME,
+                        'label': 'Generate from',
+                        'data': reviewable_items
+                    }]
+                })
 
         self.logger.debug('Context option: {0!r}.'.format(options))
         return options

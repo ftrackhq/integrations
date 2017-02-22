@@ -148,7 +148,7 @@ class IntegratorCreateComponents(pyblish.api.InstancePlugin):
         session.commit()
 
 
-class IntegratorCreateReviewableComponents(pyblish.api.ContextPlugin):
+class IntegratorCreateReviewableComponents(pyblish.api.InstancePlugin):
     '''Extract and publish available reviewable component.'''
 
     order = pyblish.api.IntegratorOrder + 0.2
@@ -156,35 +156,28 @@ class IntegratorCreateReviewableComponents(pyblish.api.ContextPlugin):
     families = constant.REVIEW_FAMILY_PYBLISH
     match = pyblish.api.Subset
 
-    def process(self, context):
+    def process(self, instance):
         '''Process *context* and create reviwable components.'''
-        asset_version = context.data['asset_version']
-        session = asset_version.session
+        for component_item in instance.data.get(
+            'ftrack_web_reviewable_components', []
+        ):
+            asset_version = instance.context.data['asset_version']
+            session = asset_version.session
 
-        has_reviwable = context.data['options'].get(
-            constant.REVIEWABLE_COMPONENT_OPTION_NAME
-        )
-        if not has_reviwable:
-            return
+            asset_version.encode_media(component_item['path'])
+            session.commit()
+            self.log.debug(
+                'Reviewable component {0!r} published.'.format(
+                    component_item
+                )
+            )
 
-        reviewable_component = context.data['options'].get(
-            'ftrack_reviewable_component'
-        )
-
-        if not reviewable_component:
+            # Only one is allowed.
+            break
+        else:
             self.log.debug(
                 'No reviewable component found to publish.'
             )
-            return
-
-        asset_version.encode_media(reviewable_component)
-        session.commit()
-
-        self.log.debug(
-            'Reviewable component {0!r} published.'.format(
-                reviewable_component
-            )
-        )
 
 
 class IntegratorPublishVersion(pyblish.api.ContextPlugin):
