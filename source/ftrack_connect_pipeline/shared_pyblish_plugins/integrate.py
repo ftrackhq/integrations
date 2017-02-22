@@ -153,7 +153,7 @@ class IntegratorCreateReviewableComponents(pyblish.api.ContextPlugin):
 
     order = pyblish.api.IntegratorOrder + 0.2
 
-    families = ['ftrack']
+    families = constant.REVIEW_FAMILY_PYBLISH
     match = pyblish.api.Subset
 
     def process(self, context):
