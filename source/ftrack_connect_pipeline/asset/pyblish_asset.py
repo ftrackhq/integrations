@@ -66,7 +66,6 @@ class PyblishAsset(PublishAsset):
         )
 
         scene_families = set(constant.SCENE_FAMILY_PYBLISH)
-        review_families = set(constant.REVIEW_FAMILY_PYBLISH)
 
         self.pyblish_context.data['options'] = general_options
         for instance in self.pyblish_context:
