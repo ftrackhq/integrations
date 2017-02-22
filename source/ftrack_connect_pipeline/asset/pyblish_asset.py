@@ -82,14 +82,6 @@ class PyblishAsset(PublishAsset):
             ):
                 instance.data['publish'] = True
 
-            if (
-                review_families == instance_families and
-                general_options.get(
-                    constant.REVIEWABLE_COMPONENT_OPTION_NAME, False
-                )
-            ):
-                instance.data['publish'] = True
-
             self.logger.debug(
                 'Updating instance {0!r} with data: {0!r}. Publish flag set to '
                 '{0!r}'.format(
