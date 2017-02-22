@@ -157,7 +157,7 @@ class IntegratorCreateReviewableComponents(pyblish.api.ContextPlugin):
     match = pyblish.api.Subset
 
     def process(self, context):
-        '''Process *instance* and create reviwable components.'''
+        '''Process *context* and create reviwable components.'''
         asset_version = context.data['asset_version']
         session = asset_version.session
 
@@ -179,6 +179,12 @@ class IntegratorCreateReviewableComponents(pyblish.api.ContextPlugin):
 
         asset_version.encode_media(reviewable_component)
         session.commit()
+
+        self.log.debug(
+            'Reviewable component {0!r} published.'.format(
+                reviewable_component
+            )
+        )
 
 
 class IntegratorPublishVersion(pyblish.api.ContextPlugin):
