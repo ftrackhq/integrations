@@ -681,12 +681,15 @@ class Workflow(QtWidgets.QWidget):
             ),
             synchronous=True
         )
+        event_metadata = {
+            'workflow_label': self._label_text,
+        }
+        if result and isinstance(result[0], dict):
+            event_metadata.update(result[0])
+
         send_usage(
             'USED-FTRACK-CONNECT-PIPELINE-PUBLISH',
-            {
-                'asset_type': self._label_text,
-                'plugin_information': result
-            }
+            event_metadata
         )
 
         self.publish_asset.prepare_publish()
