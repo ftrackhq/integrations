@@ -9,6 +9,7 @@ import subprocess
 from QtExt import QtCore
 
 import ftrack_api
+import ftrack_api.exception
 
 
 def asynchronous(method):
@@ -71,7 +72,7 @@ class Worker(QtCore.QThread):
                     None,
                     'Error',
                     'An unhandled error occurred:'
-                    '\\n{0}'.format(error)
+                    '{0}'.format(error)
                 )
 
         '''
@@ -131,6 +132,7 @@ def set_ftrack_entity(entity_id):
     '''Return current ftrack entity.'''
     os.environ['FTRACK_CONTEXT_ID'] = entity_id
 
+
 def get_ftrack_entity():
     '''Return current ftrack entity.'''
     session = get_session()
@@ -185,3 +187,81 @@ def open_directory(path):
 
     else:
         subprocess.Popen(['xdg-open', directory])
+
+
+def asset_type_exists(session, asset_type_short):
+    '''Return true if *asset_type_short* exists.'''
+    asset_type_found = session.query(
+        'select name, short from AssetType'
+        ' where short is "{0}"'.format(
+            asset_type_short
+        )
+    ).first()
+    return asset_type_found is not None
+
+
+def create_asset_type(session, asset_type, asset_type_short):
+    '''Ensure *asset_type* with *asset_type_short* exist.'''
+
+    # If does not exist, we are free to create one with the given label
+    try:
+        session.ensure(
+            'AssetType',
+            {
+                'short': asset_type_short,
+                'name': asset_type
+            },
+            identifying_keys=['short']
+        )
+    except (
+        ftrack_api.exception.PermissionDeniedError,
+        ftrack_api.exception.MultipleResultsFoundError,
+        ftrack_api.exception.ServerError
+    ) as error:
+        session.logger.warning(error)
+        session.rollback()
+        return {
+            'status': False,
+            'message': (
+                'Could not create asset type {0} ({1}). This may be '
+                'caused by insufficient permissions. <br />Contact your system '
+                'administrator or ftrack support.'.format(
+                    asset_type, asset_type_short
+                )
+            )
+        }
+
+    return {
+        'status': True,
+        'message': (
+            'Asset type {0} ({1}) has been succesfully created.'
+            .format(
+                asset_type, asset_type_short
+            )
+        )
+    }
+
+
+def extract_plugin_name_from_record(record):
+    '''Return plugin name from pyblish *record*.'''
+    # The default label is '', so doing getattr(label, plugin.__name__)
+    # returns an empty string if label is not defined.
+    # Instead, we need to test if the plugin_name is empty after getattr.
+    plugin_name = getattr(record['plugin'], 'label', None)
+
+    if not plugin_name:
+        plugin_name = record['plugin'].__name__
+
+    return plugin_name
+
+
+def extract_error_message_from_record(record):
+    '''Return error message from pyblish *record*.'''
+    traceback = record['error'].traceback
+
+    if traceback[3] is not None:
+        return unicode(traceback[3])
+    else:
+        # If the error message in the traceback is None,
+        # default to formatting the exception as a string.
+        return unicode(record['error'])

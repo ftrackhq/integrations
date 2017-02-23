@@ -91,7 +91,8 @@ class PublishAsset(object):
 
     def __init__(
         self, description, asset_type_short=None,
-        enable_scene_as_reference=True
+        enable_scene_as_reference=True,
+        enable_reviewable_component=True
     ):
         '''Instantiate publish asset with *label* and *description*.'''
         self.logger = logging.getLogger(
@@ -101,6 +102,7 @@ class PublishAsset(object):
         self.description = description
         self.asset_type_short = asset_type_short
         self.enable_scene_as_reference = enable_scene_as_reference
+        self.enable_reviewable_component = enable_reviewable_component
 
     def discover(self, event):
         '''Discover import camera.'''
@@ -113,6 +115,10 @@ class PublishAsset(object):
 
     def get_publish_items(self):
         '''Return list of items that can be published.'''
+        return []
+
+    def get_reviewable_items(self):
+        '''Return a list of reviewable items.'''
         return []
 
     def get_item_options(self, key):
@@ -150,6 +156,7 @@ class PublishAsset(object):
                 'label': '',
                 'name': constant.ASSET_VERSION_COMMENT_OPTION_NAME,
                 'type': 'textarea',
+                'empty_text': 'Please add a description...'
             }
         ]
 
@@ -159,6 +166,28 @@ class PublishAsset(object):
                 'name': constant.SCENE_AS_REFERENCE_OPTION_NAME,
                 'type': 'boolean'
             })
+
+        if self.enable_reviewable_component:
+            reviewable_items = self.get_reviewable_items()
+            if reviewable_items:
+                reviewable_items.insert(
+                    0,
+                    {
+                        'label': '-- No reviewable --',
+                        'value': None
+                    }
+                )
+                options.append({
+                    'type': 'group',
+                    'label': 'Web reviewable',
+                    'name': constant.REVIEWABLE_OPTION_NAME,
+                    'options': [{
+                        'type': 'enumerator',
+                        'name': constant.REVIEWABLE_COMPONENT_OPTION_NAME,
+                        'label': 'Generate from',
+                        'data': reviewable_items
+                    }]
+                })
 
         self.logger.debug('Context option: {0!r}.'.format(options))
         return options

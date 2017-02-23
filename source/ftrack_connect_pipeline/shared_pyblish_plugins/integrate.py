@@ -123,7 +123,7 @@ class IntegratorCreateComponents(pyblish.api.InstancePlugin):
         self.log.debug('Picked location {0!r}.'.format(location['name']))
 
         for component_item in instance.data.get('ftrack_components', []):
-            session.create_component(
+            new_component = session.create_component(
                 component_item['path'],
                 {
                     'version_id': asset_version['id'],
@@ -135,13 +135,55 @@ class IntegratorCreateComponents(pyblish.api.InstancePlugin):
                 'Created component from data: {0!r}.'.format(component_item)
             )
 
+            # Save authoring software information (name, version, ...)
+            # into the component metadata, if available.
+            if 'software' in context.data:
+                self.log.debug('Found software metadata.')
+                self.log.debug('Software = {0}'.format(context.data['software']))
+                new_component['metadata']['software'] = context.data['software']['name']
+                new_component['metadata']['software_version'] = context.data['software']['version']
+            else:
+                self.log.debug('No software metadata found.')
+
         session.commit()
+
+
+class IntegratorCreateReviewableComponents(pyblish.api.InstancePlugin):
+    '''Extract and publish available reviewable component.'''
+
+    order = pyblish.api.IntegratorOrder + 0.2
+
+    families = constant.REVIEW_FAMILY_PYBLISH
+    match = pyblish.api.Subset
+
+    def process(self, instance):
+        '''Process *context* and create reviwable components.'''
+        for component_item in instance.data.get(
+            'ftrack_web_reviewable_components', []
+        ):
+            asset_version = instance.context.data['asset_version']
+            session = asset_version.session
+
+            asset_version.encode_media(component_item['path'])
+            session.commit()
+            self.log.debug(
+                'Reviewable component {0!r} published.'.format(
+                    component_item
+                )
+            )
+
+            # Only one is allowed.
+            break
+        else:
+            self.log.debug(
+                'No reviewable component found to publish.'
+            )
 
 
 class IntegratorPublishVersion(pyblish.api.ContextPlugin):
     '''Mark asset version as published.'''
 
-    order = pyblish.api.IntegratorOrder + 0.2
+    order = pyblish.api.IntegratorOrder + 0.3
 
     def process(self, context):
         '''Process *context*.'''
@@ -158,4 +200,5 @@ class IntegratorPublishVersion(pyblish.api.ContextPlugin):
 
 pyblish.api.register_plugin(IntegratorCreateAsset)
 pyblish.api.register_plugin(IntegratorCreateComponents)
+pyblish.api.register_plugin(IntegratorCreateReviewableComponents)
 pyblish.api.register_plugin(IntegratorPublishVersion)
