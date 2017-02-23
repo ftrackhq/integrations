@@ -2,7 +2,6 @@
 # :copyright: Copyright (c) 2016 ftrack
 
 import sys
-import string
 import functools
 import time
 import webbrowser
@@ -13,10 +12,179 @@ from ftrack_api.event.base import Event
 
 from ftrack_connect_pipeline.ui.widget.overlay import BusyOverlay
 from ftrack_connect_pipeline.ui.widget.overlay import Overlay
+from ftrack_connect_pipeline.ui.widget.field import textarea
 from ftrack_connect_pipeline.ui.usage import send_event as send_usage
 from ftrack_connect_pipeline.ui.style import OVERLAY_DARK_STYLE
 from ftrack_connect_pipeline.ui import resource
+
 import ftrack_connect_pipeline.util
+
+
+class CreateAssetTypeOverlay(Overlay):
+    '''Create asset type overlay.'''
+
+    asset_creation_failed = QtCore.Signal()
+
+    def __init__(self, session, parent):
+        '''Instantiate with *session*.'''
+        super(CreateAssetTypeOverlay, self).__init__(parent=parent)
+        self.session = session
+
+        self.main_layout = QtWidgets.QVBoxLayout()
+        self.setLayout(self.main_layout)
+
+        icon = QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor')
+        icon = icon.scaled(
+            QtCore.QSize(85, 85),
+            QtCore.Qt.KeepAspectRatio,
+            QtCore.Qt.SmoothTransformation
+        )
+        self.ftrack_icon = QtWidgets.QLabel()
+        self.ftrack_icon.setPixmap(icon)
+
+        self.main_layout.addStretch(1)
+        self.main_layout.insertWidget(
+            1, self.ftrack_icon, alignment=QtCore.Qt.AlignCenter
+        )
+        self.main_layout.addStretch(1)
+        self.main_layout.setContentsMargins(20, 20, 20, 20)
+
+        # create asset type widget
+        self.create_asset_widget = QtWidgets.QFrame()
+        self.create_asset_widget.setVisible(False)
+
+        create_asset_layout = QtWidgets.QVBoxLayout()
+        create_asset_layout.setContentsMargins(20, 20, 20, 20)
+        create_asset_layout.addStretch(1)
+        buttons_layout = QtWidgets.QHBoxLayout()
+        self.create_asset_widget.setLayout(create_asset_layout)
+
+        self.create_asset_label_top = QtWidgets.QLabel()
+
+        self.create_asset_label_bottom = QtWidgets.QLabel(
+            '<h4>Do you want to create one ?</h4>'
+        )
+
+        create_asset_layout.insertWidget(
+            1,
+            self.create_asset_label_top,
+            alignment=QtCore.Qt.AlignCenter
+        )
+        create_asset_layout.insertWidget(
+            2,
+            self.create_asset_label_bottom,
+            alignment=QtCore.Qt.AlignCenter
+        )
+        self.create_asset_button = QtWidgets.QPushButton('Create')
+        self.cancel_asset_button = QtWidgets.QPushButton('Cancel')
+        create_asset_layout.addLayout(buttons_layout)
+        buttons_layout.addWidget(self.create_asset_button)
+        buttons_layout.addWidget(self.cancel_asset_button)
+
+        # result create asset type
+        self.create_asset_widget_result = QtWidgets.QFrame()
+        self.create_asset_widget_result.setVisible(False)
+
+        create_asset_layout_result = QtWidgets.QVBoxLayout()
+        create_asset_layout_result.setContentsMargins(20, 20, 20, 20)
+        create_asset_layout_result.addStretch(1)
+
+        self.create_asset_widget_result.setLayout(create_asset_layout_result)
+        self.create_asset_label_result = QtWidgets.QLabel()
+        self.continue_button = QtWidgets.QPushButton('Continue')
+
+        create_asset_layout_result.insertWidget(
+            1,
+            self.create_asset_label_result,
+            alignment=QtCore.Qt.AlignCenter
+        )
+
+        create_asset_layout_result.insertWidget(
+            2,
+            self.continue_button,
+            alignment=QtCore.Qt.AlignCenter
+        )
+
+        # error on create asset
+        self.create_asset_widget_error = QtWidgets.QFrame()
+        self.create_asset_widget_error.setVisible(False)
+
+        create_asset_layout_error = QtWidgets.QVBoxLayout()
+        create_asset_layout_error.setContentsMargins(20, 20, 20, 20)
+        create_asset_layout_error.addStretch(1)
+
+        self.create_asset_widget_error.setLayout(create_asset_layout_error)
+        self.create_asset_label_error = QtWidgets.QLabel()
+        self.close_button = QtWidgets.QPushButton('Close')
+
+        create_asset_layout_error.insertWidget(
+            1,
+            self.create_asset_label_error,
+            alignment=QtCore.Qt.AlignCenter
+        )
+
+        create_asset_layout_error.insertWidget(
+            2,
+            self.close_button,
+            alignment=QtCore.Qt.AlignCenter
+        )
+
+        # parent all.
+        self.main_layout.addWidget(self.create_asset_widget)
+        self.main_layout.addWidget(self.create_asset_widget_result)
+        self.main_layout.addWidget(self.create_asset_widget_error)
+
+        self.main_layout.addStretch(1)
+
+        # signals
+        self.create_asset_button.clicked.connect(self.on_create_asset)
+        self.continue_button.clicked.connect(self.on_continue)
+        self.close_button.clicked.connect(self.on_fail)
+        self.cancel_asset_button.clicked.connect(self.on_fail)
+
+    def populate(self, asset_type_short, asset_type):
+        '''Populate with *asset_type_short* and *asset_type*.'''
+        self.create_asset_widget.setVisible(True)
+        self.create_asset_widget_result.setVisible(False)
+        self.create_asset_widget_error.setVisible(False)
+
+        self.asset_type = asset_type
+        self.asset_type_short = asset_type_short
+
+        self.create_asset_label_top.setText(
+            '<h2>The required asset type {0} ({1}) does not exist on your '
+            'ftrack instance.</h2>'.format(
+                self.asset_type, self.asset_type_short
+            )
+        )
+
+    def on_fail(self):
+        '''Handle fail.'''
+        self.asset_creation_failed.emit()
+        self.setVisible(False)
+
+    def on_continue(self):
+        '''Handle continue.'''
+        self.setVisible(False)
+
+    def on_create_asset(self):
+        '''Handle asset created.'''
+        result = ftrack_connect_pipeline.util.create_asset_type(
+            self.session, self.asset_type, self.asset_type_short
+        )
+
+        if result['status']:
+            self.create_asset_widget.setVisible(False)
+            self.create_asset_label_result.setText(
+                '<center><h2>{0}</h2></center>'.format(result['message'])
+            )
+            self.create_asset_widget_result.setVisible(True)
+        else:
+            self.create_asset_widget.setVisible(False)
+            self.create_asset_label_error.setText(
+                '<center><h2>{0}</h2></center>'.format(result['message'])
+            )
+            self.create_asset_widget_error.setVisible(True)
 
 
 class PublishResult(Overlay):
@@ -26,11 +194,16 @@ class PublishResult(Overlay):
         '''Instantiate publish result overlay.'''
         super(PublishResult, self).__init__(parent=parent)
         self.session = session
+        self.activeWidget = None
+        self.setLayout(QtWidgets.QVBoxLayout())
 
     def create_overlay_widgets(self, congrat_text, success_text):
         '''Create overlay widgets to report publish result.'''
-        main_layout = QtWidgets.QVBoxLayout()
-        self.setLayout(main_layout)
+
+        self.activeWidget = QtWidgets.QWidget()
+        self.activeWidget.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().addWidget(self.activeWidget)
+        main_layout = self.activeWidget.layout()
 
         icon = QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor')
         icon = icon.scaled(
@@ -68,7 +241,7 @@ class PublishResult(Overlay):
         if self.details_window_callback is None:
             self.details_button.setDisabled(True)
 
-        self.open_in_ftrack = QtWidgets.QPushButton('Open In Ftrack')
+        self.open_in_ftrack = QtWidgets.QPushButton('Open in ftrack')
         buttons_layout.addWidget(self.open_in_ftrack)
         self.open_in_ftrack.clicked.connect(self.on_open_in_ftrack)
 
@@ -80,8 +253,10 @@ class PublishResult(Overlay):
         congrat_text = '<h2>Validation Failed!</h2>'
         success_text = 'Your <b>{0}</b> failed to validate.'.format(label)
 
-        main_layout = QtWidgets.QVBoxLayout()
-        self.setLayout(main_layout)
+        self.activeWidget = QtWidgets.QWidget()
+        self.activeWidget.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().addWidget(self.activeWidget)
+        main_layout = self.activeWidget.layout()
 
         main_layout.addStretch(1)
 
@@ -130,7 +305,10 @@ class PublishResult(Overlay):
             error_msg = validator[1]
 
             # Remove quotes from error message, if present.
-            if (error_msg[0] == error_msg[-1]) and error_msg.startswith(("'", '"')):
+            if (
+                (error_msg[0] == error_msg[-1]) and
+                error_msg.startswith(("'", '"'))
+            ):
                 error_msg = error_msg[1:-1]
 
             item = QtWidgets.QTableWidgetItem(error_msg)
@@ -151,14 +329,25 @@ class PublishResult(Overlay):
         buttons_layout.addWidget(self.details_button)
         self.details_button.clicked.connect(self.on_show_details)
 
+        self.close_button = QtWidgets.QPushButton('Close')
+        buttons_layout.addWidget(self.close_button)
+        self.close_button.clicked.connect(self.close_window_callback)
+
         if self.details_window_callback is None:
             self.details_button.setDisabled(True)
 
     def populate(
-        self, label, details_window_callback, result
+        self, label, details_window_callback, close_window_callback, result
     ):
         '''Populate with content.'''
+
+        if self.activeWidget:
+            self.layout().removeWidget(self.activeWidget)
+            self.activeWidget.setParent(None)
+            self.activeWidget = None
+
         self.details_window_callback = details_window_callback
+        self.close_window_callback = close_window_callback
 
         self.asset_version = result.get('asset_version', None)
         success = result['success']
@@ -186,10 +375,11 @@ class PublishResult(Overlay):
 
     def on_open_in_ftrack(self):
         '''Open result in ftrack.'''
+
         data = {
             'server_url': self.session.server_url,
             'version_id': self.asset_version['id'],
-            'project_id': self.asset_version['asset']['parent']['project']['id']
+            'project_id': self.asset_version['link'][0]['id']
         }
 
         url_template = (
@@ -230,10 +420,45 @@ class ListItemsWidget(QtWidgets.QListWidget):
         '''Instanstiate and generate list from *items*.'''
         super(ListItemsWidget, self).__init__()
         self.setObjectName('ftrack-list-widget')
-
         for item in items:
             item = SelectableItemWidget(item)
             self.addItem(item)
+
+    def paintEvent(self, event):
+        '''Draw placeholder text.'''
+        root_index = self.rootIndex()
+        model = self.model()
+
+        if model and model.rowCount(root_index):
+            super(ListItemsWidget, self).paintEvent(event)
+        else:
+            painter = QtGui.QPainter(self.viewport())
+            rect = self.rect()
+            painter.drawText(
+                rect,
+                QtCore.Qt.AlignCenter,
+                'No items found to publish'
+            )
+
+    def get_checked_items(self):
+        '''Return checked items.'''
+        checked_items = []
+        for index in xrange(self.count()):
+            widget_item = self.item(index)
+            if widget_item.checkState() is QtCore.Qt.Checked:
+                checked_items.append(widget_item.item())
+
+        return checked_items
+
+    def update_selection(self, new_selection):
+        '''Update selection from *new_selection*.'''
+        for index in xrange(self.count()):
+            widget_item = self.item(index)
+            item = widget_item.item()
+            should_select = item['name'] in new_selection
+            widget_item.setCheckState(
+                QtCore.Qt.Checked if should_select else QtCore.Qt.Unchecked
+            )
 
     def get_checked_items(self):
         '''Return checked items.'''
@@ -271,6 +496,7 @@ class ActionSettingsWidget(QtWidgets.QWidget):
             label = option.get('label', '')
             name = option['name']
             value = option.get('value')
+            empty_text = option.get('empty_text')
             if name in data_dict.get('options', {}):
                 value = data_dict['options'][name]
 
@@ -310,17 +536,17 @@ class ActionSettingsWidget(QtWidgets.QWidget):
                 )
 
             if type_ == 'textarea':
-                field = QtWidgets.QTextEdit()
+                field = textarea.TextAreaField(empty_text or '')
                 if value is not None:
                     field.setPlainText(unicode(value))
 
-                field.textChanged.connect(
+                field.value_changed.connect(
                     functools.partial(
                         self.update_on_change,
                         data_dict,
                         field,
                         name,
-                        lambda text_area: text_area.toPlainText()
+                        lambda textarea_widget: textarea_widget.value()
                     )
                 )
 
@@ -455,12 +681,15 @@ class Workflow(QtWidgets.QWidget):
             ),
             synchronous=True
         )
+        event_metadata = {
+            'workflow_label': self._label_text,
+        }
+        if result and isinstance(result[0], dict):
+            event_metadata.update(result[0])
+
         send_usage(
             'USED-FTRACK-CONNECT-PIPELINE-PUBLISH',
-            {
-                'asset_type': self._label_text,
-                'plugin_information': result
-            }
+            event_metadata
         )
 
         self.publish_asset.prepare_publish()
@@ -634,7 +863,6 @@ class Workflow(QtWidgets.QWidget):
             self.general_options_store,
             selected_item_names
         )
-
         self._publish_overlay.setVisible(False)
 
         self._hideOverlayAfterTimeout(self.OVERLAY_MESSAGE_TIMEOUT)
@@ -645,8 +873,14 @@ class Workflow(QtWidgets.QWidget):
             details_window_callback=getattr(
                 self.publish_asset, 'show_detailed_result', None
             ),
+            close_window_callback=self.on_close_callback,
             result=result
         )
+
+    def on_close_callback(self):
+        '''Handle close callback.'''
+        self.result_win.setVisible(False)
+        self.publish_asset.prepare_publish()
 
     def _on_sync_scene_selection(self):
         '''Handle sync scene selection event.'''

@@ -4,7 +4,7 @@
         <file alias='ftrackLogoGreyDark'>image/logo_grey_dark.svg</file>
         <file alias='ftrackLogoColor'>image/logo_colour.svg</file>
         <file alias='boxShadow'>image/box_shadow.png</file>
-        <file alias='ftrackLogoLabel'>image/ftrack_logo_new.png</file>
+        <file alias='ftrackLogoLabelNew'>image/ftrack_logo_new.png</file>
         <file alias='cloud-done'>image/cloud_done.svg</file>
     </qresource>
 

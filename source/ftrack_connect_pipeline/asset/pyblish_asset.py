@@ -9,8 +9,13 @@ import pyblish.api
 import pyblish.util
 import logging
 
+import ftrack_connect_pipeline.constant
 from ftrack_connect_pipeline.ui.publish import display_pyblish_result
 from ftrack_connect_pipeline.ui import theme
+from ftrack_connect_pipeline.util import (
+    extract_error_message_from_record,
+    extract_plugin_name_from_record
+)
 from .base import PublishAsset
 from ftrack_connect_pipeline import constant
 
@@ -53,6 +58,22 @@ class PyblishAsset(PublishAsset):
             'Preparing publish with context: {0!r}.'.format(context)
         )
 
+    def get_reviewable_items(self):
+        '''Return a list of reviewable items.'''
+        match = set(ftrack_connect_pipeline.constant.REVIEW_FAMILY_PYBLISH)
+
+        reviewable_items = []
+        for instance in self.pyblish_context:
+            if match.issubset(instance.data['families']):
+                reviewable_items.append(
+                    {
+                        'label': instance.name,
+                        'value': instance.id
+                    }
+                )
+
+        return reviewable_items
+
     def update_with_options(
         self, item_options, general_options, selected_items
     ):
@@ -62,11 +83,16 @@ class PyblishAsset(PublishAsset):
         )
 
         scene_families = set(constant.SCENE_FAMILY_PYBLISH)
+        review_families = set(constant.REVIEW_FAMILY_PYBLISH)
+
+        review_options = general_options.get(
+            constant.REVIEWABLE_OPTION_NAME, {}
+        )
 
         self.pyblish_context.data['options'] = general_options
         for instance in self.pyblish_context:
-            instance.data['options'] = item_options.get(instance.name, {})
-            instance.data['publish'] = instance.name in selected_items
+            instance.data['options'] = item_options.get(instance.id, {})
+            instance.data['publish'] = instance.id in selected_items
 
             instance_families = set(instance.data['families'])
             if (
@@ -77,10 +103,18 @@ class PyblishAsset(PublishAsset):
             ):
                 instance.data['publish'] = True
 
+            if (
+                review_families == instance_families and
+                instance.id == review_options.get(
+                    constant.REVIEWABLE_COMPONENT_OPTION_NAME
+                )
+            ):
+                instance.data['publish'] = True
+
             self.logger.debug(
-                'Updating instance {0!r} with data: {0!r}. Publish flag set to '
-                '{0!r}'.format(
-                    instance.name, instance.data['options'],
+                u'Updating instance {0!r} ({1!r}) with data: {2!r}. Publish '
+                u'flag set to {3!r}'.format(
+                    instance.name, instance.id, instance.data['options'],
                     instance.data['publish']
                 )
             )
@@ -91,8 +125,8 @@ class PyblishAsset(PublishAsset):
         for record in self.pyblish_context.data['results']:
             if record['error']:
                 failed_plugins.append((
-                    getattr(record['plugin'], 'label', record['plugin'].__name__),
-                    '{3}'.format(*record['error'].traceback)
+                    extract_plugin_name_from_record(record),
+                    extract_error_message_from_record(record)
                 ))
 
         return failed_plugins

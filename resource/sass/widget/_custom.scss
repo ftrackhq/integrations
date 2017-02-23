@@ -43,6 +43,10 @@ QListWidget#ftrack-list-widget {
      color: $text-color;
 }
 
+QListWidget#ftrack-list-widget::indicator:unchecked {
+    border: 1px solid lighten($white-almost, 10%);
+}
+
 QListWidget::item:selected#ftrack-list-widget{
     selection-background-color: $brand-primary;
     color: $text-color;
@@ -65,7 +69,6 @@ QFrame#ftrack-instances-settings-widget {
 QFrame#ftrack-configuration-widget {
     background-color: darken($white-almost, 5%);
 }
-
 
 
 QDoubleSpinBox {
@@ -92,6 +95,7 @@ QCheckBox {
     &:hover {
         border-color: $brand-primary;
     }
+    &:focus {
+        border: 1px solid $input-border-color-focus;
+    }
 }
-
-
