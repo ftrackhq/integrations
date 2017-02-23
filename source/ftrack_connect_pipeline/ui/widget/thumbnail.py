@@ -136,6 +136,7 @@ class User(EllipseBase):
 
 class ActionIcon(Base):
     '''Widget to load action icons over HTTP.'''
+    icon_size = [35, 35]
 
     #: Available icons on ftrack server.
     AVAILABLE_ICONS = {
@@ -182,13 +183,22 @@ class ActionIcon(Base):
     def loadResource(self, resource):
         '''Update current pixmap using *resource*.'''
         svg_renderer = QtSvg.QSvgRenderer(resource)
-        maximum = max(self.width(), self.height())
+
         image = QtGui.QImage(
-            maximum, maximum, QtGui.QImage.Format_ARGB32
+            self.icon_size[0], self.icon_size[1],
+            QtGui.QImage.Format_ARGB32
         )
         # Set the ARGB to 0 to prevent rendering artifacts.
         image.fill(0x00000000)
-        svg_renderer.render(QtGui.QPainter(image))
+        svg_renderer.render(
+            QtGui.QPainter(image),
+            QtCore.QRectF(
+                0, 0,
+                self.icon_size[0],
+                self.icon_size[1]
+            )
+        )
+
         pixmap = QtGui.QPixmap.fromImage(image)
 
         self._fillColor(pixmap)
@@ -211,7 +221,8 @@ class ActionIcon(Base):
     def _scaleAndSetPixmap(self, pixmap):
         '''Scale *pixmap* to fit within current bounds.'''
         scaledPixmap = pixmap.scaled(
-            self.width(), self.height(), QtCore.Qt.KeepAspectRatio,
+            self.icon_size[0], self.icon_size[1],
+            QtCore.Qt.KeepAspectRatio,
             QtCore.Qt.SmoothTransformation
         )
         self.setPixmap(scaledPixmap)
