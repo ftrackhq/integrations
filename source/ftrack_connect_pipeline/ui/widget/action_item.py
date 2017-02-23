@@ -47,7 +47,7 @@ class ActionItem(QtWidgets.QFrame):
         self._session = session
 
         self.setMouseTracking(True)
-        self.setFixedSize(QtCore.QSize(80, 80))
+        self.setFixedSize(QtCore.QSize(80, 70))
         layout = QtWidgets.QVBoxLayout()
         layout.setAlignment(QtCore.Qt.AlignCenter)
         layout.setSpacing(0)
@@ -82,8 +82,10 @@ class ActionItem(QtWidgets.QFrame):
             self._multiple = True
 
         self._iconLabel = ActionIcon(self)
-        self._iconLabel.setAlignment(QtCore.Qt.AlignCenter)
-        self._iconLabel.setFixedSize(QtCore.QSize(80, 45))
+        self._iconLabel.setAlignment(
+            QtCore.Qt.AlignHCenter | QtCore.Qt.AlignBottom
+        )
+        self._iconLabel.setFixedSize(QtCore.QSize(80, 40))
         layout.addWidget(self._iconLabel)
 
         self._textLabel = QtWidgets.QLabel(self)
@@ -93,7 +95,7 @@ class ActionItem(QtWidgets.QFrame):
         )
         self._textLabel.setWordWrap(True)
 
-        self._textLabel.setFixedSize(QtCore.QSize(80, 45))
+        self._textLabel.setFixedSize(QtCore.QSize(80, 30))
         layout.addWidget(self._textLabel)
 
         self.setText(self._label)
@@ -126,9 +128,10 @@ class ActionItem(QtWidgets.QFrame):
 
     def enterEvent(self, event):
         '''Show hover icon on mouse enter.'''
-        self._iconLabel.loadResource(
-            '{0}{1}'.format(':/ftrack/image/light/', self._hoverIcon)
-        )
+        if self._multiple:
+            self._iconLabel.loadResource(
+                '{0}{1}'.format(':/ftrack/image/light/', self._hoverIcon)
+            )
 
     def leaveEvent(self, event):
         '''Reset action icon on mouse leave.'''
