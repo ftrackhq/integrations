@@ -7,6 +7,29 @@
 Release Notes
 *************
 
+.. release:: 0.6.0
+    :date: 2017-02-23
+
+    .. change:: new
+        :tags: Publish
+
+        Added support for using bundled icons in Publish dialog.
+
+    .. change:: new
+        :tags: Publish, Review
+
+        Added support for adding web reviewable when publishing.
+
+    .. change:: fixed
+        :tags: Publish
+
+        Fixed issue with `Open in ftrack` button.
+
+    .. change:: fixed
+        :tags: Internal
+
+        Fixed issue when sending events.
+
 .. release:: 0.5.2
     :date: 2017-02-07
 
