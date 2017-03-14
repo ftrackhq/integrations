@@ -29,6 +29,7 @@ class GlobalSwitch(QtWidgets.QDialog):
     def on_context_changed(self):
         selected_entity = self._entity_browser.selected()[0]
         os.environ['FTRACK_CONTEXT_ID'] = selected_entity['id']
+        self.close()
 
 
 def _get_entity_parents(entity):
