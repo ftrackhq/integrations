@@ -15,6 +15,9 @@ from ftrack_connect_pipeline import util
 
 
 class GlobalSwitch(QtWidgets.QDialog):
+    '''Global Context Switch'''
+    context_changed = QtCore.Signal(object)
+
     def __init__(self, current_entity):
         super(GlobalSwitch, self).__init__()
         layout = QtWidgets.QVBoxLayout()
@@ -27,8 +30,11 @@ class GlobalSwitch(QtWidgets.QDialog):
         self._entity_browser.accepted.connect(self.on_context_changed)
 
     def on_context_changed(self):
+        '''Handle context change event.'''
         selected_entity = self._entity_browser.selected()[0]
-        os.environ['FTRACK_CONTEXT_ID'] = selected_entity['id']
+        entity_id = selected_entity['id']
+        os.environ['FTRACK_CONTEXT_ID'] = entity_id
+        self.context_changed.emit(entity_id)
         self.close()
 
 
