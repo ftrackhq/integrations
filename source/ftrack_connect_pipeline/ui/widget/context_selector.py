@@ -28,6 +28,7 @@ class GlobalSwitch(QtWidgets.QDialog):
         current_location = [e['id'] for e in current_entity['link']]
         self._entity_browser.setLocation(current_location)
         self._entity_browser.accepted.connect(self.on_context_changed)
+        self._entity_browser.rejected.connect(self.close)
 
     def on_context_changed(self):
         '''Handle context change event.'''
