@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2015 ftrack
 
 import ftrack
+import os
 
 from QtExt import QtWidgets
 from QtExt import QtCore
@@ -11,6 +12,23 @@ import ftrack_connect_pipeline.ui.model.entity_tree
 import ftrack_connect_pipeline.ui.widget.overlay
 
 from ftrack_connect_pipeline import util
+
+
+class GlobalSwitch(QtWidgets.QDialog):
+    def __init__(self, current_entity):
+        super(GlobalSwitch, self).__init__()
+        layout = QtWidgets.QVBoxLayout()
+        self._session = current_entity.session
+        self.setLayout(layout)
+        self._entity_browser = EntityBrowser()
+        layout.addWidget(self._entity_browser)
+        current_location = [e['id'] for e in current_entity['link']]
+        self._entity_browser.setLocation(current_location)
+        self._entity_browser.accepted.connect(self.on_context_changed)
+
+    def on_context_changed(self):
+        selected_entity = self._entity_browser.selected()[0]
+        os.environ['FTRACK_CONTEXT_ID'] = selected_entity['id']
 
 
 def _get_entity_parents(entity):
