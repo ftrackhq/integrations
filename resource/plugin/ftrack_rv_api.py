@@ -22,11 +22,14 @@ import rv.rvui
 import rv.runtime
 import rv as rv
 
+import ftrack
+from ftrack_api import Session
+
+
 # Cache to keep track of filesystem path for components.
 # This will cause the component to use the same filesystem path
 # during the entire session.
 componentFilesystemPaths = {}
-api = None
 
 sequenceSourceNode = None
 stackSourceNode = None
@@ -36,26 +39,18 @@ layoutSourceNode = None
 annotation_components = {}
 
 
-def getAPI():
-    '''Return the ftrack api
+try:
+    ftrack.setup(actions=False)
+except:
+    pass
 
-    Util method to try to load the ftrack api
 
-    '''
-    global api
-    if not api:
-        try:
-            import ftrack as api
-            api.setup(actions=False)
-            logger.info('ftrack Python API loaded.')
-        except ImportError:
-            logger.exception(
-                'Could not load ftrack Python API. Please check it is '
-                'available on the PYTHONPATH.'
-            )
-            api = None
-
-    return api
+session = Session(
+    server_url=os.getenv("FTRACK_SERVER"),
+    api_user=os.getenv("FTRACK_API_USER"),
+    api_key=os.getenv("FTRACK_API_KEY", os.getenv('FTRACK_APIKEY')),
+    auto_connect_event_hub=False
+)
 
 
 def _getSourceNode(nodeType='sequence'):
@@ -111,40 +106,33 @@ def _setWipeMode(state):
 
 
 def _getFilePath(componentId):
-    '''Return a single access path based on *source* and *location*
-
-    Generates a filesystem path for the specified *source* and *location* using
-    the ftrack location api.
-
-    '''
+    '''Return a single access path based on *source* and *location*'''
     global componentFilesystemPaths
 
-    api = getAPI()
+    path = componentFilesystemPaths.get(componentId, None)
 
-    if componentId not in componentFilesystemPaths:
-        location = api.pickLocation(componentId)
+    if path is None:
+        location = session.pick_location()
+        ftrack_component = session.get('FileComponent', componentId)
 
-        if not location:
-            raise IOError()
+        component_availability = ftrack_component.get_availability(
+            [location]
+        )
 
-        logger.info(
-            'Retrieving fileSystemPath  for component'
-            ' "{0}" from location "{1}".'
-            .format(
-                componentId, str(location.getName())
+        availability = component_availability.values()[0]
+
+        if availability != 100.0:
+            raise IOError(
+                'Could not retrieve file path for component {0} as no '
+                'location for component accessible.'.format(
+                    ftrack_component['name']
+                )
             )
-        )
 
-        component = location.getComponent(componentId)
-        componentFilesystemPaths[componentId] = component.getFilesystemPath()
+        path = location.get_filesystem_path(ftrack_component)
+        componentFilesystemPaths[componentId] = path
 
-    logger.info(
-        'FileSystemPath for component "{0}" is "{1}"'.format(
-            componentId, componentFilesystemPaths[componentId]
-        )
-    )
-
-    return componentFilesystemPaths[componentId]
+        return path
 
 
 def _ftrackAddVersion(track, layout):
@@ -324,6 +312,25 @@ def getActionURL(params=None):
     return _generateURL(params, 'review_action')
 
 
+def _identify_entity_(entity_id):
+    '''Identify provided *entity*.'''
+    entity_types = [
+        'Context',
+        'AssetVersion',
+        'FileComponent'
+    ]
+
+    entity = None
+    for entity_type in entity_types:
+        _entity = session.get(entity_type, entity_id)
+        has_type = getattr(_entity, 'entity_type', None)
+        if has_type:
+            entity = _entity
+            break
+
+    return entity
+
+
 def _generateURL(params=None, panelName=None):
     '''Return URL to panel in ftrack based on *params* or *panel*.'''
     entityId = None
@@ -340,9 +347,13 @@ def _generateURL(params=None, panelName=None):
         except Exception:
             entityId, entityType = _getEntityFromEnvironment()
 
+        ftrack_entity = _identify_entity_(entityId)
+        if not ftrack_entity:
+                return
+
         try:
-            url = getAPI().getWebWidgetUrl(
-                panelName, 'tf', entityId=entityId, entityType=entityType
+            url = session.get_widget_url(
+                panelName, ftrack_entity, 'tf'
             )
         except Exception as exception:
             logger.exception(str(exception))
@@ -407,13 +418,13 @@ def create_component(encoded_args):
     logger.info(u'Creating component: {0!r}'.format(
         file_path
     ))
-    api = getAPI()
-    component = api.createComponent(
+
+    component = session.create_component(
         component_name,
         path=file_path,
         location=None
     )
-    component_id = component.getId()
+    component_id = component['id']
     annotation_components[component_id] = component
     return component_id
 
@@ -424,7 +435,7 @@ def upload_component(component_id):
         component_id
     ))
     component = annotation_components[component_id]
-    server_location = api.Location('ftrack.server')
-    server_location.addComponent(component)
+    server_location = session.query('Location where name is "ftrack.server"')
+    server_location.add_component(component)
     del annotation_components[component_id]
     return component_id
