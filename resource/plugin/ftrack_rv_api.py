@@ -18,6 +18,7 @@ import rv as rv
 
 import ftrack
 from ftrack_api import Session
+from ftrack_api.symbol import ORIGIN_LOCATION_ID, SERVER_LOCATION_ID
 
 import ftrack_logging
 
@@ -48,6 +49,16 @@ session = Session(
     api_user=os.getenv("FTRACK_API_USER"),
     api_key=os.getenv("FTRACK_API_KEY", os.getenv('FTRACK_APIKEY')),
     auto_connect_event_hub=False
+)
+
+
+# Get some useful locations
+origin_location = session.query(
+    'Location where id is "{0}"'.format(ORIGIN_LOCATION_ID)
+)
+
+server_location = session.query(
+    'Location where id is "{0}"'.format(SERVER_LOCATION_ID)
 )
 
 
@@ -348,7 +359,6 @@ def _generateURL(params=None, panelName=None):
         ftrack_entity = _identify_entity_(entityId)
         if not ftrack_entity:
                 return
-
         try:
             url = session.get_widget_url(
                 panelName, ftrack_entity, 'tf'
@@ -418,10 +428,10 @@ def create_component(encoded_args):
     ))
 
     component = session.create_component(
-        component_name,
-        path=file_path,
-        location=None
+        path=component_name,
+        location=origin_location
     )
+
     component_id = component['id']
     annotation_components[component_id] = component
     return component_id
@@ -433,7 +443,6 @@ def upload_component(component_id):
         component_id
     ))
     component = annotation_components[component_id]
-    server_location = session.query('Location where name is "ftrack.server"')
-    server_location.add_component(component)
+    server_location.add_component(component, origin_location)
     del annotation_components[component_id]
     return component_id
