@@ -208,10 +208,9 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
             if RV_APPLICATION_PATH.startswith(os.path.sep):
                 prefix.insert(0, os.path.sep)
 
-            print prefix
             applications.extend(self._searchFilesystem(
                 expression=prefix + [
-                    'rv-Linux-x86-64-\d.+', 'bin', 'rv'
+                    'rv-Linux-x86-64-\d.+', 'bin', 'rv$'
                 ],
                 label='Review with RV',
                 variant='{version}',
