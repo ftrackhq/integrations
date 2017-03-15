@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2015 ftrack
 
 import getpass
+import os
 import sys
 import pprint
 import logging
@@ -189,6 +190,38 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 ],
                 versionExpression=re.compile(
                     r'(?P<version>\d+.\d+.\d+)'
+                )
+            ))
+
+        elif sys.platform == 'linux2':
+            RV_APPLICATION_PATH = os.getenv(
+                'FTRACK_CONNECT_RV_APPLICATION_PATH', ''
+            )
+
+            # Remove heading / in linux so we can split.
+            prefix = RV_APPLICATION_PATH
+            if RV_APPLICATION_PATH.startswith(os.path.sep):
+                prefix = prefix[1:]
+
+            # Add it back while building the path if was existing.
+            prefix = prefix.split(os.path.sep)
+            if RV_APPLICATION_PATH.startswith(os.path.sep):
+                prefix.insert(0, os.path.sep)
+
+            print prefix
+            applications.extend(self._searchFilesystem(
+                expression=prefix + [
+                    'rv-Linux-x86-64-\d.+', 'bin', 'rv'
+                ],
+                label='Review with RV',
+                variant='{version}',
+                applicationIdentifier='rv_{version}_with_review',
+                icon='rv',
+                launchArguments=[
+                    '-flags', 'ModeManagerPreload=ftrack'
+                ],
+                versionExpression=re.compile(
+                    r'(?P<version>\d+(\.\d+)+)'
                 )
             ))
 
