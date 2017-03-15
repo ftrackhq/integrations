@@ -7,13 +7,7 @@ import base64
 import traceback
 import os
 from uuid import uuid1 as uuid
-
-import ftrack_logging
-ftrack_logging.setup()
-
-
 import logging
-logger = logging.getLogger('ftrack_connect_rv')
 
 import rv.commands
 import rv.rvtypes
@@ -25,6 +19,10 @@ import rv as rv
 import ftrack
 from ftrack_api import Session
 
+import ftrack_logging
+
+ftrack_logging.setup()
+logger = logging.getLogger('ftrack_connect_rv')
 
 # Cache to keep track of filesystem path for components.
 # This will cause the component to use the same filesystem path
@@ -391,10 +389,10 @@ def ftrackJumpTo(index=0, startFrame=1):
     index = int(index)
     frameNumber = 0
 
-    for idx,source in enumerate(rv.commands.nodesOfType('RVFileSource')):
+    for idx, source in enumerate(rv.commands.nodesOfType('RVFileSource')):
         if not idx >= index:
             data = rv.commands.sourceMediaInfoList(source)[0]
-            add = (data.get('endFrame',0) - data.get('startFrame',0)) + 1
+            add = (data.get('endFrame', 0) - data.get('startFrame', 0)) + 1
             add = 1 if add == 0 else add
             frameNumber += (add)
 
