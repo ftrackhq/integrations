@@ -257,11 +257,6 @@ def extract_plugin_name_from_record(record):
 
 def extract_error_message_from_record(record):
     '''Return error message from pyblish *record*.'''
-    traceback = record['error'].traceback
 
-    if traceback[3] is not None:
-        return unicode(traceback[3])
-    else:
-        # If the error message in the traceback is None,
-        # default to formatting the exception as a string.
-        return unicode(record['error'])
+    # Default to formatting the exception as a string.
+    return unicode(record['error'])
