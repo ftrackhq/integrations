@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: new
+        :tags: Widget
+
+        Add new Global Context Switch dialog to menu.
+
 .. release:: 0.6.0
     :date: 2017-02-23
 
