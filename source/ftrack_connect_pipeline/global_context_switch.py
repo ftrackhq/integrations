@@ -5,6 +5,8 @@
 from QtExt import QtWidgets
 from QtExt import QtCore
 
+import ftrack_api.event.base
+
 from ftrack_connect_pipeline import util
 from ftrack_connect_pipeline.ui.widget import context_selector
 
@@ -39,8 +41,15 @@ class GlobalSwitch(QtWidgets.QDialog):
         '''Handle user notification on context change event.'''
         context = self._session.get('Context', context_id)
         parents = ' / '.join([c['name'] for c in context['link']])
+
+        event = event = ftrack_api.event.base.Event(
+            topic='ftrack.context-changed',
+            data={'context': context}
+        )
+        self._session.event_hub.publish(event)
+
         QtWidgets.QMessageBox.information(
             self,
             'Context Changed',
-            'You have now changed context to :{0}'.format(parents)
+            u'You have now changed context to: {0}'.format(parents)
         )
