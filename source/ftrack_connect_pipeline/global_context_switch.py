@@ -35,8 +35,6 @@ class GlobalSwitch(QtWidgets.QDialog):
     def on_context_changed(self):
         '''Handle context change event.'''
         selected_entity = self._entity_browser.selected()[0]
-        entity_id = selected_entity['id']
-        util.set_ftrack_entity(entity_id)
         self.close()
         self.context_changed.emit(entity_id)
 
@@ -44,12 +42,6 @@ class GlobalSwitch(QtWidgets.QDialog):
         '''Handle user notification on context change event.'''
         context = self._session.get('Context', context_id)
         parents = ' / '.join([c['name'] for c in context['link']])
-
-        event = ftrack_api.event.base.Event(
-            topic='ftrack.context-changed',
-            data={'context': context}
-        )
-        self._session.event_hub.publish(event, synchronous=True)
 
         QtWidgets.QMessageBox.information(
             self,
