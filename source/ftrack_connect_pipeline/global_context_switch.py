@@ -45,11 +45,11 @@ class GlobalSwitch(QtWidgets.QDialog):
         context = self._session.get('Context', context_id)
         parents = ' / '.join([c['name'] for c in context['link']])
 
-        event = event = ftrack_api.event.base.Event(
+        event = ftrack_api.event.base.Event(
             topic='ftrack.context-changed',
             data={'context': context}
         )
-        self._session.event_hub.publish(event)
+        self._session.event_hub.publish(event, synchronous=True)
 
         QtWidgets.QMessageBox.information(
             self,
