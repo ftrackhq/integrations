@@ -13,9 +13,12 @@ from ftrack_connect_pipeline.ui.widget import context_selector
 
 class GlobalSwitch(QtWidgets.QDialog):
     '''Global Context Switch'''
+
+    # Emitted when context changes.
     context_changed = QtCore.Signal(object)
 
     def __init__(self, current_entity):
+        '''Initialize GlobalSwitch with *current_entity*.'''
         super(GlobalSwitch, self).__init__()
         self.setWindowTitle('Global Context Switch')
         layout = QtWidgets.QVBoxLayout()
