@@ -58,6 +58,7 @@ class BaseApplicationPlugin(object):
         '''Open publish window.'''
         if self._assets_registered is False:
             self.register_assets()
+            self._assets_registered = True
 
         ftrack_connect_pipeline.ui.publish.open(
             self.api_session, self.get_context()
