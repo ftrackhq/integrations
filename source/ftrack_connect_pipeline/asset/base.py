@@ -1,9 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2016 ftrack
 
-import ftrack_connect_pipeline.util
-
-
+import ftrack_connect_pipeline
 from ftrack_connect_pipeline.ui.widget.field import asset_selector
 from ftrack_connect_pipeline import constant
 
@@ -110,7 +108,8 @@ class PublishAsset(object):
 
     def prepare_publish(self):
         '''Return context for publishing.'''
-        self.ftrack_entity = ftrack_connect_pipeline.util.get_ftrack_entity()
+        plugin = ftrack_connect_pipeline.get_plugin()
+        self.ftrack_entity = plugin.get_context()
         self.publish_data = dict()
 
     def get_publish_items(self):
@@ -128,7 +127,8 @@ class PublishAsset(object):
     def get_options(self):
         '''Return general options for.'''
 
-        context = ftrack_connect_pipeline.util.get_ftrack_entity()
+        plugin = ftrack_connect_pipeline.get_plugin()
+        context = plugin.get_context()
         if isinstance(context, context.session.types['Task']):
             # Publish to task parent.
             context = context['parent']

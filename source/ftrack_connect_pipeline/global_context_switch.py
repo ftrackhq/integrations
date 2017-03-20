@@ -36,7 +36,7 @@ class GlobalSwitch(QtWidgets.QDialog):
         '''Handle context change event.'''
         selected_entity = self._entity_browser.selected()[0]
         self.close()
-        self.context_changed.emit(entity_id)
+        self.context_changed.emit(selected_entity['id'])
 
     def on_notify_user(self, context_id):
         '''Handle user notification on context change event.'''

@@ -2,7 +2,9 @@
 # :copyright: Copyright (c) 2017 ftrack
 
 import abc
+import logging
 
+import ftrack_api
 import ftrack_api.event.base
 
 import ftrack_connect_pipeline.global_context_switch
@@ -17,23 +19,20 @@ class BaseApplicationPlugin(object):
 
     def __init__(self, context_id):
         '''Initialise with application *context_id*.'''
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+
         self._context_id = context_id
 
         self._shared_api_session = None
-        self.assets_registered = False
-
-    @property
-    def context_entity(self):
-        '''Return context.'''
-        return self.api_session.get('Context', self._context_id)
+        self._assets_registered = False
 
     @property
     def api_session(self):
         '''Return the shared api session.'''
         if not self._shared_api_session:
-            self._shared_api_session = (
-                ftrack_connect_pipeline.util.get_session()
-            )
+            self._shared_api_session = ftrack_api.Session()
 
         return self._shared_api_session
 
@@ -44,30 +43,37 @@ class BaseApplicationPlugin(object):
 
     def register_assets(self):
         '''Register assets.'''
-        self.api_session.event_hub.publish(
+        self.logger.info('Registering assets.')
+        result = self.api_session.event_hub.publish(
             ftrack_api.event.base.Event(
                 topic='ftrack.pipeline.register-assets',
                 data=dict()
             ),
             synchronous=True
         )
+        for item in result:
+            self.logger.info('Registered asset: {0!r}'.format(item))
 
     def open_publish(self):
         '''Open publish window.'''
-        if self.assets_registered is False:
+        if self._assets_registered is False:
             self.register_assets()
 
         ftrack_connect_pipeline.ui.publish.open(
-            self.api_session
+            self.api_session, self.get_context()
         )
 
     def open_switch_context(self):
         '''Open switch context dialog.'''
         dialog = ftrack_connect_pipeline.global_context_switch.GlobalSwitch(
-            self.context_entity
+            self.get_context()
         )
-        self.context_changed.connect(self.set_context)
+        dialog.context_changed.connect(self.set_context)
         dialog.exec_()
+
+    def get_context(self):
+        '''Return context.'''
+        return self.api_session.get('Context', self._context_id)
 
     def set_context(self, context_id):
         '''Set context and emit event.'''
