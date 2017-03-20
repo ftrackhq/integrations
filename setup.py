@@ -4,13 +4,19 @@
 import os
 import re
 import glob
+import zipfile
 
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
+from distutils.command.build import build as BuildCommand
 
 
 ROOT_PATH = os.path.dirname(
     os.path.realpath(__file__)
+)
+
+RESOURCE_PATH = os.path.join(
+    ROOT_PATH, 'resource'
 )
 
 SOURCE_PATH = os.path.join(
@@ -25,6 +31,35 @@ with open(os.path.join(
     VERSION = re.match(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
+
+
+class BuildRvPkg(BuildCommand):
+
+    def initialize_options(self):
+        '''Configure default options.'''
+
+    def finalize_options(self):
+        '''Finalize options to be used.'''
+        self.rvpkg_src_dir = os.path.join(RESOURCE_PATH, 'plugin', 'src')
+
+        self.resource_target_path = os.path.join(
+            RESOURCE_PATH, 'plugin'
+        )
+        self.pakcage_name = 'ftrack-{0}.rvpkg'.format(VERSION)
+
+    def run(self):
+        '''build rvpkg'''
+        out_path = os.path.join(self.resource_target_path, self.pakcage_name)
+        with zipfile.ZipFile(out_path, 'w', zipfile.ZIP_DEFLATED) as pkg:
+            for f in os.listdir(self.rvpkg_src_dir):
+                pkg.write(os.path.join(self.rvpkg_src_dir, f), arcname=f)
+
+
+class Build(BuildCommand):
+    def run(self):
+        '''Run build ensuring build_resources called first.'''
+        self.run_command('build_rvpkg')
+        BuildCommand.run(self)
 
 
 # Custom commands.
@@ -69,7 +104,9 @@ setup(
         'pytest >= 2.3.5, < 3'
     ],
     cmdclass={
-        'test': PyTest
+        'test': PyTest,
+        'build_rvpkg': BuildRvPkg,
+        'build': Build
     },
     data_files=[
         (
