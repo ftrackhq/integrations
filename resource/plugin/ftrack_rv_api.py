@@ -16,8 +16,9 @@ import rv.rvui
 import rv.runtime
 import rv as rv
 
+
 import ftrack
-from ftrack_api import Session
+import ftrack_api
 from ftrack_api.symbol import ORIGIN_LOCATION_ID, SERVER_LOCATION_ID
 
 import ftrack_logging
@@ -40,26 +41,18 @@ annotation_components = {}
 
 try:
     ftrack.setup(actions=False)
-except:
+except ftrack.api.ftrackerror.EventHubConnectionError:
     pass
 
 
-session = Session(
-    server_url=os.getenv("FTRACK_SERVER"),
-    api_user=os.getenv("FTRACK_API_USER"),
-    api_key=os.getenv("FTRACK_API_KEY", os.getenv('FTRACK_APIKEY')),
+session = ftrack_api.Session(
     auto_connect_event_hub=False
 )
 
 
 # Get some useful locations
-origin_location = session.query(
-    'Location where id is "{0}"'.format(ORIGIN_LOCATION_ID)
-)
-
-server_location = session.query(
-    'Location where id is "{0}"'.format(SERVER_LOCATION_ID)
-)
+origin_location = session.get('Location', ORIGIN_LOCATION_ID)
+server_location = session.get('Location', SERVER_LOCATION_ID)
 
 
 def _getSourceNode(nodeType='sequence'):
@@ -121,26 +114,10 @@ def _getFilePath(componentId):
     path = componentFilesystemPaths.get(componentId, None)
 
     if path is None:
-        location = session.pick_location()
         ftrack_component = session.get('FileComponent', componentId)
-
-        component_availability = ftrack_component.get_availability(
-            [location]
-        )
-
-        availability = component_availability.values()[0]
-
-        if availability != 100.0:
-            raise IOError(
-                'Could not retrieve file path for component {0} as no '
-                'location for component accessible.'.format(
-                    ftrack_component['name']
-                )
-            )
-
+        location = session.pick_location(component=ftrack_component)
         path = location.get_filesystem_path(ftrack_component)
         componentFilesystemPaths[componentId] = path
-
         return path
 
 
