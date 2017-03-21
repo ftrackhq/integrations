@@ -298,25 +298,6 @@ def getActionURL(params=None):
     return _generateURL(params, 'review_action')
 
 
-def _identify_entity_(entity_id):
-    '''Identify provided *entity*.'''
-    entity_types = [
-        'Context',
-        'AssetVersion',
-        'FileComponent'
-    ]
-
-    entity = None
-    for entity_type in entity_types:
-        _entity = session.get(entity_type, entity_id)
-        has_type = getattr(_entity, 'entity_type', None)
-        if has_type:
-            entity = _entity
-            break
-
-    return entity
-
-
 def _generateURL(params=None, panelName=None):
     '''Return URL to panel in ftrack based on *params* or *panel*.'''
     entityId = None
@@ -333,12 +314,9 @@ def _generateURL(params=None, panelName=None):
         except Exception:
             entityId, entityType = _getEntityFromEnvironment()
 
-        ftrack_entity = _identify_entity_(entityId)
-        if not ftrack_entity:
-                return
         try:
-            url = session.get_widget_url(
-                panelName, ftrack_entity, 'tf'
+            url = ftrack.getWebWidgetUrl(
+                panelName, 'tf', entityId=entityId, entityType=entityType
             )
         except Exception as exception:
             logger.exception(str(exception))
