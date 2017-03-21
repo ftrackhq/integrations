@@ -2,13 +2,16 @@
 # :copyright: Copyright (c) 2015 ftrack
 
 import os
+import sys
 import re
 import glob
-import zipfile
+import shutil
+import pip
+import tempfile
+import fileinput
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Command
 from setuptools.command.test import test as TestCommand
-from distutils.command.build import build as BuildCommand
 
 
 ROOT_PATH = os.path.dirname(
@@ -19,8 +22,25 @@ RESOURCE_PATH = os.path.join(
     ROOT_PATH, 'resource'
 )
 
+HOOK_PATH = os.path.join(
+    RESOURCE_PATH, 'hook'
+)
+
+
 SOURCE_PATH = os.path.join(
     ROOT_PATH, 'source'
+)
+
+RVPKG_SOURCE_PATH = os.path.join(
+    RESOURCE_PATH, 'plugin'
+)
+
+BUILD_PATH = os.path.join(
+    ROOT_PATH, 'build'
+)
+
+STAGING_PATH = os.path.join(
+    BUILD_PATH, 'plugin'
 )
 
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
@@ -33,33 +53,93 @@ with open(os.path.join(
     ).group(1)
 
 
-class BuildRvPkg(BuildCommand):
+class BuildPlugin(Command):
+    '''Build plugin.'''
+    description = 'Download dependencies and build plugin .'
 
-    def initialize_options(self):
-        '''Configure default options.'''
+    def _build_rvpkg(self):
 
-    def finalize_options(self):
-        '''Finalize options to be used.'''
-        self.rvpkg_src_dir = os.path.join(RESOURCE_PATH, 'plugin', 'src')
+        # build rvpkg
+        rvpkg_staging = os.path.join(tempfile.mkdtemp(), 'rvpkg')
 
-        self.resource_target_path = os.path.join(
-            RESOURCE_PATH, 'plugin'
+        # Copy plugin files
+        shutil.copytree(
+            RVPKG_SOURCE_PATH,
+            rvpkg_staging
         )
-        self.pakcage_name = 'ftrack-{0}.rvpkg'.format(VERSION)
+
+        plugin_name = 'ftrack-{0}'.format(VERSION)
+
+        staging_plugin_path = os.path.join(
+            rvpkg_staging,
+            plugin_name
+        )
+
+        destination_path = os.path.join(
+            STAGING_PATH, 'resource', 'plugin', 'Package'
+        )
+
+        if not os.path.exists(destination_path):
+            os.makedirs(destination_path)
+
+        if not os.path.exists(os.path.join(rvpkg_staging, 'PACKAGE')):
+            raise IOError('no PACKAGE file in {0}'.format(rvpkg_staging))
+
+        PACKAGE_file = os.path.join(rvpkg_staging, 'PACKAGE')
+        PKG = fileinput.input(PACKAGE_file, inplace=True)
+        for line in PKG:
+            if '{VERSION}' in line:
+                sys.stdout.write(line.format(VERSION=VERSION))
+            else:
+                sys.stdout.write(line)
+
+        # prepare zip with rv plugin
+        shutil.make_archive(
+            staging_plugin_path,
+            'zip',
+            rvpkg_staging
+        )
+
+        # rename to rvpkg and move in final destination
+        source_file_path = staging_plugin_path + '.zip'
+        destination_file_path = os.path.join(
+            destination_path, plugin_name + '.rvpkg'
+        )
+
+        shutil.move(source_file_path, destination_file_path)
 
     def run(self):
-        '''build rvpkg'''
-        out_path = os.path.join(self.resource_target_path, self.pakcage_name)
-        with zipfile.ZipFile(out_path, 'w', zipfile.ZIP_DEFLATED) as pkg:
-            for f in os.listdir(self.rvpkg_src_dir):
-                pkg.write(os.path.join(self.rvpkg_src_dir, f), arcname=f)
+        '''Run the build step.'''
 
+        # Clean staging path
+        shutil.rmtree(STAGING_PATH, ignore_errors=True)
 
-class Build(BuildCommand):
-    def run(self):
-        '''Run build ensuring build_resources called first.'''
-        self.run_command('build_rvpkg')
-        BuildCommand.run(self)
+        pip.main(
+            [
+                'install',
+                '.',
+                '--target',
+                os.path.join(STAGING_PATH, 'dependencies'),
+                '--process-dependency-links'
+            ]
+        )
+
+        # Copy plugin files
+        shutil.copytree(
+            HOOK_PATH,
+            os.path.join(STAGING_PATH, 'hook')
+        )
+
+        self._build_rvpkg()
+
+        shutil.make_archive(
+            os.path.join(
+                BUILD_PATH,
+                'ftrack-location-compatibilty-{0}'.format(VERSION)
+            ),
+            'zip',
+            STAGING_PATH
+        )
 
 
 # Custom commands.
@@ -105,8 +185,7 @@ setup(
     ],
     cmdclass={
         'test': PyTest,
-        'build_rvpkg': BuildRvPkg,
-        'build': Build
+        'build_plugin': BuildPlugin,
     },
     data_files=[
         (
