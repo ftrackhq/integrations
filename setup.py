@@ -56,6 +56,15 @@ with open(os.path.join(
 class BuildPlugin(Command):
     '''Build plugin.'''
     description = 'Download dependencies and build plugin .'
+    user_options = []
+
+    def initialize_options(self):
+        '''Initialize options.'''
+        pass
+
+    def finalize_options(self):
+        '''Finalize options.'''
+        pass
 
     def _build_rvpkg(self):
 
@@ -85,9 +94,9 @@ class BuildPlugin(Command):
         if not os.path.exists(os.path.join(rvpkg_staging, 'PACKAGE')):
             raise IOError('no PACKAGE file in {0}'.format(rvpkg_staging))
 
-        PACKAGE_file = os.path.join(rvpkg_staging, 'PACKAGE')
-        PKG = fileinput.input(PACKAGE_file, inplace=True)
-        for line in PKG:
+        package_file_path = os.path.join(rvpkg_staging, 'PACKAGE')
+        package_file = fileinput.input(package_file_path, inplace=True)
+        for line in package_file:
             if '{VERSION}' in line:
                 sys.stdout.write(line.format(VERSION=VERSION))
             else:
@@ -119,7 +128,7 @@ class BuildPlugin(Command):
                 'install',
                 '.',
                 '--target',
-                os.path.join(STAGING_PATH, 'dependencies'),
+                os.path.join(STAGING_PATH, 'package'),
                 '--process-dependency-links'
             ]
         )

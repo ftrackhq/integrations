@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015 ftrack
 
+import os
 import getpass
 import sys
 import pprint
@@ -11,7 +12,52 @@ import re
 import ftrack
 import ftrack_connect.application
 
-import ftrack_connect_rv
+
+try:
+    import ftrack_connect_rv
+except ImportError:
+    dependencies_path = os.path.realpath(
+        os.path.join(os.path.dirname(__file__), '..', 'package')
+    )
+    sys.path.append(dependencies_path)
+    import ftrack_connect_rv
+
+
+class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
+    '''Discover and launch rv.'''
+
+    def _getApplicationEnvironment(self, application, context=None):
+        '''Override to modify environment before launch.'''
+
+        # Make sure to call super to retrieve original environment
+        # which contains the selection and ftrack API.
+        environment = super(
+            ApplicationLauncher, self
+        )._getApplicationEnvironment(application, context)
+
+        MU_MODULE_PATH = os.path.join(
+            os.path.dirname(ftrack_connect_rv.__file__),
+            '..', 'resource', 'plugin', 'Package'
+        )
+
+        environment = ftrack_connect.application.appendPath(
+            MU_MODULE_PATH,
+            'MU_MODULE_PATH',
+            environment
+        )
+
+        PYTHONPATH = os.path.join(
+            os.path.dirname(ftrack_connect_rv.__file__),
+            '..', 'package'
+        )
+
+        environment = ftrack_connect.application.appendPath(
+            PYTHONPATH,
+            'PYTHONPATH',
+            environment
+        )
+
+        return environment
 
 
 class LaunchApplicationAction(object):
@@ -222,7 +268,7 @@ def register(registry, **kw):
     applicationStore = ApplicationStore()
 
     # Create a launcher with the store containing applications.
-    launcher = ftrack_connect.application.ApplicationLauncher(
+    launcher = ApplicationLauncher(
         applicationStore
     )
 
