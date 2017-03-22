@@ -5,21 +5,18 @@
 from QtExt import QtWidgets
 from QtExt import QtCore
 
-import ftrack_api.event.base
-
-from ftrack_connect_pipeline import util
 from ftrack_connect_pipeline.ui.widget import context_selector
 
 
-class GlobalSwitch(QtWidgets.QDialog):
-    '''Global Context Switch'''
+class GlobalSwitchDialog(QtWidgets.QDialog):
+    '''Global context switch tool.'''
 
     # Emitted when context changes.
     context_changed = QtCore.Signal(object)
 
     def __init__(self, current_entity):
-        '''Initialize GlobalSwitch with *current_entity*.'''
-        super(GlobalSwitch, self).__init__()
+        '''Initialize GlobalSwitchDialog with *current_entity*.'''
+        super(GlobalSwitchDialog, self).__init__()
         self.setWindowTitle('Global Context Switch')
         layout = QtWidgets.QVBoxLayout()
         self._session = current_entity.session
@@ -48,3 +45,19 @@ class GlobalSwitch(QtWidgets.QDialog):
             'Context Changed',
             u'You have now changed context to: {0}'.format(parents)
         )
+
+
+class GlobalContextSwitch(object):
+    '''Global context switch.'''
+
+    def __init__(self, plugin):
+        '''Initialise with *plugin*.'''
+        self.plugin = plugin
+
+    def open(self):
+        '''Create and open the global context switch.'''
+        dialog = GlobalSwitchDialog(
+            self.plugin.get_context()
+        )
+        dialog.context_changed.connect(self.plugin.set_context)
+        dialog.exec_()

@@ -7,10 +7,6 @@ import logging
 import ftrack_api
 import ftrack_api.event.base
 
-import ftrack_connect_pipeline.global_context_switch
-import ftrack_connect_pipeline.ui.publish
-import ftrack_connect_pipeline.util
-
 
 class BaseApplicationPlugin(object):
     '''Application plugin.'''
@@ -25,21 +21,15 @@ class BaseApplicationPlugin(object):
 
         self._context_id = context_id
 
-        self._shared_api_session = None
-        self._assets_registered = False
+        self.api_session = ftrack_api.Session(
+            auto_connect_event_hub=False
+        )
 
-    @property
-    def api_session(self):
-        '''Return the shared api session.'''
-        if not self._shared_api_session:
-            self._shared_api_session = ftrack_api.Session()
-
-        return self._shared_api_session
+        self.register_assets()
 
     @abc.abstractmethod
     def get_plugin_information(self):
         '''Return plugin information.'''
-        # TODO: Update the publisher to use this instead.
 
     def register_assets(self):
         '''Register assets.'''
@@ -53,24 +43,6 @@ class BaseApplicationPlugin(object):
         )
         for item in result:
             self.logger.info('Registered asset: {0!r}'.format(item))
-
-    def open_publish(self):
-        '''Open publish window.'''
-        if self._assets_registered is False:
-            self.register_assets()
-            self._assets_registered = True
-
-        ftrack_connect_pipeline.ui.publish.open(
-            self.api_session, self.get_context()
-        )
-
-    def open_switch_context(self):
-        '''Open switch context dialog.'''
-        dialog = ftrack_connect_pipeline.global_context_switch.GlobalSwitch(
-            self.get_context()
-        )
-        dialog.context_changed.connect(self.set_context)
-        dialog.exec_()
 
     def get_context(self):
         '''Return context.'''
