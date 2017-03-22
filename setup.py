@@ -144,7 +144,7 @@ class BuildPlugin(Command):
         shutil.make_archive(
             os.path.join(
                 BUILD_PATH,
-                'ftrack-location-compatibilty-{0}'.format(VERSION)
+                'ftrack-connect-rv-{0}'.format(VERSION)
             ),
             'zip',
             STAGING_PATH
