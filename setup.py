@@ -185,9 +185,10 @@ setup(
     setup_requires=[
         'sphinx >= 1.2.2, < 2',
         'sphinx_rtd_theme >= 0.1.6, < 2',
-        'lowdown >= 0.1.0, < 1'
+        'lowdown >= 0.1.0, < 1',
     ],
     install_requires=[
+        'ftrack-location-compatibility >= 0.1.0'
     ],
     tests_require=[
         'pytest >= 2.3.5, < 3'
@@ -196,6 +197,12 @@ setup(
         'test': PyTest,
         'build_plugin': BuildPlugin,
     },
+    dependency_links=[
+        (
+            'https://bitbucket.org/ftrack/ftrack-location-compatibility/get/0.1.0.zip'
+            '#egg=ftrack-location-compatibility-0.1.0'
+        )
+    ],
     data_files=[
         (
             'ftrack_connect_rv_resource/hook',
