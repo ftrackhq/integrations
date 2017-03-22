@@ -16,8 +16,13 @@ import rv.rvui
 import rv.runtime
 import rv as rv
 
+try:
+    import ftrack
+except ImportError:
+    raise Exception(
+        'ftrack legacy api not found in PYTHONPATH.'
+    )
 
-import ftrack
 import ftrack_api
 from ftrack_api.symbol import ORIGIN_LOCATION_ID, SERVER_LOCATION_ID
 
@@ -43,7 +48,6 @@ try:
     ftrack.setup(actions=False)
 except ftrack.api.ftrackerror.EventHubConnectionError:
     pass
-
 
 session = ftrack_api.Session(
     auto_connect_event_hub=False
