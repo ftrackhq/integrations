@@ -14,8 +14,8 @@ import ftrack_connect.application
 
 import ftrack_connect_rv
 
-RV_APPLICATION_PATH = os.getenv(
-    'FTRACK_CONNECT_RV_APPLICATION_PATH', ''
+RV_HOME = os.getenv(
+    'RV_HOME', ''
 )
 
 class LaunchApplicationAction(object):
@@ -165,13 +165,13 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
         if sys.platform == 'darwin':
 
-            prefix = RV_APPLICATION_PATH or '/Applications'
-            if RV_APPLICATION_PATH.startswith(os.path.sep):
+            prefix = RV_HOME or '/Applications'
+            if RV_HOME.startswith(os.path.sep):
                 prefix = prefix[1:]
 
             # Add it back while building the path if was existing.
             prefix = prefix.split(os.path.sep)
-            if RV_APPLICATION_PATH.startswith(os.path.sep):
+            if RV_HOME.startswith(os.path.sep):
                 prefix.insert(0, os.path.sep)
 
             applications.extend(self._searchFilesystem(
@@ -187,7 +187,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
         elif sys.platform == 'win32':
             prefix = (
-                RV_APPLICATION_PATH.split(os.path.sep) or
+                RV_HOME.split(os.path.sep) or
                 ['C:\\', 'Program Files.*']
             )
 
@@ -209,13 +209,13 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
         elif sys.platform == 'linux2':
             # Remove heading / in linux so we can split.
-            prefix = RV_APPLICATION_PATH
-            if RV_APPLICATION_PATH.startswith(os.path.sep):
+            prefix = RV_HOME
+            if RV_HOME.startswith(os.path.sep):
                 prefix = prefix[1:]
 
             # Add it back while building the path if was existing.
             prefix = prefix.split(os.path.sep)
-            if RV_APPLICATION_PATH.startswith(os.path.sep):
+            if RV_HOME.startswith(os.path.sep):
                 prefix.insert(0, os.path.sep)
 
             applications.extend(self._searchFilesystem(
