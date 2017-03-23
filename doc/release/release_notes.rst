@@ -9,6 +9,6 @@ Release Notes
 
 .. release:: Upcoming
 
-    .. change:: fix
+    .. change:: fixed
 
-        Discover rv application under Tweak as well as Shotgun.
+        New versions of RV is not properly located in their installation directory.
