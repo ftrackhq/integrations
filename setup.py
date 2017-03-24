@@ -436,6 +436,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_3dsmax',
         'ftrack_connect_nuke.plugin',
         'ftrack_connect_nuke.logging',
+        'ftrack_api.resource_identifier_transformer.base',
         'ftrack_connect_legacy_plugins',
         'ftrack_connect_hieroplayer',
         'ftrack_connect_rv',
