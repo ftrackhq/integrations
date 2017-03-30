@@ -50,6 +50,13 @@ if getattr(sys, 'frozen', False):
         )
     )
 
+    os.environ['FTRACK_CONNECT_PLUGIN_PATH'] = os.path.abspath(
+        os.path.join(
+            os.path.dirname(sys.executable), 'resource',
+            'connect-standard-plugins'
+        )
+    )
+
     os.environ.setdefault(
         'FTRACK_CONNECT_PACKAGE_RESOURCE_PATH',
         os.path.abspath(

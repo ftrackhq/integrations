@@ -1,12 +1,18 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 
+import datetime
 import sys
 import os
 import re
 import pkg_resources
 import opcode
 import logging
+import zipfile
+
+logging.basicConfig(
+    level=logging.INFO
+)
 
 from setuptools import setup, Distribution, find_packages
 
@@ -15,6 +21,12 @@ ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
+BUILD_PATH = os.path.join(ROOT_PATH, 'build')
+DOWNLOAD_PLUGIN_PATH = os.path.join(
+    BUILD_PATH, 'plugin-downloads-{0}'.format(
+        datetime.datetime.now().isoformat()
+    )
+)
 
 
 # Read version from source.
@@ -24,6 +36,18 @@ with open(os.path.join(
     VERSION = re.match(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
+
+
+external_connect_plugins = []
+for plugin in (
+    'ftrack-location-compatibilty-0.2.0.zip',
+    'ftrack-connect-maya-publish-0.4.0.zip',
+    'ftrack-connect-nuke-publish-0.4.0.zip'
+):
+    external_connect_plugins.append(
+        (plugin, plugin.replace('.zip', ''))
+    )
+
 
 connect_install_require = 'ftrack-connect == 0.1.32'
 # TODO: Update when ftrack-connect released.
@@ -171,7 +195,55 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
     )
     configuration['setup_requires'].append('cx_freeze')
 
-    from cx_Freeze import setup, Executable
+    from cx_Freeze import setup, Executable, build
+
+    class Build(build):
+        '''Custom build to pre-build resources.'''
+
+        def run(self):
+            '''Run build ensuring build_resources called first.'''
+            download_url = (
+                'https://s3-eu-west-1.amazonaws.com/ftrack-deployment/'
+                'ftrack-connect/plugins/'
+            )
+            import requests
+
+            #: TODO: Clean up the temporary download folder.
+            os.makedirs(DOWNLOAD_PLUGIN_PATH)
+
+            for plugin, target in external_connect_plugins:
+                url = download_url + plugin
+                temp_path = os.path.join(DOWNLOAD_PLUGIN_PATH, plugin)
+                logging.info(
+                    'Downloading url {0} to {1}'.format(
+                        url,
+                        temp_path
+                    )
+                )
+
+                response = requests.get(url)
+                response.raise_for_status()
+
+                if response.status_code != 200:
+                    raise ValueError(
+                        'Got status code not equal to 200: {0}'.format(
+                            response.status_code
+                        )
+                    )
+
+                with open(temp_path, 'w') as package_file:
+                    package_file.write(response.content)
+
+                with zipfile.ZipFile(temp_path, 'r') as myzip:
+                    myzip.extractall(
+                        os.path.join(DOWNLOAD_PLUGIN_PATH, target)
+                    )
+
+            build.run(self)
+
+    configuration['cmdclass'] = {
+        'build': Build
+    }
 
     # Ensure ftrack-connect is
     # available for import and then discover ftrack-connect and
@@ -304,6 +376,17 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             SOURCE_PATH, 'ftrack_connect_package', '_version.py'
         ), 'resource/ftrack_connect_package_version.py')
     ]
+
+    for _, plugin_directory in external_connect_plugins:
+        plugin_download_path = os.path.join(
+            DOWNLOAD_PLUGIN_PATH, plugin_directory
+        )
+        include_files.append(
+            (
+                os.path.relpath(plugin_download_path, ROOT_PATH),
+                'resource/connect-standard-plugins/' + plugin_directory
+            )
+        )
 
     executables = []
     bin_includes = []
