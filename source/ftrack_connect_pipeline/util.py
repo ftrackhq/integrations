@@ -151,8 +151,7 @@ def get_session():
         server_url=os.environ['FTRACK_SERVER'],
         api_key=os.environ['FTRACK_APIKEY'],
         api_user=os.environ['LOGNAME'],
-        auto_connect_event_hub=False,
-        plugin_paths=[]
+        auto_connect_event_hub=False
     )
 
 
