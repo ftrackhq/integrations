@@ -11,4 +11,4 @@ Release Notes
 
     .. change:: fixed
 
-        New versions of RV is not properly located in their installation directory.
+        New versions of RV are not found in their default installation directory.
