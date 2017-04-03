@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 
+import sys
 import json
 import tempfile
 import base64
@@ -21,6 +22,9 @@ import rv.extra_commands
 import rv.rvui
 import rv.runtime
 import rv as rv
+
+# Add dependencies to the available modules.
+sys.path.append('./dependencies')
 
 # Cache to keep track of filesystem path for components.
 # This will cause the component to use the same filesystem path

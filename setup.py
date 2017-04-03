@@ -53,14 +53,25 @@ with open(os.path.join(
     ).group(1)
 
 
+
+
 class BuildPlugin(Command):
     '''Build plugin.'''
     description = 'Download dependencies and build plugin .'
     user_options = []
 
+    def copytree(self, src, dst, symlinks=False, ignore=None):
+        for item in os.listdir(src):
+            s = os.path.join(src, item)
+            d = os.path.join(dst, item)
+            if os.path.isdir(s):
+                shutil.copytree(s, d, symlinks, ignore)
+            else:
+                shutil.copy2(s, d)
+
     def initialize_options(self):
         '''Initialize options.'''
-        pass
+        self.rvpkg_staging = os.path.join(tempfile.mkdtemp(), 'rvpkg')
 
     def finalize_options(self):
         '''Finalize options.'''
@@ -69,32 +80,33 @@ class BuildPlugin(Command):
     def _build_rvpkg(self):
 
         # build rvpkg
-        rvpkg_staging = os.path.join(tempfile.mkdtemp(), 'rvpkg')
 
         # Copy plugin files
-        shutil.copytree(
+        self.copytree(
             RVPKG_SOURCE_PATH,
-            rvpkg_staging
+            self.rvpkg_staging,
         )
 
-        plugin_name = 'ftrack-{0}'.format(VERSION)
+        # Strip off patch version from the tool: M.m rather than M.m.p
+        rvpkg_version = '.'.join(VERSION.split('.')[:-1])
+        plugin_name = 'ftrack-{0}'.format(rvpkg_version)
 
         staging_plugin_path = os.path.join(
-            rvpkg_staging,
+            self.rvpkg_staging,
             plugin_name
         )
 
         destination_path = os.path.join(
-            STAGING_PATH, 'resource', 'plugin', 'Package'
+            STAGING_PATH, 'package'
         )
 
         if not os.path.exists(destination_path):
             os.makedirs(destination_path)
 
-        if not os.path.exists(os.path.join(rvpkg_staging, 'PACKAGE')):
-            raise IOError('no PACKAGE file in {0}'.format(rvpkg_staging))
+        if not os.path.exists(os.path.join(self.rvpkg_staging, 'PACKAGE')):
+            raise IOError('no PACKAGE file in {0}'.format(self.rvpkg_staging))
 
-        package_file_path = os.path.join(rvpkg_staging, 'PACKAGE')
+        package_file_path = os.path.join(self.rvpkg_staging, 'PACKAGE')
         package_file = fileinput.input(package_file_path, inplace=True)
         for line in package_file:
             if '{VERSION}' in line:
@@ -106,7 +118,7 @@ class BuildPlugin(Command):
         shutil.make_archive(
             staging_plugin_path,
             'zip',
-            rvpkg_staging
+            self.rvpkg_staging
         )
 
         # rename to rvpkg and move in final destination
@@ -128,7 +140,7 @@ class BuildPlugin(Command):
                 'install',
                 '.',
                 '--target',
-                os.path.join(STAGING_PATH, 'package'),
+                os.path.join(self.rvpkg_staging, 'dependencies'),
                 '--process-dependency-links'
             ]
         )
@@ -188,7 +200,8 @@ setup(
         'lowdown >= 0.1.0, < 1',
     ],
     install_requires=[
-        'ftrack-location-compatibility >= 0.1.0'
+        'ftrack-location-compatibility >= 0.1.0',
+        'ftrack-python-api >= 1, < 2',
     ],
     tests_require=[
         'pytest >= 2.3.5, < 3'
