@@ -5,14 +5,12 @@
 ftrack-connect-rv
 ###############################
 
-Repository for ftrack connect rv.
+Welcome to the documentation for ftrack connect RV.
 
 .. toctree::
     :maxdepth: 1
 
-    installing
     using
-    api_reference/index
     glossary
     release/index
 
