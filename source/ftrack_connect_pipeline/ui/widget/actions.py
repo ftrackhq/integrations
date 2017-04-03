@@ -184,7 +184,10 @@ class Actions(QtWidgets.QFrame):
     def _hideOverlayAfterTimeout(self, timeout):
         '''Hide overlay after *timeout* seconds.'''
         time.sleep(timeout)
-        self._overlay.setVisible(False)
+
+        ftrack_connect_pipeline.util.invoke_in_main_thread(
+            self._overlay.setVisible, False
+        )
 
     def _onEntityChanged(self, entity):
         '''Load new actions when the context has changed'''
