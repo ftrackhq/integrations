@@ -37,7 +37,7 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
 
         MU_MODULE_PATH = os.path.join(
             os.path.dirname(ftrack_connect_rv.__file__),
-            '..', 'resource', 'plugin', 'Package'
+            '..', 'package'
         )
 
         environment = ftrack_connect.application.appendPath(
