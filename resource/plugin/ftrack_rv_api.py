@@ -7,13 +7,7 @@ import base64
 import traceback
 import os
 from uuid import uuid1 as uuid
-
-import ftrack_logging
-ftrack_logging.setup()
-
-
 import logging
-logger = logging.getLogger('ftrack_connect_rv')
 
 import rv.commands
 import rv.rvtypes
@@ -22,11 +16,25 @@ import rv.rvui
 import rv.runtime
 import rv as rv
 
+try:
+    import ftrack
+except ImportError:
+    raise Exception(
+        'ftrack legacy api not found in PYTHONPATH.'
+    )
+
+import ftrack_api
+from ftrack_api.symbol import ORIGIN_LOCATION_ID, SERVER_LOCATION_ID
+
+import ftrack_logging
+
+ftrack_logging.setup()
+logger = logging.getLogger('ftrack_connect_rv')
+
 # Cache to keep track of filesystem path for components.
 # This will cause the component to use the same filesystem path
 # during the entire session.
 componentFilesystemPaths = {}
-api = None
 
 sequenceSourceNode = None
 stackSourceNode = None
@@ -36,26 +44,19 @@ layoutSourceNode = None
 annotation_components = {}
 
 
-def getAPI():
-    '''Return the ftrack api
+try:
+    ftrack.setup(actions=False)
+except ftrack.api.ftrackerror.EventHubConnectionError:
+    pass
 
-    Util method to try to load the ftrack api
+session = ftrack_api.Session(
+    auto_connect_event_hub=False
+)
 
-    '''
-    global api
-    if not api:
-        try:
-            import ftrack as api
-            api.setup(actions=False)
-            logger.info('ftrack Python API loaded.')
-        except ImportError:
-            logger.exception(
-                'Could not load ftrack Python API. Please check it is '
-                'available on the PYTHONPATH.'
-            )
-            api = None
 
-    return api
+# Get some useful locations
+origin_location = session.get('Location', ORIGIN_LOCATION_ID)
+server_location = session.get('Location', SERVER_LOCATION_ID)
 
 
 def _getSourceNode(nodeType='sequence'):
@@ -111,40 +112,17 @@ def _setWipeMode(state):
 
 
 def _getFilePath(componentId):
-    '''Return a single access path based on *source* and *location*
-
-    Generates a filesystem path for the specified *source* and *location* using
-    the ftrack location api.
-
-    '''
+    '''Return a single access path based on *source* and *location*'''
     global componentFilesystemPaths
 
-    api = getAPI()
+    path = componentFilesystemPaths.get(componentId, None)
 
-    if componentId not in componentFilesystemPaths:
-        location = api.pickLocation(componentId)
-
-        if not location:
-            raise IOError()
-
-        logger.info(
-            'Retrieving fileSystemPath  for component'
-            ' "{0}" from location "{1}".'
-            .format(
-                componentId, str(location.getName())
-            )
-        )
-
-        component = location.getComponent(componentId)
-        componentFilesystemPaths[componentId] = component.getFilesystemPath()
-
-    logger.info(
-        'FileSystemPath for component "{0}" is "{1}"'.format(
-            componentId, componentFilesystemPaths[componentId]
-        )
-    )
-
-    return componentFilesystemPaths[componentId]
+    if path is None:
+        ftrack_component = session.get('FileComponent', componentId)
+        location = session.pick_location(component=ftrack_component)
+        path = location.get_filesystem_path(ftrack_component)
+        componentFilesystemPaths[componentId] = path
+        return path
 
 
 def _ftrackAddVersion(track, layout):
@@ -341,7 +319,7 @@ def _generateURL(params=None, panelName=None):
             entityId, entityType = _getEntityFromEnvironment()
 
         try:
-            url = getAPI().getWebWidgetUrl(
+            url = ftrack.getWebWidgetUrl(
                 panelName, 'tf', entityId=entityId, entityType=entityType
             )
         except Exception as exception:
@@ -380,10 +358,10 @@ def ftrackJumpTo(index=0, startFrame=1):
     index = int(index)
     frameNumber = 0
 
-    for idx,source in enumerate(rv.commands.nodesOfType('RVFileSource')):
+    for idx, source in enumerate(rv.commands.nodesOfType('RVFileSource')):
         if not idx >= index:
             data = rv.commands.sourceMediaInfoList(source)[0]
-            add = (data.get('endFrame',0) - data.get('startFrame',0)) + 1
+            add = (data.get('endFrame', 0) - data.get('startFrame', 0)) + 1
             add = 1 if add == 0 else add
             frameNumber += (add)
 
@@ -407,13 +385,13 @@ def create_component(encoded_args):
     logger.info(u'Creating component: {0!r}'.format(
         file_path
     ))
-    api = getAPI()
-    component = api.createComponent(
-        component_name,
-        path=file_path,
-        location=None
+
+    component = session.create_component(
+        path=component_name,
+        location=origin_location
     )
-    component_id = component.getId()
+
+    component_id = component['id']
     annotation_components[component_id] = component
     return component_id
 
@@ -424,7 +402,6 @@ def upload_component(component_id):
         component_id
     ))
     component = annotation_components[component_id]
-    server_location = api.Location('ftrack.server')
-    server_location.addComponent(component)
+    server_location.add_component(component, origin_location)
     del annotation_components[component_id]
     return component_id
