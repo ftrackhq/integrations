@@ -69,7 +69,10 @@ class Base(QtWidgets.QLabel):
             self.width(),
             mode=QtCore.Qt.SmoothTransformation
         )
-        self.setPixmap(scaledPixmap)
+
+        ftrack_connect_pipeline.util.invoke_in_main_thread(
+            self.setPixmap, scaledPixmap
+        )
 
     def _download(self, url):
         '''Return thumbnail file from *url*.'''
