@@ -53,8 +53,6 @@ with open(os.path.join(
     ).group(1)
 
 
-
-
 class BuildPlugin(Command):
     '''Build plugin.'''
     description = 'Download dependencies and build plugin .'
@@ -132,9 +130,8 @@ class BuildPlugin(Command):
     def run(self):
         '''Run the build step.'''
 
-        # Clean staging path
+        # Clean staging path.
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
-
         pip.main(
             [
                 'install',
@@ -145,7 +142,14 @@ class BuildPlugin(Command):
             ]
         )
 
-        # Copy plugin files
+        # Add __init__.py in dependencies so we can use it as module.
+        open(
+            os.path.join(
+                self.rvpkg_staging, 'dependencies', '__init__.py'
+            ), 'a'
+        )
+
+        # Copy plugin files.
         shutil.copytree(
             HOOK_PATH,
             os.path.join(STAGING_PATH, 'hook')
@@ -153,6 +157,7 @@ class BuildPlugin(Command):
 
         self._build_rvpkg()
 
+        # Build zip file for ftrack-connect-rv.
         shutil.make_archive(
             os.path.join(
                 BUILD_PATH,
