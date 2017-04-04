@@ -75,9 +75,37 @@ class BuildPlugin(Command):
         '''Finalize options.'''
         pass
 
-    def _build_rvpkg(self):
+    def _build_release(self):
+        '''Copy the hook and the source code.'''
 
-        # build rvpkg
+        # Copy hooks.
+        shutil.copytree(
+            HOOK_PATH,
+            os.path.join(STAGING_PATH, 'hook')
+        )
+
+        # Copy sources.
+        shutil.copytree(
+            SOURCE_PATH,
+            os.path.join(
+                STAGING_PATH, 'package'
+            )
+        )
+
+    def _build_release_zip(self):
+        '''Build zip file for ftrack-connect-rv.'''
+
+        shutil.make_archive(
+            os.path.join(
+                BUILD_PATH,
+                'ftrack-connect-rv-{0}'.format(VERSION)
+            ),
+            'zip',
+            STAGING_PATH
+        )
+
+    def _build_rvpkg(self):
+        '''Build rv plugin package.'''
 
         # Copy plugin files
         self.copytree(
@@ -141,33 +169,12 @@ class BuildPlugin(Command):
                 '--process-dependency-links'
             ]
         )
-
-        # Copy plugin files.
-        shutil.copytree(
-            HOOK_PATH,
-            os.path.join(STAGING_PATH, 'hook')
-        )
-
+        # Build rv plugin.
         self._build_rvpkg()
-
-        source_destination_path = os.path.join(
-            STAGING_PATH, 'package'
-        )
-
-        shutil.copytree(
-            SOURCE_PATH,
-            source_destination_path
-        )
-
-        # Build zip file for ftrack-connect-rv.
-        shutil.make_archive(
-            os.path.join(
-                BUILD_PATH,
-                'ftrack-connect-rv-{0}'.format(VERSION)
-            ),
-            'zip',
-            STAGING_PATH
-        )
+        # Build source code and hooks.
+        self._build_release()
+        # Prepare the final zip with release version.
+        self._build_release_zip()
 
 
 # Custom commands.
