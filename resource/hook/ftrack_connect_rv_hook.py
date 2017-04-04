@@ -3,7 +3,6 @@
 
 import os
 import getpass
-import os
 import sys
 import pprint
 import logging
@@ -24,6 +23,15 @@ except ImportError:
     import ftrack_connect_rv
 
 
+# Require to be set to the folder
+# which contains the rv installations.
+# eg: /mnt/software/rv
+
+RV_INSTALLATION_PATH = os.getenv(
+    'RV_INSTALLATION_PATH', '/usr/local/rv'
+)
+
+
 class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
     '''Discover and launch rv.'''
 
@@ -38,9 +46,9 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
 
         MU_MODULE_PATH = os.path.join(
             os.path.dirname(ftrack_connect_rv.__file__),
-            '..', 'package'
+            '..', 'rv_plugin'
         )
-
+        print 'MU_MODULE_PATH', MU_MODULE_PATH
         environment = ftrack_connect.application.appendPath(
             MU_MODULE_PATH,
             'MU_MODULE_PATH',
@@ -51,6 +59,7 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
             os.path.dirname(ftrack_connect_rv.__file__),
             '..', 'package'
         )
+        print 'PYTHONPATH', PYTHONPATH
 
         environment = ftrack_connect.application.appendPath(
             PYTHONPATH,
@@ -59,14 +68,6 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
         )
 
         return environment
-
-# Require to be set to the folder
-# which contains the rv installations.
-# eg: /mnt/software/rv
-
-RV_HOME = os.getenv(
-    'RV_HOME', ''
-)
 
 
 class LaunchApplicationAction(object):
@@ -247,16 +248,21 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
         elif sys.platform == 'linux2':
             separator = os.path.sep
-            prefix = RV_HOME
+            prefix = RV_INSTALLATION_PATH
+            if not os.path.exists(RV_INSTALLATION_PATH):
+                print 'No folder found for $RV_HOME at : {0}'.format(
+                    RV_INSTALLATION_PATH
+                )
+                return
 
             # Check for leading slashes
-            if RV_HOME.startswith(separator):
+            if RV_INSTALLATION_PATH.startswith(separator):
                 # Strip it off if does exist
                 prefix = prefix[1:]
 
             # Split the path in its components.
             prefix = prefix.split(separator)
-            if RV_HOME.startswith(separator):
+            if RV_INSTALLATION_PATH.startswith(separator):
                 # Add leading slash back
                 prefix.insert(0, separator)
 
