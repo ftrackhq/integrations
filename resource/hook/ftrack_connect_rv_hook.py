@@ -164,16 +164,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
         applications = []
 
         if sys.platform == 'darwin':
-
-            prefix = RV_HOME or '/Applications'
-            if RV_HOME.startswith(os.path.sep):
-                prefix = prefix[1:]
-
-            # Add it back while building the path if was existing.
-            prefix = prefix.split(os.path.sep)
-            if RV_HOME.startswith(os.path.sep):
-                prefix.insert(0, os.path.sep)
-
+            prefix = ['/', 'Applications']
             applications.extend(self._searchFilesystem(
                 expression=prefix + ['RV.\d+.app'],
                 label='Review with RV',
@@ -186,11 +177,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
             ))
 
         elif sys.platform == 'win32':
-            prefix = (
-                RV_HOME.split(os.path.sep) or
-                ['C:\\', 'Program Files.*']
-            )
-
+            prefix = ['C:\\', 'Program Files.*']
             applications.extend(self._searchFilesystem(
                 expression=prefix + [
                     'Tweak', 'RV.\d.+', 'bin', 'rv.exe'
