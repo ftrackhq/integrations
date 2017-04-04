@@ -52,7 +52,9 @@ class Base(QtWidgets.QLabel):
         '''Handler worker finished event.'''
         if self._worker:
             IMAGE_CACHE[self.__loadingReference] = self._worker.result
-            self._updatePixmapData(self._worker.result)
+            ftrack_connect_pipeline.util.invoke_in_main_thread(
+                self._updatePixmapData, self._worker.result
+            )
 
         self._worker = None
         self.__loadingReference = None
@@ -61,6 +63,7 @@ class Base(QtWidgets.QLabel):
         '''Update thumbnail with *data*.'''
         pixmap = QtGui.QPixmap()
         pixmap.loadFromData(data)
+
         self._scaleAndSetPixmap(pixmap)
 
     def _scaleAndSetPixmap(self, pixmap):
@@ -69,10 +72,7 @@ class Base(QtWidgets.QLabel):
             self.width(),
             mode=QtCore.Qt.SmoothTransformation
         )
-
-        ftrack_connect_pipeline.util.invoke_in_main_thread(
-            self.setPixmap, scaledPixmap
-        )
+        self.setPixmap(scaledPixmap)
 
     def _download(self, url):
         '''Return thumbnail file from *url*.'''
