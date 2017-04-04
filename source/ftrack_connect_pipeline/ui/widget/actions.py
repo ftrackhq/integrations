@@ -4,6 +4,7 @@
 import json
 import time
 import logging
+import functools
 
 from QtExt import QtCore, QtWidgets
 
@@ -180,13 +181,11 @@ class Actions(QtWidgets.QFrame):
         self._overlay.setMessage(message)
         self._hideOverlayAfterTimeout(self.ACTION_LAUNCH_MESSAGE_TIMEOUT)
 
-    @ftrack_connect_pipeline.util.asynchronous
     def _hideOverlayAfterTimeout(self, timeout):
         '''Hide overlay after *timeout* seconds.'''
-        time.sleep(timeout)
-
-        ftrack_connect_pipeline.util.invoke_in_main_thread(
-            self._overlay.setVisible, False
+        QtCore.QTimer.singleShot(
+            timeout * 1000,
+            functools.partial(self._overlay.setVisible, False)
         )
 
     def _onEntityChanged(self, entity):
