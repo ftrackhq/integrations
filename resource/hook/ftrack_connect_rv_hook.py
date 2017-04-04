@@ -14,9 +14,14 @@ import ftrack_connect.application
 
 import ftrack_connect_rv
 
+# Require to be set to the folder
+# which contains the rv installations.
+# eg: /mnt/software/rv
+
 RV_HOME = os.getenv(
     'RV_HOME', ''
 )
+
 
 class LaunchApplicationAction(object):
     '''Discover and launch action.'''
@@ -195,15 +200,19 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
             ))
 
         elif sys.platform == 'linux2':
-            # Remove heading / in linux so we can split.
+            separator = os.path.sep
             prefix = RV_HOME
-            if RV_HOME.startswith(os.path.sep):
+
+            # Check for leading slashes
+            if RV_HOME.startswith(separator):
+                # Strip it off if does exist
                 prefix = prefix[1:]
 
-            # Add it back while building the path if was existing.
-            prefix = prefix.split(os.path.sep)
-            if RV_HOME.startswith(os.path.sep):
-                prefix.insert(0, os.path.sep)
+            # Split the path in its components.
+            prefix = prefix.split(separator)
+            if RV_HOME.startswith(separator):
+                # Add leading slash back
+                prefix.insert(0, separator)
 
             applications.extend(self._searchFilesystem(
                 expression=prefix + [
