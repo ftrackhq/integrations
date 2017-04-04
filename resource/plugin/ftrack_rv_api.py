@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 
+import sys
 import json
 import tempfile
 import base64
@@ -28,10 +29,14 @@ except ImportError:
         'ftrack legacy api not found in PYTHONPATH.'
     )
 
+sys.path.append('dependencies')
+
 import ftrack_api
 from ftrack_api.symbol import ORIGIN_LOCATION_ID, SERVER_LOCATION_ID
 
 import ftrack_logging
+
+import ftrack_location_compatibility
 
 ftrack_logging.setup()
 logger = logging.getLogger('ftrack_connect_rv')
@@ -57,6 +62,9 @@ except ftrack.api.ftrackerror.EventHubConnectionError:
 session = ftrack_api.Session(
     auto_connect_event_hub=False
 )
+
+# init ftrack_location_compatiblity
+ftrack_location_compatibility.plugin.register_locations(session)
 
 # Get some useful locations
 origin_location = session.get('Location', ORIGIN_LOCATION_ID)
