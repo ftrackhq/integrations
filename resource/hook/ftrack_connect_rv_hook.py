@@ -231,7 +231,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
             prefix = ['C:\\', 'Program Files.*']
             applications.extend(self._searchFilesystem(
                 expression=prefix + [
-                    'Tweak', 'RV.\d.+', 'bin', 'rv.exe'
+                    '[Tweak|Shotgun]', 'RV.\d.+', 'bin', 'rv.exe'
                 ],
                 label='Review with RV',
                 variant='{version}',
