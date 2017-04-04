@@ -94,12 +94,12 @@ class BuildPlugin(Command):
             plugin_name
         )
 
-        destination_path = os.path.join(
-            STAGING_PATH, 'package'
+        plugin_destination_path = os.path.join(
+            STAGING_PATH, 'rv_plugin'
         )
 
-        if not os.path.exists(destination_path):
-            os.makedirs(destination_path)
+        if not os.path.exists(plugin_destination_path):
+            os.makedirs(plugin_destination_path)
 
         if not os.path.exists(os.path.join(self.rvpkg_staging, 'PACKAGE')):
             raise IOError('no PACKAGE file in {0}'.format(self.rvpkg_staging))
@@ -122,7 +122,7 @@ class BuildPlugin(Command):
         # rename to rvpkg and move in final destination
         source_file_path = staging_plugin_path + '.zip'
         destination_file_path = os.path.join(
-            destination_path, plugin_name + '.rvpkg'
+            plugin_destination_path, plugin_name + '.rvpkg'
         )
 
         shutil.move(source_file_path, destination_file_path)
@@ -149,6 +149,15 @@ class BuildPlugin(Command):
         )
 
         self._build_rvpkg()
+
+        source_destination_path = os.path.join(
+            STAGING_PATH, 'package'
+        )
+
+        shutil.copytree(
+            SOURCE_PATH,
+            source_destination_path
+        )
 
         # Build zip file for ftrack-connect-rv.
         shutil.make_archive(
