@@ -7,6 +7,11 @@ import base64
 import traceback
 import os
 from uuid import uuid1 as uuid
+
+import ftrack_logging
+ftrack_logging.setup()
+
+
 import logging
 
 import rv.commands
@@ -52,7 +57,6 @@ except ftrack.api.ftrackerror.EventHubConnectionError:
 session = ftrack_api.Session(
     auto_connect_event_hub=False
 )
-
 
 # Get some useful locations
 origin_location = session.get('Location', ORIGIN_LOCATION_ID)
