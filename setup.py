@@ -142,13 +142,6 @@ class BuildPlugin(Command):
             ]
         )
 
-        # Add __init__.py in dependencies so we can use it as module.
-        open(
-            os.path.join(
-                self.rvpkg_staging, 'dependencies', '__init__.py'
-            ), 'a'
-        )
-
         # Copy plugin files.
         shutil.copytree(
             HOOK_PATH,
