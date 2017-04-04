@@ -3,6 +3,7 @@
 
 import os
 import getpass
+import os
 import sys
 import pprint
 import logging
@@ -58,6 +59,14 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
         )
 
         return environment
+
+# Require to be set to the folder
+# which contains the rv installations.
+# eg: /mnt/software/rv
+
+RV_HOME = os.getenv(
+    'RV_HOME', ''
+)
 
 
 class LaunchApplicationAction(object):
@@ -207,7 +216,6 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
         if sys.platform == 'darwin':
             prefix = ['/', 'Applications']
-
             applications.extend(self._searchFilesystem(
                 expression=prefix + ['RV.\d+.app'],
                 label='Review with RV',
@@ -221,7 +229,6 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
         elif sys.platform == 'win32':
             prefix = ['C:\\', 'Program Files.*']
-
             applications.extend(self._searchFilesystem(
                 expression=prefix + [
                     'Tweak', 'RV.\d.+', 'bin', 'rv.exe'
@@ -235,6 +242,37 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 ],
                 versionExpression=re.compile(
                     r'(?P<version>\d+.\d+.\d+)'
+                )
+            ))
+
+        elif sys.platform == 'linux2':
+            separator = os.path.sep
+            prefix = RV_HOME
+
+            # Check for leading slashes
+            if RV_HOME.startswith(separator):
+                # Strip it off if does exist
+                prefix = prefix[1:]
+
+            # Split the path in its components.
+            prefix = prefix.split(separator)
+            if RV_HOME.startswith(separator):
+                # Add leading slash back
+                prefix.insert(0, separator)
+
+            applications.extend(self._searchFilesystem(
+                expression=prefix + [
+                    'rv-Linux-x86-64-\d.+', 'bin', 'rv$'
+                ],
+                label='Review with RV',
+                variant='{version}',
+                applicationIdentifier='rv_{version}_with_review',
+                icon='rv',
+                launchArguments=[
+                    '-flags', 'ModeManagerPreload=ftrack'
+                ],
+                versionExpression=re.compile(
+                    r'(?P<version>\d+(\.\d+)+)'
                 )
             ))
 
