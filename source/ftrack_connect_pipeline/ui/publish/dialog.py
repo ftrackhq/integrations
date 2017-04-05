@@ -84,7 +84,8 @@ class Dialog(QtWidgets.QDialog):
 
     def on_context_changed(self, ftrack_entity):
         '''Set the current context to the given *ftrack_entity*.'''
-        ftrack_connect_pipeline.util.set_ftrack_entity(ftrack_entity['id'])
+        plugin = ftrack_connect_pipeline.get_plugin()
+        plugin.set_context(ftrack_entity['id'])
         if self.active_workflow_widget:
             self.remove_active_workflow_widget()
             self.publish_container.layout().addWidget(

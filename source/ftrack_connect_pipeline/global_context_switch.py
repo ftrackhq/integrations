@@ -5,21 +5,18 @@
 from QtExt import QtWidgets
 from QtExt import QtCore
 
-import ftrack_api.event.base
-
-from ftrack_connect_pipeline import util
 from ftrack_connect_pipeline.ui.widget import context_selector
 
 
-class GlobalSwitch(QtWidgets.QDialog):
-    '''Global Context Switch'''
+class GlobalSwitchDialog(QtWidgets.QDialog):
+    '''Global context switch tool.'''
 
     # Emitted when context changes.
     context_changed = QtCore.Signal(object)
 
     def __init__(self, current_entity):
-        '''Initialize GlobalSwitch with *current_entity*.'''
-        super(GlobalSwitch, self).__init__()
+        '''Initialize GlobalSwitchDialog with *current_entity*.'''
+        super(GlobalSwitchDialog, self).__init__()
         self.setWindowTitle('Global Context Switch')
         layout = QtWidgets.QVBoxLayout()
         self._session = current_entity.session
@@ -35,24 +32,32 @@ class GlobalSwitch(QtWidgets.QDialog):
     def on_context_changed(self):
         '''Handle context change event.'''
         selected_entity = self._entity_browser.selected()[0]
-        entity_id = selected_entity['id']
-        util.set_ftrack_entity(entity_id)
         self.close()
-        self.context_changed.emit(entity_id)
+        self.context_changed.emit(selected_entity['id'])
 
     def on_notify_user(self, context_id):
         '''Handle user notification on context change event.'''
         context = self._session.get('Context', context_id)
         parents = ' / '.join([c['name'] for c in context['link']])
 
-        event = ftrack_api.event.base.Event(
-            topic='ftrack.context-changed',
-            data={'context': context}
-        )
-        self._session.event_hub.publish(event, synchronous=True)
-
         QtWidgets.QMessageBox.information(
             self,
             'Context Changed',
             u'You have now changed context to: {0}'.format(parents)
         )
+
+
+class GlobalContextSwitch(object):
+    '''Global context switch.'''
+
+    def __init__(self, plugin):
+        '''Initialise with *plugin*.'''
+        self.plugin = plugin
+
+    def open(self):
+        '''Create and open the global context switch.'''
+        dialog = GlobalSwitchDialog(
+            self.plugin.get_context()
+        )
+        dialog.context_changed.connect(self.plugin.set_context)
+        dialog.exec_()

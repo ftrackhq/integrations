@@ -8,8 +8,6 @@ import webbrowser
 
 from QtExt import QtGui, QtCore, QtWidgets
 
-from ftrack_api.event.base import Event
-
 from ftrack_connect_pipeline.ui.widget.overlay import BusyOverlay
 from ftrack_connect_pipeline.ui.widget.overlay import Overlay
 from ftrack_connect_pipeline.ui.widget.field import textarea
@@ -460,26 +458,6 @@ class ListItemsWidget(QtWidgets.QListWidget):
                 QtCore.Qt.Checked if should_select else QtCore.Qt.Unchecked
             )
 
-    def get_checked_items(self):
-        '''Return checked items.'''
-        checked_items = []
-        for index in xrange(self.count()):
-            widget_item = self.item(index)
-            if widget_item.checkState() is QtCore.Qt.Checked:
-                checked_items.append(widget_item.item())
-
-        return checked_items
-
-    def update_selection(self, new_selection):
-        '''Update selection from *new_selection*.'''
-        for index in xrange(self.count()):
-            widget_item = self.item(index)
-            item = widget_item.item()
-            should_select = item['name'] in new_selection
-            widget_item.setCheckState(
-                QtCore.Qt.Checked if should_select else QtCore.Qt.Unchecked
-            )
-
 
 class ActionSettingsWidget(QtWidgets.QWidget):
     '''A widget to display settings.'''
@@ -675,17 +653,13 @@ class Workflow(QtWidgets.QWidget):
         self._label_text = label
         self.publish_asset = publish_asset
 
-        result = self.session.event_hub.publish(
-            Event(
-                topic='ftrack.pipeline.get-plugin-information'
-            ),
-            synchronous=True
-        )
+        plugin = ftrack_connect_pipeline.get_plugin()
+        plugin_information = plugin.get_plugin_information()
         event_metadata = {
             'workflow_label': self._label_text,
         }
-        if result and isinstance(result[0], dict):
-            event_metadata.update(result[0])
+        if isinstance(plugin_information, dict):
+            event_metadata.update(plugin_information)
 
         send_usage(
             'USED-FTRACK-CONNECT-PIPELINE-PUBLISH',
