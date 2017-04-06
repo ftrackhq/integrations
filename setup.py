@@ -169,6 +169,12 @@ class BuildPlugin(Command):
                 '--process-dependency-links'
             ]
         )
+        shutil.make_archive(
+            os.path.join(self.rvpkg_staging, 'dependencies'),
+            'zip',
+            os.path.join(self.rvpkg_staging, 'dependencies')
+        )
+        shutil.rmtree(os.path.join(self.rvpkg_staging, 'dependencies'))
         # Build rv plugin.
         self._build_rvpkg()
         # Build source code and hooks.
