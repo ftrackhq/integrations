@@ -128,20 +128,6 @@ def invoke_in_main_thread(fn, *args, **kwargs):
     )
 
 
-def set_ftrack_entity(entity_id):
-    '''Return current ftrack entity.'''
-    os.environ['FTRACK_CONTEXT_ID'] = entity_id
-
-
-def get_ftrack_entity():
-    '''Return current ftrack entity.'''
-    session = get_session()
-    ftrack_entity = session.get(
-        'Context', os.environ['FTRACK_CONTEXT_ID']
-    )
-    return ftrack_entity
-
-
 def get_session():
     '''Return new ftrack_api session configure without plugins or events.'''
     # Create API session using credentials as stored by the application
