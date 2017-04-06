@@ -48,7 +48,7 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
             os.path.dirname(ftrack_connect_rv.__file__),
             '..', 'rv_plugin'
         )
-        print 'MU_MODULE_PATH', MU_MODULE_PATH
+
         environment = ftrack_connect.application.appendPath(
             MU_MODULE_PATH,
             'MU_MODULE_PATH',
@@ -59,7 +59,6 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
             os.path.dirname(ftrack_connect_rv.__file__),
             '..', 'package'
         )
-        print 'PYTHONPATH', PYTHONPATH
 
         environment = ftrack_connect.application.appendPath(
             PYTHONPATH,
@@ -250,8 +249,11 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
             separator = os.path.sep
             prefix = RV_INSTALLATION_PATH
             if not os.path.exists(RV_INSTALLATION_PATH):
-                print 'No folder found for $RV_HOME at : {0}'.format(
-                    RV_INSTALLATION_PATH
+                self.logger.warning(
+                    'No folder found for '
+                    '$RV_INSTALLATION_PATH at : {0}'.format(
+                        RV_INSTALLATION_PATH
+                    )
                 )
                 return
 
