@@ -7,12 +7,18 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 0.7.0
+    :date: 2017-04-06
 
     .. change:: new
         :tags: Widget
 
         Add new Global Context Switch dialog to menu.
+
+    .. change:: changed
+        :tags: Plugin, Internal
+
+        Change and clarify structure of the plugin framework.
 
 .. release:: 0.6.0
     :date: 2017-02-23
