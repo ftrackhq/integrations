@@ -172,7 +172,7 @@ class BuildPlugin(Command):
         shutil.make_archive(
             os.path.join(self.rvpkg_staging, 'dependencies'),
             'zip',
-            os.path.join(self.rvpkg_staging, 'dependencies')
+            os.path.join(self.rvpkg_staging)
         )
         shutil.rmtree(os.path.join(self.rvpkg_staging, 'dependencies'))
         # Build rv plugin.
