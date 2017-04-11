@@ -21,12 +21,13 @@ import rv.rvui
 import rv.runtime
 import rv as rv
 
+logger = logging.getLogger('ftrack_connect_rv')
 
-required_envs = ['FTRACK_SERVER', 'FTRACK_APIKEY', 'LOGNAME']
 
+required_envs = ['FTRACK_SERVER', 'FTRACK_APIKEY']
 for env in required_envs:
     if env not in os.environ:
-        print '{0} not found!'.format(env)
+        logger.error('{0} environment not found!'.format(env))
 
 
 # setup ssl certificate
@@ -46,24 +47,26 @@ sys.path.insert(0, dependencies_path)
 try:
     import ftrack
 except ImportError:
-    print 'NO FTRACK LEGACY'
+    logger.error(
+        'No Ftrack Legacy api module found in PYTHONPATH'
+    )
 
 try:
     import ftrack_api
-except ImportError as e:
-    print 'No FTRACK_API'
-
-try:
     from ftrack_api.symbol import ORIGIN_LOCATION_ID, SERVER_LOCATION_ID
+
 except ImportError as e:
-    print 'No FTRACK_API symbols'
+    logger.error(
+        'No Ftrack API module found in PYTHONPATH'
+    )
 
 try:
     import ftrack_location_compatibility
 except ImportError:
-    print 'No ftrack_location_compatibility'
+    logger.error(
+        'No ftrack_location_compatibility module found.'
+    )
 
-logger = logging.getLogger('ftrack_connect_rv')
 
 # Cache to keep track of filesystem path for components.
 # This will cause the component to use the same filesystem path
@@ -81,7 +84,7 @@ annotation_components = {}
 try:
     ftrack.setup(actions=False)
 except Exception as e:
-    print e
+    logger.error(e)
     pass
 
 try:
@@ -89,7 +92,7 @@ try:
         auto_connect_event_hub=False
     )
 except Exception as e:
-    print e
+    logger.error(e)
 
 # init ftrack_location_compatiblity
 ftrack_location_compatibility.plugin.register_locations(session)
