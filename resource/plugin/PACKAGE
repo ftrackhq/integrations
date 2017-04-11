@@ -18,6 +18,9 @@ files:
   - file: dependencies.zip
     location: Python
 
+  - file: cacert.pem
+    location: Python
+
 
 description: |
 

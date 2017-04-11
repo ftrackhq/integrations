@@ -12,7 +12,6 @@ from uuid import uuid1 as uuid
 import ftrack_logging
 ftrack_logging.setup()
 
-
 import logging
 
 import rv.commands
@@ -22,23 +21,48 @@ import rv.rvui
 import rv.runtime
 import rv as rv
 
+
+required_envs = ['FTRACK_SERVER', 'FTRACK_APIKEY', 'LOGNAME']
+
+for env in required_envs:
+    if env not in os.environ:
+        print '{0} not found!'.format(env)
+
+
+# setup ssl certificate
+cacert_path = os.path.join(
+    os.path.dirname(__file__),
+    'cacert.pem'
+)
+os.environ['REQUESTS_CA_BUNDLE'] = cacert_path
+
+# setup dependencies
+dependencies_path = os.path.join(
+    os.path.dirname(__file__),
+    'dependencies.zip'
+)
+sys.path.insert(0, dependencies_path)
+
 try:
     import ftrack
 except ImportError:
-    raise Exception(
-        'ftrack legacy api not found in PYTHONPATH.'
-    )
+    print 'NO FTRACK LEGACY'
 
-sys.path.append('dependencies')
+try:
+    import ftrack_api
+except ImportError as e:
+    print 'No FTRACK_API'
 
-import ftrack_api
-from ftrack_api.symbol import ORIGIN_LOCATION_ID, SERVER_LOCATION_ID
+try:
+    from ftrack_api.symbol import ORIGIN_LOCATION_ID, SERVER_LOCATION_ID
+except ImportError as e:
+    print 'No FTRACK_API symbols'
 
-import ftrack_logging
+try:
+    import ftrack_location_compatibility
+except ImportError:
+    print 'No ftrack_location_compatibility'
 
-import ftrack_location_compatibility
-
-ftrack_logging.setup()
 logger = logging.getLogger('ftrack_connect_rv')
 
 # Cache to keep track of filesystem path for components.
@@ -56,12 +80,16 @@ annotation_components = {}
 
 try:
     ftrack.setup(actions=False)
-except ftrack.api.ftrackerror.EventHubConnectionError:
+except Exception as e:
+    print e
     pass
 
-session = ftrack_api.Session(
-    auto_connect_event_hub=False
-)
+try:
+    session = ftrack_api.Session(
+        auto_connect_event_hub=False
+    )
+except Exception as e:
+    print e
 
 # init ftrack_location_compatiblity
 ftrack_location_compatibility.plugin.register_locations(session)
