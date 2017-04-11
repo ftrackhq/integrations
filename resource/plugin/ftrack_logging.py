@@ -18,7 +18,7 @@ def setup():
     ):
         levels[logging.getLevelName(level).lower()] = level
 
-    requestedLevel = os.environ.get('FTRACK_LOG_LEVEL', 'debug').lower()
+    requestedLevel = os.environ.get('FTRACK_LOG_LEVEL', 'WARNING').lower()
     try:
         level = levels[requestedLevel]
     except KeyError:
