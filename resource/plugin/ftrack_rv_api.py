@@ -21,49 +21,55 @@ import rv.rvui
 import rv.runtime
 import rv as rv
 
+# Setup logging.
 logger = logging.getLogger('ftrack_connect_rv')
 
 
+# Check for base environment presence.
 required_envs = ['FTRACK_SERVER', 'FTRACK_APIKEY']
 for env in required_envs:
     if env not in os.environ:
-        logger.error('{0} environment not found!'.format(env))
+        logger.exception('{0} environment not found!'.format(env))
 
 
-# setup ssl certificate
+# Setup ssl certificate path.
 cacert_path = os.path.join(
     os.path.dirname(__file__),
     'cacert.pem'
 )
 os.environ['REQUESTS_CA_BUNDLE'] = cacert_path
 
-# setup dependencies
+# Setup dependencies.
 dependencies_path = os.path.join(
     os.path.dirname(__file__),
     'dependencies.zip'
 )
 sys.path.insert(0, dependencies_path)
 
+
+# Try import ftrack's Legacy API.
 try:
     import ftrack
 except ImportError:
-    logger.error(
+    logger.exception(
         'No Ftrack Legacy api module found in PYTHONPATH'
     )
 
+
+# Try import ftrack's new API.
 try:
     import ftrack_api
     from ftrack_api.symbol import ORIGIN_LOCATION_ID, SERVER_LOCATION_ID
 
 except ImportError as e:
-    logger.error(
+    logger.exception(
         'No Ftrack API module found in PYTHONPATH'
     )
 
 try:
     import ftrack_location_compatibility
 except ImportError:
-    logger.error(
+    logger.exception(
         'No ftrack_location_compatibility module found.'
     )
 
@@ -81,23 +87,24 @@ layoutSourceNode = None
 annotation_components = {}
 
 
+# Initialize Legacy API.
 try:
     ftrack.setup(actions=False)
 except Exception as e:
-    logger.error(e)
-    pass
+    logger.exception(e)
 
+# Initialize New API.
 try:
     session = ftrack_api.Session(
         auto_connect_event_hub=False
     )
 except Exception as e:
-    logger.error(e)
+    logger.exception(e)
 
-# init ftrack_location_compatiblity
+# Initialize ftrack_location_compatiblity.
 ftrack_location_compatibility.plugin.register_locations(session)
 
-# Get some useful locations
+# Get some useful locations.
 origin_location = session.get('Location', ORIGIN_LOCATION_ID)
 server_location = session.get('Location', SERVER_LOCATION_ID)
 
