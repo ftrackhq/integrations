@@ -38,11 +38,10 @@ Download and install the Rv connect plugin .
 
 Download and install the Rv plugin .
 	
-
   1. Setup the `Rv protocol handler <https://support.shotgunsoftware.com/hc/en-us/articles/219042088-RVLink-URLs-RV-as-protocol-handler>`_ for your browser.
 
-  1. Download the Rv integration from the
+  2. Download the Rv integration from the
      `ftrack Integrations page <https://www.ftrack.com/integrations>`_.
 
-  2. Extract the zip
-  3. Start Rv and install rv_plugin/ftrack-3.3.rvpkg 
+  3. Extract the zip
+  4. Start Rv and install rv_plugin/ftrack-3.3.rvpkg 
