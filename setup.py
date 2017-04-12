@@ -140,20 +140,25 @@ class BuildPlugin(Command):
             else:
                 sys.stdout.write(line)
 
-        # prepare zip with rv plugin
-        shutil.make_archive(
-            staging_plugin_path,
-            'zip',
-            self.rvpkg_staging
+        zip_destination_file_path = os.path.join(
+            plugin_destination_path, plugin_name
         )
 
-        # rename to rvpkg and move in final destination
-        source_file_path = staging_plugin_path + '.zip'
-        destination_file_path = os.path.join(
+        rvpkg_destination_file_path = os.path.join(
             plugin_destination_path, plugin_name + '.rvpkg'
         )
 
-        shutil.move(source_file_path, destination_file_path)
+        # prepare zip with rv plugin
+        zip_name = shutil.make_archive(
+            base_name=zip_destination_file_path,
+            format='zip',
+            root_dir=self.rvpkg_staging
+        )
+
+        shutil.move(
+            zip_name,
+            rvpkg_destination_file_path
+        )
 
     def run(self):
         '''Run the build step.'''
@@ -177,6 +182,7 @@ class BuildPlugin(Command):
         )
         shutil.rmtree(os.path.join(self.rvpkg_staging, 'dependencies'))
 
+        print self.rvpkg_staging
         # Build rv plugin.
         self._build_rvpkg()
         # Build source code and hooks.
