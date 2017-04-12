@@ -33,7 +33,7 @@ Download and install the Rv connect plugin .
 
 
 
-1. Rv Standalone plugin
+2. Rv Standalone plugin
 ------------------------
 
 Download and install the Rv plugin .
