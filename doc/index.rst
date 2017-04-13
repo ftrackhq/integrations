@@ -12,6 +12,7 @@ Welcome to the documentation for ftrack connect RV.
 
     getting_started
     using
+    building
     glossary
     release/index
 

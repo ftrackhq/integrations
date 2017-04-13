@@ -1,6 +1,8 @@
 ..
     :copyright: Copyright (c) 2016 ftrack
 
+.. _getting_started:
+
 ***************
 Getting started
 ***************
