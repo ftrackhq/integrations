@@ -114,13 +114,8 @@ class BuildPlugin(Command):
         )
 
         # Strip off patch version from the tool: M.m rather than M.m.p
-        rvpkg_version = '.'.join(VERSION.split('.')[:-1])
+        rvpkg_version = '.'.join(VERSION.split('.'))
         plugin_name = 'ftrack-{0}'.format(rvpkg_version)
-
-        staging_plugin_path = os.path.join(
-            self.rvpkg_staging,
-            plugin_name
-        )
 
         plugin_destination_path = os.path.join(
             STAGING_PATH, 'rv_plugin'
@@ -182,7 +177,6 @@ class BuildPlugin(Command):
         )
         shutil.rmtree(os.path.join(self.rvpkg_staging, 'dependencies'))
 
-        print self.rvpkg_staging
         # Build rv plugin.
         self._build_rvpkg()
         # Build source code and hooks.
@@ -230,6 +224,7 @@ setup(
     install_requires=[
         'ftrack-location-compatibility >= 0.1.0',
         'ftrack-python-api >= 1, < 2',
+        'appdirs == 1.4.0',
     ],
     tests_require=[
         'pytest >= 2.3.5, < 3'
