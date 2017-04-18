@@ -16,9 +16,10 @@ import ftrack_connect.application
 try:
     import ftrack_connect_rv
 except ImportError:
-    dependencies_path = os.path.realpath(
+    dependencies_path = os.path.abspath(os.path.realpath(
         os.path.join(os.path.dirname(__file__), '..', 'package')
-    )
+    ))
+
     sys.path.append(dependencies_path)
     import ftrack_connect_rv
 
