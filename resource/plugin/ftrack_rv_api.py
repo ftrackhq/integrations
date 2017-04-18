@@ -21,6 +21,9 @@ import rv.rvui
 import rv.runtime
 import rv as rv
 
+# Check whether the plugin is running from within connect or as standalone
+is_standalone = not bool(os.getenv('FTRACK_CONNECT_EVENT'))
+
 # Setup logging.
 logger = logging.getLogger('ftrack_connect_rv')
 
@@ -29,7 +32,7 @@ logger = logging.getLogger('ftrack_connect_rv')
 required_envs = ['FTRACK_SERVER', 'FTRACK_APIKEY']
 for env in required_envs:
     if env not in os.environ:
-        logger.exception('{0} environment not found!'.format(env))
+        logger.error('{0} environment not found!'.format(env))
 
 
 # Setup ssl certificate path.
@@ -39,19 +42,24 @@ cacert_path = os.path.join(
 )
 os.environ['REQUESTS_CA_BUNDLE'] = cacert_path
 
-# Setup dependencies.
+# Setup dependencies path.
 dependencies_path = os.path.join(
     os.path.dirname(__file__),
     'dependencies.zip'
 )
-sys.path.insert(0, dependencies_path)
 
+# If we are standalone, rely on the shipped libraries.
+if is_standalone:
+    logger.debug('Runing Rv plugin standalone.')
+    sys.path.insert(0, dependencies_path)
+else:
+    logger.debug('Running Rv integration through connect.')
 
 # Try import ftrack's Legacy API.
 try:
     import ftrack
 except ImportError:
-    logger.exception(
+    logger.error(
         'No Ftrack Legacy api module found in PYTHONPATH'
     )
 
@@ -62,14 +70,14 @@ try:
     from ftrack_api.symbol import ORIGIN_LOCATION_ID, SERVER_LOCATION_ID
 
 except ImportError as e:
-    logger.exception(
+    logger.error(
         'No Ftrack API module found in PYTHONPATH'
     )
 
 try:
     import ftrack_location_compatibility
 except ImportError:
-    logger.exception(
+    logger.error(
         'No ftrack_location_compatibility module found.'
     )
 
@@ -91,7 +99,7 @@ annotation_components = {}
 try:
     ftrack.setup(actions=False)
 except Exception as e:
-    logger.exception(e)
+    logger.error(e)
 
 # Initialize New API.
 try:
@@ -99,7 +107,7 @@ try:
         auto_connect_event_hub=False
     )
 except Exception as e:
-    logger.exception(e)
+    logger.error(e)
 
 # Initialize ftrack_location_compatiblity.
 ftrack_location_compatibility.plugin.register_locations(session)
@@ -233,7 +241,7 @@ def validateComponentLocation(componentId, versionId):
     '''Return if the *componentId* is accessible in a local location.'''
     try:
         _getFilePath(componentId)
-    except:
+    except Exception:
         logger.warning(
             'Component with Id "{0}" is not available in any location.'.format(
                 componentId
@@ -252,8 +260,8 @@ def validateComponentLocation(componentId, versionId):
                 ),
                 None
             )
-        except:
-            logger.exception(
+        except Exception:
+            logger.error(
                 'Could not send internal event to ftrack.'
             )
 
@@ -268,7 +276,7 @@ def ftrackCompare(data):
     startFrame = None
     try:
         startFrame = rv.extra_commands.sourceFrame(rv.commands.frame(), None)
-    except:
+    except Exception:
         pass
 
     componentIdA = data.get('componentIdA')
@@ -292,7 +300,7 @@ def ftrackCompare(data):
                 sourceNode = _getSourceNode('layout')
                 _ftrackCreateGroup([trackA, trackB], sourceNode, layout)
                 rv.commands.setViewNode(sourceNode)
-        except:
+        except Exception:
             print traceback.format_exc()
     else:
         sourceNode = _getSourceNode('layout')
@@ -313,7 +321,7 @@ def _getEntityFromEnvironment():
         try:
             decodedEventData = json.loads(base64.b64decode(eventData))
         except (TypeError, ValueError):
-            logger.exception(
+            logger.error(
                 'Failed to decode {0}: {1}'
                 .format(eventEnvironmentVariable, eventData)
             )
@@ -329,7 +337,7 @@ def _getEntityFromEnvironment():
                     entityType = entity.get('entityType')
                     return entityId, entityType
                 except (IndexError, AttributeError, KeyError):
-                    logger.exception(
+                    logger.error(
                         'Failed to extract selection information from: {0}'
                         .format(selection)
                     )
@@ -373,7 +381,7 @@ def _generateURL(params=None, panelName=None):
                 panelName, 'tf', entityId=entityId, entityType=entityType
             )
         except Exception as exception:
-            logger.exception(str(exception))
+            logger.error(str(exception))
 
     logger.info('Returning url "{0}"'.format(url))
 
@@ -388,7 +396,7 @@ def ftrackFilePath(id):
         else:
             filepath = tempfile.gettempdir()
         return filepath
-    except:
+    except Exception:
         print traceback.format_exc()
         return ""
 
