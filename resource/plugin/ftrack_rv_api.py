@@ -19,20 +19,21 @@ import rv.rvui
 import rv.runtime
 import rv as rv
 
+
+ftrack_connect_rv_logger_name = 'ftrack_connect_rv'
+
+
 try:
     import ftrack_logging
-    ftrack_connect_rv_logger_name = 'ftrack_connect_rv'
     ftrack_logging.configure_logging(ftrack_connect_rv_logger_name)
+    # Setup logging.
 except Exception as error:
-    logger.error(
-        'Failed to Initialize logging.', error
-    )
+    logging.error('Failed to Initialize logging.', error)
+
+logger = logging.getLogger(ftrack_connect_rv_logger_name)
 
 # Check whether the plugin is running from within connect or as standalone
 is_standalone = not bool(os.getenv('FTRACK_CONNECT_EVENT'))
-
-# Setup logging.
-logger = logging.getLogger(ftrack_connect_rv_logger_name)
 
 
 # Check for base environment presence.
