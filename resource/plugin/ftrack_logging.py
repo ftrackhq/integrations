@@ -3,8 +3,8 @@
 import os
 import logging
 import logging.config
-import appdirs
 import errno
+import tempfile
 
 
 def get_log_directory():
@@ -14,8 +14,12 @@ def get_log_directory():
 
     Raise if the directory can not be created.
     '''
-    user_data_dir = appdirs.user_data_dir('ftrack-connect', 'ftrack')
-    log_directory = os.path.join(user_data_dir, 'log')
+    try:
+        import appdirs  # Inline import to avoid RV crashing if not available.
+        user_data_dir = appdirs.user_data_dir('ftrack-connect', 'ftrack')
+        log_directory = os.path.join(user_data_dir, 'log')
+    except Exception:
+        log_directory = tempfile.mkdtemp()
 
     if not os.path.exists(log_directory):
         try:

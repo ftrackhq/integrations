@@ -9,7 +9,6 @@ import traceback
 import os
 from uuid import uuid1 as uuid
 
-import ftrack_logging
 
 import logging
 
@@ -20,10 +19,14 @@ import rv.rvui
 import rv.runtime
 import rv as rv
 
-ftrack_connect_rv_logger_name = 'ftrack_connect_rv'
-
-ftrack_logging.configure_logging(ftrack_connect_rv_logger_name)
-
+try:
+    import ftrack_logging
+    ftrack_connect_rv_logger_name = 'ftrack_connect_rv'
+    ftrack_logging.configure_logging(ftrack_connect_rv_logger_name)
+except Exception as error:
+    logger.error(
+        'Failed to Initialize logging.', error
+    )
 
 # Check whether the plugin is running from within connect or as standalone
 is_standalone = not bool(os.getenv('FTRACK_CONNECT_EVENT'))
@@ -36,7 +39,7 @@ logger = logging.getLogger(ftrack_connect_rv_logger_name)
 required_envs = ['FTRACK_SERVER', 'FTRACK_APIKEY']
 for env in required_envs:
     if env not in os.environ:
-        logger.error('{0} environment not found!'.format(env))
+        logger.warning('{0} environment not found!'.format(env))
 
 
 # Setup ssl certificate path.
@@ -105,20 +108,21 @@ try:
 except Exception as e:
     logger.error(e)
 
-# Initialize New API.
+
+# Initialize New API and ftrack_location_compatiblity
 try:
     session = ftrack_api.Session(
         auto_connect_event_hub=False
     )
+
+    # Get some useful locations.
+    origin_location = session.get('Location', ORIGIN_LOCATION_ID)
+    server_location = session.get('Location', SERVER_LOCATION_ID)
+
+    # Initialize ftrack_location_compatiblity.
+    ftrack_location_compatibility.plugin.register_locations(session)
 except Exception as e:
     logger.error(e)
-
-# Initialize ftrack_location_compatiblity.
-ftrack_location_compatibility.plugin.register_locations(session)
-
-# Get some useful locations.
-origin_location = session.get('Location', ORIGIN_LOCATION_ID)
-server_location = session.get('Location', SERVER_LOCATION_ID)
 
 
 def _getSourceNode(nodeType='sequence'):
