@@ -45,17 +45,6 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
             ApplicationLauncher, self
         )._getApplicationEnvironment(application, context)
 
-        MU_MODULE_PATH = os.path.join(
-            os.path.dirname(ftrack_connect_rv.__file__),
-            '..', 'rv_plugin'
-        )
-
-        environment = ftrack_connect.application.appendPath(
-            MU_MODULE_PATH,
-            'MU_MODULE_PATH',
-            environment
-        )
-
         PYTHONPATH = os.path.join(
             os.path.dirname(ftrack_connect_rv.__file__),
             '..', 'package'
