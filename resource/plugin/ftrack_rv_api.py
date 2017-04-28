@@ -185,7 +185,7 @@ def _getFilePath(componentId):
     path = componentFilesystemPaths.get(componentId, None)
 
     if path is None:
-        ftrack_component = session.get('FileComponent', componentId)
+        ftrack_component = session.get('Component', componentId)
         location = session.pick_location(component=ftrack_component)
         path = location.get_filesystem_path(ftrack_component)
         componentFilesystemPaths[componentId] = path
