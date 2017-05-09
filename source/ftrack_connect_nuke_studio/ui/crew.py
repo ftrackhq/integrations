@@ -85,7 +85,7 @@ class UserClassifier(object):
             return 'others'
 
 
-class NukeCrew(QtGui.QDialog):
+class NukeCrew(QtWidgets.QDialog):
 
     def __init__(self, parent=None):
         '''Initialise widget with *parent*.'''
@@ -100,13 +100,14 @@ class NukeCrew(QtGui.QDialog):
 
         self.setMinimumWidth(400)
         self.setSizePolicy(
-            QtGui.QSizePolicy(
-                QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding
+            QtWidgets.QSizePolicy(
+                QtWidgets.QSizePolicy.Expanding,
+                QtWidgets.QSizePolicy.Expanding
             )
         )
 
-        self.vertical_layout = QtGui.QVBoxLayout(self)
-        self.horizontal_layout = QtGui.QHBoxLayout()
+        self.vertical_layout = QtWidgets.QVBoxLayout(self)
+        self.horizontal_layout = QtWidgets.QHBoxLayout()
 
         self.header = Header(username=getpass.getuser(), parent=self)
 
@@ -142,7 +143,7 @@ class NukeCrew(QtGui.QDialog):
 
                 added_user_ids.append(_user['id'])
 
-        self.tab_panel = QtGui.QTabWidget(parent=self)
+        self.tab_panel = QtWidgets.QTabWidget(parent=self)
         self.tab_panel.addTab(self.chat, 'Chat')
         self.tab_panel.addTab(self.notification_list, 'Notifications')
 

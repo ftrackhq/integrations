@@ -24,7 +24,7 @@ class ProjectSelector(QtWidgets.QWidget):
             __name__ + '.' + self.__class__.__name__
         )
 
-        self.setLayout(QtGui.QVBoxLayout())
+        self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
 
         self._state = self.NEW_PROJECT
@@ -32,43 +32,43 @@ class ProjectSelector(QtWidgets.QWidget):
         self._hasEditedName = False
         self._projects = None
 
-        radio_button_layout = QtGui.QHBoxLayout()
+        radio_button_layout = QtWidgets.QHBoxLayout()
         radio_button_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.radio_button_label = QtGui.QLabel('Project')
+        self.radio_button_label = QtWidgets.QLabel('Project')
         radio_button_layout.addWidget(self.radio_button_label)
 
-        self.new_project_radio_button = QtGui.QRadioButton('Create new')
+        self.new_project_radio_button = QtWidgets.QRadioButton('Create new')
         self.new_project_radio_button.toggled.connect(
             self._on_new_project_toggled
         )
 
         radio_button_layout.addWidget(self.new_project_radio_button)
 
-        self.existing_project_radio_button = QtGui.QRadioButton('Use existing')
+        self.existing_project_radio_button = QtWidgets.QRadioButton('Use existing')
         self.existing_project_radio_button.toggled.connect(
             self._on_existing_project_toggled
         )
         radio_button_layout.addWidget(self.existing_project_radio_button)
 
-        editor_layout = QtGui.QFormLayout()
+        editor_layout = QtWidgets.QFormLayout()
         editor_layout.setContentsMargins(0, 0, 0, 0)
 
-        existing_project_layout = QtGui.QHBoxLayout()
+        existing_project_layout = QtWidgets.QHBoxLayout()
         existing_project_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.existing_project_label = QtGui.QLabel('Existing project')
-        self.existing_project_selector = QtGui.QComboBox(parent=self)
+        self.existing_project_label = QtWidgets.QLabel('Existing project')
+        self.existing_project_selector = QtWidgets.QComboBox(parent=self)
 
         self.existing_project_selector.currentIndexChanged.connect(
             self._on_existing_project_selected
         )
 
-        new_project_layout = QtGui.QHBoxLayout()
+        new_project_layout = QtWidgets.QHBoxLayout()
         new_project_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.new_project_label = QtGui.QLabel('Enter manually')
-        self.new_project_name_edit = QtGui.QLineEdit(project_name)
+        self.new_project_label = QtWidgets.QLabel('Enter manually')
+        self.new_project_name_edit = QtWidgets.QLineEdit(project_name)
 
         self.new_project_name_edit.editingFinished.connect(
             self._on_new_project_changed

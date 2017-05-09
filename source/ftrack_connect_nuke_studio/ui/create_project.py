@@ -109,7 +109,7 @@ class ProjectTreeDialog(QtWidgets.QDialog):
         self.tree_view.setModel(self.tag_model)
         self.tree_view.setAnimated(True)
         self.tree_view.header().setResizeMode(
-            QtGui.QHeaderView.ResizeMode.ResizeToContents)
+            QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
 
         # Create overlay.
         self.busy_overlay = ui_helper.TagTreeOverlay(self)
@@ -252,14 +252,14 @@ class ProjectTreeDialog(QtWidgets.QDialog):
         '''Setup ui for create dialog.'''
         self.resize(1024, 1024)
 
-        self.main_vertical_layout = QtGui.QVBoxLayout(self)
+        self.main_vertical_layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(self.main_vertical_layout)
 
         self.header = ftrack_connect.ui.widget.header.Header(getpass.getuser())
         self.main_vertical_layout.addWidget(self.header, stretch=0)
 
-        self.central_horizontal_widget = QtGui.QWidget()
-        self.central_horizontal_layout = QtGui.QHBoxLayout()
+        self.central_horizontal_widget = QtWidgets.QWidget()
+        self.central_horizontal_layout = QtWidgets.QHBoxLayout()
         self.central_horizontal_widget.setLayout(
             self.central_horizontal_layout
         )
@@ -268,17 +268,17 @@ class ProjectTreeDialog(QtWidgets.QDialog):
         )
         # create a central widget where to contain settings group and tree
 
-        self.splitter = QtGui.QSplitter(self)
-        self.central_widget = QtGui.QWidget(self.splitter)
-        self.central_layout = QtGui.QVBoxLayout()
+        self.splitter = QtWidgets.QSplitter(self)
+        self.central_widget = QtWidgets.QWidget(self.splitter)
+        self.central_layout = QtWidgets.QVBoxLayout()
         self.central_widget.setLayout(self.central_layout)
         self.central_horizontal_layout.addWidget(self.central_widget, stretch=2)
 
         # settings
-        self.group_box = QtGui.QGroupBox('General Settings')
+        self.group_box = QtWidgets.QGroupBox('General Settings')
         self.group_box.setMaximumSize(QtCore.QSize(16777215, 350))
 
-        self.group_box_layout = QtGui.QVBoxLayout(self.group_box)
+        self.group_box_layout = QtWidgets.QVBoxLayout(self.group_box)
 
         project_tag = self.get_project_tag()
         project_tag_metadata = project_tag.metadata()
@@ -292,9 +292,9 @@ class ProjectTreeDialog(QtWidgets.QDialog):
         self.group_box_layout.addWidget(self.project_selector)
 
         # Create Workflow selector and label.
-        self.workflow_layout = QtGui.QHBoxLayout()
+        self.workflow_layout = QtWidgets.QHBoxLayout()
 
-        self.label = QtGui.QLabel('Workflow', parent=self.group_box)
+        self.label = QtWidgets.QLabel('Workflow', parent=self.group_box)
         self.workflow_layout.addWidget(self.label)
 
         self.workflow_combobox = Workflow(self.session, self.group_box)
@@ -306,14 +306,14 @@ class ProjectTreeDialog(QtWidgets.QDialog):
 
         default_settings = self.get_default_settings()
 
-        self.line = QtGui.QFrame(self.group_box)
-        self.line.setFrameShape(QtGui.QFrame.HLine)
-        self.line.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line = QtWidgets.QFrame(self.group_box)
+        self.line.setFrameShape(QtWidgets.QFrame.HLine)
+        self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.group_box_layout.addWidget(self.line)
 
-        self.resolution_layout = QtGui.QHBoxLayout()
+        self.resolution_layout = QtWidgets.QHBoxLayout()
 
-        self.resolution_label = QtGui.QLabel(
+        self.resolution_label = QtWidgets.QLabel(
             'Resolution', parent=self.group_box
         )
         self.resolution_layout.addWidget(self.resolution_label)
@@ -325,9 +325,9 @@ class ProjectTreeDialog(QtWidgets.QDialog):
         self.resolution_layout.addWidget(self.resolution_combobox)
         self.group_box_layout.addLayout(self.resolution_layout)
 
-        self.label_layout = QtGui.QHBoxLayout()
+        self.label_layout = QtWidgets.QHBoxLayout()
 
-        self.fps_label = QtGui.QLabel(
+        self.fps_label = QtWidgets.QLabel(
             'Frames Per Second', parent=self.group_box
         )
         self.label_layout.addWidget(self.fps_label)
@@ -339,25 +339,25 @@ class ProjectTreeDialog(QtWidgets.QDialog):
 
         self.group_box_layout.addLayout(self.label_layout)
 
-        self.handles_layout = QtGui.QHBoxLayout()
+        self.handles_layout = QtWidgets.QHBoxLayout()
 
-        self.handles_label = QtGui.QLabel('Handles', parent=self.group_box)
+        self.handles_label = QtWidgets.QLabel('Handles', parent=self.group_box)
         self.handles_layout.addWidget(self.handles_label)
 
-        self.handles_spinbox = QtGui.QSpinBox(self.group_box)
+        self.handles_spinbox = QtWidgets.QSpinBox(self.group_box)
         self.handles_spinbox.setProperty('value', 0)
         self.handles_layout.addWidget(self.handles_spinbox)
 
         self.group_box_layout.addLayout(self.handles_layout)
 
-        self.start_frame_offset_layout = QtGui.QHBoxLayout()
+        self.start_frame_offset_layout = QtWidgets.QHBoxLayout()
 
-        self.start_frame_offset_label = QtGui.QLabel(
+        self.start_frame_offset_label = QtWidgets.QLabel(
             'Start frame offset', parent=self.group_box
         )
         self.start_frame_offset_layout.addWidget(self.start_frame_offset_label)
 
-        self.start_frame_offset_spinbox = QtGui.QSpinBox(self.group_box)
+        self.start_frame_offset_spinbox = QtWidgets.QSpinBox(self.group_box)
         self.start_frame_offset_spinbox.setMaximum(9999)
         self.start_frame_offset_spinbox.setProperty('value', 1001)
         self.start_frame_offset_layout.addWidget(
@@ -369,9 +369,9 @@ class ProjectTreeDialog(QtWidgets.QDialog):
 
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
 
-        self.templates_layout = QtGui.QHBoxLayout()
+        self.templates_layout = QtWidgets.QHBoxLayout()
 
-        self.handles_label = QtGui.QLabel('Template', parent=self)
+        self.handles_label = QtWidgets.QLabel('Template', parent=self)
         self.templates_layout.addWidget(self.handles_label)
 
         self.template_combobox = Template(self.sequence.project(), self)
@@ -379,12 +379,12 @@ class ProjectTreeDialog(QtWidgets.QDialog):
 
         self.central_layout.addLayout(self.templates_layout)
 
-        self.tree_view = QtGui.QTreeView()
+        self.tree_view = QtWidgets.QTreeView()
         self.central_layout.addWidget(self.tree_view)
 
-        self.tool_box = QtGui.QToolBox(self.splitter)
+        self.tool_box = QtWidgets.QToolBox(self.splitter)
 
-        default_message = QtGui.QTextEdit(
+        default_message = QtWidgets.QTextEdit(
             'Make a selection to see the available properties'
         )
         default_message.readOnly = True
@@ -392,17 +392,17 @@ class ProjectTreeDialog(QtWidgets.QDialog):
         self.tool_box.addItem(default_message, 'Processors')
         self.tool_box.setContentsMargins(0, 15, 0, 0)
         self.tool_box.setMinimumSize(QtCore.QSize(300, 0))
-        self.tool_box.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.tool_box.setFrameShape(QtWidgets.QFrame.StyledPanel)
 
         self.central_horizontal_layout.addWidget(self.splitter, stretch=1)
 
-        self.bottom_button_layout = QtGui.QHBoxLayout()
+        self.bottom_button_layout = QtWidgets.QHBoxLayout()
         self.main_vertical_layout.addLayout(self.bottom_button_layout)
 
-        self.close_button = QtGui.QPushButton('Close', parent=self)
+        self.close_button = QtWidgets.QPushButton('Close', parent=self)
         self.bottom_button_layout.addWidget(self.close_button)
 
-        self.export_project_button = QtGui.QPushButton('Export', parent=self)
+        self.export_project_button = QtWidgets.QPushButton('Export', parent=self)
         self.bottom_button_layout.addWidget(self.export_project_button)
 
         QtCore.QMetaObject.connectSlotsByName(self)
@@ -526,24 +526,24 @@ class ProjectTreeDialog(QtWidgets.QDialog):
             processor_groups[group_name].append(processor)
 
         for group_name, processors in processor_groups.iteritems():
-            widget = QtGui.QWidget()
-            layout = QtGui.QVBoxLayout()
+            widget = QtWidgets.QWidget()
+            layout = QtWidgets.QVBoxLayout()
             widget.setLayout(layout)
 
             for processor in processors:
                 processor_name = processor['name']
                 defaults = processor['defaults']
 
-                data = QtGui.QGroupBox(processor_name)
-                data_layout = QtGui.QVBoxLayout()
+                data = QtWidgets.QGroupBox(processor_name)
+                data_layout = QtWidgets.QVBoxLayout()
                 data.setLayout(data_layout)
 
                 layout.addWidget(data)
                 for node_name, knobs in defaults.iteritems():
                     for knob, knob_value in knobs.items():
-                        knob_layout = QtGui.QHBoxLayout()
-                        label = QtGui.QLabel('%s:%s' % (node_name, knob))
-                        value = QtGui.QLineEdit(str(knob_value))
+                        knob_layout = QtWidgets.QHBoxLayout()
+                        label = QtWidgets.QLabel('%s:%s' % (node_name, knob))
+                        value = QtWidgets.QLineEdit(str(knob_value))
                         value.setDisabled(True)
                         knob_layout.addWidget(label)
                         knob_layout.addWidget(value)
@@ -557,8 +557,8 @@ class ProjectTreeDialog(QtWidgets.QDialog):
 
     def on_export_project(self):
         '''Handle export project signal.'''
-        QtGui.QApplication.setOverrideCursor(
-            QtGui.QCursor(QtCore.Qt.WaitCursor)
+        QtWidgets.QApplication.setOverrideCursor(
+            QtWidgets.QCursor(QtCore.Qt.WaitCursor)
         )
         self.setDisabled(True)
 
@@ -576,7 +576,7 @@ class ProjectTreeDialog(QtWidgets.QDialog):
         self.busy_overlay.show()
 
         while self.project_worker.isRunning():
-            app = QtGui.QApplication.instance()
+            app = QtWidgets.QApplication.instance()
             app.processEvents()
 
         if self.project_worker.error:
@@ -591,7 +591,7 @@ class ProjectTreeDialog(QtWidgets.QDialog):
 
     def on_project_created(self):
         '''Handle signal triggered when the project creation finishes.'''
-        QtGui.QApplication.restoreOverrideCursor()
+        QtWidgets.QApplication.restoreOverrideCursor()
         self.setDisabled(False)
 
     def _refresh_tree(self):
