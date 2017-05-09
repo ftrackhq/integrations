@@ -3,12 +3,12 @@
 
 import logging
 
-from PySide import QtGui, QtCore
+from QtExt import QtGui, QtCore, QtWidgets
 
 import ftrack
 
 
-class ProjectSelector(QtGui.QWidget):
+class ProjectSelector(QtWidgets.QWidget):
     '''Create or select existing project.'''
 
     project_selected = QtCore.Signal(object)

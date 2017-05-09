@@ -3,10 +3,10 @@
 
 import logging
 
-from PySide import QtGui
+from QtExt import QtGui, QtCore, QtWidgets
 
 
-class Workflow(QtGui.QComboBox):
+class Workflow(QtWidgets.QComboBox):
     '''Expose availble workflows from ftrack's server.'''
 
     def __init__(self, session, parent=None):

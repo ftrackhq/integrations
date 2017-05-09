@@ -6,7 +6,7 @@ from __future__ import absolute_import
 import functools
 import logging
 
-from PySide import QtGui
+from QtExt import QtGui, QtWidgets
 import hiero.ui
 import hiero.core
 

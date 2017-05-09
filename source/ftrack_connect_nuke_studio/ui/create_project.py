@@ -6,7 +6,7 @@ import collections
 import logging
 
 import hiero
-from PySide import QtGui, QtCore
+from QtExt import QtGui, QtCore, QtWidgets
 
 from .widget.project_selector import ProjectSelector
 from .widget.fps import Fps
@@ -53,7 +53,7 @@ def gather_processors(name, type, track_item):
     return processors
 
 
-class ProjectTreeDialog(QtGui.QDialog):
+class ProjectTreeDialog(QtWidgets.QDialog):
     '''Create project dialog.'''
 
     processor_ready = QtCore.Signal(object)

@@ -6,7 +6,7 @@ import getpass
 import collections
 import logging
 
-from PySide import QtGui
+from QtExt import QtGui, QtCore, QtWidgets
 
 import nuke
 import hiero.core
