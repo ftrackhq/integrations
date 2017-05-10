@@ -444,7 +444,10 @@ class ProjectTreeDialog(QtWidgets.QDialog):
                 u'select project_schema.name, metadata from Project '
                 u'where name is "{0}"'
             ).format(project_name)
-        ).one()
+        ).first()
+
+        if not project:
+            return
 
         index = self.workflow_combobox.findText(
             project['project_schema']['name'],
@@ -558,7 +561,7 @@ class ProjectTreeDialog(QtWidgets.QDialog):
     def on_export_project(self):
         '''Handle export project signal.'''
         QtWidgets.QApplication.setOverrideCursor(
-            QtWidgets.QCursor(QtCore.Qt.WaitCursor)
+            QtGui.QCursor(QtCore.Qt.WaitCursor)
         )
         self.setDisabled(True)
 
