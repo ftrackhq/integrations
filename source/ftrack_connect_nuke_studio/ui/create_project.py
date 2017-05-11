@@ -288,7 +288,7 @@ class ProjectTreeDialog(QtWidgets.QDialog):
             project_name=project_tag_metadata.value('tag.value'),
             parent=self.group_box
         )
-        self.project_selector.project_selected.connect(self.on_project_exists)
+        self.project_selector.project_selected.connect(self.onProject_exists)
         self.group_box_layout.addWidget(self.project_selector)
 
         # Create Workflow selector and label.
@@ -429,7 +429,7 @@ class ProjectTreeDialog(QtWidgets.QDialog):
 
         return self._valid_shot_custom_attribute_keys
 
-    def on_project_exists(self, project_name):
+    def onProject_exists(self, project_name):
         '''Handle on project exists signal.
 
         *project_name* is the name of the project that is exists.
@@ -609,6 +609,8 @@ class ProjectTreeDialog(QtWidgets.QDialog):
             self.tool_box.removeItem(0)
 
     def get_type_and_status_from_name(self, object_type, name):
+        print object_type, name
+        
         '''Return defaults as a tuple from *name* and *object_type*.'''
         key = object_type
         if object_type == 'Task':
