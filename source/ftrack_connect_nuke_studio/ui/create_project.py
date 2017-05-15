@@ -911,13 +911,6 @@ class ProjectTreeDialog(QtGui.QDialog):
                     asset_task_id = current['id']
 
                 if datum.type not in ('task', 'show', 'sequence', 'shot'):
-
-                    self.logger.warning(
-                        'the hell {0} {1}'.format(
-                            datum.type, datum.exists
-                        )
-                    )
-
                     # Set entity reference if the type is not task.
                     # Cannot modify tags in thread, therefore emit signal.
                     self.update_entity_reference.emit(
