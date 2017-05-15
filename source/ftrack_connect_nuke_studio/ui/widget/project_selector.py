@@ -5,7 +5,13 @@ import logging
 
 from PySide import QtGui, QtCore
 
-import ftrack
+import ftrack_api
+
+from ftrack_connect.session import (
+    get_shared_session
+)
+
+session = get_shared_session()
 
 
 class ProjectSelector(QtGui.QWidget):
@@ -116,12 +122,15 @@ class ProjectSelector(QtGui.QWidget):
 
     def _on_existing_project_selected(self, index):
         '''Handle select events in project selector.'''
-        project = self.existing_project_selector.itemData(index)
-        self.logger.debug(
-            u'On existing project selected: {0}'.format(project.getName())
+        project = session.get(
+            *self.existing_project_selector.itemData(index)
         )
 
-        self.project_selected.emit(project.getName())
+        self.logger.debug(
+            u'On existing project selected: {0}'.format(project.get('name'))
+        )
+
+        self.project_selected.emit(project.get('name'))
 
     def _on_new_project_toggled(self, toggled):
         '''Handle new project toggle event.'''
@@ -153,12 +162,18 @@ class ProjectSelector(QtGui.QWidget):
             self.existing_project_label.show()
 
             if self._projects is None:
-                self._projects = ftrack.getProjects()
+                self._projects = session.query('Project where status != "Hidden"')
+                #self._projects = ftrack.getProjects()
                 for project in self._projects:
+                    entity_type, primary_keys = ftrack_api.inspection.identity(
+                        project
+                    )
+
                     self.existing_project_selector.addItem(
-                        project.getName(), project
+                        project.get('name'), (entity_type, primary_keys[0])
                     )
 
             self._on_existing_project_selected(
                 self.existing_project_selector.currentIndex()
             )
+

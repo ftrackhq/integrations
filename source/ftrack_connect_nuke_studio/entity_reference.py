@@ -1,8 +1,45 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015 ftrack
 
-import ftrack
+import ftrack_api
 
+from ftrack_connect.session import (
+    get_shared_session
+)
+
+session = get_shared_session()
+
+def translate_from_legacy_entity_types(entity_type):
+    '''Return translated entity type tht can be used with the new API.'''
+
+
+    for schema in session.schemas:
+        alias_for = schema.get('alias_for')
+
+        if (
+            alias_for and isinstance(alias_for, basestring) and
+            alias_for.lower() == entity_type
+        ):
+            return schema['id']
+
+    for schema in session.schemas:
+        if schema['id'].lower() == entity_type:
+            return schema['id']
+
+    return entity_type
+
+
+def translate_to_legacy_entity_type(entity_type):
+    for schema in session.schemas:
+        if schema['id'] != entity_type:
+            continue
+
+        alias_for = schema.get('alias_for')
+
+        if alias_for and isinstance(alias_for, dict):
+            return alias_for.get('id')
+
+    return entity_type
 
 def get(item):
     '''Return ftrack entity reference for item.
@@ -26,23 +63,11 @@ def get(item):
                 identifier = tag.metadata().value('ftrack.identifier')
                 entity_type = tag.metadata().value('ftrack.entity_type')
 
-    entity = None
-    if entity_type == 'component':
-        entity = ftrack.Component(identifier)
+    if None not in (entity_type, identifier):
+        return session.get(
+            translate_from_legacy_entity_types(entity_type), identifier
+        )
 
-    elif entity_type == 'asset_version':
-        entity = ftrack.AssetVersion(identifier)
-
-    elif entity_type == 'asset':
-        entity = ftrack.Asset(identifier)
-
-    elif entity_type == 'show':
-        entity = ftrack.Project(identifier)
-
-    elif entity_type == 'task':
-        entity = ftrack.Task(identifier)
-
-    return entity
 
 
 def set(item, entity=None, entity_id=None, entity_type=None):
@@ -66,13 +91,14 @@ def set(item, entity=None, entity_id=None, entity_type=None):
         )
 
     if entity:
-        entity_id = entity.getId()
-
-        # Use private `_type` since `entityType` not supported on
-        # ftrack.AssetVersion.
-        entity_type = entity._type
+        entity_id = entity.get('id')
+        entity_type = entity.entity_type
 
     if isinstance(item, hiero.core.TrackItem):
+        entity_type = translate_from_legacy_entity_types(
+            entity_type
+        )
+
         for _tag in item.tags()[:]:
             if _tag.name() == 'ftrack.entity_reference':
                 item.removeTag(_tag)

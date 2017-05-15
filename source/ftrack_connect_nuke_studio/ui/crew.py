@@ -121,6 +121,10 @@ class NukeCrew(QtGui.QDialog):
         self._classifier = UserClassifier()
 
         current_user = ftrack.getUser(getpass.getuser())
+        # Requires an update to crews..
+        #current_user = session.query('User where username = "{0}"').format(
+        #    getpass.getuser()
+        #)
         groups = ['contributor', 'related']
         self.chat = _crew.Crew(
             groups, current_user, hub=self._hub, classifier=self._classifier,
@@ -209,10 +213,10 @@ class NukeCrew(QtGui.QDialog):
                 if not entity:
                     continue
 
-                if entity._type == 'task':
-                    context['shot'].append(entity.getId())
-                elif entity._type == 'component':
-                    component_ids.append(entity.getId())
+                if entity.entity_type == 'Shot':
+                    context['shot'].append(entity.get('id'))
+                elif entity.entity_type == 'Component':
+                    component_ids.append(entity.get('id'))
 
         if component_ids:
             components = session.query(

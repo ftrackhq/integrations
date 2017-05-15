@@ -4,15 +4,19 @@
 import logging
 import math
 
-import ftrack
+
 import hiero
+import ftrack_api
 
 import ftrack_connect_nuke_studio.exception
 import ftrack_connect_nuke_studio.template
 
+from ftrack_connect.session import get_shared_session
 from ftrack_connect.ui.widget import overlay as _overlay
 from ftrack_connect_nuke_studio.ui.tree_item import TreeItem as _TreeItem
 
+
+session = get_shared_session()
 
 kTimingOption_numbering = 'numbering'
 kTimingOption_customNumberingStart = 'customNumberingStart'
@@ -172,7 +176,7 @@ def time_from_track_item(item, parent):
 
 def item_exists(item):
     '''Return entity if *item* exists on the server, otherwise false.'''
-    path = []
+    path = [item.name]
 
     parent = item.parent
 
@@ -184,19 +188,31 @@ def item_exists(item):
         path.append(parent.name)
         parent = parent.parent
 
-    path.reverse()
-    path.append(item.name)
-
     if not path:
         return False
 
-    data = {'type': 'frompath', 'path': path}
     try:
-        result = ftrack.xmlServer.action('get', data)
-    except ftrack.api.ftrackerror.FTrackError:
-        result = False
+        query = ['select id from Context where name = "{0}"'.format(
+            path[0])
+        ]
 
-    return result
+        for lvl, part in enumerate(path[1:]):
+            query.append(
+                '{0}.name = "{1}"'.format(
+                    '.'.join(['parent'] * (lvl + 1)), part
+                )
+            )
+
+        return session.query(
+            ' and '.join(query)
+        ).one()
+
+    except (ftrack_api.exception.MultipleResultsFoundError,
+            ftrack_api.exception.NoResultFoundError):
+
+            return False
+
+    return True
 
 
 #: TODO: Remove this when styling is in a separate file.

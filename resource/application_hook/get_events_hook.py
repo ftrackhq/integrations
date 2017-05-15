@@ -3,7 +3,6 @@
 
 import logging
 
-import ftrack
 import ftrack_api
 
 log = logging.getLogger(__name__)
@@ -53,16 +52,19 @@ def callback(event):
     return events
 
 
-def register(registry, **kw):
-    '''Register hook.'''
 
-    # Validate that registry is instance of ftrack.Registry, if not
-    # return early since the register method probably is called
-    # from the new API.
-    if not isinstance(registry, ftrack.Registry):
+def register(session, **kw):
+    '''Register plugin. Called when used as an plugin.'''
+    # Validate that session is an instance of ftrack_api.Session. If not,
+    # assume that register is being called from an old or incompatible API and
+    # return without doing anything.
+    if not isinstance(session, ftrack_api.session.Session):
         return
 
-    ftrack.EVENT_HUB.subscribe(
+
+    session.event_hub.subscribe(
         'topic=ftrack.crew.notification.get-events',
         callback
     )
+
+

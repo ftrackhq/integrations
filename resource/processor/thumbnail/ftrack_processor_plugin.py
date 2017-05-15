@@ -3,10 +3,9 @@
 
 import os
 import tempfile
-import logging
 
-import ftrack
 import nuke
+import ftrack_api
 
 import ftrack_connect_nuke_studio.processor
 
@@ -23,34 +22,50 @@ def create_thumbnail():
     This callback will also trigger upload of the thumbnail on the server.
 
     '''
-    ftrack.setup()
+
     node = nuke.thisNode()
+    outf = node['file'].value()
 
-    asset_id = node['asset_version_id'].value()
-    version = ftrack.AssetVersion(id=asset_id)
-    out = node['file'].value()
-    version.createThumbnail(out)
+    session = ftrack_api.Session()
 
-    asset_parent = version.getAsset().getParent()
-    asset_parent.createThumbnail(out)
+    asset_version = session.get(
+        'AssetVersion', node['asset_version_id'].value()
+    )
 
-    if version.get('taskid'):
-        task = version.getTask()
-        task.createThumbnail(out)
+    for entity in (asset_version,
+                   asset_version.get('task'),
+                   asset_version.get('asset').get('parent')):
+
+        if entity is None:
+            continue
+
+        entity.create_thumbnail(
+            outf
+        )
 
     if not os.environ.get(
         'FTRACK_CONNECT_NUKE_STUDIO_STOP_THUMBNAIL_PROPAGATION', False
     ):
-        for task in asset_parent.getTasks():
-            task.createThumbnail(out)
+        parent_entity = asset_version.get('asset').get('parent')
 
+        for task in parent_entity.get('children'):
+            task.create_thumbnail(
+                outf
+            )
+
+    session.commit()
 
 class ThumbnailPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
     '''Generate thumbnails.'''
 
-    def __init__(self):
+    def __init__(self, session, *args, **kwargs):
         '''Initialise processor.'''
-        super(ThumbnailPlugin, self).__init__()
+        super(ThumbnailPlugin, self).__init__(
+            *args, **kwargs
+        )
+
+        self.session = session
+
         self.name = 'processor.thumbnail'
         self.chosen_frame = 1001
         self.defaults = {
@@ -102,35 +117,29 @@ class ThumbnailPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
 
     def register(self):
         '''Register processor'''
-        ftrack.EVENT_HUB.subscribe(
+        self.session.event_hub.subscribe(
             'topic=ftrack.processor.discover and '
             'data.object_type=shot',
             self.discover
         )
-        ftrack.EVENT_HUB.subscribe(
+        self.session.event_hub.subscribe(
             'topic=ftrack.processor.launch and data.name={0}'.format(
                 self.name
             ),
             self.launch
         )
 
-
-def register(registry, **kw):
-    '''Register hooks thumbnail processor.'''
-
-    logger = logging.getLogger(
-        'ftrack_processor_plugin:thumbnail.register'
-    )
-
-    # Validate that registry is an instance of ftrack.Registry. If not,
-    # assume that register is being called from a new or incompatible API and
+def register(session, **kw):
+    '''Register plugin. Called when used as an plugin.'''
+    # Validate that session is an instance of ftrack_api.Session. If not,
+    # assume that register is being called from an old or incompatible API and
     # return without doing anything.
-    if not isinstance(registry, ftrack.Registry):
-        logger.debug(
-            'Not subscribing plugin as passed argument {0!r} is not an '
-            'ftrack.Registry instance.'.format(registry)
-        )
+    if not isinstance(session, ftrack_api.session.Session):
         return
 
-    plugin = ThumbnailPlugin()
+    plugin = ThumbnailPlugin(
+        session
+    )
+
     plugin.register()
+

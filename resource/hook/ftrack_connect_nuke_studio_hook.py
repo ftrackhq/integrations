@@ -8,7 +8,7 @@ import pprint
 import logging
 import re
 
-import ftrack
+import ftrack_api
 import ftrack_connect.application
 import ftrack_connect_nuke_studio
 
@@ -27,7 +27,7 @@ class LaunchAction(object):
 
     identifier = 'ftrack-connect-launch-nuke-studio'
 
-    def __init__(self, applicationStore, launcher):
+    def __init__(self, applicationStore, launcher, session):
         '''Initialise action with *applicationStore* and *launcher*.
 
         *applicationStore* should be an instance of
@@ -35,6 +35,9 @@ class LaunchAction(object):
 
         *launcher* should be an instance of
         :class:`ftrack_connect.application.ApplicationLauncher`.
+
+        *session* should be an instance of
+        :class:`ftrack_api.Session`.
 
         '''
         super(LaunchAction, self).__init__()
@@ -45,17 +48,18 @@ class LaunchAction(object):
 
         self.applicationStore = applicationStore
         self.launcher = launcher
+        self.session = session
 
     def register(self):
         '''Override register to filter discover actions on logged in user.'''
-        ftrack.EVENT_HUB.subscribe(
+        self.session.event_hub.subscribe(
             'topic=ftrack.action.discover and source.user.username={0}'.format(
                 getpass.getuser()
             ),
             self.discover
         )
 
-        ftrack.EVENT_HUB.subscribe(
+        self.session.event_hub.subscribe(
             'topic=ftrack.action.launch and source.user.username={0} '
             'and data.actionIdentifier={1}'.format(
                 getpass.getuser(), self.identifier
@@ -63,7 +67,7 @@ class LaunchAction(object):
             self.launch
         )
 
-        ftrack.EVENT_HUB.subscribe(
+        self.session.event_hub.subscribe(
             'topic=ftrack.connect.plugin.debug-information',
             self.get_version_information
         )
@@ -226,27 +230,25 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
         return environment
 
 
-def register(registry, **kw):
+def register(session, **kw):
     '''Register hooks for ftrack connect legacy plugins.'''
 
     logger = logging.getLogger(
         'ftrack_plugin:ftrack_connect_nuke_studio_hook.register'
     )
 
-    # Validate that registry is an instance of ftrack.Registry. If not,
-    # assume that register is being called from a new or incompatible API and
+    '''Register plugin. Called when used as an plugin.'''
+    # Validate that session is an instance of ftrack_api.Session. If not,
+    # assume that register is being called from an old or incompatible API and
     # return without doing anything.
-    if not isinstance(registry, ftrack.Registry):
-        logger.debug(
-            'Not subscribing plugin as passed argument {0!r} is not an '
-            'ftrack.Registry instance.'.format(registry)
-        )
+    if not isinstance(session, ftrack_api.session.Session):
         return
+
 
     applicationStore = ApplicationStore()
 
     launcher = ApplicationLauncher(applicationStore)
 
     # Create action and register to respond to discover and launch events.
-    action = LaunchAction(applicationStore, launcher)
+    action = LaunchAction(applicationStore, launcher, session)
     action.register()
