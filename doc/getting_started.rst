@@ -8,17 +8,30 @@ Getting started
 ***************
 
 To get started with using the ftrack connect RV plugin, follow this guide
-and you will be up and running quickly. The RV integration can be either run
-from ftrack Connect or installed as a standalone package in RV. Installing
-it as a Standalone package requires more setup, but does not require you to be
-running Connect in order to use ftrack review in RV.
+and you will be up and running quickly.
 
-RV Connect plugin
------------------
+Installing the RV package
+-------------------------
+
+First, you will need to install the integration package in RV:
+
+  #. Download the standalone package for RV from the
+     `ftrack Integrations page <https://www.ftrack.com/integrations>`_.
+
+  #. Launch RV and install the :file:`rvpkg` package from RV's preferences.
+
+Launching
+---------
+
+You can launch RV with the integration either as an action using ftrack Connect
+or via the rvlink protocol from the web interface.
+
+Using ftrack Connect
+^^^^^^^^^^^^^^^^^^^^
 
 ftrack connect RV comes bundled with ftrack Connect package and allows you
-to start launch RV with the ftrack review panels loaded without installing
-anything.
+to start launch RV with the ftrack review panels without any additional
+configuration.
 
 .. note::
 
@@ -26,36 +39,15 @@ anything.
     :envvar:`RV_INSTALLATION_PATH` to the root folder of the RV installation
     for ftrack Connect to find the installation.
 
-Manual installation
-^^^^^^^^^^^^^^^^^^^
+From the web interface
+^^^^^^^^^^^^^^^^^^^^^^
 
-You can also install the Connect plugin manually if you are running Connect
-from source. To do so, follow the instructions below to download and install
-the RV connect plugin.
-
-  #. Download the RV integration from the
-     `ftrack Integrations page <https://www.ftrack.com/integrations>`_.
-
-  #. Open Connect and select :guilabel:`Open Plugin Directory` from the service
-     menu.
-
-  #. Extract the zip archive in the Connect Plugin Folder
-
-
-RV Standalone package
----------------------
-
-Installing ftrack Connect RV as a standalone package requires more setup, but
-does not require you to be running Connect in order to use ftrack review in RV.
-To do so, follow the instructions below.
+Running ftrack Connect RV via the rvlink protocol requires a bit more setup,
+but does not require you to be running Connect in order to use ftrack review
+in RV. To do so, follow the instructions below.
 
   #. Setup the `RV protocol handler <https://support.shotgunsoftware.com/hc/en-us/articles/219042088-RVLink-URLs-RV-as-protocol-handler>`_
      for your browser.
-
-  #. Download the standalone package for RV from the
-     `ftrack Integrations page <https://www.ftrack.com/integrations>`_.
-
-  #. Launch RV and install the :file:`rvpkg` package from RV's preferences.
 
   #. The RV integration currently requires that the ftrack legacy Python API
      is available and configured with valid credentials. To do so, you can
