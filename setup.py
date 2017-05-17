@@ -117,9 +117,7 @@ class BuildPlugin(Command):
         rvpkg_version = '.'.join(VERSION.split('.'))
         plugin_name = 'ftrack-{0}'.format(rvpkg_version)
 
-        plugin_destination_path = os.path.join(
-            STAGING_PATH, 'rv_plugin'
-        )
+        plugin_destination_path = BUILD_PATH
 
         if not os.path.exists(plugin_destination_path):
             os.makedirs(plugin_destination_path)
