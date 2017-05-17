@@ -121,10 +121,6 @@ class NukeCrew(QtGui.QDialog):
         self._classifier = UserClassifier()
 
         current_user = ftrack.getUser(getpass.getuser())
-        # Requires an update to crews..
-        #current_user = session.query('User where username = "{0}"').format(
-        #    getpass.getuser()
-        #)
         groups = ['contributor', 'related']
         self.chat = _crew.Crew(
             groups, current_user, hub=self._hub, classifier=self._classifier,

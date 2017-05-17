@@ -163,7 +163,6 @@ class ProjectSelector(QtGui.QWidget):
 
             if self._projects is None:
                 self._projects = session.query('Project where status != "Hidden"')
-                #self._projects = ftrack.getProjects()
                 for project in self._projects:
                     entity_type, primary_keys = ftrack_api.inspection.identity(
                         project

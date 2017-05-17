@@ -192,19 +192,20 @@ def item_exists(item):
         return False
 
     try:
-        query = ['select id from Context where name = "{0}"'.format(
-            path[0])
+        query = [u'select id from Context where name = "{0}"'.format(
+                path[0]
+            )
         ]
 
-        for lvl, part in enumerate(path[1:]):
+        for level, part in enumerate(path[1:]):
             query.append(
-                '{0}.name = "{1}"'.format(
-                    '.'.join(['parent'] * (lvl + 1)), part
+                u'{0}.name = "{1}"'.format(
+                    '.'.join(['parent'] * (level + 1)), part
                 )
             )
 
         return session.query(
-            ' and '.join(query)
+            u' and '.join(query)
         ).one()
 
     except (ftrack_api.exception.MultipleResultsFoundError,

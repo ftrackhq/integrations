@@ -779,10 +779,6 @@ class ProjectTreeDialog(QtGui.QDialog):
 
             if datum.type == 'show':
                 if datum.exists:
-                    self.logger.warning(
-                        datum.exists.keys()
-                    )
-
                     self.logger.debug('%s %s exists as %s, reusing it.' % (
                         datum.name, datum.type, datum.exists.get('id'))
                     )
