@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015 ftrack
 
+import os
 import getpass
 import sys
 import pprint
@@ -11,7 +12,51 @@ import re
 import ftrack
 import ftrack_connect.application
 
-import ftrack_connect_rv
+
+try:
+    import ftrack_connect_rv
+except ImportError:
+    dependencies_path = os.path.abspath(os.path.realpath(
+        os.path.join(os.path.dirname(__file__), '..', 'package')
+    ))
+
+    sys.path.append(dependencies_path)
+    import ftrack_connect_rv
+
+
+# Require to be set to the folder
+# which contains the rv installations.
+# eg: /mnt/software/rv
+
+RV_INSTALLATION_PATH = os.getenv(
+    'RV_INSTALLATION_PATH', '/usr/local/rv'
+)
+
+
+class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
+    '''Discover and launch rv.'''
+
+    def _getApplicationEnvironment(self, application, context=None):
+        '''Override to modify environment before launch.'''
+
+        # Make sure to call super to retrieve original environment
+        # which contains the selection and ftrack API.
+        environment = super(
+            ApplicationLauncher, self
+        )._getApplicationEnvironment(application, context)
+
+        PYTHONPATH = os.path.join(
+            os.path.dirname(ftrack_connect_rv.__file__),
+            '..', 'package'
+        )
+
+        environment = ftrack_connect.application.appendPath(
+            PYTHONPATH,
+            'PYTHONPATH',
+            environment
+        )
+
+        return environment
 
 
 class LaunchApplicationAction(object):
@@ -161,7 +206,6 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
         if sys.platform == 'darwin':
             prefix = ['/', 'Applications']
-
             applications.extend(self._searchFilesystem(
                 expression=prefix + ['RV.\d+.app'],
                 label='Review with RV',
@@ -175,7 +219,6 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
         elif sys.platform == 'win32':
             prefix = ['C:\\', 'Program Files.*']
-
             applications.extend(self._searchFilesystem(
                 expression=prefix + [
                     '[Tweak|Shotgun]', 'RV.\d.+', 'bin', 'rv.exe'
@@ -189,6 +232,45 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 ],
                 versionExpression=re.compile(
                     r'(?P<version>\d+.\d+.\d+)'
+                )
+            ))
+
+        elif sys.platform == 'linux2':
+            separator = os.path.sep
+            prefix = RV_INSTALLATION_PATH
+            if not os.path.exists(RV_INSTALLATION_PATH):
+                self.logger.warning(
+                    'No folder found for '
+                    '$RV_INSTALLATION_PATH at : {0}'.format(
+                        RV_INSTALLATION_PATH
+                    )
+                )
+                return
+
+            # Check for leading slashes
+            if RV_INSTALLATION_PATH.startswith(separator):
+                # Strip it off if does exist
+                prefix = prefix[1:]
+
+            # Split the path in its components.
+            prefix = prefix.split(separator)
+            if RV_INSTALLATION_PATH.startswith(separator):
+                # Add leading slash back
+                prefix.insert(0, separator)
+
+            applications.extend(self._searchFilesystem(
+                expression=prefix + [
+                    'rv-Linux-x86-64-\d.+', 'bin', 'rv$'
+                ],
+                label='Review with RV',
+                variant='{version}',
+                applicationIdentifier='rv_{version}_with_review',
+                icon='rv',
+                launchArguments=[
+                    '-flags', 'ModeManagerPreload=ftrack'
+                ],
+                versionExpression=re.compile(
+                    r'(?P<version>\d+(\.\d+)+)'
                 )
             ))
 
@@ -222,7 +304,7 @@ def register(registry, **kw):
     applicationStore = ApplicationStore()
 
     # Create a launcher with the store containing applications.
-    launcher = ftrack_connect.application.ApplicationLauncher(
+    launcher = ApplicationLauncher(
         applicationStore
     )
 

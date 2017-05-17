@@ -10,7 +10,9 @@ Welcome to the documentation for ftrack connect RV.
 .. toctree::
     :maxdepth: 1
 
+    getting_started
     using
+    building
     glossary
     release/index
 

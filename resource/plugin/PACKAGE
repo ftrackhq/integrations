@@ -1,8 +1,8 @@
-package: FTrack
+package: ftrack
 author: ftrack AB
 organization: ftrack AB
 contact: support@ftrack.com
-version: 3.3.1
+version: {VERSION}
 url: http://www.ftrack.com
 optional: true
 rv: 3.12.19
@@ -14,6 +14,13 @@ modes:
 files:
   - file: noserver.html
     location: SupportFiles/$PACKAGE
+
+  - file: dependencies.zip
+    location: Python
+
+  - file: cacert.pem
+    location: Python
+
 
 description: |
 
