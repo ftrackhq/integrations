@@ -7,7 +7,8 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 3.4
+    :date: 2017-05-17
 
     .. change:: new
         :tags: Documentation
