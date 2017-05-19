@@ -27,7 +27,7 @@ processors are available for a certain object.
 
 The structure of the event is:: 
 
-    ftrack.Event(
+    ftrack_api.event.base.Event(
         topic='ftrack.processor.discover',
         data=dict(
             name='010',
@@ -53,7 +53,7 @@ to the event hub::
             asset_name='BG'
         )
 
-    ftrack.EVENT_HUB.subscribe(
+    session.event_hub.subscribe(
         'topic=ftrack.processor.discover and data.object_type=shot',
         discover
     )
@@ -80,7 +80,7 @@ a new Shot or Task has been created.
 
 The structure of the event is:: 
 
-    ftrack.Event(
+    ftrack_api.event.base.Event(
         topic='ftrack.processor.launch',
         data=dict(
             name='Review',
@@ -109,7 +109,7 @@ to the event hub::
         ...
 
 
-    ftrack.EVENT_HUB.subscribe(
+    session.event_hub.subscribe(
         'topic=ftrack.processor.launch and data.name=processor.review',
         launch
     )
