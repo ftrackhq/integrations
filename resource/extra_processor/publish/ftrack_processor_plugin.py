@@ -49,7 +49,7 @@ def update_component():
     )
 
     container = session.query(
-        'Component where name = {0} and version_id= {1}'.format(
+        u'Component where name = {0} and version_id= {1}'.format(
             node['component_name'].value(), node['asset_version_id'].value()
         )
     ).one()
@@ -62,10 +62,10 @@ def update_component():
 
         session.create_component(
             item, data={
-                'name':collection.match(item).group('index'),
-                'system_type':'file',
-                'size':size,
-                'container':container
+                'name': collection.match(item).group('index'),
+                'system_type': 'file',
+                'size': size,
+                'container': container
             }, location=None
         )
 

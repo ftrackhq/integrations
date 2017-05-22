@@ -24,7 +24,7 @@ def publish_reviewable_component(version_id, component, out):
     )
 
     version.create_component(
-        out, data={'name':component}, location='auto'
+        out, data={'name': component}, location='auto'
     )
 
     session.commit()

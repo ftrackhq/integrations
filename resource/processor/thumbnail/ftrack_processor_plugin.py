@@ -24,7 +24,7 @@ def create_thumbnail():
     '''
 
     node = nuke.thisNode()
-    outf = node['file'].value()
+    out_file = node['file'].value()
 
     session = ftrack_api.Session()
 
@@ -40,7 +40,7 @@ def create_thumbnail():
             continue
 
         entity.create_thumbnail(
-            outf
+            out_file
         )
 
     if not os.environ.get(
@@ -50,7 +50,7 @@ def create_thumbnail():
 
         for task in parent_entity.get('children'):
             task.create_thumbnail(
-                outf
+                out_file
             )
 
     session.commit()
