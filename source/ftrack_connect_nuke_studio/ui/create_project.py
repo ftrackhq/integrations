@@ -84,7 +84,16 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.logo_icon = QtGui.QIcon(':ftrack/image/dark/ftrackLogoColor')
         self.setWindowIcon(self.logo_icon)
 
-        asset_type = session.query('AssetType where short is img').one()
+        asset_type = session.query(
+            'AssetType where short is img').first()
+
+        # Abort the dialog if there's no 'img' asset type defined.
+        if not asset_type:
+            raise RuntimeError((
+                'Image Sequence (img) asset type does not exist.\n'
+                "Please create it in ftrack's web interface."
+            ))
+
         self.asset_type_id = asset_type['id']
         # Force session to cache name for all types since we will
         # be using name in get_type_and_status_from_name.
@@ -807,7 +816,7 @@ class ProjectTreeDialog(QtGui.QDialog):
                     current['metadata'][key] = value
 
                 self.logger.debug('Commit project.')
-                #: TODO: Remove this commit when the api issue with order of 
+                #: TODO: Remove this commit when the api issue with order of
                 # operations is fixed.
                 session.commit()
 
@@ -914,7 +923,7 @@ class ProjectTreeDialog(QtGui.QDialog):
                     )
 
                 self.logger.debug('Commit partial structure.')
-                #: TODO: Remove this commit when the api issue with order of 
+                #: TODO: Remove this commit when the api issue with order of
                 # operations is fixed.
                 session.commit()
 
