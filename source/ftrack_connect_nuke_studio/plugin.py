@@ -99,10 +99,14 @@ def open_export_dialog(*args, **kwargs):
         valid_track_items.append((item, tags))
         sequence = item.sequence()
 
-    dialog = ftrack_connect_nuke_studio.ui.create_project.ProjectTreeDialog(
-        data=valid_track_items, parent=parent, sequence=sequence
-    )
-    dialog.exec_()
+    try:
+        dialog = ftrack_connect_nuke_studio.ui.create_project.ProjectTreeDialog(
+            data=valid_track_items, parent=parent, sequence=sequence
+        )
+        dialog.exec_()
+    except RuntimeError as e:
+        logger.exception(e)
+        QtGui.QMessageBox.critical(None, "Error", str(e))
 
 
 def on_context_menu_event(event):

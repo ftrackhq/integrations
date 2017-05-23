@@ -8,6 +8,11 @@ Release Notes
 *************
 
 .. release:: Upcoming
+    .. change:: fixed
+        :tags: Export project
+
+        Show an error dialog if the img asset type does not exist in the server.
+
     .. change:: new
         :tags: API
 
