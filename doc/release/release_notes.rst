@@ -8,6 +8,10 @@ Release Notes
 *************
 
 .. release:: Upcoming
+    .. change:: new
+        :tags: API
+
+        Remove dependencies on the ftrack legacy API where possible
 
     .. change:: new
         :tags: Template, Structure

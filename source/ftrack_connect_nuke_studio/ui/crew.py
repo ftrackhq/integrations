@@ -209,10 +209,10 @@ class NukeCrew(QtGui.QDialog):
                 if not entity:
                     continue
 
-                if entity._type == 'task':
-                    context['shot'].append(entity.getId())
-                elif entity._type == 'component':
-                    component_ids.append(entity.getId())
+                if entity.entity_type == 'Shot':
+                    context['shot'].append(entity.get('id'))
+                elif entity.entity_type == 'Component':
+                    component_ids.append(entity.get('id'))
 
         if component_ids:
             components = session.query(

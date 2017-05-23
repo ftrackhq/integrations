@@ -5,12 +5,14 @@ import os
 import tempfile
 import logging
 
-import ftrack
+
+import ftrack_api
 import nuke
 from clique import Collection
 
 import ftrack_connect_nuke_studio.processor
 import ftrack_connect_nuke_studio.entity_reference
+
 
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -23,13 +25,14 @@ def update_component():
         * component_name, the component which will contain the node result.
 
     '''
-    ftrack.setup()
+
+    session = ftrack_api.Session()
 
     # Get the current node.
     node = nuke.thisNode()
 
     asset_id = node['asset_version_id'].value()
-    version = ftrack.AssetVersion(id=asset_id)
+    asset_version = session.get('AssetVersion', asset_id)
 
     out = node['file'].value()
 
@@ -45,45 +48,53 @@ def update_component():
         indexes=set(range(start_frame, end_frame + 1))
     )
 
-    origin = ftrack.LOCATION_PLUGINS.get('ftrack.origin')
-
-    # Get container component and update resource identifier.
-    container = version.getComponent(node['component_name'].value())
+    container = session.query(
+        u'Component where name = {0} and version_id= {1}'.format(
+            node['component_name'].value(), node['asset_version_id'].value()
+        )
+    ).one()
 
     # Create member components.
     container_size = 0
     for item in collection:
         size = os.path.getsize(item)
         container_size += size
-        ftrack.createComponent(
-            name=collection.match(item).group('index'),
-            path=item,
-            systemType='file',
-            location=None,
-            size=size,
-            containerId=container.getId(),
-            padding=None  # Padding not relevant for 'file' type.
+
+        session.create_component(
+            item, data={
+                'name': collection.match(item).group('index'),
+                'system_type': 'file',
+                'size': size,
+                'container': container
+            }, location=None
         )
 
-    container.set({
+    container.update({
         'size': container_size,
         'padding': padding,
-        'filetype': ext
+        'file_type': ext
     })
 
-    container.setResourceIdentifier(collection.format('{head}{padding}{tail}'))
-    container = origin.addComponent(container, recursive=False)
+    origin_location = session.get(
+        'Location', ftrack_api.symbol.ORIGIN_LOCATION_ID
+    )
 
-    location = ftrack.pickLocation()
-    location.addComponent(container)
+    location = session.pick_location()
+
+    location.add_component(container, origin_location)
 
 
 class PublishPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
     '''Publish component data.'''
 
-    def __init__(self):
+    def __init__(self, session, *args, **kwargs):
         '''Initialise processor.'''
-        super(PublishPlugin, self).__init__()
+        super(PublishPlugin, self).__init__(
+            *args, **kwargs
+        )
+
+        self.session = session
+
         self.name = 'processor.publish'
         self.defaults = {
             'OUT': {
@@ -132,12 +143,12 @@ class PublishPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
 
     def register(self):
         '''Register processor'''
-        ftrack.EVENT_HUB.subscribe(
+        self.session.event_hub.subscribe(
             'topic=ftrack.processor.discover and '
             'data.object_type=shot',
             self.discover
         )
-        ftrack.EVENT_HUB.subscribe(
+        self.session.event_hub.subscribe(
             'topic=ftrack.processor.launch and data.name={0}'.format(
                 self.name
             ),
@@ -149,16 +160,21 @@ class PublishPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
 
         # The component has to be created before the render job is kicked off
         # in order to assetise the track_item. This is required since the render
-        # job is asynchronous and might be offloaded to another machine in 
-        # future versions. 
-        component = ftrack.createComponent(
-            name=data['component_name'],
-            versionId=data['asset_version_id'],
-            systemType='sequence'
+        # job is asynchronous and might be offloaded to another machine in
+        # future versions.
+
+        component = self.session.create(
+            'SequenceComponent', {
+                'name': data['component_name'],
+                'version_id': data['asset_version_id']
+            }
         )
-        component.setMeta('img_main', True)
+
+        component['metadata']['img_main'] = True
 
         track_item = data['application_object']
+
+        self.session.commit()
 
         ftrack_connect_nuke_studio.entity_reference.set(
             track_item, component
@@ -167,22 +183,23 @@ class PublishPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
         super(PublishPlugin, self).process(data)
 
 
-def register(registry, **kw):
-    '''Register hooks thumbnail processor.'''
+def register(session, **kw):
 
     logger = logging.getLogger(
         'ftrack_processor_plugin:publish.register'
     )
 
-    # Validate that registry is an instance of ftrack.Registry. If not,
-    # assume that register is being called from a new or incompatible API and
+    '''Register plugin. Called when used as an plugin.'''
+    # Validate that session is an instance of ftrack_api.Session. If not,
+    # assume that register is being called from an old or incompatible API and
     # return without doing anything.
-    if not isinstance(registry, ftrack.Registry):
-        logger.debug(
-            'Not subscribing plugin as passed argument {0!r} is not an '
-            'ftrack.Registry instance.'.format(registry)
-        )
+    if not isinstance(session, ftrack_api.session.Session):
         return
 
-    plugin = PublishPlugin()
+
+    plugin = PublishPlugin(
+        session
+    )
+
     plugin.register()
+

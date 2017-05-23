@@ -17,7 +17,7 @@ ftrack.connect.nuke-studio.get-context-tags
 
 Synchronous. Published to retrieve context tag configuration.::
 
-    Event(
+    ftrack_api.event.base.Event(
         topic='ftrack.connect.nuke-studio.get-context-tags'
     )
 
@@ -44,7 +44,7 @@ ftrack.connect.nuke-studio.after-template-match
 
 Synchronous. Published to modify the generated structure of a template.::
 
-    Event(
+    ftrack_api.event.base.Event(
         topic='ftrack.connect.nuke-studio.after-template-match',
         data={
             'application_object': nuke_studio_track_item,

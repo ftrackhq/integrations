@@ -36,11 +36,13 @@ from ftrack_connect_nuke_studio.ui.widget.template import Template
 
 from ftrack_connect.ui.theme import applyTheme
 
+session = ftrack_connect.session.get_shared_session()
+
 
 def gather_processors(name, type, track_item):
     '''Retrieve processors for *name*, *type* and *track_item*.'''
-    processors = ftrack.EVENT_HUB.publish(
-        ftrack.Event(
+    processors = session.event_hub.publish(
+        ftrack_api.event.base.Event(
             topic='ftrack.processor.discover',
             data=dict(
                 name=name,
@@ -68,7 +70,6 @@ class ProjectTreeDialog(QtGui.QDialog):
             __name__ + '.' + self.__class__.__name__
         )
 
-        self.session = ftrack_connect.session.get_session()
 
         self._valid_shot_custom_attribute_keys = None
         self._cached_type_and_status = dict()
@@ -83,11 +84,11 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.logo_icon = QtGui.QIcon(':ftrack/image/dark/ftrackLogoColor')
         self.setWindowIcon(self.logo_icon)
 
-        asset_type = self.session.query('AssetType where short is img').one()
+        asset_type = session.query('AssetType where short is img').one()
         self.asset_type_id = asset_type['id']
         # Force session to cache name for all types since we will
         # be using name in get_type_and_status_from_name.
-        self.session.query('select name, id from Type').all()
+        session.query('select name, id from Type').all()
 
         # Create tree model with fake tag.
         fake_root = _TreeItem({})
@@ -158,7 +159,7 @@ class ProjectTreeDialog(QtGui.QDialog):
 
     def compatible_server_version(self):
         '''Return if server is compatible.'''
-        return 'Disk' in self.session.types
+        return 'Disk' in session.types
 
     def on_update_entity_reference(self, track_item, entity_id, entity_type):
         '''Set *entity_id* and *entity_type* as reference on *track_item*.'''
@@ -233,8 +234,8 @@ class ProjectTreeDialog(QtGui.QDialog):
 
     def get_default_settings(self):
         '''Return default settings for project.'''
-        result = ftrack.EVENT_HUB.publish(
-            ftrack.Event(
+        result = session.event_hub.publish(
+            ftrack_api.event.base.Event(
                 topic='ftrack.connect.nuke-studio.get-default-settings',
                 data=dict(
                     nuke_studio_project=self.sequence.project()
@@ -297,7 +298,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.label = QtGui.QLabel('Workflow', parent=self.group_box)
         self.workflow_layout.addWidget(self.label)
 
-        self.workflow_combobox = Workflow(self.session, self.group_box)
+        self.workflow_combobox = Workflow(session, self.group_box)
         self.workflow_layout.addWidget(self.workflow_combobox)
 
         self.workflow_combobox.currentIndexChanged.connect(self.validate)
@@ -412,13 +413,13 @@ class ProjectTreeDialog(QtGui.QDialog):
         '''Return list of valid custom attribute keys.'''
         if self._valid_shot_custom_attribute_keys is None:
             shot_schema = filter(
-                lambda schema: schema['id'] == 'Shot', self.session.schemas
+                lambda schema: schema['id'] == 'Shot', session.schemas
             )
             shot_object_type_id = (
                 shot_schema[0]['properties']['object_type_id']['default']
             )
             self._valid_shot_custom_attribute_keys = [
-                configuration['key'] for configuration in self.session.query(
+                configuration['key'] for configuration in session.query(
                     'select key from CustomAttributeConfiguration '
                     'where entity_type is "task" and object_type_id is "{0}"'
                     .format(
@@ -439,7 +440,7 @@ class ProjectTreeDialog(QtGui.QDialog):
         self.workflow_combobox.setDisabled(True)
         self.logger.debug(u'On existing project: {0}'.format(project_name))
 
-        project = self.session.query(
+        project = session.query(
             (
                 u'select project_schema.name, metadata from Project '
                 u'where name is "{0}"'
@@ -491,8 +492,8 @@ class ProjectTreeDialog(QtGui.QDialog):
         processor_name = args[0]
         data = args[1]
 
-        ftrack.EVENT_HUB.publish(
-            ftrack.Event(
+        session.event_hub.publish(
+            ftrack_api.event.base.Event(
                 topic='ftrack.processor.launch',
                 data=dict(
                     name=processor_name,
@@ -501,6 +502,8 @@ class ProjectTreeDialog(QtGui.QDialog):
             ),
             synchronous=True
         )
+
+
 
     def on_set_tree_root(self):
         '''Handle signal and populate the tree.'''
@@ -681,7 +684,7 @@ class ProjectTreeDialog(QtGui.QDialog):
             )
         )
 
-        project_schema = self.session.query(
+        project_schema = session.query(
             'ProjectSchema where name is "{0}"'.format(
                 self.workflow_combobox.currentText()
             )
@@ -719,7 +722,7 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         if asset_parent_exists:
             try:
-                asset = self.session.query(
+                asset = session.query(
                     u'Asset where name is "{0}" and '
                     u'context_id is "{1}" and type_id is "{2}"'
                     .format(
@@ -751,7 +754,7 @@ class ProjectTreeDialog(QtGui.QDialog):
             )
         )
 
-        return self.session.create('Asset', asset_data)
+        return session.create('Asset', asset_data)
 
     def _create_structure(self, data, previous):
         '''Create structure recursively from *data* and *previous*.
@@ -777,21 +780,21 @@ class ProjectTreeDialog(QtGui.QDialog):
             if datum.type == 'show':
                 if datum.exists:
                     self.logger.debug('%s %s exists as %s, reusing it.' % (
-                        datum.name, datum.type, datum.exists.get('showid')))
-                    current = self.session.get(
-                        'Project', datum.exists.get('showid')
+                        datum.name, datum.type, datum.exists.get('id'))
                     )
+
+                    current = datum.exists
                 else:
                     project_name = self.project_selector.get_new_name()
                     self.logger.debug('creating show %s' % project_name)
 
-                    current = self.session.create('Project', {
+                    current = session.create('Project', {
                         'name': project_name,
                         'full_name': project_name,
                         'project_schema_id': selected_workflow['id']
                     })
 
-                    datum.exists = {'showid': current['id']}
+                    datum.exists = current
 
                 metadata = {
                     'fps': fps,
@@ -806,7 +809,7 @@ class ProjectTreeDialog(QtGui.QDialog):
                 self.logger.debug('Commit project.')
                 #: TODO: Remove this commit when the api issue with order of 
                 # operations is fixed.
-                self.session.commit()
+                session.commit()
 
             else:
 
@@ -840,11 +843,11 @@ class ProjectTreeDialog(QtGui.QDialog):
                 )
 
                 if datum.exists:
+
                     self.logger.debug(u'%s %s exists as %s, reusing it.' % (
-                        datum.name, datum.type, datum.exists.get('taskid')))
-                    current = self.session.get(
-                        'TypedContext', datum.exists.get('taskid')
-                    )
+                        datum.name, datum.type, datum.exists.get('id')))
+
+                    current = datum.exists
                 else:
                     self.logger.debug(
                         u'creating %s %s' % (datum.type, datum.name))
@@ -853,14 +856,14 @@ class ProjectTreeDialog(QtGui.QDialog):
                     sub_type, status = self.get_type_and_status_from_name(
                         object_type, datum.name
                     )
-                    current = self.session.create(object_type, {
+                    current = session.create(object_type, {
                         'name': datum.name,
                         'parent': previous,
                         'type': sub_type,
                         'status': status
                     })
 
-                    datum.exists = {'taskid': current['id']}
+                    datum.exists = current
 
                 if datum.type == 'shot':
                     self.logger.debug(
@@ -903,17 +906,17 @@ class ProjectTreeDialog(QtGui.QDialog):
                     asset_parent = previous
                     asset_task_id = current['id']
 
-                if datum.type not in ('task', 'show'):
+                if datum.type not in ('task', 'show', 'sequence', 'shot'):
                     # Set entity reference if the type is not task.
                     # Cannot modify tags in thread, therefore emit signal.
                     self.update_entity_reference.emit(
-                        datum.track, datum.exists['taskid'], 'task'
+                        datum.track, datum.exists['id'], 'task'
                     )
 
                 self.logger.debug('Commit partial structure.')
                 #: TODO: Remove this commit when the api issue with order of 
                 # operations is fixed.
-                self.session.commit()
+                session.commit()
 
                 processors = gather_processors(
                     datum.name, datum.type, datum.track
@@ -939,7 +942,7 @@ class ProjectTreeDialog(QtGui.QDialog):
                                         asset['id']
                                     )
                                 )
-                                asset_version = self.session.create(
+                                asset_version = session.create(
                                     'AssetVersion', {
                                         'asset_id': asset['id'],
                                         'task_id': asset_task_id
@@ -986,7 +989,7 @@ class ProjectTreeDialog(QtGui.QDialog):
 
         try:
             # Commit the new project.
-            self.session.commit()
+            session.commit()
         except ftrack_api.exception.ServerError as error:
             if 'permission denied' in error.message:
                 raise (

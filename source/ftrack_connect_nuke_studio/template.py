@@ -6,10 +6,15 @@ import hiero.core
 import lucidity
 import lucidity.error
 
-import ftrack
+import ftrack_api
 
 import ftrack_connect_nuke_studio.exception
 
+from ftrack_connect.session import (
+    get_shared_session
+)
+
+session = get_shared_session()
 
 def available_templates(project):
     '''Return available templates for *project*.
@@ -20,8 +25,8 @@ def available_templates(project):
 
     '''
     templates = []
-    responses = ftrack.EVENT_HUB.publish(
-        ftrack.Event(
+    responses = session.event_hub.publish(
+        ftrack_api.event.base.Event(
             topic='ftrack.connect.nuke-studio.get-context-templates'
         ),
         synchronous=True
@@ -130,8 +135,8 @@ def match(item, template):
         hierarchy, key=lambda x: expression.index(x['object_type'])
     )
 
-    ftrack.EVENT_HUB.publish(
-        ftrack.Event(
+    session.event_hub.publish(
+        ftrack_api.event.base.Event(
             topic='ftrack.connect.nuke-studio.after-template-match',
             data={
                 'application_object': item,

@@ -5,10 +5,16 @@ import urlparse
 
 import hiero.core
 import ftrack_connect.ui.widget.web_view
-import ftrack
+
+import logging
 
 import ftrack_connect_nuke_studio.entity_reference
 
+from ftrack_connect.session import (
+    get_shared_session
+)
+
+session = get_shared_session()
 
 class InfoView(
     ftrack_connect.ui.widget.web_view.WebView
@@ -24,6 +30,10 @@ class InfoView(
 
         hiero.core.events.registerInterest(
             'kSelectionChanged', self.on_selection_changed
+        )
+
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
         )
 
         self.setWindowTitle(self._display_name)
@@ -44,27 +54,27 @@ class InfoView(
         if entity is None:
             return
 
-        if isinstance(entity, ftrack.Component):
-            entity = entity.getVersion()
+        if entity.entity_type is 'Component':
+            entity = entity.get('version')
 
         if not self.get_url():
+            url = session.get_widget_url(
+                'info', entity=entity, theme='tf'
+            )
+
             # Load initial page using url retrieved from entity.
-
-            # TODO: Some types of entities don't have this yet, eg
-            # assetversions. Add some checking here if it's not going to be
-            # available from all entities.
-            if hasattr(entity, 'getWebWidgetUrl'):
-                url = entity.getWebWidgetUrl(name='info', theme='tf')
-
-                self.set_url(url)
+            self.set_url(
+                url
+            )
 
         else:
             # Send javascript to currently loaded page to update view.
-            entityId = entity.getId()
+            entityId = entity.get('id')
 
-            # NOTE: get('entityType') not supported on assetversions so
-            # using private _type attribute.
-            entityType = entity._type
+            entityType = ftrack_connect_nuke_studio.entity_reference.translate_to_legacy_entity_type(
+                entity.entity_type
+            )
+
 
             javascript = (
                 'FT.WebMediator.setEntity({{'

@@ -7,6 +7,7 @@ import os
 import logging as _pythonLogging
 
 
+
 def setup():
     '''Setup logging for ftrack modules.
 
