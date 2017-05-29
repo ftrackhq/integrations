@@ -143,7 +143,7 @@ configuration = dict(
         'lowdown >= 0.1.0, < 1',
         # The latest version of the cryptography library does not have a wheel
         # and building it fails.
-        'cryptography == 1.4',
+        'cryptography == 1.8.2',
         'pyopenssl',
         'requests >= 2, <3'
     ],
