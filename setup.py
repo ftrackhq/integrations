@@ -52,15 +52,15 @@ for plugin in (
 connect_install_require = 'ftrack-connect == 0.1.32'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.32.zip'
-    '#egg=ftrack-connect-0.1.32'
+    'https://bitbucket.org/ftrack/ftrack-connect/get/master.zip'
+    '#egg=ftrack-connect-0.2.0'
 )
 
 connect_3ds_max_install_require = 'ftrack-connect-3dsmax >=0.1, < 1'
 
 connect_3ds_max_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-3dsmax/get/0.2.11.zip'
-    '#egg=ftrack-connect-3dsmax-0.2.11'
+    'https://bitbucket.org/ftrack/ftrack-connect-3dsmax/get/master.zip'
+    '#egg=ftrack-connect-3dsmax-0.3.0'
 )
 
 connect_legacy_plugins_install_require = (
@@ -77,13 +77,13 @@ connect_hieroplayer_install_require = (
     ' >=0.1, < 1'
 )
 connect_hieroplayer_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-hieroplayer/get/0.1.5.zip'
-    '#egg=ftrack-connect-hieroplayer-0.1.5'
+    'https://bitbucket.org/ftrack/ftrack-connect-hieroplayer/get/master.zip'
+    '#egg=ftrack-connect-hieroplayer-0.2.0'
 )
 
 connect_nuke_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/0.1.13.zip'
-    '#egg=ftrack-connect-nuke-0.1.13'
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/master.zip'
+    '#egg=ftrack-connect-nuke-0.2.0'
 )
 connect_nuke_dependency_install_require = (
     'ftrack-connect-nuke'
@@ -91,8 +91,8 @@ connect_nuke_dependency_install_require = (
 )
 
 connect_maya_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-maya/get/0.2.5.zip'
-    '#egg=ftrack-connect-maya-0.2.5'
+    'https://bitbucket.org/ftrack/ftrack-connect-maya/get/master.zip'
+    '#egg=ftrack-connect-maya-0.3.0'
 )
 connect_maya_dependency_install_require = (
     'ftrack-connect-maya'
@@ -100,8 +100,8 @@ connect_maya_dependency_install_require = (
 )
 
 connect_nuke_studio_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke-studio/get/0.2.7.zip'
-    '#egg=ftrack-connect-nuke-studio-0.2.7'
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke-studio/get/master.zip'
+    '#egg=ftrack-connect-nuke-studio-0.3.0'
 )
 connect_nuke_studio_dependency_install_require = (
     'ftrack-connect-nuke-studio'
@@ -111,8 +111,8 @@ connect_nuke_studio_dependency_install_require = (
 connect_rv_dependency_install_require = 'ftrack-connect-rv >=0.1, < 1'
 
 connect_rv_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-rv/get/0.1.0.zip'
-    '#egg=ftrack-connect-rv-0.1.0'
+    'https://bitbucket.org/ftrack/ftrack-connect-rv/get/master.zip'
+    '#egg=ftrack-connect-rv-0.2.0'
 )
 
 connect_cinema_4d_dependency_install_require = 'ftrack-connect-cinema-4d >=0.1, < 1'
