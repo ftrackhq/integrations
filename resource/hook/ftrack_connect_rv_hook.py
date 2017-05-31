@@ -300,6 +300,10 @@ def register(registry, **kw):
         )
         return
 
+    if registry is not ftrack.EVENT_HANDLERS:
+        # Exit to avoid registering this plugin again.
+        return
+
     # Create store containing applications.
     applicationStore = ApplicationStore()
 
