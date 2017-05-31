@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: 3.5
+    :date: 2017-05-30
+
+    .. change:: fixed
+
+        RV crashes when loading a previously loaded version for the second time.
+
 .. release:: 3.4
     :date: 2017-05-17
 

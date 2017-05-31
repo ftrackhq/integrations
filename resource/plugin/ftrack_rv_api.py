@@ -189,7 +189,8 @@ def _getFilePath(componentId):
         location = session.pick_location(component=ftrack_component)
         path = location.get_filesystem_path(ftrack_component)
         componentFilesystemPaths[componentId] = path
-        return path
+
+    return path
 
 
 def _ftrackAddVersion(track, layout):
