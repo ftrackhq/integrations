@@ -290,18 +290,14 @@ def register(registry, **kw):
         'ftrack_plugin:ftrack_connect_rv_hook.register'
     )
 
-    # Validate that registry is an instance of ftrack.Registry. If not,
-    # assume that register is being called from a new or incompatible API and
+    # Validate that registry is ftrack.EVENT_HANDLERS. If not, assume that
+    # register is being called from a new or incompatible API and
     # return without doing anything.
-    if not isinstance(registry, ftrack.Registry):
-        logger.debug(
-            'Not subscribing plugin as passed argument {0!r} is not an '
-            'ftrack.Registry instance.'.format(registry)
-        )
-        return
-
     if registry is not ftrack.EVENT_HANDLERS:
-        # Exit to avoid registering this plugin again.
+        logger.debug(
+            'Not subscribing plugin as passed argument {0!r} is not '
+            'ftrack.EVENT_HANDLERS.'.format(registry)
+        )
         return
 
     # Create store containing applications.

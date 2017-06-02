@@ -7,6 +7,12 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: fixed
+
+        The action is registered twice in ftrack connect.
+
 .. release:: 3.5
     :date: 2017-05-30
 
