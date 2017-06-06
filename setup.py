@@ -112,7 +112,7 @@ connect_rv_dependency_install_require = 'ftrack-connect-rv >=3.4, < 4'
 
 connect_rv_dependency_link = (
     'https://bitbucket.org/ftrack/ftrack-connect-rv/get/master.zip'
-    '#egg=ftrack-connect-rv-0.2.0'
+    '#egg=ftrack-connect-rv-3.5'
 )
 
 connect_cinema_4d_dependency_install_require = 'ftrack-connect-cinema-4d >=0.1, < 1'
