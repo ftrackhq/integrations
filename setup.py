@@ -122,6 +122,14 @@ connect_cinema_4d_dependency_link = (
     '#egg=ftrack-connect-cinema-4d-0.1.0'
 )
 
+ftrack_python_legacy_api_install_require = 'ftrack-python-legacy-api >= 3.6.0'
+
+ftrack_python_legacy_api_dependency_link = (
+    'https://bitbucket.org/ftrack/ftrack-python-legacy-api/get/3.6.0.tar.gz'
+    '#egg=ftrack-python-legacy-api-3.6.0'
+)
+
+
 # General configuration.
 configuration = dict(
     name='ftrack-connect-package',
@@ -148,7 +156,7 @@ configuration = dict(
         'requests >= 2, <3'
     ],
     install_requires=[
-        'ftrack-python-legacy-api',
+        ftrack_python_legacy_api_install_require,
         connect_install_require,
         connect_3ds_max_install_require,
         connect_legacy_plugins_install_require,
@@ -161,9 +169,7 @@ configuration = dict(
         'boto == 2.28.0'
     ],
     dependency_links=[
-        'file://{0}#egg=ftrack-python-legacy-api'.format(
-            os.environ['FTRACK_PYTHON_LEGACY_API_PATH'].replace('\\', '/')
-        ),
+        ftrack_python_legacy_api_dependency_link,
         connect_dependency_link,
         connect_legacy_plugins_dependency_link,
         ('https://bitbucket.org/ftrack/lowdown/get/0.1.0.zip'
@@ -351,6 +357,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
     # Add requests certificates to resource folder.
     import requests.certs
 
+
     include_files = [
         (connect_resource_hook, 'resource/hook'),
         (ftrack_connect_3ds_max_hook, 'resource/hook'),
@@ -528,7 +535,12 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_maya',
         'boto',
         'PySide.QtSvg',
-        'PySide.QtXml'
+        'PySide.QtXml',
+        'packaging',
+        'packaging.version',
+        'packaging.specifiers',
+        'packaging.requirements',
+
     ])
 
     configuration['options']['build_exe'] = {

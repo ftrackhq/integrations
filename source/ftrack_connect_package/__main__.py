@@ -39,6 +39,13 @@ if getattr(sys, 'frozen', False):
         )
     )
 
+    # Websocket-client ships with its own cacert file, we however default
+    # to the one shipped with the requests library.
+    os.environ.setdefault(
+        'WEBSOCKET_CLIENT_CA_BUNDLE',
+        os.environ.get('REQUEST_CA_BUNDLE')
+    )
+
     # Set the path to the included Nuke studio plugin.
     os.environ.setdefault(
         'FTRACK_CONNECT_NUKE_STUDIO_PATH',

@@ -5,6 +5,12 @@
 Releases
 ########
 
+.. release:: Upcoming
+    .. change:: fixed
+
+    Allow for the use of a http proxy server through the environment variables
+    :envvar:`http_proxy` and :envvar:`https_proxy`.
+
 .. release:: 0.5.6
     :date: 2017-01-13
 
