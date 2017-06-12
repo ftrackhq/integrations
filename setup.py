@@ -49,11 +49,11 @@ for plugin in (
     )
 
 
-connect_install_require = 'ftrack-connect == 0.1.32'
+connect_install_require = 'ftrack-connect == 0.1.33'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
     'https://bitbucket.org/ftrack/ftrack-connect/get/master.zip'
-    '#egg=ftrack-connect-0.2.0'
+    '#egg=ftrack-connect-0.1.33'
 )
 
 connect_3ds_max_install_require = 'ftrack-connect-3dsmax >=0.1, < 1'
