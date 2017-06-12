@@ -2,18 +2,19 @@
 # :copyright: Copyright (c) 2015 ftrack
 
 import logging
-
-import ftrack
+import ftrack_api
 
 
 class ContextTemplates(object):
     '''Return context templates for Nuke Studio.'''
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, session, *args, **kwargs):
         '''Initialise context templates hook.'''
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+
+        self.session = session
 
         super(ContextTemplates, self).__init__(*args, **kwargs)
 
@@ -46,20 +47,22 @@ class ContextTemplates(object):
 
     def register(self):
         '''Register hook.'''
-        ftrack.EVENT_HUB.subscribe(
+        self.session.event_hub.subscribe(
             'topic=ftrack.connect.nuke-studio.get-context-templates',
             self.launch
         )
 
 
-def register(registry, **kw):
-    '''Register hook for context templates.'''
-
-    # Validate that registry is instance of ftrack.Registry, if not
-    # return early since the register method probably is called
-    # from the new API.
-    if not isinstance(registry, ftrack.Registry):
+def register(session, **kw):
+    '''Register plugin. Called when used as an plugin.'''
+    # Validate that session is an instance of ftrack_api.Session. If not,
+    # assume that register is being called from an old or incompatible API and
+    # return without doing anything.
+    if not isinstance(session, ftrack_api.session.Session):
         return
 
-    plugin = ContextTemplates()
+    plugin = ContextTemplates(
+        session
+    )
+
     plugin.register()

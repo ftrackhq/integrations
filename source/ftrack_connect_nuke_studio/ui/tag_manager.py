@@ -4,10 +4,10 @@
 import logging
 
 import hiero.core
-import ftrack
 
-from ftrack_connect.ui import resource
-
+from ftrack_connect.session import (
+    get_shared_session
+)
 
 class TagManager(object):
     '''Creates all the custom tags wrapping the ftrack's entities.'''
@@ -17,6 +17,9 @@ class TagManager(object):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+
+        self.session = get_shared_session()
+
         self.logger.debug('Creating Ftrack tags')
         self.project = hiero.core.project('Tag Presets')
         self.project.setEditable(True)
@@ -36,20 +39,22 @@ class TagManager(object):
         '''Create task tags from ftrack tasks.'''
         self.logger.debug('Creating Ftrack task tags')
 
-        task_types = ftrack.getTaskTypes()
 
         task_type_tags = []
-        for task_type in task_types:
-            ftag = hiero.core.Tag(task_type.getName())
+        for task_type in self.session.query('Type'):
+            task_type_id = task_type.get('id')
+            task_type_name = task_type.get('name')
+
+            ftag = hiero.core.Tag(task_type_name)
             ftag.setIcon(':ftrack/image/integration/task')
 
             meta = ftag.metadata()
             meta.setValue('type', 'ftrack')
             meta.setValue('ftrack.type', 'task')
-            meta.setValue('ftrack.id', task_type.getId())
-            meta.setValue('ftrack.name', task_type.getName())
-            meta.setValue('tag.value', task_type.getName())
-            task_type_tags.append((task_type.getName(), ftag))
+            meta.setValue('ftrack.id', task_type_id)
+            meta.setValue('ftrack.name', task_type_name)
+            meta.setValue('tag.value', task_type_name)
+            task_type_tags.append((task_type_name, ftag))
 
         task_type_tags = sorted(
             task_type_tags, key=lambda tag_tuple: tag_tuple[0].lower()

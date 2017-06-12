@@ -5,7 +5,7 @@ import os
 import tempfile
 import logging
 
-import ftrack
+import ftrack_api
 import nuke
 from clique import Collection
 
@@ -22,13 +22,14 @@ def create_component():
         * component_name, the component which will contain the node result.
 
     '''
-    ftrack.setup()
+
+    session = ftrack_api.Session()
 
     # Get the current node.
     node = nuke.thisNode()
 
     asset_id = node['asset_version_id'].value()
-    version = ftrack.AssetVersion(id=asset_id)
+    version = session.get('AssetVersion', asset_id)
 
     # Create the component and copy data to the most likely store
     component = node['component_name'].value()
@@ -44,15 +45,25 @@ def create_component():
         padding=len(str(end_frame)),
         indexes=set(range(start_frame, end_frame + 1))
     )
-    component = version.createComponent(component, str(collection))
+
+    version.create_component(
+        str(collection), data={'name':component}, location='auto'
+    )
+
+    session.commit()
 
 
 class ProxyPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
     '''Generate proxies.'''
 
-    def __init__(self):
+    def __init__(self, session, *args, **kwargs):
         '''Initialise processor.'''
-        super(ProxyPlugin, self).__init__()
+        super(ProxyPlugin, self).__init__(
+            *args, **kwargs
+        )
+
+        self.session = session
+
         self.name = 'processor.proxy'
         self.defaults = {
             'OUT': {
@@ -105,35 +116,29 @@ class ProxyPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
 
     def register(self):
         '''Register processor'''
-        ftrack.EVENT_HUB.subscribe(
+        self.session.event_hub.subscribe(
             'topic=ftrack.processor.discover and '
             'data.object_type=shot',
             self.discover
         )
-        ftrack.EVENT_HUB.subscribe(
+        self.session.event_hub.subscribe(
             'topic=ftrack.processor.launch and data.name={0}'.format(
                 self.name
             ),
             self.launch
         )
 
-
-def register(registry, **kw):
-    '''Register hooks thumbnail processor.'''
-
-    logger = logging.getLogger(
-        'ftrack_processor_plugin:proxy.register'
-    )
-
-    # Validate that registry is an instance of ftrack.Registry. If not,
-    # assume that register is being called from a new or incompatible API and
+def register(session, **kw):
+    '''Register plugin. Called when used as an plugin.'''
+    # Validate that session is an instance of ftrack_api.Session. If not,
+    # assume that register is being called from an old or incompatible API and
     # return without doing anything.
-    if not isinstance(registry, ftrack.Registry):
-        logger.debug(
-            'Not subscribing plugin as passed argument {0!r} is not an '
-            'ftrack.Registry instance.'.format(registry)
-        )
+    if not isinstance(session, ftrack_api.session.Session):
         return
 
-    plugin = ProxyPlugin()
+    plugin = ProxyPlugin(
+        session
+    )
+
     plugin.register()
+

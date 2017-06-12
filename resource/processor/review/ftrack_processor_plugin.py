@@ -4,10 +4,10 @@
 import os
 import tempfile
 import threading
-import logging
 
-import ftrack
 import nuke
+
+import ftrack_api
 
 import ftrack_connect_nuke_studio.processor
 
@@ -16,10 +16,23 @@ FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 def publish_reviewable_component(version_id, component, out):
     '''Publish a reviewable component to *version_id*'''
-    version = ftrack.AssetVersion(id=version_id)
-    version.createComponent(component, out)
 
-    ftrack.Review.makeReviewable(version=version, filePath=out)
+    session = ftrack_api.Session()
+
+    version = session.get(
+        'AssetVersion', version_id
+    )
+
+    version.create_component(
+        out, data={'name': component}, location='auto'
+    )
+
+    session.commit()
+
+    session.encode_media(
+        out, version_id=version_id
+    )
+
 
 
 def create_review():
@@ -33,7 +46,7 @@ def create_review():
     quicktime.
 
     '''
-    ftrack.setup()
+
     node = nuke.thisNode()
     version_id = node['asset_version_id'].value()
     out = str(node['file'].value())
@@ -55,9 +68,14 @@ def create_review():
 class ReviewPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
     '''Generate review media.'''
 
-    def __init__(self):
+    def __init__(self, session, *args, **kwargs):
         '''Initialise processor.'''
-        super(ReviewPlugin, self).__init__()
+        super(ReviewPlugin, self).__init__(
+            *args, **kwargs
+        )
+
+        self.session = session
+
         self.name = 'processor.review'
         self.defaults = {
             'OUT': {
@@ -103,16 +121,18 @@ class ReviewPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
     def launch(self, event):
         '''Launch processor from *event*.'''
         input = event['data'].get('input', {})
+
+
         self.process(input)
 
     def register(self):
         '''Register processor'''
-        ftrack.EVENT_HUB.subscribe(
+        self.session.event_hub.subscribe(
             'topic=ftrack.processor.discover and '
             'data.object_type=shot',
             self.discover
         )
-        ftrack.EVENT_HUB.subscribe(
+        self.session.event_hub.subscribe(
             'topic=ftrack.processor.launch and data.name={0}'.format(
                 self.name
             ),
@@ -120,22 +140,17 @@ class ReviewPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
         )
 
 
-def register(registry, **kw):
-    '''Register hooks thumbnail processor.'''
-
-    logger = logging.getLogger(
-        'ftrack_processor_plugin:review.register'
-    )
-
-    # Validate that registry is an instance of ftrack.Registry. If not,
-    # assume that register is being called from a new or incompatible API and
+def register(session, **kw):
+    '''Register plugin. Called when used as an plugin.'''
+    # Validate that session is an instance of ftrack_api.Session. If not,
+    # assume that register is being called from an old or incompatible API and
     # return without doing anything.
-    if not isinstance(registry, ftrack.Registry):
-        logger.debug(
-            'Not subscribing plugin as passed argument {0!r} is not an '
-            'ftrack.Registry instance.'.format(registry)
-        )
+    if not isinstance(session, ftrack_api.session.Session):
         return
 
-    plugin = ReviewPlugin()
+    plugin = ReviewPlugin(
+        session
+    )
+
     plugin.register()
+
