@@ -620,9 +620,7 @@ class ProjectTreeDialog(QtWidgets.QDialog):
         while self.tool_box.count() > 0:
             self.tool_box.removeItem(0)
 
-    def get_type_and_status_from_name(self, object_type, name):
-        print object_type, name
-        
+    def get_type_and_status_from_name(self, object_type, name):        
         '''Return defaults as a tuple from *name* and *object_type*.'''
         key = object_type
         if object_type == 'Task':
