@@ -5,8 +5,6 @@ import os
 import tempfile
 import logging
 
-
-import ftrack_api
 import nuke
 from clique import Collection
 
@@ -25,6 +23,10 @@ def update_component():
         * component_name, the component which will contain the node result.
 
     '''
+
+    # Import inline to avoid issue where platform.system() is called in
+    # requests __init__.py.
+    import ftrack_api
 
     session = ftrack_api.Session()
 
@@ -188,6 +190,10 @@ def register(session, **kw):
     logger = logging.getLogger(
         'ftrack_processor_plugin:publish.register'
     )
+
+    # Import inline to avoid issue where platform.system() is called in
+    # requests __init__.py.
+    import ftrack_api
 
     '''Register plugin. Called when used as an plugin.'''
     # Validate that session is an instance of ftrack_api.Session. If not,
