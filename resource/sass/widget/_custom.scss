@@ -37,19 +37,24 @@ QFrame#ftrack-action-item:pressed {
 }
 
 QListWidget#ftrack-list-widget {
-     show-decoration-selected:1 ;
-     background-color: darken($white-almost, 5%);
-     border: 0px;
-     color: $text-color;
+    show-decoration-selected: 1;
+    background-color: darken($white-almost, 5%);
+    border: 0px;
+    color: $text-color;
+}
+
+QListWidget#ftrack-list-widget::item {
+    margin-left: 8 px;
+}
+
+QListWidget#ftrack-list-widget::item:selected {
+    selection-background-color: $brand-primary;
+    background-color: $brand-primary;
+    color: $text-color;
 }
 
 QListWidget#ftrack-list-widget::indicator:unchecked {
     border: 1px solid lighten($white-almost, 10%);
-}
-
-QListWidget::item:selected#ftrack-list-widget{
-    selection-background-color: $brand-primary;
-    color: $text-color;
 }
 
 
@@ -60,11 +65,10 @@ QFrame#ftrack-instances-widget {
 }
 
 QFrame#ftrack-instances-settings-widget {
-    background-color: red;
-    border-width: medium;
-    border-color: blue;
+    background-color: $white-almost;
+    border-right-width: medium;
+    border-right-color: darken($white-almost, 5%);
 }
-
 
 QFrame#ftrack-configuration-widget {
     background-color: darken($white-almost, 5%);
