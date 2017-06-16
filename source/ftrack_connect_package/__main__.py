@@ -43,7 +43,7 @@ if getattr(sys, 'frozen', False):
     # to the one shipped with the requests library.
     os.environ.setdefault(
         'WEBSOCKET_CLIENT_CA_BUNDLE',
-        os.environ.get('REQUEST_CA_BUNDLE')
+        os.environ.get('REQUESTS_CA_BUNDLE')
     )
 
     # Set the path to the included Nuke studio plugin.

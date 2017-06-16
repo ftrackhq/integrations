@@ -122,12 +122,8 @@ connect_cinema_4d_dependency_link = (
     '#egg=ftrack-connect-cinema-4d-0.1.0'
 )
 
-ftrack_python_legacy_api_install_require = 'ftrack-python-legacy-api >= 3.6.0'
+ftrack_python_legacy_api_install_require = 'ftrack-python-legacy-api >= 3.6.0, < 4'
 
-ftrack_python_legacy_api_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-python-legacy-api/get/3.6.0.tar.gz'
-    '#egg=ftrack-python-legacy-api-3.6.0'
-)
 
 
 # General configuration.
@@ -169,7 +165,6 @@ configuration = dict(
         'boto == 2.28.0'
     ],
     dependency_links=[
-        ftrack_python_legacy_api_dependency_link,
         connect_dependency_link,
         connect_legacy_plugins_dependency_link,
         ('https://bitbucket.org/ftrack/lowdown/get/0.1.0.zip'
