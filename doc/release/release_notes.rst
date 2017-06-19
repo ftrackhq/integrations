@@ -8,6 +8,9 @@ Release Notes
 *************
 
 .. release:: Upcoming
+    .. change:: fixed
+        Fail gracefully if not able to find rv install location in linux.
+
 
     .. change:: fixed
 
