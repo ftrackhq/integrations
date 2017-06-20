@@ -239,40 +239,40 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
             separator = os.path.sep
             prefix = RV_INSTALLATION_PATH
             if not os.path.exists(RV_INSTALLATION_PATH):
-                self.logger.warning(
+                self.logger.debug(
                     'No folder found for '
                     '$RV_INSTALLATION_PATH at : {0}'.format(
                         RV_INSTALLATION_PATH
                     )
                 )
-                return
 
-            # Check for leading slashes
-            if RV_INSTALLATION_PATH.startswith(separator):
-                # Strip it off if does exist
-                prefix = prefix[1:]
+            else:
+                # Check for leading slashes
+                if RV_INSTALLATION_PATH.startswith(separator):
+                    # Strip it off if does exist
+                    prefix = prefix[1:]
 
-            # Split the path in its components.
-            prefix = prefix.split(separator)
-            if RV_INSTALLATION_PATH.startswith(separator):
-                # Add leading slash back
-                prefix.insert(0, separator)
+                # Split the path in its components.
+                prefix = prefix.split(separator)
+                if RV_INSTALLATION_PATH.startswith(separator):
+                    # Add leading slash back
+                    prefix.insert(0, separator)
 
-            applications.extend(self._searchFilesystem(
-                expression=prefix + [
-                    'rv-Linux-x86-64-\d.+', 'bin', 'rv$'
-                ],
-                label='Review with RV',
-                variant='{version}',
-                applicationIdentifier='rv_{version}_with_review',
-                icon='rv',
-                launchArguments=[
-                    '-flags', 'ModeManagerPreload=ftrack'
-                ],
-                versionExpression=re.compile(
-                    r'(?P<version>\d+(\.\d+)+)'
-                )
-            ))
+                applications.extend(self._searchFilesystem(
+                    expression=prefix + [
+                        'rv-Linux-x86-64-\d.+', 'bin', 'rv$'
+                    ],
+                    label='Review with RV',
+                    variant='{version}',
+                    applicationIdentifier='rv_{version}_with_review',
+                    icon='rv',
+                    launchArguments=[
+                        '-flags', 'ModeManagerPreload=ftrack'
+                    ],
+                    versionExpression=re.compile(
+                        r'(?P<version>\d+(\.\d+)+)'
+                    )
+                ))
 
         self.logger.debug(
             'Discovered applications:\n{0}'.format(

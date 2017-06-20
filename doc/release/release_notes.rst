@@ -11,6 +11,10 @@ Release Notes
 
     .. change:: fixed
 
+        Plugin outputs error if installation location is not found for RV under Linux.
+
+    .. change:: fixed
+
         The action is registered twice in ftrack connect.
 
 .. release:: 3.5
