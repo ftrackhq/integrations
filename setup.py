@@ -24,7 +24,7 @@ README_PATH = os.path.join(ROOT_PATH, 'README.rst')
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
 DOWNLOAD_PLUGIN_PATH = os.path.join(
     BUILD_PATH, 'plugin-downloads-{0}'.format(
-        datetime.datetime.now().isoformat()
+        datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S')
     )
 )
 
@@ -232,7 +232,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
                         )
                     )
 
-                with open(temp_path, 'w') as package_file:
+                with open(temp_path, 'wb') as package_file:
                     package_file.write(response.content)
 
                 with zipfile.ZipFile(temp_path, 'r') as myzip:
@@ -535,6 +535,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'packaging.version',
         'packaging.specifiers',
         'packaging.requirements',
+        'ssl'
 
     ])
 
