@@ -12,7 +12,12 @@ Release Notes
 
     .. change:: fixed
 
-        Plugin outputs error if installation location is not found for RV under Linux.
+        Unable to add notes with annotations.
+
+    .. change:: fixed
+
+        Plugin outputs error if installation location is not found for RV under
+        Linux.
 
     .. change:: fixed
 
