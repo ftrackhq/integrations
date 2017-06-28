@@ -372,29 +372,31 @@ def getActionURL(params=None):
 
 def _generateURL(params=None, panelName=None):
     '''Return URL to panel in ftrack based on *params* or *panel*.'''
-    entityId = None
-    entityType = None
-
     url = ''
-    if params:
-        panelName = panelName or params
+    try:
+        entityId = None
+        entityType = None
 
-        try:
-            params = json.loads(params)
-            entityId = params['entityId'][0]
-            entityType = params['entityType'][0]
-        except Exception:
-            entityId, entityType = _getEntityFromEnvironment()
+        if params:
+            panelName = panelName or params
 
-        try:
-            url = ftrack.getWebWidgetUrl(
-                panelName, 'tf', entityId=entityId, entityType=entityType
-            )
-        except Exception as exception:
-            logger.error(str(exception))
+            try:
+                params = json.loads(params)
+                entityId = params['entityId'][0]
+                entityType = params['entityType'][0]
+            except Exception:
+                entityId, entityType = _getEntityFromEnvironment()
 
-    logger.info('Returning url "{0}"'.format(url))
+            try:
+                url = ftrack.getWebWidgetUrl(
+                    panelName, 'tf', entityId=entityId, entityType=entityType
+                )
+            except Exception as exception:
+                logger.error(str(exception))
 
+        logger.info('Returning url "{0}"'.format(url))
+    except Exception:
+        logger.exception('Failed to generate URL.')
     return url
 
 
@@ -407,8 +409,8 @@ def ftrackFilePath(id):
             filepath = tempfile.gettempdir()
         return filepath
     except Exception:
-        print traceback.format_exc()
-        return ""
+        logger.exception('Failed to get file path.')
+        return ''
 
 
 def ftrackUUID(short):
@@ -423,17 +425,20 @@ def ftrackJumpTo(index=0, startFrame=1):
     Moves the RV playhead to the specified *index*
 
     '''
-    index = int(index)
-    frameNumber = 0
+    try:
+        index = int(index)
+        frameNumber = 0
 
-    for idx, source in enumerate(rv.commands.nodesOfType('RVFileSource')):
-        if not idx >= index:
-            data = rv.commands.sourceMediaInfoList(source)[0]
-            add = (data.get('endFrame', 0) - data.get('startFrame', 0)) + 1
-            add = 1 if add == 0 else add
-            frameNumber += (add)
+        for idx, source in enumerate(rv.commands.nodesOfType('RVFileSource')):
+            if not idx >= index:
+                data = rv.commands.sourceMediaInfoList(source)[0]
+                add = (data.get('endFrame', 0) - data.get('startFrame', 0)) + 1
+                add = 1 if add == 0 else add
+                frameNumber += (add)
 
-    rv.commands.setFrame(frameNumber + startFrame)
+        rv.commands.setFrame(frameNumber + startFrame)
+    except Exception:
+        logger.exception('Failed to jump to index.')
 
 
 def create_component(encoded_args):
@@ -444,32 +449,40 @@ def create_component(encoded_args):
 
     Store reference in annotation_components.
     '''
-    args = json.loads(encoded_args)
-    file_name = args['file_name']
-    frame = args['frame']
+    component_id = None
+    try:
+        args = json.loads(encoded_args)
+        file_name = args['file_name']
+        frame = args['frame']
 
-    component_name = 'Frame_{0}'.format(frame)
-    file_path = os.path.join(ftrackFilePath(''), file_name)
-    logger.info(u'Creating component: {0!r}'.format(
-        file_path
-    ))
+        component_name = 'Frame_{0}'.format(frame)
+        file_path = os.path.join(ftrackFilePath(''), file_name)
+        logger.info(u'Creating component: {0!r}'.format(
+            file_path
+        ))
+        component = session.create_component(
+            path=file_path,
+            data=dict(name=component_name),
+            location=None
+        )
+        component_id = component['id']
+        annotation_components[component_id] = component
+    except Exception:
+        logger.exception('Failed to create component.')
 
-    component = session.create_component(
-        path=component_name,
-        location=origin_location
-    )
-
-    component_id = component['id']
-    annotation_components[component_id] = component
     return component_id
 
 
 def upload_component(component_id):
     '''Add component with *component_id* to ftrack server location.'''
-    logger.info(u'Adding component {0!r} to ftrack server location.'.format(
-        component_id
-    ))
-    component = annotation_components[component_id]
-    server_location.add_component(component, origin_location)
-    del annotation_components[component_id]
-    return component_id
+    try:
+        logger.info(u'Adding component {0!r} to ftrack server location.'.format(
+            component_id
+        ))
+        component = annotation_components[component_id]
+        server_location.add_component(component, origin_location)
+        del annotation_components[component_id]
+    except Exception:
+        logger.exception('Failed to upload component')
+    else:
+        return component_id
