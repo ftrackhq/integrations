@@ -8,6 +8,12 @@ Release Notes
 *************
 
 .. release:: Upcoming
+
+    .. change:: fixed
+        :tags: macOS
+
+        Occasional errors when running processors. 
+
     .. change:: fixed
         :tags: Export project
 
