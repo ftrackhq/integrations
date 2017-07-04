@@ -40,7 +40,6 @@ with open(os.path.join(
 
 external_connect_plugins = []
 for plugin in (
-    'ftrack-location-compatibilty-0.3.1.zip',
     'ftrack-connect-maya-publish-0.5.0.zip',
     'ftrack-connect-nuke-publish-0.5.1.zip'
 ):
@@ -55,6 +54,7 @@ connect_dependency_link = (
     'https://bitbucket.org/ftrack/ftrack-connect/get/master.zip'
     '#egg=ftrack-connect-0.1.33'
 )
+
 
 connect_3ds_max_install_require = 'ftrack-connect-3dsmax >=0.1, < 1'
 
@@ -124,6 +124,12 @@ connect_cinema_4d_dependency_link = (
 
 ftrack_python_legacy_api_install_require = 'ftrack-python-legacy-api >= 3.6.0, < 4'
 
+connect_ftrack_location_compatibilty_install_require = 'ftrack-location-compatibility >= 0.1, < 1'
+
+connect_ftrack_location_compatibilty_dependency_link = (
+    'https://bitbucket.org/ftrack/ftrack-location-compatibility/get/master.zip'
+    '#egg=ftrack-location-compatibility-0.3.2'
+)
 
 
 # General configuration.
@@ -148,7 +154,7 @@ configuration = dict(
         # The latest version of the cryptography library does not have a wheel
         # and building it fails.
         'cryptography == 1.8.2',
-        'pyopenssl',
+        'pyopenssl<= 1.7',
         'requests >= 2, <3'
     ],
     install_requires=[
@@ -162,6 +168,7 @@ configuration = dict(
         connect_nuke_studio_dependency_install_require,
         connect_rv_dependency_install_require,
         connect_cinema_4d_dependency_install_require,
+        connect_ftrack_location_compatibilty_install_require,
         'boto == 2.28.0'
     ],
     dependency_links=[
@@ -175,7 +182,8 @@ configuration = dict(
         connect_nuke_dependency_link,
         connect_nuke_studio_dependency_link,
         connect_rv_dependency_link,
-        connect_cinema_4d_dependency_link
+        connect_cinema_4d_dependency_link,
+        connect_ftrack_location_compatibilty_dependency_link
     ],
     options={}
 )
@@ -260,7 +268,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             connect_nuke_dependency_install_require,
             connect_nuke_studio_dependency_install_require,
             connect_rv_dependency_install_require,
-            connect_cinema_4d_dependency_install_require
+            connect_cinema_4d_dependency_install_require,
+            connect_ftrack_location_compatibilty_install_require
         ],
         dependency_links=[
             connect_dependency_link,
@@ -271,7 +280,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             connect_nuke_dependency_link,
             connect_nuke_studio_dependency_link,
             connect_rv_dependency_link,
-            connect_cinema_4d_dependency_link
+            connect_cinema_4d_dependency_link,
+            connect_ftrack_location_compatibilty_dependency_link
         ]
     ))
     connect_resource_hook = pkg_resources.resource_filename(
@@ -349,6 +359,11 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_3dsmax/hook'
     )
 
+    connect_ftrack_location_compatibilty_hook = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-location-compatibility'),
+        'ftrack_location_compatibility/hook'
+    )
+
     # Add requests certificates to resource folder.
     import requests.certs
 
@@ -368,6 +383,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         (ftrack_connect_maya_source, 'resource/ftrack_connect_maya'),
         (ftrack_connect_nuke_hook, 'resource/hook'),
         (ftrack_connect_nuke_source, 'resource/ftrack_connect_nuke'),
+        (connect_ftrack_location_compatibilty_hook, 'resource/hook'),
         (requests.certs.where(), 'resource/cacert.pem'),
         (
             ftrack_connect_nuke_studio_source,
@@ -539,6 +555,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_cinema_4d',
         'lucidity',
         'ftrack_connect_maya',
+        'ftrack_location_compatibility',
         'boto',
         'PySide.QtSvg',
         'PySide.QtXml',
