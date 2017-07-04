@@ -154,7 +154,7 @@ configuration = dict(
         # The latest version of the cryptography library does not have a wheel
         # and building it fails.
         'cryptography == 1.8.2',
-        'pyopenssl<= 1.7',
+        'pyopenssl<= 17.0.0,<17.0.1',
         'requests >= 2, <3'
     ],
     install_requires=[
