@@ -40,7 +40,7 @@ with open(os.path.join(
 
 external_connect_plugins = []
 for plugin in (
-    'ftrack-connect-maya-publish-0.5.0.zip',
+    'ftrack-connect-maya-publish-0.5.1.zip',
     'ftrack-connect-nuke-publish-0.5.1.zip'
 ):
     external_connect_plugins.append(
