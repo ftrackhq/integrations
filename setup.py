@@ -383,7 +383,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         (ftrack_connect_maya_source, 'resource/ftrack_connect_maya'),
         (ftrack_connect_nuke_hook, 'resource/hook'),
         (ftrack_connect_nuke_source, 'resource/ftrack_connect_nuke'),
-        (connect_ftrack_location_compatibilty_hook, 'resource/hook'),
+        (connect_ftrack_location_compatibilty_hook, 'resource/hook/ftrack_location_compatibility'),
         (requests.certs.where(), 'resource/cacert.pem'),
         (
             ftrack_connect_nuke_studio_source,
