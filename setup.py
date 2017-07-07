@@ -48,24 +48,26 @@ for plugin in (
     )
 
 
-connect_install_require = 'ftrack-connect == 0.1.33'
+connect_install_require = 'ftrack-connect >= 1.0'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/master.zip'
-    '#egg=ftrack-connect-0.1.33'
+    'https://bitbucket.org/ftrack/ftrack-connect/get/1.0.0.zip'
+    '#egg=ftrack-connect-1.0.0'
 )
 
 
 connect_3ds_max_install_require = 'ftrack-connect-3dsmax >=0.1, < 1'
 
 connect_3ds_max_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-3dsmax/get/master.zip'
-    '#egg=ftrack-connect-3dsmax-0.3.0'
+    'https://bitbucket.org/ftrack/ftrack-connect-3dsmax/get/0.2.11.tar.gz'
+    '#egg=ftrack-connect-3dsmax-0.2.11'
 )
+
+
 
 connect_legacy_plugins_install_require = (
     'ftrack-connect-legacy-plugins'
-    ' >=0.1, < 1'
+    ' >=1.0, < 2'
 )
 connect_legacy_plugins_dependency_link = (
     'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.10'
@@ -74,52 +76,52 @@ connect_legacy_plugins_dependency_link = (
 
 connect_hieroplayer_install_require = (
     'ftrack-connect-hieroplayer'
-    ' >=0.1, < 1'
+    ' >=1, < 2'
 )
 connect_hieroplayer_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-hieroplayer/get/master.zip'
-    '#egg=ftrack-connect-hieroplayer-0.2.0'
+    'https://bitbucket.org/ftrack/ftrack-connect-hieroplayer/get/1.1.5.zip'
+    '#egg=ftrack-connect-hieroplayer-1.1.5'
 )
 
 connect_nuke_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/master.zip'
-    '#egg=ftrack-connect-nuke-0.2.0'
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/1.0.0.zip'
+    '#egg=ftrack-connect-nuke-1.0.0'
 )
 connect_nuke_dependency_install_require = (
     'ftrack-connect-nuke'
-    ' >=0.1, < 1'
+    ' >=1, < 2'
 )
 
 connect_maya_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-maya/get/master.zip'
-    '#egg=ftrack-connect-maya-0.3.0'
+    'https://bitbucket.org/ftrack/ftrack-connect-maya/get/1.0.0.zip'
+    '#egg=ftrack-connect-maya-1.0.0'
 )
 connect_maya_dependency_install_require = (
     'ftrack-connect-maya'
-    ' >=0.1, < 1'
+    ' >=1.0, < 2'
 )
 
 connect_nuke_studio_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke-studio/get/master.zip'
-    '#egg=ftrack-connect-nuke-studio-0.3.0'
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke-studio/get/1.0.0.zip'
+    '#egg=ftrack-connect-nuke-studio-1.0.0'
 )
 connect_nuke_studio_dependency_install_require = (
     'ftrack-connect-nuke-studio'
-    ' >=0.1, < 1'
+    ' >=1.0, < 2'
 )
 
 connect_rv_dependency_install_require = 'ftrack-connect-rv >=3.4, < 4'
 
 connect_rv_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-rv/get/master.zip'
-    '#egg=ftrack-connect-rv-3.5'
+    'https://bitbucket.org/ftrack/ftrack-connect-rv/get/3.6.zip'
+    '#egg=ftrack-connect-rv-3.6'
 )
 
 connect_cinema_4d_dependency_install_require = 'ftrack-connect-cinema-4d >=0.1, < 1'
 
 connect_cinema_4d_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-cinema-4d/get/0.1.0.zip'
-    '#egg=ftrack-connect-cinema-4d-0.1.0'
+    'https://bitbucket.org/ftrack/ftrack-connect-cinema-4d/get/0.1.3.zip'
+    '#egg=ftrack-connect-cinema-4d-0.1.3'
 )
 
 ftrack_python_legacy_api_install_require = 'ftrack-python-legacy-api >= 3.6.0, < 4'
@@ -127,7 +129,7 @@ ftrack_python_legacy_api_install_require = 'ftrack-python-legacy-api >= 3.6.0, <
 connect_ftrack_location_compatibilty_install_require = 'ftrack-location-compatibility >= 0.1, < 1'
 
 connect_ftrack_location_compatibilty_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-location-compatibility/get/master.zip'
+    'https://bitbucket.org/ftrack/ftrack-location-compatibility/get/0.3.2.zip'
     '#egg=ftrack-location-compatibility-0.3.2'
 )
 
