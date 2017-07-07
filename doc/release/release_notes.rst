@@ -7,7 +7,8 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 1.0.0
+    :date: 2017-07-07
 
     .. change:: fixed
         :tags: macOS
