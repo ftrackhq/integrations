@@ -5,11 +5,49 @@
 Releases
 ########
 
-.. release:: Upcoming
-    .. change:: fixed
+.. release:: 0.6.1
+    :date: 2017-07-07
 
-    Allow for the use of a http proxy server through the environment variables
-    :envvar:`http_proxy` and :envvar:`https_proxy`.
+    .. change:: new
+
+        Allow for the use of a http proxy server through the environment variables
+        :envvar:`http_proxy` and :envvar:`https_proxy`.
+
+    .. change:: new
+
+        `ftrack python legacy api <http://ftrack-python-legacy-api.rtd.ftrack.com/en/stable/>`_
+
+    .. change:: changed
+
+        `ftrack connect cinema 4d 0.1.3 <http://ftrack-connect-cinema-4d.rtd.ftrack.com/en/0.1.3/>`_
+
+    .. change:: changed
+
+        `ftrack connect hieroplayer 1.1.5 <http://ftrack-connect-hieroplayer.rtd.ftrack.com/en/1.1.5/>`_
+
+    .. change:: changed
+
+        `ftrack connect legacy plugins 1.0.0 <http://ftrack-connect-legacy-plugins.rtd.ftrack.com/en/1.0.0/>`_
+
+    .. change:: changed
+
+        `ftrack connect 1.0.0 <http://ftrack-connect.rtd.ftrack.com/en/1.0.0/>`_
+
+    .. change:: changed
+
+        `ftrack connect maya 1.0.0 <http://ftrack-connect-maya.rtd.ftrack.com/en/1.0.0/>`_
+
+    .. change:: changed
+
+        `ftrack connect nuke 1.0.0 <http://ftrack-connect-nuke.rtd.ftrack.com/en/1.0.0/>`_
+
+    .. change:: changed
+
+        `ftrack connect nuke studio 1.0.0 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/1.0.0/>`_
+
+    .. change:: changed
+
+        `ftrack connect rv 3.6 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/3.6/>`_
 
 .. release:: 0.5.6
     :date: 2017-01-13
