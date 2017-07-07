@@ -1,12 +1,18 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 
+import datetime
 import sys
 import os
 import re
 import pkg_resources
 import opcode
 import logging
+import zipfile
+
+logging.basicConfig(
+    level=logging.INFO
+)
 
 from setuptools import setup, Distribution, find_packages
 
@@ -15,6 +21,12 @@ ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
+BUILD_PATH = os.path.join(ROOT_PATH, 'build')
+DOWNLOAD_PLUGIN_PATH = os.path.join(
+    BUILD_PATH, 'plugin-downloads-{0}'.format(
+        datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S')
+    )
+)
 
 
 # Read version from source.
@@ -25,78 +37,102 @@ with open(os.path.join(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
-connect_install_require = 'ftrack-connect == 0.1.32'
+
+external_connect_plugins = []
+for plugin in (
+    'ftrack-connect-maya-publish-0.5.1.zip',
+    'ftrack-connect-nuke-publish-0.5.1.zip'
+):
+    external_connect_plugins.append(
+        (plugin, plugin.replace('.zip', ''))
+    )
+
+
+connect_install_require = 'ftrack-connect == 1.0'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.32.zip'
-    '#egg=ftrack-connect-0.1.32'
+    'https://bitbucket.org/ftrack/ftrack-connect/get/1.0.0.zip'
+    '#egg=ftrack-connect-1.0.0'
 )
+
 
 connect_3ds_max_install_require = 'ftrack-connect-3dsmax >=0.1, < 1'
 
 connect_3ds_max_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-3dsmax/get/0.2.11.zip'
+    'https://bitbucket.org/ftrack/ftrack-connect-3dsmax/get/0.2.11.tar.gz'
     '#egg=ftrack-connect-3dsmax-0.2.11'
 )
 
+
+
 connect_legacy_plugins_install_require = (
     'ftrack-connect-legacy-plugins'
-    ' >=0.1, < 1'
+    ' >=1.0, < 2'
 )
 connect_legacy_plugins_dependency_link = (
-    'file://{0}#egg=ftrack-connect-legacy-plugins-0.1.10'
+    'file://{0}#egg=ftrack-connect-legacy-plugins-1.0.0'
     .format(os.environ['FTRACK_CONNECT_LEGACY_PLUGINS_PATH'].replace('\\', '/'))
 )
 
 connect_hieroplayer_install_require = (
     'ftrack-connect-hieroplayer'
-    ' >=0.1, < 1'
+    ' >=1, < 2'
 )
 connect_hieroplayer_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-hieroplayer/get/0.1.5.zip'
-    '#egg=ftrack-connect-hieroplayer-0.1.5'
+    'https://bitbucket.org/ftrack/ftrack-connect-hieroplayer/get/1.1.5.zip'
+    '#egg=ftrack-connect-hieroplayer-1.1.5'
 )
 
 connect_nuke_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/0.1.13.zip'
-    '#egg=ftrack-connect-nuke-0.1.13'
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/1.0.0.zip'
+    '#egg=ftrack-connect-nuke-1.0.0'
 )
 connect_nuke_dependency_install_require = (
     'ftrack-connect-nuke'
-    ' >=0.1, < 1'
+    ' >=1, < 2'
 )
 
 connect_maya_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-maya/get/0.2.5.zip'
-    '#egg=ftrack-connect-maya-0.2.5'
+    'https://bitbucket.org/ftrack/ftrack-connect-maya/get/1.0.0.zip'
+    '#egg=ftrack-connect-maya-1.0.0'
 )
 connect_maya_dependency_install_require = (
     'ftrack-connect-maya'
-    ' >=0.1, < 1'
+    ' >=1.0, < 2'
 )
 
 connect_nuke_studio_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke-studio/get/0.2.7.zip'
-    '#egg=ftrack-connect-nuke-studio-0.2.7'
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke-studio/get/1.0.0.zip'
+    '#egg=ftrack-connect-nuke-studio-1.0.0'
 )
 connect_nuke_studio_dependency_install_require = (
     'ftrack-connect-nuke-studio'
-    ' >=0.1, < 1'
+    ' >=1.0, < 2'
 )
 
-connect_rv_dependency_install_require = 'ftrack-connect-rv >=0.1, < 1'
+connect_rv_dependency_install_require = 'ftrack-connect-rv >=3.4, < 4'
 
 connect_rv_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-rv/get/0.1.0.zip'
-    '#egg=ftrack-connect-rv-0.1.0'
+    'https://bitbucket.org/ftrack/ftrack-connect-rv/get/3.6.zip'
+    '#egg=ftrack-connect-rv-3.6'
 )
 
 connect_cinema_4d_dependency_install_require = 'ftrack-connect-cinema-4d >=0.1, < 1'
 
 connect_cinema_4d_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-cinema-4d/get/0.1.0.zip'
-    '#egg=ftrack-connect-cinema-4d-0.1.0'
+    'https://bitbucket.org/ftrack/ftrack-connect-cinema-4d/get/0.1.3.zip'
+    '#egg=ftrack-connect-cinema-4d-0.1.3'
 )
+
+ftrack_python_legacy_api_install_require = 'ftrack-python-legacy-api >= 3.6.0, < 4'
+
+connect_ftrack_location_compatibilty_install_require = 'ftrack-location-compatibility >= 0.1, < 1'
+
+connect_ftrack_location_compatibilty_dependency_link = (
+    'https://bitbucket.org/ftrack/ftrack-location-compatibility/get/0.3.2.zip'
+    '#egg=ftrack-location-compatibility-0.3.2'
+)
+
 
 # General configuration.
 configuration = dict(
@@ -119,12 +155,12 @@ configuration = dict(
         'lowdown >= 0.1.0, < 1',
         # The latest version of the cryptography library does not have a wheel
         # and building it fails.
-        'cryptography == 1.4',
-        'pyopenssl',
+        'cryptography == 1.8.2',
+        'pyopenssl<= 17.0.0,<17.0.1',
         'requests >= 2, <3'
     ],
     install_requires=[
-        'ftrack-python-legacy-api',
+        ftrack_python_legacy_api_install_require,
         connect_install_require,
         connect_3ds_max_install_require,
         connect_legacy_plugins_install_require,
@@ -134,12 +170,10 @@ configuration = dict(
         connect_nuke_studio_dependency_install_require,
         connect_rv_dependency_install_require,
         connect_cinema_4d_dependency_install_require,
+        connect_ftrack_location_compatibilty_install_require,
         'boto == 2.28.0'
     ],
     dependency_links=[
-        'file://{0}#egg=ftrack-python-legacy-api'.format(
-            os.environ['FTRACK_PYTHON_LEGACY_API_PATH'].replace('\\', '/')
-        ),
         connect_dependency_link,
         connect_legacy_plugins_dependency_link,
         ('https://bitbucket.org/ftrack/lowdown/get/0.1.0.zip'
@@ -150,7 +184,8 @@ configuration = dict(
         connect_nuke_dependency_link,
         connect_nuke_studio_dependency_link,
         connect_rv_dependency_link,
-        connect_cinema_4d_dependency_link
+        connect_cinema_4d_dependency_link,
+        connect_ftrack_location_compatibilty_dependency_link
     ],
     options={}
 )
@@ -171,7 +206,55 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
     )
     configuration['setup_requires'].append('cx_freeze')
 
-    from cx_Freeze import setup, Executable
+    from cx_Freeze import setup, Executable, build
+
+    class Build(build):
+        '''Custom build to pre-build resources.'''
+
+        def run(self):
+            '''Run build ensuring build_resources called first.'''
+            download_url = (
+                'https://s3-eu-west-1.amazonaws.com/ftrack-deployment/'
+                'ftrack-connect/plugins/'
+            )
+            import requests
+
+            #: TODO: Clean up the temporary download folder.
+            os.makedirs(DOWNLOAD_PLUGIN_PATH)
+
+            for plugin, target in external_connect_plugins:
+                url = download_url + plugin
+                temp_path = os.path.join(DOWNLOAD_PLUGIN_PATH, plugin)
+                logging.info(
+                    'Downloading url {0} to {1}'.format(
+                        url,
+                        temp_path
+                    )
+                )
+
+                response = requests.get(url)
+                response.raise_for_status()
+
+                if response.status_code != 200:
+                    raise ValueError(
+                        'Got status code not equal to 200: {0}'.format(
+                            response.status_code
+                        )
+                    )
+
+                with open(temp_path, 'wb') as package_file:
+                    package_file.write(response.content)
+
+                with zipfile.ZipFile(temp_path, 'r') as myzip:
+                    myzip.extractall(
+                        os.path.join(DOWNLOAD_PLUGIN_PATH, target)
+                    )
+
+            build.run(self)
+
+    configuration['cmdclass'] = {
+        'build': Build
+    }
 
     # Ensure ftrack-connect is
     # available for import and then discover ftrack-connect and
@@ -187,7 +270,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             connect_nuke_dependency_install_require,
             connect_nuke_studio_dependency_install_require,
             connect_rv_dependency_install_require,
-            connect_cinema_4d_dependency_install_require
+            connect_cinema_4d_dependency_install_require,
+            connect_ftrack_location_compatibilty_install_require
         ],
         dependency_links=[
             connect_dependency_link,
@@ -198,7 +282,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             connect_nuke_dependency_link,
             connect_nuke_studio_dependency_link,
             connect_rv_dependency_link,
-            connect_cinema_4d_dependency_link
+            connect_cinema_4d_dependency_link,
+            connect_ftrack_location_compatibilty_dependency_link
         ]
     ))
     connect_resource_hook = pkg_resources.resource_filename(
@@ -276,8 +361,14 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_3dsmax/hook'
     )
 
+    connect_ftrack_location_compatibilty_hook = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('ftrack-location-compatibility'),
+        'ftrack_location_compatibility/hook'
+    )
+
     # Add requests certificates to resource folder.
     import requests.certs
+
 
     include_files = [
         (connect_resource_hook, 'resource/hook'),
@@ -294,6 +385,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         (ftrack_connect_maya_source, 'resource/ftrack_connect_maya'),
         (ftrack_connect_nuke_hook, 'resource/hook'),
         (ftrack_connect_nuke_source, 'resource/ftrack_connect_nuke'),
+        (connect_ftrack_location_compatibilty_hook, 'resource/hook/ftrack_location_compatibility'),
         (requests.certs.where(), 'resource/cacert.pem'),
         (
             ftrack_connect_nuke_studio_source,
@@ -304,6 +396,17 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             SOURCE_PATH, 'ftrack_connect_package', '_version.py'
         ), 'resource/ftrack_connect_package_version.py')
     ]
+
+    for _, plugin_directory in external_connect_plugins:
+        plugin_download_path = os.path.join(
+            DOWNLOAD_PLUGIN_PATH, plugin_directory
+        )
+        include_files.append(
+            (
+                os.path.relpath(plugin_download_path, ROOT_PATH),
+                'resource/connect-standard-plugins/' + plugin_directory
+            )
+        )
 
     executables = []
     bin_includes = []
@@ -364,13 +467,24 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         # Specify upgrade code to a random GUID to ensure the MSI
         # package is upgraded when installing a new version.
         configuration['options']['bdist_msi'] = {
-            'upgrade_code': '{e5666af3-56a5-426a-b308-54c2d6ad8704}'
+            'upgrade_code': '{e5666af3-56a5-426a-b308-54c2d6ad8704}',
+            'initial_target_dir': r'[ProgramFilesFolder]\{0}-{1}'.format(
+                'ftrack-connect-package', VERSION
+            )
         }
+
 
         # Specify shortucut list for MSI installer
         configuration['options']['bdist_msi'] = {
             'data': {'Shortcut': shortcut_table}
         }
+
+        # Seperate ftrack connect versions to separate install directories
+        # it should be possible to pass this as an option with 'initial_target_dir'
+        # but I did not manage to get it to work.
+        sys.argv += ['--initial-target-dir',  r'[ProgramFilesFolder]\{0}-{1}'.format(
+                'ftrack-connect-package', VERSION)
+        ]
 
     elif sys.platform == 'darwin':
         executables.append(
@@ -443,9 +557,16 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_cinema_4d',
         'lucidity',
         'ftrack_connect_maya',
+        'ftrack_location_compatibility',
         'boto',
         'PySide.QtSvg',
-        'PySide.QtXml'
+        'PySide.QtXml',
+        'packaging',
+        'packaging.version',
+        'packaging.specifiers',
+        'packaging.requirements',
+        'ssl'
+
     ])
 
     configuration['options']['build_exe'] = {
