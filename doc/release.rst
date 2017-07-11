@@ -5,6 +5,17 @@
 Releases
 ########
 
+.. release:: 0.6.2
+    :date: 2017-07-11
+
+    .. change:: changed
+
+        `ftrack connect nuke 1.0.1 <http://ftrack-connect-nuke.rtd.ftrack.com/en/1.0.1/>`_
+
+    .. change:: changed
+
+        `ftrack connect 1.0.1 <http://ftrack-connect.rtd.ftrack.com/en/1.0.1/>`_
+
 .. release:: 0.6.1
     :date: 2017-07-07
 
