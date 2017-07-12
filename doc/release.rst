@@ -58,7 +58,7 @@ Releases
 
     .. change:: changed
 
-        `ftrack connect rv 3.6 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/3.6/>`_
+        `ftrack connect rv 3.6 <http://ftrack-connect-rv.rtd.ftrack.com/en/3.6/>`_
 
 .. release:: 0.5.6
     :date: 2017-01-13
