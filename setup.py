@@ -48,7 +48,7 @@ for plugin in (
     )
 
 
-connect_install_require = 'ftrack-connect == 1.0'
+connect_install_require = 'ftrack-connect == 1.0.1'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
     'https://bitbucket.org/ftrack/ftrack-connect/get/1.0.1.zip'
