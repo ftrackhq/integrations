@@ -28,7 +28,7 @@ except Exception as e:
 
 from ftrack_connect_nuke_studio.ui.tag_drop_handler import TagDropHandler
 import ftrack_connect_nuke_studio.ui.tag_manager
-# import ftrack_connect_nuke_studio.ui.widget.info_view
+import ftrack_connect_nuke_studio.ui.widget.info_view
 import ftrack_connect_nuke_studio.ui.crew
 import ftrack_connect_nuke_studio.ui.create_project
 
@@ -55,21 +55,21 @@ def populate_ftrack(event):
 
     window_manager = hiero.ui.windowManager()
 
-    # information_view = ftrack_connect_nuke_studio.ui.widget.info_view.InfoView(
-    #     parent=parent
-    # )
-    # window_manager.addWindow(information_view)
+    information_view = ftrack_connect_nuke_studio.ui.widget.info_view.InfoView(
+        parent=parent
+    )
+    window_manager.addWindow(information_view)
 
-    # information_view_action = QtWidgets.QAction(
-    #     ftrack_connect_nuke_studio.ui.widget.info_view.InfoView.get_display_name(),
-    #     ftrack_menu
-    # )
+    information_view_action = QtWidgets.QAction(
+        ftrack_connect_nuke_studio.ui.widget.info_view.InfoView.get_display_name(),
+        ftrack_menu
+    )
 
-    # information_view_action.triggered.connect(
-    #     functools.partial(window_manager.showWindow, information_view)
-    # )
+    information_view_action.triggered.connect(
+        functools.partial(window_manager.showWindow, information_view)
+    )
 
-    # ftrack_menu.addAction(information_view_action)
+    ftrack_menu.addAction(information_view_action)
 
     crew = ftrack_connect_nuke_studio.ui.crew.NukeCrew()
 
