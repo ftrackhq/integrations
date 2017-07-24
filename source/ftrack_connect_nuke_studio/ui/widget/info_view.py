@@ -83,7 +83,7 @@ class InfoView(
                 '}})'
                 .format(entityId, entityType)
             )
-            self._webView.page().mainFrame().evaluateJavaScript(javascript)
+            self.evaluateJavaScript(javascript)
 
     def on_selection_changed(self, event):
         '''Handle selection changed events.'''
