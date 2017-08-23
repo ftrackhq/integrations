@@ -7,8 +7,6 @@ import threading
 
 import nuke
 
-import ftrack_api
-
 import ftrack_connect_nuke_studio.processor
 
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -16,6 +14,9 @@ FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 def publish_reviewable_component(version_id, component, out):
     '''Publish a reviewable component to *version_id*'''
+    # Import inline to avoid issue where platform.system() is called in
+    # requests __init__.py.
+    import ftrack_api
 
     session = ftrack_api.Session()
 
@@ -142,6 +143,10 @@ class ReviewPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
 
 def register(session, **kw):
     '''Register plugin. Called when used as an plugin.'''
+    # Import inline to avoid issue where platform.system() is called in
+    # requests __init__.py.
+    import ftrack_api
+
     # Validate that session is an instance of ftrack_api.Session. If not,
     # assume that register is being called from an old or incompatible API and
     # return without doing anything.

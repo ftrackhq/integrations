@@ -5,7 +5,6 @@ import os
 import tempfile
 import logging
 
-import ftrack_api
 import nuke
 from clique import Collection
 
@@ -22,6 +21,10 @@ def create_component():
         * component_name, the component which will contain the node result.
 
     '''
+
+    # Import inline to avoid issue where platform.system() is called in
+    # requests __init__.py.
+    import ftrack_api
 
     session = ftrack_api.Session()
 
@@ -130,6 +133,11 @@ class ProxyPlugin(ftrack_connect_nuke_studio.processor.ProcessorPlugin):
 
 def register(session, **kw):
     '''Register plugin. Called when used as an plugin.'''
+    
+    # Import inline to avoid issue where platform.system() is called in
+    # requests __init__.py.
+    import ftrack_api
+
     # Validate that session is an instance of ftrack_api.Session. If not,
     # assume that register is being called from an old or incompatible API and
     # return without doing anything.

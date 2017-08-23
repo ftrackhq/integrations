@@ -14,6 +14,14 @@ Release Notes
 
         Nuke 11 not supported.
 
+.. release:: 1.0.0
+    :date: 2017-07-07
+
+    .. change:: fixed
+        :tags: macOS
+
+        Occasional errors when running processors. 
+
     .. change:: fixed
         :tags: Export project
 
