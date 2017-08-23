@@ -17,13 +17,14 @@ import ftrack_connect.event_hub_thread
 # TODO: Check with The Foundry if there is any better way to customise logging.
 from . import logging as _logging
 _logging.setup()
+logger = logging.getLogger(__name__)
 
 
 import ftrack
 try:
     ftrack.setup()
 except Exception as e:
-    print e
+    logger.debug(e)
     pass
 
 from ftrack_connect_nuke_studio.ui.tag_drop_handler import TagDropHandler
@@ -40,8 +41,6 @@ eventHubThread.start()
 import ftrack_connect_nuke_studio.crew_hub
 
 ftrack_connect.ui.theme.applyFont()
-
-logger = logging.getLogger(__name__)
 
 
 def populate_ftrack(event):
