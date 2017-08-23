@@ -25,7 +25,7 @@ try:
     ftrack.setup()
 except Exception as e:
     logger.debug(e)
-    pass
+
 
 from ftrack_connect_nuke_studio.ui.tag_drop_handler import TagDropHandler
 import ftrack_connect_nuke_studio.ui.tag_manager
