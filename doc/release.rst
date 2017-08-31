@@ -5,6 +5,12 @@
 Releases
 ########
 
+.. release:: Upcoming
+
+    .. change:: fixed
+
+    Connect segfault with "Cannot mix incompatible Qt library (version 0x40807) with this library (version 0x40806)".
+
 .. release:: 0.6.2
     :date: 2017-07-11
 
