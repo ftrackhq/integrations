@@ -394,7 +394,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         (ftrack_connect_nuke_studio_hook, 'resource/hook'),
         (os.path.join(
             SOURCE_PATH, 'ftrack_connect_package', '_version.py'
-        ), 'resource/ftrack_connect_package_version.py')
+        ), 'resource/ftrack_connect_package_version.py'),
+        'qt.conf'
     ]
 
     for _, plugin_directory in external_connect_plugins:
