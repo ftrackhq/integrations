@@ -6,7 +6,7 @@ from __future__ import absolute_import
 import functools
 import logging
 
-from PySide import QtGui
+from QtExt import QtGui, QtWidgets, is_webwidget_supported
 import hiero.ui
 import hiero.core
 
@@ -17,6 +17,7 @@ import ftrack_connect.event_hub_thread
 # TODO: Check with The Foundry if there is any better way to customise logging.
 from . import logging as _logging
 _logging.setup()
+logger = logging.getLogger(__name__)
 
 
 import ftrack
@@ -25,9 +26,9 @@ ftrack.setup()
 
 from ftrack_connect_nuke_studio.ui.tag_drop_handler import TagDropHandler
 import ftrack_connect_nuke_studio.ui.tag_manager
-import ftrack_connect_nuke_studio.ui.widget.info_view
 import ftrack_connect_nuke_studio.ui.crew
 import ftrack_connect_nuke_studio.ui.create_project
+import ftrack_connect_nuke_studio.ui.widget.info_view
 
 # Start thread to handle events from ftrack.
 eventHubThread = ftrack_connect.event_hub_thread.EventHubThread()
@@ -37,8 +38,6 @@ eventHubThread.start()
 import ftrack_connect_nuke_studio.crew_hub
 
 ftrack_connect.ui.theme.applyFont()
-
-logger = logging.getLogger(__name__)
 
 
 def populate_ftrack(event):
@@ -52,27 +51,28 @@ def populate_ftrack(event):
 
     window_manager = hiero.ui.windowManager()
 
-    information_view = ftrack_connect_nuke_studio.ui.widget.info_view.InfoView(
-        parent=parent
-    )
-    window_manager.addWindow(information_view)
+    if is_webwidget_supported():
+        information_view = ftrack_connect_nuke_studio.ui.widget.info_view.InfoView(
+            parent=parent
+        )
+        window_manager.addWindow(information_view)
 
-    information_view_action = QtGui.QAction(
-        ftrack_connect_nuke_studio.ui.widget.info_view.InfoView.get_display_name(),
-        ftrack_menu
-    )
+        information_view_action = QtWidgets.QAction(
+            ftrack_connect_nuke_studio.ui.widget.info_view.InfoView.get_display_name(),
+            ftrack_menu
+        )
 
-    information_view_action.triggered.connect(
-        functools.partial(window_manager.showWindow, information_view)
-    )
+        information_view_action.triggered.connect(
+            functools.partial(window_manager.showWindow, information_view)
+        )
 
-    ftrack_menu.addAction(information_view_action)
+        ftrack_menu.addAction(information_view_action)
 
     crew = ftrack_connect_nuke_studio.ui.crew.NukeCrew()
 
     window_manager.addWindow(crew)
 
-    crew_action = QtGui.QAction(
+    crew_action = QtWidgets.QAction(
         'Crew', ftrack_menu
     )
 
@@ -118,7 +118,7 @@ def on_context_menu_event(event):
         open_export_dialog, event.sender.selection()
     )
 
-    action = QtGui.QAction(
+    action = QtWidgets.QAction(
         'Export project', menu,
         triggered=action_callback
     )

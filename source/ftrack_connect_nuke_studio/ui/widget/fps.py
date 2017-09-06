@@ -1,12 +1,12 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015 ftrack
 
-from PySide import QtGui
+from QtExt import QtGui, QtCore, QtWidgets
 
 import hiero
 
 
-class Fps(QtGui.QComboBox):
+class Fps(QtWidgets.QComboBox):
     '''Extract fps from hiero and expose them.'''
     def __init__(self, parent=None, default_value=None):
         super(Fps, self).__init__(parent=parent)

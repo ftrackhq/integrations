@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: fixed
+        :tags: Nuke Studio
+
+        Nuke 11 not supported.
+
 .. release:: 1.0.0
     :date: 2017-07-07
 

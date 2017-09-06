@@ -3,7 +3,7 @@
 
 import logging
 
-from PySide import QtGui, QtCore
+from QtExt import QtGui, QtCore, QtWidgets
 
 from ftrack_connect.ui.model.entity_tree import EntityTreeModel
 from ftrack_connect_nuke_studio.ui.helper import (
