@@ -23,8 +23,8 @@ logger = logging.getLogger(__name__)
 import ftrack
 try:
     ftrack.setup()
-except Exception as e:
-    logger.debug(e)
+except Exception as error:
+    logger.debug(error)
 
 
 from ftrack_connect_nuke_studio.ui.tag_drop_handler import TagDropHandler
