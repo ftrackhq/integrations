@@ -10,7 +10,7 @@ Release Notes
 .. release:: Upcoming
 
     .. change:: fixed
-        :tags: API
+        :tags: Nuke Studio
 
         Nuke 11 not supported.
 
