@@ -9,7 +9,16 @@ Releases
 
     .. change:: fixed
 
-    Connect segfault with "Cannot mix incompatible Qt library (version 0x40807) with this library (version 0x40806)".
+    Cannot mix incompatible Qt library (version 0x40807) with this library (version 0x40806).
+
+    .. note::   
+
+        Qt look for plugins through the $QT_PLUGIN_PATH environment in the system
+        as well as in the local directory. If the system version of QT is not the same 
+        as the one shipped with connect, Qt will break trying to load plugins which 
+        has been compiled with different version.
+        qt.conf restrict the search to the local folder only.
+
 
 .. release:: 0.6.2
     :date: 2017-07-11
