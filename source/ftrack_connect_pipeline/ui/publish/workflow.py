@@ -203,7 +203,7 @@ class PublishResult(Overlay):
         self.layout().addWidget(self.activeWidget)
         main_layout = self.activeWidget.layout()
 
-        icon = QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor')
+        icon = QtGui.QPixmap(':ftrack/image/default/ftrackLogoLabelNew')
         icon = icon.scaled(
             QtCore.QSize(85, 85),
             QtCore.Qt.KeepAspectRatio,
