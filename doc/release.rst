@@ -5,6 +5,12 @@
 Releases
 ########
 
+.. release:: upcoming
+
+    .. change:: fixed
+
+        Cannot connect over https on certain macOS configurations.
+
 .. release:: 0.6.2
     :date: 2017-07-11
 
