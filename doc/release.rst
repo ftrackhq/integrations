@@ -7,6 +7,10 @@ Releases
 
 .. release:: Upcoming
 
+    .. change:: new
+
+       Added logging for overridden environment variables to simplify debugging.
+
     .. change:: fixed
 
        Cannot mix incompatible Qt library (version 0x40807) with this library (version 0x40806).
