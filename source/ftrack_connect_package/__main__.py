@@ -46,6 +46,12 @@ if getattr(sys, 'frozen', False):
         os.environ.get('REQUESTS_CA_BUNDLE')
     )
 
+    # The httplib in python +2.7.9 requires a cacert file.
+    os.environ.setdefault(
+        'SSL_CERT_FILE',
+        os.environ.get('REQUESTS_CA_BUNDLE')
+    )
+
     # Set the path to the included Nuke studio plugin.
     os.environ.setdefault(
         'FTRACK_CONNECT_NUKE_STUDIO_PATH',
