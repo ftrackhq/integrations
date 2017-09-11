@@ -19,6 +19,9 @@ Releases
         has been compiled with different version.
         qt.conf restrict the search to the local folder only.
 
+    .. change:: fixed
+
+        Cannot connect over https on certain macOS configurations.
 
 .. release:: 0.6.2
     :date: 2017-07-11
