@@ -4,12 +4,27 @@
 import sys
 import os
 import argparse
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+def set_environ_default(name, value):
+    '''Set environment variable *name* and *value* as default.'''
+    if name in os.environ:
+        logger.debug(
+            u'{0} already configured in environment: {1}'.format(
+                name, value
+            )
+        )
+
+    os.environ.setdefault(name, value)
 
 
 if getattr(sys, 'frozen', False):
     # Hooks use the ftrack event system. Set the FTRACK_EVENT_PLUGIN_PATH
     # to pick up the default hooks if it has not already been set.
-    os.environ.setdefault(
+    set_environ_default(
         'FTRACK_EVENT_PLUGIN_PATH',
         os.path.abspath(
             os.path.join(
@@ -19,7 +34,7 @@ if getattr(sys, 'frozen', False):
     )
 
     # Set path to resource script folder if package is frozen.
-    os.environ.setdefault(
+    set_environ_default(
         'FTRACK_RESOURCE_SCRIPT_PATH',
         os.path.abspath(
             os.path.join(
@@ -30,7 +45,7 @@ if getattr(sys, 'frozen', False):
 
     # Set the path to certificate file in resource folder. This allows requests
     # module to read it outside frozen zip file.
-    os.environ.setdefault(
+    set_environ_default(
         'REQUESTS_CA_BUNDLE',
         os.path.abspath(
             os.path.join(
@@ -41,19 +56,19 @@ if getattr(sys, 'frozen', False):
 
     # Websocket-client ships with its own cacert file, we however default
     # to the one shipped with the requests library.
-    os.environ.setdefault(
+    set_environ_default(
         'WEBSOCKET_CLIENT_CA_BUNDLE',
         os.environ.get('REQUESTS_CA_BUNDLE')
     )
 
     # The httplib in python +2.7.9 requires a cacert file.
-    os.environ.setdefault(
+    set_environ_default(
         'SSL_CERT_FILE',
         os.environ.get('REQUESTS_CA_BUNDLE')
     )
 
     # Set the path to the included Nuke studio plugin.
-    os.environ.setdefault(
+    set_environ_default(
         'FTRACK_CONNECT_NUKE_STUDIO_PATH',
         os.path.abspath(
             os.path.join(
@@ -81,8 +96,7 @@ if getattr(sys, 'frozen', False):
         ftrack_connect_plugin_paths
     )
 
-
-    os.environ.setdefault(
+    set_environ_default(
         'FTRACK_CONNECT_PACKAGE_RESOURCE_PATH',
         os.path.abspath(
             os.path.join(
