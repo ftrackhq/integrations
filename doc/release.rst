@@ -9,7 +9,7 @@ Releases
 
     .. change:: fixed
 
-    Cannot mix incompatible Qt library (version 0x40807) with this library (version 0x40806).
+       Cannot mix incompatible Qt library (version 0x40807) with this library (version 0x40806).
 
     .. note::   
 
