@@ -7,6 +7,15 @@
 Release Notes
 *************
 
+.. release:: 0.8.0
+    :date: 2017-09-12
+
+    .. change:: new
+        :tags: Widget
+
+
+        3D Studio Max 2017 style changes.
+
 .. release:: 0.7.0
     :date: 2017-04-06
 
