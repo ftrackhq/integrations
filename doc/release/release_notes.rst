@@ -7,7 +7,8 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 1.1.0
+    :date: 2017-09-12
 
     .. change:: fixed
         :tags: Nuke Studio
