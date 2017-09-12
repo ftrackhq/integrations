@@ -61,8 +61,8 @@ data_files.append(
 )
 
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/0.1.18.zip'
-    '#egg=ftrack-connect-0.1.18'
+    'https://bitbucket.org/ftrack/ftrack-connect/get/1.1.0.zip'
+    '#egg=ftrack-connect-1.1.0'
 )
 
 # Call main setup.
