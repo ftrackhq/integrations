@@ -685,7 +685,7 @@ class Workflow(QtWidgets.QWidget):
         self._list_instances_layout.setContentsMargins(5, 5, 5, 5)
 
         list_instance_settings_widget = QtWidgets.QFrame()
-        list_instance_settings_widget.setObjectName('ftrack-instances-widget')
+        list_instance_settings_widget.setObjectName('ftrack-instances-settings-widget')
 
         self._list_items_settings_layout = QtWidgets.QVBoxLayout()
         self._list_items_settings_layout.addStretch(1)
