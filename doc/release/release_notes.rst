@@ -8,7 +8,8 @@ Release Notes
 *************
 
 
-.. release:: Upcoming
+.. release:: 0.8.1
+   :date: 2017-09-21
 
    .. change:: fixed
        :tags: Publish, User interface
