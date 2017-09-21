@@ -7,6 +7,14 @@
 Release Notes
 *************
 
+
+.. release:: Upcoming
+
+   .. change:: fixed
+       :tags: Publish, User interface
+
+       Publish result use old ftrack logo.
+
 .. release:: 0.8.0
     :date: 2017-09-12
 
