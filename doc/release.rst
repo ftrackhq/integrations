@@ -5,7 +5,8 @@
 Releases
 ########
 
-.. release:: Upcoming
+.. release:: 0.7.1
+    :date: 2017-09-27
 
     .. change:: new
 
