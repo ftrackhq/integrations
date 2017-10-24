@@ -275,42 +275,6 @@ class ApplicationLauncher(
             application_hooks_path, 'FTRACK_EVENT_PLUGIN_PATH', environment
         )
 
-
-        # # Append legacy plugin base to PYTHONPATH.
-        # environment = ftrack_connect.application.appendPath(
-        #     self.legacyPluginsPath, 'PYTHONPATH', environment
-        # )
-
-        # # Load Hiero plugins if application is Hiero.
-        # hieroPluginPath = os.path.join(
-        #     self.legacyPluginsPath, 'ftrackHieroPlugin'
-        # )
-
-        # environment = ftrack_connect.application.appendPath(
-        #     hieroPluginPath, 'HIERO_PLUGIN_PATH', environment
-        # )
-
-        # # Add the foundry asset manager packages if application is
-        # # Nuke, NukeStudio or Hiero.
-        # foundryAssetManagerPluginPath = os.path.join(
-        #     self.legacyPluginsPath, 'ftrackProvider'
-        # )
-
-        # environment = ftrack_connect.application.appendPath(
-        #     foundryAssetManagerPluginPath,
-        #     'FOUNDRY_ASSET_PLUGIN_PATH',
-        #     environment
-        # )
-
-        # foundryAssetManagerPath = os.path.join(
-        #     self.legacyPluginsPath,
-        #     'theFoundry'
-        # )
-
-        # environment = ftrack_connect.application.prependPath(
-        #     foundryAssetManagerPath, 'PYTHONPATH', environment
-        # )
-
         return environment
 
 
@@ -336,40 +300,3 @@ def register(session, **kw):
     # Create action and register to respond to discover and launch events.
     action = LaunchAction(applicationStore, launcher, session)
     action.register()
-
-
-
-# def register(registry, **kw):
-#     '''Register hooks for ftrack connect legacy plugins.'''
-
-#     logger = logging.getLogger(
-#         'ftrack_plugin:ftrack_connect_legacy_plugins_hook.register'
-#     )
-
-#     # Validate that registry is an instance of ftrack.Registry. If not,
-#     # assume that register is being called from a new or incompatible API and
-#     # return without doing anything.
-#     if not isinstance(registry, ftrack.Registry):
-#         logger.debug(
-#             'Not subscribing plugin as passed argument {0!r} is not an '
-#             'ftrack.Registry instance.'.format(registry)
-#         )
-#         return
-
-#     applicationStore = LegacyApplicationStore()
-
-#     launcher = LegacyApplicationLauncher(
-#         applicationStore,
-#         legacyPluginsPath=os.environ.get(
-#             'FTRACK_PYTHON_LEGACY_PLUGINS_PATH',
-#             os.path.abspath(
-#                 os.path.join(
-#                     os.path.dirname(__file__), '..', 'legacy_plugins'
-#                 )
-#             )
-#         )
-#     )
-
-#     # Create action and register to respond to discover and launch events.
-#     action = LaunchAction(applicationStore, launcher)
-#     action.register()
