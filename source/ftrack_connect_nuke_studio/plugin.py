@@ -13,6 +13,7 @@ import hiero.core
 import ftrack_connect.ui.theme
 import ftrack_connect.event_hub_thread
 
+
 # Setup logging for ftrack.
 # TODO: Check with The Foundry if there is any better way to customise logging.
 from . import logging as _logging
@@ -29,7 +30,11 @@ import ftrack_connect_nuke_studio.ui.tag_manager
 import ftrack_connect_nuke_studio.ui.crew
 import ftrack_connect_nuke_studio.ui.create_project
 import ftrack_connect_nuke_studio.ui.widget.info_view
-
+from ftrack_connect_nuke_studio.fn_processors import (
+    FtrackProcessorPreset,
+    FtrackShotProcessor,
+    FtrackShotProcessorUI
+)
 # Start thread to handle events from ftrack.
 eventHubThread = ftrack_connect.event_hub_thread.EventHubThread()
 eventHubThread.start()
@@ -151,4 +156,12 @@ hiero.core.events.registerInterest(
 logger.debug('Populate the ftrack menu')
 hiero.core.events.registerInterest(
     'kStartup', populate_ftrack
+)
+
+hiero.ui.taskUIRegistry.registerProcessorUI(
+    FtrackProcessorPreset, FtrackShotProcessorUI
+)
+
+hiero.core.taskRegistry.registerProcessor(
+    FtrackProcessorPreset, FtrackShotProcessor
 )
