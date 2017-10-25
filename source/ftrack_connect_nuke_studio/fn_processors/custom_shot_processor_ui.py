@@ -1,25 +1,40 @@
 import hiero.core
 import hiero.ui
+from PySide import QtCore, QtGui
 
-from hiero.exporters import FnShotProcessorUI
-
-from custom_shot_processor import FtrackProcessorPreset
+from hiero.exporters import FnShotProcessorUI, FnShotProcessor
+from hiero.exporters import FnTranscodeExporterUI, FnTranscodeExporter
 
 from ftrack_connect_nuke_studio.ui.create_project import ProjectTreeDialog
-# from ftrack_connect_nuke_studio.ui.tag_manager import (
-#     update_tag_value_from_name
-# )
 
 
-class FtrackShotProcessorUI(FnShotProcessorUI.ShotProcessorUI):
+class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, QtCore.QObject):
 
-    def populateUI(self, widget, exportItems, editMode):
-        FnShotProcessorUI.ShotProcessorUI.populateUI(
-            self, widget, exportItems, editMode
+    def __init__(self, preset):
+        QtCore.QObject.__init__(self)
+        hiero.ui.ProcessorUIBase.__init__(
+            self,
+            preset,
+            itemTypes=hiero.core.TaskPresetBase.kTrackItem
         )
 
-        # Hide export path UI
-        self._exportStructureViewer.hide()
+        self.processors = {
+            'Plate': FnTranscodeExporterUI.TranscodeExporterUI(
+                FnTranscodeExporter.TranscodePreset('Plate', {})
+            )
+        }
+
+    def createProcessorSettingsWidget(self, exportItems):
+        for name, fn in self.processors.items():
+            widget = QtGui.QWidget()
+            fn.populateUI(widget, None)
+            self._tabWidget.addTab(widget, name)
+
+    def populateUI(self, widget, exportItems, editMode):
+        self._taskUILayout = QtGui.QVBoxLayout(widget)
+        self._taskUILayout.setContentsMargins(10, 0, 0, 0)
+        self._tabWidget = QtGui.QTabWidget()
+        self._taskUILayout.addWidget(self._tabWidget)
 
         ftags = []
         view = hiero.ui.activeView()
@@ -44,6 +59,8 @@ class FtrackShotProcessorUI(FnShotProcessorUI.ShotProcessorUI):
         )
 
         self._tabWidget.insertTab(0, projectTreeDialog, 'ftrack')
+
+        self.createProcessorSettingsWidget(exportItems)
 
         projectTreeDialog.export_project_button.hide()
         projectTreeDialog.close_button.hide()
