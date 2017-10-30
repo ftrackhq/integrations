@@ -1,6 +1,6 @@
 # Copyright (c) 2011 The Foundry Visionmongers Ltd.  All Rights Reserved.
 
-import hiero
+import hiero.ui
 from hiero.exporters import FnShotProcessor
 import logging
 
@@ -27,9 +27,11 @@ class FtrackShotProcessor(hiero.core.ProcessorBase):
         self.logger.info('============= start processing! ===========')
         taskGroup = hiero.core.TaskGroup()
         for trackitem in exportItems:
+            self.logger.info('Processing item: %s ' % trackitem)
+
             taskGroup.setTaskDescription(trackitem.name())
-            for (exportPath, preset) in self._exportTemplate.flatten():
-                self.logger.info('Processing : %s %s ' % (exportPath, preset))
+            for name, proc_ui, proc_preset, proc_exec in self._preset.properties()['processors']:
+                self.logger.info('Processing : %s' % proc_exec())
 
     def setPreset(self, preset):
         self._preset = preset
@@ -50,16 +52,25 @@ class FtrackProcessorPreset(hiero.core.ProcessorPreset):
         self.properties().update(properties)
         self.properties()['exportRoot'] = '/usr/tmp'
         self.properties()['exportTemplate'] = ''
+
+        '''
+        NOTE: could these be just the names ? eg:
+
+        {
+        'plate',
+        ''
+
+        }
+        '''
+
         self.properties()['processors'] = [
             (
                 'plate',
-                FnTranscodeExporterUI.TranscodeExporterUI,
-                FnTranscodeExporter.TranscodePreset
+                FnTranscodeExporter.TranscodePreset,
             ),
             (
                 'nukescript',
-                FnNukeAnnotationsExporterUI.NukeAnnotationsExporterUI,
-                FnNukeAnnotationsExporter.NukeAnnotationsPreset
+                FnNukeAnnotationsExporter.NukeAnnotationsPreset,
             )
         ]
 
