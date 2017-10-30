@@ -4,7 +4,6 @@ from PySide import QtCore, QtGui
 
 from hiero.exporters import FnNukeAnnotationsExporterUI, FnNukeAnnotationsExporter
 from hiero.exporters import FnTranscodeExporterUI, FnTranscodeExporter
-from hiero.exporters import GetDefaultMov64TranscodePresets
 from ftrack_connect_nuke_studio.ui.create_project import ProjectTreeDialog
 import logging
 
@@ -23,18 +22,17 @@ class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, QtCore.QObject):
         )
 
         self.widgets = {}
-        self.processors = {
-            'Plate': FnTranscodeExporterUI.TranscodeExporterUI(
-                FnTranscodeExporter.TranscodePreset(
-                   "Assetised Nuke Shot", {'exportTemplate': (("{shot}", None))}
-                )
-            ),
-            'Nuke': FnNukeAnnotationsExporterUI.NukeAnnotationsExporterUI(
-                FnNukeAnnotationsExporter.NukeAnnotationsPreset(
-                    "Assetised Nuke Shot", {'exportTemplate': (("{shot}", None))}
+        self.processors = {}
+        processors = self._preset.properties()["processors"]
+        for name, proc_ui, proc_preset in processors:
+            self.processors[name] = proc_ui(
+                proc_preset(
+                    '',
+                    {
+                        'exportTemplate': (("{shot}", None))
+                    }
                 )
             )
-        }
 
     def createProcessorSettingsWidget(self, exportItems):
         for name, fn in self.processors.items():
