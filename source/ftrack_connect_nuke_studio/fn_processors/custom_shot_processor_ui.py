@@ -27,10 +27,7 @@ class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, QtCore.QObject):
         for name, proc_ui, proc_preset in processors:
             self.processors[name] = proc_ui(
                 proc_preset(
-                    '',
-                    {
-                        'exportTemplate': (("{shot}", None))
-                    }
+                    '', {}
                 )
             )
 
