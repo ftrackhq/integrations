@@ -2,10 +2,11 @@ import hiero.core
 import hiero.ui
 from PySide import QtCore, QtGui
 
-from hiero.exporters import FnShotProcessorUI, FnShotProcessor
+from hiero.exporters import FnNukeAnnotationsExporterUI, FnNukeAnnotationsExporter
 from hiero.exporters import FnTranscodeExporterUI, FnTranscodeExporter
-
+from hiero.exporters import GetDefaultMov64TranscodePresets
 from ftrack_connect_nuke_studio.ui.create_project import ProjectTreeDialog
+import logging
 
 
 class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, QtCore.QObject):
@@ -17,16 +18,28 @@ class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, QtCore.QObject):
             preset,
             itemTypes=hiero.core.TaskPresetBase.kTrackItem
         )
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
 
+        self.widgets = {}
         self.processors = {
             'Plate': FnTranscodeExporterUI.TranscodeExporterUI(
-                FnTranscodeExporter.TranscodePreset('Plate', {})
+                FnTranscodeExporter.TranscodePreset(
+                   "Assetised Nuke Shot", {'exportTemplate': (("{shot}", None))}
+                )
+            ),
+            'Nuke': FnNukeAnnotationsExporterUI.NukeAnnotationsExporterUI(
+                FnNukeAnnotationsExporter.NukeAnnotationsPreset(
+                    "Assetised Nuke Shot", {'exportTemplate': (("{shot}", None))}
+                )
             )
         }
 
     def createProcessorSettingsWidget(self, exportItems):
         for name, fn in self.processors.items():
             widget = QtGui.QWidget()
+            self.widgets[name] = widget
             fn.populateUI(widget, None)
             self._tabWidget.addTab(widget, name)
 
@@ -37,22 +50,20 @@ class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, QtCore.QObject):
         self._taskUILayout.addWidget(self._tabWidget)
 
         ftags = []
-        view = hiero.ui.activeView()
-        track_items = view.selection()
-
         sequence = None
-        for item in track_items:
-            if not isinstance(item, hiero.core.TrackItem):
+        for item in exportItems:
+            hiero_item = item.item()
+            if not isinstance(hiero_item, hiero.core.TrackItem):
                 continue
 
             # update_tag_value_from_name(item)
 
-            tags = item.tags()
+            tags = hiero_item.tags()
             tags = [tag for tag in tags if tag.metadata().hasKey(
                 'ftrack.type'
             )]
-            ftags.append((item, tags))
-            sequence = item.sequence()
+            ftags.append((hiero_item, tags))
+            sequence = hiero_item.sequence()
 
         projectTreeDialog = ProjectTreeDialog(
             data=ftags, parent=widget, sequence=sequence
