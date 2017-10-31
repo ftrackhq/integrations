@@ -27,9 +27,9 @@ def register_processors():
         name,
         {
             "processors": [
-                # (
-                #     'plate', FnTranscodeExporter.TranscodePreset('', {'file_type': 'dpx', 'dpx': {'datatype': '10 bit'}})
-                # ),
+                (
+                    'plate', FnTranscodeExporter.TranscodePreset('', {'file_type': 'dpx', 'dpx': {'datatype': '10 bit'}})
+                ),
                 (
                     'nukes_cript', FnNukeAnnotationsExporter.NukeAnnotationsPreset("", {})
                 )
