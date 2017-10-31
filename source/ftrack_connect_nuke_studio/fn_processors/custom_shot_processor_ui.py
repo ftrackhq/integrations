@@ -20,19 +20,21 @@ class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, QtCore.QObject):
         )
         self.logger.setLevel(logging.DEBUG)
 
-        self.widgets = {}
+        self.widgets = []
         self.projectTreeDialog = None
 
     def processors(self):
         return self.preset().properties()['processors']
 
     def createProcessorSettingsWidget(self, exportItems):
-        self.logger.info('createProcessorSettingsWidget with %s')
-        for name, proc_preset in self.processors():
-            proc_ui = hiero.ui.taskUIRegistry.getTaskUIForPreset(proc_preset)
+        processors = self.processors()
+        for name, preset in processors:
+            proc_ui = hiero.ui.taskUIRegistry.getTaskUIForPreset(preset)
             widget = QtGui.QWidget()
-            self.widgets[proc_ui] = widget
-            proc_ui.populateUI(widget, exportItems)
+            self.widgets.append(widget)
+            template = hiero.core.ExportStructure2()
+            proc_ui.populateUI(widget, template)
+
             self._tabWidget.addTab(widget, name)
 
     def populateUI(self, widget, exportItems, editMode):

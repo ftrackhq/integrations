@@ -4,6 +4,7 @@ import logging
 from custom_shot_processor import FtrackShotProcessor, FtrackProcessorPreset
 from custom_shot_processor_ui import FtrackShotProcessorUI
 from hiero.exporters import FnTranscodeExporter
+from hiero.exporters import FnNukeAnnotationsExporter
 
 
 registry = hiero.core.taskRegistry
@@ -26,10 +27,11 @@ def register_processors():
         name,
         {
             "processors": [
+                # (
+                #     'plate', FnTranscodeExporter.TranscodePreset('', {'file_type': 'dpx', 'dpx': {'datatype': '10 bit'}})
+                # ),
                 (
-                    'plate', FnTranscodeExporter.TranscodePreset(
-                        '', {'file_type': 'dpx', 'dpx': {'datatype': '10 bit'}}
-                    )
+                    'nukes_cript', FnNukeAnnotationsExporter.NukeAnnotationsPreset("", {})
                 )
             ]
         }

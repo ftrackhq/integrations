@@ -56,7 +56,6 @@ class FtrackProcessorPreset(hiero.core.ProcessorPreset):
         )
         self.logger.setLevel(logging.DEBUG)
 
-        self.logger.info('Updating with properties: %s ' % properties)
         self.properties()['processors'] = []
         self.properties()['exportRoot'] = '/usr/tmp'
         self.properties()['exportTemplate'] = ''
