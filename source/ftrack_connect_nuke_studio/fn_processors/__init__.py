@@ -3,11 +3,12 @@ import hiero
 from custom_shot_processor import FtrackShotProcessor, FtrackProcessorPreset
 from custom_shot_processor_ui import FtrackShotProcessorUI
 
+
 registry = hiero.core.taskRegistry
 
 
 def register_processors():
-    name = 'Ftrack Preset'
+    name = 'Base Preset'
 
     hiero.ui.taskUIRegistry.registerProcessorUI(
         FtrackProcessorPreset, FtrackShotProcessorUI
@@ -20,6 +21,7 @@ def register_processors():
     shottemplate = (
         ("{shot}", None)
     )
+
     preset = FtrackProcessorPreset(
         name,
         {
