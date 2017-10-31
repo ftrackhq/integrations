@@ -27,13 +27,53 @@ class FtrackShotProcessor(hiero.core.ProcessorBase):
 
     def startProcessing(self, exportItems, preview=False):
         self.logger.info('============= start processing! ===========')
-        # taskGroup = hiero.core.TaskGroup()
-        # for trackitem in exportItems:
-        #     self.logger.info('Processing item: %s ' % trackitem)
 
-        #     taskGroup.setTaskDescription(trackitem.name())
-        #     for name, proc_preset in self._preset.properties()['processors']:
-        #         preset = proc_preset
+        allTasks = []
+        path = self._exportTemplate.exportRootPath()
+        exportPath = ''
+        trackItemVersion = 'v0'
+        project = 'None'    
+        cutHandles = None
+        retime = None
+
+        taskGroup = hiero.core.TaskGroup()
+        for trackitem in exportItems:
+            self.logger.info('Processing item: %s ' % trackitem)
+
+            taskGroup.setTaskDescription(trackitem.name())
+            for name, proc_preset in self._preset.properties()['processors']:
+
+                # taskData = hiero.core.TaskData(
+                #     proc_preset,
+                #     trackitem,
+                #     path,
+                #     exportPath,
+                #     trackItemVersion,
+                #     self._exportTemplate,
+                #     project=project,
+                #     cutHandles=cutHandles,
+                #     retime=retime,
+                #     startFrame=startFrame,
+                #     startFrameSource=proc_preset.properties()["startFrameSource"],
+                #     resolver=resolver,
+                #     submission=self._submission,
+                #     skipOffline=self.skipOffline(),
+                #     presetId=presetId,
+                #     shotNameIndex = getShotNameIndex(trackitem)
+                # )
+
+                task = hiero.core.taskRegistry.createTaskFromPreset(
+                    proc_preset, taskData
+                )
+                self.logger.info('executing task %s' % task)
+                taskGroup.addChild(task)
+                allTasks.append(task)
+        self._submission.addChild(taskGroup)
+        self._submission.setSynchronous()
+        self.processTaskPreQueue()
+        self._submission.addToQueue()
+
+        return allTasks
 
     def setPreset(self, preset):
         self._preset = preset

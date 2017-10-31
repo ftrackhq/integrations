@@ -28,10 +28,22 @@ def register_processors():
         {
             "processors": [
                 (
-                    'plate', FnTranscodeExporter.TranscodePreset('', {'file_type': 'dpx', 'dpx': {'datatype': '10 bit'}})
+                    'plate',
+                    FnTranscodeExporter.TranscodePreset(
+                        '',
+                        {'file_type': 'dpx', 'dpx': {'datatype': '10 bit'}}
+                    )
                 ),
                 (
-                    'nukes_cript', FnNukeAnnotationsExporter.NukeAnnotationsPreset("", {})
+                    'nukes_cript',
+                    FnNukeAnnotationsExporter.NukeAnnotationsPreset(
+                        "",
+                        {
+                          'readPaths': [],
+                          'writePaths': [""],
+                          'timelineWriteNode': ""
+                        }
+                    )
                 )
             ]
         }

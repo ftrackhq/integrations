@@ -34,7 +34,6 @@ class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, QtCore.QObject):
             self.widgets.append(widget)
             template = hiero.core.ExportStructure2()
             proc_ui.populateUI(widget, template)
-
             self._tabWidget.addTab(widget, name)
 
     def populateUI(self, widget, exportItems, editMode):
