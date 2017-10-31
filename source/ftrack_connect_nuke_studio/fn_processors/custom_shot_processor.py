@@ -23,17 +23,17 @@ class FtrackShotProcessor(hiero.core.ProcessorBase):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+        self.logger.setLevel(logging.DEBUG)
 
     def startProcessing(self, exportItems, preview=False):
         self.logger.info('============= start processing! ===========')
-        taskGroup = hiero.core.TaskGroup()
-        for trackitem in exportItems:
-            self.logger.info('Processing item: %s ' % trackitem)
+        # taskGroup = hiero.core.TaskGroup()
+        # for trackitem in exportItems:
+        #     self.logger.info('Processing item: %s ' % trackitem)
 
-            taskGroup.setTaskDescription(trackitem.name())
-            for name, proc_preset in self._preset.properties()['processors']:
-                preset = proc_preset
-
+        #     taskGroup.setTaskDescription(trackitem.name())
+        #     for name, proc_preset in self._preset.properties()['processors']:
+        #         preset = proc_preset
 
     def setPreset(self, preset):
         self._preset = preset
@@ -51,30 +51,16 @@ class FtrackProcessorPreset(hiero.core.ProcessorPreset):
             task, name
         )
 
-        self.properties().update(properties)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+        self.logger.setLevel(logging.DEBUG)
+
+        self.logger.info('Updating with properties: %s ' % properties)
+        self.properties()['processors'] = []
         self.properties()['exportRoot'] = '/usr/tmp'
         self.properties()['exportTemplate'] = ''
-
-        '''
-        NOTE: could these be just the names ? eg:
-
-        {
-        'plate',
-        ''
-
-        }
-        '''
-
-        self.properties()['processors'] = [
-            (
-                'plate',
-                FnTranscodeExporter.TranscodePreset
-            ),
-            (
-                'nukescript',
-                FnNukeShotExporter.NukeShotPreset
-            )
-        ]
+        self.properties().update(properties)
 
     def supportedItems(self):
         return hiero.core.TaskPresetBase.kAllItems

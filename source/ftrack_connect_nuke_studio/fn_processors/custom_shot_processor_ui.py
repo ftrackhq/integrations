@@ -18,22 +18,21 @@ class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, QtCore.QObject):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+        self.logger.setLevel(logging.DEBUG)
 
         self.widgets = {}
-        self.processors = {}
+        self.projectTreeDialog = None
 
-        processors = self._preset.properties()["processors"]
-        for name, proc_preset in processors:
-            preset = proc_preset('', {})
-            proc_ui = hiero.ui.taskUIRegistry.getTaskUIForPreset(preset)
-            self.logger.debug('Ui : %s' % proc_ui)
-            self.processors[name] = proc_ui
+    def processors(self):
+        return self.preset().properties()['processors']
 
     def createProcessorSettingsWidget(self, exportItems):
-        for name, fn in self.processors.items():
+        self.logger.info('createProcessorSettingsWidget with %s')
+        for name, proc_preset in self.processors():
+            proc_ui = hiero.ui.taskUIRegistry.getTaskUIForPreset(proc_preset)
             widget = QtGui.QWidget()
-            self.widgets[name] = widget
-            fn.populateUI(widget, exportItems)
+            self.widgets[proc_ui] = widget
+            proc_ui.populateUI(widget, exportItems)
             self._tabWidget.addTab(widget, name)
 
     def populateUI(self, widget, exportItems, editMode):
@@ -58,16 +57,16 @@ class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, QtCore.QObject):
             ftags.append((hiero_item, tags))
             sequence = hiero_item.sequence()
 
-        projectTreeDialog = ProjectTreeDialog(
+        self.projectTreeDialog = ProjectTreeDialog(
             data=ftags, parent=widget, sequence=sequence
         )
 
-        self._tabWidget.insertTab(0, projectTreeDialog, 'ftrack')
+        self._tabWidget.insertTab(0, self.projectTreeDialog, 'ftrack')
 
         self.createProcessorSettingsWidget(exportItems)
 
-        projectTreeDialog.export_project_button.hide()
-        projectTreeDialog.close_button.hide()
+        self.projectTreeDialog.export_project_button.hide()
+        self.projectTreeDialog.close_button.hide()
 
     def displayName(self):
         return "[ftrack] Project Exporter"
