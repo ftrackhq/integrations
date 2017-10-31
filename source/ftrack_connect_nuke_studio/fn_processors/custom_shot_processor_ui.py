@@ -26,6 +26,7 @@ class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, QtCore.QObject):
         for name, proc_preset in processors:
             preset = proc_preset('', {})
             proc_ui = hiero.ui.taskUIRegistry.getTaskUIForPreset(preset)
+            self.logger.debug('Ui : %s' % proc_ui)
             self.processors[name] = proc_ui
 
     def createProcessorSettingsWidget(self, exportItems):
@@ -69,7 +70,7 @@ class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, QtCore.QObject):
         projectTreeDialog.close_button.hide()
 
     def displayName(self):
-        return "[ftrack] Process as Shots"
+        return "[ftrack] Project Exporter"
 
     def toolTip(self):
         return "Process as Shots generates output on a per shot basis."

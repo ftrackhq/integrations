@@ -1,7 +1,8 @@
 # Copyright (c) 2011 The Foundry Visionmongers Ltd.  All Rights Reserved.
 
-import hiero.ui
-from hiero.exporters import FnShotProcessor
+import hiero
+import hiero.core
+from hiero.exporters import FnShotProcessor, FnNukeShotExporter
 import logging
 
 from hiero.exporters import FnNukeAnnotationsExporterUI, FnNukeAnnotationsExporter
@@ -30,8 +31,9 @@ class FtrackShotProcessor(hiero.core.ProcessorBase):
             self.logger.info('Processing item: %s ' % trackitem)
 
             taskGroup.setTaskDescription(trackitem.name())
-            for name, proc_ui, proc_preset, proc_exec in self._preset.properties()['processors']:
-                self.logger.info('Processing : %s' % proc_exec())
+            for name, proc_preset in self._preset.properties()['processors']:
+                preset = proc_preset
+
 
     def setPreset(self, preset):
         self._preset = preset
@@ -66,11 +68,11 @@ class FtrackProcessorPreset(hiero.core.ProcessorPreset):
         self.properties()['processors'] = [
             (
                 'plate',
-                FnTranscodeExporter.TranscodePreset,
+                FnTranscodeExporter.TranscodePreset
             ),
             (
                 'nukescript',
-                FnNukeAnnotationsExporter.NukeAnnotationsPreset,
+                FnNukeShotExporter.NukeShotPreset
             )
         ]
 
