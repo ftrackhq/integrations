@@ -1,6 +1,6 @@
 import hiero.core
 import hiero.ui
-from PySide import QtCore, QtGui
+from QtExt import QtGui, QtCore, QtWidgets
 
 from ftrack_connect_nuke_studio.ui.create_project import ProjectTreeDialog
 import logging
@@ -30,16 +30,16 @@ class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, QtCore.QObject):
         processors = self.processors()
         for name, preset in processors:
             proc_ui = hiero.ui.taskUIRegistry.getTaskUIForPreset(preset)
-            widget = QtGui.QWidget()
+            widget = QtWidgets.QWidget()
             self.widgets.append(widget)
             template = hiero.core.ExportStructure2()
             proc_ui.populateUI(widget, template)
             self._tabWidget.addTab(widget, name)
 
     def populateUI(self, widget, exportItems, editMode):
-        self._taskUILayout = QtGui.QVBoxLayout(widget)
+        self._taskUILayout = QtWidgets.QVBoxLayout(widget)
         self._taskUILayout.setContentsMargins(10, 0, 0, 0)
-        self._tabWidget = QtGui.QTabWidget()
+        self._tabWidget = QtWidgets.QTabWidget()
         self._taskUILayout.addWidget(self._tabWidget)
 
         ftags = []

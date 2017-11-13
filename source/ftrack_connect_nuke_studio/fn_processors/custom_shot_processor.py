@@ -42,6 +42,7 @@ class FtrackShotProcessor(hiero.core.ProcessorBase):
 
             taskGroup.setTaskDescription(trackitem.name())
             for name, proc_preset in self._preset.properties()['processors']:
+                pass
 
                 # taskData = hiero.core.TaskData(
                 #     proc_preset,
@@ -62,12 +63,12 @@ class FtrackShotProcessor(hiero.core.ProcessorBase):
                 #     shotNameIndex = getShotNameIndex(trackitem)
                 # )
 
-                task = hiero.core.taskRegistry.createTaskFromPreset(
-                    proc_preset, taskData
-                )
-                self.logger.info('executing task %s' % task)
-                taskGroup.addChild(task)
-                allTasks.append(task)
+                # task = hiero.core.taskRegistry.createTaskFromPreset(
+                #     proc_preset, taskData
+                # )
+                # self.logger.info('executing task %s' % task)
+                # taskGroup.addChild(task)
+                # allTasks.append(task)
         self._submission.addChild(taskGroup)
         self._submission.setSynchronous()
         self.processTaskPreQueue()
