@@ -36,8 +36,8 @@ class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, QtCore.QObject):
             proc_ui.populateUI(widget, template)
             self._tabWidget.addTab(widget, name)
 
-    def populateUI(self, widget, exportItems, editMode):
-        self._taskUILayout = QtWidgets.QVBoxLayout(widget)
+    def populateUI(self, processorUIWidget, taskUIWidget, exportItems):
+        self._taskUILayout = QtWidgets.QVBoxLayout(processorUIWidget)
         self._taskUILayout.setContentsMargins(10, 0, 0, 0)
         self._tabWidget = QtWidgets.QTabWidget()
         self._taskUILayout.addWidget(self._tabWidget)
@@ -59,7 +59,7 @@ class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, QtCore.QObject):
             sequence = hiero_item.sequence()
 
         self.projectTreeDialog = ProjectTreeDialog(
-            data=ftags, parent=widget, sequence=sequence
+            data=ftags, parent=processorUIWidget, sequence=sequence
         )
 
         self._tabWidget.insertTab(0, self.projectTreeDialog, 'ftrack')
