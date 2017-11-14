@@ -1,30 +1,31 @@
 import hiero.core
 import hiero.ui
-from QtExt import QtGui, QtCore, QtWidgets
+from QtExt import QtCore, QtWidgets
 
 from ftrack_connect_nuke_studio.ui.create_project import ProjectTreeDialog
 from .ftrack_base import FtrackBase
 
-import logging
 
-
-class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, QtCore.QObject, FtrackBase):
+class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, FtrackBase, QtCore.QObject):
 
     def __init__(self, preset):
         QtCore.QObject.__init__(self)
+        FtrackBase.__init__(self)
         hiero.ui.ProcessorUIBase.__init__(
             self,
             preset,
             itemTypes=hiero.core.TaskPresetBase.kTrackItem
         )
-        self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
-        )
-        self.logger.setLevel(logging.DEBUG)
 
         self.widgets = []
         self.projectTreeDialog = None
         self._taskItemType = 'ftrack shot exporter'
+
+    def displayName(self):
+        return "[ftrack] Project Exporter"
+
+    def toolTip(self):
+        return "Process as Shots generates output on a per shot basis."
 
     def processors(self):
         return self.preset().properties()['processors']
@@ -43,8 +44,7 @@ class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, QtCore.QObject, FtrackBase
             self._tabWidget.addTab(widget, name)
 
     def populateUI(self, *args, **kwargs):
-
-        if self.hiero_version_touple >= (10, 5 ,1):
+        if self.hiero_version_touple >= (10, 5, 1):
             (widget, taskUIWidget, exportItems) = args
         else:
             (widget, exportItems, editMode) = args
@@ -81,8 +81,3 @@ class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, QtCore.QObject, FtrackBase
         self.projectTreeDialog.export_project_button.hide()
         self.projectTreeDialog.close_button.hide()
 
-    def displayName(self):
-        return "[ftrack] Project Exporter"
-
-    def toolTip(self):
-        return "Process as Shots generates output on a per shot basis."

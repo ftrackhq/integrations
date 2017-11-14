@@ -1,9 +1,8 @@
 import hiero
 
 import logging
-from custom_shot_processor import FtrackShotProcessor, FtrackProcessorPreset
-from custom_shot_processor_ui import FtrackShotProcessorUI
-from hiero.exporters import FnExternalRender
+from ftrack_shot_processor import FtrackShotProcessor, FtrackShotProcessorPreset
+from ftrack_shot_processor_ui import FtrackShotProcessorUI
 from hiero.exporters import FnNukeAnnotationsExporter
 
 
@@ -16,39 +15,33 @@ def register_processors():
     name = 'Base Preset'
 
     hiero.ui.taskUIRegistry.registerProcessorUI(
-        FtrackProcessorPreset, FtrackShotProcessorUI
+        FtrackShotProcessorPreset, FtrackShotProcessorUI
     )
 
     hiero.core.taskRegistry.registerProcessor(
-        FtrackProcessorPreset, FtrackShotProcessor
+        FtrackShotProcessorPreset, FtrackShotProcessor
     )
 
-    preset = FtrackProcessorPreset(
-        name,
-        {
-            "processors": [
-                (
-                    'plate',
-                    FnExternalRender.NukeRenderPreset(
-                        '',
-                        {'file_type': 'dpx', 'dpx': {'datatype': '10 bit'}}
-                    )
-                ),
-                (
-                    'nukes_cript',
-                    FnNukeAnnotationsExporter.NukeAnnotationsPreset(
-                        "",
-                        {
-                          'readPaths': [],
-                          'writePaths': [""],
-                          'timelineWriteNode': ""
-                        }
-                    )
+    properties = {
+        "processors": [
+            (
+                'nuke_script',
+                FnNukeAnnotationsExporter.NukeAnnotationsPreset(
+                    "",
+                    {
+                        'readPaths': [],
+                        'writePaths': [""],
+                        'timelineWriteNode': ""
+                    }
                 )
-            ]
-        }
+            )
+        ]
+    }
+
+    preset = FtrackShotProcessorPreset(
+        name,
+        properties
     )
-    logger.info('registering %s with %s ' % (name, preset))
 
     existing = [p.name() for p in registry.localPresets()]
     if name in existing:

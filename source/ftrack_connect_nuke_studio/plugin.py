@@ -85,63 +85,6 @@ def populate_ftrack(event):
     ftrack_menu.addAction(crew_action)
 
 
-def open_export_dialog(*args, **kwargs):
-    '''Open export project from timeline context menu.'''
-    parent = hiero.ui.mainWindow()
-    valid_track_items = []
-    trackItems = args[0]
-
-    sequence = None
-    for item in trackItems:
-        if not isinstance(item, hiero.core.TrackItem):
-            continue
-
-        tags = item.tags()
-        tags = [tag for tag in tags if tag.metadata().hasKey('ftrack.type')]
-        valid_track_items.append((item, tags))
-        sequence = item.sequence()
-
-    try:
-        dialog = ftrack_connect_nuke_studio.ui.create_project.ProjectTreeDialog(
-            data=valid_track_items, parent=parent, sequence=sequence
-        )
-        dialog.exec_()
-    except RuntimeError as e:
-        logger.exception(e)
-        QtGui.QMessageBox.critical(None, "Error", str(e))
-
-
-def on_context_menu_event(event):
-    menu = event.menu.addMenu(
-        QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'), 'ftrack'
-    )
-
-    action_callback = functools.partial(
-        open_export_dialog, event.sender.selection()
-    )
-
-    action = QtWidgets.QAction(
-        'Export project', menu,
-        triggered=action_callback
-    )
-
-    # Disable the Export option if no track items are selected.
-    action.setDisabled(
-        len(event.sender.selection()) == 0
-    )
-
-    menu.addAction(action)
-
-
-# Register for Context menu events in the Timeline.
-logger.debug('Setup event listeners for timeline.')
-hiero.core.events.registerInterest(
-    (
-        hiero.core.events.EventType.kShowContextMenu,
-        hiero.core.events.EventType.kTimeline
-    ), on_context_menu_event
-)
-
 # Setup the TagManager and TagDropHandler.
 logger.debug('Setup tag manager and tag drop handler.')
 tag_handler = TagDropHandler()

@@ -1,21 +1,12 @@
 # Copyright (c) 2011 The Foundry Visionmongers Ltd.  All Rights Reserved.
 
+import logging
 import hiero
 import hiero.core
-from hiero.exporters import FnShotProcessor, FnNukeShotExporter
-import logging
-
-from hiero.exporters import FnNukeAnnotationsExporterUI, FnNukeAnnotationsExporter
-from hiero.exporters import FnTranscodeExporterUI, FnTranscodeExporter
-
 from .ftrack_base import FtrackBase
 
-logger = logging.getLogger(
-    __name__
-)
 
-
-class FtrackShotProcessor(hiero.core.ProcessorBase, FtrackBase):
+class FtrackShotProcessor(hiero.core.ProcessorBase):
 
     def __init__(self, preset, submission, synchronous=False):
         super(FtrackShotProcessor, self).__init__(
@@ -31,12 +22,12 @@ class FtrackShotProcessor(hiero.core.ProcessorBase, FtrackBase):
         self.logger.info('============= start processing! ===========')
 
         allTasks = []
-        path = self._exportTemplate.exportRootPath()
-        exportPath = ''
-        trackItemVersion = 'v0'
-        project = 'None'    
-        cutHandles = None
-        retime = None
+        # path = self._exportTemplate.exportRootPath()
+        # exportPath = ''
+        # trackItemVersion = 'v0'
+        # project = 'None'    
+        # cutHandles = None
+        # retime = None
 
         taskGroup = hiero.core.TaskGroup()
         for trackitem in exportItems:
@@ -44,7 +35,9 @@ class FtrackShotProcessor(hiero.core.ProcessorBase, FtrackBase):
 
             taskGroup.setTaskDescription(trackitem.name())
             for name, proc_preset in self._preset.properties()['processors']:
-                pass
+                self.logger.info(
+                    'executing: {0} with {1}'.format(name, proc_preset)
+                )
 
                 # taskData = hiero.core.TaskData(
                 #     proc_preset,
@@ -71,10 +64,10 @@ class FtrackShotProcessor(hiero.core.ProcessorBase, FtrackBase):
                 # self.logger.info('executing task %s' % task)
                 # taskGroup.addChild(task)
                 # allTasks.append(task)
-        self._submission.addChild(taskGroup)
-        self._submission.setSynchronous()
-        self.processTaskPreQueue()
-        self._submission.addToQueue()
+        # self._submission.addChild(taskGroup)
+        # self._submission.setSynchronous()
+        # self.processTaskPreQueue()
+        # self._submission.addToQueue()
 
         return allTasks
 
@@ -86,18 +79,13 @@ class FtrackShotProcessor(hiero.core.ProcessorBase, FtrackBase):
         return self._preset
 
 
-class FtrackProcessorPreset(hiero.core.ProcessorPreset):
+class FtrackShotProcessorPreset(hiero.core.ProcessorPreset, FtrackBase):
 
     def __init__(self, name, properties, task=FtrackShotProcessor):
 
-        super(FtrackProcessorPreset, self).__init__(
+        super(FtrackShotProcessorPreset, self).__init__(
             task, name
         )
-
-        self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
-        )
-        self.logger.setLevel(logging.DEBUG)
 
         self.properties()['processors'] = []
         self.properties()['exportRoot'] = '/usr/tmp'
