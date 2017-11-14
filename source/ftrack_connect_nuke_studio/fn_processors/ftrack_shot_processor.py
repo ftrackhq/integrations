@@ -22,12 +22,7 @@ class FtrackShotProcessor(hiero.core.ProcessorBase):
         self.logger.info('============= start processing! ===========')
 
         allTasks = []
-        # path = self._exportTemplate.exportRootPath()
-        # exportPath = ''
-        # trackItemVersion = 'v0'
-        # project = 'None'    
-        # cutHandles = None
-        # retime = None
+        trackItemVersion = 'v0'
 
         taskGroup = hiero.core.TaskGroup()
         for trackitem in exportItems:
@@ -39,35 +34,26 @@ class FtrackShotProcessor(hiero.core.ProcessorBase):
                     'executing: {0} with {1}'.format(name, proc_preset)
                 )
 
-                # taskData = hiero.core.TaskData(
-                #     proc_preset,
-                #     trackitem,
-                #     path,
-                #     exportPath,
-                #     trackItemVersion,
-                #     self._exportTemplate,
-                #     project=project,
-                #     cutHandles=cutHandles,
-                #     retime=retime,
-                #     startFrame=startFrame,
-                #     startFrameSource=proc_preset.properties()["startFrameSource"],
-                #     resolver=resolver,
-                #     submission=self._submission,
-                #     skipOffline=self.skipOffline(),
-                #     presetId=presetId,
-                #     shotNameIndex = getShotNameIndex(trackitem)
-                # )
+                taskData = hiero.core.TaskData(
+                    proc_preset,
+                    trackitem,
+                    exportRoot=self._exportTemplate.exportRootPath(),
+                    shotPath='',
+                    version=trackItemVersion,
+                    exportTemplate='',
+                    project=None,
+                )
 
-                # task = hiero.core.taskRegistry.createTaskFromPreset(
-                #     proc_preset, taskData
-                # )
-                # self.logger.info('executing task %s' % task)
-                # taskGroup.addChild(task)
-                # allTasks.append(task)
-        # self._submission.addChild(taskGroup)
-        # self._submission.setSynchronous()
-        # self.processTaskPreQueue()
-        # self._submission.addToQueue()
+                task = hiero.core.taskRegistry.createTaskFromPreset(
+                    proc_preset, taskData
+                )
+                self.logger.info('executing task %s' % task)
+                taskGroup.addChild(task)
+                allTasks.append(task)
+        self._submission.addChild(taskGroup)
+        self._submission.setSynchronous()
+        self.processTaskPreQueue()
+        self._submission.addToQueue()
 
         return allTasks
 
