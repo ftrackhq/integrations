@@ -1,22 +1,18 @@
 # Copyright (c) 2011 The Foundry Visionmongers Ltd.  All Rights Reserved.
-
+import tempfile
 import logging
 import hiero
 import hiero.core
 from .ftrack_base import FtrackBase
 
 
-class FtrackShotProcessor(hiero.core.ProcessorBase):
+class FtrackShotProcessor(hiero.core.ProcessorBase, FtrackBase):
 
     def __init__(self, preset, submission, synchronous=False):
-        super(FtrackShotProcessor, self).__init__(
-            preset, submission, synchronous=synchronous
+        FtrackBase.__init__(self)
+        hiero.core.ProcessorBase.__init__(
+            self, preset, submission, synchronous=synchronous
         )
-
-        self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
-        )
-        self.logger.setLevel(logging.DEBUG)
 
     def startProcessing(self, exportItems, preview=False):
         self.logger.info('============= start processing! ===========')
@@ -28,6 +24,8 @@ class FtrackShotProcessor(hiero.core.ProcessorBase):
         for trackitem in exportItems:
             self.logger.info('Processing item: %s ' % trackitem)
 
+            self.logger.info('sequence: %s' % trackitem.parent())
+
             taskGroup.setTaskDescription(trackitem.name())
             for name, proc_preset in self._preset.properties()['processors']:
                 self.logger.info(
@@ -37,7 +35,7 @@ class FtrackShotProcessor(hiero.core.ProcessorBase):
                 taskData = hiero.core.TaskData(
                     proc_preset,
                     trackitem,
-                    exportRoot=self._exportTemplate.exportRootPath(),
+                    exportRoot=tempfile.gettempdir(),
                     shotPath='',
                     version=trackItemVersion,
                     exportTemplate='',

@@ -22,18 +22,21 @@ def register_processors():
         FtrackShotProcessorPreset, FtrackShotProcessor
     )
 
+    nuke_script_processor = FnNukeAnnotationsExporter.NukeAnnotationsPreset(
+        "",
+        {
+            'readPaths': [],
+            'writePaths': [""],
+            'timelineWriteNode': ""
+        }
+
+    )
+
     properties = {
         "processors": [
             (
                 'nuke_script',
-                FnNukeAnnotationsExporter.NukeAnnotationsPreset(
-                    "",
-                    {
-                        'readPaths': [],
-                        'writePaths': [""],
-                        'timelineWriteNode': ""
-                    }
-                )
+                nuke_script_processor
             )
         ]
     }
