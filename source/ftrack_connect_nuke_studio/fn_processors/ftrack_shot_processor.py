@@ -24,8 +24,6 @@ class FtrackShotProcessor(hiero.core.ProcessorBase, FtrackBase):
         for trackitem in exportItems:
             self.logger.info('Processing item: %s ' % trackitem)
 
-            self.logger.info('sequence: %s' % trackitem.parent())
-
             taskGroup.setTaskDescription(trackitem.name())
             for name, proc_preset in self._preset.properties()['processors']:
                 self.logger.info(
