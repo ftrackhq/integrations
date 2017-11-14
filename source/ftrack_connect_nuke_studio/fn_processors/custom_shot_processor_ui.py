@@ -3,10 +3,12 @@ import hiero.ui
 from QtExt import QtGui, QtCore, QtWidgets
 
 from ftrack_connect_nuke_studio.ui.create_project import ProjectTreeDialog
+from .ftrack_base import FtrackBase
+
 import logging
 
 
-class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, QtCore.QObject):
+class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, QtCore.QObject, FtrackBase):
 
     def __init__(self, preset):
         QtCore.QObject.__init__(self)
@@ -22,6 +24,7 @@ class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, QtCore.QObject):
 
         self.widgets = []
         self.projectTreeDialog = None
+        self._taskItemType = 'ftrack shot exporter'
 
     def processors(self):
         return self.preset().properties()['processors']
@@ -31,13 +34,22 @@ class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, QtCore.QObject):
         for name, preset in processors:
             proc_ui = hiero.ui.taskUIRegistry.getTaskUIForPreset(preset)
             widget = QtWidgets.QWidget()
+            layout = QtWidgets.QVBoxLayout()
+            widget.setLayout(layout)
+
             self.widgets.append(widget)
             template = hiero.core.ExportStructure2()
             proc_ui.populateUI(widget, template)
             self._tabWidget.addTab(widget, name)
 
-    def populateUI(self, processorUIWidget, taskUIWidget, exportItems):
-        self._taskUILayout = QtWidgets.QVBoxLayout(processorUIWidget)
+    def populateUI(self, *args, **kwargs):
+
+        if self.hiero_version_touple >= (10, 5 ,1):
+            (widget, taskUIWidget, exportItems) = args
+        else:
+            (widget, exportItems, editMode) = args
+
+        self._taskUILayout = QtWidgets.QVBoxLayout(widget)
         self._taskUILayout.setContentsMargins(10, 0, 0, 0)
         self._tabWidget = QtWidgets.QTabWidget()
         self._taskUILayout.addWidget(self._tabWidget)
@@ -59,7 +71,7 @@ class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, QtCore.QObject):
             sequence = hiero_item.sequence()
 
         self.projectTreeDialog = ProjectTreeDialog(
-            data=ftags, parent=processorUIWidget, sequence=sequence
+            data=ftags, parent=widget, sequence=sequence
         )
 
         self._tabWidget.insertTab(0, self.projectTreeDialog, 'ftrack')

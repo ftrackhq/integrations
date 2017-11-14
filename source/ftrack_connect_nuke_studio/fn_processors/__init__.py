@@ -3,7 +3,7 @@ import hiero
 import logging
 from custom_shot_processor import FtrackShotProcessor, FtrackProcessorPreset
 from custom_shot_processor_ui import FtrackShotProcessorUI
-from hiero.exporters import FnTranscodeExporter
+from hiero.exporters import FnExternalRender
 from hiero.exporters import FnNukeAnnotationsExporter
 
 
@@ -29,7 +29,7 @@ def register_processors():
             "processors": [
                 (
                     'plate',
-                    FnTranscodeExporter.TranscodePreset(
+                    FnExternalRender.NukeRenderPreset(
                         '',
                         {'file_type': 'dpx', 'dpx': {'datatype': '10 bit'}}
                     )

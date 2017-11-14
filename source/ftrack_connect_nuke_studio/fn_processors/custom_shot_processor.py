@@ -8,12 +8,14 @@ import logging
 from hiero.exporters import FnNukeAnnotationsExporterUI, FnNukeAnnotationsExporter
 from hiero.exporters import FnTranscodeExporterUI, FnTranscodeExporter
 
+from .ftrack_base import FtrackBase
+
 logger = logging.getLogger(
     __name__
 )
 
 
-class FtrackShotProcessor(hiero.core.ProcessorBase):
+class FtrackShotProcessor(hiero.core.ProcessorBase, FtrackBase):
 
     def __init__(self, preset, submission, synchronous=False):
         super(FtrackShotProcessor, self).__init__(
