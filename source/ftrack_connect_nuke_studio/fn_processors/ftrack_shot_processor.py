@@ -27,5 +27,5 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBase):
         resolver.addResolver(
             "{ftrack}",
             "Ftrack managed path.",
-            lambda keyword, task: tempfile.gettemdir()
+            lambda keyword, task: tempfile.gettempdir()
         )
