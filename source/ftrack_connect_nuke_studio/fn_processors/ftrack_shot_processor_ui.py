@@ -28,14 +28,15 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
         self.logger.info('building processor widget')
         for path, preset in self._preset.properties()['exportTemplate']:
             print path, preset
-            proc_ui = hiero.ui.taskUIRegistry.getNewTaskUIForPreset(preset)
-            widget = QtWidgets.QWidget()
-            layout = QtWidgets.QVBoxLayout()
-            widget.setLayout(layout)
+            task_ui = hiero.ui.taskUIRegistry.getNewTaskUIForPreset(preset)
+            if task_ui:
+                task_ui.setProject(self._project)
+                task_ui.setTags(self._tags)
+                taskUIWidget = QtWidgets.QWidget()
+                task_ui.setTaskItemType(self.getTaskItemType())
+                task_ui.initializeAndPopulateUI(taskUIWidget, self._exportTemplate)
 
-            template = hiero.core.ExportStructure2()
-            proc_ui.populateUI(widget, template)
-            self._tabWidget.addTab(widget, preset.__class__.__name__)
+            self._tabWidget.addTab(taskUIWidget, preset.__class__.__name__)
 
         # return ShotProcessorUI.createProcessorSettingsWidget(
         #     self,
