@@ -1,6 +1,6 @@
 import hiero
 import logging
-
+import ftrack_api
 
 class FtrackBase(object):
 
@@ -9,6 +9,7 @@ class FtrackBase(object):
             __name__ + '.' + self.__class__.__name__
         )
         self.logger.setLevel(logging.DEBUG)
+        self.session = ftrack_api.Session()
 
     @property
     def hiero_version_touple(self):

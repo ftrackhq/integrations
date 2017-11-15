@@ -36,8 +36,13 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
                 self._contentUI[taskUIWidget] = task_ui
                 task_ui.setTaskItemType(self.getTaskItemType())
                 task_ui.initializeAndPopulateUI(taskUIWidget, self._exportTemplate)
-                self._tabWidget.addTab(taskUIWidget, preset.__class__.__name__)
-    
+                self._tabWidget.addTab(taskUIWidget, preset.name())
+                try:
+                    taskUI.propertiesChanged.connect(self.onExportStructureModified,
+                                                type=QtCore.Qt.UniqueConnection)
+                except:
+                    # Signal already connected.
+                    pass
 
     def _checkExistingVersions(self, exportItems):
         """ Iterate over all the track items which are set to be exported, and check if they have previously
@@ -59,6 +64,12 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
             preset,
         )
 
+    def refreshContent(self):
+        self.logger.info('refreshContent')
+        return ShotProcessorUI.refreshContent(
+            self,
+        )        
+
     def createHandleWidgets(self):
         self.logger.info('createHandleWidgets with')
         return ShotProcessorUI.createHandleWidgets(self)
@@ -74,6 +85,8 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
         self._taskUILayout.setContentsMargins(10, 0, 0, 0)
         self._tabWidget = QtWidgets.QTabWidget()
         self._taskUILayout.addWidget(self._tabWidget)
+        self._tags = self.findTagsForItems(exportItems)
+        self._editMode = hiero.ui.IProcessorUI.ReadOnly if self._preset.readOnly() else hiero.ui.IProcessorUI.Full
 
         ftags = []
         sequence = None

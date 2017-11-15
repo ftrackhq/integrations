@@ -26,7 +26,7 @@ def register_processors():
     )
 
     nuke_script_processor = FnNukeAnnotationsExporter.NukeAnnotationsPreset(
-        "",
+        "nuke script",
         {
             'readPaths': [],
             'writePaths': [""],
@@ -36,7 +36,7 @@ def register_processors():
     )
 
     external_render = FnExternalRender.NukeRenderPreset(
-        "",
+        "plate",
         {
             "file_type": "dpx",
             "dpx": {"datatype": "10 bit"}
