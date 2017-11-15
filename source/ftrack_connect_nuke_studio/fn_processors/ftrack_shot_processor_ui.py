@@ -17,7 +17,8 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
         )
 
         self.projectTreeDialog = None
-
+        self._contentUI = {}
+        
     def displayName(self):
         return "[ftrack] Project Exporter"
 
@@ -27,21 +28,16 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
     def createProcessorSettingsWidget(self, exportItems):
         self.logger.info('building processor widget')
         for path, preset in self._preset.properties()['exportTemplate']:
-            print path, preset
             task_ui = hiero.ui.taskUIRegistry.getNewTaskUIForPreset(preset)
             if task_ui:
                 task_ui.setProject(self._project)
                 task_ui.setTags(self._tags)
                 taskUIWidget = QtWidgets.QWidget()
+                self._contentUI[taskUIWidget] = task_ui
                 task_ui.setTaskItemType(self.getTaskItemType())
                 task_ui.initializeAndPopulateUI(taskUIWidget, self._exportTemplate)
-
-            self._tabWidget.addTab(taskUIWidget, preset.__class__.__name__)
-
-        # return ShotProcessorUI.createProcessorSettingsWidget(
-        #     self,
-        #     exportItems,
-        # )
+                self._tabWidget.addTab(taskUIWidget, preset.__class__.__name__)
+    
 
     def _checkExistingVersions(self, exportItems):
         """ Iterate over all the track items which are set to be exported, and check if they have previously
