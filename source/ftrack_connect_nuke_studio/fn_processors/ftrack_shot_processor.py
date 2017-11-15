@@ -8,9 +8,8 @@ from hiero.exporters.FnShotProcessor import ShotProcessor, ShotProcessorPreset
 class FtrackShotProcessor(ShotProcessor, FtrackBase):
 
     def __init__(self, preset, submission, synchronous=False):
-        FtrackBase.__init__(self)
-        ShotProcessor.__init__(
-            self, preset, submission, synchronous=synchronous
+        super(FtrackShotProcessor, self).__init__(
+             preset, submission, synchronous=synchronous
         )
 
 
