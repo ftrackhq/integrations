@@ -4,22 +4,19 @@ from QtExt import QtCore, QtWidgets
 
 from ftrack_connect_nuke_studio.ui.create_project import ProjectTreeDialog
 from .ftrack_base import FtrackBase
+from hiero.exporters.FnShotProcessorUI import ShotProcessorUI
 
 
-class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, FtrackBase, QtCore.QObject):
+class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
 
     def __init__(self, preset):
-        QtCore.QObject.__init__(self)
         FtrackBase.__init__(self)
-        hiero.ui.ProcessorUIBase.__init__(
+        ShotProcessorUI.__init__(
             self,
             preset,
-            itemTypes=hiero.core.TaskPresetBase.kTrackItem
         )
 
-        self.widgets = []
         self.projectTreeDialog = None
-        self._taskItemType = 'ftrack shot exporter'
 
     def displayName(self):
         return "[ftrack] Project Exporter"
@@ -27,21 +24,48 @@ class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, FtrackBase, QtCore.QObject
     def toolTip(self):
         return "Process as Shots generates output on a per shot basis."
 
-    def processors(self):
-        return self.preset().properties()['processors']
-
     def createProcessorSettingsWidget(self, exportItems):
-        processors = self.processors()
-        for name, preset in processors:
+        self.logger.info('building processor widget')
+        for path, preset in self._preset.properties()['exportTemplate']:
+            print path, preset
             proc_ui = hiero.ui.taskUIRegistry.getTaskUIForPreset(preset)
             widget = QtWidgets.QWidget()
             layout = QtWidgets.QVBoxLayout()
             widget.setLayout(layout)
 
-            self.widgets.append(widget)
             template = hiero.core.ExportStructure2()
             proc_ui.populateUI(widget, template)
-            self._tabWidget.addTab(widget, name)
+            self._tabWidget.addTab(widget, preset.__class__.__name__)
+
+        # return ShotProcessorUI.createProcessorSettingsWidget(
+        #     self,
+        #     exportItems,
+        # )
+
+    def _checkExistingVersions(self, exportItems):
+        """ Iterate over all the track items which are set to be exported, and check if they have previously
+        been exported with the same version as the setting in the current preset.  If yes, show a message box
+        asking the user if they would like to increment the version, or overwrite it. """
+        self.logger.info('_checkExistingVersions')
+        return ShotProcessorUI._checkExistingVersions(
+            self,
+            exportItems,
+        )
+
+    def setTaskContent(self, preset):
+        """ Get the UI for a task preset and add it in the 'Content' tab. """
+        # First clear the old task UI.  It's important that this doesn't live longer
+        # than the widgets it created, otherwise it can lead to crashes in PySide2.
+        self.logger.info('setTaskContent with: {0}'.format(preset))
+        return ShotProcessorUI.setTaskContent(
+            self,
+            preset,
+        )
+
+    def createHandleWidgets(self):
+        self.logger.info('createHandleWidgets with')
+        return ShotProcessorUI.createHandleWidgets(self)
+
 
     def populateUI(self, *args, **kwargs):
         if self.hiero_version_touple >= (10, 5, 1):
@@ -80,4 +104,3 @@ class FtrackShotProcessorUI(hiero.ui.ProcessorUIBase, FtrackBase, QtCore.QObject
 
         self.projectTreeDialog.export_project_button.hide()
         self.projectTreeDialog.close_button.hide()
-

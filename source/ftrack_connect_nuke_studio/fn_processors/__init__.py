@@ -3,7 +3,10 @@ import hiero
 import logging
 from ftrack_shot_processor import FtrackShotProcessor, FtrackShotProcessorPreset
 from ftrack_shot_processor_ui import FtrackShotProcessorUI
+
 from hiero.exporters import FnNukeAnnotationsExporter
+from hiero.exporters import FnExternalRender
+from hiero.exporters import FnNukeShotExporter
 
 
 registry = hiero.core.taskRegistry
@@ -32,13 +35,25 @@ def register_processors():
 
     )
 
+    external_render = FnExternalRender.NukeRenderPreset(
+        "",
+        {
+            "file_type": "dpx",
+            "dpx": {"datatype": "10 bit"}
+        }
+    )
+
     properties = {
-        "processors": [
+        "exportTemplate": (
             (
-                'nuke_script',
+                '{ftrack}',
                 nuke_script_processor
+            ),
+            (
+                '{ftrack}',
+                external_render
             )
-        ]
+        )
     }
 
     preset = FtrackShotProcessorPreset(
