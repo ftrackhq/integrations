@@ -211,8 +211,8 @@ def _ftrackCreateGroup(tracks, sourceNode, layout):
             singleSources.append(
                 rv.commands.nodeGroup(_ftrackAddVersion(track, layout))
             )
-        except:
-            logger.exception(traceback.format_exc())
+        except Exception as error:
+            logger.exception(error)
 
     rv.commands.setNodeInputs(
         sourceNode, singleSources
