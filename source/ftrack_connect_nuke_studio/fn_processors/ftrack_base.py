@@ -22,5 +22,5 @@ class FtrackBase(object):
         )
 
     @property
-    def get_ftrack_location(self):
+    def ftrack_location(self):
         return self.session.pick_location()

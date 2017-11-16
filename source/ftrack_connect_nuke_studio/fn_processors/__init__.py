@@ -46,11 +46,11 @@ def register_processors():
     properties = {
         "exportTemplate": (
             (
-                '{ftrack}',
+                '{ftrack}.{ext}',
                 nuke_script_processor
             ),
             (
-                '{ftrack}',
+                '{ftrack}.{ext}',
                 external_render
             )
         )
