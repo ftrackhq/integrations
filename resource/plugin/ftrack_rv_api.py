@@ -212,7 +212,7 @@ def _ftrackCreateGroup(tracks, sourceNode, layout):
                 rv.commands.nodeGroup(_ftrackAddVersion(track, layout))
             )
         except:
-            print traceback.format_exc()
+            logger.exception(traceback.format_exc())
 
     rv.commands.setNodeInputs(
         sourceNode, singleSources
