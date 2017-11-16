@@ -39,20 +39,20 @@ from ftrack_connect.ui.theme import applyTheme
 session = ftrack_connect.session.get_shared_session()
 
 
-def gather_processors(name, type, track_item):
-    '''Retrieve processors for *name*, *type* and *track_item*.'''
-    processors = session.event_hub.publish(
-        ftrack_api.event.base.Event(
-            topic='ftrack.processor.discover',
-            data=dict(
-                name=name,
-                object_type=type,
-                application_object=track_item
-            )
-        ),
-        synchronous=True
-    )
-    return processors
+# def gather_processors(name, type, track_item):
+#     '''Retrieve processors for *name*, *type* and *track_item*.'''
+#     processors = session.event_hub.publish(
+#         ftrack_api.event.base.Event(
+#             topic='ftrack.processor.discover',
+#             data=dict(
+#                 name=name,
+#                 object_type=type,
+#                 application_object=track_item
+#             )
+#         ),
+#         synchronous=True
+#     )
+#     return processors
 
 
 class ProjectTreeDialog(QtWidgets.QDialog):
@@ -132,9 +132,9 @@ class ProjectTreeDialog(QtWidgets.QDialog):
         self.close_button.clicked.connect(self.on_close_dialog)
 
         selection_model = self.tree_view.selectionModel()
-        selection_model.selectionChanged.connect(
-            self.on_tree_item_selection
-        )
+        # selection_model.selectionChanged.connect(
+        #     self.on_tree_item_selection
+        # )
         self.worker.started.connect(self.busy_overlay.show)
         self.worker.finished.connect(self.on_project_preview_done)
 
@@ -377,7 +377,7 @@ class ProjectTreeDialog(QtWidgets.QDialog):
 
         self.central_layout.addWidget(self.group_box)
 
-        self.splitter.setOrientation(QtCore.Qt.Horizontal)
+        # self.splitter.setOrientation(QtCore.Qt.Horizontal)
 
         self.templates_layout = QtWidgets.QHBoxLayout()
 
@@ -392,19 +392,19 @@ class ProjectTreeDialog(QtWidgets.QDialog):
         self.tree_view = QtWidgets.QTreeView()
         self.central_layout.addWidget(self.tree_view)
 
-        self.tool_box = QtWidgets.QToolBox(self.splitter)
+        # self.tool_box = QtWidgets.QToolBox(self.splitter)
 
-        default_message = QtWidgets.QTextEdit(
-            'Make a selection to see the available properties'
-        )
-        default_message.readOnly = True
-        default_message.setAlignment(QtCore.Qt.AlignCenter)
-        self.tool_box.addItem(default_message, 'Processors')
-        self.tool_box.setContentsMargins(0, 15, 0, 0)
-        self.tool_box.setMinimumSize(QtCore.QSize(300, 0))
-        self.tool_box.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        # default_message = QtWidgets.QTextEdit(
+        #     'Make a selection to see the available properties'
+        # )
+        # default_message.readOnly = True
+        # default_message.setAlignment(QtCore.Qt.AlignCenter)
+        # self.tool_box.addItem(default_message, 'Processors')
+        # self.tool_box.setContentsMargins(0, 15, 0, 0)
+        # self.tool_box.setMinimumSize(QtCore.QSize(300, 0))
+        # self.tool_box.setFrameShape(QtWidgets.QFrame.StyledPanel)
 
-        self.central_horizontal_layout.addWidget(self.splitter, stretch=1)
+        # self.central_horizontal_layout.addWidget(self.splitter, stretch=1)
 
         self.bottom_button_layout = QtWidgets.QHBoxLayout()
         self.main_vertical_layout.addLayout(self.bottom_button_layout)
@@ -525,46 +525,46 @@ class ProjectTreeDialog(QtWidgets.QDialog):
         # Expand all nodes in the tree view.
         self.tree_view.expandAll()
 
-    def on_tree_item_selection(self, selected, deselected):
-        '''Handle signal triggered when a tree item gets selected.'''
-        self._reset_processors()
+    # def on_tree_item_selection(self, selected, deselected):
+    #     '''Handle signal triggered when a tree item gets selected.'''
+    #     self._reset_processors()
 
-        index = selected.indexes()[0]
-        item = index.model().data(index, role=self.tag_model.ITEM_ROLE)
+    #     index = selected.indexes()[0]
+    #     item = index.model().data(index, role=self.tag_model.ITEM_ROLE)
 
-        processor_groups = collections.defaultdict(list)
-        for processor in gather_processors(item.name, item.type, item.track):
-            if 'asset_name' in processor:
-                group_name = 'Asset: ' + processor['asset_name']
-            else:
-                group_name = 'Others'
-            processor_groups[group_name].append(processor)
+    #     processor_groups = collections.defaultdict(list)
+    #     # for processor in gather_processors(item.name, item.type, item.track):
+    #     #     if 'asset_name' in processor:
+    #     #         group_name = 'Asset: ' + processor['asset_name']
+    #     #     else:
+    #     #         group_name = 'Others'
+    #     #     processor_groups[group_name].append(processor)
 
-        for group_name, processors in processor_groups.iteritems():
-            widget = QtWidgets.QWidget()
-            layout = QtWidgets.QVBoxLayout()
-            widget.setLayout(layout)
+    #     for group_name, processors in processor_groups.iteritems():
+    #         widget = QtWidgets.QWidget()
+    #         layout = QtWidgets.QVBoxLayout()
+    #         widget.setLayout(layout)
 
-            for processor in processors:
-                processor_name = processor['name']
-                defaults = processor['defaults']
+    #         for processor in processors:
+    #             processor_name = processor['name']
+    #             defaults = processor['defaults']
 
-                data = QtWidgets.QGroupBox(processor_name)
-                data_layout = QtWidgets.QVBoxLayout()
-                data.setLayout(data_layout)
+    #             data = QtWidgets.QGroupBox(processor_name)
+    #             data_layout = QtWidgets.QVBoxLayout()
+    #             data.setLayout(data_layout)
 
-                layout.addWidget(data)
-                for node_name, knobs in defaults.iteritems():
-                    for knob, knob_value in knobs.items():
-                        knob_layout = QtWidgets.QHBoxLayout()
-                        label = QtWidgets.QLabel('%s:%s' % (node_name, knob))
-                        value = QtWidgets.QLineEdit(str(knob_value))
-                        value.setDisabled(True)
-                        knob_layout.addWidget(label)
-                        knob_layout.addWidget(value)
-                        data_layout.addLayout(knob_layout)
+    #             layout.addWidget(data)
+    #             for node_name, knobs in defaults.iteritems():
+    #                 for knob, knob_value in knobs.items():
+    #                     knob_layout = QtWidgets.QHBoxLayout()
+    #                     label = QtWidgets.QLabel('%s:%s' % (node_name, knob))
+    #                     value = QtWidgets.QLineEdit(str(knob_value))
+    #                     value.setDisabled(True)
+    #                     knob_layout.addWidget(label)
+    #                     knob_layout.addWidget(value)
+    #                     data_layout.addLayout(knob_layout)
 
-            self.tool_box.addItem(widget, group_name)
+    #         self.tool_box.addItem(widget, group_name)
 
     def on_close_dialog(self):
         '''Handle signal trigged when close dialog button is pressed.'''

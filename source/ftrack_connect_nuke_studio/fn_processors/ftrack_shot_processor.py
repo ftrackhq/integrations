@@ -13,7 +13,7 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         )
 
 
-class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBase):
+class FtrackShotProcessorPreset(ShotProcessorPreset):
 
     def __init__(self, name, properties):
 

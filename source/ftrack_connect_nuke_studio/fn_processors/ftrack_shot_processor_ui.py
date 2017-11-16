@@ -90,8 +90,6 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
             if not isinstance(hiero_item, hiero.core.TrackItem):
                 continue
 
-            # update_tag_value_from_name(item)
-
             tags = hiero_item.tags()
             tags = [tag for tag in tags if tag.metadata().hasKey(
                 'ftrack.type'
@@ -110,3 +108,16 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
 
         self.createProcessorSettingsWidget(exportItems)
 
+    # def setTaskContent(self, preset):
+    #     """ Get the UI for a task preset and add it in the 'Content' tab. """
+    #     self.logger.info('setTaskContent with: {0}'.format(preset))
+    #     return ShotProcessorUI.setTaskContent(
+    #         self,
+    #         preset,
+    #     )
+
+    # def refreshContent(self):
+    #     self.logger.info('refreshContent')
+    #     return ShotProcessorUI.refreshContent(
+    #         self,
+    #     )        
