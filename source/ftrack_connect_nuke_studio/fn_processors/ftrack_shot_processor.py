@@ -24,7 +24,8 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBase):
         self.set_export_root()
 
     def set_export_root(self):
-        self.properties()["exportRoot"] = '/tmp/'
+        prefix = self.ftrack_location.accessor.prefix
+        self.properties()["exportRoot"] = prefix
 
     def resolve_ftrack_path(self, task):
         trackItem = task._item

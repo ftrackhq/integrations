@@ -15,8 +15,8 @@ logger.setLevel(logging.DEBUG)
 
 
 def register_processors():
-    name = 'Base Preset'
 
+    # Register the ftrack shot processor.
     hiero.ui.taskUIRegistry.registerProcessorUI(
         FtrackShotProcessorPreset, FtrackShotProcessorUI
     )
@@ -24,6 +24,10 @@ def register_processors():
     hiero.core.taskRegistry.registerProcessor(
         FtrackShotProcessorPreset, FtrackShotProcessor
     )
+
+    # Register the base preset for ftrack shot processor.
+    # this could be moved to a discover function
+    name = 'Base Preset'
 
     nuke_script_processor = FnNukeAnnotationsExporter.NukeAnnotationsPreset(
         "nuke script",
