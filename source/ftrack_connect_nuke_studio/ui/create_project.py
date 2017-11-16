@@ -39,22 +39,6 @@ from ftrack_connect.ui.theme import applyTheme
 session = ftrack_connect.session.get_shared_session()
 
 
-# def gather_processors(name, type, track_item):
-#     '''Retrieve processors for *name*, *type* and *track_item*.'''
-#     processors = session.event_hub.publish(
-#         ftrack_api.event.base.Event(
-#             topic='ftrack.processor.discover',
-#             data=dict(
-#                 name=name,
-#                 object_type=type,
-#                 application_object=track_item
-#             )
-#         ),
-#         synchronous=True
-#     )
-#     return processors
-
-
 class ProjectTreeDialog(QtWidgets.QDialog):
     '''Create project dialog.'''
 
@@ -138,11 +122,11 @@ class ProjectTreeDialog(QtWidgets.QDialog):
         self.worker.started.connect(self.busy_overlay.show)
         self.worker.finished.connect(self.on_project_preview_done)
 
-        self.start_frame_offset_spinbox.valueChanged.connect(
-            self._refresh_tree
-        )
-        self.handles_spinbox.valueChanged.connect(self._refresh_tree)
-        self.processor_ready.connect(self.on_processor_ready)
+        # self.start_frame_offset_spinbox.valueChanged.connect(
+        #     self._refresh_tree
+        # )
+        # self.handles_spinbox.valueChanged.connect(self._refresh_tree)
+        # self.processor_ready.connect(self.on_processor_ready)
 
         self.project_selector.project_selected.connect(
             self.update_project_tag
@@ -312,70 +296,70 @@ class ProjectTreeDialog(QtWidgets.QDialog):
 
         self.workflow_combobox.currentIndexChanged.connect(self.validate)
 
-        self.group_box_layout.addLayout(self.workflow_layout)
+        # self.group_box_layout.addLayout(self.workflow_layout)
 
-        default_settings = self.get_default_settings()
+        # default_settings = self.get_default_settings()
 
-        self.line = QtWidgets.QFrame(self.group_box)
-        self.line.setFrameShape(QtWidgets.QFrame.HLine)
-        self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.group_box_layout.addWidget(self.line)
+        # self.line = QtWidgets.QFrame(self.group_box)
+        # self.line.setFrameShape(QtWidgets.QFrame.HLine)
+        # self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
+        # self.group_box_layout.addWidget(self.line)
 
-        self.resolution_layout = QtWidgets.QHBoxLayout()
+        # self.resolution_layout = QtWidgets.QHBoxLayout()
 
-        self.resolution_label = QtWidgets.QLabel(
-            'Resolution', parent=self.group_box
-        )
-        self.resolution_layout.addWidget(self.resolution_label)
+        # self.resolution_label = QtWidgets.QLabel(
+        #     'Resolution', parent=self.group_box
+        # )
+        # self.resolution_layout.addWidget(self.resolution_label)
 
-        self.resolution_combobox = Resolution(
-            self.group_box, default_value=default_settings.get('resolution')
-        )
+        # self.resolution_combobox = Resolution(
+        #     self.group_box, default_value=default_settings.get('resolution')
+        # )
 
-        self.resolution_layout.addWidget(self.resolution_combobox)
-        self.group_box_layout.addLayout(self.resolution_layout)
+        # self.resolution_layout.addWidget(self.resolution_combobox)
+        # self.group_box_layout.addLayout(self.resolution_layout)
 
-        self.label_layout = QtWidgets.QHBoxLayout()
+        # self.label_layout = QtWidgets.QHBoxLayout()
 
-        self.fps_label = QtWidgets.QLabel(
-            'Frames Per Second', parent=self.group_box
-        )
-        self.label_layout.addWidget(self.fps_label)
+        # self.fps_label = QtWidgets.QLabel(
+        #     'Frames Per Second', parent=self.group_box
+        # )
+        # self.label_layout.addWidget(self.fps_label)
 
-        self.fps_combobox = Fps(
-            self.group_box, default_value=default_settings.get('framerate')
-        )
-        self.label_layout.addWidget(self.fps_combobox)
+        # self.fps_combobox = Fps(
+        #     self.group_box, default_value=default_settings.get('framerate')
+        # )
+        # self.label_layout.addWidget(self.fps_combobox)
 
-        self.group_box_layout.addLayout(self.label_layout)
+        # self.group_box_layout.addLayout(self.label_layout)
 
-        self.handles_layout = QtWidgets.QHBoxLayout()
+        # self.handles_layout = QtWidgets.QHBoxLayout()
 
-        self.handles_label = QtWidgets.QLabel('Handles', parent=self.group_box)
-        self.handles_layout.addWidget(self.handles_label)
+        # self.handles_label = QtWidgets.QLabel('Handles', parent=self.group_box)
+        # self.handles_layout.addWidget(self.handles_label)
 
-        self.handles_spinbox = QtWidgets.QSpinBox(self.group_box)
-        self.handles_spinbox.setProperty('value', 0)
-        self.handles_layout.addWidget(self.handles_spinbox)
+        # self.handles_spinbox = QtWidgets.QSpinBox(self.group_box)
+        # self.handles_spinbox.setProperty('value', 0)
+        # self.handles_layout.addWidget(self.handles_spinbox)
 
-        self.group_box_layout.addLayout(self.handles_layout)
+        # self.group_box_layout.addLayout(self.handles_layout)
 
-        self.start_frame_offset_layout = QtWidgets.QHBoxLayout()
+        # self.start_frame_offset_layout = QtWidgets.QHBoxLayout()
 
-        self.start_frame_offset_label = QtWidgets.QLabel(
-            'Start frame offset', parent=self.group_box
-        )
-        self.start_frame_offset_layout.addWidget(self.start_frame_offset_label)
+        # self.start_frame_offset_label = QtWidgets.QLabel(
+        #     'Start frame offset', parent=self.group_box
+        # )
+        # self.start_frame_offset_layout.addWidget(self.start_frame_offset_label)
 
-        self.start_frame_offset_spinbox = QtWidgets.QSpinBox(self.group_box)
-        self.start_frame_offset_spinbox.setMaximum(9999)
-        self.start_frame_offset_spinbox.setProperty('value', 1001)
-        self.start_frame_offset_layout.addWidget(
-            self.start_frame_offset_spinbox
-        )
-        self.group_box_layout.addLayout(self.start_frame_offset_layout)
+        # self.start_frame_offset_spinbox = QtWidgets.QSpinBox(self.group_box)
+        # self.start_frame_offset_spinbox.setMaximum(9999)
+        # self.start_frame_offset_spinbox.setProperty('value', 1001)
+        # self.start_frame_offset_layout.addWidget(
+        #     self.start_frame_offset_spinbox
+        # )
+        # self.group_box_layout.addLayout(self.start_frame_offset_layout)
 
-        self.central_layout.addWidget(self.group_box)
+        # self.central_layout.addWidget(self.group_box)
 
         # self.splitter.setOrientation(QtCore.Qt.Horizontal)
 
@@ -850,9 +834,9 @@ class ProjectTreeDialog(QtWidgets.QDialog):
                         )
 
                 source = ui_helper.source_from_track_item(datum.track)
-                start, end, in_, out = ui_helper.time_from_track_item(
-                    datum.track, self
-                )
+                # start, end, in_, out = ui_helper.time_from_track_item(
+                #     datum.track, self
+                # )
 
                 if datum.exists:
 
@@ -929,71 +913,6 @@ class ProjectTreeDialog(QtWidgets.QDialog):
                 #: TODO: Remove this commit when the api issue with order of
                 # operations is fixed.
                 session.commit()
-
-                processors = gather_processors(
-                    datum.name, datum.type, datum.track
-                )
-
-                if processors:
-                    assets = dict()
-
-                    for processor in processors:
-
-                        version_id = None
-                        asset_name = processor.get('asset_name')
-                        if asset_name is not None:
-                            if asset_name not in assets:
-                                asset = self._get_or_create_asset(
-                                    asset_name,
-                                    asset_parent
-                                )
-
-                                self.logger.debug(
-                                    u'Creating asset version on asset with id: '
-                                    u'{0!r}'.format(
-                                        asset['id']
-                                    )
-                                )
-                                asset_version = session.create(
-                                    'AssetVersion', {
-                                        'asset_id': asset['id'],
-                                        'task_id': asset_task_id
-                                    }
-                                )
-                                assets[asset_name] = asset_version['id']
-
-                            version_id = assets[asset_name]
-
-                        out_data = {
-                            'resolution': resolution,
-                            'source_in': track_in,
-                            'source_out': track_out,
-                            'source_file': source,
-                            'destination_in': start,
-                            'destination_out': end,
-                            'fps': fps,
-                            'offset': offset,
-                            'entity_id': current['id'],
-                            'entity_type': 'task',
-                            'handles': handles,
-                            'application_object': datum.track
-                        }
-
-                        if version_id:
-                            out_data.update({
-                                'asset_version_id': version_id,
-                                'component_name': processor['name']
-                            })
-
-                        processor_name = processor['processor_name']
-                        processor_data.append((processor_name, out_data))
-
-            if datum.children:
-                processor_data.extend(
-                    self._create_structure(datum.children, current)
-                )
-
-        return processor_data
 
     def create_project(self, data, previous=None):
         '''Create project from *data*.'''

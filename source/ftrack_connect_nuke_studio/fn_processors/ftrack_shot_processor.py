@@ -24,12 +24,13 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBase):
         self.set_export_root()
 
     def set_export_root(self):
-        prefix = self.ftrack_location.accessor.prefix
-        self.properties()["exportRoot"] = prefix
+        accessor_prefix = self.ftrack_location.accessor.prefix
+        self.properties()["exportRoot"] = accessor_prefix
 
     def resolve_ftrack_path(self, task):
         trackItem = task._item
          # for now just resolve agains the track name
+        self.logger.info(trackItem.tags())
         return trackItem.name()
     
     def addUserResolveEntries(self, resolver):
