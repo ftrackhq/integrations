@@ -207,9 +207,12 @@ def _ftrackAddVersion(track, layout):
 def _ftrackCreateGroup(tracks, sourceNode, layout):
     singleSources = []
     for track in tracks:
-        singleSources.append(
-            rv.commands.nodeGroup(_ftrackAddVersion(track, layout))
-        )
+        try:
+            singleSources.append(
+                rv.commands.nodeGroup(_ftrackAddVersion(track, layout))
+            )
+        except Exception as error:
+            logger.exception(error)
 
     rv.commands.setNodeInputs(
         sourceNode, singleSources
