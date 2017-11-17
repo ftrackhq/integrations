@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: 3.7
+    :date: 2017-11-17
+
+    .. change:: fixed
+
+       Fail gracefully if a single asset version fails to load.
+
 .. release:: 3.6
     :date: 2017-06-28
 
