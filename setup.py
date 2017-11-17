@@ -48,11 +48,11 @@ for plugin in (
     )
 
 
-connect_install_require = 'ftrack-connect == 1.1.0'
+connect_install_require = 'ftrack-connect == 1.1.1'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/1.1.0.zip'
-    '#egg=ftrack-connect-1.1.0'
+    'https://bitbucket.org/ftrack/ftrack-connect/get/1.1.1.zip'
+    '#egg=ftrack-connect-1.1.1'
 )
 
 
@@ -84,8 +84,8 @@ connect_hieroplayer_dependency_link = (
 )
 
 connect_nuke_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/1.1.0.zip'
-    '#egg=ftrack-connect-nuke-1.1.0'
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/1.1.1.zip'
+    '#egg=ftrack-connect-nuke-1.1.1'
 )
 connect_nuke_dependency_install_require = (
     'ftrack-connect-nuke'
@@ -113,8 +113,8 @@ connect_nuke_studio_dependency_install_require = (
 connect_rv_dependency_install_require = 'ftrack-connect-rv >=3.4, < 4'
 
 connect_rv_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-rv/get/3.6.zip'
-    '#egg=ftrack-connect-rv-3.6'
+    'https://bitbucket.org/ftrack/ftrack-connect-rv/get/3.7.zip'
+    '#egg=ftrack-connect-rv-3.7'
 )
 
 connect_cinema_4d_dependency_install_require = 'ftrack-connect-cinema-4d >=0.1, < 1'
