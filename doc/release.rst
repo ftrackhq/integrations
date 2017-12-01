@@ -5,6 +5,21 @@
 Releases
 ########
 
+.. release:: 0.7.2
+    :date: 2017-12-01
+
+    .. change:: changed
+
+        `ftrack connect 1.1.1 <http://ftrack-connect.rtd.ftrack.com/en/1.1.1/>`_
+
+    .. change:: changed
+
+        `ftrack connect nuke 1.1.1 <http://ftrack-connect-nuke.rtd.ftrack.com/en/1.0.1/>`_
+
+    .. change:: changed
+
+        `ftrack connect rv 3.7 <http://ftrack-connect-rv.rtd.ftrack.com/en/3.7/>`_
+
 .. release:: 0.7.1
     :date: 2017-09-27
 
