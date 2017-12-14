@@ -7,7 +7,8 @@
 Release Notes
 *************
 
-.. release:: upcoming
+.. release:: 1.1.1
+    :date: 2017-12-14
 
     .. change:: new
        :tags: Logging
