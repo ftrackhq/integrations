@@ -39,3 +39,8 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBase):
             "Ftrack managed path.",
             lambda keyword, task: self.resolve_ftrack_path(task)
         )
+
+    def startProcessing(self, exportItems, preview=False):
+        self.logger.info('Processing: %s' % (exportItems))
+        super(FtrackShotProcessorPreset, self).startProcessing(exportItems, preview=preview)
+

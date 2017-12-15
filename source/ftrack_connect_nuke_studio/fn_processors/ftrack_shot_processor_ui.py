@@ -26,7 +26,7 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
         return "Process as Shots generates output on a per shot basis."
             
     def createProcessorSettingsWidget(self, exportItems):
-        self._processor_widgets = []
+        widgets = []
 
         self.logger.info('building processor widget')
         handles = self.createHandleWidgets()
@@ -47,13 +47,16 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
             if not task_ui:
                 continue
 
-            self._processor_widgets.append(task_ui)
             task_ui.setProject(self._project)
             task_ui.setTags(self._tags)
+
             taskUIWidget = QtWidgets.QWidget()
             task_ui.setTaskItemType(self.getTaskItemType())
             task_ui.initializeAndPopulateUI(taskUIWidget, self._exportTemplate)
-            self._tabWidget.addTab(taskUIWidget, preset.name())
+            widgets.append((taskUIWidget, preset.name()))
+        
+        return widgets
+            
 
     def _checkExistingVersions(self, exportItems):
         """ Iterate over all the track items which are set to be exported, and check if they have previously
@@ -72,8 +75,11 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
         self.logger.info('Populating UI')
         if self.hiero_version_touple >= (10, 5, 1):
             (widget, taskUIWidget, exportItems) = args
+            _widget = widget
         else:
             (widget, exportItems, editMode) = args
+            _widget= widget
+    
         self._exportItems = exportItems
         
         self._taskUILayout = QtWidgets.QVBoxLayout(widget)
@@ -98,7 +104,7 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
             sequence = hiero_item.sequence()
 
         self.projectTreeDialog = ProjectTreeDialog(
-            data=ftags, parent=widget, sequence=sequence
+            data=ftags, parent=_widget, sequence=sequence
         )
 
         self._tabWidget.insertTab(0, self.projectTreeDialog, 'ftrack')
@@ -106,7 +112,9 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
         self.projectTreeDialog.export_project_button.hide()
         self.projectTreeDialog.close_button.hide()
 
-        self.createProcessorSettingsWidget(exportItems)
+        widgets = self.createProcessorSettingsWidget(exportItems)
+        for widget, name in widgets:
+            self._tabWidget.addTab(widget, name)
 
     # def setTaskContent(self, preset):
     #     """ Get the UI for a task preset and add it in the 'Content' tab. """
