@@ -25,13 +25,13 @@ def register_processors():
         FtrackShotProcessorPreset, FtrackShotProcessor
     )
 
-    render_path_template = '{ftrack}/{shot}.####.{ext}'
-
+    render_path_template = '{ftrack}/{shot}/nuke/renders/{shot}_comp_{version}.####.{ext}'
+    nuke_path_template = '{ftrack}/{shot}/nuke/script/{shot}_comp_{version}.nk'
     # Register the base preset for ftrack shot processor.
     # this could be moved to a discover function
     name = 'Base Preset'
 
-    nuke_script_processor = FnNukeAnnotationsExporter.NukeAnnotationsPreset(
+    nuke_script_processor = FnNukeShotExporter.NukeShotPreset(
         "nuke script",
         {
             'readPaths': [],
@@ -52,7 +52,11 @@ def register_processors():
     properties = {
         "exportTemplate": (
             (
-                '{ftrack}/{shot}.nk',
+                "{ftrack}/{shot}",
+                 None
+            ),
+            (
+                nuke_path_template,
                 nuke_script_processor
             ),
             (

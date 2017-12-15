@@ -8,9 +8,12 @@ from hiero.exporters.FnShotProcessor import ShotProcessor, ShotProcessorPreset
 class FtrackShotProcessor(ShotProcessor, FtrackBase):
 
     def __init__(self, preset, submission, synchronous=False):
-        super(FtrackShotProcessor, self).__init__(
-             preset, submission, synchronous=synchronous
-        )
+        ShotProcessor.__init__(self, preset, submission, synchronous=synchronous)
+        FtrackBase.__init__(self)
+
+    def startProcessing(self, exportItems, preview=False):
+        self.logger.info('!!!!!!!!!! Processing: %s' % (exportItems))
+        super(FtrackShotProcessor, self).startProcessing(exportItems, preview=preview)
 
 
 class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBase):
@@ -39,8 +42,4 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBase):
             "Ftrack managed path.",
             lambda keyword, task: self.resolve_ftrack_path(task)
         )
-
-    def startProcessing(self, exportItems, preview=False):
-        self.logger.info('Processing: %s' % (exportItems))
-        super(FtrackShotProcessorPreset, self).startProcessing(exportItems, preview=preview)
 
