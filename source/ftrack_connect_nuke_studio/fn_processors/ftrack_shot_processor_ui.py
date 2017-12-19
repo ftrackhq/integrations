@@ -79,6 +79,7 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
 
     def populateUI(self, *args, **kwargs):
         self.logger.info('Populating UI')
+
         if self.hiero_version_touple >= (10, 5, 1):
             (widget, taskUIWidget, exportItems) = args
             _widget = widget
@@ -86,17 +87,18 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
             (widget, exportItems, editMode) = args
             _widget= widget
     
+
         self._exportItems = exportItems
         self._editMode = hiero.ui.IProcessorUI.ReadOnly if self._preset.readOnly() else hiero.ui.IProcessorUI.Full
 
         self._taskUILayout = QtWidgets.QVBoxLayout(_widget)
         self._taskUILayout.setContentsMargins(10, 0, 0, 0)
 
-        self._tabWidget = QtWidgets.QTabWidget()
+        tabWidget = QtWidgets.QTabWidget()
         self.handles = self.createHandleWidgets()
-        self._tabWidget.addTab(self.handles, 'Tracks && Handles')
+        tabWidget.addTab(self.handles, 'Tracks && Handles')
 
-        self._taskUILayout.addWidget(self._tabWidget)
+        self._taskUILayout.addWidget(tabWidget)
         self._tags = self.findTagsForItems(exportItems)
 
         ftags = []
@@ -106,8 +108,7 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
             if not isinstance(hiero_item, hiero.core.TrackItem):
                 continue
 
-            tags = self._tags
-            tags = [tag for tag in tags if tag.metadata().hasKey(
+            tags = [tag for tag in self._tags if tag.metadata().hasKey(
                 'ftrack.type'
             )]
             ftags.append((hiero_item, tags))
@@ -119,14 +120,20 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
 
         self.projectTreeDialog.item_selected.connect(self.onItemSelected)
 
-        self._tabWidget.insertTab(0, self.projectTreeDialog, 'ftrack')
+        tabWidget.insertTab(0, self.projectTreeDialog, 'ftrack')
 
         self.projectTreeDialog.export_project_button.hide()
         self.projectTreeDialog.close_button.hide()
 
         settings_widgets = self.createProcessorSettingsWidget(exportItems)
         for setting_widget, setting_name in settings_widgets:
-            self._tabWidget.addTab(setting_widget, setting_name)
+            tabWidget.addTab(setting_widget, setting_name)
+
+
+        # self._contentScrollArea = QtWidgets.QScrollArea()
+        # tabWidget.addTab(self._contentScrollArea, "Content")
+        # self._contentScrollArea.setFrameStyle( QtWidgets.QScrollArea.NoFrame )
+        # self._contentScrollArea.setWidgetResizable(True)
 
         # include_tags = [tag for tag, objecttype in self._tags if tag.name() in self._preset.properties()["includeTags"]]
         # exclude_tags = [tag for tag, objecttype in self._tags if tag.name() in self._preset.properties()["excludeTags"]]
@@ -136,40 +143,40 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
         # tagsWidget.tagSelectionChanged.connect(self._tagsSelectionChanged)
 
     # DEBUG OVERRIDES
-    # def isTranscodeExport(self):
-    #     result = super(FtrackShotProcessorUI, self).isTranscodeExport()
-    #     self.logger.info('isTranscodeExport: {0}'.format(result))
-    #     return result
+    def isTranscodeExport(self):
+        result = super(FtrackShotProcessorUI, self).isTranscodeExport()
+        self.logger.info('isTranscodeExport: {0}'.format(result))
+        return result
 
-    # def findCompItems(self, items):
-    #     comp_items =  super(FtrackShotProcessorUI, self).findCompItems(items)
-    #     self.logger.info('Comp Items {0}'.format(comp_items))
-    #     yield comp_items
+    def findCompItems(self, items):
+        comp_items =  super(FtrackShotProcessorUI, self).findCompItems(items)
+        self.logger.info('Comp Items {0}'.format(comp_items))
+        yield comp_items
 
-    # def validate(self,exportItems):
-    #     is_valid = super(FtrackShotProcessorUI, self).validate(exportItems)
-    #     self.logger.info('{0} are valid: {1}'.format(exportItems, is_valid))
-    #     return is_valid
+    def validate(self,exportItems):
+        is_valid = super(FtrackShotProcessorUI, self).validate(exportItems)
+        self.logger.info('{0} are valid: {1}'.format(exportItems, is_valid))
+        return is_valid
 
-    # def checkUnrenderedComps(self, exportItems):
-    #     result = super(FtrackShotProcessorUI, self).checkUnrenderedComps(exportItems)
-    #     self.logger.info('{0} Unrendered Comps: {1}'.format(exportItems, result))
-    #     return result
+    def checkUnrenderedComps(self, exportItems):
+        result = super(FtrackShotProcessorUI, self).checkUnrenderedComps(exportItems)
+        self.logger.info('{0} Unrendered Comps: {1}'.format(exportItems, result))
+        return result
 
-    # def projectFromSelection(self, items):
-    #     result = super(FtrackShotProcessorUI, self).projectFromSelection(items)
-    #     self.logger.info('project {}'.format(result))
-    #     return result
+    def projectFromSelection(self, items):
+        result = super(FtrackShotProcessorUI, self).projectFromSelection(items)
+        self.logger.info('project {}'.format(result))
+        return result
 
-    # def toTrackItems(self, items):
-    #     result = super(FtrackShotProcessorUI, self).toTrackItems(items)
-    #     self.logger.info('track {}'.format(result))
-    #     yield result
+    def toTrackItems(self, items):
+        result = super(FtrackShotProcessorUI, self).toTrackItems(items)
+        self.logger.info('track {}'.format(result))
+        yield result
 
-    # def findOfflineMedia(self, exportItems):
-    #     result = super(FtrackShotProcessorUI, self).findOfflineMedia(exportItems)
-    #     self.logger.info('offline {}, online {}'.format(result[0], result[1]))
-    #     return result
+    def findOfflineMedia(self, exportItems):
+        result = super(FtrackShotProcessorUI, self).findOfflineMedia(exportItems)
+        self.logger.info('offline {}, online {}'.format(result[0], result[1]))
+        return result
 
     # def setTaskContent(self, preset):
     #     self.logger.info('setTaskContent with: {0}'.format(preset))
