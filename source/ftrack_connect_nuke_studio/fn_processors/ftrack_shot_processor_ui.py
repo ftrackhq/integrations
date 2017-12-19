@@ -73,6 +73,10 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
             exportItems,
         )
 
+    def onItemSelected(self, item):
+        self.logger.info(item.track)
+    
+
     def populateUI(self, *args, **kwargs):
         self.logger.info('Populating UI')
         if self.hiero_version_touple >= (10, 5, 1):
@@ -85,7 +89,7 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
         self._exportItems = exportItems
         self._editMode = hiero.ui.IProcessorUI.ReadOnly if self._preset.readOnly() else hiero.ui.IProcessorUI.Full
 
-        self._taskUILayout = QtWidgets.QVBoxLayout(widget)
+        self._taskUILayout = QtWidgets.QVBoxLayout(_widget)
         self._taskUILayout.setContentsMargins(10, 0, 0, 0)
 
         self._tabWidget = QtWidgets.QTabWidget()
@@ -94,7 +98,6 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
 
         self._taskUILayout.addWidget(self._tabWidget)
         self._tags = self.findTagsForItems(exportItems)
-        self._editMode = hiero.ui.IProcessorUI.ReadOnly if self._preset.readOnly() else hiero.ui.IProcessorUI.Full
 
         ftags = []
         sequence = None
@@ -103,7 +106,7 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
             if not isinstance(hiero_item, hiero.core.TrackItem):
                 continue
 
-            tags = hiero_item.tags()
+            tags = self._tags
             tags = [tag for tag in tags if tag.metadata().hasKey(
                 'ftrack.type'
             )]
@@ -113,6 +116,8 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
         self.projectTreeDialog = ProjectTreeDialog(
             data=ftags, parent=_widget, sequence=sequence
         )
+
+        self.projectTreeDialog.item_selected.connect(self.onItemSelected)
 
         self._tabWidget.insertTab(0, self.projectTreeDialog, 'ftrack')
 

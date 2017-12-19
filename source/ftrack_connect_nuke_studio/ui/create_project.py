@@ -43,7 +43,7 @@ class ProjectTreeDialog(QtWidgets.QDialog):
     '''Create project dialog.'''
 
     processor_ready = QtCore.Signal(object)
-
+    item_selected =  QtCore.Signal(object)
     update_entity_reference = QtCore.Signal(object, object, object)
 
     def __init__(self, data=None, parent=None, sequence=None):
@@ -116,9 +116,11 @@ class ProjectTreeDialog(QtWidgets.QDialog):
         self.close_button.clicked.connect(self.on_close_dialog)
 
         selection_model = self.tree_view.selectionModel()
-        # selection_model.selectionChanged.connect(
-        #     self.on_tree_item_selection
-        # )
+        
+        selection_model.selectionChanged.connect(
+            self.on_tree_item_selection
+        )
+
         self.worker.started.connect(self.busy_overlay.show)
         self.worker.finished.connect(self.on_project_preview_done)
 
@@ -509,46 +511,11 @@ class ProjectTreeDialog(QtWidgets.QDialog):
         # Expand all nodes in the tree view.
         self.tree_view.expandAll()
 
-    # def on_tree_item_selection(self, selected, deselected):
-    #     '''Handle signal triggered when a tree item gets selected.'''
-    #     self._reset_processors()
-
-    #     index = selected.indexes()[0]
-    #     item = index.model().data(index, role=self.tag_model.ITEM_ROLE)
-
-    #     processor_groups = collections.defaultdict(list)
-    #     # for processor in gather_processors(item.name, item.type, item.track):
-    #     #     if 'asset_name' in processor:
-    #     #         group_name = 'Asset: ' + processor['asset_name']
-    #     #     else:
-    #     #         group_name = 'Others'
-    #     #     processor_groups[group_name].append(processor)
-
-    #     for group_name, processors in processor_groups.iteritems():
-    #         widget = QtWidgets.QWidget()
-    #         layout = QtWidgets.QVBoxLayout()
-    #         widget.setLayout(layout)
-
-    #         for processor in processors:
-    #             processor_name = processor['name']
-    #             defaults = processor['defaults']
-
-    #             data = QtWidgets.QGroupBox(processor_name)
-    #             data_layout = QtWidgets.QVBoxLayout()
-    #             data.setLayout(data_layout)
-
-    #             layout.addWidget(data)
-    #             for node_name, knobs in defaults.iteritems():
-    #                 for knob, knob_value in knobs.items():
-    #                     knob_layout = QtWidgets.QHBoxLayout()
-    #                     label = QtWidgets.QLabel('%s:%s' % (node_name, knob))
-    #                     value = QtWidgets.QLineEdit(str(knob_value))
-    #                     value.setDisabled(True)
-    #                     knob_layout.addWidget(label)
-    #                     knob_layout.addWidget(value)
-    #                     data_layout.addLayout(knob_layout)
-
-    #         self.tool_box.addItem(widget, group_name)
+    def on_tree_item_selection(self, selected, deselected):
+        '''Handle signal triggered when a tree item gets selected.'''
+        index = selected.indexes()[0]
+        item = index.model().data(index, role=self.tag_model.ITEM_ROLE)
+        self.item_selected.emit(item)
 
     def on_close_dialog(self):
         '''Handle signal trigged when close dialog button is pressed.'''

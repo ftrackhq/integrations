@@ -11,8 +11,13 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         ShotProcessor.__init__(self, preset, submission, synchronous=synchronous)
         FtrackBase.__init__(self)
 
+    def create_structure_fragment(self, item):
+        self.logger.info('creating structure for :{0}'.format(item.trackItem()))
+
     def startProcessing(self, exportItems, preview=False):
         self.logger.info('!!!!!!!!!! Processing: %s' % (exportItems))
+        for item in exportItems:
+            self.create_structure_fragment(item)
         super(FtrackShotProcessor, self).startProcessing(exportItems, preview=preview)
 
 
