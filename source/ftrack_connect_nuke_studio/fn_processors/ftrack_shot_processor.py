@@ -12,7 +12,12 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         FtrackBase.__init__(self)
 
     def create_structure_fragment(self, item):
-        self.logger.info('creating structure for :{0}'.format(item.trackItem()))
+        # here we can take the item , inspect it and build the structure fragment in ftrack server.
+        # once done we can add a tag to check whether has already been built , also track teh result uuid ? 
+        track_item = item.trackItem()
+        tags = track_item.tags()
+        self.logger.info('creating structure for :{0}, tags:{1}'.format(track_item, tags))
+
 
     def startProcessing(self, exportItems, preview=False):
         self.logger.info('!!!!!!!!!! Processing: %s' % (exportItems))
