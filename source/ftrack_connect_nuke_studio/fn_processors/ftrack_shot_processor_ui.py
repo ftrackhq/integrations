@@ -25,39 +25,39 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
     def toolTip(self):
         return "Process as Shots generates output on a per shot basis."
             
-    def createProcessorSettingsWidget(self, exportItems):
-        widgets = []
+    # def createProcessorSettingsWidget(self, exportItems):
+    #     widgets = []
 
-        self.logger.info('building processor widget')
+    #     self.logger.info('building processor widget')
 
-        for path, preset in self._preset.properties()['exportTemplate']:
-            if not preset:
-                continue
+    #     for path, preset in self._preset.properties()['exportTemplate']:
+    #         if not preset:
+    #             continue
             
-            task_ui = hiero.ui.taskUIRegistry.getNewTaskUIForPreset(preset)
+    #         task_ui = hiero.ui.taskUIRegistry.getNewTaskUIForPreset(preset)
 
-            if not task_ui:
-                continue
+    #         if not task_ui:
+    #             continue
 
-            task_ui.setProject(self._project)
-            task_ui.setTags(self._tags)
+    #         task_ui.setProject(self._project)
+    #         task_ui.setTags(self._tags)
 
-            taskUIWidget = QtWidgets.QWidget()
-            task_ui.setTaskItemType(self.getTaskItemType())
-            task_ui.initializeAndPopulateUI(taskUIWidget, self._exportTemplate)
-            widgets.append((taskUIWidget, preset.name()))
+    #         taskUIWidget = QtWidgets.QWidget()
+    #         task_ui.setTaskItemType(self.getTaskItemType())
+    #         task_ui.initializeAndPopulateUI(taskUIWidget, self._exportTemplate)
+    #         widgets.append((taskUIWidget, preset.name()))
 
-            if self._editMode == hiero.ui.IProcessorUI.ReadOnly:
-                task_ui.setEnabled(False)
+    #         if self._editMode == hiero.ui.IProcessorUI.ReadOnly:
+    #             task_ui.setEnabled(False)
         
-            try:
-                task_ui.propertiesChanged.connect(self.onExportStructureModified,
-                                            type=QtCore.Qt.UniqueConnection)
-            except:
-                # Signal already connected.
-                pass
+    #         try:
+    #             task_ui.propertiesChanged.connect(self.onExportStructureModified,
+    #                                         type=QtCore.Qt.UniqueConnection)
+    #         except:
+    #             # Signal already connected.
+    #             pass
 
-        return widgets
+    #     return widgets
             
 
     def _checkExistingVersions(self, exportItems):
@@ -77,70 +77,59 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
         self.logger.info(item.track)
     
 
-    def populateUI(self, *args, **kwargs):
-        self.logger.info('Populating UI')
+    # def populateUI(self, *args, **kwargs):
+    #     self.logger.info('Populating UI')
 
-        if self.hiero_version_touple >= (10, 5, 1):
-            (widget, taskUIWidget, exportItems) = args
-            _widget = widget
-        else:
-            (widget, exportItems, editMode) = args
-            _widget= widget
+    #     if self.hiero_version_touple >= (10, 5, 1):
+    #         (widget, taskUIWidget, exportItems) = args
+    #         _widget = widget
+    #     else:
+    #         (widget, exportItems, editMode) = args
+    #         _widget= widget
     
 
-        self._exportItems = exportItems
-        self._editMode = hiero.ui.IProcessorUI.ReadOnly if self._preset.readOnly() else hiero.ui.IProcessorUI.Full
+    #     self._exportItems = exportItems
+    #     self._editMode = hiero.ui.IProcessorUI.ReadOnly if self._preset.readOnly() else hiero.ui.IProcessorUI.Full
 
-        self._taskUILayout = QtWidgets.QVBoxLayout(_widget)
-        self._taskUILayout.setContentsMargins(10, 0, 0, 0)
+    #     self._taskUILayout = QtWidgets.QVBoxLayout(_widget)
+    #     self._taskUILayout.setContentsMargins(10, 0, 0, 0)
 
-        tabWidget = QtWidgets.QTabWidget()
-        self.handles = self.createHandleWidgets()
-        tabWidget.addTab(self.handles, 'Tracks && Handles')
+    #     tabWidget = QtWidgets.QTabWidget()
+    #     self.handles = self.createHandleWidgets()
+    #     tabWidget.addTab(self.handles, 'Tracks && Handles')
 
-        self._taskUILayout.addWidget(tabWidget)
-        self._tags = self.findTagsForItems(exportItems)
+    #     self._taskUILayout.addWidget(tabWidget)
+    #     self._tags = self.findTagsForItems(exportItems)
 
-        ftags = []
-        sequence = None
-        for item in exportItems:
-            hiero_item = item.item()
-            if not isinstance(hiero_item, hiero.core.TrackItem):
-                continue
+    #     ftags = []
+    #     sequence = None
+    #     for item in exportItems:
+    #         hiero_item = item.item()
+    #         if not isinstance(hiero_item, hiero.core.TrackItem):
+    #             continue
 
-            tags = [tag for tag in self._tags if tag.metadata().hasKey(
-                'ftrack.type'
-            )]
-            ftags.append((hiero_item, tags))
-            sequence = hiero_item.sequence()
+    #         tags = [tag for tag in self._tags if tag.metadata().hasKey(
+    #             'ftrack.type'
+    #         )]
+    #         ftags.append((hiero_item, tags))
+    #         sequence = hiero_item.sequence()
 
-        self.projectTreeDialog = ProjectTreeDialog(
-            data=ftags, parent=_widget, sequence=sequence
-        )
+    #     self.projectTreeDialog = ProjectTreeDialog(
+    #         data=ftags, parent=_widget, sequence=sequence
+    #     )
 
-        self.projectTreeDialog.item_selected.connect(self.onItemSelected)
+    #     self.projectTreeDialog.item_selected.connect(self.onItemSelected)
 
-        tabWidget.insertTab(0, self.projectTreeDialog, 'ftrack')
+    #     tabWidget.insertTab(0, self.projectTreeDialog, 'ftrack')
 
-        self.projectTreeDialog.export_project_button.hide()
-        self.projectTreeDialog.close_button.hide()
+    #     self.projectTreeDialog.export_project_button.hide()
+    #     self.projectTreeDialog.close_button.hide()
 
-        settings_widgets = self.createProcessorSettingsWidget(exportItems)
-        for setting_widget, setting_name in settings_widgets:
-            tabWidget.addTab(setting_widget, setting_name)
+    #     settings_widgets = self.createProcessorSettingsWidget(exportItems)
+    #     for setting_widget, setting_name in settings_widgets:
+    #         tabWidget.addTab(setting_widget, setting_name)
 
 
-        # self._contentScrollArea = QtWidgets.QScrollArea()
-        # tabWidget.addTab(self._contentScrollArea, "Content")
-        # self._contentScrollArea.setFrameStyle( QtWidgets.QScrollArea.NoFrame )
-        # self._contentScrollArea.setWidgetResizable(True)
-
-        # include_tags = [tag for tag, objecttype in self._tags if tag.name() in self._preset.properties()["includeTags"]]
-        # exclude_tags = [tag for tag, objecttype in self._tags if tag.name() in self._preset.properties()["excludeTags"]]
-        # tagsWidget = TagFilterWidget([tag for tag, objecttype in self._tags if objecttype in (hiero.core.TrackItem, )], include_tags, exclude_tags)
-        # tagsWidget.setToolTip("Filter shot selection based on Shot Tags.\n+ Only include shots with these tags.\n- Exclude any shots with these tags.")
-        # self._tabWidget.addTab(tagsWidget, 'tags')
-        # tagsWidget.tagSelectionChanged.connect(self._tagsSelectionChanged)
 
     # DEBUG OVERRIDES
     def isTranscodeExport(self):
