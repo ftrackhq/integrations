@@ -65,38 +65,38 @@ class TagTreeModel(EntityTreeModel):
             if item.type == 'show' and item.exists:
                 self.project_exists.emit(item.name)
 
-            if item.type == 'shot':
-                start, end, in_, out = time_from_track_item(
-                    item.track, self.parentWidget
-                )
-                in_src, out_src, in_dst, out_dst = timecode_from_track_item(
-                    item.track
-                )
-                source = source_from_track_item(item.track)
+            # if item.type == 'shot':
+            #     start, end, in_, out = time_from_track_item(
+            #         item.track, self.parentWidget
+            #     )
+            #     in_src, out_src, in_dst, out_dst = timecode_from_track_item(
+            #         item.track
+            #     )
+            #     source = source_from_track_item(item.track)
 
-                if column_name == 'Start':
-                    return start
+            #     if column_name == 'Start':
+            #         return start
 
-                if column_name == 'End':
-                    return end
+            #     if column_name == 'End':
+            #         return end
 
-                if column_name == 'Duration':
-                    return end - start
+            #     if column_name == 'Duration':
+            #         return end - start
 
-                if column_name == 'Tc src In':
-                    return in_src
+            #     if column_name == 'Tc src In':
+            #         return in_src
 
-                if column_name == 'Tc src Out':
-                    return out_src
+            #     if column_name == 'Tc src Out':
+            #         return out_src
 
-                if column_name == 'Tc dst In':
-                    return in_dst
+            #     if column_name == 'Tc dst In':
+            #         return in_dst
 
-                if column_name == 'Tc dst Out':
-                    return out_dst
+            #     if column_name == 'Tc dst Out':
+            #         return out_dst
 
-                if column_name == 'Source':
-                    return source
+            #     if column_name == 'Source':
+            #         return source
 
         elif role == QtCore.Qt.ForegroundRole:
             if item.exists == 'error':
