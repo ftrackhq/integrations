@@ -14,27 +14,34 @@ from hiero.core import (
     TaskRegistry, 
     taskRegistry
 )
+from ftrack_base import FtrackBase
 
-class FtrackExportStructureViewer(ExportStructureViewer):
+class FtrackExportStructureViewer(ExportStructureViewer, FtrackBase):
 
   def __init__(self, exportTemplate, structureViewerMode):
-    super(FtrackExportStructureViewer, self).__init__(exportTemplate, structureViewerMode)
+    ExportStructureViewer.__init__(self, exportTemplate, structureViewerMode)
+    FtrackBase.__init__(self)
+    self.logger.info('intializing FtrackExportStructureViewer')
 
   def addFile(self, *args, **kwargs):
+    self.logger.info('adding file: {}, {}'.format(args, kwargs))
     return super(FtrackExportStructureViewer, self).addFile(args, kwargs)
 
   def addFolder(self, *args, **kwargs):
+    self.logger.info('adding folder: {}, {}'.format(args, kwargs))
     return super(FtrackExportStructureViewer, self).addFolder(args, kwargs)
 
   def getWidget(self, *args, **kwargs):
+    self.logger.info('get widget: {}, {}'.format(args, kwargs))
     return super(FtrackExportStructureViewer, self).getWidget(args, kwargs)
 
   def initUI(self, *args, **kwargs):
+    self.logger.info('intializing ui')
     return super(FtrackExportStructureViewer, self).initUI(args, kwargs)
     
 
 
-class FtrackExportStructure(ExportStructure2):
+class FtrackExportStructure(ExportStructure2, FtrackBase):
   """ ExportStructure2 is the implementation of the datastructure used to represent
   the export tree, each node within the tree is represented by an ExportStructureElement.
   Although this matches how the export presets are viewed in the UI, when it comes
