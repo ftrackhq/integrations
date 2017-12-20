@@ -6,7 +6,7 @@ from hiero.ui.FnTagFilterWidget import TagFilterWidget
 from ftrack_connect_nuke_studio.ui.create_project import ProjectTreeDialog
 from .ftrack_base import FtrackBase
 from hiero.exporters.FnShotProcessorUI import ShotProcessorUI
-
+from ftrack_export_structure import FtrackExportStructureViewer
 
 class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
 
@@ -23,41 +23,6 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
     def toolTip(self):
         return "Process as Shots generates output on a per shot basis."
             
-    # def createProcessorSettingsWidget(self, exportItems):
-    #     widgets = []
-
-    #     self.logger.info('building processor widget')
-
-    #     for path, preset in self._preset.properties()['exportTemplate']:
-    #         if not preset:
-    #             continue
-            
-    #         task_ui = hiero.ui.taskUIRegistry.getNewTaskUIForPreset(preset)
-
-    #         if not task_ui:
-    #             continue
-
-    #         task_ui.setProject(self._project)
-    #         task_ui.setTags(self._tags)
-
-    #         taskUIWidget = QtWidgets.QWidget()
-    #         task_ui.setTaskItemType(self.getTaskItemType())
-    #         task_ui.initializeAndPopulateUI(taskUIWidget, self._exportTemplate)
-    #         widgets.append((taskUIWidget, preset.name()))
-
-    #         # if self._editMode == hiero.ui.IProcessorUI.ReadOnly:
-    #         #     task_ui.setEnabled(False)
-        
-    #         try:
-    #             task_ui.propertiesChanged.connect(self.onExportStructureModified,
-    #                                         type=QtCore.Qt.UniqueConnection)
-    #         except:
-    #             # Signal already connected.
-    #             pass
-
-    #     return widgets
-            
-
     def _checkExistingVersions(self, exportItems):
         """ Iterate over all the track items which are set to be exported, and check if they have previously
         been exported with the same version as the setting in the current preset.  If yes, show a message box
@@ -76,110 +41,65 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
     
 
     def populateUI(self, *args, **kwargs):
-        self.logger.info('Populating UI')
 
+        """ Build the processor UI and add it to widget. """
         if self.hiero_version_touple >= (10, 5, 1):
-            (widget, taskUIWidget, exportItems) = args
-            _widget = widget
+            (processorUIWidget, taskUIWidget, exportItems) = args
         else:
-            (widget, exportItems, editMode) = args
-            _widget= widget
-    
-        main_layout = QtWidgets.QVBoxLayout(_widget)
-        main_layout.setContentsMargins(10, 0, 0, 0)
+            (processorUIWidget, exportItems, editMode) = args
 
+        self._exportItems = exportItems
+
+        self._tags = self.findTagsForItems(exportItems)
+
+        layout = QtWidgets.QVBoxLayout(processorUIWidget)
+        layout.setContentsMargins(0, 0, 0, 0)
+        splitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
+        splitter.setChildrenCollapsible(False);
+        splitter.setHandleWidth(10);
+        layout.addWidget(splitter)
+        
+        self._editMode = hiero.ui.IProcessorUI.ReadOnly if self._preset.readOnly() else hiero.ui.IProcessorUI.Full
+
+        # The same enums are declared in 2 classes.  They should have the same values but to be sure, map between them
+        editModeMap = { hiero.ui.IProcessorUI.ReadOnly : FtrackExportStructureViewer.ReadOnly,
+                        hiero.ui.IProcessorUI.Limited : FtrackExportStructureViewer.Limited,
+                        hiero.ui.IProcessorUI.Full : FtrackExportStructureViewer.Full }
+
+        structureViewerMode = editModeMap[self._editMode]
+        
+        ###EXPORT STRUCTURE
+        exportStructureWidget = QtWidgets.QWidget()
+        splitter.addWidget(exportStructureWidget)
+        exportStructureLayout =  QtWidgets.QVBoxLayout(exportStructureWidget)
+        exportStructureLayout.setContentsMargins(0, 0, 0, 9)
+        self._exportStructureViewer = FtrackExportStructureViewer(self._exportTemplate, structureViewerMode)
+        exportStructureLayout.addWidget(self._exportStructureViewer)
+        self._project = self.projectFromSelection(exportItems)
+        if self._project:
+            self._exportStructureViewer.setProject(self._project)
+
+        self._exportStructureViewer.destroyed.connect(self.onExportStructureViewerDestroyed)
+
+        self._exportStructureViewer.setItemTypes(self._itemTypes)
+        self._preset.createResolver().addEntriesToExportStructureViewer(self._exportStructureViewer)
+        self._exportStructureViewer.structureModified.connect(self.onExportStructureModified)
+        self._exportStructureViewer.selectionChanged.connect(self.onExportStructureSelectionChanged)
+
+        exportStructureLayout.addWidget(self.createVersionWidget())
+
+        exportStructureLayout.addWidget(self.createPathPreviewWidget())
+
+        splitter.addWidget(self.createProcessorSettingsWidget(exportItems))
+
+        taskUILayout = QtWidgets.QVBoxLayout(taskUIWidget)
+        taskUILayout.setContentsMargins(10, 0, 0, 0)
         tabWidget = QtWidgets.QTabWidget()
-        # handles = self.createHandleWidgets()
-        # tabWidget.addTab(handles, 'Tracks && Handles')
-
-        main_layout.addWidget(tabWidget)
-        tags = self.findTagsForItems(exportItems)
-
-        ftags = []
-        sequence = None
-        for item in exportItems:
-            hiero_item = item.item()
-            if not isinstance(hiero_item, hiero.core.TrackItem):
-                continue
-
-            tags = [tag for tag in tags if tag.metadata().hasKey(
-                'ftrack.type'
-            )]
-            ftags.append((hiero_item, tags))
-            sequence = hiero_item.sequence()
-
-        projectTreeDialog = ProjectTreeDialog(
-            data=ftags, parent=_widget, sequence=sequence
-        )
-
-        projectTreeDialog.item_selected.connect(self.onItemSelected)
-
-        tabWidget.insertTab(0, projectTreeDialog, 'ftrack')
-
-        projectTreeDialog.export_project_button.hide()
-        projectTreeDialog.close_button.hide()
-
-        # settings_widgets = self.createProcessorSettingsWidget(exportItems)
-        # for setting_widget, setting_name in settings_widgets:
-        #     tabWidget.addTab(setting_widget, setting_name)
-
-        default = QtWidgets.QWidget()
-        main_layout.addWidget(default)
-
-
-        if self.hiero_version_touple >= (10, 5, 1):
-            super(FtrackShotProcessorUI, self).populateUI(default, taskUIWidget, exportItems)
-        else:
-            super(FtrackShotProcessorUI, self).populateUI(default, exportItems, editMode)
+        taskUILayout.addWidget(tabWidget)
+        self._contentScrollArea = QtWidgets.QScrollArea()
+        tabWidget.addTab(self._contentScrollArea, "Content")
+        self._contentScrollArea.setFrameStyle( QtWidgets.QScrollArea.NoFrame )
+        self._contentScrollArea.setWidgetResizable(True)
 
 
 
-    # DEBUG OVERRIDES
-    # def isTranscodeExport(self):
-    #     result = super(FtrackShotProcessorUI, self).isTranscodeExport()
-    #     self.logger.info('isTranscodeExport: {0}'.format(result))
-    #     return result
-
-    # def findCompItems(self, items):
-    #     comp_items =  super(FtrackShotProcessorUI, self).findCompItems(items)
-    #     self.logger.info('Comp Items {0}'.format(comp_items))
-    #     yield comp_items
-
-    # def validate(self,exportItems):
-    #     is_valid = super(FtrackShotProcessorUI, self).validate(exportItems)
-    #     self.logger.info('{0} are valid: {1}'.format(exportItems, is_valid))
-    #     return is_valid
-
-    # def checkUnrenderedComps(self, exportItems):
-    #     result = super(FtrackShotProcessorUI, self).checkUnrenderedComps(exportItems)
-    #     self.logger.info('{0} Unrendered Comps: {1}'.format(exportItems, result))
-    #     return result
-
-    # def projectFromSelection(self, items):
-    #     result = super(FtrackShotProcessorUI, self).projectFromSelection(items)
-    #     self.logger.info('project {}'.format(result))
-    #     return result
-
-    # def toTrackItems(self, items):
-    #     result = super(FtrackShotProcessorUI, self).toTrackItems(items)
-    #     self.logger.info('track {}'.format(result))
-    #     yield result
-
-    # def findOfflineMedia(self, exportItems):
-    #     result = super(FtrackShotProcessorUI, self).findOfflineMedia(exportItems)
-    #     self.logger.info('offline {}, online {}'.format(result[0], result[1]))
-    #     return result
-
-    # def setTaskContent(self, preset):
-    #     self.logger.info('setTaskContent with: {0}'.format(preset))
-    #     return ShotProcessorUI.setTaskContent(
-    #         self,
-    #         preset,
-    #     )
-
-    # def refreshContent(self):
-    #     self.logger.info('refreshContent')
-    #     return ShotProcessorUI.refreshContent(
-    #         self,
-    #     )        
-    

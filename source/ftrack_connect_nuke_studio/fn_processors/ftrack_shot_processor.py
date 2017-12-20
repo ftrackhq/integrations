@@ -3,7 +3,7 @@ import tempfile
 
 from .ftrack_base import FtrackBase
 from hiero.exporters.FnShotProcessor import ShotProcessor, ShotProcessorPreset
-
+from ftrack_export_structure import FtrackExportStructure
 
 class FtrackShotProcessor(ShotProcessor, FtrackBase):
 
@@ -23,7 +23,15 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         self.logger.info('!!!!!!!!!! Processing: %s' % (exportItems))
         for item in exportItems:
             self.create_structure_fragment(item)
-        super(FtrackShotProcessor, self).startProcessing(exportItems, preview=preview)
+        return super(FtrackShotProcessor, self).startProcessing(exportItems, preview=preview)
+
+    def setPreset ( self, preset ):
+        self._preset = preset
+        oldTemplate = self._exportTemplate
+        self._exportTemplate = FtrackExportStructure()
+        self._exportTemplate.restore(self._preset.properties()["exportTemplate"])
+        if self._preset.properties()["exportRoot"] != "None":
+            self._exportTemplate.setExportRootPath(self._preset.properties()["exportRoot"])
 
 
 class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBase):
