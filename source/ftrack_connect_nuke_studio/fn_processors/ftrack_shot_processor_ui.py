@@ -17,8 +17,6 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
             preset,
         )
 
-        self.projectTreeDialog = None
-
     def displayName(self):
         return "Ftrack"
 
@@ -137,40 +135,40 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
 
 
     # DEBUG OVERRIDES
-    def isTranscodeExport(self):
-        result = super(FtrackShotProcessorUI, self).isTranscodeExport()
-        self.logger.info('isTranscodeExport: {0}'.format(result))
-        return result
+    # def isTranscodeExport(self):
+    #     result = super(FtrackShotProcessorUI, self).isTranscodeExport()
+    #     self.logger.info('isTranscodeExport: {0}'.format(result))
+    #     return result
 
-    def findCompItems(self, items):
-        comp_items =  super(FtrackShotProcessorUI, self).findCompItems(items)
-        self.logger.info('Comp Items {0}'.format(comp_items))
-        yield comp_items
+    # def findCompItems(self, items):
+    #     comp_items =  super(FtrackShotProcessorUI, self).findCompItems(items)
+    #     self.logger.info('Comp Items {0}'.format(comp_items))
+    #     yield comp_items
 
-    def validate(self,exportItems):
-        is_valid = super(FtrackShotProcessorUI, self).validate(exportItems)
-        self.logger.info('{0} are valid: {1}'.format(exportItems, is_valid))
-        return is_valid
+    # def validate(self,exportItems):
+    #     is_valid = super(FtrackShotProcessorUI, self).validate(exportItems)
+    #     self.logger.info('{0} are valid: {1}'.format(exportItems, is_valid))
+    #     return is_valid
 
-    def checkUnrenderedComps(self, exportItems):
-        result = super(FtrackShotProcessorUI, self).checkUnrenderedComps(exportItems)
-        self.logger.info('{0} Unrendered Comps: {1}'.format(exportItems, result))
-        return result
+    # def checkUnrenderedComps(self, exportItems):
+    #     result = super(FtrackShotProcessorUI, self).checkUnrenderedComps(exportItems)
+    #     self.logger.info('{0} Unrendered Comps: {1}'.format(exportItems, result))
+    #     return result
 
-    def projectFromSelection(self, items):
-        result = super(FtrackShotProcessorUI, self).projectFromSelection(items)
-        self.logger.info('project {}'.format(result))
-        return result
+    # def projectFromSelection(self, items):
+    #     result = super(FtrackShotProcessorUI, self).projectFromSelection(items)
+    #     self.logger.info('project {}'.format(result))
+    #     return result
 
-    def toTrackItems(self, items):
-        result = super(FtrackShotProcessorUI, self).toTrackItems(items)
-        self.logger.info('track {}'.format(result))
-        yield result
+    # def toTrackItems(self, items):
+    #     result = super(FtrackShotProcessorUI, self).toTrackItems(items)
+    #     self.logger.info('track {}'.format(result))
+    #     yield result
 
-    def findOfflineMedia(self, exportItems):
-        result = super(FtrackShotProcessorUI, self).findOfflineMedia(exportItems)
-        self.logger.info('offline {}, online {}'.format(result[0], result[1]))
-        return result
+    # def findOfflineMedia(self, exportItems):
+    #     result = super(FtrackShotProcessorUI, self).findOfflineMedia(exportItems)
+    #     self.logger.info('offline {}, online {}'.format(result[0], result[1]))
+    #     return result
 
     # def setTaskContent(self, preset):
     #     self.logger.info('setTaskContent with: {0}'.format(preset))
