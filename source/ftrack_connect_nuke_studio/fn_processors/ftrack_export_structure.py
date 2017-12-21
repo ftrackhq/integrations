@@ -21,9 +21,27 @@ from ftrack_base import FtrackBase
 
 class FtrackProxyModel(QtCore.QSortFilterProxyModel):
 
+  def __init__(self, parent=None):
+    super(FtrackProxyModel, self).__init__(parent=parent)
+
   def data(self, index, role):
     result = super(FtrackProxyModel, self).data(index, role)
-    print 'result', result
+    print 'data in:',index, role , ' result:', result
+    return result
+
+  def columnCount(self, parent):
+    result = super(FtrackProxyModel, self).columnCount(parent)
+    print 'columnCount result:', result
+    return result
+
+  def rowCount(self, parent):
+    result = super(FtrackProxyModel, self).rowCount(parent)
+    print 'rowCount result:', result
+    return result
+
+  def index(self, row, column, parent=None):
+    result = super(FtrackProxyModel, self).index(row, column, parent=parent)
+    print 'index result:', result
     return result
 
 
