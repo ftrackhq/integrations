@@ -18,6 +18,15 @@ from hiero.core import (
 )
 from ftrack_base import FtrackBase
 
+
+class FtrackProxyModel(QtCore.QSortFilterProxyModel):
+
+  def data(self, index, role):
+    result = super(FtrackProxyModel, self).data(index, role)
+    print 'result', result
+    return result
+
+
 class FtrackExportStructureViewer(ExportStructureViewer, FtrackBase):
 
   def __init__(self, exportTemplate, structureViewerMode):
@@ -29,10 +38,10 @@ class FtrackExportStructureViewer(ExportStructureViewer, FtrackBase):
     tree = widget.findChild(QtWidgets.QTreeView)
     model = tree.model()
 
-    proxy = QtCore.QSortFilterProxyModel(self)
-    proxy.setSourceModel(model)
+    self.proxy = FtrackProxyModel(self)
+    self.proxy.setSourceModel(model)
 
-    tree.setModel(proxy)
+    tree.setModel(self.proxy)
     tree.setSortingEnabled(True)
 
 
