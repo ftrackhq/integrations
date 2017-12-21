@@ -591,7 +591,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             'distutils'
         ],
         'include_files': include_files,
-        'bin_includes': bin_includes
+        'bin_includes': bin_includes,
+        'namespace_packages':['backports']
     }
 
     configuration['setup_requires'].extend(
