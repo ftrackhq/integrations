@@ -1,3 +1,5 @@
+from QtExt import QtCore, QtWidgets
+
 import os
 from hiero.ui import ExportStructureViewer
 from hiero.core import (
@@ -22,37 +24,31 @@ class FtrackExportStructureViewer(ExportStructureViewer, FtrackBase):
     ExportStructureViewer.__init__(self, exportTemplate, structureViewerMode)
     FtrackBase.__init__(self)
     self.logger.info('intializing FtrackExportStructureViewer')
+    widget =  self.getWidget()
 
-  def addFile(self, *args, **kwargs):
-    self.logger.info('adding file: {}, {}'.format(args, kwargs))
-    return super(FtrackExportStructureViewer, self).addFile(args, kwargs)
+    tree = widget.findChild(QtWidgets.QTreeView)
+    model = tree.model()
 
-  def addFolder(self, *args, **kwargs):
-    self.logger.info('adding folder: {}, {}'.format(args, kwargs))
-    return super(FtrackExportStructureViewer, self).addFolder(args, kwargs)
+    proxy = QtCore.QSortFilterProxyModel(self)
+    proxy.setSourceModel(model)
 
-  def getWidget(self, *args, **kwargs):
-    self.logger.info('get widget: {}, {}'.format(args, kwargs))
-    return super(FtrackExportStructureViewer, self).getWidget(args, kwargs)
-
-  def initUI(self, *args, **kwargs):
-    self.logger.info('intializing ui')
-    return super(FtrackExportStructureViewer, self).initUI(args, kwargs)
-    
+    tree.setModel(proxy)
+    tree.setSortingEnabled(True)
 
 
-class FtrackExportStructure(ExportStructure2, FtrackBase):
-  """ ExportStructure2 is the implementation of the datastructure used to represent
-  the export tree, each node within the tree is represented by an ExportStructureElement.
-  Although this matches how the export presets are viewed in the UI, when it comes
-  running an export, or persisting the structure, it is flattened into a list
-  of paths and task presets.
-  """
 
-  def __init__(self):
-    super(FtrackExportStructure, self).__init__()
-    self._rootElement = FtrackExportStructureElement("root", True)
-    self._exportRootPath = "{projectroot}"
+# class FtrackExportStructure(ExportStructure2, FtrackBase):
+#   """ ExportStructure2 is the implementation of the datastructure used to represent
+#   the export tree, each node within the tree is represented by an ExportStructureElement.
+#   Although this matches how the export presets are viewed in the UI, when it comes
+#   running an export, or persisting the structure, it is flattened into a list
+#   of paths and task presets.
+#   """
+
+#   def __init__(self):
+#     super(FtrackExportStructure, self).__init__()
+#     self._rootElement = FtrackExportStructureElement("root", True)
+#     self._exportRootPath = "{projectroot}"
 
 
   # def rootElement ( self ):
@@ -76,25 +72,25 @@ class FtrackExportStructure(ExportStructure2, FtrackBase):
   #   self._exportRootPath = rootPath
 
 
-  def _fromXml (self, element):
-    self._rootElement._fromXml(element.find("root"))
-    self._exportRootPath = taskRegistry._loadPresetElement(element.find("exportPath"))
+  # def _fromXml (self, element):
+  #   self._rootElement._fromXml(element.find("root"))
+  #   self._exportRootPath = taskRegistry._loadPresetElement(element.find("exportPath"))
 
 
-  def _toXml (self, parent):
-    rootElement = etree.Element( "root", valuetype=classBasename(FtrackExportStructureElement) )
-    self._rootElement._toXml(rootElement)
-    taskRegistry._savePresetElement( "exportPath", self._exportRootPath, parent)
+  # def _toXml (self, parent):
+  #   rootElement = etree.Element( "root", valuetype=classBasename(FtrackExportStructureElement) )
+  #   self._rootElement._toXml(rootElement)
+  #   taskRegistry._savePresetElement( "exportPath", self._exportRootPath, parent)
 
 
-  def restore ( self, sequence ):
-    """Restore the hierarchy from a list of (path, preset) tuples"""
-    self._rootElement = FtrackExportStructureElement("root", True)
-    for path, preset in sequence:
-      parent = self.rootElement()
-      child = None
-      path.replace('\\', '/')
-      child = self.rootElement().createChildFromPreset(path, preset)
+  # def restore ( self, sequence ):
+  #   """Restore the hierarchy from a list of (path, preset) tuples"""
+  #   self._rootElement = FtrackExportStructureElement("root", True)
+  #   for path, preset in sequence:
+  #     parent = self.rootElement()
+  #     child = None
+  #     path.replace('\\', '/')
+  #     child = self.rootElement().createChildFromPreset(path, preset)
 
 
   # def _traverse ( self, element ):
@@ -124,8 +120,8 @@ class FtrackExportStructure(ExportStructure2, FtrackBase):
 
 
 
-class FtrackExportStructureElement (ExportStructureElement):
-  """ExportStructureElement represents a node within the export structure"""
+# class FtrackExportStructureElement (ExportStructureElement):
+#   """ExportStructureElement represents a node within the export structure"""
   
   # def __init__ ( self, name, isFolder ):
   #   super(FtrackExportStructureElement, self).__init__( name, isFolder)
@@ -320,29 +316,29 @@ class FtrackExportStructureElement (ExportStructureElement):
   #   self._children.append(child)
 
 
-  def _createChildren(self, path, isFolder, preset=None):
-    """ Create and add a child element. If path has / separators, recursively
-    adds children. Returns the final created element.
-    """
-    # Split the path into elements
-    elements = [ elem for elem in path.split('/') if elem ]
-    if not elements:
-      return None
+  # def _createChildren(self, path, isFolder, preset=None):
+  #   """ Create and add a child element. If path has / separators, recursively
+  #   adds children. Returns the final created element.
+  #   """
+  #   # Split the path into elements
+  #   elements = [ elem for elem in path.split('/') if elem ]
+  #   if not elements:
+  #     return None
 
-    # Loop over the elements, building the folder hierarchy as needed
-    parent = self
-    while elements:
-      childName = elements.pop(0)
-      childIsFolder = bool(isFolder or elements)
-      child = None
-      # If creating a folder, look for an existing one with this name. Duplicate 
-      # task names are allowed
-      if childIsFolder:
-        child = next( (c for c in parent.children() if c.name() == childName), None )
-      if not child:
-        child = FtrackExportStructureElement(childName, childIsFolder)
-        parent.addChild(child)
-      parent = child
+  #   # Loop over the elements, building the folder hierarchy as needed
+  #   parent = self
+  #   while elements:
+  #     childName = elements.pop(0)
+  #     childIsFolder = bool(isFolder or elements)
+  #     child = None
+  #     # If creating a folder, look for an existing one with this name. Duplicate 
+  #     # task names are allowed
+  #     if childIsFolder:
+  #       child = next( (c for c in parent.children() if c.name() == childName), None )
+  #     if not child:
+  #       child = FtrackExportStructureElement(childName, childIsFolder)
+  #       parent.addChild(child)
+  #     parent = child
 
   #   # If an existing preset was given, set it on the child
   #   if preset:
@@ -377,32 +373,32 @@ class FtrackExportStructureElement (ExportStructureElement):
   #   self._children = []
 
 
-  def toXml (self):
-    """Serialize Element and children to XML"""
-    # Create root node
-    root = etree.Element("FtrackExportStructureElement")       
-    # call internal function to populate root and stringify the result
-    xml = str(etree.tostring(self._toXml(root)))
-    log.debug( "toXml(%s)" % xml )
-    return xml
+  # def toXml (self):
+  #   """Serialize Element and children to XML"""
+  #   # Create root node
+  #   root = etree.Element("FtrackExportStructureElement")       
+  #   # call internal function to populate root and stringify the result
+  #   xml = str(etree.tostring(self._toXml(root)))
+  #   log.debug( "toXml(%s)" % xml )
+  #   return xml
 
 
-  def _toXml (self, parent):
-    # Add properties as Elements to parent XmlElement
-    taskRegistry._savePresetElement( "name", self.name(), parent)
-    # This call will serialize the whole preset object to xml
-    taskRegistry._savePresetElement( "preset", self.preset(), parent)
+  # def _toXml (self, parent):
+  #   # Add properties as Elements to parent XmlElement
+  #   taskRegistry._savePresetElement( "name", self.name(), parent)
+  #   # This call will serialize the whole preset object to xml
+  #   taskRegistry._savePresetElement( "preset", self.preset(), parent)
     
-    # Create 'children'  XmlElement as container for child XmlElements
-    children = etree.Element( "children", valuetype=classBasename(TupleType) )
-    parent.append(children)
+  #   # Create 'children'  XmlElement as container for child XmlElements
+  #   children = etree.Element( "children", valuetype=classBasename(TupleType) )
+  #   parent.append(children)
 
-    # For each child, recurse
-    for child in self._children:
-      childElement = etree.Element("FtrackExportStructureElement")   
-      children.append(childElement)    
-      child._toXml(childElement)
-    return parent
+  #   # For each child, recurse
+  #   for child in self._children:
+  #     childElement = etree.Element("FtrackExportStructureElement")   
+  #     children.append(childElement)    
+  #     child._toXml(childElement)
+  #   return parent
 
 
   # def fromXml (self, xml):
