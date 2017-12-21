@@ -26,7 +26,7 @@ class FtrackProxyModel(QtCore.QSortFilterProxyModel):
 
   def data(self, index, role):
     result = super(FtrackProxyModel, self).data(index, role)
-    print 'data in:',index, role , ' result:', result
+    print 'data in:',index, QtCore.Qt.ItemDataRole(role) , ' result:', result
     return result
 
   def columnCount(self, parent):
@@ -42,6 +42,11 @@ class FtrackProxyModel(QtCore.QSortFilterProxyModel):
   def index(self, row, column, parent=None):
     result = super(FtrackProxyModel, self).index(row, column, parent=parent)
     print 'index result:', result
+    return result
+
+  def children(self):
+    result = super(FtrackProxyModel, self).children()
+    print 'children result:', result
     return result
 
 
