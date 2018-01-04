@@ -112,16 +112,16 @@ class BuildResources(Command):
                 print('Compiled {0}'.format(css_target))
 
         try:
-            import PySide
-            pyside_rcc_command = os.path.join(
-                os.path.dirname(PySide.__file__),
-                'pyside-rcc'
-            )
+            pyside_rcc_command = 'pyside-rcc'
 
             # On Windows, pyside-rcc is not automatically available on the
             # PATH so try to find it manually.
             if sys.platform == 'win32':
-                pyside_rcc_command += '.exe'
+                import PySide
+                pyside_rcc_command = os.path.join(
+                    os.path.dirname(PySide.__file__),
+                    'pyside-rcc.exe'
+                )
 
             subprocess.check_call([
                 pyside_rcc_command,
@@ -129,12 +129,13 @@ class BuildResources(Command):
                 self.resource_target_path,
                 self.resource_source_path
             ])
-        except (subprocess.CalledProcessError, OSError):
+        except (subprocess.CalledProcessError, OSError) as error:
             raise RuntimeError(
                 'Error compiling resource.py using pyside-rcc. Possibly '
                 'pyside-rcc could not be found. You might need to manually add '
                 'it to your PATH. See README for more information.'
             )
+
 
         self._replace_imports_()
 
