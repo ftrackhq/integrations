@@ -84,7 +84,7 @@ connect_hieroplayer_dependency_link = (
 )
 
 connect_nuke_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/1.1.2.zip'
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/1.1.3.zip'
     '#egg=ftrack-connect-nuke-1.1.2'
 )
 connect_nuke_dependency_install_require = (
