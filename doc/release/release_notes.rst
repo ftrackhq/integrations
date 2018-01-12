@@ -6,7 +6,12 @@
 *************
 Release Notes
 *************
+.. release:: Upcoming
 
+   .. change:: fixed
+       :tags: Build
+
+       Pyside-rcc is not correctly discovered.
 
 .. release:: 0.8.1
    :date: 2017-09-21
