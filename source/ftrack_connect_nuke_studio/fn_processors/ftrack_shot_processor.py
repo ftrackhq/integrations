@@ -1,6 +1,6 @@
 # Copyright (c) 2011 The Foundry Visionmongers Ltd.  All Rights Reserved.
 import tempfile
-
+import os
 from .ftrack_base import FtrackBase
 from hiero.exporters.FnShotProcessor import ShotProcessor, ShotProcessorPreset
 
@@ -12,7 +12,7 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         ShotProcessor.__init__(self, preset, submission, synchronous=synchronous)
         FtrackBase.__init__(self)
 
-    def create_structure_fragment(self, item):
+    def create_server_structure(self, item):
         # here we can take the item , inspect it and build the structure fragment in ftrack server.
         # once done we can add a tag to check whether has already been built , also track teh result uuid ? 
         track_item = item.trackItem()
@@ -22,8 +22,11 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
     def startProcessing(self, exportItems, preview=False):
         self.logger.info('!!!!!!!!!! Processing: %s' % (exportItems))
         for item in exportItems:
-            self.create_structure_fragment(item)
-        return super(FtrackShotProcessor, self).startProcessing(exportItems, preview=preview)
+            self.create_server_structure(item)
+        result =  super(FtrackShotProcessor, self).startProcessing(exportItems, preview=preview)
+        self.logger.info('Processing results !!!!!!!!!!: %s' % (result))
+
+        return result
 
 class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBase):
 
@@ -39,16 +42,40 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBase):
         accessor_prefix = self.ftrack_location.accessor.prefix
         self.properties()["exportRoot"] = accessor_prefix
 
-    def resolve_ftrack_path(self, task):
-        trackItem = task._item
-         # for now just resolve agains the track name
-        self.logger.info(trackItem.tags())
-        return trackItem.name()
-    
     def addUserResolveEntries(self, resolver):
+        
         resolver.addResolver(
-            "{ftrack}",
-            "Ftrack managed path.",
-            lambda keyword, task: self.resolve_ftrack_path(task)
+            "{ftrack_project}",
+            "Ftrack project path.",
+            lambda keyword, task: self.resolve_ftrack_project(task)
         )
 
+        resolver.addResolver(
+            "{ftrack_sequence}",
+            "Ftrack sequence path.",
+            lambda keyword, task: self.resolve_ftrack_sequence(task)
+        )
+
+        resolver.addResolver(
+            "{ftrack_shot}",
+            "Ftrack shot path.",
+            lambda keyword, task: self.resolve_ftrack_shot(task)
+        )
+
+        resolver.addResolver(
+            "{ftrack_task}",
+            "Ftrack task path.",
+            lambda keyword, task: self.resolve_ftrack_task(task)
+        )
+
+        resolver.addResolver(
+            "{ftrack_component}",
+            "Ftrack component path.",
+            lambda keyword, task: self.resolve_ftrack_component(task)
+        )
+
+        resolver.addResolver(
+            "{ftrack_version}",
+            "Ftrack version.",
+            lambda keyword, task: self.resolve_ftrack_version(task)
+        )

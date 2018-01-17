@@ -25,8 +25,9 @@ def register_processors():
         FtrackShotProcessorPreset, FtrackShotProcessor
     )
 
-    render_path_template = '{ftrack}/{shot}/nuke/renders/{shot}_comp_{version}.####.{ext}'
-    nuke_path_template = '{ftrack}/{shot}/nuke/script/{shot}_comp_{version}.nk'
+    render_path_template = '{ftrack_project}/{ftrack_sequence}/{ftrack_shot}/{ftrack_task}/{ftrack_version}/{ftrack_component}.###.{ext}'
+    nuke_path_template = '{ftrack_project}/{ftrack_sequence}/{ftrack_shot}/{ftrack_task}/{ftrack_version}/{ftrack_component}.{ext}'
+
     # Register the base preset for ftrack shot processor.
     # this could be moved to a discover function
     name = 'Base Preset'
@@ -38,7 +39,6 @@ def register_processors():
             'writePaths': [render_path_template],
             'timelineWriteNode': ""
         }
-
     )
 
     external_render = FnExternalRender.NukeRenderPreset(
@@ -51,10 +51,6 @@ def register_processors():
 
     properties = {
         "exportTemplate": (
-            (
-                "{ftrack}/{shot}",
-                 None
-            ),
             (
                 nuke_path_template,
                 nuke_script_processor
