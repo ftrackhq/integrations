@@ -39,6 +39,8 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
     def onItemSelected(self, item):
         self.logger.info(item.track)
     
+    # def createPathPreviewWidget(self):
+    #     # here we can manipulate the path preview
 
     # def populateUI(self, *args, **kwargs):
 

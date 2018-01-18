@@ -38,11 +38,15 @@ class FtrackBase(object):
         return trackItem.name().split('_')[1]        
     
     def resolve_ftrack_task(self, task):
-        ident = task.ident()
-        return ident # find a way to extract this from the task name !
+        # TODO: here we should really parse the task tags and use the ftrack task tag to define ?
+        # let's stick to something basic for now
+        return 'Compositing'
 
     def resolve_ftrack_component(self, task):
-        return task.name()
+        # TODO: Check whether there's a better way to get this out !
+        preset_name =  vars(task)['_preset'].name()
+        return preset_name
 
     def resolve_ftrack_version(self, task):
         return "0" # here we can check if there's any tag with an id to check against, if not we can return 0 as first version        
+

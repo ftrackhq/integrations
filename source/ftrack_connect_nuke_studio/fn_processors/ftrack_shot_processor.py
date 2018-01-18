@@ -4,7 +4,7 @@ import os
 from .ftrack_base import FtrackBase
 from hiero.exporters.FnShotProcessor import ShotProcessor, ShotProcessorPreset
 
-
+ 
 
 class FtrackShotProcessor(ShotProcessor, FtrackBase):
 
@@ -12,21 +12,35 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         ShotProcessor.__init__(self, preset, submission, synchronous=synchronous)
         FtrackBase.__init__(self)
 
-    def create_server_structure(self, item):
-        # here we can take the item , inspect it and build the structure fragment in ftrack server.
-        # once done we can add a tag to check whether has already been built , also track teh result uuid ? 
-        track_item = item.trackItem()
-        tags = track_item.tags()
-        self.logger.info('creating structure for :{0}, tags:{1}'.format(track_item, tags))
+    def create_project_structure(self, task):
+        for (export_path, preset) in self._exportTemplate.flatten():
+            preset_name = preset.name()
+            path = task.resolvePath(export_path)
+            for template, token in zip(export_path.split(os.path.sep), path.split(os.path.sep)):
+                self.logger.info('%s , %s ' % (template, token))
+    
+            self.logger.info('creating structure for :{0} against {1}'.format(preset_name, path))
 
-    def startProcessing(self, exportItems, preview=False):
-        self.logger.info('!!!!!!!!!! Processing: %s' % (exportItems))
-        for item in exportItems:
-            self.create_server_structure(item)
-        result =  super(FtrackShotProcessor, self).startProcessing(exportItems, preview=preview)
-        self.logger.info('Processing results !!!!!!!!!!: %s' % (result))
 
-        return result
+    def processTaskPreQueue(self):
+        super(FtrackShotProcessor, self).processTaskPreQueue()
+        for taskGroup in self._submission.children():
+            for task in taskGroup.children():
+                self.logger.info('Processing Task pre queue: %s' % task)
+                self.create_project_structure(task)
+
+    # def startProcessing(self, exportItems, preview=False):
+    #     if not preview:
+    #         self.logger.info('!!!!!!!!!! Processing: %s, is preview %s' % (exportItems, preview))
+    #     # if not preview:.....
+    #     # for item in exportItems:
+    #     #     self.create_project_structure(item)
+
+    #     result = super(FtrackShotProcessor, self).startProcessing(exportItems, preview=preview)
+    #     if not preview:
+    #         self.logger.info('!!!!!!!!!! Processing: DONE')
+
+    #     return result
 
 class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBase):
 
