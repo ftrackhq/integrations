@@ -16,9 +16,43 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         for (export_path, preset) in self._exportTemplate.flatten():
             preset_name = preset.name()
             path = task.resolvePath(export_path)
+            _parent = None
+    
             for template, token in zip(export_path.split(os.path.sep), path.split(os.path.sep)):
                 self.logger.info('%s , %s ' % (template, token))
-    
+                
+                if 'ftrack_project' in template:
+                    new_parent = self.session.create('Project', {
+                        'name': token,
+                        'full_name': token + '_full',
+                        'project_schema': self.schema
+                    })
+                    _parent = new_parent
+
+                if 'ftrack_sequence' in template:
+                    new_parent = self.session.create('Sequence', {
+                        'name': token,
+                        'parent': _parent
+                    })          
+                    _parent = new_parent
+
+                if 'ftrack_shot' in template:
+                    new_parent = self.session.create('Shot', {
+                        'name': 'sh_001',
+                        'parent': _parent,
+                        'status': self.shot_status
+                    })
+                    _parent = new_parent
+
+                if 'ftrack_task' in template:
+                    new_parent = self.session.create('Task', {
+                        'name': token,
+                        'parent': _parent,
+                        'status': self.task_status,
+                        'type': self.task_type
+                    })                    
+                    _parent = new_parent
+
             self.logger.info('creating structure for :{0} against {1}'.format(preset_name, path))
 
 
@@ -28,6 +62,8 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
             for task in taskGroup.children():
                 self.logger.info('Processing Task pre queue: %s' % task)
                 self.create_project_structure(task)
+
+        self.session.commit()
 
     # def startProcessing(self, exportItems, preview=False):
     #     if not preview:
