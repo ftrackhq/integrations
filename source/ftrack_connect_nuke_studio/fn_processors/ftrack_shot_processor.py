@@ -3,7 +3,7 @@ import tempfile
 import os
 from .ftrack_base import FtrackBase
 from hiero.exporters.FnShotProcessor import ShotProcessor, ShotProcessorPreset
-
+from hiero.core.FnProcessor import _expandTaskGroup
  
 
 class FtrackShotProcessor(ShotProcessor, FtrackBase):
@@ -137,28 +137,30 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         self.logger.warning('Skpping : {}'.format(name))
         
     def create_project_structure(self, task):
-        for (export_path, preset) in self._exportTemplate.flatten():
-            preset_name = preset.name()
-            path = task.resolvePath(export_path)
-            parent = None
+        # self.logger.info(task._preset.name())
+        # self.logger.info(task._shotPath)
+        # self.logger.info(task.resolvePath(task._shotPath))
 
-            for template, token in zip(export_path.split(os.path.sep), path.split(os.path.sep)):
-                self.logger.info('%s , %s ' % (template, token))
+        preset_name = task._preset.name()
+        path = task.resolvePath(task._shotPath)
+        export_path = task._shotPath
+        parent = None
 
-                fragment_fn = self.fn_mapping.get(template, self._skip_fragment)
-                self.logger.info('creating : {} as {}'.format(template, token))
-                parent = fragment_fn(token, parent)
+        for template, token in zip(export_path.split(os.path.sep), path.split(os.path.sep)):
+            fragment_fn = self.fn_mapping.get(template, self._skip_fragment)
+            parent = fragment_fn(token, parent)
 
-            self.session.commit()
+        self.session.commit()
+        ftrack_path = self.ftrack_location.structure.get_resource_identifier(parent)
+        task._exportPath = ftrack_path # we miss some important informations here :\
+        self.logger.info(ftrack_path)
+
 
     def processTaskPreQueue(self):
         super(FtrackShotProcessor, self).processTaskPreQueue()
-        for taskGroup in self._submission.children():
-            for task in taskGroup.children():
-                self.logger.info('Processing Task pre queue: %s' % task)
-                self.create_project_structure(task)
-
-        self.session.commit()
+        for task in _expandTaskGroup(self._submission):
+            self.logger.info('Processing Task pre queue: %s' % task)
+            self.create_project_structure(task)
 
     # def startProcessing(self, exportItems, preview=False):
     #     if not preview:
