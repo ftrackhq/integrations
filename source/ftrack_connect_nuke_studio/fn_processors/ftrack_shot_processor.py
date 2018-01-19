@@ -137,10 +137,6 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         self.logger.warning('Skpping : {}'.format(name))
         
     def create_project_structure(self, task):
-        # self.logger.info(task._preset.name())
-        # self.logger.info(task._shotPath)
-        # self.logger.info(task.resolvePath(task._shotPath))
-
         preset_name = task._preset.name()
         path = task.resolvePath(task._shotPath)
         export_path = task._shotPath
@@ -152,9 +148,9 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
 
         self.session.commit()
         ftrack_path = self.ftrack_location.structure.get_resource_identifier(parent)
-        task._exportPath = ftrack_path # we miss some important informations here :\
-        self.logger.info(ftrack_path)
-
+        task._exportPath = os.path.join(self.ftrack_location.accessor.prefix, ftrack_path)
+        task._exportRoot = self.ftrack_location.accessor.prefix
+        self.logger.info(task.printState())
 
     def processTaskPreQueue(self):
         super(FtrackShotProcessor, self).processTaskPreQueue()
@@ -192,8 +188,7 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBase):
         # here we can add any custom property to check later.
 
     def set_export_root(self):
-        accessor_prefix = self.ftrack_location.accessor.prefix
-        self.properties()["exportRoot"] = accessor_prefix
+        self.properties()["exportRoot"] = self.session.server_url
 
     def resolve_ftrack_project(self, task):
         return task.projectName()
