@@ -25,14 +25,14 @@ def register_processors():
         FtrackShotProcessorPreset, FtrackShotProcessor
     )
 
-    ftrack_server_path = '{ftrack_project}/{ftrack_sequence}/{ftrack_shot}/{ftrack_task}/{ftrack_version}/{ftrack_component}'
+    ftrack_server_path = '{ftrack_project}/{ftrack_sequence}/{ftrack_shot}/{ftrack_task}/{ftrack_asset}/{ftrack_component}'
 
     # Register the base preset for ftrack shot processor.
     # this could be moved to a discover function
     name = 'Base Preset'
 
     nuke_script_processor = FnNukeShotExporter.NukeShotPreset(
-        "nuke script",
+        "NukeScript",
         {
             'readPaths': [],
             'writePaths': [ftrack_server_path],
@@ -41,7 +41,7 @@ def register_processors():
     )
 
     external_render = FnExternalRender.NukeRenderPreset(
-        "plate",
+        "Plate",
         {
             "file_type": "dpx",
             "dpx": {"datatype": "10 bit"}

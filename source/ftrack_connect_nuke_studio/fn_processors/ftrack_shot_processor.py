@@ -12,40 +12,48 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         ShotProcessor.__init__(self, preset, submission, synchronous=synchronous)
         FtrackBase.__init__(self)
 
+        # note we do resolve {ftrack_version} as part of the {ftrack_asset} function
         self.fn_mapping = {
             '{ftrack_project}': self._create_project_fragment,
             '{ftrack_sequence}': self._create_sequence_fragment,
             '{ftrack_shot}': self._create_shot_fragment,
             '{ftrack_task}': self._create_task_fragment,
+            '{ftrack_asset}': self._create_asset_fragment,
+            '{ftrack_component}': self._create_component_fragment
         }
 
     @property
     def schema(self):
-        # default project schema should be defined as part of the preset property ?
         result = self.session.query('ProjectSchema where name is "Film Pipeline"').first()
         # self.logger.info('Project schema: %s' % result['name'])
         return result
 
     @property
     def task_type(self):
-        # default task type be defined as part of the preset property ?
         result =  self.schema.get_types('Task')[0]
         # self.logger.info('task_type: %s' % result['name'])
         return result
 
     @property
     def task_status(self):
-        # default task status be defined as part of the preset property ?
         result =  self.schema.get_statuses('Task', self.task_type['id'])[0]
         # self.logger.info('task_status: %s' % result['name'])
         return result
 
     @property
     def shot_status(self):
-        # default shot status be defined as part of the preset property ?
         result =  self.schema.get_statuses('Shot')[0]
         # self.logger.info('shot_status: %s' % result['name'])
         return result
+
+    @property
+    def asset_type(self):
+        return self.session.query('AssetType where short is "geo"').first()
+    
+    @property
+    def asset_version_status(self):
+        result =  self.schema.get_statuses('AssetVersion')[0]
+        return 
 
     def _create_project_fragment(self, name, parent):
         project = self.session.query(
@@ -82,6 +90,28 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
             })
         return shot
 
+    def _create_asset_fragment(self, name, parent):
+        asset = self.session.query(
+            'Asset where name is "{}" and parent.id is "{}"'.format(name, parent['parent']['id'])
+        ).first()
+        if not asset:
+            asset = self.session.create('Asset', {
+                'name': name,
+                'parent': parent['parent'],
+                'type': self.asset_type
+            })
+        
+        comment = 'Published with : {}.{}.{}'.format(*self.hiero_version_touple)
+
+        version = self.session.create('AssetVersion', {
+            'asset': asset,
+            'status': self.asset_version_status,
+            'comment': comment,
+            'task': parent
+        })
+
+        return version
+
     def _create_task_fragment(self, name, parent):
         task = self.session.query(
             'Task where name is "{}" and parent.id is "{}"'.format(name, parent['id'])
@@ -95,8 +125,16 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
             })                    
         return task
 
+    def _create_component_fragment(self, name, parent):
+        component = parent.create_component('/', {
+            'name': name
+        }, location=None)
+
+        return component
+
+
     def _skip_fragment(self, name, parent):
-        pass
+        self.logger.warning('Skpping : {}'.format(name))
         
     def create_project_structure(self, task):
         for (export_path, preset) in self._exportTemplate.flatten():
@@ -144,6 +182,12 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBase):
         FtrackBase.__init__(self)
         self._parentType = FtrackShotProcessor
         self.set_export_root()
+        self.set_ftrack_properties()
+
+    def set_ftrack_properties(self):
+        self.properties()['ftrackProperties'] = {}
+        ftrack_properties = self.properties()['ftrackProperties']
+        # here we can add any custom property to check later.
 
     def set_export_root(self):
         accessor_prefix = self.ftrack_location.accessor.prefix
@@ -164,6 +208,10 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBase):
         # TODO: here we should really parse the task tags and use the ftrack task tag to define ?
         # let's stick to something basic for now
         return 'Compositing'
+
+    def resolve_ftrack_asset(self, task):
+        # for now simply return the component
+        return self.resolve_ftrack_component(task)
 
     def resolve_ftrack_component(self, task):
         # TODO: Check whether there's a better way to get this out !
@@ -200,13 +248,19 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBase):
         )
 
         resolver.addResolver(
-            "{ftrack_component}",
-            "Ftrack component path.",
-            lambda keyword, task: self.resolve_ftrack_component(task)
+            "{ftrack_asset}",
+            "Ftrack asset path.",
+            lambda keyword, task: self.resolve_ftrack_asset(task)
         )
 
         resolver.addResolver(
             "{ftrack_version}",
             "Ftrack version.",
             lambda keyword, task: self.resolve_ftrack_version(task)
+        )
+
+        resolver.addResolver(
+            "{ftrack_component}",
+            "Ftrack component path.",
+            lambda keyword, task: self.resolve_ftrack_component(task)
         )
