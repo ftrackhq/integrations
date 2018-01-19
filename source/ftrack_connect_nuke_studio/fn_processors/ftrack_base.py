@@ -23,34 +23,6 @@ class FtrackBase(object):
         )
 
     @property
-    def schema(self):
-        # default project schema should be defined as part of the preset property ?
-        result = self.session.query('ProjectSchema where name is "Film Pipeline"').first()
-        self.logger.info('Project schema: %s' % result)
-        return result
-
-    @property
-    def task_type(self):
-        # default task type be defined as part of the preset property ?
-        result =  self.schema.get_types('Task')
-        self.logger.info('task_type: %s' % result)
-        return result[0]
-
-    @property
-    def task_status(self):
-        # default task status be defined as part of the preset property ?
-        result =  self.schema.get_statuses('Task', self.task_type['id'])
-        self.logger.info('task_status: %s' % result)
-        return result[0]
-
-    @property
-    def shot_status(self):
-        # default shot status be defined as part of the preset property ?
-        result =  self.schema.get_statuses('Shot')
-        self.logger.info('shot_status: %s' % result)
-        return result[0]
-
-    @property
     def ftrack_location(self):
         result = self.session.pick_location()    
         self.logger.info('location: %s' % result)
