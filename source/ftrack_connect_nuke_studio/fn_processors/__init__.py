@@ -1,7 +1,8 @@
 import hiero
 
 import logging
-from ftrack_shot_processor import FtrackShotProcessor, FtrackShotProcessorPreset
+from ftrack_shot_processor import FtrackShotProcessor
+from ftrack_shot_processor_preset import FtrackShotProcessorPreset
 from ftrack_shot_processor_ui import FtrackShotProcessorUI
 
 from hiero.exporters import FnNukeAnnotationsExporter
@@ -59,7 +60,13 @@ def register_processors():
                 external_render
             ),
         ),
-        "cutLength" : True 
+        "cutLength" : True,
+        "ftrack":{
+            'project_schema': 'Film Pipeline',
+            'task_type':  'Render',
+            'shot_status': 'In progress',
+            'asset_version_status': 'WIP'
+        }
     }
 
     preset = FtrackShotProcessorPreset(

@@ -2,7 +2,7 @@
 import tempfile
 import os
 from .ftrack_base import FtrackBase
-from hiero.exporters.FnShotProcessor import ShotProcessor, ShotProcessorPreset
+from hiero.exporters.FnShotProcessor import ShotProcessor
 from hiero.core.FnProcessor import _expandTaskGroup
  
 
@@ -11,6 +11,7 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
     def __init__(self, preset, submission, synchronous=False):
         ShotProcessor.__init__(self, preset, submission, synchronous=synchronous)
         FtrackBase.__init__(self)
+        self.ftrack_properties = self._preset.properties()['ftrack']
 
         # note we do resolve {ftrack_version} as part of the {ftrack_asset} function
         self.fn_mapping = {
@@ -24,8 +25,10 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
 
     @property
     def schema(self):
-        result = self.session.query('ProjectSchema where name is "Film Pipeline"').first()
-        # self.logger.info('Project schema: %s' % result['name'])
+        project_schema = self.ftrack_properties['project_schema']
+        result = self.session.query(
+            'ProjectSchema where name is "{0}"'.format(project_schema)
+        ).first()
         return result
 
     @property
@@ -54,6 +57,7 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
     def asset_version_status(self):
         result =  self.schema.get_statuses('AssetVersion')[0]
         return 
+
 
     def _create_project_fragment(self, name, parent):
         project = self.session.query(
@@ -101,7 +105,7 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
                 'type': self.asset_type
             })
         
-        comment = 'Published with : {}.{}.{}'.format(*self.hiero_version_touple)
+        comment = 'Published from Nuke Studio : {}.{}.{}'.format(*self.hiero_version_touple)
 
         version = self.session.create('AssetVersion', {
             'asset': asset,
@@ -132,7 +136,6 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
 
         return component
 
-
     def _skip_fragment(self, name, parent):
         self.logger.warning('Skpping : {}'.format(name))
         
@@ -147,10 +150,10 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
             parent = fragment_fn(token, parent)
 
         self.session.commit()
-        ftrack_path = self.ftrack_location.structure.get_resource_identifier(parent)
-        task._exportPath = os.path.join(self.ftrack_location.accessor.prefix, ftrack_path)
+        ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent)
+        ftrack_path = os.path.join(self.ftrack_location.accessor.prefix, ftrack_path)
+        task._exportPath = ftrack_path
         task._exportRoot = self.ftrack_location.accessor.prefix
-        self.logger.info(task.printState())
 
     def processTaskPreQueue(self):
         super(FtrackShotProcessor, self).processTaskPreQueue()
@@ -170,94 +173,3 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
     #         self.logger.info('!!!!!!!!!! Processing: DONE')
 
     #     return result
-
-class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBase):
-
-    def __init__(self, name, properties):
-        super(FtrackShotProcessorPreset, self).__init__(
-            name, properties
-        )
-        FtrackBase.__init__(self)
-        self._parentType = FtrackShotProcessor
-        self.set_export_root()
-        self.set_ftrack_properties()
-
-    def set_ftrack_properties(self):
-        self.properties()['ftrackProperties'] = {}
-        ftrack_properties = self.properties()['ftrackProperties']
-        # here we can add any custom property to check later.
-
-    def set_export_root(self):
-        self.properties()["exportRoot"] = self.session.server_url
-
-    def resolve_ftrack_project(self, task):
-        return task.projectName()
-
-    def resolve_ftrack_sequence(self, task):
-        trackItem = task._item
-        return trackItem.name().split('_')[0]
-
-    def resolve_ftrack_shot(self, task):
-        trackItem = task._item
-        return trackItem.name().split('_')[1]        
-    
-    def resolve_ftrack_task(self, task):
-        # TODO: here we should really parse the task tags and use the ftrack task tag to define ?
-        # let's stick to something basic for now
-        return 'Compositing'
-
-    def resolve_ftrack_asset(self, task):
-        # for now simply return the component
-        return self.resolve_ftrack_component(task)
-
-    def resolve_ftrack_component(self, task):
-        # TODO: Check whether there's a better way to get this out !
-        preset_name =  vars(task)['_preset'].name()
-        return preset_name
-
-    def resolve_ftrack_version(self, task):
-        return "0" # here we can check if there's any tag with an id to check against, if not we can return 0 as first version        
-
-    def addUserResolveEntries(self, resolver):
-        
-        resolver.addResolver(
-            "{ftrack_project}",
-            "Ftrack project path.",
-            lambda keyword, task: self.resolve_ftrack_project(task)
-        )
-
-        resolver.addResolver(
-            "{ftrack_sequence}",
-            "Ftrack sequence path.",
-            lambda keyword, task: self.resolve_ftrack_sequence(task)
-        )
-
-        resolver.addResolver(
-            "{ftrack_shot}",
-            "Ftrack shot path.",
-            lambda keyword, task: self.resolve_ftrack_shot(task)
-        )
-
-        resolver.addResolver(
-            "{ftrack_task}",
-            "Ftrack task path.",
-            lambda keyword, task: self.resolve_ftrack_task(task)
-        )
-
-        resolver.addResolver(
-            "{ftrack_asset}",
-            "Ftrack asset path.",
-            lambda keyword, task: self.resolve_ftrack_asset(task)
-        )
-
-        resolver.addResolver(
-            "{ftrack_version}",
-            "Ftrack version.",
-            lambda keyword, task: self.resolve_ftrack_version(task)
-        )
-
-        resolver.addResolver(
-            "{ftrack_component}",
-            "Ftrack component path.",
-            lambda keyword, task: self.resolve_ftrack_component(task)
-        )
