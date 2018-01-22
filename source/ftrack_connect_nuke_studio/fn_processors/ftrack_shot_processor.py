@@ -151,14 +151,15 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
 
         self.session.commit()
         ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent)
-        ftrack_path = os.path.join(self.ftrack_location.accessor.prefix, ftrack_path)
+        ftrack_path = os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path)
+
+        # assign result path back to the tasks, so it knows where to render stuff out.
         task._exportPath = ftrack_path
         task._exportRoot = self.ftrack_location.accessor.prefix
 
     def processTaskPreQueue(self):
         super(FtrackShotProcessor, self).processTaskPreQueue()
         for task in _expandTaskGroup(self._submission):
-            self.logger.info('Processing Task pre queue: %s' % task)
             self.create_project_structure(task)
 
     # def startProcessing(self, exportItems, preview=False):
