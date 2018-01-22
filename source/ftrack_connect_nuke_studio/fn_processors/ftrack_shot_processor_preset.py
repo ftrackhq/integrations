@@ -25,8 +25,10 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBase):
         # add placeholders for default ftrack defaults
         ftrack_properties['project_schema'] = 'Film Pipeline'
         ftrack_properties['task_type'] = 'Compositing'
+        ftrack_properties['task_status'] = 'Not Started'
         ftrack_properties['shot_status'] = 'In progress'
         ftrack_properties['asset_version_status'] = 'WIP'
+
         # override properties from processor setup
         self.properties().update(properties)
 

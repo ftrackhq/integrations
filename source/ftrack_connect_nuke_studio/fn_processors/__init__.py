@@ -64,6 +64,7 @@ def register_processors():
         "ftrack":{
             'project_schema': 'Film Pipeline',
             'task_type':  'Render',
+            'task_status': 'Not Started',
             'shot_status': 'In progress',
             'asset_version_status': 'WIP'
         }
