@@ -176,7 +176,7 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         # assign result path back to the tasks, so it knows where to render stuff out.
         task._exportPath = ftrack_path
         task._exportRoot = self.ftrack_location.accessor.prefix
-        self.logger.info(ftrack_path)
+        task._export_template = os.path.join(task._shotPath, file_name)
 
     def processTaskPreQueue(self):
         super(FtrackShotProcessor, self).processTaskPreQueue()
