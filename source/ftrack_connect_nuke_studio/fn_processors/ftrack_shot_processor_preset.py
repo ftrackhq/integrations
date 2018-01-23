@@ -37,7 +37,7 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBase):
             self.logger.info('no ftrack settings found in {0}'.format(properties))
 
     def set_export_root(self):
-        self.properties()["exportRoot"] = self.session.server_url
+        self.properties()["exportRoot"] = self.ftrack_location.accessor.prefix
 
     def resolve_ftrack_project(self, task):
         return task.projectName()

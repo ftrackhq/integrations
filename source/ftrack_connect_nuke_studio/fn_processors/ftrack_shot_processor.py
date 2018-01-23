@@ -1,5 +1,6 @@
 # Copyright (c) 2011 The Foundry Visionmongers Ltd.  All Rights Reserved.
 import tempfile
+import types
 import os
 from .ftrack_base import FtrackBase
 from hiero.exporters.FnShotProcessor import ShotProcessor
@@ -177,16 +178,24 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         task._exportPath = ftrack_path
         task._exportRoot = self.ftrack_location.accessor.prefix
         task._export_template = os.path.join(task._shotPath, file_name)
-        task._root = ftrack_path
+
+
 
         # debug print
         from pprint import pformat
         self.logger.info(pformat(vars(task)))
 
     def processTaskPreQueue(self):
+        super(FtrackShotProcessor, self).processTaskPreQueue()
+
         for task in _expandTaskGroup(self._submission):
             self.create_project_structure(task)
-        super(FtrackShotProcessor, self).processTaskPreQueue()
+
+            # let's monkey patch the task so won't create the folders!
+            def doNotCreateFolder(self):
+                pass
+            task._makePath = types.MethodType(doNotCreateFolder, task)
+            
 
     def startProcessing(self, exportItems, preview=False):
         result = super(FtrackShotProcessor, self).startProcessing(exportItems, preview=preview)
