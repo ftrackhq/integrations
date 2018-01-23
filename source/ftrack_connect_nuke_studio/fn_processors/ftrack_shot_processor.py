@@ -29,7 +29,7 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         project_schema_name = self.ftrack_properties['project_schema']
         project_schema = self.session.query(
             'ProjectSchema where name is "{0}"'.format(project_schema_name)
-        ).first()
+        ).one()
         self.logger.info('project_schema: %s' % project_schema)
         return project_schema
 
