@@ -6,10 +6,8 @@ from ftrack_shot_processor import FtrackShotProcessor
 from ftrack_shot_processor_preset import FtrackShotProcessorPreset
 from ftrack_shot_processor_ui import FtrackShotProcessorUI
 
-from hiero.exporters import FnNukeAnnotationsExporter
-from hiero.exporters import FnExternalRender
+from hiero.exporters import FnTranscodeExporter
 from hiero.exporters import FnNukeShotExporter
-
 
 registry = hiero.core.taskRegistry
 logger = logging.getLogger(__name__)
@@ -44,7 +42,7 @@ def register_processors():
         "NukeScript",
         {
             'readPaths': [],
-            'writePaths': [],
+            'writePaths': [ftrack_server_path],
             'timelineWriteNode': "",
             'ftrack': {
                 'asset_type_code':'script',
@@ -53,7 +51,7 @@ def register_processors():
         }
     )
 
-    external_render = FnExternalRender.NukeRenderPreset(
+    external_render = FnTranscodeExporter.TranscodePreset(
         "Plate",
         {
             "file_type": "dpx",

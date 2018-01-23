@@ -4,7 +4,7 @@ import os
 from .ftrack_base import FtrackBase
 from hiero.exporters.FnShotProcessor import ShotProcessor
 from hiero.core.FnProcessor import _expandTaskGroup
- 
+import time
 
 class FtrackShotProcessor(ShotProcessor, FtrackBase):
 
@@ -177,11 +177,16 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         task._exportPath = ftrack_path
         task._exportRoot = self.ftrack_location.accessor.prefix
         task._export_template = os.path.join(task._shotPath, file_name)
+        task._root = ftrack_path
+
+        # debug print
+        from pprint import pformat
+        self.logger.info(pformat(vars(task)))
 
     def processTaskPreQueue(self):
-        super(FtrackShotProcessor, self).processTaskPreQueue()
         for task in _expandTaskGroup(self._submission):
             self.create_project_structure(task)
+        super(FtrackShotProcessor, self).processTaskPreQueue()
 
     def startProcessing(self, exportItems, preview=False):
         result = super(FtrackShotProcessor, self).startProcessing(exportItems, preview=preview)
