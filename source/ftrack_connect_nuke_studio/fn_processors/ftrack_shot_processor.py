@@ -162,7 +162,7 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         resolved_file_name = task.resolvePath(file_name)
         path = task.resolvePath(task._shotPath)
         export_path = task._shotPath
-        parent = None
+        parent = None # after the loop this will be containing the component object
 
         for template, token in zip(export_path.split(os.path.sep), path.split(os.path.sep)):
             fragment_fn = self.fn_mapping.get(template, self._skip_fragment)
@@ -178,8 +178,6 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         task._exportPath = ftrack_path
         task._exportRoot = self.ftrack_location.accessor.prefix
         task._export_template = os.path.join(task._shotPath, file_name)
-
-
 
         # debug print
         from pprint import pformat
