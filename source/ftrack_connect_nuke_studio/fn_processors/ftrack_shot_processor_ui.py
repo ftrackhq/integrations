@@ -16,6 +16,9 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBase):
             preset,
         )
 
+    def updatePathPreview(self):
+        self._pathPreviewWidget.setText('Ftrack Server: {0}'.format(self.session.server_url))
+
     def displayName(self):
         return "Ftrack"
 
