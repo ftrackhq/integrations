@@ -47,7 +47,8 @@ def register_processors():
             'writePaths': [],
             'timelineWriteNode': "",
             'ftrack': {
-                'asset_type_code':'script'
+                'asset_type_code':'script',
+                'component_pattern': '{shot}.{ext}'
             }
         }
     )
@@ -58,7 +59,8 @@ def register_processors():
             "file_type": "dpx",
             "dpx": {"datatype": "10 bit"},
             'ftrack': {
-                'asset_type_code':'img'
+                'asset_type_code':'img',
+                'component_pattern': '{shot}.####.{ext}'
             }
         }
     )

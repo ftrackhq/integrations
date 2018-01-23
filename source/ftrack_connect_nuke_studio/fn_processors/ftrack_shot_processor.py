@@ -66,7 +66,6 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
 
     def asset_type_per_task(self, task):
         asset_type = task._preset.properties()['ftrack']['asset_type_code']
-        self.logger.info('ASSET TYPE: %s' % asset_type)
         result = self.session.query(
             'AssetType where short is "{}"'.format(asset_type)
         ).one()
@@ -145,6 +144,7 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         return task
 
     def _create_component_fragment(self, name, parent, task):
+        asset_type = task._preset.properties()['ftrack']['asset_type_code']
         component = parent.create_component('/', {
             'name': name
         }, location=None)
@@ -155,7 +155,10 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         self.logger.warning('Skpping : {}'.format(name))
         
     def create_project_structure(self, task):
+        file_name = task._preset.properties()['ftrack']['component_pattern']
+
         preset_name = task._preset.name()
+        resolved_file_name = task.resolvePath(file_name)
         path = task.resolvePath(task._shotPath)
         export_path = task._shotPath
         parent = None
@@ -165,12 +168,15 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
             parent = fragment_fn(token, parent, task)
 
         self.session.commit()
+
+        # extract ftrack path from structure and accessors
         ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent)
-        ftrack_path = os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path)
+        ftrack_path = os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path, resolved_file_name)
 
         # assign result path back to the tasks, so it knows where to render stuff out.
         task._exportPath = ftrack_path
         task._exportRoot = self.ftrack_location.accessor.prefix
+        self.logger.info(ftrack_path)
 
     def processTaskPreQueue(self):
         super(FtrackShotProcessor, self).processTaskPreQueue()
