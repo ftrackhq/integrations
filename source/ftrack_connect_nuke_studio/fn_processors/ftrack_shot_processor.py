@@ -57,10 +57,6 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         return shot_status
 
     @property
-    def asset_type(self):
-        return self.session.query('AssetType where short is "geo"').first()
-    
-    @property
     def asset_version_status(self):
         asset_status_name = self.ftrack_properties['asset_version_status']
         asset_statuses =  self.schema.get_statuses('AssetVersion')
@@ -68,8 +64,17 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         self.logger.info('asset_version_status: %s' % asset_status)
         return asset_status
 
+    def asset_type_per_task(self, task):
+        asset_type = task._preset.properties()['ftrack']['asset_type_code']
+        self.logger.info('ASSET TYPE: %s' % asset_type)
+        result = self.session.query(
+            'AssetType where short is "{}"'.format(asset_type)
+        ).one()
 
-    def _create_project_fragment(self, name, parent):
+        return result
+    
+
+    def _create_project_fragment(self, name, parent, task):
         project = self.session.query(
             'Project where name is "{}"'.format(name)
         ).first()
@@ -81,7 +86,7 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
             })
         return project
 
-    def _create_sequence_fragment(self, name, parent):
+    def _create_sequence_fragment(self, name, parent, task):
         sequence = self.session.query(
             'Sequence where name is "{}" and parent.id is "{}"'.format(name, parent['id'])
         ).first()
@@ -92,7 +97,7 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
             })          
         return sequence
 
-    def _create_shot_fragment(self, name, parent):
+    def _create_shot_fragment(self, name, parent, task):
         shot = self.session.query(
             'Shot where name is "{}" and parent.id is "{}"'.format(name, parent['id'])
         ).first()
@@ -104,7 +109,7 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
             })
         return shot
 
-    def _create_asset_fragment(self, name, parent):
+    def _create_asset_fragment(self, name, parent, task):
         asset = self.session.query(
             'Asset where name is "{}" and parent.id is "{}"'.format(name, parent['parent']['id'])
         ).first()
@@ -112,7 +117,7 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
             asset = self.session.create('Asset', {
                 'name': name,
                 'parent': parent['parent'],
-                'type': self.asset_type
+                'type': self.asset_type_per_task(task)
             })
         
         comment = 'Published from Nuke Studio : {}.{}.{}'.format(*self.hiero_version_touple)
@@ -126,7 +131,7 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
 
         return version
 
-    def _create_task_fragment(self, name, parent):
+    def _create_task_fragment(self, name, parent, task):
         task = self.session.query(
             'Task where name is "{}" and parent.id is "{}"'.format(name, parent['id'])
         ).first()
@@ -139,7 +144,7 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
             })                    
         return task
 
-    def _create_component_fragment(self, name, parent):
+    def _create_component_fragment(self, name, parent, task):
         component = parent.create_component('/', {
             'name': name
         }, location=None)
@@ -157,7 +162,7 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
 
         for template, token in zip(export_path.split(os.path.sep), path.split(os.path.sep)):
             fragment_fn = self.fn_mapping.get(template, self._skip_fragment)
-            parent = fragment_fn(token, parent)
+            parent = fragment_fn(token, parent, task)
 
         self.session.commit()
         ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent)
@@ -172,15 +177,8 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         for task in _expandTaskGroup(self._submission):
             self.create_project_structure(task)
 
-    # def startProcessing(self, exportItems, preview=False):
-    #     if not preview:
-    #         self.logger.info('!!!!!!!!!! Processing: %s, is preview %s' % (exportItems, preview))
-    #     # if not preview:.....
-    #     # for item in exportItems:
-    #     #     self.create_project_structure(item)
+    def startProcessing(self, exportItems, preview=False):
+        result = super(FtrackShotProcessor, self).startProcessing(exportItems, preview=preview)
 
-    #     result = super(FtrackShotProcessor, self).startProcessing(exportItems, preview=preview)
-    #     if not preview:
-    #         self.logger.info('!!!!!!!!!! Processing: DONE')
 
-    #     return result
+        return result

@@ -30,7 +30,11 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBase):
         ftrack_properties['asset_version_status'] = 'WIP'
 
         # override properties from processor setup
-        self.properties().update(properties)
+        if 'ftrack' in properties:
+            self.properties()['ftrack'].update(properties['ftrack'])
+            # self.logger.info('Properties {0}'.format(self.properties()))
+        else:
+            self.logger.info('no ftrack settings found in {0}'.format(properties))
 
     def set_export_root(self):
         self.properties()["exportRoot"] = self.session.server_url
@@ -47,18 +51,13 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBase):
         return trackItem.name().split('_')[1]        
     
     def resolve_ftrack_task(self, task):
-        # TODO: here we should really parse the task tags and use the ftrack task tag to define ?
-        # let's stick to something basic for now
         return self.properties()['ftrack']['task_type']
 
     def resolve_ftrack_asset(self, task):
-        # for now simply return the component
-        return self.resolve_ftrack_component(task)
+        return task._preset.name()
 
     def resolve_ftrack_component(self, task):
-        # TODO: Check whether there's a better way to get this out !
-        preset_name =  task._preset.name()
-        return preset_name
+        return 'main' # these component will go all under main
 
     def resolve_ftrack_version(self, task):
         return "0" # here we can check if there's any tag with an id to check against, if not we can return 0 as first version        

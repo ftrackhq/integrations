@@ -1,3 +1,4 @@
+import os
 import hiero
 
 import logging
@@ -26,7 +27,14 @@ def register_processors():
         FtrackShotProcessorPreset, FtrackShotProcessor
     )
 
-    ftrack_server_path = '{ftrack_project}/{ftrack_sequence}/{ftrack_shot}/{ftrack_task}/{ftrack_asset}/{ftrack_component}'
+    ftrack_server_path = os.path.join(
+        '{ftrack_project}',
+        '{ftrack_sequence}',
+        '{ftrack_shot}',
+        '{ftrack_task}',
+        '{ftrack_asset}',
+        '{ftrack_component}'
+    )
 
     # Register the base preset for ftrack shot processor.
     # this could be moved to a discover function
@@ -36,8 +44,11 @@ def register_processors():
         "NukeScript",
         {
             'readPaths': [],
-            'writePaths': [ftrack_server_path],
-            'timelineWriteNode': ""
+            'writePaths': [],
+            'timelineWriteNode': "",
+            'ftrack': {
+                'asset_type_code':'script'
+            }
         }
     )
 
@@ -45,7 +56,10 @@ def register_processors():
         "Plate",
         {
             "file_type": "dpx",
-            "dpx": {"datatype": "10 bit"}
+            "dpx": {"datatype": "10 bit"},
+            'ftrack': {
+                'asset_type_code':'img'
+            }
         }
     )
 
