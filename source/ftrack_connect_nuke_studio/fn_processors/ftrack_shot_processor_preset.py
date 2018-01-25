@@ -32,7 +32,6 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBase):
         # override properties from processor setup
         if 'ftrack' in properties:
             self.properties()['ftrack'].update(properties['ftrack'])
-            # self.logger.info('Properties {0}'.format(self.properties()))
         else:
             self.logger.info('no ftrack settings found in {0}'.format(properties))
 
