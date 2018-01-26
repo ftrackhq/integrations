@@ -443,22 +443,25 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
 
                 # Detect any duplicates
                 self.processTaskPreQueue()
-                component = self.create_project_structure(task, trackItem)
-                asset_version = component['version']
+                
+                # Create project structure and publish versions 
+                for _task in _expandTaskGroup(self._submission):
+                    component = self.create_project_structure(_task, trackItem)
+                    asset_version = component['version']
 
-                localtime = time.localtime(time.time())
-                timestamp = self.timeStampString(localtime)
-                ftag = core.Tag('AssetVersion {0}'.format(timestamp))
-                ftag.setIcon(':ftrack/image/integration/version')
-    
-                meta = ftag.metadata()
-                meta.setValue('type', 'ftrack')
-                meta.setValue('ftrack.type', 'version')
-                meta.setValue('ftrack.id', str(component['version']['id']))
-                meta.setValue('tag.value', str(component['version']['version']))
+                    localtime = time.localtime(time.time())
+                    timestamp = self.timeStampString(localtime)
+                    ftag = core.Tag('AssetVersion {0}'.format(timestamp))
+                    ftag.setIcon(':ftrack/image/integration/version')
+        
+                    meta = ftag.metadata()
+                    meta.setValue('type', 'ftrack')
+                    meta.setValue('ftrack.type', 'version')
+                    meta.setValue('ftrack.id', str(component['version']['id']))
+                    meta.setValue('tag.value', str(component['version']['version']))
 
-                self.logger.info('Adding Tag: {0} to {1}'.format(ftag, trackItem))
-                trackItem.addTag(ftag)
+                    self.logger.info('Adding Tag: {0} to {1}'.format(ftag, trackItem))
+                    trackItem.addTag(ftag)
 
                 # Start the submission queue
                 self._submission.addToQueue()
