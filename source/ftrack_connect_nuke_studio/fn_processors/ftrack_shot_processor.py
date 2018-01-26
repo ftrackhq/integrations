@@ -30,6 +30,11 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
             '{ftrack_component}': self._create_component_fragment
         }
 
+    def timeStampString(self, localtime):
+        """timeStampString(localtime)
+        Convert a tuple or struct_time representing a time as returned by gmtime() or localtime() to a string formated YEAR/MONTH/DAY TIME."""
+        return time.strftime("%Y/%m/%d %X", localtime)
+
     def updateItem(self, originalItem, localtime):
         self.logger.info('Updating Item {0}'.format(originalItem))
         super(FtrackShotProcessor, self).updateItem(originalItem, localtime)
@@ -189,13 +194,7 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         task._exportRoot = self.ftrack_location.accessor.prefix
         task._export_template = os.path.join(task._shotPath, file_name)
 
-        ftrack_version_id_tag = core.Tag("ftrack-entity")
-        ftrack_version_id_tag.metadata().setValue("ftrack.type", 'AssetVersion')
-        ftrack_version_id_tag.metadata().setValue("ftrack.id", str(parent['version']['id']))
-        ftrack_version_id_tag.metadata().setValue("ftrack.version", str(parent['version']['version']))
-
-        self.logger.info('Adding Tag: {0} to {1}'.format(ftrack_version_id_tag, trackItem))
-        trackItem.addTag(ftrack_version_id_tag)
+        return parent # return component
 
     def startProcessing(self, exportItems, preview=False):
 
@@ -444,7 +443,24 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
 
                 # Detect any duplicates
                 self.processTaskPreQueue()
-                self.create_project_structure(task, trackItem)
+                component = self.create_project_structure(task, trackItem)
+                asset_version = component['version']
+
+                localtime = time.localtime(time.time())
+                timestamp = self.timeStampString(localtime)
+                ftag = core.Tag('AssetVersion {0}'.format(timestamp))
+                ftag.setIcon(':ftrack/image/integration/version')
+    
+                meta = ftag.metadata()
+                meta.setValue('type', 'ftrack')
+                meta.setValue('ftrack.type', 'version')
+                meta.setValue('ftrack.id', str(component['version']['id']))
+                meta.setValue('tag.value', str(component['version']['version']))
+
+                self.logger.info('Adding Tag: {0} to {1}'.format(ftag, trackItem))
+                trackItem.addTag(ftag)
+
+                # Start the submission queue
                 self._submission.addToQueue()
 
             ShotProcessor._versionUpPreviousExports = False # Reset this after export
