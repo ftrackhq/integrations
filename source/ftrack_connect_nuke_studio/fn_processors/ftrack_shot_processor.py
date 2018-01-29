@@ -475,7 +475,6 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         
         self.logger.warning('ALL RENDER DONE!')
 
-
         # publishing final component
         for component , ptask, frames in components:
             version = component['version']
@@ -498,6 +497,9 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
 
             # remove old component
             self.session.delete(component)
+            self.session.commit()
 
-
+        # NOTE, some extra folders gets generated as part of the processing of the single processors.abs
+        # we should check with getattr if the processor has these (eg: writePaths) and fix it , before submission
+        # or remove them at all.
         return allTasks
