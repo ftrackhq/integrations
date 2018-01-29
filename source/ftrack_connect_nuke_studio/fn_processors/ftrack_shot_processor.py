@@ -432,6 +432,7 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
                 if len(taskGroup.children()) > 0:
                     self._submission.addChild( taskGroup )
 
+        components = []
         if not preview:
             # If processor is flagged as Synchronous, flag tasks too
             if self._synchronous:
@@ -443,10 +444,12 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
                 self.processTaskPreQueue()
                 
                 # Create project structure and publish versions 
-                for _task in _expandTaskGroup(self._submission):
-                    component = self.create_project_structure(_task, trackItem)
+                for task in allTasks:
+                    component = self.create_project_structure(task, trackItem)
                     asset_version = component['version']
-
+                    start_end_frame = task.outputRange()
+                    components.append((component, task, start_end_frame))
+    
                     localtime = time.localtime(time.time())
                     timestamp = self.timeStampString(localtime)
                     ftag = core.Tag('AssetVersion {0}'.format(timestamp))
@@ -467,7 +470,34 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
             ShotProcessor._versionUpPreviousExports = False # Reset this after export
 
         while (self._submission.progress() != 1.0):
+            # check render completion
             continue
-
+        
         self.logger.warning('ALL RENDER DONE!')
+
+
+        # publishing final component
+        for component , ptask, frames in components:
+            version = component['version']
+
+            # HELL YEAH , as nasty as it gets for now.
+    
+            final_path = ptask._exportPath
+            if '#' in ptask._exportPath:
+                start, end = frames
+                final_path = ptask._exportPath.replace('####', '%4d')
+                final_path = '{0} [{1}-{2}]'.format(final_path, start, end)
+            
+            self.logger.info('Final Path:{0}'.format(final_path))
+    
+            new_component = version.create_component(
+                final_path,
+                data={'name':component['name']},
+                location = 'auto'    
+            )        
+
+            # remove old component
+            self.session.delete(component)
+
+
         return allTasks
