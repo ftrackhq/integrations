@@ -27,3 +27,9 @@ class FtrackBase(object):
         result = self.session.pick_location()    
         self.logger.info('location: %s' % result)
         return result
+
+    @property
+    def ftrack_origin_location(self):
+        return self.session.query(
+            'Location where name is "ftrack.origin"'
+        ).one()

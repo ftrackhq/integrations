@@ -194,12 +194,10 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
         task._exportRoot = self.ftrack_location.accessor.prefix
         task._export_template = os.path.join(task._shotPath, file_name)
 
-        return parent # return component
+        return parent
 
     def startProcessing(self, exportItems, preview=False):
-
         self.logger.debug( "ShotProcessor::startProcessing(" + str(exportItems) + ")" )
-
         sequences = []
         selectedTrackItems = set()
         selectedSubTrackItems = set()
@@ -467,4 +465,9 @@ class FtrackShotProcessor(ShotProcessor, FtrackBase):
                 self._submission.addToQueue()
 
             ShotProcessor._versionUpPreviousExports = False # Reset this after export
+
+        while (self._submission.progress() != 1.0):
+            continue
+
+        self.logger.warning('ALL RENDER DONE!')
         return allTasks
