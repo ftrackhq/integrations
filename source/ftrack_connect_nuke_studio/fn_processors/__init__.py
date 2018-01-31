@@ -6,8 +6,8 @@ from ftrack_shot_processor import FtrackShotProcessor
 from ftrack_shot_processor_preset import FtrackShotProcessorPreset
 from ftrack_shot_processor_ui import FtrackShotProcessorUI
 
-from hiero.exporters import FnTranscodeExporter
-from hiero.exporters import FnNukeShotExporter
+# custom processors
+from ftrack_nuke_shot_exporter import FtrackNukeShotExporterPreset
 
 registry = hiero.core.taskRegistry
 logger = logging.getLogger(__name__)
@@ -38,7 +38,7 @@ def register_processors():
     # this could be moved to a discover function
     name = 'Base Preset'
 
-    nuke_script_processor = FnNukeShotExporter.NukeShotPreset(
+    nuke_script_processor = FtrackNukeShotExporterPreset(
         "NukeScript",
         {
             'readPaths': [],
@@ -51,17 +51,17 @@ def register_processors():
         }
     )
 
-    external_render = FnTranscodeExporter.TranscodePreset(
-        "Plate",
-        {
-            "file_type": "dpx",
-            "dpx": {"datatype": "10 bit"},
-            'ftrack': {
-                'asset_type_code':'img',
-                'component_pattern': '{shot}.####.{ext}'
-            }
-        }
-    )
+    # external_render = FnTranscodeExporter.TranscodePreset(
+    #     "Plate",
+    #     {
+    #         "file_type": "dpx",
+    #         "dpx": {"datatype": "10 bit"},
+    #         'ftrack': {
+    #             'asset_type_code':'img',
+    #             'component_pattern': '{shot}.####.{ext}'
+    #         }
+    #     }
+    # )
 
     properties = {
         "exportTemplate": (
@@ -69,10 +69,10 @@ def register_processors():
                 ftrack_server_path,
                 nuke_script_processor
             ),
-            (
-                ftrack_server_path,
-                external_render
-            ),
+            # (
+            #     ftrack_server_path,
+            #     external_render
+            # ),
         ),
         "cutLength" : True,
         "ftrack":{
