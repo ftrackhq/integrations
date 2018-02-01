@@ -20,7 +20,8 @@ from ftrack_base import FtrackBasePreset, FtrackBase
 
 class FtrackNukeShotExporter(NukeShotExporter, FtrackBase):
     def __init__(self, initDict):
-        super(FtrackNukeShotExporter, self).__init__(initDict)
+        NukeShotExporter.__init__(self, initDict)
+        FtrackBase.__init__(self, initDict)
 
         self._nothingToDo = True
         self._tag = None
@@ -259,20 +260,19 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackBase):
         return False
 
 
-
-
     def startTask(self):
-        # self.logger.info('Starting Task')
+        self.logger.info('Starting Task')
         return super(FtrackNukeShotExporter, self).startTask()
     
     def finishTask(self):
-        # self.logger.info('Finishing Task')
+        self.logger.info('Finishing Task')
         super(FtrackNukeShotExporter, self).finishTask()
 
 
 class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackBasePreset):
     def __init__(self, name, properties, task=FtrackNukeShotExporter):
-        super(FtrackNukeShotExporterPreset, self).__init__(name, properties, task)
+        NukeShotPreset.__init__(self, name, properties, task)
+        FtrackBasePreset.__init__(self, name, properties)
 
         # Set any preset defaults here
         self.properties()["enable"] = True
@@ -307,6 +307,16 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackBasePreset):
 
         # Update preset with loaded data
         self.properties().update(properties)
+        
+    def set_ftrack_properties(self, properties):
+        FtrackBasePreset.set_ftrack_properties(self, properties)
+        self.properties()['ftrack'] = {}
+
+        # add placeholders for default ftrack defaults
+        self.properties()['ftrack']['task_type'] = 'Compositing'
+        self.properties()['ftrack']['asset_type_code'] = 'script',
+        self.properties()['ftrack']['component_pattern'] = '{shot}.{ext}',
+
 
     def addUserResolveEntries(self, resolver):
         FtrackBasePreset.addUserResolveEntries(self, resolver)
@@ -314,7 +324,9 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackBasePreset):
 
 class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackBase):
     def __init__(self, preset):
-        super(FtrackNukeShotExporterUI, self).__init__(preset)
+        NukeShotExporterUI.__init__(self, preset)
+        FtrackBase.__init__(self, preset)
+
         self._displayName = "Ftrack Nuke Shot File"
         self._taskType = FtrackNukeShotExporter
         self._nodeSelectionWidget = None

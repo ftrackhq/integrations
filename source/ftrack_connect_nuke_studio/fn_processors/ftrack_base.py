@@ -44,6 +44,11 @@ class FtrackBase(object):
 class FtrackBasePreset(FtrackBase):
     def __init__(self,  name, properties, **kwargs):
         super(FtrackBasePreset, self).__init__(name, properties)
+        self.set_export_root()
+        self.set_ftrack_properties(properties)
+
+    def set_ftrack_properties(self, properties):
+        self.properties()['ftrack'] = {}
 
     def set_export_root(self):
         self.properties()["exportRoot"] = self.ftrack_location.accessor.prefix
@@ -118,25 +123,17 @@ class FtrackBasePreset(FtrackBase):
 class FtrackBaseProcessorPreset(FtrackBasePreset):
     def __init__(self,  name, properties):
         super(FtrackBaseProcessorPreset, self).__init__(name, properties)
-        self.set_export_root()
-        self.set_ftrack_properties(properties)
 
     def set_ftrack_properties(self, properties):
+        super(FtrackBaseProcessorPreset, self).set_ftrack_properties(properties)
         self.properties()['ftrack'] = {}
-        ftrack_properties = self.properties()['ftrack']
 
         # add placeholders for default ftrack defaults
-        ftrack_properties['project_schema'] = 'Film Pipeline'
-        ftrack_properties['task_type'] = 'Compositing'
-        ftrack_properties['task_status'] = 'Not Started'
-        ftrack_properties['shot_status'] = 'In progress'
-        ftrack_properties['asset_version_status'] = 'WIP'
-
-        # override properties from processor setup
-        if 'ftrack' in properties:
-            self.properties()['ftrack'].update(properties['ftrack'])
-        else:
-            self.logger.info('no ftrack settings found in {0}'.format(properties))
+        self.properties()['ftrack']['project_schema'] = 'Film Pipeline'
+        self.properties()['ftrack']['task_type'] = 'Compositing'
+        self.properties()['ftrack']['task_status'] = 'Not Started'
+        self.properties()['ftrack']['shot_status'] = 'In progress'
+        self.properties()['ftrack']['asset_version_status'] = 'WIP'
 
 
 class FtrackBaseProcessor(FtrackBase):

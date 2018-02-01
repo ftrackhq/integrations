@@ -48,5 +48,4 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBaseProcessorPreset):
     def __init__(self, name, properties):
         ShotProcessorPreset.__init__(self, name, properties)
         FtrackBaseProcessorPreset.__init__(self, name, properties)
-
         self._parentType = FtrackShotProcessor

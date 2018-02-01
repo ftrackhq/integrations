@@ -42,11 +42,6 @@ def register_processors():
             'readPaths': [],
             'writePaths': [ftrack_server_path],
             'timelineWriteNode': "",
-            'ftrack': {
-                'asset_type_code':'script',
-                'component_pattern': '{shot}.{ext}',
-                'task_type':  'Compositing',
-            }
         }
     )
 
@@ -58,12 +53,6 @@ def register_processors():
             ),
         ),
         "cutLength" : True,
-        "ftrack":{
-            'project_schema': 'Film Pipeline',
-            'task_status': 'Not Started',
-            'shot_status': 'In progress',
-            'asset_version_status': 'WIP'
-        }
     }
 
     preset = FtrackShotProcessorPreset(
