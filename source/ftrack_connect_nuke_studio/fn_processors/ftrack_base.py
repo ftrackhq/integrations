@@ -13,6 +13,7 @@ class FtrackBase(object):
         )
         self.logger.setLevel(logging.DEBUG)
         self.session = ftrack_api.Session()
+        self.logger.info('Initializing :{0}'.format(self.__class__.__name__))
 
     @property
     def hiero_version_touple(self):
@@ -40,30 +41,9 @@ class FtrackBase(object):
             'Location where name is "ftrack.server"'
         ).one()
 
-
-class FtrackBaseProcessorPreset(FtrackBase):
-    def __init__(self, *args, **kwargs):
-        super(FtrackBaseProcessor, self).__init__(*args, **kwargs)
-        self._parentType = FtrackShotProcessor
-        self.set_export_root()
-        self.set_ftrack_properties(properties)
-
-    def set_ftrack_properties(self, properties):
-        self.properties()['ftrack'] = {}
-        ftrack_properties = self.properties()['ftrack']
-
-        # add placeholders for default ftrack defaults
-        ftrack_properties['project_schema'] = 'Film Pipeline'
-        ftrack_properties['task_type'] = 'Compositing'
-        ftrack_properties['task_status'] = 'Not Started'
-        ftrack_properties['shot_status'] = 'In progress'
-        ftrack_properties['asset_version_status'] = 'WIP'
-
-        # override properties from processor setup
-        if 'ftrack' in properties:
-            self.properties()['ftrack'].update(properties['ftrack'])
-        else:
-            self.logger.info('no ftrack settings found in {0}'.format(properties))
+class FtrackBasePreset(FtrackBase):
+    def __init__(self,  name, properties, **kwargs):
+        super(FtrackBasePreset, self).__init__(name, properties)
 
     def set_export_root(self):
         self.properties()["exportRoot"] = self.ftrack_location.accessor.prefix
@@ -134,6 +114,29 @@ class FtrackBaseProcessorPreset(FtrackBase):
             "Ftrack component path.",
             lambda keyword, task: self.resolve_ftrack_component(task)
         )
+
+class FtrackBaseProcessorPreset(FtrackBasePreset):
+    def __init__(self,  name, properties):
+        super(FtrackBaseProcessorPreset, self).__init__(name, properties)
+        self.set_export_root()
+        self.set_ftrack_properties(properties)
+
+    def set_ftrack_properties(self, properties):
+        self.properties()['ftrack'] = {}
+        ftrack_properties = self.properties()['ftrack']
+
+        # add placeholders for default ftrack defaults
+        ftrack_properties['project_schema'] = 'Film Pipeline'
+        ftrack_properties['task_type'] = 'Compositing'
+        ftrack_properties['task_status'] = 'Not Started'
+        ftrack_properties['shot_status'] = 'In progress'
+        ftrack_properties['asset_version_status'] = 'WIP'
+
+        # override properties from processor setup
+        if 'ftrack' in properties:
+            self.properties()['ftrack'].update(properties['ftrack'])
+        else:
+            self.logger.info('no ftrack settings found in {0}'.format(properties))
 
 
 class FtrackBaseProcessor(FtrackBase):
@@ -307,3 +310,21 @@ class FtrackBaseProcessor(FtrackBase):
         task._export_template = os.path.join(task._shotPath, file_name)
 
         return parent
+
+
+class FtrackBaseProcessorUI(FtrackBase):
+    def __init__(self, preset):
+        super(FtrackBaseProcessorUI, self).__init__(preset)
+
+    def _checkExistingVersions(self, exportItems):
+        """ Iterate over all the track items which are set to be exported, and check if they have previously
+        been exported with the same version as the setting in the current preset.  If yes, show a message box
+        asking the user if they would like to increment the version, or overwrite it. """
+
+        for item in exportItems:
+            self.logger.info('_checkExistingVersions of:{0}'.format(item.name()))
+
+        return super(FtrackBaseProcessorUI, self)._checkExistingVersions(exportItems)
+
+    def onItemSelected(self, item):
+        self.logger.info(item.track)

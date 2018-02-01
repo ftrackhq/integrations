@@ -15,7 +15,7 @@ from hiero.exporters import FnScriptLayout
 
 from QtExt import QtWidgets, QtGui, QtCore
 
-from ftrack_base import FtrackBase
+from ftrack_base import FtrackBasePreset, FtrackBase
 
 
 class FtrackNukeShotExporter(NukeShotExporter, FtrackBase):
@@ -270,7 +270,7 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackBase):
         super(FtrackNukeShotExporter, self).finishTask()
 
 
-class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackBase):
+class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackBasePreset):
     def __init__(self, name, properties, task=FtrackNukeShotExporter):
         super(FtrackNukeShotExporterPreset, self).__init__(name, properties, task)
 
@@ -307,6 +307,9 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackBase):
 
         # Update preset with loaded data
         self.properties().update(properties)
+
+    def addUserResolveEntries(self, resolver):
+        FtrackBasePreset.addUserResolveEntries(self, resolver)
 
 
 class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackBase):

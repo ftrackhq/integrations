@@ -2,9 +2,7 @@ import os
 import hiero
 
 import logging
-from ftrack_shot_processor import FtrackShotProcessor
-from ftrack_shot_processor_preset import FtrackShotProcessorPreset
-from ftrack_shot_processor_ui import FtrackShotProcessorUI
+from ftrack_shot_processor import FtrackShotProcessor, FtrackShotProcessorPreset, FtrackShotProcessorUI
 
 # custom processors
 from ftrack_nuke_shot_exporter import FtrackNukeShotExporterPreset
@@ -46,22 +44,11 @@ def register_processors():
             'timelineWriteNode': "",
             'ftrack': {
                 'asset_type_code':'script',
-                'component_pattern': '{shot}.{ext}'
+                'component_pattern': '{shot}.{ext}',
+                'task_type':  'Compositing',
             }
         }
     )
-
-    # external_render = FnTranscodeExporter.TranscodePreset(
-    #     "Plate",
-    #     {
-    #         "file_type": "dpx",
-    #         "dpx": {"datatype": "10 bit"},
-    #         'ftrack': {
-    #             'asset_type_code':'img',
-    #             'component_pattern': '{shot}.####.{ext}'
-    #         }
-    #     }
-    # )
 
     properties = {
         "exportTemplate": (
@@ -69,15 +56,10 @@ def register_processors():
                 ftrack_server_path,
                 nuke_script_processor
             ),
-            # (
-            #     ftrack_server_path,
-            #     external_render
-            # ),
         ),
         "cutLength" : True,
         "ftrack":{
             'project_schema': 'Film Pipeline',
-            'task_type':  'Render',
             'task_status': 'Not Started',
             'shot_status': 'In progress',
             'asset_version_status': 'WIP'
