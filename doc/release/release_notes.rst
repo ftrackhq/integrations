@@ -6,7 +6,8 @@
 *************
 Release Notes
 *************
-.. release:: Upcoming
+.. release:: 0.8.2
+    :date: 2018-02-02
 
    .. change:: fixed
        :tags: User interface
