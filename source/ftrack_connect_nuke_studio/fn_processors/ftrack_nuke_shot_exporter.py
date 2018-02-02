@@ -15,17 +15,19 @@ from hiero.exporters import FnScriptLayout
 
 from QtExt import QtWidgets, QtGui, QtCore
 
-from ftrack_base import FtrackBasePreset, FtrackBase
+from ftrack_base import FtrackBasePreset, FtrackBase, FtrackBaseProcessor
 
 
-class FtrackNukeShotExporter(NukeShotExporter, FtrackBase):
+class FtrackNukeShotExporter(NukeShotExporter, FtrackBaseProcessor):
     def __init__(self, initDict):
         NukeShotExporter.__init__(self, initDict)
-        FtrackBase.__init__(self, initDict)
+        FtrackBaseProcessor.__init__(self, initDict)
 
         self._nothingToDo = True
         self._tag = None
         self._tag_guid = None
+
+        assert self.fn_mapping
 
     def updateItem (self, originalItem, localtime):
         """updateItem - This is called by the processor prior to taskStart, crucially on the main thread.\n
@@ -259,14 +261,16 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackBase):
         # Nothing left to do, return False.
         return False
 
-
-    def startTask(self):
-        self.logger.info('Starting Task')
-        return super(FtrackNukeShotExporter, self).startTask()
+    # def startTask(self):
+    #     self.logger.info('Starting Task')
+    #     return super(FtrackNukeShotExporter, self).startTask()
     
-    def finishTask(self):
-        self.logger.info('Finishing Task')
-        super(FtrackNukeShotExporter, self).finishTask()
+    # def finishTask(self):
+    #     self.logger.info('Finishing Task')
+    #     super(FtrackNukeShotExporter, self).finishTask()
+
+    def _makePath(self):
+        FtrackBaseProcessor._makePath(self)
 
 
 class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackBasePreset):
@@ -314,9 +318,12 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackBasePreset):
 
         # add placeholders for default ftrack defaults
         self.properties()['ftrack']['task_type'] = 'Compositing'
-        self.properties()['ftrack']['asset_type_code'] = 'script',
-        self.properties()['ftrack']['component_pattern'] = '{shot}.{ext}',
-
+        self.properties()['ftrack']['asset_type_code'] = 'script'
+        self.properties()['ftrack']['component_pattern'] = '{shot}.{ext}'
+        self.properties()['ftrack']['task_status'] = 'Not Started'
+        self.properties()['ftrack']['shot_status'] = 'In progress'
+        self.properties()['ftrack']['asset_version_status'] = 'WIP'
+        self.properties()['ftrack']['project_schema'] = 'Film Pipeline'
 
     def addUserResolveEntries(self, resolver):
         FtrackBasePreset.addUserResolveEntries(self, resolver)

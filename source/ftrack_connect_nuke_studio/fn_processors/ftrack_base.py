@@ -41,6 +41,7 @@ class FtrackBase(object):
             'Location where name is "ftrack.server"'
         ).one()
 
+
 class FtrackBasePreset(FtrackBase):
     def __init__(self,  name, properties, **kwargs):
         super(FtrackBasePreset, self).__init__(name, properties)
@@ -150,6 +151,9 @@ class FtrackBaseProcessor(FtrackBase):
             '{ftrack_asset}': self._create_asset_fragment,
             '{ftrack_component}': self._create_component_fragment
         }
+
+    def _makePath(self):
+        self.create_project_structure(self)
 
     @property
     def schema(self):
@@ -281,14 +285,17 @@ class FtrackBaseProcessor(FtrackBase):
     def _skip_fragment(self, name, parent):
         self.logger.warning('Skpping : {}'.format(name))
         
-    def create_project_structure(self, task, trackItem):
+    def create_project_structure(self, task):
         file_name = task._preset.properties()['ftrack']['component_pattern']
-
+        self.logger.info('BUilding structure for : {}'.format(task))
         preset_name = task._preset.name()
+        self.logger.info(preset_name)
+
         resolved_file_name = task.resolvePath(file_name)
         path = task.resolvePath(task._shotPath)
         export_path = task._shotPath
         parent = None # after the loop this will be containing the component object
+
 
         for template, token in zip(export_path.split(os.path.sep), path.split(os.path.sep)):
             fragment_fn = self.fn_mapping.get(template, self._skip_fragment)
