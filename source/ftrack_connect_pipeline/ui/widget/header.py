@@ -43,7 +43,7 @@ class Header(QtWidgets.QFrame):
             QtWidgets.QSizePolicy.Minimum
         )
 
-        username = str(session.api_user)
+        username = unicode(session.api_user)
         self.logo = Logo(self)
         self.user = User(username, session, self)
 
@@ -144,7 +144,7 @@ class User(QtWidgets.QWidget):
         ).first()
 
         if user:
-            NAME_CACHE[self.username] = '{0} {1}'.format(
+            NAME_CACHE[self.username] = u'{0} {1}'.format(
                 user['first_name'], user['last_name']
             )
             ftrack_connect_pipeline.util.invoke_in_main_thread(

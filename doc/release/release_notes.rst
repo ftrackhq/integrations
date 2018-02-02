@@ -9,6 +9,11 @@ Release Notes
 .. release:: Upcoming
 
    .. change:: fixed
+       :tags: User interface
+
+       None ascii characters not handled correctly in user first and last name.
+
+   .. change:: fixed
        :tags: Build
 
        Pyside-rcc is not correctly discovered.
