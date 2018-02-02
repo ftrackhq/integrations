@@ -96,6 +96,8 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackBaseProcessor):
         self._tag = originalItem.tags()[-1]
         self._tag_guid = originalItem.tags()[-1].guid()
 
+        FtrackBaseProcessor.updateItem(self, originalItem, localtime)
+
     def taskStep(self):
         # self.logger.info('TaskStep...')
         super(FtrackNukeShotExporter, self).taskStep()

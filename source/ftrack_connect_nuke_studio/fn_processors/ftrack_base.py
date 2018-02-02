@@ -2,6 +2,7 @@ import os
 import hiero
 import logging
 import ftrack_api
+import time
 
 class FtrackBase(object):
     '''
@@ -152,6 +153,34 @@ class FtrackBaseProcessor(FtrackBase):
             '{ftrack_component}': self._create_component_fragment
         }
 
+        self.__component = None
+
+    def updateItem(self, item, localtime):
+        self.logger.info('UPDATING WITH: %s' % self.__component)
+
+
+        # TODO: This should be going in self.updateItem(self, item)? 
+        # localtime = time.localtime(time.time())
+        # timestr = self.timeStampString(localtime)
+
+        # ftag = hiero.core.Tag('AssetVersion {0}'.format(timestamp))
+        # ftag.setIcon(':ftrack/image/integration/version')
+
+        # meta = ftag.metadata()
+        # meta.setValue('type', 'ftrack')
+        # meta.setValue('ftrack.type', 'version')
+        # meta.setValue('ftrack.id', str(component['version']['id']))
+        # meta.setValue('tag.value', str(component['version']['version']))
+
+        # self.logger.info('Adding Tag: {0} to {1}'.format(ftag, item))
+        # item.addTag(ftag)
+
+    def timeStampString(self, localtime):
+        """timeStampString(localtime)
+        Convert a tuple or struct_time representing a time as returned by gmtime() or localtime() to a string formated YEAR/MONTH/DAY TIME.
+        """
+        return time.strftime("%Y/%m/%d %X", localtime)
+
     def _makePath(self):
         self.create_project_structure(self)
 
@@ -286,6 +315,7 @@ class FtrackBaseProcessor(FtrackBase):
         self.logger.warning('Skpping : {}'.format(name))
         
     def create_project_structure(self, task):
+        item = task._item
         file_name = task._preset.properties()['ftrack']['component_pattern']
         self.logger.info('BUilding structure for : {}'.format(task))
         preset_name = task._preset.name()
@@ -312,8 +342,8 @@ class FtrackBaseProcessor(FtrackBase):
         task._exportPath = ftrack_path
         task._exportRoot = self.ftrack_location.accessor.prefix
         task._export_template = os.path.join(task._shotPath, file_name)
-
-        return parent
+        self.logger.debug('Setting current component as: {0}'.format(parent))
+        self.__component = parent
 
 
 class FtrackBaseProcessorUI(FtrackBase):
