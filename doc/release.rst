@@ -5,6 +5,24 @@
 Releases
 ########
 
+.. release:: 0.7.5
+    :date: 2017-02-02
+
+    .. change:: changed
+
+        `ftrack connect 1.1.3 <http://ftrack-connect.rtd.ftrack.com/en/1.1.3/>`_
+
+        `ftrack connect maya 1.1.2 <http://ftrack-connect-maya.rtd.ftrack.com/en/1.1.2/>`_
+
+    .. change:: fixed
+
+        The `ftrack_api` id structure was not inluced in the python environment.
+
+    .. change:: new
+
+        Include `ftrack-action-handler <http://ftrack-action-handler.rtd.ftrack.com/en/stable/>`_
+        in the connect python environment.
+
 .. release:: 0.7.4
     :date: 2017-01-09
 

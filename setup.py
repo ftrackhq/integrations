@@ -40,19 +40,19 @@ with open(os.path.join(
 
 external_connect_plugins = []
 for plugin in (
-    'ftrack-connect-maya-publish-0.6.0.zip',
-    'ftrack-connect-nuke-publish-0.6.0.zip'
+    'ftrack-connect-maya-publish-0.6.1.zip',
+    'ftrack-connect-nuke-publish-0.6.1.zip'
 ):
     external_connect_plugins.append(
         (plugin, plugin.replace('.zip', ''))
     )
 
 
-connect_install_require = 'ftrack-connect == 1.1.1'
+connect_install_require = 'ftrack-connect == 1.1.3'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/1.1.1.zip'
-    '#egg=ftrack-connect-1.1.1'
+    'https://bitbucket.org/ftrack/ftrack-connect/get/1.1.3.zip'
+    '#egg=ftrack-connect-1.1.3'
 )
 
 
@@ -93,8 +93,8 @@ connect_nuke_dependency_install_require = (
 )
 
 connect_maya_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-maya/get/1.1.1.zip'
-    '#egg=ftrack-connect-maya-1.1.1'
+    'https://bitbucket.org/ftrack/ftrack-connect-maya/get/1.1.2.zip'
+    '#egg=ftrack-connect-maya-1.1.2'
 )
 connect_maya_dependency_install_require = (
     'ftrack-connect-maya'
@@ -157,7 +157,8 @@ configuration = dict(
         # and building it fails.
         'cryptography == 1.8.2',
         'pyopenssl<= 17.0.0,<17.0.1',
-        'requests >= 2, <3'
+        'requests >= 2, <3',
+        'ftrack_action_handler < 1.0.0'
     ],
     install_requires=[
         ftrack_python_legacy_api_install_require,
@@ -552,10 +553,13 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_nuke.plugin',
         'ftrack_connect_nuke.logging',
         'ftrack_api.resource_identifier_transformer.base',
+        'ftrack_api.structure.id',
         'ftrack_connect_legacy_plugins',
         'ftrack_connect_hieroplayer',
         'ftrack_connect_rv',
         'ftrack_connect_cinema_4d',
+        'ftrack_action_handler',
+        'ftrack_action_handler.action',
         'lucidity',
         'ftrack_connect_maya',
         'ftrack_location_compatibility',
