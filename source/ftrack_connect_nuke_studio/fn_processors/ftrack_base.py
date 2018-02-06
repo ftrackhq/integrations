@@ -155,6 +155,28 @@ class FtrackBaseProcessor(FtrackBase):
 
         self._component = None
 
+
+    def finishTask(self):
+        version = self._component['version']
+
+        final_path = self._exportPath
+        # HELL YEAH , as nasty as it gets for now.
+
+        if '#' in self._exportPath:
+            start, end = frames
+            final_path = self._exportPath.replace('####', '%4d')
+            final_path = '{0} [{1}-{2}]'.format(final_path, start, end)
+
+        self.logger.info('Final Path:{0}'.format(final_path))
+
+        new_component = version.create_component(
+            final_path,
+            data={'name': self._component['name']},
+            location = 'auto'    
+        )        
+
+        self.session.delete(self.__component)
+
     def updateItem(self, originalItem, localtime):
         self.logger.info('Updating {0}'.format(originalItem))
 

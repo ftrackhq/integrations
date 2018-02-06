@@ -264,10 +264,8 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackBaseProcessor):
         return False
 
     def finishTask(self):
-        super(FtrackNukeShotExporter, self).finishTask()
-        self.logger.info('Finishing Task:{0}'.format(self))
-        self.logger.info('component: {0}'.format(self._component))
-        
+        NukeShotExporter.finishTask(self) 
+        FtrackBaseProcessor.finishTask(self)
 
     def _makePath(self):
         FtrackBaseProcessor._makePath(self)
