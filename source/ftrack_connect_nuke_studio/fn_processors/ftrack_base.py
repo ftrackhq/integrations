@@ -153,27 +153,10 @@ class FtrackBaseProcessor(FtrackBase):
             '{ftrack_component}': self._create_component_fragment
         }
 
-        self.__component = None
+        self._component = None
 
-    def updateItem(self, item, localtime):
-        self.logger.info('UPDATING WITH: %s' % self.__component)
-
-
-        # TODO: This should be going in self.updateItem(self, item)? 
-        # localtime = time.localtime(time.time())
-        # timestr = self.timeStampString(localtime)
-
-        # ftag = hiero.core.Tag('AssetVersion {0}'.format(timestamp))
-        # ftag.setIcon(':ftrack/image/integration/version')
-
-        # meta = ftag.metadata()
-        # meta.setValue('type', 'ftrack')
-        # meta.setValue('ftrack.type', 'version')
-        # meta.setValue('ftrack.id', str(component['version']['id']))
-        # meta.setValue('tag.value', str(component['version']['version']))
-
-        # self.logger.info('Adding Tag: {0} to {1}'.format(ftag, item))
-        # item.addTag(ftag)
+    def updateItem(self, originalItem, localtime):
+        self.logger.info('Updating {0}'.format(originalItem))
 
     def timeStampString(self, localtime):
         """timeStampString(localtime)
@@ -182,7 +165,9 @@ class FtrackBaseProcessor(FtrackBase):
         return time.strftime("%Y/%m/%d %X", localtime)
 
     def _makePath(self):
+        # do not create any folder!
         self.create_project_structure(self)
+
 
     @property
     def schema(self):
@@ -342,8 +327,24 @@ class FtrackBaseProcessor(FtrackBase):
         task._exportPath = ftrack_path
         task._exportRoot = self.ftrack_location.accessor.prefix
         task._export_template = os.path.join(task._shotPath, file_name)
-        self.logger.debug('Setting current component as: {0}'.format(parent))
-        self.__component = parent
+        self._component = parent
+
+    # def startProcessing(self):
+        # self.logger.info('Setting current component as: {0}'.format(parent))
+
+        # ftag = hiero.core.Tag('AssetVersion')
+        # ftag.setIcon(':ftrack/image/integration/version')
+
+        # meta = ftag.metadata()
+        # meta.setValue('type', 'ftrack')
+        # meta.setValue('ftrack.type', 'version')
+        # meta.setValue('ftrack.id', str(parent['version']['id']))
+        # meta.setValue('tag.value', str(parent['version']['version']))
+
+        # self.logger.info('Adding Tag: {0} to {1}'.format(ftag, item))
+        # item.addTag(ftag)
+
+        # self.__component = parent
 
 
 class FtrackBaseProcessorUI(FtrackBase):

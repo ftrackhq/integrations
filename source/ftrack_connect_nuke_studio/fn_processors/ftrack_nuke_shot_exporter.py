@@ -263,13 +263,11 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackBaseProcessor):
         # Nothing left to do, return False.
         return False
 
-    # def startTask(self):
-    #     self.logger.info('Starting Task')
-    #     return super(FtrackNukeShotExporter, self).startTask()
-    
-    # def finishTask(self):
-    #     self.logger.info('Finishing Task')
-    #     super(FtrackNukeShotExporter, self).finishTask()
+    def finishTask(self):
+        super(FtrackNukeShotExporter, self).finishTask()
+        self.logger.info('Finishing Task:{0}'.format(self))
+        self.logger.info('component: {0}'.format(self._component))
+        
 
     def _makePath(self):
         FtrackBaseProcessor._makePath(self)
