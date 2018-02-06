@@ -155,9 +155,12 @@ class FtrackBaseProcessor(FtrackBase):
 
         self._component = None
 
+    def startTask(self):
+        self.create_project_structure()
 
     def finishTask(self):
-        version = self._component['version']
+        component = self._component
+        version = component['version']
 
         final_path = self._exportPath
         # HELL YEAH , as nasty as it gets for now.
@@ -171,11 +174,11 @@ class FtrackBaseProcessor(FtrackBase):
 
         new_component = version.create_component(
             final_path,
-            data={'name': self._component['name']},
+            data={'name': component['name']},
             location = 'auto'    
         )        
 
-        self.session.delete(self.__component)
+        self.session.delete(component)
 
     def updateItem(self, originalItem, localtime):
         self.logger.info('Updating {0}'.format(originalItem))
@@ -188,7 +191,8 @@ class FtrackBaseProcessor(FtrackBase):
 
     def _makePath(self):
         # do not create any folder!
-        self.create_project_structure(self)
+        pass
+        
 
 
     @property
@@ -321,22 +325,21 @@ class FtrackBaseProcessor(FtrackBase):
     def _skip_fragment(self, name, parent):
         self.logger.warning('Skpping : {}'.format(name))
         
-    def create_project_structure(self, task):
-        item = task._item
-        file_name = task._preset.properties()['ftrack']['component_pattern']
-        self.logger.info('BUilding structure for : {}'.format(task))
-        preset_name = task._preset.name()
+    def create_project_structure(self):
+        item = self._item
+        file_name = self._preset.properties()['ftrack']['component_pattern']
+        self.logger.info('Building structure for : {}'.format(self))
+        preset_name = self._preset.name()
         self.logger.info(preset_name)
 
-        resolved_file_name = task.resolvePath(file_name)
-        path = task.resolvePath(task._shotPath)
-        export_path = task._shotPath
+        resolved_file_name = self.resolvePath(file_name)
+        path = self.resolvePath(self._shotPath)
+        export_path = self._shotPath
         parent = None # after the loop this will be containing the component object
-
 
         for template, token in zip(export_path.split(os.path.sep), path.split(os.path.sep)):
             fragment_fn = self.fn_mapping.get(template, self._skip_fragment)
-            parent = fragment_fn(token, parent, task)
+            parent = fragment_fn(token, parent, self)
 
         self.session.commit()
 
@@ -346,9 +349,9 @@ class FtrackBaseProcessor(FtrackBase):
 
         # assign result path back to the tasks, so it knows where to render stuff out.
 
-        task._exportPath = ftrack_path
-        task._exportRoot = self.ftrack_location.accessor.prefix
-        task._export_template = os.path.join(task._shotPath, file_name)
+        self._exportPath = ftrack_path
+        self._exportRoot = self.ftrack_location.accessor.prefix
+        self._export_template = os.path.join(self._shotPath, file_name)
         self._component = parent
 
     # def startProcessing(self):
