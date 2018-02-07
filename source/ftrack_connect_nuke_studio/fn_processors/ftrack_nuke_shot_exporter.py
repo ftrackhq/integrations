@@ -23,84 +23,83 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackBaseProcessor):
         NukeShotExporter.__init__(self, initDict)
         FtrackBaseProcessor.__init__(self, initDict)
 
-        self._nothingToDo = False
-        self._tag = None
-        self._tag_guid = None
+        # self._nothingToDo = False
+        # self._tag = None
+        # self._tag_guid = None
 
-        assert self.fn_mapping
+    # def updateItem (self, originalItem, localtime):
+    #     """updateItem - This is called by the processor prior to taskStart, crucially on the main thread.\n
+    #     This gives the task an opportunity to modify the original item on the main thread, rather than the clone."""
 
-    def updateItem (self, originalItem, localtime):
-        """updateItem - This is called by the processor prior to taskStart, crucially on the main thread.\n
-        This gives the task an opportunity to modify the original item on the main thread, rather than the clone."""
+    #     timestamp = self.timeStampString(localtime)
+    #     tag = hiero.core.Tag("Nuke Project File " + timestamp, "icons:Nuke.png")
 
-        timestamp = self.timeStampString(localtime)
-        tag = hiero.core.Tag("Nuke Project File " + timestamp, "icons:Nuke.png")
+    #     writePaths = []
 
-        writePaths = []
+    #     # Need to instantiate each of the selected write path tasks and resolve the path
+    #     for (itemPath, itemPreset) in self._exportTemplate.flatten():
+    #         for writePath in self._preset.properties()["writePaths"]:
+    #             if writePath == itemPath:
+    #                 # Generate a task on same items as this one but swap in the shot path that goes with this preset.
+    #                 taskData = hiero.core.TaskData(itemPreset, self._item, self._exportRoot, itemPath, self._version, self._exportTemplate,
+    #                                                 project=self._project, cutHandles=self._cutHandles, retime=self._retime, startFrame=self._startFrame, resolver=self._resolver, skipOffline=self._skipOffline)
+    #                 task = hiero.core.taskRegistry.createTaskFromPreset(itemPreset, taskData)
 
-        # Need to instantiate each of the selected write path tasks and resolve the path
-        for (itemPath, itemPreset) in self._exportTemplate.flatten():
-            for writePath in self._preset.properties()["writePaths"]:
-                if writePath == itemPath:
-                    # Generate a task on same items as this one but swap in the shot path that goes with this preset.
-                    taskData = hiero.core.TaskData(itemPreset, self._item, self._exportRoot, itemPath, self._version, self._exportTemplate,
-                                                    project=self._project, cutHandles=self._cutHandles, retime=self._retime, startFrame=self._startFrame, resolver=self._resolver, skipOffline=self._skipOffline)
-                    task = hiero.core.taskRegistry.createTaskFromPreset(itemPreset, taskData)
+    #                 resolvedPath = task.resolvedExportPath()
 
-                    resolvedPath = task.resolvedExportPath()
+    #                 # Ensure enough padding for output range
+    #                 output_start, output_end = task.outputRange(ignoreRetimes=False, clampToSource=False)
+    #                 count = len(str(max(output_start, output_end)))
+    #                 resolvedPath = hiero.core.util.ResizePadding(resolvedPath, count)
 
-                    # Ensure enough padding for output range
-                    output_start, output_end = task.outputRange(ignoreRetimes=False, clampToSource=False)
-                    count = len(str(max(output_start, output_end)))
-                    resolvedPath = hiero.core.util.ResizePadding(resolvedPath, count)
+    #                 writePaths.append(resolvedPath)
 
-                    writePaths.append(resolvedPath)
+    #     tag.metadata().setValue("tag.path", ";".join(writePaths))
+    #     # Right now don't add the time to the metadata
+    #     # We would rather store the integer time than the stringified time stamp
+    #     # tag.setValue("time", timestamp)
 
-        tag.metadata().setValue("tag.path", ";".join(writePaths))
-        # Right now don't add the time to the metadata
-        # We would rather store the integer time than the stringified time stamp
-        # tag.setValue("time", timestamp)
+    #     tag.metadata().setValue("tag.script", self.resolvedExportPath())
+    #     tag.metadata().setValue("tag.localtime", str(localtime))
 
-        tag.metadata().setValue("tag.script", self.resolvedExportPath())
-        tag.metadata().setValue("tag.localtime", str(localtime))
+    #     start, end = self.outputRange()
+    #     tag.metadata().setValue("tag.startframe", str(start))
+    #     tag.metadata().setValue("tag.duration", str(end-start+1))
 
-        start, end = self.outputRange()
-        tag.metadata().setValue("tag.startframe", str(start))
-        tag.metadata().setValue("tag.duration", str(end-start+1))
+    #     if isinstance(self._item, hiero.core.TrackItem):
+    #         tag.metadata().setValue("tag.sourceretime", str(self._item.playbackSpeed()))
 
-        if isinstance(self._item, hiero.core.TrackItem):
-            tag.metadata().setValue("tag.sourceretime", str(self._item.playbackSpeed()))
+    #     frameoffset = self._startFrame if self._startFrame else 0
 
-        frameoffset = self._startFrame if self._startFrame else 0
+    #     # Only if write paths have been set
+    #     if len(writePaths) > 0:
+    #         # Video file formats are not offset, so set frameoffset to zero
+    #         if hiero.core.isVideoFileExtension(os.path.splitext(writePaths[0])[1].lower()):
+    #             frameoffset = 0
 
-        # Only if write paths have been set
-        if len(writePaths) > 0:
-            # Video file formats are not offset, so set frameoffset to zero
-            if hiero.core.isVideoFileExtension(os.path.splitext(writePaths[0])[1].lower()):
-                frameoffset = 0
+    #     tag.metadata().setValue("tag.frameoffset", str(frameoffset))
 
-        tag.metadata().setValue("tag.frameoffset", str(frameoffset))
+    #     if self._cutHandles:
+    #         tag.metadata().setValue("tag.handles", str(self._cutHandles))
 
-        if self._cutHandles:
-            tag.metadata().setValue("tag.handles", str(self._cutHandles))
+    #     originalItem.addTag(tag)
 
-        originalItem.addTag(tag)
+    #     # if self._preset.properties()["useAssets"]:
+    #     #     # Allow listeners to update the item too
+    #     #     manager = FnAssetAPI.Events.getEventManager()
+    #     #     manager.blockingEvent(True, 'hieroToNukeScriptUpdateTrackItem', self._item, tag)
 
-        # if self._preset.properties()["useAssets"]:
-        #     # Allow listeners to update the item too
-        #     manager = FnAssetAPI.Events.getEventManager()
-        #     manager.blockingEvent(True, 'hieroToNukeScriptUpdateTrackItem', self._item, tag)
+    #     # The guid of the tag attached to the trackItem is different from the tag instance we created
+    #     # Get the last tag in the list and store its guid
+    #     self._tag = originalItem.tags()[-1]
+    #     self._tag_guid = originalItem.tags()[-1].guid()
 
-        # The guid of the tag attached to the trackItem is different from the tag instance we created
-        # Get the last tag in the list and store its guid
-        self._tag = originalItem.tags()[-1]
-        self._tag_guid = originalItem.tags()[-1].guid()
-
-        FtrackBaseProcessor.updateItem(self, originalItem, localtime)
+    #     FtrackBaseProcessor.updateItem(self, originalItem, localtime)
 
     # def taskStep(self):
     #     # self.logger.info('TaskStep...')
-    #     super(FtrackNukeShotExporter, self).taskStep()
+    #     return super(FtrackNukeShotExporter, self).taskStep()
+
     #     if self._nothingToDo:
     #         return False
 
@@ -268,10 +267,11 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackBaseProcessor):
         FtrackBaseProcessor.startTask(self)
 
     def finishTask(self):
-        NukeShotExporter.finishTask(self) 
+        # NukeShotExporter.finishTask(self) 
         FtrackBaseProcessor.finishTask(self)
 
     def _makePath(self):
+        # disable making file paths
         FtrackBaseProcessor._makePath(self)
 
 
@@ -321,7 +321,7 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackBasePreset):
         # add placeholders for default ftrack defaults
         self.properties()['ftrack']['task_type'] = 'Compositing'
         self.properties()['ftrack']['asset_type_code'] = 'script'
-        self.properties()['ftrack']['component_pattern'] = '{shot}.{ext}'
+        self.properties()['ftrack']['component_pattern'] = '.nk'
         self.properties()['ftrack']['task_status'] = 'Not Started'
         self.properties()['ftrack']['shot_status'] = 'In progress'
         self.properties()['ftrack']['asset_version_status'] = 'WIP'
@@ -340,116 +340,116 @@ class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackBase):
         self._taskType = FtrackNukeShotExporter
         self._nodeSelectionWidget = None
 
-    def populateUI(self, widget, exportTemplate):
+    # def populateUI(self, widget, exportTemplate):
 
-        if not exportTemplate:
-            return
+    #     if not exportTemplate:
+    #         return
 
-        self._exportTemplate = exportTemplate
+    #     self._exportTemplate = exportTemplate
 
-        layout = widget.layout()
-        self.createNodeSelectionWidget(layout, exportTemplate)
+    #     layout = widget.layout()
+    #     self.createNodeSelectionWidget(layout, exportTemplate)
 
-        properties = self._preset.properties()
+    #     properties = self._preset.properties()
 
-        layout = QtWidgets.QFormLayout()
+    #     layout = QtWidgets.QFormLayout()
 
-        self._readList = QtWidgets.QListView()
-        self._writeList = QtWidgets.QListView()
+    #     self._readList = QtWidgets.QListView()
+    #     self._writeList = QtWidgets.QListView()
 
-        self._readList.setMinimumHeight(50)
-        self._writeList.setMinimumHeight(50)
-        self._readList.resize(200,50)
-        self._writeList.resize(200,50)
-
-
-        self._readModel = QtGui.QStandardItemModel()
-        self._writeModel = QtGui.QStandardItemModel()
-
-        # Default to the empty item unless the preset has a value set.
-        for model, presetValue in ((self._readModel, properties["readPaths"]), (self._writeModel, properties["writePaths"])):
-            for path, preset in exportTemplate.flatten():
-
-                if model is self._writeModel:
-                    if not hasattr(preset._parentType, 'nukeWriteNode'):
-                        continue
-
-                item = QtGui.QStandardItem(path)
-                item.setFlags(QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
-
-                item.setData(QtCore.Qt.Unchecked, QtCore.Qt.CheckStateRole)
-                if path in presetValue:
-                    item.setData(QtCore.Qt.Checked, QtCore.Qt.CheckStateRole)
-
-                model.appendRow(item)
-
-        self._readList.setModel(self._readModel)
-        self._writeList.setModel(self._writeModel)
-
-        readNodeListToolTip = """Select multiple entries within the shot template to be used as inputs for the read nodes (i.e. symlink, transcode.. etc).\n No selection will mean that read nodes are created in the nuke script pointing directly at the source media.\n"""
-        writeNodeListToolTip = """Add one or more "Nuke Write Node" tasks to your export structure to define the path and codec settings for the nuke script.\nIf no write paths are selected, no write node will be added to the nuke script."""
-
-        self._readList.setToolTip(readNodeListToolTip)
-        self._writeList.setToolTip(writeNodeListToolTip)
-        self._readModel.dataChanged.connect(self.readPresetChanged)
-
-        publishScriptTip = """When enabled, if there is a known shot in the asset that matches the shot in Hiero, the Nuke script will be published there."""
-        key, value, label = "publishScript", True, "{publish} Script"
-        uiProperty = UIPropertyFactory.create(type(value), key=key, value=value, dictionary=self._preset._properties, label=label, tooltip=publishScriptTip)
-        self._uiProperties.append(uiProperty)
-        layout.addRow(uiProperty._label + ":", uiProperty)
-
-        ## @todo Think of a better name
-        useAssetsTip = """If enabled, any Clips that point to managed Assets will reference the Asset, rather than their files."""
-        key, value, label = "useAssets", True, "Use Assets"
-        uiProperty = UIPropertyFactory.create(type(value), key=key, value=value, dictionary=self._preset._properties, label=label, tooltip=useAssetsTip)
-        self._uiProperties.append(uiProperty)
-        layout.addRow(uiProperty._label + ":", uiProperty)
-
-        layout.addRow("Read Nodes:", self._readList)
-        self._writeModel.dataChanged.connect(self.writePresetChanged)
-        layout.addRow("Write Nodes:", self._writeList)
+    #     self._readList.setMinimumHeight(50)
+    #     self._writeList.setMinimumHeight(50)
+    #     self._readList.resize(200,50)
+    #     self._writeList.resize(200,50)
 
 
-        retimeToolTip = """Sets the retime method used if retimes are enabled.\n-Motion - Motion Estimation.\n-Blend - Frame Blending.\n-Frame - Nearest Frame"""
-        key, value = "method", ("None", "Motion", "Frame", "Blend")
-        uiProperty = UIPropertyFactory.create(type(value), key=key, value=value, dictionary=self._preset._properties, label="Retime Method", tooltip=retimeToolTip)
-        self._uiProperties.append(uiProperty)
-        layout.addRow(uiProperty._label + ":", uiProperty)
+    #     self._readModel = QtGui.QStandardItemModel()
+    #     self._writeModel = QtGui.QStandardItemModel()
+
+    #     # Default to the empty item unless the preset has a value set.
+    #     for model, presetValue in ((self._readModel, properties["readPaths"]), (self._writeModel, properties["writePaths"])):
+    #         for path, preset in exportTemplate.flatten():
+
+    #             if model is self._writeModel:
+    #                 if not hasattr(preset._parentType, 'nukeWriteNode'):
+    #                     continue
+
+    #             item = QtGui.QStandardItem(path)
+    #             item.setFlags(QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
+
+    #             item.setData(QtCore.Qt.Unchecked, QtCore.Qt.CheckStateRole)
+    #             if path in presetValue:
+    #                 item.setData(QtCore.Qt.Checked, QtCore.Qt.CheckStateRole)
+
+    #             model.appendRow(item)
+
+    #     self._readList.setModel(self._readModel)
+    #     self._writeList.setModel(self._writeModel)
+
+    #     readNodeListToolTip = """Select multiple entries within the shot template to be used as inputs for the read nodes (i.e. symlink, transcode.. etc).\n No selection will mean that read nodes are created in the nuke script pointing directly at the source media.\n"""
+    #     writeNodeListToolTip = """Add one or more "Nuke Write Node" tasks to your export structure to define the path and codec settings for the nuke script.\nIf no write paths are selected, no write node will be added to the nuke script."""
+
+    #     self._readList.setToolTip(readNodeListToolTip)
+    #     self._writeList.setToolTip(writeNodeListToolTip)
+    #     self._readModel.dataChanged.connect(self.readPresetChanged)
+
+    #     publishScriptTip = """When enabled, if there is a known shot in the asset that matches the shot in Hiero, the Nuke script will be published there."""
+    #     key, value, label = "publishScript", True, "{publish} Script"
+    #     uiProperty = UIPropertyFactory.create(type(value), key=key, value=value, dictionary=self._preset._properties, label=label, tooltip=publishScriptTip)
+    #     self._uiProperties.append(uiProperty)
+    #     layout.addRow(uiProperty._label + ":", uiProperty)
+
+    #     ## @todo Think of a better name
+    #     useAssetsTip = """If enabled, any Clips that point to managed Assets will reference the Asset, rather than their files."""
+    #     key, value, label = "useAssets", True, "Use Assets"
+    #     uiProperty = UIPropertyFactory.create(type(value), key=key, value=value, dictionary=self._preset._properties, label=label, tooltip=useAssetsTip)
+    #     self._uiProperties.append(uiProperty)
+    #     layout.addRow(uiProperty._label + ":", uiProperty)
+
+    #     layout.addRow("Read Nodes:", self._readList)
+    #     self._writeModel.dataChanged.connect(self.writePresetChanged)
+    #     layout.addRow("Write Nodes:", self._writeList)
 
 
-        collateTracksToolTip = """Enable this to include other shots which overlap the sequence time of each shot within the script. Cannot be enabled when Read Node overrides are set."""
+    #     retimeToolTip = """Sets the retime method used if retimes are enabled.\n-Motion - Motion Estimation.\n-Blend - Frame Blending.\n-Frame - Nearest Frame"""
+    #     key, value = "method", ("None", "Motion", "Frame", "Blend")
+    #     uiProperty = UIPropertyFactory.create(type(value), key=key, value=value, dictionary=self._preset._properties, label="Retime Method", tooltip=retimeToolTip)
+    #     self._uiProperties.append(uiProperty)
+    #     layout.addRow(uiProperty._label + ":", uiProperty)
 
-        key, value, label = "collateTracks", False, "Collate Shot Timings"
-        uiProperty = UIPropertyFactory.create(type(value), key=key, value=value, dictionary=self._preset.properties(), label=label+":", tooltip=collateTracksToolTip)
-        layout.addRow(label+":", uiProperty)
-        self._uiProperties.append(uiProperty)
-        self._collateTimeProperty = uiProperty
 
-        collateShotNameToolTip = """Enable this to include other shots which have the same name in the Nuke script. Cannot be enabled when Read Node overrides are set."""
-        key, value, label = "collateShotNames", False, "Collate Shot Name"
-        uiProperty = UIPropertyFactory.create(type(value), key=key, value=value, dictionary=self._preset.properties(), label=label+":", tooltip=collateShotNameToolTip)
-        layout.addRow(label+":", uiProperty)
-        self._collateNameProperty = uiProperty
-        self._uiProperties.append(uiProperty)
-        self.readPresetChanged(None, None)
+    #     collateTracksToolTip = """Enable this to include other shots which overlap the sequence time of each shot within the script. Cannot be enabled when Read Node overrides are set."""
 
-        additionalNodesToolTip = """When enabled, allows custom Nuke nodes to be added into Nuke Scripts.\n Click Edit to add nodes on a per Shot, Track or Sequence basis.\n Additional Nodes can also optionally be filtered by Tag."""
+    #     key, value, label = "collateTracks", False, "Collate Shot Timings"
+    #     uiProperty = UIPropertyFactory.create(type(value), key=key, value=value, dictionary=self._preset.properties(), label=label+":", tooltip=collateTracksToolTip)
+    #     layout.addRow(label+":", uiProperty)
+    #     self._uiProperties.append(uiProperty)
+    #     self._collateTimeProperty = uiProperty
 
-        additionalNodesLayout = QtWidgets.QHBoxLayout()
-        additionalNodesCheckbox = QtWidgets.QCheckBox()
-        additionalNodesCheckbox.setToolTip(additionalNodesToolTip)
-        additionalNodesCheckbox.stateChanged.connect(self._additionalNodesEnableClicked)
-        if self._preset.properties()["additionalNodesEnabled"]:
-            additionalNodesCheckbox.setCheckState(QtCore.Qt.Checked)
-        additionalNodesButton = QtWidgets.QPushButton("Edit")
-        additionalNodesButton.setToolTip(additionalNodesToolTip)
-        additionalNodesButton.clicked.connect(self._additionalNodesEditClicked)
-        additionalNodesLayout.addWidget(additionalNodesCheckbox)
-        additionalNodesLayout.addWidget(additionalNodesButton)
-        layout.addRow("Additional Nodes:", additionalNodesLayout)
+    #     collateShotNameToolTip = """Enable this to include other shots which have the same name in the Nuke script. Cannot be enabled when Read Node overrides are set."""
+    #     key, value, label = "collateShotNames", False, "Collate Shot Name"
+    #     uiProperty = UIPropertyFactory.create(type(value), key=key, value=value, dictionary=self._preset.properties(), label=label+":", tooltip=collateShotNameToolTip)
+    #     layout.addRow(label+":", uiProperty)
+    #     self._collateNameProperty = uiProperty
+    #     self._uiProperties.append(uiProperty)
+    #     self.readPresetChanged(None, None)
 
-        widget.setLayout(layout)
+    #     additionalNodesToolTip = """When enabled, allows custom Nuke nodes to be added into Nuke Scripts.\n Click Edit to add nodes on a per Shot, Track or Sequence basis.\n Additional Nodes can also optionally be filtered by Tag."""
+
+    #     additionalNodesLayout = QtWidgets.QHBoxLayout()
+    #     additionalNodesCheckbox = QtWidgets.QCheckBox()
+    #     additionalNodesCheckbox.setToolTip(additionalNodesToolTip)
+    #     additionalNodesCheckbox.stateChanged.connect(self._additionalNodesEnableClicked)
+    #     if self._preset.properties()["additionalNodesEnabled"]:
+    #         additionalNodesCheckbox.setCheckState(QtCore.Qt.Checked)
+    #     additionalNodesButton = QtWidgets.QPushButton("Edit")
+    #     additionalNodesButton.setToolTip(additionalNodesToolTip)
+    #     additionalNodesButton.clicked.connect(self._additionalNodesEditClicked)
+    #     additionalNodesLayout.addWidget(additionalNodesCheckbox)
+    #     additionalNodesLayout.addWidget(additionalNodesButton)
+    #     layout.addRow("Additional Nodes:", additionalNodesLayout)
+
+    #     widget.setLayout(layout)
 
 
 hiero.core.taskRegistry.registerTask(FtrackNukeShotExporterPreset, FtrackNukeShotExporter)

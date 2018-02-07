@@ -322,7 +322,7 @@ class FtrackBaseProcessor(FtrackBase):
 
         return component
 
-    def _skip_fragment(self, name, parent):
+    def _skip_fragment(self, name, parent, task):
         self.logger.warning('Skpping : {}'.format(name))
         
     def create_project_structure(self):
@@ -342,17 +342,19 @@ class FtrackBaseProcessor(FtrackBase):
             parent = fragment_fn(token, parent, self)
 
         self.session.commit()
+        self._component = parent
 
-        # extract ftrack path from structure and accessors
-        ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent)
-        ftrack_path = os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path, resolved_file_name)
+        # # extract ftrack path from structure and accessors
+        ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent) + file_name
+        ftrack_path = os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path)
+        self.logger.info('Ftrack Path: {0}'.format(ftrack_path))
 
-        # assign result path back to the tasks, so it knows where to render stuff out.
+        # # # assign result path back to the tasks, so it knows where to render stuff out.
 
         self._exportPath = ftrack_path
         self._exportRoot = self.ftrack_location.accessor.prefix
         self._export_template = os.path.join(self._shotPath, file_name)
-        self._component = parent
+
 
     # def startProcessing(self):
         # self.logger.info('Setting current component as: {0}'.format(parent))
@@ -368,8 +370,6 @@ class FtrackBaseProcessor(FtrackBase):
 
         # self.logger.info('Adding Tag: {0} to {1}'.format(ftag, item))
         # item.addTag(ftag)
-
-        # self.__component = parent
 
 
 class FtrackBaseProcessorUI(FtrackBase):
