@@ -269,7 +269,7 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackBaseProcessor):
 
     def finishTask(self):
         self.logger.info('----------- Finish Task -----------')
-        # NukeShotExporter.finishTask(self) 
+        NukeShotExporter.finishTask(self) 
         FtrackBaseProcessor.finishTask(self)
 
     def _makePath(self):

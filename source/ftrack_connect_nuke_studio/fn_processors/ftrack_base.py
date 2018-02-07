@@ -160,25 +160,29 @@ class FtrackBaseProcessor(FtrackBase):
 
     def finishTask(self):
         component = self._component
-        self.logger.info('COMPONENT:{0}'.format(component))
         version = component['version']
 
         final_path = self._exportPath
-        # HELL YEAH , as nasty as it gets for now.
-
+        
         if '#' in self._exportPath:
             start, end = frames
             final_path = self._exportPath.replace('####', '%4d')
             final_path = '{0} [{1}-{2}]'.format(final_path, start, end)
 
-        self.logger.info('Final Path:{0}'.format(final_path))
+        self.session.create(
+            'ComponentLocation', {
+                'location_id': self.ftrack_location['id'], 
+                'component_id': component['id'], 
+                'resource_identifier': final_path
+                }
+        )
 
-        new_component = version.create_component(
-            final_path,
-            data={'name': component['name']},
-            location = 'auto'    
-        )        
-
+        # new_component = self.session.create_component(
+        #     final_path,
+        #     data={'name': component['name']},
+        #     location = 'auto'    
+        # )        
+        self.session.commit()
         self.session.delete(component)
 
     # def updateItem(self, originalItem, localtime):
