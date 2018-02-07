@@ -261,12 +261,18 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackBaseProcessor):
     #             hiero.core.log.error( "Script Post Processor: An error has occurred while preparing script:\n%s", scriptFilename )
     #     # Nothing left to do, return False.
     #     return False
+    
+    def startProcessing(self,  exportItems, preview=False):
+        self.logger.info('----------- Start Processing -----------')
+        NukeShotExporter.startProcessing(self, exportItems, preview)
 
     def startTask(self):
-        NukeShotExporter.startTask(self) 
+        self.logger.info('----------- Start Task -----------')
         FtrackBaseProcessor.startTask(self)
+        NukeShotExporter.startTask(self)
 
     def finishTask(self):
+        self.logger.info('----------- Finish Task -----------')
         # NukeShotExporter.finishTask(self) 
         FtrackBaseProcessor.finishTask(self)
 

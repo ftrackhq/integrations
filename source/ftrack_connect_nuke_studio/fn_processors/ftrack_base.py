@@ -14,7 +14,7 @@ class FtrackBase(object):
         )
         self.logger.setLevel(logging.DEBUG)
         self.session = ftrack_api.Session()
-        self.logger.info('Initializing :{0}'.format(self.__class__.__name__))
+        # self.logger.info('Initializing :{0}'.format(self.__class__.__name__))
 
     @property
     def hiero_version_touple(self):
@@ -27,7 +27,7 @@ class FtrackBase(object):
     @property
     def ftrack_location(self):
         result = self.session.pick_location()    
-        self.logger.info('location: %s' % result)
+        # self.logger.info('location: %s' % result)
         return result
 
     @property
@@ -160,6 +160,7 @@ class FtrackBaseProcessor(FtrackBase):
 
     def finishTask(self):
         component = self._component
+        self.logger.info('COMPONENT:{0}'.format(component))
         version = component['version']
 
         final_path = self._exportPath
@@ -180,8 +181,8 @@ class FtrackBaseProcessor(FtrackBase):
 
         self.session.delete(component)
 
-    def updateItem(self, originalItem, localtime):
-        self.logger.info('Updating {0}'.format(originalItem))
+    # def updateItem(self, originalItem, localtime):
+    #     self.logger.info('Updating {0}'.format(originalItem))
 
     def timeStampString(self, localtime):
         """timeStampString(localtime)
@@ -201,7 +202,7 @@ class FtrackBaseProcessor(FtrackBase):
         project_schema = self.session.query(
             'ProjectSchema where name is "{0}"'.format(project_schema_name)
         ).one()
-        self.logger.info('project_schema: %s' % project_schema)
+        # self.logger.info('project_schema: %s' % project_schema)
         return project_schema
 
     @property
@@ -209,7 +210,7 @@ class FtrackBaseProcessor(FtrackBase):
         task_type_name = self.ftrack_properties['task_type']
         task_types =  self.schema.get_types('Task')
         task_type = [t for t in task_types if t['name'] == task_type_name][0]
-        self.logger.info('task_type: %s' % task_type)
+        # self.logger.info('task_type: %s' % task_type)
         return task_type
 
     @property
@@ -217,7 +218,7 @@ class FtrackBaseProcessor(FtrackBase):
         task_status_name = self.ftrack_properties['task_status']
         task_statuses =  self.schema.get_statuses('Task', self.task_type['id'])
         task_status = [t for t in task_statuses if t['name'] == task_status_name][0]
-        self.logger.info('task_status: %s' % task_status)
+        # self.logger.info('task_status: %s' % task_status)
         return task_status
 
     @property
@@ -225,7 +226,7 @@ class FtrackBaseProcessor(FtrackBase):
         shot_status_name = self.ftrack_properties['shot_status']
         shot_statuses =  self.schema.get_statuses('Shot')
         shot_status = [t for t in shot_statuses if t['name'] == shot_status_name][0]
-        self.logger.info('shot_status: %s' % shot_status)
+        # self.logger.info('shot_status: %s' % shot_status)
         return shot_status
 
     @property
@@ -233,7 +234,7 @@ class FtrackBaseProcessor(FtrackBase):
         asset_status_name = self.ftrack_properties['asset_version_status']
         asset_statuses =  self.schema.get_statuses('AssetVersion')
         asset_status = [t for t in asset_statuses if t['name'] == asset_status_name][0]
-        self.logger.info('asset_version_status: %s' % asset_status)
+        # self.logger.info('asset_version_status: %s' % asset_status)
         return asset_status
 
     def asset_type_per_task(self, task):
@@ -328,7 +329,7 @@ class FtrackBaseProcessor(FtrackBase):
     def create_project_structure(self):
         item = self._item
         file_name = self._preset.properties()['ftrack']['component_pattern']
-        self.logger.info('Building structure for : {}'.format(self))
+        # self.logger.info('Building structure for : {}'.format(self))
         preset_name = self._preset.name()
         self.logger.info(preset_name)
 
@@ -347,18 +348,14 @@ class FtrackBaseProcessor(FtrackBase):
         # # extract ftrack path from structure and accessors
         ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent) + file_name
         ftrack_path = os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path)
-        self.logger.info('Ftrack Path: {0}'.format(ftrack_path))
+        # self.logger.info('Ftrack Path: {0}'.format(ftrack_path))
 
-        # # # assign result path back to the tasks, so it knows where to render stuff out.
-
+        # # # assign result path back to the tasks, so it knows where to render stuff out
         self._exportPath = ftrack_path
-        self._exportRoot = self.ftrack_location.accessor.prefix
-        self._export_template = os.path.join(self._shotPath, file_name)
+        # self._exportRoot = self.ftrack_location.accessor.prefix
+        # self._export_template = ftrack_shot_path
 
-
-    # def startProcessing(self):
-        # self.logger.info('Setting current component as: {0}'.format(parent))
-
+        # self.logger.info('TASK: {0}'.format(vars(self)))
         # ftag = hiero.core.Tag('AssetVersion')
         # ftag.setIcon(':ftrack/image/integration/version')
 
@@ -368,8 +365,9 @@ class FtrackBaseProcessor(FtrackBase):
         # meta.setValue('ftrack.id', str(parent['version']['id']))
         # meta.setValue('tag.value', str(parent['version']['version']))
 
-        # self.logger.info('Adding Tag: {0} to {1}'.format(ftag, item))
-        # item.addTag(ftag)
+        # self.logger.info('Adding Tag: {0} to {1}'.format(ftag, self._item))
+        # self._item.addTag(ftag)
+
 
 
 class FtrackBaseProcessorUI(FtrackBase):
