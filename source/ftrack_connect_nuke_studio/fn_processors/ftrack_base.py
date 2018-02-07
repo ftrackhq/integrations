@@ -348,10 +348,10 @@ class FtrackBaseProcessor(FtrackBase):
         # # extract ftrack path from structure and accessors
         ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent) + file_name
         ftrack_path = os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path)
-        # self.logger.info('Ftrack Path: {0}'.format(ftrack_path))
-
-        # # # assign result path back to the tasks, so it knows where to render stuff out
         self._exportPath = ftrack_path
+
+        self.setDestinationDescription(ftrack_path)
+
         # self._exportRoot = self.ftrack_location.accessor.prefix
         # self._export_template = ftrack_shot_path
 
