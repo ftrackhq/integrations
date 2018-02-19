@@ -56,7 +56,7 @@ class LaunchAction(object):
             version['id'] for version in asset_version_lists['items'] if version
         ]
 
-        return ','.join(result)
+        return result
 
     def _get_version_from_review(self, entity_id):
         '''Return comma separated list of versions from ReviewSession'''
@@ -70,7 +70,7 @@ class LaunchAction(object):
             version_object['version_id'] for version_object in review_session['review_session_objects'] if version_object
         ]
 
-        return ','.join(result)
+        return result
 
     def register(self):
         '''Override register to filter discover actions on logged in user.'''
@@ -161,7 +161,9 @@ class LaunchAction(object):
 
     def open_url(self, asset_version_list):
         ''' Open cinesync url with given *asset_version_list*'''
-
+        asset_version_list = [
+            asset_version for asset_version_sublist in asset_version_list for asset_version in asset_version_sublist
+        ]
         asset_version_list_string = ','.join(asset_version_list)
         url = 'cinesync://ftrack/addVersion?assetVersionList={0}'.format(
             asset_version_list_string
