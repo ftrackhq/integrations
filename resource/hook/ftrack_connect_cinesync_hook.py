@@ -3,9 +3,7 @@
 
 import subprocess
 import os
-import getpass
 import sys
-import pprint
 import logging
 import platform
 
