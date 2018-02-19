@@ -2,10 +2,8 @@
 # :copyright: Copyright (c) 2018 ftrack
 
 import subprocess
-import os
 import sys
 import logging
-import platform
 
 import ftrack_api
 import ftrack_connect.application
@@ -169,18 +167,13 @@ class LaunchAction(object):
             asset_version_list_string
         )
 
-        try:
-            system = platform.system()
-        except Exception:
-            system = os.uname()[0]
-
-        if system == 'Darwin':
+        if sys.platform == 'darwin':
             subprocess.call(['open', url])
 
-        elif system == 'Windows':
+        elif sys.platform == 'win32':
             subprocess.call(['cmd', '/c', 'start', '', '/b', url])
 
-        elif system == 'Linux':
+        elif sys.platform == 'linux2':
             subprocess.call(['xdg-open', url])
 
     def launch(self, event):
