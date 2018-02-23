@@ -3,18 +3,21 @@
 
 import subprocess
 import sys
+import re
 import logging
 
 import ftrack_api
 import ftrack_connect.application
+from ftrack_action_handler.action import BaseAction
 
 
-class LaunchAction(object):
+class CinesyncActionLauncher(BaseAction):
     '''ftrack connect legacy plugins discover and launch action.'''
 
     identifier = 'ftrack-connect-cinesync-application'
+    label = 'Cinesync Application Launcher'
 
-    def __init__(self, applicationStore, launcher, session):
+    def __init__(self, applicationStore, session):
         '''Initialise action with *applicationStore* and *launcher*.
 
         *applicationStore* should be an instance of
@@ -24,15 +27,10 @@ class LaunchAction(object):
         :class:`ftrack_connect.application.ApplicationLauncher`.
 
         '''
-        super(LaunchAction, self).__init__()
+        super(CinesyncActionLauncher, self).__init__(session=session)
 
-        self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
-        )
+        self.applicationStore=applicationStore
 
-        self.applicationStore = applicationStore
-        self.launcher = launcher
-        self.session = session
         self.allowed_entity_types_fn = {
             'list': self._get_version_from_lists,
             'assetversion': self._get_version,
@@ -46,7 +44,7 @@ class LaunchAction(object):
     def _get_version_from_lists(self, entity_id):
         '''Return comma separated list of versions from AssetVersionList'''
 
-        asset_version_lists = self.session.query(
+        asset_version_lists = self._session.query(
             'AssetVersionList where id is {0}'.format(entity_id)
         ).one()
         
@@ -59,7 +57,7 @@ class LaunchAction(object):
     def _get_version_from_review(self, entity_id):
         '''Return comma separated list of versions from ReviewSession'''
 
-        review_session = self.session.query(
+        review_session = self._session.query(
             'select review_session_objects.version_id'
             ' from ReviewSession where id is {0}'.format(entity_id)
         ).one()
@@ -70,23 +68,6 @@ class LaunchAction(object):
 
         return result
 
-    def register(self):
-        '''Override register to filter discover actions on logged in user.'''
-
-        self.session.event_hub.subscribe(
-            'topic=ftrack.action.discover and source.user.username={0}'.format(
-                self.session.api_user
-            ),
-            self.discover
-        )
-
-        self.session.event_hub.subscribe(
-            'topic=ftrack.action.launch and source.user.username={0} '
-            'and data.actionIdentifier={1}'.format(
-                self.session.api_user, self.identifier
-            ),
-            self.launch
-        )
 
     def is_valid_selection(self, selection):
         '''Check whether the given *selection* is valid'''
@@ -124,38 +105,44 @@ class LaunchAction(object):
         selection = data.get('selection', [])
         return selection
 
-    def discover(self, event):
+    def _discover(self, event):
+        # TODO: Override while waiting for new version to come out
+        args = self._translate_event(
+            self._session, event
+        )
+
+        accepts = self.discover(
+            self._session, *args
+        )
+
+        if accepts:
+            return {
+                'items': [{
+                    'label': self.label,
+                    'variant': self.variant,
+                    'description':self.description,
+                    'actionIdentifier': self.identifier,
+
+                }]
+            }
+
+    def discover(self, session, entities, event):
         '''Return discovered applications.'''
 
         selection = self.get_selection(event)
         if not selection:
-            return
+            return False
 
         if not self.is_valid_selection(selection):
-            return
+            return False
 
-        items = []
         applications = self.applicationStore.applications
-
         applications = sorted(
             applications, key=lambda application: application['label']
         )
 
-        for application in applications:
-            applicationIdentifier = application['identifier']
-            label = application['label']
-            items.append({
-                'actionIdentifier': self.identifier,
-                'label': label,
-                'variant': application.get('variant', None),
-                'description': application.get('description', None),
-                'icon': application.get('icon', 'default'),
-                'applicationIdentifier': applicationIdentifier
-            })
-
-        return {
-            'items': items
-        }
+        self.variant = applications[0].get('variant', None)
+        return True
 
     def open_url(self, asset_version_list):
         ''' Open cinesync url with given *asset_version_list*'''
@@ -167,6 +154,8 @@ class LaunchAction(object):
             asset_version_list_string
         )
 
+        self.logger.debug('Opening Cynesinc Url: {0}'.format(url))
+
         if sys.platform == 'darwin':
             subprocess.call(['open', url])
 
@@ -176,7 +165,7 @@ class LaunchAction(object):
         elif sys.platform == 'linux2':
             subprocess.call(['xdg-open', url])
 
-    def launch(self, event):
+    def launch(self, session, entities, event):
         '''Handle *event*.
 
         event['data'] should contain:
@@ -190,7 +179,7 @@ class LaunchAction(object):
         self.open_url(versions)
 
 
-class ApplicationStore(ftrack_connect.application.ApplicationStore):
+class CinesyncApplicationStore(ftrack_connect.application.ApplicationStore):
     '''Discover and store available applications on this host.'''
 
     def _discoverApplications(self):
@@ -218,7 +207,8 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 expression=prefix + ['cineSync.app'],
                 label='cineSync',
                 applicationIdentifier='cineSync',
-                icon='cineSync'
+                icon='cineSync',
+                versionExpression=r'(?P<version>.*)'
             ))
 
         elif sys.platform == 'win32':
@@ -230,6 +220,8 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 applicationIdentifier='cineSync',
                 icon='cineSync'
             ))
+
+        self.logger.debug('Application found: {0}'.format(applications))
         return applications
 
 
@@ -243,10 +235,7 @@ def register(session, **kw):
     if not isinstance(session, ftrack_api.session.Session):
         return
 
-    applicationStore = ApplicationStore()
-
-    launcher = ftrack_connect.application.ApplicationLauncher(applicationStore)
-
+    applicationStore = CinesyncApplicationStore()
     # Create action and register to respond to discover and launch events.
-    action = LaunchAction(applicationStore, launcher, session)
+    action = CinesyncActionLauncher(applicationStore, session)
     action.register()
