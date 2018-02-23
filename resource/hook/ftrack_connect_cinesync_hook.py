@@ -18,18 +18,15 @@ class CinesyncActionLauncher(BaseAction):
     label = 'Cinesync Application Launcher'
 
     def __init__(self, applicationStore, session):
-        '''Initialise action with *applicationStore* and *launcher*.
+        '''Initialise action with *applicationStore*.
 
         *applicationStore* should be an instance of
         :class:`ftrack_connect.application.ApplicationStore`.
 
-        *launcher* should be an instance of
-        :class:`ftrack_connect.application.ApplicationLauncher`.
-
         '''
         super(CinesyncActionLauncher, self).__init__(session=session)
 
-        self.applicationStore=applicationStore
+        self.applicationStore = applicationStore
 
         self.allowed_entity_types_fn = {
             'list': self._get_version_from_lists,
@@ -38,11 +35,11 @@ class CinesyncActionLauncher(BaseAction):
         }
 
     def _get_version(self, entity_id):
-        '''Return a single entity_id from version'''
+        '''Return a single *entity_id* from version'''
         return entity_id
 
     def _get_version_from_lists(self, entity_id):
-        '''Return comma separated list of versions from AssetVersionList'''
+        '''Return comma separated list of versions from AssetVersionList from *entity_id*'''
 
         asset_version_lists = self._session.query(
             'AssetVersionList where id is {0}'.format(entity_id)
@@ -55,7 +52,7 @@ class CinesyncActionLauncher(BaseAction):
         return result
 
     def _get_version_from_review(self, entity_id):
-        '''Return comma separated list of versions from ReviewSession'''
+        '''Return comma separated list of versions from ReviewSession from *entity_id*'''
 
         review_session = self._session.query(
             'select review_session_objects.version_id'
@@ -81,7 +78,7 @@ class CinesyncActionLauncher(BaseAction):
         return results
 
     def get_versions(self, selection):
-        '''Return versions given the selection'''
+        '''Return versions given the *selection*'''
         results = []
 
         for selected_item in selection:
@@ -94,12 +91,7 @@ class CinesyncActionLauncher(BaseAction):
         return results
 
     def get_selection(self, event):
-        '''From a raw event dictionary, extract the selected entities.
-
-        :param event: Raw ftrack event
-        :type event: dict
-        :returns: List of entity dictionaries
-        :rtype: List of dict'''
+        '''From a raw *event* dictionary, extract the selected entities.'''
 
         data = event['data']
         selection = data.get('selection', [])
@@ -127,7 +119,17 @@ class CinesyncActionLauncher(BaseAction):
             }
 
     def discover(self, session, entities, event):
-        '''Return discovered applications.'''
+        '''Return true if we can handle the selected entities.
+
+        *session* is a `ftrack_api.Session` instance
+
+        *entities* is a list of tuples each containing the entity type and the entity id.
+        If the entity is a hierarchical you will always get the entity
+        type TypedContext, once retrieved through a get operation you
+        will have the "real" entity type ie. example Shot, Sequence
+        or Asset Build.
+
+        *event* the unmodified original event'''
 
         selection = self.get_selection(event)
         if not selection:
@@ -166,11 +168,17 @@ class CinesyncActionLauncher(BaseAction):
             subprocess.call(['xdg-open', url])
 
     def launch(self, session, entities, event):
-        '''Handle *event*.
+        '''Callback method for the action.
 
-        event['data'] should contain:
+        *session* is a `ftrack_api.Session` instance
 
-            *applicationIdentifier* to identify which application to start.
+        *entities* is a list of tuples each containing the entity type and the entity id.
+        If the entity is a hierarchical you will always get the entity
+        type TypedContext, once retrieved through a get operation you
+        will have the "real" entity type ie. example Shot, Sequence
+        or Asset Build.
+
+        *event* the unmodified original event
 
         '''
         # Prevent further processing by other listeners.
@@ -183,21 +191,7 @@ class CinesyncApplicationStore(ftrack_connect.application.ApplicationStore):
     '''Discover and store available applications on this host.'''
 
     def _discoverApplications(self):
-        '''Return a list of applications that can be launched from this host.
-
-        An application should be of the form:
-
-            dict(
-                'identifier': 'name_version',
-                'label': 'Name',
-                'variant': 'version',
-                'description': 'description',
-                'path': 'Absolute path to the file',
-                'version': 'Version of the application',
-                'icon': 'URL or name of predefined icon'
-            )
-
-        '''
+        '''Return a list of applications that can be launched from this host.'''
         applications = []
 
         if sys.platform == 'darwin':
@@ -220,6 +214,11 @@ class CinesyncApplicationStore(ftrack_connect.application.ApplicationStore):
                 applicationIdentifier='cineSync',
                 icon='cineSync'
             ))
+
+        elif sys.platform == 'linux2':
+            # TODO: Find consistent way to decide where the application is installed.
+            # Placeholder for linux
+            return
 
         self.logger.debug('Application found: {0}'.format(applications))
         return applications
