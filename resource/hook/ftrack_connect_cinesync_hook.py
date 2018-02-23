@@ -133,9 +133,18 @@ class CinesyncActionLauncher(BaseAction):
 
         selection = self.get_selection(event)
         if not selection:
+            self.logger.debug(
+                'No entity selected.'
+            )
             return False
 
         if not self.is_valid_selection(selection):
+            valid_types = self.allowed_entity_types_fn.keys()
+            self.logger.warning(
+                'No valid entity type selected. Valid types: {0}.'.format(
+                    ', '.join(valid_types)
+                )
+            )
             return False
 
         applications = self.applicationStore.applications
