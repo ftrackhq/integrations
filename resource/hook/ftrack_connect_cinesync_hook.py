@@ -15,7 +15,7 @@ class CinesyncActionLauncher(BaseAction):
     '''ftrack connect legacy plugins discover and launch action.'''
 
     identifier = 'ftrack-connect-cinesync-application'
-    label = 'Cinesync Application Launcher'
+    label = 'cineSync'
 
     def __init__(self, applicationStore, session):
         '''Initialise action with *applicationStore*.
@@ -36,7 +36,7 @@ class CinesyncActionLauncher(BaseAction):
 
     def _get_version(self, entity_id):
         '''Return a single *entity_id* from version'''
-        return entity_id
+        return [entity_id]
 
     def _get_version_from_lists(self, entity_id):
         '''Return comma separated list of versions from AssetVersionList from *entity_id*'''
@@ -86,7 +86,7 @@ class CinesyncActionLauncher(BaseAction):
             entity_id = selected_item.get('entityId')
             version_id_fn = self.allowed_entity_types_fn[entity_type]
             versions = version_id_fn(entity_id)
-            results.append(versions)
+            results.extend(versions)
 
         return results
 
@@ -157,12 +157,8 @@ class CinesyncActionLauncher(BaseAction):
 
     def open_url(self, asset_version_list):
         ''' Open cinesync url with given *asset_version_list*'''
-        asset_version_list = [
-            asset_version for asset_version_sublist in asset_version_list for asset_version in asset_version_sublist
-        ]
-        asset_version_list_string = ','.join(asset_version_list)
         url = 'cinesync://ftrack/addVersion?assetVersionList={0}'.format(
-            asset_version_list_string
+            ','.join(asset_version_list)
         )
 
         self.logger.debug('Opening Cynesinc Url: {0}'.format(url))
