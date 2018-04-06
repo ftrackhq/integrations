@@ -12,7 +12,7 @@ Release Notes
     .. change:: changed
        :tags: Nuke Studio
 
-       Removed crew widget.
+        Remove Crew widget chat and notifications.
 
 .. release:: 1.1.1
     :date: 2017-12-14
