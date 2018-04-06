@@ -10,7 +10,7 @@ Release Notes
 .. release:: Upcoming
 
     .. change:: changed
-       :tags: Nuke Studio
+       :tags: Crew
 
         Remove Crew widget chat and notifications.
 
