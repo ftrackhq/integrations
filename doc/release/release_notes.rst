@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: changed
+       :tags: Nuke Studio
+
+       Removed crew widget.
+
 .. release:: 1.1.1
     :date: 2017-12-14
 
