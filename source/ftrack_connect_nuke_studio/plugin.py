@@ -26,7 +26,6 @@ ftrack.setup()
 
 from ftrack_connect_nuke_studio.ui.tag_drop_handler import TagDropHandler
 import ftrack_connect_nuke_studio.ui.tag_manager
-import ftrack_connect_nuke_studio.ui.crew
 import ftrack_connect_nuke_studio.ui.create_project
 import ftrack_connect_nuke_studio.ui.widget.info_view
 
