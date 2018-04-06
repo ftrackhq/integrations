@@ -65,6 +65,7 @@ def populate_ftrack(event):
 
         ftrack_menu.addAction(information_view_action)
 
+
 def open_export_dialog(*args, **kwargs):
     '''Open export project from timeline context menu.'''
     parent = hiero.ui.mainWindow()
