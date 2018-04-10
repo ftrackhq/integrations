@@ -1,24 +1,9 @@
 # Copyright (c) 2011 The Foundry Visionmongers Ltd.  All Rights Reserved.
-import tempfile
-import types
-import os
-import hiero
-import time
-import hiero.core
-import hiero.ui
-from hiero import core
 
 from hiero.exporters.FnShotProcessor import ShotProcessorPreset
 from hiero.exporters.FnShotProcessor import ShotProcessor
-from hiero.exporters.FnShotProcessor import buildTagsData, findTrackItemExportTag, getShotNameIndex
-from hiero.exporters.FnEffectHelpers import ensureEffectsNodesCreated
 from hiero.exporters.FnShotProcessorUI import ShotProcessorUI
 
-from hiero.ui.FnTagFilterWidget import TagFilterWidget
-from hiero.core.FnProcessor import _expandTaskGroup
-
-from QtExt import QtCore, QtWidgets
-from ftrack_connect_nuke_studio.ui.create_project import ProjectTreeDialog
 from .ftrack_base import FtrackBaseProcessor, FtrackBaseProcessorPreset, FtrackBaseProcessorUI
 
 

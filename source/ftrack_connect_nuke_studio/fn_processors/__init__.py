@@ -45,12 +45,11 @@ def register_processors():
         }
     )
 
+
+
     properties = {
         "exportTemplate": (
-            (
-                ftrack_server_path,
-                nuke_script_processor
-            ),
+            (ftrack_server_path, nuke_script_processor),
         ),
         "cutLength" : True,
     }
