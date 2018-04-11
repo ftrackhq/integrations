@@ -6,7 +6,7 @@ from ftrack_shot_processor import FtrackShotProcessor, FtrackShotProcessorPreset
 
 # custom processors
 from ftrack_nuke_shot_exporter import FtrackNukeShotExporterPreset
-
+from ftrack_nuke_render_exporter import FtrackNukeRenderExporterPreset
 registry = hiero.core.taskRegistry
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -45,13 +45,22 @@ def register_processors():
         }
     )
 
-
+    nuke_render_processor = FtrackNukeRenderExporterPreset(
+        "Plate",
+        {
+            'file_type': 'dpx',
+            'dpx': {
+                'datatype': '10 bit'
+            }
+        }
+    )
 
     properties = {
         "exportTemplate": (
             (ftrack_server_path, nuke_script_processor),
+            (ftrack_server_path, nuke_render_processor)
         ),
-        "cutLength" : True,
+        "cutLength": True,
     }
 
     preset = FtrackShotProcessorPreset(

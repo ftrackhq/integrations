@@ -79,7 +79,7 @@ class FtrackBasePreset(FtrackBase):
         return "0" # here we can check if there's any tag with an id to check against, if not we can return 0 as first version        
 
     def addUserResolveEntries(self, resolver):
-        
+
         resolver.addResolver(
             "{ftrack_project}",
             "Ftrack project path.",
@@ -155,6 +155,21 @@ class FtrackBaseProcessor(FtrackBase):
 
         self._component = None
 
+    def taskStep(self):
+        self.logger.info('----------- task Step -----------')
+
+    def postShot(self):
+        self.logger.info('Running Post Shot')
+
+    def preShot(self):
+        self.logger.info('Running Pre Shot')
+
+    def postSequence(self):
+        self.logger.info('Running Post Sequence')
+
+    def preSequence(self):
+        self.logger.info('Running Pre Sequence')
+
     def startTask(self):
         self.create_project_structure()
 
@@ -177,16 +192,8 @@ class FtrackBaseProcessor(FtrackBase):
                 }
         )
 
-        # new_component = self.session.create_component(
-        #     final_path,
-        #     data={'name': component['name']},
-        #     location = 'auto'    
-        # )        
         self.session.commit()
         self.session.delete(component)
-
-    # def updateItem(self, originalItem, localtime):
-    #     self.logger.info('Updating {0}'.format(originalItem))
 
     def timeStampString(self, localtime):
         """timeStampString(localtime)
@@ -355,23 +362,6 @@ class FtrackBaseProcessor(FtrackBase):
         self._exportPath = ftrack_path
 
         self.setDestinationDescription(ftrack_path)
-
-        # self._exportRoot = self.ftrack_location.accessor.prefix
-        # self._export_template = ftrack_shot_path
-
-        # self.logger.info('TASK: {0}'.format(vars(self)))
-        # ftag = hiero.core.Tag('AssetVersion')
-        # ftag.setIcon(':ftrack/image/integration/version')
-
-        # meta = ftag.metadata()
-        # meta.setValue('type', 'ftrack')
-        # meta.setValue('ftrack.type', 'version')
-        # meta.setValue('ftrack.id', str(parent['version']['id']))
-        # meta.setValue('tag.value', str(parent['version']['version']))
-
-        # self.logger.info('Adding Tag: {0} to {1}'.format(ftag, self._item))
-        # self._item.addTag(ftag)
-
 
 
 class FtrackBaseProcessorUI(FtrackBase):

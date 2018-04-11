@@ -12,6 +12,11 @@ class FtrackShotProcessor(ShotProcessor, FtrackBaseProcessor):
         ShotProcessor.__init__(self, preset, submission, synchronous=synchronous)
         FtrackBaseProcessor.__init__(self, preset, submission, synchronous=synchronous)
 
+    def processTaskPreQueue(self):
+        self.logger.debug('processing task pre queue')
+        self.logger.debug(self._submission)
+        ShotProcessor.processTaskPreQueue(self)
+
 
 class FtrackShotProcessorUI(ShotProcessorUI, FtrackBaseProcessorUI):
 
