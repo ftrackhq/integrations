@@ -8,16 +8,21 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackBaseProcessor):
     def __init__(self, initDict):
         TranscodeExporter.__init__(self, initDict)
         FtrackBaseProcessor.__init__(self, initDict)
+        self.logger.info(self._submission)
+        self.logger.info(self._renderTask)
+
+    def taskStep(self):
+        return TranscodeExporter.taskStep(self)
 
     def startTask(self):
         self.logger.info('----------- Start Task -----------')
         FtrackBaseProcessor.startTask(self)
-        return TranscodeExporter.startTask(self)
+        TranscodeExporter.startTask(self)
 
     def finishTask(self):
         self.logger.info('----------- Finish Task -----------')
         FtrackBaseProcessor.finishTask(self)
-        return TranscodeExporter.finishTask(self)
+        TranscodeExporter.finishTask(self)
 
     def _makePath(self):
         # disable making file paths
@@ -26,8 +31,8 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackBaseProcessor):
 
 class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackBasePreset):
     def __init__(self, name, properties):
-        TranscodePreset.__init__(self, name, properties)
         FtrackBasePreset.__init__(self, name, properties)
+        TranscodePreset.__init__(self, name, properties)
         # Update preset with loaded data
         self.properties().update(properties)
 
@@ -36,8 +41,8 @@ class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackBasePreset):
         self.properties()['ftrack'] = {}
 
         # add placeholders for default ftrack defaults
-        self.properties()['ftrack']['task_type'] = 'editing'
-        self.properties()['ftrack']['asset_type_code'] = 'plate'
+        self.properties()['ftrack']['task_type'] = 'Editing'
+        self.properties()['ftrack']['asset_type_code'] = 'img'
         self.properties()['ftrack']['component_pattern'] = '.####.{ext}'
         self.properties()['ftrack']['task_status'] = 'Not Started'
         self.properties()['ftrack']['shot_status'] = 'In progress'

@@ -14,12 +14,12 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackBaseProcessor):
     def startTask(self):
         self.logger.info('----------- Start Task -----------')
         FtrackBaseProcessor.startTask(self)
-        return NukeShotExporter.startTask(self)
+        NukeShotExporter.startTask(self)
 
     def finishTask(self):
         self.logger.info('----------- Finish Task -----------')
         FtrackBaseProcessor.finishTask(self)
-        return NukeShotExporter.finishTask(self)
+        NukeShotExporter.finishTask(self)
 
     def _makePath(self):
         # disable making file paths
@@ -76,8 +76,8 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackBasePreset):
 
         # add placeholders for default ftrack defaults
         self.properties()['ftrack']['task_type'] = 'Compositing'
-        self.properties()['ftrack']['asset_type_code'] = 'script'
-        self.properties()['ftrack']['component_pattern'] = '.nk'
+        self.properties()['ftrack']['asset_type_code'] = 'nuke_scene'
+        self.properties()['ftrack']['component_pattern'] = '.{ext}'
         self.properties()['ftrack']['task_status'] = 'Not Started'
         self.properties()['ftrack']['shot_status'] = 'In progress'
         self.properties()['ftrack']['asset_version_status'] = 'WIP'

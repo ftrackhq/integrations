@@ -358,7 +358,7 @@ class FtrackBaseProcessor(FtrackBase):
         self._component = parent
 
         # # extract ftrack path from structure and accessors
-        ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent) + file_name
+        ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent)
         ftrack_path = os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path)
         self._exportPath = ftrack_path
 
