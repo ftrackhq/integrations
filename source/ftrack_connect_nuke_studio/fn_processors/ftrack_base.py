@@ -3,6 +3,9 @@ import hiero
 import logging
 import ftrack_api
 import time
+import tempfile
+from QtExt import QtCore
+
 
 class FtrackBase(object):
     '''
@@ -143,8 +146,13 @@ class FtrackBaseProcessorPreset(FtrackBasePreset):
 
 
 class FtrackBaseProcessor(FtrackBase):
-    def __init__(self, *args, **kwargs):
-        super(FtrackBaseProcessor, self).__init__(*args, **kwargs)
+    def __init__(self, initDict):
+        super(FtrackBaseProcessor, self).__init__(initDict)
+
+        # store a reference of the origial initialization data
+        self._init_dict = initDict
+
+        # store a reference of the ftrack properties for easier access
         self.ftrack_properties = self._preset.properties()['ftrack']
 
         # note we do resolve {ftrack_version} as part of the {ftrack_asset} function
@@ -167,7 +175,6 @@ class FtrackBaseProcessor(FtrackBase):
         version = component['version']
 
         final_path = self._exportPath
-        
 
         if '#' in self._exportPath:
             start, end = self.outputRange()
@@ -181,7 +188,8 @@ class FtrackBaseProcessor(FtrackBase):
                 'resource_identifier': final_path
                 }
         )
-
+        # add option to publish or not the thumbnail
+        self.publishThumbnail(component)
         self.session.commit()
         self.session.delete(component)
 
@@ -195,6 +203,15 @@ class FtrackBaseProcessor(FtrackBase):
         # do not create any folder!
         pass
         
+    def publishThumbnail(self, component):
+        source = self._item.source()
+        thumbnail_qimage = source.thumbnail(source.posterFrame())
+        thumbnail_file = tempfile.NamedTemporaryFile(prefix='hiero_ftrack_thumbnail', suffix='.png', delete=False).name
+        thumbnail_qimage_resized = thumbnail_qimage.scaledToWidth(600, QtCore.Qt.SmoothTransformation)
+        thumbnail_qimage_resized.save(thumbnail_file)
+        version = component['version']
+        version.create_thumbnail(thumbnail_file)
+        version['task'].create_thumbnail(thumbnail_file)
 
 
     @property

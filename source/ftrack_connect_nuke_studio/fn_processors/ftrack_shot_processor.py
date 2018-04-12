@@ -10,7 +10,7 @@ from .ftrack_base import FtrackBaseProcessor, FtrackBaseProcessorPreset, FtrackB
 class FtrackShotProcessor(ShotProcessor, FtrackBaseProcessor):
     def __init__(self, preset, submission, synchronous=False):
         ShotProcessor.__init__(self, preset, submission, synchronous=synchronous)
-        FtrackBaseProcessor.__init__(self, preset, submission, synchronous=synchronous)
+        FtrackBaseProcessor.__init__(self, preset)
 
     def processTaskPreQueue(self):
         self.logger.debug('processing task pre queue')
