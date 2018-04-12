@@ -1,12 +1,11 @@
 import hiero.core.util
 from hiero.exporters.FnNukeShotExporter import NukeShotExporter, NukeShotPreset
 from hiero.exporters.FnNukeShotExporterUI import NukeShotExporterUI
-
-
 from ftrack_base import FtrackBasePreset, FtrackBase, FtrackBaseProcessor
 
 
 class FtrackNukeShotExporter(NukeShotExporter, FtrackBaseProcessor):
+
     def __init__(self, initDict):
         NukeShotExporter.__init__(self, initDict)
         FtrackBaseProcessor.__init__(self, initDict)
@@ -72,11 +71,12 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackBasePreset):
         
     def set_ftrack_properties(self, properties):
         FtrackBasePreset.set_ftrack_properties(self, properties)
-        self.properties()['ftrack'] = {}
-
+        properties = self.properties()
+        properties.setdefault('ftrack', {})
         # add placeholders for default ftrack defaults
         self.properties()['ftrack']['task_type'] = 'Compositing'
         self.properties()['ftrack']['asset_type_code'] = 'nuke_scene'
+        self.properties()['ftrack']['component_name'] = 'main'
         self.properties()['ftrack']['component_pattern'] = '.{ext}'
         self.properties()['ftrack']['task_status'] = 'Not Started'
         self.properties()['ftrack']['shot_status'] = 'In progress'

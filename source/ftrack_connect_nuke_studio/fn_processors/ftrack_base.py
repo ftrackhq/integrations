@@ -15,11 +15,6 @@ class FtrackBase(object):
         self.logger.setLevel(logging.DEBUG)
         self.session = ftrack_api.Session()
 
-        self.logger.info('Initializing :{0}'.format(
-            self.__class__.__name__
-            )
-        )
-
 
     @property
     def hiero_version_touple(self):
@@ -78,8 +73,9 @@ class FtrackBasePreset(FtrackBase):
         return task._preset.name()
 
     def resolve_ftrack_component(self, task):
+        component_name = self.properties()['ftrack']['component_name']
         extension = self.properties()['ftrack']['component_pattern']
-        return 'main{0}'.format(extension)
+        return '{0}{1}'.format(component_name, extension)
 
     def resolve_ftrack_version(self, task):
         return "0" # here we can check if there's any tag with an id to check against, if not we can return 0 as first version        
@@ -137,6 +133,8 @@ class FtrackBaseProcessorPreset(FtrackBasePreset):
         self.properties()['ftrack'] = {}
 
         # add placeholders for default ftrack defaults
+        self.properties()['ftrack']['component_name'] = 'main'
+        self.properties()['ftrack']['component_pattern'] = '.{ext}'
         self.properties()['ftrack']['project_schema'] = 'Film Pipeline'
         self.properties()['ftrack']['task_type'] = 'Compositing'
         self.properties()['ftrack']['task_status'] = 'Not Started'
@@ -170,8 +168,9 @@ class FtrackBaseProcessor(FtrackBase):
 
         final_path = self._exportPath
         
+
         if '#' in self._exportPath:
-            start, end = frames
+            start, end = self.outputRange()
             final_path = self._exportPath.replace('####', '%4d')
             final_path = '{0} [{1}-{2}]'.format(final_path, start, end)
 
@@ -318,7 +317,7 @@ class FtrackBaseProcessor(FtrackBase):
         return task
 
     def _create_component_fragment(self, name, parent, task):
-        asset_type = task._preset.properties()['ftrack']['asset_type_code']
+        # asset_type = task._preset.properties()['ftrack']['asset_type_code']
         component = parent.create_component('/', {
             'name': name
         }, location=None)
@@ -329,29 +328,36 @@ class FtrackBaseProcessor(FtrackBase):
         self.logger.warning('Skpping : {}'.format(name))
         
     def create_project_structure(self):
-        item = self._item
-        file_name = self._preset.properties()['ftrack']['component_pattern']
-        # self.logger.info('Building structure for : {}'.format(self))
         preset_name = self._preset.name()
         self.logger.info(preset_name)
 
+        file_name = '{0}{1}'.format(
+                self._preset.properties()['ftrack']['component_name'],
+                self._preset.properties()['ftrack']['component_pattern']
+        )
         resolved_file_name = self.resolvePath(file_name)
+
         path = self.resolvePath(self._shotPath)
-        export_path = self._shotPath
         parent = None # after the loop this will be containing the component object
 
-        for template, token in zip(export_path.split(os.path.sep), path.split(os.path.sep)):
+        for template, token in zip(self._shotPath.split(os.path.sep), path.split(os.path.sep)):
             fragment_fn = self.fn_mapping.get(template, self._skip_fragment)
             parent = fragment_fn(token, parent, self)
 
         self.session.commit()
         self._component = parent
 
-        # # extract ftrack path from structure and accessors
+        # extract ftrack path from structure and accessors
         ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent)
+
+        # ftrack sanitize output path, but we need to retain the original on here
+        # otherwise foo.####.ext becomes foo.____.ext
+        tokens = ftrack_shot_path.split(os.path.sep)
+        tokens[-1] = resolved_file_name
+        ftrack_shot_path = os.path.sep.join(tokens)
+
         ftrack_path = os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path)
         self._exportPath = ftrack_path
-
         self.setDestinationDescription(ftrack_path)
 
 
