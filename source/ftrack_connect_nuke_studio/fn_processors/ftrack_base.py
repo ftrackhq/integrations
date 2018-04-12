@@ -14,7 +14,12 @@ class FtrackBase(object):
         )
         self.logger.setLevel(logging.DEBUG)
         self.session = ftrack_api.Session()
-        # self.logger.info('Initializing :{0}'.format(self.__class__.__name__))
+
+        self.logger.info('Initializing :{0}'.format(
+            self.__class__.__name__
+            )
+        )
+
 
     @property
     def hiero_version_touple(self):
@@ -155,21 +160,6 @@ class FtrackBaseProcessor(FtrackBase):
         }
 
         self._component = None
-
-    def taskStep(self):
-        self.logger.info('----------- task Step -----------')
-
-    def postShot(self):
-        self.logger.info('Running Post Shot')
-
-    def preShot(self):
-        self.logger.info('Running Pre Shot')
-
-    def postSequence(self):
-        self.logger.info('Running Post Sequence')
-
-    def preSequence(self):
-        self.logger.info('Running Pre Sequence')
 
     def startTask(self):
         self.create_project_structure()

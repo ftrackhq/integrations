@@ -31,8 +31,10 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackBaseProcessor):
 
 class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackBasePreset):
     def __init__(self, name, properties):
-        FtrackBasePreset.__init__(self, name, properties)
         TranscodePreset.__init__(self, name, properties)
+        FtrackBasePreset.__init__(self, name, properties)
+        self._parentType = FtrackNukeRenderExporter
+
         # Update preset with loaded data
         self.properties().update(properties)
 
@@ -59,7 +61,7 @@ class FtrackNukeRenderExporterUI(TranscodeExporterUI, FtrackBase):
         TranscodeExporterUI.__init__(self, preset)
         FtrackBase.__init__(self, preset)
 
-        self._displayName = "Ftrack Nuke render File"
+        self._displayName = "Ftrack Nuke Render File"
         self._taskType = FtrackNukeRenderExporter
         self._nodeSelectionWidget = None
 
