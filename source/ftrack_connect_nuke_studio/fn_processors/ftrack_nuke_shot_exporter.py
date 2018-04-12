@@ -10,10 +10,14 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackBaseProcessor):
         NukeShotExporter.__init__(self, initDict)
         FtrackBaseProcessor.__init__(self, initDict)
 
-    def startTask(self):
-        self.logger.info('----------- Start Task -----------')
-        FtrackBaseProcessor.startTask(self)
-        NukeShotExporter.startTask(self)
+    def updateItem(self, originalItem, localtime):
+        NukeShotExporter.updateItem(self,  originalItem, localtime)
+        FtrackBaseProcessor.updateItem(self, originalItem, localtime)
+    #
+    # def startTask(self):
+    #     self.logger.info('----------- Start Task -----------')
+    #     FtrackBaseProcessor.startTask(self)
+    #     NukeShotExporter.startTask(self)
 
     def finishTask(self):
         self.logger.info('----------- Finish Task -----------')
@@ -23,11 +27,6 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackBaseProcessor):
     def _makePath(self):
         # disable making file paths
         FtrackBaseProcessor._makePath(self)
-
-    def _beforeNukeScriptWrite(self, script):
-        self.logger.info('----------- beforeNukeScriptWrite -----------')
-        # here we can add ftrack related nodes to the script
-        NukeShotExporter._beforeNukeScriptWrite(self, script)
 
 
 class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackBasePreset):

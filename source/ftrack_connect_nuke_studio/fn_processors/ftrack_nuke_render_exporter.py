@@ -1,6 +1,8 @@
 import hiero.core.util
 from hiero.exporters.FnTranscodeExporter import TranscodeExporter, TranscodePreset
 from hiero.exporters.FnTranscodeExporterUI import TranscodeExporterUI
+from hiero.exporters.FnSubmission import Submission
+
 from ftrack_base import FtrackBasePreset, FtrackBase, FtrackBaseProcessor
 
 
@@ -10,10 +12,16 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackBaseProcessor):
         TranscodeExporter.__init__(self, initDict)
         FtrackBaseProcessor.__init__(self, initDict)
 
-    def startTask(self):
-        self.logger.info('----------- Start Task -----------')
-        FtrackBaseProcessor.startTask(self)
-        TranscodeExporter.startTask(self)
+    def updateItem(self, originalItem, localtime):
+        TranscodeExporter.updateItem(self,  originalItem, localtime)
+        FtrackBaseProcessor.updateItem(self, originalItem, localtime)
+
+    # def startTask(self):
+    #     self.logger.info('----------- Start Task -----------')
+    #     # FtrackBaseProcessor.startTask(self)
+    #     # temp_nuke_file =
+    #     # self._renderTask = self._submission.addJob(Submission.kNukeRender, self._init_dict, self._scriptfile)
+    #     TranscodeExporter.startTask(self)
 
     def finishTask(self):
         self.logger.info('----------- Finish Task -----------')

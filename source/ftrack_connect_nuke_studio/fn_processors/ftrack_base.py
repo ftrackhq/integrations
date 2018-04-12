@@ -167,8 +167,11 @@ class FtrackBaseProcessor(FtrackBase):
 
         self._component = None
 
-    def startTask(self):
+    def updateItem(self, originalItem, localtime):
+        self.logger.info('Updating item %s' % originalItem)
         self.create_project_structure()
+
+    # def startTask(self):
 
     def finishTask(self):
         component = self._component
@@ -346,7 +349,7 @@ class FtrackBaseProcessor(FtrackBase):
         
     def create_project_structure(self):
         preset_name = self._preset.name()
-        self.logger.info(preset_name)
+        self.logger.info('Creating structure for : {0}'.format(preset_name))
 
         file_name = '{0}{1}'.format(
                 self._preset.properties()['ftrack']['component_name'],
