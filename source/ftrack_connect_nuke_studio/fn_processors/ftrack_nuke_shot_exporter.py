@@ -27,40 +27,43 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackBasePreset):
     def __init__(self, name, properties, task=FtrackNukeShotExporter):
         NukeShotPreset.__init__(self, name, properties, task)
         FtrackBasePreset.__init__(self, name, properties)
-
-        # Set any preset defaults here
-        self.properties()["enable"] = True
-        self.properties()["readPaths"] = []
-        self.properties()["writePaths"] = []
-        self.properties()["collateTracks"] = False
-        self.properties()["collateShotNames"] = False
-        self.properties()["annotationsPreCompPaths"] = []
-        self.properties()["includeAnnotations"] = False
-        self.properties()["showAnnotations"] = True
-        self.properties()["includeEffects"] = True
-
-        # If True, tracks other than the master one will not be connected to the write node
-        self.properties()["connectTracks"] = False
-
-        # Asset properties
-        self.properties()["useAssets"] = True
-        self.properties()["publishScript"] = True
-
-        # Not exposed in UI
-        self.properties()["collateSequence"] = False  # Collate all trackitems within sequence
-        self.properties()["collateCustomStart"] = True  # Start frame is inclusive of handles
-
-        self.properties()["additionalNodesEnabled"] = False
-        self.properties()["additionalNodesData"] = []
-        self.properties()["method"] = "Blend"
-
-        # Add property to control whether the exporter does a postProcessScript call.
-        # This is not in the UI, and is only changed by create_comp.  See where this is accessed
-        # in _taskStep() for more details.
-        self.properties()["postProcessScript"] = True
-
         # Update preset with loaded data
         self.properties().update(properties)
+
+        # # Set any preset defaults here
+        # self.properties()["enable"] = True
+        # self.properties()["readPaths"] = []
+        # self.properties()["writePaths"] = []
+        # self.properties()["collateTracks"] = False
+        # self.properties()["collateShotNames"] = False
+        # self.properties()["annotationsPreCompPaths"] = []
+        # self.properties()["includeAnnotations"] = False
+        # self.properties()["showAnnotations"] = True
+        # self.properties()["includeEffects"] = True
+        #
+        # # If True, tracks other than the master one will not be connected to the write node
+        # self.properties()["connectTracks"] = False
+        #
+        # # Asset properties
+        # self.properties()["useAssets"] = True
+        # self.properties()["publishScript"] = True
+        #
+        # # Not exposed in UI
+        # self.properties()["collateSequence"] = False  # Collate all trackitems within sequence
+        # self.properties()["collateCustomStart"] = True  # Start frame is inclusive of handles
+        #
+        # self.properties()["additionalNodesEnabled"] = False
+        # self.properties()["additionalNodesData"] = []
+        # self.properties()["method"] = "Blend"
+        #
+        # # Add property to control whether the exporter does a postProcessScript call.
+        # # This is not in the UI, and is only changed by create_comp.  See where this is accessed
+        # # in _taskStep() for more details.
+        # self.properties()["postProcessScript"] = True
+        # self.properties()["reformat"] = {}
+        #
+        # # Update preset with loaded data
+        # self.properties().update(properties)
         
     def set_ftrack_properties(self, properties):
         FtrackBasePreset.set_ftrack_properties(self, properties)
