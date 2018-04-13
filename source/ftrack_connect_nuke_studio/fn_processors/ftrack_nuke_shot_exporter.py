@@ -71,10 +71,6 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackBasePreset):
         self.properties()['ftrack']['asset_type_code'] = 'nuke_scene'
         self.properties()['ftrack']['component_name'] = 'main'
         self.properties()['ftrack']['component_pattern'] = '.{ext}'
-        self.properties()['ftrack']['task_status'] = 'Not Started'
-        self.properties()['ftrack']['shot_status'] = 'In progress'
-        self.properties()['ftrack']['asset_version_status'] = 'WIP'
-        self.properties()['ftrack']['project_schema'] = 'Film Pipeline'
 
     def addUserResolveEntries(self, resolver):
         FtrackBasePreset.addUserResolveEntries(self, resolver)
