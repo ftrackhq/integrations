@@ -12,11 +12,6 @@ class FtrackShotProcessor(ShotProcessor, FtrackBaseProcessor):
         ShotProcessor.__init__(self, preset, submission, synchronous=synchronous)
         FtrackBaseProcessor.__init__(self, preset)
 
-    def processTaskPreQueue(self):
-        self.logger.debug('processing task pre queue')
-        self.logger.debug(self._submission)
-        ShotProcessor.processTaskPreQueue(self)
-
 
 class FtrackShotProcessorUI(ShotProcessorUI, FtrackBaseProcessorUI):
 
@@ -29,9 +24,9 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBaseProcessorUI):
 
     def toolTip(self):
         return "Process as Shots generates output on a per shot basis."
-    #
-    # def updatePathPreview(self):
-    #     self._pathPreviewWidget.setText('Ftrack Server: {0}'.format(self.session.server_url))
+
+    def updatePathPreview(self):
+        self._pathPreviewWidget.setText('Ftrack Server: {0}'.format(self.session.server_url))
 
 
 class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBaseProcessorPreset):

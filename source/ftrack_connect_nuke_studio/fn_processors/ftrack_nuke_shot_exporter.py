@@ -13,14 +13,8 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackBaseProcessor):
     def updateItem(self, originalItem, localtime):
         NukeShotExporter.updateItem(self,  originalItem, localtime)
         FtrackBaseProcessor.updateItem(self, originalItem, localtime)
-    #
-    # def startTask(self):
-    #     self.logger.info('----------- Start Task -----------')
-    #     FtrackBaseProcessor.startTask(self)
-    #     NukeShotExporter.startTask(self)
 
     def finishTask(self):
-        self.logger.info('----------- Finish Task -----------')
         FtrackBaseProcessor.finishTask(self)
         NukeShotExporter.finishTask(self)
 
@@ -92,7 +86,7 @@ class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackBase):
         NukeShotExporterUI.__init__(self, preset)
         FtrackBase.__init__(self, preset)
 
-        self._displayName = "Ftrack Nuke Shot File"
+        self._displayName = "Ftrack Nuke File"
         self._taskType = FtrackNukeShotExporter
         self._nodeSelectionWidget = None
 

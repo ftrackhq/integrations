@@ -16,15 +16,7 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackBaseProcessor):
         TranscodeExporter.updateItem(self,  originalItem, localtime)
         FtrackBaseProcessor.updateItem(self, originalItem, localtime)
 
-    # def startTask(self):
-    #     self.logger.info('----------- Start Task -----------')
-    #     # FtrackBaseProcessor.startTask(self)
-    #     # temp_nuke_file =
-    #     # self._renderTask = self._submission.addJob(Submission.kNukeRender, self._init_dict, self._scriptfile)
-    #     TranscodeExporter.startTask(self)
-
     def finishTask(self):
-        self.logger.info('----------- Finish Task -----------')
         FtrackBaseProcessor.finishTask(self)
         TranscodeExporter.finishTask(self)
 
@@ -67,7 +59,7 @@ class FtrackNukeRenderExporterUI(TranscodeExporterUI, FtrackBase):
         TranscodeExporterUI.__init__(self, preset)
         FtrackBase.__init__(self, preset)
 
-        self._displayName = "Ftrack Nuke Render File"
+        self._displayName = "Ftrack Nuke Render"
         self._taskType = FtrackNukeRenderExporter
         self._nodeSelectionWidget = None
 

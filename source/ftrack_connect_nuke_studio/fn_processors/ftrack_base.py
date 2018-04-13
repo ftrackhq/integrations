@@ -18,6 +18,10 @@ class FtrackBase(object):
         self.logger.setLevel(logging.DEBUG)
         self.session = ftrack_api.Session()
 
+    def timeStampString(self, localtime):
+        """timeStampString(localtime)
+           Convert a tuple or struct_time representing a time as returned by gmtime() or localtime() to a string formated YEAR/MONTH/DAY TIME."""
+        return time.strftime("%Y/%m/%d %X", localtime)
 
     @property
     def hiero_version_touple(self):
@@ -53,7 +57,20 @@ class FtrackBasePreset(FtrackBase):
         self.set_ftrack_properties(properties)
 
     def set_ftrack_properties(self, properties):
-        self.properties()['ftrack'] = {}
+        properties = self.properties()
+        properties.setdefault('ftrack', {})
+
+        # add placeholders for default ftrack defaults
+        self.properties()['ftrack']['component_name'] = 'main'
+        self.properties()['ftrack']['component_pattern'] = '.{ext}'
+        self.properties()['ftrack']['project_schema'] = 'Film Pipeline'
+        self.properties()['ftrack']['task_type'] = 'Compositing'
+        self.properties()['ftrack']['task_status'] = 'Not Started'
+        self.properties()['ftrack']['shot_status'] = 'In progress'
+        self.properties()['ftrack']['asset_version_status'] = 'WIP'
+        self.properties()['ftrack']['opt_publish_thumbnail'] = True
+        self.logger.info('Setting processor Id in %s as %s' % (self.__class__.__name__, hash(self.__class__.__name__)))
+        self.properties()['ftrack']['processor_id'] = hash(self.__class__.__name__)
 
     def set_export_root(self):
         self.properties()["exportRoot"] = self.ftrack_location.accessor.prefix
@@ -127,22 +144,13 @@ class FtrackBasePreset(FtrackBase):
             lambda keyword, task: self.resolve_ftrack_component(task)
         )
 
+
 class FtrackBaseProcessorPreset(FtrackBasePreset):
     def __init__(self,  name, properties):
         super(FtrackBaseProcessorPreset, self).__init__(name, properties)
 
     def set_ftrack_properties(self, properties):
         super(FtrackBaseProcessorPreset, self).set_ftrack_properties(properties)
-        self.properties()['ftrack'] = {}
-
-        # add placeholders for default ftrack defaults
-        self.properties()['ftrack']['component_name'] = 'main'
-        self.properties()['ftrack']['component_pattern'] = '.{ext}'
-        self.properties()['ftrack']['project_schema'] = 'Film Pipeline'
-        self.properties()['ftrack']['task_type'] = 'Compositing'
-        self.properties()['ftrack']['task_status'] = 'Not Started'
-        self.properties()['ftrack']['shot_status'] = 'In progress'
-        self.properties()['ftrack']['asset_version_status'] = 'WIP'
 
 
 class FtrackBaseProcessor(FtrackBase):
@@ -168,10 +176,49 @@ class FtrackBaseProcessor(FtrackBase):
         self._component = None
 
     def updateItem(self, originalItem, localtime):
-        self.logger.info('Updating item %s' % originalItem)
         self.create_project_structure()
+        self.addFtrackTag(originalItem, localtime)
 
-    # def startTask(self):
+    def addFtrackTag(self, originalItem, localtime):
+        self.logger.info('ftrack.processor_id: %s' % self.ftrack_properties['processor_id'])
+
+        existingTag = None
+        for tag in originalItem.tags():
+            if tag.metadata().hasKey("tag.presetid") and tag.metadata()["tag.presetid"] == self._presetId:
+                existingTag = tag
+                break
+
+        self.logger.info('Tag exists ? %s' % existingTag)
+
+        if existingTag:
+            # Update the script name to the one we just wrote.  This makes it easier
+            # for the caller to do any post-export processing (e.g. for Create Comp)
+            existingTag.metadata().setValue("tag.component_id", self._component['id'])
+
+            # Ensure the startframe/duration tags are updated
+            start, end = self.outputRange(clampToSource=False)
+            existingTag.metadata().setValue("tag.startframe", str(start))
+            existingTag.metadata().setValue("tag.duration", str(end - start + 1))
+
+            # Move the tag to the end of the list.
+            originalItem.removeTag(existingTag)
+            originalItem.addTag(existingTag)
+            return
+
+        timestamp = self.timeStampString(localtime)
+
+        tag = hiero.core.Tag(
+            "Ftrack Entity " + timestamp,
+            "ftrack/image/default:ftrackLogoColor",
+            False
+        )
+
+        tag.metadata().setValue("tag.component_id",  self._component['id'])
+        tag.metadata().setValue("tag.description", "Ftrack Entity")
+
+        self.logger.info('Adding tag: %s to item %s' % (tag, originalItem))
+
+        originalItem.addTag(tag)
 
     def finishTask(self):
         component = self._component
@@ -181,6 +228,8 @@ class FtrackBaseProcessor(FtrackBase):
 
         if '#' in self._exportPath:
             start, end = self.outputRange()
+
+            # todo: Improve this logic
             final_path = self._exportPath.replace('####', '%4d')
             final_path = '{0} [{1}-{2}]'.format(final_path, start, end)
 
@@ -379,6 +428,7 @@ class FtrackBaseProcessor(FtrackBase):
         ftrack_path = os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path)
         self._exportPath = ftrack_path
         self.setDestinationDescription(ftrack_path)
+        return ftrack_path
 
 
 class FtrackBaseProcessorUI(FtrackBase):
