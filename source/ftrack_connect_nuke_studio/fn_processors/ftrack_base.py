@@ -69,7 +69,6 @@ class FtrackBasePreset(FtrackBase):
         self.properties()['ftrack']['shot_status'] = 'In progress'
         self.properties()['ftrack']['asset_version_status'] = 'WIP'
         self.properties()['ftrack']['opt_publish_thumbnail'] = True
-        self.logger.info('Setting processor Id in %s as %s' % (self.__class__.__name__, hash(self.__class__.__name__)))
         self.properties()['ftrack']['processor_id'] = hash(self.__class__.__name__)
 
     def set_export_root(self):
@@ -180,25 +179,18 @@ class FtrackBaseProcessor(FtrackBase):
         self.addFtrackTag(originalItem, localtime)
 
     def addFtrackTag(self, originalItem, localtime):
-        self.logger.info('ftrack.processor_id: %s' % self.ftrack_properties['processor_id'])
+        processor_id = self.ftrack_properties['processor_id']
 
         existingTag = None
         for tag in originalItem.tags():
-            if tag.metadata().hasKey("tag.presetid") and tag.metadata()["tag.presetid"] == self._presetId:
+            if tag.metadata().hasKey("tag.presetid") and tag.metadata()["tag.presetid"] == processor_id:
                 existingTag = tag
                 break
 
-        self.logger.info('Tag exists ? %s' % existingTag)
-
         if existingTag:
-            # Update the script name to the one we just wrote.  This makes it easier
-            # for the caller to do any post-export processing (e.g. for Create Comp)
             existingTag.metadata().setValue("tag.component_id", self._component['id'])
-
-            # Ensure the startframe/duration tags are updated
-            start, end = self.outputRange(clampToSource=False)
-            existingTag.metadata().setValue("tag.startframe", str(start))
-            existingTag.metadata().setValue("tag.duration", str(end - start + 1))
+            existingTag.metadata().setValue("tag.version_id", self._component['version']['id'])
+            existingTag.metadata().setValue("tag.asset_id", self._component['version']['asset']['id'])
 
             # Move the tag to the end of the list.
             originalItem.removeTag(existingTag)
@@ -207,13 +199,22 @@ class FtrackBaseProcessor(FtrackBase):
 
         timestamp = self.timeStampString(localtime)
 
+        tag_name = '{0} {1}'.format(
+            self.__class__.__name__,
+            timestamp
+        )
+
         tag = hiero.core.Tag(
-            "Ftrack Entity " + timestamp,
-            "ftrack/image/default:ftrackLogoColor",
+            tag_name,
+            ":/ftrack/image/default/ftrackLogoColor",
             False
         )
 
+        tag.metadata().setValue("tag.processor",  self.__class__.__name__)
         tag.metadata().setValue("tag.component_id",  self._component['id'])
+        tag.metadata().setValue("tag.version_id",  self._component['version']['id'])
+        tag.metadata().setValue("tag.asset_id",  self._component['version']['asset']['id'])
+
         tag.metadata().setValue("tag.description", "Ftrack Entity")
 
         self.logger.info('Adding tag: %s to item %s' % (tag, originalItem))
