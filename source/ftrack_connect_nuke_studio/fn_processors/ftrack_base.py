@@ -103,31 +103,31 @@ class FtrackBasePreset(FtrackBase):
 
         resolver.addResolver(
             "{ftrack_project}",
-            "Ftrack project path.",
+            "Ftrack project name.",
             lambda keyword, task: self.resolve_ftrack_project(task)
         )
 
         resolver.addResolver(
             "{ftrack_sequence}",
-            "Ftrack sequence path.",
+            "Ftrack sequence name.",
             lambda keyword, task: self.resolve_ftrack_sequence(task)
         )
 
         resolver.addResolver(
             "{ftrack_shot}",
-            "Ftrack shot path.",
+            "Ftrack shot name.",
             lambda keyword, task: self.resolve_ftrack_shot(task)
         )
 
         resolver.addResolver(
             "{ftrack_task}",
-            "Ftrack task path.",
+            "Ftrack task name.",
             lambda keyword, task: self.resolve_ftrack_task(task)
         )
 
         resolver.addResolver(
             "{ftrack_asset}",
-            "Ftrack asset path.",
+            "Ftrack asset name.",
             lambda keyword, task: self.resolve_ftrack_asset(task)
         )
 
@@ -139,7 +139,7 @@ class FtrackBasePreset(FtrackBase):
 
         resolver.addResolver(
             "{ftrack_component}",
-            "Ftrack component path.",
+            "Ftrack component name.",
             lambda keyword, task: self.resolve_ftrack_component(task)
         )
 
