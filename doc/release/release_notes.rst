@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: fixed
+       :tags: Crew
+
+        Nuke Studio 11.1 crashes with ftrack integration.
+
 .. release:: 1.1.1
     :date: 2017-12-14
 

@@ -26,16 +26,9 @@ ftrack.setup()
 
 from ftrack_connect_nuke_studio.ui.tag_drop_handler import TagDropHandler
 import ftrack_connect_nuke_studio.ui.tag_manager
-import ftrack_connect_nuke_studio.ui.crew
 import ftrack_connect_nuke_studio.ui.create_project
 import ftrack_connect_nuke_studio.ui.widget.info_view
 
-# Start thread to handle events from ftrack.
-eventHubThread = ftrack_connect.event_hub_thread.EventHubThread()
-eventHubThread.start()
-
-# Import crew hub to instantiate a global crew hub.
-import ftrack_connect_nuke_studio.crew_hub
 
 ftrack_connect.ui.theme.applyFont()
 
@@ -67,20 +60,6 @@ def populate_ftrack(event):
         )
 
         ftrack_menu.addAction(information_view_action)
-
-    crew = ftrack_connect_nuke_studio.ui.crew.NukeCrew()
-
-    window_manager.addWindow(crew)
-
-    crew_action = QtWidgets.QAction(
-        'Crew', ftrack_menu
-    )
-
-    crew_action.triggered.connect(
-        functools.partial(window_manager.showWindow, crew)
-    )
-
-    ftrack_menu.addAction(crew_action)
 
 
 def open_export_dialog(*args, **kwargs):

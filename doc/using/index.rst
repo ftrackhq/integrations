@@ -15,7 +15,6 @@ Find out all information you need to use the nuke studio with ftrack.
     processors
     templates
     info_panel
-    crew
 
 .. note::
 
