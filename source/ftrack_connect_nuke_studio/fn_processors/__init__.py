@@ -7,6 +7,8 @@ from ftrack_shot_processor import FtrackShotProcessor, FtrackShotProcessorPreset
 # custom processors
 from ftrack_nuke_shot_exporter import FtrackNukeShotExporterPreset
 from ftrack_nuke_render_exporter import FtrackNukeRenderExporterPreset
+from ftrack_audio_exporter import FtrackAudioExporterPreset
+
 registry = hiero.core.taskRegistry
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -55,10 +57,15 @@ def register_processors():
         }
     )
 
+    # audio_processor = FtrackAudioExporterPreset(
+    #     "Audio", {}
+    # )
+
     properties = {
         "exportTemplate": (
             (ftrack_server_path, nuke_script_processor),
-            (ftrack_server_path, nuke_render_processor)
+            (ftrack_server_path, nuke_render_processor),
+            # (ftrack_server_path, audio_processor)
         ),
         "cutLength": True,
     }

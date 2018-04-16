@@ -191,6 +191,7 @@ class FtrackBaseProcessor(FtrackBase):
             existingTag.metadata().setValue("tag.component_id", self._component['id'])
             existingTag.metadata().setValue("tag.version_id", self._component['version']['id'])
             existingTag.metadata().setValue("tag.asset_id", self._component['version']['asset']['id'])
+            existingTag.metadata().setValue("tag.version", str(self._component['version']['version']))
 
             # Move the tag to the end of the list.
             originalItem.removeTag(existingTag)
@@ -214,6 +215,7 @@ class FtrackBaseProcessor(FtrackBase):
         tag.metadata().setValue("tag.component_id",  self._component['id'])
         tag.metadata().setValue("tag.version_id",  self._component['version']['id'])
         tag.metadata().setValue("tag.asset_id",  self._component['version']['asset']['id'])
+        tag.metadata().setValue("tag.version", str(self._component['version']['version']))
 
         tag.metadata().setValue("tag.description", "Ftrack Entity")
 
@@ -389,7 +391,7 @@ class FtrackBaseProcessor(FtrackBase):
     def _create_component_fragment(self, name, parent, task):
         # asset_type = task._preset.properties()['ftrack']['asset_type_code']
         component = parent.create_component('/', {
-            'name': name
+            'name':  self.ftrack_properties['component_name']
         }, location=None)
 
         return component
