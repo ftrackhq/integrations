@@ -13,7 +13,6 @@ class FtrackAudioExporter(AudioExportTask, FtrackBaseProcessor):
         self._do_publish = self._item.mediaType() is hiero.core.TrackItem.MediaType.kVideo
 
     def updateItem(self, originalItem, localtime):
-        AudioExportTask.updateItem(self,  originalItem, localtime)
         FtrackBaseProcessor.updateItem(self, originalItem, localtime)
 
     def startTask(self):

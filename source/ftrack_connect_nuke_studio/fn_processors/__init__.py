@@ -60,15 +60,15 @@ def register_processors():
         }
     )
 
-    # audio_processor = FtrackAudioExporterPreset(
-    #     "Audio", {}
-    # )
+    audio_processor = FtrackAudioExporterPreset(
+        "Audio", {}
+    )
 
     properties = {
         "exportTemplate": (
             (ftrack_server_path, nuke_script_processor),
             (ftrack_server_path, nuke_render_processor),
-            # (ftrack_server_path, audio_processor)
+            (ftrack_server_path, audio_processor)
         ),
         "cutLength": True,
     }

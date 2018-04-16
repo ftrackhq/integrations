@@ -11,7 +11,6 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackBaseProcessor):
         FtrackBaseProcessor.__init__(self, initDict)
 
     def updateItem(self, originalItem, localtime):
-        NukeShotExporter.updateItem(self,  originalItem, localtime)
         FtrackBaseProcessor.updateItem(self, originalItem, localtime)
 
     def finishTask(self):

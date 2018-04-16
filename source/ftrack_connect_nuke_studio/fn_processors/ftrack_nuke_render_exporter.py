@@ -59,7 +59,6 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackBaseProcessor):
         # to the ftrack structure and location.
         FtrackBaseProcessor.updateItem(self, originalItem, localtime)
         self.createTranscodeScript()
-        TranscodeExporter.updateItem(self,  originalItem, localtime)
 
     def finishTask(self):
         FtrackBaseProcessor.finishTask(self)
