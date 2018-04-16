@@ -431,8 +431,6 @@ class FtrackBaseProcessor(FtrackBase):
         ftrack_path = str(os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path))
         self._exportPath = ftrack_path
         self.setDestinationDescription(ftrack_path)
-        self.logger.info('Setting Project Name to : %s' % tokens[0])
-        self._projectName = str(tokens[0])
 
 
 class FtrackBaseProcessorUI(FtrackBase):

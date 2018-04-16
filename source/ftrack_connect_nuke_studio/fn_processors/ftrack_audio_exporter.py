@@ -12,9 +12,9 @@ class FtrackAudioExporter(AudioExportTask, FtrackBaseProcessor):
         FtrackBaseProcessor.__init__(self, initDict)
         self._do_publish = self._item.mediaType() is hiero.core.TrackItem.MediaType.kVideo
 
-    def updateItem(self, originalItem, localtime):
-        FtrackBaseProcessor.updateItem(self, originalItem, localtime)
-        self.logger.info(self.resolvedExportPath())
+    def startTask(self):
+        self.create_project_structure()
+        AudioExportTask.startTask(self)
 
     def finishTask(self):
         FtrackBaseProcessor.finishTask(self)
