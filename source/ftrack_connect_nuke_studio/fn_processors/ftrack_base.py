@@ -365,7 +365,7 @@ class FtrackBaseProcessor(FtrackBase):
             })
         
         comment = 'Published with: {0} From Nuke Studio : {1}.{2}.{3}'.format(
-            self.__class__.__name___ , *self.hiero_version_touple
+            self.__class__.__name__, *self.hiero_version_touple
         )
 
         version = self.session.create('AssetVersion', {
