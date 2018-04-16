@@ -14,10 +14,7 @@ class FtrackAudioExporter(AudioExportTask, FtrackBaseProcessor):
 
     def updateItem(self, originalItem, localtime):
         FtrackBaseProcessor.updateItem(self, originalItem, localtime)
-
-    def startTask(self):
-        FtrackBaseProcessor.startTask(self)
-        AudioExportTask.startTask(self)
+        self.logger.info(self.resolvedExportPath())
 
     def finishTask(self):
         FtrackBaseProcessor.finishTask(self)
@@ -49,9 +46,10 @@ class FtrackAudioExporterPreset(AudioExportPreset, FtrackBasePreset):
         self.properties()['ftrack']['component_name'] = 'main'
         self.properties()['ftrack']['component_pattern'] = '.{ext}'
 
-    def addUserResolveEntries(self, resolver):
-        FtrackBasePreset.addUserResolveEntries(self, resolver)
-        AudioExportPreset.addCustomResolveEntries(self, resolver)
+    def addCustomResolveEntries(self, resolver):
+        FtrackBasePreset.addFtrackResolveEntries(self, resolver)
+        # ensure to have {ext} set to a wav fixed extension
+        resolver.addResolver("{ext}", "Extension of the file to be output", 'wav')
 
 
 class FtrackAudioExporterUI(AudioExportUI, FtrackBase):
@@ -61,7 +59,6 @@ class FtrackAudioExporterUI(AudioExportUI, FtrackBase):
 
         self._displayName = "Ftrack Audio Exporter"
         self._taskType = FtrackAudioExporter
-        self._nodeSelectionWidget = None
 
 
 hiero.core.taskRegistry.registerTask(FtrackAudioExporterPreset, FtrackAudioExporter)

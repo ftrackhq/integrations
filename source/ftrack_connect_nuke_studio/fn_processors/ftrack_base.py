@@ -99,7 +99,7 @@ class FtrackBasePreset(FtrackBase):
     def resolve_ftrack_version(self, task):
         return "0" # here we can check if there's any tag with an id to check against, if not we can return 0 as first version        
 
-    def addUserResolveEntries(self, resolver):
+    def addFtrackResolveEntries(self, resolver):
 
         resolver.addResolver(
             "{ftrack_project}",
@@ -431,11 +431,14 @@ class FtrackBaseProcessor(FtrackBase):
         ftrack_path = str(os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path))
         self._exportPath = ftrack_path
         self.setDestinationDescription(ftrack_path)
+        self.logger.info('Setting Project Name to : %s' % tokens[0])
+        self._projectName = str(tokens[0])
 
 
 class FtrackBaseProcessorUI(FtrackBase):
     def __init__(self, preset):
         super(FtrackBaseProcessorUI, self).__init__(preset)
+        self._nodeSelectionWidget = None
 
     def _checkExistingVersions(self, exportItems):
         """ Iterate over all the track items which are set to be exported, and check if they have previously

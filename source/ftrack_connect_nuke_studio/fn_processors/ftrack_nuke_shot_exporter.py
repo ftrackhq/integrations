@@ -40,8 +40,7 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackBasePreset):
         self.properties()['ftrack']['component_pattern'] = '.{ext}'
 
     def addUserResolveEntries(self, resolver):
-        FtrackBasePreset.addUserResolveEntries(self, resolver)
-        NukeShotPreset.addUserResolveEntries(self, resolver)
+        FtrackBasePreset.addFtrackResolveEntries(self, resolver)
 
 
 class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackBase):
@@ -51,7 +50,6 @@ class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackBase):
 
         self._displayName = "Ftrack Nuke File"
         self._taskType = FtrackNukeShotExporter
-        self._nodeSelectionWidget = None
 
 
 hiero.core.taskRegistry.registerTask(FtrackNukeShotExporterPreset, FtrackNukeShotExporter)

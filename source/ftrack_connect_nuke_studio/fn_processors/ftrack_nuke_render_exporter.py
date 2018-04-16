@@ -90,8 +90,7 @@ class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackBasePreset):
         self.properties()['ftrack']['component_pattern'] = '.####.{ext}'
 
     def addUserResolveEntries(self, resolver):
-        FtrackBasePreset.addUserResolveEntries(self, resolver)
-        TranscodePreset.addCustomResolveEntries(self, resolver)
+        FtrackBasePreset.addFtrackResolveEntries(self, resolver)
 
 
 class FtrackNukeRenderExporterUI(TranscodeExporterUI, FtrackBase):
@@ -101,7 +100,6 @@ class FtrackNukeRenderExporterUI(TranscodeExporterUI, FtrackBase):
 
         self._displayName = "Ftrack Nuke Render"
         self._taskType = FtrackNukeRenderExporter
-        self._nodeSelectionWidget = None
 
 
 hiero.core.taskRegistry.registerTask(FtrackNukeRenderExporterPreset, FtrackNukeRenderExporter)

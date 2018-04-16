@@ -27,9 +27,9 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBaseProcessorUI):
 
     def toolTip(self):
         return "Process as Shots generates output on a per shot basis."
-
-    def updatePathPreview(self):
-        self._pathPreviewWidget.setText('Ftrack Server: {0}'.format(self.session.server_url))
+    #
+    # def updatePathPreview(self):
+    #     self._pathPreviewWidget.setText('Ftrack Server: {0}'.format(self.session.server_url))
 
     def _checkExistingVersions(self, exportItems):
         # disable version check as we handle this internally
@@ -49,3 +49,6 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBaseProcessorPreset):
         ShotProcessorPreset.__init__(self, name, properties)
         FtrackBaseProcessorPreset.__init__(self, name, properties)
         self._parentType = FtrackShotProcessor
+
+    def addCustomResolveEntries(self, resolver):
+        FtrackBaseProcessorPreset.addFtrackResolveEntries(self, resolver)
