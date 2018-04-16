@@ -96,9 +96,6 @@ class FtrackBasePreset(FtrackBase):
         extension = self.properties()['ftrack']['component_pattern']
         return '{0}{1}'.format(component_name, extension)
 
-    def resolve_ftrack_version(self, task):
-        return "0" # here we can check if there's any tag with an id to check against, if not we can return 0 as first version        
-
     def addFtrackResolveEntries(self, resolver):
 
         resolver.addResolver(
@@ -129,12 +126,6 @@ class FtrackBasePreset(FtrackBase):
             "{ftrack_asset}",
             "Ftrack asset name.",
             lambda keyword, task: self.resolve_ftrack_asset(task)
-        )
-
-        resolver.addResolver(
-            "{ftrack_version}",
-            "Ftrack version.",
-            lambda keyword, task: self.resolve_ftrack_version(task)
         )
 
         resolver.addResolver(
