@@ -428,10 +428,9 @@ class FtrackBaseProcessor(FtrackBase):
         tokens[-1] = resolved_file_name
         ftrack_shot_path = os.path.sep.join(tokens)
 
-        ftrack_path = os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path)
+        ftrack_path = str(os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path))
         self._exportPath = ftrack_path
         self.setDestinationDescription(ftrack_path)
-        return ftrack_path
 
 
 class FtrackBaseProcessorUI(FtrackBase):

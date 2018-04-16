@@ -17,7 +17,7 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackBaseProcessor):
         NukeRenderTask.__init__(self, initDict)
         FtrackBaseProcessor.__init__(self, initDict)
 
-    def createTranscodeScritp(self):
+    def createTranscodeScript(self):
         # This code is taken from TranscodeExporter.__init__
         # in order to output the nuke file in the right place we need to override this.
 
@@ -51,11 +51,15 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackBaseProcessor):
 
             # Create a job on our submission to do the actual rendering.
             self._renderTask = self._submission.addJob(Submission.kNukeRender, submissionDict, self._scriptfile)
+            # ensure sub tasks do not create folders
+            self._renderTask._makePath = FtrackBaseProcessor._makePath(self)
 
     def updateItem(self, originalItem, localtime):
         TranscodeExporter.updateItem(self,  originalItem, localtime)
+        # We need to create the project structure right before spawning any job so we have access
+        # to the ftrack structure and location.
         FtrackBaseProcessor.updateItem(self, originalItem, localtime)
-        self.createTranscodeScritp()
+        self.createTranscodeScript()
 
     def finishTask(self):
         FtrackBaseProcessor.finishTask(self)
