@@ -4,6 +4,8 @@ from hiero.exporters.FnShotProcessor import ShotProcessorPreset
 from hiero.exporters.FnShotProcessor import ShotProcessor
 from hiero.exporters.FnShotProcessorUI import ShotProcessorUI
 
+from QtExt import QtWidgets
+
 from .ftrack_base import FtrackBaseProcessor, FtrackBaseProcessorPreset, FtrackBaseProcessorUI
 
 
@@ -27,6 +29,14 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBaseProcessorUI):
 
     def updatePathPreview(self):
         self._pathPreviewWidget.setText('Ftrack Server: {0}'.format(self.session.server_url))
+
+    def createVersionWidget(self):
+        # disable version widget
+        widget = QtWidgets.QWidget()
+        layout = QtWidgets.QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        widget.setLayout(layout)
+        return widget
 
 
 class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBaseProcessorPreset):
