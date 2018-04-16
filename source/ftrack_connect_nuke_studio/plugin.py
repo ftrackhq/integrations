@@ -29,9 +29,6 @@ import ftrack_connect_nuke_studio.ui.tag_manager
 import ftrack_connect_nuke_studio.ui.create_project
 import ftrack_connect_nuke_studio.ui.widget.info_view
 
-# Start thread to handle events from ftrack.
-eventHubThread = ftrack_connect.event_hub_thread.EventHubThread()
-eventHubThread.start()
 
 ftrack_connect.ui.theme.applyFont()
 
