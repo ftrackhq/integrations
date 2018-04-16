@@ -170,7 +170,7 @@ class FtrackBaseProcessor(FtrackBase):
         self.addFtrackTag(originalItem, localtime)
 
     def addFtrackTag(self, originalItem, localtime):
-        processor_id = self.ftrack_properties['processor_id']
+        processor_id = str(self.ftrack_properties['processor_id'])
 
         existingTag = None
         for tag in originalItem.tags():
@@ -179,11 +179,10 @@ class FtrackBaseProcessor(FtrackBase):
                 break
 
         if existingTag:
-            existingTag.metadata().setValue("tag.component_id", self._component['id'])
             existingTag.metadata().setValue("tag.version_id", self._component['version']['id'])
             existingTag.metadata().setValue("tag.asset_id", self._component['version']['asset']['id'])
             existingTag.metadata().setValue("tag.version", str(self._component['version']['version']))
-
+            self.logger.info('Updating tag: %s' % existingTag)
             # Move the tag to the end of the list.
             originalItem.removeTag(existingTag)
             originalItem.addTag(existingTag)
@@ -202,7 +201,7 @@ class FtrackBaseProcessor(FtrackBase):
             False
         )
 
-        tag.metadata().setValue("tag.presetid", str(processor_id))
+        tag.metadata().setValue("tag.presetid", processor_id)
         tag.metadata().setValue("tag.processor",  self.__class__.__name__)
         tag.metadata().setValue("tag.component_id",  self._component['id'])
         tag.metadata().setValue("tag.version_id",  self._component['version']['id'])
