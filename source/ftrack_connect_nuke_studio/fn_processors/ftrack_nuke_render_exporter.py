@@ -55,11 +55,11 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackBaseProcessor):
             self._renderTask._makePath = FtrackBaseProcessor._makePath(self)
 
     def updateItem(self, originalItem, localtime):
-        TranscodeExporter.updateItem(self,  originalItem, localtime)
         # We need to create the project structure right before spawning any job so we have access
         # to the ftrack structure and location.
         FtrackBaseProcessor.updateItem(self, originalItem, localtime)
         self.createTranscodeScript()
+        TranscodeExporter.updateItem(self,  originalItem, localtime)
 
     def finishTask(self):
         FtrackBaseProcessor.finishTask(self)
