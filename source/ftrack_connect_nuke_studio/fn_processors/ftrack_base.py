@@ -211,6 +211,7 @@ class FtrackBaseProcessor(FtrackBase):
             False
         )
 
+        tag.metadata().setValue("tag.presetid", str(processor_id))
         tag.metadata().setValue("tag.processor",  self.__class__.__name__)
         tag.metadata().setValue("tag.component_id",  self._component['id'])
         tag.metadata().setValue("tag.version_id",  self._component['version']['id'])
@@ -256,6 +257,7 @@ class FtrackBaseProcessor(FtrackBase):
 
     def _makePath(self):
         # do not create any folder!
+        self.logger.debug('Skip creating folder for : %s' % self.__class__.__name__)
         pass
         
     def publishThumbnail(self, component):
@@ -391,7 +393,6 @@ class FtrackBaseProcessor(FtrackBase):
         return task
 
     def _create_component_fragment(self, name, parent, task):
-        # asset_type = task._preset.properties()['ftrack']['asset_type_code']
         component = parent.create_component('/', {
             'name':  self.ftrack_properties['component_name']
         }, location=None)
