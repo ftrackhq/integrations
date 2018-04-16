@@ -9,10 +9,10 @@ Release Notes
 
 .. release:: Upcoming
 
-    .. change:: changed
+    .. change:: fixed
        :tags: Crew
 
-        Remove Crew widget chat and notifications.
+        Nuke Studio 11.1 crashes with ftrack integration.
 
 .. release:: 1.1.1
     :date: 2017-12-14
