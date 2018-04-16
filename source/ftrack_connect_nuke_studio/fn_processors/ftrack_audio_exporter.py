@@ -57,6 +57,7 @@ class FtrackAudioExporterPreset(AudioExportPreset, FtrackBasePreset):
         self.properties()['ftrack']['asset_type_code'] = 'audio'
         self.properties()['ftrack']['component_name'] = 'main'
         self.properties()['ftrack']['component_pattern'] = '.{ext}'
+        self.properties()['ftrack']['opt_publish_thumbnail'] = False
 
     def addCustomResolveEntries(self, resolver):
         FtrackBasePreset.addFtrackResolveEntries(self, resolver)

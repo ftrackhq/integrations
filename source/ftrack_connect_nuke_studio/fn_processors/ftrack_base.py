@@ -245,7 +245,9 @@ class FtrackBaseProcessor(FtrackBase):
                 }
         )
         # add option to publish or not the thumbnail
-        self.publishThumbnail(component)
+        if self.ftrack_properties['opt_publish_thumbnail']:
+            self.publishThumbnail(component)
+
         self.session.commit()
         self.session.delete(component)
 
