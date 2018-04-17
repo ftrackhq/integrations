@@ -23,10 +23,10 @@ class FtrackTimelineProcessorUI(TimelineProcessorUI, FtrackBaseProcessorUI):
         FtrackBaseProcessorUI.__init__(self, preset)
 
     def displayName(self):
-        return "Ftrack Timeline Processor"
+        return 'Ftrack Timeline Processor'
 
     def toolTip(self):
-        return "Process as Shots generates output on a per shot basis."
+        return 'Process as Shots generates output on a per shot basis.'
 
     def updatePathPreview(self):
         self._pathPreviewWidget.setText('Ftrack Server: {0}'.format(self.session.server_url))

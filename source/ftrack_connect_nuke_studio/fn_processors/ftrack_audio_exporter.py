@@ -13,11 +13,10 @@ class FtrackAudioExporter(AudioExportTask, FtrackBaseProcessor):
         self._do_publish = self._item.mediaType() is hiero.core.TrackItem.MediaType.kVideo
 
     def canPublish(self):
-        has_audio = self._item.mediaSource().hasAudio()
         is_video = self._item.mediaType() is hiero.core.TrackItem.MediaType.kVideo
         is_audio = self._item.mediaType() is hiero.core.TrackItem.MediaType.kAudio
 
-        if (is_video and has_audio) or is_audio:
+        if is_video or is_audio:
             return True
         return False
 
@@ -62,7 +61,7 @@ class FtrackAudioExporterPreset(AudioExportPreset, FtrackBasePreset):
     def addCustomResolveEntries(self, resolver):
         FtrackBasePreset.addFtrackResolveEntries(self, resolver)
         # ensure to have {ext} set to a wav fixed extension
-        resolver.addResolver("{ext}", "Extension of the file to be output", 'wav')
+        resolver.addResolver('{ext}', 'Extension of the file to be output', 'wav')
 
 
 class FtrackAudioExporterUI(AudioExportUI, FtrackBase):
@@ -70,7 +69,7 @@ class FtrackAudioExporterUI(AudioExportUI, FtrackBase):
         AudioExportUI.__init__(self, preset)
         FtrackBase.__init__(self, preset)
 
-        self._displayName = "Ftrack Audio Exporter"
+        self._displayName = 'Ftrack Audio Exporter'
         self._taskType = FtrackAudioExporter
 
 

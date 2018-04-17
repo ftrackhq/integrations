@@ -58,7 +58,7 @@ class FtrackEDLExporterUI(EDLExportUI, FtrackBase):
         EDLExportUI.__init__(self, preset)
         FtrackBase.__init__(self, preset)
 
-        self._displayName = "Ftrack EDL Exporter"
+        self._displayName = 'Ftrack EDL Exporter'
         self._taskType = FtrackEDLExporter
 
 

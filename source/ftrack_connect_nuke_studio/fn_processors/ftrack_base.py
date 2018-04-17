@@ -33,7 +33,6 @@ FTRACK_SHOT_PATH = os.path.join(
     )
 
 
-
 class FtrackBase(object):
     '''
     wrap ftrack functionalities and methods
@@ -46,9 +45,7 @@ class FtrackBase(object):
         self.session = ftrack_api.Session()
 
     def timeStampString(self, localtime):
-        """timeStampString(localtime)
-           Convert a tuple or struct_time representing a time as returned by gmtime() or localtime() to a string formated YEAR/MONTH/DAY TIME."""
-        return time.strftime("%Y/%m/%d %X", localtime)
+        return time.strftime('%Y/%m/%d %X', localtime)
 
     @property
     def hiero_version_touple(self):
@@ -99,7 +96,7 @@ class FtrackBasePreset(FtrackBase):
         self.properties()['ftrack']['processor_id'] = hash(self.__class__.__name__)
 
     def set_export_root(self):
-        self.properties()["exportRoot"] = self.ftrack_location.accessor.prefix
+        self.properties()['exportRoot'] = self.ftrack_location.accessor.prefix
 
     def resolve_ftrack_project(self, task):
         return task.projectName()
@@ -129,38 +126,38 @@ class FtrackBasePreset(FtrackBase):
     def addFtrackResolveEntries(self, resolver):
 
         resolver.addResolver(
-            "{ftrack_project}",
-            "Ftrack project name.",
+            '{ftrack_project}',
+            'Ftrack project name.',
             lambda keyword, task: self.resolve_ftrack_project(task)
         )
 
         resolver.addResolver(
-            "{ftrack_sequence}",
-            "Ftrack sequence name.",
+            '{ftrack_sequence}',
+            'Ftrack sequence name.',
             lambda keyword, task: self.resolve_ftrack_sequence(task)
         )
 
         resolver.addResolver(
-            "{ftrack_shot}",
-            "Ftrack shot name.",
+            '{ftrack_shot}',
+            'Ftrack shot name.',
             lambda keyword, task: self.resolve_ftrack_shot(task)
         )
 
         resolver.addResolver(
-            "{ftrack_task}",
-            "Ftrack task name.",
+            '{ftrack_task}',
+            'Ftrack task name.',
             lambda keyword, task: self.resolve_ftrack_task(task)
         )
 
         resolver.addResolver(
-            "{ftrack_asset}",
-            "Ftrack asset name.",
+            '{ftrack_asset}',
+            'Ftrack asset name.',
             lambda keyword, task: self.resolve_ftrack_asset(task)
         )
 
         resolver.addResolver(
-            "{ftrack_component}",
-            "Ftrack component name.",
+            '{ftrack_component}',
+            'Ftrack component name.',
             lambda keyword, task: self.resolve_ftrack_component(task)
         )
 
@@ -204,15 +201,15 @@ class FtrackBaseProcessor(FtrackBase):
 
         existingTag = None
         for tag in originalItem.tags():
-            if tag.metadata().hasKey("tag.presetid") and tag.metadata()["tag.presetid"] == processor_id:
+            if tag.metadata().hasKey('tag.presetid') and tag.metadata()['tag.presetid'] == processor_id:
                 existingTag = tag
                 break
 
         if existingTag:
-            existingTag.metadata().setValue("tag.version_id", self._component['version']['id'])
-            existingTag.metadata().setValue("tag.asset_id", self._component['version']['asset']['id'])
-            existingTag.metadata().setValue("tag.version", str(self._component['version']['version']))
-            self.logger.info('Updating tag: %s' % existingTag)
+            existingTag.metadata().setValue('tag.version_id', self._component['version']['id'])
+            existingTag.metadata().setValue('tag.asset_id', self._component['version']['asset']['id'])
+            existingTag.metadata().setValue('tag.version', str(self._component['version']['version']))
+            self.logger.info('Updating tag: {0}'.format(existingTag))
             # Move the tag to the end of the list.
             originalItem.removeTag(existingTag)
             originalItem.addTag(existingTag)
@@ -227,21 +224,20 @@ class FtrackBaseProcessor(FtrackBase):
 
         tag = hiero.core.Tag(
             tag_name,
-            ":/ftrack/image/default/ftrackLogoColor",
+            ':/ftrack/image/default/ftrackLogoColor',
             False
         )
 
-        tag.metadata().setValue("tag.presetid", processor_id)
-        tag.metadata().setValue("tag.processor",  self.__class__.__name__)
-        tag.metadata().setValue("tag.component_id",  self._component['id'])
-        tag.metadata().setValue("tag.version_id",  self._component['version']['id'])
-        tag.metadata().setValue("tag.asset_id",  self._component['version']['asset']['id'])
-        tag.metadata().setValue("tag.version", str(self._component['version']['version']))
+        tag.metadata().setValue('tag.presetid', processor_id)
+        tag.metadata().setValue('tag.processor',  self.__class__.__name__)
+        tag.metadata().setValue('tag.component_id',  self._component['id'])
+        tag.metadata().setValue('tag.version_id',  self._component['version']['id'])
+        tag.metadata().setValue('tag.asset_id',  self._component['version']['asset']['id'])
+        tag.metadata().setValue('tag.version', str(self._component['version']['version']))
 
-        tag.metadata().setValue("tag.description", "Ftrack Entity")
+        tag.metadata().setValue('tag.description', 'Ftrack Entity')
 
-        self.logger.info('Adding tag: %s to item %s' % (tag, originalItem))
-
+        self.logger.info('Adding tag: {0} to item {1}'.format(tag, originalItem))
         originalItem.addTag(tag)
 
     def finishTask(self):
@@ -272,10 +268,10 @@ class FtrackBaseProcessor(FtrackBase):
         self.session.delete(component)
 
     def timeStampString(self, localtime):
-        """timeStampString(localtime)
+        '''timeStampString(localtime)
         Convert a tuple or struct_time representing a time as returned by gmtime() or localtime() to a string formated YEAR/MONTH/DAY TIME.
-        """
-        return time.strftime("%Y/%m/%d %X", localtime)
+        '''
+        return time.strftime('%Y/%m/%d %X', localtime)
 
     def _makePath(self):
         # do not create any folder!
@@ -337,14 +333,14 @@ class FtrackBaseProcessor(FtrackBase):
     def asset_type_per_task(self, task):
         asset_type = task._preset.properties()['ftrack']['asset_type_code']
         result = self.session.query(
-            'AssetType where short is "{}"'.format(asset_type)
+            'AssetType where short is "{0}"'.format(asset_type)
         ).one()
 
         return result
 
     def _create_project_fragment(self, name, parent, task):
         project = self.session.query(
-            'Project where name is "{}"'.format(name)
+            'Project where name is "{0}"'.format(name)
         ).first()
         if not project:
             project = self.session.create('Project', {
@@ -356,7 +352,7 @@ class FtrackBaseProcessor(FtrackBase):
 
     def _create_sequence_fragment(self, name, parent, task):
         sequence = self.session.query(
-            'Sequence where name is "{}" and parent.id is "{}"'.format(name, parent['id'])
+            'Sequence where name is "{0}" and parent.id is "{1}"'.format(name, parent['id'])
         ).first()
         if not sequence:
             sequence = self.session.create('Sequence', {
@@ -367,7 +363,7 @@ class FtrackBaseProcessor(FtrackBase):
 
     def _create_shot_fragment(self, name, parent, task):
         shot = self.session.query(
-            'Shot where name is "{}" and parent.id is "{}"'.format(name, parent['id'])
+            'Shot where name is "{0}" and parent.id is "{1}"'.format(name, parent['id'])
         ).first()
         if not shot:
             shot = self.session.create('Shot', {
@@ -379,7 +375,7 @@ class FtrackBaseProcessor(FtrackBase):
 
     def _create_asset_fragment(self, name, parent, task):
         asset = self.session.query(
-            'Asset where name is "{}" and parent.id is "{}"'.format(name, parent['parent']['id'])
+            'Asset where name is "{0}" and parent.id is "{1}"'.format(name, parent['parent']['id'])
         ).first()
         if not asset:
             asset = self.session.create('Asset', {
@@ -403,7 +399,7 @@ class FtrackBaseProcessor(FtrackBase):
 
     def _create_task_fragment(self, name, parent, task):
         task = self.session.query(
-            'Task where name is "{}" and parent.id is "{}"'.format(name, parent['id'])
+            'Task where name is "{0}" and parent.id is "{1}"'.format(name, parent['id'])
         ).first()
         if not task:
             task = self.session.create('Task', {
@@ -422,7 +418,7 @@ class FtrackBaseProcessor(FtrackBase):
         return component
 
     def _skip_fragment(self, name, parent, task):
-        self.logger.warning('Skpping : {}'.format(name))
+        self.logger.warning('Skpping : {0}'.format(name))
         
     def create_project_structure(self):
         preset_name = self._preset.name()
@@ -462,16 +458,6 @@ class FtrackBaseProcessorUI(FtrackBase):
     def __init__(self, preset):
         super(FtrackBaseProcessorUI, self).__init__(preset)
         self._nodeSelectionWidget = None
-
-    def _checkExistingVersions(self, exportItems):
-        """ Iterate over all the track items which are set to be exported, and check if they have previously
-        been exported with the same version as the setting in the current preset.  If yes, show a message box
-        asking the user if they would like to increment the version, or overwrite it. """
-
-        for item in exportItems:
-            self.logger.info('_checkExistingVersions of:{0}'.format(item.name()))
-
-        return super(FtrackBaseProcessorUI, self)._checkExistingVersions(exportItems)
 
     def onItemSelected(self, item):
         self.logger.info(item.track)

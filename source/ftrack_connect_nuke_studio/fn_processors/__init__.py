@@ -30,16 +30,16 @@ def register_processors():
     shot_name = 'Ftrack Shot Base Preset'
 
     nuke_script_processor = FtrackNukeShotExporterPreset(
-        "NukeScript",
+        'NukeScript',
         {
             'readPaths': [],
             'writePaths': [ftrack_shot_path],
-            'timelineWriteNode': "",
+            'timelineWriteNode': '',
         }
     )
 
     nuke_render_processor = FtrackNukeRenderExporterPreset(
-        "Plate",
+        'Plate',
         {
             'file_type': 'dpx',
             'dpx': {
@@ -49,17 +49,17 @@ def register_processors():
     )
 
     audio_processor = FtrackAudioExporterPreset(
-        "Audio", {}
+        'Audio', {}
     )
 
     shot_properties = {
-        "exportTemplate": (
+        'exportTemplate': (
             (ftrack_shot_path, nuke_script_processor),
             (ftrack_shot_path, nuke_render_processor),
             # (ftrack_shot_path, audio_processor),
 
         ),
-        "cutLength": True,
+        'cutLength': True,
     }
 
     shot_preset = FtrackShotProcessorPreset(
@@ -72,14 +72,14 @@ def register_processors():
     timeline_name = 'Ftrack Timeline Base Preset'
 
     edl_processor = FtrackEDLExporterPreset(
-        "EDL", {}
+        'EDL', {}
     )
 
     timeline_properties = {
-        "exportTemplate": (
+        'exportTemplate': (
             (ftrack_show_path, edl_processor),
         ),
-        "cutLength": True,
+        'cutLength': True,
     }
 
     timeline_preset = FtrackTimelineProcessorPreset(

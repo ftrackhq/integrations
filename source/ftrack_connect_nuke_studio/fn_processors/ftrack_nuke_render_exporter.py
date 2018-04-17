@@ -28,17 +28,17 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackBaseProcessor):
         dirname, filename = os.path.split(path)
         root, ext = os.path.splitext(filename)
 
-        percentmatch = re.search("%\d+d", root)
+        percentmatch = re.search('%\d+d', root)
         if percentmatch:
             percentpad = percentmatch.group()
             root = root.replace(percentpad, '')
 
-        self._root = dirname + "/" + root.rstrip('#').rstrip('.')
+        self._root = dirname + '/' + root.rstrip('#').rstrip('.')
 
-        scriptExtension = ".nknc" if hiero.core.isNC() else ".nk"
+        scriptExtension = '.nknc' if hiero.core.isNC() else '.nk'
         self._scriptfile = str(self._root + scriptExtension)
 
-        self.logger.info("TranscodeExporter writing script to %s", self._scriptfile)
+        self.logger.info('TranscodeExporter writing script to %s', self._scriptfile)
 
         self._renderTask = None
         if self._submission is not None:
@@ -46,8 +46,8 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackBaseProcessor):
             # server, otherwise it would have to evaluate the script to determine it.
             start, end = self.outputRange()
             submissionDict = copy.copy(self._init_dict)
-            submissionDict["startFrame"] = start
-            submissionDict["endFrame"] = end
+            submissionDict['startFrame'] = start
+            submissionDict['endFrame'] = end
 
             # Create a job on our submission to do the actual rendering.
             self._renderTask = self._submission.addJob(Submission.kNukeRender, submissionDict, self._scriptfile)
@@ -98,7 +98,7 @@ class FtrackNukeRenderExporterUI(TranscodeExporterUI, FtrackBase):
         TranscodeExporterUI.__init__(self, preset)
         FtrackBase.__init__(self, preset)
 
-        self._displayName = "Ftrack Nuke Render"
+        self._displayName = 'Ftrack Nuke Render'
         self._taskType = FtrackNukeRenderExporter
 
 
