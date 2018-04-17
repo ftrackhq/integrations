@@ -27,7 +27,7 @@ def register_processors():
 
     # Register the base preset for ftrack shot processor.
     # this could be moved to a discover function
-    shot_name = 'Ftrack Shot Base Preset'
+    shot_name = 'Ftrack Shot Preset'
 
     nuke_script_processor = FtrackNukeShotExporterPreset(
         'NukeScript',
@@ -69,7 +69,7 @@ def register_processors():
 
     # Register the base preset for ftrack timeline processor.
     # this could be moved to a discover function
-    timeline_name = 'Ftrack Timeline Base Preset'
+    timeline_name = 'Ftrack Timeline Preset'
 
     edl_processor = FtrackEDLExporterPreset(
         'EDL', {}

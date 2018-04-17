@@ -475,6 +475,7 @@ class FtrackBaseProcessorUI(FtrackBase):
         layout = widget.layout()
         layout.addLayout(formLayout)
         formLayout.addDivider("Ftrack Options")
+
         # ----------------------------------
         # Thumbanil generation
 
