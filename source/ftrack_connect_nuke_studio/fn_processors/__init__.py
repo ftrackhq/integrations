@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 # override foundry logger to get some useful output
-hiero.core.log = logger
+# hiero.core.log = logger
 
 
 def register_processors():
@@ -56,7 +56,7 @@ def register_processors():
         "exportTemplate": (
             (ftrack_shot_path, nuke_script_processor),
             (ftrack_shot_path, nuke_render_processor),
-            (ftrack_shot_path, audio_processor),
+            # (ftrack_shot_path, audio_processor),
 
         ),
         "cutLength": True,
@@ -98,6 +98,6 @@ def register_processors():
         existing = [p.name() for p in registry.localPresets()]
         if shot_name in existing:
             registry.removeProcessorPreset(register_name)
-        logger.debug('Registering processors {0}'.format(register_name))
+        logger.debug('Registering Ftrack Processor: {0}'.format(register_name))
         hiero.core.taskRegistry.removeProcessorPreset(register_name)
         hiero.core.taskRegistry.addProcessorPreset(register_name, register_preset)
