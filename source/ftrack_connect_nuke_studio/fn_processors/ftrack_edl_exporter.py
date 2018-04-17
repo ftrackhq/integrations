@@ -1,5 +1,10 @@
+import re
 import hiero.core
-from hiero.exporters.FnEDLExportTask import EDLExportTask, EDLExportPreset
+from hiero.exporters.FnEDLExportTask import (
+    EDLExportTask,
+    EDLExportPreset
+)
+
 from hiero.exporters.FnEDLExportUI import EDLExportUI
 
 from ftrack_base import FtrackBasePreset, FtrackBase, FtrackBaseProcessor
@@ -10,8 +15,9 @@ class FtrackEDLExporter(EDLExportTask, FtrackBaseProcessor):
         EDLExportTask.__init__(self, initDict)
         FtrackBaseProcessor.__init__(self, initDict)
 
-    def updateItem(self, originalItem, localtime):
-        FtrackBaseProcessor.updateItem(self, originalItem, localtime)
+    def startTask(self):
+        self.create_project_structure()
+        EDLExportTask.startTask()
 
     def finishTask(self):
         FtrackBaseProcessor.finishTask(self)
@@ -44,6 +50,7 @@ class FtrackEDLExporterPreset(EDLExportPreset, FtrackBasePreset):
     def addUserResolveEntries(self, resolver):
         FtrackBasePreset.addFtrackResolveEntries(self, resolver)
         EDLExportPreset.addCustomResolveEntries(self, resolver)
+        self.properties()["fromClip"] = "{ftrack_task}"
 
 
 class FtrackEDLExporterUI(EDLExportUI, FtrackBase):

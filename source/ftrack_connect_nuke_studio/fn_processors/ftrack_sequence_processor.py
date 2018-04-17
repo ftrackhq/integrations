@@ -1,8 +1,8 @@
 # Copyright (c) 2011 The Foundry Visionmongers Ltd.  All Rights Reserved.
 
-from hiero.exporters.FnShotProcessor import ShotProcessorPreset
-from hiero.exporters.FnShotProcessor import ShotProcessor
-from hiero.exporters.FnShotProcessorUI import ShotProcessorUI
+from hiero.exporters.FnTimelineProcessor import TimelineProcessor
+from hiero.exporters.FnTimelineProcessor import TimelineProcessorPreset
+from hiero.exporters.FnTimelineProcessorUI import TimelineProcessorUI
 from hiero.core.FnProcessor import _expandTaskGroup
 
 from QtExt import QtWidgets
@@ -10,20 +10,20 @@ from QtExt import QtWidgets
 from .ftrack_base import FtrackBaseProcessor, FtrackBaseProcessorPreset, FtrackBaseProcessorUI
 
 
-class FtrackShotProcessor(ShotProcessor, FtrackBaseProcessor):
+class FtrackSequenceProcessor(TimelineProcessor, FtrackBaseProcessor):
     def __init__(self, preset, submission, synchronous=False):
-        ShotProcessor.__init__(self, preset, submission, synchronous=synchronous)
+        TimelineProcessor.__init__(self, preset, submission, synchronous=synchronous)
         FtrackBaseProcessor.__init__(self, preset)
 
 
-class FtrackShotProcessorUI(ShotProcessorUI, FtrackBaseProcessorUI):
+class FtrackSequenceProcessorUI(TimelineProcessorUI, FtrackBaseProcessorUI):
 
     def __init__(self, preset):
-        ShotProcessorUI.__init__(self, preset)
+        TimelineProcessorUI.__init__(self, preset)
         FtrackBaseProcessorUI.__init__(self, preset)
 
     def displayName(self):
-        return "Ftrack Shot Processor"
+        return "Ftrack Sequence Processor"
 
     def toolTip(self):
         return "Process as Shots generates output on a per shot basis."
@@ -44,11 +44,11 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBaseProcessorUI):
         return widget
 
 
-class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBaseProcessorPreset):
+class FtrackSequenceProcessorPreset(TimelineProcessorPreset, FtrackBaseProcessorPreset):
     def __init__(self, name, properties):
-        ShotProcessorPreset.__init__(self, name, properties)
+        TimelineProcessorPreset.__init__(self, name, properties)
         FtrackBaseProcessorPreset.__init__(self, name, properties)
-        self._parentType = FtrackShotProcessor
+        self._parentType = FtrackSequenceProcessor
 
     def addCustomResolveEntries(self, resolver):
         FtrackBaseProcessorPreset.addFtrackResolveEntries(self, resolver)
