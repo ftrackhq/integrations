@@ -3,7 +3,7 @@ import hiero
 
 import logging
 from ftrack_shot_processor import FtrackShotProcessor, FtrackShotProcessorPreset, FtrackShotProcessorUI
-from ftrack_sequence_processor import FtrackTimelineProcessor, FtrackTimelineProcessorPreset, FtrackTimelineProcessorUI
+from ftrack_timeline_processor import FtrackTimelineProcessor, FtrackTimelineProcessorPreset, FtrackTimelineProcessorUI
 
 # custom processors
 from ftrack_nuke_shot_exporter import FtrackNukeShotExporterPreset
@@ -21,24 +21,6 @@ hiero.core.log = logger
 
 
 def register_processors():
-
-    # Register the ftrack shot processor.
-    hiero.ui.taskUIRegistry.registerProcessorUI(
-        FtrackShotProcessorPreset, FtrackShotProcessorUI
-    )
-
-    hiero.core.taskRegistry.registerProcessor(
-        FtrackShotProcessorPreset, FtrackShotProcessor
-    )
-
-    # Register the ftrack sequence processor.
-    hiero.ui.taskUIRegistry.registerProcessorUI(
-        FtrackTimelineProcessorPreset, FtrackTimelineProcessorUI
-    )
-
-    hiero.core.taskRegistry.registerProcessor(
-        FtrackTimelineProcessorPreset, FtrackTimelineProcessor
-    )
 
     ftrack_shot_path = FTRACK_SHOT_PATH
     ftrack_show_path = FTRACK_SHOW_PATH
@@ -69,7 +51,6 @@ def register_processors():
     audio_processor = FtrackAudioExporterPreset(
         "Audio", {}
     )
-
 
     shot_properties = {
         "exportTemplate": (
@@ -107,15 +88,16 @@ def register_processors():
 
     )
 
-    existing = [p.name() for p in registry.localPresets()]
-    if shot_name in existing:
-        registry.removeProcessorPreset(shot_name)
+    registers = [
+        (shot_name, shot_preset),
+        (timeline_name, timeline_preset),
 
-    hiero.core.taskRegistry.removeProcessorPreset(shot_name)
-    hiero.core.taskRegistry.addProcessorPreset(shot_name, shot_preset)
+    ]
 
-    if timeline_name in existing:
-        registry.removeProcessorPreset(timeline_name)
-
-    hiero.core.taskRegistry.removeProcessorPreset(timeline_name)
-    hiero.core.taskRegistry.addProcessorPreset(timeline_name, timeline_preset)
+    for register_name, register_preset in registers:
+        existing = [p.name() for p in registry.localPresets()]
+        if shot_name in existing:
+            registry.removeProcessorPreset(register_name)
+        logger.debug('Registering processors {0}'.format(register_name))
+        hiero.core.taskRegistry.removeProcessorPreset(register_name)
+        hiero.core.taskRegistry.addProcessorPreset(register_name, register_preset)

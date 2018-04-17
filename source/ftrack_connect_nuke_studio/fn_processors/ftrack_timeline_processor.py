@@ -1,9 +1,9 @@
 # Copyright (c) 2011 The Foundry Visionmongers Ltd.  All Rights Reserved.
+import hiero
 
 from hiero.exporters.FnTimelineProcessor import TimelineProcessor
 from hiero.exporters.FnTimelineProcessor import TimelineProcessorPreset
 from hiero.exporters.FnTimelineProcessorUI import TimelineProcessorUI
-from hiero.core.FnProcessor import _expandTaskGroup
 
 from QtExt import QtWidgets
 
@@ -27,9 +27,9 @@ class FtrackTimelineProcessorUI(TimelineProcessorUI, FtrackBaseProcessorUI):
 
     def toolTip(self):
         return "Process as Shots generates output on a per shot basis."
-    #
-    # def updatePathPreview(self):
-    #     self._pathPreviewWidget.setText('Ftrack Server: {0}'.format(self.session.server_url))
+
+    def updatePathPreview(self):
+        self._pathPreviewWidget.setText('Ftrack Server: {0}'.format(self.session.server_url))
 
     def _checkExistingVersions(self, exportItems):
         # disable version check as we handle this internally
@@ -52,3 +52,13 @@ class FtrackTimelineProcessorPreset(TimelineProcessorPreset, FtrackBaseProcessor
 
     def addCustomResolveEntries(self, resolver):
         FtrackBaseProcessorPreset.addFtrackResolveEntries(self, resolver)
+
+
+# Register the ftrack sequence processor.
+hiero.ui.taskUIRegistry.registerProcessorUI(
+    FtrackTimelineProcessorPreset, FtrackTimelineProcessorUI
+)
+
+hiero.core.taskRegistry.registerProcessor(
+    FtrackTimelineProcessorPreset, FtrackTimelineProcessor
+)
