@@ -10,20 +10,20 @@ from QtExt import QtWidgets
 from .ftrack_base import FtrackBaseProcessor, FtrackBaseProcessorPreset, FtrackBaseProcessorUI
 
 
-class FtrackSequenceProcessor(TimelineProcessor, FtrackBaseProcessor):
+class FtrackTimelineProcessor(TimelineProcessor, FtrackBaseProcessor):
     def __init__(self, preset, submission, synchronous=False):
         TimelineProcessor.__init__(self, preset, submission, synchronous=synchronous)
         FtrackBaseProcessor.__init__(self, preset)
 
 
-class FtrackSequenceProcessorUI(TimelineProcessorUI, FtrackBaseProcessorUI):
+class FtrackTimelineProcessorUI(TimelineProcessorUI, FtrackBaseProcessorUI):
 
     def __init__(self, preset):
         TimelineProcessorUI.__init__(self, preset)
         FtrackBaseProcessorUI.__init__(self, preset)
 
     def displayName(self):
-        return "Ftrack Sequence Processor"
+        return "Ftrack Timeline Processor"
 
     def toolTip(self):
         return "Process as Shots generates output on a per shot basis."
@@ -44,11 +44,11 @@ class FtrackSequenceProcessorUI(TimelineProcessorUI, FtrackBaseProcessorUI):
         return widget
 
 
-class FtrackSequenceProcessorPreset(TimelineProcessorPreset, FtrackBaseProcessorPreset):
+class FtrackTimelineProcessorPreset(TimelineProcessorPreset, FtrackBaseProcessorPreset):
     def __init__(self, name, properties):
         TimelineProcessorPreset.__init__(self, name, properties)
         FtrackBaseProcessorPreset.__init__(self, name, properties)
-        self._parentType = FtrackSequenceProcessor
+        self._parentType = FtrackTimelineProcessor
 
     def addCustomResolveEntries(self, resolver):
         FtrackBaseProcessorPreset.addFtrackResolveEntries(self, resolver)

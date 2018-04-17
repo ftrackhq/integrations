@@ -3,7 +3,7 @@ import hiero
 
 import logging
 from ftrack_shot_processor import FtrackShotProcessor, FtrackShotProcessorPreset, FtrackShotProcessorUI
-from ftrack_sequence_processor import FtrackSequenceProcessor, FtrackSequenceProcessorPreset, FtrackSequenceProcessorUI
+from ftrack_sequence_processor import FtrackTimelineProcessor, FtrackTimelineProcessorPreset, FtrackTimelineProcessorUI
 
 # custom processors
 from ftrack_nuke_shot_exporter import FtrackNukeShotExporterPreset
@@ -33,11 +33,11 @@ def register_processors():
 
     # Register the ftrack sequence processor.
     hiero.ui.taskUIRegistry.registerProcessorUI(
-        FtrackSequenceProcessorPreset, FtrackSequenceProcessorUI
+        FtrackTimelineProcessorPreset, FtrackTimelineProcessorUI
     )
 
     hiero.core.taskRegistry.registerProcessor(
-        FtrackSequenceProcessorPreset, FtrackSequenceProcessor
+        FtrackTimelineProcessorPreset, FtrackTimelineProcessor
     )
 
     ftrack_shot_path = FTRACK_SHOT_PATH
@@ -45,7 +45,7 @@ def register_processors():
 
     # Register the base preset for ftrack shot processor.
     # this could be moved to a discover function
-    shot_name = 'Shot Base Preset'
+    shot_name = 'Ftrack Shot Base Preset'
 
     nuke_script_processor = FtrackNukeShotExporterPreset(
         "NukeScript",
@@ -86,27 +86,26 @@ def register_processors():
         shot_properties
     )
 
-    # Register the base preset for ftrack sequence processor.
+    # Register the base preset for ftrack timeline processor.
     # this could be moved to a discover function
-    sequence_name = 'Sequence Base Preset'
+    timeline_name = 'Ftrack Timeline Base Preset'
 
     edl_processor = FtrackEDLExporterPreset(
         "EDL", {}
     )
 
-    sequence_properties = {
+    timeline_properties = {
         "exportTemplate": (
             (ftrack_show_path, edl_processor),
         ),
         "cutLength": True,
     }
 
-    sequence_preset = FtrackSequenceProcessorPreset(
-        sequence_name,
-        sequence_properties
+    timeline_preset = FtrackTimelineProcessorPreset(
+        timeline_name,
+        timeline_properties
 
     )
-
 
     existing = [p.name() for p in registry.localPresets()]
     if shot_name in existing:
@@ -115,8 +114,8 @@ def register_processors():
     hiero.core.taskRegistry.removeProcessorPreset(shot_name)
     hiero.core.taskRegistry.addProcessorPreset(shot_name, shot_preset)
 
-    if sequence_name in existing:
-        registry.removeProcessorPreset(sequence_name)
+    if timeline_name in existing:
+        registry.removeProcessorPreset(timeline_name)
 
-    hiero.core.taskRegistry.removeProcessorPreset(sequence_name)
-    hiero.core.taskRegistry.addProcessorPreset(sequence_name, sequence_preset)
+    hiero.core.taskRegistry.removeProcessorPreset(timeline_name)
+    hiero.core.taskRegistry.addProcessorPreset(timeline_name, timeline_preset)
