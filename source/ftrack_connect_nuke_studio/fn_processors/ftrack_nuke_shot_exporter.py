@@ -51,6 +51,5 @@ class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackBase):
         self._displayName = "Ftrack Nuke File"
         self._taskType = FtrackNukeShotExporter
 
-
 hiero.core.taskRegistry.registerTask(FtrackNukeShotExporterPreset, FtrackNukeShotExporter)
 hiero.ui.taskUIRegistry.registerTaskUI(FtrackNukeShotExporterPreset, FtrackNukeShotExporterUI)

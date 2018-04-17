@@ -8,6 +8,8 @@ from ftrack_shot_processor import FtrackShotProcessor, FtrackShotProcessorPreset
 from ftrack_nuke_shot_exporter import FtrackNukeShotExporterPreset
 from ftrack_nuke_render_exporter import FtrackNukeRenderExporterPreset
 from ftrack_audio_exporter import FtrackAudioExporterPreset
+from ftrack_edl_exporter import FtrackEDLExporterPreset
+from ftrack_base import FTRACK_SHOT_PATH, FTRACK_SHOW_PATH
 
 registry = hiero.core.taskRegistry
 logger = logging.getLogger(__name__)
@@ -28,14 +30,8 @@ def register_processors():
         FtrackShotProcessorPreset, FtrackShotProcessor
     )
 
-    ftrack_server_path = os.path.join(
-        '{ftrack_project}',
-        '{ftrack_sequence}',
-        '{ftrack_shot}',
-        '{ftrack_task}',
-        '{ftrack_asset}',
-        '{ftrack_component}'
-    )
+    ftrack_shot_path = FTRACK_SHOT_PATH
+    ftrack_show_path = FTRACK_SHOW_PATH
 
     # Register the base preset for ftrack shot processor.
     # this could be moved to a discover function
@@ -45,7 +41,7 @@ def register_processors():
         "NukeScript",
         {
             'readPaths': [],
-            'writePaths': [ftrack_server_path],
+            'writePaths': [ftrack_shot_path],
             'timelineWriteNode': "",
         }
     )
@@ -64,11 +60,16 @@ def register_processors():
         "Audio", {}
     )
 
+    edl_processor = FtrackEDLExporterPreset(
+        "EDL", {}
+    )
+
     properties = {
         "exportTemplate": (
-            (ftrack_server_path, nuke_script_processor),
-            (ftrack_server_path, nuke_render_processor),
-            # (ftrack_server_path, audio_processor)
+            (ftrack_shot_path, nuke_script_processor),
+            (ftrack_shot_path, nuke_render_processor),
+            (ftrack_shot_path, audio_processor),
+            (ftrack_show_path, edl_processor)
         ),
         "cutLength": True,
     }

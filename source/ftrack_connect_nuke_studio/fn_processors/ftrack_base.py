@@ -7,6 +7,33 @@ import tempfile
 from QtExt import QtCore
 
 
+FTRACK_SHOW_PATH = os.path.join(
+        '{ftrack_project}',
+        '{ftrack_task}',
+        '{ftrack_asset}',
+        '{ftrack_component}'
+    )
+
+FTRACK_SEQUENCE_PATH = os.path.join(
+        '{ftrack_project}',
+        '{ftrack_shot}',
+        '{ftrack_task}',
+        '{ftrack_asset}',
+        '{ftrack_component}'
+    )
+
+
+FTRACK_SHOT_PATH = os.path.join(
+        '{ftrack_project}',
+        '{ftrack_sequence}',
+        '{ftrack_shot}',
+        '{ftrack_task}',
+        '{ftrack_asset}',
+        '{ftrack_component}'
+    )
+
+
+
 class FtrackBase(object):
     '''
     wrap ftrack functionalities and methods
