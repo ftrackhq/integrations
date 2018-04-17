@@ -110,8 +110,11 @@ class FtrackBasePreset(FtrackBase):
 
     def resolve_ftrack_shot(self, task):
         trackItem = task._item
-        return trackItem.name().split('_')[1]        
-    
+        if not isinstance(trackItem, hiero.core.Sequence):
+            return trackItem.name().split('_')[1]
+        else:
+            return trackItem.name()
+
     def resolve_ftrack_task(self, task):
         return self.properties()['ftrack']['task_type']
 

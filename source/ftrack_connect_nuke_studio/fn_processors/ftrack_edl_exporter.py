@@ -17,7 +17,7 @@ class FtrackEDLExporter(EDLExportTask, FtrackBaseProcessor):
 
     def startTask(self):
         self.create_project_structure()
-        EDLExportTask.startTask()
+        EDLExportTask.startTask(self)
 
     def finishTask(self):
         FtrackBaseProcessor.finishTask(self)
@@ -46,11 +46,11 @@ class FtrackEDLExporterPreset(EDLExportPreset, FtrackBasePreset):
         self.properties()['ftrack']['asset_type_code'] = 'edl'
         self.properties()['ftrack']['component_name'] = 'main'
         self.properties()['ftrack']['component_pattern'] = '.{ext}'
+        self.properties()['ftrack']['opt_publish_thumbnail'] = False
 
     def addUserResolveEntries(self, resolver):
         FtrackBasePreset.addFtrackResolveEntries(self, resolver)
         EDLExportPreset.addCustomResolveEntries(self, resolver)
-        self.properties()["fromClip"] = "{ftrack_task}"
 
 
 class FtrackEDLExporterUI(EDLExportUI, FtrackBase):
