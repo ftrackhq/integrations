@@ -1,7 +1,8 @@
 import hiero.core.util
 from hiero.exporters.FnNukeShotExporter import NukeShotExporter, NukeShotPreset
 from hiero.exporters.FnNukeShotExporterUI import NukeShotExporterUI
-from ftrack_base import FtrackBasePreset, FtrackBase, FtrackBaseProcessor
+
+from ftrack_base import FtrackBasePreset, FtrackBaseProcessor, FtrackBaseProcessorUI
 
 
 class FtrackNukeShotExporter(NukeShotExporter, FtrackBaseProcessor):
@@ -43,13 +44,18 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackBasePreset):
         FtrackBasePreset.addFtrackResolveEntries(self, resolver)
 
 
-class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackBase):
+class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackBaseProcessorUI):
     def __init__(self, preset):
         NukeShotExporterUI.__init__(self, preset)
-        FtrackBase.__init__(self, preset)
+        FtrackBaseProcessorUI.__init__(self, preset)
 
         self._displayName = 'Ftrack Nuke File'
         self._taskType = FtrackNukeShotExporter
+
+    def populateUI(self, widget, exportTemplate):
+        NukeShotExporterUI.populateUI(self, widget, exportTemplate)
+        FtrackBaseProcessorUI.addFtrackUI(self, widget, exportTemplate)
+
 
 hiero.core.taskRegistry.registerTask(FtrackNukeShotExporterPreset, FtrackNukeShotExporter)
 hiero.ui.taskUIRegistry.registerTaskUI(FtrackNukeShotExporterPreset, FtrackNukeShotExporterUI)

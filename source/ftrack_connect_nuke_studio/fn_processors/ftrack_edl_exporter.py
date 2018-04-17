@@ -7,7 +7,7 @@ from hiero.exporters.FnEDLExportTask import (
 
 from hiero.exporters.FnEDLExportUI import EDLExportUI
 
-from ftrack_base import FtrackBasePreset, FtrackBase, FtrackBaseProcessor
+from ftrack_base import FtrackBasePreset, FtrackBaseProcessor, FtrackBaseProcessorUI
 
 
 class FtrackEDLExporter(EDLExportTask, FtrackBaseProcessor):
@@ -53,10 +53,10 @@ class FtrackEDLExporterPreset(EDLExportPreset, FtrackBasePreset):
         EDLExportPreset.addCustomResolveEntries(self, resolver)
 
 
-class FtrackEDLExporterUI(EDLExportUI, FtrackBase):
+class FtrackEDLExporterUI(EDLExportUI, FtrackBaseProcessorUI):
     def __init__(self, preset):
         EDLExportUI.__init__(self, preset)
-        FtrackBase.__init__(self, preset)
+        FtrackBaseProcessorUI.__init__(self, preset)
 
         self._displayName = 'Ftrack EDL Exporter'
         self._taskType = FtrackEDLExporter

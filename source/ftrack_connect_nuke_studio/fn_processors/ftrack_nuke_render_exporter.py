@@ -8,7 +8,7 @@ from hiero.exporters.FnTranscodeExporter import TranscodeExporter, TranscodePres
 from hiero.exporters.FnTranscodeExporterUI import TranscodeExporterUI
 from hiero.exporters.FnExternalRender import NukeRenderTask
 
-from ftrack_base import FtrackBasePreset, FtrackBase, FtrackBaseProcessor
+from ftrack_base import FtrackBasePreset, FtrackBaseProcessor, FtrackBaseProcessorUI
 
 
 class FtrackNukeRenderExporter(TranscodeExporter, FtrackBaseProcessor):
@@ -93,13 +93,17 @@ class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackBasePreset):
         FtrackBasePreset.addFtrackResolveEntries(self, resolver)
 
 
-class FtrackNukeRenderExporterUI(TranscodeExporterUI, FtrackBase):
+class FtrackNukeRenderExporterUI(TranscodeExporterUI, FtrackBaseProcessorUI):
     def __init__(self, preset):
         TranscodeExporterUI.__init__(self, preset)
-        FtrackBase.__init__(self, preset)
+        FtrackBaseProcessorUI.__init__(self, preset)
 
         self._displayName = 'Ftrack Nuke Render'
         self._taskType = FtrackNukeRenderExporter
+
+    def populateUI(self, widget, exportTemplate):
+        TranscodeExporterUI.populateUI(self, widget, exportTemplate)
+        FtrackBaseProcessorUI.addFtrackUI(self, widget, exportTemplate)
 
 
 hiero.core.taskRegistry.registerTask(FtrackNukeRenderExporterPreset, FtrackNukeRenderExporter)

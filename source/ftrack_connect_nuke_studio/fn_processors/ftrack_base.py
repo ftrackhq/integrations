@@ -4,8 +4,11 @@ import logging
 import ftrack_api
 import time
 import tempfile
-from QtExt import QtCore
+from QtExt import QtCore, QtWidgets
 
+
+from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
+from hiero.ui.FnUIProperty import *
 
 FTRACK_SHOW_PATH = os.path.join(
         '{ftrack_project}',
@@ -92,8 +95,10 @@ class FtrackBasePreset(FtrackBase):
         self.properties()['ftrack']['task_status'] = 'Not Started'
         self.properties()['ftrack']['shot_status'] = 'In progress'
         self.properties()['ftrack']['asset_version_status'] = 'WIP'
-        self.properties()['ftrack']['opt_publish_thumbnail'] = True
         self.properties()['ftrack']['processor_id'] = hash(self.__class__.__name__)
+
+        # options
+        self.properties()['ftrack']['opt_publish_thumbnail'] = True
 
     def set_export_root(self):
         self.properties()['exportRoot'] = self.ftrack_location.accessor.prefix
@@ -266,6 +271,9 @@ class FtrackBaseProcessor(FtrackBase):
 
         self.session.commit()
         self.session.delete(component)
+        #
+        # if self.ftrack_properties['opt_publish_reviewable']:
+        #     self.publishReviewable(component)
 
     def timeStampString(self, localtime):
         '''timeStampString(localtime)
@@ -288,6 +296,9 @@ class FtrackBaseProcessor(FtrackBase):
         version.create_thumbnail(thumbnail_file)
         version['task'].create_thumbnail(thumbnail_file)
 
+    def publishReviewable(self, component):
+        job = self.session.encode_media(component)
+        print job
 
     @property
     def schema(self):
@@ -459,5 +470,39 @@ class FtrackBaseProcessorUI(FtrackBase):
         super(FtrackBaseProcessorUI, self).__init__(preset)
         self._nodeSelectionWidget = None
 
-    def onItemSelected(self, item):
-        self.logger.info(item.track)
+    def addFtrackUI(self, widget, exportTemplate):
+        formLayout = TaskUIFormLayout()
+        layout = widget.layout()
+        layout.addLayout(formLayout)
+        formLayout.addDivider("Ftrack Options")
+        # ----------------------------------
+        # Thumbanil generation
+
+        key, value, label = 'opt_publish_thumbnail', True, 'Publish Thumbnail'
+        thumbnail_tooltip = 'Generate and upload thumbnail'
+
+        uiProperty = UIPropertyFactory.create(
+            type(value),
+            key=key,
+            value=value,
+            dictionary=self._preset.properties()['ftrack'],
+            label=label + ":",
+            tooltip=thumbnail_tooltip
+        )
+        formLayout.addRow(label + ":", uiProperty)
+
+        # ----------------------------------
+        # Component Name
+
+        key, value, label = 'component_name', '', 'Component Name'
+        component_tooltip = 'Component Name'
+
+        uiProperty = UIPropertyFactory.create(
+            type(value),
+            key=key,
+            value=value,
+            dictionary=self._preset.properties()['ftrack'],
+            label=label + ":",
+            tooltip=component_tooltip
+        )
+        formLayout.addRow(label + ":", uiProperty)

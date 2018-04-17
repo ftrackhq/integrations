@@ -2,7 +2,7 @@ import hiero.core
 from hiero.exporters.FnAudioExportTask import AudioExportTask, AudioExportPreset
 from hiero.exporters.FnAudioExportUI import AudioExportUI
 
-from ftrack_base import FtrackBasePreset, FtrackBase, FtrackBaseProcessor
+from ftrack_base import FtrackBasePreset, FtrackBaseProcessor, FtrackBaseProcessorUI
 
 
 class FtrackAudioExporter(AudioExportTask, FtrackBaseProcessor):
@@ -57,6 +57,7 @@ class FtrackAudioExporterPreset(AudioExportPreset, FtrackBasePreset):
         self.properties()['ftrack']['component_name'] = 'main'
         self.properties()['ftrack']['component_pattern'] = '.{ext}'
         self.properties()['ftrack']['opt_publish_thumbnail'] = False
+        self.properties()['ftrack']['opt_publish_reviewable'] = False
 
     def addCustomResolveEntries(self, resolver):
         FtrackBasePreset.addFtrackResolveEntries(self, resolver)
@@ -64,10 +65,10 @@ class FtrackAudioExporterPreset(AudioExportPreset, FtrackBasePreset):
         resolver.addResolver('{ext}', 'Extension of the file to be output', 'wav')
 
 
-class FtrackAudioExporterUI(AudioExportUI, FtrackBase):
+class FtrackAudioExporterUI(AudioExportUI, FtrackBaseProcessorUI):
     def __init__(self, preset):
         AudioExportUI.__init__(self, preset)
-        FtrackBase.__init__(self, preset)
+        FtrackBaseProcessorUI.__init__(self, preset)
 
         self._displayName = 'Ftrack Audio Exporter'
         self._taskType = FtrackAudioExporter
