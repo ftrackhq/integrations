@@ -5,6 +5,9 @@ from hiero.exporters.FnShotProcessor import ShotProcessorPreset
 from hiero.exporters.FnShotProcessor import ShotProcessor
 from hiero.exporters.FnShotProcessorUI import ShotProcessorUI
 
+from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
+from hiero.ui.FnUIProperty import *
+
 from QtExt import QtWidgets
 
 from .ftrack_base import FtrackBaseProcessor, FtrackBaseProcessorPreset, FtrackBaseProcessorUI
@@ -42,6 +45,49 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackBaseProcessorUI):
         layout.setContentsMargins(0, 0, 0, 0)
         widget.setLayout(layout)
         return widget
+    #
+    # def populateUI(self, processorUIWidget, taskUIWidget, exportItems):
+    #     ShotProcessorUI.populateUI(self, processorUIWidget, taskUIWidget, exportItems)
+    #     self.addFtrackUI(processorUIWidget, exportItems)
+    #
+    # def addFtrackUI(self, widget, exportTemplate):
+    #     formLayout = TaskUIFormLayout()
+    #     layout = widget.layout()
+    #     layout.addLayout(formLayout)
+    #     formLayout.addDivider("Ftrack Options")
+    #
+    #     # ----------------------------------
+    #     # Thumbanil generation
+    #
+    #     key, value, label = 'opt_publish_thumbnail', True, 'Publish Thumbnail'
+    #     thumbnail_tooltip = 'Generate and upload thumbnail'
+    #
+    #     uiProperty = UIPropertyFactory.create(
+    #         type(value),
+    #         key=key,
+    #         value=value,
+    #         dictionary=self._preset.properties()['ftrack'],
+    #         label=label + ":",
+    #         tooltip=thumbnail_tooltip
+    #     )
+    #     formLayout.addRow(label + ":", uiProperty)
+    #
+    #     # ----------------------------------
+    #     # Component Name
+    #
+    #     key, value, label = 'component_name', '', 'Component Name'
+    #     component_tooltip = 'Set Component Name'
+    #
+    #     uiProperty = UIPropertyFactory.create(
+    #         type(value),
+    #         key=key,
+    #         value=value,
+    #         dictionary=self._preset.properties()['ftrack'],
+    #         label=label + ":",
+    #         tooltip=component_tooltip
+    #     )
+    #     formLayout.addRow(label + ":", uiProperty)
+
 
 
 class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackBaseProcessorPreset):

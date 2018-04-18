@@ -24,10 +24,6 @@ logger = logging.getLogger(__name__)
 import ftrack
 ftrack.setup()
 
-
-from ftrack_connect_nuke_studio.ui.tag_drop_handler import TagDropHandler
-import ftrack_connect_nuke_studio.ui.tag_manager
-import ftrack_connect_nuke_studio.ui.create_project
 import ftrack_connect_nuke_studio.ui.widget.info_view
 from ftrack_connect_nuke_studio.fn_processors import register_processors
 
@@ -63,13 +59,6 @@ def populate_ftrack(event):
 
         ftrack_menu.addAction(information_view_action)
 
-
-# Setup the TagManager and TagDropHandler.
-logger.debug('Setup tag manager and tag drop handler.')
-tag_handler = TagDropHandler()
-hiero.core.events.registerInterest(
-    'kStartup', ftrack_connect_nuke_studio.ui.tag_manager.TagManager
-)
 
 # Trigger population of the ftrack menu.
 logger.debug('Populate the ftrack menu')
