@@ -1,183 +1,24 @@
-import os
-import hiero
-import logging
-import ftrack_api
-import time
+
 import tempfile
 from QtExt import QtCore, QtWidgets
 
+from . import FtrackBasePreset, FtrackBase
 
 from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 from hiero.ui.FnUIProperty import *
 
-FTRACK_SHOW_PATH = os.path.join(
-        '{ftrack_project}',
-        '{ftrack_task}',
-        '{ftrack_asset}',
-        '{ftrack_component}'
-    )
 
-FTRACK_SEQUENCE_PATH = os.path.join(
-        '{ftrack_project}',
-        '{ftrack_shot}',
-        '{ftrack_task}',
-        '{ftrack_asset}',
-        '{ftrack_component}'
-    )
-
-
-FTRACK_SHOT_PATH = os.path.join(
-        '{ftrack_project}',
-        '{ftrack_sequence}',
-        '{ftrack_shot}',
-        '{ftrack_task}',
-        '{ftrack_asset}',
-        '{ftrack_component}'
-    )
-
-
-class FtrackBase(object):
-    '''
-    wrap ftrack functionalities and methods
-    '''
-    def __init__(self, *args, **kwargs):
-        self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
-        )
-        self.logger.setLevel(logging.DEBUG)
-        self.session = ftrack_api.Session()
-
-    def timeStampString(self, localtime):
-        return time.strftime('%Y/%m/%d %X', localtime)
-
-    @property
-    def hiero_version_touple(self):
-        return (
-            hiero.core.env['VersionMajor'],
-            hiero.core.env['VersionMinor'],
-            hiero.core.env['VersionRelease'].split('v')[-1]
-        )
-
-    @property
-    def ftrack_location(self):
-        result = self.session.pick_location()    
-        # self.logger.info('location: %s' % result)
-        return result
-
-    @property
-    def ftrack_origin_location(self):
-        return self.session.query(
-            'Location where name is "ftrack.origin"'
-        ).one()
-
-    @property
-    def ftrack_server_location(self):
-        return self.session.query(
-            'Location where name is "ftrack.server"'
-        ).one()
-
-
-class FtrackBasePreset(FtrackBase):
-    def __init__(self,  name, properties, **kwargs):
-        super(FtrackBasePreset, self).__init__(name, properties)
-        self.set_export_root()
-        self.set_ftrack_properties(properties)
+class FtrackProcessorPreset(FtrackBasePreset):
+    def __init__(self, name, properties):
+        super(FtrackProcessorPreset, self).__init__(name, properties)
 
     def set_ftrack_properties(self, properties):
-        properties = self.properties()
-        properties.setdefault('ftrack', {})
-
-        # add placeholders for default ftrack defaults
-        self.properties()['ftrack']['component_name'] = 'main'
-        self.properties()['ftrack']['component_pattern'] = '.{ext}'
-        self.properties()['ftrack']['project_schema'] = 'Film Pipeline'
-        self.properties()['ftrack']['task_type'] = 'Generic'
-        self.properties()['ftrack']['task_status'] = 'Not Started'
-        self.properties()['ftrack']['shot_status'] = 'In progress'
-        self.properties()['ftrack']['asset_version_status'] = 'WIP'
-        self.properties()['ftrack']['processor_id'] = hash(self.__class__.__name__)
-
-        # options
-        self.properties()['ftrack']['opt_publish_thumbnail'] = True
-
-    def set_export_root(self):
-        self.properties()['exportRoot'] = self.ftrack_location.accessor.prefix
-
-    def resolve_ftrack_project(self, task):
-        return task.projectName()
-
-    def resolve_ftrack_sequence(self, task):
-        trackItem = task._item
-        return trackItem.name().split('_')[0]
-
-    def resolve_ftrack_shot(self, task):
-        trackItem = task._item
-        if not isinstance(trackItem, hiero.core.Sequence):
-            return trackItem.name().split('_')[1]
-        else:
-            return trackItem.name()
-
-    def resolve_ftrack_task(self, task):
-        return self.properties()['ftrack']['task_type']
-
-    def resolve_ftrack_asset(self, task):
-        return task._preset.name()
-
-    def resolve_ftrack_component(self, task):
-        component_name = self.properties()['ftrack']['component_name']
-        extension = self.properties()['ftrack']['component_pattern']
-        return '{0}{1}'.format(component_name, extension)
-
-    def addFtrackResolveEntries(self, resolver):
-
-        resolver.addResolver(
-            '{ftrack_project}',
-            'Ftrack project name.',
-            lambda keyword, task: self.resolve_ftrack_project(task)
-        )
-
-        resolver.addResolver(
-            '{ftrack_sequence}',
-            'Ftrack sequence name.',
-            lambda keyword, task: self.resolve_ftrack_sequence(task)
-        )
-
-        resolver.addResolver(
-            '{ftrack_shot}',
-            'Ftrack shot name.',
-            lambda keyword, task: self.resolve_ftrack_shot(task)
-        )
-
-        resolver.addResolver(
-            '{ftrack_task}',
-            'Ftrack task name.',
-            lambda keyword, task: self.resolve_ftrack_task(task)
-        )
-
-        resolver.addResolver(
-            '{ftrack_asset}',
-            'Ftrack asset name.',
-            lambda keyword, task: self.resolve_ftrack_asset(task)
-        )
-
-        resolver.addResolver(
-            '{ftrack_component}',
-            'Ftrack component name.',
-            lambda keyword, task: self.resolve_ftrack_component(task)
-        )
+        super(FtrackProcessorPreset, self).set_ftrack_properties(properties)
 
 
-class FtrackBaseProcessorPreset(FtrackBasePreset):
-    def __init__(self,  name, properties):
-        super(FtrackBaseProcessorPreset, self).__init__(name, properties)
-
-    def set_ftrack_properties(self, properties):
-        super(FtrackBaseProcessorPreset, self).set_ftrack_properties(properties)
-
-
-class FtrackBaseProcessor(FtrackBase):
+class FtrackProcessor(FtrackBase):
     def __init__(self, initDict):
-        super(FtrackBaseProcessor, self).__init__(initDict)
+        super(FtrackProcessor, self).__init__(initDict)
 
         # store a reference of the origial initialization data
         self._init_dict = initDict
@@ -234,10 +75,10 @@ class FtrackBaseProcessor(FtrackBase):
         )
 
         tag.metadata().setValue('tag.presetid', processor_id)
-        tag.metadata().setValue('tag.processor',  self.__class__.__name__)
-        tag.metadata().setValue('tag.component_id',  self._component['id'])
-        tag.metadata().setValue('tag.version_id',  self._component['version']['id'])
-        tag.metadata().setValue('tag.asset_id',  self._component['version']['asset']['id'])
+        tag.metadata().setValue('tag.processor', self.__class__.__name__)
+        tag.metadata().setValue('tag.component_id', self._component['id'])
+        tag.metadata().setValue('tag.version_id', self._component['version']['id'])
+        tag.metadata().setValue('tag.asset_id', self._component['version']['asset']['id'])
         tag.metadata().setValue('tag.version', str(self._component['version']['version']))
 
         tag.metadata().setValue('tag.description', 'Ftrack Entity')
@@ -260,10 +101,10 @@ class FtrackBaseProcessor(FtrackBase):
 
         self.session.create(
             'ComponentLocation', {
-                'location_id': self.ftrack_location['id'], 
-                'component_id': component['id'], 
+                'location_id': self.ftrack_location['id'],
+                'component_id': component['id'],
                 'resource_identifier': final_path
-                }
+            }
         )
         # add option to publish or not the thumbnail
         if self.ftrack_properties['opt_publish_thumbnail']:
@@ -285,7 +126,7 @@ class FtrackBaseProcessor(FtrackBase):
         # do not create any folder!
         self.logger.debug('Skip creating folder for : %s' % self.__class__.__name__)
         pass
-        
+
     def publishThumbnail(self, component):
         source = self._item.source()
         thumbnail_qimage = source.thumbnail(source.posterFrame())
@@ -312,7 +153,7 @@ class FtrackBaseProcessor(FtrackBase):
     @property
     def task_type(self):
         task_type_name = self.ftrack_properties['task_type']
-        task_types =  self.schema.get_types('Task')
+        task_types = self.schema.get_types('Task')
         task_type = [t for t in task_types if t['name'] == task_type_name][0]
         # self.logger.info('task_type: %s' % task_type)
         return task_type
@@ -320,7 +161,7 @@ class FtrackBaseProcessor(FtrackBase):
     @property
     def task_status(self):
         task_status_name = self.ftrack_properties['task_status']
-        task_statuses =  self.schema.get_statuses('Task', self.task_type['id'])
+        task_statuses = self.schema.get_statuses('Task', self.task_type['id'])
         task_status = [t for t in task_statuses if t['name'] == task_status_name][0]
         # self.logger.info('task_status: %s' % task_status)
         return task_status
@@ -328,7 +169,7 @@ class FtrackBaseProcessor(FtrackBase):
     @property
     def shot_status(self):
         shot_status_name = self.ftrack_properties['shot_status']
-        shot_statuses =  self.schema.get_statuses('Shot')
+        shot_statuses = self.schema.get_statuses('Shot')
         shot_status = [t for t in shot_statuses if t['name'] == shot_status_name][0]
         # self.logger.info('shot_status: %s' % shot_status)
         return shot_status
@@ -336,7 +177,7 @@ class FtrackBaseProcessor(FtrackBase):
     @property
     def asset_version_status(self):
         asset_status_name = self.ftrack_properties['asset_version_status']
-        asset_statuses =  self.schema.get_statuses('AssetVersion')
+        asset_statuses = self.schema.get_statuses('AssetVersion')
         asset_status = [t for t in asset_statuses if t['name'] == asset_status_name][0]
         # self.logger.info('asset_version_status: %s' % asset_status)
         return asset_status
@@ -369,7 +210,7 @@ class FtrackBaseProcessor(FtrackBase):
             sequence = self.session.create('Sequence', {
                 'name': name,
                 'parent': parent
-            })          
+            })
         return sequence
 
     def _create_shot_fragment(self, name, parent, task):
@@ -394,7 +235,7 @@ class FtrackBaseProcessor(FtrackBase):
                 'parent': parent['parent'],
                 'type': self.asset_type_per_task(task)
             })
-        
+
         comment = 'Published with: {0} From Nuke Studio : {1}.{2}.{3}'.format(
             self.__class__.__name__, *self.hiero_version_touple
         )
@@ -418,31 +259,31 @@ class FtrackBaseProcessor(FtrackBase):
                 'parent': parent,
                 'status': self.task_status,
                 'type': self.task_type
-            })                    
+            })
         return task
 
     def _create_component_fragment(self, name, parent, task):
         component = parent.create_component('/', {
-            'name':  self.ftrack_properties['component_name']
+            'name': self.ftrack_properties['component_name']
         }, location=None)
 
         return component
 
     def _skip_fragment(self, name, parent, task):
         self.logger.warning('Skpping : {0}'.format(name))
-        
+
     def create_project_structure(self):
         preset_name = self._preset.name()
         self.logger.info('Creating structure for : {0}'.format(preset_name))
 
         file_name = '{0}{1}'.format(
-                self._preset.properties()['ftrack']['component_name'],
-                self._preset.properties()['ftrack']['component_pattern']
+            self._preset.properties()['ftrack']['component_name'],
+            self._preset.properties()['ftrack']['component_pattern']
         )
         resolved_file_name = self.resolvePath(file_name)
 
         path = self.resolvePath(self._shotPath)
-        parent = None # after the loop this will be containing the component object
+        parent = None  # after the loop this will be containing the component object
 
         for template, token in zip(self._shotPath.split(os.path.sep), path.split(os.path.sep)):
             fragment_fn = self.fn_mapping.get(template, self._skip_fragment)
@@ -465,9 +306,9 @@ class FtrackBaseProcessor(FtrackBase):
         self.setDestinationDescription(ftrack_path)
 
 
-class FtrackBaseProcessorUI(FtrackBase):
+class FtrackProcessorUI(FtrackBase):
     def __init__(self, preset):
-        super(FtrackBaseProcessorUI, self).__init__(preset)
+        super(FtrackProcessorUI, self).__init__(preset)
         self._nodeSelectionWidget = None
 
     def addFtrackUI(self, widget, exportTemplate):

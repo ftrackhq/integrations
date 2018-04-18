@@ -8,14 +8,14 @@ from hiero.exporters.FnTranscodeExporter import TranscodeExporter, TranscodePres
 from hiero.exporters.FnTranscodeExporterUI import TranscodeExporterUI
 from hiero.exporters.FnExternalRender import NukeRenderTask
 
-from ftrack_base import FtrackBasePreset, FtrackBaseProcessor, FtrackBaseProcessorUI
+from ftrack_connect_nuke_studio.processors.ftrack_base.processor import FtrackProcessorPreset, FtrackProcessor, FtrackProcessorUI
 
 
-class FtrackNukeRenderExporter(TranscodeExporter, FtrackBaseProcessor):
+class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
 
     def __init__(self, initDict):
         NukeRenderTask.__init__(self, initDict)
-        FtrackBaseProcessor.__init__(self, initDict)
+        FtrackProcessor.__init__(self, initDict)
 
     def createTranscodeScript(self):
         # This code is taken from TranscodeExporter.__init__
@@ -52,34 +52,34 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackBaseProcessor):
             # Create a job on our submission to do the actual rendering.
             self._renderTask = self._submission.addJob(Submission.kNukeRender, submissionDict, self._scriptfile)
             # ensure sub tasks do not create folders
-            self._renderTask._makePath = FtrackBaseProcessor._makePath(self)
+            self._renderTask._makePath = FtrackProcessor._makePath(self)
 
     def updateItem(self, originalItem, localtime):
         # We need to create the project structure right before spawning any job so we have access
         # to the ftrack structure and location.
-        FtrackBaseProcessor.updateItem(self, originalItem, localtime)
+        FtrackProcessor.updateItem(self, originalItem, localtime)
         self.createTranscodeScript()
 
     def finishTask(self):
-        FtrackBaseProcessor.finishTask(self)
+        FtrackProcessor.finishTask(self)
         TranscodeExporter.finishTask(self)
 
     def _makePath(self):
         # disable making file paths
-        FtrackBaseProcessor._makePath(self)
+        FtrackProcessor._makePath(self)
 
 
-class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackBasePreset):
+class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
     def __init__(self, name, properties):
         TranscodePreset.__init__(self, name, properties)
-        FtrackBasePreset.__init__(self, name, properties)
+        FtrackProcessorPreset.__init__(self, name, properties)
         self._parentType = FtrackNukeRenderExporter
 
         # Update preset with loaded data
         self.properties().update(properties)
 
     def set_ftrack_properties(self, properties):
-        FtrackBasePreset.set_ftrack_properties(self, properties)
+        FtrackProcessorPreset.set_ftrack_properties(self, properties)
         properties = self.properties()
         properties.setdefault('ftrack', {})
 
@@ -90,20 +90,20 @@ class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackBasePreset):
         self.properties()['ftrack']['component_pattern'] = '.####.{ext}'
 
     def addUserResolveEntries(self, resolver):
-        FtrackBasePreset.addFtrackResolveEntries(self, resolver)
+        FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)
 
 
-class FtrackNukeRenderExporterUI(TranscodeExporterUI, FtrackBaseProcessorUI):
+class FtrackNukeRenderExporterUI(TranscodeExporterUI, FtrackProcessorUI):
     def __init__(self, preset):
         TranscodeExporterUI.__init__(self, preset)
-        FtrackBaseProcessorUI.__init__(self, preset)
+        FtrackProcessorUI.__init__(self, preset)
 
         self._displayName = 'Ftrack Nuke Render'
         self._taskType = FtrackNukeRenderExporter
 
     def populateUI(self, widget, exportTemplate):
         TranscodeExporterUI.populateUI(self, widget, exportTemplate)
-        FtrackBaseProcessorUI.addFtrackUI(self, widget, exportTemplate)
+        FtrackProcessorUI.addFtrackUI(self, widget, exportTemplate)
 
 
 hiero.core.taskRegistry.registerTask(FtrackNukeRenderExporterPreset, FtrackNukeRenderExporter)

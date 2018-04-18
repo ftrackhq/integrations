@@ -7,20 +7,20 @@ from hiero.exporters.FnTimelineProcessorUI import TimelineProcessorUI
 
 from QtExt import QtWidgets
 
-from .ftrack_base import FtrackBaseProcessor, FtrackBaseProcessorPreset, FtrackBaseProcessorUI
+from ftrack_connect_nuke_studio.processors.ftrack_base.processor import FtrackProcessorPreset, FtrackProcessor, FtrackProcessorUI
 
 
-class FtrackTimelineProcessor(TimelineProcessor, FtrackBaseProcessor):
+class FtrackTimelineProcessor(TimelineProcessor, FtrackProcessor):
     def __init__(self, preset, submission, synchronous=False):
         TimelineProcessor.__init__(self, preset, submission, synchronous=synchronous)
-        FtrackBaseProcessor.__init__(self, preset)
+        FtrackProcessor.__init__(self, preset)
 
 
-class FtrackTimelineProcessorUI(TimelineProcessorUI, FtrackBaseProcessorUI):
+class FtrackTimelineProcessorUI(TimelineProcessorUI, FtrackProcessorUI):
 
     def __init__(self, preset):
         TimelineProcessorUI.__init__(self, preset)
-        FtrackBaseProcessorUI.__init__(self, preset)
+        FtrackProcessorUI.__init__(self, preset)
 
     def displayName(self):
         return 'Ftrack Timeline Processor'
@@ -44,14 +44,14 @@ class FtrackTimelineProcessorUI(TimelineProcessorUI, FtrackBaseProcessorUI):
         return widget
 
 
-class FtrackTimelineProcessorPreset(TimelineProcessorPreset, FtrackBaseProcessorPreset):
+class FtrackTimelineProcessorPreset(TimelineProcessorPreset, FtrackProcessorPreset):
     def __init__(self, name, properties):
         TimelineProcessorPreset.__init__(self, name, properties)
-        FtrackBaseProcessorPreset.__init__(self, name, properties)
+        FtrackProcessorPreset.__init__(self, name, properties)
         self._parentType = FtrackTimelineProcessor
 
     def addCustomResolveEntries(self, resolver):
-        FtrackBaseProcessorPreset.addFtrackResolveEntries(self, resolver)
+        FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)
 
 
 # Register the ftrack sequence processor.

@@ -25,7 +25,7 @@ import ftrack
 ftrack.setup()
 
 import ftrack_connect_nuke_studio.ui.widget.info_view
-from ftrack_connect_nuke_studio.fn_processors import register_processors
+from ftrack_connect_nuke_studio.processors import register_processors
 
 
 ftrack_connect.ui.theme.applyFont()

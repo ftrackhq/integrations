@@ -7,38 +7,38 @@ from hiero.exporters.FnEDLExportTask import (
 
 from hiero.exporters.FnEDLExportUI import EDLExportUI
 
-from ftrack_base import FtrackBasePreset, FtrackBaseProcessor, FtrackBaseProcessorUI
+from ftrack_connect_nuke_studio.processors.ftrack_base.processor import FtrackProcessorPreset, FtrackProcessor, FtrackProcessorUI
 
 
-class FtrackEDLExporter(EDLExportTask, FtrackBaseProcessor):
+class FtrackEDLExporter(EDLExportTask, FtrackProcessor):
     def __init__(self, initDict):
         EDLExportTask.__init__(self, initDict)
-        FtrackBaseProcessor.__init__(self, initDict)
+        FtrackProcessor.__init__(self, initDict)
 
     def startTask(self):
         self.create_project_structure()
         EDLExportTask.startTask(self)
 
     def finishTask(self):
-        FtrackBaseProcessor.finishTask(self)
+        FtrackProcessor.finishTask(self)
         EDLExportTask.finishTask(self)
 
     def _makePath(self):
         # disable making file paths
-        FtrackBaseProcessor._makePath(self)
+        FtrackProcessor._makePath(self)
 
 
-class FtrackEDLExporterPreset(EDLExportPreset, FtrackBasePreset):
+class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
     def __init__(self, name, properties):
         EDLExportPreset.__init__(self, name, properties)
-        FtrackBasePreset.__init__(self, name, properties)
+        FtrackProcessorPreset.__init__(self, name, properties)
         self._parentType = FtrackEDLExporter
 
         # Update preset with loaded data
         self.properties().update(properties)
 
     def set_ftrack_properties(self, properties):
-        FtrackBasePreset.set_ftrack_properties(self, properties)
+        FtrackProcessorPreset.set_ftrack_properties(self, properties)
         properties = self.properties()
         properties.setdefault('ftrack', {})
         # add placeholders for default ftrack defaults
@@ -49,14 +49,14 @@ class FtrackEDLExporterPreset(EDLExportPreset, FtrackBasePreset):
         self.properties()['ftrack']['opt_publish_thumbnail'] = False
 
     def addUserResolveEntries(self, resolver):
-        FtrackBasePreset.addFtrackResolveEntries(self, resolver)
+        FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)
         EDLExportPreset.addCustomResolveEntries(self, resolver)
 
 
-class FtrackEDLExporterUI(EDLExportUI, FtrackBaseProcessorUI):
+class FtrackEDLExporterUI(EDLExportUI, FtrackProcessorUI):
     def __init__(self, preset):
         EDLExportUI.__init__(self, preset)
-        FtrackBaseProcessorUI.__init__(self, preset)
+        FtrackProcessorUI.__init__(self, preset)
 
         self._displayName = 'Ftrack EDL Exporter'
         self._taskType = FtrackEDLExporter

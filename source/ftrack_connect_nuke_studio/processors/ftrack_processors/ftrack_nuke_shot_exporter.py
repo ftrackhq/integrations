@@ -2,36 +2,36 @@ import hiero.core.util
 from hiero.exporters.FnNukeShotExporter import NukeShotExporter, NukeShotPreset
 from hiero.exporters.FnNukeShotExporterUI import NukeShotExporterUI
 
-from ftrack_base import FtrackBasePreset, FtrackBaseProcessor, FtrackBaseProcessorUI
+from ftrack_connect_nuke_studio.processors.ftrack_base.processor import FtrackProcessorPreset, FtrackProcessor, FtrackProcessorUI
 
 
-class FtrackNukeShotExporter(NukeShotExporter, FtrackBaseProcessor):
+class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
 
     def __init__(self, initDict):
         NukeShotExporter.__init__(self, initDict)
-        FtrackBaseProcessor.__init__(self, initDict)
+        FtrackProcessor.__init__(self, initDict)
 
     def updateItem(self, originalItem, localtime):
-        FtrackBaseProcessor.updateItem(self, originalItem, localtime)
+        FtrackProcessor.updateItem(self, originalItem, localtime)
 
     def finishTask(self):
-        FtrackBaseProcessor.finishTask(self)
+        FtrackProcessor.finishTask(self)
         NukeShotExporter.finishTask(self)
 
     def _makePath(self):
         # disable making file paths
-        FtrackBaseProcessor._makePath(self)
+        FtrackProcessor._makePath(self)
 
 
-class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackBasePreset):
+class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
     def __init__(self, name, properties, task=FtrackNukeShotExporter):
         NukeShotPreset.__init__(self, name, properties, task)
-        FtrackBasePreset.__init__(self, name, properties)
+        FtrackProcessorPreset.__init__(self, name, properties)
         # Update preset with loaded data
         self.properties().update(properties)
         
     def set_ftrack_properties(self, properties):
-        FtrackBasePreset.set_ftrack_properties(self, properties)
+        FtrackProcessorPreset.set_ftrack_properties(self, properties)
         properties = self.properties()
         properties.setdefault('ftrack', {})
         # add placeholders for default ftrack defaults
@@ -41,20 +41,20 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackBasePreset):
         self.properties()['ftrack']['component_pattern'] = '.{ext}'
 
     def addUserResolveEntries(self, resolver):
-        FtrackBasePreset.addFtrackResolveEntries(self, resolver)
+        FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)
 
 
-class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackBaseProcessorUI):
+class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackProcessorUI):
     def __init__(self, preset):
         NukeShotExporterUI.__init__(self, preset)
-        FtrackBaseProcessorUI.__init__(self, preset)
+        FtrackProcessorUI.__init__(self, preset)
 
         self._displayName = 'Ftrack Nuke File'
         self._taskType = FtrackNukeShotExporter
 
     def populateUI(self, widget, exportTemplate):
         NukeShotExporterUI.populateUI(self, widget, exportTemplate)
-        FtrackBaseProcessorUI.addFtrackUI(self, widget, exportTemplate)
+        FtrackProcessorUI.addFtrackUI(self, widget, exportTemplate)
 
 
 hiero.core.taskRegistry.registerTask(FtrackNukeShotExporterPreset, FtrackNukeShotExporter)

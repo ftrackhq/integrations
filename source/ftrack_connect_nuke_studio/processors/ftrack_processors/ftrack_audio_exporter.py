@@ -2,14 +2,14 @@ import hiero.core
 from hiero.exporters.FnAudioExportTask import AudioExportTask, AudioExportPreset
 from hiero.exporters.FnAudioExportUI import AudioExportUI
 
-from ftrack_base import FtrackBasePreset, FtrackBaseProcessor, FtrackBaseProcessorUI
+from ftrack_connect_nuke_studio.processors.ftrack_base.processor import FtrackProcessorPreset, FtrackProcessor, FtrackProcessorUI
 
 
-class FtrackAudioExporter(AudioExportTask, FtrackBaseProcessor):
+class FtrackAudioExporter(AudioExportTask, FtrackProcessor):
 
     def __init__(self, initDict):
         AudioExportTask.__init__(self, initDict)
-        FtrackBaseProcessor.__init__(self, initDict)
+        FtrackProcessor.__init__(self, initDict)
         self._do_publish = self._item.mediaType() is hiero.core.TrackItem.MediaType.kVideo
 
     def canPublish(self):
@@ -28,26 +28,26 @@ class FtrackAudioExporter(AudioExportTask, FtrackBaseProcessor):
             self.setDestinationDescription('No Audio Found')
 
     def finishTask(self):
-        FtrackBaseProcessor.finishTask(self)
+        FtrackProcessor.finishTask(self)
         AudioExportTask.finishTask(self)
 
     def _makePath(self):
         # disable making file paths
-        FtrackBaseProcessor._makePath(self)
+        FtrackProcessor._makePath(self)
 
 
-class FtrackAudioExporterPreset(AudioExportPreset, FtrackBasePreset):
+class FtrackAudioExporterPreset(AudioExportPreset, FtrackProcessorPreset):
 
     def __init__(self, name, properties):
         AudioExportPreset.__init__(self, name, properties)
-        FtrackBasePreset.__init__(self, name, properties)
+        FtrackProcessorPreset.__init__(self, name, properties)
         self._parentType = FtrackAudioExporter
 
         # Update preset with loaded data
         self.properties().update(properties)
 
     def set_ftrack_properties(self, properties):
-        FtrackBasePreset.set_ftrack_properties(self, properties)
+        FtrackProcessorPreset.set_ftrack_properties(self, properties)
         properties = self.properties()
         properties.setdefault('ftrack', {})
 
@@ -60,15 +60,15 @@ class FtrackAudioExporterPreset(AudioExportPreset, FtrackBasePreset):
         self.properties()['ftrack']['opt_publish_reviewable'] = False
 
     def addCustomResolveEntries(self, resolver):
-        FtrackBasePreset.addFtrackResolveEntries(self, resolver)
+        FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)
         # ensure to have {ext} set to a wav fixed extension
         resolver.addResolver('{ext}', 'Extension of the file to be output', 'wav')
 
 
-class FtrackAudioExporterUI(AudioExportUI, FtrackBaseProcessorUI):
+class FtrackAudioExporterUI(AudioExportUI, FtrackProcessorUI):
     def __init__(self, preset):
         AudioExportUI.__init__(self, preset)
-        FtrackBaseProcessorUI.__init__(self, preset)
+        FtrackProcessorUI.__init__(self, preset)
 
         self._displayName = 'Ftrack Audio Exporter'
         self._taskType = FtrackAudioExporter
