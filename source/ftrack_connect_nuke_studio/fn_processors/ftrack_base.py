@@ -496,7 +496,7 @@ class FtrackBaseProcessorUI(FtrackBase):
         # Component Name
 
         key, value, label = 'component_name', '', 'Component Name'
-        component_tooltip = 'Component Name'
+        component_tooltip = 'Set Component Name'
 
         uiProperty = UIPropertyFactory.create(
             type(value),
