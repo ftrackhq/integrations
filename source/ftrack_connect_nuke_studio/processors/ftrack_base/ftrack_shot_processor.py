@@ -7,7 +7,7 @@ from hiero.exporters.FnShotProcessorUI import ShotProcessorUI
 
 from QtExt import QtWidgets
 
-from ftrack_connect_nuke_studio.processors.ftrack_base.processor import FtrackProcessorPreset, FtrackProcessor, FtrackProcessorUI
+from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import FtrackProcessorPreset, FtrackProcessor, FtrackProcessorUI
 
 
 class FtrackShotProcessor(ShotProcessor, FtrackProcessor):

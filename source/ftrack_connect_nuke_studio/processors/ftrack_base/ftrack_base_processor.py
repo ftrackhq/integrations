@@ -96,8 +96,7 @@ class FtrackProcessor(FtrackBase):
             start, end = self.outputRange()
 
             # todo: Improve this logic
-            final_path = self._exportPath.replace('####', '%4d')
-            final_path = '{0} [{1}-{2}]'.format(final_path, start, end)
+            final_path = '{0} [{1}-{2}]'.format(self._exportPath, start, end)
 
         self.session.create(
             'ComponentLocation', {

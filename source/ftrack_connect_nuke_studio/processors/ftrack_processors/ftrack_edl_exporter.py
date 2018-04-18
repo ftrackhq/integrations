@@ -1,4 +1,5 @@
-import re
+import time
+
 import hiero.core
 from hiero.exporters.FnEDLExportTask import (
     EDLExportTask,
@@ -7,7 +8,7 @@ from hiero.exporters.FnEDLExportTask import (
 
 from hiero.exporters.FnEDLExportUI import EDLExportUI
 
-from ftrack_connect_nuke_studio.processors.ftrack_base.processor import FtrackProcessorPreset, FtrackProcessor, FtrackProcessorUI
+from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import FtrackProcessorPreset, FtrackProcessor, FtrackProcessorUI
 
 
 class FtrackEDLExporter(EDLExportTask, FtrackProcessor):
@@ -17,6 +18,10 @@ class FtrackEDLExporter(EDLExportTask, FtrackProcessor):
 
     def startTask(self):
         self.create_project_structure()
+        track = self._item
+        localtime = time.localtime(time.time())
+
+        self.addFtrackTag(track, localtime)
         EDLExportTask.startTask(self)
 
     def finishTask(self):
