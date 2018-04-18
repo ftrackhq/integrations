@@ -1,4 +1,4 @@
-
+import time
 import tempfile
 from QtExt import QtCore, QtWidgets
 
@@ -92,9 +92,11 @@ class FtrackProcessor(FtrackBase):
 
         final_path = self._exportPath
 
-        if '#' in self._exportPath:
-            start, end = self.outputRange()
+        start, end = self.outputRange()
+        startHandle, endHandle = self.outputHandles()
+        framerate = self._sequence.framerate()
 
+        if '#' in self._exportPath:
             # todo: Improve this logic
             final_path = '{0} [{1}-{2}]'.format(self._exportPath, start, end)
 
@@ -109,11 +111,24 @@ class FtrackProcessor(FtrackBase):
         if self.ftrack_properties['opt_publish_thumbnail']:
             self.publishThumbnail(component)
 
+        attributes = component['version']['task']['parent']['custom_attributes']
+        for attr_name, attr_value in attributes.items():
+            if attr_name == 'fstart':
+                attributes['fstart'] = str(start)
+
+            if attr_name == 'fend':
+                attributes['fend'] = str(end)
+
+            if attr_name == 'fps':
+                attributes['fps'] = str(framerate)
+
+            if attr_name == 'handles':
+                attributes['handles'] = str(startHandle)
+
+            self.logger.info('{0}:{1}'.format(attr_name, attr_value))
+
         self.session.commit()
         self.session.delete(component)
-        #
-        # if self.ftrack_properties['opt_publish_reviewable']:
-        #     self.publishReviewable(component)
 
     def timeStampString(self, localtime):
         '''timeStampString(localtime)
@@ -135,10 +150,6 @@ class FtrackProcessor(FtrackBase):
         version = component['version']
         version.create_thumbnail(thumbnail_file)
         version['task'].create_thumbnail(thumbnail_file)
-
-    def publishReviewable(self, component):
-        job = self.session.encode_media(component)
-        print job
 
     @property
     def schema(self):
