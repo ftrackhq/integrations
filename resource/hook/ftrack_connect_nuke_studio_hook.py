@@ -211,22 +211,6 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
             hiero_plugin_path, 'HIERO_PLUGIN_PATH', environment
         )
 
-        processors_hooks_path = os.path.join(
-            FTRACK_CONNECT_NUKE_STUDIO_PATH, 'processor'
-        )
-
-        environment = ftrack_connect.application.appendPath(
-            processors_hooks_path, 'FTRACK_EVENT_PLUGIN_PATH', environment
-        )
-
-        application_hooks_path = os.path.join(
-            FTRACK_CONNECT_NUKE_STUDIO_PATH, 'application_hook'
-        )
-
-        environment = ftrack_connect.application.appendPath(
-            application_hooks_path, 'FTRACK_EVENT_PLUGIN_PATH', environment
-        )
-
         return environment
 
 
