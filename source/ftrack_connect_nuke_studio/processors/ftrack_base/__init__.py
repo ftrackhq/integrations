@@ -122,7 +122,8 @@ class FtrackBasePreset(FtrackBase):
     def resolve_ftrack_component(self, task):
         component_name = self.properties()['ftrack']['component_name']
         extension = self.properties()['ftrack']['component_pattern']
-        return '{0}{1}'.format(component_name, extension)
+        component_full_name = '{0}{1}'.format(component_name, extension)
+        return task.resolvePath(component_full_name)
 
     def addFtrackResolveEntries(self, resolver):
 
