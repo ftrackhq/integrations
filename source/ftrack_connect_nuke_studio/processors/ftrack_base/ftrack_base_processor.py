@@ -364,8 +364,8 @@ class FtrackProcessorUI(FtrackBase):
     def addFtrackProcessorUI(self, widget, exportTemplate):
 
         project_name = self._project.name()
-        project_exists = self.session.query(
-            'Project where name is "{0}"'.format(project_name)
+        project = self.session.query(
+            'select project_schema.name from Project where name is "{0}"'.format(project_name)
         ).first()
 
         formLayout = TaskUIFormLayout()
@@ -389,6 +389,8 @@ class FtrackProcessorUI(FtrackBase):
         )
         formLayout.addRow(label + ":", schema_property)
 
-        if project_exists:
+        if project:
+            schema_index = schema_property._widget.findText(project['project_schema']['name'])
+            schema_property._widget.setCurrentIndex(schema_index)
             schema_property.setDisabled(True)
 
