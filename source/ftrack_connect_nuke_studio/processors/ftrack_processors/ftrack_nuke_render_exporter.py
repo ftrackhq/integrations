@@ -69,6 +69,8 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
         FtrackProcessor._makePath(self)
 
 
+
+
 class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
     def __init__(self, name, properties):
         TranscodePreset.__init__(self, name, properties)
@@ -103,7 +105,7 @@ class FtrackNukeRenderExporterUI(TranscodeExporterUI, FtrackProcessorUI):
 
     def populateUI(self, widget, exportTemplate):
         TranscodeExporterUI.populateUI(self, widget, exportTemplate)
-        FtrackProcessorUI.addFtrackUI(self, widget, exportTemplate)
+        FtrackProcessorUI.addFtrackTaskUI(self, widget, exportTemplate)
 
 
 hiero.core.taskRegistry.registerTask(FtrackNukeRenderExporterPreset, FtrackNukeRenderExporter)

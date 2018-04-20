@@ -54,7 +54,7 @@ class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackProcessorUI):
 
     def populateUI(self, widget, exportTemplate):
         NukeShotExporterUI.populateUI(self, widget, exportTemplate)
-        FtrackProcessorUI.addFtrackUI(self, widget, exportTemplate)
+        FtrackProcessorUI.addFtrackTaskUI(self, widget, exportTemplate)
 
 
 hiero.core.taskRegistry.registerTask(FtrackNukeShotExporterPreset, FtrackNukeShotExporter)

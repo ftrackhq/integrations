@@ -4,6 +4,8 @@ from QtExt import QtCore, QtWidgets
 
 from . import FtrackBasePreset, FtrackBase
 
+import hiero.core
+
 from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 from hiero.ui.FnUIProperty import *
 
@@ -321,7 +323,7 @@ class FtrackProcessorUI(FtrackBase):
         super(FtrackProcessorUI, self).__init__(preset)
         self._nodeSelectionWidget = None
 
-    def addFtrackUI(self, widget, exportTemplate):
+    def addFtrackTaskUI(self, widget, exportTemplate):
         formLayout = TaskUIFormLayout()
         layout = widget.layout()
         layout.addLayout(formLayout)
@@ -358,3 +360,35 @@ class FtrackProcessorUI(FtrackBase):
             tooltip=component_tooltip
         )
         formLayout.addRow(label + ":", uiProperty)
+
+    def addFtrackProcessorUI(self, widget, exportTemplate):
+
+        project_name = self._project.name()
+        project_exists = self.session.query(
+            'Project where name is "{0}"'.format(project_name)
+        ).first()
+
+        formLayout = TaskUIFormLayout()
+        layout = widget.layout()
+        layout.addLayout(formLayout)
+        formLayout.addDivider("Ftrack Options")
+
+        schemas = self.session.query('ProjectSchema').all()
+        schemas_name = [schema['name'] for schema in schemas]
+
+        key, value, label = 'project_schema', schemas_name, 'Project Schema'
+        thumbnail_tooltip = 'Select project schema.'
+
+        schema_property = UIPropertyFactory.create(
+            type(value),
+            key=key,
+            value=value,
+            dictionary=self._preset.properties()['ftrack'],
+            label=label + ":",
+            tooltip=thumbnail_tooltip
+        )
+        formLayout.addRow(label + ":", schema_property)
+
+        if project_exists:
+            schema_property.setDisabled(True)
+

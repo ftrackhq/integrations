@@ -1,9 +1,14 @@
 # Copyright (c) 2011 The Foundry Visionmongers Ltd.  All Rights Reserved.
 import hiero
 
+from hiero.core.FnProcessor import _expandTaskGroup
+
 from hiero.exporters.FnShotProcessor import ShotProcessorPreset
 from hiero.exporters.FnShotProcessor import ShotProcessor
 from hiero.exporters.FnShotProcessorUI import ShotProcessorUI
+
+from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
+from hiero.ui.FnUIProperty import *
 
 from QtExt import QtWidgets
 
@@ -15,18 +20,21 @@ class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
         ShotProcessor.__init__(self, preset, submission, synchronous=synchronous)
         FtrackProcessor.__init__(self, preset)
 
+    def startProcessing(self, exportItems, preview=False):
+
+        for (exportPath, preset) in self._exportTemplate.flatten():
+            # propagate schema from processor to tasks
+            processor_schema = self._preset.properties()['ftrack']['project_schema']
+            preset.properties()['ftrack']['project_schema'] = processor_schema
+
+        ShotProcessor.startProcessing(self, exportItems, preview)
+
 
 class FtrackShotProcessorUI(ShotProcessorUI, FtrackProcessorUI):
 
     def __init__(self, preset):
         ShotProcessorUI.__init__(self, preset)
         FtrackProcessorUI.__init__(self, preset)
-
-    def displayName(self):
-        return 'Ftrack Shot Processor'
-
-    def toolTip(self):
-        return 'Process as Shots generates output on a per shot basis.'
 
     def updatePathPreview(self):
         self._pathPreviewWidget.setText('Ftrack Server: {0}'.format(self.session.server_url))
@@ -42,6 +50,19 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackProcessorUI):
         layout.setContentsMargins(0, 0, 0, 0)
         widget.setLayout(layout)
         return widget
+
+    def displayName(self):
+        return 'Ftrack Shot Processor'
+
+    def toolTip(self):
+        return 'Process as Shots generates output on a per shot basis.'
+
+    def populateUI(self, processorUIWidget, taskUIWidget, exportItems):
+        ShotProcessorUI.populateUI(self, processorUIWidget, taskUIWidget, exportItems)
+        FtrackProcessorUI.addFtrackProcessorUI(self, processorUIWidget, exportItems)
+
+
+
 
 
 class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackProcessorPreset):

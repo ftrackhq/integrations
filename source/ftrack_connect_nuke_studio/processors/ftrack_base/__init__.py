@@ -83,11 +83,13 @@ class FtrackBasePreset(FtrackBase):
         properties = self.properties()
         properties.setdefault('ftrack', {})
 
-        # add placeholders for default ftrack defaults
-        self.properties()['ftrack']['component_name'] = 'main'
-        self.properties()['ftrack']['component_pattern'] = '.{ext}'
-        self.properties()['ftrack']['project_schema'] = 'Film Pipeline'
+        # add placeholders for default task properties
+        self.properties()['ftrack']['component_name'] = None
+        self.properties()['ftrack']['component_pattern'] = None
         self.properties()['ftrack']['task_type'] = 'Generic'
+
+        # add placeholders for default processor properties
+        self.properties()['ftrack']['project_schema'] = 'Film Pipeline'
         self.properties()['ftrack']['task_status'] = 'Not Started'
         self.properties()['ftrack']['shot_status'] = 'In progress'
         self.properties()['ftrack']['asset_version_status'] = 'WIP'

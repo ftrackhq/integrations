@@ -22,12 +22,6 @@ class FtrackTimelineProcessorUI(TimelineProcessorUI, FtrackProcessorUI):
         TimelineProcessorUI.__init__(self, preset)
         FtrackProcessorUI.__init__(self, preset)
 
-    def displayName(self):
-        return 'Ftrack Timeline Processor'
-
-    def toolTip(self):
-        return 'Process as Shots generates output on a per shot basis.'
-
     def updatePathPreview(self):
         self._pathPreviewWidget.setText('Ftrack Server: {0}'.format(self.session.server_url))
 
@@ -42,6 +36,17 @@ class FtrackTimelineProcessorUI(TimelineProcessorUI, FtrackProcessorUI):
         layout.setContentsMargins(0, 0, 0, 0)
         widget.setLayout(layout)
         return widget
+
+    def displayName(self):
+        return 'Ftrack Timeline Processor'
+
+    def toolTip(self):
+        return 'Process as Shots generates output on a per shot basis.'
+
+    def populateUI(self, processorUIWidget, taskUIWidget, exportItems):
+        TimelineProcessor.populateUI(self, processorUIWidget, taskUIWidget, exportItems)
+        FtrackProcessorUI.addFtrackProcessorUI(self, processorUIWidget, exportItems)
+
 
 
 class FtrackTimelineProcessorPreset(TimelineProcessorPreset, FtrackProcessorPreset):
