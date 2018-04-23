@@ -90,45 +90,38 @@ class FtrackBase(object):
     def task_type(self):
         task_type_name = self.ftrack_properties['task_type']
         task_types = self.schema.get_types('Task')
-        try:
-            task_type = [t for t in task_types if t['name'] == task_type_name][0]
-        except Exception as e:
-            raise FtrackProcessorError(e)
-        # self.logger.info('task_type: %s' % task_type)
-        return task_type
+        filtered_task_types = [t for t in task_types if t['name'] == task_type_name]
+        if not filtered_task_types:
+            raise FtrackProcessorError(task_types)
+        return filtered_task_types[0]
 
     @property
     def task_status(self):
         task_status_name = self.ftrack_properties['task_status']
         task_statuses = self.schema.get_statuses('Task', self.task_type['id'])
-        try:
-            task_status = [t for t in task_statuses if t['name'] == task_status_name][0]
-        except Exception as e:
-            raise FtrackProcessorError(e)
-        # self.logger.info('task_status: %s' % task_status)
-        return task_status
+        filtered_task_status = [t for t in task_statuses if t['name'] == task_status_name]
+        if not filtered_task_status:
+            raise FtrackProcessorError(task_statuses)
+        return filtered_task_status[0]
 
     @property
     def shot_status(self):
         shot_status_name = self.ftrack_properties['shot_status']
         shot_statuses = self.schema.get_statuses('Shot')
-        try:
-            shot_status = [t for t in shot_statuses if t['name'] == shot_status_name][0]
-        except Exception as e:
-            raise FtrackProcessorError(e)
-        # self.logger.info('shot_status: %s' % shot_status)
-        return shot_status
+        filtered_shot_status = [t for t in shot_statuses if t['name'] == shot_status_name]
+        if not filtered_shot_status:
+            raise FtrackProcessorError(shot_statuses)
+        return filtered_shot_status[0]
 
     @property
     def asset_version_status(self):
         asset_status_name = self.ftrack_properties['asset_version_status']
         asset_statuses = self.schema.get_statuses('AssetVersion')
-        try:
-            asset_status = [t for t in asset_statuses if t['name'] == asset_status_name][0]
-        except Exception as e:
-            raise FtrackProcessorError(e)
-        # self.logger.info('asset_version_status: %s' % asset_status)
-        return asset_status
+        filtered_asset_status = [t for t in asset_statuses if t['name'] == asset_status_name]
+        if not filtered_asset_status:
+            raise FtrackProcessorError(asset_statuses)
+
+        return filtered_asset_status[0]
 
     def asset_type_per_task(self, task):
         asset_type = task._preset.properties()['ftrack']['asset_type_code']
@@ -147,13 +140,16 @@ class FtrackBasePreset(FtrackBase):
         self.set_export_root()
         self.set_ftrack_properties(properties)
 
-    def isFtrackValid(self):
+    def isValid(self):
         errors = []
         for setting in [self.schema, self.task_type ,self.task_status, self.shot_status, self.asset_version_status]:
             try:
                 setting()
             except Exception as e:
                 errors.append(e)
+
+        self.logger.info(errors)
+
         if errors:
             return (False,errors)
 
