@@ -29,6 +29,13 @@ FTRACK_SHOT_PATH = os.path.join(
 )
 
 
+class FtrackProcessorError(Exception):
+    pass
+
+class FtrackProcessorValidationError(FtrackProcessorError):
+    pass
+
+
 class FtrackBase(object):
     '''
     wrap ftrack functionalities and methods
@@ -70,7 +77,68 @@ class FtrackBase(object):
             'Location where name is "ftrack.server"'
         ).one()
 
+    @property
+    def schema(self):
+        project_schema_name = self.ftrack_properties['project_schema']
+        project_schema = self.session.query(
+            'ProjectSchema where name is "{0}"'.format(project_schema_name)
+        ).one()
+        # self.logger.info('project_schema: %s' % project_schema)
+        return project_schema
 
+    @property
+    def task_type(self):
+        task_type_name = self.ftrack_properties['task_type']
+        task_types = self.schema.get_types('Task')
+        try:
+            task_type = [t for t in task_types if t['name'] == task_type_name][0]
+        except Exception as e:
+            raise FtrackProcessorError(e)
+        # self.logger.info('task_type: %s' % task_type)
+        return task_type
+
+    @property
+    def task_status(self):
+        task_status_name = self.ftrack_properties['task_status']
+        task_statuses = self.schema.get_statuses('Task', self.task_type['id'])
+        try:
+            task_status = [t for t in task_statuses if t['name'] == task_status_name][0]
+        except Exception as e:
+            raise FtrackProcessorError(e)
+        # self.logger.info('task_status: %s' % task_status)
+        return task_status
+
+    @property
+    def shot_status(self):
+        shot_status_name = self.ftrack_properties['shot_status']
+        shot_statuses = self.schema.get_statuses('Shot')
+        try:
+            shot_status = [t for t in shot_statuses if t['name'] == shot_status_name][0]
+        except Exception as e:
+            raise FtrackProcessorError(e)
+        # self.logger.info('shot_status: %s' % shot_status)
+        return shot_status
+
+    @property
+    def asset_version_status(self):
+        asset_status_name = self.ftrack_properties['asset_version_status']
+        asset_statuses = self.schema.get_statuses('AssetVersion')
+        try:
+            asset_status = [t for t in asset_statuses if t['name'] == asset_status_name][0]
+        except Exception as e:
+            raise FtrackProcessorError(e)
+        # self.logger.info('asset_version_status: %s' % asset_status)
+        return asset_status
+
+    def asset_type_per_task(self, task):
+        asset_type = task._preset.properties()['ftrack']['asset_type_code']
+        try:
+            result = self.session.query(
+                'AssetType where short is "{0}"'.format(asset_type)
+            ).one()
+        except Exception as e:
+            raise FtrackProcessorError(e)
+        return result
 
 
 class FtrackBasePreset(FtrackBase):
@@ -78,6 +146,18 @@ class FtrackBasePreset(FtrackBase):
         super(FtrackBasePreset, self).__init__(name, properties)
         self.set_export_root()
         self.set_ftrack_properties(properties)
+
+    def isFtrackValid(self):
+        errors = []
+        for setting in [self.schema, self.task_type ,self.task_status, self.shot_status, self.asset_version_status]:
+            try:
+                setting()
+            except Exception as e:
+                errors.append(e)
+        if errors:
+            return (False,errors)
+
+        return (True, '')
 
     def set_ftrack_properties(self, properties):
         properties = self.properties()
@@ -88,7 +168,7 @@ class FtrackBasePreset(FtrackBase):
         self.properties()['ftrack']['component_pattern'] = None
         self.properties()['ftrack']['task_type'] = 'Generic'
 
-        # add placeholders for default processor properties
+        # add placeholders for default processor
         self.properties()['ftrack']['project_schema'] = 'Film Pipeline'
         self.properties()['ftrack']['task_status'] = 'Not Started'
         self.properties()['ftrack']['shot_status'] = 'In progress'

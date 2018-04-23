@@ -2,7 +2,7 @@ import time
 import tempfile
 from QtExt import QtCore, QtWidgets
 
-from . import FtrackBasePreset, FtrackBase
+from . import FtrackBasePreset, FtrackBase, FtrackProcessorError
 
 import hiero.core
 
@@ -152,55 +152,6 @@ class FtrackProcessor(FtrackBase):
         version = component['version']
         version.create_thumbnail(thumbnail_file)
         version['task'].create_thumbnail(thumbnail_file)
-
-    @property
-    def schema(self):
-        project_schema_name = self.ftrack_properties['project_schema']
-        project_schema = self.session.query(
-            'ProjectSchema where name is "{0}"'.format(project_schema_name)
-        ).one()
-        # self.logger.info('project_schema: %s' % project_schema)
-        return project_schema
-
-    @property
-    def task_type(self):
-        task_type_name = self.ftrack_properties['task_type']
-        task_types = self.schema.get_types('Task')
-        task_type = [t for t in task_types if t['name'] == task_type_name][0]
-        # self.logger.info('task_type: %s' % task_type)
-        return task_type
-
-    @property
-    def task_status(self):
-        task_status_name = self.ftrack_properties['task_status']
-        task_statuses = self.schema.get_statuses('Task', self.task_type['id'])
-        task_status = [t for t in task_statuses if t['name'] == task_status_name][0]
-        # self.logger.info('task_status: %s' % task_status)
-        return task_status
-
-    @property
-    def shot_status(self):
-        shot_status_name = self.ftrack_properties['shot_status']
-        shot_statuses = self.schema.get_statuses('Shot')
-        shot_status = [t for t in shot_statuses if t['name'] == shot_status_name][0]
-        # self.logger.info('shot_status: %s' % shot_status)
-        return shot_status
-
-    @property
-    def asset_version_status(self):
-        asset_status_name = self.ftrack_properties['asset_version_status']
-        asset_statuses = self.schema.get_statuses('AssetVersion')
-        asset_status = [t for t in asset_statuses if t['name'] == asset_status_name][0]
-        # self.logger.info('asset_version_status: %s' % asset_status)
-        return asset_status
-
-    def asset_type_per_task(self, task):
-        asset_type = task._preset.properties()['ftrack']['asset_type_code']
-        result = self.session.query(
-            'AssetType where short is "{0}"'.format(asset_type)
-        ).one()
-
-        return result
 
     def _create_project_fragment(self, name, parent, task):
         project = self.session.query(
@@ -390,6 +341,7 @@ class FtrackProcessorUI(FtrackBase):
         formLayout.addRow(label + ":", schema_property)
 
         if project:
+            # if a project exist , disable the widget and set the previous schema found.
             schema_index = schema_property._widget.findText(project['project_schema']['name'])
             schema_property._widget.setCurrentIndex(schema_index)
             schema_property.setDisabled(True)
