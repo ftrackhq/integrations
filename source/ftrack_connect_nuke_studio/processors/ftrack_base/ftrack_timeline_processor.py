@@ -44,7 +44,7 @@ class FtrackTimelineProcessorUI(TimelineProcessorUI, FtrackProcessorUI):
         return 'Process as Shots generates output on a per shot basis.'
 
     def populateUI(self, processorUIWidget, taskUIWidget, exportItems):
-        TimelineProcessor.populateUI(self, processorUIWidget, taskUIWidget, exportItems)
+        TimelineProcessorUI.populateUI(self, processorUIWidget, taskUIWidget, exportItems)
         FtrackProcessorUI.addFtrackProcessorUI(self, processorUIWidget, exportItems)
 
 
