@@ -77,62 +77,6 @@ class FtrackBase(object):
             'Location where name is "ftrack.server"'
         ).one()
 
-    @property
-    def schema(self):
-        project_schema_name = self.ftrack_properties['project_schema']
-        project_schema = self.session.query(
-            'ProjectSchema where name is "{0}"'.format(project_schema_name)
-        ).one()
-        # self.logger.info('project_schema: %s' % project_schema)
-        return project_schema
-
-    @property
-    def task_type(self):
-        task_type_name = self.ftrack_properties['task_type']
-        task_types = self.schema.get_types('Task')
-        filtered_task_types = [t for t in task_types if t['name'] == task_type_name]
-        if not filtered_task_types:
-            raise FtrackProcessorError(task_types)
-        return filtered_task_types[0]
-
-    @property
-    def task_status(self):
-        task_status_name = self.ftrack_properties['task_status']
-        task_statuses = self.schema.get_statuses('Task', self.task_type['id'])
-        filtered_task_status = [t for t in task_statuses if t['name'] == task_status_name]
-        if not filtered_task_status:
-            raise FtrackProcessorError(task_statuses)
-        return filtered_task_status[0]
-
-    @property
-    def shot_status(self):
-        shot_status_name = self.ftrack_properties['shot_status']
-        shot_statuses = self.schema.get_statuses('Shot')
-        filtered_shot_status = [t for t in shot_statuses if t['name'] == shot_status_name]
-        if not filtered_shot_status:
-            raise FtrackProcessorError(shot_statuses)
-        return filtered_shot_status[0]
-
-    @property
-    def asset_version_status(self):
-        asset_status_name = self.ftrack_properties['asset_version_status']
-        asset_statuses = self.schema.get_statuses('AssetVersion')
-        filtered_asset_status = [t for t in asset_statuses if t['name'] == asset_status_name]
-        if not filtered_asset_status:
-            raise FtrackProcessorError(asset_statuses)
-
-        return filtered_asset_status[0]
-
-    def asset_type_per_task(self, task):
-        asset_type = task._preset.properties()['ftrack']['asset_type_code']
-        try:
-            result = self.session.query(
-                'AssetType where short is "{0}"'.format(asset_type)
-            ).one()
-        except Exception as e:
-            raise FtrackProcessorError(e)
-        return result
-
 
 class FtrackBasePreset(FtrackBase):
     def __init__(self, name, properties, **kwargs):
@@ -140,20 +84,6 @@ class FtrackBasePreset(FtrackBase):
         self.set_export_root()
         self.set_ftrack_properties(properties)
 
-    def isValid(self):
-        errors = []
-        for setting in [self.schema, self.task_type ,self.task_status, self.shot_status, self.asset_version_status]:
-            try:
-                setting()
-            except Exception as e:
-                errors.append(e)
-
-        self.logger.info(errors)
-
-        if errors:
-            return (False,errors)
-
-        return (True, '')
 
     def set_ftrack_properties(self, properties):
         properties = self.properties()
@@ -240,4 +170,61 @@ class FtrackBasePreset(FtrackBase):
             'Ftrack component name.',
             lambda keyword, task: self.resolve_ftrack_component(task)
         )
+
+    @property
+    def schema(self):
+        project_schema_name = self.ftrack_properties['project_schema']
+        project_schema = self.session.query(
+            'ProjectSchema where name is "{0}"'.format(project_schema_name)
+        ).one()
+        # self.logger.info('project_schema: %s' % project_schema)
+        return project_schema
+
+    @property
+    def task_type(self):
+        task_type_name = self.ftrack_properties['task_type']
+        task_types = self.schema.get_types('Task')
+        filtered_task_types = [t for t in task_types if t['name'] == task_type_name]
+        if not filtered_task_types:
+            raise FtrackProcessorError(task_types)
+        return filtered_task_types[0]
+
+    @property
+    def task_status(self):
+        task_status_name = self.ftrack_properties['task_status']
+        task_statuses = self.schema.get_statuses('Task', self.task_type['id'])
+        filtered_task_status = [t for t in task_statuses if t['name'] == task_status_name]
+        if not filtered_task_status:
+            raise FtrackProcessorError(task_statuses)
+        return filtered_task_status[0]
+
+    @property
+    def shot_status(self):
+        shot_status_name = self.ftrack_properties['shot_status']
+        shot_statuses = self.schema.get_statuses('Shot')
+        filtered_shot_status = [t for t in shot_statuses if t['name'] == shot_status_name]
+        if not filtered_shot_status:
+            raise FtrackProcessorError(shot_statuses)
+        return filtered_shot_status[0]
+
+    @property
+    def asset_version_status(self):
+        asset_status_name = self.ftrack_properties['asset_version_status']
+        asset_statuses = self.schema.get_statuses('AssetVersion')
+        filtered_asset_status = [t for t in asset_statuses if t['name'] == asset_status_name]
+        if not filtered_asset_status:
+            raise FtrackProcessorError(asset_statuses)
+
+        return filtered_asset_status[0]
+
+    def asset_type_per_task(self, task):
+        asset_type = task._preset.properties()['ftrack']['asset_type_code']
+        try:
+            result = self.session.query(
+                'AssetType where short is "{0}"'.format(asset_type)
+            ).one()
+        except Exception as e:
+            raise FtrackProcessorError(e)
+        return result
+
 
