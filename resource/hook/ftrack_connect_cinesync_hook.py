@@ -65,7 +65,6 @@ class CinesyncActionLauncher(BaseAction):
 
         return result
 
-
     def is_valid_selection(self, selection):
         '''Check whether the given *selection* is valid'''
         results = []
@@ -96,27 +95,6 @@ class CinesyncActionLauncher(BaseAction):
         data = event['data']
         selection = data.get('selection', [])
         return selection
-
-    def _discover(self, event):
-        # TODO: Override while waiting for new version to come out
-        args = self._translate_event(
-            self._session, event
-        )
-
-        accepts = self.discover(
-            self._session, *args
-        )
-
-        if accepts:
-            return {
-                'items': [{
-                    'label': self.label,
-                    'variant': self.variant,
-                    'description':self.description,
-                    'actionIdentifier': self.identifier,
-
-                }]
-            }
 
     def discover(self, session, entities, event):
         '''Return true if we can handle the selected entities.
