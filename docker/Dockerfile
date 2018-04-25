@@ -100,6 +100,7 @@ ENV PATH "${PATH}:/usr/local/lib/python2.7/site-packages/PySide"
 
 #########################################################################
 # -----------------------RUN ENTRYPOINT-------------------------
+VOLUME /${OUT_FOLDER}
 
 COPY ./run.sh /
 RUN chmod +x /run.sh
