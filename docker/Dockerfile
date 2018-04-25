@@ -1,22 +1,22 @@
 #########################################################################
 # :copyright: Copyright (c) 2018 ftrack
 
-# BUILD WITH : sudo docker build -t ftrack/connect-package --build-arg CACHEBUST=$(date +%s) .
-# RUN WITH: docker run --rm -it -v `pwd`/volume:/build ftrack/connect-package
+# BUILD WITH : sudo docker build -t ftrack/connect-package .
+# RUN WITH: docker run --rm ftrack/connect-package
 
 FROM centos:7
-LABEL Ftrack AB: 0.1
+LABEL ftrack AB
+
+# Set default FTRACK_CONNECT_PACKAGE_VERSION version to master
+ENV FTRACK_CONNECT_PACKAGE_VERSION master
 
 # Define Python Version to build and use
 ENV PYTHON_VERSION 2.7.9
 
-# Define connect version to build
-ENV FTRACK_CONNECT_PACKAGE_VERSION master
-
 # Ftrack required environments
 # Legacy Plugins
 ENV FTRACK_CONNECT_LEGACY_PLUGINS_PATH /opt/ftrack-connect-legacy-plugins
-ENV FTRACK_CONNECT_LEGACY_PLUGINS_VERSION 1.0.0
+ENV FTRACK_CONNECT_LEGACY_PLUGINS_VERSION master
 
 # Legacy API
 ENV FTRACK_LEGACY_PYTHON_API_PATH /opt/ftrack-python-legacy-api
@@ -26,12 +26,11 @@ ENV FTRACK_LEGACY_PYTHON_API_VERSION master
 ENV OUT_FOLDER build
 ENV BUILD_DIR /opt/ftrack-connect-package-${FTRACK_CONNECT_PACKAGE_VERSION}
 
-ENV USER ftrack
-
 #########################################################################
 # ----------------------- SYSTEM SETUP ----------------------------------
-# Add custom user
-RUN useradd ${USER}
+
+# Use 6 parallel processes for builds.
+ENV MAKEFLAGS -j6
 
 # Ensure system is up to date and provide basic tools and libraries.
 RUN yum -y update
@@ -60,9 +59,6 @@ RUN yum -y install \
     libxslt\
     libffi\
     libffi-devel;
-
-# Use 6 parallel processes for builds.
-ENV MAKEFLAGS -j6
 
 # Build selected python version.
 RUN yum install -y \
@@ -96,33 +92,15 @@ RUN python2.7 -m pip install setuptools==36.0.1
 # Install pyside. 
 RUN python2.7 -m pip install PySide
 
+# Install awscli for amazon upload
+RUN python2.7 -m pip install awscli
+
 # Ensure pyside-rcc is in PATH.
 ENV PATH "${PATH}:/usr/local/lib/python2.7/site-packages/PySide"
 
 #########################################################################
-# ----------------------- CONNECT SETUP & BUILD--------------------------
+# -----------------------RUN ENTRYPOINT-------------------------
 
-# Legacy Plugins.
-RUN git clone --branch ${FTRACK_CONNECT_LEGACY_PLUGINS_VERSION} https://bitbucket.org/ftrack/ftrack-connect-legacy-plugins.git ${FTRACK_CONNECT_LEGACY_PLUGINS_PATH}
-
-# Legacy api.
-RUN git clone --branch ${FTRACK_LEGACY_PYTHON_API_VERSION} https://bitbucket.org/ftrack/ftrack-python-legacy-api.git  ${FTRACK_LEGACY_PYTHON_API_PATH}
-
-# Clone connect-package code in build folder.
-RUN git clone --branch ${FTRACK_CONNECT_PACKAGE_VERSION} https://bitbucket.org/ftrack/ftrack-connect-package.git ${BUILD_DIR}
-
-# Run buld process.
-RUN cd ${BUILD_DIR} && python2.7 setup.py build
-
-# Prepare output folders
-RUN chown -R ${USER}:${USER} ${BUILD_DIR}
-VOLUME /${OUT_FOLDER}
-RUN chmod -R 777 /${OUT_FOLDER}
-
-# Disable cache so we always package again the latest built version
-ARG CACHEBUST=1
-
-# Create tar.gz and add it to the output folder
-RUN cd ${BUILD_DIR}/build/exe.linux-x86_64-2.7/ && \
-    tar -zcvf /${OUT_FOLDER}/ftrack-connect-package-${FTRACK_CONNECT_PACKAGE_VERSION}.tgz * \
-    && bash
+COPY ./run.sh /
+RUN chmod +x /run.sh
+ENTRYPOINT ["/run.sh"]
