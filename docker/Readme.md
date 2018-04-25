@@ -29,3 +29,6 @@ FTRACK_CONNECT_PACKAGE_VERSION=<set tag or branch version to use>
 AWS_ACCESS_KEY_ID=<amazon access key>
 AWS_SECRET_ACCESS_KEY=<amazon secret key>
 AWS_DEFAULT_REGION=<amazon default region>
+
+# to enable the upload to amazon please set
+UPLOAD_BUILD="1"
