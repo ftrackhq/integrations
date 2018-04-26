@@ -21,12 +21,7 @@ class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
         FtrackProcessor.__init__(self, preset)
 
     def startProcessing(self, exportItems, preview=False):
-
-        for (exportPath, preset) in self._exportTemplate.flatten():
-            # propagate schema from processor to tasks
-            processor_schema = self._preset.properties()['ftrack']['project_schema']
-            preset.properties()['ftrack']['project_schema'] = processor_schema
-
+        FtrackProcessor.validateFtrackProcessing(self, exportItems)
         ShotProcessor.startProcessing(self, exportItems, preview)
 
 
@@ -60,9 +55,6 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackProcessorUI):
     def populateUI(self, processorUIWidget, taskUIWidget, exportItems):
         ShotProcessorUI.populateUI(self, processorUIWidget, taskUIWidget, exportItems)
         FtrackProcessorUI.addFtrackProcessorUI(self, processorUIWidget, exportItems)
-
-
-
 
 
 class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackProcessorPreset):

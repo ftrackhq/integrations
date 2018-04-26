@@ -18,7 +18,6 @@ class FtrackProcessorPreset(FtrackBasePreset):
         super(FtrackProcessorPreset, self).set_ftrack_properties(properties)
 
 
-
 class FtrackProcessor(FtrackBase):
     def __init__(self, initDict):
         super(FtrackProcessor, self).__init__(initDict)
@@ -324,6 +323,30 @@ class FtrackProcessor(FtrackBase):
         ftrack_path = str(os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path))
         self._exportPath = ftrack_path
         self.setDestinationDescription(ftrack_path)
+
+    def validateFtrackProcessing(self, exportItems):
+        sequences = [item.sequence() for item in exportItems]
+        project = sequences[0].project()
+        processor_schema = self._preset.properties()['ftrack']['project_schema']
+        export_root = self._exportTemplate.exportRootPath()
+        for item in exportItems:
+            for (exportPath, preset) in self._exportTemplate.flatten():
+                # propagate schema from processor to tasks
+                preset.properties()['ftrack']['project_schema'] = processor_schema
+                self.logger.info('Setting schema to : {} as {}'.format(preset.name(), processor_schema))
+
+                # Build TaskData seed
+                taskData = hiero.core.TaskData(
+                    preset,
+                    item,
+                    export_root,
+                    exportPath,
+                    'v0',
+                    self._exportTemplate,
+                    project
+                )
+                task = hiero.core.taskRegistry.createTaskFromPreset(preset, taskData)
+                self.logger.info('Task: %s' % task.task_type)
 
 
 class FtrackProcessorUI(FtrackBase):

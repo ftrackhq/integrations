@@ -84,7 +84,6 @@ class FtrackBasePreset(FtrackBase):
         self.set_export_root()
         self.set_ftrack_properties(properties)
 
-
     def set_ftrack_properties(self, properties):
         properties = self.properties()
         properties.setdefault('ftrack', {})

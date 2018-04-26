@@ -68,6 +68,10 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
         # disable making file paths
         FtrackProcessor._makePath(self)
 
+    def hasValidItem(self):
+        self.resolvedExportPath()
+        return TranscodeExporter.hasValidItem(self)
+
 
 class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
     def __init__(self, name, properties):
@@ -91,15 +95,6 @@ class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
 
     def addUserResolveEntries(self, resolver):
         FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)
-
-    def isValid(self):
-        ns_valid, message = TranscodePreset.isValid(self)
-        ftrack_valid, message = FtrackProcessorPreset.isFtrackValid(self)
-
-        if all(ns_valid, ftrack_valid):
-            return (True, "")
-        else:
-            return (False, message)
 
 
 class FtrackNukeRenderExporterUI(TranscodeExporterUI, FtrackProcessorUI):
