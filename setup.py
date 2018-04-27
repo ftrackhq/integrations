@@ -48,11 +48,11 @@ for plugin in (
     )
 
 
-connect_install_require = 'ftrack-connect == 1.1.3'
+connect_install_require = 'ftrack-connect == 1.1.4'
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/1.1.3.zip'
-    '#egg=ftrack-connect-1.1.3'
+    'https://bitbucket.org/ftrack/ftrack-connect/get/1.1.4.zip'
+    '#egg=ftrack-connect-1.1.4'
 )
 
 
@@ -84,8 +84,8 @@ connect_hieroplayer_dependency_link = (
 )
 
 connect_nuke_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/1.1.3.zip'
-    '#egg=ftrack-connect-nuke-1.1.3'
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/1.1.4.zip'
+    '#egg=ftrack-connect-nuke-1.1.4'
 )
 connect_nuke_dependency_install_require = (
     'ftrack-connect-nuke'
@@ -93,8 +93,8 @@ connect_nuke_dependency_install_require = (
 )
 
 connect_maya_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-maya/get/1.1.2.zip'
-    '#egg=ftrack-connect-maya-1.1.2'
+    'https://bitbucket.org/ftrack/ftrack-connect-maya/get/1.1.3.zip'
+    '#egg=ftrack-connect-maya-1.1.3'
 )
 connect_maya_dependency_install_require = (
     'ftrack-connect-maya'
@@ -102,8 +102,8 @@ connect_maya_dependency_install_require = (
 )
 
 connect_nuke_studio_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke-studio/get/1.1.1.zip'
-    '#egg=ftrack-connect-nuke-studio-1.1.1'
+    'https://bitbucket.org/ftrack/ftrack-connect-nuke-studio/get/1.1.2.zip'
+    '#egg=ftrack-connect-nuke-studio-1.1.2'
 )
 connect_nuke_studio_dependency_install_require = (
     'ftrack-connect-nuke-studio'

@@ -5,6 +5,28 @@
 Releases
 ########
 
+.. release:: 0.7.6
+    :date: 2017-04-28
+
+    .. change:: changed
+
+        `ftrack ptython api 1.5.0 <http://ftrack-python-api.rtd.ftrack.com/en/1.5.0/>`_
+
+        `ftrack connect 1.1.4 <http://ftrack-connect.rtd.ftrack.com/en/1.1.4/>`_
+        
+        `ftrack connect maya 1.1.3 <http://ftrack-connect-maya.rtd.ftrack.com/en/1.1.3/>`_
+
+        `ftrack connect nuke 1.1.4 <http://ftrack-connect-nuke.rtd.ftrack.com/en/1.1.4/>`_
+
+        `ftrack connect nuke studio 1.1.2 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/1.1.2/>`_
+
+        `ftrack connect foundry 1.1.1 <http://ftrack-connect-foundry.rtd.ftrack.com/en/1.1.1/>`_
+
+        `qtext 0.2.1 <http://qtext.rtd.ftrack.com/en/0.2.1/>`_
+
+        `ftrack connect pipeline 0.8.2 <http://ftrack-connect-pipeline.rtd.ftrack.com/en/0.8.2/>`_
+
+
 .. release:: 0.7.5
     :date: 2017-02-02
 
