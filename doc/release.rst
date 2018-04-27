@@ -24,7 +24,13 @@ Releases
 
         `ftrack connect pipeline 0.8.2 <http://ftrack-connect-pipeline.rtd.ftrack.com/en/0.8.2/>`_
 
+        `ftrack action handler 0.1.2 <http://ftrack-action-handler.rtd.ftrack.com/en/0.1.2/>`_
+
         `qtext 0.2.1 <http://qtext.rtd.ftrack.com/en/0.2.1/>`_
+
+    .. change:: new
+
+        Add cinesync launcher.
 
 
 .. release:: 0.7.5
