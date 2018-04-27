@@ -8,12 +8,7 @@ import math
 import hiero
 import ftrack_api
 
-import ftrack_connect_nuke_studio.exception
-import ftrack_connect_nuke_studio.template
-
 from ftrack_connect.session import get_shared_session
-from ftrack_connect.ui.widget import overlay as _overlay
-from ftrack_connect_nuke_studio.ui.tree_item import TreeItem as _TreeItem
 
 
 session = get_shared_session()
@@ -40,6 +35,7 @@ kTimingOptionDefaults = {
     kTimingOption_includeInTimecode : False,
     kTimingOption_includeSourceTimecode : False
 }
+
 
 def timings_from_track_item(track_item, options):
     '''Copy from nuke studio assetmgr.
@@ -215,136 +211,3 @@ def item_exists(item):
 
     return True
 
-
-#: TODO: Remove this when styling is in a separate file.
-class TagTreeOverlay(_overlay.BusyOverlay):
-    '''Custom reimplementation for style purposes'''
-
-    def __init__(self, parent=None):
-        '''Initiate and set style sheet.'''
-        super(TagTreeOverlay, self).__init__(parent=parent)
-
-        self.setStyleSheet('''
-            BlockingOverlay {
-                background-color: rgba(58, 58, 58, 200);
-                border: none;
-            }
-
-            BlockingOverlay QFrame#content {
-                padding: 0px;
-                border: 80px solid transparent;
-                background-color: transparent;
-                border-image: none;
-            }
-
-            BlockingOverlay QLabel {
-                background: transparent;
-            }
-        ''')
-
-
-def tree_data_factory(track_item_data, project_tag, template):
-    '''Return tree of TreeItems out of a set of track items in *track_item_data*.
-
-    *project_tag* should be a `hiero.core.Tag` with metadata referring to
-    the project in ftrack.
-
-    *template* should be a context template.
-
-    '''
-    # Create root node for the tree.
-    root = {
-        'ftrack.id': '0',
-        'ftrack.type': 'root',
-        'tag.value': 'root',
-        'ftrack.name': 'ftrack'
-    }
-
-    # Create the root item.
-    root_item = _TreeItem(root)
-
-    project_name = project_tag.metadata().value('tag.value')
-    project_item = _TreeItem({
-        'name': project_name,
-        'ftrack.id': None,
-        'ftrack.type': 'show',
-        'ftrack.name': project_name,
-        'tag.value': project_name
-    })
-    project_item.exists = item_exists(project_item)
-
-    not_matching_item = _TreeItem({
-        'name': project_name,
-        'ftrack.id': 'not_matching_template',
-        'ftrack.type': 'report',
-        'ftrack.name': 'clips not matching the selected template',
-        'tag.value': 'clips not matching the selected template'
-    })
-
-    not_matching_item.exists = 'error'
-    root_item.addChild(project_item)
-
-    for track_item, task_types in track_item_data:
-
-        # A new track item, therefore the previous item is the project.
-        previous_item = project_item
-
-        try:
-            contexts = ftrack_connect_nuke_studio.template.match(
-                track_item, template
-            )
-        except ftrack_connect_nuke_studio.exception.TemplateError:
-            # The track item did not match the selected template.
-            item = _TreeItem({
-                'name': project_name,
-                'ftrack.id': None,
-                'ftrack.type': 'close',
-                'ftrack.name': track_item.name(),
-                'tag.value': track_item.name(),
-                'existing': False
-            })
-
-            item.exists = 'error'
-            not_matching_item.addChild(item)
-
-        else:
-            # First generate the structure for contexts matching the given
-            # template.
-            for entity in contexts:
-                item = _TreeItem({
-                    'name': entity['name'],
-                    'ftrack.id': None,
-                    'ftrack.type': entity['object_type'].lower(),
-                    'ftrack.name': entity['name'],
-                    'tag.value': entity['name']
-                })
-
-                item.track = track_item
-
-                if item in previous_item.children:
-                    index = previous_item.children.index(item)
-                    item = previous_item.children[index]
-
-                previous_item.addChild(item)
-
-                previous_item = item
-                item.exists = item_exists(item)
-
-            # Generate tasks based on the task type tags on the track item.
-            for task_type in task_types:
-                metadata = task_type.metadata().dict()
-
-                # Skip any tag not of task type.
-                if metadata.get('ftrack.type') != 'task':
-                    continue
-
-                item = _TreeItem(metadata)
-                item.track = track_item
-
-                previous_item.addChild(item)
-                item.exists = item_exists(item)
-
-    if not_matching_item.children:
-        root_item.addChild(not_matching_item)
-
-    return root_item

@@ -1,18 +1,19 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2015 ftrack
+# :copyright: Copyright (c) 2014 ftrack
 
 import os
+import re
 import getpass
 import sys
 import pprint
 import logging
-import re
 
 import ftrack_api
 import ftrack_connect.application
 import ftrack_connect_nuke_studio
 
-FTRACK_CONNECT_NUKE_STUDIO_PATH = os.environ.get(
+
+FTRACK_CONNECT_HIERO_PATH = os.environ.get(
     'FTRACK_CONNECT_NUKE_STUDIO_PATH',
     os.path.abspath(
         os.path.join(
@@ -23,9 +24,9 @@ FTRACK_CONNECT_NUKE_STUDIO_PATH = os.environ.get(
 
 
 class LaunchAction(object):
-    '''ftrack connect nuke studio discover and launch action.'''
+    '''ftrack connect legacy plugins discover and launch action.'''
 
-    identifier = 'ftrack-connect-launch-nuke-studio'
+    identifier = 'ftrack-connect-hiero-application'
 
     def __init__(self, applicationStore, launcher, session):
         '''Initialise action with *applicationStore* and *launcher*.
@@ -35,9 +36,6 @@ class LaunchAction(object):
 
         *launcher* should be an instance of
         :class:`ftrack_connect.application.ApplicationLauncher`.
-
-        *session* should be an instance of
-        :class:`ftrack_api.Session`.
 
         '''
         super(LaunchAction, self).__init__()
@@ -74,6 +72,7 @@ class LaunchAction(object):
 
     def discover(self, event):
         '''Return discovered applications.'''
+
         items = []
         applications = self.applicationStore.applications
         applications = sorted(
@@ -97,7 +96,15 @@ class LaunchAction(object):
         }
 
     def launch(self, event):
-        '''Handle launch *event*.'''
+        '''Handle *event*.
+
+        event['data'] should contain:
+
+            *applicationIdentifier* to identify which application to start.
+
+        '''
+        # Prevent further processing by other listeners.
+        event.stop()
         applicationIdentifier = (
             event['data']['applicationIdentifier']
         )
@@ -115,13 +122,16 @@ class LaunchAction(object):
 
     def get_version_information(self, event):
         '''Return version information.'''
-        return dict(
-            name='ftrack connect nuke studio',
-            version=ftrack_connect_nuke_studio.__version__
-        )
+        return [
+            dict(
+                name='ftrack connect hiero',
+                version=ftrack_connect_nuke_studio.__version__
+            )
+        ]
 
 
 class ApplicationStore(ftrack_connect.application.ApplicationStore):
+    '''Discover and store available applications on this host.'''
 
     def _discoverApplications(self):
         '''Return a list of applications that can be launched from this host.
@@ -145,19 +155,47 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
             prefix = ['/', 'Applications']
 
             applications.extend(self._searchFilesystem(
-                expression=prefix + ['Nuke.*', 'NukeStudio\d[\w.]+.app'],
-                label='Nuke Studio',
+                versionExpression=r'Hiero(?P<version>.*)\/.+$',
+                expression=prefix + ['Hiero\d.+', 'Hiero\d.+.app'],
+                label='Hiero',
                 variant='{version}',
-                applicationIdentifier='nuke_studio_{version}',
-                icon='nuke_studio'
+                applicationIdentifier='hiero_{version}',
+                icon='hiero'
+            ))
+
+            applications.extend(self._searchFilesystem(
+                versionExpression=r'Nuke(?P<version>.*)\/.+$',
+                expression=prefix + ['Nuke.*', 'Hiero\d[\w.]+.app'],
+                label='Hiero',
+                variant='{version}',
+                applicationIdentifier='hiero_{version}',
+                icon='hiero'
             ))
 
         elif sys.platform == 'win32':
             prefix = ['C:\\', 'Program Files.*']
 
-            # Specify custom expression for Nuke Studio to ensure the complete
-            # version number (e.g. 9.0v3) is picked up including any special
-            # builds (e.g. 9.0FnAssetAPI.000013a).
+            applications.extend(self._searchFilesystem(
+                expression=prefix + ['Hiero\d.+', 'hiero.exe'],
+                label='Hiero',
+                variant='{version}',
+                applicationIdentifier='hiero_{version}',
+                icon='hiero'
+            ))
+
+            # Somewhere along the way The Foundry changed the default install directory.
+            # Add the old directory as expression to find old installations of Hiero
+            # as well.
+            #
+            # TODO: Refactor this once ``_searchFilesystem`` is more sophisticated.
+            applications.extend(self._searchFilesystem(
+                expression=prefix + ['The Foundry', 'Hiero\d.+', 'hiero.exe'],
+                label='Hiero',
+                variant='{version}',
+                applicationIdentifier='hiero_{version}',
+                icon='hiero'
+            ))
+
             version_expression = re.compile(
                 r'Nuke(?P<version>[\d.]+[\w\d.]*)'
             )
@@ -165,22 +203,30 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
             applications.extend(self._searchFilesystem(
                 expression=prefix + ['Nuke.*', 'Nuke\d.+.exe'],
                 versionExpression=version_expression,
-                label='Nuke Studio',
+                label='Hiero',
                 variant='{version}',
-                applicationIdentifier='nuke_studio_{version}',
-                icon='nuke_studio',
-                launchArguments=['--studio']
+                applicationIdentifier='hiero_{version}',
+                icon='hiero',
+                launchArguments=['--hiero']
             ))
 
         elif sys.platform == 'linux2':
+            applications.extend(self._searchFilesystem(
+                versionExpression=r'Hiero(?P<version>.*)\/.+\/.+$',
+                expression=['/', 'usr', 'local', 'Hiero.*', 'bin', 'Hiero\d.+'],
+                label='Hiero',
+                variant='{version}',
+                applicationIdentifier='hiero_{version}',
+                icon='hiero'
+            ))
 
             applications.extend(self._searchFilesystem(
                 expression=['/', 'usr', 'local', 'Nuke.*', 'Nuke\d.+'],
-                label='Nuke Studio',
+                label='Hiero',
                 variant='{version}',
-                applicationIdentifier='nuke_studio_{version}',
-                icon='nuke_studio',
-                launchArguments=['--studio']
+                applicationIdentifier='hiero_{version}',
+                icon='hiero',
+                launchArguments=['--hiero']
             ))
 
         self.logger.debug(
@@ -192,11 +238,13 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
         return applications
 
 
-class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
-    '''Launch nuke studio.'''
+class ApplicationLauncher(
+    ftrack_connect.application.ApplicationLauncher
+):
+    '''Launch applications with legacy plugin support.'''
 
     def _getApplicationEnvironment(self, application, context):
-        '''Modify and return environment with nuke studio added.'''
+        '''Modify and return environment with legacy plugins added.'''
         environment = super(
             ApplicationLauncher, self
         )._getApplicationEnvironment(
@@ -204,7 +252,7 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
         )
 
         hiero_plugin_path = os.path.join(
-            FTRACK_CONNECT_NUKE_STUDIO_PATH, 'plugin'
+            FTRACK_CONNECT_HIERO_PATH, 'plugin'
         )
 
         environment = ftrack_connect.application.appendPath(
@@ -218,7 +266,7 @@ def register(session, **kw):
     '''Register hooks for ftrack connect legacy plugins.'''
 
     logger = logging.getLogger(
-        'ftrack_plugin:ftrack_connect_nuke_studio_hook.register'
+        'ftrack_plugin:ftrack_connect_hiero_hook.register'
     )
 
     '''Register plugin. Called when used as an plugin.'''
