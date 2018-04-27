@@ -325,10 +325,20 @@ class FtrackProcessor(FtrackBase):
         self.setDestinationDescription(ftrack_path)
 
     def validateFtrackProcessing(self, exportItems):
+
+        attributes = [
+            'task_type',
+            'task_status',
+            'shot_status',
+            'asset_version_status'
+        ]
+
         sequences = [item.sequence() for item in exportItems]
         project = sequences[0].project()
         processor_schema = self._preset.properties()['ftrack']['project_schema']
         export_root = self._exportTemplate.exportRootPath()
+        errors = {}
+
         for item in exportItems:
             for (exportPath, preset) in self._exportTemplate.flatten():
                 # propagate schema from processor to tasks
@@ -346,7 +356,13 @@ class FtrackProcessor(FtrackBase):
                     project
                 )
                 task = hiero.core.taskRegistry.createTaskFromPreset(preset, taskData)
-                self.logger.info('Task: %s' % task.task_type)
+                for attribute in attributes:
+                    try:
+                        getattr(task, attribute)
+                    except FtrackProcessorError as error:
+                        valid_values = [result['name'] for result in error.message]
+                        preset_errors = errors.setdefault(preset, {})
+                        preset_errors.setdefault(attribute, valid_values)
 
 
 class FtrackProcessorUI(FtrackBase):
