@@ -3,8 +3,6 @@
 
 import subprocess
 import sys
-import re
-import logging
 
 import ftrack_api
 import ftrack_connect.application
@@ -12,7 +10,7 @@ from ftrack_action_handler.action import BaseAction
 
 
 class CinesyncActionLauncher(BaseAction):
-    '''ftrack connect legacy plugins discover and launch action.'''
+    '''Cinesync launch action.'''
 
     identifier = 'ftrack-connect-cinesync-application'
     label = 'cineSync'
@@ -39,29 +37,29 @@ class CinesyncActionLauncher(BaseAction):
         return [entity_id]
 
     def _get_version_from_lists(self, entity_id):
-        '''Return comma separated list of versions from AssetVersionList from *entity_id*'''
+        '''Return list of version ids from AssetVersionList from *entity_id*'''
 
         asset_version_lists = self._session.query(
             'AssetVersionList where id is {0}'.format(entity_id)
         ).one()
-        
+
         result = [
-            version['id'] for version in asset_version_lists['items'] if version
+            version['id'] for version in asset_version_lists['items']
         ]
 
         return result
 
     def _get_version_from_review(self, entity_id):
-        '''Return comma separated list of versions from ReviewSession from *entity_id*'''
+        '''Return list of versions ids from ReviewSession from *entity_id*'''
 
         review_session = self._session.query(
             'select review_session_objects.version_id'
             ' from ReviewSession where id is {0}'.format(entity_id)
         ).one()
 
-        result = [
-            version_object['version_id'] for version_object in review_session['review_session_objects'] if version_object
-        ]
+        result = []
+        for version_object in review_session['review_session_objects']:
+            result.append(version_object['version_id'])
 
         return result
 
@@ -101,9 +99,9 @@ class CinesyncActionLauncher(BaseAction):
 
         *session* is a `ftrack_api.Session` instance
 
-        *entities* is a list of tuples each containing the entity type and the entity id.
-        If the entity is a hierarchical you will always get the entity
-        type TypedContext, once retrieved through a get operation you
+        *entities* is a list of tuples each containing the entity type and the
+        entity id. If the entity is a hierarchical you will always get the
+        entity type TypedContext, once retrieved through a get operation you
         will have the "real" entity type ie. example Shot, Sequence
         or Asset Build.
 
@@ -155,9 +153,9 @@ class CinesyncActionLauncher(BaseAction):
 
         *session* is a `ftrack_api.Session` instance
 
-        *entities* is a list of tuples each containing the entity type and the entity id.
-        If the entity is a hierarchical you will always get the entity
-        type TypedContext, once retrieved through a get operation you
+        *entities* is a list of tuples each containing the entity type and the
+        entity id. If the entity is a hierarchical you will always get the
+        entity type TypedContext, once retrieved through a get operation you
         will have the "real" entity type ie. example Shot, Sequence
         or Asset Build.
 
@@ -174,7 +172,7 @@ class CinesyncApplicationStore(ftrack_connect.application.ApplicationStore):
     '''Discover and store available applications on this host.'''
 
     def _discoverApplications(self):
-        '''Return a list of applications that can be launched from this host.'''
+        '''Return list of applications that can be launched from this host.'''
         applications = []
 
         if sys.platform == 'darwin':
@@ -199,8 +197,8 @@ class CinesyncApplicationStore(ftrack_connect.application.ApplicationStore):
             ))
 
         elif sys.platform == 'linux2':
-            # TODO: Find consistent way to decide where the application is installed.
-            # Placeholder for linux
+            # TODO: Find consistent way to decide where the application is
+            # installed. Placeholder for linux
             return
 
         self.logger.debug('Application found: {0}'.format(applications))
