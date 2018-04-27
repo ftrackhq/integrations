@@ -180,7 +180,7 @@ configuration = dict(
         'cryptography == 1.8.2',
         'pyopenssl<= 17.0.0,<17.0.1',
         'requests >= 2, <3',
-        'ftrack_action_handler < {0}'.format(
+        'ftrack_action_handler == {0}'.format(
             ftrack_action_handler_version
         )
     ],
