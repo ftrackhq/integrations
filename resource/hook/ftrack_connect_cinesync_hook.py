@@ -13,7 +13,7 @@ class CinesyncActionLauncher(BaseAction):
     '''Cinesync launch action.'''
 
     identifier = 'ftrack-connect-cinesync-application'
-    label = 'cinesync'
+    label = 'cineSync'
 
     def __init__(self, applicationStore, session):
         '''Initialise action with *applicationStore*.
@@ -180,8 +180,8 @@ class CinesyncApplicationStore(ftrack_connect.application.ApplicationStore):
 
             applications.extend(self._searchFilesystem(
                 expression=prefix + ['cineSync.app'],
-                label='cinesync',
-                applicationIdentifier='cinesync',
+                label='cineSync',
+                applicationIdentifier='cineSync',
                 icon='cinesync',
                 versionExpression=r'(?P<version>.*)'
             ))
@@ -191,8 +191,8 @@ class CinesyncApplicationStore(ftrack_connect.application.ApplicationStore):
 
             applications.extend(self._searchFilesystem(
                 expression=prefix + ['cineSync', 'cineSync.exe'],
-                label='cinesync',
-                applicationIdentifier='cinesync',
+                label='cineSync',
+                applicationIdentifier='cineSync',
                 icon='cinesync'
             ))
 
