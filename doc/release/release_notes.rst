@@ -7,7 +7,8 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 1.1.2
+    :date: 2017-04-27
 
     .. change:: fixed
        :tags: Crew
