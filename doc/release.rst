@@ -22,9 +22,9 @@ Releases
 
         `ftrack connect foundry 1.1.1 <http://ftrack-connect-foundry.rtd.ftrack.com/en/1.1.1/>`_
 
-        `qtext 0.2.1 <http://qtext.rtd.ftrack.com/en/0.2.1/>`_
-
         `ftrack connect pipeline 0.8.2 <http://ftrack-connect-pipeline.rtd.ftrack.com/en/0.8.2/>`_
+
+        `qtext 0.2.1 <http://qtext.rtd.ftrack.com/en/0.2.1/>`_
 
 
 .. release:: 0.7.5
