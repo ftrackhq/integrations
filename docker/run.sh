@@ -11,7 +11,7 @@ echo Building Connect Package Version: ${FTRACK_CONNECT_PACKAGE_VERSION}
 cd ${BUILD_DIR} && python2.7 setup.py build
 
 # Package result code.
-cd ${BUILD_DIR}/build/ && tar -zcvf /${OUT_FOLDER}/ftrack-connect-package-${FTRACK_CONNECT_PACKAGE_VERSION}.tgz exe.linux-x86_64-2.7/* --transform 's/exe.linux-x86_64-2.7/ftrack-connect-package/' 
+cd ${BUILD_DIR}/build/ && tar -zcvf /${OUT_FOLDER}/ftrack-connect-package-${FTRACK_CONNECT_PACKAGE_VERSION}.tgz exe.linux-x86_64-2.7 --transform 's/exe.linux-x86_64-2.7/ftrack-connect-package/' 
 
 if [ -v UPLOAD_BUILD ]; then
     # Copy result file to amazon storage.
