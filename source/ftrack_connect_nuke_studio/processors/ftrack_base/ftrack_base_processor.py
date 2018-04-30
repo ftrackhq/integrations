@@ -10,6 +10,43 @@ from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 from hiero.ui.FnUIProperty import *
 
 
+class FtrackProcessorPresetSettingsUi(QtWidgets.QDialog):
+
+    def __init__(self, error_data, parent=None):
+        super(FtrackProcessorPresetSettingsUi, self).__init__()
+        self._error_data = error_data
+
+        main_layout = QtWidgets.QVBoxLayout()
+        self.setLayout(main_layout)
+
+        formLayout = TaskUIFormLayout()
+        main_layout.addLayout(formLayout)
+
+        for preset, values in error_data.items():
+            formLayout.addDivider("{0}".format(preset.name()))
+
+            for attribute, valid_values in values.items():
+
+                key, value, label = attribute, valid_values, attribute.capitalize()
+                tooltip = 'Set {0} value'.format(attribute)
+
+                uiProperty = UIPropertyFactory.create(
+                    type(value),
+                    key=key,
+                    value=value,
+                    dictionary=preset.properties()['ftrack'],
+                    label=label + ":",
+                    tooltip=tooltip
+                )
+                formLayout.addRow(label + ":", uiProperty)
+
+        ok_button = QtWidgets.QPushButton('Ok')
+        cancel_button = QtWidgets.QPushButton('Cancel')
+
+        main_layout.addWidget(ok_button)
+        main_layout.addWidget(cancel_button)
+
+
 class FtrackProcessorPreset(FtrackBasePreset):
     def __init__(self, name, properties):
         super(FtrackProcessorPreset, self).__init__(name, properties)
@@ -357,12 +394,19 @@ class FtrackProcessor(FtrackBase):
                 )
                 task = hiero.core.taskRegistry.createTaskFromPreset(preset, taskData)
                 for attribute in attributes:
+                    self.logger.info('Checking task.{}'.format(attribute))
                     try:
-                        getattr(task, attribute)
+                        result = getattr(task, attribute)
                     except FtrackProcessorError as error:
+                        self.logger.error(error)
                         valid_values = [result['name'] for result in error.message]
                         preset_errors = errors.setdefault(preset, {})
                         preset_errors.setdefault(attribute, valid_values)
+
+        self.logger.info(errors)
+        pui = FtrackProcessorPresetSettingsUi(errors)
+        pui.exec_()
+        # if OK , re run validation !
 
 
 class FtrackProcessorUI(FtrackBase):
