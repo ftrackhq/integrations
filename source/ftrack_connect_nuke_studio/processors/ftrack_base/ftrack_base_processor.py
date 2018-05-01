@@ -10,24 +10,42 @@ from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 from hiero.ui.FnUIProperty import *
 
 
+# http://nealbuerger.com/2013/10/pyside-qmessagebox-with-qcheckbox
+
 class FtrackProcessorPresetSettingsUi(QtWidgets.QDialog):
 
-    def __init__(self, error_data, parent=None):
+    okStatus = 1
+    cancelStatus = 0
+
+    @property
+    def status(self):
+        return self._status
+
+    def set_status(self, status):
+        self._status = status
+        self.close()
+
+    def __init__(self, error_data):
+        self._status = self.cancelStatus
         super(FtrackProcessorPresetSettingsUi, self).__init__()
         self._error_data = error_data
 
-        main_layout = QtWidgets.QVBoxLayout()
-        self.setLayout(main_layout)
+        layout = QtWidgets.QVBoxLayout()
+        self.setLayout(layout)
+
+        label = QtWidgets.QLabel('An error occured in the current schema cofiguration.')
+        self.layout().addWidget(label)
 
         formLayout = TaskUIFormLayout()
-        main_layout.addLayout(formLayout)
+        self.layout().addLayout(formLayout)
 
         for preset, values in error_data.items():
             formLayout.addDivider("{0}".format(preset.name()))
 
+            # TODO: attribute should be reversed .... as they are appearing in the wrong order
             for attribute, valid_values in values.items():
 
-                key, value, label = attribute, valid_values, attribute.capitalize()
+                key, value, label = attribute, valid_values, ' '.join(attribute.split('_'))
                 tooltip = 'Set {0} value'.format(attribute)
 
                 uiProperty = UIPropertyFactory.create(
@@ -40,11 +58,20 @@ class FtrackProcessorPresetSettingsUi(QtWidgets.QDialog):
                 )
                 formLayout.addRow(label + ":", uiProperty)
 
-        ok_button = QtWidgets.QPushButton('Ok')
+        button_layout = QtWidgets.QHBoxLayout()
+        self.layout().addLayout(button_layout)
+        ok_button = QtWidgets.QPushButton('Apply')
         cancel_button = QtWidgets.QPushButton('Cancel')
+        button_layout.addWidget(ok_button)
+        button_layout.addWidget(cancel_button)
 
-        main_layout.addWidget(ok_button)
-        main_layout.addWidget(cancel_button)
+        ok_button.clicked.connect(
+            lambda: self.set_status(self.okStatus)
+        )
+
+        cancel_button.clicked.connect(
+            lambda: self.set_status(self.cancelStatus)
+        )
 
 
 class FtrackProcessorPreset(FtrackBasePreset):
@@ -211,7 +238,11 @@ class FtrackProcessor(FtrackBase):
     @property
     def task_status(self):
         task_status_name = self.ftrack_properties['task_status']
-        task_statuses = self.schema.get_statuses('Task', self.task_type['id'])
+        try:
+            task_statuses = self.schema.get_statuses('Task', self.task_type['id'])
+        except ValueError as error:
+            raise FtrackProcessorError(error)
+
         filtered_task_status = [t for t in task_statuses if t['name'] == task_status_name]
         if not filtered_task_status:
             raise FtrackProcessorError(task_statuses)
@@ -404,9 +435,12 @@ class FtrackProcessor(FtrackBase):
                         preset_errors.setdefault(attribute, valid_values)
 
         self.logger.info(errors)
-        pui = FtrackProcessorPresetSettingsUi(errors)
-        pui.exec_()
-        # if OK , re run validation !
+        if errors:
+            pui = FtrackProcessorPresetSettingsUi(errors)
+            pui.exec_()
+            self.logger.info(pui.status)
+            self.logger.info(result)
+            self.validateFtrackProcessing(exportItems)
 
 
 class FtrackProcessorUI(FtrackBase):
