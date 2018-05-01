@@ -21,8 +21,9 @@ class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
         FtrackProcessor.__init__(self, preset)
 
     def startProcessing(self, exportItems, preview=False):
-        FtrackProcessor.validateFtrackProcessing(self, exportItems)
-        ShotProcessor.startProcessing(self, exportItems, preview)
+        result = FtrackProcessor.validateFtrackProcessing(self, exportItems)
+        if result:
+            ShotProcessor.startProcessing(self, exportItems, preview)
 
 
 class FtrackShotProcessorUI(ShotProcessorUI, FtrackProcessorUI):

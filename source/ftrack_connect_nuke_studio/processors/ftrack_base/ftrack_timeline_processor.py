@@ -15,6 +15,11 @@ class FtrackTimelineProcessor(TimelineProcessor, FtrackProcessor):
         TimelineProcessor.__init__(self, preset, submission, synchronous=synchronous)
         FtrackProcessor.__init__(self, preset)
 
+    def startProcessing(self, exportItems, preview=False):
+        result = FtrackProcessor.validateFtrackProcessing(self, exportItems)
+        if result:
+            TimelineProcessor.startProcessing(self, exportItems, preview)
+
 
 class FtrackTimelineProcessorUI(TimelineProcessorUI, FtrackProcessorUI):
 

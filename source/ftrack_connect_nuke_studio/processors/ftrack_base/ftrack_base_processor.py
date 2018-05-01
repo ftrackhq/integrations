@@ -438,9 +438,13 @@ class FtrackProcessor(FtrackBase):
         if errors:
             pui = FtrackProcessorPresetSettingsUi(errors)
             pui.exec_()
-            self.logger.info(pui.status)
-            self.logger.info(result)
-            self.validateFtrackProcessing(exportItems)
+            # if we press apply, we re validate the changes.
+            if pui.status:
+                self.validateFtrackProcessing(exportItems)
+            else:
+                return False
+
+        return True
 
 
 class FtrackProcessorUI(FtrackBase):
