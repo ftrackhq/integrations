@@ -10,8 +10,6 @@ from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 from hiero.ui.FnUIProperty import *
 
 
-# http://nealbuerger.com/2013/10/pyside-qmessagebox-with-qcheckbox
-
 class FtrackProcessorPresetSettingsUi(QtWidgets.QDialog):
 
     okStatus = 1
