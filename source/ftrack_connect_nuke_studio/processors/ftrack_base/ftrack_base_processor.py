@@ -50,7 +50,7 @@ class FtrackProcessorPresetSettingsUi(QtWidgets.QDialog):
 
             # TODO: attribute should be reversed .... as they are appearing in the wrong order
             for attribute, valid_values in values.items():
-
+                valid_values.insert(0, '- select a value -')
                 key, value, label = attribute, valid_values, ' '.join(attribute.split('_'))
                 tooltip = 'Set {0} value'.format(attribute)
 
@@ -417,7 +417,7 @@ class FtrackProcessor(FtrackBase):
             for (exportPath, preset) in self._exportTemplate.flatten():
                 # propagate schema from processor to tasks
                 preset.properties()['ftrack']['project_schema'] = processor_schema
-                self.logger.info('Setting schema to : {} as {}'.format(preset.name(), processor_schema))
+                # self.logger.info('Setting schema to : {} as {}'.format(preset.name(), processor_schema))
 
                 # Build TaskData seed
                 taskData = hiero.core.TaskData(
@@ -431,16 +431,13 @@ class FtrackProcessor(FtrackBase):
                 )
                 task = hiero.core.taskRegistry.createTaskFromPreset(preset, taskData)
                 for attribute in attributes:
-                    self.logger.info('Checking task.{}'.format(attribute))
                     try:
                         result = getattr(task, attribute)
                     except FtrackProcessorError as error:
-                        self.logger.error(error)
                         valid_values = [result['name'] for result in error.message]
                         preset_errors = errors.setdefault(preset, {})
                         preset_errors.setdefault(attribute, valid_values)
 
-        self.logger.info(errors)
         if errors:
             pui = FtrackProcessorPresetSettingsUi(errors)
             pui.exec_()
