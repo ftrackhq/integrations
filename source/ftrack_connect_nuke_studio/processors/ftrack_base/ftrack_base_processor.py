@@ -10,22 +10,10 @@ from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 from hiero.ui.FnUIProperty import *
 
 
-class FtrackProcessorPresetSettingsUi(QtWidgets.QDialog):
-
-    okStatus = 1
-    cancelStatus = 0
-
-    @property
-    def status(self):
-        return self._status
-
-    def set_status(self, status):
-        self._status = status
-        self.close()
+class FtrackSettingsValidator(QtWidgets.QDialog):
 
     def __init__(self, error_data):
-        self._status = self.cancelStatus
-        super(FtrackProcessorPresetSettingsUi, self).__init__()
+        super(FtrackSettingsValidator, self).__init__()
         self.setWindowTitle('Validation error!')
         self._error_data = error_data
 
@@ -64,20 +52,13 @@ class FtrackProcessorPresetSettingsUi(QtWidgets.QDialog):
                 )
                 formLayout.addRow(label + ":", uiProperty)
 
-        button_layout = QtWidgets.QHBoxLayout()
-        self.layout().addLayout(button_layout)
-        ok_button = QtWidgets.QPushButton('Apply')
-        cancel_button = QtWidgets.QPushButton('Cancel')
-        button_layout.addWidget(ok_button)
-        button_layout.addWidget(cancel_button)
-
-        ok_button.clicked.connect(
-            lambda: self.set_status(self.okStatus)
-        )
-
-        cancel_button.clicked.connect(
-            lambda: self.set_status(self.cancelStatus)
-        )
+        buttons = QtWidgets.QDialogButtonBox()
+        buttons.setOrientation(QtCore.Qt.Horizontal)
+        buttons.addButton("Cancel", QtWidgets.QDialogButtonBox.RejectRole)
+        buttons.addButton("Accept", QtWidgets.QDialogButtonBox.AcceptRole)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        self.layout().addWidget(buttons)
 
 
 class FtrackProcessorPreset(FtrackBasePreset):
@@ -439,13 +420,12 @@ class FtrackProcessor(FtrackBase):
                         preset_errors.setdefault(attribute, valid_values)
 
         if errors:
-            pui = FtrackProcessorPresetSettingsUi(errors)
-            pui.exec_()
-            # if we press apply, we re validate the changes.
-            if pui.status is pui.okStatus:
-                self.validateFtrackProcessing(exportItems)
-            else:
+            settings_validator = FtrackSettingsValidator(errors)
+
+            if settings_validator.exec_() != QtWidgets.QDialog.Accepted:
                 return False
+
+            self.validateFtrackProcessing(exportItems)
 
         return True
 
@@ -526,4 +506,9 @@ class FtrackProcessorUI(FtrackBase):
             schema_index = schema_property._widget.findText(project['project_schema']['name'])
             schema_property._widget.setCurrentIndex(schema_index)
             schema_property.setDisabled(True)
+
+        # hide project path selector Foundry ticket : #36074
+        for w in self._exportStructureViewer.findChildren(QtWidgets.QWidget):
+            if (isinstance(w, QtWidgets.QLabel) and w.text() == 'Export To:') or w.toolTip() == "Export root path":
+                w.hide()
 
