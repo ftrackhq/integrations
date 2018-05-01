@@ -1,6 +1,6 @@
 import time
 import tempfile
-from QtExt import QtCore, QtWidgets
+from QtExt import QtCore, QtWidgets, QtGui
 
 from . import FtrackBasePreset, FtrackBase, FtrackProcessorError
 
@@ -28,16 +28,24 @@ class FtrackProcessorPresetSettingsUi(QtWidgets.QDialog):
     def __init__(self, error_data):
         self._status = self.cancelStatus
         super(FtrackProcessorPresetSettingsUi, self).__init__()
+        self.setWindowTitle('Validation error!')
         self._error_data = error_data
+
+        ftrack_icon = QtGui.QIcon(':/ftrack/image/default/ftrackLogoColor')
+        self.setWindowIcon(ftrack_icon)
 
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
-        label = QtWidgets.QLabel('An error occured in the current schema cofiguration.')
-        self.layout().addWidget(label)
+        box = QtWidgets.QGroupBox('An error occured in the current schema cofiguration.')
+
+        self.layout().addWidget(box)
+
+        box_layout = QtWidgets.QVBoxLayout()
+        box.setLayout(box_layout)
 
         formLayout = TaskUIFormLayout()
-        self.layout().addLayout(formLayout)
+        box_layout.addLayout(formLayout)
 
         for preset, values in error_data.items():
             formLayout.addDivider("{0}".format(preset.name()))
@@ -439,7 +447,7 @@ class FtrackProcessor(FtrackBase):
             pui = FtrackProcessorPresetSettingsUi(errors)
             pui.exec_()
             # if we press apply, we re validate the changes.
-            if pui.status:
+            if pui.status is pui.okStatus:
                 self.validateFtrackProcessing(exportItems)
             else:
                 return False
