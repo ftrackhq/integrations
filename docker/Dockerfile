@@ -92,9 +92,6 @@ RUN python2.7 -m pip install setuptools==36.0.1
 # Install pyside. 
 RUN python2.7 -m pip install PySide
 
-# Install awscli for amazon upload
-RUN python2.7 -m pip install awscli
-
 # Ensure pyside-rcc is in PATH.
 ENV PATH "${PATH}:/usr/local/lib/python2.7/site-packages/PySide"
 
