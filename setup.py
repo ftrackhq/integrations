@@ -12,19 +12,19 @@ import zipfile
 
 # Package and dependencies versions
 
-ftrack_connect_version = os.getenv('FTRACK_CONNECT_VERSION', '1.1.3')
-ftrack_connect_maya_publish_version = os.getenv('FTRACK_CONNECT_MAYA_PUBLISH_VERSION', '0.6.1')
-ftrack_connect_nuke_publish_version = os.getenv('FTRACK_CONNECT_NUKE_PUBLISH_VERSION', '0.6.1')
-ftrack_connect_3dsmax_version = os.getenv('FTRACK_CONNECT_3DSMAX_VERSION', '0.3.0')
-ftrack_connect_legacy_plugins_version = os.getenv('FTRACK_CONNECT_LEGACY_PLUGINS_VERSION', '1.0.0')
-ftrack_connect_hieroplayer_version = os.getenv('FTRACK_CONNECT_HIEROPLAYER_VERSION', '1.2.0')
-ftrack_connect_nuke_version = os.getenv('FTRACK_CONNECT_NUKE_VERSION', '1.1.3')
-ftrack_connect_maya_version = os.getenv('FTRACK_CONNECT_MAYA_VERSION', '1.1.2')
-ftrack_connect_nuke_studio_version = os.getenv('FTRACK_CONNECT_NUKE_STUDIO_VERSION', '1.1.1')
-ftrack_connect_rv_version = os.getenv('FTRACK_CONNECT_RV_VERSION', '3.7')
-ftrack_connect_cinema_4d_version = os.getenv('FTRACK_CONNECT_CINEMA_4D_VERSION', '0.1.3')
-ftrack_location_compatibility_version = os.getenv('FTRACK_LOCATION_COMPATIBILITY_VERSION', '0.3.2')
-ftrack_action_handler_version = os.getenv('FTRACK_ACTION_HANDLER_VERSION', '0.1.2')
+ftrack_connect_version = '1.1.3'
+ftrack_connect_maya_publish_version = '0.6.1'
+ftrack_connect_nuke_publish_version = '0.6.1'
+ftrack_connect_3dsmax_version = '0.3.0'
+ftrack_connect_legacy_plugins_version = '1.0.0'
+ftrack_connect_hieroplayer_version = '1.2.0'
+ftrack_connect_nuke_version = '1.1.3'
+ftrack_connect_maya_version = '1.1.2'
+ftrack_connect_nuke_studio_version ='1.1.1'
+ftrack_connect_rv_version = '3.7'
+ftrack_connect_cinema_4d_version = '0.1.3'
+ftrack_location_compatibility_version = '0.3.2'
+ftrack_action_handler_version = '0.1.2'
 
 # Setup code
 
