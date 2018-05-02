@@ -64,13 +64,12 @@ connect_3ds_max_dependency_link = (
 )
 
 
-
 connect_legacy_plugins_install_require = (
     'ftrack-connect-legacy-plugins'
     ' >=1.0, < 2'
 )
 connect_legacy_plugins_dependency_link = (
-    'file://{0}#egg=ftrack-connect-legacy-plugins-1.0.0'
+    'file://{0}#egg=ftrack-connect-legacy-plugins-1.1.0'
     .format(os.environ['FTRACK_CONNECT_LEGACY_PLUGINS_PATH'].replace('\\', '/'))
 )
 
@@ -120,8 +119,8 @@ connect_rv_dependency_link = (
 connect_cinema_4d_dependency_install_require = 'ftrack-connect-cinema-4d >=0.1, < 1'
 
 connect_cinema_4d_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-cinema-4d/get/0.1.3.zip'
-    '#egg=ftrack-connect-cinema-4d-0.1.3'
+    'https://bitbucket.org/ftrack/ftrack-connect-cinema-4d/get/0.1.5.zip'
+    '#egg=ftrack-connect-cinema-4d-0.1.5'
 )
 
 ftrack_python_legacy_api_install_require = 'ftrack-python-legacy-api >= 3.6.0, < 4'
