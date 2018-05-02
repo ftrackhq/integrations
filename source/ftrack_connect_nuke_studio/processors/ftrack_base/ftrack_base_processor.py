@@ -2,7 +2,7 @@ import time
 import tempfile
 from QtExt import QtCore, QtWidgets, QtGui
 
-from . import FtrackBasePreset, FtrackBase, FtrackProcessorError
+from . import FtrackBasePreset, FtrackBase, FtrackProcessorValidationError, FtrackProcessorError
 
 import hiero.core
 
@@ -219,7 +219,7 @@ class FtrackProcessor(FtrackBase):
         task_types = self.schema.get_types('Task')
         filtered_task_types = [t for t in task_types if t['name'] == task_type_name]
         if not filtered_task_types:
-            raise FtrackProcessorError(task_types)
+            raise FtrackProcessorValidationError(task_types)
         return filtered_task_types[0]
 
     @property
@@ -232,7 +232,7 @@ class FtrackProcessor(FtrackBase):
 
         filtered_task_status = [t for t in task_statuses if t['name'] == task_status_name]
         if not filtered_task_status:
-            raise FtrackProcessorError(task_statuses)
+            raise FtrackProcessorValidationError(task_statuses)
         return filtered_task_status[0]
 
     @property
@@ -241,7 +241,7 @@ class FtrackProcessor(FtrackBase):
         shot_statuses = self.schema.get_statuses('Shot')
         filtered_shot_status = [t for t in shot_statuses if t['name'] == shot_status_name]
         if not filtered_shot_status:
-            raise FtrackProcessorError(shot_statuses)
+            raise FtrackProcessorValidationError(shot_statuses)
         return filtered_shot_status[0]
 
     @property
@@ -250,8 +250,7 @@ class FtrackProcessor(FtrackBase):
         asset_statuses = self.schema.get_statuses('AssetVersion')
         filtered_asset_status = [t for t in asset_statuses if t['name'] == asset_status_name]
         if not filtered_asset_status:
-            raise FtrackProcessorError(asset_statuses)
-
+            raise FtrackProcessorValidationError(asset_statuses)
         return filtered_asset_status[0]
 
     def asset_type_per_task(self, task):
@@ -414,7 +413,7 @@ class FtrackProcessor(FtrackBase):
                 for attribute in attributes:
                     try:
                         result = getattr(task, attribute)
-                    except FtrackProcessorError as error:
+                    except FtrackProcessorValidationError as error:
                         valid_values = [result['name'] for result in error.message]
                         preset_errors = errors.setdefault(preset, {})
                         preset_errors.setdefault(attribute, valid_values)
