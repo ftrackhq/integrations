@@ -82,7 +82,8 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
             QtWidgets.QMessageBox().critical(self, 'ERROR', str(error))
             return
 
-        sender.setVisible(False)
+        sender.setDisabled(True)
+
 
 class FtrackProcessorPreset(FtrackBasePreset):
     def __init__(self, name, properties):
