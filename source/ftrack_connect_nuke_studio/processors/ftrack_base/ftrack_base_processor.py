@@ -27,7 +27,7 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
-        box = QtWidgets.QGroupBox('An error occured in the current schema cofiguration.')
+        box = QtWidgets.QGroupBox('An error occured in the current schema configuration.')
 
         self.layout().addWidget(box)
 
