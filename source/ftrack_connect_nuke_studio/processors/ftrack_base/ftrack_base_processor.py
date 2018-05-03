@@ -472,6 +472,94 @@ class FtrackProcessorUI(FtrackBase):
         )
         formLayout.addRow(label + ":", uiProperty)
 
+        # ----------------------------------
+        #  READ ONLY FROM HERE ON
+        # ----------------------------------
+        # Task Type
+        #
+
+        key, value, label = 'task_type', '', 'Task Type'
+        component_tooltip = 'View Task Type'
+
+        uiProperty = UIPropertyFactory.create(
+            type(value),
+            key=key,
+            value=value,
+            dictionary=self._preset.properties()['ftrack'],
+            label=label + ":",
+            tooltip=component_tooltip
+        )
+        uiProperty.setDisabled(True)
+        formLayout.addRow(label + ":", uiProperty)
+
+        # ----------------------------------
+        # Asset Type
+
+        key, value, label = 'asset_type_code', '', 'Asset Type'
+        component_tooltip = 'View Asset Type'
+
+        uiProperty = UIPropertyFactory.create(
+            type(value),
+            key=key,
+            value=value,
+            dictionary=self._preset.properties()['ftrack'],
+            label=label + ":",
+            tooltip=component_tooltip
+        )
+        uiProperty.setDisabled(True)
+        formLayout.addRow(label + ":", uiProperty)
+
+        # ----------------------------------
+        # Task Status
+
+        key, value, label = 'task_status', '', 'Task Status'
+        component_tooltip = 'View Task Status'
+
+        uiProperty = UIPropertyFactory.create(
+            type(value),
+            key=key,
+            value=value,
+            dictionary=self._preset.properties()['ftrack'],
+            label=label + ":",
+            tooltip=component_tooltip
+        )
+        uiProperty.setDisabled(True)
+        formLayout.addRow(label + ":", uiProperty)
+
+        # ----------------------------------
+        # Shot Status
+
+        key, value, label = 'shot_status', '', 'Shot Status'
+        component_tooltip = 'View Shot Status'
+
+        uiProperty = UIPropertyFactory.create(
+            type(value),
+            key=key,
+            value=value,
+            dictionary=self._preset.properties()['ftrack'],
+            label=label + ":",
+            tooltip=component_tooltip
+        )
+        uiProperty.setDisabled(True)
+        formLayout.addRow(label + ":", uiProperty)
+
+        # ----------------------------------
+        # Asset Version Status
+
+        key, value, label = 'asset_version_status', '', 'Asset Version Status'
+        component_tooltip = 'View Asset Version Status'
+
+        uiProperty = UIPropertyFactory.create(
+            type(value),
+            key=key,
+            value=value,
+            dictionary=self._preset.properties()['ftrack'],
+            label=label + ":",
+            tooltip=component_tooltip
+        )
+        uiProperty.setDisabled(True)
+        formLayout.addRow(label + ":", uiProperty)
+
     def addFtrackProcessorUI(self, widget, exportTemplate):
 
         project_name = self._project.name()
