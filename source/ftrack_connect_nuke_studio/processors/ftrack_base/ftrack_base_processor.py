@@ -3,7 +3,7 @@ import tempfile
 from QtExt import QtCore, QtWidgets, QtGui
 
 from . import FtrackBasePreset, FtrackBase, FtrackProcessorValidationError, FtrackProcessorError
-
+import logging
 import hiero.core
 
 from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
@@ -12,10 +12,14 @@ from hiero.ui.FnUIProperty import *
 
 class FtrackSettingsValidator(QtWidgets.QDialog):
 
-    def __init__(self, error_data):
+    def __init__(self, session, error_data, missing_assets_types):
         super(FtrackSettingsValidator, self).__init__()
         self.setWindowTitle('Validation error!')
-        self._error_data = error_data
+        self._session = session
+
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
 
         ftrack_icon = QtGui.QIcon(':/ftrack/image/default/ftrackLogoColor')
         self.setWindowIcon(ftrack_icon)
@@ -34,7 +38,7 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
         box_layout.addLayout(formLayout)
 
         for preset, values in error_data.items():
-            formLayout.addDivider("{0}".format(preset.name()))
+            formLayout.addDivider("Wrong {0} presets.".format(preset.name()))
 
             # TODO: attribute should be reversed .... as they are appearing in the wrong order
             for attribute, valid_values in values.items():
@@ -52,6 +56,14 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
                 )
                 formLayout.addRow(label + ":", uiProperty)
 
+        if missing_assets_types:
+            formLayout.addDivider('Missing Asset Types.')
+
+            for missing_asset in missing_assets_types:
+                create_asset_button = QtWidgets.QPushButton(missing_asset)
+                create_asset_button.clicked.connect(self.create_missing_asset)
+                formLayout.addRow('Create missing asset: ', create_asset_button)
+
         buttons = QtWidgets.QDialogButtonBox()
         buttons.setOrientation(QtCore.Qt.Horizontal)
         buttons.addButton("Cancel", QtWidgets.QDialogButtonBox.RejectRole)
@@ -60,6 +72,17 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
         buttons.rejected.connect(self.reject)
         self.layout().addWidget(buttons)
 
+    def create_missing_asset(self):
+        sender = self.sender()
+        asset_type = sender.text()
+        self._session.ensure('AssetType', {'short': asset_type})
+        try:
+            self._session.commit()
+        except Exception as error:
+            QtWidgets.QMessageBox().critical(self, 'ERROR', str(error))
+            return
+
+        sender.setVisible(False)
 
 class FtrackProcessorPreset(FtrackBasePreset):
     def __init__(self, name, properties):
@@ -392,12 +415,17 @@ class FtrackProcessor(FtrackBase):
         processor_schema = self._preset.properties()['ftrack']['project_schema']
         export_root = self._exportTemplate.exportRootPath()
         errors = {}
+        missing_assets_type = []
 
         for item in exportItems:
             for (exportPath, preset) in self._exportTemplate.flatten():
                 # propagate schema from processor to tasks
                 preset.properties()['ftrack']['project_schema'] = processor_schema
-                # self.logger.info('Setting schema to : {} as {}'.format(preset.name(), processor_schema))
+
+                asset_type_code = preset.properties()['ftrack']['asset_type_code']
+                ftrack_asset_type = self.session.query('AssetType where short is "{0}"'.format(asset_type_code)).first()
+                if not ftrack_asset_type:
+                    missing_assets_type.append(asset_type_code)
 
                 # Build TaskData seed
                 taskData = hiero.core.TaskData(
@@ -418,8 +446,8 @@ class FtrackProcessor(FtrackBase):
                         preset_errors = errors.setdefault(preset, {})
                         preset_errors.setdefault(attribute, valid_values)
 
-        if errors:
-            settings_validator = FtrackSettingsValidator(errors)
+        if errors or missing_assets_type:
+            settings_validator = FtrackSettingsValidator(self.session, errors, missing_assets_type)
 
             if settings_validator.exec_() != QtWidgets.QDialog.Accepted:
                 return False
@@ -599,3 +627,5 @@ class FtrackProcessorUI(FtrackBase):
             if (isinstance(w, QtWidgets.QLabel) and w.text() == 'Export To:') or w.toolTip() == "Export root path":
                 w.hide()
 
+            if (isinstance(w, QtWidgets.QLabel) and w.text() == 'Export Structure:'):
+                w.hide()
