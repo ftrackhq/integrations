@@ -89,7 +89,7 @@ class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
 
         # add placeholders for default ftrack defaults
         self.properties()['ftrack']['task_type'] = 'Editing'
-        self.properties()['ftrack']['asset_type_code'] = 'imllg'
+        self.properties()['ftrack']['asset_type_code'] = 'img'
         self.properties()['ftrack']['component_name'] = 'main'
         self.properties()['ftrack']['component_pattern'] = '.####.{ext}'
 

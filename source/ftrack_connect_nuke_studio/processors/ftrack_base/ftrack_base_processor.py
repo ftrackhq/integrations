@@ -75,7 +75,13 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
     def create_missing_asset(self):
         sender = self.sender()
         asset_type = sender.text()
-        self._session.ensure('AssetType', {'short': asset_type})
+        self._session.ensure(
+            'AssetType',
+            {
+                'short': asset_type,
+                'name': 'API Generated {0}  Asset'.format(asset_type.capitalize())
+            }
+        )
         try:
             self._session.commit()
         except Exception as error:
@@ -287,7 +293,7 @@ class FtrackProcessor(FtrackBase):
         if not project:
             project = self.session.create('Project', {
                 'name': name,
-                'full_name': name + '_full',
+                'full_name': name,
                 'project_schema': self.schema
             })
         return project
