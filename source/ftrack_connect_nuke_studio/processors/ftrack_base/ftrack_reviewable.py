@@ -1,6 +1,6 @@
 import tempfile
 import copy
-
+import sys
 import hiero
 import hiero.core.nuke as nuke
 
@@ -14,6 +14,7 @@ class FtrackReviewable(object):
 
         self.reviwable_out_path = None
         self._reviwableTask = None
+
         if self._submission is not None:
 
             start, end = self.outputRange()
@@ -58,14 +59,32 @@ class FtrackReviewable(object):
         """Return a Nuke Write node for this tasks's export path."""
         nodeName = None
 
-        submissionDict = self._preset
-        self.logger.info(submissionDict)
+        submissionDict = copy.copy(self._preset)
+        # self.logger.info(submissionDict)
 
         presetProperties = self._preset.properties()
+
         if "writeNodeName" in presetProperties and presetProperties["writeNodeName"]:
             nodeName = self.resolvePath(presetProperties["writeNodeName"])
 
-        self.reviwable_out_path = tempfile.NamedTemporaryFile(prefix='ftrack_reviwable', suffix='.mp4', delete=False).name
+        self.reviwable_out_path = tempfile.NamedTemporaryFile(prefix='ftrack_reviwable', suffix='.mov', delete=False).name
+
+        presetProperties['file_type'] = "mov"
+
+        if sys.platform.startswith("linux") and self.hiero_version_touple[0] < 11:
+            presetProperties['ffmpeg'] = {
+                "encoder": "mov64",
+                "format": "MOV format (mov)",
+                "bitrate": 2000000,
+            }
+        else:
+            presetProperties['mov'] = {
+                "encoder": "mov64",
+                "codec": "avc1\tH.264",
+                "quality": 3,
+                "settingsString": "H.264, High Quality",
+                "keyframerate": 1,
+            }
 
         return createWriteNode(self,
             self.reviwable_out_path,
@@ -120,4 +139,5 @@ class FtrackReviewable(object):
             self._reviwableTask.finishTask()
 
         self.logger.info(self.reviwable_out_path)
+        # here we should publish
 

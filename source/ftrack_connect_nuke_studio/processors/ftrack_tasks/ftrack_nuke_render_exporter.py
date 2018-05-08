@@ -9,13 +9,26 @@ from hiero.exporters.FnTranscodeExporterUI import TranscodeExporterUI
 from hiero.exporters.FnExternalRender import NukeRenderTask
 
 from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import FtrackProcessorPreset, FtrackProcessor, FtrackProcessorUI
+from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_reviewable import FtrackReviewable
 
-
-class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
+class FtrackNukeRenderExporter(TranscodeExporter, FtrackReviewable, FtrackProcessor):
 
     def __init__(self, initDict):
         NukeRenderTask.__init__(self, initDict)
         FtrackProcessor.__init__(self, initDict)
+        FtrackReviewable.__init__(self, initDict)
+
+    def addWriteNodeToScript(self, script, rootNode, framerate):
+        TranscodeExporter.addWriteNodeToScript(self, script, rootNode, framerate)
+        FtrackReviewable.addWriteNodeToScript(self, script, rootNode, framerate)
+
+    def buildScript(self):
+        TranscodeExporter.buildScript(self)
+        FtrackReviewable.buildScript(self)
+
+    def writeScript(self):
+        TranscodeExporter.writeScript(self)
+        FtrackReviewable.writeScript(self)
 
     def createTranscodeScript(self):
         # This code is taken from TranscodeExporter.__init__
@@ -38,7 +51,7 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
         scriptExtension = '.nknc' if hiero.core.isNC() else '.nk'
         self._scriptfile = str(self._root + scriptExtension)
 
-        self.logger.info('TranscodeExporter writing script to %s', self._scriptfile)
+        # self.logger.info('TranscodeExporter writing script to %s', self._scriptfile)
 
         self._renderTask = None
         if self._submission is not None:
@@ -60,9 +73,14 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
         FtrackProcessor.updateItem(self, originalItem, localtime)
         self.createTranscodeScript()
 
+    def startTask(self):
+        TranscodeExporter.startTask(self)
+        FtrackReviewable.startTask(self)
+
     def finishTask(self):
         FtrackProcessor.finishTask(self)
         TranscodeExporter.finishTask(self)
+        FtrackReviewable.finishTask(self)
 
     def _makePath(self):
         # disable making file paths
@@ -92,6 +110,8 @@ class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
         self.properties()['ftrack']['asset_type_code'] = 'img'
         self.properties()['ftrack']['component_name'] = 'main'
         self.properties()['ftrack']['component_pattern'] = '.####.{ext}'
+
+        self.properties()["keepNukeScript"] = True
 
     def addUserResolveEntries(self, resolver):
         FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)
