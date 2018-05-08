@@ -95,9 +95,6 @@ class FtrackBasePreset(FtrackBase):
 
         # add placeholders for default processor
         self.properties()['ftrack']['project_schema'] = 'Film Pipeline'
-        self.properties()['ftrack']['task_status'] = 'Not Started'
-        self.properties()['ftrack']['shot_status'] = 'In progress'
-        self.properties()['ftrack']['asset_version_status'] = 'WIP'
         self.properties()['ftrack']['processor_id'] = hash(self.__class__.__name__)
 
         # options

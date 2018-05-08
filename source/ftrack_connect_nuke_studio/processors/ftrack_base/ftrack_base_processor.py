@@ -248,33 +248,26 @@ class FtrackProcessor(FtrackBase):
 
     @property
     def task_status(self):
-        task_status_name = self.ftrack_properties['task_status']
         try:
             task_statuses = self.schema.get_statuses('Task', self.task_type['id'])
         except ValueError as error:
             raise FtrackProcessorError(error)
 
-        filtered_task_status = [t for t in task_statuses if t['name'] == task_status_name]
-        if not filtered_task_status:
-            raise FtrackProcessorValidationError(task_statuses)
+        filtered_task_status = [t for t in task_statuses if t['name']]
+        # Return first status found
         return filtered_task_status[0]
 
     @property
     def shot_status(self):
-        shot_status_name = self.ftrack_properties['shot_status']
         shot_statuses = self.schema.get_statuses('Shot')
-        filtered_shot_status = [t for t in shot_statuses if t['name'] == shot_status_name]
-        if not filtered_shot_status:
-            raise FtrackProcessorValidationError(shot_statuses)
+        filtered_shot_status = [t for t in shot_statuses if t['name']]
+        # Return first status found
         return filtered_shot_status[0]
 
     @property
     def asset_version_status(self):
-        asset_status_name = self.ftrack_properties['asset_version_status']
         asset_statuses = self.schema.get_statuses('AssetVersion')
-        filtered_asset_status = [t for t in asset_statuses if t['name'] == asset_status_name]
-        if not filtered_asset_status:
-            raise FtrackProcessorValidationError(asset_statuses)
+        filtered_asset_status = [t for t in asset_statuses if t['name']]
         return filtered_asset_status[0]
 
     def asset_type_per_task(self, task):
@@ -406,9 +399,6 @@ class FtrackProcessor(FtrackBase):
 
         attributes = [
             'task_type',
-            'task_status',
-            'shot_status',
-            'asset_version_status'
         ]
 
         sequences = [item.sequence() for item in exportItems]
@@ -526,57 +516,6 @@ class FtrackProcessorUI(FtrackBase):
 
         key, value, label = 'asset_type_code', '', 'Asset Type'
         component_tooltip = 'View Asset Type'
-
-        uiProperty = UIPropertyFactory.create(
-            type(value),
-            key=key,
-            value=value,
-            dictionary=self._preset.properties()['ftrack'],
-            label=label + ":",
-            tooltip=component_tooltip
-        )
-        uiProperty.setDisabled(True)
-        formLayout.addRow(label + ":", uiProperty)
-
-        # ----------------------------------
-        # Task Status
-
-        key, value, label = 'task_status', '', 'Task Status'
-        component_tooltip = 'View Task Status'
-
-        uiProperty = UIPropertyFactory.create(
-            type(value),
-            key=key,
-            value=value,
-            dictionary=self._preset.properties()['ftrack'],
-            label=label + ":",
-            tooltip=component_tooltip
-        )
-        uiProperty.setDisabled(True)
-        formLayout.addRow(label + ":", uiProperty)
-
-        # ----------------------------------
-        # Shot Status
-
-        key, value, label = 'shot_status', '', 'Shot Status'
-        component_tooltip = 'View Shot Status'
-
-        uiProperty = UIPropertyFactory.create(
-            type(value),
-            key=key,
-            value=value,
-            dictionary=self._preset.properties()['ftrack'],
-            label=label + ":",
-            tooltip=component_tooltip
-        )
-        uiProperty.setDisabled(True)
-        formLayout.addRow(label + ":", uiProperty)
-
-        # ----------------------------------
-        # Asset Version Status
-
-        key, value, label = 'asset_version_status', '', 'Asset Version Status'
-        component_tooltip = 'View Asset Version Status'
 
         uiProperty = UIPropertyFactory.create(
             type(value),
