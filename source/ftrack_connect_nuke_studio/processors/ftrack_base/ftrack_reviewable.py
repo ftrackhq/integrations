@@ -1,6 +1,9 @@
 import tempfile
 import copy
 import sys
+import logging
+
+
 import hiero
 import hiero.core.nuke as nuke
 
@@ -11,22 +14,15 @@ from hiero.exporters import FnScriptLayout
 
 class FtrackReviewable(object):
     def __init__(self, initDict):
+        super(FtrackReviewable, self).__init__(initDict)
 
-        self.reviwable_out_path = None
-        self._reviwableTask = None
-
-        if self._submission is not None:
-
-            start, end = self.outputRange()
-            submissionDict = copy.copy(initDict)
-            submissionDict['startFrame'] = start
-            submissionDict['endFrame'] = end
-            self._reviewableScript = tempfile.NamedTemporaryFile(prefix='ftrack_reviwable', suffix='.nk', delete=False).name
-            # Create a job on our submission to do the actual rendering.
-            self._reviwableTask = self._submission.addJob(Submission.kNukeRender, submissionDict, self._reviewableScript)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
 
     def addWriteNodeToScript(self, script, rootNode, framerate):
         """ Build Write node from transcode settings and add it to the script. """
+
         try:
             writeNode = self.nukeWriteReviewNode(framerate, project=self._project)
         except RuntimeError as e:
@@ -34,6 +30,8 @@ class FtrackReviewable(object):
             # Most likely because could not map default colourspace for format settings.
             self.setError(str(e))
             return
+
+        self.logger.info('ADD {} WRITE NODE'.format(writeNode))
 
         # The 'read_all_lines' knob controls whether input frames are read line by line or in one go,
         # so needs to be set to match the readAllLinesForExport property.
@@ -56,23 +54,20 @@ class FtrackReviewable(object):
         rootNode.setKnob(nuke.RootNode.kTimelineWriteNodeKnobName, writeNode.knob("name"))
 
     def nukeWriteReviewNode(self, framerate=None, project=None):
+
         """Return a Nuke Write node for this tasks's export path."""
         nodeName = None
 
         submissionDict = copy.copy(self._preset)
         # self.logger.info(submissionDict)
 
-        presetProperties = self._preset.properties()
+        presetProperties = submissionDict.properties()
 
-        if "writeNodeName" in presetProperties and presetProperties["writeNodeName"]:
-            nodeName = self.resolvePath(presetProperties["writeNodeName"])
-
-        self.reviwable_out_path = tempfile.NamedTemporaryFile(prefix='ftrack_reviwable', suffix='.mov', delete=False).name
-
-        presetProperties['file_type'] = "mov"
+        presetProperties['file_type'] = 'mov'
+        presetProperties['ftrack']['component_pattern'] = '.{ext}'
 
         if sys.platform.startswith("linux") and self.hiero_version_touple[0] < 11:
-            presetProperties['ffmpeg'] = {
+            presetProperties['mov'] = {
                 "encoder": "mov64",
                 "format": "MOV format (mov)",
                 "bitrate": 2000000,
@@ -86,58 +81,19 @@ class FtrackReviewable(object):
                 "keyframerate": 1,
             }
 
+        if "writeNodeName" in presetProperties and presetProperties["writeNodeName"]:
+            nodeName = self.resolvePath(presetProperties["writeNodeName"])
+
+        self.logger.info('CREATAE WRITE NODE: {0}'.format(nodeName))
+
+        self.logger.info('createWriteNode with: {0}'.format(submissionDict))
+        tempmov = tempfile.NamedTemporaryFile(suffix='.mov', delete=False).name
         return createWriteNode(self,
-            self.reviwable_out_path,
+            tempmov,
             submissionDict,
             nodeName,
             framerate=framerate,
             project=project
         )
 
-    def buildScript(self):
-        # Generate a nuke script to render.
-        script = nuke.ScriptWriter()
-        self._ftrack_reviewable_script = script
-
-        writingTrackItem = isinstance(self._item, hiero.core.TrackItem)
-        writingClip = isinstance(self._item, hiero.core.Clip)
-        writingSequence = isinstance(self._item, hiero.core.Sequence)
-
-        assert (writingTrackItem or writingClip or writingSequence)
-
-        # Export an individual clip or track item
-        if writingClip or writingTrackItem:
-            self.writeClipOrTrackItemToScript(script)
-
-        # Export an entire sequence
-        elif writingSequence:
-            self.writeSequenceToScript(script)
-
-        # Layout the script
-        FnScriptLayout.scriptLayout(script)
-
-    # And finally, write out the script (next to the output files).
-    def writeScript(self):
-        self._ftrack_reviewable_script.writeToDisk(self._reviewableScript)
-
-    def startTask(self):
-        # Write our Nuke script
-        self.buildScript()
-        self.writeScript()
-
-        try:
-            if self._reviwableTask:
-                self._reviwableTask.startTask()
-                if self._reviwableTask.error():
-                    self.setError(self._reviwableTask.error())
-        except Exception as e:
-            if self._reviwableTask and self._reviwableTask.error():
-                self.setError(self._reviwableTask.error())
-
-    def finishTask(self):
-        if self._reviwableTask:
-            self._reviwableTask.finishTask()
-
-        self.logger.info(self.reviwable_out_path)
-        # here we should publish
-
+        self.logger.info(tempmov)

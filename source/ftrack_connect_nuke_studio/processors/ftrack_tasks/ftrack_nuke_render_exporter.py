@@ -11,6 +11,7 @@ from hiero.exporters.FnExternalRender import NukeRenderTask
 from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import FtrackProcessorPreset, FtrackProcessor, FtrackProcessorUI
 from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_reviewable import FtrackReviewable
 
+
 class FtrackNukeRenderExporter(TranscodeExporter, FtrackReviewable, FtrackProcessor):
 
     def __init__(self, initDict):
@@ -21,14 +22,6 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackReviewable, FtrackProces
     def addWriteNodeToScript(self, script, rootNode, framerate):
         TranscodeExporter.addWriteNodeToScript(self, script, rootNode, framerate)
         FtrackReviewable.addWriteNodeToScript(self, script, rootNode, framerate)
-
-    def buildScript(self):
-        TranscodeExporter.buildScript(self)
-        FtrackReviewable.buildScript(self)
-
-    def writeScript(self):
-        TranscodeExporter.writeScript(self)
-        FtrackReviewable.writeScript(self)
 
     def createTranscodeScript(self):
         # This code is taken from TranscodeExporter.__init__
@@ -64,8 +57,8 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackReviewable, FtrackProces
 
             # Create a job on our submission to do the actual rendering.
             self._renderTask = self._submission.addJob(Submission.kNukeRender, submissionDict, self._scriptfile)
-            # ensure sub tasks do not create folders
-            self._renderTask._makePath = FtrackProcessor._makePath(self)
+            # # ensure sub tasks do not create folders
+            # self._renderTask._makePath = FtrackProcessor._makePath(self)
 
     def updateItem(self, originalItem, localtime):
         # We need to create the project structure right before spawning any job so we have access
@@ -73,22 +66,14 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackReviewable, FtrackProces
         FtrackProcessor.updateItem(self, originalItem, localtime)
         self.createTranscodeScript()
 
-    def startTask(self):
-        TranscodeExporter.startTask(self)
-        FtrackReviewable.startTask(self)
-
     def finishTask(self):
         FtrackProcessor.finishTask(self)
-        TranscodeExporter.finishTask(self)
         FtrackReviewable.finishTask(self)
 
     def _makePath(self):
         # disable making file paths
         FtrackProcessor._makePath(self)
 
-    def hasValidItem(self):
-        self.resolvedExportPath()
-        return TranscodeExporter.hasValidItem(self)
 
 
 class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
