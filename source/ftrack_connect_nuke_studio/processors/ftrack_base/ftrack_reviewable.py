@@ -38,33 +38,25 @@ class FtrackReviewable(object):
         readAllLines = self._preset.properties()["readAllLinesForExport"]
         writeNode.setKnob("read_all_lines", readAllLines)
 
-        if self._audioFile:
-            # If the transcode format supports audio (e.g. QuickTime), add the path to
-            # the audio file knob
-            if self._preset.fileTypeSupportsAudio():
-                writeNode.setKnob("audiofile", self._audioFile)
-                presetproperties = self._preset.properties()
-                filetype = presetproperties["file_type"]
-
         # Add Write node to the script
         script.addNode(writeNode)
 
         # Set the knob so the Root node has the name of the Write node for viewing
         # on the timeline.  This allows for reading the script as a comp clip
-        rootNode.setKnob(nuke.RootNode.kTimelineWriteNodeKnobName, writeNode.knob("name"))
+        # rootNode.setKnob(nuke.RootNode.kTimelineWriteNodeKnobName, writeNode.knob("name"))
 
     def nukeWriteReviewNode(self, framerate=None, project=None):
 
         """Return a Nuke Write node for this tasks's export path."""
-        nodeName = None
+        self.tempmov = tempfile.NamedTemporaryFile(suffix='.mov', delete=False).name
+
+        nodeName = 'Ftrack Reviewable Output'
 
         submissionDict = copy.copy(self._preset)
         # self.logger.info(submissionDict)
 
         presetProperties = submissionDict.properties()
-
         presetProperties['file_type'] = 'mov'
-        presetProperties['ftrack']['component_pattern'] = '.{ext}'
 
         if sys.platform.startswith("linux") and self.hiero_version_touple[0] < 11:
             presetProperties['mov'] = {
@@ -81,15 +73,12 @@ class FtrackReviewable(object):
                 "keyframerate": 1,
             }
 
-        if "writeNodeName" in presetProperties and presetProperties["writeNodeName"]:
-            nodeName = self.resolvePath(presetProperties["writeNodeName"])
-
         self.logger.info('CREATAE WRITE NODE: {0}'.format(nodeName))
 
         self.logger.info('createWriteNode with: {0}'.format(submissionDict))
-        tempmov = tempfile.NamedTemporaryFile(suffix='.mov', delete=False).name
+
         return createWriteNode(self,
-            tempmov,
+            self.tempmov,
             submissionDict,
             nodeName,
             framerate=framerate,
@@ -97,3 +86,6 @@ class FtrackReviewable(object):
         )
 
         self.logger.info(tempmov)
+
+    def finishTask(self):
+        self.logger.info(self.tempmov)
