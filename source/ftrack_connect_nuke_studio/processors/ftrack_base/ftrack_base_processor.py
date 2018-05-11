@@ -132,7 +132,6 @@ class FtrackProcessor(FtrackBase):
         self.logger.info('Publihsing Component : {0}'.format(final_path))
 
         self.session.commit()
-        self.session.delete(component)
 
     def timeStampString(self, localtime):
         '''timeStampString(localtime)
