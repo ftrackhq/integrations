@@ -33,6 +33,7 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackProcessorUI):
 
     def updatePathPreview(self):
         self._pathPreviewWidget.setText('Ftrack Server: {0}'.format(self.session.server_url))
+        self._pathPreviewWidget.setText('Ftrack Server: {0}'.format(self.session.server_url))
 
     def _checkExistingVersions(self, exportItems):
         # disable version check as we handle this internally

@@ -1,6 +1,7 @@
 import tempfile
 import copy
 import sys
+import json
 import logging
 
 
@@ -53,10 +54,12 @@ class FtrackReviewable(object):
         nodeName = 'Ftrack Reviewable Output'
 
         submissionDict = copy.copy(self._preset)
-        # self.logger.info(submissionDict)
 
         presetProperties = submissionDict.properties()
         presetProperties['file_type'] = 'mov'
+        presetProperties['writeNodeName'] = nodeName
+        presetProperties.setdefault('writePaths', [])
+        presetProperties['writePaths'].append(self.tempmov )
 
         if sys.platform.startswith("linux") and self.hiero_version_touple[0] < 11:
             presetProperties['mov'] = {
@@ -73,10 +76,6 @@ class FtrackReviewable(object):
                 "keyframerate": 1,
             }
 
-        self.logger.info('CREATAE WRITE NODE: {0}'.format(nodeName))
-
-        self.logger.info('createWriteNode with: {0}'.format(submissionDict))
-
         return createWriteNode(self,
             self.tempmov,
             submissionDict,
@@ -85,7 +84,25 @@ class FtrackReviewable(object):
             project=project
         )
 
-        self.logger.info(tempmov)
-
     def finishTask(self):
-        self.logger.info(self.tempmov)
+        version = self._component['version']
+        review_component = version.create_component(
+            path=self.tempmov,
+            data={
+                'name': 'ftrackreview-mp4'
+            },
+            location=self.ftrack_server_location
+        )
+
+        start, end = self.outputRange()
+        fps = self._clip.framerate().toFloat()
+
+        review_component['metadata']['ftr_meta'] = json.dumps({
+            'frameIn': start,
+            'frameOut': end,
+            'frameRate': fps
+        })
+
+        review_component.session.commit()
+        self.logger.info('Reviewable Component {0} Published'.format(self.tempmov))
+

@@ -96,7 +96,7 @@ class FtrackProcessor(FtrackBase):
 
         start, end = self.outputRange()
         startHandle, endHandle = self.outputHandles()
-        framerate = self._sequence.framerate()
+        fps = self._clip.framerate().toFloat()
 
         if '#' in self._exportPath:
             # todo: Improve this logic
@@ -122,12 +122,14 @@ class FtrackProcessor(FtrackBase):
                 attributes['fend'] = str(end)
 
             if attr_name == 'fps':
-                attributes['fps'] = str(framerate)
+                attributes['fps'] = str(fps)
 
             if attr_name == 'handles':
                 attributes['handles'] = str(startHandle)
 
             self.logger.info('{0}:{1}'.format(attr_name, attr_value))
+
+        self.logger.info('Publihsing Component : {0}'.format(final_path))
 
         self.session.commit()
         self.session.delete(component)

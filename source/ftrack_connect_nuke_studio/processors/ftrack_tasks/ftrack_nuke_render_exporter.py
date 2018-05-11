@@ -58,7 +58,7 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackReviewable, FtrackProces
             # Create a job on our submission to do the actual rendering.
             self._renderTask = self._submission.addJob(Submission.kNukeRender, submissionDict, self._scriptfile)
             # # ensure sub tasks do not create folders
-            # self._renderTask._makePath = FtrackProcessor._makePath(self)
+            self._renderTask._makePath = FtrackProcessor._makePath(self)
 
     def updateItem(self, originalItem, localtime):
         # We need to create the project structure right before spawning any job so we have access
@@ -73,7 +73,6 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackReviewable, FtrackProces
     def _makePath(self):
         # disable making file paths
         FtrackProcessor._makePath(self)
-
 
 
 class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
