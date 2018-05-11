@@ -117,7 +117,8 @@ class FtrackBasePreset(FtrackBase):
 
     def resolve_ftrack_shot(self, task):
         trackItem = task._item
-        if not isinstance(trackItem, hiero.core.Sequence):
+
+        if isinstance(trackItem, hiero.core.Clip):
             return trackItem.name().split('_')[1]
         else:
             return trackItem.name()

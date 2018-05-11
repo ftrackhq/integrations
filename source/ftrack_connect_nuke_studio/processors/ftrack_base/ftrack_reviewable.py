@@ -49,7 +49,7 @@ class FtrackReviewable(object):
         presetProperties['file_type'] = 'mov'
         presetProperties['writeNodeName'] = node_name
         presetProperties.setdefault('writePaths', [])
-        presetProperties['writePaths'].append(self.tempmov )
+        presetProperties['writePaths'].append(self.tempmov)
 
         presetProperties['mov'] = {
             "encoder": "mov64",

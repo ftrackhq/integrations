@@ -10,22 +10,10 @@ class FtrackAudioExporter(AudioExportTask, FtrackProcessor):
     def __init__(self, initDict):
         AudioExportTask.__init__(self, initDict)
         FtrackProcessor.__init__(self, initDict)
-        self._do_publish = self._item.mediaType() is hiero.core.TrackItem.MediaType.kVideo
-
-    def canPublish(self):
-        is_video = self._item.mediaType() is hiero.core.TrackItem.MediaType.kVideo
-        is_audio = self._item.mediaType() is hiero.core.TrackItem.MediaType.kAudio
-
-        if is_video or is_audio:
-            return True
-        return False
 
     def startTask(self):
-        if self.canPublish():
-            self.create_project_structure()
-            AudioExportTask.startTask(self)
-        else:
-            self.setDestinationDescription('No Audio Found')
+        self.create_project_structure()
+        AudioExportTask.startTask(self)
 
     def finishTask(self):
         FtrackProcessor.finishTask(self)

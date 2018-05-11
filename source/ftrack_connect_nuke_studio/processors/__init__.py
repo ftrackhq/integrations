@@ -55,7 +55,7 @@ def register_processors():
         'exportTemplate': (
             (ftrack_shot_path, nuke_script_processor),
             (ftrack_shot_path, nuke_render_processor),
-            # (ftrack_shot_path, audio_processor),
+            (ftrack_shot_path, audio_processor),
 
         ),
         'cutLength': True,
