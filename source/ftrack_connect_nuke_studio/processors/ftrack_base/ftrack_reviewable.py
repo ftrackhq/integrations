@@ -1,16 +1,6 @@
-import tempfile
-import copy
-import sys
-import json
 import logging
-
-
-import hiero
-import hiero.core.nuke as nuke
-
+import tempfile
 from hiero.exporters.FnExternalRender import createWriteNode
-from hiero.exporters.FnSubmission import Submission
-from hiero.exporters import FnScriptLayout
 
 
 class FtrackReviewable(object):
@@ -32,8 +22,6 @@ class FtrackReviewable(object):
             self.setError(str(e))
             return
 
-        self.logger.info('ADD {} WRITE NODE'.format(writeNode))
-
         # The 'read_all_lines' knob controls whether input frames are read line by line or in one go,
         # so needs to be set to match the readAllLinesForExport property.
         readAllLines = self._preset.properties()["readAllLinesForExport"]
@@ -44,18 +32,17 @@ class FtrackReviewable(object):
 
 
     def nukeWriteReviewNode(self, framerate=None, project=None):
-
         """Return a Nuke Write node for this tasks's export path."""
         self.tempmov = tempfile.NamedTemporaryFile(suffix='.mov', delete=False).name
 
-        nodeName = 'Ftrack Reviewable Output'
+        node_name = 'Ftrack Reviewable Output'
 
         submissionDict = self._preset
         presetProperties = submissionDict.properties()
         self.original_preset_data = presetProperties.copy()
 
         presetProperties['file_type'] = 'mov'
-        presetProperties['writeNodeName'] = nodeName
+        presetProperties['writeNodeName'] = node_name
         presetProperties.setdefault('writePaths', [])
         presetProperties['writePaths'].append(self.tempmov )
 
@@ -70,7 +57,7 @@ class FtrackReviewable(object):
         return createWriteNode(self,
             self.tempmov,
             submissionDict,
-            nodeName,
+            node_name,
             framerate=framerate,
             project=project
         )
