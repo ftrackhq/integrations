@@ -207,7 +207,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 variant='{version}',
                 applicationIdentifier='hiero_{version}',
                 icon='hiero',
-                launchArguments=['--hiero']
+                launchArguments=['--hiero', '--disable-nuke-frameserver']
             ))
 
         elif sys.platform == 'linux2':
@@ -226,7 +226,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 variant='{version}',
                 applicationIdentifier='hiero_{version}',
                 icon='hiero',
-                launchArguments=['--hiero']
+                launchArguments=['--hiero', '--disable-nuke-frameserver']
             ))
 
         self.logger.debug(
