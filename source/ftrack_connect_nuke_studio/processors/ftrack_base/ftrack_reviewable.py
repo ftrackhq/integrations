@@ -42,9 +42,6 @@ class FtrackReviewable(object):
         # Add Write node to the script
         script.addNode(writeNode)
 
-        # Set the knob so the Root node has the name of the Write node for viewing
-        # on the timeline.  This allows for reading the script as a comp clip
-        # rootNode.setKnob(nuke.RootNode.kTimelineWriteNodeKnobName, writeNode.knob("name"))
 
     def nukeWriteReviewNode(self, framerate=None, project=None):
 
@@ -53,28 +50,19 @@ class FtrackReviewable(object):
 
         nodeName = 'Ftrack Reviewable Output'
 
-        submissionDict = copy.copy(self._preset)
-
+        submissionDict = self._preset
         presetProperties = submissionDict.properties()
+        self.original_preset_data = presetProperties.copy()
+
         presetProperties['file_type'] = 'mov'
         presetProperties['writeNodeName'] = nodeName
         presetProperties.setdefault('writePaths', [])
         presetProperties['writePaths'].append(self.tempmov )
 
-        if sys.platform.startswith("linux") and self.hiero_version_touple[0] < 11:
-            presetProperties['mov'] = {
-                "encoder": "mov64",
-                "format": "MOV format (mov)",
-                "bitrate": 2000000,
-            }
-        else:
-            presetProperties['mov'] = {
-                "encoder": "mov64",
-                "codec": "avc1\tH.264",
-                "quality": 3,
-                "settingsString": "H.264, High Quality",
-                "keyframerate": 1,
-            }
+        presetProperties['mov'] = {
+            "encoder": "mov64",
+            "codec": "mp4v",
+        }
 
         return createWriteNode(self,
             self.tempmov,
@@ -105,4 +93,7 @@ class FtrackReviewable(object):
 
         review_component.session.commit()
         self.logger.info('Reviewable Component {0} Published'.format(self.tempmov))
+        # restore original settings
+        # self.logger.info('restoring stored settings: {0}'.format(self.original_preset_data))
+        self._preset.properties().update(self.original_preset_data)
 
