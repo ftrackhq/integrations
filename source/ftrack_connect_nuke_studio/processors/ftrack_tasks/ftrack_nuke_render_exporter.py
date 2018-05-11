@@ -2,6 +2,7 @@ import os
 import re
 import copy
 from hiero.exporters.FnSubmission import Submission
+from hiero.ui.FnUIProperty import *
 
 import hiero.core.util
 from hiero.exporters.FnTranscodeExporter import TranscodeExporter, TranscodePreset
@@ -94,6 +95,7 @@ class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
         self.properties()['ftrack']['asset_type_code'] = 'img'
         self.properties()['ftrack']['component_name'] = 'main'
         self.properties()['ftrack']['component_pattern'] = '.####.{ext}'
+        self.properties()['ftrack']['opt_publish_review'] = True
 
         # ENABLE FOR DEBUG PURPOSES
         # self.properties()["keepNukeScript"] = True
@@ -112,7 +114,21 @@ class FtrackNukeRenderExporterUI(TranscodeExporterUI, FtrackProcessorUI):
 
     def populateUI(self, widget, exportTemplate):
         TranscodeExporterUI.populateUI(self, widget, exportTemplate)
-        FtrackProcessorUI.addFtrackTaskUI(self, widget, exportTemplate)
+        formLayout = FtrackProcessorUI.addFtrackTaskUI(self, widget, exportTemplate)
+
+        # add reviewable component option
+        key, value, label = 'opt_publish_review', True, 'Publish Review'
+        review_tooltip = 'Generate and upload review'
+
+        uiProperty = UIPropertyFactory.create(
+            type(value),
+            key=key,
+            value=value,
+            dictionary=self._preset.properties()['ftrack'],
+            label=label + ":",
+            tooltip=review_tooltip
+        )
+        formLayout.addRow(label + ":", uiProperty)
 
 
 hiero.core.taskRegistry.registerTask(FtrackNukeRenderExporterPreset, FtrackNukeRenderExporter)

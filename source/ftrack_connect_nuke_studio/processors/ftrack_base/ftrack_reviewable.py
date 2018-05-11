@@ -11,8 +11,13 @@ class FtrackReviewable(object):
             __name__ + '.' + self.__class__.__name__
         )
 
+        self.is_enabled = self._preset.properties()['ftrack']['opt_publish_review']
+
     def addWriteNodeToScript(self, script, rootNode, framerate):
         """ Build Write node from transcode settings and add it to the script. """
+
+        if not self.is_enabled:
+            return
 
         try:
             writeNode = self.nukeWriteReviewNode(framerate, project=self._project)
@@ -63,6 +68,9 @@ class FtrackReviewable(object):
         )
 
     def finishTask(self):
+        if not self.is_enabled:
+            return
+
         version = self._component['version']
         review_component = version.create_component(
             path=self.tempmov,

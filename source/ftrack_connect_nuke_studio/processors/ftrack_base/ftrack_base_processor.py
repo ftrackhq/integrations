@@ -414,6 +414,8 @@ class FtrackProcessorUI(FtrackBase):
         )
         formLayout.addRow(label + ":", uiProperty)
 
+        return formLayout
+
     def addFtrackProcessorUI(self, widget, exportTemplate):
 
         project_name = self._project.name()

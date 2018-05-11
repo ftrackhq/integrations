@@ -102,6 +102,8 @@ class FtrackBasePreset(FtrackBase):
 
         # options
         self.properties()['ftrack']['opt_publish_thumbnail'] = True
+        self.properties()['ftrack']['opt_publish_review'] = False
+
 
     def set_export_root(self):
         self.properties()['exportRoot'] = self.ftrack_location.accessor.prefix
