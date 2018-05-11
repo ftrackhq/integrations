@@ -96,7 +96,12 @@ class FtrackProcessor(FtrackBase):
 
         start, end = self.outputRange()
         startHandle, endHandle = self.outputHandles()
-        fps = self._clip.framerate().toFloat()
+
+        if self._sequence:
+            fps = self._sequence.framerate().toFloat()
+
+        elif self._clip:
+            fps = self._clip.framerate().toFloat()
 
         if '#' in self._exportPath:
             # todo: Improve this logic

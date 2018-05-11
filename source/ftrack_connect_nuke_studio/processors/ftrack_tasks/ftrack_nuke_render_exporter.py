@@ -95,7 +95,8 @@ class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
         self.properties()['ftrack']['component_name'] = 'main'
         self.properties()['ftrack']['component_pattern'] = '.####.{ext}'
 
-        self.properties()["keepNukeScript"] = True
+        # ENABLE FOR DEBUG PURPOSES
+        # self.properties()["keepNukeScript"] = True
 
     def addUserResolveEntries(self, resolver):
         FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)
