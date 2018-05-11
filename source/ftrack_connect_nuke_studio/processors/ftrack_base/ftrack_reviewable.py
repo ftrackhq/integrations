@@ -61,7 +61,10 @@ class FtrackReviewable(object):
 
         presetProperties['mov'] = {
             "encoder": "mov64",
-            "codec": "mp4v",
+            "codec": "avc1\tH.264",
+            "quality": 3,
+            "settingsString": "H.264, High Quality",
+            "keyframerate": 1,
         }
 
         return createWriteNode(self,
@@ -77,21 +80,16 @@ class FtrackReviewable(object):
         review_component = version.create_component(
             path=self.tempmov,
             data={
-                'name': 'ftrackreview-mp4'
+                'name': 'preview'
             },
-            location=self.ftrack_server_location
+            location=self.ftrack_location
         )
 
-        start, end = self.outputRange()
-        fps = self._clip.framerate().toFloat()
+        self.session.commit()
+        self.ftrack_server_location.add_component(review_component, self.ftrack_location)
+        version.encode_media(review_component)
+        self.session.commit()
 
-        review_component['metadata']['ftr_meta'] = json.dumps({
-            'frameIn': start,
-            'frameOut': end,
-            'frameRate': fps
-        })
-
-        review_component.session.commit()
         self.logger.info('Reviewable Component {0} Published'.format(self.tempmov))
         # restore original settings
         # self.logger.info('restoring stored settings: {0}'.format(self.original_preset_data))
