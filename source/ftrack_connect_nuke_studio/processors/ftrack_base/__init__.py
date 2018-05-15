@@ -32,6 +32,7 @@ FTRACK_SHOT_PATH = os.path.join(
 class FtrackProcessorError(Exception):
     pass
 
+
 class FtrackProcessorValidationError(FtrackProcessorError):
     pass
 
@@ -40,6 +41,14 @@ class FtrackBase(object):
     '''
     wrap ftrack functionalities and methods
     '''
+
+    ingored_locations = [
+        'ftrack.server',
+        'ftrack.review',
+        'ftrack.origin',
+        'ftrack.unmanaged',
+        'ftrack.connect'
+    ]
 
     def __init__(self, *args, **kwargs):
         self.logger = logging.getLogger(
@@ -81,6 +90,16 @@ class FtrackBase(object):
 class FtrackBasePreset(FtrackBase):
     def __init__(self, name, properties, **kwargs):
         super(FtrackBasePreset, self).__init__(name, properties)
+
+        current_location = self.ftrack_location
+        if current_location['name'] in self.ingored_locations:
+            raise FtrackProcessorError(
+                '{0} is an invalid location. Please setup'
+                ' a centralized storage scenario or custom location.'.format(
+                    current_location['name']
+                )
+            )
+
         self.set_export_root()
         self.set_ftrack_properties(properties)
 

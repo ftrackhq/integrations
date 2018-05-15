@@ -9,14 +9,14 @@ from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_nuke_shot_exporte
 from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_nuke_render_exporter import FtrackNukeRenderExporterPreset
 from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_audio_exporter import FtrackAudioExporterPreset
 from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_edl_exporter import FtrackEDLExporterPreset
-from ftrack_base import FTRACK_SHOT_PATH, FTRACK_SHOW_PATH
+from ftrack_base import FTRACK_SHOT_PATH, FTRACK_SHOW_PATH, startupErrorCatcher
 
 registry = hiero.core.taskRegistry
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 # override foundry logger to get some useful output
-hiero.core.log = logger
+# hiero.core.log = logger
 
 
 def register_processors():
