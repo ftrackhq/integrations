@@ -12,7 +12,11 @@ from hiero.exporters.FnTranscodeExporter import TranscodeExporter, TranscodePres
 from hiero.exporters.FnTranscodeExporterUI import TranscodeExporterUI
 from hiero.exporters.FnExternalRender import NukeRenderTask
 
-from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import FtrackProcessorPreset, FtrackProcessor, FtrackProcessorUI
+from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
+    FtrackProcessorPreset,
+    FtrackProcessor,
+    FtrackProcessorUI
+)
 
 
 class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):

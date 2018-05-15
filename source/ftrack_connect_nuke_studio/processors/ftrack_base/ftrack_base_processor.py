@@ -39,11 +39,11 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
         box_layout = QtWidgets.QVBoxLayout()
         box.setLayout(box_layout)
 
-        formLayout = TaskUIFormLayout()
-        box_layout.addLayout(formLayout)
+        form_layout = TaskUIFormLayout()
+        box_layout.addLayout(form_layout)
 
         for preset, values in error_data.items():
-            formLayout.addDivider("Wrong {0} presets.".format(preset.name()))
+            form_layout.addDivider("Wrong {0} presets.".format(preset.name()))
 
             # TODO: attribute should be reversed .... as they are appearing in the wrong order
             for attribute, valid_values in values.items():
@@ -59,15 +59,15 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
                     label=label + ":",
                     tooltip=tooltip
                 )
-                formLayout.addRow(label + ":", uiProperty)
+                form_layout.addRow(label + ":", uiProperty)
 
         if missing_assets_types:
-            formLayout.addDivider('Missing Asset Types.')
+            form_layout.addDivider('Missing Asset Types.')
 
             for missing_asset in missing_assets_types:
                 create_asset_button = QtWidgets.QPushButton(missing_asset)
                 create_asset_button.clicked.connect(self.create_missing_asset)
-                formLayout.addRow('Create missing asset: ', create_asset_button)
+                form_layout.addRow('Create missing asset: ', create_asset_button)
 
         buttons = QtWidgets.QDialogButtonBox()
         buttons.setOrientation(QtCore.Qt.Horizontal)
@@ -465,14 +465,12 @@ class FtrackProcessorUI(FtrackBase):
         self._nodeSelectionWidget = None
 
     def addFtrackTaskUI(self, widget, exportTemplate):
-        formLayout = TaskUIFormLayout()
+        form_layout = TaskUIFormLayout()
         layout = widget.layout()
-        layout.addLayout(formLayout)
-        formLayout.addDivider("Ftrack Options")
+        layout.addLayout(form_layout)
+        form_layout.addDivider("Ftrack Options")
 
-        # ----------------------------------
         # Thumbanil generation
-
         key, value, label = 'opt_publish_thumbnail', True, 'Publish Thumbnail'
         thumbnail_tooltip = 'Generate and upload thumbnail'
 
@@ -484,11 +482,9 @@ class FtrackProcessorUI(FtrackBase):
             label=label + ":",
             tooltip=thumbnail_tooltip
         )
-        formLayout.addRow(label + ":", uiProperty)
+        form_layout.addRow(label + ":", uiProperty)
 
-        # ----------------------------------
         # Component Name
-
         key, value, label = 'component_name', '', 'Component Name'
         component_tooltip = 'Set Component Name'
 
@@ -500,13 +496,9 @@ class FtrackProcessorUI(FtrackBase):
             label=label + ":",
             tooltip=component_tooltip
         )
-        formLayout.addRow(label + ":", uiProperty)
+        form_layout.addRow(label + ":", uiProperty)
 
-        # ----------------------------------
-        #  READ ONLY FROM HERE ON
-        # ----------------------------------
         # Task Type
-        #
 
         key, value, label = 'task_type', '', 'Task Type'
         component_tooltip = 'View Task Type'
@@ -520,9 +512,8 @@ class FtrackProcessorUI(FtrackBase):
             tooltip=component_tooltip
         )
         uiProperty.setDisabled(True)
-        formLayout.addRow(label + ":", uiProperty)
+        form_layout.addRow(label + ":", uiProperty)
 
-        # ----------------------------------
         # Asset Type
 
         key, value, label = 'asset_type_code', '', 'Asset Type'
@@ -537,7 +528,7 @@ class FtrackProcessorUI(FtrackBase):
             tooltip=component_tooltip
         )
         uiProperty.setDisabled(True)
-        formLayout.addRow(label + ":", uiProperty)
+        form_layout.addRow(label + ":", uiProperty)
 
     def addFtrackProcessorUI(self, widget, exportTemplate):
 
@@ -549,7 +540,7 @@ class FtrackProcessorUI(FtrackBase):
         formLayout = TaskUIFormLayout()
         layout = widget.layout()
         layout.addLayout(formLayout)
-        formLayout.addDivider("Ftrack Options")
+        formLayout.addDivider('Ftrack Options')
 
         schemas = self.session.query('ProjectSchema').all()
         schemas_name = [schema['name'] for schema in schemas]
@@ -574,9 +565,12 @@ class FtrackProcessorUI(FtrackBase):
             schema_property.setDisabled(True)
 
         # hide project path selector Foundry ticket : #36074
-        for w in self._exportStructureViewer.findChildren(QtWidgets.QWidget):
-            if (isinstance(w, QtWidgets.QLabel) and w.text() == 'Export To:') or w.toolTip() == "Export root path":
-                w.hide()
+        for widget in self._exportStructureViewer.findChildren(QtWidgets.QWidget):
+            if (
+                    (isinstance(widget, QtWidgets.QLabel) and widget.text() == 'Export To:') or
+                    widget.toolTip() == 'Export root path'
+            ):
+                widget.hide()
 
-            if (isinstance(w, QtWidgets.QLabel) and w.text() == 'Export Structure:'):
-                w.hide()
+            if (isinstance(widget, QtWidgets.QLabel) and widget.text() == 'Export Structure:'):
+                widget.hide()
