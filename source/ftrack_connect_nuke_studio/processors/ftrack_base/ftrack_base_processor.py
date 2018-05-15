@@ -1,13 +1,18 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2018 ftrack
+
+import os
 import time
 import tempfile
 from QtExt import QtCore, QtWidgets, QtGui
 
-from . import FtrackBasePreset, FtrackBase, FtrackProcessorValidationError, FtrackProcessorError
 import logging
 import hiero.core
 
 from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
-from hiero.ui.FnUIProperty import *
+from hiero.ui.FnUIProperty import UIPropertyFactory
+
+from . import FtrackBasePreset, FtrackBase, FtrackProcessorValidationError, FtrackProcessorError
 
 
 class FtrackSettingsValidator(QtWidgets.QDialog):

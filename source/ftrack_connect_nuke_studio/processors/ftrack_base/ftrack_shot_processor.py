@@ -1,14 +1,11 @@
-# Copyright (c) 2011 The Foundry Visionmongers Ltd.  All Rights Reserved.
-import hiero
+# :coding: utf-8
+# :copyright: Copyright (c) 2018 ftrack
 
-from hiero.core.FnProcessor import _expandTaskGroup
+import hiero
 
 from hiero.exporters.FnShotProcessor import ShotProcessorPreset
 from hiero.exporters.FnShotProcessor import ShotProcessor
 from hiero.exporters.FnShotProcessorUI import ShotProcessorUI
-
-from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
-from hiero.ui.FnUIProperty import *
 
 from QtExt import QtWidgets
 

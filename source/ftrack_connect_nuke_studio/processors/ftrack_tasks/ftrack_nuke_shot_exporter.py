@@ -1,3 +1,7 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2018 ftrack
+
+import hiero
 import hiero.core.util
 from hiero.exporters.FnNukeShotExporter import NukeShotExporter, NukeShotPreset
 from hiero.exporters.FnNukeShotExporterUI import NukeShotExporterUI

@@ -1,9 +1,13 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2018 ftrack
+
 import os
 import re
 import copy
-from hiero.exporters.FnSubmission import Submission
 
+import hiero
 import hiero.core.util
+from hiero.exporters.FnSubmission import Submission
 from hiero.exporters.FnTranscodeExporter import TranscodeExporter, TranscodePreset
 from hiero.exporters.FnTranscodeExporterUI import TranscodeExporterUI
 from hiero.exporters.FnExternalRender import NukeRenderTask
