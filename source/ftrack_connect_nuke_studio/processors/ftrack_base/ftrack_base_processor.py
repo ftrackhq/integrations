@@ -48,7 +48,7 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
         box_layout.addLayout(form_layout)
 
         for preset, values in error_data.items():
-            form_layout.addDivider("Wrong {0} presets".format(preset.name()))
+            form_layout.addDivider('Wrong {0} presets'.format(preset.name()))
 
             # TODO: attribute should be reversed .... as they are appearing in the wrong order
             for attribute, valid_values in values.items():
@@ -61,18 +61,20 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
                     key=key,
                     value=value,
                     dictionary=preset.properties()['ftrack'],
-                    label=label + ":",
+                    label=label + ':',
                     tooltip=tooltip
                 )
-                form_layout.addRow(label + ":", uiProperty)
+                form_layout.addRow(label + ':', uiProperty)
 
         if missing_assets_types:
-            form_layout.addDivider('Missing Asset Types.')
+            form_layout.addDivider('Missing asset types')
 
             for missing_asset in missing_assets_types:
-                create_asset_button = QtWidgets.QPushButton(missing_asset)
+                create_asset_button = QtWidgets.QPushButton(
+                    missing_asset.capitalize()
+                )
                 create_asset_button.clicked.connect(self.create_missing_asset)
-                form_layout.addRow('create missing asset: ', create_asset_button)
+                form_layout.addRow('create asset: ', create_asset_button)
 
         buttons = QtWidgets.QDialogButtonBox()
         buttons.setOrientation(QtCore.Qt.Horizontal)
@@ -88,8 +90,8 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
         self._session.ensure(
             'AssetType',
             {
-                'short': asset_type,
-                'name': '{0} Asset'.format(asset_type.capitalize())
+                'short': asset_type.lower(),
+                'name': asset_type
             }
         )
         try:
@@ -376,11 +378,11 @@ class FtrackProcessor(FtrackBase):
         return component
 
     def _skip_fragment(self, name, parent, task):
-        self.logger.warning('Skpping : {0}'.format(name))
+        self.logger.warning('Skpping: {0}'.format(name))
 
     def create_project_structure(self):
         preset_name = self._preset.name()
-        self.logger.info('Creating structure for : {0}'.format(preset_name))
+        self.logger.info('Creating structure for: {0}'.format(preset_name))
 
         file_name = '{0}{1}'.format(
             self._preset.properties()['ftrack']['component_name'],
@@ -477,7 +479,7 @@ class FtrackProcessorUI(FtrackBase):
         form_layout = TaskUIFormLayout()
         layout = widget.layout()
         layout.addLayout(form_layout)
-        form_layout.addDivider("Ftrack Options")
+        form_layout.addDivider('Options (ftrack)')
 
         # Thumbanil generation.
         key, value, label = 'opt_publish_thumbnail', True, 'Publish Thumbnail'
@@ -488,10 +490,10 @@ class FtrackProcessorUI(FtrackBase):
             key=key,
             value=value,
             dictionary=self._preset.properties()['ftrack'],
-            label=label + ":",
+            label=label + ':',
             tooltip=thumbnail_tooltip
         )
-        form_layout.addRow(label + ":", uiProperty)
+        form_layout.addRow(label + ':', uiProperty)
 
         # Component Name.
         key, value, label = 'component_name', '', 'Component Name'
@@ -502,10 +504,10 @@ class FtrackProcessorUI(FtrackBase):
             key=key,
             value=value,
             dictionary=self._preset.properties()['ftrack'],
-            label=label + ":",
+            label=label + ':',
             tooltip=component_tooltip
         )
-        form_layout.addRow(label + ":", uiProperty)
+        form_layout.addRow(label + ':', uiProperty)
 
         # Task Type.
         key, value, label = 'task_type', '', 'Task Type'
@@ -516,11 +518,11 @@ class FtrackProcessorUI(FtrackBase):
             key=key,
             value=value,
             dictionary=self._preset.properties()['ftrack'],
-            label=label + ":",
+            label=label + ':',
             tooltip=component_tooltip
         )
         uiProperty.setDisabled(True)
-        form_layout.addRow(label + ":", uiProperty)
+        form_layout.addRow(label + ':', uiProperty)
 
         # Asset Type.
         key, value, label = 'asset_type_code', '', 'Asset Type'
@@ -531,11 +533,11 @@ class FtrackProcessorUI(FtrackBase):
             key=key,
             value=value,
             dictionary=self._preset.properties()['ftrack'],
-            label=label + ":",
+            label=label + ':',
             tooltip=component_tooltip
         )
         uiProperty.setDisabled(True)
-        form_layout.addRow(label + ":", uiProperty)
+        form_layout.addRow(label + ':', uiProperty)
 
     def addFtrackProcessorUI(self, widget, exportTemplate):
 
@@ -560,10 +562,10 @@ class FtrackProcessorUI(FtrackBase):
             key=key,
             value=value,
             dictionary=self._preset.properties()['ftrack'],
-            label=label + ":",
+            label=label + ':',
             tooltip=thumbnail_tooltip
         )
-        formLayout.addRow(label + ":", schema_property)
+        formLayout.addRow(label + ':', schema_property)
 
         if project:
             # If a project exist , disable the widget and set the previous schema found.
