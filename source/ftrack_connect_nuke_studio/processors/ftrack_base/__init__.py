@@ -4,6 +4,18 @@ import logging
 import ftrack_api
 import time
 
+from hiero.core.util.filesystem import makeDirs as _makeDirs
+
+# monkey patch makeDirs for scripts:
+def nullMaKeDirs(dirPath):
+    hiero.core.log.warning('Creating script path: {0}'.format(dirPath))
+    _makeDirs(dirPath)
+
+
+
+hiero.core.util.filesystem.makeDirs = nullMaKeDirs
+
+
 FTRACK_SHOW_PATH = os.path.join(
     '{ftrack_project}',
     '{ftrack_task}',
@@ -103,7 +115,6 @@ class FtrackBasePreset(FtrackBase):
         # options
         self.properties()['ftrack']['opt_publish_thumbnail'] = True
         self.properties()['ftrack']['opt_publish_review'] = False
-
 
     def set_export_root(self):
         self.properties()['exportRoot'] = self.ftrack_location.accessor.prefix
