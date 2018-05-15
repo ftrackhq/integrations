@@ -89,7 +89,7 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
             'AssetType',
             {
                 'short': asset_type,
-                'name': 'API Generated {0}  Asset'.format(asset_type.capitalize())
+                'name': '{0} Asset'.format(asset_type.capitalize())
             }
         )
         try:
