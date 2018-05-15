@@ -19,7 +19,7 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
 
     def __init__(self, session, error_data, missing_assets_types):
         super(FtrackSettingsValidator, self).__init__()
-        self.setWindowTitle('Validation error!')
+        self.setWindowTitle('Validation error')
         self._session = session
 
         self.logger = logging.getLogger(
@@ -43,7 +43,7 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
         box_layout.addLayout(form_layout)
 
         for preset, values in error_data.items():
-            form_layout.addDivider("Wrong {0} presets.".format(preset.name()))
+            form_layout.addDivider("Wrong {0} presets".format(preset.name()))
 
             # TODO: attribute should be reversed .... as they are appearing in the wrong order
             for attribute, valid_values in values.items():
@@ -67,12 +67,12 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
             for missing_asset in missing_assets_types:
                 create_asset_button = QtWidgets.QPushButton(missing_asset)
                 create_asset_button.clicked.connect(self.create_missing_asset)
-                form_layout.addRow('Create missing asset: ', create_asset_button)
+                form_layout.addRow('create missing asset: ', create_asset_button)
 
         buttons = QtWidgets.QDialogButtonBox()
         buttons.setOrientation(QtCore.Qt.Horizontal)
-        buttons.addButton("Cancel", QtWidgets.QDialogButtonBox.RejectRole)
-        buttons.addButton("Accept", QtWidgets.QDialogButtonBox.AcceptRole)
+        buttons.addButton('Cancel', QtWidgets.QDialogButtonBox.RejectRole)
+        buttons.addButton('Accept', QtWidgets.QDialogButtonBox.AcceptRole)
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         self.layout().addWidget(buttons)
@@ -226,7 +226,7 @@ class FtrackProcessor(FtrackBase):
 
     def _makePath(self):
         # do not create any folder!
-        self.logger.debug('Skip creating folder for : %s' % self.__class__.__name__)
+        self.logger.debug('Skip creating folder for : %s.' % self.__class__.__name__)
         pass
 
     def publishThumbnail(self, component):
@@ -252,7 +252,7 @@ class FtrackProcessor(FtrackBase):
     def task_type(self):
         task_type_name = self.ftrack_properties['task_type']
         task_types = self.schema.get_types('Task')
-        filtered_task_types = [t for t in task_types if t['name'] == task_type_name]
+        filtered_task_types = [task_type for task_type in task_types if task_type['name'] == task_type_name]
         if not filtered_task_types:
             raise FtrackProcessorValidationError(task_types)
         return filtered_task_types[0]
@@ -264,21 +264,21 @@ class FtrackProcessor(FtrackBase):
         except ValueError as error:
             raise FtrackProcessorError(error)
 
-        filtered_task_status = [t for t in task_statuses if t['name']]
-        # Return first status found
+        filtered_task_status = [task_status for task_status in task_statuses if task_status['name']]
+        # Return first status found.
         return filtered_task_status[0]
 
     @property
     def shot_status(self):
         shot_statuses = self.schema.get_statuses('Shot')
-        filtered_shot_status = [t for t in shot_statuses if t['name']]
-        # Return first status found
+        filtered_shot_status = [shot_status for shot_status in shot_statuses if shot_status['name']]
+        # Return first status found.
         return filtered_shot_status[0]
 
     @property
     def asset_version_status(self):
         asset_statuses = self.schema.get_statuses('AssetVersion')
-        filtered_asset_status = [t for t in asset_statuses if t['name']]
+        filtered_asset_status = [asset_status for asset_status in asset_statuses if asset_status['name']]
         return filtered_asset_status[0]
 
     def asset_type_per_task(self, task):
