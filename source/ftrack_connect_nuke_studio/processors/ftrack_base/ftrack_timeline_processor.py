@@ -2,7 +2,6 @@
 # :copyright: Copyright (c) 2018 ftrack
 
 import hiero
-
 from hiero.exporters.FnTimelineProcessor import TimelineProcessor
 from hiero.exporters.FnTimelineProcessor import TimelineProcessorPreset
 from hiero.exporters.FnTimelineProcessorUI import TimelineProcessorUI

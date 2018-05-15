@@ -1,3 +1,5 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2018 ftrack
 
 import os
 import hiero
@@ -96,7 +98,7 @@ class FtrackBasePreset(FtrackBase):
         if current_location['name'] in self.ingored_locations:
             raise FtrackProcessorError(
                 '{0} is an invalid location. Please setup'
-                ' a centralized storage scenario or custom location.'.format(
+                ' a centralised storage scenario or custom location.'.format(
                     current_location['name']
                 )
             )

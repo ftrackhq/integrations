@@ -2,7 +2,6 @@
 # :copyright: Copyright (c) 2018 ftrack
 
 import hiero
-
 from hiero.exporters.FnShotProcessor import ShotProcessorPreset
 from hiero.exporters.FnShotProcessor import ShotProcessor
 from hiero.exporters.FnShotProcessorUI import ShotProcessorUI

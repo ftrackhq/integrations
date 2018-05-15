@@ -4,13 +4,13 @@
 import os
 import time
 import tempfile
-from QtExt import QtCore, QtWidgets, QtGui
-
 import logging
-import hiero.core
 
+import hiero.core
 from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 from hiero.ui.FnUIProperty import UIPropertyFactory
+
+from QtExt import QtCore, QtWidgets, QtGui
 
 from . import FtrackBasePreset, FtrackBase, FtrackProcessorValidationError, FtrackProcessorError
 
@@ -18,6 +18,11 @@ from . import FtrackBasePreset, FtrackBase, FtrackProcessorValidationError, Ftra
 class FtrackSettingsValidator(QtWidgets.QDialog):
 
     def __init__(self, session, error_data, missing_assets_types):
+
+        '''
+        Return a validator widget for the given *error_data* and *missing_assets_types*.
+        '''
+
         super(FtrackSettingsValidator, self).__init__()
         self.setWindowTitle('Validation error')
         self._session = session
