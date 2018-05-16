@@ -1,4 +1,7 @@
-import hiero.core
+# :coding: utf-8
+# :copyright: Copyright (c) 2018 ftrack
+
+import hiero
 from hiero.exporters.FnAudioExportTask import AudioExportTask, AudioExportPreset
 from hiero.exporters.FnAudioExportUI import AudioExportUI
 

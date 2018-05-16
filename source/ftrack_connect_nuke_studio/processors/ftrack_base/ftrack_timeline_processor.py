@@ -1,6 +1,7 @@
-# Copyright (c) 2011 The Foundry Visionmongers Ltd.  All Rights Reserved.
-import hiero
+# :coding: utf-8
+# :copyright: Copyright (c) 2018 ftrack
 
+import hiero
 from hiero.exporters.FnTimelineProcessor import TimelineProcessor
 from hiero.exporters.FnTimelineProcessor import TimelineProcessorPreset
 from hiero.exporters.FnTimelineProcessorUI import TimelineProcessorUI
@@ -14,6 +15,11 @@ class FtrackTimelineProcessor(TimelineProcessor, FtrackProcessor):
     def __init__(self, preset, submission, synchronous=False):
         TimelineProcessor.__init__(self, preset, submission, synchronous=synchronous)
         FtrackProcessor.__init__(self, preset)
+
+    def startProcessing(self, exportItems, preview=False):
+        result = FtrackProcessor.validateFtrackProcessing(self, exportItems)
+        if result:
+            TimelineProcessor.startProcessing(self, exportItems, preview)
 
 
 class FtrackTimelineProcessorUI(TimelineProcessorUI, FtrackProcessorUI):
@@ -46,7 +52,6 @@ class FtrackTimelineProcessorUI(TimelineProcessorUI, FtrackProcessorUI):
     def populateUI(self, processorUIWidget, taskUIWidget, exportItems):
         TimelineProcessorUI.populateUI(self, processorUIWidget, taskUIWidget, exportItems)
         FtrackProcessorUI.addFtrackProcessorUI(self, processorUIWidget, exportItems)
-
 
 
 class FtrackTimelineProcessorPreset(TimelineProcessorPreset, FtrackProcessorPreset):

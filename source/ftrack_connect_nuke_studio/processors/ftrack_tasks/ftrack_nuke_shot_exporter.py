@@ -1,8 +1,16 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2018 ftrack
+
+import hiero
 import hiero.core.util
 from hiero.exporters.FnNukeShotExporter import NukeShotExporter, NukeShotPreset
 from hiero.exporters.FnNukeShotExporterUI import NukeShotExporterUI
 
-from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import FtrackProcessorPreset, FtrackProcessor, FtrackProcessorUI
+from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
+    FtrackProcessorPreset,
+    FtrackProcessor,
+    FtrackProcessorUI
+)
 
 
 class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):

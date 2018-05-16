@@ -1,11 +1,14 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2018 ftrack
+
 import time
 
-import hiero.core
+import hiero
+
 from hiero.exporters.FnEDLExportTask import (
     EDLExportTask,
     EDLExportPreset
 )
-
 from hiero.exporters.FnEDLExportUI import EDLExportUI
 
 from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import FtrackProcessorPreset, FtrackProcessor, FtrackProcessorUI

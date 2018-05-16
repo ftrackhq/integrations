@@ -1,3 +1,6 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2018 ftrack
+
 import os
 import hiero
 import logging
@@ -32,6 +35,7 @@ FTRACK_SHOT_PATH = os.path.join(
 class FtrackProcessorError(Exception):
     pass
 
+
 class FtrackProcessorValidationError(FtrackProcessorError):
     pass
 
@@ -40,6 +44,14 @@ class FtrackBase(object):
     '''
     wrap ftrack functionalities and methods
     '''
+
+    ingored_locations = [
+        'ftrack.server',
+        'ftrack.review',
+        'ftrack.origin',
+        'ftrack.unmanaged',
+        'ftrack.connect'
+    ]
 
     def __init__(self, *args, **kwargs):
         self.logger = logging.getLogger(
@@ -81,6 +93,16 @@ class FtrackBase(object):
 class FtrackBasePreset(FtrackBase):
     def __init__(self, name, properties, **kwargs):
         super(FtrackBasePreset, self).__init__(name, properties)
+
+        current_location = self.ftrack_location
+        if current_location['name'] in self.ingored_locations:
+            raise FtrackProcessorError(
+                '{0} is an invalid location. Please setup'
+                ' a centralised storage scenario or custom location.'.format(
+                    current_location['name']
+                )
+            )
+
         self.set_export_root()
         self.set_ftrack_properties(properties)
 
@@ -95,9 +117,6 @@ class FtrackBasePreset(FtrackBase):
 
         # add placeholders for default processor
         self.properties()['ftrack']['project_schema'] = 'Film Pipeline'
-        self.properties()['ftrack']['task_status'] = 'Not Started'
-        self.properties()['ftrack']['shot_status'] = 'In progress'
-        self.properties()['ftrack']['asset_version_status'] = 'WIP'
         self.properties()['ftrack']['processor_id'] = hash(self.__class__.__name__)
 
         # options

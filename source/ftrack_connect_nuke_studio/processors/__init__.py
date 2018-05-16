@@ -1,10 +1,16 @@
-import hiero
+# :coding: utf-8
+# :copyright: Copyright (c) 2018 ftrack
 
 import logging
-from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_shot_processor import FtrackShotProcessor, FtrackShotProcessorPreset, FtrackShotProcessorUI
-from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_timeline_processor import FtrackTimelineProcessorPreset
 
-# custom processors
+import hiero
+
+from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_shot_processor import (
+    FtrackShotProcessor,
+    FtrackShotProcessorPreset,
+    FtrackShotProcessorUI
+)
+from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_timeline_processor import FtrackTimelineProcessorPreset
 from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_nuke_shot_exporter import FtrackNukeShotExporterPreset
 from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_nuke_render_exporter import FtrackNukeRenderExporterPreset
 from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_audio_exporter import FtrackAudioExporterPreset
@@ -12,11 +18,12 @@ from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_edl_exporter impo
 from ftrack_base import FTRACK_SHOT_PATH, FTRACK_SHOW_PATH
 
 registry = hiero.core.taskRegistry
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 # override foundry logger to get some useful output
-hiero.core.log = logger
+# hiero.core.log = logger
 
 
 def register_processors():
