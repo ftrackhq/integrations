@@ -545,7 +545,7 @@ class FtrackProcessorUI(FtrackBase):
         uiProperty.setDisabled(True)
         form_layout.addRow(label + ':', uiProperty)
 
-        return formLayout
+        return form_layout
 
     def addFtrackProcessorUI(self, widget, exportTemplate):
 
@@ -554,10 +554,10 @@ class FtrackProcessorUI(FtrackBase):
             'select project_schema.name from Project where name is "{0}"'.format(project_name)
         ).first()
 
-        formLayout = TaskUIFormLayout()
+        form_layout = TaskUIFormLayout()
         layout = widget.layout()
-        layout.addLayout(formLayout)
-        formLayout.addDivider('Ftrack Options')
+        layout.addLayout(form_layout)
+        form_layout.addDivider('Ftrack Options')
 
         schemas = self.session.query('ProjectSchema').all()
         schemas_name = [schema['name'] for schema in schemas]
@@ -573,7 +573,7 @@ class FtrackProcessorUI(FtrackBase):
             label=label + ':',
             tooltip=thumbnail_tooltip
         )
-        formLayout.addRow(label + ':', schema_property)
+        form_layout.addRow(label + ':', schema_property)
 
         if project:
             # If a project exist , disable the widget and set the previous schema found.
