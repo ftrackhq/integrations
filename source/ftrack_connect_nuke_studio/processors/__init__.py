@@ -22,8 +22,8 @@ registry = hiero.core.taskRegistry
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-# override foundry logger to get some useful output
-# hiero.core.log = logger
+#override foundry logger to get some useful output
+hiero.core.log = logger
 
 
 def register_processors():

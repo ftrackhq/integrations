@@ -7,7 +7,7 @@ import logging
 import ftrack_api
 import time
 
-from hiero.core.util.filesystem import makeDirs as _makeDirs
+# from hiero.core.util.filesystem import makeDirs as _makeDirs
 #
 # # monkey patch makeDirs for scripts:
 # def nullMaKeDirs(dirPath):
