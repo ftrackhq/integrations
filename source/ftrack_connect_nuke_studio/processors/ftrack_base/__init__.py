@@ -70,7 +70,7 @@ class FtrackBase(object):
             __name__ + '.' + self.__class__.__name__
         )
         self.logger.setLevel(logging.DEBUG)
-        self.session = ftrack_api.Session()
+        self.session = ftrack_api.Session(auto_connect_event_hub=False)
 
     def timeStampString(self, localtime):
         return time.strftime('%Y/%m/%d %X', localtime)
