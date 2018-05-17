@@ -1,14 +1,10 @@
-# Copyright (c) 2011 The Foundry Visionmongers Ltd.  All Rights Reserved.
+# :coding: utf-8
+# :copyright: Copyright (c) 2018 ftrack
+
 import hiero
-
-from hiero.core.FnProcessor import _expandTaskGroup
-
 from hiero.exporters.FnShotProcessor import ShotProcessorPreset
 from hiero.exporters.FnShotProcessor import ShotProcessor
 from hiero.exporters.FnShotProcessorUI import ShotProcessorUI
-
-from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
-from hiero.ui.FnUIProperty import *
 
 from QtExt import QtWidgets
 
@@ -21,8 +17,9 @@ class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
         FtrackProcessor.__init__(self, preset)
 
     def startProcessing(self, exportItems, preview=False):
-        FtrackProcessor.validateFtrackProcessing(self, exportItems)
-        ShotProcessor.startProcessing(self, exportItems, preview)
+        result = FtrackProcessor.validateFtrackProcessing(self, exportItems)
+        if result:
+            ShotProcessor.startProcessing(self, exportItems, preview)
 
 
 class FtrackShotProcessorUI(ShotProcessorUI, FtrackProcessorUI):
