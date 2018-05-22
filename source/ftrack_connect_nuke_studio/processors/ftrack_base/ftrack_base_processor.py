@@ -388,15 +388,6 @@ class FtrackProcessor(FtrackBase):
     def create_project_structure(self, exportItems):
         for item in exportItems:
             for (exportPath, preset) in self._exportTemplate.flatten():
-                # propagate schema from processor to tasks.
-
-                asset_type_code = preset.properties()['ftrack']['asset_type_code']
-
-                ftrack_asset_type = self.session.query(
-                    'AssetType where short is "{0}"'.format(asset_type_code)
-                ).first()
-
-                print preset
 
                 # Build TaskData seed.
                 taskData = hiero.core.TaskData(
@@ -406,7 +397,7 @@ class FtrackProcessor(FtrackBase):
                     exportPath,
                     'v0',
                     self._exportTemplate,
-                    preset.project()
+                    item.sequence().project()
                 )
                 task = hiero.core.taskRegistry.createTaskFromPreset(preset, taskData)
 
@@ -419,11 +410,15 @@ class FtrackProcessor(FtrackBase):
                 )
                 resolved_file_name = task.resolvePath(file_name)
 
-                path = task.resolvePath(task._shotPath)
+                path = task.resolvePath(exportPath)
                 parent = None  # After the loop this will be containing the component object.
 
-                for template, token in zip(task._shotPath.split(os.path.sep), path.split(os.path.sep)):
+                self.logger.info('templated path : %s' % exportPath)
+                self.logger.info('resolved path : %s' % path)
+
+                for template, token in zip(exportPath.split(os.path.sep), path.split(os.path.sep)):
                     fragment_fn = self.fn_mapping.get(template, self._skip_fragment)
+                    self.logger.info('resolving : %s with parent %s and task %s for template %s' % (token, parent, task, template))
                     parent = fragment_fn(token, parent, task)
 
                 self.session.commit()
@@ -439,8 +434,8 @@ class FtrackProcessor(FtrackBase):
                 ftrack_shot_path = os.path.sep.join(tokens)
 
                 ftrack_path = str(os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path))
-                item._exportPath = ftrack_path
-                item.setDestinationDescription(ftrack_path)
+                task._exportPath = ftrack_path
+                task.setDestinationDescription(ftrack_path)
 
     def validateFtrackProcessing(self, exportItems):
 
