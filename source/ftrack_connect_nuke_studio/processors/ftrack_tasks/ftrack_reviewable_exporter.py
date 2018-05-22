@@ -75,7 +75,6 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
         FtrackProcessor.updateItem(self, originalItem, localtime)
         self.createTranscodeScript()
 
-
     def finishTask(self):
         FtrackProcessor.finishTask(self)
 

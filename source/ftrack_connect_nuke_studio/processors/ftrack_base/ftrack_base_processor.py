@@ -134,7 +134,6 @@ class FtrackProcessor(FtrackBase):
         self._component = None
 
     def updateItem(self, originalItem, localtime):
-        self.create_project_structure()
         self.addFtrackTag(originalItem, localtime)
 
     def addFtrackTag(self, originalItem, localtime):
@@ -386,38 +385,62 @@ class FtrackProcessor(FtrackBase):
     def _skip_fragment(self, name, parent, task):
         self.logger.warning('Skpping: {0}'.format(name))
 
-    def create_project_structure(self):
-        preset_name = self._preset.name()
-        self.logger.info('Creating structure for: {0}'.format(preset_name))
+    def create_project_structure(self, exportItems):
+        for item in exportItems:
+            for (exportPath, preset) in self._exportTemplate.flatten():
+                # propagate schema from processor to tasks.
 
-        file_name = '{0}{1}'.format(
-            self._preset.properties()['ftrack']['component_name'],
-            self._preset.properties()['ftrack']['component_pattern']
-        )
-        resolved_file_name = self.resolvePath(file_name)
+                asset_type_code = preset.properties()['ftrack']['asset_type_code']
 
-        path = self.resolvePath(self._shotPath)
-        parent = None  # After the loop this will be containing the component object.
+                ftrack_asset_type = self.session.query(
+                    'AssetType where short is "{0}"'.format(asset_type_code)
+                ).first()
 
-        for template, token in zip(self._shotPath.split(os.path.sep), path.split(os.path.sep)):
-            fragment_fn = self.fn_mapping.get(template, self._skip_fragment)
-            parent = fragment_fn(token, parent, self)
+                print preset
 
-        self.session.commit()
-        self._component = parent
+                # Build TaskData seed.
+                taskData = hiero.core.TaskData(
+                    preset,
+                    item,
+                    preset.properties()['exportRoot'],
+                    exportPath,
+                    'v0',
+                    self._exportTemplate,
+                    preset.project()
+                )
+                task = hiero.core.taskRegistry.createTaskFromPreset(preset, taskData)
 
-        # Extract ftrack path from structure and accessors.
-        ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent)
+                preset_name = preset.name()
+                self.logger.info('Creating structure for: {0}'.format(preset_name))
 
-        # Ftrack sanitize output path, but we need to retain the original on here
-        # otherwise foo.####.ext becomes foo.____.ext
-        tokens = ftrack_shot_path.split(os.path.sep)
-        tokens[-1] = resolved_file_name
-        ftrack_shot_path = os.path.sep.join(tokens)
+                file_name = '{0}{1}'.format(
+                    preset.properties()['ftrack']['component_name'],
+                    preset.properties()['ftrack']['component_pattern']
+                )
+                resolved_file_name = task.resolvePath(file_name)
 
-        ftrack_path = str(os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path))
-        self._exportPath = ftrack_path
-        self.setDestinationDescription(ftrack_path)
+                path = task.resolvePath(task._shotPath)
+                parent = None  # After the loop this will be containing the component object.
+
+                for template, token in zip(task._shotPath.split(os.path.sep), path.split(os.path.sep)):
+                    fragment_fn = self.fn_mapping.get(template, self._skip_fragment)
+                    parent = fragment_fn(token, parent, task)
+
+                self.session.commit()
+                task._component = parent
+
+                # Extract ftrack path from structure and accessors.
+                ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent)
+
+                # Ftrack sanitize output path, but we need to retain the original on here
+                # otherwise foo.####.ext becomes foo.____.ext
+                tokens = ftrack_shot_path.split(os.path.sep)
+                tokens[-1] = resolved_file_name
+                ftrack_shot_path = os.path.sep.join(tokens)
+
+                ftrack_path = str(os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path))
+                item._exportPath = ftrack_path
+                item.setDestinationDescription(ftrack_path)
 
     def validateFtrackProcessing(self, exportItems):
 
