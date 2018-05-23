@@ -363,7 +363,6 @@ class FtrackProcessor(FtrackBase):
                     parent = fragment_fn(token, parent, task)
 
                 self.session.commit()
-                self._components[task] = parent
 
                 # Extract ftrack path from structure and accessors.
                 ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent)
@@ -379,37 +378,29 @@ class FtrackProcessor(FtrackBase):
                 task._exportPath = ftrack_path
                 task.setDestinationDescription(ftrack_path)
 
-    def publishResultComponents(self):
-        components = self._components
-        for task, component in components.items():
+                self._components[task.ident()] = parent
 
+    def publishResultComponents(self, render_tasks):
+        components = self._components
+        for task in render_tasks:
+            component = components[task.ident()]
+            self.logger.info('Copmonent {0} finished ?'.format(component))
+            self.logger.info('Task {0} finished ?'.format(task._finished))
+
+            # should have finished rendering....
             final_path = task._exportPath
 
-            start, end = task.outputRange()
             startHandle, endHandle = task.outputHandles()
-            #
-            # if task._sequence:
-            #     fps = task._sequence.framerate().toFloat()
-            #
-            # elif task._clip:
-            #     fps = task._clip.framerate().toFloat()
+            self.logger.info(task._item)
 
-            if '#' in task._exportPath:
-                # todo: Improve this logic
-                final_path = '{0} [{1}-{2}]'.format(task._exportPath, start, end)
-
-            self.session.create(
-                'ComponentLocation', {
-                    'location_id': self.ftrack_location['id'],
-                    'component_id': component['id'],
-                    'resource_identifier': final_path
-                }
-            )
-            # # Add option to publish or not the thumbnail.
-            # if self.ftrack_properties['opt_publish_thumbnail']:
-            #     self.publishThumbnail(component, task)
+            # if task.item.sequence:
+            #     fps = task.item.sequence().framerate().toFloat()
             #
+            # elif task.item.clip:
+            #     fps = task.item.clip().framerate().toFloat()
+
             # attributes = component['version']['task']['parent']['custom_attributes']
+
             # for attr_name, attr_value in attributes.items():
             #     if attr_name == 'fstart':
             #         attributes['fstart'] = str(start)
@@ -422,10 +413,24 @@ class FtrackProcessor(FtrackBase):
             #
             #     if attr_name == 'handles':
             #         attributes['handles'] = str(startHandle)
-            #
-            #     self.logger.info('{0}:{1}'.format(attr_name, attr_value))
 
-            self.logger.info('Publihsing Component : {0}'.format(final_path))
+            if '#' in task._exportPath:
+                # todo: Improve this logic
+                start, end = task.outputRange()
+                final_path = '{0} [{1}-{2}]'.format(task._exportPath, start, end)
+
+            self.session.create(
+                'ComponentLocation', {
+                    'location_id': self.ftrack_location['id'],
+                    'component_id': component['id'],
+                    'resource_identifier': final_path
+                }
+            )
+            # Add option to publish or not the thumbnail.
+            if self.ftrack_properties['opt_publish_thumbnail']:
+                self.publishThumbnail(component, task)
+
+            # self.logger.info('Publihsing Component : {0}'.format(final_path))
 
         self.session.commit()
 

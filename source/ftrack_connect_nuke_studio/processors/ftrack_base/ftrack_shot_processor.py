@@ -21,9 +21,8 @@ class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
         self.create_project_structure(exportItems)
         result = FtrackProcessor.validateFtrackProcessing(self, exportItems)
         if result:
-            ShotProcessor.startProcessing(self, exportItems, preview)
-
-        self.publishResultComponents()
+            render_tasks = ShotProcessor.startProcessing(self, exportItems, preview)
+            self.publishResultComponents(render_tasks)
 
 
 class FtrackShotProcessorUI(ShotProcessorUI, FtrackProcessorUI):
