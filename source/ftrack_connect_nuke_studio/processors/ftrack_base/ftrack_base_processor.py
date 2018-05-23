@@ -381,38 +381,40 @@ class FtrackProcessor(FtrackBase):
                 self._components[task.ident()] = parent
 
     def publishResultComponents(self, render_tasks):
-        components = self._components
         for task in render_tasks:
-            component = components[task.ident()]
+            # state = task._finished
+            # while not state:
+            #     state = task._finished
+
+            component = self._components[task.ident()]
             self.logger.info('Copmonent {0} finished ?'.format(component))
             self.logger.info('Task {0} finished ?'.format(task._finished))
 
             # should have finished rendering....
             final_path = task._exportPath
-
+            start, end = task.outputRange()
             startHandle, endHandle = task.outputHandles()
-            self.logger.info(task._item)
 
-            # if task.item.sequence:
-            #     fps = task.item.sequence().framerate().toFloat()
-            #
-            # elif task.item.clip:
-            #     fps = task.item.clip().framerate().toFloat()
+            if task._item.sequence:
+                fps = task._item.sequence().framerate().toFloat()
 
-            # attributes = component['version']['task']['parent']['custom_attributes']
+            elif task._item.clip:
+                fps = task._item.clip().framerate().toFloat()
 
-            # for attr_name, attr_value in attributes.items():
-            #     if attr_name == 'fstart':
-            #         attributes['fstart'] = str(start)
-            #
-            #     if attr_name == 'fend':
-            #         attributes['fend'] = str(end)
-            #
-            #     if attr_name == 'fps':
-            #         attributes['fps'] = str(fps)
-            #
-            #     if attr_name == 'handles':
-            #         attributes['handles'] = str(startHandle)
+            attributes = component['version']['task']['parent']['custom_attributes']
+
+            for attr_name, attr_value in attributes.items():
+                if start and attr_name == 'fstart':
+                    attributes['fstart'] = str(start)
+
+                if end and attr_name == 'fend':
+                    attributes['fend'] = str(end)
+
+                if fps and attr_name == 'fps':
+                    attributes['fps'] = str(fps)
+
+                if startHandle and attr_name == 'handles':
+                    attributes['handles'] = str(startHandle)
 
             if '#' in task._exportPath:
                 # todo: Improve this logic
