@@ -49,6 +49,7 @@ class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
         FtrackProcessorPreset.set_ftrack_properties(self, properties)
         properties = self.properties()
         properties.setdefault('ftrack', {})
+
         # add placeholders for default ftrack defaults
         self.properties()['ftrack']['task_type'] = 'Editing'
         self.properties()['ftrack']['asset_type_code'] = 'edit'

@@ -41,13 +41,13 @@ def register_processors():
         'NukeScript',
         {
             'readPaths': [],
-            'writePaths': [ftrack_shot_path],
+            'writePaths': [''],
             'timelineWriteNode': '',
         }
     )
 
     reviewable_processor = FtrackReviewableExporterPreset(
-        'Plate',
+        'Reviewable',
         {
             'file_type': 'mov',
             'mov': {
@@ -78,7 +78,7 @@ def register_processors():
         'exportTemplate': (
             (ftrack_shot_path, nuke_script_processor),
             (ftrack_shot_path, nuke_render_processor),
-            (ftrack_shot_path, reviewable_processor)
+            # (ftrack_shot_path, reviewable_processor)
         ),
         'cutLength': True,
     }

@@ -72,14 +72,15 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
     def updateItem(self, originalItem, localtime):
         # We need to create the project structure right before spawning any job so we have access
         # to the ftrack structure and location.
-        FtrackProcessor.updateItem(self, originalItem, localtime)
+        # FtrackProcessor.updateItem(self, originalItem, localtime)
         self.createTranscodeScript()
 
     def finishTask(self):
         FtrackProcessor.finishTask(self)
-
-        if not self.is_enabled:
-            return
+        #
+        # if not self.is_enabled:
+        #     return
+        self.logger.info(self._components)
 
         version = self._component['version']
         review_component = version.create_component(

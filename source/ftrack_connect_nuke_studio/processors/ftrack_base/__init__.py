@@ -157,10 +157,10 @@ class FtrackBasePreset(FtrackBase):
         return self.properties()['ftrack']['task_type']
 
     def resolve_ftrack_asset(self, task):
-        return task._preset.name()
+        return 'Ingest'
 
     def resolve_ftrack_component(self, task):
-        component_name = self.properties()['ftrack']['component_name']
+        component_name = task._preset.name().lower()
         extension = self.properties()['ftrack']['component_pattern']
         component_full_name = '{0}{1}'.format(component_name, extension)
         return component_full_name

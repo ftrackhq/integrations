@@ -70,7 +70,7 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
     def updateItem(self, originalItem, localtime):
         # We need to create the project structure right before spawning any job so we have access
         # to the ftrack structure and location.
-        FtrackProcessor.updateItem(self, originalItem, localtime)
+        # FtrackProcessor.updateItem(self, originalItem, localtime)
         self.createTranscodeScript()
 
     def finishTask(self):
