@@ -23,6 +23,8 @@ class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
         if result:
             ShotProcessor.startProcessing(self, exportItems, preview)
 
+        self.publishResultComponents()
+
 
 class FtrackShotProcessorUI(ShotProcessorUI, FtrackProcessorUI):
 

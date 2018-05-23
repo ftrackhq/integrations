@@ -73,8 +73,8 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
         # FtrackProcessor.updateItem(self, originalItem, localtime)
         self.createTranscodeScript()
 
-    def finishTask(self):
-        FtrackProcessor.finishTask(self)
+    # def finishTask(self):
+    #     FtrackProcessor.finishTask(self)
 
     def _makePath(self):
         # disable making file paths
@@ -98,12 +98,7 @@ class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
         # add placeholders for default ftrack defaults
         self.properties()['ftrack']['task_type'] = 'Editing'
         self.properties()['ftrack']['asset_type_code'] = 'img'
-        self.properties()['ftrack']['component_name'] = 'plates'
         self.properties()['ftrack']['component_pattern'] = '.####.{ext}'
-        self.properties()['ftrack']['opt_publish_review'] = True
-
-        # ENABLE FOR DEBUG PURPOSES
-        # self.properties()["keepNukeScript"] = True
 
     def addUserResolveEntries(self, resolver):
         FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)

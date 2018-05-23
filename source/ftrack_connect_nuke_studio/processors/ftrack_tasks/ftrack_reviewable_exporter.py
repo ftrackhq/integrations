@@ -74,29 +74,28 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
         # to the ftrack structure and location.
         # FtrackProcessor.updateItem(self, originalItem, localtime)
         self.createTranscodeScript()
-
-    def finishTask(self):
-        FtrackProcessor.finishTask(self)
-        #
-        # if not self.is_enabled:
-        #     return
-        self.logger.info(self._components)
-
-        version = self._component['version']
-        review_component = version.create_component(
-            path=self.tempmov,
-            data={
-                'name': 'preview'
-            },
-            location=self.ftrack_location
-        )
-
-        self.session.commit()
-        self.ftrack_server_location.add_component(review_component, self.ftrack_location)
-        version.encode_media(review_component)
-        self.session.commit()
-
-        self.logger.info('Reviewable Component {0} Published'.format(self.tempmov))
+    #
+    # def finishTask(self):
+    #     FtrackProcessor.finishTask(self)
+    #
+    #     self.logger.info(self._components)
+    #     return
+    #
+    #     version = self._component['version']
+    #     review_component = version.create_component(
+    #         path=self.tempmov,
+    #         data={
+    #             'name': 'preview'
+    #         },
+    #         location=self.ftrack_location
+    #     )
+    #
+    #     self.session.commit()
+    #     self.ftrack_server_location.add_component(review_component, self.ftrack_location)
+    #     version.encode_media(review_component)
+    #     self.session.commit()
+    #
+    #     self.logger.info('Reviewable Component {0} Published'.format(self.tempmov))
 
 
 class FtrackReviewableExporterPreset(TranscodePreset, FtrackProcessorPreset):

@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 #override foundry logger to get some useful output
-hiero.core.log = logger
+# hiero.core.log = logger
 
 
 def register_processors():
@@ -78,7 +78,9 @@ def register_processors():
         'exportTemplate': (
             (ftrack_shot_path, nuke_script_processor),
             (ftrack_shot_path, nuke_render_processor),
-            # (ftrack_shot_path, reviewable_processor)
+            (ftrack_shot_path, reviewable_processor),
+            (ftrack_shot_path, audio_processor)
+
         ),
         'cutLength': True,
     }

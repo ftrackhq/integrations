@@ -180,56 +180,6 @@ class FtrackProcessor(FtrackBase):
         self.logger.info('Adding tag: {0} to item {1}'.format(tag, originalItem))
         originalItem.addTag(tag)
 
-    def finishTask(self):
-        components = self._components
-        for preset_name, component in components.items():
-
-            final_path = self._exportPath
-
-            start, end = self.outputRange()
-            startHandle, endHandle = self.outputHandles()
-
-            if self._sequence:
-                fps = self._sequence.framerate().toFloat()
-
-            elif self._clip:
-                fps = self._clip.framerate().toFloat()
-
-            if '#' in self._exportPath:
-                # todo: Improve this logic
-                final_path = '{0} [{1}-{2}]'.format(self._exportPath, start, end)
-
-            self.session.create(
-                'ComponentLocation', {
-                    'location_id': self.ftrack_location['id'],
-                    'component_id': component['id'],
-                    'resource_identifier': final_path
-                }
-            )
-            # Add option to publish or not the thumbnail.
-            if self.ftrack_properties['opt_publish_thumbnail']:
-                self.publishThumbnail(component)
-
-            attributes = component['version']['task']['parent']['custom_attributes']
-            for attr_name, attr_value in attributes.items():
-                if attr_name == 'fstart':
-                    attributes['fstart'] = str(start)
-
-                if attr_name == 'fend':
-                    attributes['fend'] = str(end)
-
-                if attr_name == 'fps':
-                    attributes['fps'] = str(fps)
-
-                if attr_name == 'handles':
-                    attributes['handles'] = str(startHandle)
-
-                self.logger.info('{0}:{1}'.format(attr_name, attr_value))
-
-            self.logger.info('Publihsing Component : {0}'.format(final_path))
-
-        self.session.commit()
-
     def timeStampString(self, localtime):
         '''timeStampString(localtime)
         Convert a tuple or struct_time representing a time as returned by gmtime() or localtime() to a string formated YEAR/MONTH/DAY TIME.
@@ -240,16 +190,6 @@ class FtrackProcessor(FtrackBase):
         # do not create any folder!
         self.logger.debug('Skip creating folder for : %s.' % self.__class__.__name__)
         pass
-
-    def publishThumbnail(self, component):
-        source = self._item.source()
-        thumbnail_qimage = source.thumbnail(source.posterFrame())
-        thumbnail_file = tempfile.NamedTemporaryFile(prefix='hiero_ftrack_thumbnail', suffix='.png', delete=False).name
-        thumbnail_qimage_resized = thumbnail_qimage.scaledToWidth(600, QtCore.Qt.SmoothTransformation)
-        thumbnail_qimage_resized.save(thumbnail_file)
-        version = component['version']
-        version.create_thumbnail(thumbnail_file)
-        version['task'].create_thumbnail(thumbnail_file)
 
     @property
     def schema(self):
@@ -423,7 +363,7 @@ class FtrackProcessor(FtrackBase):
                     parent = fragment_fn(token, parent, task)
 
                 self.session.commit()
-                self._components[preset_name] = parent
+                self._components[task] = parent
 
                 # Extract ftrack path from structure and accessors.
                 ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent)
@@ -438,6 +378,67 @@ class FtrackProcessor(FtrackBase):
                 self.logger.info('result path: %s' % ftrack_path)
                 task._exportPath = ftrack_path
                 task.setDestinationDescription(ftrack_path)
+
+    def publishResultComponents(self):
+        components = self._components
+        for task, component in components.items():
+
+            final_path = task._exportPath
+
+            start, end = task.outputRange()
+            startHandle, endHandle = task.outputHandles()
+            #
+            # if task._sequence:
+            #     fps = task._sequence.framerate().toFloat()
+            #
+            # elif task._clip:
+            #     fps = task._clip.framerate().toFloat()
+
+            if '#' in task._exportPath:
+                # todo: Improve this logic
+                final_path = '{0} [{1}-{2}]'.format(task._exportPath, start, end)
+
+            self.session.create(
+                'ComponentLocation', {
+                    'location_id': self.ftrack_location['id'],
+                    'component_id': component['id'],
+                    'resource_identifier': final_path
+                }
+            )
+            # # Add option to publish or not the thumbnail.
+            # if self.ftrack_properties['opt_publish_thumbnail']:
+            #     self.publishThumbnail(component, task)
+            #
+            # attributes = component['version']['task']['parent']['custom_attributes']
+            # for attr_name, attr_value in attributes.items():
+            #     if attr_name == 'fstart':
+            #         attributes['fstart'] = str(start)
+            #
+            #     if attr_name == 'fend':
+            #         attributes['fend'] = str(end)
+            #
+            #     if attr_name == 'fps':
+            #         attributes['fps'] = str(fps)
+            #
+            #     if attr_name == 'handles':
+            #         attributes['handles'] = str(startHandle)
+            #
+            #     self.logger.info('{0}:{1}'.format(attr_name, attr_value))
+
+            self.logger.info('Publihsing Component : {0}'.format(final_path))
+
+        self.session.commit()
+
+    def publishThumbnail(self, component, task):
+        pass
+        # source = task.source()
+        # thumbnail_qimage = source.thumbnail(source.posterFrame())
+        # thumbnail_file = tempfile.NamedTemporaryFile(prefix='hiero_ftrack_thumbnail', suffix='.png', delete=False).name
+        # thumbnail_qimage_resized = thumbnail_qimage.scaledToWidth(600, QtCore.Qt.SmoothTransformation)
+        # thumbnail_qimage_resized.save(thumbnail_file)
+        # version = component['version']
+        # version.create_thumbnail(thumbnail_file)
+        # version['task'].create_thumbnail(thumbnail_file)
 
 
     def validateFtrackProcessing(self, exportItems):

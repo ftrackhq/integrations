@@ -15,12 +15,11 @@ class FtrackAudioExporter(AudioExportTask, FtrackProcessor):
         FtrackProcessor.__init__(self, initDict)
 
     def startTask(self):
-        self.create_project_structure()
         AudioExportTask.startTask(self)
 
-    def finishTask(self):
-        FtrackProcessor.finishTask(self)
-        AudioExportTask.finishTask(self)
+    # def finishTask(self):
+    #     FtrackProcessor.finishTask(self)
+    #     AudioExportTask.finishTask(self)
 
     def _makePath(self):
         # disable making file paths
@@ -45,7 +44,6 @@ class FtrackAudioExporterPreset(AudioExportPreset, FtrackProcessorPreset):
         # add placeholders for default ftrack defaults
         self.properties()['ftrack']['task_type'] = 'Editing'
         self.properties()['ftrack']['asset_type_code'] = 'audio'
-        self.properties()['ftrack']['component_name'] = 'main'
         self.properties()['ftrack']['component_pattern'] = '.{ext}'
         self.properties()['ftrack']['opt_publish_thumbnail'] = False
         self.properties()['ftrack']['opt_publish_reviewable'] = False
