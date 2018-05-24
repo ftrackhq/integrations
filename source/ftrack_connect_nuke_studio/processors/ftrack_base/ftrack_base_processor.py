@@ -126,7 +126,6 @@ class FtrackProcessor(FtrackBase):
             '{ftrack_project}': self._create_project_fragment,
             '{ftrack_sequence}': self._create_sequence_fragment,
             '{ftrack_shot}': self._create_shot_fragment,
-            '{ftrack_task}': self._create_task_fragment,
             '{ftrack_asset}': self._create_asset_fragment,
             '{ftrack_component}': self._create_component_fragment
         }
@@ -279,13 +278,26 @@ class FtrackProcessor(FtrackBase):
         return shot
 
     def _create_asset_fragment(self, name, parent, task):
+        task_name = self.ftrack_properties['task_type']
+        ftask = self.session.query(
+            'Task where name is "{0}" and parent.id is "{1}"'.format(task_name, parent['id'])
+        ).first()
+
+        if not ftask:
+            ftask = self.session.create('Task', {
+                'name': task_name,
+                'parent': parent,
+                'status': self.task_status,
+                'type': self.task_type
+            })
+
         asset = self.session.query(
-            'Asset where name is "{0}" and parent.id is "{1}"'.format(name, parent['parent']['id'])
+            'Asset where name is "{0}" and parent.id is "{1}"'.format(name, parent['id'])
         ).first()
         if not asset:
             asset = self.session.create('Asset', {
                 'name': name,
-                'parent': parent['parent'],
+                'parent':  parent,
                 'type': self.asset_type_per_task(task)
             })
 
@@ -294,7 +306,7 @@ class FtrackProcessor(FtrackBase):
         )
 
         version = self.session.query(
-            'AssetVersion where task.id is {0} and asset.id is {1}'.format(parent['id'], asset['id'])
+            'AssetVersion where task.id is {0} and asset.id is {1}'.format(ftask['id'], asset['id'])
         ).first()
 
         if not version:
@@ -302,23 +314,10 @@ class FtrackProcessor(FtrackBase):
                 'asset': asset,
                 'status': self.asset_version_status,
                 'comment': comment,
-                'task': parent
+                'task': ftask
             })
 
         return version
-
-    def _create_task_fragment(self, name, parent, task):
-        task = self.session.query(
-            'Task where name is "{0}" and parent.id is "{1}"'.format(name, parent['id'])
-        ).first()
-        if not task:
-            task = self.session.create('Task', {
-                'name': name,
-                'parent': parent,
-                'status': self.task_status,
-                'type': self.task_type
-            })
-        return task
 
     def _create_component_fragment(self, name, parent, task):
         component = parent.create_component('/', {
@@ -356,6 +355,9 @@ class FtrackProcessor(FtrackBase):
                 resolved_file_name = task.resolvePath(file_name)
 
                 path = task.resolvePath(exportPath)
+                self.logger.info('Resolved Path: %s' % path)
+                self.logger.info('Resolved FileName: %s' % resolved_file_name)
+
                 parent = None  # After the loop this will be containing the component object.
 
                 for template, token in zip(exportPath.split(os.path.sep), path.split(os.path.sep)):
@@ -363,9 +365,11 @@ class FtrackProcessor(FtrackBase):
                     parent = fragment_fn(token, parent, task)
 
                 self.session.commit()
+                self._components[task.ident()] = {'component': parent, 'task': task}
 
                 # Extract ftrack path from structure and accessors.
                 ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent)
+                self.logger.info('Ftrack Shot Path: %s' % ftrack_shot_path)
 
                 # Ftrack sanitize output path, but we need to retain the original on here
                 # otherwise foo.####.ext becomes foo.____.ext
@@ -375,31 +379,31 @@ class FtrackProcessor(FtrackBase):
 
                 ftrack_path = str(os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path))
                 self.logger.info('result path: %s' % ftrack_path)
+                task._shotPath = ftrack_path
                 task._exportPath = ftrack_path
                 task.setDestinationDescription(ftrack_path)
 
-                self._components[task.ident()] = parent
-
     def publishResultComponents(self, render_tasks):
-        for task in render_tasks:
-            # state = task._finished
+        for render_task in render_tasks:
+            # state = render_task._finished
             # while not state:
-            #     state = task._finished
+            #     state = render_task._finished
 
-            component = self._components[task.ident()]
-            self.logger.info('Copmonent {0} finished ?'.format(component))
-            self.logger.info('Task {0} finished ?'.format(task._finished))
+            self.logger.info('Task {0} finished ? : {1}'.format(render_task, render_task._finished))
+            render_data = self._components[render_task.ident()]
 
-            # should have finished rendering....
-            final_path = task._exportPath
-            start, end = task.outputRange()
-            startHandle, endHandle = task.outputHandles()
+            task = render_data['task']
+            component = render_data['component']
 
-            if task._item.sequence:
-                fps = task._item.sequence().framerate().toFloat()
+            start, end = render_task.outputRange()
+            startHandle, endHandle = render_task.outputHandles()
 
-            elif task._item.clip:
-                fps = task._item.clip().framerate().toFloat()
+            fps = None
+            if render_task._sequence:
+                fps = render_task._sequence.framerate().toFloat()
+
+            elif render_task._clip:
+                fps = render_task._clip.framerate().toFloat()
 
             attributes = component['version']['task']['parent']['custom_attributes']
 
@@ -416,10 +420,11 @@ class FtrackProcessor(FtrackBase):
                 if startHandle and attr_name == 'handles':
                     attributes['handles'] = str(startHandle)
 
-            if '#' in task._exportPath:
+            final_path = task._exportPath
+            if '#' in final_path:
                 # todo: Improve this logic
-                start, end = task.outputRange()
-                final_path = '{0} [{1}-{2}]'.format(task._exportPath, start, end)
+                start, end = render_task.outputRange()
+                final_path = '{0} [{1}-{2}]'.format(final_path, start, end)
 
             self.session.create(
                 'ComponentLocation', {
@@ -432,7 +437,7 @@ class FtrackProcessor(FtrackBase):
             if self.ftrack_properties['opt_publish_thumbnail']:
                 self.publishThumbnail(component, task)
 
-            # self.logger.info('Publihsing Component : {0}'.format(final_path))
+            self.logger.info('Publihsing Component : {0}'.format(final_path))
 
         self.session.commit()
 

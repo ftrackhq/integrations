@@ -21,7 +21,6 @@ import time
 
 FTRACK_SHOW_PATH = os.path.join(
     '{ftrack_project}',
-    '{ftrack_task}',
     '{ftrack_asset}',
     '{ftrack_component}'
 )
@@ -29,7 +28,6 @@ FTRACK_SHOW_PATH = os.path.join(
 FTRACK_SEQUENCE_PATH = os.path.join(
     '{ftrack_project}',
     '{ftrack_shot}',
-    '{ftrack_task}',
     '{ftrack_asset}',
     '{ftrack_component}'
 )
@@ -38,7 +36,6 @@ FTRACK_SHOT_PATH = os.path.join(
     '{ftrack_project}',
     '{ftrack_sequence}',
     '{ftrack_shot}',
-    '{ftrack_task}',
     '{ftrack_asset}',
     '{ftrack_component}'
 )
@@ -123,17 +120,11 @@ class FtrackBasePreset(FtrackBase):
         properties.setdefault('ftrack', {})
 
         # add placeholders for default task properties
-        self.properties()['ftrack']['component_name'] = None
-        self.properties()['ftrack']['component_pattern'] = None
-        self.properties()['ftrack']['task_type'] = 'Generic'
+        self.properties()['ftrack']['task_type'] = 'Editing'
 
         # add placeholders for default processor
         self.properties()['ftrack']['project_schema'] = 'Film Pipeline'
         self.properties()['ftrack']['processor_id'] = hash(self.__class__.__name__)
-
-        # options
-        self.properties()['ftrack']['opt_publish_thumbnail'] = True
-        self.properties()['ftrack']['opt_publish_review'] = False
 
     def set_export_root(self):
         self.properties()['exportRoot'] = self.ftrack_location.accessor.prefix
@@ -153,11 +144,8 @@ class FtrackBasePreset(FtrackBase):
         else:
             return trackItem.name()
 
-    def resolve_ftrack_task(self, task):
-        return self.properties()['ftrack']['task_type']
-
     def resolve_ftrack_asset(self, task):
-        return 'Ingest'
+        return 'ingest'
 
     def resolve_ftrack_component(self, task):
         component_name = task._preset.name().lower()
@@ -183,12 +171,6 @@ class FtrackBasePreset(FtrackBase):
             '{ftrack_shot}',
             'Ftrack shot name.',
             lambda keyword, task: self.resolve_ftrack_shot(task)
-        )
-
-        resolver.addResolver(
-            '{ftrack_task}',
-            'Ftrack task name.',
-            lambda keyword, task: self.resolve_ftrack_task(task)
         )
 
         resolver.addResolver(

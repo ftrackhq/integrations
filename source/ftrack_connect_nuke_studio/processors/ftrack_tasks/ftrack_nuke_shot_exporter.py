@@ -43,7 +43,6 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
         properties = self.properties()
         properties.setdefault('ftrack', {})
         # add placeholders for default ftrack defaults
-        self.properties()['ftrack']['task_type'] = 'Editing'
         self.properties()['ftrack']['asset_type_code'] = 'img'
         self.properties()['ftrack']['component_pattern'] = '.{ext}'
 
