@@ -132,53 +132,6 @@ class FtrackProcessor(FtrackBase):
 
         self._components = {}
 
-    # def updateItem(self, originalItem, localtime):
-    #     self.addFtrackTag(originalItem, localtime)
-
-    def addFtrackTag(self, originalItem, localtime):
-        processor_id = str(self.ftrack_properties['processor_id'])
-
-        existingTag = None
-        for tag in originalItem.tags():
-            if tag.metadata().hasKey('tag.presetid') and tag.metadata()['tag.presetid'] == processor_id:
-                existingTag = tag
-                break
-
-        if existingTag:
-            existingTag.metadata().setValue('tag.version_id', self._component['version']['id'])
-            existingTag.metadata().setValue('tag.asset_id', self._component['version']['asset']['id'])
-            existingTag.metadata().setValue('tag.version', str(self._component['version']['version']))
-            self.logger.info('Updating tag: {0}'.format(existingTag))
-            # Move the tag to the end of the list.
-            originalItem.removeTag(existingTag)
-            originalItem.addTag(existingTag)
-            return
-
-        timestamp = self.timeStampString(localtime)
-
-        tag_name = '{0} {1}'.format(
-            self.__class__.__name__,
-            timestamp
-        )
-
-        tag = hiero.core.Tag(
-            tag_name,
-            ':/ftrack/image/default/ftrackLogoColor',
-            False
-        )
-
-        tag.metadata().setValue('tag.presetid', processor_id)
-        tag.metadata().setValue('tag.processor', self.__class__.__name__)
-        tag.metadata().setValue('tag.component_id', self._component['id'])
-        tag.metadata().setValue('tag.version_id', self._component['version']['id'])
-        tag.metadata().setValue('tag.asset_id', self._component['version']['asset']['id'])
-        tag.metadata().setValue('tag.version', str(self._component['version']['version']))
-
-        tag.metadata().setValue('tag.description', 'Ftrack Entity')
-
-        self.logger.info('Adding tag: {0} to item {1}'.format(tag, originalItem))
-        originalItem.addTag(tag)
-
     def timeStampString(self, localtime):
         '''timeStampString(localtime)
         Convert a tuple or struct_time representing a time as returned by gmtime() or localtime() to a string formated YEAR/MONTH/DAY TIME.
@@ -343,7 +296,6 @@ class FtrackProcessor(FtrackBase):
                     item.sequence().project()
                 )
                 task = hiero.core.taskRegistry.createTaskFromPreset(preset, taskData)
-                self.logger.info(vars(item))
 
                 file_name = '{0}{1}'.format(
                     preset.name().lower(),
@@ -389,6 +341,51 @@ class FtrackProcessor(FtrackBase):
                     }
                 )
 
+                # tag clips
+                self.addFtrackTag(item.item(), task)
+
+    def addFtrackTag(self, originalItem, task):
+        localtime = time.localtime(time.time())
+        timestamp = self.timeStampString(localtime)
+
+        task_id = str(task._preset.properties()['ftrack']['task_id'])
+
+        data = self._components[originalItem.name()][task._preset.name()]
+        component = data['component']
+
+        existingTag = None
+        for tag in originalItem.tags():
+            if tag.metadata().hasKey('tag.taskid') and tag.metadata()['tag.taskid'] == task_id:
+                existingTag = tag
+                break
+
+        if existingTag:
+            existingTag.metadata().setValue('tag.version_id', component['version']['id'])
+            existingTag.metadata().setValue('tag.asset_id', component['version']['asset']['id'])
+            existingTag.metadata().setValue('tag.version', str(component['version']['version']))
+            self.logger.info('Updating tag: {0}'.format(existingTag))
+            # Move the tag to the end of the list.
+            originalItem.removeTag(existingTag)
+            originalItem.addTag(existingTag)
+            return
+
+        tag = hiero.core.Tag(
+            task._preset.name(),
+            ':/ftrack/image/default/ftrackLogoColor',
+            False
+        )
+
+        tag.metadata().setValue('tag.taskid', task_id)
+        tag.metadata().setValue('tag.component_id', component['id'])
+        tag.metadata().setValue('tag.version_id', component['version']['id'])
+        tag.metadata().setValue('tag.asset_id', component['version']['asset']['id'])
+        tag.metadata().setValue('tag.version', str(component['version']['version']))
+
+        tag.metadata().setValue('tag.description', 'Ftrack Entity')
+
+        self.logger.info('Adding tag: {0} to item {1}'.format(tag, originalItem))
+        originalItem.addTag(tag)
+
     def publishResultComponents(self, render_tasks):
         # all this code should me moved later in a worker
 
@@ -422,7 +419,7 @@ class FtrackProcessor(FtrackBase):
                 if startHandle and attr_name == 'handles':
                     attributes['handles'] = str(startHandle)
 
-            self.logger.info('PUBLISHING: %s' % publish_path)
+            # self.logger.info('PUBLISHING: %s' % publish_path)
 
             if '#' in publish_path:
                 # todo: Improve this logic

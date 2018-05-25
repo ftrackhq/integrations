@@ -26,10 +26,7 @@ class FtrackEDLExporter(EDLExportTask, FtrackProcessor):
 
         self.addFtrackTag(track, localtime)
         EDLExportTask.startTask(self)
-    #
-    # def finishTask(self):
-    #     FtrackProcessor.finishTask(self)
-    #     EDLExportTask.finishTask(self)
+
 
     def _makePath(self):
         # disable making file paths

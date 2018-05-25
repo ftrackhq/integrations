@@ -29,6 +29,9 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
             __name__ + '.' + self.__class__.__name__
         )
 
+    def updateItem(self, originalItem, localtime):
+        self.createTranscodeScript()
+
     def addWriteNodeToScript(self, script, rootNode, framerate):
         TranscodeExporter.addWriteNodeToScript(self, script, rootNode, framerate)
 
@@ -69,13 +72,9 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
             # ensure sub tasks do not create folders
             self._renderTask._makePath = FtrackProcessor._makePath(self)
 
-    def updateItem(self, originalItem, localtime):
-        # We need to create the project structure right before spawning any job so we have access
-        # to the ftrack structure and location.
-        # FtrackProcessor.updateItem(self, originalItem, localtime)
-        self.createTranscodeScript()
     #
     # def finishTask(self):
+    #
     #     FtrackProcessor.finishTask(self)
     #
     #     self.logger.info(self._components)

@@ -17,10 +17,6 @@ class FtrackAudioExporter(AudioExportTask, FtrackProcessor):
     def startTask(self):
         AudioExportTask.startTask(self)
 
-    # def finishTask(self):
-    #     FtrackProcessor.finishTask(self)
-    #     AudioExportTask.finishTask(self)
-
     def _makePath(self):
         # disable making file paths
         FtrackProcessor._makePath(self)

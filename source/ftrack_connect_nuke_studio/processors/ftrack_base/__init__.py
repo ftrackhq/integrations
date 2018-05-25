@@ -61,13 +61,13 @@ class FtrackBase(object):
         'ftrack.unmanaged',
         'ftrack.connect'
     ]
+    session = ftrack_api.Session(auto_connect_event_hub=False)
 
     def __init__(self, *args, **kwargs):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
         self.logger.setLevel(logging.DEBUG)
-        self.session = ftrack_api.Session(auto_connect_event_hub=False)
 
     def timeStampString(self, localtime):
         return time.strftime('%Y/%m/%d %X', localtime)
@@ -83,7 +83,6 @@ class FtrackBase(object):
     @property
     def ftrack_location(self):
         result = self.session.pick_location()
-        # self.logger.info('location: %s' % result)
         return result
 
     @property

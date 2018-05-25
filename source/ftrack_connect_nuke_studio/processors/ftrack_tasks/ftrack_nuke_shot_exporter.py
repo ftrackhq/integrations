@@ -19,13 +19,6 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
         NukeShotExporter.__init__(self, initDict)
         FtrackProcessor.__init__(self, initDict)
 
-    # def updateItem(self, originalItem, localtime):
-    #     FtrackProcessor.updateItem(self, originalItem, localtime)
-    #
-    # def finishTask(self):
-    #     FtrackProcessor.finishTask(self)
-    #     NukeShotExporter.finishTask(self)
-
     def _makePath(self):
         # disable making file paths
         FtrackProcessor._makePath(self)
