@@ -419,8 +419,6 @@ class FtrackProcessor(FtrackBase):
                 if startHandle and attr_name == 'handles':
                     attributes['handles'] = str(startHandle)
 
-            # self.logger.info('PUBLISHING: %s' % publish_path)
-
             if '#' in publish_path:
                 # todo: Improve this logic
                 start, end = render_task.outputRange()
