@@ -393,59 +393,54 @@ class FtrackProcessor(FtrackBase):
         # all this code should me moved later in a worker
 
         for render_task in render_tasks:
-            render_data = self._components[render_task._item.name()]
-            self.logger.info(render_data)
-        return
+            render_data = self._components[render_task._item.name()][render_task._preset.name()]
+            component = render_data['component']
+            publish_path = render_data['path']
 
-        #
-        #     start, end = render_task.outputRange()
-        #     startHandle, endHandle = render_task.outputHandles()
-        #
-        #     fps = None
-        #     if render_task._sequence:
-        #         fps = render_task._sequence.framerate().toFloat()
-        #
-        #     elif render_task._clip:
-        #         fps = render_task._clip.framerate().toFloat()
-        #
-        #     attributes = component['version']['task']['parent']['custom_attributes']
-        #
-        #     for attr_name, attr_value in attributes.items():
-        #         if start and attr_name == 'fstart':
-        #             attributes['fstart'] = str(start)
-        #
-        #         if end and attr_name == 'fend':
-        #             attributes['fend'] = str(end)
-        #
-        #         if fps and attr_name == 'fps':
-        #             attributes['fps'] = str(fps)
-        #
-        #         if startHandle and attr_name == 'handles':
-        #             attributes['handles'] = str(startHandle)
-        #
-        #     final_path = path
-        #
-        #     self.logger.info('PUBLISHING: %s' % final_path)
-        #
-        #     if '#' in final_path:
-        #         # todo: Improve this logic
-        #         start, end = render_task.outputRange()
-        #         final_path = '{0} [{1}-{2}]'.format(final_path, start, end)
-        #
-        #     self.session.create(
-        #         'ComponentLocation', {
-        #             'location_id': self.ftrack_location['id'],
-        #             'component_id': component['id'],
-        #             'resource_identifier': final_path
-        #         }
-        #     )
-        #     # Add option to publish or not the thumbnail.
-        #     if render_task._preset.properties()['ftrack'].get('opt_publish_thumbnail'):
-        #         self.publishThumbnail(component, render_task)
-        #
-        #     self.logger.info('Publihsing Component : {0}'.format(final_path))
-        #
-        # self.session.commit()
+            start, end = render_task.outputRange()
+            startHandle, endHandle = render_task.outputHandles()
+
+            fps = None
+            if render_task._sequence:
+                fps = render_task._sequence.framerate().toFloat()
+
+            elif render_task._clip:
+                fps = render_task._clip.framerate().toFloat()
+
+            attributes = component['version']['task']['parent']['custom_attributes']
+
+            for attr_name, attr_value in attributes.items():
+                if start and attr_name == 'fstart':
+                    attributes['fstart'] = str(start)
+
+                if end and attr_name == 'fend':
+                    attributes['fend'] = str(end)
+
+                if fps and attr_name == 'fps':
+                    attributes['fps'] = str(fps)
+
+                if startHandle and attr_name == 'handles':
+                    attributes['handles'] = str(startHandle)
+
+            self.logger.info('PUBLISHING: %s' % publish_path)
+
+            if '#' in publish_path:
+                # todo: Improve this logic
+                start, end = render_task.outputRange()
+                publish_path = '{0} [{1}-{2}]'.format(publish_path, start, end)
+
+            self.session.create(
+                'ComponentLocation', {
+                    'location_id': self.ftrack_location['id'],
+                    'component_id': component['id'],
+                    'resource_identifier': publish_path
+                }
+            )
+            # Add option to publish or not the thumbnail.
+            if render_task._preset.properties()['ftrack'].get('opt_publish_thumbnail'):
+                self.publishThumbnail(component, render_task)
+
+        self.session.commit()
 
     def publishThumbnail(self, component, render_task):
         source = render_task._clip.source()
