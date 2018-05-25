@@ -363,8 +363,7 @@ class FtrackProcessor(FtrackBase):
             existingTag.metadata().setValue('tag.version_id', component['version']['id'])
             existingTag.metadata().setValue('tag.asset_id', component['version']['asset']['id'])
             existingTag.metadata().setValue('tag.version', str(component['version']['version']))
-            self.logger.info('Updating tag: {0}'.format(existingTag))
-            # Move the tag to the end of the list.
+            # self.logger.info('Updating tag: {0}'.format(existingTag))
             originalItem.removeTag(existingTag)
             originalItem.addTag(existingTag)
             return
