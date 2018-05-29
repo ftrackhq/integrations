@@ -404,7 +404,12 @@ class FtrackProcessor(FtrackBase):
 
         if not has_data:
             return
-        render_data = self._components[render_task._item.name()][render_task._preset.name()]
+
+        render_data = self._components.pop(
+            render_task._item.name()
+        ).pop(
+            render_task._preset.name()
+        )
 
         component = render_data['component']
         publish_path = render_data['path']
