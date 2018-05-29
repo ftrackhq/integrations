@@ -332,9 +332,12 @@ class FtrackProcessor(FtrackBase):
                 ftrack_path = str(os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path))
                 task.setDestinationDescription(ftrack_path)
 
+                # provide a semi templated path to pass back to the NS export template
+                # so it can resolve what is needed at render time.
+
                 templated_path.extend(tokens[len(templated_path):])
 
-                self.logger.info(templated_path)
+                # self.logger.info(templated_path)
 
                 self._components[item.item().name()].setdefault(
                     preset.name(),
@@ -349,7 +352,6 @@ class FtrackProcessor(FtrackBase):
 
                 # tag clips
                 self.addFtrackTag(item.item(), task)
-                # ftrack_shot_path has to remain templated up right before {component} and replace with version and name
 
             # override what's needed for the export
             self._exportTemplate.restore(new_export_root_mapping)
