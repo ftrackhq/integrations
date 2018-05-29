@@ -140,11 +140,6 @@ class FtrackProcessor(FtrackBase):
         '''
         return time.strftime('%Y/%m/%d %X', localtime)
 
-    def _makePath(self):
-        # do not create any folder!
-        #self.logger.debug('Skip creating folder for : %s.' % self.__class__.__name__)
-        pass
-
     @property
     def schema(self):
         project_schema_name = self.ftrack_properties['project_schema']
@@ -345,7 +340,6 @@ class FtrackProcessor(FtrackBase):
                     preset.name(),
                     {
                         'component': parent,
-
                         'path': ftrack_path
                     }
                 )
@@ -353,7 +347,6 @@ class FtrackProcessor(FtrackBase):
                 rendered_templated_path = os.path.sep.join(templated_path)
                 # deduplicate entries
                 if (rendered_templated_path, preset) not in new_export_root_mapping:
-                    self.logger.info('Adding: %s' % rendered_templated_path)
                     new_export_root_mapping.append((rendered_templated_path, preset))
 
                 # tag clips

@@ -28,11 +28,6 @@ class FtrackEDLExporter(EDLExportTask, FtrackProcessor):
         EDLExportTask.startTask(self)
 
 
-    def _makePath(self):
-        # disable making file paths
-        FtrackProcessor._makePath(self)
-
-
 class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
     def __init__(self, name, properties):
         EDLExportPreset.__init__(self, name, properties)
