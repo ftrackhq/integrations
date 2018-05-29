@@ -5,13 +5,10 @@ import hiero
 from hiero.exporters.FnShotProcessor import ShotProcessorPreset
 from hiero.exporters.FnShotProcessor import ShotProcessor
 from hiero.exporters.FnShotProcessorUI import ShotProcessorUI
-from hiero.core.FnExporterBase import TaskCallbacks
 
 from QtExt import QtWidgets
 
 from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import FtrackProcessorPreset, FtrackProcessor, FtrackProcessorUI
-
-
 
 
 class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
@@ -19,21 +16,12 @@ class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
         ShotProcessor.__init__(self, preset, submission, synchronous=synchronous)
         FtrackProcessor.__init__(self, preset)
 
-    def on_task_finished(self, *args, **kwargs):
-        self.logger.info('TASK FINISHED')
-        self.logger.info(args)
-        self.logger.info(kwargs)
-
     def startProcessing(self, exportItems, preview=False):
-        TaskCallbacks.addCallback(TaskCallbacks.onTaskFinish, self.on_task_finished)
 
         self.create_project_structure(exportItems)
         result = FtrackProcessor.validateFtrackProcessing(self, exportItems)
         if result:
-            render_tasks = ShotProcessor.startProcessing(self, exportItems, preview)
-
-            # self.publishResultComponents(render_tasks)
-
+            ShotProcessor.startProcessing(self, exportItems, preview)
 
 
 class FtrackShotProcessorUI(ShotProcessorUI, FtrackProcessorUI):

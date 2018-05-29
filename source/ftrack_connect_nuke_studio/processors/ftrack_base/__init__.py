@@ -68,7 +68,6 @@ class FtrackBase(object):
             __name__ + '.' + self.__class__.__name__
         )
         self.logger.setLevel(logging.DEBUG)
-        self._components = {}
 
     def timeStampString(self, localtime):
         return time.strftime('%Y/%m/%d %X', localtime)
