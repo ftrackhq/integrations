@@ -129,19 +129,19 @@ class FtrackBasePreset(FtrackBase):
         self.properties()['exportRoot'] = self.ftrack_location.accessor.prefix
 
     def resolve_ftrack_project(self, task):
-        return task.projectName()
+        return task.projectName().lower()
 
     def resolve_ftrack_sequence(self, task):
         trackItem = task._item
-        return trackItem.name().split('_')[0]
+        return trackItem.name().split('_')[0].lower()
 
     def resolve_ftrack_shot(self, task):
         trackItem = task._item
 
         if not isinstance(trackItem, hiero.core.Sequence):
-            return trackItem.name().split('_')[1]
+            return trackItem.name().split('_')[1].lower()
         else:
-            return trackItem.name()
+            return trackItem.name().lower()
 
     def resolve_ftrack_asset(self, task):
         return 'ingest'
@@ -150,7 +150,7 @@ class FtrackBasePreset(FtrackBase):
         component_name = task._preset.name().lower()
         extension = self.properties()['ftrack']['component_pattern']
         component_full_name = '{0}{1}'.format(component_name, extension)
-        return component_full_name
+        return component_full_name.lower()
 
     def addFtrackResolveEntries(self, resolver):
 

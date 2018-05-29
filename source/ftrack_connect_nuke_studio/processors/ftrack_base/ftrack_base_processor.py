@@ -307,18 +307,22 @@ class FtrackProcessor(FtrackBase):
                 # self.logger.info('Resolved Path: %s' % path)
                 path_id = os.path.dirname(path)
                 versions.setdefault(path_id, None)
+                templated_path = []
 
                 parent = None  # After the loop this will be containing the component object.
                 for template, token in zip(exportPath.split(os.path.sep), path.split(os.path.sep)):
                     if not versions[path_id] and parent and parent.entity_type == 'AssetVersion':
                         versions[path_id] = parent
+
                     fragment_fn = self.fn_mapping.get(template, self._skip_fragment)
                     parent = fragment_fn(token, parent, task, versions[path_id])
+
+                    if template not in ['{ftrack_asset}', '{ftrack_component}']:
+                        templated_path.append(template)
 
                 self.session.commit()
                 # Extract ftrack path from structure and accessors.
                 ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent)
-
                 # Ftrack sanitize output path, but we need to retain the original on here
                 # otherwise foo.####.ext becomes foo.____.ext
                 tokens = ftrack_shot_path.split(os.path.sep)
@@ -328,6 +332,10 @@ class FtrackProcessor(FtrackBase):
                 ftrack_path = str(os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path))
                 task.setDestinationDescription(ftrack_path)
 
+                templated_path.extend(tokens[len(templated_path):])
+
+                self.logger.info(templated_path)
+
                 self._components[item.item().name()].setdefault(
                     preset.name(),
                     {
@@ -336,13 +344,12 @@ class FtrackProcessor(FtrackBase):
                         'path': ftrack_path
                     }
                 )
+                rendered_templated_path = os.path.sep.join(templated_path)
+                new_export_root_mapping.append((rendered_templated_path, preset))
 
                 # tag clips
                 self.addFtrackTag(item.item(), task)
                 # ftrack_shot_path has to remain templated up right before {component} and replace with version and name
-                new_export_root_mapping.append((ftrack_shot_path, preset))
-
-            self.logger.info(new_export_root_mapping)
 
             # override what's needed for the export
             self._exportTemplate.restore(new_export_root_mapping)
