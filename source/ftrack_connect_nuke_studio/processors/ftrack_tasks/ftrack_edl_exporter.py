@@ -21,10 +21,10 @@ class FtrackEDLExporter(EDLExportTask, FtrackProcessor):
 
     def startTask(self):
         self.create_project_structure()
-        track = self._item
-        localtime = time.localtime(time.time())
-
-        self.addFtrackTag(track, localtime)
+        # track = self._item
+        # localtime = time.localtime(time.time())
+        #
+        # self.addFtrackTag(track, localtime)
         EDLExportTask.startTask(self)
 
 

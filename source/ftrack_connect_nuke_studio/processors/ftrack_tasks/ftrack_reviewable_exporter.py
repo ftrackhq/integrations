@@ -72,30 +72,6 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
             # ensure sub tasks do not create folders
             self._renderTask._makePath = FtrackProcessor._makePath(self)
 
-    #
-    # def finishTask(self):
-    #
-    #     FtrackProcessor.finishTask(self)
-    #
-    #     self.logger.info(self._components)
-    #     return
-    #
-    #     version = self._component['version']
-    #     review_component = version.create_component(
-    #         path=self.tempmov,
-    #         data={
-    #             'name': 'preview'
-    #         },
-    #         location=self.ftrack_location
-    #     )
-    #
-    #     self.session.commit()
-    #     self.ftrack_server_location.add_component(review_component, self.ftrack_location)
-    #     version.encode_media(review_component)
-    #     self.session.commit()
-    #
-    #     self.logger.info('Reviewable Component {0} Published'.format(self.tempmov))
-
 
 class FtrackReviewableExporterPreset(TranscodePreset, FtrackProcessorPreset):
     def __init__(self, name, properties):

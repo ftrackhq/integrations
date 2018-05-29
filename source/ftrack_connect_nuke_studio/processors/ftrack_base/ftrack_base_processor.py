@@ -24,6 +24,7 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
         '''
 
         super(FtrackSettingsValidator, self).__init__()
+
         self.setWindowTitle('Validation error')
         self._session = session
 
@@ -129,8 +130,6 @@ class FtrackProcessor(FtrackBase):
             '{ftrack_asset}': self._create_asset_fragment,
             '{ftrack_component}': self._create_component_fragment
         }
-
-        self._components = {}
 
     def timeStampString(self, localtime):
         '''timeStampString(localtime)
@@ -280,6 +279,7 @@ class FtrackProcessor(FtrackBase):
 
     def create_project_structure(self, exportItems):
         versions = {}
+        new_export_root_mapping = []
 
         for (exportPath, preset) in self._exportTemplate.flatten():
             for item in exportItems:
@@ -326,23 +326,27 @@ class FtrackProcessor(FtrackBase):
                 ftrack_shot_path = os.path.sep.join(tokens)
 
                 ftrack_path = str(os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path))
-
-                # self.logger.info('result path: %s' % ftrack_path)
-                task._shotPath = ftrack_path
-                task._exportPath = ftrack_path
-                task._pathid = path_id
                 task.setDestinationDescription(ftrack_path)
 
                 self._components[item.item().name()].setdefault(
                     preset.name(),
                     {
                         'component': parent,
+
                         'path': ftrack_path
                     }
                 )
 
                 # tag clips
                 self.addFtrackTag(item.item(), task)
+                # ftrack_shot_path has to remain templated up right before {component} and replace with version and name
+                new_export_root_mapping.append((ftrack_shot_path, preset))
+
+            self.logger.info(new_export_root_mapping)
+
+            # override what's needed for the export
+            self._exportTemplate.restore(new_export_root_mapping)
+
 
     def addFtrackTag(self, originalItem, task):
         localtime = time.localtime(time.time())
@@ -382,7 +386,7 @@ class FtrackProcessor(FtrackBase):
 
         tag.metadata().setValue('tag.description', 'Ftrack Entity')
 
-        self.logger.info('Adding tag: {0} to item {1}'.format(tag, originalItem))
+        # self.logger.info('Adding tag: {0} to item {1}'.format(tag, originalItem))
         originalItem.addTag(tag)
 
     def publishResultComponents(self, render_tasks):
@@ -433,6 +437,12 @@ class FtrackProcessor(FtrackBase):
             # Add option to publish or not the thumbnail.
             if render_task._preset.properties()['ftrack'].get('opt_publish_thumbnail'):
                 self.publishThumbnail(component, render_task)
+
+            _, ext = os.path.splitext(publish_path)
+            if ext == '.mov':
+                component['version'].encode_media(publish_path)
+                self.session.commit()
+
 
         self.session.commit()
 
