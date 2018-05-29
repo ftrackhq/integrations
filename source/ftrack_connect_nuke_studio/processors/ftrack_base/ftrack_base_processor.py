@@ -340,7 +340,6 @@ class FtrackProcessor(FtrackBase):
 
                 templated_path.extend(tokens[len(templated_path):])
 
-                # self.logger.info(templated_path)
 
                 self._components[item.item().name()].setdefault(
                     preset.name(),
@@ -350,8 +349,12 @@ class FtrackProcessor(FtrackBase):
                         'path': ftrack_path
                     }
                 )
+
                 rendered_templated_path = os.path.sep.join(templated_path)
-                new_export_root_mapping.append((rendered_templated_path, preset))
+                # deduplicate entries
+                if (rendered_templated_path, preset) not in new_export_root_mapping:
+                    self.logger.info('Adding: %s' % rendered_templated_path)
+                    new_export_root_mapping.append((rendered_templated_path, preset))
 
                 # tag clips
                 self.addFtrackTag(item.item(), task)
@@ -456,6 +459,7 @@ class FtrackProcessor(FtrackBase):
             self.publishThumbnail(component, render_task)
 
         _, ext = os.path.splitext(publish_path)
+
         if ext == '.mov':
             component['version'].encode_media(publish_path)
             self.session.commit()
@@ -471,7 +475,6 @@ class FtrackProcessor(FtrackBase):
         version = component['version']
         version.create_thumbnail(thumbnail_file)
         version['task'].create_thumbnail(thumbnail_file)
-
 
     def validateFtrackProcessing(self, exportItems):
 
