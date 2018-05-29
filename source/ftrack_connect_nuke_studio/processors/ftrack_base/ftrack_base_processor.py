@@ -324,6 +324,7 @@ class FtrackProcessor(FtrackBase):
                         templated_path.append(template)
 
                 self.session.commit()
+
                 # Extract ftrack path from structure and accessors.
                 ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent)
                 # Ftrack sanitize output path, but we need to retain the original on here
@@ -337,9 +338,8 @@ class FtrackProcessor(FtrackBase):
 
                 # provide a semi templated path to pass back to the NS export template
                 # so it can resolve what is needed at render time.
-
+                # eg: {ftrack_project}/{ftrack_sequence}/{ftrack_shot}/ingest/v001/nukescript.nk
                 templated_path.extend(tokens[len(templated_path):])
-
 
                 self._components[item.item().name()].setdefault(
                     preset.name(),
