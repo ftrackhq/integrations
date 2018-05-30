@@ -25,13 +25,6 @@ FTRACK_SHOW_PATH = os.path.join(
     '{ftrack_component}'
 )
 
-FTRACK_SEQUENCE_PATH = os.path.join(
-    '{ftrack_project}',
-    '{ftrack_shot}',
-    '{ftrack_asset}',
-    '{ftrack_component}'
-)
-
 FTRACK_SHOT_PATH = os.path.join(
     '{ftrack_project}',
     '{ftrack_sequence}',

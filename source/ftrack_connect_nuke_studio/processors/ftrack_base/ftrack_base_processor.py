@@ -10,6 +10,7 @@ import hiero.core
 from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 from hiero.ui.FnUIProperty import UIPropertyFactory
 from hiero.core.FnExporterBase import TaskCallbacks
+from hiero.exporters.FnTimelineProcessor import TimelineProcessor
 
 from QtExt import QtCore, QtWidgets, QtGui
 
@@ -278,19 +279,24 @@ class FtrackProcessor(FtrackBase):
     def create_project_structure(self, exportItems):
         versions = {}
         for (exportPath, preset) in self._exportTemplate.flatten():
-            for item in exportItems:
-                self._components.setdefault(item.item().name(), {})
-                item_preset_settings = self._components[item.item().name()].setdefault(preset.name(), {})
+            for exportItem in exportItems:
+                trackItem = exportItem.item()
+                if isinstance(self, TimelineProcessor):
+                    trackItem = exportItem.item().sequence()
+
+                # create entry points on where to store ftrack component and path data.
+                self._components.setdefault(trackItem.name(), {})
+                self._components[trackItem.name()].setdefault(preset.name(), {})
 
                 # Build TaskData seed.
                 taskData = hiero.core.TaskData(
                     preset,
-                    item,
+                    trackItem,
                     preset.properties()['exportRoot'],
                     exportPath,
                     'v0',
                     self._exportTemplate,
-                    item.sequence().project()
+                    trackItem.project()
                 )
                 task = hiero.core.taskRegistry.createTaskFromPreset(preset, taskData)
 
@@ -317,6 +323,7 @@ class FtrackProcessor(FtrackBase):
 
                 # Extract ftrack path from structure and accessors.
                 ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent)
+
                 # Ftrack sanitize output path, but we need to retain the original on here
                 # otherwise foo.####.ext becomes foo.____.ext
                 tokens = ftrack_shot_path.split(os.path.sep)
@@ -324,15 +331,14 @@ class FtrackProcessor(FtrackBase):
                 ftrack_shot_path = os.path.sep.join(tokens)
 
                 ftrack_path = str(os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path))
-                task.setDestinationDescription(ftrack_path)
 
-                self._components[item.item().name()][preset.name()] = {
+                self._components[trackItem.name()][preset.name()] = {
                     'component': parent,
                     'path': ftrack_path,
                     'published': False
                 }
-
-                self.addFtrackTag(item.item(), task)
+                self.logger.info(self._components)
+                self.addFtrackTag(trackItem, task)
 
     def addFtrackTag(self, originalItem, task):
         localtime = time.localtime(time.time())
@@ -342,6 +348,7 @@ class FtrackProcessor(FtrackBase):
 
         data = self._components[originalItem.name()][task._preset.name()]
         component = data['component']
+        path = data['path']
 
         existingTag = None
         for tag in originalItem.tags():
@@ -353,13 +360,15 @@ class FtrackProcessor(FtrackBase):
             existingTag.metadata().setValue('tag.version_id', component['version']['id'])
             existingTag.metadata().setValue('tag.asset_id', component['version']['asset']['id'])
             existingTag.metadata().setValue('tag.version', str(component['version']['version']))
+            existingTag.metadata().setValue('tag.path', path)
+
             # self.logger.info('Updating tag: {0}'.format(existingTag))
             originalItem.removeTag(existingTag)
             originalItem.addTag(existingTag)
             return
 
         tag = hiero.core.Tag(
-            task._preset.name(),
+            '{0}:{1}'.format(task._preset.name(), timestamp),
             ':/ftrack/image/default/ftrackLogoColor',
             False
         )
@@ -369,13 +378,15 @@ class FtrackProcessor(FtrackBase):
         tag.metadata().setValue('tag.version_id', component['version']['id'])
         tag.metadata().setValue('tag.asset_id', component['version']['asset']['id'])
         tag.metadata().setValue('tag.version', str(component['version']['version']))
-
-        tag.metadata().setValue('tag.description', 'Ftrack Entity')
+        tag.metadata().setValue('tag.path', path)
 
         # self.logger.info('Adding tag: {0} to item {1}'.format(tag, originalItem))
         originalItem.addTag(tag)
 
     def setupExportPaths(self, task):
+        self.logger.info(task._item.name())
+
+        # This is an event we intercept to see when the task start.
         has_data = self._components.get(
             task._item.name(), {}
         ).get(task._preset.name())
@@ -390,12 +401,20 @@ class FtrackProcessor(FtrackBase):
         task.setDestinationDescription(output_path)
 
     def publishResultComponent(self, render_task):
+        # This is a task we intercept for each frame/item rendered.
+
+        self.logger.info('{0}:{1} :: {2}'.format(
+            render_task._item.name(),
+            render_task._preset.name(),
+            render_task._finished
+        ))
 
         has_data = self._components.get(
             render_task._item.name(), {}
         ).get(render_task._preset.name())
 
         if not has_data:
+            self.logger.debug('%s:%s does not have yet data.' % (render_task._item.name(), render_task._preset.name()))
             return
 
         render_data = has_data
@@ -409,8 +428,7 @@ class FtrackProcessor(FtrackBase):
             return
 
         if is_published:
-            # remove the already published component data
-            # self._components.pop(render_task._item.name()).pop(render_task._preset.name())
+            # self.logger.warning('It has already been published: %s' % publish_path)
             return
 
         start, end = render_task.outputRange()
@@ -450,6 +468,7 @@ class FtrackProcessor(FtrackBase):
                 'resource_identifier': publish_path
             }
         )
+        self.logger.info('Publishing : %s' % publish_path)
 
         # Add option to publish or not the thumbnail.
         if render_task._preset.properties()['ftrack'].get('opt_publish_thumbnail'):
@@ -504,7 +523,7 @@ class FtrackProcessor(FtrackBase):
                 # Build TaskData seed.
                 taskData = hiero.core.TaskData(
                     preset,
-                    item,
+                    item.item(),
                     export_root,
                     exportPath,
                     'v0',

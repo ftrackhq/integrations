@@ -10,6 +10,7 @@ from hiero.exporters.FnEDLExportTask import (
     EDLExportPreset
 )
 from hiero.exporters.FnEDLExportUI import EDLExportUI
+from hiero.core.FnExporterBase import TaskCallbacks
 
 from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import FtrackProcessorPreset, FtrackProcessor, FtrackProcessorUI
 
@@ -20,11 +21,8 @@ class FtrackEDLExporter(EDLExportTask, FtrackProcessor):
         FtrackProcessor.__init__(self, initDict)
 
     def startTask(self):
-        self.create_project_structure()
-        # track = self._item
-        # localtime = time.localtime(time.time())
-        #
-        # self.addFtrackTag(track, localtime)
+        # foundry forgot to call the superclass....so we do it.
+        TaskCallbacks.call(TaskCallbacks.onTaskStart, self)
         EDLExportTask.startTask(self)
 
 
@@ -50,7 +48,6 @@ class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
 
     def addUserResolveEntries(self, resolver):
         FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)
-        EDLExportPreset.addCustomResolveEntries(self, resolver)
 
 
 class FtrackEDLExporterUI(EDLExportUI, FtrackProcessorUI):
