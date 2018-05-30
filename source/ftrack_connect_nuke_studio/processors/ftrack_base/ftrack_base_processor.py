@@ -134,23 +134,6 @@ class FtrackProcessor(FtrackBase):
         TaskCallbacks.addCallback(TaskCallbacks.onTaskFinish, self.publishResultComponent)
         TaskCallbacks.addCallback(TaskCallbacks.onTaskStart, self.setupExportPaths)
 
-    def setupExportPaths(self, task):
-        self.logger.info('STARTING TASK FOR: %s:%s :: Comps: %s' % (task._preset.name(), task._item.name(), self._components.keys()))
-
-        has_data = self._components.get(
-            task._item.name(), {}
-        ).get(task._preset.name())
-
-        if not has_data:
-            return
-
-        render_data = has_data
-
-        output_path = render_data['path']
-        self.logger.info('Setting output path for %s:%s to: %s' % (task._preset.name(), task._item.name(), output_path))
-        task._exportPath = output_path
-        task.setDestinationDescription(output_path)
-
     def timeStampString(self, localtime):
         '''timeStampString(localtime)
         Convert a tuple or struct_time representing a time as returned by gmtime() or localtime() to a string formated YEAR/MONTH/DAY TIME.
@@ -297,6 +280,7 @@ class FtrackProcessor(FtrackBase):
         for (exportPath, preset) in self._exportTemplate.flatten():
             for item in exportItems:
                 self._components.setdefault(item.item().name(), {})
+                item_preset_settings = self._components[item.item().name()].setdefault(preset.name(), {})
 
                 # Build TaskData seed.
                 taskData = hiero.core.TaskData(
@@ -342,15 +326,13 @@ class FtrackProcessor(FtrackBase):
                 ftrack_path = str(os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path))
                 task.setDestinationDescription(ftrack_path)
 
-                self._components[item.item().name()].setdefault(
-                    preset.name(),
-                    {
-                        'component': parent,
-                        'path': ftrack_path
-                    }
-                )
-                self.addFtrackTag(item.item(), task)
+                self._components[item.item().name()][preset.name()] = {
+                    'component': parent,
+                    'path': ftrack_path,
+                    'published': False
+                }
 
+                self.addFtrackTag(item.item(), task)
 
     def addFtrackTag(self, originalItem, task):
         localtime = time.localtime(time.time())
@@ -393,6 +375,21 @@ class FtrackProcessor(FtrackBase):
         # self.logger.info('Adding tag: {0} to item {1}'.format(tag, originalItem))
         originalItem.addTag(tag)
 
+    def setupExportPaths(self, task):
+        has_data = self._components.get(
+            task._item.name(), {}
+        ).get(task._preset.name())
+
+        if not has_data:
+            return
+
+        render_data = has_data
+
+        output_path = render_data['path']
+        # self.logger.info('Setting output path for %s:%s to: %s' % (task._preset.name(), task._item.name(), output_path))
+        task._exportPath = output_path
+        task.setDestinationDescription(output_path)
+
     def publishResultComponent(self, render_task):
 
         has_data = self._components.get(
@@ -402,14 +399,16 @@ class FtrackProcessor(FtrackBase):
         if not has_data:
             return
 
-        render_data = self._components.get(
-            render_task._item.name()
-        ).get(
-            render_task._preset.name()
-        )
+        render_data = has_data
 
         component = render_data['component']
         publish_path = render_data['path']
+        is_published = render_data['published']
+
+        if is_published:
+            # remove the already published component data
+            # self._components.pop(render_task._item.name()).pop(render_task._preset.name())
+            return
 
         start, end = render_task.outputRange()
         startHandle, endHandle = render_task.outputHandles()
@@ -459,6 +458,8 @@ class FtrackProcessor(FtrackBase):
             component['version'].encode_media(publish_path)
 
         self.session.commit()
+        render_data['published'] = True
+
 
     def publishThumbnail(self, component, render_task):
         source = render_task._clip.source()
