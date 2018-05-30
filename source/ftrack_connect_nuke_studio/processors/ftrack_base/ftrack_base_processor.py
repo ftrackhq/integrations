@@ -131,8 +131,25 @@ class FtrackProcessor(FtrackBase):
             '{ftrack_asset}': self._create_asset_fragment,
             '{ftrack_component}': self._create_component_fragment
         }
-        self._components = {}
         TaskCallbacks.addCallback(TaskCallbacks.onTaskFinish, self.publishResultComponent)
+        TaskCallbacks.addCallback(TaskCallbacks.onTaskStart, self.setupExportPaths)
+
+    def setupExportPaths(self, task):
+        self.logger.info('STARTING TASK FOR: %s:%s :: Comps: %s' % (task._preset.name(), task._item.name(), self._components.keys()))
+
+        has_data = self._components.get(
+            task._item.name(), {}
+        ).get(task._preset.name())
+
+        if not has_data:
+            return
+
+        render_data = has_data
+
+        output_path = render_data['path']
+        self.logger.info('Setting output path for %s:%s to: %s' % (task._preset.name(), task._item.name(), output_path))
+        task._exportPath = output_path
+        task.setDestinationDescription(output_path)
 
     def timeStampString(self, localtime):
         '''timeStampString(localtime)
@@ -277,8 +294,6 @@ class FtrackProcessor(FtrackBase):
 
     def create_project_structure(self, exportItems):
         versions = {}
-        new_export_root_mapping = []
-
         for (exportPath, preset) in self._exportTemplate.flatten():
             for item in exportItems:
                 self._components.setdefault(item.item().name(), {})
@@ -305,7 +320,6 @@ class FtrackProcessor(FtrackBase):
                 # self.logger.info('Resolved Path: %s' % path)
                 path_id = os.path.dirname(path)
                 versions.setdefault(path_id, None)
-                templated_path = []
 
                 parent = None  # After the loop this will be containing the component object.
                 for template, token in zip(exportPath.split(os.path.sep), path.split(os.path.sep)):
@@ -314,9 +328,6 @@ class FtrackProcessor(FtrackBase):
 
                     fragment_fn = self.fn_mapping.get(template, self._skip_fragment)
                     parent = fragment_fn(token, parent, task, versions[path_id])
-
-                    if template not in ['{ftrack_asset}', '{ftrack_component}']:
-                        templated_path.append(template)
 
                 self.session.commit()
 
@@ -331,11 +342,6 @@ class FtrackProcessor(FtrackBase):
                 ftrack_path = str(os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path))
                 task.setDestinationDescription(ftrack_path)
 
-                # provide a semi templated path to pass back to the NS export template
-                # so it can resolve what is needed at render time.
-                # eg: {ftrack_project}/{ftrack_sequence}/{ftrack_shot}/ingest/v001/nukescript.nk
-                templated_path.extend(tokens[len(templated_path):])
-
                 self._components[item.item().name()].setdefault(
                     preset.name(),
                     {
@@ -343,17 +349,8 @@ class FtrackProcessor(FtrackBase):
                         'path': ftrack_path
                     }
                 )
-
-                rendered_templated_path = os.path.sep.join(templated_path)
-                # deduplicate entries
-                if (rendered_templated_path, preset) not in new_export_root_mapping:
-                    new_export_root_mapping.append((rendered_templated_path, preset))
-
-                # tag clips
                 self.addFtrackTag(item.item(), task)
 
-            # override what's needed for the export
-            self._exportTemplate.restore(new_export_root_mapping)
 
     def addFtrackTag(self, originalItem, task):
         localtime = time.localtime(time.time())
@@ -405,9 +402,9 @@ class FtrackProcessor(FtrackBase):
         if not has_data:
             return
 
-        render_data = self._components.pop(
+        render_data = self._components.get(
             render_task._item.name()
-        ).pop(
+        ).get(
             render_task._preset.name()
         )
 
@@ -460,7 +457,6 @@ class FtrackProcessor(FtrackBase):
 
         if ext == '.mov':
             component['version'].encode_media(publish_path)
-            self.session.commit()
 
         self.session.commit()
 
