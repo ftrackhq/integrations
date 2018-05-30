@@ -386,7 +386,6 @@ class FtrackProcessor(FtrackBase):
         render_data = has_data
 
         output_path = render_data['path']
-        # self.logger.info('Setting output path for %s:%s to: %s' % (task._preset.name(), task._item.name(), output_path))
         task._exportPath = output_path
         task.setDestinationDescription(output_path)
 
@@ -404,6 +403,10 @@ class FtrackProcessor(FtrackBase):
         component = render_data['component']
         publish_path = render_data['path']
         is_published = render_data['published']
+
+        if render_task.error():
+            self.logger.warning('An Error occurred while rendering: %s' % publish_path)
+            return
 
         if is_published:
             # remove the already published component data
