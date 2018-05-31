@@ -5,7 +5,11 @@ import hiero
 from hiero.exporters.FnAudioExportTask import AudioExportTask, AudioExportPreset
 from hiero.exporters.FnAudioExportUI import AudioExportUI
 
-from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import FtrackProcessorPreset, FtrackProcessor, FtrackProcessorUI
+from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
+    FtrackProcessorPreset,
+    FtrackProcessor,
+    FtrackProcessorUI
+)
 
 
 class FtrackAudioExporter(AudioExportTask, FtrackProcessor):

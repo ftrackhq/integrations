@@ -7,17 +7,6 @@ import logging
 import ftrack_api
 import time
 
-# from hiero.core.util.filesystem import makeDirs as _makeDirs
-#
-# # monkey patch makeDirs for scripts:
-# def nullMaKeDirs(dirPath):
-#     hiero.core.log.warning('Creating script path: {0}'.format(dirPath))
-#     _makeDirs(dirPath)
-#
-#
-#
-# hiero.core.util.filesystem.makeDirs = nullMaKeDirs
-
 
 FTRACK_SHOW_PATH = os.path.join(
     '{ftrack_project}',
@@ -111,12 +100,14 @@ class FtrackBasePreset(FtrackBase):
     def set_ftrack_properties(self, properties):
         properties = self.properties()
         properties.setdefault('ftrack', {})
-
         # add placeholders for default task properties
         self.properties()['ftrack']['task_type'] = 'Editing'
 
         # add placeholders for default processor
         self.properties()['ftrack']['project_schema'] = 'Film Pipeline'
+
+        # set asset type for processor
+        self.properties()['ftrack']['asset_name'] = 'Ingest'
 
     def set_export_root(self):
         self.properties()['exportRoot'] = self.ftrack_location.accessor.prefix
@@ -137,7 +128,7 @@ class FtrackBasePreset(FtrackBase):
             return trackItem.name().lower()
 
     def resolve_ftrack_asset(self, task):
-        return 'ingest'
+        return self.properties()['ftrack']['asset_name'].lower()
 
     def resolve_ftrack_component(self, task):
         component_name = task._preset.name().lower()

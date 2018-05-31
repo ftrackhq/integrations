@@ -1,8 +1,6 @@
 import logging
 import os
 import re
-import tempfile
-from hiero.exporters.FnExternalRender import createWriteNode
 import copy
 import hiero
 import hiero.core.util
@@ -89,9 +87,6 @@ class FtrackReviewableExporterPreset(TranscodePreset, FtrackProcessorPreset):
         self.properties()['ftrack']['asset_type_code'] = 'img'
         self.properties()['ftrack']['component_pattern'] = '.mov'
         self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__)
-
-        # ENABLE FOR DEBUG PURPOSES
-        # self.properties()["keepNukeScript"] = True
 
     def addUserResolveEntries(self, resolver):
         FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)

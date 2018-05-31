@@ -4,7 +4,6 @@
 import os
 import re
 import copy
-from hiero.exporters.FnSubmission import Submission
 from hiero.ui.FnUIProperty import UIPropertyFactory
 
 import hiero

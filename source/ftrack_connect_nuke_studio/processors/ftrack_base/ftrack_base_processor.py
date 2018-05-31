@@ -12,9 +12,14 @@ from hiero.ui.FnUIProperty import UIPropertyFactory
 from hiero.core.FnExporterBase import TaskCallbacks
 from hiero.exporters.FnTimelineProcessor import TimelineProcessor
 
-from QtExt import QtCore, QtWidgets, QtGui
+from ftrack_connect_nuke_studio.processors.ftrack_base import (
+    FtrackBasePreset,
+    FtrackBase,
+    FtrackProcessorValidationError,
+    FtrackProcessorError
+)
 
-from . import FtrackBasePreset, FtrackBase, FtrackProcessorValidationError, FtrackProcessorError
+from QtExt import QtCore, QtWidgets, QtGui
 
 
 class FtrackSettingsValidator(QtWidgets.QDialog):
@@ -132,26 +137,27 @@ class FtrackProcessor(FtrackBase):
             '{ftrack_asset}': self._create_asset_fragment,
             '{ftrack_component}': self._create_component_fragment
         }
-        TaskCallbacks.addCallback(TaskCallbacks.onTaskFinish, self.publishResultComponent)
+        # these events gets emitted during taskStart and taskFinish
         TaskCallbacks.addCallback(TaskCallbacks.onTaskStart, self.setupExportPaths)
+        TaskCallbacks.addCallback(TaskCallbacks.onTaskFinish, self.publishResultComponent)
 
     def timeStampString(self, localtime):
-        '''timeStampString(localtime)
-        Convert a tuple or struct_time representing a time as returned by gmtime() or localtime() to a string formated YEAR/MONTH/DAY TIME.
-        '''
+        # Convert a tuple or struct_time representing a time as returned by gmtime()
+        # or localtime() to a string formated YEAR/MONTH/DAY TIME.
         return time.strftime('%Y/%m/%d %X', localtime)
 
     @property
     def schema(self):
+        # Return the current ftrack project schema
         project_schema_name = self.ftrack_properties['project_schema']
         project_schema = self.session.query(
             'ProjectSchema where name is "{0}"'.format(project_schema_name)
         ).one()
-        # self.logger.info('project_schema: %s' % project_schema)
         return project_schema
 
     @property
     def task_type(self):
+        # Return the ftrack object for the task_type set.
         task_type_name = self.ftrack_properties['task_type']
         task_types = self.schema.get_types('Task')
         filtered_task_types = [task_type for task_type in task_types if task_type['name'] == task_type_name]
@@ -337,7 +343,6 @@ class FtrackProcessor(FtrackBase):
                     'path': ftrack_path,
                     'published': False
                 }
-                self.logger.info(self._components)
                 self.addFtrackTag(trackItem, task)
 
     def addFtrackTag(self, originalItem, task):
@@ -384,8 +389,6 @@ class FtrackProcessor(FtrackBase):
         originalItem.addTag(tag)
 
     def setupExportPaths(self, task):
-        self.logger.info(task._item.name())
-
         # This is an event we intercept to see when the task start.
         has_data = self._components.get(
             task._item.name(), {}
@@ -402,12 +405,6 @@ class FtrackProcessor(FtrackBase):
 
     def publishResultComponent(self, render_task):
         # This is a task we intercept for each frame/item rendered.
-
-        self.logger.info('{0}:{1} :: {2}'.format(
-            render_task._item.name(),
-            render_task._preset.name(),
-            render_task._finished
-        ))
 
         has_data = self._components.get(
             render_task._item.name(), {}
@@ -575,19 +572,6 @@ class FtrackProcessorUI(FtrackBase):
         )
         form_layout.addRow(label + ':', uiProperty)
 
-        # Component Name.
-        key, value, label = 'component_name', '', 'Component Name'
-        component_tooltip = 'Set Component Name'
-
-        uiProperty = UIPropertyFactory.create(
-            type(value),
-            key=key,
-            value=value,
-            dictionary=self._preset.properties()['ftrack'],
-            label=label + ':',
-            tooltip=component_tooltip
-        )
-        form_layout.addRow(label + ':', uiProperty)
 
         # Task Type.
         key, value, label = 'task_type', '', 'Task Type'
