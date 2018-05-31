@@ -430,7 +430,7 @@ class FtrackProcessor(FtrackBase):
             return
 
         start, end = render_task.outputRange()
-        startHandle, endHandle = render_task.outputHandles()
+        start_handle, end_handle = render_task.outputHandles()
 
         fps = None
         if render_task._sequence:
@@ -451,8 +451,8 @@ class FtrackProcessor(FtrackBase):
             if fps and attr_name == 'fps':
                 attributes['fps'] = str(fps)
 
-            if startHandle and attr_name == 'handles':
-                attributes['handles'] = str(startHandle)
+            if start_handle and attr_name == 'handles':
+                attributes['handles'] = str(start_handle)
 
         if '#' in publish_path:
             # todo: Improve this logic
@@ -563,7 +563,7 @@ class FtrackProcessorUI(FtrackBase):
         key, value, label = 'opt_publish_thumbnail', True, 'Publish Thumbnail'
         thumbnail_tooltip = 'Generate and upload thumbnail'
 
-        uiProperty = UIPropertyFactory.create(
+        ui_property = UIPropertyFactory.create(
             type(value),
             key=key,
             value=value,
@@ -571,14 +571,13 @@ class FtrackProcessorUI(FtrackBase):
             label=label + ':',
             tooltip=thumbnail_tooltip
         )
-        form_layout.addRow(label + ':', uiProperty)
-
+        form_layout.addRow(label + ':', ui_property)
 
         # Task Type.
         key, value, label = 'task_type', '', 'Task Type'
         component_tooltip = 'View Task Type'
 
-        uiProperty = UIPropertyFactory.create(
+        ui_property = UIPropertyFactory.create(
             type(value),
             key=key,
             value=value,
@@ -586,14 +585,14 @@ class FtrackProcessorUI(FtrackBase):
             label=label + ':',
             tooltip=component_tooltip
         )
-        uiProperty.setDisabled(True)
-        form_layout.addRow(label + ':', uiProperty)
+        ui_property.setDisabled(True)
+        form_layout.addRow(label + ':', ui_property)
 
         # Asset Type.
         key, value, label = 'asset_type_code', '', 'Asset Type'
         component_tooltip = 'View Asset Type'
 
-        uiProperty = UIPropertyFactory.create(
+        ui_property = UIPropertyFactory.create(
             type(value),
             key=key,
             value=value,
@@ -601,8 +600,8 @@ class FtrackProcessorUI(FtrackBase):
             label=label + ':',
             tooltip=component_tooltip
         )
-        uiProperty.setDisabled(True)
-        form_layout.addRow(label + ':', uiProperty)
+        ui_property.setDisabled(True)
+        form_layout.addRow(label + ':', ui_property)
 
         return form_layout
 
