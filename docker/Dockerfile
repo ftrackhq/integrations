@@ -36,45 +36,37 @@ ENV MAKEFLAGS -j6
 RUN yum -y update
 RUN yum -y groupinstall "Development Tools"
 RUN yum -y install \
-    wget \
-    cmake \
-    openssl-devel \
-    openssl \
-    sqlite-devel \
-    sqlite \
-    glibc-devel.x86_64 \
-    glibc-devel.i686 \
-    libicu-devel\
-    libicu \
-    wget \
-    git \
-    tar \
     bzip2 \
-    bzip2-devel\ 
-    python-virtualenv\
-    python-pyside\
-    python-devel\
-    qt-devel\
+    bzip2-devel \
+    cmake \
+    db4-devel \
+    expat-devel \
+    gdbm-devel \
+    git \
+    glibc-devel.i686 \
+    glibc-devel.x86_64 \
+    libffi-devel \
+    libffi\
+    libicu \
+    libicu-devel\
+    libpcap-devel \
     libxml2\
     libxslt\
-    libffi\
-    libffi-devel;
-
-# Build selected python version.
-RUN yum install -y \
-    zlib-devel \
-    bzip2-devel \
-    openssl-devel \
     ncurses-devel \
-    sqlite-devel \
+    openssl \
+    openssl-devel \
+    python-devel\
+    python-pyside\
+    python-virtualenv\
+    qt-devel\
     readline-devel \
+    sqlite \
+    sqlite-devel \
+    tar \
     tk-devel \
-    gdbm-devel \
-    db4-devel \
-    libpcap-devel \
+    wget \
     xz-devel \
-    expat-devel \
-    wget;
+    zlib-devel;
 
 RUN wget http://python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz -P /tmp
 RUN cd /tmp && tar xf Python-${PYTHON_VERSION}.tar.xz
