@@ -466,7 +466,7 @@ class FtrackProcessor(FtrackBase):
                 'resource_identifier': publish_path
             }
         )
-        self.logger.info('Publishing : {0}'.format(publish_path))
+        self.logger.debug('Publishing : {0}'.format(publish_path))
 
         # Add option to publish or not the thumbnail.
         if render_task._preset.properties()['ftrack'].get('opt_publish_thumbnail'):
