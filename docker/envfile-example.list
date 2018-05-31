@@ -1,0 +1,10 @@
+# :copyright: Copyright (c) 2018 ftrack
+
+# connect version to build
+FTRACK_CONNECT_PACKAGE_VERSION=0.7.6
+
+# amazon credentials to upload build
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=eu-west-1
+UPLOAD_BUILD="1"
