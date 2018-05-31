@@ -141,11 +141,6 @@ class FtrackProcessor(FtrackBase):
         TaskCallbacks.addCallback(TaskCallbacks.onTaskStart, self.setupExportPaths)
         TaskCallbacks.addCallback(TaskCallbacks.onTaskFinish, self.publishResultComponent)
 
-    def timeStampString(self, localtime):
-        # Convert a tuple or struct_time representing a time as returned by gmtime()
-        # or localtime() to a string formated YEAR/MONTH/DAY TIME.
-        return time.strftime('%Y/%m/%d %X', localtime)
-
     @property
     def schema(self):
         # Return the current ftrack project schema
@@ -157,7 +152,7 @@ class FtrackProcessor(FtrackBase):
 
     @property
     def task_type(self):
-        # Return the ftrack object for the task_type set.
+        # Return the ftrack object for the task type set.
         task_type_name = self.ftrack_properties['task_type']
         task_types = self.schema.get_types('Task')
         filtered_task_types = [task_type for task_type in task_types if task_type['name'] == task_type_name]
@@ -167,6 +162,7 @@ class FtrackProcessor(FtrackBase):
 
     @property
     def task_status(self):
+        # Return the ftrack object for the task status.
         try:
             task_statuses = self.schema.get_statuses('Task', self.task_type['id'])
         except ValueError as error:
@@ -178,6 +174,7 @@ class FtrackProcessor(FtrackBase):
 
     @property
     def shot_status(self):
+        # Return the ftrack object for the shot status.
         shot_statuses = self.schema.get_statuses('Shot')
         filtered_shot_status = [shot_status for shot_status in shot_statuses if shot_status['name']]
         # Return first status found.
@@ -185,11 +182,13 @@ class FtrackProcessor(FtrackBase):
 
     @property
     def asset_version_status(self):
+        # Return the ftrack object for the asset version status.
         asset_statuses = self.schema.get_statuses('AssetVersion')
         filtered_asset_status = [asset_status for asset_status in asset_statuses if asset_status['name']]
         return filtered_asset_status[0]
 
     def asset_type_per_task(self, task):
+        # Return the ftrack object available asset type.
         asset_type = task._preset.properties()['ftrack']['asset_type_code']
         try:
             result = self.session.query(
@@ -313,7 +312,6 @@ class FtrackProcessor(FtrackBase):
                 resolved_file_name = task.resolvePath(file_name)
 
                 path = task.resolvePath(exportPath)
-                # self.logger.info('Resolved Path: %s' % path)
                 path_id = os.path.dirname(path)
                 versions.setdefault(path_id, None)
 
@@ -411,7 +409,11 @@ class FtrackProcessor(FtrackBase):
         ).get(render_task._preset.name())
 
         if not has_data:
-            self.logger.debug('%s:%s does not have yet data.' % (render_task._item.name(), render_task._preset.name()))
+            self.logger.debug(
+                '{0}:{1} does not have yet data.'.format(
+                    render_task._item.name(), render_task._preset.name()
+                )
+            )
             return
 
         render_data = has_data
@@ -421,11 +423,10 @@ class FtrackProcessor(FtrackBase):
         is_published = render_data['published']
 
         if render_task.error():
-            self.logger.warning('An Error occurred while rendering: %s' % publish_path)
+            self.logger.warning('An Error occurred while rendering: {0}'.format(publish_path))
             return
 
         if is_published:
-            # self.logger.warning('It has already been published: %s' % publish_path)
             return
 
         start, end = render_task.outputRange()
@@ -465,7 +466,7 @@ class FtrackProcessor(FtrackBase):
                 'resource_identifier': publish_path
             }
         )
-        self.logger.info('Publishing : %s' % publish_path)
+        self.logger.info('Publishing : {0}'.format(publish_path))
 
         # Add option to publish or not the thumbnail.
         if render_task._preset.properties()['ftrack'].get('opt_publish_thumbnail'):
