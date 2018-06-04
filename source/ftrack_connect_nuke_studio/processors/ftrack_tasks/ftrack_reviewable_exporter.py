@@ -84,7 +84,6 @@ class FtrackReviewableExporterPreset(TranscodePreset, FtrackProcessorPreset):
         properties.setdefault('ftrack', {})
 
         # add placeholders for default ftrack defaults
-        self.properties()['ftrack']['asset_type_code'] = 'img'
         self.properties()['ftrack']['component_pattern'] = '.mov'
         self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__)
 

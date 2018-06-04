@@ -38,7 +38,6 @@ class FtrackAudioExporterPreset(AudioExportPreset, FtrackProcessorPreset):
         properties.setdefault('ftrack', {})
 
         # add placeholders for default ftrack defaults
-        self.properties()['ftrack']['asset_type_code'] = 'audio'
         self.properties()['ftrack']['component_pattern'] = '.{ext}'
         self.properties()['ftrack']['opt_publish_thumbnail'] = False
         self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__)

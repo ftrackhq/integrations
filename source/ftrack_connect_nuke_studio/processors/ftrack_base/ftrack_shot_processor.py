@@ -17,10 +17,9 @@ class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
         FtrackProcessor.__init__(self, preset)
 
     def startProcessing(self, exportItems, preview=False):
-        self.create_project_structure(exportItems)
-
         result = FtrackProcessor.validateFtrackProcessing(self, exportItems)
         if result:
+            self.create_project_structure(exportItems)
             return ShotProcessor.startProcessing(self, exportItems, preview)
 
 
@@ -64,6 +63,17 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackProcessorPreset):
 
     def addCustomResolveEntries(self, resolver):
         FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)
+
+    def set_ftrack_properties(self, properties):
+        FtrackProcessorPreset.set_ftrack_properties(self, properties)
+        # add placeholders for default task properties
+        self.properties()['ftrack']['task_type'] = 'Editing'
+
+        # set asset name for processor
+        self.properties()['ftrack']['asset_name'] = 'Ingest'
+
+        # asset type for processor
+        self.properties()['ftrack']['asset_type_code'] = 'iddmg'
 
 
 # Register the ftrack shot processor.

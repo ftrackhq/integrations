@@ -55,8 +55,8 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
         form_layout = TaskUIFormLayout()
         box_layout.addLayout(form_layout)
 
-        for preset, values in error_data.items():
-            form_layout.addDivider('Wrong {0} presets'.format(preset.name()))
+        for processor, values in error_data.items():
+            form_layout.addDivider('Wrong {0} presets'.format(processor.__class__.__name__))
 
             # TODO: attribute should be reversed .... as they are appearing in the wrong order
             for attribute, valid_values in values.items():
@@ -68,7 +68,7 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
                     type(value),
                     key=key,
                     value=value,
-                    dictionary=preset.properties()['ftrack'],
+                    dictionary=processor._preset.properties()['ftrack'],
                     label=label + ':',
                     tooltip=tooltip
                 )
@@ -284,8 +284,10 @@ class FtrackProcessor(FtrackBase):
     def create_project_structure(self, exportItems):
         versions = {}
         for (exportPath, preset) in self._exportTemplate.flatten():
+
             for exportItem in exportItems:
                 trackItem = exportItem.item()
+
                 if isinstance(self, TimelineProcessor):
                     trackItem = exportItem.item().sequence()
 
@@ -341,9 +343,13 @@ class FtrackProcessor(FtrackBase):
                     'path': ftrack_path,
                     'published': False
                 }
+
                 self.addFtrackTag(trackItem, task)
+                self.logger.info('create_project_structure :: DONE')
 
     def addFtrackTag(self, originalItem, task):
+        self.logger.info('adding tag to %s :: %s ' % (originalItem, task))
+
         localtime = time.localtime(time.time())
         timestamp = self.timeStampString(localtime)
 
@@ -365,7 +371,6 @@ class FtrackProcessor(FtrackBase):
             existingTag.metadata().setValue('tag.version', str(component['version']['version']))
             existingTag.metadata().setValue('tag.path', path)
 
-            # self.logger.info('Updating tag: {0}'.format(existingTag))
             originalItem.removeTag(existingTag)
             originalItem.addTag(existingTag)
             return
@@ -383,10 +388,10 @@ class FtrackProcessor(FtrackBase):
         tag.metadata().setValue('tag.version', str(component['version']['version']))
         tag.metadata().setValue('tag.path', path)
 
-        # self.logger.info('Adding tag: {0} to item {1}'.format(tag, originalItem))
         originalItem.addTag(tag)
 
     def setupExportPaths(self, task):
+        self.logger.info('setupExportPaths')
         # This is an event we intercept to see when the task start.
         has_data = self._components.get(
             task._item.name(), {}
@@ -402,6 +407,8 @@ class FtrackProcessor(FtrackBase):
         task.setDestinationDescription(output_path)
 
     def publishResultComponent(self, render_task):
+        self.logger.info('publishResultComponent')
+
         # This is a task we intercept for each frame/item rendered.
 
         has_data = self._components.get(
@@ -497,17 +504,21 @@ class FtrackProcessor(FtrackBase):
             'task_type',
         ]
 
-        sequences = [item.sequence() for item in exportItems]
-        project = sequences[0].project()
         processor_schema = self._preset.properties()['ftrack']['project_schema']
-        export_root = self._exportTemplate.exportRootPath()
+        task_type = self._preset.properties()['ftrack']['task_type']
+        asset_type_code = self._preset.properties()['ftrack']['asset_type_code']
+        asset_name = self._preset.properties()['ftrack']['asset_name']
+
         errors = {}
         missing_assets_type = []
 
         for item in exportItems:
             for (exportPath, preset) in self._exportTemplate.flatten():
-                # propagate schema from processor to tasks.
+                # propagate properties from processor to tasks.
                 preset.properties()['ftrack']['project_schema'] = processor_schema
+                preset.properties()['ftrack']['task_type'] = task_type
+                preset.properties()['ftrack']['asset_type_code'] = asset_type_code
+                preset.properties()['ftrack']['asset_name'] = asset_name
 
                 asset_type_code = preset.properties()['ftrack']['asset_type_code']
 
@@ -515,26 +526,15 @@ class FtrackProcessor(FtrackBase):
                     'AssetType where short is "{0}"'.format(asset_type_code)
                 ).first()
 
-                if not ftrack_asset_type:
+                if not ftrack_asset_type and asset_type_code not in missing_assets_type:
                     missing_assets_type.append(asset_type_code)
 
-                # Build TaskData seed.
-                taskData = hiero.core.TaskData(
-                    preset,
-                    item.item(),
-                    export_root,
-                    exportPath,
-                    'v0',
-                    self._exportTemplate,
-                    project
-                )
-                task = hiero.core.taskRegistry.createTaskFromPreset(preset, taskData)
                 for attribute in attributes:
                     try:
-                        result = getattr(task, attribute)
+                        result = getattr(self, attribute)
                     except FtrackProcessorValidationError as error:
                         valid_values = [result['name'] for result in error.message]
-                        preset_errors = errors.setdefault(preset, {})
+                        preset_errors = errors.setdefault(self, {})
                         preset_errors.setdefault(attribute, valid_values)
 
         if errors or missing_assets_type:

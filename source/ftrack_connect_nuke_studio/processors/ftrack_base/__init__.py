@@ -100,14 +100,8 @@ class FtrackBasePreset(FtrackBase):
     def set_ftrack_properties(self, properties):
         properties = self.properties()
         properties.setdefault('ftrack', {})
-        # add placeholders for default task properties
-        self.properties()['ftrack']['task_type'] = 'Editing'
-
         # add placeholders for default processor
         self.properties()['ftrack']['project_schema'] = 'Film Pipeline'
-
-        # set asset type for processor
-        self.properties()['ftrack']['asset_name'] = 'Ingest'
 
     def set_export_root(self):
         self.properties()['exportRoot'] = self.ftrack_location.accessor.prefix
