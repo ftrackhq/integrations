@@ -132,6 +132,12 @@ if __name__ == '__main__':
         nargs='?'
     )
 
+    parser.add_argument(
+        '-s', '--silent',
+        help='Start connect window in hidden mode.',
+        action='store_true'
+    )
+
     parsedArguments, unknownArguments = parser.parse_known_args(arguments)
 
     # If first argument is an executable python script, execute the file.
