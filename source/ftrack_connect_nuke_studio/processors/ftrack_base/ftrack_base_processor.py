@@ -282,9 +282,10 @@ class FtrackProcessor(FtrackBase):
         self.logger.warning('Skpping: {0}'.format(name))
 
     def create_project_structure(self, exportItems):
+        # ensure to reset components before creating a new project.
+        self._components = {}
         versions = {}
         for (exportPath, preset) in self._exportTemplate.flatten():
-
             for exportItem in exportItems:
                 trackItem = exportItem.item()
 
@@ -338,14 +339,15 @@ class FtrackProcessor(FtrackBase):
 
                 ftrack_path = str(os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path))
 
-                self._components[trackItem.name()][preset.name()] = {
+                data = {
                     'component': parent,
                     'path': ftrack_path,
                     'published': False
                 }
 
+                self._components[trackItem.name()][preset.name()] = data
                 self.addFtrackTag(trackItem, task)
-                self.logger.info('create_project_structure :: DONE')
+        self.logger.info('create_project_structure :: DONE')
 
     def addFtrackTag(self, originalItem, task):
         self.logger.info('adding tag to %s :: %s ' % (originalItem, task))

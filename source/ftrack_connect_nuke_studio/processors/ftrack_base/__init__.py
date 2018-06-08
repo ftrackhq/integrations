@@ -107,7 +107,7 @@ class FtrackBasePreset(FtrackBase):
         self.properties()['exportRoot'] = self.ftrack_location.accessor.prefix
 
     def resolve_ftrack_project(self, task):
-        return task.projectName().lower()
+        return task.projectName().lower().replace(' ', '_')
 
     def resolve_ftrack_sequence(self, task):
         trackItem = task._item
