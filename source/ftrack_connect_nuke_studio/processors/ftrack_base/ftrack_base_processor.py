@@ -575,36 +575,6 @@ class FtrackProcessorUI(FtrackBase):
         )
         form_layout.addRow(label + ':', ui_property)
 
-        # Task Type.
-        key, value, label = 'task_type', '', 'Task Type'
-        component_tooltip = 'View Task Type'
-
-        ui_property = UIPropertyFactory.create(
-            type(value),
-            key=key,
-            value=value,
-            dictionary=self._preset.properties()['ftrack'],
-            label=label + ':',
-            tooltip=component_tooltip
-        )
-        ui_property.setDisabled(True)
-        form_layout.addRow(label + ':', ui_property)
-
-        # Asset Type.
-        key, value, label = 'asset_type_code', '', 'Asset Type'
-        component_tooltip = 'View Asset Type'
-
-        ui_property = UIPropertyFactory.create(
-            type(value),
-            key=key,
-            value=value,
-            dictionary=self._preset.properties()['ftrack'],
-            label=label + ':',
-            tooltip=component_tooltip
-        )
-        ui_property.setDisabled(True)
-        form_layout.addRow(label + ':', ui_property)
-
         return form_layout
 
     def addFtrackProcessorUI(self, widget, exportTemplate):
