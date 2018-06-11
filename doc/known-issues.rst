@@ -1,5 +1,5 @@
 ..
-    :copyright: Copyright (c) 2014 ftrack
+    :copyright: Copyright (c) 2018 ftrack
 
 ############
 Known Issues
@@ -18,7 +18,7 @@ the Qt png plugin shipped with ftrack-connect.
 To solve
 --------
 
-install it with the system installation tool eg (on centos7):
+install it with the system installation tool e.g. (on centos7):
 
 .. code-block:: bash
 
