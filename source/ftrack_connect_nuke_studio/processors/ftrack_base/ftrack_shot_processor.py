@@ -60,6 +60,7 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackProcessorPreset):
     def __init__(self, name, properties):
         ShotProcessorPreset.__init__(self, name, properties)
         FtrackProcessorPreset.__init__(self, name, properties)
+
         self._parentType = FtrackShotProcessor
 
     def addCustomResolveEntries(self, resolver):
@@ -74,7 +75,7 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackProcessorPreset):
         self.properties()['ftrack']['asset_name'] = 'Ingest'
 
         # asset type for processor
-        self.properties()['ftrack']['asset_type_code'] = 'iddmg'
+        self.properties()['ftrack']['asset_type_code'] = 'img'
 
 
 # Register the ftrack shot processor.
