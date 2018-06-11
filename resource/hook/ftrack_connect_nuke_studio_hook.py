@@ -169,7 +169,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 variant='{version}',
                 applicationIdentifier='nuke_studio_{version}',
                 icon='nuke_studio',
-                launchArguments=['--studio', '--disable-nuke-frameserver']
+                launchArguments=['--studio']
             ))
 
         elif sys.platform == 'linux2':
@@ -180,7 +180,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 variant='{version}',
                 applicationIdentifier='nuke_studio_{version}',
                 icon='nuke_studio',
-                launchArguments=['--studio', '--disable-nuke-frameserver']
+                launchArguments=['--studio']
             ))
 
         self.logger.debug(

@@ -1,13 +1,11 @@
-# :coding: utf-8
-# :copyright: Copyright (c) 2018 ftrack
-
+import logging
 import os
 import re
 import copy
-from hiero.ui.FnUIProperty import UIPropertyFactory
-
 import hiero
 import hiero.core.util
+from hiero.ui.FnUIProperty import UIPropertyFactory
+
 from hiero.exporters.FnSubmission import Submission
 from hiero.exporters.FnTranscodeExporter import TranscodeExporter, TranscodePreset
 from hiero.exporters.FnTranscodeExporterUI import TranscodeExporterUI
@@ -20,11 +18,17 @@ from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor imp
 )
 
 
-class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
-
+class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
     def __init__(self, initDict):
         NukeRenderTask.__init__(self, initDict)
         FtrackProcessor.__init__(self, initDict)
+
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+
+    def updateItem(self, originalItem, localtime):
+        self.createTranscodeScript()
 
     def addWriteNodeToScript(self, script, rootNode, framerate):
         TranscodeExporter.addWriteNodeToScript(self, script, rootNode, framerate)
@@ -64,15 +68,12 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
             # Create a job on our submission to do the actual rendering.
             self._renderTask = self._submission.addJob(Submission.kNukeRender, submissionDict, self._scriptfile)
 
-    def updateItem(self, originalItem, localtime):
-        self.createTranscodeScript()
 
-
-class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
+class FtrackReviewableExporterPreset(TranscodePreset, FtrackProcessorPreset):
     def __init__(self, name, properties):
         TranscodePreset.__init__(self, name, properties)
         FtrackProcessorPreset.__init__(self, name, properties)
-        self._parentType = FtrackNukeRenderExporter
+        self._parentType = FtrackReviewableExporter
 
         # Update preset with loaded data
         self.properties().update(properties)
@@ -83,20 +84,20 @@ class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
         properties.setdefault('ftrack', {})
 
         # add placeholders for default ftrack defaults
-        self.properties()['ftrack']['component_pattern'] = '.####.{ext}'
+        self.properties()['ftrack']['component_pattern'] = '.mov'
         self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__)
 
     def addUserResolveEntries(self, resolver):
         FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)
 
 
-class FtrackNukeRenderExporterUI(TranscodeExporterUI, FtrackProcessorUI):
+class FtrackReviewableExporterUI(TranscodeExporterUI, FtrackProcessorUI):
     def __init__(self, preset):
         TranscodeExporterUI.__init__(self, preset)
         FtrackProcessorUI.__init__(self, preset)
 
-        self._displayName = 'Ftrack Nuke Render'
-        self._taskType = FtrackNukeRenderExporter
+        self._displayName = 'Ftrack Reviewable Render'
+        self._taskType = FtrackReviewableExporter
 
     def populateUI(self, widget, exportTemplate):
         TranscodeExporterUI.populateUI(self, widget, exportTemplate)
@@ -117,5 +118,5 @@ class FtrackNukeRenderExporterUI(TranscodeExporterUI, FtrackProcessorUI):
         formLayout.addRow(label + ":", uiProperty)
 
 
-hiero.core.taskRegistry.registerTask(FtrackNukeRenderExporterPreset, FtrackNukeRenderExporter)
-hiero.ui.taskUIRegistry.registerTaskUI(FtrackNukeRenderExporterPreset, FtrackNukeRenderExporterUI)
+hiero.core.taskRegistry.registerTask(FtrackReviewableExporterPreset, FtrackReviewableExporter)
+hiero.ui.taskUIRegistry.registerTaskUI(FtrackReviewableExporterPreset, FtrackReviewableExporterUI)

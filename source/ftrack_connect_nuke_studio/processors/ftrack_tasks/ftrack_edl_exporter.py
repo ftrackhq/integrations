@@ -10,8 +10,13 @@ from hiero.exporters.FnEDLExportTask import (
     EDLExportPreset
 )
 from hiero.exporters.FnEDLExportUI import EDLExportUI
+from hiero.core.FnExporterBase import TaskCallbacks
 
-from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import FtrackProcessorPreset, FtrackProcessor, FtrackProcessorUI
+from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
+    FtrackProcessorPreset,
+    FtrackProcessor,
+    FtrackProcessorUI
+)
 
 
 class FtrackEDLExporter(EDLExportTask, FtrackProcessor):
@@ -20,20 +25,9 @@ class FtrackEDLExporter(EDLExportTask, FtrackProcessor):
         FtrackProcessor.__init__(self, initDict)
 
     def startTask(self):
-        self.create_project_structure()
-        track = self._item
-        localtime = time.localtime(time.time())
-
-        self.addFtrackTag(track, localtime)
+        # foundry forgot to call the superclass....so we do it.
+        TaskCallbacks.call(TaskCallbacks.onTaskStart, self)
         EDLExportTask.startTask(self)
-
-    def finishTask(self):
-        FtrackProcessor.finishTask(self)
-        EDLExportTask.finishTask(self)
-
-    def _makePath(self):
-        # disable making file paths
-        FtrackProcessor._makePath(self)
 
 
 class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
@@ -49,16 +43,14 @@ class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
         FtrackProcessorPreset.set_ftrack_properties(self, properties)
         properties = self.properties()
         properties.setdefault('ftrack', {})
+
         # add placeholders for default ftrack defaults
-        self.properties()['ftrack']['task_type'] = 'Editing'
-        self.properties()['ftrack']['asset_type_code'] = 'edit'
-        self.properties()['ftrack']['component_name'] = 'main'
         self.properties()['ftrack']['component_pattern'] = '.{ext}'
         self.properties()['ftrack']['opt_publish_thumbnail'] = False
+        self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__)
 
     def addUserResolveEntries(self, resolver):
         FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)
-        EDLExportPreset.addCustomResolveEntries(self, resolver)
 
 
 class FtrackEDLExporterUI(EDLExportUI, FtrackProcessorUI):

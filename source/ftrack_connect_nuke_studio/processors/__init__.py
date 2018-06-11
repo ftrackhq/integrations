@@ -15,6 +15,8 @@ from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_nuke_shot_exporte
 from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_nuke_render_exporter import FtrackNukeRenderExporterPreset
 from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_audio_exporter import FtrackAudioExporterPreset
 from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_edl_exporter import FtrackEDLExporterPreset
+from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_reviewable_exporter import FtrackReviewableExporterPreset
+
 from ftrack_base import FTRACK_SHOT_PATH, FTRACK_SHOW_PATH
 
 registry = hiero.core.taskRegistry
@@ -23,7 +25,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 #override foundry logger to get some useful output
-hiero.core.log = logger
+# hiero.core.log = logger
 
 
 def register_processors():
@@ -38,9 +40,23 @@ def register_processors():
     nuke_script_processor = FtrackNukeShotExporterPreset(
         'NukeScript',
         {
-            'readPaths': [],
-            'writePaths': [ftrack_shot_path],
+            'readPaths': [''],
+            'writePaths': [''],
             'timelineWriteNode': '',
+        }
+    )
+
+    reviewable_processor = FtrackReviewableExporterPreset(
+        'Reviewable',
+        {
+            'file_type': 'mov',
+            'mov': {
+                 "encoder": "mov64",
+                "codec": "avc1\tH.264",
+                "quality": 3,
+                "settingsString": "H.264, High Quality",
+                "keyframerate": 1,
+            }
         }
     )
 
@@ -62,7 +78,8 @@ def register_processors():
         'exportTemplate': (
             (ftrack_shot_path, nuke_script_processor),
             (ftrack_shot_path, nuke_render_processor),
-            # (ftrack_shot_path, audio_processor),
+            (ftrack_shot_path, reviewable_processor),
+            (ftrack_shot_path, audio_processor)
 
         ),
         'cutLength': True,

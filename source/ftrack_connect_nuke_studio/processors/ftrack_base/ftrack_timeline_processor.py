@@ -19,7 +19,9 @@ class FtrackTimelineProcessor(TimelineProcessor, FtrackProcessor):
     def startProcessing(self, exportItems, preview=False):
         result = FtrackProcessor.validateFtrackProcessing(self, exportItems)
         if result:
-            TimelineProcessor.startProcessing(self, exportItems, preview)
+            if not preview:
+                self.create_project_structure(exportItems)
+            return TimelineProcessor.startProcessing(self, exportItems, preview)
 
 
 class FtrackTimelineProcessorUI(TimelineProcessorUI, FtrackProcessorUI):
@@ -62,6 +64,18 @@ class FtrackTimelineProcessorPreset(TimelineProcessorPreset, FtrackProcessorPres
 
     def addCustomResolveEntries(self, resolver):
         FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)
+
+    def set_ftrack_properties(self, properties):
+        FtrackProcessorPreset.set_ftrack_properties(self, properties)
+
+        # add placeholders for default task properties
+        self.properties()['ftrack']['task_type'] = 'Editing'
+
+        # set asset name for processor
+        self.properties()['ftrack']['asset_name'] = 'Ingest'
+
+        # asset type for processor
+        self.properties()['ftrack']['asset_type_code'] = 'edl'
 
 
 # Register the ftrack sequence processor.
