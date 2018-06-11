@@ -2,10 +2,13 @@
 # :copyright: Copyright (c) 2018 ftrack
 
 import os
+import re
 import hiero
 import logging
 import ftrack_api
 import time
+import unicodedata
+
 
 
 FTRACK_SHOW_PATH = os.path.join(
@@ -44,6 +47,7 @@ class FtrackBase(object):
         'ftrack.connect'
     ]
     session = ftrack_api.Session(auto_connect_event_hub=False)
+    illegal_character_substitute = '_'
     _components = {}
 
     def __init__(self, *args, **kwargs):
@@ -54,6 +58,27 @@ class FtrackBase(object):
 
     def timeStampString(self, localtime):
         return time.strftime('%Y/%m/%d %X', localtime)
+
+    def sanitise_for_filesystem(self, value):
+        '''Return *value* with illegal filesystem characters replaced.
+
+        An illegal character is one that is not typically valid for filesystem
+        usage, such as non ascii characters, or can be awkward to use in a
+        filesystem, such as spaces. Replace these characters with
+        the character specified by *illegal_character_substitute* on
+        initialisation. If no character was specified as substitute then return
+        *value* unmodified.
+
+        '''
+        if self.illegal_character_substitute is None:
+            return value
+
+        if isinstance(value, str):
+            value = value.decode('utf-8')
+
+        value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
+        value = re.sub('[^\w\.-]', self.illegal_character_substitute, value)
+        return unicode(value.strip().lower())
 
     @property
     def hiero_version_touple(self):
@@ -84,7 +109,6 @@ class FtrackBase(object):
 class FtrackBasePreset(FtrackBase):
     def __init__(self, name, properties, **kwargs):
         super(FtrackBasePreset, self).__init__(name, properties)
-
         current_location = self.ftrack_location
         if current_location['name'] in self.ingored_locations:
             raise FtrackProcessorError(
@@ -107,25 +131,25 @@ class FtrackBasePreset(FtrackBase):
         self.properties()['exportRoot'] = self.ftrack_location.accessor.prefix
 
     def resolve_ftrack_project(self, task):
-        return task.projectName().lower().replace(' ', '_')
+        return self.sanitise_for_filesystem(task.projectName())
 
     def resolve_ftrack_sequence(self, task):
         trackItem = task._item
-        return trackItem.name().split('_')[0].lower()
+        return self.sanitise_for_filesystem(trackItem.name().split('_')[0])
 
     def resolve_ftrack_shot(self, task):
         trackItem = task._item
 
         if not isinstance(trackItem, hiero.core.Sequence):
-            return trackItem.name().split('_')[1].lower()
+            return self.sanitise_for_filesystem(trackItem.name().split('_')[1])
         else:
-            return trackItem.name().lower()
+            return self.sanitise_for_filesystem(trackItem.name())
 
     def resolve_ftrack_asset(self, task):
-        return self.properties()['ftrack']['asset_name'].lower()
+        return self.sanitise_for_filesystem(self.properties()['ftrack']['asset_name'])
 
     def resolve_ftrack_component(self, task):
-        component_name = task._preset.name().lower()
+        component_name = self.sanitise_for_filesystem(task._preset.name())
         extension = self.properties()['ftrack']['component_pattern']
         component_full_name = '{0}{1}'.format(component_name, extension)
         return component_full_name.lower()
