@@ -10,7 +10,7 @@ import re
 
 import ftrack_api
 import ftrack_connect.application
-import ftrack_connect_nuke_studio
+import ftrack_connect_nuke_studio_beta
 
 FTRACK_CONNECT_NUKE_STUDIO_PATH = os.environ.get(
     'FTRACK_CONNECT_NUKE_STUDIO_PATH',
@@ -20,6 +20,11 @@ FTRACK_CONNECT_NUKE_STUDIO_PATH = os.environ.get(
         )
     )
 )
+
+cwd = os.path.dirname(__file__)
+sources = os.path.abspath(os.path.join(cwd, '..', '..', 'dependencies'))
+ftrack_connect_nuke_studio_beta_path = os.path.join(cwd, '..', '..', 'resource', 'plugin')
+sys.path.append(sources)
 
 
 class LaunchAction(object):
@@ -117,7 +122,7 @@ class LaunchAction(object):
         '''Return version information.'''
         return dict(
             name='ftrack connect nuke studio',
-            version=ftrack_connect_nuke_studio.__version__
+            version=ftrack_connect_nuke_studio_beta.__version__
         )
 
 
@@ -146,9 +151,9 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
             applications.extend(self._searchFilesystem(
                 expression=prefix + ['Nuke.*', 'NukeStudio\d[\w.]+.app'],
-                label='Nuke Studio',
+                label='Nuke Studio Beta',
                 variant='{version}',
-                applicationIdentifier='nuke_studio_{version}',
+                applicationIdentifier='nuke_studio_beta_{version}',
                 icon='nuke_studio',
             ))
 
@@ -165,9 +170,9 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
             applications.extend(self._searchFilesystem(
                 expression=prefix + ['Nuke.*', 'Nuke\d.+.exe'],
                 versionExpression=version_expression,
-                label='Nuke Studio',
+                label='Nuke Studio Beta',
                 variant='{version}',
-                applicationIdentifier='nuke_studio_{version}',
+                applicationIdentifier='nuke_studio_beta_{version}',
                 icon='nuke_studio',
                 launchArguments=['--studio']
             ))
@@ -176,9 +181,9 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
             applications.extend(self._searchFilesystem(
                 expression=['/', 'usr', 'local', 'Nuke.*', 'Nuke\d.+'],
-                label='Nuke Studio',
+                label='Nuke Studio Beta',
                 variant='{version}',
-                applicationIdentifier='nuke_studio_{version}',
+                applicationIdentifier='nuke_studio_beta_{version}',
                 icon='nuke_studio',
                 launchArguments=['--studio']
             ))
@@ -203,12 +208,13 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
             application, context
         )
 
-        hiero_plugin_path = os.path.join(
-            FTRACK_CONNECT_NUKE_STUDIO_PATH, 'plugin'
+
+        environment = ftrack_connect.application.appendPath(
+            ftrack_connect_nuke_studio_beta_path, 'HIERO_PLUGIN_PATH', environment
         )
 
         environment = ftrack_connect.application.appendPath(
-            hiero_plugin_path, 'HIERO_PLUGIN_PATH', environment
+            sources, 'PYTHONPATH', environment
         )
 
         return environment

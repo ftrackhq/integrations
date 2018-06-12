@@ -24,8 +24,8 @@ logger = logging.getLogger(__name__)
 import ftrack
 ftrack.setup()
 
-import ftrack_connect_nuke_studio.ui.widget.info_view
-from ftrack_connect_nuke_studio.processors import register_processors
+import ftrack_connect_nuke_studio_beta.ui.widget.info_view
+from ftrack_connect_nuke_studio_beta.processors import register_processors
 
 
 ftrack_connect.ui.theme.applyFont()
@@ -43,13 +43,13 @@ def populate_ftrack(event):
     window_manager = hiero.ui.windowManager()
 
     if is_webwidget_supported():
-        information_view = ftrack_connect_nuke_studio.ui.widget.info_view.InfoView(
+        information_view = ftrack_connect_nuke_studio_beta.ui.widget.info_view.InfoView(
             parent=parent
         )
         window_manager.addWindow(information_view)
 
         information_view_action = QtWidgets.QAction(
-            ftrack_connect_nuke_studio.ui.widget.info_view.InfoView.get_display_name(),
+            ftrack_connect_nuke_studio_beta.ui.widget.info_view.InfoView.get_display_name(),
             ftrack_menu
         )
 

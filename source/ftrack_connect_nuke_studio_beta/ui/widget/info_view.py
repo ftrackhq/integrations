@@ -8,7 +8,7 @@ import ftrack_connect.ui.widget.web_view
 
 import logging
 
-import ftrack_connect_nuke_studio.entity_reference
+import ftrack_connect_nuke_studio_beta.entity_reference
 
 from ftrack_connect.session import (
     get_shared_session
@@ -71,7 +71,7 @@ class InfoView(
             # Send javascript to currently loaded page to update view.
             entityId = entity.get('id')
 
-            entityType = ftrack_connect_nuke_studio.entity_reference.translate_to_legacy_entity_type(
+            entityType = ftrack_connect_nuke_studio_beta.entity_reference.translate_to_legacy_entity_type(
                 entity.entity_type
             )
 
@@ -98,7 +98,7 @@ class InfoView(
             return
 
         item = selection[0]
-        entity = ftrack_connect_nuke_studio.entity_reference.get(
+        entity = ftrack_connect_nuke_studio_beta.entity_reference.get(
             item
         )
 

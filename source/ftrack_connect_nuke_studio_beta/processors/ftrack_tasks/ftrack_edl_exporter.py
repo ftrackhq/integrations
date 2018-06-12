@@ -12,7 +12,7 @@ from hiero.exporters.FnEDLExportTask import (
 from hiero.exporters.FnEDLExportUI import EDLExportUI
 from hiero.core.FnExporterBase import TaskCallbacks
 
-from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
+from ftrack_connect_nuke_studio_beta.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,
     FtrackProcessor,
     FtrackProcessorUI

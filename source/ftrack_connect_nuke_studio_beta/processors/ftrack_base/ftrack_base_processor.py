@@ -12,7 +12,7 @@ from hiero.ui.FnUIProperty import UIPropertyFactory
 from hiero.core.FnExporterBase import TaskCallbacks
 from hiero.exporters.FnTimelineProcessor import TimelineProcessor
 
-from ftrack_connect_nuke_studio.processors.ftrack_base import (
+from ftrack_connect_nuke_studio_beta.processors.ftrack_base import (
     FtrackBasePreset,
     FtrackBase,
     FtrackProcessorValidationError,

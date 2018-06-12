@@ -10,7 +10,7 @@ import logging
 
 import ftrack_api
 import ftrack_connect.application
-import ftrack_connect_nuke_studio
+import ftrack_connect_nuke_studio_beta
 
 
 FTRACK_CONNECT_HIERO_PATH = os.environ.get(
@@ -21,6 +21,12 @@ FTRACK_CONNECT_HIERO_PATH = os.environ.get(
         )
     )
 )
+
+cwd = os.path.dirname(__file__)
+sources = os.path.abspath(os.path.join(cwd, '..', '..', 'dependencies'))
+ftrack_connect_nuke_studio_beta_path = os.path.join(cwd, '..', '..', 'resource', 'plugin')
+sys.path.append(sources)
+
 
 
 class LaunchAction(object):
@@ -125,7 +131,7 @@ class LaunchAction(object):
         return [
             dict(
                 name='ftrack connect hiero',
-                version=ftrack_connect_nuke_studio.__version__
+                version=ftrack_connect_nuke_studio_beta.__version__
             )
         ]
 
@@ -157,18 +163,18 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
             applications.extend(self._searchFilesystem(
                 versionExpression=r'Hiero(?P<version>.*)\/.+$',
                 expression=prefix + ['Hiero\d.+', 'Hiero\d.+.app'],
-                label='Hiero',
+                label='Hiero Beta',
                 variant='{version}',
-                applicationIdentifier='hiero_{version}',
+                applicationIdentifier='hiero_beta_{version}',
                 icon='hiero'
             ))
 
             applications.extend(self._searchFilesystem(
                 versionExpression=r'Nuke(?P<version>.*)\/.+$',
                 expression=prefix + ['Nuke.*', 'Hiero\d[\w.]+.app'],
-                label='Hiero',
+                label='Hiero Beta',
                 variant='{version}',
-                applicationIdentifier='hiero_{version}',
+                applicationIdentifier='hiero_beta_{version}',
                 icon='hiero'
             ))
 
@@ -177,9 +183,9 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
             applications.extend(self._searchFilesystem(
                 expression=prefix + ['Hiero\d.+', 'hiero.exe'],
-                label='Hiero',
+                label='Hiero Beta',
                 variant='{version}',
-                applicationIdentifier='hiero_{version}',
+                applicationIdentifier='hiero_beta_{version}',
                 icon='hiero'
             ))
 
@@ -190,9 +196,9 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
             # TODO: Refactor this once ``_searchFilesystem`` is more sophisticated.
             applications.extend(self._searchFilesystem(
                 expression=prefix + ['The Foundry', 'Hiero\d.+', 'hiero.exe'],
-                label='Hiero',
+                label='Hiero Beta',
                 variant='{version}',
-                applicationIdentifier='hiero_{version}',
+                applicationIdentifier='hiero_beta_{version}',
                 icon='hiero'
             ))
 
@@ -203,9 +209,9 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
             applications.extend(self._searchFilesystem(
                 expression=prefix + ['Nuke.*', 'Nuke\d.+.exe'],
                 versionExpression=version_expression,
-                label='Hiero',
+                label='Hiero Beta',
                 variant='{version}',
-                applicationIdentifier='hiero_{version}',
+                applicationIdentifier='hiero_beta_{version}',
                 icon='hiero',
                 launchArguments=['--hiero']
             ))
@@ -214,17 +220,17 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
             applications.extend(self._searchFilesystem(
                 versionExpression=r'Hiero(?P<version>.*)\/.+\/.+$',
                 expression=['/', 'usr', 'local', 'Hiero.*', 'bin', 'Hiero\d.+'],
-                label='Hiero',
+                label='Hiero Beta',
                 variant='{version}',
-                applicationIdentifier='hiero_{version}',
+                applicationIdentifier='hiero_beta_{version}',
                 icon='hiero'
             ))
 
             applications.extend(self._searchFilesystem(
                 expression=['/', 'usr', 'local', 'Nuke.*', 'Nuke\d.+'],
-                label='Hiero',
+                label='Hiero Beta',
                 variant='{version}',
-                applicationIdentifier='hiero_{version}',
+                applicationIdentifier='hiero_beta_{version}',
                 icon='hiero',
                 launchArguments=['--hiero']
             ))
@@ -251,12 +257,12 @@ class ApplicationLauncher(
             application, context
         )
 
-        hiero_plugin_path = os.path.join(
-            FTRACK_CONNECT_HIERO_PATH, 'plugin'
+        environment = ftrack_connect.application.appendPath(
+            ftrack_connect_nuke_studio_beta_path, 'HIERO_PLUGIN_PATH', environment
         )
 
         environment = ftrack_connect.application.appendPath(
-            hiero_plugin_path, 'HIERO_PLUGIN_PATH', environment
+            sources, 'PYTHONPATH', environment
         )
 
         return environment

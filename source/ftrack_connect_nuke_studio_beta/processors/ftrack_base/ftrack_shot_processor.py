@@ -2,18 +2,18 @@
 # :copyright: Copyright (c) 2018 ftrack
 
 import hiero
-from hiero.exporters.FnTimelineProcessor import TimelineProcessor
-from hiero.exporters.FnTimelineProcessor import TimelineProcessorPreset
-from hiero.exporters.FnTimelineProcessorUI import TimelineProcessorUI
+from hiero.exporters.FnShotProcessor import ShotProcessorPreset
+from hiero.exporters.FnShotProcessor import ShotProcessor
+from hiero.exporters.FnShotProcessorUI import ShotProcessorUI
 
 from QtExt import QtWidgets
 
-from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import FtrackProcessorPreset, FtrackProcessor, FtrackProcessorUI
+from ftrack_connect_nuke_studio_beta.processors.ftrack_base.ftrack_base_processor import FtrackProcessorPreset, FtrackProcessor, FtrackProcessorUI
 
 
-class FtrackTimelineProcessor(TimelineProcessor, FtrackProcessor):
+class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
     def __init__(self, preset, submission, synchronous=False):
-        TimelineProcessor.__init__(self, preset, submission, synchronous=synchronous)
+        ShotProcessor.__init__(self, preset, submission, synchronous=synchronous)
         FtrackProcessor.__init__(self, preset)
 
     def startProcessing(self, exportItems, preview=False):
@@ -21,13 +21,13 @@ class FtrackTimelineProcessor(TimelineProcessor, FtrackProcessor):
         if result:
             if not preview:
                 self.create_project_structure(exportItems)
-            return TimelineProcessor.startProcessing(self, exportItems, preview)
+            return ShotProcessor.startProcessing(self, exportItems, preview)
 
 
-class FtrackTimelineProcessorUI(TimelineProcessorUI, FtrackProcessorUI):
+class FtrackShotProcessorUI(ShotProcessorUI, FtrackProcessorUI):
 
     def __init__(self, preset):
-        TimelineProcessorUI.__init__(self, preset)
+        ShotProcessorUI.__init__(self, preset)
         FtrackProcessorUI.__init__(self, preset)
 
     def updatePathPreview(self):
@@ -46,28 +46,28 @@ class FtrackTimelineProcessorUI(TimelineProcessorUI, FtrackProcessorUI):
         return widget
 
     def displayName(self):
-        return 'Ftrack Timeline Processor'
+        return 'Ftrack Shot Processor'
 
     def toolTip(self):
         return 'Process as Shots generates output on a per shot basis.'
 
     def populateUI(self, processorUIWidget, taskUIWidget, exportItems):
-        TimelineProcessorUI.populateUI(self, processorUIWidget, taskUIWidget, exportItems)
+        ShotProcessorUI.populateUI(self, processorUIWidget, taskUIWidget, exportItems)
         FtrackProcessorUI.addFtrackProcessorUI(self, processorUIWidget, exportItems)
 
 
-class FtrackTimelineProcessorPreset(TimelineProcessorPreset, FtrackProcessorPreset):
+class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackProcessorPreset):
     def __init__(self, name, properties):
-        TimelineProcessorPreset.__init__(self, name, properties)
+        ShotProcessorPreset.__init__(self, name, properties)
         FtrackProcessorPreset.__init__(self, name, properties)
-        self._parentType = FtrackTimelineProcessor
+
+        self._parentType = FtrackShotProcessor
 
     def addCustomResolveEntries(self, resolver):
         FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)
 
     def set_ftrack_properties(self, properties):
         FtrackProcessorPreset.set_ftrack_properties(self, properties)
-
         # add placeholders for default task properties
         self.properties()['ftrack']['task_type'] = 'Editing'
 
@@ -75,14 +75,14 @@ class FtrackTimelineProcessorPreset(TimelineProcessorPreset, FtrackProcessorPres
         self.properties()['ftrack']['asset_name'] = 'Ingest'
 
         # asset type for processor
-        self.properties()['ftrack']['asset_type_code'] = 'edl'
+        self.properties()['ftrack']['asset_type_code'] = 'img'
 
 
-# Register the ftrack sequence processor.
+# Register the ftrack shot processor.
 hiero.ui.taskUIRegistry.registerProcessorUI(
-    FtrackTimelineProcessorPreset, FtrackTimelineProcessorUI
+    FtrackShotProcessorPreset, FtrackShotProcessorUI
 )
 
 hiero.core.taskRegistry.registerProcessor(
-    FtrackTimelineProcessorPreset, FtrackTimelineProcessor
+    FtrackShotProcessorPreset, FtrackShotProcessor
 )
