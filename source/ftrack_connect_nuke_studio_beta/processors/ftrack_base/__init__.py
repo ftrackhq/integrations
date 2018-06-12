@@ -11,19 +11,19 @@ import unicodedata
 
 
 
-FTRACK_SHOW_PATH = os.path.join(
+FTRACK_SHOW_PATH = '/'.join([
     '{ftrack_project}',
     '{ftrack_asset}',
     '{ftrack_component}'
-)
+])
 
-FTRACK_SHOT_PATH = os.path.join(
+FTRACK_SHOT_PATH = '/'.join([
     '{ftrack_project}',
     '{ftrack_sequence}',
     '{ftrack_shot}',
     '{ftrack_asset}',
     '{ftrack_component}'
-)
+])
 
 
 class FtrackProcessorError(Exception):

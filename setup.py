@@ -4,7 +4,10 @@ import os
 import re
 import glob
 import shutil
-from pip._internal import main as pip_main
+try:
+    from pip._internal import main as pip_main
+except ImportError:
+    print 'Please update to latest pip version'
 
 from setuptools import setup, find_packages
 import setuptools

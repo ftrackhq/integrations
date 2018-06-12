@@ -319,7 +319,7 @@ class FtrackProcessor(FtrackBase):
                 versions.setdefault(path_id, None)
 
                 parent = None  # After the loop this will be containing the component object.
-                for template, token in zip(exportPath.split(os.path.sep), path.split(os.path.sep)):
+                for template, token in zip(exportPath.split('/'), path.split('/')):
                     if not versions[path_id] and parent and parent.entity_type == 'AssetVersion':
                         versions[path_id] = parent
 
