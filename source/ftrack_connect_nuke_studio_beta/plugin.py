@@ -4,6 +4,7 @@
 from __future__ import absolute_import
 
 import logging
+logger = logging.getLogger(__name__)
 
 from QtExt import QtGui, QtWidgets
 import hiero.ui
