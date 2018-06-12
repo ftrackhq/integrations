@@ -3,13 +3,20 @@
 import os
 import re
 import glob
+import shutil
+from pip._internal import main as pip_main
 
 from setuptools import setup, find_packages
+import setuptools
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
+
+BUILD_PATH = os.path.join(ROOT_PATH, 'build')
+STAGING_PATH = os.path.join(BUILD_PATH, 'plugin')
+HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
 
 # Read version from source.
 with open(os.path.join(
@@ -65,6 +72,60 @@ connect_dependency_link = (
     '#egg=ftrack-connect-1.1.4'
 )
 
+
+class BuildPlugin(setuptools.Command):
+    '''Build plugin.'''
+
+    description = 'Download dependencies and build plugin .'
+
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        '''Run the build step.'''
+        # Clean staging path
+        shutil.rmtree(STAGING_PATH, ignore_errors=True)
+
+        # Copy plugin files
+        shutil.copytree(
+            RESOURCE_PATH,
+            os.path.join(STAGING_PATH, 'resource')
+        )
+
+        # Copy plugin files
+        shutil.copytree(
+            HOOK_PATH,
+            os.path.join(STAGING_PATH, 'hook')
+        )
+
+        pip_main(
+            [
+                'install',
+                '.',
+                '--target',
+                os.path.join(STAGING_PATH, 'dependencies'),
+                '--process-dependency-links'
+            ]
+        )
+
+        result_path = shutil.make_archive(
+            os.path.join(
+                BUILD_PATH,
+                'ftrack-connect-maya-publish-{0}'.format(VERSION)
+            ),
+            'zip',
+            STAGING_PATH
+        )
+
+        print 'Result: ' + result_path
+
+
+
 # Call main setup.
 setup(
     name='ftrack-connect-nuke-studio',
@@ -87,7 +148,6 @@ setup(
         'mock >= 1.3, < 2'
     ],
     install_requires=[
-        'ftrack-connect >= 0.1.2, < 2',
         'ftrack-python-api >= 1, < 2',
         'lucidity >= 1.5, < 2'
     ],
@@ -97,5 +157,8 @@ setup(
     tests_require=[
     ],
     zip_safe=False,
-    data_files=data_files
+    data_files=data_files,
+    cmdclass={
+        'build_plugin': BuildPlugin
+    },
 )
