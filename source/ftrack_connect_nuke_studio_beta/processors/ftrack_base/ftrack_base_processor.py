@@ -347,10 +347,8 @@ class FtrackProcessor(FtrackBase):
 
                 self._components[trackItem.name()][preset.name()] = data
                 self.addFtrackTag(trackItem, task)
-        self.logger.info('create_project_structure :: DONE')
 
     def addFtrackTag(self, originalItem, task):
-        self.logger.info('adding tag to %s :: %s ' % (originalItem, task))
 
         localtime = time.localtime(time.time())
         timestamp = self.timeStampString(localtime)
@@ -393,7 +391,6 @@ class FtrackProcessor(FtrackBase):
         originalItem.addTag(tag)
 
     def setupExportPaths(self, task):
-        self.logger.info('setupExportPaths')
         # This is an event we intercept to see when the task start.
         has_data = self._components.get(
             task._item.name(), {}
@@ -409,7 +406,6 @@ class FtrackProcessor(FtrackBase):
         task.setDestinationDescription(output_path)
 
     def publishResultComponent(self, render_task):
-        self.logger.info('publishResultComponent')
 
         # This is a task we intercept for each frame/item rendered.
 
@@ -418,11 +414,6 @@ class FtrackProcessor(FtrackBase):
         ).get(render_task._preset.name())
 
         if not has_data:
-            self.logger.debug(
-                '{0}:{1} does not have yet data.'.format(
-                    render_task._item.name(), render_task._preset.name()
-                )
-            )
             return
 
         render_data = has_data
