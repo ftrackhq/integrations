@@ -9,10 +9,11 @@ from QtExt import QtGui, QtWidgets
 import hiero.ui
 import hiero.core
 
+from ftrack_connect import config
 import ftrack_connect.ui.theme
 import ftrack_connect.event_hub_thread
 
-logger = logging.getLogger(__name__)
+config.configure_logging('ftrack_connect_nuke_studio_beta', level='WARNING')
 
 from ftrack_connect_nuke_studio_beta.processors import register_processors
 

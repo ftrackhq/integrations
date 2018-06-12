@@ -113,7 +113,8 @@ setup(
     ],
     install_requires=[
         'ftrack-python-api >= 1, < 2',
-        'lucidity >= 1.5, < 2'
+        'lucidity >= 1.5, < 2',
+        'appdirs == 1.4.0',
     ],
     dependency_links=[
         connect_dependency_link
