@@ -10,21 +10,13 @@ import re
 
 import ftrack_api
 import ftrack_connect.application
-import ftrack_connect_nuke_studio_beta
-
-FTRACK_CONNECT_NUKE_STUDIO_PATH = os.environ.get(
-    'FTRACK_CONNECT_NUKE_STUDIO_PATH',
-    os.path.abspath(
-        os.path.join(
-            os.path.dirname(__file__), '..', 'nuke_studio'
-        )
-    )
-)
 
 cwd = os.path.dirname(__file__)
-sources = os.path.abspath(os.path.join(cwd, '..', '..', 'dependencies'))
-ftrack_connect_nuke_studio_beta_path = os.path.join(cwd, '..', '..', 'resource', 'plugin')
+sources = os.path.abspath(os.path.join(cwd, '..', 'dependencies'))
+ftrack_connect_nuke_studio_beta_path = os.path.join(cwd, '..',  'resource', 'plugin')
 sys.path.append(sources)
+
+import ftrack_connect_nuke_studio_beta
 
 
 class LaunchAction(object):

@@ -13,16 +13,8 @@ import hiero.core
 import ftrack_connect.ui.theme
 import ftrack_connect.event_hub_thread
 
-
-# Setup logging for ftrack.
-# TODO: Check with The Foundry if there is any better way to customise logging.
-from . import logging as _logging
-_logging.setup()
 logger = logging.getLogger(__name__)
 
-
-import ftrack
-ftrack.setup()
 
 import ftrack_connect_nuke_studio_beta.ui.widget.info_view
 from ftrack_connect_nuke_studio_beta.processors import register_processors
