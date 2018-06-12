@@ -21,7 +21,7 @@ class FtrackTimelineProcessor(TimelineProcessor, FtrackProcessor):
         if result:
             if not preview:
                 self.create_project_structure(exportItems)
-            return TimelineProcessor.startProcessing(self, exportItems, preview)
+        return TimelineProcessor.startProcessing(self, exportItems, preview)
 
 
 class FtrackTimelineProcessorUI(TimelineProcessorUI, FtrackProcessorUI):

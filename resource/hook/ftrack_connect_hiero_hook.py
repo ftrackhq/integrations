@@ -13,7 +13,7 @@ import ftrack_connect.application
 
 cwd = os.path.dirname(__file__)
 sources = os.path.abspath(os.path.join(cwd, '..', 'dependencies'))
-ftrack_connect_nuke_studio_beta_path = os.path.join(cwd, '..',  'resource', 'plugin')
+ftrack_connect_nuke_studio_beta_path = os.path.join(cwd, '..',  'resource')
 sys.path.append(sources)
 
 

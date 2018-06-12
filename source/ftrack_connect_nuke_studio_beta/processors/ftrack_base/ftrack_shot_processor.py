@@ -21,7 +21,7 @@ class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
         if result:
             if not preview:
                 self.create_project_structure(exportItems)
-            return ShotProcessor.startProcessing(self, exportItems, preview)
+        return ShotProcessor.startProcessing(self, exportItems, preview)
 
 
 class FtrackShotProcessorUI(ShotProcessorUI, FtrackProcessorUI):
