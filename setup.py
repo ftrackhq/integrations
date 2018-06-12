@@ -1,13 +1,10 @@
 # :coding: utf-8
+# :copyright: Copyright (c) 2018 ftrack
 
 import os
 import re
-import glob
 import shutil
-try:
-    from pip._internal import main as pip_main
-except ImportError:
-    print 'Please update to latest pip version'
+from pip._internal import main as pip_main
 
 from setuptools import setup, find_packages
 import setuptools
