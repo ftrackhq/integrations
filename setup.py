@@ -28,12 +28,6 @@ with open(os.path.join(
     ).group(1)
 
 
-connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/1.1.4.zip'
-    '#egg=ftrack-connect-1.1.4'
-)
-
-
 class BuildPlugin(setuptools.Command):
     '''Build plugin.'''
 
@@ -109,12 +103,7 @@ setup(
         'mock >= 1.3, < 2'
     ],
     install_requires=[
-        'ftrack-python-api >= 1, < 2',
-        'lucidity >= 1.5, < 2',
         'appdirs == 1.4.0',
-    ],
-    dependency_links=[
-        connect_dependency_link
     ],
     tests_require=[
     ],
