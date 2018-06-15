@@ -21,6 +21,10 @@ class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
         if result:
             if not preview:
                 self.create_project_structure(exportItems)
+        else:
+            # force not generating the outputs if validation fails
+            preview = True
+
         return ShotProcessor.startProcessing(self, exportItems, preview)
 
 
