@@ -193,13 +193,13 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 icon='hiero'
             ))
 
-            version_expression = re.compile(
-                r'Nuke(?P<version>[\d.]+[\w\d.]*)'
+            nuke_version_expression = re.compile(
+                r'(?P<version>[\d.]+[vabc]+[\dvabc.]*)'
             )
 
             applications.extend(self._searchFilesystem(
                 expression=prefix + ['Nuke.*', 'Nuke\d.+.exe'],
-                versionExpression=version_expression,
+                versionExpression=nuke_version_expression,
                 label='Hiero Beta',
                 variant='{version}',
                 applicationIdentifier='hiero_beta_{version}',
@@ -209,7 +209,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
         elif sys.platform == 'linux2':
             applications.extend(self._searchFilesystem(
-                versionExpression=r'Hiero(?P<version>.*)\/.+\/.+$',
+                versionExpression='Hiero(?P<version>.*)\/.+$',
                 expression=['/', 'usr', 'local', 'Hiero.*', 'bin', 'Hiero\d.+'],
                 label='Hiero Beta',
                 variant='{version}',
@@ -217,8 +217,12 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 icon='hiero'
             ))
 
+            nuke_version_expression = re.compile(
+                r'(?P<version>[\d.]+[vabc]+[\dvabc.]*)'
+            )
             applications.extend(self._searchFilesystem(
                 expression=['/', 'usr', 'local', 'Nuke.*', 'Nuke\d.+'],
+                versionExpression=nuke_version_expression,
                 label='Hiero Beta',
                 variant='{version}',
                 applicationIdentifier='hiero_beta_{version}',
