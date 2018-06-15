@@ -155,13 +155,13 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
             # Specify custom expression for Nuke Studio to ensure the complete
             # version number (e.g. 9.0v3) is picked up including any special
             # builds (e.g. 9.0FnAssetAPI.000013a).
-            version_expression = re.compile(
-                r'Nuke(?P<version>[\d.]+[\w\d.]*)'
+            nuke_version_expression = re.compile(
+                r'(?P<version>[\d.]+[vabc]+[\dvabc.]*)'
             )
 
             applications.extend(self._searchFilesystem(
                 expression=prefix + ['Nuke.*', 'Nuke\d.+.exe'],
-                versionExpression=version_expression,
+                versionExpression=nuke_version_expression,
                 label='Nuke Studio Beta',
                 variant='{version}',
                 applicationIdentifier='nuke_studio_beta_{version}',
@@ -172,6 +172,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
         elif sys.platform == 'linux2':
 
             applications.extend(self._searchFilesystem(
+                versionExpression=r'Nuke(?P<version>.*)\/.+$',
                 expression=['/', 'usr', 'local', 'Nuke.*', 'Nuke\d.+'],
                 label='Nuke Studio Beta',
                 variant='{version}',
