@@ -349,6 +349,8 @@ class FtrackProcessor(FtrackBase):
                 self.addFtrackTag(trackItem, task)
 
     def addFtrackTag(self, originalItem, task):
+        if not hasattr(originalItem, 'tags'):
+            return
 
         localtime = time.localtime(time.time())
         timestamp = self.timeStampString(localtime)

@@ -135,12 +135,16 @@ class FtrackBasePreset(FtrackBase):
 
     def resolve_ftrack_sequence(self, task):
         trackItem = task._item
-        return self.sanitise_for_filesystem(trackItem.name().split('_')[0])
+
+        if isinstance(trackItem, hiero.core.Clip):
+            return self.sanitise_for_filesystem(trackItem.name().split('_')[0])
+        else:
+            return self.sanitise_for_filesystem(trackItem.name())
 
     def resolve_ftrack_shot(self, task):
         trackItem = task._item
 
-        if not isinstance(trackItem, hiero.core.Sequence):
+        if isinstance(trackItem, hiero.core.Clip):
             return self.sanitise_for_filesystem(trackItem.name().split('_')[1])
         else:
             return self.sanitise_for_filesystem(trackItem.name())
