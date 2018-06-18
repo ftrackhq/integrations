@@ -126,6 +126,8 @@ class FtrackBasePreset(FtrackBase):
         properties.setdefault('ftrack', {})
         # add placeholders for default processor
         self.properties()['ftrack']['project_schema'] = 'Film Pipeline'
+        self.properties()['ftrack']['opt_publish_reviewable'] = True
+        self.properties()['ftrack']['opt_publish_thumbnail'] = False
 
     def set_export_root(self):
         self.properties()['exportRoot'] = self.ftrack_location.accessor.prefix

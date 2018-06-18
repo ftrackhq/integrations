@@ -413,7 +413,6 @@ class FtrackProcessor(FtrackBase):
         task.setDestinationDescription(output_path)
 
     def publishResultComponent(self, render_task):
-
         # This is a task we intercept for each frame/item rendered.
 
         has_data = self._components.get(
@@ -479,18 +478,21 @@ class FtrackProcessor(FtrackBase):
         if self._preset.properties()['ftrack'].get('opt_publish_thumbnail'):
             self.publishThumbnail(component, render_task)
 
-        _, ext = os.path.splitext(publish_path)
-
+        # Add option to publish or not the reviewable.
         if self._preset.properties()['ftrack'].get('opt_publish_reviewable'):
+            self.logger.warning('Creating Reviewable....')
+            _, ext = os.path.splitext(publish_path)
             if ext == '.mov':
                 component['version'].encode_media(publish_path)
 
         self.session.commit()
         render_data['published'] = True
 
-
     def publishThumbnail(self, component, render_task):
-        source = render_task._clip.source()
+
+        source = render_task._clip
+        self.logger.info('Creating thumbnail from {0}'.format(source))
+
         thumbnail_qimage = source.thumbnail(source.posterFrame())
         thumbnail_file = tempfile.NamedTemporaryFile(prefix='hiero_ftrack_thumbnail', suffix='.png', delete=False).name
         thumbnail_qimage_resized = thumbnail_qimage.scaledToWidth(600, QtCore.Qt.SmoothTransformation)
