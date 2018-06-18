@@ -104,21 +104,7 @@ class FtrackReviewableExporterUI(TranscodeExporterUI, FtrackProcessorUI):
 
     def populateUI(self, widget, exportTemplate):
         TranscodeExporterUI.populateUI(self, widget, exportTemplate)
-        formLayout = FtrackProcessorUI.addFtrackTaskUI(self, widget, exportTemplate)
-
-        # add reviewable component option
-        key, value, label = 'opt_publish_review', True, 'Publish Review'
-        review_tooltip = 'Generate and upload review'
-
-        uiProperty = UIPropertyFactory.create(
-            type(value),
-            key=key,
-            value=value,
-            dictionary=self._preset.properties()['ftrack'],
-            label=label + ":",
-            tooltip=review_tooltip
-        )
-        formLayout.addRow(label + ":", uiProperty)
+        FtrackProcessorUI.addFtrackTaskUI(self, widget, exportTemplate)
 
 
 hiero.core.taskRegistry.registerTask(FtrackReviewableExporterPreset, FtrackReviewableExporter)

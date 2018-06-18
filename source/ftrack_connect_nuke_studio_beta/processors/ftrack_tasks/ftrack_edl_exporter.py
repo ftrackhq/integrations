@@ -46,7 +46,6 @@ class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
 
         # add placeholders for default ftrack defaults
         self.properties()['ftrack']['component_pattern'] = '.{ext}'
-        self.properties()['ftrack']['opt_publish_thumbnail'] = False
         self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__)
 
     def addUserResolveEntries(self, resolver):

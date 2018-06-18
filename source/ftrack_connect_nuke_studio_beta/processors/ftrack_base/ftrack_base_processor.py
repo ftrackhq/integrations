@@ -476,13 +476,14 @@ class FtrackProcessor(FtrackBase):
         self.logger.debug('Publishing : {0}'.format(publish_path))
 
         # Add option to publish or not the thumbnail.
-        if render_task._preset.properties()['ftrack'].get('opt_publish_thumbnail'):
+        if self._preset.properties()['ftrack'].get('opt_publish_thumbnail'):
             self.publishThumbnail(component, render_task)
 
         _, ext = os.path.splitext(publish_path)
 
-        if ext == '.mov':
-            component['version'].encode_media(publish_path)
+        if self._preset.properties()['ftrack'].get('opt_publish_reviewable'):
+            if ext == '.mov':
+                component['version'].encode_media(publish_path)
 
         self.session.commit()
         render_data['published'] = True
@@ -553,28 +554,6 @@ class FtrackProcessorUI(FtrackBase):
         super(FtrackProcessorUI, self).__init__(preset)
         self._nodeSelectionWidget = None
 
-    def addFtrackTaskUI(self, widget, exportTemplate):
-        form_layout = TaskUIFormLayout()
-        layout = widget.layout()
-        layout.addLayout(form_layout)
-        form_layout.addDivider('Options (ftrack)')
-
-        # Thumbanil generation.
-        key, value, label = 'opt_publish_thumbnail', True, 'Publish Thumbnail'
-        thumbnail_tooltip = 'Generate and upload thumbnail'
-
-        ui_property = UIPropertyFactory.create(
-            type(value),
-            key=key,
-            value=value,
-            dictionary=self._preset.properties()['ftrack'],
-            label=label + ':',
-            tooltip=thumbnail_tooltip
-        )
-        form_layout.addRow(label + ':', ui_property)
-
-        return form_layout
-
     def addFtrackProcessorUI(self, widget, exportTemplate):
 
         project_name = self._project.name()
@@ -632,3 +611,31 @@ class FtrackProcessorUI(FtrackBase):
 
             if (isinstance(widget, QtWidgets.QLabel) and widget.text() == 'Export Structure:'):
                 widget.hide()
+
+        # Thumbanil generation.
+        key, value, label = 'opt_publish_thumbnail', True, 'Publish Thumbnail'
+        thumbnail_tooltip = 'Generate and upload thumbnail'
+
+        ui_property = UIPropertyFactory.create(
+            type(value),
+            key=key,
+            value=value,
+            dictionary=self._preset.properties()['ftrack'],
+            label=label + ':',
+            tooltip=thumbnail_tooltip
+        )
+        form_layout.addRow(label + ':', ui_property)
+
+        # Thumbanil generation.
+        key, value, label = 'opt_publish_reviewable', True, 'Publish Reviewable'
+        thumbnail_tooltip = 'Upload reviewable'
+
+        ui_property = UIPropertyFactory.create(
+            type(value),
+            key=key,
+            value=value,
+            dictionary=self._preset.properties()['ftrack'],
+            label=label + ':',
+            tooltip=thumbnail_tooltip
+        )
+        form_layout.addRow(label + ':', ui_property)
