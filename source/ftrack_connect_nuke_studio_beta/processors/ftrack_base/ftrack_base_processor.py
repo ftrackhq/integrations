@@ -590,6 +590,19 @@ class FtrackProcessorUI(FtrackBase):
         schemas = self.session.query('ProjectSchema').all()
         schemas_name = [schema['name'] for schema in schemas]
 
+        key, value, label = 'project_name', project_name, 'Project Name'
+        thumbnail_tooltip = 'Updating/Creating Project.'
+        project_property = UIPropertyFactory.create(
+            type(value),
+            key=key,
+            value=value,
+            dictionary={},
+            label=label + ':',
+            tooltip=thumbnail_tooltip
+        )
+        project_property.setDisabled(True)
+        form_layout.addRow(label + ':', project_property)
+
         key, value, label = 'project_schema', schemas_name, 'Project Schema'
         thumbnail_tooltip = 'Select project schema.'
 
