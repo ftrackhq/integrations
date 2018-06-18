@@ -490,7 +490,7 @@ class FtrackProcessor(FtrackBase):
         source = render_task._clip
         thumbnail_qimage = source.thumbnail(source.posterFrame())
         thumbnail_file = tempfile.NamedTemporaryFile(prefix='hiero_ftrack_thumbnail', suffix='.png', delete=False).name
-        thumbnail_qimage_resized = thumbnail_qimage.scaledToWidth(1080, QtCore.Qt.SmoothTransformation)
+        thumbnail_qimage_resized = thumbnail_qimage.scaledToWidth(1280, QtCore.Qt.SmoothTransformation)
         thumbnail_qimage_resized.save(thumbnail_file)
         version = component['version']
         version.create_thumbnail(thumbnail_file)
