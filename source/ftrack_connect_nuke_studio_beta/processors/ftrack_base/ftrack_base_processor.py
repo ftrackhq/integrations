@@ -21,7 +21,6 @@ from ftrack_connect_nuke_studio_beta.processors.ftrack_base import (
 
 from QtExt import QtCore, QtWidgets, QtGui
 
-
 class FtrackSettingsValidator(QtWidgets.QDialog):
 
     def __init__(self, session, error_data, missing_assets_types):
@@ -480,7 +479,6 @@ class FtrackProcessor(FtrackBase):
 
         # Add option to publish or not the reviewable.
         if self._preset.properties()['ftrack'].get('opt_publish_reviewable'):
-            self.logger.warning('Creating Reviewable....')
             _, ext = os.path.splitext(publish_path)
             if ext == '.mov':
                 component['version'].encode_media(publish_path)
@@ -489,10 +487,7 @@ class FtrackProcessor(FtrackBase):
         render_data['published'] = True
 
     def publishThumbnail(self, component, render_task):
-
         source = render_task._clip
-        self.logger.info('Creating thumbnail from {0}'.format(source))
-
         thumbnail_qimage = source.thumbnail(source.posterFrame())
         thumbnail_file = tempfile.NamedTemporaryFile(prefix='hiero_ftrack_thumbnail', suffix='.png', delete=False).name
         thumbnail_qimage_resized = thumbnail_qimage.scaledToWidth(600, QtCore.Qt.SmoothTransformation)
