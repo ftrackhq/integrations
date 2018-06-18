@@ -102,9 +102,6 @@ class FtrackReviewableExporterUI(TranscodeExporterUI, FtrackProcessorUI):
         self._displayName = 'Ftrack Reviewable Render'
         self._taskType = FtrackReviewableExporter
 
-    def populateUI(self, widget, exportTemplate):
-        TranscodeExporterUI.populateUI(self, widget, exportTemplate)
-        FtrackProcessorUI.addFtrackTaskUI(self, widget, exportTemplate)
 
 
 hiero.core.taskRegistry.registerTask(FtrackReviewableExporterPreset, FtrackReviewableExporter)

@@ -98,10 +98,6 @@ class FtrackNukeRenderExporterUI(TranscodeExporterUI, FtrackProcessorUI):
         self._displayName = 'Ftrack Nuke Render'
         self._taskType = FtrackNukeRenderExporter
 
-    def populateUI(self, widget, exportTemplate):
-        TranscodeExporterUI.populateUI(self, widget, exportTemplate)
-        FtrackProcessorUI.addFtrackTaskUI(self, widget, exportTemplate)
-
 
 hiero.core.taskRegistry.registerTask(FtrackNukeRenderExporterPreset, FtrackNukeRenderExporter)
 hiero.ui.taskUIRegistry.registerTaskUI(FtrackNukeRenderExporterPreset, FtrackNukeRenderExporterUI)
