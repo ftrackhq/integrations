@@ -571,7 +571,11 @@ class FtrackProcessorUI(FtrackBase):
         schemas = self.session.query('ProjectSchema').all()
         schemas_name = [schema['name'] for schema in schemas]
 
-        key, value, label = 'project_name', project_name, 'Project Name'
+        update_or_create = 'Create'
+        if project:
+            update_or_create = 'Update'
+
+        key, value, label = 'project_name', project_name, '{0} Project'.format(update_or_create)
         thumbnail_tooltip = 'Updating/Creating Project.'
         project_property = UIPropertyFactory.create(
             type(value),
