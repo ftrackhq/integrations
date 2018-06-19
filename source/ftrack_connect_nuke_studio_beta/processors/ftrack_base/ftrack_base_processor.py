@@ -288,7 +288,7 @@ class FtrackProcessor(FtrackBase):
             for exportItem in exportItems:
                 trackItem = exportItem.item()
 
-                # skip effects
+                # Skip effects track items.
                 if isinstance(trackItem, hiero.core.EffectTrackItem):
                     self.logger.debug('Skipping {0}'.format(trackItem))
                     continue
