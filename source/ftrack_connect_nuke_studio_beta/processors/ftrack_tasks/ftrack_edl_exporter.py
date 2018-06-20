@@ -12,7 +12,7 @@ from hiero.exporters.FnEDLExportTask import (
 from hiero.exporters.FnEDLExportUI import EDLExportUI
 from hiero.core.FnExporterBase import TaskCallbacks
 
-from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
+from ftrack_connect_nuke_studio_beta.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,
     FtrackProcessor,
     FtrackProcessorUI
@@ -46,7 +46,6 @@ class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
 
         # add placeholders for default ftrack defaults
         self.properties()['ftrack']['component_pattern'] = '.{ext}'
-        self.properties()['ftrack']['opt_publish_thumbnail'] = False
         self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__)
 
     def addUserResolveEntries(self, resolver):

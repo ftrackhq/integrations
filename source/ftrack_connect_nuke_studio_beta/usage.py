@@ -1,10 +1,10 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2017 ftrack
+# :copyright: Copyright (c) 2018 ftrack
 
 import nuke
 
 import ftrack_connect.usage
-import ftrack_connect_nuke_studio
+import ftrack_connect_nuke_studio_beta
 
 
 def send_event(event_name, metadata=None):
@@ -15,7 +15,7 @@ def send_event(event_name, metadata=None):
             'nuke_studio_version':
                 nuke.NUKE_VERSION_STRING,
             'ftrack_connect_nuke_studio_version':
-                ftrack_connect_nuke_studio.__version__
+                ftrack_connect_nuke_studio_beta.__version__
         }
 
     ftrack_connect.usage.send_event(

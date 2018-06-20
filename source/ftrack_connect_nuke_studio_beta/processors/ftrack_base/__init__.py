@@ -11,19 +11,19 @@ import unicodedata
 
 
 
-FTRACK_SHOW_PATH = os.path.join(
+FTRACK_SHOW_PATH = '/'.join([
     '{ftrack_project}',
     '{ftrack_asset}',
     '{ftrack_component}'
-)
+])
 
-FTRACK_SHOT_PATH = os.path.join(
+FTRACK_SHOT_PATH = '/'.join([
     '{ftrack_project}',
     '{ftrack_sequence}',
     '{ftrack_shot}',
     '{ftrack_asset}',
     '{ftrack_component}'
-)
+])
 
 
 class FtrackProcessorError(Exception):
@@ -126,6 +126,8 @@ class FtrackBasePreset(FtrackBase):
         properties.setdefault('ftrack', {})
         # add placeholders for default processor
         self.properties()['ftrack']['project_schema'] = 'Film Pipeline'
+        self.properties()['ftrack']['opt_publish_reviewable'] = True
+        self.properties()['ftrack']['opt_publish_thumbnail'] = False
 
     def set_export_root(self):
         self.properties()['exportRoot'] = self.ftrack_location.accessor.prefix
@@ -135,7 +137,11 @@ class FtrackBasePreset(FtrackBase):
 
     def resolve_ftrack_sequence(self, task):
         trackItem = task._item
-        return self.sanitise_for_filesystem(trackItem.name().split('_')[0])
+
+        if not isinstance(trackItem, hiero.core.Sequence):
+            return self.sanitise_for_filesystem(trackItem.name().split('_')[0])
+        else:
+            return self.sanitise_for_filesystem(trackItem.name())
 
     def resolve_ftrack_shot(self, task):
         trackItem = task._item

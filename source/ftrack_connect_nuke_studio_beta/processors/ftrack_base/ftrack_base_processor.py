@@ -12,7 +12,7 @@ from hiero.ui.FnUIProperty import UIPropertyFactory
 from hiero.core.FnExporterBase import TaskCallbacks
 from hiero.exporters.FnTimelineProcessor import TimelineProcessor
 
-from ftrack_connect_nuke_studio.processors.ftrack_base import (
+from ftrack_connect_nuke_studio_beta.processors.ftrack_base import (
     FtrackBasePreset,
     FtrackBase,
     FtrackProcessorValidationError,
@@ -20,7 +20,6 @@ from ftrack_connect_nuke_studio.processors.ftrack_base import (
 )
 
 from QtExt import QtCore, QtWidgets, QtGui
-
 
 class FtrackSettingsValidator(QtWidgets.QDialog):
 
@@ -289,6 +288,11 @@ class FtrackProcessor(FtrackBase):
             for exportItem in exportItems:
                 trackItem = exportItem.item()
 
+                # Skip effects track items.
+                if isinstance(trackItem, hiero.core.EffectTrackItem):
+                    self.logger.debug('Skipping {0}'.format(trackItem))
+                    continue
+
                 if isinstance(self, TimelineProcessor):
                     trackItem = exportItem.item().sequence()
 
@@ -319,7 +323,7 @@ class FtrackProcessor(FtrackBase):
                 versions.setdefault(path_id, None)
 
                 parent = None  # After the loop this will be containing the component object.
-                for template, token in zip(exportPath.split(os.path.sep), path.split(os.path.sep)):
+                for template, token in zip(exportPath.split('/'), path.split('/')):
                     if not versions[path_id] and parent and parent.entity_type == 'AssetVersion':
                         versions[path_id] = parent
 
@@ -347,10 +351,10 @@ class FtrackProcessor(FtrackBase):
 
                 self._components[trackItem.name()][preset.name()] = data
                 self.addFtrackTag(trackItem, task)
-        self.logger.info('create_project_structure :: DONE')
 
     def addFtrackTag(self, originalItem, task):
-        self.logger.info('adding tag to %s :: %s ' % (originalItem, task))
+        if not hasattr(originalItem, 'tags'):
+            return
 
         localtime = time.localtime(time.time())
         timestamp = self.timeStampString(localtime)
@@ -393,7 +397,6 @@ class FtrackProcessor(FtrackBase):
         originalItem.addTag(tag)
 
     def setupExportPaths(self, task):
-        self.logger.info('setupExportPaths')
         # This is an event we intercept to see when the task start.
         has_data = self._components.get(
             task._item.name(), {}
@@ -409,8 +412,6 @@ class FtrackProcessor(FtrackBase):
         task.setDestinationDescription(output_path)
 
     def publishResultComponent(self, render_task):
-        self.logger.info('publishResultComponent')
-
         # This is a task we intercept for each frame/item rendered.
 
         has_data = self._components.get(
@@ -418,11 +419,6 @@ class FtrackProcessor(FtrackBase):
         ).get(render_task._preset.name())
 
         if not has_data:
-            self.logger.debug(
-                '{0}:{1} does not have yet data.'.format(
-                    render_task._item.name(), render_task._preset.name()
-                )
-            )
             return
 
         render_data = has_data
@@ -478,23 +474,23 @@ class FtrackProcessor(FtrackBase):
         self.logger.debug('Publishing : {0}'.format(publish_path))
 
         # Add option to publish or not the thumbnail.
-        if render_task._preset.properties()['ftrack'].get('opt_publish_thumbnail'):
+        if self._preset.properties()['ftrack'].get('opt_publish_thumbnail'):
             self.publishThumbnail(component, render_task)
 
-        _, ext = os.path.splitext(publish_path)
-
-        if ext == '.mov':
-            component['version'].encode_media(publish_path)
+        # Add option to publish or not the reviewable.
+        if self._preset.properties()['ftrack'].get('opt_publish_reviewable'):
+            _, ext = os.path.splitext(publish_path)
+            if ext == '.mov':
+                component['version'].encode_media(publish_path)
 
         self.session.commit()
         render_data['published'] = True
 
-
     def publishThumbnail(self, component, render_task):
-        source = render_task._clip.source()
+        source = render_task._clip
         thumbnail_qimage = source.thumbnail(source.posterFrame())
         thumbnail_file = tempfile.NamedTemporaryFile(prefix='hiero_ftrack_thumbnail', suffix='.png', delete=False).name
-        thumbnail_qimage_resized = thumbnail_qimage.scaledToWidth(600, QtCore.Qt.SmoothTransformation)
+        thumbnail_qimage_resized = thumbnail_qimage.scaledToWidth(1280, QtCore.Qt.SmoothTransformation)
         thumbnail_qimage_resized.save(thumbnail_file)
         version = component['version']
         version.create_thumbnail(thumbnail_file)
@@ -555,28 +551,6 @@ class FtrackProcessorUI(FtrackBase):
         super(FtrackProcessorUI, self).__init__(preset)
         self._nodeSelectionWidget = None
 
-    def addFtrackTaskUI(self, widget, exportTemplate):
-        form_layout = TaskUIFormLayout()
-        layout = widget.layout()
-        layout.addLayout(form_layout)
-        form_layout.addDivider('Options (ftrack)')
-
-        # Thumbanil generation.
-        key, value, label = 'opt_publish_thumbnail', True, 'Publish Thumbnail'
-        thumbnail_tooltip = 'Generate and upload thumbnail'
-
-        ui_property = UIPropertyFactory.create(
-            type(value),
-            key=key,
-            value=value,
-            dictionary=self._preset.properties()['ftrack'],
-            label=label + ':',
-            tooltip=thumbnail_tooltip
-        )
-        form_layout.addRow(label + ':', ui_property)
-
-        return form_layout
-
     def addFtrackProcessorUI(self, widget, exportTemplate):
 
         project_name = self._project.name()
@@ -591,6 +565,23 @@ class FtrackProcessorUI(FtrackBase):
 
         schemas = self.session.query('ProjectSchema').all()
         schemas_name = [schema['name'] for schema in schemas]
+
+        update_or_create = 'Create'
+        if project:
+            update_or_create = 'Update'
+
+        key, value, label = 'project_name', project_name, '{0} Project'.format(update_or_create)
+        thumbnail_tooltip = 'Updating/Creating Project.'
+        project_property = UIPropertyFactory.create(
+            type(value),
+            key=key,
+            value=value,
+            dictionary={},
+            label=label + ':',
+            tooltip=thumbnail_tooltip
+        )
+        project_property.setDisabled(True)
+        form_layout.addRow(label + ':', project_property)
 
         key, value, label = 'project_schema', schemas_name, 'Project Schema'
         thumbnail_tooltip = 'Select project schema.'
@@ -621,3 +612,31 @@ class FtrackProcessorUI(FtrackBase):
 
             if (isinstance(widget, QtWidgets.QLabel) and widget.text() == 'Export Structure:'):
                 widget.hide()
+
+        # Thumbanil generation.
+        key, value, label = 'opt_publish_thumbnail', True, 'Publish Thumbnail'
+        thumbnail_tooltip = 'Generate and upload thumbnail'
+
+        ui_property = UIPropertyFactory.create(
+            type(value),
+            key=key,
+            value=value,
+            dictionary=self._preset.properties()['ftrack'],
+            label=label + ':',
+            tooltip=thumbnail_tooltip
+        )
+        form_layout.addRow(label + ':', ui_property)
+
+        # Thumbanil generation.
+        key, value, label = 'opt_publish_reviewable', True, 'Publish Reviewable'
+        thumbnail_tooltip = 'Upload reviewable'
+
+        ui_property = UIPropertyFactory.create(
+            type(value),
+            key=key,
+            value=value,
+            dictionary=self._preset.properties()['ftrack'],
+            label=label + ':',
+            tooltip=thumbnail_tooltip
+        )
+        form_layout.addRow(label + ':', ui_property)

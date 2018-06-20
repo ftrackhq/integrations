@@ -5,17 +5,17 @@ import logging
 
 import hiero
 
-from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_shot_processor import (
+from ftrack_connect_nuke_studio_beta.processors.ftrack_base.ftrack_shot_processor import (
     FtrackShotProcessor,
     FtrackShotProcessorPreset,
     FtrackShotProcessorUI
 )
-from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_timeline_processor import FtrackTimelineProcessorPreset
-from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_nuke_shot_exporter import FtrackNukeShotExporterPreset
-from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_nuke_render_exporter import FtrackNukeRenderExporterPreset
-from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_audio_exporter import FtrackAudioExporterPreset
-from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_edl_exporter import FtrackEDLExporterPreset
-from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_reviewable_exporter import FtrackReviewableExporterPreset
+from ftrack_connect_nuke_studio_beta.processors.ftrack_base.ftrack_timeline_processor import FtrackTimelineProcessorPreset
+from ftrack_connect_nuke_studio_beta.processors.ftrack_tasks.ftrack_nuke_shot_exporter import FtrackNukeShotExporterPreset
+from ftrack_connect_nuke_studio_beta.processors.ftrack_tasks.ftrack_nuke_render_exporter import FtrackNukeRenderExporterPreset
+from ftrack_connect_nuke_studio_beta.processors.ftrack_tasks.ftrack_audio_exporter import FtrackAudioExporterPreset
+from ftrack_connect_nuke_studio_beta.processors.ftrack_tasks.ftrack_edl_exporter import FtrackEDLExporterPreset
+from ftrack_connect_nuke_studio_beta.processors.ftrack_tasks.ftrack_reviewable_exporter import FtrackReviewableExporterPreset
 
 from ftrack_base import FTRACK_SHOT_PATH, FTRACK_SHOW_PATH
 
@@ -24,8 +24,8 @@ registry = hiero.core.taskRegistry
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-#override foundry logger to get some useful output
-# hiero.core.log = logger
+# Redirect hiero logging to default one.
+hiero.core.log = logger
 
 
 def register_processors():

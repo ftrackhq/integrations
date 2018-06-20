@@ -1,73 +1,89 @@
 # :coding: utf-8
+# :copyright: Copyright (c) 2018 ftrack
 
 import os
 import re
-import glob
+import shutil
+from pip._internal import main as pip_main
 
 from setuptools import setup, find_packages
+import setuptools
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 
+HIERO_PLUGIN_PATH = os.path.join(RESOURCE_PATH,'plugin')
+BUILD_PATH = os.path.join(ROOT_PATH, 'build')
+STAGING_PATH = os.path.join(BUILD_PATH, 'plugin')
+HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
+
 # Read version from source.
 with open(os.path.join(
-    SOURCE_PATH, 'ftrack_connect_nuke_studio', '_version.py'
+    SOURCE_PATH, 'ftrack_connect_nuke_studio_beta', '_version.py'
 )) as _version_file:
     VERSION = re.match(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
 
-def get_files_from_folder(folder):
-    '''Get all files in a folder in resource folder.'''
-    plugin_directory = os.path.join(RESOURCE_PATH, folder)
-    plugin_data_files = []
+class BuildPlugin(setuptools.Command):
+    '''Build plugin.'''
 
-    for root, directories, files in os.walk(plugin_directory):
-        files_list = []
-        if files:
-            for filename in files:
-                files_list.append(
-                    os.path.join(root, filename)
-                )
+    description = 'Download dependencies and build plugin .'
 
-        if files_list:
-            destination_folder = root.replace(
-                RESOURCE_PATH, 'ftrack_connect_nuke_studio/resource'
-            )
-            plugin_data_files.append(
-                (destination_folder, files_list)
-            )
+    user_options = []
 
-    return plugin_data_files
+    def initialize_options(self):
+        pass
 
-data_files = []
+    def finalize_options(self):
+        pass
 
-for child in os.listdir(
-    RESOURCE_PATH
-):
-    if os.path.isdir(os.path.join(RESOURCE_PATH, child)) and child != 'hook':
-        data_files += get_files_from_folder(child)
+    def run(self):
+        '''Run the build step.'''
+        # Clean staging path
+        shutil.rmtree(STAGING_PATH, ignore_errors=True)
 
-data_files += get_files_from_folder(RESOURCE_PATH)
+        # Copy plugin files
+        shutil.copytree(
+            HIERO_PLUGIN_PATH,
+            os.path.join(STAGING_PATH, 'resource')
+        )
 
-data_files.append(
-    (
-        'ftrack_connect_nuke_studio/hook',
-        glob.glob(os.path.join(RESOURCE_PATH, 'hook', '*.py'))
-    )
-)
+        # Copy plugin files
+        shutil.copytree(
+            HOOK_PATH,
+            os.path.join(STAGING_PATH, 'hook')
+        )
 
-connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/1.1.4.zip'
-    '#egg=ftrack-connect-1.1.4'
-)
+        pip_main(
+            [
+                'install',
+                '.',
+                '--target',
+                os.path.join(STAGING_PATH, 'dependencies'),
+                '--process-dependency-links'
+            ]
+        )
+
+        result_path = shutil.make_archive(
+            os.path.join(
+                BUILD_PATH,
+                'ftrack-connect-nuke-studio-beta-{0}'.format(VERSION)
+            ),
+            'zip',
+            STAGING_PATH
+        )
+
+        print 'Result: ' + result_path
+
+
 
 # Call main setup.
 setup(
-    name='ftrack-connect-nuke-studio',
+    name='ftrack-connect-nuke-studio-beta',
     version=VERSION,
     description='ftrack integration with NUKE STUDIO.',
     long_description=open(README_PATH).read(),
@@ -87,15 +103,12 @@ setup(
         'mock >= 1.3, < 2'
     ],
     install_requires=[
-        'ftrack-connect >= 0.1.2, < 2',
-        'ftrack-python-api >= 1, < 2',
-        'lucidity >= 1.5, < 2'
-    ],
-    dependency_links=[
-        connect_dependency_link
+        'appdirs == 1.4.0',
     ],
     tests_require=[
     ],
     zip_safe=False,
-    data_files=data_files
+    cmdclass={
+        'build_plugin': BuildPlugin
+    },
 )
