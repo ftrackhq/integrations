@@ -1,13 +1,15 @@
 from QtExt import QtWidgets
 
 import hiero
+from ftrack_connect_nuke_studio_beta.base import FtrackBase
 
 
-class FtrackVersionScanner(QtWidgets.QAction):
+class FtrackVersionHandler(QtWidgets.QAction, FtrackBase):
 
     def __init__(self):
-        QtWidgets.QAction.__init__(self, "[ftrack] change versions", None)
+        super(FtrackVersionHandler, self).__init__("[ftrack] change versions", None)
         self.triggered.connect(self.doit)
+
         hiero.core.events.registerInterest(
             (hiero.core.events.EventType.kShowContextMenu, hiero.core.events.EventType.kTimeline),
             self.eventHandler
@@ -49,4 +51,4 @@ class FtrackVersionScanner(QtWidgets.QAction):
         return (versions)
 
 
-version_action = FtrackVersionScanner()
+version_action = FtrackVersionHandler()
