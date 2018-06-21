@@ -392,7 +392,7 @@ class FtrackProcessor(FtrackBase):
             return
 
         tag = hiero.core.Tag(
-            '{0}:{1}'.format(task._preset.name(), timestamp),
+            '{0}'.format(task._preset.name()),
             ':/ftrack/image/default/ftrackLogoColor',
             False
         )
