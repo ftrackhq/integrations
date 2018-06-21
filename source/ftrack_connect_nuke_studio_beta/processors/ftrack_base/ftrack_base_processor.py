@@ -359,10 +359,14 @@ class FtrackProcessor(FtrackBase):
         localtime = time.localtime(time.time())
         timestamp = self.timeStampString(localtime)
 
+        start, end = task.outputRange()
+        start_handle, end_handle = task.outputHandles()
+
         task_id = str(task._preset.properties()['ftrack']['task_id'])
 
         data = self._components[originalItem.name()][task._preset.name()]
         component = data['component']
+
         path = data['path']
 
         existingTag = None
@@ -376,6 +380,12 @@ class FtrackProcessor(FtrackBase):
             existingTag.metadata().setValue('tag.asset_id', component['version']['asset']['id'])
             existingTag.metadata().setValue('tag.version', str(component['version']['version']))
             existingTag.metadata().setValue('tag.path', path)
+
+            existingTag.metadata().setValue('tag.startframe', str(start))
+            existingTag.metadata().setValue('tag.duration', str(end - start))
+            existingTag.metadata().setValue('tag.starthandle', str(start_handle))
+            existingTag.metadata().setValue('tag.endhandle', str(end_handle))
+
 
             originalItem.removeTag(existingTag)
             originalItem.addTag(existingTag)
@@ -393,6 +403,11 @@ class FtrackProcessor(FtrackBase):
         tag.metadata().setValue('tag.asset_id', component['version']['asset']['id'])
         tag.metadata().setValue('tag.version', str(component['version']['version']))
         tag.metadata().setValue('tag.path', path)
+
+        tag.metadata().setValue('tag.startframe', str(start))
+        tag.metadata().setValue('tag.duration', str(end - start))
+        tag.metadata().setValue('tag.starthandle', str(start_handle))
+        tag.metadata().setValue('tag.endhandle', str(end_handle))
 
         originalItem.addTag(tag)
 
