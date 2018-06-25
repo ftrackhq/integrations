@@ -11,6 +11,7 @@ from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 from hiero.ui.FnUIProperty import UIPropertyFactory
 from hiero.core.FnExporterBase import TaskCallbacks
 from hiero.exporters.FnTimelineProcessor import TimelineProcessor
+from hiero.exporters.FnShotProcessor import getShotNameIndex
 
 from ftrack_connect_nuke_studio_beta.processors.ftrack_base import (
     FtrackBasePreset,
@@ -305,16 +306,44 @@ class FtrackProcessor(FtrackBase):
                 self._components.setdefault(trackItem.name(), {})
                 self._components[trackItem.name()].setdefault(preset.name(), {})
 
-                # Build TaskData seed.
+                versionIndex = self._preset.properties()["versionIndex"]
+                versionPadding = self._preset.properties()["versionPadding"]
+                retime = self._preset.properties()["includeRetimes"]
+
+                cutHandles = None
+                startFrame = None
+
+                if self._preset.properties()["startFrameSource"] == "Custom":
+                    startFrame = self._preset.properties()["startFrameIndex"]
+
+                # If we are exporting the shot using the cut length (rather than the (shared) clip length)
+                if self._preset.properties()["cutLength"]:
+                    # Either use the specified number of handles or zero
+                    if self._preset.properties()["cutUseHandles"]:
+                        cutHandles = int(self._preset.properties()["cutHandles"])
+                    else:
+                        cutHandles = 0
+
+                # # Build TaskData seed
                 taskData = hiero.core.TaskData(
                     preset,
                     trackItem,
                     preset.properties()['exportRoot'],
                     exportPath,
                     'v0',
-                    self._exportTemplate,
-                    trackItem.project()
+                   self._exportTemplate,
+                   project=trackItem.project(),
+                   cutHandles=cutHandles,
+                   retime=retime,
+                   startFrame=startFrame,
+                   startFrameSource=self._preset.properties()["startFrameSource"],
+                   resolver=self._preset.createResolver(),
+                   submission=self._submission,
+                   skipOffline=self.skipOffline(),
+                   presetId=hiero.core.taskRegistry.addPresetToProjectExportHistory(trackItem.project(), self._preset),
+                   shotNameIndex=getShotNameIndex(trackItem)
                 )
+
                 task = hiero.core.taskRegistry.createTaskFromPreset(preset, taskData)
 
                 file_name = '{0}{1}'.format(
