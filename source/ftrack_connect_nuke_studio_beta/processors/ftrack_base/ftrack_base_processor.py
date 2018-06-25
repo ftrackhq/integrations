@@ -382,7 +382,7 @@ class FtrackProcessor(FtrackBase):
 
         existingTag = None
         for tag in originalItem.tags():
-            if tag.metadata().hasKey('tag.taskid') and tag.metadata()['tag.taskid'] == task_id:
+            if tag.metadata().hasKey('tag.presetid') and tag.metadata()['tag.presetid'] == task_id:
                 existingTag = tag
                 break
 
@@ -391,6 +391,7 @@ class FtrackProcessor(FtrackBase):
             existingTag.metadata().setValue('tag.asset_id', component['version']['asset']['id'])
             existingTag.metadata().setValue('tag.version', str(component['version']['version']))
             existingTag.metadata().setValue('tag.path', path)
+            existingTag.metadata().setValue("tag.pathtemplate", task._exportPath)
 
             existingTag.metadata().setValue('tag.startframe', str(start))
             existingTag.metadata().setValue('tag.duration', str(end - start+1))
@@ -419,12 +420,15 @@ class FtrackProcessor(FtrackBase):
             False
         )
 
-        tag.metadata().setValue('tag.taskid', task_id)
+        tag.metadata().setValue('tag.presetid', task_id)
         tag.metadata().setValue('tag.component_id', component['id'])
         tag.metadata().setValue('tag.version_id', component['version']['id'])
         tag.metadata().setValue('tag.asset_id', component['version']['asset']['id'])
         tag.metadata().setValue('tag.version', str(component['version']['version']))
         tag.metadata().setValue('tag.path', path)
+        tag.metadata().setValue("tag.description", 'ftrack {0}'.format(task._preset.name()))
+
+        tag.metadata().setValue("tag.pathtemplate", task._exportPath)
 
         tag.metadata().setValue('tag.startframe', str(start))
         tag.metadata().setValue('tag.duration', str(end - start+1))
