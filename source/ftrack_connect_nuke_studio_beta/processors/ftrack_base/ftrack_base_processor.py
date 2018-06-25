@@ -360,7 +360,7 @@ class FtrackProcessor(FtrackBase):
 
         localtime = time.localtime(time.time())
 
-        start, end = task.outputRange()
+        start, end = task.outputRange(clampToSource=False)
         start_handle, end_handle = task.outputHandles()
 
         task_id = str(task._preset.properties()['ftrack']['task_id'])
@@ -370,6 +370,10 @@ class FtrackProcessor(FtrackBase):
 
         path = data['path']
         frameoffset = start if start else 0
+
+        collate = getattr(task,'_collate', False)
+        applyingRetime = (task._retime and task._cutHandles is not None) or collate
+        appliedRetimesStr = "1" if applyingRetime else "0"
 
         existingTag = None
         for tag in originalItem.tags():
@@ -389,6 +393,7 @@ class FtrackProcessor(FtrackBase):
             existingTag.metadata().setValue('tag.endhandle', str(end_handle))
             existingTag.metadata().setValue('tag.frameoffset', str(frameoffset))
             existingTag.metadata().setValue("tag.localtime", str(localtime))
+            existingTag.metadata().setValue("tag.appliedretimes", appliedRetimesStr)
 
             if task._preset.properties().get("keepNukeScript"):
                 existingTag.metadata().setValue("tag.script", task.resolvedExportPath())
@@ -422,6 +427,7 @@ class FtrackProcessor(FtrackBase):
         tag.metadata().setValue('tag.endhandle', str(end_handle))
         tag.metadata().setValue('tag.frameoffset', str(frameoffset))
         tag.metadata().setValue("tag.localtime", str(localtime))
+        tag.metadata().setValue("tag.appliedretimes", appliedRetimesStr)
 
         if task._preset.properties().get("keepNukeScript"):
             tag.metadata().setValue("tag.script", task.resolvedExportPath())
