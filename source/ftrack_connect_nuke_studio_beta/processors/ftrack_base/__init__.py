@@ -1,12 +1,14 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2018 ftrack
 
+import os
 import hiero
 from ftrack_connect_nuke_studio_beta.base import FtrackBase
 
 FTRACK_SHOW_PATH = '/'.join([
     '{ftrack_project}',
     '{ftrack_asset}',
+    '{ftrack_version}',
     '{ftrack_component}'
 ])
 
@@ -15,6 +17,7 @@ FTRACK_SHOT_PATH = '/'.join([
     '{ftrack_sequence}',
     '{ftrack_shot}',
     '{ftrack_asset}',
+    '{ftrack_version}',
     '{ftrack_component}'
 ])
 
@@ -73,7 +76,27 @@ class FtrackBasePreset(FtrackBase):
             return self.sanitise_for_filesystem(trackItem.name())
 
     def resolve_ftrack_asset(self, task):
-        return self.sanitise_for_filesystem(self.properties()['ftrack']['asset_name'])
+        asset_name = self.properties()['ftrack'].get('asset_name')
+        if not asset_name:
+            asset_name = task._preset.properties()['ftrack']['asset_name']
+        return self.sanitise_for_filesystem(asset_name)
+
+    def resolve_ftrack_version(self, task):
+
+        version = 1  # first version is 1
+
+        if not self._components:
+            return 'v{:03d}'.format(version)
+
+        has_data = self._components.get(
+            task._item.name(), {}
+        ).get(task._preset.name())
+
+        if not has_data:
+            return 'v{:03d}'.format(version)
+
+        version = str(has_data['component']['version']['version'])
+        return 'v{:03d}'.format(version)
 
     def resolve_ftrack_component(self, task):
         component_name = self.sanitise_for_filesystem(task._preset.name())
@@ -106,6 +129,13 @@ class FtrackBasePreset(FtrackBase):
             'Ftrack asset name.',
             lambda keyword, task: self.resolve_ftrack_asset(task)
         )
+
+        resolver.addResolver(
+            '{ftrack_version}',
+            'Ftrack version.',
+            lambda keyword, task: self.resolve_ftrack_version(task)
+        )
+
 
         resolver.addResolver(
             '{ftrack_component}',

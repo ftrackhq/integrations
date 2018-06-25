@@ -134,6 +134,7 @@ class FtrackProcessor(FtrackBase):
             '{ftrack_sequence}': self._create_sequence_fragment,
             '{ftrack_shot}': self._create_shot_fragment,
             '{ftrack_asset}': self._create_asset_fragment,
+            '{ftrack_version}': self._create_version_fragment,
             '{ftrack_component}': self._create_component_fragment
         }
         # these events gets emitted during taskStart and taskFinish
@@ -256,16 +257,20 @@ class FtrackProcessor(FtrackBase):
                 'type': self.asset_type_per_task(task)
             })
 
-        comment = 'Published with: {0} From Nuke Studio : {1}.{2}.{3}'.format(
-            self.__class__.__name__, *self.hiero_version_touple
-        )
+
+        return asset
+
+    def _create_version_fragment(self, name, parent, task, version):
 
         if not version:
+            comment = 'Published with: {0} From Nuke Studio : {1}.{2}.{3}'.format(
+                self.__class__.__name__, *self.hiero_version_touple
+            )
             version = self.session.create('AssetVersion', {
-                'asset': asset,
+                'asset': parent,
                 'status': self.asset_version_status,
                 'comment': comment,
-                'task': ftask
+                'task': parent['parent']
             })
 
         return version
