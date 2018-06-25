@@ -356,8 +356,9 @@ class FtrackProcessor(FtrackBase):
         if not hasattr(originalItem, 'tags'):
             return
 
+        item = task._item
+
         localtime = time.localtime(time.time())
-        timestamp = self.timeStampString(localtime)
 
         start, end = task.outputRange()
         start_handle, end_handle = task.outputHandles()
@@ -368,6 +369,7 @@ class FtrackProcessor(FtrackBase):
         component = data['component']
 
         path = data['path']
+        frameoffset = start if start else 0
 
         existingTag = None
         for tag in originalItem.tags():
@@ -382,10 +384,20 @@ class FtrackProcessor(FtrackBase):
             existingTag.metadata().setValue('tag.path', path)
 
             existingTag.metadata().setValue('tag.startframe', str(start))
-            existingTag.metadata().setValue('tag.duration', str(end - start))
+            existingTag.metadata().setValue('tag.duration', str(end - start+1))
             existingTag.metadata().setValue('tag.starthandle', str(start_handle))
             existingTag.metadata().setValue('tag.endhandle', str(end_handle))
+            existingTag.metadata().setValue('tag.frameoffset', str(frameoffset))
+            existingTag.metadata().setValue("tag.localtime", str(localtime))
 
+            if task._preset.properties().get("keepNukeScript"):
+                existingTag.metadata().setValue("tag.script", task.resolvedExportPath())
+
+            if task._cutHandles:
+                existingTag.metadata().setValue("tag.handles", str(task._cutHandles))
+
+            if isinstance(item, hiero.core.TrackItem):
+                existingTag.metadata().setValue("tag.sourceretime", str(item.playbackSpeed()))
 
             originalItem.removeTag(existingTag)
             originalItem.addTag(existingTag)
@@ -405,9 +417,20 @@ class FtrackProcessor(FtrackBase):
         tag.metadata().setValue('tag.path', path)
 
         tag.metadata().setValue('tag.startframe', str(start))
-        tag.metadata().setValue('tag.duration', str(end - start))
+        tag.metadata().setValue('tag.duration', str(end - start+1))
         tag.metadata().setValue('tag.starthandle', str(start_handle))
         tag.metadata().setValue('tag.endhandle', str(end_handle))
+        tag.metadata().setValue('tag.frameoffset', str(frameoffset))
+        tag.metadata().setValue("tag.localtime", str(localtime))
+
+        if task._preset.properties().get("keepNukeScript"):
+            tag.metadata().setValue("tag.script", task.resolvedExportPath())
+
+        if task._cutHandles:
+            tag.metadata().setValue("tag.handles", str(task._cutHandles))
+
+        if isinstance(item, hiero.core.TrackItem):
+            tag.metadata().setValue("tag.sourceretime", str(item.playbackSpeed()))
 
         originalItem.addTag(tag)
 
