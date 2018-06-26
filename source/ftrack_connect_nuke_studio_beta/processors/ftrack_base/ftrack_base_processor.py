@@ -448,6 +448,7 @@ class FtrackProcessor(FtrackBase):
             ':/ftrack/image/default/ftrackLogoColor',
             False
         )
+        tag.metadata().setValue('tag.provider', 'ftrack')
 
         tag.metadata().setValue('tag.presetid', task_id)
         tag.metadata().setValue('tag.component_id', component['id'])
