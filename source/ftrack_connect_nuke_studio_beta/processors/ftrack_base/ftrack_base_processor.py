@@ -306,8 +306,6 @@ class FtrackProcessor(FtrackBase):
                 self._components.setdefault(trackItem.name(), {})
                 self._components[trackItem.name()].setdefault(preset.name(), {})
 
-                versionIndex = self._preset.properties()["versionIndex"]
-                versionPadding = self._preset.properties()["versionPadding"]
                 retime = self._preset.properties()["includeRetimes"]
 
                 cutHandles = None
@@ -324,7 +322,7 @@ class FtrackProcessor(FtrackBase):
                     else:
                         cutHandles = 0
 
-                # # Build TaskData seed
+                # Build TaskData seed
                 taskData = hiero.core.TaskData(
                     preset,
                     trackItem,
