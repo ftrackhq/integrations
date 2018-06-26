@@ -1,6 +1,5 @@
 from QtExt import QtWidgets, QtGui, QtCore
 
-import hiero
 from ftrack_connect_nuke_studio_beta.base import FtrackBase
 
 from hiero.ui.BuildExternalMediaTrack import BuildTrackFromExportTagAction, BuildTrack
@@ -11,7 +10,7 @@ class FtrackBuildTrackFromExportTagAction(BuildTrackFromExportTagAction, FtrackB
     def __init__(self):
         BuildTrackFromExportTagAction.__init__(self)
         FtrackBase.__init__(self)
-        self.setWindowTitle('Build Track From ftrack Tag')
+        # self.setTitle('Build Track From ftrack Tag')
 
 
 class FtrackBuildTrack(BuildTrack):
@@ -19,3 +18,4 @@ class FtrackBuildTrack(BuildTrack):
         super(FtrackBuildTrack, self).__init__()
         self.setTitle('[ftrack] Build Track')
         self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
+        self._actionTag = FtrackBuildTrackFromExportTagAction()
