@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 # Redirect hiero logging to default one.
-hiero.core.log = logger
+# hiero.core.log = logger
 
 
 def register_processors():
