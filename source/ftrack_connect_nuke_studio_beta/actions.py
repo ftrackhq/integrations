@@ -87,3 +87,39 @@ class FtrackBuildTrack(BuildTrack, FtrackBase):
         self.logger.info('enable action tag: {0}'.format(bool(len(ftrack_tags))))
         self._actionTag.setEnabled(len(ftrack_tags) > 0)
         self.logger.info(self._actionTag.isEnabled())
+
+    def findShotExporterTag(self, trackItem):
+        """ Try to find a tag added by the Nuke Shot Exporter by checking it has the expected metadata keys. """
+        return self._findTagWithMetadataKeys(trackItem, ("tag.provider", "tag.presetid", "tag.path", "tag.script"))
+
+    def trackItemAdded(self, newTrackItem, track, originalTrackItem):
+        self.logger.ingo('Track Item Added....')
+
+        """ Reimplementation.  Adds a tag to the new track item, and copies any retime effects if necessary. """
+        # Find export tag on the original track item
+        tag = self.findTag(originalTrackItem)
+        if tag:
+            # Add metadata referencing the newly created copied track item
+            metadata = tag.metadata()
+
+            # call setMetadataValue so that we only trigger something that's
+            # undo/redo able if we need to
+            self._setMetadataValue(metadata, "tag.track", track.guid())
+            self._setMetadataValue(metadata, "tag.trackItem", newTrackItem.guid())
+
+            # Tag the new track item to give it an icon.  Add a reference to the original
+            # in the tag metadata.  This is used for re-export, so only add it if the original tag
+            # has a presetid which could be re-exported from.
+            if metadata.hasKey("tag.presetid"):
+                newTag = hiero.core.Tag("VFX", "icons:NukeVFX.png", False)
+                newTag.metadata().setValue("tag.originaltrackitem", originalTrackItem.guid())
+                newTag.setVisible( False )
+                newTrackItem.addTag(newTag)
+
+            # If retimes were not applied as part of the export, check for linked effects on the original track item, and
+            # copy them to the new track.
+            if not self.retimesAppliedInExport(tag):
+                linkedRetimeEffects = [ item for item in originalTrackItem.linkedItems() if isinstance(item, hiero.core.EffectTrackItem) and item.isRetimeEffect() ]
+                for effect in linkedRetimeEffects:
+                    effectCopy = track.createEffect(copyFrom=effect, trackItem=newTrackItem)
+                    effectCopy.setEnabled(effect.isEnabled())
