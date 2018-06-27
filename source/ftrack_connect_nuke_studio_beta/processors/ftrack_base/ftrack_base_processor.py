@@ -364,9 +364,11 @@ class FtrackProcessor(FtrackBase):
                 path = task.resolvePath(exportPath)
                 path_id = os.path.dirname(path)
                 versions.setdefault(path_id, None)
-
+                self.logger.info('export path: {}'.format(exportPath))
+                self.logger.info('path: {}'.format(path))
+                
                 parent = None  # After the loop this will be containing the component object.
-                for template, token in zip(exportPath.split('/'), path.split('/')):
+                for template, token in zip(exportPath.split(self.path_separator), path.split(self.path_separator)):
                     if not versions[path_id] and parent and parent.entity_type == 'AssetVersion':
                         versions[path_id] = parent
 
@@ -377,14 +379,18 @@ class FtrackProcessor(FtrackBase):
 
                 # Extract ftrack path from structure and accessors.
                 ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent)
+                self.logger.info('ftrack_shot_path: {}'.format(ftrack_shot_path))
 
                 # Ftrack sanitize output path, but we need to retain the original on here
                 # otherwise foo.####.ext becomes foo.____.ext
-                tokens = ftrack_shot_path.split(os.path.sep)
+                tokens = ftrack_shot_path.split(self.path_separator)
+                self.logger.info('tokens:{}'.format(tokens))
+
                 tokens[-1] = resolved_file_name
-                ftrack_shot_path = os.path.sep.join(tokens)
+                ftrack_shot_path = self.path_separator.join(tokens)
 
                 ftrack_path = str(os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path))
+                self.logger.info('ftrack_path: {}'.format(ftrack_path))
 
                 data = {
                     'component': parent,
