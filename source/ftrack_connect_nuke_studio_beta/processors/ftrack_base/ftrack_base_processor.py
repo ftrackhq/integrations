@@ -200,6 +200,8 @@ class FtrackProcessor(FtrackBase):
         return result
 
     def _create_project_fragment(self, name, parent, task, version):
+        self.logger.debug('Creating project fragment: {} {} {} {}'.format(name, parent, task, version))
+
         project = self.session.query(
             'Project where name is "{0}"'.format(name)
         ).first()
@@ -212,6 +214,8 @@ class FtrackProcessor(FtrackBase):
         return project
 
     def _create_sequence_fragment(self, name, parent, task, version):
+        self.logger.debug('Creating sequence fragment: {} {} {} {}'.format(name, parent, task, version))
+
         sequence = self.session.query(
             'Sequence where name is "{0}" and parent.id is "{1}"'.format(name, parent['id'])
         ).first()
@@ -223,6 +227,8 @@ class FtrackProcessor(FtrackBase):
         return sequence
 
     def _create_shot_fragment(self, name, parent, task,version):
+        self.logger.debug('Creating shot fragment: {} {} {} {}'.format(name, parent, task, version))
+
         shot = self.session.query(
             'Shot where name is "{0}" and parent.id is "{1}"'.format(name, parent['id'])
         ).first()
@@ -235,22 +241,12 @@ class FtrackProcessor(FtrackBase):
         return shot
 
     def _create_asset_fragment(self, name, parent, task, version):
-        task_name = self.ftrack_properties['task_type']
-        ftask = self.session.query(
-            'Task where name is "{0}" and parent.id is "{1}"'.format(task_name, parent['id'])
-        ).first()
-
-        if not ftask:
-            ftask = self.session.create('Task', {
-                'name': task_name,
-                'parent': parent,
-                'status': self.task_status,
-                'type': self.task_type
-            })
+        self.logger.debug('Creating asset fragment: {} {} {} {}'.format(name, parent, task, version))
 
         asset = self.session.query(
             'Asset where name is "{0}" and parent.id is "{1}"'.format(name, parent['id'])
         ).first()
+
         if not asset:
             asset = self.session.create('Asset', {
                 'name': name,
@@ -258,10 +254,23 @@ class FtrackProcessor(FtrackBase):
                 'type': self.asset_type_per_task(task)
             })
 
-
         return asset
 
     def _create_version_fragment(self, name, parent, task, version):
+        self.logger.debug('Creating version fragment: {} {} {} {}'.format(name, parent, task, version))
+
+        task_name = self.ftrack_properties['task_type']
+        ftask = self.session.query(
+            'Task where name is "{0}" and parent.id is "{1}"'.format(task_name, parent['parent']['id'])
+        ).first()
+
+        if not ftask:
+            ftask = self.session.create('Task', {
+                'name': task_name,
+                'parent': parent['parent'],
+                'status': self.task_status,
+                'type': self.task_type
+            })
 
         if not version:
             comment = 'Published with: {0} From Nuke Studio : {1}.{2}.{3}'.format(
@@ -271,12 +280,14 @@ class FtrackProcessor(FtrackBase):
                 'asset': parent,
                 'status': self.asset_version_status,
                 'comment': comment,
-                'task': parent['parent']
+                'task': ftask
             })
 
         return version
 
     def _create_component_fragment(self, name, parent, task, version):
+        self.logger.debug('Creating component fragment: {} {} {} {}'.format(name, parent, task, version))
+
         component = parent.create_component('/', {
             'name': task._preset.name().lower()
         }, location=None)
