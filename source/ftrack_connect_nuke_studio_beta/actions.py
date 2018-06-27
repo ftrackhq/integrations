@@ -23,6 +23,8 @@ class FtrackBuildTrackFromExportTagDialog(BuildTrackFromExportTagDialog):
         super(BuildTrackFromExportTagDialog, self).__init__(parent)
 
         self.setWindowTitle("Build Track From ftrack Export Tag")
+        self.setWindowIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
+
         self.setSizeGripEnabled(True)
 
         self._tagIdentifier = None
@@ -93,6 +95,8 @@ class FtrackBuildTrackFromExportTagDialog(BuildTrackFromExportTagDialog):
         formLayout.addRow("Select Export Tag:", tagLayout)
 
         createCompClipsCheckBox = QtWidgets.QCheckBox("Create Comp Clips")
+        createCompClipsCheckBox.setVisible(False)  # Disable for now
+
         createCompClipsCheckBox.setToolTip(
             "When building from a Nuke Project export, this controls whether the created clips reference the exported nk script or the render output.")
         createCompClipsCheckBox.setChecked(createCompClips)
@@ -120,7 +124,9 @@ class FtrackBuildTrackFromExportTagAction(BuildTrackFromExportTagAction, FtrackB
     def __init__(self):
         BuildTrackFromExportTagAction.__init__(self)
         FtrackBase.__init__(self)
-        self.setText("ftrack :: Build Track From Tag")
+        self.setText("From ftrack Tag")
+        self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
+
 
     def trackItemAdded(self, newTrackItem, track, originalTrackItem):
         """ Reimplementation.  Adds a tag to the new track item, and copies any retime effects if necessary. """
@@ -162,7 +168,8 @@ class FtrackBuildTrackFromExportTagAction(BuildTrackFromExportTagAction, FtrackB
         # Check the preferences for whether the built clips should be comp clips in the
         # case that the export being built from was a Nuke Shot export.
         settings = hiero.core.ApplicationSettings()
-        createCompClips = settings.boolValue(self.kCreateCompClipsPreferenceKey, False)
+        # createCompClips = settings.boolValue(self.kCreateCompClipsPreferenceKey, False)
+        createCompClips = False
 
         dialog = FtrackBuildTrackFromExportTagDialog(selection, createCompClips)
         if dialog.exec_():
@@ -181,7 +188,7 @@ class FtrackBuildTrackFromExportTagAction(BuildTrackFromExportTagAction, FtrackB
 
 class FtrackBuildTrack(BuildTrack, FtrackBase):
     def __init__(self):
-        QtWidgets.QMenu.__init__(self, "ftrack :: Build Track", None)
+        QtWidgets.QMenu.__init__(self, "Build Track", None)
 
         hiero.core.events.registerInterest("kShowContextMenu/kTimeline", self.eventHandler)
         self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
