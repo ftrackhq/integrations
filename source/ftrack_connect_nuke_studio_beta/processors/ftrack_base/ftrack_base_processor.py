@@ -515,7 +515,7 @@ class FtrackProcessor(FtrackBase):
         if is_published:
             return
 
-        start, end = render_task.outputRange()
+        start, end = render_task.outputRange(clampToSource=False)
         start_handle, end_handle = render_task.outputHandles()
 
         fps = None
@@ -525,7 +525,21 @@ class FtrackProcessor(FtrackBase):
         elif render_task._clip:
             fps = render_task._clip.framerate().toFloat()
 
-        attributes = component['version']['task']['parent']['custom_attributes']
+        parent = component['version']['task']['parent']
+        self.logger.info('Parent: {}'.format(parent))
+
+        attributes = parent['custom_attributes']
+
+        self.logger.info(
+            'Metadata for: {}:{} :: {}-{} {}'.format(
+                render_task._item.name(),
+                render_task._preset.name(),
+                start, end,
+                fps
+            )
+        )
+
+        self.logger.info('attributes {0}'.format(attributes.keys()))
 
         for attr_name, attr_value in attributes.items():
             if start and attr_name == 'fstart':
@@ -542,7 +556,6 @@ class FtrackProcessor(FtrackBase):
 
         if '#' in publish_path:
             # todo: Improve this logic
-            start, end = render_task.outputRange()
             publish_path = '{0} [{1}-{2}]'.format(publish_path, start, end)
 
         self.session.create(
