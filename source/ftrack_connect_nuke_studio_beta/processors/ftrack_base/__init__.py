@@ -5,14 +5,14 @@ import os
 import hiero
 from ftrack_connect_nuke_studio_beta.base import FtrackBase
 
-FTRACK_SHOW_PATH = '/'.join([
+FTRACK_SHOW_PATH = FtrackBase.path_separator.join([
     '{ftrack_project}',
     '{ftrack_asset}',
     '{ftrack_version}',
     '{ftrack_component}'
 ])
 
-FTRACK_SHOT_PATH = '/'.join([
+FTRACK_SHOT_PATH = FtrackBase.path_separator.join([
     '{ftrack_project}',
     '{ftrack_sequence}',
     '{ftrack_shot}',
