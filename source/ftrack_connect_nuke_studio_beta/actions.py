@@ -7,12 +7,109 @@ from ftrack_connect_nuke_studio_beta.base import FtrackBase
 
 import hiero
 from hiero.ui.BuildExternalMediaTrack import (
-    BuildTrackFromExportTagAction,
-    BuildExternalMediaTrackAction,
     BuildTrack,
-    TrackFinderByTag,
-    BuildTrackFromExportTagDialog
+    BuildTrackFromExportTagAction,
+    BuildTrackFromExportTagDialog,
+    BuildExternalMediaTrackAction,
+    BuildExternalMediaTrackDialog
 )
+
+# =========================================================================================
+# External media dialog and action
+
+
+class FtrackBuildExternalMediaTrackDialog(BuildExternalMediaTrackDialog):
+    def __init__(self, selection, parent=None):
+
+        if not parent:
+            parent = hiero.ui.mainWindow()
+        super(BuildExternalMediaTrackDialog, self).__init__(parent)
+        self.setWindowTitle("Build Track From Export Structure")
+        self.setSizeGripEnabled(True)
+
+        self._exportTemplate = None
+        self._selection = selection
+        layout = QtWidgets.QVBoxLayout()
+        formLayout = QtWidgets.QFormLayout()
+
+        self._tracknameField = QtWidgets.QLineEdit(BuildTrack.ProjectTrackNameDefault(selection))
+        self._tracknameField.setToolTip("Name of new track")
+        validator = hiero.ui.trackNameValidator()
+        self._tracknameField.setValidator(validator)
+        formLayout.addRow("Track Name:", self._tracknameField)
+
+        project = None
+        if self._selection:
+            project = self.itemProject(self._selection[0])
+        presetNames = [preset.name() for preset in hiero.core.taskRegistry.localPresets() + hiero.core.taskRegistry.projectPresets(project)]
+        # filter ftrack presets
+        presetNames = [presetName for presetName in presetNames if 'ftrack' in presetName.lower()]
+
+        presetCombo = QtWidgets.QComboBox()
+        for name in sorted(presetNames):
+            presetCombo.addItem(name)
+        presetCombo.currentIndexChanged.connect(self.presetChanged)
+        self._presetCombo = presetCombo
+        formLayout.addRow("Export Preset:", presetCombo)
+
+        layout.addLayout(formLayout)
+
+        self._exportTemplate = hiero.core.ExportStructure2()
+        self._exportTemplateViewer = hiero.ui.ExportStructureViewer(self._exportTemplate, hiero.ui.ExportStructureViewer.ReadOnly)
+        if project:
+            self._exportTemplateViewer.setProject(project)
+
+        layout.addWidget(self._exportTemplateViewer)
+
+        # Add the standard ok/cancel buttons, default to ok.
+        self._buttonbox = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.StandardButton.Ok | QtWidgets.QDialogButtonBox.StandardButton.Cancel)
+        self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setText("Build")
+        self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setDefault(True)
+        self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setToolTip("Builds the selected entry in the export template. Only enabled if an entry is selected in the view above.")
+        self._buttonbox.accepted.connect(self.acceptTest)
+        self._buttonbox.rejected.connect(self.reject)
+        layout.addWidget(self._buttonbox)
+
+        if presetNames:
+            self.presetChanged(presetNames[0])
+
+        self.setLayout(layout)
+
+
+
+
+
+class FtrackBuildExternalMediaTrackAction(BuildExternalMediaTrackAction):
+
+    def __init__(self):
+        super(FtrackBuildExternalMediaTrackAction, self).__init__()
+        self.setText('From ftrack structure')
+        self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
+
+
+    def configure(self, project, selection):
+
+        # Check the preferences for whether the built clips should be comp clips in the
+        # case that the export being built from was a Nuke Shot export.
+        settings = hiero.core.ApplicationSettings()
+        # createCompClips = settings.boolValue(self.kCreateCompClipsPreferenceKey, False)
+        createCompClips = False
+
+        dialog = FtrackBuildExternalMediaTrackDialog(selection, createCompClips)
+        if dialog.exec_():
+            self._trackName = dialog.trackName()
+            self._tagIdentifier = dialog.tagIdentifier()
+            self._createCompClips = dialog.createCompClips()
+
+            # Write the create comp clips choice to the preferences
+            # settings.setBoolValue(self.kCreateCompClipsPreferenceKey, self._createCompClips)
+
+            return True
+        else:
+            return False
+
+# =========================================================================================
+# Tag dialog and action
 
 
 class FtrackBuildTrackFromExportTagDialog(BuildTrackFromExportTagDialog):
@@ -189,6 +286,9 @@ class FtrackBuildTrackFromExportTagAction(BuildTrackFromExportTagAction, FtrackB
             return False
 
 
+# =========================================================================================
+# Main Menu
+
 class FtrackBuildTrack(BuildTrack, FtrackBase):
 
     def __init__(self):
@@ -196,10 +296,8 @@ class FtrackBuildTrack(BuildTrack, FtrackBase):
 
         hiero.core.events.registerInterest('kShowContextMenu/kTimeline', self.eventHandler)
         self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
-        self._actionStructure = BuildExternalMediaTrackAction()
+        self._actionStructure = FtrackBuildExternalMediaTrackAction()
         self._actionTag = FtrackBuildTrackFromExportTagAction()
-
-        self._actionStructure.setVisible(False)
 
         self.addAction(self._actionTag)
         self.addAction(self._actionStructure)
