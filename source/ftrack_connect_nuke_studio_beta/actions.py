@@ -24,7 +24,7 @@ class FtrackBuildExternalMediaTrackDialog(BuildExternalMediaTrackDialog):
         if not parent:
             parent = hiero.ui.mainWindow()
         super(BuildExternalMediaTrackDialog, self).__init__(parent)
-        self.setWindowTitle("Build Track From Export Structure")
+        self.setWindowTitle('Build Track From Export Structure')
         self.setSizeGripEnabled(True)
 
         self._exportTemplate = None
@@ -33,10 +33,10 @@ class FtrackBuildExternalMediaTrackDialog(BuildExternalMediaTrackDialog):
         formLayout = QtWidgets.QFormLayout()
 
         self._tracknameField = QtWidgets.QLineEdit(BuildTrack.ProjectTrackNameDefault(selection))
-        self._tracknameField.setToolTip("Name of new track")
+        self._tracknameField.setToolTip('Name of new track')
         validator = hiero.ui.trackNameValidator()
         self._tracknameField.setValidator(validator)
-        formLayout.addRow("Track Name:", self._tracknameField)
+        formLayout.addRow('Track Name:', self._tracknameField)
 
         project = None
         if self._selection:
@@ -50,7 +50,7 @@ class FtrackBuildExternalMediaTrackDialog(BuildExternalMediaTrackDialog):
             presetCombo.addItem(name)
         presetCombo.currentIndexChanged.connect(self.presetChanged)
         self._presetCombo = presetCombo
-        formLayout.addRow("Export Preset:", presetCombo)
+        formLayout.addRow('Export Preset:', presetCombo)
 
         layout.addLayout(formLayout)
 
@@ -63,9 +63,9 @@ class FtrackBuildExternalMediaTrackDialog(BuildExternalMediaTrackDialog):
 
         # Add the standard ok/cancel buttons, default to ok.
         self._buttonbox = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.StandardButton.Ok | QtWidgets.QDialogButtonBox.StandardButton.Cancel)
-        self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setText("Build")
+        self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setText('Build')
         self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setDefault(True)
-        self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setToolTip("Builds the selected entry in the export template. Only enabled if an entry is selected in the view above.")
+        self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setToolTip('Builds the selected entry in the export template. Only enabled if an entry is selected in the view above.')
         self._buttonbox.accepted.connect(self.acceptTest)
         self._buttonbox.rejected.connect(self.reject)
         layout.addWidget(self._buttonbox)
