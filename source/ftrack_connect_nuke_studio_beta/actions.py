@@ -21,6 +21,11 @@ from hiero.ui.BuildExternalMediaTrack import (
 class FtrackBuildExternalMediaTrackDialog(BuildExternalMediaTrackDialog):
     def __init__(self, selection, parent=None):
 
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+        self.logger.setLevel(logging.DEBUG)
+
         if not parent:
             parent = hiero.ui.mainWindow()
         super(BuildExternalMediaTrackDialog, self).__init__(parent)
@@ -41,9 +46,11 @@ class FtrackBuildExternalMediaTrackDialog(BuildExternalMediaTrackDialog):
         project = None
         if self._selection:
             project = self.itemProject(self._selection[0])
-        presetNames = [preset.name() for preset in hiero.core.taskRegistry.localPresets() + hiero.core.taskRegistry.projectPresets(project)]
-        # filter ftrack presets
-        presetNames = [presetName for presetName in presetNames if 'ftrack' in presetName.lower()]
+
+        all_presets = hiero.core.taskRegistry.localPresets() + hiero.core.taskRegistry.projectPresets(project)
+        filtered_presets = [preset for preset in all_presets if preset.properties().get('ftrack', {}).get('asset_name') is not None]
+
+        presetNames = [preset.name() for preset in filtered_presets]
 
         presetCombo = QtWidgets.QComboBox()
         for name in sorted(presetNames):
@@ -76,9 +83,6 @@ class FtrackBuildExternalMediaTrackDialog(BuildExternalMediaTrackDialog):
         self.setLayout(layout)
 
 
-
-
-
 class FtrackBuildExternalMediaTrackAction(BuildExternalMediaTrackAction):
 
     def __init__(self):
@@ -86,27 +90,37 @@ class FtrackBuildExternalMediaTrackAction(BuildExternalMediaTrackAction):
         self.setText('From ftrack structure')
         self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
 
-
     def configure(self, project, selection):
-
-        # Check the preferences for whether the built clips should be comp clips in the
-        # case that the export being built from was a Nuke Shot export.
-        settings = hiero.core.ApplicationSettings()
-        # createCompClips = settings.boolValue(self.kCreateCompClipsPreferenceKey, False)
-        createCompClips = False
-
-        dialog = FtrackBuildExternalMediaTrackDialog(selection, createCompClips)
+        dialog = FtrackBuildExternalMediaTrackDialog(selection)
         if dialog.exec_():
             self._trackName = dialog.trackName()
-            self._tagIdentifier = dialog.tagIdentifier()
-            self._createCompClips = dialog.createCompClips()
 
-            # Write the create comp clips choice to the preferences
-            # settings.setBoolValue(self.kCreateCompClipsPreferenceKey, self._createCompClips)
+            # Determine the exported file paths
+            self._exportTemplate = dialog._exportTemplate
+            structureElement = dialog._exportTemplateViewer.selection()
+            self._processorPreset = dialog._preset
+            if structureElement is not None:
+                # Grab the elements relative path
+                self._elementPath = structureElement.path()
+                self._elementPreset = structureElement.preset()
 
-            return True
-        else:
-            return False
+                resolver = hiero.core.ResolveTable()
+                resolver.merge(dialog._resolver)
+                resolver.merge(self._elementPreset.createResolver())
+                self._resolver = resolver
+
+                self._project = project
+
+                return True
+
+        return False
+
+    def getExternalFilePaths(self, trackItem):
+        # Instantiate a copy of the task in order to resolve the export path
+        # replace the version string with "v*" so the glob matches all versions
+        taskData = hiero.core.TaskData(self._elementPreset, trackItem, self._exportTemplate.exportRootPath(), self._elementPath, "v*", self._exportTemplate, project=self._project, resolver=self._resolver)
+        task = hiero.core.taskRegistry.createTaskFromPreset(self._elementPreset, taskData)
+        return [task.resolvedExportPath()]
 
 # =========================================================================================
 # Tag dialog and action
