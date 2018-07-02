@@ -12,9 +12,9 @@ def send_event(event_name, metadata=None):
 
     if metadata is None:
         metadata = {
-            'nuke_studio_version':
+            'nuke_studio_beta_version':
                 nuke.NUKE_VERSION_STRING,
-            'ftrack_connect_nuke_studio_version':
+            'ftrack_connect_nuke_studio_beta_version':
                 ftrack_connect_nuke_studio_beta.__version__
         }
 
