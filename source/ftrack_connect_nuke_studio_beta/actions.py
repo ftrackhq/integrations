@@ -15,6 +15,8 @@ from hiero.ui.BuildExternalMediaTrack import (
     TrackFinderByNameWithDialog
 )
 
+# =========================================================================================
+# Track creation dialog
 
 class FtrackTrackFinderByNameWithDialog(TrackFinderByNameWithDialog):
 
@@ -118,6 +120,10 @@ class FtrackBuildExternalMediaTrackAction(BuildExternalMediaTrackAction):
         self.setText('From ftrack structure')
         self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
         self.trackFinder = FtrackTrackFinderByNameWithDialog(self)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+        self.logger.setLevel(logging.DEBUG)
 
     def configure(self, project, selection):
         dialog = FtrackBuildExternalMediaTrackDialog(selection)
@@ -133,6 +139,17 @@ class FtrackBuildExternalMediaTrackAction(BuildExternalMediaTrackAction):
                 self._elementPath = structureElement.path()
                 self._elementPreset = structureElement.preset()
 
+                processor_schema = self._processorPreset.properties()['ftrack']['project_schema']
+                task_type = self._processorPreset.properties()['ftrack']['task_type']
+                asset_type_code = self._processorPreset.properties()['ftrack']['asset_type_code']
+                asset_name = self._processorPreset.properties()['ftrack']['asset_name']
+
+                self._elementPreset.properties()['ftrack']['project_schema'] = processor_schema
+                self._elementPreset.properties()['ftrack']['task_type'] = task_type
+                self._elementPreset.properties()['ftrack']['asset_type_code'] = asset_type_code
+                self._elementPreset.properties()['ftrack']['asset_name'] = asset_name
+                self.logger.info('configure : {0}'.format(self._elementPreset))
+
                 resolver = hiero.core.ResolveTable()
                 resolver.merge(dialog._resolver)
                 resolver.merge(self._elementPreset.createResolver())
@@ -144,12 +161,6 @@ class FtrackBuildExternalMediaTrackAction(BuildExternalMediaTrackAction):
 
         return False
 
-    def getExternalFilePaths(self, trackItem):
-        # Instantiate a copy of the task in order to resolve the export path
-        # replace the version string with "v*" so the glob matches all versions
-        taskData = hiero.core.TaskData(self._elementPreset, trackItem, self._exportTemplate.exportRootPath(), self._elementPath, "v*", self._exportTemplate, project=self._project, resolver=self._resolver)
-        task = hiero.core.taskRegistry.createTaskFromPreset(self._elementPreset, taskData)
-        return [task.resolvedExportPath()]
 
 # =========================================================================================
 # Tag dialog and action
@@ -273,41 +284,6 @@ class FtrackBuildTrackFromExportTagAction(BuildTrackFromExportTagAction, FtrackB
         self.setText('From ftrack Tag')
         self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
         self.trackFinder = FtrackTrackFinderByNameWithDialog(self)
-
-
-    def trackItemAdded(self, newTrackItem, track, originalTrackItem):
-        ''' Reimplementation.  Adds a tag to the new track item, and copies any retime effects if necessary. '''
-        # Find export tag on the original track item
-        tag = self.findTag(originalTrackItem)
-        self.logger.info('trackItemAdded:: tag found {0}'.format(tag))
-
-        if tag:
-            # Add metadata referencing the newly created copied track item
-            metadata = tag.metadata()
-
-            # call setMetadataValue so that we only trigger something that's
-            # undo/redo able if we need to
-            self._setMetadataValue(metadata, 'tag.track', track.guid())
-            self._setMetadataValue(metadata, 'tag.trackItem', newTrackItem.guid())
-
-            # Tag the new track item to give it an icon.  Add a reference to the original
-            # in the tag metadata.  This is used for re-export, so only add it if the original tag
-            # has a presetid which could be re-exported from.
-            self.logger.info('has presetid: {0}'.format(metadata.hasKey('tag.presetid')))
-
-            if metadata.hasKey('tag.presetid'):
-                newTag = hiero.core.Tag('ftrack', ':ftrack/image/default/ftrackLogoColor', False)
-                newTag.metadata().setValue('tag.originaltrackitem', originalTrackItem.guid())
-                newTag.setVisible( False )
-                newTrackItem.addTag(newTag)
-
-            # If retimes were not applied as part of the export, check for linked effects on the original track item, and
-            # copy them to the new track.
-            if not self.retimesAppliedInExport(tag):
-                linkedRetimeEffects = [ item for item in originalTrackItem.linkedItems() if isinstance(item, hiero.core.EffectTrackItem) and item.isRetimeEffect() ]
-                for effect in linkedRetimeEffects:
-                    effectCopy = track.createEffect(copyFrom=effect, trackItem=newTrackItem)
-                    effectCopy.setEnabled(effect.isEnabled())
 
     def configure(self, project, selection):
 
