@@ -662,7 +662,7 @@ class FtrackProcessorUI(FtrackBase):
         super(FtrackProcessorUI, self).__init__(preset)
         self._nodeSelectionWidget = None
 
-    def addFtrackProcessorUI(self, widget, exportTemplate):
+    def addFtrackProcessorUI(self, widget, exportItems):
 
         project_name = self._project.name()
         project = self.session.query(
@@ -713,16 +713,34 @@ class FtrackProcessorUI(FtrackBase):
             schema_property._widget.setCurrentIndex(schema_index)
             schema_property.setDisabled(True)
 
-        # Hide project path selector Foundry ticket : #36074
-        for widget in self._exportStructureViewer.findChildren(QtWidgets.QWidget):
-            if (
-                    (isinstance(widget, QtWidgets.QLabel) and widget.text() == 'Export To:') or
-                    widget.toolTip() == 'Export root path'
-            ):
-                widget.hide()
+        # provide access to tags.
+        task_tags = set()
+        for exportItem in exportItems:
+            item = exportItem.item()
+            if not hasattr(item, 'tags'):
+                continue
 
-            if (isinstance(widget, QtWidgets.QLabel) and widget.text() == 'Export Structure:'):
-                widget.hide()
+            for tag in item.tags():
+                meta = tag.metadata()
+                self.logger.info('Found tag: {0}'.format(meta))
+                if meta.hasKey('type') and meta.value('type') == 'ftrack':
+                    task_name = meta.value('ftrack.name')
+                    task_tags.add(task_name)
+
+        self.logger.info('Tags : {0}'.format(task_tags))
+
+        key, value, label = 'task_type', list(task_tags), 'Task'
+        thumbnail_tooltip = 'Select a task to publish to.'
+
+        task_property = UIPropertyFactory.create(
+            type(value),
+            key=key,
+            value=value,
+            dictionary=self._preset.properties()['ftrack'],
+            label=label + ':',
+            tooltip=thumbnail_tooltip
+        )
+        form_layout.addRow(label + ':', task_property)
 
         # Thumbanil generation.
         key, value, label = 'opt_publish_thumbnail', True, 'Publish Thumbnail'
@@ -751,3 +769,15 @@ class FtrackProcessorUI(FtrackBase):
             tooltip=thumbnail_tooltip
         )
         form_layout.addRow(label + ':', ui_property)
+
+
+        # Hide project path selector Foundry ticket : #36074
+        for widget in self._exportStructureViewer.findChildren(QtWidgets.QWidget):
+            if (
+                    (isinstance(widget, QtWidgets.QLabel) and widget.text() == 'Export To:') or
+                    widget.toolTip() == 'Export root path'
+            ):
+                widget.hide()
+
+            if (isinstance(widget, QtWidgets.QLabel) and widget.text() == 'Export Structure:'):
+                widget.hide()
