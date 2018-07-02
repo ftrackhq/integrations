@@ -743,6 +743,19 @@ class FtrackProcessorUI(FtrackBase):
         )
         form_layout.addRow(label + ':', task_property)
 
+        asset_name = self._preset.properties()['ftrack']['asset_name']
+        key, value, label = 'asset_name', asset_name, 'Asset Name'
+        thumbnail_tooltip = 'Select an asset name to publish to.'
+        asset_name = UIPropertyFactory.create(
+            type(value),
+            key=key,
+            value=value,
+            dictionary=self._preset.properties()['ftrack'],
+            label=label + ':',
+            tooltip=thumbnail_tooltip
+        )
+        form_layout.addRow(label + ':', asset_name)
+
         # Thumbanil generation.
         key, value, label = 'opt_publish_thumbnail', True, 'Publish Thumbnail'
         thumbnail_tooltip = 'Generate and upload thumbnail'
