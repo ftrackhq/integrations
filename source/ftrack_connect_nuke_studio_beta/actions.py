@@ -139,16 +139,22 @@ class FtrackBuildExternalMediaTrackAction(BuildExternalMediaTrackAction):
                 self._elementPath = structureElement.path()
                 self._elementPreset = structureElement.preset()
 
-                processor_schema = self._processorPreset.properties()['ftrack']['project_schema']
-                task_type = self._processorPreset.properties()['ftrack']['task_type']
-                asset_type_code = self._processorPreset.properties()['ftrack']['asset_type_code']
-                asset_name = self._processorPreset.properties()['ftrack']['asset_name']
+                # If task presets lacks of some information, let's rely on the processor ones.
+                if not self._elementPreset.properties()['ftrack'].get('project_schema'):
+                    processor_schema = self._processorPreset.properties()['ftrack']['project_schema']
+                    self._elementPreset.properties()['ftrack']['project_schema'] = processor_schema
 
-                self._elementPreset.properties()['ftrack']['project_schema'] = processor_schema
-                self._elementPreset.properties()['ftrack']['task_type'] = task_type
-                self._elementPreset.properties()['ftrack']['asset_type_code'] = asset_type_code
-                self._elementPreset.properties()['ftrack']['asset_name'] = asset_name
-                self.logger.info('configure : {0}'.format(self._elementPreset))
+                if not self._elementPreset.properties()['ftrack'].get('task_type'):
+                    task_type = self._processorPreset.properties()['ftrack']['task_type']
+                    self._elementPreset.properties()['ftrack']['task_type'] = task_type
+
+                if not self._elementPreset.properties()['ftrack'].get('asset_type_code'):
+                    asset_type_code = self._processorPreset.properties()['ftrack']['asset_type_code']
+                    self._elementPreset.properties()['ftrack']['asset_type_code'] = asset_type_code
+
+                if not self._elementPreset.properties()['ftrack'].get('asset_name'):
+                    asset_name = self._processorPreset.properties()['ftrack']['asset_name']
+                    self._elementPreset.properties()['ftrack']['asset_name'] = asset_name
 
                 resolver = hiero.core.ResolveTable()
                 resolver.merge(dialog._resolver)
