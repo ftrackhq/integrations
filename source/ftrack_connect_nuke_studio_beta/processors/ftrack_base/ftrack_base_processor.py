@@ -729,7 +729,8 @@ class FtrackProcessorUI(FtrackBase):
 
         self.logger.info('Tags : {0}'.format(task_tags))
 
-        key, value, label = 'task_type', list(task_tags), 'Task'
+        task_tags = list(task_tags) or [self._preset.properties()['ftrack']['task_type']]
+        key, value, label = 'task_type', list(task_tags), 'Publish to Task'
         thumbnail_tooltip = 'Select a task to publish to.'
 
         task_property = UIPropertyFactory.create(
