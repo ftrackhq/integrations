@@ -11,8 +11,36 @@ from hiero.ui.BuildExternalMediaTrack import (
     BuildTrackFromExportTagAction,
     BuildTrackFromExportTagDialog,
     BuildExternalMediaTrackAction,
-    BuildExternalMediaTrackDialog
+    BuildExternalMediaTrackDialog,
+    TrackFinderByNameWithDialog
 )
+
+
+class FtrackTrackFinderByNameWithDialog(TrackFinderByNameWithDialog):
+
+    def findOrCreateTrackByName(self, sequence, trackName):
+        """ Searches the sequence for a track with the given name.  If none are found,
+            creates a new one. """
+        # a track always has to have a name
+        if not trackName or not sequence:
+            raise RuntimeError('Invalid arguments')
+
+        track = None
+        isNewTrack = False
+        # Look for existing track
+        for existingtrack in sequence.videoTracks():
+            if existingtrack.trackName() == trackName:
+                # hiero.core.log.debug( "Track Already Exists  : " + trackName )
+                track = existingtrack
+
+        # No existing track. Create new video track
+        if track is None:
+            # hiero.core.log.debug( "Track Created : " + trackName )
+            track = hiero.core.VideoTrack(str(trackName))
+            sequence.addTrack(track)
+            track.addTag(hiero.core.Tag(trackName, ':ftrack/image/default/ftrackLogoColor'))
+            isNewTrack = True
+        return track, isNewTrack
 
 # =========================================================================================
 # External media dialog and action
@@ -89,6 +117,7 @@ class FtrackBuildExternalMediaTrackAction(BuildExternalMediaTrackAction):
         super(FtrackBuildExternalMediaTrackAction, self).__init__()
         self.setText('From ftrack structure')
         self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
+        self.trackFinder = FtrackTrackFinderByNameWithDialog(self)
 
     def configure(self, project, selection):
         dialog = FtrackBuildExternalMediaTrackDialog(selection)
@@ -243,6 +272,8 @@ class FtrackBuildTrackFromExportTagAction(BuildTrackFromExportTagAction, FtrackB
         FtrackBase.__init__(self)
         self.setText('From ftrack Tag')
         self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
+        self.trackFinder = FtrackTrackFinderByNameWithDialog(self)
+
 
     def trackItemAdded(self, newTrackItem, track, originalTrackItem):
         ''' Reimplementation.  Adds a tag to the new track item, and copies any retime effects if necessary. '''
