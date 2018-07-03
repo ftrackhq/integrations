@@ -681,7 +681,7 @@ class FtrackProcessor(FtrackBase):
         errors = {}
         missing_assets_type = []
 
-        numitems = len(self._exportTemplate.flatten()) * len(exportItems)
+        numitems = len(self._exportTemplate.flatten()) + len(exportItems)
         progress_index = 0
         for exportItem in exportItems:
 
