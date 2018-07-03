@@ -5,6 +5,7 @@ import os
 import time
 import tempfile
 import logging
+import foundry.ui
 
 import hiero.core
 from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
@@ -21,6 +22,7 @@ from ftrack_connect_nuke_studio_beta.processors.ftrack_base import (
 )
 
 from QtExt import QtCore, QtWidgets, QtGui
+
 
 class FtrackSettingsValidator(QtWidgets.QDialog):
 
@@ -141,6 +143,9 @@ class FtrackProcessor(FtrackBase):
         # these events gets emitted during taskStart and taskFinish
         TaskCallbacks.addCallback(TaskCallbacks.onTaskStart, self.setupExportPaths)
         TaskCallbacks.addCallback(TaskCallbacks.onTaskFinish, self.publishResultComponent)
+        # progress for project creation
+        self._create_project_task = None
+        self._validate_project_task = None
 
     @property
     def schema(self):
@@ -329,14 +334,21 @@ class FtrackProcessor(FtrackBase):
         self.session.commit()
 
     def create_project_structure(self, exportItems):
+        self._create_project_task = foundry.ui.ProgressTask("Creating server structure...")
+        fileIndex = 0
+
         # ensure to reset components before creating a new project.
         self._components = {}
         versions = {}
 
         # provide access to tags.
+        numitems = len(self._exportTemplate.flatten()) * len(exportItems)
         for (exportPath, preset) in self._exportTemplate.flatten():
             for exportItem in exportItems:
                 trackItem = exportItem.item()
+
+                fileIndex += 1
+                self._create_project_task.setProgress(int(100.0 * (float(fileIndex) / float(numitems))))
 
                 # collect task tags per clip
                 task_tags = set()
@@ -446,6 +458,8 @@ class FtrackProcessor(FtrackBase):
 
                 self._components[trackItem.name()][preset.name()] = data
                 self.addFtrackTag(trackItem, task)
+
+        self._create_project_task = None
 
     def addFtrackTag(self, originalItem, task):
         if not hasattr(originalItem, 'tags'):
@@ -654,6 +668,8 @@ class FtrackProcessor(FtrackBase):
         version['task'].create_thumbnail(thumbnail_file)
 
     def validateFtrackProcessing(self, exportItems):
+        self._validate_project_task = foundry.ui.ProgressTask("Validating settings.")
+
         task_tags = set()
         task_types = self.schema.get_types('Task')
 
@@ -664,10 +680,12 @@ class FtrackProcessor(FtrackBase):
 
         errors = {}
         missing_assets_type = []
-
+        fileIndex = 0
         for exportItem in exportItems:
-
+            fileIndex += 1
+            self._validate_project_task.setProgress(int(100.0 * (float(fileIndex) / float(len(exportItems)))))
             item = exportItem.item()
+
             if not hasattr(item, 'tags'):
                 continue
 
@@ -709,6 +727,7 @@ class FtrackProcessor(FtrackBase):
 
             self.validateFtrackProcessing(exportItems)
 
+        self._validate_project_task = None
         return True
 
 
