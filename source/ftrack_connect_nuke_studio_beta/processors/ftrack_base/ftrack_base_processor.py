@@ -654,10 +654,8 @@ class FtrackProcessor(FtrackBase):
         version['task'].create_thumbnail(thumbnail_file)
 
     def validateFtrackProcessing(self, exportItems):
-
-        attributes = [
-            'task_type',
-        ]
+        task_tags = set()
+        task_types = self.schema.get_types('Task')
 
         processor_schema = self._preset.properties()['ftrack']['project_schema']
         task_type = self._preset.properties()['ftrack']['task_type']
@@ -667,7 +665,20 @@ class FtrackProcessor(FtrackBase):
         errors = {}
         missing_assets_type = []
 
-        for item in exportItems:
+        for exportItem in exportItems:
+
+            item = exportItem.item()
+            if not hasattr(item, 'tags'):
+                continue
+
+            for tag in item.tags():
+                meta = tag.metadata()
+                if meta.hasKey('type') and meta.value('type') == 'ftrack':
+                    task_name = meta.value('ftrack.name')
+                    filtered_task_types = [task_type for task_type in task_types if task_type['name'] == task_name]
+                    if len(filtered_task_types) == 1:
+                        task_tags.add(task_name)
+
             for (exportPath, preset) in self._exportTemplate.flatten():
                 # propagate properties from processor to tasks.
                 preset.properties()['ftrack']['project_schema'] = processor_schema
@@ -684,13 +695,11 @@ class FtrackProcessor(FtrackBase):
                 if not ftrack_asset_type and asset_type_code not in missing_assets_type:
                     missing_assets_type.append(asset_type_code)
 
-                for attribute in attributes:
-                    try:
-                        result = getattr(self, attribute)
-                    except FtrackProcessorValidationError as error:
-                        valid_values = [result['name'] for result in error.message]
-                        preset_errors = errors.setdefault(self, {})
-                        preset_errors.setdefault(attribute, valid_values)
+                try:
+                    result = getattr(self, 'task_type')
+                except FtrackProcessorValidationError as error:
+                    preset_errors = errors.setdefault(self, {})
+                    preset_errors.setdefault('task_type', list(task_tags))
 
         if errors or missing_assets_type:
             settings_validator = FtrackSettingsValidator(self.session, errors, missing_assets_type)
@@ -797,7 +806,7 @@ class FtrackProcessorUI(FtrackBase):
     def add_asset_name_options(self, parent_layout):
 
         asset_name = self._preset.properties()['ftrack']['asset_name']
-        key, value, label = 'asset_name', asset_name, 'Asset Name'
+        key, value, label = 'asset_name', asset_name, 'Set asset name as'
         thumbnail_tooltip = 'Select an asset name to publish to.'
         self.asset_name_options = UIPropertyFactory.create(
             type(value),
