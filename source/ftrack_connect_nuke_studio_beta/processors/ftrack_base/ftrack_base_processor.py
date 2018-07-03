@@ -297,13 +297,55 @@ class FtrackProcessor(FtrackBase):
     def _skip_fragment(self, name, parent, task, version):
         self.logger.warning('Skpping: {0}'.format(name))
 
+    def _create_extra_tasks(self, tasks, component):
+        # retrive the top level of asset .
+        parent = component['version']['asset']['parent'] # Shot
+        task_types = self.schema.get_types('Task')
+
+        for task_type_name in tasks:
+            filtered_task_types = [task_type for task_type in task_types if task_type['name'] == task_type_name]
+            if len(filtered_task_types) != 1:
+                continue
+
+            task_status = self.schema.get_statuses('Task', filtered_task_types[0]['id'])
+
+            ftask = self.session.query(
+                'Task where name is "{0}" and parent.id is "{1}"'.format(task_type_name, parent['id'])
+            ).first()
+
+            self.logger.info('task {0} exists ? {1}'.format(task_type_name, ftask))
+            if not ftask:
+                self.logger.info('Creating : {0} task under {1}'.format(task_type_name, parent['name']))
+                self.session.create('Task', {
+                    'name': task_type_name,
+                    'parent': parent,
+                    'status': task_status[0],
+                    'type': filtered_task_types[0]
+                })
+
+        self.session.commit()
+
     def create_project_structure(self, exportItems):
         # ensure to reset components before creating a new project.
         self._components = {}
         versions = {}
+
+        # provide access to tags.
         for (exportPath, preset) in self._exportTemplate.flatten():
             for exportItem in exportItems:
                 trackItem = exportItem.item()
+
+                # collect task tags per clip
+                task_tags = set()
+
+                if not hasattr(trackItem, 'tags'):
+                    continue
+
+                for tag in trackItem.tags():
+                    meta = tag.metadata()
+                    if meta.hasKey('type') and meta.value('type') == 'ftrack':
+                        task_name = meta.value('ftrack.name')
+                        task_tags.add(task_name)
 
                 # Skip effects track items.
                 if isinstance(trackItem, hiero.core.EffectTrackItem):
@@ -376,6 +418,7 @@ class FtrackProcessor(FtrackBase):
                     parent = fragment_fn(token, parent, task, versions[path_id])
 
                 self.session.commit()
+                self._create_extra_tasks(task_tags, parent)
 
                 # Extract ftrack path from structure and accessors.
                 ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent)
@@ -673,12 +716,12 @@ class FtrackProcessorUI(FtrackBase):
 
     def add_project_options(self, parent_layout):
         project_name = self._project.name()
-        project = self.session.query(
+        self.ftrack_project_exists = self.session.query(
             'select project_schema.name from Project where name is "{0}"'.format(project_name)
         ).first()
 
         update_or_create = 'Create'
-        if project:
+        if self.ftrack_project_exists:
             update_or_create = 'Update'
 
         key, value, label = 'project_name', project_name, '{0} Project'.format(update_or_create)
@@ -712,12 +755,12 @@ class FtrackProcessorUI(FtrackBase):
             tooltip=thumbnail_tooltip
         )
         parent_layout.addRow(label + ':', self.schema_options)
-        #
-        # if project:
-        #     # If a project exist , disable the widget and set the previous schema found.
-        #     schema_index = schema_property._widget.findText(project['project_schema']['name'])
-        #     schema_property._widget.setCurrentIndex(schema_index)
-        #     schema_property.setDisabled(True)
+
+        if self.ftrack_project_exists:
+            # If a project exist , disable the widget and set the previous schema found.
+            schema_index = self.schema_options._widget.findText(self.ftrack_project_exists['project_schema']['name'])
+            self.schema_options._widget.setCurrentIndex(schema_index)
+            self.schema_options.setDisabled(True)
 
     def add_task_type_options(self, parent_layout, exportItems):
 
@@ -730,12 +773,9 @@ class FtrackProcessorUI(FtrackBase):
 
             for tag in item.tags():
                 meta = tag.metadata()
-                self.logger.info('Found tag: {0}'.format(meta))
                 if meta.hasKey('type') and meta.value('type') == 'ftrack':
                     task_name = meta.value('ftrack.name')
                     task_tags.add(task_name)
-
-        self.logger.info('Tags : {0}'.format(task_tags))
 
         task_tags = list(task_tags) or [self._preset.properties()['ftrack']['task_type']]
         key, value, label = 'task_type', list(task_tags), 'Publish to Task'
@@ -810,7 +850,6 @@ class FtrackProcessorUI(FtrackBase):
                 widget.hide()
 
     def addFtrackProcessorUI(self, widget, exportItems):
-
         form_layout = TaskUIFormLayout()
         layout = widget.layout()
         layout.addLayout(form_layout)
