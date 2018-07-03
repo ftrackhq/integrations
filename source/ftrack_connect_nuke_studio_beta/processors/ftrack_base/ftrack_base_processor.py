@@ -658,24 +658,24 @@ class FtrackProcessor(FtrackBase):
 
 
 class FtrackProcessorUI(FtrackBase):
+
     def __init__(self, preset):
         super(FtrackProcessorUI, self).__init__(preset)
         self._nodeSelectionWidget = None
 
-    def addFtrackProcessorUI(self, widget, exportItems):
+        # Variable placeholders for ui fragments.
+        self.project_options = None
+        self.schema_options = None
+        self.task_type_options = None
+        self.asset_name_options = None
+        self.thumbnail_options = None
+        self.reviewable_options = None
 
+    def add_project_options(self, parent_layout):
         project_name = self._project.name()
         project = self.session.query(
             'select project_schema.name from Project where name is "{0}"'.format(project_name)
         ).first()
-
-        form_layout = TaskUIFormLayout()
-        layout = widget.layout()
-        layout.addLayout(form_layout)
-        form_layout.addDivider('Ftrack Options')
-
-        schemas = self.session.query('ProjectSchema').all()
-        schemas_name = [schema['name'] for schema in schemas]
 
         update_or_create = 'Create'
         if project:
@@ -683,7 +683,8 @@ class FtrackProcessorUI(FtrackBase):
 
         key, value, label = 'project_name', project_name, '{0} Project'.format(update_or_create)
         thumbnail_tooltip = 'Updating/Creating Project.'
-        project_property = UIPropertyFactory.create(
+
+        self.project_options = UIPropertyFactory.create(
             type(value),
             key=key,
             value=value,
@@ -691,13 +692,18 @@ class FtrackProcessorUI(FtrackBase):
             label=label + ':',
             tooltip=thumbnail_tooltip
         )
-        project_property.setDisabled(True)
-        form_layout.addRow(label + ':', project_property)
+        self.project_options.setDisabled(True)
+        parent_layout.addRow(label + ':', self.project_options)
+
+    def add_project_scheme_options(self, parent_layout):
+
+        schemas = self.session.query('ProjectSchema').all()
+        schemas_name = [schema['name'] for schema in schemas]
 
         key, value, label = 'project_schema', schemas_name, 'Project Schema'
         thumbnail_tooltip = 'Select project schema.'
 
-        schema_property = UIPropertyFactory.create(
+        self.schema_options = UIPropertyFactory.create(
             type(value),
             key=key,
             value=value,
@@ -705,13 +711,15 @@ class FtrackProcessorUI(FtrackBase):
             label=label + ':',
             tooltip=thumbnail_tooltip
         )
-        form_layout.addRow(label + ':', schema_property)
+        parent_layout.addRow(label + ':', self.schema_options)
+        #
+        # if project:
+        #     # If a project exist , disable the widget and set the previous schema found.
+        #     schema_index = schema_property._widget.findText(project['project_schema']['name'])
+        #     schema_property._widget.setCurrentIndex(schema_index)
+        #     schema_property.setDisabled(True)
 
-        if project:
-            # If a project exist , disable the widget and set the previous schema found.
-            schema_index = schema_property._widget.findText(project['project_schema']['name'])
-            schema_property._widget.setCurrentIndex(schema_index)
-            schema_property.setDisabled(True)
+    def add_task_type_options(self, parent_layout, exportItems):
 
         # provide access to tags.
         task_tags = set()
@@ -733,7 +741,7 @@ class FtrackProcessorUI(FtrackBase):
         key, value, label = 'task_type', list(task_tags), 'Publish to Task'
         thumbnail_tooltip = 'Select a task to publish to.'
 
-        task_property = UIPropertyFactory.create(
+        self.task_type_options = UIPropertyFactory.create(
             type(value),
             key=key,
             value=value,
@@ -741,12 +749,14 @@ class FtrackProcessorUI(FtrackBase):
             label=label + ':',
             tooltip=thumbnail_tooltip
         )
-        form_layout.addRow(label + ':', task_property)
+        parent_layout.addRow(label + ':', self.task_type_options)
+
+    def add_asset_name_options(self, parent_layout):
 
         asset_name = self._preset.properties()['ftrack']['asset_name']
         key, value, label = 'asset_name', asset_name, 'Asset Name'
         thumbnail_tooltip = 'Select an asset name to publish to.'
-        asset_name = UIPropertyFactory.create(
+        self.asset_name_options = UIPropertyFactory.create(
             type(value),
             key=key,
             value=value,
@@ -754,13 +764,15 @@ class FtrackProcessorUI(FtrackBase):
             label=label + ':',
             tooltip=thumbnail_tooltip
         )
-        form_layout.addRow(label + ':', asset_name)
+        parent_layout.addRow(label + ':', self.asset_name_options)
+
+    def add_thumbnail_options(self, parent_layout):
 
         # Thumbanil generation.
         key, value, label = 'opt_publish_thumbnail', True, 'Publish Thumbnail'
         thumbnail_tooltip = 'Generate and upload thumbnail'
 
-        ui_property = UIPropertyFactory.create(
+        self.thumbnail_options = UIPropertyFactory.create(
             type(value),
             key=key,
             value=value,
@@ -768,13 +780,14 @@ class FtrackProcessorUI(FtrackBase):
             label=label + ':',
             tooltip=thumbnail_tooltip
         )
-        form_layout.addRow(label + ':', ui_property)
+        parent_layout.addRow(label + ':', self.thumbnail_options)
 
-        # Thumbanil generation.
+    def add_reviewable_options(self, parent_layout):
+
         key, value, label = 'opt_publish_reviewable', True, 'Publish Reviewable'
         thumbnail_tooltip = 'Upload reviewable'
 
-        ui_property = UIPropertyFactory.create(
+        self.reviewable_options = UIPropertyFactory.create(
             type(value),
             key=key,
             value=value,
@@ -782,9 +795,9 @@ class FtrackProcessorUI(FtrackBase):
             label=label + ':',
             tooltip=thumbnail_tooltip
         )
-        form_layout.addRow(label + ':', ui_property)
+        parent_layout.addRow(label + ':', self.reviewable_options)
 
-
+    def set_ui_tweaks(self):
         # Hide project path selector Foundry ticket : #36074
         for widget in self._exportStructureViewer.findChildren(QtWidgets.QWidget):
             if (
@@ -795,3 +808,19 @@ class FtrackProcessorUI(FtrackBase):
 
             if (isinstance(widget, QtWidgets.QLabel) and widget.text() == 'Export Structure:'):
                 widget.hide()
+
+    def addFtrackProcessorUI(self, widget, exportItems):
+
+        form_layout = TaskUIFormLayout()
+        layout = widget.layout()
+        layout.addLayout(form_layout)
+        form_layout.addDivider('Ftrack Options')
+
+        self.add_project_options(form_layout)
+        self.add_project_scheme_options(form_layout)
+        self.add_task_type_options(form_layout, exportItems)
+        self.add_asset_name_options(form_layout)
+        self.add_thumbnail_options(form_layout)
+        self.add_reviewable_options(form_layout)
+        self.set_ui_tweaks()
+
