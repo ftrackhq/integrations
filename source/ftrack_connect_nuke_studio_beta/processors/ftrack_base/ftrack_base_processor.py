@@ -334,7 +334,7 @@ class FtrackProcessor(FtrackBase):
         self.session.commit()
 
     def create_project_structure(self, exportItems):
-        self._create_project_progress_widget = foundry.ui.ProgressTask("Creating server structure...")
+        self._create_project_progress_widget = foundry.ui.ProgressTask('Creating server structure...')
         progress_index = 0
 
         # ensure to reset components before creating a new project.
@@ -374,19 +374,19 @@ class FtrackProcessor(FtrackBase):
                 self._components.setdefault(trackItem.name(), {})
                 self._components[trackItem.name()].setdefault(preset.name(), {})
 
-                retime = self._preset.properties()["includeRetimes"]
+                retime = self._preset.properties()['includeRetimes']
 
                 cutHandles = None
                 startFrame = None
 
-                if self._preset.properties()["startFrameSource"] == "Custom":
-                    startFrame = self._preset.properties()["startFrameIndex"]
+                if self._preset.properties()['startFrameSource'] == 'Custom':
+                    startFrame = self._preset.properties()['startFrameIndex']
 
                 # If we are exporting the shot using the cut length (rather than the (shared) clip length)
-                if self._preset.properties()["cutLength"]:
+                if self._preset.properties()['cutLength']:
                     # Either use the specified number of handles or zero
-                    if self._preset.properties()["cutUseHandles"]:
-                        cutHandles = int(self._preset.properties()["cutHandles"])
+                    if self._preset.properties()['cutUseHandles']:
+                        cutHandles = int(self._preset.properties()['cutHandles'])
                     else:
                         cutHandles = 0
 
@@ -402,7 +402,7 @@ class FtrackProcessor(FtrackBase):
                    cutHandles=cutHandles,
                    retime=retime,
                    startFrame=startFrame,
-                   startFrameSource=self._preset.properties()["startFrameSource"],
+                   startFrameSource=self._preset.properties()['startFrameSource'],
                    resolver=self._preset.createResolver(),
                    submission=self._submission,
                    skipOffline=self.skipOffline(),
@@ -668,7 +668,7 @@ class FtrackProcessor(FtrackBase):
         version['task'].create_thumbnail(thumbnail_file)
 
     def validateFtrackProcessing(self, exportItems):
-        self._validate_project_progress_widget = foundry.ui.ProgressTask("Validating settings.")
+        self._validate_project_progress_widget = foundry.ui.ProgressTask('Validating settings.')
 
         task_tags = set()
         task_types = self.schema.get_types('Task')
@@ -723,6 +723,8 @@ class FtrackProcessor(FtrackBase):
                     preset_errors = errors.setdefault(self, {})
                     preset_errors.setdefault('task_type', list(task_tags))
 
+        self._validate_project_progress_widget = None
+
         if errors or missing_assets_type:
             settings_validator = FtrackSettingsValidator(self.session, errors, missing_assets_type)
 
@@ -731,7 +733,6 @@ class FtrackProcessor(FtrackBase):
 
             self.validateFtrackProcessing(exportItems)
 
-        self._validate_project_progress_widget = None
         return True
 
 

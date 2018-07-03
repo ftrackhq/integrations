@@ -51,11 +51,11 @@ def register_processors():
         {
             'file_type': 'mov',
             'mov': {
-                 "encoder": "mov64",
-                "codec": "avc1\tH.264",
-                "quality": 3,
-                "settingsString": "H.264, High Quality",
-                "keyframerate": 1,
+                'encoder': 'mov64',
+                'codec': 'avc1\tH.264',
+                'quality': 3,
+                'settingsString': 'H.264, High Quality',
+                'keyframerate': 1,
             }
         }
     )
