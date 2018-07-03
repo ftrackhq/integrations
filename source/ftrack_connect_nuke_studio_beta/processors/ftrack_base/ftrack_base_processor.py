@@ -144,8 +144,8 @@ class FtrackProcessor(FtrackBase):
         TaskCallbacks.addCallback(TaskCallbacks.onTaskStart, self.setupExportPaths)
         TaskCallbacks.addCallback(TaskCallbacks.onTaskFinish, self.publishResultComponent)
         # progress for project creation
-        self._create_project_task = None
-        self._validate_project_task = None
+        self._create_project_progress_widget = None
+        self._validate_project_progress_widget = None
 
     @property
     def schema(self):
@@ -334,8 +334,8 @@ class FtrackProcessor(FtrackBase):
         self.session.commit()
 
     def create_project_structure(self, exportItems):
-        self._create_project_task = foundry.ui.ProgressTask("Creating server structure...")
-        fileIndex = 0
+        self._create_project_progress_widget = foundry.ui.ProgressTask("Creating server structure...")
+        progress_index = 0
 
         # ensure to reset components before creating a new project.
         self._components = {}
@@ -347,8 +347,8 @@ class FtrackProcessor(FtrackBase):
             for exportItem in exportItems:
                 trackItem = exportItem.item()
 
-                fileIndex += 1
-                self._create_project_task.setProgress(int(100.0 * (float(fileIndex) / float(numitems))))
+                progress_index += 1
+                self._create_project_progress_widget.setProgress(int(100.0 * (float(progress_index) / float(numitems))))
 
                 # collect task tags per clip
                 task_tags = set()
@@ -459,7 +459,7 @@ class FtrackProcessor(FtrackBase):
                 self._components[trackItem.name()][preset.name()] = data
                 self.addFtrackTag(trackItem, task)
 
-        self._create_project_task = None
+        self._create_project_progress_widget = None
 
     def addFtrackTag(self, originalItem, task):
         if not hasattr(originalItem, 'tags'):
@@ -668,7 +668,7 @@ class FtrackProcessor(FtrackBase):
         version['task'].create_thumbnail(thumbnail_file)
 
     def validateFtrackProcessing(self, exportItems):
-        self._validate_project_task = foundry.ui.ProgressTask("Validating settings.")
+        self._validate_project_progress_widget = foundry.ui.ProgressTask("Validating settings.")
 
         task_tags = set()
         task_types = self.schema.get_types('Task')
@@ -680,10 +680,11 @@ class FtrackProcessor(FtrackBase):
 
         errors = {}
         missing_assets_type = []
-        fileIndex = 0
+
+        numitems = len(self._exportTemplate.flatten()) * len(exportItems)
+        progress_index = 0
         for exportItem in exportItems:
-            fileIndex += 1
-            self._validate_project_task.setProgress(int(100.0 * (float(fileIndex) / float(len(exportItems)))))
+
             item = exportItem.item()
 
             if not hasattr(item, 'tags'):
@@ -698,6 +699,9 @@ class FtrackProcessor(FtrackBase):
                         task_tags.add(task_name)
 
             for (exportPath, preset) in self._exportTemplate.flatten():
+                progress_index += 1
+                self._validate_project_progress_widget.setProgress(int(100.0 * (float(progress_index) / float(numitems))))
+
                 # propagate properties from processor to tasks.
                 preset.properties()['ftrack']['project_schema'] = processor_schema
                 preset.properties()['ftrack']['task_type'] = task_type
@@ -727,7 +731,7 @@ class FtrackProcessor(FtrackBase):
 
             self.validateFtrackProcessing(exportItems)
 
-        self._validate_project_task = None
+        self._validate_project_progress_widget = None
         return True
 
 
