@@ -297,14 +297,19 @@ class FtrackProcessor(FtrackBase):
     def _skip_fragment(self, name, parent, task, version):
         self.logger.warning('Skpping: {0}'.format(name))
 
-    def _create_extra_tasks(self, tasks, component):
-        # retrive the top level of asset .
-        parent = component['version']['asset']['parent'] # Shot
+    def _create_extra_tasks(self, task_type_names, component):
+        '''Create extra tasks based on dropped ftrack tags'''
+
+        parent = component['version']['asset']['parent']  # Get Shot from component
         task_types = self.schema.get_types('Task')
 
-        for task_type_name in tasks:
+        for task_type_name in task_type_names:
             filtered_task_types = [task_type for task_type in task_types if task_type['name'] == task_type_name]
             if len(filtered_task_types) != 1:
+                self.logger.info(
+                    'Skipping {0} as is not a valid task type for schema {1}'.format(
+                        task_type_name, self.schema['name'])
+                )
                 continue
 
             task_status = self.schema.get_statuses('Task', filtered_task_types[0]['id'])
@@ -313,9 +318,7 @@ class FtrackProcessor(FtrackBase):
                 'Task where name is "{0}" and parent.id is "{1}"'.format(task_type_name, parent['id'])
             ).first()
 
-            self.logger.info('task {0} exists ? {1}'.format(task_type_name, ftask))
             if not ftask:
-                self.logger.info('Creating : {0} task under {1}'.format(task_type_name, parent['name']))
                 self.session.create('Task', {
                     'name': task_type_name,
                     'parent': parent,
