@@ -334,7 +334,7 @@ class FtrackProcessor(FtrackBase):
         self.session.commit()
 
     def create_project_structure(self, exportItems):
-        self._create_project_progress_widget = foundry.ui.ProgressTask('Creating server structure...')
+        self._create_project_progress_widget = foundry.ui.ProgressTask('Creating structure in ftrack...')
         progress_index = 0
 
         # ensure to reset components before creating a new project.
