@@ -311,7 +311,7 @@ class FtrackProcessor(FtrackBase):
         for task_type_name in task_type_names:
             filtered_task_types = [task_type for task_type in task_types if task_type['name'] == task_type_name]
             if len(filtered_task_types) != 1:
-                self.logger.info(
+                self.logger.debug(
                     'Skipping {0} as is not a valid task type for schema {1}'.format(
                         task_type_name, self.schema['name'])
                 )
@@ -421,9 +421,7 @@ class FtrackProcessor(FtrackBase):
                 path = task.resolvePath(exportPath)
                 path_id = os.path.dirname(path)
                 versions.setdefault(path_id, None)
-                self.logger.info('export path: {}'.format(exportPath))
-                self.logger.info('path: {}'.format(path))
-                
+
                 parent = None  # After the loop this will be containing the component object.
                 for template, token in zip(exportPath.split(self.path_separator), path.split(self.path_separator)):
                     if not versions[path_id] and parent and parent.entity_type == 'AssetVersion':
@@ -437,18 +435,15 @@ class FtrackProcessor(FtrackBase):
 
                 # Extract ftrack path from structure and accessors.
                 ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent)
-                self.logger.info('ftrack_shot_path: {}'.format(ftrack_shot_path))
 
                 # Ftrack sanitize output path, but we need to retain the original on here
                 # otherwise foo.####.ext becomes foo.____.ext
                 tokens = ftrack_shot_path.split(self.path_separator)
-                self.logger.info('tokens:{}'.format(tokens))
 
                 tokens[-1] = resolved_file_name
                 ftrack_shot_path = self.path_separator.join(tokens)
 
                 ftrack_path = str(os.path.join(self.ftrack_location.accessor.prefix, ftrack_shot_path))
-                self.logger.info('ftrack_path: {}'.format(ftrack_path))
 
                 data = {
                     'component': parent,
@@ -603,20 +598,8 @@ class FtrackProcessor(FtrackBase):
             fps = render_task._clip.framerate().toFloat()
 
         parent = component['version']['task']['parent']
-        self.logger.info('Parent: {}'.format(parent))
 
         attributes = parent['custom_attributes']
-
-        self.logger.info(
-            'Metadata for: {}:{} :: {}-{} {}'.format(
-                render_task._item.name(),
-                render_task._preset.name(),
-                start, end,
-                fps
-            )
-        )
-
-        self.logger.info('attributes {0}'.format(attributes.keys()))
 
         for attr_name, attr_value in attributes.items():
             if start and attr_name == 'fstart':

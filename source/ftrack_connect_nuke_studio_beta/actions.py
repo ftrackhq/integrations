@@ -209,7 +209,6 @@ class FtrackBuildTrackFromExportTagDialog(BuildTrackFromExportTagDialog):
             if hasattr(item, 'tags'):
                 for tag in item.tags():
                     tagMetadata = tag.metadata()
-                    self.logger.info(tagMetadata)
 
                     if tagMetadata.hasKey('path') and tagMetadata.hasKey('provider'):
                         if not tagMetadata.value('provider') == 'ftrack':
@@ -350,7 +349,6 @@ class FtrackBuildTrack(BuildTrack, FtrackBase):
                     ftrack_tags.append(tag)
 
         self._actionTag.setEnabled(len(ftrack_tags) > 0)
-        self.logger.info(self._actionTag.isEnabled())
 
     def findShotExporterTag(self, trackItem):
         ''' Try to find a tag added by the Nuke Shot Exporter by checking it has the expected metadata keys. '''
