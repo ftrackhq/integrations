@@ -745,7 +745,7 @@ class FtrackProcessorUI(FtrackBase):
             update_or_create = 'Update'
 
         key, value, label = 'project_name', project_name, '{0} Project'.format(update_or_create)
-        thumbnail_tooltip = 'Updating/Creating Project.'
+        tooltip = 'Updating/Creating Project.'
 
         self.project_options = UIPropertyFactory.create(
             type(value),
@@ -753,7 +753,7 @@ class FtrackProcessorUI(FtrackBase):
             value=value,
             dictionary={},
             label=label + ':',
-            tooltip=thumbnail_tooltip
+            tooltip=tooltip
         )
         self.project_options.setDisabled(True)
         parent_layout.addRow(label + ':', self.project_options)
@@ -764,7 +764,7 @@ class FtrackProcessorUI(FtrackBase):
         schemas_name = [schema['name'] for schema in schemas]
 
         key, value, label = 'project_schema', schemas_name, 'Project Schema'
-        thumbnail_tooltip = 'Select project schema.'
+        tooltip = 'Select project schema.'
 
         self.schema_options = UIPropertyFactory.create(
             type(value),
@@ -772,7 +772,7 @@ class FtrackProcessorUI(FtrackBase):
             value=value,
             dictionary=self._preset.properties()['ftrack'],
             label=label + ':',
-            tooltip=thumbnail_tooltip
+            tooltip=tooltip
         )
         parent_layout.addRow(label + ':', self.schema_options)
 
@@ -799,7 +799,7 @@ class FtrackProcessorUI(FtrackBase):
 
         task_tags = list(task_tags) or [self._preset.properties()['ftrack']['task_type']]
         key, value, label = 'task_type', list(task_tags), 'Publish to Task'
-        thumbnail_tooltip = 'Select a task to publish to.'
+        tooltip = 'Select a task to publish to.'
 
         self.task_type_options = UIPropertyFactory.create(
             type(value),
@@ -807,7 +807,7 @@ class FtrackProcessorUI(FtrackBase):
             value=value,
             dictionary=self._preset.properties()['ftrack'],
             label=label + ':',
-            tooltip=thumbnail_tooltip
+            tooltip=tooltip
         )
         parent_layout.addRow(label + ':', self.task_type_options)
 
@@ -815,14 +815,14 @@ class FtrackProcessorUI(FtrackBase):
 
         asset_name = self._preset.properties()['ftrack']['asset_name']
         key, value, label = 'asset_name', asset_name, 'Set asset name as'
-        thumbnail_tooltip = 'Select an asset name to publish to.'
+        tooltip = 'Select an asset name to publish to.'
         self.asset_name_options = UIPropertyFactory.create(
             type(value),
             key=key,
             value=value,
             dictionary=self._preset.properties()['ftrack'],
             label=label + ':',
-            tooltip=thumbnail_tooltip
+            tooltip=tooltip
         )
         parent_layout.addRow(label + ':', self.asset_name_options)
 
@@ -830,7 +830,7 @@ class FtrackProcessorUI(FtrackBase):
 
         # Thumbanil generation.
         key, value, label = 'opt_publish_thumbnail', True, 'Publish Thumbnail'
-        thumbnail_tooltip = 'Generate and upload thumbnail'
+        tooltip = 'Generate and upload thumbnail'
 
         self.thumbnail_options = UIPropertyFactory.create(
             type(value),
@@ -838,14 +838,14 @@ class FtrackProcessorUI(FtrackBase):
             value=value,
             dictionary=self._preset.properties()['ftrack'],
             label=label + ':',
-            tooltip=thumbnail_tooltip
+            tooltip=tooltip
         )
         parent_layout.addRow(label + ':', self.thumbnail_options)
 
     def add_reviewable_options(self, parent_layout):
 
         key, value, label = 'opt_publish_reviewable', True, 'Publish Reviewable'
-        thumbnail_tooltip = 'Upload reviewable'
+        tooltip = 'Upload reviewable'
 
         self.reviewable_options = UIPropertyFactory.create(
             type(value),
@@ -853,7 +853,7 @@ class FtrackProcessorUI(FtrackBase):
             value=value,
             dictionary=self._preset.properties()['ftrack'],
             label=label + ':',
-            tooltip=thumbnail_tooltip
+            tooltip=tooltip
         )
         parent_layout.addRow(label + ':', self.reviewable_options)
 
@@ -865,7 +865,7 @@ class FtrackProcessorUI(FtrackBase):
 
         asset_type_names = [asset_type['short'] for asset_type in asset_types]
         key, value, label = 'asset_type_code', asset_type_names, 'Asset Type'
-        thumbnail_tooltip = 'Asset type to be created.'
+        tooltip = 'Asset type to be created.'
 
         self.asset_type_options = UIPropertyFactory.create(
             type(value),
@@ -873,7 +873,7 @@ class FtrackProcessorUI(FtrackBase):
             value=value,
             dictionary=self._preset.properties()['ftrack'],
             label=label + ':',
-            tooltip=thumbnail_tooltip
+            tooltip=tooltip
         )
         parent_layout.addRow(label + ':', self.asset_type_options)
 
