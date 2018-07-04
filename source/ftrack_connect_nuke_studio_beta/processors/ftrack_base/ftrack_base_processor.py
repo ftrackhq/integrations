@@ -749,6 +749,7 @@ class FtrackProcessorUI(FtrackBase):
         self.asset_name_options = None
         self.thumbnail_options = None
         self.reviewable_options = None
+        self.asset_type_options = None
 
     def add_project_options(self, parent_layout):
         project_name = self._project.name()
@@ -873,6 +874,26 @@ class FtrackProcessorUI(FtrackBase):
         )
         parent_layout.addRow(label + ':', self.reviewable_options)
 
+    def add_asset_type_options(self, parent_layout):
+
+        asset_types = self.session.query(
+            'AssetType'
+        ).all()
+
+        asset_type_names = [asset_type['short'] for asset_type in asset_types]
+        key, value, label = 'asset_type_code', asset_type_names, 'Asset Type'
+        thumbnail_tooltip = 'Asset type to be created.'
+
+        self.asset_type_options = UIPropertyFactory.create(
+            type(value),
+            key=key,
+            value=value,
+            dictionary=self._preset.properties()['ftrack'],
+            label=label + ':',
+            tooltip=thumbnail_tooltip
+        )
+        parent_layout.addRow(label + ':', self.asset_type_options)
+
     def set_ui_tweaks(self):
         # Hide project path selector Foundry ticket : #36074
         for widget in self._exportStructureViewer.findChildren(QtWidgets.QWidget):
@@ -894,6 +915,7 @@ class FtrackProcessorUI(FtrackBase):
         self.add_project_options(form_layout)
         self.add_project_scheme_options(form_layout)
         self.add_task_type_options(form_layout, exportItems)
+        self.add_asset_type_options(form_layout)
         self.add_asset_name_options(form_layout)
         self.add_thumbnail_options(form_layout)
         self.add_reviewable_options(form_layout)
