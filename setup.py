@@ -16,7 +16,7 @@ RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 
 HIERO_PLUGIN_PATH = os.path.join(RESOURCE_PATH,'plugin')
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
-STAGING_PATH = os.path.join(BUILD_PATH, 'plugin')
+STAGING_PATH = os.path.join(BUILD_PATH, 'ftrack-connect-nuke-studio-beta-plugin')
 HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
 
 # Read version from source.
@@ -74,7 +74,8 @@ class BuildPlugin(setuptools.Command):
                 'ftrack-connect-nuke-studio-beta-{0}'.format(VERSION)
             ),
             'zip',
-            STAGING_PATH
+            os.path.dirname(STAGING_PATH),
+            os.path.basename(STAGING_PATH)
         )
 
         print 'Result: ' + result_path
