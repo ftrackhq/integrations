@@ -6,6 +6,7 @@ import unicodedata
 import hiero
 
 import ftrack_api
+from ftrack_connect.session import get_shared_session
 
 
 class FtrackBase(object):
@@ -20,7 +21,6 @@ class FtrackBase(object):
         'ftrack.unmanaged',
         'ftrack.connect'
     ]
-    session = ftrack_api.Session(auto_connect_event_hub=False)
     illegal_character_substitute = '_'
     path_separator = '/'
 
@@ -31,6 +31,10 @@ class FtrackBase(object):
             __name__ + '.' + self.__class__.__name__
         )
         self.logger.setLevel(logging.DEBUG)
+
+    @property
+    def session(self):
+        return get_shared_session()
 
     def timeStampString(self, localtime):
         return time.strftime('%Y/%m/%d %X', localtime)
