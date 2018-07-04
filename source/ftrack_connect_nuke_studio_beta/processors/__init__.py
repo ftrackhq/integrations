@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 # Redirect hiero logging to default one.
-hiero.core.log = logger
+# hiero.core.log = logger
 
 
 def register_processors():
@@ -51,11 +51,11 @@ def register_processors():
         {
             'file_type': 'mov',
             'mov': {
-                 "encoder": "mov64",
-                "codec": "avc1\tH.264",
-                "quality": 3,
-                "settingsString": "H.264, High Quality",
-                "keyframerate": 1,
+                'encoder': 'mov64',
+                'codec': 'avc1\tH.264',
+                'quality': 3,
+                'settingsString': 'H.264, High Quality',
+                'keyframerate': 1,
             }
         }
     )

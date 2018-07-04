@@ -57,8 +57,6 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
         scriptExtension = '.nknc' if hiero.core.isNC() else '.nk'
         self._scriptfile = str(self._root + scriptExtension)
 
-        # self.logger.info('TranscodeExporter writing script to %s', self._scriptfile)
-
         self._renderTask = None
         if self._submission is not None:
             # Pass the frame range through to the submission.  This is useful for rendering through the frame
