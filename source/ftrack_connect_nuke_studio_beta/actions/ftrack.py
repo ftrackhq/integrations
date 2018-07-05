@@ -15,6 +15,58 @@ from hiero.ui.BuildExternalMediaTrack import (
     TrackFinderByNameWithDialog
 )
 
+
+class FtracBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
+    def __init__(self, selection, parent=None):
+        if not parent:
+            parent = hiero.ui.mainWindow()
+        super(FtracBuildServerTrackDialog, self).__init__(parent)
+
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+        self.logger.setLevel(logging.DEBUG)
+
+        self._selection = selection
+
+        if self._selection:
+            self.project = self.itemProject(self._selection[0])
+
+        self.setWindowTitle("Build Track From server tasks")
+        self.setSizeGripEnabled(True)
+
+        layout = QtWidgets.QVBoxLayout()
+        formLayout = QtWidgets.QFormLayout()
+        self._tracknameField = QtWidgets.QLineEdit(BuildTrack.ProjectTrackNameDefault(selection))
+        self._tracknameField.setToolTip("Name of new track")
+        self.fetch_tasks()
+
+    def itemProject(self, item):
+        if hasattr(item, 'project'):
+            return item.project()
+        elif hasattr(item, 'parent'):
+            return self.itemProject(item.parent())
+        else:
+            return None
+
+    def fetch_tasks(self):
+        project_name = self.project.name()
+        all_tasks=[]
+        for trackItem in self._selection:
+            if not isinstance(trackItem, hiero.core.EffectTrackItem):
+                sequence, shot = trackItem.name().split('_')
+                tasks = self.session.query(
+                    'Task where parent.name is "{}" and parent.parent.name is "{}" and project.name is "{}"'.format(
+                        shot, sequence, project_name
+                    )
+                ).all()
+                all_tasks.append([task['name'] for task in tasks])
+
+        my_sets = map(set, all_tasks)
+        common_items = set.intersection(*my_sets)
+        self.logger.info(common_items)
+
+
 # =========================================================================================
 # Track creation dialog
 
@@ -126,7 +178,7 @@ class FtrackBuildExternalMediaTrackAction(BuildExternalMediaTrackAction):
         self.logger.setLevel(logging.DEBUG)
 
     def configure(self, project, selection):
-        dialog = FtrackBuildExternalMediaTrackDialog(selection)
+        dialog = FtracBuildServerTrackDialog(selection)
         if dialog.exec_():
             self._trackName = dialog.trackName()
 
