@@ -19,6 +19,18 @@ from hiero.ui.BuildExternalMediaTrack import (
 class FtracBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
     task_changed = QtCore.Signal()
 
+    @staticmethod
+    def common_items(items):
+        return set.intersection(*map(set, items))
+
+    def itemProject(self, item):
+        if hasattr(item, 'project'):
+            return item.project()
+        elif hasattr(item, 'parent'):
+            return self.itemProject(item.parent())
+        else:
+            return None
+
     def __init__(self, selection, parent=None):
         if not parent:
             parent = hiero.ui.mainWindow()
@@ -41,39 +53,66 @@ class FtracBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         formLayout = QtWidgets.QFormLayout()
         self._tracknameField = QtWidgets.QLineEdit(BuildTrack.ProjectTrackNameDefault(selection))
         self._tracknameField.setToolTip("Name of new track")
-        common_tasks = self.fetch_tasks()
-        tasks_combobox = QtWidgets.QComboBox()
-        for name in sorted(common_tasks):
-            tasks_combobox.addItem(name)
 
-        formLayout.addRow("Task:", tasks_combobox)
+        self.tasks_combobox = QtWidgets.QComboBox()
+        self.tasks_combobox.currentIndexChanged.connect(self.on_task_changed)
+        formLayout.addRow("Task:", self.tasks_combobox)
+
+        self.asset_type_combobox = QtWidgets.QComboBox()
+        self.asset_type_combobox.currentIndexChanged.connect(self.on_asset_type_changed)
+        formLayout.addRow("Asset Type:", self.asset_type_combobox)
+
+        self.compomnent_combobox = QtWidgets.QComboBox()
+        formLayout.addRow("Component :", self.compomnent_combobox)
+
+        # populate data
+        self.populate_tasks()
+
         layout.addLayout(formLayout)
         self.setLayout(layout)
 
-    def itemProject(self, item):
-        if hasattr(item, 'project'):
-            return item.project()
-        elif hasattr(item, 'parent'):
-            return self.itemProject(item.parent())
-        else:
-            return None
-
-    def fetch_tasks(self):
+    @property
+    def parsed_selection(self):
+        results = []
         project_name = self.project.name()
-        all_tasks=[]
         for trackItem in self._selection:
             if not isinstance(trackItem, hiero.core.EffectTrackItem):
-                sequence, shot = trackItem.name().split('_')
-                tasks = self.session.query(
-                    'select name, parent, parent.parent from Task where parent.name is "{}" and parent.parent.name is "{}" and project.name is "{}"'.format(
-                        shot, sequence, project_name
-                    )
-                ).all()
-                all_tasks.append([task['name'] for task in tasks])
+                sequence, shot = trackItem.name().split('_') # TODO
+                results.append((project_name, sequence, shot))
+        return results
 
-        common_tasks = set.intersection(*map(set, all_tasks))
-        return common_tasks
+    def on_asset_type_changed(self, index):
+        pass
 
+    def on_task_changed(self, index):
+        all_asset_types_names = []
+        current_task_name = self.tasks_combobox.currentText()
+        for project, sequence, shot in self.parsed_selection:
+            assets = self.session.query(
+                'select type, name, parent.name, parent.parent.name from Asset '
+                'where "{}" and parent.name is "{}" and parent.parent.name is "{}" and parent.project.name is "{}"'.format(
+                    shot, sequence, project
+                )
+            ).all()
+            all_asset_types_names.append([asset['type']['name'] for asset in assets])
+        common_asset_types  = self.common_items(current_task_name)
+        for name in sorted(common_asset_types):
+            self.tasks_combobox.addItem(name)
+
+    def populate_tasks(self):
+        all_tasks=[]
+        for project, sequence, shot in self.parsed_selection:
+            tasks = self.session.query(
+                'select name, parent.name, parent.parent.name from Task '
+                'where parent.name is "{}" and parent.parent.name is "{}" and project.name is "{}"'.format(
+                    shot, sequence, project
+                )
+            ).all()
+            all_tasks.append([task['name'] for task in tasks])
+
+        common_tasks = self.common_items(all_tasks)
+        for name in sorted(common_tasks):
+            self.asset_type_combobox.addItem(name)
 
 
 # =========================================================================================
