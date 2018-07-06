@@ -17,6 +17,8 @@ from hiero.ui.BuildExternalMediaTrack import (
 
 
 class FtracBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
+    task_changed = QtCore.Signal()
+
     def __init__(self, selection, parent=None):
         if not parent:
             parent = hiero.ui.mainWindow()
@@ -39,7 +41,14 @@ class FtracBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         formLayout = QtWidgets.QFormLayout()
         self._tracknameField = QtWidgets.QLineEdit(BuildTrack.ProjectTrackNameDefault(selection))
         self._tracknameField.setToolTip("Name of new track")
-        self.fetch_tasks()
+        common_tasks = self.fetch_tasks()
+        tasks_combobox = QtWidgets.QComboBox()
+        for name in sorted(common_tasks):
+            tasks_combobox.addItem(name)
+
+        formLayout.addRow("Task:", tasks_combobox)
+        layout.addLayout(formLayout)
+        self.setLayout(layout)
 
     def itemProject(self, item):
         if hasattr(item, 'project'):
@@ -56,15 +65,15 @@ class FtracBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             if not isinstance(trackItem, hiero.core.EffectTrackItem):
                 sequence, shot = trackItem.name().split('_')
                 tasks = self.session.query(
-                    'Task where parent.name is "{}" and parent.parent.name is "{}" and project.name is "{}"'.format(
+                    'select name, parent, parent.parent from Task where parent.name is "{}" and parent.parent.name is "{}" and project.name is "{}"'.format(
                         shot, sequence, project_name
                     )
                 ).all()
                 all_tasks.append([task['name'] for task in tasks])
 
-        my_sets = map(set, all_tasks)
-        common_items = set.intersection(*my_sets)
-        self.logger.info(common_items)
+        common_tasks = set.intersection(*map(set, all_tasks))
+        return common_tasks
+
 
 
 # =========================================================================================
