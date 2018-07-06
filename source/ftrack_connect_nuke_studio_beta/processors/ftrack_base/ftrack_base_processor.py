@@ -367,14 +367,16 @@ class FtrackProcessor(FtrackBase):
                     self.logger.debug('Skipping {0}'.format(trackItem))
                     continue
 
+                shotNameIndex = getShotNameIndex(trackItem)
                 if isinstance(self, TimelineProcessor):
                     trackItem = exportItem.item().sequence()
+                    shotNameIndex= ''
 
                 # create entry points on where to store ftrack component and path data.
                 self._components.setdefault(trackItem.name(), {})
                 self._components[trackItem.name()].setdefault(preset.name(), {})
 
-                retime = self._preset.properties()['includeRetimes']
+                retime = self._preset.properties().get('includeRetimes', False)
 
                 cutHandles = None
                 startFrame = None
@@ -383,9 +385,9 @@ class FtrackProcessor(FtrackBase):
                     startFrame = self._preset.properties()['startFrameIndex']
 
                 # If we are exporting the shot using the cut length (rather than the (shared) clip length)
-                if self._preset.properties()['cutLength']:
+                if self._preset.properties().get('cutLength'):
                     # Either use the specified number of handles or zero
-                    if self._preset.properties()['cutUseHandles']:
+                    if self._preset.properties().get('cutUseHandles'):
                         cutHandles = int(self._preset.properties()['cutHandles'])
                     else:
                         cutHandles = 0
@@ -407,7 +409,7 @@ class FtrackProcessor(FtrackBase):
                    submission=self._submission,
                    skipOffline=self.skipOffline(),
                    presetId=hiero.core.taskRegistry.addPresetToProjectExportHistory(trackItem.project(), self._preset),
-                   shotNameIndex=getShotNameIndex(trackItem)
+                   shotNameIndex=shotNameIndex
                 )
 
                 task = hiero.core.taskRegistry.createTaskFromPreset(preset, taskData)
