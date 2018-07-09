@@ -55,21 +55,20 @@ class FtracBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         self._tracknameField.setToolTip("Name of new track")
 
         self.tasks_combobox = QtWidgets.QComboBox()
-        self.tasks_combobox.currentIndexChanged.connect(self.on_task_changed)
         formLayout.addRow("Task:", self.tasks_combobox)
 
         self.asset_type_combobox = QtWidgets.QComboBox()
-        self.asset_type_combobox.currentIndexChanged.connect(self.on_asset_type_changed)
         formLayout.addRow("Asset Type:", self.asset_type_combobox)
 
         self.compomnent_combobox = QtWidgets.QComboBox()
         formLayout.addRow("Component :", self.compomnent_combobox)
 
-        # populate data
-        self.populate_tasks()
-
         layout.addLayout(formLayout)
         self.setLayout(layout)
+
+        # populate data
+        self.populate_tasks()
+        self.populate_asset_types()
 
     @property
     def parsed_selection(self):
@@ -79,40 +78,48 @@ class FtracBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             if not isinstance(trackItem, hiero.core.EffectTrackItem):
                 sequence, shot = trackItem.name().split('_') # TODO
                 results.append((project_name, sequence, shot))
+
+        self.logger.info(results)
+
         return results
 
-    def on_asset_type_changed(self, index):
-        pass
-
-    def on_task_changed(self, index):
+    def populate_asset_types(self):
         all_asset_types_names = []
-        current_task_name = self.tasks_combobox.currentText()
-        for project, sequence, shot in self.parsed_selection:
+        for (project, sequence, shot) in self.parsed_selection:
             assets = self.session.query(
                 'select type, name, parent.name, parent.parent.name from Asset '
-                'where "{}" and parent.name is "{}" and parent.parent.name is "{}" and parent.project.name is "{}"'.format(
+                'where parent.name is "{}" and parent.parent.name is "{}" and parent.project.name is "{}"'.format(
                     shot, sequence, project
                 )
             ).all()
+
+            if not assets:
+                continue
+
             all_asset_types_names.append([asset['type']['name'] for asset in assets])
-        common_asset_types  = self.common_items(current_task_name)
+        common_asset_types = self.common_items(all_asset_types_names)
+        self.logger.info('common_asset_types : {}'.format(common_asset_types))
         for name in sorted(common_asset_types):
-            self.tasks_combobox.addItem(name)
+            self.asset_type_combobox.addItem(name)
 
     def populate_tasks(self):
         all_tasks=[]
-        for project, sequence, shot in self.parsed_selection:
+        for (project, sequence, shot) in self.parsed_selection:
             tasks = self.session.query(
                 'select name, parent.name, parent.parent.name from Task '
                 'where parent.name is "{}" and parent.parent.name is "{}" and project.name is "{}"'.format(
                     shot, sequence, project
                 )
             ).all()
-            all_tasks.append([task['name'] for task in tasks])
 
+            if not tasks:
+                continue
+
+            all_tasks.append([task['name'] for task in tasks])
         common_tasks = self.common_items(all_tasks)
+        self.logger.info('common_tasks : {}'.format(common_tasks))
         for name in sorted(common_tasks):
-            self.asset_type_combobox.addItem(name)
+            self.tasks_combobox.addItem(name)
 
 
 # =========================================================================================
