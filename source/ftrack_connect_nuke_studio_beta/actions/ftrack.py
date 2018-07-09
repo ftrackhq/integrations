@@ -103,14 +103,18 @@ class FtracBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
     def build_tracks(self):
         components = self.get_components()
-        self.logger.info('LOCATION: {}'.format(self.ftrack_location['name']))
+        paths = {}
         for component in components:
-            if self.ftrack_location not in component['component_locations']:
+            clipname = component['metadata'].get('clip_name')
+            component_avaialble = self.session.pick_location(component)
+
+            if not component_avaialble or not clipname:
                 continue
 
-            self.logger.info(component['name'])
             path = self.ftrack_location.get_filesystem_path(component)
-            self.logger.info(path)
+            paths[clipname] = path
+
+        self.logger.info(paths)
 
     def get_components(self, index=None):
         all_components = []
