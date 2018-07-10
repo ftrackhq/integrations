@@ -23,7 +23,7 @@ class FtrackTrackFinderByNameWithDialog(TrackFinderByNameWithDialog):
             creates a new one. """
         # a track always has to have a name
         if not trackName or not sequence:
-            raise RuntimeError("Invalid arguments")
+            raise RuntimeError('Invalid arguments')
 
         track = None
         isNewTrack = False
@@ -44,6 +44,7 @@ class FtrackTrackFinderByNameWithDialog(TrackFinderByNameWithDialog):
 
 
 class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
+    excluded_component_names = ['ftrackreview-mp4', 'thumbnail']
 
     def __init__(self, selection, parent=None):
         self._result_data = {}
@@ -66,24 +67,24 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         if self._selection:
             self.project = self.itemProject(self._selection[0])
 
-        self.setWindowTitle("Build Track From server tasks")
+        self.setWindowTitle('Build Track From server tasks')
         self.setSizeGripEnabled(True)
 
         layout = QtWidgets.QVBoxLayout()
         formLayout = QtWidgets.QFormLayout()
         self._tracknameField = QtWidgets.QLineEdit(BuildTrack.ProjectTrackNameDefault(selection))
-        self._tracknameField.setToolTip("Name of new track")
-        formLayout.addRow("Track Name:", self._tracknameField)
+        self._tracknameField.setToolTip('Name of new track')
+        formLayout.addRow('Track name:', self._tracknameField)
 
         self.tasks_combobox = QtWidgets.QComboBox()
-        formLayout.addRow("Task:", self.tasks_combobox)
+        formLayout.addRow('Task type:', self.tasks_combobox)
 
         self.asset_type_combobox = QtWidgets.QComboBox()
 
-        formLayout.addRow("Asset Type:", self.asset_type_combobox)
+        formLayout.addRow('Asset type:', self.asset_type_combobox)
 
         self.component_combobox = QtWidgets.QComboBox()
-        formLayout.addRow("Component :", self.component_combobox)
+        formLayout.addRow('Component name:', self.component_combobox)
 
         layout.addLayout(formLayout)
 
@@ -107,8 +108,6 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         self.tasks_combobox.currentIndexChanged.connect(self.get_components)
         self.asset_type_combobox.currentIndexChanged.connect(self.get_components)
         self.component_combobox.currentIndexChanged.connect(self.get_components)
-
-
 
     @staticmethod
     def common_items(items):
@@ -195,8 +194,11 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             if not components:
                 continue
 
-            # WE SHOULD FILTER HERE BASED ON REGISTERED FTRACK TASKS.
-            all_component_names.append([component['name'] for component in components])
+            # We should filter components based on the processor task names: [Foundry] Ticket: 38929
+            # For now let's simply filter the one which are not acceptable
+            all_component_names.append(
+                [component['name'] for component in components if component['name'] not in self.excluded_component_names]
+            )
 
         common_components = self.common_items(all_component_names)
         self.logger.info('component_combobox : {}'.format(common_components))
@@ -242,10 +244,11 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             self.tasks_combobox.addItem(name)
 
 
-class FtracBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
+class FtrackBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
     def __init__(self):
-        super(FtracBuildServerTrackAction, self).__init__("From Ftrack Server")
+        super(FtrackBuildServerTrackAction, self).__init__('From Ftrack Server')
         self.trackFinder = FtrackTrackFinderByNameWithDialog(self)
+        self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -263,8 +266,6 @@ class FtracBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
             return []
 
         path = self.ftrack_location.get_filesystem_path(component)
-
-        self.logger.info('getExternalFilePaths for {} is {}'.format(trackItem, path))
         return [path.split()[0]]
 
     def getExpectedRange(self, trackItem):
@@ -274,12 +275,7 @@ class FtracBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
 
         component_id = self._track_data.get(trackItem)
         if not component_id:
-            # if there's no component we return data from the previous clip
-            source = trackItem.source().mediaSource()
-            start, duration = source.startTime(), source.duration()
-            starthandle, endhandle = None, None
-            offset = 0
-            return (start, duration, starthandle, endhandle, offset)
+            return 0, 0, None, None, 0
 
         component = self.session.get('Component', component_id)
         shot = component['version']['asset']['parent']
@@ -291,7 +287,6 @@ class FtracBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         starthandle, endhandle = None, None
 
         return (start, duration, starthandle, endhandle, offset)
-
 
     def trackName(self):
         return self._trackName
@@ -346,7 +341,7 @@ class FtrackBuildTrack(BuildTrack):
         self.logger.setLevel(logging.DEBUG)
         hiero.core.events.registerInterest('kShowContextMenu/kTimeline', self.eventHandler)
         self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
-        self._actionServer = FtracBuildServerTrackAction()
+        self._actionServer = FtrackBuildServerTrackAction()
         self.addAction(self._actionServer)
 
     def eventHandler(self, event):
