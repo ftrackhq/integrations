@@ -9,12 +9,7 @@ import hiero
 
 from hiero.ui.BuildExternalMediaTrack import (
     BuildTrack,
-    BuildTrackActionBase,
-    BuildTrackFromExportTagAction,
-    BuildTrackFromExportTagDialog,
-    BuildExternalMediaTrackAction,
-    BuildExternalMediaTrackDialog,
-    TrackFinderByNameWithDialog
+    BuildTrackActionBase
 )
 
 registry = hiero.core.taskRegistry
@@ -23,6 +18,8 @@ registry = hiero.core.taskRegistry
 class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
     def __init__(self, selection, parent=None):
+        self._result_data = {}
+
         if not parent:
             parent = hiero.ui.mainWindow()
 
@@ -51,31 +48,38 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         formLayout.addRow("Track Name:", self._tracknameField)
 
         self.tasks_combobox = QtWidgets.QComboBox()
-        self.tasks_combobox.currentIndexChanged.connect(self.get_components)
         formLayout.addRow("Task:", self.tasks_combobox)
 
         self.asset_type_combobox = QtWidgets.QComboBox()
-        self.asset_type_combobox.currentIndexChanged.connect(self.get_components)
 
         formLayout.addRow("Asset Type:", self.asset_type_combobox)
 
         self.component_combobox = QtWidgets.QComboBox()
-        self.component_combobox.currentIndexChanged.connect(self.get_components)
         formLayout.addRow("Component :", self.component_combobox)
 
         layout.addLayout(formLayout)
+
+        # Add the standard ok/cancel buttons, default to ok.
+        self._buttonbox = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.StandardButton.Ok | QtWidgets.QDialogButtonBox.StandardButton.Cancel)
+        self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setText("Build")
+        self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setAutoDefault(True)
+        self._buttonbox.accepted.connect(self.acceptTest)
+        self._buttonbox.rejected.connect(self.reject)
+        layout.addWidget(self._buttonbox)
+
         self.setLayout(layout)
-
-        # build button
-
-        self.build_button = QtWidgets.QPushButton('Build')
-        self.build_button.clicked.connect(self.build_tracks)
-        formLayout.addRow("Build Track", self.build_button)
 
         # populate data
         self.populate_tasks()
         self.populate_asset_types()
         self.populate_components()
+
+        # connect signals
+        self.tasks_combobox.currentIndexChanged.connect(self.get_components)
+        self.asset_type_combobox.currentIndexChanged.connect(self.get_components)
+        self.component_combobox.currentIndexChanged.connect(self.get_components)
+
 
 
     @staticmethod
@@ -84,18 +88,14 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
     @property
     def parsed_selection(self):
-        results = []
+        results = {}
         project_name = self.project.name()
         for trackItem in self._selection:
             if not isinstance(trackItem, hiero.core.EffectTrackItem):
                 sequence, shot = trackItem.name().split('_') # TODO
-                results.append((project_name, sequence, shot))
-
-        self.logger.info(results)
-
+                results[trackItem] = (project_name, sequence, shot)
         return results
 
-    @property
     def trackName(self):
         return str(self._tracknameField.text())
 
@@ -107,30 +107,31 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         else:
             return None
 
-    def build_tracks(self):
-        components = self.get_components()
-        paths = {}
-        for component in components:
-            clipname = component['metadata'].get('clip_name')
-            component_avaialble = self.session.pick_location(component)
+    @property
+    def data(self):
+        return self._result_data
 
-            if not component_avaialble or not clipname:
-                continue
-
-            path = self.ftrack_location.get_filesystem_path(component)
-            paths[clipname] = path
+    def acceptTest(self):
+        if self.trackName():
+            self.accept()
+        else:
+            QtWidgets.QMessageBox.warning(
+                self, "Build Track from server",
+                "Please set track names",
+                QtWidgets.QMessageBox.Ok
+        )
 
     def get_components(self, index=None):
-        all_components = []
-        task = self.tasks_combobox.currentText()
-        asset_type = self.asset_type_combobox.currentText()
-        component = self.component_combobox.currentText()
+        self._result_data = {}
+        task_name = self.tasks_combobox.currentText()
+        asset_type_name = self.asset_type_combobox.currentText()
+        component_name = self.component_combobox.currentText()
 
-        if not all([task, asset_type, component]):
-            self.build_button.setDisabled(not bool(all_components))
-            return all_components
+        if not all([task_name, asset_type_name, component_name]):
+            self._buttonbox.setDisabled(True)
+            return self._result_data
 
-        for (project, sequence, shot) in self.parsed_selection:
+        for taskItem, (project, sequence, shot) in self.parsed_selection.items():
 
             query = (
                 'Component where name is {} '  # component name 
@@ -139,7 +140,7 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
                 'and version.asset.parent.name is "{}" '  # shot
                 'and version.asset.parent.parent.name is "{}" '  # sequence
                 'and version.asset.parent.project.name is "{}"'  # project
-                ''.format(component, asset_type, task, shot, sequence, project)
+                ''.format(component_name, asset_type_name, task_name, shot, sequence, project)
             )
             self.logger.info('query: {0}'.format(query))
 
@@ -149,17 +150,13 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             if not final_component:
                 continue
 
-            all_components.append(final_component)
+            self._result_data[taskItem] = final_component['id']
 
-        # if no result is found, disable builds
-        self.build_button.setDisabled(not bool(all_components))
-        self.logger.info(all_components)
-        return all_components
-
+        self._buttonbox.setDisabled(not bool(len(self._result_data)))
 
     def populate_components(self):
         all_component_names = []
-        for (project, sequence, shot) in self.parsed_selection:
+        for (project, sequence, shot) in self.parsed_selection.values():
             components = self.session.query(
                 'select name, version.asset.parent.name, version.asset.parent.parent.name from Component '
                 'where version.asset.parent.name is "{}" and version.asset.parent.parent.name is "{}" and version.asset.parent.project.name is "{}"'.format(
@@ -180,7 +177,7 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
     def populate_asset_types(self):
         all_asset_types_names = []
-        for (project, sequence, shot) in self.parsed_selection:
+        for (project, sequence, shot) in self.parsed_selection.values():
             assets = self.session.query(
                 'select type, name, parent.name, parent.parent.name from Asset '
                 'where parent.name is "{}" and parent.parent.name is "{}" and parent.project.name is "{}"'.format(
@@ -199,7 +196,7 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
     def populate_tasks(self):
         all_tasks=[]
-        for (project, sequence, shot) in self.parsed_selection:
+        for (project, sequence, shot) in self.parsed_selection.values():
             tasks = self.session.query(
                 'select name, parent.name, parent.parent.name from Task '
                 'where parent.name is "{}" and parent.parent.name is "{}" and project.name is "{}"'.format(
@@ -217,9 +214,57 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             self.tasks_combobox.addItem(name)
 
 
-class FtracBuildServerTrackAction(BuildTrackActionBase):
+class FtracBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
     def __init__(self):
         super(FtracBuildServerTrackAction, self).__init__("From Ftrack Server")
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+        self.logger.setLevel(logging.DEBUG)
+
+    def getExternalFilePaths(self, trackItem):
+        component_id = self._track_data.get(trackItem)
+        if not component_id:
+            return []
+
+        component = self.session.get('Component', component_id)
+        component_avaialble = self.session.pick_location(component)
+        if not component_avaialble:
+            return []
+
+        path = self.ftrack_location.get_filesystem_path(component)
+
+        self.logger.info('getExternalFilePaths for {} is {}'.format(trackItem, path))
+        return [path.split()[0]]
+
+    def getExpectedRange(self, trackItem):
+        """ Override. Get expected range based on the original track item.
+            Returns None for handles so that they are calculated based on the duration
+            of the new media. """
+
+        component_id = self._track_data.get(trackItem)
+        if not component_id:
+            # if there's no component we return data from the previous clip
+            source = trackItem.source().mediaSource()
+            start, duration = source.startTime(), source.duration()
+            starthandle, endhandle = None, None
+            offset = 0
+            return (start, duration, starthandle, endhandle, offset)
+
+        component = self.session.get('Component', component_id)
+        shot = component['version']['asset']['parent']
+        attributes = shot['custom_attributes']
+
+        offset = 0
+        start = attributes.get('fstart')
+        duration = attributes.get('fend') - start
+        starthandle, endhandle = None, None
+
+        return (start, duration, starthandle, endhandle, offset)
+
+
+    def trackName(self):
+        return self._trackName
 
     def configure(self, project, selection):
 
@@ -230,9 +275,32 @@ class FtracBuildServerTrackAction(BuildTrackActionBase):
         dialog = FtrackBuildServerTrackDialog(selection)
         if dialog.exec_():
           self._trackName = dialog.trackName()
+          self._track_data = dialog.data
           return True
         else:
           return False
+
+    def doit(self):
+        selection = self.getTrackItems()
+
+        sequence = hiero.ui.activeView().sequence()
+        project = sequence.project()
+
+        self.logger.info('sequence: {}'.format(sequence))
+        self.logger.info('project: {}'.format(project))
+
+        if not self.configure(project, selection):
+          return
+
+        self._buildTrack(selection, sequence, project)
+
+        if self._errors:
+          msgBox = QtWidgets.QMessageBox(hiero.ui.mainWindow())
+          msgBox.setWindowTitle("Build Media Track")
+          msgBox.setText("There were problems building the track.")
+          msgBox.setDetailedText( '\n'.join(self._errors) )
+          msgBox.exec_()
+          self._errors = []
 
 
 # =========================================================================================
