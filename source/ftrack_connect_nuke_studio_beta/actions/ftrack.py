@@ -1,7 +1,7 @@
 import logging
 import collections
 from QtExt import QtWidgets, QtGui, QtCore
-
+import foundry
 
 from ftrack_connect_nuke_studio_beta.base import FtrackBase
 
@@ -9,10 +9,38 @@ import hiero
 
 from hiero.ui.BuildExternalMediaTrack import (
     BuildTrack,
-    BuildTrackActionBase
+    BuildTrackActionBase,
+    TrackFinderByNameWithDialog
 )
 
 registry = hiero.core.taskRegistry
+
+
+class FtrackTrackFinderByNameWithDialog(TrackFinderByNameWithDialog):
+
+    def findOrCreateTrackByName(self, sequence, trackName):
+        """ Searches the sequence for a track with the given name.  If none are found,
+            creates a new one. """
+        # a track always has to have a name
+        if not trackName or not sequence:
+            raise RuntimeError("Invalid arguments")
+
+        track = None
+        isNewTrack = False
+        # Look for existing track
+        for existingtrack in sequence.videoTracks():
+            if existingtrack.trackName() == trackName:
+                # hiero.core.log.debug( "Track Already Exists  : " + trackName )
+                track = existingtrack
+
+        # No existing track. Create new video track
+        if track is None:
+            # hiero.core.log.debug( "Track Created : " + trackName )
+            track = hiero.core.VideoTrack(str(trackName))
+            sequence.addTrack(track)
+            track.addTag(hiero.core.Tag(trackName, ':ftrack/image/default/ftrackLogoColor'))
+            isNewTrack = True
+        return track, isNewTrack
 
 
 class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
@@ -217,6 +245,8 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 class FtracBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
     def __init__(self):
         super(FtracBuildServerTrackAction, self).__init__("From Ftrack Server")
+        self.trackFinder = FtrackTrackFinderByNameWithDialog(self)
+
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
