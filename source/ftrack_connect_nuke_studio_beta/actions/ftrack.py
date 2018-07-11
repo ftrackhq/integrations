@@ -1,7 +1,7 @@
+import os
+import sys
 import logging
-import collections
 from QtExt import QtWidgets, QtGui, QtCore
-import foundry
 
 from ftrack_connect_nuke_studio_beta.base import FtrackBase
 
@@ -155,7 +155,7 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         component_name = self.component_combobox.currentText()
 
         if not all([task_name, asset_type_name, component_name]):
-            self._buttonbox.setDisabled(True)
+            self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setDisabled(True)
             return self._result_data
 
         for taskItem, (project, sequence, shot) in self.parsed_selection.items():
@@ -179,7 +179,7 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
             self._result_data[taskItem] = final_component['id']
 
-        self._buttonbox.setDisabled(not bool(len(self._result_data)))
+        self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setDisabled(not bool(len(self._result_data)))
 
     def populate_components(self):
         all_component_names = []
@@ -269,9 +269,6 @@ class FtrackBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         return [path.split()[0]]
 
     def getExpectedRange(self, trackItem):
-        """ Override. Get expected range based on the original track item.
-            Returns None for handles so that they are calculated based on the duration
-            of the new media. """
 
         component_id = self._track_data.get(trackItem)
         if not component_id:
@@ -284,9 +281,10 @@ class FtrackBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         offset = 0
         start = attributes.get('fstart')
         duration = attributes.get('fend') - start
-        starthandle, endhandle = None, None
+        starthandle, endhandle = 0, 0
 
-        return (start, duration, starthandle, endhandle, offset)
+        result = (start, duration, starthandle, endhandle, offset)
+        return result
 
     def trackName(self):
         return self._trackName
@@ -321,12 +319,60 @@ class FtrackBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
 
         if self._errors:
           msgBox = QtWidgets.QMessageBox(hiero.ui.mainWindow())
-          msgBox.setWindowTitle("Build Media Track")
-          msgBox.setText("There were problems building the track.")
+          msgBox.setWindowTitle('Build Media Track')
+          msgBox.setText('There were problems building the track.')
           msgBox.setDetailedText( '\n'.join(self._errors) )
           msgBox.exec_()
           self._errors = []
 
+    def _buildTrackItem(self, name, clip, originalTrackItem, expectedStartTime, expectedDuration, expectedStartHandle,
+                        expectedEndHandle, expectedOffset):
+        """ Create the new track item and set its in/out times.  Reimplemented here as the BuildTrackFromExportTagAction can be a bit cleverer about this,
+            since all the relevant information should be stored in the tag metadata. """
+
+        # Create the item
+        trackItem = hiero.core.TrackItem(name, hiero.core.TrackItem.kVideo)
+        trackItem.setSource(clip)
+
+        # Copy the timeline in/out
+        trackItem.setTimelineIn(originalTrackItem.timelineIn())
+        trackItem.setTimelineOut(originalTrackItem.timelineOut())
+
+        # Calculate the source in/out times.  Try to match frame numbers, compensating for handles etc.
+        mediaSource = clip.mediaSource()
+
+        originalClip = originalTrackItem.source()
+        originalMediaSource = originalClip.mediaSource()
+
+        # If source durations match, and there were no retimes, then the whole clip was exported, and we should use the same source in/out
+        # as the original.  The correct handles are not being stored in the tag in this case.
+        fullClipExported = (originalMediaSource.duration() == mediaSource.duration())
+
+        if fullClipExported:
+            sourceIn = originalTrackItem.sourceIn()
+            sourceOut = originalTrackItem.sourceOut()
+
+        # Otherwise try to use the export handles and retime info to determine the correct source in/out
+        else:
+            # On the timeline, the first frame of video files is always 0.  Reset the start time
+            isVideoFile = hiero.core.isVideoFileExtension(os.path.splitext(mediaSource.fileinfos()[0].filename())[1])
+            if isVideoFile:
+                expectedStartTime = 0
+
+            sourceIn = expectedStartTime - mediaSource.startTime()
+            if expectedStartHandle is not None:
+                sourceIn += expectedStartHandle
+
+            # First add the abs src duration to get the source out
+            sourceOut = sourceIn + abs(originalTrackItem.sourceOut() - originalTrackItem.sourceIn())
+
+            # Then, for a negative retime, src in/out need to be reversed
+            if originalTrackItem.playbackSpeed() < 0.0:
+                sourceIn, sourceOut = sourceOut, sourceIn
+
+        trackItem.setSourceIn(sourceIn)
+        trackItem.setSourceOut(sourceOut)
+        return trackItem
 
 # =========================================================================================
 # Main Menu
