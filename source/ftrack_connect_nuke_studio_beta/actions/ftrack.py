@@ -186,8 +186,6 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             if asset_status != '- ANY -':
                 query += ' and version.status.name is "{}"'.format(asset_status)
 
-            self.logger.info('query: {0}'.format(query))
-
             final_component = self.session.query(query
             ).first()
 
@@ -197,7 +195,7 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             self._result_data[taskItem] = final_component['id']
 
         # Update window title with the amount of clips found matching the filters
-        new_title = self._window_title + '({} clips found)'.format(len(self._result_data))
+        new_title = self._window_title + ' - ({} clips found)'.format(len(self._result_data))
         self.setWindowTitle(new_title)
 
         self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setDisabled(not bool(len(self._result_data)))
