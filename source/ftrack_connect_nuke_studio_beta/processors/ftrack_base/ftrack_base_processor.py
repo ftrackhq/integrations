@@ -297,8 +297,6 @@ class FtrackProcessor(FtrackBase):
             'name': task._preset.name().lower()
         }, location=None)
 
-        component['metadata']['clip_name'] = task._item.name()
-
         return component
 
     def _skip_fragment(self, name, parent, task, version):
