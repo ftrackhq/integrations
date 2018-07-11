@@ -67,7 +67,10 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         if self._selection:
             self.project = self.itemProject(self._selection[0])
 
-        self.setWindowTitle('Build Track From server tasks')
+        self._window_title = 'Build Track From server tasks'
+        self.setWindowTitle(self._window_title)
+        # self.setWindowIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
+
         self.setSizeGripEnabled(True)
 
         layout = QtWidgets.QVBoxLayout()
@@ -83,6 +86,9 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
         formLayout.addRow('Asset type:', self.asset_type_combobox)
 
+        self.asset_status_combobox = QtWidgets.QComboBox()
+        formLayout.addRow('Asset Status:', self.asset_status_combobox)
+
         self.component_combobox = QtWidgets.QComboBox()
         formLayout.addRow('Component name:', self.component_combobox)
 
@@ -92,6 +98,7 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         self._buttonbox = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.StandardButton.Ok | QtWidgets.QDialogButtonBox.StandardButton.Cancel)
         self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setText("Build")
+        self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setDisabled(True)
         self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setAutoDefault(True)
         self._buttonbox.accepted.connect(self.acceptTest)
         self._buttonbox.rejected.connect(self.reject)
@@ -103,11 +110,17 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         self.populate_tasks()
         self.populate_asset_types()
         self.populate_components()
+        self.populate_asset_statuses()
 
         # connect signals
         self.tasks_combobox.currentIndexChanged.connect(self.get_components)
         self.asset_type_combobox.currentIndexChanged.connect(self.get_components)
         self.component_combobox.currentIndexChanged.connect(self.get_components)
+        self.asset_status_combobox.currentIndexChanged.connect(self.get_components)
+
+        # force ui to refresh
+        self.get_components()
+
 
     @staticmethod
     def common_items(items):
@@ -153,9 +166,9 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         task_name = self.tasks_combobox.currentText()
         asset_type_name = self.asset_type_combobox.currentText()
         component_name = self.component_combobox.currentText()
+        asset_status = self.asset_status_combobox.currentText()
 
         if not all([task_name, asset_type_name, component_name]):
-            self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setDisabled(True)
             return self._result_data
 
         for taskItem, (project, sequence, shot) in self.parsed_selection.items():
@@ -169,6 +182,10 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
                 'and version.asset.parent.project.name is "{}"'  # project
                 ''.format(component_name, asset_type_name, task_name, shot, sequence, project)
             )
+
+            if asset_status != '- ANY -':
+                query += ' and version.status.name is "{}"'.format(asset_status)
+
             self.logger.info('query: {0}'.format(query))
 
             final_component = self.session.query(query
@@ -178,6 +195,10 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
                 continue
 
             self._result_data[taskItem] = final_component['id']
+
+        # Update window title with the amount of clips found matching the filters
+        new_title = self._window_title + '({} clips found)'.format(len(self._result_data))
+        self.setWindowTitle(new_title)
 
         self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setDisabled(not bool(len(self._result_data)))
 
@@ -201,9 +222,15 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             )
 
         common_components = self.common_items(all_component_names)
-        self.logger.info('component_combobox : {}'.format(common_components))
         for name in sorted(common_components):
             self.component_combobox.addItem(name)
+
+    def populate_asset_statuses(self):
+        statuses = self.session.query('Status').all()
+        self.asset_status_combobox.addItem('- ANY -')
+        for status in statuses:
+            self.asset_status_combobox.addItem(status['name'])
+
 
     def populate_asset_types(self):
         all_asset_types_names = []
@@ -220,7 +247,6 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
             all_asset_types_names.append([asset['type']['name'] for asset in assets])
         common_asset_types = self.common_items(all_asset_types_names)
-        self.logger.info('common_asset_types : {}'.format(common_asset_types))
         for name in sorted(common_asset_types):
             self.asset_type_combobox.addItem(name)
 
@@ -239,7 +265,6 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
             all_tasks.append([task['name'] for task in tasks])
         common_tasks = self.common_items(all_tasks)
-        self.logger.info('common_tasks : {}'.format(common_tasks))
         for name in sorted(common_tasks):
             self.tasks_combobox.addItem(name)
 
@@ -309,8 +334,6 @@ class FtrackBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         sequence = hiero.ui.activeView().sequence()
         project = sequence.project()
 
-        self.logger.info('sequence: {}'.format(sequence))
-        self.logger.info('project: {}'.format(project))
 
         if not self.configure(project, selection):
           return
@@ -327,9 +350,6 @@ class FtrackBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
 
     def _buildTrackItem(self, name, clip, originalTrackItem, expectedStartTime, expectedDuration, expectedStartHandle,
                         expectedEndHandle, expectedOffset):
-        """ Create the new track item and set its in/out times.  Reimplemented here as the BuildTrackFromExportTagAction can be a bit cleverer about this,
-            since all the relevant information should be stored in the tag metadata. """
-
         # Create the item
         trackItem = hiero.core.TrackItem(name, hiero.core.TrackItem.kVideo)
         trackItem.setSource(clip)
@@ -395,7 +415,7 @@ class FtrackBuildTrack(BuildTrack):
         restricted = []
         if hasattr(event, 'restricted'):
           restricted = getattr(event, 'restricted');
-        if "buildExternalMediaTrack" in restricted:
+        if 'buildExternalMediaTrack' in restricted:
           return
 
         if not hasattr(event.sender, 'selection'):
