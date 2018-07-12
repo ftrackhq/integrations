@@ -43,7 +43,7 @@ class FtrackTrackFinderByNameWithDialog(TrackFinderByNameWithDialog):
         return track, isNewTrack
 
 
-class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
+class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
     excluded_component_names = ['ftrackreview-mp4', 'thumbnail']
 
     def __init__(self, selection, parent=None):
@@ -52,7 +52,7 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         if not parent:
             parent = hiero.ui.mainWindow()
 
-        super(FtrackBuildServerTrackDialog, self).__init__(parent)
+        super(FtrackReBuildServerTrackDialog, self).__init__(parent)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
@@ -318,7 +318,7 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         # case that the export being built from was a Nuke Shot export.
         settings = hiero.core.ApplicationSettings()
 
-        dialog = FtrackBuildServerTrackDialog(selection)
+        dialog = FtrackReBuildServerTrackDialog(selection)
         if dialog.exec_():
           self._trackName = dialog.trackName()
           self._track_data = dialog.data
