@@ -271,7 +271,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
 class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
     def __init__(self):
-        super(FtrackReBuildServerTrackAction, self).__init__('Rebuild from ftrack server')
+        super(FtrackReBuildServerTrackAction, self).__init__('Rebuild from ftrack')
         self.trackFinder = FtrackTrackFinderByNameWithDialog(self)
         self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
 
