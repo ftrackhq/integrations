@@ -304,8 +304,8 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         attributes = shot['custom_attributes']
 
         offset = 0
-        start = attributes.get('fstart')
-        duration = attributes.get('fend') - start
+        start = int(attributes.get('fstart'))
+        duration = int(attributes.get('fend')) - start
         starthandle, endhandle = 0, 0
 
         result = (start, duration, starthandle, endhandle, offset)
