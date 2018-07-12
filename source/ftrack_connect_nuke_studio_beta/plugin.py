@@ -13,7 +13,7 @@ import hiero.core
 from ftrack_connect import config
 import ftrack_connect.ui.theme
 import ftrack_connect.event_hub_thread
-# from ftrack_connect_nuke_studio_beta.actions import FtrackBuildTrack
+from ftrack_connect_nuke_studio_beta.actions.ftrack import FtrackBuildTrack
 from ftrack_connect_nuke_studio_beta.tags.tag_drop_handler import TagDropHandler
 from ftrack_connect_nuke_studio_beta.tags.tag_manager import TagManager
 
@@ -43,9 +43,9 @@ hiero.core.events.registerInterest(
 register_processors()
 
 
-# # Instantiate the action to get it to register itself.
-# if (not hiero.core.isHieroPlayer()) and isinstance(QtCore.QCoreApplication.instance(), QtWidgets.QApplication):
-#   ftrackBuildExternalMediaTrackAction = FtrackBuildTrack()
+# Instantiate the action to get it to register itself.
+if (not hiero.core.isHieroPlayer()) and isinstance(QtCore.QCoreApplication.instance(), QtWidgets.QApplication):
+  ftrackBuildExternalMediaTrackAction = FtrackBuildTrack()
 
 
 # Setup the TagManager and TagDropHandler.
