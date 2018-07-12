@@ -124,6 +124,8 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
     @staticmethod
     def common_items(items):
+        if not items:
+            return []
         return set.intersection(*map(set, items))
 
     @property
