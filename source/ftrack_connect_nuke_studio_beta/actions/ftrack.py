@@ -67,7 +67,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         if self._selection:
             self.project = self.itemProject(self._selection[0])
 
-        self._window_title = 'Re-Build Track from server tasks'
+        self._window_title = 'Rebuild Track from server tasks'
         self.setWindowTitle(self._window_title)
         # self.setWindowIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
 
@@ -271,7 +271,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
 class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
     def __init__(self):
-        super(FtrackReBuildServerTrackAction, self).__init__('Re build from ftrack server')
+        super(FtrackReBuildServerTrackAction, self).__init__('Rebuild from ftrack server')
         self.trackFinder = FtrackTrackFinderByNameWithDialog(self)
         self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
 
@@ -342,7 +342,7 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
 
         if self._errors:
           msgBox = QtWidgets.QMessageBox(hiero.ui.mainWindow())
-          msgBox.setWindowTitle('Build Media Track')
+          msgBox.setWindowTitle('Rebuild Media Track')
           msgBox.setText('There were problems building the track.')
           msgBox.setDetailedText( '\n'.join(self._errors) )
           msgBox.exec_()
