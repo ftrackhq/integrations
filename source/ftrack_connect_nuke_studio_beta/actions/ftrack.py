@@ -267,9 +267,9 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             self.tasks_combobox.addItem(name)
 
 
-class FtrackBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
+class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
     def __init__(self):
-        super(FtrackBuildServerTrackAction, self).__init__('Re build from ftrack server')
+        super(FtrackReBuildServerTrackAction, self).__init__('Re build from ftrack server')
         self.trackFinder = FtrackTrackFinderByNameWithDialog(self)
         self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
 
@@ -405,8 +405,8 @@ class FtrackBuildTrack(BuildTrack):
         self.logger.setLevel(logging.DEBUG)
         hiero.core.events.registerInterest('kShowContextMenu/kTimeline', self.eventHandler)
         self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
-        self._actionServer = FtrackBuildServerTrackAction()
-        self.addAction(self._actionServer)
+        self._action_rebuild_from_server = FtrackReBuildServerTrackAction()
+        self.addAction(self._action_rebuild_from_server)
 
     def eventHandler(self, event):
         # Check if this actions are not to be enabled
@@ -433,6 +433,7 @@ class FtrackBuildTrack(BuildTrack):
 
         if selection is None:
           selection = () # We disable on empty selection.
-        self.setEnabled(len(selection)>0)
+
+        self._action_rebuild_from_server.setEnabled(len(selection)>0)
 
         event.menu.addMenu(self)
