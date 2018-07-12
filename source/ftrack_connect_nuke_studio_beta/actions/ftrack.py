@@ -67,7 +67,7 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         if self._selection:
             self.project = self.itemProject(self._selection[0])
 
-        self._window_title = 'Build Track From server tasks'
+        self._window_title = 'Re-Build Track from server tasks'
         self.setWindowTitle(self._window_title)
         # self.setWindowIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
 
@@ -269,7 +269,7 @@ class FtrackBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
 class FtrackBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
     def __init__(self):
-        super(FtrackBuildServerTrackAction, self).__init__('From Ftrack Server')
+        super(FtrackBuildServerTrackAction, self).__init__('Re build from ftrack server')
         self.trackFinder = FtrackTrackFinderByNameWithDialog(self)
         self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
 
