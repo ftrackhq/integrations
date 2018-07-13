@@ -5,6 +5,7 @@ import os
 import re
 import copy
 from hiero.ui.FnUIProperty import UIPropertyFactory
+import tempfile
 
 import hiero
 import hiero.core.util
@@ -36,7 +37,7 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
         self._audioFile = None
 
         # Figure out the script location
-        path = self.resolvedExportPath()
+        path = tempfile.NamedTemporaryFile(suffix='.nk').name
         dirname, filename = os.path.split(path)
         root, ext = os.path.splitext(filename)
 
@@ -66,6 +67,8 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
     def updateItem(self, originalItem, localtime):
         self.createTranscodeScript()
 
+    def _makePath(self):
+        pass
 
 class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
     def __init__(self, name, properties):

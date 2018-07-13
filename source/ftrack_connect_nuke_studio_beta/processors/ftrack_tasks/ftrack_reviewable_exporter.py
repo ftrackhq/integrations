@@ -8,6 +8,7 @@ import copy
 import hiero
 import hiero.core.util
 from hiero.ui.FnUIProperty import UIPropertyFactory
+import tempfile
 
 from hiero.exporters.FnSubmission import Submission
 from hiero.exporters.FnTranscodeExporter import TranscodeExporter, TranscodePreset
@@ -43,7 +44,7 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
         self._audioFile = None
 
         # Figure out the script location
-        path = self.resolvedExportPath()
+        path = tempfile.NamedTemporaryFile(suffix='.nk').name
         dirname, filename = os.path.split(path)
         root, ext = os.path.splitext(filename)
 
@@ -69,6 +70,8 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
             # Create a job on our submission to do the actual rendering.
             self._renderTask = self._submission.addJob(Submission.kNukeRender, submissionDict, self._scriptfile)
 
+    def _makePath(self):
+        pass
 
 class FtrackReviewableExporterPreset(TranscodePreset, FtrackProcessorPreset):
     def __init__(self, name, properties):

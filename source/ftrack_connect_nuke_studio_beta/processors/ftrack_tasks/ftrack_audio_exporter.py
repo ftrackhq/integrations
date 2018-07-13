@@ -21,6 +21,9 @@ class FtrackAudioExporter(AudioExportTask, FtrackProcessor):
     def startTask(self):
         AudioExportTask.startTask(self)
 
+    def _makePath(self):
+        pass
+
 
 class FtrackAudioExporterPreset(AudioExportPreset, FtrackProcessorPreset):
 
