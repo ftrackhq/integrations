@@ -348,10 +348,9 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
           msgBox.exec_()
           self._errors = []
 
-    def add_ftrack_build_tag(self, trackItem, originalTrackItem):
+    def add_ftrack_build_tag(self, clip, originalTrackItem):
         # add tags to clips
         component_id = self._track_data.get(originalTrackItem)
-        self.logger.info(self._track_data)
         if not component_id:
             return
 
@@ -367,11 +366,12 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         tag.metadata().setValue('tag.version_id', version['id'])
         tag.metadata().setValue('tag.provider', 'ftrack')
         # tag.setVisible(False)
-        trackItem.addTag(tag)
+        clip.addTag(tag)
 
     def _buildTrackItem(self, name, clip, originalTrackItem, expectedStartTime, expectedDuration, expectedStartHandle,
                         expectedEndHandle, expectedOffset):
         # Create the item
+        self.logger.info('_buildTrackItem {0}'.format(name))
         trackItem = hiero.core.TrackItem(name, hiero.core.TrackItem.kVideo)
         trackItem.setSource(clip)
 
