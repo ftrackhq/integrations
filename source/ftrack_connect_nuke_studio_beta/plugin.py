@@ -11,16 +11,17 @@ import hiero.ui
 import hiero.core
 
 from ftrack_connect import config
+config.configure_logging('ftrack_connect_nuke_studio_beta', level='WARNING')
+
 import ftrack_connect.ui.theme
 import ftrack_connect.event_hub_thread
 from ftrack_connect_nuke_studio_beta.actions.ftrack import FtrackBuildTrack
 from ftrack_connect_nuke_studio_beta.tags.tag_drop_handler import TagDropHandler
 from ftrack_connect_nuke_studio_beta.tags.tag_manager import TagManager
-
-config.configure_logging('ftrack_connect_nuke_studio_beta', level='WARNING')
+from ftrack_connect_nuke_studio_beta.actions.version_scanner import register_versioning_overrides
+register_versioning_overrides()
 
 from ftrack_connect_nuke_studio_beta.processors import register_processors
-
 ftrack_connect.ui.theme.applyFont()
 
 
