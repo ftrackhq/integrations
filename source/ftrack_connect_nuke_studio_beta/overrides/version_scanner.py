@@ -47,6 +47,7 @@ def add_clip_as_version(clip, binItem, ftrack_component_reference):
   has_tag = get_ftrack_tag(clip)
   if not has_tag:
     return
+
   component_id = has_tag.metadata()['component_id']
   # see which our index is
   versionIndex = ftrack_component_reference.index(component_id)
@@ -56,8 +57,14 @@ def add_clip_as_version(clip, binItem, ftrack_component_reference):
   binIndex = 0
   for v in binItem.items():
     c = v.item()
+    bin_has_tag = get_ftrack_tag(c)
+    if not bin_has_tag:
+      return
+
+    bin_component_id = bin_has_tag.metadata()['component_id']
+
     try:
-      clipIndex = ftrack_component_reference.index(component_id)
+      clipIndex = ftrack_component_reference.index(bin_component_id)
       if clipIndex >= versionIndex:
         targetBinIndex = binIndex
         break
@@ -125,11 +132,11 @@ def ftrack_find_version_files(scannerInstance, version):
   component_name = component['name']
   asset = component['version']['asset']
 
-  unsorted_compomnents = session.query(
+  unsorted_components = session.query(
     'select name, version.version from Component where version.asset.id is {} and name is {}'.format(
       asset['id'], component_name)
   ).all()
-  sorted_components = sorted(unsorted_compomnents, key=lambda k: int(k['version']['version']))
+  sorted_components = sorted(unsorted_components, key=lambda k: int(k['version']['version']))
 
   logger.info(sorted_components)
 
