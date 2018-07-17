@@ -2,6 +2,8 @@ import os
 import re
 import logging
 import glob
+
+import hiero
 from hiero.core.VersionScanner import VersionScanner
 from ftrack_connect.session import get_shared_session
 
@@ -27,6 +29,48 @@ def register_versioning_overrides():
   VersionScanner._ftrack_component_reference = []
 
 
+def add_clip_as_version(clip, binItem, ftrack_component_reference):
+  """
+
+  Adds the supplied clip to the supplied bin item as a new Version. It takes
+  care that the clip is placed at the right index in the bin so that versions
+  are correctly sorted. This is done by comparing all other Versions already
+  present to the supplied entityVersionList to determine the correct index.
+
+  @param entityVersionsList list, This should be a sorted list of the entity
+  references for every version of the entity the clip is representing. Such a
+  list can be retrieved from Entity.getVersions(asRefs=True, asList=True)
+
+  @return hiero.core.Version, the newly created Version object
+
+  """
+  has_tag = get_ftrack_tag(clip)
+  if not has_tag:
+    return
+  component_id = has_tag.metadata()['component_id']
+  # see which our index is
+  versionIndex = ftrack_component_reference.index(component_id)
+  targetBinIndex = -1
+
+  # Try to find the closed version that already exists in the bin
+  binIndex = 0
+  for v in binItem.items():
+    c = v.item()
+    try:
+      clipIndex = ftrack_component_reference.index(component_id)
+      if clipIndex >= versionIndex:
+        targetBinIndex = binIndex
+        break
+    except:
+      pass
+
+    binIndex += 1
+
+  version = hiero.core.Version(clip)
+  binItem.addVersion(version, targetBinIndex)
+  return version
+
+
 def get_ftrack_tag(clip):
   # tags are stored in the source clip
   existingTag = None
@@ -46,18 +90,24 @@ def get_ftrack_tag(clip):
 
 def ftrack_insert_clips(scannerInstance, binItem, clips):
   entities = []
-  nonEntities = []
+  non_entities = []
 
   newVersions = []
 
   for c in clips:
     has_tags = get_ftrack_tag(c)
     if not has_tags:
-      nonEntities.append(c)
+      non_entities.append(c)
+    else:
+      entities.append(c)
+
+  newVersions.extend(scannerInstance._default_insertClips(binItem, non_entities))
+
+  for c in entities:
+    v = add_clip_as_version(c, binItem, scannerInstance._ftrack_component_reference)
+    newVersions.append(v)
 
   scannerInstance._ftrack_component_reference = []
-
-  newVersions.extend(scannerInstance._default_insertClips(binItem, nonEntities))
   return newVersions
 
 
@@ -74,8 +124,6 @@ def ftrack_find_version_files(scannerInstance, version):
   component = session.get('Component', component_id)
   component_name = component['name']
   asset = component['version']['asset']
-  logger.info(asset)
-  paths = []
 
   unsorted_compomnents = session.query(
     'select name, version.version from Component where version.asset.id is {} and name is {}'.format(
@@ -91,7 +139,7 @@ def ftrack_find_version_files(scannerInstance, version):
 
     if component_avaialble:
       logger.info('VERSION: {} component: {}'.format(component['version']['version'], component))
-
+      VersionScanner._ftrack_component_reference.append(component)
       path = location.get_filesystem_path(component)
       paths.append(path)
 
