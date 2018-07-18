@@ -39,21 +39,38 @@ def register_versioning_overrides():
   VersionScanner._ftrack_component_reference = []
 
 
+def add_ftrack_build_tag(clip, component):
+    version = component['version']
+
+    tag = hiero.core.Tag(
+        'ftrack-reference-{0}'.format(component['name']),
+        ':/ftrack/image/default/ftrackLogoColor',
+        False
+    )
+    tag.metadata().setValue('tag.component_id', component['id'])
+    tag.metadata().setValue('tag.version_id', version['id'])
+    tag.metadata().setValue('tag.provider', 'ftrack')
+    # tag.setVisible(False)
+    clip.addTag(tag)
+
+
 # Utility functions
 def get_ftrack_tag(clip):
-  # tags are stored in the source clip
-  existingTag = None
+    # tags are stored in the source clip
+    existingTag = None
+    logger.info('get_ftrack_tag TAG {}'.format( clip.tags()))
 
-  for tag in clip.tags():
-    if tag.metadata().hasKey('tag.provider') and tag.metadata()['tag.provider'] == 'ftrack':
-      existingTag = tag
-      break
+    for tag in clip.tags():
 
-  if not existingTag:
-      return False
+        if tag.metadata().hasKey('tag.provider') and tag.metadata()['tag.provider'] == 'ftrack':
+            existingTag = tag
+            break
 
-  logger.info('get_ftrack_tag {}:{}'.format(clip, existingTag))
-  return existingTag
+    if not existingTag:
+        return False
+
+    logger.info('get_ftrack_tag {}:{}'.format(clip, existingTag))
+    return existingTag
 
 
 def add_clip_as_version(clip, binItem, ftrack_component_reference):
@@ -75,8 +92,9 @@ def add_clip_as_version(clip, binItem, ftrack_component_reference):
   logger.info('add_clip_as_version:{}'.format(clip))
 
   component_id = has_tag.metadata()['component_id']
+  component = session.get('Component', component_id)
   # see which our index is
-  versionIndex = ftrack_component_reference.index(component_id)
+  versionIndex = ftrack_component_reference.index(component)
   targetBinIndex = -1
 
   logger.info('version index {}'.format(versionIndex))
@@ -90,9 +108,10 @@ def add_clip_as_version(clip, binItem, ftrack_component_reference):
       return
 
     bin_component_id = bin_has_tag.metadata()['component_id']
+    bin_component = session.get('Component', bin_component_id)
 
     try:
-      clipIndex = ftrack_component_reference.index(bin_component_id)
+      clipIndex = ftrack_component_reference.index(bin_component)
       if clipIndex >= versionIndex:
         targetBinIndex = binIndex
         break
@@ -180,7 +199,9 @@ def ftrack_create_clip(scannerInstance, newFilename):
 
         filepath = current_ftrack_location.get_filesystem_path(newFilename).split()[0]
         logger.debug('ftrack_create_clip:result {}'.format(filepath))
-        return hiero.core.Clip(filepath)
+        clip = hiero.core.Clip(filepath)
+        add_ftrack_build_tag(clip, newFilename)
+        return clip
     else:
         return scannerInstance._default_createClip(newFilename)
 
@@ -193,15 +214,15 @@ def ftrack_insert_clips(scannerInstance, binItem, clips):
 
     newVersions = []
 
-    for c in clips:
-        has_tags = get_ftrack_tag(c)
-        logger.info('ftrack_insert_entity_clips: {}:{}'.format(c, has_tags))
+    for clip in clips:
+        has_tags = get_ftrack_tag(clip)
+        logger.info('ftrack_insert_entity_clips: {}:{}'.format(clip, has_tags))
 
         if not has_tags:
-            non_entities.append(c)
+            non_entities.append(clip)
         else:
-            logger.info('ftrack_insert_entity_clips: {}'.format(c))
-            entities.append(c)
+            logger.info('ftrack_insert_entity_clips: {}'.format(clip))
+            entities.append(clip)
 
     newVersions.extend(scannerInstance._default_insertClips(binItem, non_entities))
 
