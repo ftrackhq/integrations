@@ -334,7 +334,6 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         sequence = hiero.ui.activeView().sequence()
         project = sequence.project()
 
-
         if not self.configure(project, selection):
           return
 
@@ -367,6 +366,18 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         tag.metadata().setValue('tag.provider', 'ftrack')
         # tag.setVisible(False)
         clip.addTag(tag)
+
+    @staticmethod
+    def updateFtrackVersions(trackItem):
+        """ Scan for versions on a track item and change to the highest available """
+        trackItem.source().rescan()  # First rescan the current clip
+        if trackItem.isMediaPresent():
+            version = trackItem.currentVersion()
+            scanner = hiero.core.VersionScanner.VersionScanner()  # Scan for new versions
+            scanner.doScan(version)
+            # # Put the track item and the clip bin item on the max version
+            # trackItem.maxVersion()
+            # trackItem.source().binItem().maxVersion()
 
     def _buildTrackItem(self, name, clip, originalTrackItem, expectedStartTime, expectedDuration, expectedStartHandle,
                         expectedEndHandle, expectedOffset):
@@ -414,6 +425,7 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         trackItem.setSourceIn(sourceIn)
         trackItem.setSourceOut(sourceOut)
         self.add_ftrack_build_tag(clip, originalTrackItem)
+        self.updateFtrackVersions(trackItem)
         return trackItem
 
 # =========================================================================================

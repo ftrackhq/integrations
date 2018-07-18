@@ -27,6 +27,7 @@ def register_versioning_overrides():
     VersionScanner.insertClips = ftrack_insert_clips
 
   VersionScanner._ftrack_component_reference = []
+  VersionScanner._ftrack_paths_reference = []
 
 
 def add_clip_as_version(clip, binItem, ftrack_component_reference):
@@ -138,16 +139,21 @@ def ftrack_find_version_files(scannerInstance, version):
   ).all()
   sorted_components = sorted(unsorted_components, key=lambda k: int(k['version']['version']))
 
-  logger.info(sorted_components)
+  # set paths to an array of dimension of max version
 
-  paths = []
+  max_version = sorted_components[-1]['version']['version']
+  paths = [None]*max_version
+  VersionScanner._ftrack_component_reference = [None]*max_version
+
   for component in sorted_components:
     component_avaialble = session.pick_location(component)
-
     if component_avaialble:
-      logger.info('VERSION: {} component: {}'.format(component['version']['version'], component))
-      VersionScanner._ftrack_component_reference.append(component)
-      path = location.get_filesystem_path(component)
-      paths.append(path)
+      component_version = component['version']['version'] - 1  # lists starts from 0, so version 1 should be first
+      path = location.get_filesystem_path(component).split()[0]
+      VersionScanner._ftrack_component_reference[component_version] = component
+      paths[component_version] = path
+
+  logger.info('_ftrack_component_reference: {}'.format(VersionScanner._ftrack_component_reference))
+  logger.info('paths: {}'.format(paths))
 
   return paths
