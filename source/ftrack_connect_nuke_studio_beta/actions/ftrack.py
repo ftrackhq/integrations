@@ -356,21 +356,8 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         if not component_id:
             return
 
-        existingTag = None
-        for tag in clip.tags():
-            if tag.metadata().hasKey('tag.presetid') and tag.metadata()['tag.presetid'] == task_id:
-                existingTag = tag
-                break
-
         component = self.session.get('Component', component_id)
         version = component['version']
-        if existingTag:
-            self.logger.info('Updating clip tag....')
-            existingTag.metadata().setValue('tag.component_id', component['id'])
-            existingTag.metadata().setValue('tag.version_id', version['id'])
-            clip.removeTag(existingTag)
-            clip.addTag(existingTag)
-            return
 
         tag = hiero.core.Tag(
             'ftrack-reference-{0}'.format(component['name']),
@@ -382,6 +369,7 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         tag.metadata().setValue('tag.provider', 'ftrack')
         # tag.setVisible(False)
         clip.addTag(tag)
+        clip.setName('{}/v{:03}'.format(component['name'], component['version']['version']))
 
     @staticmethod
     def updateFtrackVersions(trackItem):
