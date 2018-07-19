@@ -15,6 +15,9 @@ from hiero.ui.BuildExternalMediaTrack import (
 
 registry = hiero.core.taskRegistry
 
+logger = logging.getLogger(
+    __name__
+)
 
 class FtrackTrackFinderByNameWithDialog(TrackFinderByNameWithDialog):
 
@@ -353,8 +356,21 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         if not component_id:
             return
 
+        existingTag = None
+        for tag in clip.tags():
+            if tag.metadata().hasKey('tag.presetid') and tag.metadata()['tag.presetid'] == task_id:
+                existingTag = tag
+                break
+
         component = self.session.get('Component', component_id)
         version = component['version']
+        if existingTag:
+            self.logger.info('Updating clip tag....')
+            existingTag.metadata().setValue('tag.component_id', component['id'])
+            existingTag.metadata().setValue('tag.version_id', version['id'])
+            clip.removeTag(existingTag)
+            clip.addTag(existingTag)
+            return
 
         tag = hiero.core.Tag(
             'ftrack-reference-{0}'.format(component['name']),
@@ -369,15 +385,12 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
 
     @staticmethod
     def updateFtrackVersions(trackItem):
-        """ Scan for versions on a track item and change to the highest available """
         trackItem.source().rescan()  # First rescan the current clip
         if trackItem.isMediaPresent():
             version = trackItem.currentVersion()
+            logger.info('Version : {}'.format(version))
             scanner = hiero.core.VersionScanner.VersionScanner()  # Scan for new versions
             scanner.doScan(version)
-            # # Put the track item and the clip bin item on the max version
-            # trackItem.maxVersion()
-            # trackItem.source().binItem().maxVersion()
 
     def _buildTrackItem(self, name, clip, originalTrackItem, expectedStartTime, expectedDuration, expectedStartHandle,
                         expectedEndHandle, expectedOffset):
