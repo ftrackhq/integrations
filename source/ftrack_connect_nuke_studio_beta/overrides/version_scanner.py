@@ -216,19 +216,16 @@ def ftrack_insert_clips(scannerInstance, binItem, clips):
 
     entities = []
     non_entities = []
-
     newVersions = []
 
     for clip in clips:
         has_tags = get_ftrack_tag(clip)
         logger.info('ftrack_insert_entity_clips: {}:{}'.format(clip, has_tags))
-        entities.append(clip)
-
-        # if not has_tags:
-        #     non_entities.append(clip)
-        # else:
-        #     logger.info('ftrack_insert_entity_clips: {}'.format(clip))
-        #     entities.append(clip)
+        if not has_tags:
+            non_entities.append(clip)
+        else:
+            logger.info('ftrack_insert_entity_clips: {}'.format(clip))
+            entities.append(clip)
 
     newVersions.extend(scannerInstance._default_insertClips(binItem, non_entities))
 

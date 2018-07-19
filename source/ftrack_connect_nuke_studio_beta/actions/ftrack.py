@@ -392,6 +392,10 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
             scanner = hiero.core.VersionScanner.VersionScanner()  # Scan for new versions
             scanner.doScan(version)
 
+            # Put the track item and the clip bin item on the max version
+            # trackItem.maxVersion()
+            trackItem.source().binItem().maxVersion()
+
     def _buildTrackItem(self, name, clip, originalTrackItem, expectedStartTime, expectedDuration, expectedStartHandle,
                         expectedEndHandle, expectedOffset):
         # Create the item
