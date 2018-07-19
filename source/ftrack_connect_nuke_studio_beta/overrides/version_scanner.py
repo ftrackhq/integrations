@@ -69,23 +69,10 @@ def get_ftrack_tag(clip):
 
 
 def add_clip_as_version(clip, binItem, ftrack_component_reference):
-    """
-
-    Adds the supplied clip to the supplied bin item as a new Version. It takes
-    care that the clip is placed at the right index in the bin so that versions
-    are correctly sorted. This is done by comparing all other Versions already
-    present to the supplied entityVersionList to determine the correct index.
-
-    @param entityVersionsList list, This should be a sorted list of the entity
-    references for every version of the entity the clip is representing. Such a
-    list can be retrieved from Entity.getVersions(asRefs=True, asList=True)
-
-    @return hiero.core.Version, the newly created Version object
-
-    """
     has_tag = get_ftrack_tag(clip)
     component_id = has_tag.metadata()['component_id']
     component = session.get('Component', component_id)
+
     # see which our index is
     versionIndex = ftrack_component_reference.index(component)
     targetBinIndex = -1
@@ -109,8 +96,6 @@ def add_clip_as_version(clip, binItem, ftrack_component_reference):
         binIndex += 1
 
     version = hiero.core.Version(clip)
-    logger.info('ADDING {} AS versionIndex {}'.format(component_id, targetBinIndex))
-
     binItem.addVersion(version, targetBinIndex)
     return version
 
@@ -166,7 +151,6 @@ def ftrack_filter_version(scannerInstance, binitem, newVersionFile):
       if ftrack_tag:
           component_id = ftrack_tag.metadata()['component_id']
           if component_id == newVersionFile['id']:
-              logger.info('filtered : {} : False'.format(newVersionFile))
               return False
     return True
 
