@@ -15,7 +15,7 @@ config.configure_logging('ftrack_connect_nuke_studio_beta', level='WARNING')
 
 import ftrack_connect.ui.theme
 import ftrack_connect.event_hub_thread
-from ftrack_connect_nuke_studio_beta.actions.ftrack import FtrackBuildTrack
+from ftrack_connect_nuke_studio_beta.actions.build_track import FtrackBuildTrack
 from ftrack_connect_nuke_studio_beta.tags.tag_drop_handler import TagDropHandler
 from ftrack_connect_nuke_studio_beta.tags.tag_manager import TagManager
 from ftrack_connect_nuke_studio_beta.overrides.version_scanner import register_versioning_overrides
