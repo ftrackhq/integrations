@@ -28,30 +28,21 @@ ftrack_connect.ui.theme.applyFont()
 def populate_ftrack(event):
     '''Populate the ftrack menu with items.'''
     menu_bar = hiero.ui.menuBar()
-
     ftrack_menu = menu_bar.addMenu(
         QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'), 'ftrack'
     )
 
 
-# Trigger population of the ftrack menu.
-logger.debug('Populate the ftrack menu')
-hiero.core.events.registerInterest(
-    'kStartup', populate_ftrack
-)
-
-# TODO: move to events!
-register_processors()
-
-
-# Instantiate the action to get it to register itself.
 if (not hiero.core.isHieroPlayer()) and isinstance(QtCore.QCoreApplication.instance(), QtWidgets.QApplication):
-  ftrackBuildExternalMediaTrackAction = FtrackBuildTrack()
 
+    hiero.core.events.registerInterest(
+        'kStartup', TagManager
+    )
 
-# Setup the TagManager and TagDropHandler.
-logger.debug('Setup tag manager and tag drop handler.')
-tag_handler = TagDropHandler()
-hiero.core.events.registerInterest(
-    'kStartup', TagManager
-)
+    hiero.core.events.registerInterest(
+        'kStartup', populate_ftrack
+    )
+
+    ftrackBuildExternalMediaTrackAction = FtrackBuildTrack()
+    register_processors()
+    tag_handler = TagDropHandler()
