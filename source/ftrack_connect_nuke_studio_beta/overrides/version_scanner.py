@@ -3,6 +3,8 @@ import re
 import logging
 import glob
 
+from QtExt import QtGui
+
 import hiero
 from hiero.core.VersionScanner import VersionScanner
 from ftrack_connect.session import get_shared_session
@@ -37,6 +39,15 @@ def register_versioning_overrides():
         VersionScanner.createClip = ftrack_create_clip
 
     VersionScanner._ftrack_component_reference = []
+
+    hiero.core.events.registerInterest('kShowContextMenu/kTimeline', customise_version_menu)
+
+
+def customise_version_menu(event):
+    actions = event.menu.actions()
+    for action in actions:
+        if action.text() == 'Version':
+            action.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
 
 
 def add_ftrack_build_tag(clip, component):
