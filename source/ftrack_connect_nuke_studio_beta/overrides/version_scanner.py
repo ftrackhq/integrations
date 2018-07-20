@@ -16,11 +16,13 @@ logger.setLevel(logging.DEBUG)
 
 current_ftrack_location = session.pick_location()
 
+
 def register_versioning_overrides():
 
     logger.debug('register_versioning_overrides')
 
-    # We want to redefine some of the methods of VersionScanner, but may still need to use the default functionality within our custom methods.
+    # We want to redefine some of the methods of VersionScanner,
+    # but may still need to use the default functionality within our custom methods.
     # Therefore, we need to save a reference to the default methods, and then we will be able to call them from ours.
     if not hasattr(VersionScanner, '_default_findVersionFiles'):
         VersionScanner._default_findVersionFiles = VersionScanner.findVersionFiles
