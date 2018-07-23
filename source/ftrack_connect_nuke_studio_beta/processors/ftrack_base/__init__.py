@@ -4,6 +4,7 @@
 import os
 import hiero
 from ftrack_connect_nuke_studio_beta.base import FtrackBase
+from ftrack_connect_nuke_studio_beta.template import match, get_project_template
 
 FTRACK_SHOW_PATH = FtrackBase.path_separator.join([
     '{ftrack_project}',
@@ -45,6 +46,7 @@ class FtrackBasePreset(FtrackBase):
         self.set_export_root()
         self.set_ftrack_properties(properties)
 
+
     def set_ftrack_properties(self, properties):
         properties = self.properties()
         properties.setdefault('ftrack', {})
@@ -61,6 +63,7 @@ class FtrackBasePreset(FtrackBase):
 
     def resolve_ftrack_sequence(self, task):
         trackItem = task._item
+        template = get_project_template(task._project)
 
         if not isinstance(trackItem, hiero.core.Sequence):
             return self.sanitise_for_filesystem(trackItem.name().split('_')[0])
@@ -69,6 +72,7 @@ class FtrackBasePreset(FtrackBase):
 
     def resolve_ftrack_shot(self, task):
         trackItem = task._item
+        template = get_project_template(task._project)
 
         if not isinstance(trackItem, hiero.core.Sequence):
             return self.sanitise_for_filesystem(trackItem.name().split('_')[1])
