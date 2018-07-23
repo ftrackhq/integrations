@@ -201,11 +201,11 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
             application, context
         )
 
-        application_hooks_path = os.path.join(
-            cwd, '..', 'application_hook'
+        application_hooks_path = os.path.abspath(
+            os.path.join(
+                cwd, '..', 'application_hook'
+            )
         )
-
-        self.logger.info('application_hooks_path: {}'.format(application_hooks_path))
 
         environment = ftrack_connect.application.appendPath(
             application_hooks_path, 'FTRACK_EVENT_PLUGIN_PATH', environment
