@@ -42,13 +42,13 @@ def register_versioning_overrides():
 
     VersionScanner._ftrack_component_reference = []
 
-    hiero.core.events.registerInterest('kShowContextMenu/kTimeline', customise_version_menu)
+    hiero.core.events.registerInterest('kShowContextMenu/kTimeline', customise_menu)
 
 
-def customise_version_menu(event):
+def customise_menu(event):
     actions = event.menu.actions()
     for action in actions:
-        if action.text() == 'Version':
+        if action.text() in ['Version', 'Export...']:
             action.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
 
 
