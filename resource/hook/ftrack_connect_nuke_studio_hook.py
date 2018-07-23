@@ -201,6 +201,13 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
             application, context
         )
 
+        application_hooks_path = os.path.join(
+            ftrack_connect_nuke_studio_beta_path, 'application_hook'
+        )
+
+        environment = ftrack_connect.application.appendPath(
+            application_hooks_path, 'FTRACK_EVENT_PLUGIN_PATH', environment
+        )
 
         environment = ftrack_connect.application.appendPath(
             ftrack_connect_nuke_studio_beta_path, 'HIERO_PLUGIN_PATH', environment
