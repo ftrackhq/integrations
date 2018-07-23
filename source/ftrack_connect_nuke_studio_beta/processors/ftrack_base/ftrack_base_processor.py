@@ -21,7 +21,49 @@ from ftrack_connect_nuke_studio_beta.processors.ftrack_base import (
     FtrackProcessorError
 )
 
+import ftrack_connect.ui.widget.html_combobox
+
+
+import ftrack_connect_nuke_studio_beta.template as template_manager
+
+
 from QtExt import QtCore, QtWidgets, QtGui
+
+
+class Template(ftrack_connect.ui.widget.html_combobox.HtmlComboBox):
+    '''Template combobox.'''
+
+    def __init__(self, project, parent=None):
+        '''Initialise template combobox.'''
+
+        super(Template, self).__init__(
+            self.format, parent=parent
+        )
+
+        self._templates = template_manager.available_templates(project)
+
+        default_index = 0
+        for index, template in enumerate(self._templates):
+            self.addItem(template['name'])
+            self.setItemData(
+                index, template
+            )
+
+            if template.get('default'):
+                default_index = index
+
+        if default_index:
+            self.setCurrentIndex(default_index)
+
+    def selected_template(self):
+        '''Return currently selected template.'''
+        return self.itemData(self.currentIndex())
+
+    def format(self, data):
+        '''Return data formatted as string.'''
+        return u'<p><b>{0}</b><br>{1}</p>'.format(
+            data.get('name'), data.get('description')
+        )
 
 
 class FtrackSettingsValidator(QtWidgets.QDialog):
@@ -888,6 +930,12 @@ class FtrackProcessorUI(FtrackBase):
         )
         parent_layout.addRow(label + ':', self.asset_type_options)
 
+    def add_task_templates(self, parent_layout):
+
+        self.template_widget = Template(self._project)
+        parent_layout.addRow('Shot Template' + ':', self.template_widget)
+
+
     def set_ui_tweaks(self):
         # Hide project path selector Foundry ticket : #36074
         for widget in self._exportStructureViewer.findChildren(QtWidgets.QWidget):
@@ -900,12 +948,13 @@ class FtrackProcessorUI(FtrackBase):
             if (isinstance(widget, QtWidgets.QLabel) and widget.text() == 'Export Structure:'):
                 widget.hide()
 
+
     def addFtrackProcessorUI(self, widget, exportItems):
         form_layout = TaskUIFormLayout()
         layout = widget.layout()
         layout.addLayout(form_layout)
         form_layout.addDivider('Ftrack Options')
-
+        self.add_task_templates(form_layout)
         self.add_project_options(form_layout)
         self.add_project_scheme_options(form_layout)
         self.add_task_type_options(form_layout, exportItems)
