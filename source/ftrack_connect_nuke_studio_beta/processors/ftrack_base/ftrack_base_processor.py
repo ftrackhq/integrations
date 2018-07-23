@@ -20,6 +20,7 @@ from ftrack_connect_nuke_studio_beta.processors.ftrack_base import (
     FtrackProcessorValidationError,
     FtrackProcessorError
 )
+import ftrack_connect_nuke_studio_beta.template as template_manager
 
 from ftrack_connect_nuke_studio_beta.ui.widget.template import Template
 from QtExt import QtCore, QtWidgets, QtGui
@@ -57,6 +58,10 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
 
         form_layout = TaskUIFormLayout()
         box_layout.addLayout(form_layout)
+
+        self.logger.info(error_data.items()[0])
+
+        template_manager.get_project_template()
 
         for processor, values in error_data.items():
             form_layout.addDivider('Wrong {0} presets'.format(processor.__class__.__name__))
@@ -890,10 +895,8 @@ class FtrackProcessorUI(FtrackBase):
         parent_layout.addRow(label + ':', self.asset_type_options)
 
     def add_task_templates(self, parent_layout):
-
         self.template_widget = Template(self._project)
         parent_layout.addRow('Shot Template' + ':', self.template_widget)
-
 
     def set_ui_tweaks(self):
         # Hide project path selector Foundry ticket : #36074

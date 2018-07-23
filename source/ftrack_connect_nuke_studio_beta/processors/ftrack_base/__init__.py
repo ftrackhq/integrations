@@ -66,6 +66,8 @@ class FtrackBasePreset(FtrackBase):
         template = get_project_template(task._project)
 
         if not isinstance(trackItem, hiero.core.Sequence):
+            result = match(trackItem, template)
+            self.logger.info('template result:{}'.format(result))
             return self.sanitise_for_filesystem(trackItem.name().split('_')[0])
         else:
             return self.sanitise_for_filesystem(trackItem.name())
@@ -75,6 +77,8 @@ class FtrackBasePreset(FtrackBase):
         template = get_project_template(task._project)
 
         if not isinstance(trackItem, hiero.core.Sequence):
+            result = match(trackItem, template)
+            self.logger.info('template result:{}'.format(result))
             return self.sanitise_for_filesystem(trackItem.name().split('_')[1])
         else:
             return self.sanitise_for_filesystem(trackItem.name())

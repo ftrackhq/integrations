@@ -111,7 +111,7 @@ def match(item, template):
     try:
         objects = lucidity_template.parse(item_name)
     except lucidity.error.ParseError:
-        raise ftrack_connect_nuke_studio.exception.TemplateError(
+        raise ftrack_connect_nuke_studio_beta.exception.TemplateError(
             message=(
                 '"{item_name}" did not match the '
                 'template "{template_name}"'.format(

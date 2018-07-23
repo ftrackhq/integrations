@@ -15,6 +15,12 @@ class Template(ftrack_connect.ui.widget.html_combobox.HtmlComboBox):
             self.format, parent=parent
         )
 
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+
+        self.currentIndexChanged.connect(self.on_index_changed)
+        self.project = project
         self._templates = template_manager.available_templates(project)
         logger.info('templates: {}'.format(self._templates))
 
@@ -40,3 +46,10 @@ class Template(ftrack_connect.ui.widget.html_combobox.HtmlComboBox):
         return u'<p><b>{0}</b><br>{1}</p>'.format(
             data.get('name'), data.get('description')
         )
+
+    def on_index_changed(self, index):
+        project = self.project
+        template = self.selected_template()
+        if template and project:
+            self.logger.info('Setting {} for {}'.format(project, template))
+            template_manager.save_project_template(project, template)
