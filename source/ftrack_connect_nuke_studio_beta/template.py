@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015 ftrack
 
+
 import hiero.core
 
 import lucidity
@@ -8,13 +9,14 @@ import lucidity.error
 
 import ftrack_api
 
-import ftrack_connect_nuke_studio.exception
+import ftrack_connect_nuke_studio_beta.exception
 
 from ftrack_connect.session import (
     get_shared_session
 )
 
 session = get_shared_session()
+
 
 def available_templates(project):
     '''Return available templates for *project*.
@@ -27,7 +29,7 @@ def available_templates(project):
     templates = []
     responses = session.event_hub.publish(
         ftrack_api.event.base.Event(
-            topic='ftrack.connect.nuke-studio.get-context-templates'
+            topic='ftrack.connect.nuke-studio-beta.get-context-templates'
         ),
         synchronous=True
     )

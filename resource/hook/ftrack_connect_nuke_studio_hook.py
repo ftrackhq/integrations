@@ -202,8 +202,10 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
         )
 
         application_hooks_path = os.path.join(
-            ftrack_connect_nuke_studio_beta_path, 'application_hook'
+            cwd, '..', 'application_hook'
         )
+
+        self.logger.info('application_hooks_path: {}'.format(application_hooks_path))
 
         environment = ftrack_connect.application.appendPath(
             application_hooks_path, 'FTRACK_EVENT_PLUGIN_PATH', environment

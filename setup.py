@@ -56,10 +56,16 @@ class BuildPlugin(setuptools.Command):
             os.path.join(STAGING_PATH, 'resource')
         )
 
-        # Copy plugin files
+        # Copy hook files
         shutil.copytree(
             HOOK_PATH,
             os.path.join(STAGING_PATH, 'hook')
+        )
+
+        # Copy applipcation hooks files
+        shutil.copytree(
+            HOOK_PATH,
+            os.path.join(STAGING_PATH, 'application_hook')
         )
 
         pip_main(
