@@ -224,12 +224,11 @@ class FtrackProcessor(FtrackBase):
         return project
 
     def _create_context_fragment(self, composed_name, parent, task, version):
-        self.logger.info('composed_name:{}'.format(composed_name))
+        self.logger.debug('Creating context fragment: {} {} {} {}'.format(composed_name, parent, task, version))
         splitted_name = composed_name.split('|')
         parsed_names = []
 
         for raw_name in splitted_name:
-            self.logger.info('raw_name: {}'.format(raw_name))
             object_type, object_name = raw_name.split(':')
             parsed_names.append((object_type, object_name))
 
