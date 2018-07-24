@@ -681,9 +681,7 @@ class FtrackProcessor(FtrackBase):
         version.create_thumbnail(thumbnail_file)
         version['task'].create_thumbnail(thumbnail_file)
 
-    def validateFtrackProcessing(self, exportItems):
-        self._validate_project_progress_widget = foundry.ui.ProgressTask('Validating settings.')
-
+    def validateFtrackProcessing(self, exportItems, preview):
         project = exportItems[0].item().project()
         parsing_template = template_manager.get_project_template(project)
 
@@ -695,89 +693,97 @@ class FtrackProcessor(FtrackBase):
         asset_type_code = self._preset.properties()['ftrack']['asset_type_code']
         asset_name = self._preset.properties()['ftrack']['asset_name']
 
-        errors = {}
-        missing_assets_type = []
-        non_matching_template_items = []
+        for (exportPath, preset) in self._exportTemplate.flatten():
+            # propagate properties from processor to tasks.
+            preset.properties()['ftrack']['project_schema'] = processor_schema
+            preset.properties()['ftrack']['task_type'] = task_type
+            preset.properties()['ftrack']['asset_type_code'] = asset_type_code
+            preset.properties()['ftrack']['asset_name'] = asset_name
 
-        numitems = len(self._exportTemplate.flatten()) + len(exportItems)
-        progress_index = 0
-        for exportItem in exportItems:
+        if preview:
+            return False
+        else:
+            self._validate_project_progress_widget = foundry.ui.ProgressTask('Validating settings.')
+            errors = {}
+            missing_assets_type = []
+            non_matching_template_items = []
 
-            item = exportItem.item()
+            numitems = len(self._exportTemplate.flatten()) + len(exportItems)
+            progress_index = 0
+            for exportItem in exportItems:
 
-            # Skip effects track items.
-            if isinstance(item, hiero.core.EffectTrackItem):
-                self.logger.debug('Skipping {0}'.format(exportItem))
-                continue
+                item = exportItem.item()
 
-            try:
-                template_manager.match(item, parsing_template)
-            except ftrack_connect_nuke_studio_beta.exception.TemplateError:
-                self.logger.warning('Skipping {} as does not match {}'.format(item, parsing_template['expression']))
-                if item not in non_matching_template_items:
-                    non_matching_template_items.append(item.name())
-                continue
-
-            if not hasattr(item, 'tags'):
-                continue
-
-            for tag in item.tags():
-                meta = tag.metadata()
-                if meta.hasKey('type') and meta.value('type') == 'ftrack':
-                    task_name = meta.value('ftrack.name')
-                    filtered_task_types = [task_type for task_type in task_types if task_type['name'] == task_name]
-                    if len(filtered_task_types) == 1:
-                        task_tags.add(task_name)
-
-            for (exportPath, preset) in self._exportTemplate.flatten():
-                progress_index += 1
-                self._validate_project_progress_widget.setProgress(int(100.0 * (float(progress_index) / float(numitems))))
-
-                # propagate properties from processor to tasks.
-                preset.properties()['ftrack']['project_schema'] = processor_schema
-                preset.properties()['ftrack']['task_type'] = task_type
-                preset.properties()['ftrack']['asset_type_code'] = asset_type_code
-                preset.properties()['ftrack']['asset_name'] = asset_name
-
-                asset_type_code = preset.properties()['ftrack']['asset_type_code']
-
-                ftrack_asset_type = self.session.query(
-                    'AssetType where short is "{0}"'.format(asset_type_code)
-                ).first()
-
-                if not ftrack_asset_type and asset_type_code not in missing_assets_type:
-                    missing_assets_type.append(asset_type_code)
+                # Skip effects track items.
+                if isinstance(item, hiero.core.EffectTrackItem):
+                    self.logger.debug('Skipping {0}'.format(exportItem))
+                    continue
 
                 try:
-                    result = getattr(self, 'task_type')
-                except FtrackProcessorValidationError as error:
-                    preset_errors = errors.setdefault(self, {})
-                    preset_errors.setdefault('task_type', list(task_tags))
+                    template_manager.match(item, parsing_template)
+                except ftrack_connect_nuke_studio_beta.exception.TemplateError:
+                    self.logger.warning('Skipping {} as does not match {}'.format(item, parsing_template['expression']))
+                    if item not in non_matching_template_items:
+                        non_matching_template_items.append(item.name())
+                    continue
 
-        self._validate_project_progress_widget = None
+                if not hasattr(item, 'tags'):
+                    continue
 
-        # raise validation window
-        if errors or missing_assets_type:
-            settings_validator = FtrackSettingsValidator(self.session, errors, missing_assets_type)
+                for tag in item.tags():
+                    meta = tag.metadata()
+                    if meta.hasKey('type') and meta.value('type') == 'ftrack':
+                        task_name = meta.value('ftrack.name')
+                        filtered_task_types = [task_type for task_type in task_types if task_type['name'] == task_name]
+                        if len(filtered_task_types) == 1:
+                            task_tags.add(task_name)
 
-            if settings_validator.exec_() != QtWidgets.QDialog.Accepted:
-                return False
+                for (exportPath, preset) in self._exportTemplate.flatten():
+                    progress_index += 1
+                    self._validate_project_progress_widget.setProgress(int(100.0 * (float(progress_index) / float(numitems))))
+                    asset_type_code = preset.properties()['ftrack']['asset_type_code']
 
-            self.validateFtrackProcessing(exportItems)
+                    ftrack_asset_type = self.session.query(
+                        'AssetType where short is "{0}"'.format(asset_type_code)
+                    ).first()
 
-        # raise notification for error parsing items
-        if non_matching_template_items:
-            item_warning = QtWidgets.QMessageBox().warning(
-                None,
-                'Error parsing Track Items',
-                'Some items failed to parse and will not be published\n'
-                '{} do you want to continue with the others ?'.format(','.join(non_matching_template_items)),
-                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
-            )
-            if item_warning == QtWidgets.QMessageBox.Yes:
-                return True
+                    if not ftrack_asset_type and asset_type_code not in missing_assets_type:
+                        missing_assets_type.append(asset_type_code)
 
-        return True
+                    try:
+                        result = getattr(self, 'task_type')
+                    except FtrackProcessorValidationError as error:
+                        preset_errors = errors.setdefault(self, {})
+                        preset_errors.setdefault('task_type', list(task_tags))
+
+            self._validate_project_progress_widget = None
+
+            # raise validation window
+            if errors or missing_assets_type:
+                settings_validator = FtrackSettingsValidator(self.session, errors, missing_assets_type)
+
+                if settings_validator.exec_() != QtWidgets.QDialog.Accepted:
+                    return False
+
+                self.validateFtrackProcessing(exportItems)
+
+            # raise notification for error parsing items
+            if non_matching_template_items:
+                item_warning = QtWidgets.QMessageBox().warning(
+                    None,
+                    'Error parsing Track Items',
+                    'Some items failed to parse and will not be published\n'
+                    '{} do you want to continue with the others ?'.format(', '.join(non_matching_template_items)),
+                    QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
+                )
+                self.logger.info('item_warning: {}'.format(item_warning))
+                if item_warning != QtWidgets.QMessageBox.Yes:
+                    return False
+                else:
+                    # user has been notified, and want to go ahead....
+                    non_matching_template_items = []
+
+            return True
 
 
 class FtrackProcessorUI(FtrackBase):

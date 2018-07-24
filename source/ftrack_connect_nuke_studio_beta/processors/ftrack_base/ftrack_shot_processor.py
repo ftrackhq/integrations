@@ -17,15 +17,11 @@ class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
         FtrackProcessor.__init__(self, preset)
 
     def startProcessing(self, exportItems, preview=False):
-        result = FtrackProcessor.validateFtrackProcessing(self, exportItems)
+        result = FtrackProcessor.validateFtrackProcessing(self, exportItems, preview)
         if result:
-            if not preview:
-                self.create_project_structure(exportItems)
-        else:
-            # force not generating the outputs if validation fails
-            preview = True
-
+            self.create_project_structure(exportItems)
         return ShotProcessor.startProcessing(self, exportItems, preview)
+
 
 class FtrackShotProcessorUI(ShotProcessorUI, FtrackProcessorUI):
 
