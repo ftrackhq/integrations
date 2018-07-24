@@ -4,6 +4,8 @@ import logging
 from QtExt import QtWidgets, QtGui, QtCore
 
 from ftrack_connect_nuke_studio_beta.base import FtrackBase
+from ftrack_connect_nuke_studio_beta.template import get_project_template, match
+import ftrack_connect_nuke_studio_beta.exception
 
 import hiero
 
@@ -132,10 +134,23 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
     def parsed_selection(self):
         results = {}
         project_name = self.project.name()
+        project_template = get_project_template(self.project)
+
+        if not project_template:
+            raise ftrack_connect_nuke_studio_beta.exception.TemplateError(
+                'No template defined for project {}'.format(project_name)
+        )
+
         for trackItem in self._selection:
-            if not isinstance(trackItem, hiero.core.EffectTrackItem):
-                sequence, shot = trackItem.name().split('_') # TODO
-                results[trackItem] = (project_name, sequence, shot)
+            if isinstance(trackItem, hiero.core.EffectTrackItem):
+                continue
+            try:
+                parsed_results = match(trackItem, project_template)
+                self.logger.info('parsed_selection: {}'.format(parsed_results))
+            except ftrack_connect_nuke_studio_beta.exception.TemplateError:
+                continue
+
+            results[trackItem] = [project_name] + [result['name'] for result in parsed_results]
         return results
 
     def trackName(self):
