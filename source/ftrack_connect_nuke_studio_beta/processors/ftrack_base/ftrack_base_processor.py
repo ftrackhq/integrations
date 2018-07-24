@@ -343,9 +343,9 @@ class FtrackProcessor(FtrackBase):
         self.session.commit()
 
     def create_project_structure(self, exportItems):
+        filtered_export_items = []
         self._create_project_progress_widget = foundry.ui.ProgressTask('Creating structure in ftrack...')
         progress_index = 0
-
         # ensure to reset components before creating a new project.
         self._components = {}
         versions = {}
@@ -353,9 +353,24 @@ class FtrackProcessor(FtrackBase):
         parsing_template = template_manager.get_project_template(project)
         # provide access to tags.
         numitems = len(self._exportTemplate.flatten()) * len(exportItems)
-        for (exportPath, preset) in self._exportTemplate.flatten():
-            for exportItem in exportItems:
-                trackItem = exportItem.item()
+        for exportItem in exportItems:
+            trackItem = exportItem.item()
+
+            # Skip effects track items.
+            if isinstance(trackItem, hiero.core.EffectTrackItem):
+                self.logger.debug('Skipping {0}'.format(trackItem))
+                continue
+
+            try:
+                template_manager.match(trackItem, parsing_template)
+            except ftrack_connect_nuke_studio_beta.exception.TemplateError:
+                self.logger.warning(
+                    'Skipping {} as does not match {}'.format(trackItem, parsing_template['expression']))
+                continue
+
+            filtered_export_items.append(exportItem)
+
+            for (exportPath, preset) in self._exportTemplate.flatten():
 
                 progress_index += 1
                 self._create_project_progress_widget.setProgress(int(100.0 * (float(progress_index) / float(numitems))))
@@ -366,27 +381,17 @@ class FtrackProcessor(FtrackBase):
                 if not hasattr(trackItem, 'tags'):
                     continue
 
-                try:
-                    template_manager.match(trackItem, parsing_template)
-                except ftrack_connect_nuke_studio_beta.exception.TemplateError:
-                    self.logger.warning('Skipping {} as does not match {}'.format(trackItem, parsing_template['expression']))
-                    continue
-
                 for tag in trackItem.tags():
                     meta = tag.metadata()
                     if meta.hasKey('type') and meta.value('type') == 'ftrack':
                         task_name = meta.value('ftrack.name')
                         task_tags.add(task_name)
 
-                # Skip effects track items.
-                if isinstance(trackItem, hiero.core.EffectTrackItem):
-                    self.logger.debug('Skipping {0}'.format(trackItem))
-                    continue
-
                 shotNameIndex = getShotNameIndex(trackItem)
                 if isinstance(self, TimelineProcessor):
                     trackItem = exportItem.item().sequence()
                     shotNameIndex= ''
+
 
                 # create entry points on where to store ftrack component and path data.
                 self._components.setdefault(trackItem.name(), {})
@@ -407,6 +412,7 @@ class FtrackProcessor(FtrackBase):
                         cutHandles = int(self._preset.properties()['cutHandles'])
                     else:
                         cutHandles = 0
+
 
                 # Build TaskData seed
                 taskData = hiero.core.TaskData(
@@ -477,6 +483,7 @@ class FtrackProcessor(FtrackBase):
                 self.addFtrackTag(trackItem, task)
 
         self._create_project_progress_widget = None
+        return filtered_export_items
 
     def addFtrackTag(self, originalItem, task):
         if not hasattr(originalItem, 'tags'):
