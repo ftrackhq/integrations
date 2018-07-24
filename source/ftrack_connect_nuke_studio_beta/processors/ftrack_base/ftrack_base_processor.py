@@ -140,8 +140,7 @@ class FtrackProcessor(FtrackBase):
         # Note we do resolve {ftrack_version} as part of the {ftrack_asset} function.
         self.fn_mapping = {
             '{ftrack_project}': self._create_project_fragment,
-            '{ftrack_sequence}': self._create_sequence_fragment,
-            '{ftrack_shot}': self._create_shot_fragment,
+            '{ftrack_context}': self._create_context_fragment,
             '{ftrack_asset}': self._create_asset_fragment,
             '{ftrack_version}': self._create_version_fragment,
             '{ftrack_component}': self._create_component_fragment
@@ -224,32 +223,34 @@ class FtrackProcessor(FtrackBase):
             })
         return project
 
-    def _create_sequence_fragment(self, name, parent, task, version):
-        self.logger.debug('Creating sequence fragment: {} {} {} {}'.format(name, parent, task, version))
+    def _create_context_fragment(self, composed_name, parent, task, version):
+        self.logger.info('composed_name:{}'.format(composed_name))
+        splitted_name = composed_name.split('|')
+        parsed_names = []
 
-        sequence = self.session.query(
-            'Sequence where name is "{0}" and parent.id is "{1}"'.format(name, parent['id'])
-        ).first()
-        if not sequence:
-            sequence = self.session.create('Sequence', {
-                'name': name,
-                'parent': parent
-            })
-        return sequence
+        for raw_name in splitted_name:
+            self.logger.info('raw_name: {}'.format(raw_name))
+            object_type, object_name = raw_name.split(':')
+            parsed_names.append((object_type, object_name))
 
-    def _create_shot_fragment(self, name, parent, task,version):
-        self.logger.debug('Creating shot fragment: {} {} {} {}'.format(name, parent, task, version))
+        parent = parent
 
-        shot = self.session.query(
-            'Shot where name is "{0}" and parent.id is "{1}"'.format(name, parent['id'])
-        ).first()
-        if not shot:
-            shot = self.session.create('Shot', {
-                'name': name,
-                'parent': parent,
-                'status': self.shot_status
-            })
-        return shot
+        for object_type, object_name in parsed_names:
+            # check if the object_type already exists:
+
+            ftrack_type = self.session.query(
+                '{0} where name is "{1}" and parent.id is "{2}"'.format(object_type, object_name, parent['id'])
+            ).first()
+
+            if not ftrack_type:
+                ftrack_type = self.session.create(object_type, {
+                    'name': object_name,
+                    'parent': parent,
+                })
+
+            parent = ftrack_type
+
+        return parent
 
     def _create_asset_fragment(self, name, parent, task, version):
         self.logger.debug('Creating asset fragment: {} {} {} {}'.format(name, parent, task, version))
@@ -430,8 +431,12 @@ class FtrackProcessor(FtrackBase):
                 path_id = os.path.dirname(path)
                 versions.setdefault(path_id, None)
 
+                self.logger.info('export_path:{}'.format(exportPath))
+                self.logger.info('path:{}'.format(path))
+
                 parent = None  # After the loop this will be containing the component object.
                 for template, token in zip(exportPath.split(self.path_separator), path.split(self.path_separator)):
+                    self.logger.info('template: {} token: {}'.format(template, token))
                     if not versions[path_id] and parent and parent.entity_type == 'AssetVersion':
                         versions[path_id] = parent
 
