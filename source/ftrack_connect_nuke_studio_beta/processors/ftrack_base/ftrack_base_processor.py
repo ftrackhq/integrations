@@ -8,6 +8,9 @@ import logging
 import foundry.ui
 
 import hiero.core
+
+from QtExt import QtCore, QtWidgets, QtGui
+
 from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 from hiero.ui.FnUIProperty import UIPropertyFactory
 from hiero.core.FnExporterBase import TaskCallbacks
@@ -20,10 +23,10 @@ from ftrack_connect_nuke_studio_beta.processors.ftrack_base import (
     FtrackProcessorValidationError,
     FtrackProcessorError
 )
+from ftrack_connect_nuke_studio_beta.ui.widget.template import Template
 import ftrack_connect_nuke_studio_beta.template as template_manager
 
-from ftrack_connect_nuke_studio_beta.ui.widget.template import Template
-from QtExt import QtCore, QtWidgets, QtGui
+import ftrack_connect_nuke_studio_beta.exception
 
 
 class FtrackSettingsValidator(QtWidgets.QDialog):
@@ -346,7 +349,8 @@ class FtrackProcessor(FtrackBase):
         # ensure to reset components before creating a new project.
         self._components = {}
         versions = {}
-
+        project = exportItems[0].item().project()
+        parsing_template = template_manager.get_project_template(project)
         # provide access to tags.
         numitems = len(self._exportTemplate.flatten()) * len(exportItems)
         for (exportPath, preset) in self._exportTemplate.flatten():
@@ -360,6 +364,12 @@ class FtrackProcessor(FtrackBase):
                 task_tags = set()
 
                 if not hasattr(trackItem, 'tags'):
+                    continue
+
+                try:
+                    template_manager.match(trackItem, parsing_template)
+                except ftrack_connect_nuke_studio_beta.exception.TemplateError:
+                    self.logger.warning('Skipping {} as does not match {}'.format(trackItem, parsing_template['expression']))
                     continue
 
                 for tag in trackItem.tags():
@@ -674,6 +684,9 @@ class FtrackProcessor(FtrackBase):
     def validateFtrackProcessing(self, exportItems):
         self._validate_project_progress_widget = foundry.ui.ProgressTask('Validating settings.')
 
+        project = exportItems[0].item().project()
+        parsing_template = template_manager.get_project_template(project)
+
         task_tags = set()
         task_types = self.schema.get_types('Task')
 
@@ -684,12 +697,26 @@ class FtrackProcessor(FtrackBase):
 
         errors = {}
         missing_assets_type = []
+        non_matching_template_items = []
 
         numitems = len(self._exportTemplate.flatten()) + len(exportItems)
         progress_index = 0
         for exportItem in exportItems:
 
             item = exportItem.item()
+
+            # Skip effects track items.
+            if isinstance(item, hiero.core.EffectTrackItem):
+                self.logger.debug('Skipping {0}'.format(exportItem))
+                continue
+
+            try:
+                template_manager.match(item, parsing_template)
+            except ftrack_connect_nuke_studio_beta.exception.TemplateError:
+                self.logger.warning('Skipping {} as does not match {}'.format(item, parsing_template['expression']))
+                if item not in non_matching_template_items:
+                    non_matching_template_items.append(item.name())
+                continue
 
             if not hasattr(item, 'tags'):
                 continue
@@ -729,6 +756,7 @@ class FtrackProcessor(FtrackBase):
 
         self._validate_project_progress_widget = None
 
+        # raise validation window
         if errors or missing_assets_type:
             settings_validator = FtrackSettingsValidator(self.session, errors, missing_assets_type)
 
@@ -736,6 +764,18 @@ class FtrackProcessor(FtrackBase):
                 return False
 
             self.validateFtrackProcessing(exportItems)
+
+        # raise notification for error parsing items
+        if non_matching_template_items:
+            item_warning = QtWidgets.QMessageBox().warning(
+                None,
+                'Error parsing Track Items',
+                'Some items failed to parse and will not be published\n'
+                '{} do you want to continue with the others ?'.format(','.join(non_matching_template_items)),
+                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
+            )
+            if item_warning == QtWidgets.QMessageBox.Yes:
+                return True
 
         return True
 
