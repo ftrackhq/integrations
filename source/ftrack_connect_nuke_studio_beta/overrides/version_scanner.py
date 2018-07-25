@@ -174,7 +174,7 @@ def ftrack_find_version_files(scannerInstance, version):
             component_version = component['version']['version'] - 1  # lists starts from 0, so version 1 should be first
             scannerInstance._ftrack_component_reference[component_version] = component
 
-    hieroOrderedVersions = scannerInstance._ftrack_component_reference[::]
+    hieroOrderedVersions = scannerInstance._ftrack_component_reference[::-1]
 
     # Prune out any we already have
     binitem = version.parent()
