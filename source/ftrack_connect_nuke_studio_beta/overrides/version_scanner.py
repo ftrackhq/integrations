@@ -109,7 +109,7 @@ def add_clip_as_version(clip, binItem, ftrack_component_reference):
     versionIndex = ftrack_component_reference.index(component)
     targetBinIndex = -1
 
-    logger.info('version index {} for {}'.format(versionIndex,  component['version']['version']))
+    logger.info('version index {} for {} tag version {}'.format(versionIndex,  component['version']['version'],  has_tag.metadata()['version_number']))
 
     # Try to find the closed version that already exists in the bin
     binIndex = 0
@@ -121,7 +121,7 @@ def add_clip_as_version(clip, binItem, ftrack_component_reference):
 
         try:
             clip_index = ftrack_component_reference.index(bin_clip_component)
-            logger.info('version index {} for {}'.format(clip_index, bin_clip_component['version']['version']))
+            logger.info('version index {} for {} tag version {}'.format(clip_index, bin_clip_component['version']['version'], bin_clip_has_tag.metadata()['version_number']))
 
             if clip_index >= versionIndex:
                 targetBinIndex = binIndex
