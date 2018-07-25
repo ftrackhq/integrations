@@ -567,6 +567,11 @@ class FtrackProcessor(FtrackBase):
         task.setDestinationDescription(output_path)
         # nullify path creation ? :\
 
+        def _makeNullPath():
+            pass
+
+        task._makePath = _makeNullPath
+
     def publishResultComponent(self, render_task):
         # This is a task we intercept for each frame/item rendered.
 

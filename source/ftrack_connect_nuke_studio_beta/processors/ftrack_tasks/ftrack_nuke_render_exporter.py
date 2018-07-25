@@ -67,6 +67,8 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
     def updateItem(self, originalItem, localtime):
         self.createTranscodeScript()
 
+    def _makePath(self):
+        pass
 
 class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
     def __init__(self, name, properties):
