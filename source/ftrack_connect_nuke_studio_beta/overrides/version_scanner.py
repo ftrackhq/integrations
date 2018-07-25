@@ -57,7 +57,12 @@ def add_ftrack_build_tag(clip, component):
 
     existingTag = None
     for tag in clip.tags():
-        if tag.metadata().hasKey('tag.provider') and tag.metadata()['tag.provider'] == 'ftrack':
+        if (
+                tag.metadata().hasKey('tag.provider') and
+                tag.metadata()['tag.provider'] == 'ftrack' and
+                tag.metadata().hasKey('tag.component_name') and
+                tag.metadata()['tag.component_name'] == component['name']
+        ):
             existingTag = tag
             break
 
@@ -79,6 +84,7 @@ def add_ftrack_build_tag(clip, component):
     tag.metadata().setValue('tag.component_id', component['id'])
     tag.metadata().setValue('tag.version_id', version['id'])
     tag.metadata().setValue('tag.version_number', str(version['version']))
+    tag.metadata().setValue('tag.component_name', str(component['name']))
 
     # tag.setVisible(False)
     clip.addTag(tag)
