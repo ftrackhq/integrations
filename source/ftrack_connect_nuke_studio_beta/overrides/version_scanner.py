@@ -67,6 +67,7 @@ def add_ftrack_build_tag(clip, component):
         existingTag.metadata().setValue('tag.version_number', str(version['version']))
         clip.removeTag(existingTag)
         clip.addTag(existingTag)
+        return
 
     tag = hiero.core.Tag(
         'ftrack-reference-{0}'.format(component['name']),
@@ -110,7 +111,6 @@ def add_clip_as_version(clip, binItem, ftrack_component_reference):
     targetBinIndex = -1
 
     logger.info('version index {} for {} tag version {}'.format(versionIndex,  component['version']['version'],  has_tag.metadata()['version_number']))
-
     # Try to find the closed version that already exists in the bin
     binIndex = 0
     for version in binItem.items():
