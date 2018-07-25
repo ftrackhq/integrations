@@ -197,6 +197,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
                 continue
 
             self._result_data[taskItem] = final_component['id']
+            self.logger.info('setting {} for version {}'.format(taskItem, final_component['version']['version']))
 
         # Update window title with the amount of clips found matching the filters
         new_title = self._window_title + ' - ({} clips found)'.format(len(self._result_data))

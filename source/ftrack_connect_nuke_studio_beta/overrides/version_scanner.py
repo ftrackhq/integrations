@@ -67,10 +67,6 @@ def add_ftrack_build_tag(clip, component):
             break
 
     if existingTag:
-        logger.info('Tag already exist: {} with {}'.format(existingTag, component))
-        existingTag.metadata().setValue('tag.component_id', component['id'])
-        existingTag.metadata().setValue('tag.version_id', version['id'])
-        existingTag.metadata().setValue('tag.version_number', str(version['version']))
         return
 
     tag = hiero.core.Tag(
@@ -78,7 +74,7 @@ def add_ftrack_build_tag(clip, component):
         ':/ftrack/image/default/ftrackLogoColor',
         False
     )
-    logger.info('Creating tag: {} with {} for version {}'.format(tag, component, version['version']))
+    logger.info('{} Creating tag: {} with {} for version {}'.format(clip, tag, component, version['version']))
 
     tag.metadata().setValue('tag.provider', 'ftrack')
     tag.metadata().setValue('tag.component_id', component['id'])
@@ -165,13 +161,14 @@ def ftrack_find_version_files(scannerInstance, version):
 
     # set paths to an array of dimension of max version
 
-    max_version = sorted_components[-1]['version']['version']
-    scannerInstance._ftrack_component_reference = [None]*max_version
+    # max_version = sorted_components[-1]['version']['version']
+    scannerInstance._ftrack_component_reference = []
 
     for component in sorted_components:
         component_avaialble = session.pick_location(component)
         if component_avaialble:
             component_version = component['version']['version'] - 1  # lists starts from 0, so version 1 should be first
+            logger.info('setting component {} as version {}'.format(component, component_version))
             scannerInstance._ftrack_component_reference[component_version] = component
 
     hieroOrderedVersions = scannerInstance._ftrack_component_reference[::-1]
@@ -212,6 +209,7 @@ def ftrack_create_clip(scannerInstance, newFilename):
 
         filepath = current_ftrack_location.get_filesystem_path(newFilename).split()[0]
         clip = hiero.core.Clip(filepath)
+        logger.info('creating clip{}', clip)
         add_ftrack_build_tag(clip, newFilename)
         return clip
     else:
