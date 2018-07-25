@@ -70,8 +70,6 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
             # Create a job on our submission to do the actual rendering.
             self._renderTask = self._submission.addJob(Submission.kNukeRender, submissionDict, self._scriptfile)
 
-    def _makePath(self):
-        pass
 
 class FtrackReviewableExporterPreset(TranscodePreset, FtrackProcessorPreset):
     def __init__(self, name, properties):

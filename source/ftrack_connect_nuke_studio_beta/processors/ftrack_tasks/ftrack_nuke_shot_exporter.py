@@ -19,9 +19,6 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
         NukeShotExporter.__init__(self, initDict)
         FtrackProcessor.__init__(self, initDict)
 
-    def _makePath(self):
-        pass
-
 
 class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
     def __init__(self, name, properties, task=FtrackNukeShotExporter):

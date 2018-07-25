@@ -29,8 +29,6 @@ class FtrackEDLExporter(EDLExportTask, FtrackProcessor):
         TaskCallbacks.call(TaskCallbacks.onTaskStart, self)
         EDLExportTask.startTask(self)
 
-    def _makePath(self):
-        pass
 
 class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
     def __init__(self, name, properties):

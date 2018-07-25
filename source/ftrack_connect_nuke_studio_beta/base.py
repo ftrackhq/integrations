@@ -2,11 +2,17 @@ import logging
 import time
 import re
 import unicodedata
+import logging
+logger = logging.getLogger(__name__)
 
 import hiero
 
-import ftrack_api
 from ftrack_connect.session import get_shared_session
+
+# Disable file path creation from NS
+def disable_path_creation(args):
+    pass
+hiero.core.util.filesystem.makeDirs = disable_path_creation
 
 
 class FtrackBase(object):

@@ -551,9 +551,6 @@ class FtrackProcessor(FtrackBase):
 
         originalItem.addTag(tag)
 
-    def _makePath(self):
-        pass
-
     def setupExportPaths(self, task):
         # This is an event we intercept to see when the task start.
         has_data = self._components.get(
@@ -569,11 +566,6 @@ class FtrackProcessor(FtrackBase):
         task._exportPath = output_path
         task.setDestinationDescription(output_path)
         # nullify path creation ? :\
-
-        def _makeNullPath():
-            pass
-
-        task._makePath = _makeNullPath
 
     def publishResultComponent(self, render_task):
         # This is a task we intercept for each frame/item rendered.

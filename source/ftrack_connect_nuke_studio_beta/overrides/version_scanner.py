@@ -55,6 +55,19 @@ def customise_menu(event):
 def add_ftrack_build_tag(clip, component):
     version = component['version']
 
+    existingTag = None
+    for tag in clip.tags():
+        if tag.metadata().hasKey('tag.provider') and tag.metadata()['tag.provider'] == 'ftrack':
+            existingTag = tag
+            break
+
+    if existingTag:
+        existingTag.metadata().setValue('tag.component_id', component['id'])
+        existingTag.metadata().setValue('tag.version_id', version['id'])
+        existingTag.metadata().setValue('tag.version_number', str(version['version']))
+        clip.removeTag(existingTag)
+        clip.addTag(existingTag)
+
     tag = hiero.core.Tag(
         'ftrack-reference-{0}'.format(component['name']),
         ':/ftrack/image/default/ftrackLogoColor',
