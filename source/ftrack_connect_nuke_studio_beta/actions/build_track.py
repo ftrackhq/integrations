@@ -4,7 +4,7 @@ import logging
 from QtExt import QtWidgets, QtGui, QtCore
 
 from ftrack_connect_nuke_studio_beta.base import FtrackBase
-
+from ftrack_connect_nuke_studio_beta.overrides.version_scanner import add_ftrack_build_tag
 import hiero
 
 from hiero.ui.BuildExternalMediaTrack import (
@@ -350,27 +350,6 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
           msgBox.exec_()
           self._errors = []
 
-    def add_ftrack_build_tag(self, clip, originalTrackItem):
-        # add tags to clips
-        component_id = self._track_data.get(originalTrackItem)
-        if not component_id:
-            return
-
-        component = self.session.get('Component', component_id)
-        version = component['version']
-
-        tag = hiero.core.Tag(
-            'ftrack-reference-{0}'.format(component['name']),
-            ':/ftrack/image/default/ftrackLogoColor',
-            False
-        )
-        tag.metadata().setValue('tag.component_id', component['id'])
-        tag.metadata().setValue('tag.version_id', version['id'])
-        tag.metadata().setValue('tag.provider', 'ftrack')
-        # tag.setVisible(False)
-        clip.addTag(tag)
-        clip.setName('{}/v{:03}'.format(component['name'], component['version']['version']))
-
     @staticmethod
     def updateFtrackVersions(trackItem):
         trackItem.source().rescan()  # First rescan the current clip
@@ -429,8 +408,13 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
 
         trackItem.setSourceIn(sourceIn)
         trackItem.setSourceOut(sourceOut)
-        self.add_ftrack_build_tag(clip, originalTrackItem)
-        self.updateFtrackVersions(trackItem)
+
+        component_id = self._track_data.get(originalTrackItem)
+        if component_id:
+            component = self.session.get('Component', component_id)
+            add_ftrack_build_tag(clip, component)
+            self.updateFtrackVersions(trackItem)
+
         return trackItem
 
 # =========================================================================================

@@ -60,11 +60,15 @@ def add_ftrack_build_tag(clip, component):
         ':/ftrack/image/default/ftrackLogoColor',
         False
     )
+
+    tag.metadata().setValue('tag.provider', 'ftrack')
     tag.metadata().setValue('tag.component_id', component['id'])
     tag.metadata().setValue('tag.version_id', version['id'])
-    tag.metadata().setValue('tag.provider', 'ftrack')
+    tag.metadata().setValue('tag.version_number', str(version['version']))
+
     # tag.setVisible(False)
     clip.addTag(tag)
+    clip.setName('{}/v{:03}'.format(component['name'], component['version']['version']))
 
 
 # Utility functions
