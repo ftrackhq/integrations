@@ -78,7 +78,7 @@ def add_ftrack_build_tag(clip, component):
         ':/ftrack/image/default/ftrackLogoColor',
         False
     )
-    logger.info('Creating tag: {} with {}'.format(tag, component))
+    logger.info('Creating tag: {} with {} for version {}'.format(tag, component, version['version']))
 
     tag.metadata().setValue('tag.provider', 'ftrack')
     tag.metadata().setValue('tag.component_id', component['id'])
@@ -105,18 +105,14 @@ def get_ftrack_tag(clip):
 
 
 def add_clip_as_version(clip, binItem, ftrack_component_reference):
+    logger.info('adding clip as version : {}'.format(clip))
     has_tag = get_ftrack_tag(clip)
     component_id = has_tag.metadata()['component_id']
     component = session.get('Component', component_id)
-
+    new_clip_version = int(component['version']['version'])
     # see which our index is
     versionIndex = ftrack_component_reference.index(component)
     targetBinIndex = -1
-
-    logger.info('version index {} for {} tag version {}'.format(versionIndex,  component['version']['version'],  has_tag.metadata()['version_number']))
-    # Try to find the closed version that already exists in the bin
-
-    version = hiero.core.Version(clip)
 
     binIndex = 0
     for version in binItem.items():
@@ -124,20 +120,23 @@ def add_clip_as_version(clip, binItem, ftrack_component_reference):
         bin_clip_has_tag = get_ftrack_tag(bin_clip)
         bin_clip_component_id = bin_clip_has_tag.metadata()['component_id']
         bin_clip_component = session.get('Component', bin_clip_component_id)
-
+        bin_clip_version = int(bin_clip_component['version']['version'])
+        bin_clip_index = ftrack_component_reference.index(bin_clip_component)
+        set_version_index =  bin_clip_index >= versionIndex
+        logger.info(
+            'Clip {} should be version {}, current {}, tag {}'.format(
+                clip, new_clip_version, bin_clip_version, bin_clip_has_tag.metadata()['version_number']
+            )
+        )
         try:
-            clip_index = ftrack_component_reference.index(bin_clip_component)
-            logger.info('version index {} for {} tag version {}'.format(clip_index, bin_clip_component['version']['version'], bin_clip_has_tag.metadata()['version_number']))
-
-            if clip_index >= versionIndex:
+            if set_version_index:
                 targetBinIndex = binIndex
                 break
         except:
             pass
-
         binIndex += 1
 
-
+    version = hiero.core.Version(clip)
     logger.info('adding version {} at index {}'.format(version,  targetBinIndex))
     binItem.addVersion(version, targetBinIndex)
     return version
@@ -149,6 +148,7 @@ def ftrack_find_version_files(scannerInstance, version):
     ftrack_tag = get_ftrack_tag(clip)
 
     if not ftrack_tag:
+        logger.info('scanning: {}'.format(scannerInstance))
         return scannerInstance._default_findVersionFiles(scannerInstance, version)
 
     component_id = ftrack_tag.metadata()['component_id']
@@ -199,7 +199,7 @@ def ftrack_filter_version(scannerInstance, binitem, newVersionFile):
           if (
                   component_id == newVersionFile['id']
           ):
-              logger.debug('filtering off {} fom {}'.format(item, binitem))
+              logger.debug('filtering off {} fom {} as version: {}'.format(item, binitem, ftrack_tag.metadata()['version_number']))
               return False
     return True
 
@@ -219,7 +219,6 @@ def ftrack_create_clip(scannerInstance, newFilename):
 
 
 def ftrack_insert_clips(scannerInstance, binItem, clips):
-
     entities = []
     non_entities = []
     newVersions = []
@@ -232,10 +231,12 @@ def ftrack_insert_clips(scannerInstance, binItem, clips):
             entities.append(clip)
 
     newVersions.extend(scannerInstance._default_insertClips(binItem, non_entities))
-
-    for c in entities:
-        v = add_clip_as_version(c, binItem, scannerInstance._ftrack_component_reference)
-        newVersions.append(v)
+    logger.info('Extending version with entities : {}'.format(non_entities))
+    logger.info('Creating versions from entities : {}'.format(entities))
+    for component in entities:
+        version = add_clip_as_version(component, binItem, scannerInstance._ftrack_component_reference)
+        newVersions.append(version)
+    logger.info('New versions from entities : {}'.format(newVersions))
 
     scannerInstance._ftrack_component_reference = []
     return newVersions
