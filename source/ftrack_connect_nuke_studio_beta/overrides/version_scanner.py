@@ -67,11 +67,10 @@ def add_ftrack_build_tag(clip, component):
             break
 
     if existingTag:
+        logger.info('Tag already exist: {} with {}'.format(existingTag, component))
         existingTag.metadata().setValue('tag.component_id', component['id'])
         existingTag.metadata().setValue('tag.version_id', version['id'])
         existingTag.metadata().setValue('tag.version_number', str(version['version']))
-        clip.removeTag(existingTag)
-        clip.addTag(existingTag)
         return
 
     tag = hiero.core.Tag(
@@ -79,6 +78,7 @@ def add_ftrack_build_tag(clip, component):
         ':/ftrack/image/default/ftrackLogoColor',
         False
     )
+    logger.info('Creating tag: {} with {}'.format(tag, component))
 
     tag.metadata().setValue('tag.provider', 'ftrack')
     tag.metadata().setValue('tag.component_id', component['id'])
@@ -88,7 +88,6 @@ def add_ftrack_build_tag(clip, component):
 
     # tag.setVisible(False)
     clip.addTag(tag)
-    clip.setName('{}/v{:03}'.format(component['name'], component['version']['version']))
 
 
 # Utility functions
@@ -106,8 +105,6 @@ def get_ftrack_tag(clip):
 
 
 def add_clip_as_version(clip, binItem, ftrack_component_reference):
-    logger.info('Adding Clip {} as version'.format(clip))
-
     has_tag = get_ftrack_tag(clip)
     component_id = has_tag.metadata()['component_id']
     component = session.get('Component', component_id)
@@ -118,6 +115,9 @@ def add_clip_as_version(clip, binItem, ftrack_component_reference):
 
     logger.info('version index {} for {} tag version {}'.format(versionIndex,  component['version']['version'],  has_tag.metadata()['version_number']))
     # Try to find the closed version that already exists in the bin
+
+    version = hiero.core.Version(clip)
+
     binIndex = 0
     for version in binItem.items():
         bin_clip = version.item()
@@ -137,9 +137,8 @@ def add_clip_as_version(clip, binItem, ftrack_component_reference):
 
         binIndex += 1
 
-    version = hiero.core.Version(clip)
-    logger.info('adding version {} at index {}'.format(version,  targetBinIndex))
 
+    logger.info('adding version {} at index {}'.format(version,  targetBinIndex))
     binItem.addVersion(version, targetBinIndex)
     return version
 
@@ -175,7 +174,7 @@ def ftrack_find_version_files(scannerInstance, version):
             component_version = component['version']['version'] - 1  # lists starts from 0, so version 1 should be first
             scannerInstance._ftrack_component_reference[component_version] = component
 
-    hieroOrderedVersions = scannerInstance._ftrack_component_reference[::-1]
+    hieroOrderedVersions = scannerInstance._ftrack_component_reference[::]
 
     # Prune out any we already have
     binitem = version.parent()
@@ -184,17 +183,23 @@ def ftrack_find_version_files(scannerInstance, version):
 
 
 def ftrack_filter_version(scannerInstance, binitem, newVersionFile):
+    logger.info('Filtering versions....')
     # We have to see if anything else in the bin has this ref
-    bin_ftrack_tag = get_ftrack_tag(binitem.activeItem())
+    bin_ftrack_tag = get_ftrack_tag(binitem.items()[0].item()) # let's check if the first version has it...
     if not bin_ftrack_tag:
         return scannerInstance._default_filterVersion(binitem, newVersionFile)
+
+    logger.info('ok we are in ftrack land ...')
 
     for version in binitem.items():
       item = version.item()
       ftrack_tag = get_ftrack_tag(item)
       if ftrack_tag:
           component_id = ftrack_tag.metadata()['component_id']
-          if component_id == newVersionFile['id']:
+          if (
+                  component_id == newVersionFile['id']
+          ):
+              logger.debug('filtering off {} fom {}'.format(item, binitem))
               return False
     return True
 
@@ -207,7 +212,6 @@ def ftrack_create_clip(scannerInstance, newFilename):
 
         filepath = current_ftrack_location.get_filesystem_path(newFilename).split()[0]
         clip = hiero.core.Clip(filepath)
-        clip.setName('{}/v{:03}'.format(newFilename['name'], newFilename['version']['version']))
         add_ftrack_build_tag(clip, newFilename)
         return clip
     else:
