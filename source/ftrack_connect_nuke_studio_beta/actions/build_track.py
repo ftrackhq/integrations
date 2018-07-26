@@ -19,6 +19,8 @@ logger = logging.getLogger(
     __name__
 )
 
+
+
 class FtrackTrackFinderByNameWithDialog(TrackFinderByNameWithDialog):
 
     def findOrCreateTrackByName(self, sequence, trackName):
@@ -190,14 +192,16 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             if asset_status != '- ANY -':
                 query += ' and version.status.name is "{}"'.format(asset_status)
 
-            final_component = self.session.query(query
+            all_components = self.session.query(query
             ).all()
 
-            self.logger.info('final_component :{}'.format(final_component))
-            if not final_component:
+            self.logger.info('final_component :{}'.format(all_components))
+            if not all_components:
                 continue
 
-            final_component = final_component[-1]
+            sorted_components = sorted(all_components, key=lambda k: int(k['version']['version']))
+
+            final_component = sorted_components[-1]
             self._result_data[taskItem] = final_component['id']
             self.logger.info('setting {} for version {}'.format(taskItem, final_component['version']['version']))
 
