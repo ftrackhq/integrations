@@ -82,6 +82,11 @@ def add_ftrack_build_tag(clip, component):
 
     # tag.setVisible(False)
     clip.addTag(tag)
+    clip_name = '{}_v{:03}'.format(component['name'], component['version']['version'])
+    logger.info('Setting clip {} to name {}'.format(clip, clip_name))
+    clip.setName(clip_name)
+    return clip
+
 
 
 # Utility functions
