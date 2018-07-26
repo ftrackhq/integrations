@@ -22,7 +22,6 @@ class Template(ftrack_connect.ui.widget.html_combobox.HtmlComboBox):
         self.currentIndexChanged.connect(self.on_index_changed)
         self.project = project
         self._templates = template_manager.available_templates(project)
-        logger.info('templates: {}'.format(self._templates))
 
         default_index = 0
         for index, template in enumerate(self._templates):
@@ -51,5 +50,4 @@ class Template(ftrack_connect.ui.widget.html_combobox.HtmlComboBox):
         project = self.project
         template = self.selected_template()
         if template and project:
-            self.logger.info('Setting {} for {}'.format(project, template))
             template_manager.save_project_template(project, template)
