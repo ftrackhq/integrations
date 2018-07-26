@@ -34,6 +34,7 @@ class Template(ftrack_connect.ui.widget.html_combobox.HtmlComboBox):
                 default_index = index
 
         self.setCurrentIndex(default_index)
+        # Somehow setCurrentIndex does not trigger currentIndexChanged so we do it.
         self.currentIndexChanged.emit(default_index)
 
     def selected_template(self):
