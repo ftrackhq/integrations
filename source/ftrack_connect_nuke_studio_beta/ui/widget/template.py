@@ -34,8 +34,8 @@ class Template(ftrack_connect.ui.widget.html_combobox.HtmlComboBox):
             if template.get('default'):
                 default_index = index
 
-        if default_index:
-            self.setCurrentIndex(default_index)
+        self.setCurrentIndex(default_index)
+        self.currentIndexChanged.emit(default_index)
 
     def selected_template(self):
         '''Return currently selected template.'''
