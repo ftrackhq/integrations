@@ -16,12 +16,11 @@ import ftrack_connect.event_hub_thread
 from ftrack_connect_nuke_studio_beta.actions.ftrack import FtrackBuildTrack
 from ftrack_connect_nuke_studio_beta.tags.tag_drop_handler import TagDropHandler
 from ftrack_connect_nuke_studio_beta.tags.tag_manager import TagManager
+import ftrack_connect_nuke_studio_beta.resource
 
 config.configure_logging('ftrack_connect_nuke_studio_beta', level='WARNING')
 
 from ftrack_connect_nuke_studio_beta.processors import register_processors
-
-ftrack_connect.ui.theme.applyFont()
 
 
 def populate_ftrack(event):
@@ -29,7 +28,7 @@ def populate_ftrack(event):
     menu_bar = hiero.ui.menuBar()
 
     ftrack_menu = menu_bar.addMenu(
-        QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'), 'ftrack'
+        QtGui.QPixmap(':ftrack/image/default/ftrackLogoLight'), 'ftrack'
     )
 
 

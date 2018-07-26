@@ -38,7 +38,7 @@ class FtrackTrackFinderByNameWithDialog(TrackFinderByNameWithDialog):
             # hiero.core.log.debug( "Track Created : " + trackName )
             track = hiero.core.VideoTrack(str(trackName))
             sequence.addTrack(track)
-            track.addTag(hiero.core.Tag(trackName, ':ftrack/image/default/ftrackLogoColor'))
+            track.addTag(hiero.core.Tag(trackName, ':ftrack/image/default/ftrackLogoLight'))
             isNewTrack = True
         return track, isNewTrack
 
@@ -273,7 +273,7 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
     def __init__(self):
         super(FtrackReBuildServerTrackAction, self).__init__('Rebuild from ftrack')
         self.trackFinder = FtrackTrackFinderByNameWithDialog(self)
-        self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
+        self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoLight'))
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -406,7 +406,7 @@ class FtrackBuildTrack(BuildTrack):
         )
         self.logger.setLevel(logging.DEBUG)
         hiero.core.events.registerInterest('kShowContextMenu/kTimeline', self.eventHandler)
-        self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
+        self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoLight'))
         self._action_rebuild_from_server = FtrackReBuildServerTrackAction()
         self.addAction(self._action_rebuild_from_server)
 
