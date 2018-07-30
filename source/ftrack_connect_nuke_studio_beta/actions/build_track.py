@@ -191,11 +191,13 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
                 query += ' and version.status.name is "{}"'.format(asset_status)
 
             final_component = self.session.query(query
-            ).first()
+            ).all()
 
+            self.logger.info('final_component :{}'.format(final_component))
             if not final_component:
                 continue
 
+            final_component = final_component[-1]
             self._result_data[taskItem] = final_component['id']
             self.logger.info('setting {} for version {}'.format(taskItem, final_component['version']['version']))
 
@@ -350,18 +352,18 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
           msgBox.exec_()
           self._errors = []
 
-    # @staticmethod
-    # def updateFtrackVersions(trackItem):
-    #     trackItem.source().rescan()  # First rescan the current clip
-    #     if trackItem.isMediaPresent():
-    #         version = trackItem.currentVersion()
-    #         logger.info('Version : {}'.format(version))
-    #         scanner = hiero.core.VersionScanner.VersionScanner()  # Scan for new versions
-    #         scanner.doScan(version)
-    #         #
-    #         # # Put the track item and the clip bin item on the max version
-    #         # trackItem.maxVersion()
-    #         # trackItem.source().binItem().maxVersion()
+    @staticmethod
+    def updateFtrackVersions(trackItem):
+        trackItem.source().rescan()  # First rescan the current clip
+        if trackItem.isMediaPresent():
+            version = trackItem.currentVersion()
+            logger.info('Version : {}'.format(version))
+            scanner = hiero.core.VersionScanner.VersionScanner()  # Scan for new versions
+            scanner.doScan(version)
+            #
+            # # Put the track item and the clip bin item on the max version
+            # trackItem.maxVersion()
+            # trackItem.source().binItem().maxVersion()
 
     def _buildTrackItem(self, name, clip, originalTrackItem, expectedStartTime, expectedDuration, expectedStartHandle,
                         expectedEndHandle, expectedOffset):
@@ -413,7 +415,7 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         if component_id:
             component = self.session.get('Component', component_id)
             add_ftrack_build_tag(clip, component)
-            # self.updateFtrackVersions(trackItem)
+            self.updateFtrackVersions(trackItem)
 
         return trackItem
 
