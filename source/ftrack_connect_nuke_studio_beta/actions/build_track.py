@@ -415,6 +415,7 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         if component_id:
             component = self.session.get('Component', component_id)
             add_ftrack_build_tag(clip, component)
+            self.logger.info('Updating clip name.... {}'.format(clip))
             self.updateFtrackVersions(trackItem)
 
         return trackItem

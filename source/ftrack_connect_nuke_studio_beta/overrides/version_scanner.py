@@ -79,9 +79,9 @@ def add_ftrack_build_tag(clip, component):
     tag.metadata().setValue('tag.version_id', version['id'])
     tag.metadata().setValue('tag.version_number', str(version['version']))
     tag.metadata().setValue('tag.component_name', str(component['name']))
-
     # tag.setVisible(False)
     clip.addTag(tag)
+    clip.setName('{}/v{:03}'.format(component['name'], component['version']['version']))
 
 
 # Utility functions
