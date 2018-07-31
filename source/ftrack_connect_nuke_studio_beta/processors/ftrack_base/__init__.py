@@ -1,11 +1,11 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2018 ftrack
 
-import os
 import hiero
 from ftrack_connect_nuke_studio_beta.base import FtrackBase
 from ftrack_connect_nuke_studio_beta.template import match, get_project_template
 import ftrack_connect_nuke_studio_beta.exception
+
 
 FTRACK_SHOW_PATH = FtrackBase.path_separator.join([
     '{ftrack_project}',
@@ -13,6 +13,7 @@ FTRACK_SHOW_PATH = FtrackBase.path_separator.join([
     '{ftrack_version}',
     '{ftrack_component}'
 ])
+
 
 FTRACK_SHOT_PATH = FtrackBase.path_separator.join([
     '{ftrack_project}',
@@ -24,15 +25,18 @@ FTRACK_SHOT_PATH = FtrackBase.path_separator.join([
 
 
 class FtrackProcessorError(Exception):
-    pass
+    ''' Base ftrack processor error. '''
 
 
 class FtrackProcessorValidationError(FtrackProcessorError):
-    pass
+    ''' Ftrack processor validation error. '''
 
 
 class FtrackBasePreset(FtrackBase):
+
     def __init__(self, name, properties, **kwargs):
+        ''' Initialise class with *name* and *properties*, '''
+
         super(FtrackBasePreset, self).__init__(name, properties)
         current_location = self.ftrack_location
         if current_location['name'] in self.ingored_locations:
@@ -47,30 +51,38 @@ class FtrackBasePreset(FtrackBase):
         self.set_ftrack_properties(properties)
 
     def set_ftrack_properties(self, properties):
+        ''' Ensure and extend common ftrack *properties* . '''
+
         properties = self.properties()
         properties.setdefault('ftrack', {})
+
         # add placeholders for default processor
         self.properties()['ftrack']['project_schema'] = 'Film Pipeline'
         self.properties()['ftrack']['opt_publish_reviewable'] = True
         self.properties()['ftrack']['opt_publish_thumbnail'] = False
 
     def set_export_root(self):
+        '''Set project export root to current ftrack location's accessor prefix.'''
         self.properties()['exportRoot'] = self.ftrack_location.accessor.prefix
 
     def resolve_ftrack_project(self, task):
+        ''' Return project name for the given *task*. '''
         return self.sanitise_for_filesystem(task.projectName())
 
     def resolve_ftrack_context(self, task):
-        # note, data returned from this resolver are expressed as:
-        # <object_type>:<object_name>|<object_type>:<object_name>|....
+        ''' Return context for the given *task*.
 
-        trackItem = task._item
+        data returned from this resolver are expressed as:
+        <object_type>:<object_name>|<object_type>:<object_name>|....
+        '''
+
+        track_item = task._item
         template = get_project_template(task._project)
 
-        if not isinstance(trackItem, hiero.core.Sequence):
+        if not isinstance(track_item, hiero.core.Sequence):
             data = []
             try:
-                results = match(trackItem, template)
+                results = match(track_item, template)
             except ftrack_connect_nuke_studio_beta.exception.TemplateError:
                 # we can happly return None as if the validation does not goes ahead
                 # the shot won't be created.
@@ -84,15 +96,18 @@ class FtrackBasePreset(FtrackBase):
             result_data = '|'.join(data)
             return result_data
         else:
-            return self.sanitise_for_filesystem(trackItem.name())
+            return self.sanitise_for_filesystem(track_item.name())
 
     def resolve_ftrack_asset(self, task):
+        ''' Return asset for the given *task*.'''
+
         asset_name = self.properties()['ftrack'].get('asset_name')
         if not asset_name:
             asset_name = task._preset.properties()['ftrack']['asset_name']
         return self.sanitise_for_filesystem(asset_name)
 
     def resolve_ftrack_version(self, task):
+        ''' Return version for the given *task*.'''
 
         version = 1  # first version is 1
 
@@ -110,12 +125,15 @@ class FtrackBasePreset(FtrackBase):
         return 'v{:03d}'.format(version)
 
     def resolve_ftrack_component(self, task):
+        ''' Return component for the given *task*.'''
+
         component_name = self.sanitise_for_filesystem(task._preset.name())
         extension = self.properties()['ftrack']['component_pattern']
         component_full_name = '{0}{1}'.format(component_name, extension)
         return component_full_name.lower()
 
     def addFtrackResolveEntries(self, resolver):
+        ''' Add custom ftrack resolver in *resolver*. '''
 
         resolver.addResolver(
             '{ftrack_project}',
@@ -140,7 +158,6 @@ class FtrackBasePreset(FtrackBase):
             'Ftrack version.',
             lambda keyword, task: self.resolve_ftrack_version(task)
         )
-
 
         resolver.addResolver(
             '{ftrack_component}',
