@@ -16,7 +16,7 @@ current_ftrack_location = session.pick_location()
 
 
 def register_versioning_overrides():
-
+    ''' Register overrides for VersionScanner object. '''
     logger.debug('register_versioning_overrides')
 
     # We want to redefine some of the methods of VersionScanner,
@@ -101,6 +101,8 @@ def get_ftrack_tag(clip):
 
 
 def add_clip_as_version(clip, bin_item, ftrack_component_reference):
+    ''' Return a new version from *clip* correctly inserted in *bin_item* through *ftrack_component_reference* lookup. '''
+
     has_tag = get_ftrack_tag(clip)
     component_id = has_tag.metadata()['component_id']
     component = session.get('Component', component_id)
@@ -130,6 +132,8 @@ def add_clip_as_version(clip, bin_item, ftrack_component_reference):
 
 # Overrides
 def ftrack_find_version_files(scanner_instance, version):
+    ''' Return paths for given *version*. '''
+
     clip = version.item()
     ftrack_tag = get_ftrack_tag(clip)
 
@@ -157,15 +161,17 @@ def ftrack_find_version_files(scanner_instance, version):
         if component_avaialble:
             scanner_instance._ftrack_component_reference.append(component)
 
-    hieroOrderedVersions = scanner_instance._ftrack_component_reference[::-1]
+    hiero_ordered_versions = scanner_instance._ftrack_component_reference[::-1]
 
     # Prune out any we already have
     binitem = version.parent()
-    filtered_paths = filter(lambda v : scanner_instance.filterVersion(binitem, v), hieroOrderedVersions)
+    filtered_paths = filter(lambda v : scanner_instance.filterVersion(binitem, v), hiero_ordered_versions)
     return filtered_paths
 
 
 def ftrack_filter_version(scanner_instance, bin_item, new_version_file):
+    ''' Return whether the given *new_version_file* already exist in *bin_item*. '''
+
     # We have to see if anything else in the bin has this ref
     bin_ftrack_tag = get_ftrack_tag(bin_item.items()[0].item()) # let's check if the first version has it...
     if not bin_ftrack_tag:
@@ -185,6 +191,8 @@ def ftrack_filter_version(scanner_instance, bin_item, new_version_file):
 
 
 def ftrack_create_clip(scanner_instance, new_filename):
+    ''' Return a new clip from *new_filename* through lookup. '''
+
     if new_filename in scanner_instance._ftrack_component_reference:
         is_available = session.pick_location(new_filename)
         if not is_available:
@@ -199,6 +207,7 @@ def ftrack_create_clip(scanner_instance, new_filename):
 
 
 def ftrack_insert_clips(scanner_instance, bin_item, clips):
+    ''' Return versions created in *bin_item* from *clips*. '''
     entities = []
     non_entities = []
     new_versions = []
