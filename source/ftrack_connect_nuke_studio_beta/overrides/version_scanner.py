@@ -152,7 +152,6 @@ def ftrack_find_version_files(scannerInstance, version):
 
     # set paths to an array of dimension of max version
 
-    # max_version = sorted_components[-1]['version']['version']
     scannerInstance._ftrack_component_reference = []
 
     for component in sorted_components:
