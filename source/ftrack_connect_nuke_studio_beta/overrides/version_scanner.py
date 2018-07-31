@@ -1,7 +1,4 @@
-import os
-import re
 import logging
-import glob
 
 from QtExt import QtGui
 
@@ -11,8 +8,6 @@ from ftrack_connect.session import get_shared_session
 
 session = get_shared_session()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
 
 current_ftrack_location = session.pick_location()
 

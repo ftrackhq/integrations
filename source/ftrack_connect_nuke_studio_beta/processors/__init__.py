@@ -22,10 +22,6 @@ from ftrack_base import FTRACK_SHOT_PATH, FTRACK_SHOW_PATH
 registry = hiero.core.taskRegistry
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
-# Redirect hiero logging to default one.
-# hiero.core.log = logger
 
 
 def register_processors():

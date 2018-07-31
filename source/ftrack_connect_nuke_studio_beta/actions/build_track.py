@@ -63,7 +63,6 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        self.logger.setLevel(logging.DEBUG)
 
         num_tasks = registry.numTasks()
         self._ftrack_tasks = [registry.taskName(index) for index in range(num_tasks)]
@@ -303,7 +302,6 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        self.logger.setLevel(logging.DEBUG)
 
     def getExternalFilePaths(self, trackItem):
         component_id = self._track_data.get(trackItem)
@@ -449,7 +447,6 @@ class FtrackBuildTrack(BuildTrack):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        self.logger.setLevel(logging.DEBUG)
         hiero.core.events.registerInterest('kShowContextMenu/kTimeline', self.eventHandler)
         self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoLight'))
         self._action_rebuild_from_server = FtrackReBuildServerTrackAction()

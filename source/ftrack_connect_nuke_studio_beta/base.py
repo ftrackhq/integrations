@@ -36,7 +36,6 @@ class FtrackBase(object):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        self.logger.setLevel(logging.DEBUG)
 
     @property
     def session(self):
