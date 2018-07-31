@@ -51,5 +51,4 @@ class Template(ftrack_connect.ui.widget.html_combobox.HtmlComboBox):
         project = self.project
         template = self.selected_template()
         if template and project:
-            self.logger.info('setting {} as {}'.format(project, template))
             template_manager.save_project_template(project, template)

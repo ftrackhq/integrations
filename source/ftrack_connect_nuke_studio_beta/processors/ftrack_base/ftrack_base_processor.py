@@ -62,8 +62,6 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
         form_layout = TaskUIFormLayout()
         box_layout.addLayout(form_layout)
 
-        self.logger.info(error_data.items()[0])
-
         template_manager.get_project_template()
 
         for processor, values in error_data.items():
@@ -446,12 +444,8 @@ class FtrackProcessor(FtrackBase):
                 path_id = os.path.dirname(path)
                 versions.setdefault(path_id, None)
 
-                self.logger.info('export_path:{}'.format(exportPath))
-                self.logger.info('path:{}'.format(path))
-
                 parent = None  # After the loop this will be containing the component object.
                 for template, token in zip(exportPath.split(self.path_separator), path.split(self.path_separator)):
-                    self.logger.info('template: {} token: {}'.format(template, token))
                     if not versions[path_id] and parent and parent.entity_type == 'AssetVersion':
                         versions[path_id] = parent
 
@@ -780,7 +774,6 @@ class FtrackProcessor(FtrackBase):
                     '{} do you want to continue with the others ?'.format(', '.join(non_matching_template_items)),
                     QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
                 )
-                self.logger.info('item_warning: {}'.format(item_warning))
                 if item_warning != QtWidgets.QMessageBox.Yes:
                     return False
                 else:

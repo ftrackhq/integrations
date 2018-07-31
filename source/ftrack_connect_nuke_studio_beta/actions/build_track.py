@@ -67,7 +67,6 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         num_tasks = registry.numTasks()
         self._ftrack_tasks = [registry.taskName(index) for index in range(num_tasks)]
 
-        self.logger.info(self._ftrack_tasks)
         self._selection = selection
 
         if self._selection:
@@ -150,7 +149,6 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
                 continue
             try:
                 parsed_results = match(trackItem, project_template)
-                self.logger.info('parsed_selection: {}'.format(parsed_results))
             except ftrack_connect_nuke_studio_beta.exception.TemplateError:
                 continue
 
@@ -376,13 +374,8 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         trackItem.source().rescan()  # First rescan the current clip
         if trackItem.isMediaPresent():
             version = trackItem.currentVersion()
-            logger.info('Version : {}'.format(version))
             scanner = hiero.core.VersionScanner.VersionScanner()  # Scan for new versions
             scanner.doScan(version)
-            #
-            # # Put the track item and the clip bin item on the max version
-            # trackItem.maxVersion()
-            # trackItem.source().binItem().maxVersion()
 
     def _buildTrackItem(self, name, clip, originalTrackItem, expectedStartTime, expectedDuration, expectedStartHandle,
                         expectedEndHandle, expectedOffset):
