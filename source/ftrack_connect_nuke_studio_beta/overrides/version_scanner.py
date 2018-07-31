@@ -89,52 +89,52 @@ def add_ftrack_build_tag(clip, component):
 # Utility functions
 def get_ftrack_tag(clip):
     '''Return ftrack tag if present in given *clip*. '''
-    existingTag = None
+    existing_tag = None
     for tag in clip.tags():
         if tag.metadata().hasKey('tag.provider') and tag.metadata()['tag.provider'] == 'ftrack':
-            existingTag = tag
+            existing_tag = tag
             break
 
-    if not existingTag:
+    if not existing_tag:
         return False
-    return existingTag
+    return existing_tag
 
 
-def add_clip_as_version(clip, binItem, ftrack_component_reference):
+def add_clip_as_version(clip, bin_item, ftrack_component_reference):
     has_tag = get_ftrack_tag(clip)
     component_id = has_tag.metadata()['component_id']
     component = session.get('Component', component_id)
-    versionIndex = ftrack_component_reference.index(component)
-    targetBinIndex = -1
+    version_index = ftrack_component_reference.index(component)
+    target_bin_index = -1
 
-    binIndex = 0
-    for version in binItem.items():
+    bin_index = 0
+    for version in bin_item.items():
         bin_clip = version.item()
         bin_clip_has_tag = get_ftrack_tag(bin_clip)
         bin_clip_component_id = bin_clip_has_tag.metadata()['component_id']
         bin_clip_component = session.get('Component', bin_clip_component_id)
         bin_clip_index = ftrack_component_reference.index(bin_clip_component)
-        set_version_index =  bin_clip_index >= versionIndex
+        set_version_index = bin_clip_index >= version_index
         try:
             if set_version_index:
-                targetBinIndex = binIndex
+                target_bin_index = bin_index
                 break
         except:
             pass
-        binIndex += 1
+        bin_index += 1
 
     version = hiero.core.Version(clip)
-    binItem.addVersion(version, targetBinIndex)
+    bin_item.addVersion(version, target_bin_index)
     return version
 
 
 # Overrides
-def ftrack_find_version_files(scannerInstance, version):
+def ftrack_find_version_files(scanner_instance, version):
     clip = version.item()
     ftrack_tag = get_ftrack_tag(clip)
 
     if not ftrack_tag:
-        return scannerInstance._default_findVersionFiles(scannerInstance, version)
+        return scanner_instance._default_findVersionFiles(scanner_instance, version)
 
     component_id = ftrack_tag.metadata()['component_id']
     component = session.get('Component', component_id)
@@ -150,58 +150,58 @@ def ftrack_find_version_files(scannerInstance, version):
 
     # set paths to an array of dimension of max version
 
-    scannerInstance._ftrack_component_reference = []
+    scanner_instance._ftrack_component_reference = []
 
     for component in sorted_components:
         component_avaialble = session.pick_location(component)
         if component_avaialble:
-            scannerInstance._ftrack_component_reference.append(component)
+            scanner_instance._ftrack_component_reference.append(component)
 
-    hieroOrderedVersions = scannerInstance._ftrack_component_reference[::-1]
+    hieroOrderedVersions = scanner_instance._ftrack_component_reference[::-1]
 
     # Prune out any we already have
     binitem = version.parent()
-    filtered_paths = filter(lambda v : scannerInstance.filterVersion(binitem, v), hieroOrderedVersions)
+    filtered_paths = filter(lambda v : scanner_instance.filterVersion(binitem, v), hieroOrderedVersions)
     return filtered_paths
 
 
-def ftrack_filter_version(scannerInstance, binitem, newVersionFile):
+def ftrack_filter_version(scanner_instance, bin_item, new_version_file):
     # We have to see if anything else in the bin has this ref
-    bin_ftrack_tag = get_ftrack_tag(binitem.items()[0].item()) # let's check if the first version has it...
+    bin_ftrack_tag = get_ftrack_tag(bin_item.items()[0].item()) # let's check if the first version has it...
     if not bin_ftrack_tag:
-        return scannerInstance._default_filterVersion(binitem, newVersionFile)
+        return scanner_instance._default_filterVersion(bin_item, new_version_file)
 
+    for version in bin_item.items():
+        item = version.item()
+        ftrack_tag = get_ftrack_tag(item)
+        if ftrack_tag:
+            component_id = ftrack_tag.metadata()['component_id']
+            if (
+                  component_id == new_version_file['id']
+            ):
+                return False
 
-    for version in binitem.items():
-      item = version.item()
-      ftrack_tag = get_ftrack_tag(item)
-      if ftrack_tag:
-          component_id = ftrack_tag.metadata()['component_id']
-          if (
-                  component_id == newVersionFile['id']
-          ):
-              return False
     return True
 
 
-def ftrack_create_clip(scannerInstance, newFilename):
-    if newFilename in scannerInstance._ftrack_component_reference:
-        is_available = session.pick_location(newFilename)
+def ftrack_create_clip(scanner_instance, new_filename):
+    if new_filename in scanner_instance._ftrack_component_reference:
+        is_available = session.pick_location(new_filename)
         if not is_available:
             return
 
-        filepath = current_ftrack_location.get_filesystem_path(newFilename).split()[0]
+        filepath = current_ftrack_location.get_filesystem_path(new_filename).split()[0]
         clip = hiero.core.Clip(filepath)
-        add_ftrack_build_tag(clip, newFilename)
+        add_ftrack_build_tag(clip, new_filename)
         return clip
     else:
-        return scannerInstance._default_createClip(newFilename)
+        return scanner_instance._default_createClip(new_filename)
 
 
-def ftrack_insert_clips(scannerInstance, binItem, clips):
+def ftrack_insert_clips(scanner_instance, bin_item, clips):
     entities = []
     non_entities = []
-    newVersions = []
+    new_versions = []
 
     for clip in clips:
         has_tags = get_ftrack_tag(clip)
@@ -210,12 +210,12 @@ def ftrack_insert_clips(scannerInstance, binItem, clips):
         else:
             entities.append(clip)
 
-    newVersions.extend(scannerInstance._default_insertClips(binItem, non_entities))
+    new_versions.extend(scanner_instance._default_insertClips(bin_item, non_entities))
     for component in entities:
-        version = add_clip_as_version(component, binItem, scannerInstance._ftrack_component_reference)
-        newVersions.append(version)
+        version = add_clip_as_version(component, bin_item, scanner_instance._ftrack_component_reference)
+        new_versions.append(version)
 
-    scannerInstance._ftrack_component_reference = []
-    return newVersions
+    scanner_instance._ftrack_component_reference = []
+    return new_versions
 
 
