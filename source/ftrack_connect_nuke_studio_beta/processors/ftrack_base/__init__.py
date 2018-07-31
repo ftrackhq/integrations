@@ -4,6 +4,8 @@
 import os
 import hiero
 from ftrack_connect_nuke_studio_beta.base import FtrackBase
+from ftrack_connect_nuke_studio_beta.template import match, get_project_template
+import ftrack_connect_nuke_studio_beta.exception
 
 FTRACK_SHOW_PATH = FtrackBase.path_separator.join([
     '{ftrack_project}',
@@ -14,8 +16,7 @@ FTRACK_SHOW_PATH = FtrackBase.path_separator.join([
 
 FTRACK_SHOT_PATH = FtrackBase.path_separator.join([
     '{ftrack_project}',
-    '{ftrack_sequence}',
-    '{ftrack_shot}',
+    '{ftrack_context}',
     '{ftrack_asset}',
     '{ftrack_version}',
     '{ftrack_component}'
@@ -59,19 +60,29 @@ class FtrackBasePreset(FtrackBase):
     def resolve_ftrack_project(self, task):
         return self.sanitise_for_filesystem(task.projectName())
 
-    def resolve_ftrack_sequence(self, task):
+    def resolve_ftrack_context(self, task):
+        # note, data returned from this resolver are expressed as:
+        # <object_type>:<object_name>|<object_type>:<object_name>|....
+
         trackItem = task._item
+        template = get_project_template(task._project)
 
         if not isinstance(trackItem, hiero.core.Sequence):
-            return self.sanitise_for_filesystem(trackItem.name().split('_')[0])
-        else:
-            return self.sanitise_for_filesystem(trackItem.name())
+            data = []
+            try:
+                results = match(trackItem, template)
+            except ftrack_connect_nuke_studio_beta.exception.TemplateError:
+                # we can happly return None as if the validation does not goes ahead
+                # the shot won't be created.
+                return None
 
-    def resolve_ftrack_shot(self, task):
-        trackItem = task._item
+            for result in results:
+                sanitised_result = self.sanitise_for_filesystem(result['name'])
+                composed_result = '{}:{}'.format(result['object_type'], sanitised_result)
+                data.append(composed_result)
 
-        if not isinstance(trackItem, hiero.core.Sequence):
-            return self.sanitise_for_filesystem(trackItem.name().split('_')[1])
+            result_data = '|'.join(data)
+            return result_data
         else:
             return self.sanitise_for_filesystem(trackItem.name())
 
@@ -113,15 +124,9 @@ class FtrackBasePreset(FtrackBase):
         )
 
         resolver.addResolver(
-            '{ftrack_sequence}',
-            'Ftrack sequence name.',
-            lambda keyword, task: self.resolve_ftrack_sequence(task)
-        )
-
-        resolver.addResolver(
-            '{ftrack_shot}',
-            'Ftrack shot name.',
-            lambda keyword, task: self.resolve_ftrack_shot(task)
+            '{ftrack_context}',
+            'Ftrack context name.',
+            lambda keyword, task: self.resolve_ftrack_context(task)
         )
 
         resolver.addResolver(

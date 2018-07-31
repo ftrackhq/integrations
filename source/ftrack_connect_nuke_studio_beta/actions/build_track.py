@@ -5,6 +5,8 @@ from QtExt import QtWidgets, QtGui, QtCore
 
 from ftrack_connect_nuke_studio_beta.base import FtrackBase
 from ftrack_connect_nuke_studio_beta.overrides.version_scanner import add_ftrack_build_tag
+from ftrack_connect_nuke_studio_beta.template import get_project_template, match
+import ftrack_connect_nuke_studio_beta.exception
 import hiero
 
 from hiero.ui.BuildExternalMediaTrack import (
@@ -126,6 +128,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         # force ui to refresh
         self.get_components()
 
+
     @staticmethod
     def common_items(items):
         if not items:
@@ -136,10 +139,23 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
     def parsed_selection(self):
         results = {}
         project_name = self.project.name()
+        project_template = get_project_template(self.project)
+
+        if not project_template:
+            raise ftrack_connect_nuke_studio_beta.exception.TemplateError(
+                'No template defined for project {}'.format(project_name)
+        )
+
         for trackItem in self._selection:
-            if not isinstance(trackItem, hiero.core.EffectTrackItem):
-                sequence, shot = trackItem.name().split('_') # TODO
-                results[trackItem] = (project_name, sequence, shot)
+            if isinstance(trackItem, hiero.core.EffectTrackItem):
+                continue
+            try:
+                parsed_results = match(trackItem, project_template)
+                self.logger.info('parsed_selection: {}'.format(parsed_results))
+            except ftrack_connect_nuke_studio_beta.exception.TemplateError:
+                continue
+
+            results[trackItem] = [project_name] + [result['name'] for result in parsed_results]
         return results
 
     def trackName(self):
@@ -195,7 +211,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             all_components = self.session.query(query
             ).all()
 
-            self.logger.info('final_component :{}'.format(all_components))
+
             if not all_components:
                 continue
 
@@ -203,7 +219,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
             final_component = sorted_components[-1]
             self._result_data[taskItem] = final_component['id']
-            self.logger.info('setting {} for version {}'.format(taskItem, final_component['version']['version']))
+
 
         # Update window title with the amount of clips found matching the filters
         new_title = self._window_title + ' - ({} clips found)'.format(len(self._result_data))
@@ -343,6 +359,7 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         sequence = hiero.ui.activeView().sequence()
         project = sequence.project()
 
+
         if not self.configure(project, selection):
           return
 
@@ -372,7 +389,6 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
     def _buildTrackItem(self, name, clip, originalTrackItem, expectedStartTime, expectedDuration, expectedStartHandle,
                         expectedEndHandle, expectedOffset):
         # Create the item
-        self.logger.info('_buildTrackItem {0} from clip {1}'.format(name, clip))
         trackItem = hiero.core.TrackItem(name, hiero.core.TrackItem.kVideo)
         trackItem.setSource(clip)
 

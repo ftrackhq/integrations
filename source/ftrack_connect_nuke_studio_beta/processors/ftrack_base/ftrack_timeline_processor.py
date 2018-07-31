@@ -17,14 +17,9 @@ class FtrackTimelineProcessor(TimelineProcessor, FtrackProcessor):
         FtrackProcessor.__init__(self, preset)
 
     def startProcessing(self, exportItems, preview=False):
-        result = FtrackProcessor.validateFtrackProcessing(self, exportItems)
+        result = FtrackProcessor.validateFtrackProcessing(self, exportItems, preview)
         if result:
-            if not preview:
-                self.create_project_structure(exportItems)
-        else:
-            # force not generating the outputs if validation fails
-            preview = True
-
+            exportItems = self.create_project_structure(exportItems)
         return TimelineProcessor.startProcessing(self, exportItems, preview)
 
 

@@ -18,6 +18,8 @@ HIERO_PLUGIN_PATH = os.path.join(RESOURCE_PATH,'plugin')
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
 STAGING_PATH = os.path.join(BUILD_PATH, 'ftrack-connect-nuke-studio-beta-plugin-{0}')
 HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
+APPLICATION_HOOK_PATH = os.path.join(RESOURCE_PATH, 'application_hook')
+
 
 # Read version from source.
 with open(os.path.join(
@@ -56,10 +58,16 @@ class BuildPlugin(setuptools.Command):
             os.path.join(STAGING_PATH, 'resource')
         )
 
-        # Copy plugin files
+        # Copy hook files
         shutil.copytree(
             HOOK_PATH,
             os.path.join(STAGING_PATH, 'hook')
+        )
+
+        # Copy applipcation hooks files
+        shutil.copytree(
+            APPLICATION_HOOK_PATH,
+            os.path.join(STAGING_PATH, 'application_hook')
         )
 
         pip_main(
