@@ -190,8 +190,8 @@ def ftrack_create_clip(scanner_instance, new_filename):
         if not is_available:
             return
 
-        filepath = current_ftrack_location.get_filesystem_path(new_filename).split()[0]
-        clip = hiero.core.Clip(filepath)
+        file_path = current_ftrack_location.get_filesystem_path(new_filename).split()[0]
+        clip = hiero.core.Clip(file_path)
         add_ftrack_build_tag(clip, new_filename)
         return clip
     else:
