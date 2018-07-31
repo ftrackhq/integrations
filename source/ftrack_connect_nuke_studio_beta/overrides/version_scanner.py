@@ -49,7 +49,7 @@ def customise_menu(event):
     actions = event.menu.actions()
     for action in actions:
         if action.text() in ['Version', 'Export...']:
-            action.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
+            action.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoLight'))
 
 
 def add_ftrack_build_tag(clip, component):
@@ -71,7 +71,7 @@ def add_ftrack_build_tag(clip, component):
 
     tag = hiero.core.Tag(
         'ftrack-reference-{0}'.format(component['name']),
-        ':/ftrack/image/default/ftrackLogoColor',
+        ':ftrack/image/default/ftrackLogoLight',
         False
     )
     tag.metadata().setValue('tag.provider', 'ftrack')

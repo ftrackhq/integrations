@@ -19,18 +19,17 @@ from ftrack_connect_nuke_studio_beta.actions.build_track import FtrackBuildTrack
 from ftrack_connect_nuke_studio_beta.tags.tag_drop_handler import TagDropHandler
 from ftrack_connect_nuke_studio_beta.tags.tag_manager import TagManager
 from ftrack_connect_nuke_studio_beta.overrides.version_scanner import register_versioning_overrides
-
+import ftrack_connect_nuke_studio_beta.resource
 register_versioning_overrides()
 
 from ftrack_connect_nuke_studio_beta.processors import register_processors
-ftrack_connect.ui.theme.applyFont()
 
 
 def populate_ftrack(event):
     '''Populate the ftrack menu with items.'''
     menu_bar = hiero.ui.menuBar()
     ftrack_menu = menu_bar.addMenu(
-        QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'), 'ftrack'
+        QtGui.QPixmap(':ftrack/image/default/ftrackLogoLight'), 'ftrack'
     )
 
 

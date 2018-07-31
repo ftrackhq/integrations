@@ -2,19 +2,24 @@
 # :copyright: Copyright (c) 2018 ftrack
 
 import os
+import sys
 import re
 import shutil
+import subprocess
 from pip._internal import main as pip_main
 
-from setuptools import setup, find_packages
-import setuptools
+from setuptools import setup, find_packages, Command
+
+import fileinput
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
-
-HIERO_PLUGIN_PATH = os.path.join(RESOURCE_PATH,'plugin')
+RESOURCE_TARGET_PATH = os.path.join(
+    SOURCE_PATH, 'ftrack_connect_nuke_studio_beta', 'resource.py'
+)
+HIERO_PLUGIN_PATH = os.path.join(RESOURCE_PATH, 'plugin')
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
 STAGING_PATH = os.path.join(BUILD_PATH, 'ftrack-connect-nuke-studio-beta-plugin-{0}')
 HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
@@ -34,7 +39,70 @@ with open(os.path.join(
 STAGING_PATH = STAGING_PATH.format(VERSION)
 
 
-class BuildPlugin(setuptools.Command):
+# Custom commands.
+class BuildResources(Command):
+    '''Build additional resources.'''
+
+    user_options = []
+
+    def initialize_options(self):
+        '''Configure default options.'''
+
+    def finalize_options(self):
+        '''Finalize options to be used.'''
+        self.resource_source_path = os.path.join(
+            RESOURCE_PATH, 'resource.qrc'
+        )
+        self.resource_target_path = RESOURCE_TARGET_PATH
+
+    def _replace_imports_(self):
+        '''Replace imports in resource files to QtExt instead of QtCore.
+
+        This allows the resource file to work with many different versions of
+        Qt.
+
+        '''
+        replace = 'from QtExt import QtCore'
+        for line in fileinput.input(self.resource_target_path, inplace=True):
+            if 'import QtCore' in line:
+                # Calling print will yield a new line in the resource file.
+                print line.replace(line, replace)
+            else:
+                # Calling print will yield a new line in the resource file.
+                print line
+
+    def run(self):
+        '''Run build.'''
+        try:
+            pyside_rcc_command = 'pyside-rcc'
+
+            # On Windows, pyside-rcc is not automatically available on the
+            # PATH so try to find it manually.
+            if sys.platform == 'win32':
+                import PySide
+                pyside_rcc_command = os.path.join(
+                    os.path.dirname(PySide.__file__),
+                    'pyside-rcc.exe'
+                )
+
+            subprocess.check_call([
+                pyside_rcc_command,
+                '-o',
+                self.resource_target_path,
+                self.resource_source_path
+            ])
+        except (subprocess.CalledProcessError, OSError) as error:
+            raise RuntimeError(
+                'Error compiling resource.py using pyside-rcc. Possibly '
+                'pyside-rcc could not be found. You might need to manually add '
+                'it to your PATH. See README for more information.'
+                'error : {}'.format(error)
+            )
+
+        self._replace_imports_()
+
+
+class BuildPlugin(Command):
     '''Build plugin.'''
 
     description = 'Download dependencies and build plugin .'
@@ -51,6 +119,9 @@ class BuildPlugin(setuptools.Command):
         '''Run the build step.'''
         # Clean staging path
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
+
+        # build resources
+        self.run_command('build_resources')
 
         # Copy plugin files
         shutil.copytree(
@@ -93,7 +164,6 @@ class BuildPlugin(setuptools.Command):
         print 'Result: ' + result_path
 
 
-
 # Call main setup.
 setup(
     name='ftrack-connect-nuke-studio-beta',
@@ -122,6 +192,8 @@ setup(
     ],
     zip_safe=False,
     cmdclass={
-        'build_plugin': BuildPlugin
+        'build_plugin': BuildPlugin,
+        'build_resources': BuildResources
+
     },
 )

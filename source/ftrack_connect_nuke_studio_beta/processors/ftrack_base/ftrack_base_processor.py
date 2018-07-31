@@ -46,7 +46,7 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
             __name__ + '.' + self.__class__.__name__
         )
 
-        ftrack_icon = QtGui.QIcon(':/ftrack/image/default/ftrackLogoColor')
+        ftrack_icon = QtGui.QIcon(':/ftrack/image/default/ftrackLogoLight')
         self.setWindowIcon(ftrack_icon)
 
         layout = QtWidgets.QVBoxLayout()
@@ -544,7 +544,7 @@ class FtrackProcessor(FtrackBase):
 
         tag = hiero.core.Tag(
             '{0}'.format(task._preset.name()),
-            ':/ftrack/image/default/ftrackLogoColor',
+            ':/ftrack/image/default/ftrackLogoLight',
             False
         )
         tag.metadata().setValue('tag.provider', 'ftrack')
