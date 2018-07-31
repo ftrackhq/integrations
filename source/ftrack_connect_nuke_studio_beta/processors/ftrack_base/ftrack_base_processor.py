@@ -91,7 +91,7 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
                     missing_asset.capitalize()
                 )
                 create_asset_button.clicked.connect(self.create_missing_asset)
-                form_layout.addRow('create asset: ', create_asset_button)
+                form_layout.addRow('Create asset: ', create_asset_button)
 
         buttons = QtWidgets.QDialogButtonBox()
         buttons.setOrientation(QtCore.Qt.Horizontal)

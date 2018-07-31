@@ -44,6 +44,7 @@ def register_versioning_overrides():
 
 
 def customise_menu(event):
+    ''' Set ftrack icon looking in menu from given *event*. '''
     actions = event.menu.actions()
     for action in actions:
         if action.text() in ['Version', 'Export...']:
@@ -51,6 +52,7 @@ def customise_menu(event):
 
 
 def add_ftrack_build_tag(clip, component):
+    ''' Add custom ftrack tag and enforce *clip* name from *component*. '''
     version = component['version']
 
     existingTag = None
@@ -84,10 +86,9 @@ def add_ftrack_build_tag(clip, component):
     clip.setName(clip_name)
 
 
-
 # Utility functions
 def get_ftrack_tag(clip):
-    # tags are stored in the source clip
+    '''Return ftrack tag if present in given *clip*. '''
     existingTag = None
     for tag in clip.tags():
         if tag.metadata().hasKey('tag.provider') and tag.metadata()['tag.provider'] == 'ftrack':
