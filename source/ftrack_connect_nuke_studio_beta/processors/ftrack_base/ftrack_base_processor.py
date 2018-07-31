@@ -578,9 +578,6 @@ class FtrackProcessor(FtrackBase):
 
         originalItem.addTag(tag)
 
-    def _makePath(self):
-        pass
-
     def setupExportPaths(self, task):
         # This is an event we intercept to see when the task start.
         has_data = self._components.get(
