@@ -3,9 +3,6 @@
 
 from __future__ import absolute_import
 
-import logging
-logger = logging.getLogger(__name__)
-
 from QtExt import QtGui, QtWidgets, QtCore
 import hiero.ui
 import hiero.core
@@ -13,16 +10,12 @@ import hiero.core
 from ftrack_connect import config
 config.configure_logging('ftrack_connect_nuke_studio_beta', level='WARNING')
 
-import ftrack_connect.ui.theme
-import ftrack_connect.event_hub_thread
 from ftrack_connect_nuke_studio_beta.actions.build_track import FtrackBuildTrack
 from ftrack_connect_nuke_studio_beta.tags.tag_drop_handler import TagDropHandler
 from ftrack_connect_nuke_studio_beta.tags.tag_manager import TagManager
 from ftrack_connect_nuke_studio_beta.overrides.version_scanner import register_versioning_overrides
-import ftrack_connect_nuke_studio_beta.resource
-register_versioning_overrides()
-
 from ftrack_connect_nuke_studio_beta.processors import register_processors
+import ftrack_connect_nuke_studio_beta.resource
 
 
 def populate_ftrack(event):
@@ -44,5 +37,8 @@ if (not hiero.core.isHieroPlayer()) and isinstance(QtCore.QCoreApplication.insta
     )
 
     ftrackBuildExternalMediaTrackAction = FtrackBuildTrack()
-    register_processors()
     tag_handler = TagDropHandler()
+
+    register_processors()
+    register_versioning_overrides()
+

@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2015 ftrack
+# :copyright: Copyright (c) 2018 ftrack
 
 
 import hiero.core
@@ -11,9 +11,7 @@ import ftrack_api
 
 import ftrack_connect_nuke_studio_beta.exception
 
-from ftrack_connect.session import (
-    get_shared_session
-)
+from ftrack_connect.session import get_shared_session
 
 session = get_shared_session()
 

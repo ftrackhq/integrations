@@ -1,5 +1,7 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2018 ftrack
+
 import os
-import sys
 import logging
 from QtExt import QtWidgets, QtGui, QtCore
 
@@ -20,7 +22,6 @@ registry = hiero.core.taskRegistry
 logger = logging.getLogger(
     __name__
 )
-
 
 
 class FtrackTrackFinderByNameWithDialog(TrackFinderByNameWithDialog):

@@ -1,4 +1,6 @@
-import logging
+# :coding: utf-8
+# :copyright: Copyright (c) 2018 ftrack
+
 import time
 import re
 import unicodedata
@@ -8,11 +10,6 @@ logger = logging.getLogger(__name__)
 import hiero
 
 from ftrack_connect.session import get_shared_session
-
-# Disable file path creation from NS
-# def disable_path_creation(args):
-#     pass
-# hiero.core.util.filesystem.makeDirs = disable_path_creation
 
 
 class FtrackBase(object):
