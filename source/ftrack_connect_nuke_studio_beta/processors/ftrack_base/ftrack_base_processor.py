@@ -67,7 +67,6 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
         for processor, values in error_data.items():
             form_layout.addDivider('Wrong {0} presets'.format(processor.__class__.__name__))
 
-            # TODO: attribute should be reversed .... as they are appearing in the wrong order
             for attribute, valid_values in values.items():
                 valid_values.insert(0, '- select a value -')
                 key, value, label = attribute, valid_values, ' '.join(attribute.split('_'))
@@ -155,7 +154,7 @@ class FtrackProcessor(FtrackBase):
 
     @property
     def schema(self):
-        # Return the current ftrack project schema
+        ''' Return the current ftrack project schema. '''
         project_schema_name = self.ftrack_properties['project_schema']
         project_schema = self.session.query(
             'ProjectSchema where name is "{0}"'.format(project_schema_name)
@@ -164,7 +163,7 @@ class FtrackProcessor(FtrackBase):
 
     @property
     def task_type(self):
-        # Return the ftrack object for the task type set.
+        ''' Return the ftrack object for the task type set.'''
         task_type_name = self.ftrack_properties['task_type']
         task_types = self.schema.get_types('Task')
         filtered_task_types = [task_type for task_type in task_types if task_type['name'] == task_type_name]
@@ -174,7 +173,7 @@ class FtrackProcessor(FtrackBase):
 
     @property
     def task_status(self):
-        # Return the ftrack object for the task status.
+        ''' Return the ftrack object for the task status. '''
         try:
             task_statuses = self.schema.get_statuses('Task', self.task_type['id'])
         except ValueError as error:
@@ -186,7 +185,7 @@ class FtrackProcessor(FtrackBase):
 
     @property
     def shot_status(self):
-        # Return the ftrack object for the shot status.
+        '''Return the ftrack object for the shot status.'''
         shot_statuses = self.schema.get_statuses('Shot')
         filtered_shot_status = [shot_status for shot_status in shot_statuses if shot_status['name']]
         # Return first status found.
@@ -194,13 +193,13 @@ class FtrackProcessor(FtrackBase):
 
     @property
     def asset_version_status(self):
-        # Return the ftrack object for the asset version status.
+        '''Return the ftrack object for the asset version status.'''
         asset_statuses = self.schema.get_statuses('AssetVersion')
         filtered_asset_status = [asset_status for asset_status in asset_statuses if asset_status['name']]
         return filtered_asset_status[0]
 
     def asset_type_per_task(self, task):
-        # Return the ftrack object available asset type.
+        '''Return the ftrack object available asset type.'''
         asset_type = task._preset.properties()['ftrack']['asset_type_code']
         try:
             result = self.session.query(
@@ -211,6 +210,8 @@ class FtrackProcessor(FtrackBase):
         return result
 
     def _create_project_fragment(self, name, parent, task, version):
+        '''Return ftrack project entity from *name*, *parent*, *task* and *version*.'''
+
         self.logger.debug('Creating project fragment: {} {} {} {}'.format(name, parent, task, version))
 
         project = self.session.query(
@@ -225,6 +226,8 @@ class FtrackProcessor(FtrackBase):
         return project
 
     def _create_context_fragment(self, composed_name, parent, task, version):
+        '''Return ftrack context entity from *composed_name*, *parent*, *task* and *version*.'''
+
         self.logger.debug('Creating context fragment: {} {} {} {}'.format(composed_name, parent, task, version))
         splitted_name = composed_name.split('|')
         parsed_names = []
@@ -253,6 +256,8 @@ class FtrackProcessor(FtrackBase):
         return parent
 
     def _create_asset_fragment(self, name, parent, task, version):
+        '''Return ftrack asset entity from *name*, *parent*, *task* and *version*.'''
+
         self.logger.debug('Creating asset fragment: {} {} {} {}'.format(name, parent, task, version))
 
         asset = self.session.query(
@@ -269,6 +274,8 @@ class FtrackProcessor(FtrackBase):
         return asset
 
     def _create_version_fragment(self, name, parent, task, version):
+        '''Return ftrack asset version entity from *name*, *parent*, *task* and *version*.'''
+
         self.logger.debug('Creating version fragment: {} {} {} {}'.format(name, parent, task, version))
 
         task_name = self.ftrack_properties['task_type']
@@ -298,6 +305,8 @@ class FtrackProcessor(FtrackBase):
         return version
 
     def _create_component_fragment(self, name, parent, task, version):
+        '''Return ftrack component entity from *name*, *parent*, *task* and *version*.'''
+
         self.logger.debug('Creating component fragment: {} {} {} {}'.format(name, parent, task, version))
 
         component = parent.create_component('/', {
@@ -307,10 +316,12 @@ class FtrackProcessor(FtrackBase):
         return component
 
     def _skip_fragment(self, name, parent, task, version):
+        '''Fallback function if the given fragment *name* is not found.'''
+
         self.logger.warning('Skpping: {0}'.format(name))
 
     def _create_extra_tasks(self, task_type_names, component):
-        '''Create extra tasks based on dropped ftrack tags'''
+        '''Create extra tasks based on dropped ftrack tags from *task_type_names* and *component*, '''
 
         parent = component['version']['asset']['parent']  # Get Shot from component
         task_types = self.schema.get_types('Task')
@@ -340,96 +351,99 @@ class FtrackProcessor(FtrackBase):
 
         self.session.commit()
 
-    def create_project_structure(self, exportItems):
+    def create_project_structure(self, export_items):
+        '''Create project structure on ftrack server given *export_items*.
+
+        Return list of filtered *export_items*.
+
+        '''
         filtered_export_items = []
         self._create_project_progress_widget = foundry.ui.ProgressTask('Creating structure in ftrack...')
         progress_index = 0
         # ensure to reset components before creating a new project.
         self._components = {}
         versions = {}
-        project = exportItems[0].item().project()
+        project = export_items[0].item().project()
         parsing_template = template_manager.get_project_template(project)
-        # provide access to tags.
-        numitems = len(self._exportTemplate.flatten()) * len(exportItems)
-        for exportItem in exportItems:
-            trackItem = exportItem.item()
+
+        num_items = len(self._exportTemplate.flatten()) * len(export_items)
+        for export_item in export_items:
+            track_item = export_item.item()
 
             # Skip effects track items.
-            if isinstance(trackItem, hiero.core.EffectTrackItem):
-                self.logger.debug('Skipping {0}'.format(trackItem))
+            if isinstance(track_item, hiero.core.EffectTrackItem):
+                self.logger.debug('Skipping {0}'.format(track_item))
                 continue
 
             try:
-                template_manager.match(trackItem, parsing_template)
+                template_manager.match(track_item, parsing_template)
             except ftrack_connect_nuke_studio_beta.exception.TemplateError:
                 self.logger.warning(
-                    'Skipping {} as does not match {}'.format(trackItem, parsing_template['expression']))
+                    'Skipping {} as does not match {}'.format(track_item, parsing_template['expression']))
                 continue
 
-            filtered_export_items.append(exportItem)
+            filtered_export_items.append(export_item)
 
             for (exportPath, preset) in self._exportTemplate.flatten():
 
                 progress_index += 1
-                self._create_project_progress_widget.setProgress(int(100.0 * (float(progress_index) / float(numitems))))
+                self._create_project_progress_widget.setProgress(int(100.0 * (float(progress_index) / float(num_items))))
 
                 # collect task tags per clip
                 task_tags = set()
 
-                if not hasattr(trackItem, 'tags'):
+                if not hasattr(track_item, 'tags'):
                     continue
 
-                for tag in trackItem.tags():
+                for tag in track_item.tags():
                     meta = tag.metadata()
                     if meta.hasKey('type') and meta.value('type') == 'ftrack':
                         task_name = meta.value('ftrack.name')
                         task_tags.add(task_name)
 
-                shotNameIndex = getShotNameIndex(trackItem)
+                shot_name_index = getShotNameIndex(track_item)
                 if isinstance(self, TimelineProcessor):
-                    trackItem = exportItem.item().sequence()
-                    shotNameIndex= ''
-
+                    track_item = export_item.item().sequence()
+                    shot_name_index= ''
 
                 # create entry points on where to store ftrack component and path data.
-                self._components.setdefault(trackItem.name(), {})
-                self._components[trackItem.name()].setdefault(preset.name(), {})
+                self._components.setdefault(track_item.name(), {})
+                self._components[track_item.name()].setdefault(preset.name(), {})
 
                 retime = self._preset.properties().get('includeRetimes', False)
 
-                cutHandles = None
-                startFrame = None
+                cut_handles = None
+                start_frame = None
 
                 if self._preset.properties()['startFrameSource'] == 'Custom':
-                    startFrame = self._preset.properties()['startFrameIndex']
+                    start_frame = self._preset.properties()['startFrameIndex']
 
                 # If we are exporting the shot using the cut length (rather than the (shared) clip length)
                 if self._preset.properties().get('cutLength'):
                     # Either use the specified number of handles or zero
                     if self._preset.properties().get('cutUseHandles'):
-                        cutHandles = int(self._preset.properties()['cutHandles'])
+                        cut_handles = int(self._preset.properties()['cutHandles'])
                     else:
-                        cutHandles = 0
-
+                        cut_handles = 0
 
                 # Build TaskData seed
                 taskData = hiero.core.TaskData(
                     preset,
-                    trackItem,
+                    track_item,
                     preset.properties()['exportRoot'],
                     exportPath,
                     'v0',
                    self._exportTemplate,
-                   project=trackItem.project(),
-                   cutHandles=cutHandles,
+                   project=track_item.project(),
+                   cutHandles=cut_handles,
                    retime=retime,
-                   startFrame=startFrame,
+                   startFrame=start_frame,
                    startFrameSource=self._preset.properties()['startFrameSource'],
                    resolver=self._preset.createResolver(),
                    submission=self._submission,
                    skipOffline=self.skipOffline(),
-                   presetId=hiero.core.taskRegistry.addPresetToProjectExportHistory(trackItem.project(), self._preset),
-                   shotNameIndex=shotNameIndex
+                   presetId=hiero.core.taskRegistry.addPresetToProjectExportHistory(track_item.project(), self._preset),
+                   shotNameIndex=shot_name_index
                 )
 
                 task = hiero.core.taskRegistry.createTaskFromPreset(preset, taskData)
@@ -473,14 +487,14 @@ class FtrackProcessor(FtrackBase):
                     'published': False
                 }
 
-                self._components[trackItem.name()][preset.name()] = data
-                self.addFtrackTag(trackItem, task)
+                self._components[track_item.name()][preset.name()] = data
+                self.addFtrackTag(track_item, task)
 
         self._create_project_progress_widget = None
         return filtered_export_items
 
-    def addFtrackTag(self, originalItem, task):
-        if not hasattr(originalItem, 'tags'):
+    def addFtrackTag(self, original_item, task):
+        if not hasattr(original_item, 'tags'):
             return
 
         item = task._item
@@ -492,48 +506,48 @@ class FtrackProcessor(FtrackBase):
 
         task_id = str(task._preset.properties()['ftrack']['task_id'])
 
-        data = self._components[originalItem.name()][task._preset.name()]
+        data = self._components[original_item.name()][task._preset.name()]
         component = data['component']
 
         path = data['path']
         frameoffset = start if start else 0
 
         collate = getattr(task,'_collate', False)
-        applyingRetime = (task._retime and task._cutHandles is not None) or collate
-        appliedRetimesStr = '1' if applyingRetime else '0'
+        applying_retime = (task._retime and task._cutHandles is not None) or collate
+        applied_retimes_str = '1' if applying_retime else '0'
 
-        existingTag = None
-        for tag in originalItem.tags():
+        existing_tag = None
+        for tag in original_item.tags():
             if tag.metadata().hasKey('tag.presetid') and tag.metadata()['tag.presetid'] == task_id:
-                existingTag = tag
+                existing_tag = tag
                 break
 
-        if existingTag:
-            existingTag.metadata().setValue('tag.version_id', component['version']['id'])
-            existingTag.metadata().setValue('tag.asset_id', component['version']['asset']['id'])
-            existingTag.metadata().setValue('tag.version', str(component['version']['version']))
-            existingTag.metadata().setValue('tag.path', path)
-            existingTag.metadata().setValue('tag.pathtemplate', task._exportPath)
+        if existing_tag:
+            existing_tag.metadata().setValue('tag.version_id', component['version']['id'])
+            existing_tag.metadata().setValue('tag.asset_id', component['version']['asset']['id'])
+            existing_tag.metadata().setValue('tag.version', str(component['version']['version']))
+            existing_tag.metadata().setValue('tag.path', path)
+            existing_tag.metadata().setValue('tag.pathtemplate', task._exportPath)
 
-            existingTag.metadata().setValue('tag.startframe', str(start))
-            existingTag.metadata().setValue('tag.duration', str(end - start+1))
-            existingTag.metadata().setValue('tag.starthandle', str(start_handle))
-            existingTag.metadata().setValue('tag.endhandle', str(end_handle))
-            existingTag.metadata().setValue('tag.frameoffset', str(frameoffset))
-            existingTag.metadata().setValue('tag.localtime', str(localtime))
-            existingTag.metadata().setValue('tag.appliedretimes', appliedRetimesStr)
+            existing_tag.metadata().setValue('tag.startframe', str(start))
+            existing_tag.metadata().setValue('tag.duration', str(end - start+1))
+            existing_tag.metadata().setValue('tag.starthandle', str(start_handle))
+            existing_tag.metadata().setValue('tag.endhandle', str(end_handle))
+            existing_tag.metadata().setValue('tag.frameoffset', str(frameoffset))
+            existing_tag.metadata().setValue('tag.localtime', str(localtime))
+            existing_tag.metadata().setValue('tag.appliedretimes', applied_retimes_str)
 
             if task._preset.properties().get('keepNukeScript'):
-                existingTag.metadata().setValue('tag.script', task.resolvedExportPath())
+                existing_tag.metadata().setValue('tag.script', task.resolvedExportPath())
 
             if task._cutHandles:
-                existingTag.metadata().setValue('tag.handles', str(task._cutHandles))
+                existing_tag.metadata().setValue('tag.handles', str(task._cutHandles))
 
             if isinstance(item, hiero.core.TrackItem):
-                existingTag.metadata().setValue('tag.sourceretime', str(item.playbackSpeed()))
+                existing_tag.metadata().setValue('tag.sourceretime', str(item.playbackSpeed()))
 
-            originalItem.removeTag(existingTag)
-            originalItem.addTag(existingTag)
+            original_item.removeTag(existing_tag)
+            original_item.addTag(existing_tag)
             return
 
         tag = hiero.core.Tag(
@@ -559,7 +573,7 @@ class FtrackProcessor(FtrackBase):
         tag.metadata().setValue('tag.endhandle', str(end_handle))
         tag.metadata().setValue('tag.frameoffset', str(frameoffset))
         tag.metadata().setValue('tag.localtime', str(localtime))
-        tag.metadata().setValue('tag.appliedretimes', appliedRetimesStr)
+        tag.metadata().setValue('tag.appliedretimes', applied_retimes_str)
 
         if task._preset.properties().get('keepNukeScript'):
             tag.metadata().setValue('tag.script', task.resolvedExportPath())
@@ -570,7 +584,7 @@ class FtrackProcessor(FtrackBase):
         if isinstance(item, hiero.core.TrackItem):
             tag.metadata().setValue('tag.sourceretime', str(item.playbackSpeed()))
 
-        originalItem.addTag(tag)
+        original_item.addTag(tag)
 
     def setupExportPaths(self, task):
         # This is an event we intercept to see when the task start.

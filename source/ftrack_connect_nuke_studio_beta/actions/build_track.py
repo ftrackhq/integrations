@@ -27,7 +27,7 @@ logger = logging.getLogger(
 class FtrackTrackFinderByNameWithDialog(TrackFinderByNameWithDialog):
 
     def findOrCreateTrackByName(self, sequence, track_name):
-        ''' Searches the sequence for a track with the given name.  If none are found,
+        ''' Searches the *sequence* for a track with the given *track_name* .  If none are found,
             creates a new one. '''
         # a track always has to have a name
         if not track_name or not sequence:
@@ -127,7 +127,6 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
         # force ui to refresh
         self.get_components()
-
 
     @staticmethod
     def common_items(items):
