@@ -26,29 +26,29 @@ logger = logging.getLogger(
 
 class FtrackTrackFinderByNameWithDialog(TrackFinderByNameWithDialog):
 
-    def findOrCreateTrackByName(self, sequence, trackName):
+    def findOrCreateTrackByName(self, sequence, track_name):
         ''' Searches the sequence for a track with the given name.  If none are found,
             creates a new one. '''
         # a track always has to have a name
-        if not trackName or not sequence:
+        if not track_name or not sequence:
             raise RuntimeError('Invalid arguments')
 
         track = None
-        isNewTrack = False
+        is_new_track = False
         # Look for existing track
         for existingtrack in sequence.videoTracks():
-            if existingtrack.trackName() == trackName:
+            if existingtrack.trackName() == track_name:
                 # hiero.core.log.debug( "Track Already Exists  : " + trackName )
                 track = existingtrack
 
         # No existing track. Create new video track
         if track is None:
             # hiero.core.log.debug( "Track Created : " + trackName )
-            track = hiero.core.VideoTrack(str(trackName))
+            track = hiero.core.VideoTrack(str(track_name))
             sequence.addTrack(track)
-            track.addTag(hiero.core.Tag(trackName, ':ftrack/image/default/ftrackLogoLight'))
-            isNewTrack = True
-        return track, isNewTrack
+            track.addTag(hiero.core.Tag(track_name, ':ftrack/image/default/ftrackLogoLight'))
+            is_new_track = True
+        return track, is_new_track
 
 
 class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
@@ -72,7 +72,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         self._selection = selection
 
         if self._selection:
-            self.project = self.itemProject(self._selection[0])
+            self.project = self.item_project(self._selection[0])
 
         self._window_title = 'Rebuild Track from server tasks'
         self.setWindowTitle(self._window_title)
@@ -107,7 +107,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setText("Build")
         self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setDisabled(True)
         self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setAutoDefault(True)
-        self._buttonbox.accepted.connect(self.acceptTest)
+        self._buttonbox.accepted.connect(self.accept_test)
         self._buttonbox.rejected.connect(self.reject)
         layout.addWidget(self._buttonbox)
 
@@ -165,12 +165,12 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         ''' Return the new track name. '''
         return str(self._tracknameField.text())
 
-    def itemProject(self, item):
+    def item_project(self, item):
         ''' Return the project from given *item*. '''
         if hasattr(item, 'project'):
             return item.project()
         elif hasattr(item, 'parent'):
-            return self.itemProject(item.parent())
+            return self.item_project(item.parent())
         else:
             return None
 
@@ -180,7 +180,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
         return self._result_data
 
-    def acceptTest(self):
+    def accept_test(self):
         ''' Check whether the widget can be triggered. '''
         if self.trackName():
             self.accept()
@@ -398,12 +398,12 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
           self._errors = []
 
     @staticmethod
-    def updateFtrackVersions(trackItem):
+    def update_ftrack_versions(track_item):
         '''' Force update *trackIten* to fetch all available versions'''
 
-        trackItem.source().rescan()  # First rescan the current clip
-        if trackItem.isMediaPresent():
-            version = trackItem.currentVersion()
+        track_item.source().rescan()  # First rescan the current clip
+        if track_item.isMediaPresent():
+            version = track_item.currentVersion()
             scanner = hiero.core.VersionScanner.VersionScanner()  # Scan for new versions
             scanner.doScan(version)
 
@@ -463,12 +463,10 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         if component_id:
             component = self.session.get('Component', component_id)
             add_ftrack_build_tag(clip, component)
-            self.updateFtrackVersions(trackItem)
+            self.update_ftrack_versions(trackItem)
 
         return trackItem
 
-# =========================================================================================
-# Main Menu
 
 class FtrackBuildTrack(BuildTrack):
 
