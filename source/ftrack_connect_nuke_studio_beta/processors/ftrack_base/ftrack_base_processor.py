@@ -146,8 +146,8 @@ class FtrackProcessor(FtrackBase):
             '{ftrack_component}': self._create_component_fragment
         }
         # these events gets emitted during taskStart and taskFinish
-        TaskCallbacks.addCallback(TaskCallbacks.onTaskStart, self.setupExportPaths)
-        TaskCallbacks.addCallback(TaskCallbacks.onTaskFinish, self.publishResultComponent)
+        TaskCallbacks.addCallback(TaskCallbacks.onTaskStart, self.setup_export_paths)
+        TaskCallbacks.addCallback(TaskCallbacks.onTaskFinish, self.publish_result_component)
         # progress for project creation
         self._create_project_progress_widget = None
         self._validate_project_progress_widget = None
@@ -488,12 +488,12 @@ class FtrackProcessor(FtrackBase):
                 }
 
                 self._components[track_item.name()][preset.name()] = data
-                self.addFtrackTag(track_item, task)
+                self.add_ftrack_tag(track_item, task)
 
         self._create_project_progress_widget = None
         return filtered_export_items
 
-    def addFtrackTag(self, original_item, task):
+    def add_ftrack_tag(self, original_item, task):
         if not hasattr(original_item, 'tags'):
             return
 
@@ -510,9 +510,9 @@ class FtrackProcessor(FtrackBase):
         component = data['component']
 
         path = data['path']
-        frameoffset = start if start else 0
+        frame_offset = start if start else 0
 
-        collate = getattr(task,'_collate', False)
+        collate = getattr(task, '_collate', False)
         applying_retime = (task._retime and task._cutHandles is not None) or collate
         applied_retimes_str = '1' if applying_retime else '0'
 
@@ -533,7 +533,7 @@ class FtrackProcessor(FtrackBase):
             existing_tag.metadata().setValue('tag.duration', str(end - start+1))
             existing_tag.metadata().setValue('tag.starthandle', str(start_handle))
             existing_tag.metadata().setValue('tag.endhandle', str(end_handle))
-            existing_tag.metadata().setValue('tag.frameoffset', str(frameoffset))
+            existing_tag.metadata().setValue('tag.frameoffset', str(frame_offset))
             existing_tag.metadata().setValue('tag.localtime', str(localtime))
             existing_tag.metadata().setValue('tag.appliedretimes', applied_retimes_str)
 
@@ -571,7 +571,7 @@ class FtrackProcessor(FtrackBase):
         tag.metadata().setValue('tag.duration', str(end - start+1))
         tag.metadata().setValue('tag.starthandle', str(start_handle))
         tag.metadata().setValue('tag.endhandle', str(end_handle))
-        tag.metadata().setValue('tag.frameoffset', str(frameoffset))
+        tag.metadata().setValue('tag.frameoffset', str(frame_offset))
         tag.metadata().setValue('tag.localtime', str(localtime))
         tag.metadata().setValue('tag.appliedretimes', applied_retimes_str)
 
@@ -586,7 +586,7 @@ class FtrackProcessor(FtrackBase):
 
         original_item.addTag(tag)
 
-    def setupExportPaths(self, task):
+    def setup_export_paths(self, task):
         # This is an event we intercept to see when the task start.
         has_data = self._components.get(
             task._item.name(), {}
@@ -607,7 +607,7 @@ class FtrackProcessor(FtrackBase):
 
         task._makePath = _makeNullPath
 
-    def publishResultComponent(self, render_task):
+    def publish_result_component(self, render_task):
         # This is a task we intercept for each frame/item rendered.
 
         has_data = self._components.get(
@@ -672,7 +672,7 @@ class FtrackProcessor(FtrackBase):
 
         # Add option to publish or not the thumbnail.
         if self._preset.properties()['ftrack'].get('opt_publish_thumbnail'):
-            self.publishThumbnail(component, render_task)
+            self.publish_thumbnail(component, render_task)
 
         # Add option to publish or not the reviewable.
         if self._preset.properties()['ftrack'].get('opt_publish_reviewable'):
@@ -683,7 +683,7 @@ class FtrackProcessor(FtrackBase):
         self.session.commit()
         render_data['published'] = True
 
-    def publishThumbnail(self, component, render_task):
+    def publish_thumbnail(self, component, render_task):
         source = render_task._clip
         thumbnail_qimage = source.thumbnail(source.posterFrame())
         thumbnail_file = tempfile.NamedTemporaryFile(prefix='hiero_ftrack_thumbnail', suffix='.png', delete=False).name
@@ -693,7 +693,7 @@ class FtrackProcessor(FtrackBase):
         version.create_thumbnail(thumbnail_file)
         version['task'].create_thumbnail(thumbnail_file)
 
-    def validateFtrackProcessing(self, exportItems, preview):
+    def validate_ftrack_processing(self, exportItems, preview):
         project = exportItems[0].item().project()
         parsing_template = template_manager.get_project_template(project)
 
@@ -705,7 +705,7 @@ class FtrackProcessor(FtrackBase):
         asset_type_code = self._preset.properties()['ftrack']['asset_type_code']
         asset_name = self._preset.properties()['ftrack']['asset_name']
 
-        for (exportPath, preset) in self._exportTemplate.flatten():
+        for (export_path, preset) in self._exportTemplate.flatten():
             # propagate properties from processor to tasks.
             preset.properties()['ftrack']['project_schema'] = processor_schema
             preset.properties()['ftrack']['task_type'] = task_type
@@ -750,7 +750,7 @@ class FtrackProcessor(FtrackBase):
                         if len(filtered_task_types) == 1:
                             task_tags.add(task_name)
 
-                for (exportPath, preset) in self._exportTemplate.flatten():
+                for (export_path, preset) in self._exportTemplate.flatten():
                     progress_index += 1
                     self._validate_project_progress_widget.setProgress(int(100.0 * (float(progress_index) / float(numitems))))
                     asset_type_code = preset.properties()['ftrack']['asset_type_code']
@@ -777,7 +777,7 @@ class FtrackProcessor(FtrackBase):
                 if settings_validator.exec_() != QtWidgets.QDialog.Accepted:
                     return False
 
-                self.validateFtrackProcessing(exportItems)
+                self.validate_ftrack_processing(exportItems)
 
             # raise notification for error parsing items
             if non_matching_template_items:

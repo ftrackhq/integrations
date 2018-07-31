@@ -17,7 +17,7 @@ class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
         FtrackProcessor.__init__(self, preset)
 
     def startProcessing(self, exportItems, preview=False):
-        result = FtrackProcessor.validateFtrackProcessing(self, exportItems, preview)
+        result = FtrackProcessor.validate_ftrack_processing(self, exportItems, preview)
         if result:
             exportItems = self.create_project_structure(exportItems)
         return ShotProcessor.startProcessing(self, exportItems, preview)
