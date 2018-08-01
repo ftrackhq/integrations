@@ -32,11 +32,7 @@ import ftrack_connect_nuke_studio_beta.exception
 class FtrackSettingsValidator(QtWidgets.QDialog):
 
     def __init__(self, session, error_data, missing_assets_types):
-
-        '''
-        Return a validator widget for the given *error_data* and *missing_assets_types*.
-        '''
-
+        '''Return a validator widget for the given *error_data* and *missing_assets_types*.'''
         super(FtrackSettingsValidator, self).__init__()
 
         self.setWindowTitle('Validation error')

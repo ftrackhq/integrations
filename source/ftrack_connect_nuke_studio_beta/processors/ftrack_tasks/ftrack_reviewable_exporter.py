@@ -23,7 +23,10 @@ from ftrack_connect_nuke_studio_beta.processors.ftrack_base.ftrack_base_processo
 
 
 class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
+    '''Reviewable Task exporter class.'''
+
     def __init__(self, initDict):
+        '''Initialise task with *initDict*.'''
         NukeRenderTask.__init__(self, initDict)
         FtrackProcessor.__init__(self, initDict)
 
@@ -31,13 +34,12 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
             __name__ + '.' + self.__class__.__name__
         )
 
-    def updateItem(self, originalItem, localtime):
-        self.createTranscodeScript()
-
     def addWriteNodeToScript(self, script, rootNode, framerate):
+        '''Restore original function from parent class.'''
         TranscodeExporter.addWriteNodeToScript(self, script, rootNode, framerate)
 
     def createTranscodeScript(self):
+        '''Create a custom transcode script for this task.'''
         # This code is taken from TranscodeExporter.__init__
         # in order to output the nuke file in the right place we need to override this.
 
@@ -70,11 +72,20 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
             # Create a job on our submission to do the actual rendering.
             self._renderTask = self._submission.addJob(Submission.kNukeRender, submissionDict, self._scriptfile)
 
+    def updateItem(self, originalItem, localtime):
+        '''Override to inject new trascode script.'''
+        self.createTranscodeScript()
+
     def _makePath(self):
+        '''Disable file path creation.'''
         pass
 
+
 class FtrackReviewableExporterPreset(TranscodePreset, FtrackProcessorPreset):
+    '''Reviewable Task preset class.'''
+
     def __init__(self, name, properties):
+        '''Initialise task with *name* and *properties*.'''
         TranscodePreset.__init__(self, name, properties)
         FtrackProcessorPreset.__init__(self, name, properties)
         self._parentType = FtrackReviewableExporter
@@ -83,6 +94,7 @@ class FtrackReviewableExporterPreset(TranscodePreset, FtrackProcessorPreset):
         self.properties().update(properties)
 
     def set_ftrack_properties(self, properties):
+        '''Set ftrack specific *properties* for task.'''
         FtrackProcessorPreset.set_ftrack_properties(self, properties)
         properties = self.properties()
         properties.setdefault('ftrack', {})
@@ -96,7 +108,10 @@ class FtrackReviewableExporterPreset(TranscodePreset, FtrackProcessorPreset):
 
 
 class FtrackReviewableExporterUI(TranscodeExporterUI, FtrackProcessorUI):
+    '''Reviewable Task Ui.'''
+
     def __init__(self, preset):
+        '''Initialise task ui with *preset*.'''
         TranscodeExporterUI.__init__(self, preset)
         FtrackProcessorUI.__init__(self, preset)
 

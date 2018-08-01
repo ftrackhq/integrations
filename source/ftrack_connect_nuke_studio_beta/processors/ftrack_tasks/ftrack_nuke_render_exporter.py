@@ -24,13 +24,18 @@ from ftrack_connect_nuke_studio_beta.processors.ftrack_base.ftrack_base_processo
 class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
 
     def __init__(self, initDict):
+        '''Initialise task with *initDict*.'''
+
         NukeRenderTask.__init__(self, initDict)
         FtrackProcessor.__init__(self, initDict)
 
     def addWriteNodeToScript(self, script, rootNode, framerate):
+        '''Restore original function from parent class.'''
         TranscodeExporter.addWriteNodeToScript(self, script, rootNode, framerate)
 
     def createTranscodeScript(self):
+        '''Create a custom transcode script for this task.'''
+
         # This code is taken from TranscodeExporter.__init__
         # in order to output the nuke file in the right place we need to override this.
 
@@ -38,19 +43,18 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
 
         # Figure out the script location
         path = tempfile.NamedTemporaryFile(suffix='.nk').name
-        dirname, filename = os.path.split(path)
-        root, ext = os.path.splitext(filename)
+        dir_name, file_name = os.path.split(path)
+        root, ext = os.path.splitext(file_name)
 
-        percentmatch = re.search('%\d+d', root)
-        if percentmatch:
-            percentpad = percentmatch.group()
-            root = root.replace(percentpad, '')
+        percent_match = re.search('%\d+d', root)
+        if percent_match:
+            percent_padding = percent_match.group()
+            root = root.replace(percent_padding, '')
 
-        self._root = dirname + '/' + root.rstrip('#').rstrip('.')
+        self._root = dir_name + '/' + root.rstrip('#').rstrip('.')
 
-        scriptExtension = '.nknc' if hiero.core.isNC() else '.nk'
-        self._scriptfile = str(self._root + scriptExtension)
-
+        script_extension = '.nknc' if hiero.core.isNC() else '.nk'
+        self._scriptfile = str(self._root + script_extension)
 
         self._renderTask = None
         if self._submission is not None:
@@ -65,13 +69,18 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
             self._renderTask = self._submission.addJob(Submission.kNukeRender, submissionDict, self._scriptfile)
 
     def updateItem(self, originalItem, localtime):
+        '''Override to inject new trascode script.'''
         self.createTranscodeScript()
 
     def _makePath(self):
+        '''Disable file path creation.'''
         pass
+
 
 class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
     def __init__(self, name, properties):
+        '''Initialise task with *name* and *properties*.'''
+
         TranscodePreset.__init__(self, name, properties)
         FtrackProcessorPreset.__init__(self, name, properties)
         self._parentType = FtrackNukeRenderExporter
@@ -80,6 +89,8 @@ class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
         self.properties().update(properties)
 
     def set_ftrack_properties(self, properties):
+        '''Set ftrack specific *properties* for task.'''
+
         FtrackProcessorPreset.set_ftrack_properties(self, properties)
         properties = self.properties()
         properties.setdefault('ftrack', {})
