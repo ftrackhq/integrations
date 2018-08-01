@@ -95,9 +95,6 @@ class LaunchAction(object):
 
     def launch(self, event):
         '''Handle launch *event*.'''
-        applicationIdentifier = (
-            event['data']['applicationIdentifier']
-        )
 
         context = event['data'].copy()
         context['source'] = event['source']

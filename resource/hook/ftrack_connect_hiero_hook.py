@@ -102,9 +102,6 @@ class LaunchAction(object):
         '''
         # Prevent further processing by other listeners.
         event.stop()
-        applicationIdentifier = (
-            event['data']['applicationIdentifier']
-        )
 
         context = event['data'].copy()
         context['source'] = event['source']
