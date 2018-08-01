@@ -397,7 +397,7 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
             scanner = hiero.core.VersionScanner.VersionScanner()  # Scan for new versions
             scanner.doScan(version)
 
-    def _buildTrackItem(self, name, clip, originalTrackItem, expectedStartTime, expectedDuration, expectedStartHandle,
+    def _buildTrackItem(self, name, clip, originalTrackItem, expected_start_time, expectedDuration, expected_start_handle,
                         expectedEndHandle, expectedOffset):
         '''' Return a trackItem build out of:
 
@@ -406,55 +406,55 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
 
         '''
         # Create the item
-        trackItem = hiero.core.TrackItem(name, hiero.core.TrackItem.kVideo)
-        trackItem.setSource(clip)
+        track_item = hiero.core.TrackItem(name, hiero.core.TrackItem.kVideo)
+        track_item.setSource(clip)
 
         # Copy the timeline in/out
-        trackItem.setTimelineIn(originalTrackItem.timelineIn())
-        trackItem.setTimelineOut(originalTrackItem.timelineOut())
+        track_item.setTimelineIn(originalTrackItem.timelineIn())
+        track_item.setTimelineOut(originalTrackItem.timelineOut())
 
         # Calculate the source in/out times.  Try to match frame numbers, compensating for handles etc.
-        mediaSource = clip.mediaSource()
+        media_source = clip.mediaSource()
 
-        originalClip = originalTrackItem.source()
-        originalMediaSource = originalClip.mediaSource()
+        original_clip = originalTrackItem.source()
+        original_media_source = original_clip.mediaSource()
 
         # If source durations match, and there were no retimes, then the whole clip was exported, and we should use the same source in/out
         # as the original.  The correct handles are not being stored in the tag in this case.
-        fullClipExported = (originalMediaSource.duration() == mediaSource.duration())
+        full_clip_exported = (original_media_source.duration() == media_source.duration())
 
-        if fullClipExported:
-            sourceIn = originalTrackItem.sourceIn()
-            sourceOut = originalTrackItem.sourceOut()
+        if full_clip_exported:
+            source_in = originalTrackItem.sourceIn()
+            source_out = originalTrackItem.sourceOut()
 
         # Otherwise try to use the export handles and retime info to determine the correct source in/out
         else:
             # On the timeline, the first frame of video files is always 0.  Reset the start time
-            isVideoFile = hiero.core.isVideoFileExtension(os.path.splitext(mediaSource.fileinfos()[0].filename())[1])
-            if isVideoFile:
-                expectedStartTime = 0
+            is_video_file = hiero.core.isVideoFileExtension(os.path.splitext(media_source.fileinfos()[0].filename())[1])
+            if is_video_file:
+                expected_start_time = 0
 
-            sourceIn = expectedStartTime - mediaSource.startTime()
-            if expectedStartHandle is not None:
-                sourceIn += expectedStartHandle
+            source_in = expected_start_time - media_source.startTime()
+            if expected_start_handle is not None:
+                source_in += expected_start_handle
 
             # First add the abs src duration to get the source out
-            sourceOut = sourceIn + abs(originalTrackItem.sourceOut() - originalTrackItem.sourceIn())
+            source_out = source_in + abs(originalTrackItem.sourceOut() - originalTrackItem.sourceIn())
 
             # Then, for a negative retime, src in/out need to be reversed
             if originalTrackItem.playbackSpeed() < 0.0:
-                sourceIn, sourceOut = sourceOut, sourceIn
+                source_in, source_out = source_out, source_in
 
-        trackItem.setSourceIn(sourceIn)
-        trackItem.setSourceOut(sourceOut)
+        track_item.setSourceIn(source_in)
+        track_item.setSourceOut(source_out)
 
         component_id = self._track_data.get(originalTrackItem)
         if component_id:
             component = self.session.get('Component', component_id)
             add_ftrack_build_tag(clip, component)
-            self.update_ftrack_versions(trackItem)
+            self.update_ftrack_versions(track_item)
 
-        return trackItem
+        return track_item
 
 
 class FtrackBuildTrack(BuildTrack):
