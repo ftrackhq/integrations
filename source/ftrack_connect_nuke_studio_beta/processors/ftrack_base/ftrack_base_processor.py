@@ -146,8 +146,8 @@ class FtrackProcessor(FtrackBase):
             '{ftrack_component}': self._create_component_fragment
         }
         # these events gets emitted during taskStart and taskFinish
-        TaskCallbacks.addCallback(TaskCallbacks.onTaskStart, self.setup_export_paths)
-        TaskCallbacks.addCallback(TaskCallbacks.onTaskFinish, self.publish_result_component)
+        TaskCallbacks.addCallback(TaskCallbacks.onTaskStart, self.setup_export_paths_event)
+        TaskCallbacks.addCallback(TaskCallbacks.onTaskFinish, self.publish_result_component_event)
         # progress for project creation
         self._create_project_progress_widget = None
         self._validate_project_progress_widget = None
@@ -494,6 +494,8 @@ class FtrackProcessor(FtrackBase):
         return filtered_export_items
 
     def add_ftrack_tag(self, original_item, task):
+        ''' Add ftrack tag to *original_item* for *task*. '''
+
         if not hasattr(original_item, 'tags'):
             return
 
@@ -586,8 +588,9 @@ class FtrackProcessor(FtrackBase):
 
         original_item.addTag(tag)
 
-    def setup_export_paths(self, task):
-        # This is an event we intercept to see when the task start.
+    def setup_export_paths_event(self, task):
+        ''' Event spawned when *task* start. '''
+
         has_data = self._components.get(
             task._item.name(), {}
         ).get(task._preset.name())
@@ -600,15 +603,14 @@ class FtrackProcessor(FtrackBase):
         output_path = render_data['path']
         task._exportPath = output_path
         task.setDestinationDescription(output_path)
-        # nullify path creation ? :\
 
         def _makeNullPath():
             pass
 
         task._makePath = _makeNullPath
 
-    def publish_result_component(self, render_task):
-        # This is a task we intercept for each frame/item rendered.
+    def publish_result_component_event(self, render_task):
+        ''' Event spawned when *render_task* frame is rendered. '''
 
         has_data = self._components.get(
             render_task._item.name(), {}
@@ -684,6 +686,7 @@ class FtrackProcessor(FtrackBase):
         render_data['published'] = True
 
     def publish_thumbnail(self, component, render_task):
+        ''' Generate thumbnail *component* for *render_task*. '''
         source = render_task._clip
         thumbnail_qimage = source.thumbnail(source.posterFrame())
         thumbnail_file = tempfile.NamedTemporaryFile(prefix='hiero_ftrack_thumbnail', suffix='.png', delete=False).name
@@ -693,8 +696,14 @@ class FtrackProcessor(FtrackBase):
         version.create_thumbnail(thumbnail_file)
         version['task'].create_thumbnail(thumbnail_file)
 
-    def validate_ftrack_processing(self, exportItems, preview):
-        project = exportItems[0].item().project()
+    def validate_ftrack_processing(self, export_items, preview):
+        ''' Return whether the *export_items* and processor are valid to be rendered.
+
+        In *preview* will not go through the whole validation, and return False by default.
+
+        '''
+
+        project = export_items[0].item().project()
         parsing_template = template_manager.get_project_template(project)
 
         task_tags = set()
@@ -720,9 +729,9 @@ class FtrackProcessor(FtrackBase):
             missing_assets_type = []
             non_matching_template_items = []
 
-            numitems = len(self._exportTemplate.flatten()) + len(exportItems)
+            num_items = len(self._exportTemplate.flatten()) + len(export_items)
             progress_index = 0
-            for exportItem in exportItems:
+            for exportItem in export_items:
 
                 item = exportItem.item()
 
@@ -752,7 +761,7 @@ class FtrackProcessor(FtrackBase):
 
                 for (export_path, preset) in self._exportTemplate.flatten():
                     progress_index += 1
-                    self._validate_project_progress_widget.setProgress(int(100.0 * (float(progress_index) / float(numitems))))
+                    self._validate_project_progress_widget.setProgress(int(100.0 * (float(progress_index) / float(num_items))))
                     asset_type_code = preset.properties()['ftrack']['asset_type_code']
 
                     ftrack_asset_type = self.session.query(
@@ -777,7 +786,7 @@ class FtrackProcessor(FtrackBase):
                 if settings_validator.exec_() != QtWidgets.QDialog.Accepted:
                     return False
 
-                self.validate_ftrack_processing(exportItems)
+                self.validate_ftrack_processing(export_items)
 
             # raise notification for error parsing items
             if non_matching_template_items:
@@ -804,16 +813,18 @@ class FtrackProcessorUI(FtrackBase):
         self._nodeSelectionWidget = None
 
         # Variable placeholders for ui fragments.
-        self.project_options = None
-        self.schema_options = None
-        self.task_type_options = None
-        self.asset_name_options = None
-        self.thumbnail_options = None
-        self.reviewable_options = None
-        self.asset_type_options = None
-        self.template_widget_options = None
+        self.project_options_widget = None
+        self.schema_options_widget = None
+        self.task_type_options_widget = None
+        self.asset_name_options_widget = None
+        self.thumbnail_options_widget = None
+        self.reviewable_options_widget = None
+        self.asset_type_options_widget = None
+        self.template_widget_options_widget = None
 
     def add_project_options(self, parent_layout):
+        '''Create project options widget with parent *parent_layout*.'''
+
         project_name = self._project.name()
         self.ftrack_project_exists = self.session.query(
             'select project_schema.name from Project where name is "{0}"'.format(project_name)
@@ -826,7 +837,7 @@ class FtrackProcessorUI(FtrackBase):
         key, value, label = 'project_name', project_name, '{0} Project'.format(update_or_create)
         tooltip = 'Updating/Creating Project.'
 
-        self.project_options = UIPropertyFactory.create(
+        self.project_options_widget = UIPropertyFactory.create(
             type(value),
             key=key,
             value=value,
@@ -834,10 +845,11 @@ class FtrackProcessorUI(FtrackBase):
             label=label + ':',
             tooltip=tooltip
         )
-        self.project_options.setDisabled(True)
-        parent_layout.addRow(label + ':', self.project_options)
+        self.project_options_widget.setDisabled(True)
+        parent_layout.addRow(label + ':', self.project_options_widget)
 
     def add_project_scheme_options(self, parent_layout):
+        '''Create project schema options widget with parent *parent_layout*.'''
 
         schemas = self.session.query('ProjectSchema').all()
         schemas_name = [schema['name'] for schema in schemas]
@@ -845,7 +857,7 @@ class FtrackProcessorUI(FtrackBase):
         key, value, label = 'project_schema', schemas_name, 'Project Schema'
         tooltip = 'Select project schema.'
 
-        self.schema_options = UIPropertyFactory.create(
+        self.schema_options_widget = UIPropertyFactory.create(
             type(value),
             key=key,
             value=value,
@@ -853,19 +865,20 @@ class FtrackProcessorUI(FtrackBase):
             label=label + ':',
             tooltip=tooltip
         )
-        parent_layout.addRow(label + ':', self.schema_options)
+        parent_layout.addRow(label + ':', self.schema_options_widget)
 
         if self.ftrack_project_exists:
             # If a project exist , disable the widget and set the previous schema found.
-            schema_index = self.schema_options._widget.findText(self.ftrack_project_exists['project_schema']['name'])
-            self.schema_options._widget.setCurrentIndex(schema_index)
-            self.schema_options.setDisabled(True)
+            schema_index = self.schema_options_widget._widget.findText(self.ftrack_project_exists['project_schema']['name'])
+            self.schema_options_widget._widget.setCurrentIndex(schema_index)
+            self.schema_options_widget.setDisabled(True)
 
-    def add_task_type_options(self, parent_layout, exportItems):
+    def add_task_type_options(self, parent_layout, export_items):
+        '''Create task type options widget for *export_items* with parent *parent_layout*.'''
 
         # provide access to tags.
         task_tags = set()
-        for exportItem in exportItems:
+        for exportItem in export_items:
             item = exportItem.item()
             if not hasattr(item, 'tags'):
                 continue
@@ -880,7 +893,7 @@ class FtrackProcessorUI(FtrackBase):
         key, value, label = 'task_type', list(task_tags), 'Publish to Task'
         tooltip = 'Select a task to publish to.'
 
-        self.task_type_options = UIPropertyFactory.create(
+        self.task_type_options_widget = UIPropertyFactory.create(
             type(value),
             key=key,
             value=value,
@@ -888,14 +901,15 @@ class FtrackProcessorUI(FtrackBase):
             label=label + ':',
             tooltip=tooltip
         )
-        parent_layout.addRow(label + ':', self.task_type_options)
+        parent_layout.addRow(label + ':', self.task_type_options_widget)
 
     def add_asset_name_options(self, parent_layout):
+        '''Create asset name options widget with parent *parent_layout*.'''
 
         asset_name = self._preset.properties()['ftrack']['asset_name']
         key, value, label = 'asset_name', asset_name, 'Set asset name as'
         tooltip = 'Select an asset name to publish to.'
-        self.asset_name_options = UIPropertyFactory.create(
+        self.asset_name_options_widget = UIPropertyFactory.create(
             type(value),
             key=key,
             value=value,
@@ -903,15 +917,16 @@ class FtrackProcessorUI(FtrackBase):
             label=label + ':',
             tooltip=tooltip
         )
-        parent_layout.addRow(label + ':', self.asset_name_options)
+        parent_layout.addRow(label + ':', self.asset_name_options_widget)
 
     def add_thumbnail_options(self, parent_layout):
+        '''Create thumbnail options widget with parent *parent_layout*.'''
 
         # Thumbanil generation.
         key, value, label = 'opt_publish_thumbnail', True, 'Publish Thumbnail'
         tooltip = 'Generate and upload thumbnail'
 
-        self.thumbnail_options = UIPropertyFactory.create(
+        self.thumbnail_options_widget = UIPropertyFactory.create(
             type(value),
             key=key,
             value=value,
@@ -919,14 +934,15 @@ class FtrackProcessorUI(FtrackBase):
             label=label + ':',
             tooltip=tooltip
         )
-        parent_layout.addRow(label + ':', self.thumbnail_options)
+        parent_layout.addRow(label + ':', self.thumbnail_options_widget)
 
     def add_reviewable_options(self, parent_layout):
+        '''Create reviewable options widget with parent *parent_layout*.'''
 
         key, value, label = 'opt_publish_reviewable', True, 'Publish Reviewable'
         tooltip = 'Upload reviewable'
 
-        self.reviewable_options = UIPropertyFactory.create(
+        self.reviewable_options_widget = UIPropertyFactory.create(
             type(value),
             key=key,
             value=value,
@@ -934,9 +950,10 @@ class FtrackProcessorUI(FtrackBase):
             label=label + ':',
             tooltip=tooltip
         )
-        parent_layout.addRow(label + ':', self.reviewable_options)
+        parent_layout.addRow(label + ':', self.reviewable_options_widget)
 
     def add_asset_type_options(self, parent_layout):
+        '''Create asset type options widget with parent *parent_layout*.'''
 
         asset_types = self.session.query(
             'AssetType'
@@ -946,7 +963,7 @@ class FtrackProcessorUI(FtrackBase):
         key, value, label = 'asset_type_code', asset_type_names, 'Asset Type'
         tooltip = 'Asset type to be created.'
 
-        self.asset_type_options = UIPropertyFactory.create(
+        self.asset_type_options_widget = UIPropertyFactory.create(
             type(value),
             key=key,
             value=value,
@@ -954,13 +971,16 @@ class FtrackProcessorUI(FtrackBase):
             label=label + ':',
             tooltip=tooltip
         )
-        parent_layout.addRow(label + ':', self.asset_type_options)
+        parent_layout.addRow(label + ':', self.asset_type_options_widget)
 
-    def add_task_templates(self, parent_layout):
-        self.template_widget_options = Template(self._project)
-        parent_layout.addRow('Shot Template' + ':', self.template_widget_options)
+    def add_task_templates_options(self, parent_layout):
+        ''' Create task template options widget with parent *parent_layout*.'''
+
+        self.template_widget_options_widget = Template(self._project)
+        parent_layout.addRow('Shot Template' + ':', self.template_widget_options_widget)
 
     def set_ui_tweaks(self):
+        ''' Utility function to tweak NS ui.'''
         # Hide project path selector Foundry ticket : #36074
         for widget in self._exportStructureViewer.findChildren(QtWidgets.QWidget):
             if (
@@ -972,16 +992,17 @@ class FtrackProcessorUI(FtrackBase):
             if (isinstance(widget, QtWidgets.QLabel) and widget.text() == 'Export Structure:'):
                 widget.hide()
 
+    def addFtrackProcessorUI(self, widget, export_items):
+        '''Add custom ftrack widgets to parent *widget* for given *export_items*.'''
 
-    def addFtrackProcessorUI(self, widget, exportItems):
         form_layout = TaskUIFormLayout()
         layout = widget.layout()
         layout.addLayout(form_layout)
         form_layout.addDivider('Ftrack Options')
-        self.add_task_templates(form_layout)
+        self.add_task_templates_options(form_layout)
         self.add_project_options(form_layout)
         self.add_project_scheme_options(form_layout)
-        self.add_task_type_options(form_layout, exportItems)
+        self.add_task_type_options(form_layout, export_items)
         self.add_asset_type_options(form_layout)
         self.add_asset_name_options(form_layout)
         self.add_thumbnail_options(form_layout)
