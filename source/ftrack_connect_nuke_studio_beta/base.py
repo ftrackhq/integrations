@@ -36,9 +36,11 @@ class FtrackBase(object):
 
     @property
     def session(self):
+        '''Return ftrack session.'''
         return get_shared_session()
 
     def timeStampString(self, localtime):
+        '''Return stringified *localtime*.'''
         return time.strftime('%Y/%m/%d %X', localtime)
 
     def sanitise_for_filesystem(self, value):
@@ -64,6 +66,7 @@ class FtrackBase(object):
 
     @property
     def hiero_version_touple(self):
+        '''Return current hiero version.'''
         return (
             hiero.core.env['VersionMajor'],
             hiero.core.env['VersionMinor'],
@@ -72,17 +75,6 @@ class FtrackBase(object):
 
     @property
     def ftrack_location(self):
+        '''Return current ftrack location.'''
         result = self.session.pick_location()
         return result
-
-    @property
-    def ftrack_origin_location(self):
-        return self.session.query(
-            'Location where name is "ftrack.origin"'
-        ).one()
-
-    @property
-    def ftrack_server_location(self):
-        return self.session.query(
-            'Location where name is "ftrack.server"'
-        ).one()
