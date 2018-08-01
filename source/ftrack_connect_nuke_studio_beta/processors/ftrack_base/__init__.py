@@ -9,7 +9,6 @@ import ftrack_connect_nuke_studio_beta.exception
 
 FTRACK_SHOW_PATH = FtrackBase.path_separator.join([
     '{ftrack_project}',
-    '{ftrack_asset}',
     '{ftrack_version}',
     '{ftrack_component}'
 ])
@@ -18,7 +17,6 @@ FTRACK_SHOW_PATH = FtrackBase.path_separator.join([
 FTRACK_SHOT_PATH = FtrackBase.path_separator.join([
     '{ftrack_project}',
     '{ftrack_context}',
-    '{ftrack_asset}',
     '{ftrack_version}',
     '{ftrack_component}'
 ])
@@ -95,13 +93,6 @@ class FtrackBasePreset(FtrackBase):
         else:
             return self.sanitise_for_filesystem(track_item.name())
 
-    def resolve_ftrack_asset(self, task):
-        ''' Return asset for the given *task*.'''
-        asset_name = self.properties()['ftrack'].get('asset_name')
-        if not asset_name:
-            asset_name = task._preset.properties()['ftrack']['asset_name']
-        return self.sanitise_for_filesystem(asset_name)
-
     def resolve_ftrack_version(self, task):
         ''' Return version for the given *task*.'''
         version = 1  # first version is 1
@@ -138,12 +129,6 @@ class FtrackBasePreset(FtrackBase):
             '{ftrack_context}',
             'Ftrack context name.',
             lambda keyword, task: self.resolve_ftrack_context(task)
-        )
-
-        resolver.addResolver(
-            '{ftrack_asset}',
-            'Ftrack asset name.',
-            lambda keyword, task: self.resolve_ftrack_asset(task)
         )
 
         resolver.addResolver(

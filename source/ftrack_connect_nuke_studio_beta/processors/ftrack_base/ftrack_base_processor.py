@@ -147,7 +147,6 @@ class FtrackProcessor(FtrackBase):
         self.fn_mapping = {
             '{ftrack_project}': self._create_project_fragment,
             '{ftrack_context}': self._create_context_fragment,
-            '{ftrack_asset}': self._create_asset_fragment,
             '{ftrack_version}': self._create_version_fragment,
             '{ftrack_component}': self._create_component_fragment
         }
@@ -259,36 +258,34 @@ class FtrackProcessor(FtrackBase):
 
         return parent
 
-    def _create_asset_fragment(self, name, parent, task, version):
-        '''Return ftrack asset entity from *name*, *parent*, *task* and *version*.'''
-        self.logger.debug('Creating asset fragment: {} {} {} {}'.format(name, parent, task, version))
+    def _create_version_fragment(self, name, parent, task, version):
+        '''Return ftrack asset version entity from *name*, *parent*, *task* and *version*.'''
+        # retrieve asset name from task preset
+        asset_name = self.sanitise_for_filesystem(self.ftrack_properties['asset_name'])
+        self.logger.debug('Creating asset fragment: {} {} {} {}'.format(asset_name, parent, task, version))
 
         asset = self.session.query(
-            'Asset where name is "{0}" and parent.id is "{1}"'.format(name, parent['id'])
+            'Asset where name is "{0}" and parent.id is "{1}"'.format(asset_name, parent['id'])
         ).first()
 
         if not asset:
             asset = self.session.create('Asset', {
-                'name': name,
+                'name': asset_name,
                 'parent':  parent,
                 'type': self.asset_type_per_task(task)
             })
 
-        return asset
+        self.logger.debug('Creating version fragment: {} {} {} {}'.format(name, asset, task, version))
 
-    def _create_version_fragment(self, name, parent, task, version):
-        '''Return ftrack asset version entity from *name*, *parent*, *task* and *version*.'''
-        self.logger.debug('Creating version fragment: {} {} {} {}'.format(name, parent, task, version))
-
-        task_name = self.ftrack_properties['task_type']
+        task_name =  self.sanitise_for_filesystem(self.ftrack_properties['task_type'])
         ftask = self.session.query(
-            'Task where name is "{0}" and parent.id is "{1}"'.format(task_name, parent['parent']['id'])
+            'Task where name is "{0}" and parent.id is "{1}"'.format(task_name, asset['parent']['id'])
         ).first()
 
         if not ftask:
             ftask = self.session.create('Task', {
                 'name': task_name,
-                'parent': parent['parent'],
+                'parent': asset['parent'],
                 'status': self.task_status,
                 'type': self.task_type
             })
@@ -298,7 +295,7 @@ class FtrackProcessor(FtrackBase):
                 self.__class__.__name__, *self.hiero_version_touple
             )
             version = self.session.create('AssetVersion', {
-                'asset': parent,
+                'asset': asset,
                 'status': self.asset_version_status,
                 'comment': comment,
                 'task': ftask

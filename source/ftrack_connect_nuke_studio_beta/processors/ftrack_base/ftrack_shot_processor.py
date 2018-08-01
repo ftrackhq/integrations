@@ -90,7 +90,7 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackProcessorPreset):
         self.properties()['ftrack']['task_type'] = 'Editing'
 
         # set asset name for processor
-        self.properties()['ftrack']['asset_name'] = 'Ingest'
+        self.properties()['ftrack']['asset_name'] = 'Conform'
 
         # asset type for processor
         self.properties()['ftrack']['asset_type_code'] = 'img'
