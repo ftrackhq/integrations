@@ -11,10 +11,7 @@ Find out all information you need to use the nuke studio with ftrack.
     :maxdepth: 1
 
     launching
-    exporting_project
-    processors
     templates
-    info_panel
 
 .. note::
 
