@@ -30,6 +30,7 @@ import ftrack_connect_nuke_studio_beta.exception
 
 
 class FtrackSettingsValidator(QtWidgets.QDialog):
+    '''Settings validation Dialog.'''
 
     def __init__(self, session, error_data, missing_assets_types):
         '''Return a validator widget for the given *error_data* and *missing_assets_types*.'''
@@ -97,6 +98,7 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
         self.layout().addWidget(buttons)
 
     def create_missing_asset(self):
+        '''Trigger creation of missing assets.'''
         sender = self.sender()
         asset_type = sender.text()
         self._session.ensure(
@@ -116,15 +118,23 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
 
 
 class FtrackProcessorPreset(FtrackBasePreset):
+    '''Base Processor/task preset.'''
+
     def __init__(self, name, properties):
+        '''Initialise with *preset* and *properties*.'''
         super(FtrackProcessorPreset, self).__init__(name, properties)
 
     def set_ftrack_properties(self, properties):
+        '''Set ftrack specific *properties* for processor.'''
         super(FtrackProcessorPreset, self).set_ftrack_properties(properties)
 
 
 class FtrackProcessor(FtrackBase):
+    '''Base Processor/task.'''
+
     def __init__(self, initDict):
+        '''Initialise base processor with *initDict* .'''
+
         super(FtrackProcessor, self).__init__(initDict)
 
         # Store a reference of the origial initialization data.
@@ -207,7 +217,6 @@ class FtrackProcessor(FtrackBase):
 
     def _create_project_fragment(self, name, parent, task, version):
         '''Return ftrack project entity from *name*, *parent*, *task* and *version*.'''
-
         self.logger.debug('Creating project fragment: {} {} {} {}'.format(name, parent, task, version))
 
         project = self.session.query(
@@ -223,7 +232,6 @@ class FtrackProcessor(FtrackBase):
 
     def _create_context_fragment(self, composed_name, parent, task, version):
         '''Return ftrack context entity from *composed_name*, *parent*, *task* and *version*.'''
-
         self.logger.debug('Creating context fragment: {} {} {} {}'.format(composed_name, parent, task, version))
         splitted_name = composed_name.split('|')
         parsed_names = []
@@ -253,7 +261,6 @@ class FtrackProcessor(FtrackBase):
 
     def _create_asset_fragment(self, name, parent, task, version):
         '''Return ftrack asset entity from *name*, *parent*, *task* and *version*.'''
-
         self.logger.debug('Creating asset fragment: {} {} {} {}'.format(name, parent, task, version))
 
         asset = self.session.query(
@@ -271,7 +278,6 @@ class FtrackProcessor(FtrackBase):
 
     def _create_version_fragment(self, name, parent, task, version):
         '''Return ftrack asset version entity from *name*, *parent*, *task* and *version*.'''
-
         self.logger.debug('Creating version fragment: {} {} {} {}'.format(name, parent, task, version))
 
         task_name = self.ftrack_properties['task_type']
@@ -302,7 +308,6 @@ class FtrackProcessor(FtrackBase):
 
     def _create_component_fragment(self, name, parent, task, version):
         '''Return ftrack component entity from *name*, *parent*, *task* and *version*.'''
-
         self.logger.debug('Creating component fragment: {} {} {} {}'.format(name, parent, task, version))
 
         component = parent.create_component('/', {
@@ -313,12 +318,10 @@ class FtrackProcessor(FtrackBase):
 
     def _skip_fragment(self, name, parent, task, version):
         '''Fallback function if the given fragment *name* is not found.'''
-
         self.logger.warning('Skpping: {0}'.format(name))
 
     def _create_extra_tasks(self, task_type_names, component):
         '''Create extra tasks based on dropped ftrack tags from *task_type_names* and *component*, '''
-
         parent = component['version']['asset']['parent']  # Get Shot from component
         task_types = self.schema.get_types('Task')
 
@@ -491,7 +494,6 @@ class FtrackProcessor(FtrackBase):
 
     def add_ftrack_tag(self, original_item, task):
         ''' Add ftrack tag to *original_item* for *task*. '''
-
         if not hasattr(original_item, 'tags'):
             return
 
@@ -586,7 +588,6 @@ class FtrackProcessor(FtrackBase):
 
     def setup_export_paths_event(self, task):
         ''' Event spawned when *task* start. '''
-
         has_data = self._components.get(
             task._item.name(), {}
         ).get(task._preset.name())
@@ -607,7 +608,6 @@ class FtrackProcessor(FtrackBase):
 
     def publish_result_component_event(self, render_task):
         ''' Event spawned when *render_task* frame is rendered. '''
-
         has_data = self._components.get(
             render_task._item.name(), {}
         ).get(render_task._preset.name())
@@ -698,7 +698,6 @@ class FtrackProcessor(FtrackBase):
         In *preview* will not go through the whole validation, and return False by default.
 
         '''
-
         project = export_items[0].item().project()
         parsing_template = template_manager.get_project_template(project)
 
@@ -803,8 +802,10 @@ class FtrackProcessor(FtrackBase):
 
 
 class FtrackProcessorUI(FtrackBase):
+    '''Base processor/task Ui.'''
 
     def __init__(self, preset):
+        '''Initialise with *preset*.'''
         super(FtrackProcessorUI, self).__init__(preset)
         self._nodeSelectionWidget = None
 
@@ -820,7 +821,6 @@ class FtrackProcessorUI(FtrackBase):
 
     def add_project_options(self, parent_layout):
         '''Create project options widget with parent *parent_layout*.'''
-
         project_name = self._project.name()
         self.ftrack_project_exists = self.session.query(
             'select project_schema.name from Project where name is "{0}"'.format(project_name)
@@ -846,7 +846,6 @@ class FtrackProcessorUI(FtrackBase):
 
     def add_project_scheme_options(self, parent_layout):
         '''Create project schema options widget with parent *parent_layout*.'''
-
         schemas = self.session.query('ProjectSchema').all()
         schemas_name = [schema['name'] for schema in schemas]
 
@@ -871,7 +870,6 @@ class FtrackProcessorUI(FtrackBase):
 
     def add_task_type_options(self, parent_layout, export_items):
         '''Create task type options widget for *export_items* with parent *parent_layout*.'''
-
         # provide access to tags.
         task_tags = set()
         for exportItem in export_items:
@@ -901,7 +899,6 @@ class FtrackProcessorUI(FtrackBase):
 
     def add_asset_name_options(self, parent_layout):
         '''Create asset name options widget with parent *parent_layout*.'''
-
         asset_name = self._preset.properties()['ftrack']['asset_name']
         key, value, label = 'asset_name', asset_name, 'Set asset name as'
         tooltip = 'Select an asset name to publish to.'
@@ -917,7 +914,6 @@ class FtrackProcessorUI(FtrackBase):
 
     def add_thumbnail_options(self, parent_layout):
         '''Create thumbnail options widget with parent *parent_layout*.'''
-
         # Thumbanil generation.
         key, value, label = 'opt_publish_thumbnail', True, 'Publish Thumbnail'
         tooltip = 'Generate and upload thumbnail'
@@ -934,7 +930,6 @@ class FtrackProcessorUI(FtrackBase):
 
     def add_reviewable_options(self, parent_layout):
         '''Create reviewable options widget with parent *parent_layout*.'''
-
         key, value, label = 'opt_publish_reviewable', True, 'Publish Reviewable'
         tooltip = 'Upload reviewable'
 
@@ -950,7 +945,6 @@ class FtrackProcessorUI(FtrackBase):
 
     def add_asset_type_options(self, parent_layout):
         '''Create asset type options widget with parent *parent_layout*.'''
-
         asset_types = self.session.query(
             'AssetType'
         ).all()
@@ -971,7 +965,6 @@ class FtrackProcessorUI(FtrackBase):
 
     def add_task_templates_options(self, parent_layout):
         ''' Create task template options widget with parent *parent_layout*.'''
-
         self.template_widget_options_widget = Template(self._project)
         parent_layout.addRow('Shot Template' + ':', self.template_widget_options_widget)
 
@@ -990,7 +983,6 @@ class FtrackProcessorUI(FtrackBase):
 
     def addFtrackProcessorUI(self, widget, export_items):
         '''Add custom ftrack widgets to parent *widget* for given *export_items*.'''
-
         form_layout = TaskUIFormLayout()
         layout = widget.layout()
         layout.addLayout(form_layout)
