@@ -27,16 +27,20 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'ftrack connect nuke studio'
-copyright = u'2014, ftrack'
+project = u'ftrack connect nuke studio beta'
+copyright = u'2018, ftrack'
 
 # Version
+sources = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'source'))
+print sources
+sys.path.append(sources)
+
 
 # Version
 with open(
     os.path.join(
         os.path.dirname(__file__), '..', 'source',
-        'ftrack_connect_nuke_studio', '_version.py'
+        'ftrack_connect_nuke_studio_beta', '_version.py'
     )
 ) as _version_file:
     _version = re.match(
@@ -51,7 +55,7 @@ release = _version
 exclude_patterns = ['_template']
 
 # A list of prefixes to ignore for module listings
-modindex_common_prefix = ['ftrack_connect_nuke_studio.']
+modindex_common_prefix = ['ftrack_connect_nuke_studio_beta.']
 
 
 # -- HTML output --------------------------------------------------------------
@@ -78,6 +82,7 @@ html_copy_source = True
 autodoc_default_flags = ['members', 'undoc-members']
 autodoc_member_order = 'bysource'
 
+
 def autodoc_skip(app, what, name, obj, skip, options):
     '''Don't skip __init__ method for autodoc.'''
     if name == '__init__':
@@ -88,7 +93,9 @@ def autodoc_skip(app, what, name, obj, skip, options):
 
 # Packages / modules to mock so that build does not fail.
 for module in [
-    'hiero', 'hiero.ui', 'hiero.core', 'hiero.core.events', 'nuke', 'ftrack'
+    'hiero', 'hiero.ui', 'hiero.core', 'hiero.core.events', 'nuke', 'ftrack',
+    'QtExt', 'ftrack_connect', 'ftrack_connect.ui.widget.html_combobox',
+    'ftrack_connect.session', 'lucidity', 'hiero.core.VersionScanner'
 ]:
     sys.modules[module] = mock.MagicMock()
 
@@ -97,8 +104,9 @@ for module in [
 
 intersphinx_mapping = {'python': ('http://docs.python.org/', None)}
 
-
 # -- Setup --------------------------------------------------------------------
 
 def setup(app):
     app.connect('autodoc-skip-member', autodoc_skip)
+
+
