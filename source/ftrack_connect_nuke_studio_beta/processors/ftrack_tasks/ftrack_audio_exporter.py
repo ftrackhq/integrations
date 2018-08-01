@@ -13,11 +13,10 @@ from ftrack_connect_nuke_studio_beta.processors.ftrack_base.ftrack_base_processo
 
 
 class FtrackAudioExporter(AudioExportTask, FtrackProcessor):
-    '''Audio Task exporter class.'''
+    '''Audio Task exporter.'''
 
     def __init__(self, initDict):
         '''Initialise task with *initDict*.'''
-
         AudioExportTask.__init__(self, initDict)
         FtrackProcessor.__init__(self, initDict)
 
@@ -31,11 +30,10 @@ class FtrackAudioExporter(AudioExportTask, FtrackProcessor):
 
 
 class FtrackAudioExporterPreset(AudioExportPreset, FtrackProcessorPreset):
-    '''Audio Task preset class.'''
+    '''Audio Task preset.'''
 
     def __init__(self, name, properties):
         '''Initialise task with *name* and *properties*.'''
-
         AudioExportPreset.__init__(self, name, properties)
         FtrackProcessorPreset.__init__(self, name, properties)
         self._parentType = FtrackAudioExporter
@@ -45,7 +43,6 @@ class FtrackAudioExporterPreset(AudioExportPreset, FtrackProcessorPreset):
 
     def set_ftrack_properties(self, properties):
         '''Set ftrack specific *properties* for task.'''
-
         FtrackProcessorPreset.set_ftrack_properties(self, properties)
         properties = self.properties()
         properties.setdefault('ftrack', {})
@@ -56,7 +53,6 @@ class FtrackAudioExporterPreset(AudioExportPreset, FtrackProcessorPreset):
 
     def addCustomResolveEntries(self, resolver):
         '''Add ftrack resolve entries to *resolver*.'''
-
         FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)
         # ensure to have {ext} set to a wav fixed extension
         resolver.addResolver('{ext}', 'Extension of the file to be output', 'wav')

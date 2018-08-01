@@ -23,7 +23,7 @@ from ftrack_connect_nuke_studio_beta.processors.ftrack_base.ftrack_base_processo
 
 
 class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
-    '''Reviewable Task exporter class.'''
+    '''Reviewable Task exporter.'''
 
     def __init__(self, initDict):
         '''Initialise task with *initDict*.'''
@@ -82,7 +82,7 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
 
 
 class FtrackReviewableExporterPreset(TranscodePreset, FtrackProcessorPreset):
-    '''Reviewable Task preset class.'''
+    '''Reviewable Task preset.'''
 
     def __init__(self, name, properties):
         '''Initialise task with *name* and *properties*.'''
@@ -117,7 +117,6 @@ class FtrackReviewableExporterUI(TranscodeExporterUI, FtrackProcessorUI):
 
         self._displayName = 'Ftrack Reviewable Render'
         self._taskType = FtrackReviewableExporter
-
 
 
 hiero.core.taskRegistry.registerTask(FtrackReviewableExporterPreset, FtrackReviewableExporter)

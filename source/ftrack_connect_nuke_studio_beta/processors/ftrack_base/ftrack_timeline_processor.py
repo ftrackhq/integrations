@@ -14,6 +14,8 @@ from ftrack_connect_nuke_studio_beta.processors.ftrack_base.ftrack_base_processo
 
 
 class FtrackTimelineProcessor(TimelineProcessor, FtrackProcessor):
+    '''Ftrack timeline processor.'''
+
     def __init__(self, preset, submission, synchronous=False):
         '''Initialise processor with *preset* , *submission* and option to run as *synchronous*.'''
         TimelineProcessor.__init__(self, preset, submission, synchronous=synchronous)
@@ -28,6 +30,7 @@ class FtrackTimelineProcessor(TimelineProcessor, FtrackProcessor):
 
 
 class FtrackTimelineProcessorUI(TimelineProcessorUI, FtrackProcessorUI):
+    '''Ftrack timeline processor Ui.'''
 
     def __init__(self, preset):
         '''Initialise processor ui with *preset*.'''
@@ -67,6 +70,7 @@ class FtrackTimelineProcessorUI(TimelineProcessorUI, FtrackProcessorUI):
 
 
 class FtrackTimelineProcessorPreset(TimelineProcessorPreset, FtrackProcessorPreset):
+    '''Ftrack timeline processor preset.'''
 
     def __init__(self, name, properties):
         '''Initialise processor preset with *name* and *properties*.'''

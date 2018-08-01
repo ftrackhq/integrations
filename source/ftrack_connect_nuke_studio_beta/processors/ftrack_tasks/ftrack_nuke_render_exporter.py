@@ -22,10 +22,10 @@ from ftrack_connect_nuke_studio_beta.processors.ftrack_base.ftrack_base_processo
 
 
 class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
+    '''NukeRender Task exporter.'''
 
     def __init__(self, initDict):
         '''Initialise task with *initDict*.'''
-
         NukeRenderTask.__init__(self, initDict)
         FtrackProcessor.__init__(self, initDict)
 
@@ -35,7 +35,6 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
 
     def createTranscodeScript(self):
         '''Create a custom transcode script for this task.'''
-
         # This code is taken from TranscodeExporter.__init__
         # in order to output the nuke file in the right place we need to override this.
 
@@ -78,9 +77,10 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
 
 
 class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
+    '''NukeRender Task preset.'''
+
     def __init__(self, name, properties):
         '''Initialise task with *name* and *properties*.'''
-
         TranscodePreset.__init__(self, name, properties)
         FtrackProcessorPreset.__init__(self, name, properties)
         self._parentType = FtrackNukeRenderExporter
@@ -90,7 +90,6 @@ class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
 
     def set_ftrack_properties(self, properties):
         '''Set ftrack specific *properties* for task.'''
-
         FtrackProcessorPreset.set_ftrack_properties(self, properties)
         properties = self.properties()
         properties.setdefault('ftrack', {})
@@ -100,11 +99,15 @@ class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
         self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__)
 
     def addUserResolveEntries(self, resolver):
+        '''Add ftrack resolve entries to *resolver*.'''
         FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)
 
 
 class FtrackNukeRenderExporterUI(TranscodeExporterUI, FtrackProcessorUI):
+    '''NukeRender Task Ui.'''
+
     def __init__(self, preset):
+        '''Initialise task ui with *preset*.'''
         TranscodeExporterUI.__init__(self, preset)
         FtrackProcessorUI.__init__(self, preset)
 

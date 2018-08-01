@@ -36,7 +36,6 @@ class FtrackBasePreset(FtrackBase):
 
     def __init__(self, name, properties, **kwargs):
         ''' Initialise class with *name* and *properties*, '''
-
         super(FtrackBasePreset, self).__init__(name, properties)
         current_location = self.ftrack_location
         if current_location['name'] in self.ingored_locations:
@@ -52,7 +51,6 @@ class FtrackBasePreset(FtrackBase):
 
     def set_ftrack_properties(self, properties):
         ''' Ensure and extend common ftrack *properties* . '''
-
         properties = self.properties()
         properties.setdefault('ftrack', {})
 
@@ -75,7 +73,6 @@ class FtrackBasePreset(FtrackBase):
         data returned from this resolver are expressed as:
         <object_type>:<object_name>|<object_type>:<object_name>|....
         '''
-
         track_item = task._item
         template = get_project_template(task._project)
 
@@ -100,7 +97,6 @@ class FtrackBasePreset(FtrackBase):
 
     def resolve_ftrack_asset(self, task):
         ''' Return asset for the given *task*.'''
-
         asset_name = self.properties()['ftrack'].get('asset_name')
         if not asset_name:
             asset_name = task._preset.properties()['ftrack']['asset_name']
@@ -108,7 +104,6 @@ class FtrackBasePreset(FtrackBase):
 
     def resolve_ftrack_version(self, task):
         ''' Return version for the given *task*.'''
-
         version = 1  # first version is 1
 
         if not self._components:
@@ -126,7 +121,6 @@ class FtrackBasePreset(FtrackBase):
 
     def resolve_ftrack_component(self, task):
         ''' Return component for the given *task*.'''
-
         component_name = self.sanitise_for_filesystem(task._preset.name())
         extension = self.properties()['ftrack']['component_pattern']
         component_full_name = '{0}{1}'.format(component_name, extension)
@@ -134,7 +128,6 @@ class FtrackBasePreset(FtrackBase):
 
     def addFtrackResolveEntries(self, resolver):
         ''' Add custom ftrack resolver in *resolver*. '''
-
         resolver.addResolver(
             '{ftrack_project}',
             'Ftrack project name.',

@@ -102,7 +102,6 @@ def get_ftrack_tag(clip):
 
 def add_clip_as_version(clip, bin_item, ftrack_component_reference):
     ''' Return a new version from *clip* correctly inserted in *bin_item* through *ftrack_component_reference* lookup. '''
-
     has_tag = get_ftrack_tag(clip)
     component_id = has_tag.metadata()['component_id']
     component = session.get('Component', component_id)
@@ -133,7 +132,6 @@ def add_clip_as_version(clip, bin_item, ftrack_component_reference):
 # Overrides
 def ftrack_find_version_files(scanner_instance, version):
     ''' Return paths for given *version*. '''
-
     clip = version.item()
     ftrack_tag = get_ftrack_tag(clip)
 
@@ -171,7 +169,6 @@ def ftrack_find_version_files(scanner_instance, version):
 
 def ftrack_filter_version(scanner_instance, bin_item, new_version_file):
     ''' Return whether the given *new_version_file* already exist in *bin_item*. '''
-
     # We have to see if anything else in the bin has this ref
     bin_ftrack_tag = get_ftrack_tag(bin_item.items()[0].item()) # let's check if the first version has it...
     if not bin_ftrack_tag:
@@ -192,7 +189,6 @@ def ftrack_filter_version(scanner_instance, bin_item, new_version_file):
 
 def ftrack_create_clip(scanner_instance, new_filename):
     ''' Return a new clip from *new_filename* through lookup. '''
-
     if new_filename in scanner_instance._ftrack_component_reference:
         is_available = session.pick_location(new_filename)
         if not is_available:

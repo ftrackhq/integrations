@@ -14,6 +14,8 @@ from ftrack_connect_nuke_studio_beta.processors.ftrack_base.ftrack_base_processo
 
 
 class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
+    '''Ftrack shot processor.'''
+
     def __init__(self, preset, submission, synchronous=False):
         '''Initialise processor with *preset* , *submission* and option to run as *synchronous*.'''
         ShotProcessor.__init__(self, preset, submission, synchronous=synchronous)
@@ -28,10 +30,10 @@ class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
 
 
 class FtrackShotProcessorUI(ShotProcessorUI, FtrackProcessorUI):
+    '''Ftrack shot processor Ui.'''
 
     def __init__(self, preset):
         '''Initialise processor ui with *preset*.'''
-
         ShotProcessorUI.__init__(self, preset)
         FtrackProcessorUI.__init__(self, preset)
 
@@ -68,6 +70,7 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackProcessorUI):
 
 
 class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackProcessorPreset):
+    '''Ftrack shot processor preset.'''
 
     def __init__(self, name, properties):
         '''Initialise processor preset with *name* and *properties*.'''

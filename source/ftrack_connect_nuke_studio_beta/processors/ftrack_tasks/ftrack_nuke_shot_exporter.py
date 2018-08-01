@@ -14,24 +14,23 @@ from ftrack_connect_nuke_studio_beta.processors.ftrack_base.ftrack_base_processo
 
 
 class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
+    '''Shot Task exporter.'''
 
     def __init__(self, initDict):
         '''Initialise task with *initDict*.'''
-
         NukeShotExporter.__init__(self, initDict)
         FtrackProcessor.__init__(self, initDict)
 
     def _makePath(self):
         '''Disable file path creation.'''
-
         pass
 
 
 class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
+    '''Shot Task preset.'''
 
     def __init__(self, name, properties, task=FtrackNukeShotExporter):
         '''Initialise task with *name* and *properties*.'''
-
         NukeShotPreset.__init__(self, name, properties, task)
         FtrackProcessorPreset.__init__(self, name, properties)
         # Update preset with loaded data
@@ -39,7 +38,6 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
         
     def set_ftrack_properties(self, properties):
         '''Set ftrack specific *properties* for task.'''
-
         FtrackProcessorPreset.set_ftrack_properties(self, properties)
         properties = self.properties()
         properties.setdefault('ftrack', {})
@@ -53,6 +51,7 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
 
 
 class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackProcessorUI):
+    '''Shot Task Ui.'''
 
     def __init__(self, preset):
         '''Initialise task ui with *preset*.'''
