@@ -211,8 +211,8 @@ class FtrackProcessor(FtrackBase):
             result = self.session.query(
                 'AssetType where short is "{0}"'.format(asset_type)
             ).one()
-        except Exception as e:
-            raise FtrackProcessorError(e)
+        except Exception as error:
+            raise FtrackProcessorError(error)
         return result
 
     def _create_project_fragment(self, name, parent, task, version):
