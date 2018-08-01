@@ -10,9 +10,6 @@ Find out all information you need to use the nuke studio with ftrack.
 .. toctree::
     :maxdepth: 1
 
-    launching
-    templates
-
 .. note::
 
     In order for the Nuke studio plugin to work properly you will not to have

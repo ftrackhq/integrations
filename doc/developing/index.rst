@@ -10,8 +10,3 @@ studio.
 
 .. toctree::
     :maxdepth: 1
-
-    processors
-    event_list
-    adding_custom_templates
-    api_reference/index

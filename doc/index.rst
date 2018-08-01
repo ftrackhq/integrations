@@ -8,7 +8,6 @@ ftrack connect nuke studio
 .. toctree::
     :maxdepth: 2
 
-    about
     installing
     using/index
     developing/index
