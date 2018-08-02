@@ -822,15 +822,13 @@ class FtrackProcessorUI(FtrackBase):
     def add_project_options(self, parent_layout):
         '''Create project options widget with parent *parent_layout*.'''
         project_name = self._project.name()
-        self.ftrack_project_exists = self.session.query(
-            'select project_schema.name from Project where name is "{0}"'.format(project_name)
-        ).first()
 
-        update_or_create = 'Create'
-        if self.ftrack_project_exists:
-            update_or_create = 'Update'
+        ftrack_projects = self.session.query(
+            'select project_schema.name from Project'.format(project_name)
+        ).all()
 
-        key, value, label = 'project_name', project_name, '{0} Project'.format(update_or_create)
+        project_names = [project['full_name'] for project in ftrack_projects]
+        key, value, label = 'project_name', project_names, 'Create under Project'
         tooltip = 'Updating/Creating Project.'
 
         self.project_options_widget = UIPropertyFactory.create(
@@ -841,32 +839,7 @@ class FtrackProcessorUI(FtrackBase):
             label=label + ':',
             tooltip=tooltip
         )
-        self.project_options_widget.setDisabled(True)
         parent_layout.addRow(label + ':', self.project_options_widget)
-
-    def add_project_scheme_options(self, parent_layout):
-        '''Create project schema options widget with parent *parent_layout*.'''
-        schemas = self.session.query('ProjectSchema').all()
-        schemas_name = [schema['name'] for schema in schemas]
-
-        key, value, label = 'project_schema', schemas_name, 'Project Schema'
-        tooltip = 'Select project schema.'
-
-        self.schema_options_widget = UIPropertyFactory.create(
-            type(value),
-            key=key,
-            value=value,
-            dictionary=self._preset.properties()['ftrack'],
-            label=label + ':',
-            tooltip=tooltip
-        )
-        parent_layout.addRow(label + ':', self.schema_options_widget)
-
-        if self.ftrack_project_exists:
-            # If a project exist , disable the widget and set the previous schema found.
-            schema_index = self.schema_options_widget._widget.findText(self.ftrack_project_exists['project_schema']['name'])
-            self.schema_options_widget._widget.setCurrentIndex(schema_index)
-            self.schema_options_widget.setDisabled(True)
 
     def add_task_type_options(self, parent_layout, export_items):
         '''Create task type options widget for *export_items* with parent *parent_layout*.'''
@@ -989,7 +962,6 @@ class FtrackProcessorUI(FtrackBase):
         form_layout.addDivider('Ftrack Options')
         self.add_task_templates_options(form_layout)
         self.add_project_options(form_layout)
-        self.add_project_scheme_options(form_layout)
         self.add_task_type_options(form_layout, export_items)
         self.add_asset_type_options(form_layout)
         self.add_asset_name_options(form_layout)
