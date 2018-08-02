@@ -84,7 +84,8 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
         layout = QtWidgets.QVBoxLayout()
         formLayout = QtWidgets.QFormLayout()
-        self._tracknameField = QtWidgets.QLineEdit(self.suggested_track_name)
+        self._tracknameField = QtWidgets.QLineEdit()
+        self._tracknameField.setDisabled(True)
         self._tracknameField.setToolTip('Name of new track')
         formLayout.addRow('Track name:', self._tracknameField)
 
@@ -127,6 +128,9 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         self.component_combobox.currentIndexChanged.connect(self.get_components)
         self.asset_status_combobox.currentIndexChanged.connect(self.get_components)
 
+        # set suggested track name
+        self._tracknameField.setText(self.suggested_track_name)
+
         # force ui to refresh
         self.get_components()
 
@@ -134,8 +138,9 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
     def suggested_track_name(self):
         task_name = self.tasks_combobox.currentText()
         component_name = self.component_combobox.currentText()
-        new_track_name = '{}-{}'.format(task_name, component_name)
-        return new_track_name
+        status = self.asset_status_combobox.currentText().replace('-', '').strip()
+        new_track_name = '{}-{}-{}'.format(task_name, component_name, status)
+        return new_track_name.upper()
 
     @staticmethod
     def common_items(items):
@@ -225,7 +230,6 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             all_components = self.session.query(query
             ).all()
 
-
             if not all_components:
                 continue
 
@@ -240,6 +244,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         self.setWindowTitle(new_title)
 
         self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setDisabled(not bool(len(self._result_data)))
+        self._tracknameField.setText(self.suggested_track_name)
 
     def populate_components(self):
         ''' Populate the components widget. '''
