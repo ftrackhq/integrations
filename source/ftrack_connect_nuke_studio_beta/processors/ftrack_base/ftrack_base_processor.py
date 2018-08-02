@@ -25,7 +25,9 @@ from ftrack_connect_nuke_studio_beta.processors.ftrack_base import (
 )
 from ftrack_connect_nuke_studio_beta.ui.widget.template import Template
 import ftrack_connect_nuke_studio_beta.template as template_manager
-
+from ftrack_connect_nuke_studio_beta.processors.ftrack_base import (
+    get_reference_ftrack_project, set_reference_ftrack_project
+)
 import ftrack_connect_nuke_studio_beta.exception
 
 
@@ -161,9 +163,9 @@ class FtrackProcessor(FtrackBase):
     @property
     def schema(self):
         ''' Return the current ftrack project schema. '''
-        project_schema_name = self.ftrack_properties['project_schema']
+        project_id, is_locked = get_reference_ftrack_project(self.project)
         project_schema = self.session.query(
-            'ProjectSchema where name is "{0}"'.format(project_schema_name)
+            'select project_schema from Project where id is "{}"'.format(project_id)
         ).one()
         return project_schema
 
@@ -228,6 +230,9 @@ class FtrackProcessor(FtrackBase):
                 'full_name': name,
                 'project_schema': self.schema
             })
+
+        set_reference_ftrack_project(task._project, project['id'])
+
         return project
 
     def _create_context_fragment(self, composed_name, parent, task, version):
@@ -700,6 +705,7 @@ class FtrackProcessor(FtrackBase):
         '''
         project = export_items[0].item().project()
         parsing_template = template_manager.get_project_template(project)
+        project_tag = get_reference_ftrack_project(project)
 
         task_tags = set()
         task_types = self.schema.get_types('Task')
@@ -821,10 +827,9 @@ class FtrackProcessorUI(FtrackBase):
 
     def add_project_options(self, parent_layout):
         '''Create project options widget with parent *parent_layout*.'''
-        project_name = self._project.name()
 
         ftrack_projects = self.session.query(
-            'select project_schema.name from Project'.format(project_name)
+            'select id, name from Project'
         ).all()
 
         project_names = [project['full_name'] for project in ftrack_projects]
@@ -840,6 +845,29 @@ class FtrackProcessorUI(FtrackBase):
             tooltip=tooltip
         )
         parent_layout.addRow(label + ':', self.project_options_widget)
+
+        # Update project tag on changes
+        self.project_options_widget._widget.currentIndexChanged.connect(self._set_project_tag)
+
+        # check if the project is be locked
+        project_id_tag, project_is_locked = get_reference_ftrack_project(self._project)
+        if project_is_locked:
+            project = self.session.get('Project', project_id_tag)
+            project_name = project['full_name']
+            self.logger.info('Found Project id tag, locking project to : {}'.format(project_name))
+            project_index = self.project_options_widget._widget.findText(project_name)
+            self.project_options_widget._widget.setCurrentIndex(project_index)
+            self.project_options_widget.setDisabled(True)
+        else:
+            # force event emission
+            current_index = self.project_options_widget._widget.currentIndex()
+            self.project_options_widget._widget.currentIndexChanged.emit(current_index)
+
+    def _set_project_tag(self):
+        project_name = self.project_options_widget._widget.currentText()
+        ftrack_project = self.session.query('Project where full_name is "{}"'.format(project_name)).one()
+        self.logger.info('Setting tag to : {}'.format(ftrack_project['id']))
+        set_reference_ftrack_project(self._project, ftrack_project['id'])
 
     def add_task_type_options(self, parent_layout, export_items):
         '''Create task type options widget for *export_items* with parent *parent_layout*.'''
