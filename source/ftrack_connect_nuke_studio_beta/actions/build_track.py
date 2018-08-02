@@ -84,7 +84,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
         layout = QtWidgets.QVBoxLayout()
         formLayout = QtWidgets.QFormLayout()
-        self._tracknameField = QtWidgets.QLineEdit(BuildTrack.ProjectTrackNameDefault(selection))
+        self._tracknameField = QtWidgets.QLineEdit(self.suggested_track_name)
         self._tracknameField.setToolTip('Name of new track')
         formLayout.addRow('Track name:', self._tracknameField)
 
@@ -129,6 +129,13 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
         # force ui to refresh
         self.get_components()
+
+    @property
+    def suggested_track_name(self):
+        task_name = self.tasks_combobox.currentText()
+        component_name = self.component_combobox.currentText()
+        new_track_name = '{}-{}'.format(task_name, component_name)
+        return new_track_name
 
     @staticmethod
     def common_items(items):
