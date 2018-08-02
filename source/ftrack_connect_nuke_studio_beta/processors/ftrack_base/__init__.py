@@ -121,25 +121,25 @@ class FtrackBasePreset(FtrackBase):
         ''' Add custom ftrack resolver in *resolver*. '''
         resolver.addResolver(
             '{ftrack_project}',
-            'Ftrack project name.',
+            'Ftrack project name on server.',
             lambda keyword, task: self.resolve_ftrack_project(task)
         )
 
         resolver.addResolver(
             '{ftrack_context}',
-            'Ftrack context name.',
+            'Ftrack context contains Episodes, Sequence and Shots.',
             lambda keyword, task: self.resolve_ftrack_context(task)
         )
 
         resolver.addResolver(
             '{ftrack_version}',
-            'Ftrack version.',
+            'Ftrack version contains Task, Asset and AssetVersion.',
             lambda keyword, task: self.resolve_ftrack_version(task)
         )
 
         resolver.addResolver(
             '{ftrack_component}',
-            'Ftrack component name.',
+            'Ftrack component name in AssetVersion.',
             lambda keyword, task: self.resolve_ftrack_component(task)
         )
 
