@@ -120,7 +120,7 @@ class FtrackBasePreset(FtrackBase):
     def resolve_ftrack_project(self, task):
         ''' Return project name for the given *task*. '''
         project = task._project
-        ftrack_project_id = get_reference_ftrack_project(project)
+        ftrack_project_id , project_is_locked = get_reference_ftrack_project(project)
         ftrack_project = self.session.get('Project', ftrack_project_id)
         return self.sanitise_for_filesystem(ftrack_project['name'])
 

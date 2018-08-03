@@ -163,10 +163,10 @@ class FtrackProcessor(FtrackBase):
     def schema(self, task):
         ''' Return the current ftrack project schema. '''
         project_id, is_locked = get_reference_ftrack_project(task._project)
-        project_schema = self.session.query(
+        project_entity = self.session.query(
             'select project_schema from Project where id is "{}"'.format(project_id)
         ).one()
-        return project_schema
+        return project_entity['project_schema']
 
     def task_type(self, task):
         ''' Return the ftrack object for the task type set.'''
@@ -180,7 +180,7 @@ class FtrackProcessor(FtrackBase):
     def task_status(self, task):
         ''' Return the ftrack object for the task status. '''
         try:
-            task_statuses = self.schema(task).get_statuses('Task', self.task_type['id'])
+            task_statuses = self.schema(task).get_statuses('Task', self.task_type(task)['id'])
         except ValueError as error:
             raise FtrackProcessorError(error)
 
@@ -225,8 +225,6 @@ class FtrackProcessor(FtrackBase):
                 'full_name': name,
                 'project_schema': self.schema
             })
-
-        set_reference_ftrack_project(task._project, project['id'])
 
         return project
 
@@ -700,19 +698,15 @@ class FtrackProcessor(FtrackBase):
         '''
         project = export_items[0].item().project()
         parsing_template = template_manager.get_project_template(project)
-        project_tag = get_reference_ftrack_project(project)
-        self.logger.info('FOUND: {}'.format(project_tag))
         task_tags = set()
         # task_types = self.schema(export_items[0]).get_types('Task')
 
-        processor_schema = self._preset.properties()['ftrack']['project_schema']
         task_type = self._preset.properties()['ftrack']['task_type']
         asset_type_code = self._preset.properties()['ftrack']['asset_type_code']
         asset_name = self._preset.properties()['ftrack']['asset_name']
 
         for (export_path, preset) in self._exportTemplate.flatten():
             # propagate properties from processor to tasks.
-            preset.properties()['ftrack']['project_schema'] = processor_schema
             preset.properties()['ftrack']['task_type'] = task_type
             preset.properties()['ftrack']['asset_type_code'] = asset_type_code
             preset.properties()['ftrack']['asset_name'] = asset_name
