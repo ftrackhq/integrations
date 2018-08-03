@@ -49,9 +49,7 @@ def get_reference_ftrack_project(project):
     # Fetch the templates from tags on sequences on the project.
     # This is a workaround due to that projects do not have tags or metadata.
     for sequence in project.sequences():
-        logger.info('Getting tags from: {}'.format(sequence))
         for tag in sequence.tags():
-            logger.info('TAG:{}'.format(tag.metadata()))
             if tag.name() == 'ftrack.project_reference':
                 ftrack_project_id = tag.metadata().value('ftrack.project_reference.id')
                 is_project_locked = int(tag.metadata().value('ftrack.project_reference.locked'))
@@ -122,7 +120,8 @@ class FtrackBasePreset(FtrackBase):
         project = task._project
         ftrack_project_id , project_is_locked = get_reference_ftrack_project(project)
         ftrack_project = self.session.get('Project', ftrack_project_id)
-        return self.sanitise_for_filesystem(ftrack_project['name'])
+        self.logger.info('Resolving project: {}'.format(ftrack_project['full_name']))
+        return self.sanitise_for_filesystem(ftrack_project['full_name'])
 
     def resolve_ftrack_context(self, task):
         ''' Return context for the given *task*.

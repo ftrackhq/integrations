@@ -26,7 +26,7 @@ from ftrack_connect_nuke_studio_beta.processors.ftrack_base import (
 from ftrack_connect_nuke_studio_beta.ui.widget.template import Template
 import ftrack_connect_nuke_studio_beta.template as template_manager
 from ftrack_connect_nuke_studio_beta.processors.ftrack_base import (
-    get_reference_ftrack_project, set_reference_ftrack_project
+    get_reference_ftrack_project, set_reference_ftrack_project, lock_reference_ftrack_project
 )
 import ftrack_connect_nuke_studio_beta.exception
 
@@ -163,9 +163,10 @@ class FtrackProcessor(FtrackBase):
     def schema(self, project):
         ''' Return the current ftrack project schema. '''
         project_id, is_locked = get_reference_ftrack_project(project)
-        project_entity = self.session.query(
-            'select project_schema from Project where id is "{}"'.format(project_id)
-        ).one()
+        query = 'select project_schema from Project where id is "{0}"'.format(project_id)
+        self.logger.info('Looking for project schema :{}'.format(query))
+        project_entity = self.session.query(query).one()
+        self.logger.info('Found Project schema : {}'.format(project_entity['project_schema']))
         return project_entity['project_schema']
 
     def task_type(self, task):
@@ -175,6 +176,7 @@ class FtrackProcessor(FtrackBase):
         filtered_task_types = [task_type for task_type in task_types if task_type['name'] == task_type_name]
         if not filtered_task_types:
             raise FtrackProcessorValidationError(task_types)
+        self.logger.info('task_type : {}'.format(filtered_task_types))
         return filtered_task_types[0]
 
     def task_status(self, task):
@@ -186,6 +188,7 @@ class FtrackProcessor(FtrackBase):
 
         filtered_task_status = [task_status for task_status in task_statuses if task_status['name']]
         # Return first status found.
+        self.logger.info('task_status : {}'.format(filtered_task_status))
         return filtered_task_status[0]
 
     def shot_status(self, task):
@@ -217,7 +220,7 @@ class FtrackProcessor(FtrackBase):
         self.logger.debug('Creating project fragment: {} {} {} {}'.format(name, parent, task, version))
 
         project = self.session.query(
-            'Project where name is "{0}"'.format(name)
+            'Project where full_name is "{0}"'.format(name)
         ).first()
         if not project:
             project = self.session.create('Project', {
@@ -486,6 +489,9 @@ class FtrackProcessor(FtrackBase):
 
                 self._components[track_item.name()][preset.name()] = data
                 self.add_ftrack_tag(track_item, task)
+
+        # we have successfully exported the project, so now we can lock it.
+        lock_reference_ftrack_project(project)
 
         self._create_project_progress_widget = None
         return filtered_export_items
@@ -856,7 +862,7 @@ class FtrackProcessorUI(FtrackBase):
     def _set_project_tag(self):
         project_name = self.project_options_widget._widget.currentText()
         ftrack_project = self.session.query('Project where full_name is "{}"'.format(project_name)).one()
-        self.logger.info('Setting tag to : {}'.format(ftrack_project['id']))
+        self.logger.info('FOUND PROJECT: {}'.format(ftrack_project))
         set_reference_ftrack_project(self._project, ftrack_project['id'])
 
     def add_task_type_options(self, parent_layout, export_items):
