@@ -160,9 +160,9 @@ class FtrackProcessor(FtrackBase):
         self._create_project_progress_widget = None
         self._validate_project_progress_widget = None
 
-    def schema(self, task):
+    def schema(self, project):
         ''' Return the current ftrack project schema. '''
-        project_id, is_locked = get_reference_ftrack_project(task._project)
+        project_id, is_locked = get_reference_ftrack_project(project)
         project_entity = self.session.query(
             'select project_schema from Project where id is "{}"'.format(project_id)
         ).one()
@@ -171,7 +171,7 @@ class FtrackProcessor(FtrackBase):
     def task_type(self, task):
         ''' Return the ftrack object for the task type set.'''
         task_type_name = self.ftrack_properties['task_type']
-        task_types = self.schema(task).get_types('Task')
+        task_types = self.schema(task._project).get_types('Task')
         filtered_task_types = [task_type for task_type in task_types if task_type['name'] == task_type_name]
         if not filtered_task_types:
             raise FtrackProcessorValidationError(task_types)
@@ -180,7 +180,7 @@ class FtrackProcessor(FtrackBase):
     def task_status(self, task):
         ''' Return the ftrack object for the task status. '''
         try:
-            task_statuses = self.schema(task).get_statuses('Task', self.task_type(task)['id'])
+            task_statuses = self.schema(task._project).get_statuses('Task', self.task_type(task)['id'])
         except ValueError as error:
             raise FtrackProcessorError(error)
 
@@ -190,14 +190,14 @@ class FtrackProcessor(FtrackBase):
 
     def shot_status(self, task):
         '''Return the ftrack object for the shot status.'''
-        shot_statuses = self.schema(task).get_statuses('Shot')
+        shot_statuses = self.schema(task._project).get_statuses('Shot')
         filtered_shot_status = [shot_status for shot_status in shot_statuses if shot_status['name']]
         # Return first status found.
         return filtered_shot_status[0]
 
     def asset_version_status(self, task):
         '''Return the ftrack object for the asset version status.'''
-        asset_statuses = self.schema(task).get_statuses('AssetVersion')
+        asset_statuses = self.schema(task._project).get_statuses('AssetVersion')
         filtered_asset_status = [asset_status for asset_status in asset_statuses if asset_status['name']]
         return filtered_asset_status[0]
 
@@ -223,7 +223,7 @@ class FtrackProcessor(FtrackBase):
             project = self.session.create('Project', {
                 'name': name,
                 'full_name': name,
-                'project_schema': self.schema
+                'project_schema': self.schema(task._project)
             })
 
         return project
@@ -321,18 +321,18 @@ class FtrackProcessor(FtrackBase):
     def _create_extra_tasks(self, task_type_names, task, component):
         '''Create extra tasks based on dropped ftrack tags from *task_type_names* and *component*, '''
         parent = component['version']['asset']['parent']  # Get Shot from component
-        task_types = self.schema(task).get_types('Task')
+        task_types = self.schema(task._project).get_types('Task')
 
         for task_type_name in task_type_names:
             filtered_task_types = [task_type for task_type in task_types if task_type['name'] == task_type_name]
             if len(filtered_task_types) != 1:
                 self.logger.debug(
                     'Skipping {0} as is not a valid task type for schema {1}'.format(
-                        task_type_name, self.schema['name'])
+                        task_type_name, self.schema(task._project)['name'])
                 )
                 continue
 
-            task_status = self.schema.get_statuses('Task', filtered_task_types[0]['id'])
+            task_status = self.schema(task._project).get_statuses('Task', filtered_task_types[0]['id'])
 
             ftask = self.session.query(
                 'Task where name is "{0}" and parent.id is "{1}"'.format(task_type_name, parent['id'])
@@ -401,7 +401,7 @@ class FtrackProcessor(FtrackBase):
                 shot_name_index = getShotNameIndex(track_item)
                 if isinstance(self, TimelineProcessor):
                     track_item = export_item.item().sequence()
-                    shot_name_index= ''
+                    shot_name_index = ''
 
                 # create entry points on where to store ftrack component and path data.
                 self._components.setdefault(track_item.name(), {})
@@ -699,7 +699,8 @@ class FtrackProcessor(FtrackBase):
         project = export_items[0].item().project()
         parsing_template = template_manager.get_project_template(project)
         task_tags = set()
-        # task_types = self.schema(export_items[0]).get_types('Task')
+        task_types = self.schema(project).get_types('Task')
+        self.logger.info('available task_types: {}'.format(task_types))
 
         task_type = self._preset.properties()['ftrack']['task_type']
         asset_type_code = self._preset.properties()['ftrack']['asset_type_code']
