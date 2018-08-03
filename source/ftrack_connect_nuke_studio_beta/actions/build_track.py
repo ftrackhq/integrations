@@ -85,7 +85,6 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         layout = QtWidgets.QVBoxLayout()
         formLayout = QtWidgets.QFormLayout()
         self._tracknameField = QtWidgets.QLineEdit()
-        self._tracknameField.setDisabled(True)
         self._tracknameField.setToolTip('Name of new track')
         formLayout.addRow('Track name:', self._tracknameField)
 
