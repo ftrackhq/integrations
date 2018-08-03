@@ -163,10 +163,9 @@ class FtrackProcessor(FtrackBase):
     def schema(self, project):
         ''' Return the current ftrack project schema. '''
         project_id, is_locked = get_reference_ftrack_project(project)
+        self.logger.info('Looking for schema for project id {}'.format(project_id))
         query = 'select project_schema from Project where id is "{0}"'.format(project_id)
-        self.logger.info('Looking for project schema :{}'.format(query))
         project_entity = self.session.query(query).one()
-        self.logger.info('Found Project schema : {}'.format(project_entity['project_schema']))
         return project_entity['project_schema']
 
     def task_type(self, task):
@@ -825,7 +824,7 @@ class FtrackProcessorUI(FtrackBase):
         '''Create project options widget with parent *parent_layout*.'''
 
         ftrack_projects = self.session.query(
-            'select id, name from Project'
+            'select id, name from Project where status is "active"'
         ).all()
 
         project_names = [project['full_name'] for project in ftrack_projects]
@@ -862,7 +861,6 @@ class FtrackProcessorUI(FtrackBase):
     def _set_project_tag(self):
         project_name = self.project_options_widget._widget.currentText()
         ftrack_project = self.session.query('Project where full_name is "{}"'.format(project_name)).one()
-        self.logger.info('FOUND PROJECT: {}'.format(ftrack_project))
         set_reference_ftrack_project(self._project, ftrack_project['id'])
 
     def add_task_type_options(self, parent_layout, export_items):
