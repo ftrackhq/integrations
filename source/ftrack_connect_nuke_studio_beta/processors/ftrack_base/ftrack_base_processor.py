@@ -163,25 +163,24 @@ class FtrackProcessor(FtrackBase):
     def schema(self, project):
         ''' Return the current ftrack project schema. '''
         project_id, is_locked = get_reference_ftrack_project(project)
-        self.logger.info('Looking for schema for project id {}'.format(project_id))
         query = 'select project_schema from Project where id is "{0}"'.format(project_id)
         project_entity = self.session.query(query).one()
         return project_entity['project_schema']
 
-    def task_type(self, task):
+    def task_type(self, project):
         ''' Return the ftrack object for the task type set.'''
         task_type_name = self.ftrack_properties['task_type']
-        task_types = self.schema(task._project).get_types('Task')
+        task_types = self.schema(project).get_types('Task')
         filtered_task_types = [task_type for task_type in task_types if task_type['name'] == task_type_name]
         if not filtered_task_types:
             raise FtrackProcessorValidationError(task_types)
         self.logger.info('task_type : {}'.format(filtered_task_types))
         return filtered_task_types[0]
 
-    def task_status(self, task):
+    def task_status(self, project):
         ''' Return the ftrack object for the task status. '''
         try:
-            task_statuses = self.schema(task._project).get_statuses('Task', self.task_type(task)['id'])
+            task_statuses = self.schema(project).get_statuses('Task', self.task_type(project)['id'])
         except ValueError as error:
             raise FtrackProcessorError(error)
 
@@ -190,16 +189,16 @@ class FtrackProcessor(FtrackBase):
         self.logger.info('task_status : {}'.format(filtered_task_status))
         return filtered_task_status[0]
 
-    def shot_status(self, task):
+    def shot_status(self, project):
         '''Return the ftrack object for the shot status.'''
-        shot_statuses = self.schema(task._project).get_statuses('Shot')
+        shot_statuses = self.schema(project).get_statuses('Shot')
         filtered_shot_status = [shot_status for shot_status in shot_statuses if shot_status['name']]
         # Return first status found.
         return filtered_shot_status[0]
 
-    def asset_version_status(self, task):
+    def asset_version_status(self, project):
         '''Return the ftrack object for the asset version status.'''
-        asset_statuses = self.schema(task._project).get_statuses('AssetVersion')
+        asset_statuses = self.schema(project).get_statuses('AssetVersion')
         filtered_asset_status = [asset_status for asset_status in asset_statuses if asset_status['name']]
         return filtered_asset_status[0]
 
@@ -289,8 +288,8 @@ class FtrackProcessor(FtrackBase):
             ftask = self.session.create('Task', {
                 'name': task_name,
                 'parent': parent['parent'],
-                'status': self.task_status(task),
-                'type': self.task_type(task)
+                'status': self.task_status(task._project),
+                'type': self.task_type(task._project)
             })
 
         if not version:
@@ -299,7 +298,7 @@ class FtrackProcessor(FtrackBase):
             )
             version = self.session.create('AssetVersion', {
                 'asset': parent,
-                'status': self.asset_version_status(task),
+                'status': self.asset_version_status(task._project),
                 'comment': comment,
                 'task': ftask
             })
@@ -705,7 +704,6 @@ class FtrackProcessor(FtrackBase):
         parsing_template = template_manager.get_project_template(project)
         task_tags = set()
         task_types = self.schema(project).get_types('Task')
-        self.logger.info('available task_types: {}'.format(task_types))
 
         task_type = self._preset.properties()['ftrack']['task_type']
         asset_type_code = self._preset.properties()['ftrack']['asset_type_code']
@@ -768,12 +766,14 @@ class FtrackProcessor(FtrackBase):
                         missing_assets_type.append(asset_type_code)
 
                     try:
-                        result = getattr(self, 'task_type')
+                        result = self.task_type(project)
                     except FtrackProcessorValidationError as error:
                         preset_errors = errors.setdefault(self, {})
                         preset_errors.setdefault('task_type', list(task_tags))
 
             self._validate_project_progress_widget = None
+
+            self.logger.info(errors)
 
             # raise validation window
             if errors or missing_assets_type:

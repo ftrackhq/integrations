@@ -38,7 +38,7 @@ class FtrackProcessorValidationError(FtrackProcessorError):
 def lock_reference_ftrack_project(project):
     for sequence in project.sequences():
         for tag in sequence.tags():
-            if tag.name() == 'ftrack.project_reference' and tag.metadata().hasKey('ftrack.project_reference.id'):
+            if tag.name() == 'ftrack.project_reference':
                 logger.info('Locking project')
                 tag.metadata().setValue('ftrack.project_reference.locked', str(1))
 
@@ -54,9 +54,6 @@ def get_reference_ftrack_project(project):
             if tag.name() == 'ftrack.project_reference':
                 ftrack_project_id = tag.metadata().value('ftrack.project_reference.id')
                 is_project_locked = int(tag.metadata().value('ftrack.project_reference.locked'))
-                logger.debug('Found project_id reference : {} on {} is locked {}'.format(
-                    ftrack_project_id, project, is_project_locked)
-                )
                 break
 
         if ftrack_project_id:
@@ -70,8 +67,7 @@ def set_reference_ftrack_project(project, project_id):
     for sequence in project.sequences():
         existing_tag = None
         for tag in sequence.tags():
-            if tag.metadata().hasKey('ftrack.project_reference'):
-                logger.info('Found existing tag: {}'.format(tag))
+            if tag.name() == 'ftrack.project_reference':
                 existing_tag = tag
                 break
 
@@ -82,13 +78,11 @@ def set_reference_ftrack_project(project, project_id):
 
         if existing_tag:
             # tag exists and is not locked, we can update...
-            logger.info('updating tag :{} to {}'.format(tag, project_id))
             existing_tag.metadata().setValue('ftrack.project_reference.id', project_id)
             # tag.setVisible(False)
         else:
             # tag does not exists
             tag = hiero.core.Tag('ftrack.project_reference')
-            logger.info('creating tag :{} to {}'.format(tag, project_id))
             tag.metadata().setValue('ftrack.project_reference.id', project_id)
             tag.metadata().setValue('ftrack.project_reference.locked', str(0))
             sequence.addTag(tag)
