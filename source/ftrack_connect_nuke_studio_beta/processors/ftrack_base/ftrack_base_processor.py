@@ -160,30 +160,27 @@ class FtrackProcessor(FtrackBase):
         self._create_project_progress_widget = None
         self._validate_project_progress_widget = None
 
-    @property
-    def schema(self):
+    def schema(self, task):
         ''' Return the current ftrack project schema. '''
-        project_id, is_locked = get_reference_ftrack_project(self.project)
+        project_id, is_locked = get_reference_ftrack_project(task._project)
         project_schema = self.session.query(
             'select project_schema from Project where id is "{}"'.format(project_id)
         ).one()
         return project_schema
 
-    @property
-    def task_type(self):
+    def task_type(self, task):
         ''' Return the ftrack object for the task type set.'''
         task_type_name = self.ftrack_properties['task_type']
-        task_types = self.schema.get_types('Task')
+        task_types = self.schema(task).get_types('Task')
         filtered_task_types = [task_type for task_type in task_types if task_type['name'] == task_type_name]
         if not filtered_task_types:
             raise FtrackProcessorValidationError(task_types)
         return filtered_task_types[0]
 
-    @property
-    def task_status(self):
+    def task_status(self, task):
         ''' Return the ftrack object for the task status. '''
         try:
-            task_statuses = self.schema.get_statuses('Task', self.task_type['id'])
+            task_statuses = self.schema(task).get_statuses('Task', self.task_type['id'])
         except ValueError as error:
             raise FtrackProcessorError(error)
 
@@ -191,18 +188,16 @@ class FtrackProcessor(FtrackBase):
         # Return first status found.
         return filtered_task_status[0]
 
-    @property
-    def shot_status(self):
+    def shot_status(self, task):
         '''Return the ftrack object for the shot status.'''
-        shot_statuses = self.schema.get_statuses('Shot')
+        shot_statuses = self.schema(task).get_statuses('Shot')
         filtered_shot_status = [shot_status for shot_status in shot_statuses if shot_status['name']]
         # Return first status found.
         return filtered_shot_status[0]
 
-    @property
-    def asset_version_status(self):
+    def asset_version_status(self, task):
         '''Return the ftrack object for the asset version status.'''
-        asset_statuses = self.schema.get_statuses('AssetVersion')
+        asset_statuses = self.schema(task).get_statuses('AssetVersion')
         filtered_asset_status = [asset_status for asset_status in asset_statuses if asset_status['name']]
         return filtered_asset_status[0]
 
@@ -294,8 +289,8 @@ class FtrackProcessor(FtrackBase):
             ftask = self.session.create('Task', {
                 'name': task_name,
                 'parent': parent['parent'],
-                'status': self.task_status,
-                'type': self.task_type
+                'status': self.task_status(task),
+                'type': self.task_type(task)
             })
 
         if not version:
@@ -304,7 +299,7 @@ class FtrackProcessor(FtrackBase):
             )
             version = self.session.create('AssetVersion', {
                 'asset': parent,
-                'status': self.asset_version_status,
+                'status': self.asset_version_status(task),
                 'comment': comment,
                 'task': ftask
             })
@@ -325,10 +320,10 @@ class FtrackProcessor(FtrackBase):
         '''Fallback function if the given fragment *name* is not found.'''
         self.logger.warning('Skpping: {0}'.format(name))
 
-    def _create_extra_tasks(self, task_type_names, component):
+    def _create_extra_tasks(self, task_type_names, task, component):
         '''Create extra tasks based on dropped ftrack tags from *task_type_names* and *component*, '''
         parent = component['version']['asset']['parent']  # Get Shot from component
-        task_types = self.schema.get_types('Task')
+        task_types = self.schema(task).get_types('Task')
 
         for task_type_name in task_type_names:
             filtered_task_types = [task_type for task_type in task_types if task_type['name'] == task_type_name]
@@ -471,7 +466,7 @@ class FtrackProcessor(FtrackBase):
                     parent = fragment_fn(token, parent, task, versions[path_id])
 
                 self.session.commit()
-                self._create_extra_tasks(task_tags, parent)
+                self._create_extra_tasks(task_tags, task, parent)
 
                 # Extract ftrack path from structure and accessors.
                 ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent)
@@ -706,9 +701,9 @@ class FtrackProcessor(FtrackBase):
         project = export_items[0].item().project()
         parsing_template = template_manager.get_project_template(project)
         project_tag = get_reference_ftrack_project(project)
-
+        self.logger.info('FOUND: {}'.format(project_tag))
         task_tags = set()
-        task_types = self.schema.get_types('Task')
+        # task_types = self.schema(export_items[0]).get_types('Task')
 
         processor_schema = self._preset.properties()['ftrack']['project_schema']
         task_type = self._preset.properties()['ftrack']['task_type']
