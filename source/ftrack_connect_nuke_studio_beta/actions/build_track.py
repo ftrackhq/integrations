@@ -163,7 +163,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             except ftrack_connect_nuke_studio_beta.exception.TemplateError:
                 continue
 
-            results[trackItem] = [ftrack_project['full_name']] + [result['name'] for result in parsed_results]
+            results[trackItem] = [ftrack_project['name']] + [result['name'] for result in parsed_results]
         return results
 
     def trackName(self):
@@ -214,7 +214,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
                 'and version.task.name is "{}" '  # task name
                 'and version.asset.parent.name is "{}" '  # shot
                 'and version.asset.parent.parent.name is "{}" '  # sequence
-                'and version.asset.parent.project.full_name is "{}"'  # project
+                'and version.asset.parent.project.name is "{}"'  # project
                 ''.format(component_name, asset_type_name, task_name, shot, sequence, project)
             )
 

@@ -136,8 +136,8 @@ class FtrackBasePreset(FtrackBase):
         project = task._project
         ftrack_project_id , project_is_locked = get_reference_ftrack_project(project)
         ftrack_project = self.session.get('Project', ftrack_project_id)
-        self.logger.info('Resolving project: {}'.format(ftrack_project['full_name']))
-        return self.sanitise_for_filesystem(ftrack_project['full_name'])
+        self.logger.info('Resolving project: {}'.format(ftrack_project['name']))
+        return self.sanitise_for_filesystem(ftrack_project['name'])
 
     def resolve_ftrack_context(self, task):
         ''' Return context for the given *task*.

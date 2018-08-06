@@ -219,7 +219,7 @@ class FtrackProcessor(FtrackBase):
         self.logger.debug('Creating project fragment: {} {} {} {}'.format(name, parent, task, version))
 
         project = self.session.query(
-            'Project where full_name is "{0}"'.format(name)
+            'Project where name is "{0}"'.format(name)
         ).first()
         if not project:
             project = self.session.create('Project', {
@@ -828,7 +828,7 @@ class FtrackProcessorUI(FtrackBase):
             'select id, name from Project where status is "active"'
         ).all()
 
-        project_names = [project['full_name'] for project in ftrack_projects]
+        project_names = [project['name'] for project in ftrack_projects]
         key, value, label = 'project_name', project_names, 'Create under Project'
         tooltip = 'Updating/Creating Project.'
 
@@ -854,7 +854,7 @@ class FtrackProcessorUI(FtrackBase):
                 remove_reference_ftrack_project(self._project)
                 return
 
-            project_name = project['full_name']
+            project_name = project['name']
             self.logger.info('Found Project id tag, locking project to : {}'.format(project_name))
             project_index = self.project_options_widget._widget.findText(project_name)
             self.project_options_widget._widget.setCurrentIndex(project_index)
@@ -867,7 +867,7 @@ class FtrackProcessorUI(FtrackBase):
 
     def _set_project_tag(self):
         project_name = self.project_options_widget._widget.currentText()
-        ftrack_project = self.session.query('Project where full_name is "{}"'.format(project_name)).one()
+        ftrack_project = self.session.query('Project where name is "{}"'.format(project_name)).one()
         set_reference_ftrack_project(self._project, ftrack_project['id'])
 
     def add_task_type_options(self, parent_layout, export_items):
