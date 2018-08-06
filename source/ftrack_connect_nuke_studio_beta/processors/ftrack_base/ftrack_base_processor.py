@@ -26,7 +26,8 @@ from ftrack_connect_nuke_studio_beta.processors.ftrack_base import (
 from ftrack_connect_nuke_studio_beta.ui.widget.template import Template
 import ftrack_connect_nuke_studio_beta.template as template_manager
 from ftrack_connect_nuke_studio_beta.processors.ftrack_base import (
-    get_reference_ftrack_project, set_reference_ftrack_project, lock_reference_ftrack_project
+    get_reference_ftrack_project, set_reference_ftrack_project,
+    lock_reference_ftrack_project, remove_reference_ftrack_project
 )
 import ftrack_connect_nuke_studio_beta.exception
 
@@ -846,13 +847,19 @@ class FtrackProcessorUI(FtrackBase):
 
         # check if the project is be locked
         project_id_tag, project_is_locked = get_reference_ftrack_project(self._project)
-        if project_is_locked:
+        if project_is_locked and project_id_tag:
             project = self.session.get('Project', project_id_tag)
+            if not project:
+                self.logger.warning('Project id {} found, but project does not exist on server!'.format(project_id_tag))
+                remove_reference_ftrack_project(self._project)
+                return
+
             project_name = project['full_name']
             self.logger.info('Found Project id tag, locking project to : {}'.format(project_name))
             project_index = self.project_options_widget._widget.findText(project_name)
             self.project_options_widget._widget.setCurrentIndex(project_index)
             self.project_options_widget.setDisabled(True)
+
         else:
             # force event emission
             current_index = self.project_options_widget._widget.currentIndex()

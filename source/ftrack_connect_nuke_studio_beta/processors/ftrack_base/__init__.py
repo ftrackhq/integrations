@@ -35,6 +35,14 @@ class FtrackProcessorValidationError(FtrackProcessorError):
     ''' Ftrack processor validation error. '''
 
 
+def remove_reference_ftrack_project(project):
+    for sequence in project.sequences():
+        for tag in sequence.tags()[:]:
+            if tag.name() == 'ftrack.project_reference':
+                logger.info('removing project reference')
+                sequence.removeTag(tag)
+
+
 def lock_reference_ftrack_project(project):
     for sequence in project.sequences():
         for tag in sequence.tags():
@@ -53,7 +61,7 @@ def get_reference_ftrack_project(project):
         for tag in sequence.tags():
             if tag.name() == 'ftrack.project_reference':
                 ftrack_project_id = tag.metadata().value('ftrack.project_reference.id')
-                is_project_locked = int(tag.metadata().value('ftrack.project_reference.locked'))
+                is_project_locked = bool(int(tag.metadata().value('ftrack.project_reference.locked')))
                 break
 
         if ftrack_project_id:
@@ -71,7 +79,7 @@ def set_reference_ftrack_project(project, project_id):
                 existing_tag = tag
                 break
 
-        if existing_tag and int(existing_tag.metadata().value('ftrack.project_reference.locked')):
+        if existing_tag and bool(int(existing_tag.metadata().value('ftrack.project_reference.locked'))):
             # project is locked , not much we can do ...
             logger.info('Tag {} is locked....'.format(tag))
             continue
