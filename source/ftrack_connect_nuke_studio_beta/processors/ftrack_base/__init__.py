@@ -44,11 +44,17 @@ def remove_reference_ftrack_project(project):
 
 
 def lock_reference_ftrack_project(project):
+    locked = False
     for sequence in project.sequences():
         for tag in sequence.tags():
             if tag.name() == 'ftrack.project_reference':
                 logger.info('Locking project')
                 tag.metadata().setValue('ftrack.project_reference.locked', str(1))
+                locked = True
+
+    if locked:
+        # force save project so settings are retained.
+        project.save()
 
 
 def get_reference_ftrack_project(project):
