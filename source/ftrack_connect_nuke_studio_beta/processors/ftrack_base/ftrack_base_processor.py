@@ -242,13 +242,13 @@ class FtrackProcessor(FtrackBase):
 
             if not ftrack_type:
                 if parent:
-                    self.logger.info('Creating {} with name {} and parent {}'.format(object_type, object_name, parent))
+                    self.logger.debug('Creating {} with name {} and parent {}'.format(object_type, object_name, parent))
                     ftrack_type = self.session.create(object_type, {
                         'name': object_name,
                         'parent': parent,
                     })
                 else:
-                    self.logger.info('Creating {} with name {} and project_schema {}'.format(object_type, object_name, self.schema(task._project)))
+                    self.logger.debug('Creating {} with name {} and project_schema {}'.format(object_type, object_name, self.schema(task._project)))
                     ftrack_type = self.session.create(object_type, {
                         'name': object_name,
                         'full_name': object_name,
@@ -292,10 +292,15 @@ class FtrackProcessor(FtrackBase):
             })
 
         if not version:
+            asset_type_name = self.asset_type_per_task(task)['name']
+            context_name = parent['name']
+            comment = '“Publish {0} to {1}”'.format(asset_type_name, context_name)
+
             version = self.session.create('AssetVersion', {
                 'asset': asset,
                 'status': self.asset_version_status(task._project),
-                'task': ftask
+                'task': ftask,
+                'comment': comment
             })
 
             app_metadata = 'Published with: {0} From Nuke Studio : {1}.{2}.{3}'.format(
@@ -854,7 +859,7 @@ class FtrackProcessorUI(FtrackBase):
                 return
 
             project_name = project['name']
-            self.logger.info('Found Project id tag, locking project to : {}'.format(project_name))
+            self.logger.debug('Found Project id tag, locking project to : {}'.format(project_name))
             project_index = self.project_options_widget._widget.findText(project_name)
             self.project_options_widget._widget.setCurrentIndex(project_index)
             self.project_options_widget.setDisabled(True)

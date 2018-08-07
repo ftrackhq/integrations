@@ -31,7 +31,7 @@ def remove_reference_ftrack_project(project):
     for sequence in project.sequences():
         for tag in sequence.tags()[:]:
             if tag.name() == 'ftrack.project_reference':
-                logger.info('removing project reference')
+                logger.debug('removing project reference')
                 sequence.removeTag(tag)
 
 
@@ -41,7 +41,7 @@ def lock_reference_ftrack_project(project):
     for sequence in project.sequences():
         for tag in sequence.tags():
             if tag.name() == 'ftrack.project_reference':
-                logger.info('Locking project')
+                logger.debug('Locking project')
                 tag.metadata().setValue('ftrack.project_reference.locked', str(1))
                 locked = True
 
@@ -80,7 +80,7 @@ def set_reference_ftrack_project(project, project_id):
 
         if existing_tag and bool(int(existing_tag.metadata().value('ftrack.project_reference.locked'))):
             # project is locked , not much we can do ...
-            logger.info('Tag {} is locked....'.format(tag))
+            logger.debug('Tag {} is locked....'.format(tag))
             continue
 
         if existing_tag:
@@ -135,7 +135,7 @@ class FtrackBasePreset(FtrackBase):
         project = task._project
         ftrack_project_id , project_is_locked = get_reference_ftrack_project(project)
         ftrack_project = self.session.get('Project', ftrack_project_id)
-        self.logger.info('Resolving project: {}'.format(ftrack_project['name']))
+        self.logger.debug('Resolving project: {}'.format(ftrack_project['name']))
         ftrack_project_name = self.sanitise_for_filesystem(ftrack_project['name'])
 
         track_item = task._item
