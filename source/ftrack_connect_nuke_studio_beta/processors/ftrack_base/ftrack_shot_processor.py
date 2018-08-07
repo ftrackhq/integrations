@@ -39,7 +39,9 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackProcessorUI):
 
     def updatePathPreview(self):
         ''' Override path preview widget to show ftrack server address.'''
-        self._pathPreviewWidget.setText('Ftrack Server: {0}'.format(self.session.server_url))
+        location_name = self.ftrack_location['name']
+        mount_point = self.ftrack_location.accessor.prefix
+        self._pathPreviewWidget.setText('Using Location: {0}, with mount point: {1}'.format(location_name, mount_point))
 
     def _checkExistingVersions(self, exportItems):
         ''' Override to disable internal version existence.'''
@@ -90,7 +92,7 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackProcessorPreset):
         self.properties()['ftrack']['task_type'] = 'Editing'
 
         # set asset name for processor
-        self.properties()['ftrack']['asset_name'] = 'Ingest'
+        self.properties()['ftrack']['asset_name'] = 'Conform'
 
         # asset type for processor
         self.properties()['ftrack']['asset_type_code'] = 'img'
