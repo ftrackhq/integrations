@@ -700,11 +700,6 @@ class FtrackProcessor(FtrackBase):
         In *preview* will not go through the whole validation, and return False by default.
 
         '''
-        project = export_items[0].item().project()
-        parsing_template = template_manager.get_project_template(project)
-
-        task_tags = set()
-        task_types = self.schema(project).get_types('Task')
 
         task_type = self._preset.properties()['ftrack']['task_type']
         asset_type_code = self._preset.properties()['ftrack']['asset_type_code']
@@ -719,6 +714,12 @@ class FtrackProcessor(FtrackBase):
         if preview:
             return False
         else:
+            project = export_items[0].item().project()
+            parsing_template = template_manager.get_project_template(project)
+
+            task_tags = set()
+            task_types = self.schema(project).get_types('Task')
+
             self._validate_project_progress_widget = foundry.ui.ProgressTask('Validating settings.')
             errors = {}
             missing_assets_type = []
@@ -896,6 +897,7 @@ class FtrackProcessorUI(FtrackBase):
             tooltip=tooltip
         )
         parent_layout.addRow(label + ':', self.task_type_options_widget)
+        self.task_type_options_widget.update(True)
 
     def add_asset_name_options(self, parent_layout):
         '''Create asset name options widget with parent *parent_layout*.'''
@@ -911,6 +913,7 @@ class FtrackProcessorUI(FtrackBase):
             tooltip=tooltip
         )
         parent_layout.addRow(label + ':', self.asset_name_options_widget)
+        self.asset_name_options_widget.update(True)
 
     def add_thumbnail_options(self, parent_layout):
         '''Create thumbnail options widget with parent *parent_layout*.'''
@@ -962,6 +965,7 @@ class FtrackProcessorUI(FtrackBase):
             tooltip=tooltip
         )
         parent_layout.addRow(label + ':', self.asset_type_options_widget)
+        self.asset_type_options_widget.update(True)
 
     def add_task_templates_options(self, parent_layout):
         ''' Create task template options widget with parent *parent_layout*.'''
