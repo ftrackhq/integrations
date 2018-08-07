@@ -27,6 +27,7 @@ class FtrackProcessorValidationError(FtrackProcessorError):
 
 
 def remove_reference_ftrack_project(project):
+    '''Remove reference ftrack tag from *project*.'''
     for sequence in project.sequences():
         for tag in sequence.tags()[:]:
             if tag.name() == 'ftrack.project_reference':
@@ -35,6 +36,7 @@ def remove_reference_ftrack_project(project):
 
 
 def lock_reference_ftrack_project(project):
+    '''Set *project* reference tag to locked so cannot be updated.'''
     locked = False
     for sequence in project.sequences():
         for tag in sequence.tags():
