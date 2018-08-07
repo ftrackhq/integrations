@@ -121,6 +121,7 @@ class FtrackBasePreset(FtrackBase):
         properties = self.properties()
         properties.setdefault('ftrack', {})
 
+        # add placeholders for default processor
         self.properties()['ftrack']['opt_publish_reviewable'] = True
         self.properties()['ftrack']['opt_publish_thumbnail'] = False
 
@@ -135,6 +136,7 @@ class FtrackBasePreset(FtrackBase):
         <object_type>:<object_name>|<object_type>:<object_name>|....
         '''
 
+        ''' Return project name for the given *task*. '''
         project = task._project
         ftrack_project_id , project_is_locked = get_reference_ftrack_project(project)
         ftrack_project = self.session.get('Project', ftrack_project_id)

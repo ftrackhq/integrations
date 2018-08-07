@@ -294,7 +294,7 @@ class FtrackProcessor(FtrackBase):
 
         self.logger.debug('Creating version fragment: {} {} {} {}'.format(name, asset, task, version))
 
-        task_name =  self.sanitise_for_filesystem(self.ftrack_properties['task_type'])
+        task_name = self.ftrack_properties['task_type']
         ftask = self.session.query(
             'Task where name is "{0}" and parent.id is "{1}"'.format(task_name, asset['parent']['id'])
         ).first()
@@ -308,15 +308,16 @@ class FtrackProcessor(FtrackBase):
             })
 
         if not version:
-            comment = 'Published with: {0} From Nuke Studio : {1}.{2}.{3}'.format(
-                self.__class__.__name__, *self.hiero_version_touple
-            )
             version = self.session.create('AssetVersion', {
                 'asset': asset,
                 'status': self.asset_version_status(task._project),
-                'comment': comment,
                 'task': ftask
             })
+
+            app_metadata = 'Published with: {0} From Nuke Studio : {1}.{2}.{3}'.format(
+                self.__class__.__name__, *self.hiero_version_touple
+            )
+            version['metadata']['app_metadata'] = app_metadata
 
         return version
 

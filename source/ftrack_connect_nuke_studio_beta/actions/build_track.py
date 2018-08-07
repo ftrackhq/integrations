@@ -77,7 +77,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         if self._selection:
             self.project = self.item_project(self._selection[0])
 
-        self._window_title = 'Rebuild Track from server tasks'
+        self._window_title = 'Build track from ftrack'
         self.setWindowTitle(self._window_title)
         # self.setWindowIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
 
@@ -201,7 +201,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             self.accept()
         else:
             QtWidgets.QMessageBox.warning(
-                self, "Build Track from server",
+                self, "Build track from ftrack",
                 "Please set track names",
                 QtWidgets.QMessageBox.Ok
         )
@@ -242,7 +242,6 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
             final_component = sorted_components[-1]
             self._result_data[taskItem] = final_component['id']
-
 
         # Update window title with the amount of clips found matching the filters
         new_title = self._window_title + ' - ({} clips found)'.format(len(self._result_data))
@@ -326,7 +325,7 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
 
     def __init__(self):
         ''' Initialise action. '''
-        super(FtrackReBuildServerTrackAction, self).__init__('Rebuild from ftrack')
+        super(FtrackReBuildServerTrackAction, self).__init__('Build track from ftrack')
         self.trackFinder = FtrackTrackFinderByNameWithDialog(self)
         self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoLight'))
 
@@ -399,7 +398,7 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
 
         if self._errors:
           msgBox = QtWidgets.QMessageBox(hiero.ui.mainWindow())
-          msgBox.setWindowTitle('Rebuild Media Track')
+          msgBox.setWindowTitle('Build track from ftrack')
           msgBox.setText('There were problems building the track.')
           msgBox.setDetailedText( '\n'.join(self._errors) )
           msgBox.exec_()
@@ -479,7 +478,7 @@ class FtrackBuildTrack(BuildTrack):
 
     def __init__(self):
         ''' Initialise menu widget. '''
-        QtWidgets.QMenu.__init__(self, 'Build Track', None)
+        QtWidgets.QMenu.__init__(self, 'Build track from ftrack', None)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
