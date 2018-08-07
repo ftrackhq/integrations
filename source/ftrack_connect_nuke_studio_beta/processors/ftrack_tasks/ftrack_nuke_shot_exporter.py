@@ -35,7 +35,8 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
         FtrackProcessorPreset.__init__(self, name, properties)
         # Update preset with loaded data
         self.properties().update(properties)
-        
+        self.setName('NukeScript')
+
     def set_ftrack_properties(self, properties):
         '''Set ftrack specific *properties* for task.'''
         FtrackProcessorPreset.set_ftrack_properties(self, properties)

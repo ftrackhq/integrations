@@ -9,6 +9,7 @@ from ftrack_connect_nuke_studio_beta.base import FtrackBase
 from ftrack_connect_nuke_studio_beta.overrides.version_scanner import add_ftrack_build_tag
 from ftrack_connect_nuke_studio_beta.template import get_project_template, match
 import ftrack_connect_nuke_studio_beta.exception
+from ftrack_connect_nuke_studio_beta.processors.ftrack_base import get_reference_ftrack_project
 import hiero
 
 from hiero.ui.BuildExternalMediaTrack import (
@@ -76,7 +77,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         if self._selection:
             self.project = self.item_project(self._selection[0])
 
-        self._window_title = 'Rebuild Track from server tasks'
+        self._window_title = 'Build track from ftrack'
         self.setWindowTitle(self._window_title)
         # self.setWindowIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
 
@@ -84,7 +85,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
         layout = QtWidgets.QVBoxLayout()
         formLayout = QtWidgets.QFormLayout()
-        self._tracknameField = QtWidgets.QLineEdit(BuildTrack.ProjectTrackNameDefault(selection))
+        self._tracknameField = QtWidgets.QLineEdit()
         self._tracknameField.setToolTip('Name of new track')
         formLayout.addRow('Track name:', self._tracknameField)
 
@@ -127,8 +128,19 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         self.component_combobox.currentIndexChanged.connect(self.get_components)
         self.asset_status_combobox.currentIndexChanged.connect(self.get_components)
 
+        # set suggested track name
+        self._tracknameField.setText(self.suggested_track_name)
+
         # force ui to refresh
         self.get_components()
+
+    @property
+    def suggested_track_name(self):
+        task_name = self.tasks_combobox.currentText()
+        component_name = self.component_combobox.currentText()
+        status = self.asset_status_combobox.currentText().replace('-', '').strip()
+        new_track_name = '{}-{}-{}'.format(task_name, component_name, status)
+        return new_track_name.upper()
 
     @staticmethod
     def common_items(items):
@@ -143,6 +155,11 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         results = {}
         project_name = self.project.name()
         project_template = get_project_template(self.project)
+        project_id, is_locked = get_reference_ftrack_project(self.project)
+        if not project_id:
+            raise Exception('Project Id not found!')
+
+        ftrack_project = self.session.get('Project', project_id)
 
         if not project_template:
             raise ftrack_connect_nuke_studio_beta.exception.TemplateError(
@@ -157,7 +174,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             except ftrack_connect_nuke_studio_beta.exception.TemplateError:
                 continue
 
-            results[trackItem] = [project_name] + [result['name'] for result in parsed_results]
+            results[trackItem] = [ftrack_project['name']] + [result['name'] for result in parsed_results]
         return results
 
     def trackName(self):
@@ -184,7 +201,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             self.accept()
         else:
             QtWidgets.QMessageBox.warning(
-                self, "Build Track from server",
+                self, "Build track from ftrack",
                 "Please set track names",
                 QtWidgets.QMessageBox.Ok
         )
@@ -218,7 +235,6 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             all_components = self.session.query(query
             ).all()
 
-
             if not all_components:
                 continue
 
@@ -227,12 +243,12 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             final_component = sorted_components[-1]
             self._result_data[taskItem] = final_component['id']
 
-
         # Update window title with the amount of clips found matching the filters
         new_title = self._window_title + ' - ({} clips found)'.format(len(self._result_data))
         self.setWindowTitle(new_title)
 
         self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setDisabled(not bool(len(self._result_data)))
+        self._tracknameField.setText(self.suggested_track_name)
 
     def populate_components(self):
         ''' Populate the components widget. '''
@@ -309,7 +325,7 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
 
     def __init__(self):
         ''' Initialise action. '''
-        super(FtrackReBuildServerTrackAction, self).__init__('Rebuild from ftrack')
+        super(FtrackReBuildServerTrackAction, self).__init__('Build track from ftrack')
         self.trackFinder = FtrackTrackFinderByNameWithDialog(self)
         self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoLight'))
 
@@ -382,7 +398,7 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
 
         if self._errors:
           msgBox = QtWidgets.QMessageBox(hiero.ui.mainWindow())
-          msgBox.setWindowTitle('Rebuild Media Track')
+          msgBox.setWindowTitle('Build track from ftrack')
           msgBox.setText('There were problems building the track.')
           msgBox.setDetailedText( '\n'.join(self._errors) )
           msgBox.exec_()
@@ -397,7 +413,7 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
             scanner = hiero.core.VersionScanner.VersionScanner()  # Scan for new versions
             scanner.doScan(version)
 
-    def _buildTrackItem(self, name, clip, originalTrackItem, expectedStartTime, expectedDuration, expectedStartHandle,
+    def _buildTrackItem(self, name, clip, originalTrackItem, expected_start_time, expectedDuration, expected_start_handle,
                         expectedEndHandle, expectedOffset):
         '''' Return a trackItem build out of:
 
@@ -406,55 +422,55 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
 
         '''
         # Create the item
-        trackItem = hiero.core.TrackItem(name, hiero.core.TrackItem.kVideo)
-        trackItem.setSource(clip)
+        track_item = hiero.core.TrackItem(name, hiero.core.TrackItem.kVideo)
+        track_item.setSource(clip)
 
         # Copy the timeline in/out
-        trackItem.setTimelineIn(originalTrackItem.timelineIn())
-        trackItem.setTimelineOut(originalTrackItem.timelineOut())
+        track_item.setTimelineIn(originalTrackItem.timelineIn())
+        track_item.setTimelineOut(originalTrackItem.timelineOut())
 
         # Calculate the source in/out times.  Try to match frame numbers, compensating for handles etc.
-        mediaSource = clip.mediaSource()
+        media_source = clip.mediaSource()
 
-        originalClip = originalTrackItem.source()
-        originalMediaSource = originalClip.mediaSource()
+        original_clip = originalTrackItem.source()
+        original_media_source = original_clip.mediaSource()
 
         # If source durations match, and there were no retimes, then the whole clip was exported, and we should use the same source in/out
         # as the original.  The correct handles are not being stored in the tag in this case.
-        fullClipExported = (originalMediaSource.duration() == mediaSource.duration())
+        full_clip_exported = (original_media_source.duration() == media_source.duration())
 
-        if fullClipExported:
-            sourceIn = originalTrackItem.sourceIn()
-            sourceOut = originalTrackItem.sourceOut()
+        if full_clip_exported:
+            source_in = originalTrackItem.sourceIn()
+            source_out = originalTrackItem.sourceOut()
 
         # Otherwise try to use the export handles and retime info to determine the correct source in/out
         else:
             # On the timeline, the first frame of video files is always 0.  Reset the start time
-            isVideoFile = hiero.core.isVideoFileExtension(os.path.splitext(mediaSource.fileinfos()[0].filename())[1])
-            if isVideoFile:
-                expectedStartTime = 0
+            is_video_file = hiero.core.isVideoFileExtension(os.path.splitext(media_source.fileinfos()[0].filename())[1])
+            if is_video_file:
+                expected_start_time = 0
 
-            sourceIn = expectedStartTime - mediaSource.startTime()
-            if expectedStartHandle is not None:
-                sourceIn += expectedStartHandle
+            source_in = expected_start_time - media_source.startTime()
+            if expected_start_handle is not None:
+                source_in += expected_start_handle
 
             # First add the abs src duration to get the source out
-            sourceOut = sourceIn + abs(originalTrackItem.sourceOut() - originalTrackItem.sourceIn())
+            source_out = source_in + abs(originalTrackItem.sourceOut() - originalTrackItem.sourceIn())
 
             # Then, for a negative retime, src in/out need to be reversed
             if originalTrackItem.playbackSpeed() < 0.0:
-                sourceIn, sourceOut = sourceOut, sourceIn
+                source_in, source_out = source_out, source_in
 
-        trackItem.setSourceIn(sourceIn)
-        trackItem.setSourceOut(sourceOut)
+        track_item.setSourceIn(source_in)
+        track_item.setSourceOut(source_out)
 
         component_id = self._track_data.get(originalTrackItem)
         if component_id:
             component = self.session.get('Component', component_id)
             add_ftrack_build_tag(clip, component)
-            self.update_ftrack_versions(trackItem)
+            self.update_ftrack_versions(track_item)
 
-        return trackItem
+        return track_item
 
 
 class FtrackBuildTrack(BuildTrack):
@@ -462,7 +478,7 @@ class FtrackBuildTrack(BuildTrack):
 
     def __init__(self):
         ''' Initialise menu widget. '''
-        QtWidgets.QMenu.__init__(self, 'Build Track', None)
+        QtWidgets.QMenu.__init__(self, 'Build track from ftrack', None)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )

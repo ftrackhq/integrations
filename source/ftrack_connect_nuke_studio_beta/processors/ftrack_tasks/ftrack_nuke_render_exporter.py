@@ -87,6 +87,7 @@ class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
 
         # Update preset with loaded data
         self.properties().update(properties)
+        self.setName('Plate')
 
     def set_ftrack_properties(self, properties):
         '''Set ftrack specific *properties* for task.'''

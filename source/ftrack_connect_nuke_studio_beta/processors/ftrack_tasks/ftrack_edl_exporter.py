@@ -49,6 +49,7 @@ class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
 
         # Update preset with loaded data
         self.properties().update(properties)
+        self.setName('EDL')
 
     def set_ftrack_properties(self, properties):
         '''Set ftrack specific *properties* for task.'''
