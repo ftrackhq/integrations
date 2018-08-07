@@ -117,7 +117,6 @@ class FtrackBasePreset(FtrackBase):
         properties = self.properties()
         properties.setdefault('ftrack', {})
 
-        # add placeholders for default processor
         self.properties()['ftrack']['opt_publish_reviewable'] = True
         self.properties()['ftrack']['opt_publish_thumbnail'] = False
 
