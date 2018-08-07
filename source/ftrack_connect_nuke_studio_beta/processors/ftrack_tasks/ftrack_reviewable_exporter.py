@@ -104,6 +104,16 @@ class FtrackReviewableExporterPreset(TranscodePreset, FtrackProcessorPreset):
         self.properties()['ftrack']['component_pattern'] = '.mov'
         self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__)
 
+        # enforce mov for newly created task
+        self.properties()['file_type'] = 'mov'
+        self.properties()['mov'] = {
+                'encoder': 'mov64',
+                'codec': 'avc1\tH.264',
+                'quality': 3,
+                'settingsString': 'H.264, High Quality',
+                'keyframerate': 1,
+        }
+
     def addUserResolveEntries(self, resolver):
         FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)
 
