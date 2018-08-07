@@ -1,11 +1,14 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2018 ftrack
 
+import logging
 import hiero
 from ftrack_connect_nuke_studio_beta.base import FtrackBase
 from ftrack_connect_nuke_studio_beta.template import match, get_project_template
 import ftrack_connect_nuke_studio_beta.exception
 
+
+logger = logging.getLogger(__name__)
 
 FTRACK_SHOW_PATH = FtrackBase.path_separator.join([
     '{ftrack_project_structure} ',
@@ -27,6 +30,73 @@ class FtrackProcessorError(Exception):
 
 class FtrackProcessorValidationError(FtrackProcessorError):
     ''' Ftrack processor validation error. '''
+
+
+def remove_reference_ftrack_project(project):
+    for sequence in project.sequences():
+        for tag in sequence.tags()[:]:
+            if tag.name() == 'ftrack.project_reference':
+                logger.info('removing project reference')
+                sequence.removeTag(tag)
+
+
+def lock_reference_ftrack_project(project):
+    locked = False
+    for sequence in project.sequences():
+        for tag in sequence.tags():
+            if tag.name() == 'ftrack.project_reference':
+                logger.info('Locking project')
+                tag.metadata().setValue('ftrack.project_reference.locked', str(1))
+                locked = True
+
+    if locked:
+        # force save project so settings are retained.
+        project.save()
+
+
+def get_reference_ftrack_project(project):
+    '''Return ftrack project reference stored on *project* and whether is locked.'''
+    ftrack_project_id = None
+    is_project_locked = False
+    # Fetch the templates from tags on sequences on the project.
+    # This is a workaround due to that projects do not have tags or metadata.
+    for sequence in project.sequences():
+        for tag in sequence.tags():
+            if tag.name() == 'ftrack.project_reference':
+                ftrack_project_id = tag.metadata().value('ftrack.project_reference.id')
+                is_project_locked = bool(int(tag.metadata().value('ftrack.project_reference.locked')))
+                break
+
+        if ftrack_project_id:
+            break
+
+    return ftrack_project_id, is_project_locked
+
+
+def set_reference_ftrack_project(project, project_id):
+    '''Set *project* tags to ftrack *project_id* if doesn't exist.'''
+    for sequence in project.sequences():
+        existing_tag = None
+        for tag in sequence.tags():
+            if tag.name() == 'ftrack.project_reference':
+                existing_tag = tag
+                break
+
+        if existing_tag and bool(int(existing_tag.metadata().value('ftrack.project_reference.locked'))):
+            # project is locked , not much we can do ...
+            logger.info('Tag {} is locked....'.format(tag))
+            continue
+
+        if existing_tag:
+            # tag exists and is not locked, we can update...
+            existing_tag.metadata().setValue('ftrack.project_reference.id', project_id)
+            # tag.setVisible(False)
+        else:
+            # tag does not exists
+            tag = hiero.core.Tag('ftrack.project_reference')
+            tag.metadata().setValue('ftrack.project_reference.id', project_id)
+            tag.metadata().setValue('ftrack.project_reference.locked', str(0))
+            sequence.addTag(tag)
 
 
 class FtrackBasePreset(FtrackBase):
@@ -51,8 +121,6 @@ class FtrackBasePreset(FtrackBase):
         properties = self.properties()
         properties.setdefault('ftrack', {})
 
-        # add placeholders for default processor
-        self.properties()['ftrack']['project_schema'] = 'Film Pipeline'
         self.properties()['ftrack']['opt_publish_reviewable'] = True
         self.properties()['ftrack']['opt_publish_thumbnail'] = False
 
@@ -67,13 +135,18 @@ class FtrackBasePreset(FtrackBase):
         <object_type>:<object_name>|<object_type>:<object_name>|....
         '''
 
-        project_name = self.sanitise_for_filesystem(task.projectName())
+        project = task._project
+        ftrack_project_id , project_is_locked = get_reference_ftrack_project(project)
+        ftrack_project = self.session.get('Project', ftrack_project_id)
+        self.logger.info('Resolving project: {}'.format(ftrack_project['name']))
+        ftrack_project_name = self.sanitise_for_filesystem(ftrack_project['name'])
+
 
         track_item = task._item
         template = get_project_template(task._project)
 
         if not isinstance(track_item, hiero.core.Sequence):
-            data = ['Project:{}'.format(project_name)]
+            data = ['Project:{}'.format(ftrack_project_name)]
             try:
                 results = match(track_item, template)
             except ftrack_connect_nuke_studio_beta.exception.TemplateError:
