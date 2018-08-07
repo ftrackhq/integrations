@@ -210,22 +210,6 @@ class FtrackProcessor(FtrackBase):
             raise FtrackProcessorError(error)
         return result
 
-    def _create_project_fragment(self, name, parent, task, version):
-        '''Return ftrack project entity from *name*, *parent*, *task* and *version*.'''
-        self.logger.debug('Creating project fragment: {} {} {} {}'.format(name, parent, task, version))
-
-        project = self.session.query(
-            'Project where name is "{0}"'.format(name)
-        ).first()
-        if not project:
-            project = self.session.create('Project', {
-                'name': name,
-                'full_name': name,
-                'project_schema': self.schema(task._project)
-            })
-
-        return project
-
     def _create_projct_structure_fragment(self, composed_name, parent, task, version):
         '''Return ftrack context entity from *composed_name*, *parent*, *task* and *version*.'''
         self.logger.debug('Creating context fragment: {} {} {} {}'.format(composed_name, parent, task, version))

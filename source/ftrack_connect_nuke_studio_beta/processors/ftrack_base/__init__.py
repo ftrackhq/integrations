@@ -10,14 +10,8 @@ import ftrack_connect_nuke_studio_beta.exception
 
 logger = logging.getLogger(__name__)
 
-FTRACK_SHOW_PATH = FtrackBase.path_separator.join([
-    '{ftrack_project_structure} ',
-    '{ftrack_version}',
-    '{ftrack_component}'
-])
 
-
-FTRACK_SHOT_PATH = FtrackBase.path_separator.join([
+FTRACK_PROJECT_STRUCTURE = FtrackBase.path_separator.join([
     '{ftrack_project_structure}',
     '{ftrack_version}',
     '{ftrack_component}'
@@ -143,12 +137,13 @@ class FtrackBasePreset(FtrackBase):
         self.logger.info('Resolving project: {}'.format(ftrack_project['name']))
         ftrack_project_name = self.sanitise_for_filesystem(ftrack_project['name'])
 
-
         track_item = task._item
         template = get_project_template(task._project)
 
+        # Inject project as first item.
+        data = ['Project:{}'.format(ftrack_project_name)]
+
         if not isinstance(track_item, hiero.core.Sequence):
-            data = ['Project:{}'.format(ftrack_project_name)]
             try:
                 results = match(track_item, template)
             except ftrack_connect_nuke_studio_beta.exception.TemplateError:
@@ -161,10 +156,8 @@ class FtrackBasePreset(FtrackBase):
                 composed_result = '{}:{}'.format(result['object_type'], sanitised_result)
                 data.append(composed_result)
 
-            result_data = '|'.join(data)
-            return result_data
-        else:
-            return self.sanitise_for_filesystem(track_item.name())
+        result_data = '|'.join(data)
+        return result_data
 
     def resolve_ftrack_version(self, task):
         ''' Return version for the given *task*.'''
