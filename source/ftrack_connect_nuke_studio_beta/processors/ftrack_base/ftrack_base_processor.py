@@ -691,6 +691,9 @@ class FtrackProcessor(FtrackBase):
     def publish_thumbnail(self, component, render_task):
         ''' Generate thumbnail *component* for *render_task*. '''
         source = render_task._clip
+
+        # TODO: pick frame from mid lenght clip or cut.
+
         thumbnail_qimage = source.thumbnail(source.posterFrame())
         thumbnail_file = tempfile.NamedTemporaryFile(prefix='hiero_ftrack_thumbnail', suffix='.png', delete=False).name
         thumbnail_qimage_resized = thumbnail_qimage.scaledToWidth(1280, QtCore.Qt.SmoothTransformation)
