@@ -136,7 +136,7 @@ def ftrack_find_version_files(scanner_instance, version):
     ftrack_tag = get_ftrack_tag(clip)
 
     if not ftrack_tag:
-        return scanner_instance._default_findVersionFiles(scanner_instance, version)
+        return scanner_instance._default_findVersionFiles(version)
 
     component_id = ftrack_tag.metadata()['component_id']
     component = session.get('Component', component_id)
