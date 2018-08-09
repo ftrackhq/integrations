@@ -10,6 +10,9 @@ Subpackages
     ftrack_connect_nuke_studio_beta.overrides
     ftrack_connect_nuke_studio_beta.processors
     ftrack_connect_nuke_studio_beta.tags
+    ftrack_connect_nuke_studio_beta.ui
+    ftrack_connect_nuke_studio_beta.ui.widget
+
 
 Submodules
 ----------
