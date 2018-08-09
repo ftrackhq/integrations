@@ -11,5 +11,5 @@ studio.
 .. toctree::
    :maxdepth: 1
 
-   api_reference
+   api_reference/index
 
