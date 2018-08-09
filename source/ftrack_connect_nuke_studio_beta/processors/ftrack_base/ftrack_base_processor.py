@@ -366,17 +366,18 @@ class FtrackProcessor(FtrackBase):
         # ensure to reset components before creating a new project.
         self._components = {}
         versions = {}
-        project = export_items[0].item().project()
-        parsing_template = template_manager.get_project_template(project)
 
         num_items = len(self._exportTemplate.flatten()) * len(export_items)
         for export_item in export_items:
             track_item = export_item.item()
 
             # Skip effects track items.
-            if isinstance(track_item, hiero.core.EffectTrackItem):
+            if isinstance(track_item, (hiero.core.EffectTrackItem, hiero.core.Transition)):
                 self.logger.debug('Skipping {0}'.format(track_item))
                 continue
+
+            project = export_item.item().project()
+            parsing_template = template_manager.get_project_template(project)
 
             try:
                 template_manager.match(track_item, parsing_template)
@@ -722,12 +723,6 @@ class FtrackProcessor(FtrackBase):
         if preview:
             return False
         else:
-            project = export_items[0].item().project()
-            parsing_template = template_manager.get_project_template(project)
-
-            task_tags = set()
-            task_types = self.schema(project).get_types('Task')
-
             self._validate_project_progress_widget = foundry.ui.ProgressTask('Validating settings.')
             errors = {}
             missing_assets_type = []
@@ -740,9 +735,15 @@ class FtrackProcessor(FtrackBase):
                 item = exportItem.item()
 
                 # Skip effects track items.
-                if isinstance(item, hiero.core.EffectTrackItem):
-                    self.logger.debug('Skipping {0}'.format(exportItem))
+                if isinstance(item, (hiero.core.EffectTrackItem, hiero.core.Transition)):
+                    self.logger.debug('Skipping {0}'.format(item))
                     continue
+
+                project = item.project()
+                parsing_template = template_manager.get_project_template(project)
+
+                task_tags = set()
+                task_types = self.schema(project).get_types('Task')
 
                 try:
                     template_manager.match(item, parsing_template)
