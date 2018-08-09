@@ -94,8 +94,8 @@ def autodoc_skip(app, what, name, obj, skip, options):
 # Packages / modules to mock so that build does not fail.
 for module in [
     'hiero', 'hiero.ui', 'hiero.core', 'hiero.core.events', 'nuke', 'ftrack',
-    'QtExt', 'ftrack_connect', 'ftrack_connect.ui.widget.html_combobox',
-    'ftrack_connect.session', 'lucidity', 'hiero.core.VersionScanner'
+    'QtExt', 'ftrack_connect', 'ui.widget.html_combobox',
+    'ftrack_connect.session', 'lucidity', 'hiero.core.VersionScanner', 'error'
 ]:
     sys.modules[module] = mock.MagicMock()
 
