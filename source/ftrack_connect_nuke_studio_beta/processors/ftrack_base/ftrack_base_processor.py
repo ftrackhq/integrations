@@ -62,8 +62,6 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
         form_layout = TaskUIFormLayout()
         box_layout.addLayout(form_layout)
 
-        template_manager.get_project_template()
-
         for processor, values in error_data.items():
             form_layout.addDivider('Wrong {0} presets'.format(processor.__class__.__name__))
 
