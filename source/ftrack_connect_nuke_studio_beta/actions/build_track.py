@@ -167,7 +167,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         )
 
         for trackItem in self._selection:
-            if isinstance(trackItem, hiero.core.EffectTrackItem):
+            if isinstance(trackItem, (hiero.core.EffectTrackItem, hiero.core.Transition)):
                 continue
             try:
                 parsed_results = match(trackItem, project_template)
