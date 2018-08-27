@@ -84,6 +84,7 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackProcessorPreset):
     def addCustomResolveEntries(self, resolver):
         '''Add ftrack resolve entries to *resolver*.'''
         FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)
+        ShotProcessorPreset.addCustomResolveEntries(self, resolver)
 
     def set_ftrack_properties(self, properties):
         '''Set ftrack specific *properties* for processor.'''
