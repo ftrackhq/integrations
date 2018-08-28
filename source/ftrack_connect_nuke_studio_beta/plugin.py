@@ -14,6 +14,7 @@ from ftrack_connect_nuke_studio_beta.actions.build_track import FtrackBuildTrack
 from ftrack_connect_nuke_studio_beta.tags.tag_drop_handler import TagDropHandler
 from ftrack_connect_nuke_studio_beta.tags.tag_manager import TagManager
 from ftrack_connect_nuke_studio_beta.overrides.version_scanner import register_versioning_overrides
+from ftrack_connect_nuke_studio_beta.overrides.nodes import register_nodes_overrides
 from ftrack_connect_nuke_studio_beta.processors import register_processors
 import ftrack_connect_nuke_studio_beta.resource
 
@@ -41,4 +42,5 @@ if (not hiero.core.isHieroPlayer()) and isinstance(QtCore.QCoreApplication.insta
 
     register_processors()
     register_versioning_overrides()
+    register_nodes_overrides()
 
