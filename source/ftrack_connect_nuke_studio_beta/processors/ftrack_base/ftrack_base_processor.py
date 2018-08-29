@@ -500,10 +500,13 @@ class FtrackProcessor(FtrackBase):
 
     def add_ftrack_tag(self, original_item, task):
         ''' Add ftrack tag to *original_item* for *task*. '''
+
         if not hasattr(original_item, 'tags'):
             return
 
+        # clip
         item = task._item
+        self.logger.info('Adding tag to {}'.format(original_item))
 
         localtime = time.localtime(time.time())
 
@@ -557,7 +560,7 @@ class FtrackProcessor(FtrackBase):
             return
 
         tag = hiero.core.Tag(
-            '{0}'.format(task._preset.name()),
+            'ftrack.{0}'.format(task._preset.name()),
             ':/ftrack/image/default/ftrackLogoLight',
             False
         )
