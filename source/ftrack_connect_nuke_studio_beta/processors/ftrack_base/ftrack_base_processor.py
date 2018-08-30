@@ -511,7 +511,7 @@ class FtrackProcessor(FtrackBase):
         if not hasattr(original_item, 'tags'):
             return
 
-        # clip
+        # TrackItem
         item = task._item
         self.logger.info('Adding tag to {}'.format(original_item))
 
