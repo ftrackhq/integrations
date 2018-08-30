@@ -100,9 +100,9 @@ class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackProcessorUI):
         self._taskType = FtrackNukeShotExporter
 
     def populateUI(self, widget, exportTemplate):
-        # disable ui
-        return
-
+        NukeShotExporterUI.populateUI(self, widget, exportTemplate)
+        self._nodeSelectionWidget.setHidden(True)
+        self._timelineWriteNode.setHidden(True)
 
 hiero.core.taskRegistry.registerTask(FtrackNukeShotExporterPreset, FtrackNukeShotExporter)
 hiero.ui.taskUIRegistry.registerTaskUI(FtrackNukeShotExporterPreset, FtrackNukeShotExporterUI)
