@@ -450,6 +450,11 @@ class FtrackProcessor(FtrackBase):
 
                 task = hiero.core.taskRegistry.createTaskFromPreset(preset, taskData)
 
+                if hasattr(task, '_nothingToDo') and task._nothingToDo == True:
+                    # let's not create anything if the task is set not to do anything.
+                    self.logger.warning('Skipping Task {} is set as disabled'.format(task))
+                    continue
+
                 file_name = '{0}{1}'.format(
                     preset.name().lower(),
                     preset.properties()['ftrack']['component_pattern']

@@ -21,26 +21,25 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
         '''Initialise task with *initDict*.'''
         NukeShotExporter.__init__(self, initDict)
         FtrackProcessor.__init__(self, initDict)
-
-    def _beforeNukeScriptWrite(self, script):
         track_item = self._init_dict.get('item')
         track_item_tags = track_item.tags()
 
-        plate_tag = None
+        self._plate_tag = None
         for tag in track_item_tags:
             if tag.name() == 'ftrack.Plate':
-                plate_tag = tag
+                self._plate_tag = tag
                 break
 
-        if not plate_tag:
+        if not self._plate_tag :
             # if the plate tag is not existing we cannot reference the plate.
             self._nothingToDo = True
 
+    def _beforeNukeScriptWrite(self, script):
         nodes = script.getNodes()
         for node in nodes:
             self.logger.info('Node: {}'.format(node.type()))
-            if node.type() == 'Read' and plate_tag:
-                tag_metadata = plate_tag.metadata()
+            if node.type() == 'Read' and self._plate_tag:
+                tag_metadata = self._plate_tag.metadata()
                 component_id = tag_metadata['tag.component_id']
                 ftrack_component = self.session.get('Component', component_id)
                 ftrack_component_name = ftrack_component['name']
