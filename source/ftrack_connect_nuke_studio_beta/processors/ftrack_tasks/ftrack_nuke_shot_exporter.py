@@ -32,6 +32,10 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
                 plate_tag = tag
                 break
 
+        if not plate_tag:
+            # if the plate tag is not existing we cannot reference the plate.
+            self._nothingToDo = True
+
         nodes = script.getNodes()
         for node in nodes:
             self.logger.info('Node: {}'.format(node.type()))
@@ -95,6 +99,10 @@ class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackProcessorUI):
 
         self._displayName = 'Ftrack Nuke File'
         self._taskType = FtrackNukeShotExporter
+
+    def populateUI(self, widget, exportTemplate):
+        # disable ui
+        return
 
 
 hiero.core.taskRegistry.registerTask(FtrackNukeShotExporterPreset, FtrackNukeShotExporter)
