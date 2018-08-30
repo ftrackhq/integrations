@@ -384,8 +384,6 @@ class FtrackProcessor(FtrackBase):
                     'Skipping {} as does not match {}'.format(track_item, parsing_template['expression']))
                 continue
 
-            filtered_export_items.append(export_item)
-
             for (exportPath, preset) in self._exportTemplate.flatten():
 
                 progress_index += 1
@@ -454,6 +452,10 @@ class FtrackProcessor(FtrackBase):
                     # let's not create anything if the task is set not to do anything.
                     self.logger.warning('Skipping Task {} is set as disabled'.format(task))
                     continue
+
+                if export_item not in filtered_export_items:
+                    self.logger.info('adding {} to filtered export items'.format(export_item))
+                    filtered_export_items.append(export_item)
 
                 file_name = '{0}{1}'.format(
                     preset.name().lower(),
@@ -612,6 +614,7 @@ class FtrackProcessor(FtrackBase):
         render_data = has_data
 
         output_path = render_data['path']
+
         task._exportPath = output_path
         task.setDestinationDescription(output_path)
 
