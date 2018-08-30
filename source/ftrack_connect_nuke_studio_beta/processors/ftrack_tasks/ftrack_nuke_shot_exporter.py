@@ -35,6 +35,7 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
             self._nothingToDo = True
 
     def _beforeNukeScriptWrite(self, script):
+        ''' Call-back method introduced to allow modifications of the script object before it is written to disk.'''
         nodes = script.getNodes()
         for node in nodes:
             self.logger.info('Node: {}'.format(node.type()))
@@ -67,6 +68,7 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
 
     def __init__(self, name, properties, task=FtrackNukeShotExporter):
         '''Initialise task with *name* and *properties*.'''
+        self.logger.info(properties)
         NukeShotPreset.__init__(self, name, properties, task)
         FtrackProcessorPreset.__init__(self, name, properties)
         # Update preset with loaded data
@@ -100,6 +102,9 @@ class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackProcessorUI):
         self._taskType = FtrackNukeShotExporter
 
     def populateUI(self, widget, exportTemplate):
+        '''PopulateUIExport dialog to allow the TaskUI to populate a QWidget with the ui *widget*
+        neccessary to reflect the current preset
+        '''
         NukeShotExporterUI.populateUI(self, widget, exportTemplate)
         self._nodeSelectionWidget.setHidden(True)
         self._timelineWriteNode.setHidden(True)
