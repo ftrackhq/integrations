@@ -454,9 +454,10 @@ class FtrackProcessor(FtrackBase):
                 task = hiero.core.taskRegistry.createTaskFromPreset(preset, taskData)
 
                 file_name = '{0}{1}'.format(
-                    preset.properties()['ftrack']['task_name'].lower(),
+                    preset.properties()['ftrack']['task_name'],
                     preset.properties()['ftrack']['component_pattern']
-                )
+                ).lower()
+
                 resolved_file_name = task.resolvePath(file_name)
 
                 path = task.resolvePath(exportPath)
@@ -708,6 +709,7 @@ class FtrackProcessor(FtrackBase):
         version = component['version']
         version.create_thumbnail(thumbnail_file)
         version['task'].create_thumbnail(thumbnail_file)
+
 
     def validate_ftrack_processing(self, export_items, preview):
         ''' Return whether the *export_items* and processor are valid to be rendered.
