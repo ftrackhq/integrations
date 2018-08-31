@@ -40,7 +40,7 @@ class FtrackAudioExporterPreset(AudioExportPreset, FtrackProcessorPreset):
 
         # Update preset with loaded data
         self.properties().update(properties)
-        self.setName('Audio')
+        self.setName(self.properties()['ftrack']['task_name'])
 
     def set_ftrack_properties(self, properties):
         '''Set ftrack specific *properties* for task.'''
@@ -50,7 +50,8 @@ class FtrackAudioExporterPreset(AudioExportPreset, FtrackProcessorPreset):
 
         # add placeholders for default ftrack defaults
         self.properties()['ftrack']['component_pattern'] = '.{ext}'
-        self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__)
+        self.properties()['ftrack']['task_name'] = 'Audio'
+        self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__+self.properties()['ftrack']['task_name'])
 
     def addCustomResolveEntries(self, resolver):
         '''Add ftrack resolve entries to *resolver*.'''
@@ -70,6 +71,9 @@ class FtrackAudioExporterUI(AudioExportUI, FtrackProcessorUI):
         self._displayName = 'Ftrack Audio Exporter'
         self._taskType = FtrackAudioExporter
 
+    def populateUI(self, widget, exportTemplate):
+        AudioExportUI.populateUI(self, widget, exportTemplate)
+        self.addFtrackTaskUI(widget, exportTemplate)
 
 hiero.core.taskRegistry.registerTask(FtrackAudioExporterPreset, FtrackAudioExporter)
 hiero.ui.taskUIRegistry.registerTaskUI(FtrackAudioExporterPreset, FtrackAudioExporterUI)

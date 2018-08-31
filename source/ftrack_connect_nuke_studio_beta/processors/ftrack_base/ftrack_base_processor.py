@@ -312,8 +312,11 @@ class FtrackProcessor(FtrackBase):
         '''Return ftrack component entity from *name*, *parent*, *task* and *version*.'''
         self.logger.debug('Creating component fragment: {} {} {} {}'.format(name, parent, task, version))
 
+        component_name = task._preset.properties()['ftrack']['task_name']
+        self.logger.info('Creating component for : {} with name {}'.format(task, component_name))
+
         component = parent.create_component('/', {
-            'name': task._preset.name().lower()
+            'name': component_name
         }, location=None)
 
         return component
@@ -410,7 +413,7 @@ class FtrackProcessor(FtrackBase):
 
                 # create entry points on where to store ftrack component and path data.
                 self._components.setdefault(track_item.name(), {})
-                self._components[track_item.name()].setdefault(preset.name(), {})
+                self._components[track_item.name()].setdefault(preset.properties()['ftrack']['task_name'], {})
 
                 retime = self._preset.properties().get('includeRetimes', False)
 
@@ -451,7 +454,7 @@ class FtrackProcessor(FtrackBase):
                 task = hiero.core.taskRegistry.createTaskFromPreset(preset, taskData)
 
                 file_name = '{0}{1}'.format(
-                    preset.name().lower(),
+                    preset.properties()['ftrack']['task_name'].lower(),
                     preset.properties()['ftrack']['component_pattern']
                 )
                 resolved_file_name = task.resolvePath(file_name)
@@ -489,7 +492,7 @@ class FtrackProcessor(FtrackBase):
                     'published': False
                 }
 
-                self._components[track_item.name()][preset.name()] = data
+                self._components[track_item.name()][preset.properties()['ftrack']['task_name']] = data
                 self.add_ftrack_tag(track_item, task)
 
         # we have successfully exported the project, so now we can lock it.
@@ -511,8 +514,7 @@ class FtrackProcessor(FtrackBase):
         start_handle, end_handle = task.outputHandles()
 
         task_id = str(task._preset.properties()['ftrack']['task_id'])
-
-        data = self._components[original_item.name()][task._preset.name()]
+        data = self._components[original_item.name()][task._preset.properties()['ftrack']['task_name']]
         component = data['component']
 
         path = data['path']
@@ -557,7 +559,7 @@ class FtrackProcessor(FtrackBase):
             return
 
         tag = hiero.core.Tag(
-            '{0}'.format(task._preset.name()),
+            '{0}'.format(task._preset.properties()['ftrack']['task_name']),
             ':/ftrack/image/default/ftrackLogoLight',
             False
         )
@@ -569,7 +571,7 @@ class FtrackProcessor(FtrackBase):
         tag.metadata().setValue('tag.asset_id', component['version']['asset']['id'])
         tag.metadata().setValue('tag.version', str(component['version']['version']))
         tag.metadata().setValue('tag.path', path)
-        tag.metadata().setValue('tag.description', 'ftrack {0}'.format(task._preset.name()))
+        tag.metadata().setValue('tag.description', 'ftrack {0}'.format(task._preset.properties()['ftrack']['task_name']))
 
         tag.metadata().setValue('tag.pathtemplate', task._exportPath)
 
@@ -594,9 +596,10 @@ class FtrackProcessor(FtrackBase):
 
     def setup_export_paths_event(self, task):
         ''' Event spawned when *task* start. '''
+        self.logger.info(self._components)
         has_data = self._components.get(
             task._item.name(), {}
-        ).get(task._preset.name())
+        ).get(task._preset.properties()['ftrack']['task_name'])
 
         if not has_data:
             return
@@ -616,7 +619,7 @@ class FtrackProcessor(FtrackBase):
         ''' Event spawned when *render_task* frame is rendered. '''
         has_data = self._components.get(
             render_task._item.name(), {}
-        ).get(render_task._preset.name())
+        ).get(render_task._preset.properties()['ftrack']['task_name'])
 
         if not has_data:
             return
@@ -1007,3 +1010,23 @@ class FtrackProcessorUI(FtrackBase):
         self.add_reviewable_options(form_layout)
         self.set_ui_tweaks()
 
+    def addFtrackTaskUI(self, widget, exportTemplate):
+        layout = widget.layout()
+
+        self.formLayout = TaskUIFormLayout()
+        layout.addLayout(self.formLayout)
+
+        current_task_name = self._preset.properties()['ftrack']['task_name']
+        key, value, label = 'task_name', current_task_name, 'Task Name'
+        tooltip = 'Set Task Name'
+
+        self.task_name_options_widget = UIPropertyFactory.create(
+            type(value),
+            key = key,
+            value = value,
+            dictionary = self._preset.properties()['ftrack'],
+            label = label + ':',
+            tooltip = tooltip
+
+        )
+        self.formLayout.addRow(label + ':', self.task_name_options_widget)

@@ -35,7 +35,7 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
         FtrackProcessorPreset.__init__(self, name, properties)
         # Update preset with loaded data
         self.properties().update(properties)
-        self.setName('NukeScript')
+        self.setName(self.properties()['ftrack']['task_name'])
 
     def set_ftrack_properties(self, properties):
         '''Set ftrack specific *properties* for task.'''
@@ -44,7 +44,8 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
         properties.setdefault('ftrack', {})
         # add placeholders for default ftrack defaults
         self.properties()['ftrack']['component_pattern'] = '.{ext}'
-        self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__)
+        self.properties()['ftrack']['task_name'] = 'NukeScript'
+        self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__+self.properties()['ftrack']['task_name'])
 
     def addUserResolveEntries(self, resolver):
         '''Add ftrack resolve entries to *resolver*.'''
@@ -62,6 +63,11 @@ class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackProcessorUI):
 
         self._displayName = 'Ftrack Nuke File'
         self._taskType = FtrackNukeShotExporter
+
+    def populateUI(self, widget, exportTemplate):
+        NukeShotExporterUI.populateUI(self, widget, exportTemplate)
+        self.addFtrackTaskUI(widget, exportTemplate)
+
 
 
 hiero.core.taskRegistry.registerTask(FtrackNukeShotExporterPreset, FtrackNukeShotExporter)

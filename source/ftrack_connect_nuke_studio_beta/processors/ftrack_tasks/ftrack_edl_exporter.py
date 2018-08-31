@@ -49,7 +49,7 @@ class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
 
         # Update preset with loaded data
         self.properties().update(properties)
-        self.setName('EDL')
+        self.setName(self.properties()['ftrack']['task_name'])
 
     def set_ftrack_properties(self, properties):
         '''Set ftrack specific *properties* for task.'''
@@ -59,7 +59,8 @@ class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
 
         # add placeholders for default ftrack defaults
         self.properties()['ftrack']['component_pattern'] = '.{ext}'
-        self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__)
+        self.properties()['ftrack']['task_name'] = 'EDL'
+        self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__+self.properties()['ftrack']['task_name'])
 
     def addUserResolveEntries(self, resolver):
         '''Add ftrack resolve entries to *resolver*.'''
@@ -76,6 +77,10 @@ class FtrackEDLExporterUI(EDLExportUI, FtrackProcessorUI):
 
         self._displayName = 'Ftrack EDL Exporter'
         self._taskType = FtrackEDLExporter
+
+    def populateUI(self, widget, exportTemplate):
+        EDLExportUI.populateUI(self, widget, exportTemplate)
+        self.addFtrackTaskUI(widget, exportTemplate)
 
 
 hiero.core.taskRegistry.registerTask(FtrackEDLExporterPreset, FtrackEDLExporter)
