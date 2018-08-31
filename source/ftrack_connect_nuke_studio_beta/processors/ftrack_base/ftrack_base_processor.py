@@ -514,7 +514,8 @@ class FtrackProcessor(FtrackBase):
         start_handle, end_handle = task.outputHandles()
 
         task_id = str(task._preset.properties()['ftrack']['task_id'])
-        data = self._components[original_item.name()][task._preset.properties()['ftrack']['task_name']]
+        task_name = task._preset.properties()['ftrack']['task_name']
+        data = self._components[original_item.name()][task_name]
         component = data['component']
 
         path = data['path']
@@ -526,7 +527,10 @@ class FtrackProcessor(FtrackBase):
 
         existing_tag = None
         for tag in original_item.tags():
-            if tag.metadata().hasKey('tag.presetid') and tag.metadata()['tag.presetid'] == task_id:
+            if (
+                    tag.metadata().hasKey('tag.presetid') and tag.metadata()['tag.presetid'] == task_id and
+                    tag.metadata().hasKey('tag.task_name') and tag.metadata()['tag.task_name'] == task_name
+            ):
                 existing_tag = tag
                 break
 
@@ -559,11 +563,12 @@ class FtrackProcessor(FtrackBase):
             return
 
         tag = hiero.core.Tag(
-            '{0}'.format(task._preset.properties()['ftrack']['task_name']),
+            '{0}'.format(task_name),
             ':/ftrack/image/default/ftrackLogoLight',
             False
         )
         tag.metadata().setValue('tag.provider', 'ftrack')
+        tag.metadata().setValue('tag.task_name', task._preset.properties()['ftrack']['task_name'])
 
         tag.metadata().setValue('tag.presetid', task_id)
         tag.metadata().setValue('tag.component_id', component['id'])
