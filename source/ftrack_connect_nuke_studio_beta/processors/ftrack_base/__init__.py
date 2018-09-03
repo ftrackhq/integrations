@@ -162,7 +162,7 @@ class FtrackBasePreset(FtrackBase):
 
         has_data = self._components.get(
             task._item.name(), {}
-        ).get(task._preset.properties()['ftrack']['task_name'])
+        ).get(task._preset.properties()['ftrack']['component_name'])
 
         if not has_data:
             return 'v{:03d}'.format(version)
@@ -172,7 +172,7 @@ class FtrackBasePreset(FtrackBase):
 
     def resolve_ftrack_component(self, task):
         ''' Return component for the given *task*.'''
-        component_name = self.sanitise_for_filesystem(task._preset.properties()['ftrack']['task_name'])
+        component_name = self.sanitise_for_filesystem(task._preset.properties()['ftrack']['component_name'])
         extension = self.properties()['ftrack']['component_pattern']
         component_full_name = '{0}{1}'.format(component_name, extension)
         return component_full_name.lower()

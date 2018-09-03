@@ -40,7 +40,7 @@ class FtrackAudioExporterPreset(AudioExportPreset, FtrackProcessorPreset):
 
         # Update preset with loaded data
         self.properties().update(properties)
-        self.setName(self.properties()['ftrack']['task_name'])
+        self.setName(self.properties()['ftrack']['component_name'])
 
     def set_ftrack_properties(self, properties):
         '''Set ftrack specific *properties* for task.'''
@@ -50,7 +50,7 @@ class FtrackAudioExporterPreset(AudioExportPreset, FtrackProcessorPreset):
 
         # add placeholders for default ftrack defaults
         self.properties()['ftrack']['component_pattern'] = '.{ext}'
-        self.properties()['ftrack']['task_name'] = 'Audio'
+        self.properties()['ftrack']['component_name'] = 'Audio'
         self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__)
 
     def addCustomResolveEntries(self, resolver):
