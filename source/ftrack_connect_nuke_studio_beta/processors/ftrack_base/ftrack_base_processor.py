@@ -567,7 +567,7 @@ class FtrackProcessor(FtrackBase):
             return
 
         tag = hiero.core.Tag(
-            'ftrack.{0}'.format(task._preset.name()),
+            '{0}'.format(task._preset.name()),
             ':/ftrack/image/default/ftrackLogoLight',
             False
         )

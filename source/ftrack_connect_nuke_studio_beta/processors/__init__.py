@@ -69,8 +69,8 @@ def register_processors():
 
     shot_properties = {
         'exportTemplate': (
-            (FTRACK_PROJECT_STRUCTURE, nuke_script_processor),
             (FTRACK_PROJECT_STRUCTURE, nuke_render_processor),
+            (FTRACK_PROJECT_STRUCTURE, nuke_script_processor),
             (FTRACK_PROJECT_STRUCTURE, reviewable_processor),
             (FTRACK_PROJECT_STRUCTURE, audio_processor)
 

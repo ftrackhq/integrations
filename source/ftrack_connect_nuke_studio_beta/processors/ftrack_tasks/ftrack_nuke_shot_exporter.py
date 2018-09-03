@@ -6,7 +6,7 @@ import nuke
 import hiero.core.util
 from hiero.exporters.FnNukeShotExporter import NukeShotExporter, NukeShotPreset
 from hiero.exporters.FnNukeShotExporterUI import NukeShotExporterUI
-
+from hiero.exporters.FnTranscodeExporter import TranscodePreset
 from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 from hiero.ui.FnUIProperty import UIPropertyFactory
 
@@ -27,19 +27,22 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
         NukeShotExporter.__init__(self, initDict)
         FtrackProcessor.__init__(self, initDict)
         track_item = self._init_dict.get('item')
-        track_item_tags = track_item.tags()
-
         task_label = self._preset.properties()['ftrack']['reference_task']
-        self.logger.info('Selected task: {}'.format(task_label))
-        self._plate_tag = None
-        for tag in track_item_tags:
-            if tag.name() == 'ftrack.{}'.format(task_label):
-                self._plate_tag = tag
+        self._source_tag = None
+        ftrack_tags = [
+            tag for tag in track_item.tags() if (
+                    tag.metadata().hasKey('tag.provider') and tag.metadata()['tag.provider'] == 'ftrack'
+            )
+        ]
+
+        for tag in ftrack_tags:
+            if tag.name() == task_label:
+                self._source_tag = tag
                 break
 
-        self.logger.info('tag: {}'.format(self._plate_tag))
+        self.logger.info('tag: {}'.format(self._source_tag))
 
-        if not self._plate_tag :
+        if not self._source_tag :
             # if the plate tag is not existing we cannot reference the plate.
             self._nothingToDo = True
 
@@ -47,8 +50,8 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
         ''' Call-back method introduced to allow modifications of the script object before it is written to disk.'''
         nodes = script.getNodes()
         for node in nodes:
-            if node.type() == 'Read' and self._plate_tag:
-                tag_metadata = self._plate_tag.metadata()
+            if node.type() == 'Read' and self._source_tag:
+                tag_metadata = self._source_tag.metadata()
                 component_id = tag_metadata['tag.component_id']
                 ftrack_component = self.session.get('Component', component_id)
                 ftrack_component_name = ftrack_component['name']
@@ -110,15 +113,19 @@ class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackProcessorUI):
         self._taskType = FtrackNukeShotExporter
 
     def addTaskSelector(self, layout, exportTemplate):
-        formLayout = TaskUIFormLayout()
-        layout.addLayout(formLayout)
+        '''Provide widget praented to *layout* to select from available intanciated tasks from *exportTemplate*.'''
+        form_layout = TaskUIFormLayout()
+        layout.addLayout(form_layout)
+        form_layout.addDivider('Ftrack Options')
 
-        available_tasks_names = [preset.name() for path, preset in exportTemplate.flatten()]
+        available_tasks_names = [
+            preset.name() for path, preset in exportTemplate.flatten() if isinstance(preset, TranscodePreset)
+        ]
 
         key, value, label = 'reference_task', available_tasks_names, 'Source Tasks'
         tooltip = 'Select task as input for nuke script read node.'
 
-        self.available_tasks_options = UIPropertyFactory.create(
+        available_tasks_options = UIPropertyFactory.create(
             type(value),
             key=key,
             value=value,
@@ -126,8 +133,8 @@ class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackProcessorUI):
             label=label + ':',
             tooltip=tooltip
         )
-        formLayout.addRow(label + ':', self.available_tasks_options)
-        self.available_tasks_options.update(True)
+        form_layout.addRow(label + ':', available_tasks_options)
+        available_tasks_options.update(True)
 
     def populateUI(self, widget, exportTemplate):
         '''PopulateUIExport dialog to allow the TaskUI to populate a QWidget with the ui *widget*
