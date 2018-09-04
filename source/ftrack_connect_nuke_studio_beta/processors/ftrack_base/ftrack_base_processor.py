@@ -76,15 +76,9 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
                 uiProperty.update(True)
                 form_layout.addRow('Duplicated component' + ':', uiProperty)
 
-                self.logger.info(
-                    'new {}, old {}'.format(preset.name(),  component_name)
-                )
-
                 if component_name != preset.name():
                     component_index = duplicated_components.index((preset.name(), preset))
                     duplicated_components.pop(component_index)
-
-        self.logger.info('Duplicated component list after : {}'.format(duplicated_components))
 
         for processor, values in error_data.items():
             form_layout.addDivider('Wrong {0} presets'.format(processor.__class__.__name__))
@@ -337,7 +331,7 @@ class FtrackProcessor(FtrackBase):
         '''Return ftrack component entity from *name*, *parent*, *task* and *version*.'''
         self.logger.debug('Creating component fragment: {} {} {} {}'.format(name, parent, task, version))
 
-        component_name = task._preset.properties()['ftrack']['component_name']
+        component_name = task._preset.name()
         self.logger.info('Creating component for : {} with name {}'.format(task, component_name))
 
         component = parent.create_component('/', {
@@ -438,7 +432,7 @@ class FtrackProcessor(FtrackBase):
 
                 # create entry points on where to store ftrack component and path data.
                 self._components.setdefault(track_item.name(), {})
-                self._components[track_item.name()].setdefault(preset.properties()['ftrack']['component_name'], {})
+                self._components[track_item.name()].setdefault(preset.name(), {})
 
                 retime = self._preset.properties().get('includeRetimes', False)
 
@@ -479,7 +473,7 @@ class FtrackProcessor(FtrackBase):
                 task = hiero.core.taskRegistry.createTaskFromPreset(preset, taskData)
 
                 file_name = '{0}{1}'.format(
-                    preset.properties()['ftrack']['component_name'],
+                    preset.name(),
                     preset.properties()['ftrack']['component_pattern']
                 ).lower()
 
@@ -518,7 +512,7 @@ class FtrackProcessor(FtrackBase):
                     'published': False
                 }
 
-                self._components[track_item.name()][preset.properties()['ftrack']['component_name']] = data
+                self._components[track_item.name()][preset.name()] = data
                 self.add_ftrack_tag(track_item, task)
 
         # we have successfully exported the project, so now we can lock it.
@@ -540,7 +534,7 @@ class FtrackProcessor(FtrackBase):
         start_handle, end_handle = task.outputHandles()
 
         task_id = str(task._preset.properties()['ftrack']['task_id'])
-        task_name = task._preset.properties()['ftrack']['component_name']
+        task_name = task._preset.name()
         data = self._components[original_item.name()][task_name]
         component = data['component']
 
@@ -594,7 +588,7 @@ class FtrackProcessor(FtrackBase):
             False
         )
         tag.metadata().setValue('tag.provider', 'ftrack')
-        tag.metadata().setValue('tag.task_name', task._preset.properties()['ftrack']['component_name'])
+        tag.metadata().setValue('tag.task_name', task._preset.name())
 
         tag.metadata().setValue('tag.presetid', task_id)
         tag.metadata().setValue('tag.component_id', component['id'])
@@ -602,7 +596,7 @@ class FtrackProcessor(FtrackBase):
         tag.metadata().setValue('tag.asset_id', component['version']['asset']['id'])
         tag.metadata().setValue('tag.version', str(component['version']['version']))
         tag.metadata().setValue('tag.path', path)
-        tag.metadata().setValue('tag.description', 'ftrack {0}'.format(task._preset.properties()['ftrack']['component_name']))
+        tag.metadata().setValue('tag.description', 'ftrack {0}'.format(task._preset.name()))
 
         tag.metadata().setValue('tag.pathtemplate', task._exportPath)
 
@@ -630,7 +624,7 @@ class FtrackProcessor(FtrackBase):
         self.logger.info(self._components)
         has_data = self._components.get(
             task._item.name(), {}
-        ).get(task._preset.properties()['ftrack']['component_name'])
+        ).get(task._preset.name())
 
         if not has_data:
             return
@@ -650,7 +644,7 @@ class FtrackProcessor(FtrackBase):
         ''' Event spawned when *render_task* frame is rendered. '''
         has_data = self._components.get(
             render_task._item.name(), {}
-        ).get(render_task._preset.properties()['ftrack']['component_name'])
+        ).get(render_task._preset.name())
 
         if not has_data:
             return
@@ -1058,9 +1052,9 @@ class FtrackProcessorUI(FtrackBase):
         self.formLayout = TaskUIFormLayout()
         layout.addLayout(self.formLayout)
 
-        current_task_name = self._preset.properties()['ftrack']['component_name']
-        key, value, label = 'component_name', current_task_name, 'Task Name'
-        tooltip = 'Set Task Name'
+        current_task_name = self._preset.name()
+        key, value, label = 'component_name', current_task_name, 'Component Name'
+        tooltip = 'Set Component Name'
 
         self.task_name_options_widget = UIPropertyFactory.create(
             type(value),
