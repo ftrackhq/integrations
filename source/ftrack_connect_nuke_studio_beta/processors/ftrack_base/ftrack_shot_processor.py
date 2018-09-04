@@ -97,6 +97,9 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackProcessorPreset):
         # asset type for processor
         self.properties()['ftrack']['asset_type_code'] = 'img'
 
+    def isValid(self):
+        return (True,"")
+
 
 # Register the ftrack shot processor.
 hiero.ui.taskUIRegistry.registerProcessorUI(
