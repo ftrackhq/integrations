@@ -26,9 +26,12 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
         '''Initialise task with *initDict*.'''
         NukeShotExporter.__init__(self, initDict)
         FtrackProcessor.__init__(self, initDict)
+        self._source_tag = None
+
+    def _beforeNukeScriptWrite(self, script):
+        ''' Call-back method introduced to allow modifications of the script object before it is written to disk.'''
         track_item = self._init_dict.get('item')
         task_label = self._preset.properties()['ftrack']['reference_task']
-        self._source_tag = None
         ftrack_tags = [
             tag for tag in track_item.tags() if (
                     tag.metadata().hasKey('tag.provider') and tag.metadata()['tag.provider'] == 'ftrack'
@@ -46,8 +49,6 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
             # if the plate tag is not existing we cannot reference the plate.
             self._nothingToDo = True
 
-    def _beforeNukeScriptWrite(self, script):
-        ''' Call-back method introduced to allow modifications of the script object before it is written to disk.'''
         nodes = script.getNodes()
         for node in nodes:
             if node.type() == 'Read' and self._source_tag:
