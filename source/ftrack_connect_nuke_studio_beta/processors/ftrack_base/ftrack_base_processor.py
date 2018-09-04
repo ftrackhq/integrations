@@ -35,7 +35,7 @@ import ftrack_connect_nuke_studio_beta.exception
 class FtrackSettingsValidator(QtWidgets.QDialog):
     '''Settings validation Dialog.'''
 
-    def __init__(self, session, error_data, missing_assets_types):
+    def __init__(self, session, error_data, missing_assets_types, duplicated_components):
         '''Return a validator widget for the given *error_data* and *missing_assets_types*.'''
         super(FtrackSettingsValidator, self).__init__()
 
@@ -61,6 +61,30 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
 
         form_layout = TaskUIFormLayout()
         box_layout.addLayout(form_layout)
+        if duplicated_components:
+            form_layout.addDivider('Duplicated components name have been found')
+            for component_name, preset in duplicated_components:
+
+                uiProperty = UIPropertyFactory.create(
+                    type(component_name),
+                    key='component_name',
+                    value=component_name,
+                    dictionary=preset.properties()['ftrack'],
+                    label='Component ' + ':',
+                    tooltip='Duplicated component name'
+                )
+                uiProperty.update(True)
+                form_layout.addRow('Duplicated component' + ':', uiProperty)
+
+                self.logger.info(
+                    'new {}, old {}'.format(preset.name(),  component_name)
+                )
+
+                if component_name != preset.name():
+                    component_index = duplicated_components.index((preset.name(), preset))
+                    duplicated_components.pop(component_index)
+
+        self.logger.info('Duplicated component list after : {}'.format(duplicated_components))
 
         for processor, values in error_data.items():
             form_layout.addDivider('Wrong {0} presets'.format(processor.__class__.__name__))
@@ -79,6 +103,7 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
                     tooltip=tooltip
                 )
                 form_layout.addRow(label + ':', uiProperty)
+                uiProperty.update(True)
 
         if missing_assets_types:
             form_layout.addDivider('Missing asset types')
@@ -710,7 +735,6 @@ class FtrackProcessor(FtrackBase):
         version.create_thumbnail(thumbnail_file)
         version['task'].create_thumbnail(thumbnail_file)
 
-
     def validate_ftrack_processing(self, export_items, preview):
         ''' Return whether the *export_items* and processor are valid to be rendered.
 
@@ -772,8 +796,19 @@ class FtrackProcessor(FtrackBase):
                         if len(filtered_task_types) == 1:
                             task_tags.add(task_name)
 
+                duplicated_components = []
+                components = []
+
                 for (export_path, preset) in self._exportTemplate.flatten():
+
+                    self.logger.info('Getting preset {} for deduplication'.format(preset.name()))
+                    if preset.name() not in components:
+                        components.append(preset.name())
+                    else:
+                        duplicated_components.append((preset.name(), preset))
+
                     progress_index += 1
+
                     self._validate_project_progress_widget.setProgress(int(100.0 * (float(progress_index) / float(num_items))))
                     asset_type_code = preset.properties()['ftrack']['asset_type_code']
 
@@ -793,13 +828,13 @@ class FtrackProcessor(FtrackBase):
             self._validate_project_progress_widget = None
 
             # raise validation window
-            if errors or missing_assets_type:
-                settings_validator = FtrackSettingsValidator(self.session, errors, missing_assets_type)
+            if errors or missing_assets_type or duplicated_components:
+                settings_validator = FtrackSettingsValidator(self.session, errors, missing_assets_type, duplicated_components)
 
                 if settings_validator.exec_() != QtWidgets.QDialog.Accepted:
                     return False
 
-                self.validate_ftrack_processing(export_items)
+                self.validate_ftrack_processing(export_items, preview)
 
             # raise notification for error parsing items
             if non_matching_template_items:

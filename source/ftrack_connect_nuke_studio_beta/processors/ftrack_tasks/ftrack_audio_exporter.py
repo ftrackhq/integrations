@@ -42,6 +42,9 @@ class FtrackAudioExporterPreset(AudioExportPreset, FtrackProcessorPreset):
         self.properties().update(properties)
         self.setName(self.properties()['ftrack']['component_name'])
 
+    def name(self):
+        return self.properties()['ftrack']['component_name']
+
     def set_ftrack_properties(self, properties):
         '''Set ftrack specific *properties* for task.'''
         FtrackProcessorPreset.set_ftrack_properties(self, properties)
