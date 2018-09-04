@@ -86,6 +86,11 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
         self.properties().update(properties)
         self.setName('NukeScript')
 
+        # Ensure to nullify read and write paths by default to ensure duplication of task.
+        self.properties()["readPaths"] = ['']
+        self.properties()["writePaths"] = ['']
+        self.properties()["timelineWriteNode"] = ''
+
     def set_ftrack_properties(self, properties):
         '''Set ftrack specific *properties* for task.'''
         FtrackProcessorPreset.set_ftrack_properties(self, properties)

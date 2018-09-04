@@ -33,8 +33,6 @@ def register_processors():
     nuke_script_processor = FtrackNukeShotExporterPreset(
         'NukeScript',
         {
-            'readPaths': [''],
-            'writePaths': [''],
             'timelineWriteNode': '',
         }
     )
