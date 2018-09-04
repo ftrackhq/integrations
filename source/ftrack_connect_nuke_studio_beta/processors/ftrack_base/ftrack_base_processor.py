@@ -1049,14 +1049,15 @@ class FtrackProcessorUI(FtrackBase):
     def addFtrackTaskUI(self, widget, exportTemplate):
         layout = widget.layout()
 
-        self.formLayout = TaskUIFormLayout()
-        layout.addLayout(self.formLayout)
+        form_layout = TaskUIFormLayout()
+        layout.addLayout(form_layout)
+        form_layout.addDivider('Ftrack Options')
 
         current_task_name = self._preset.name()
         key, value, label = 'component_name', current_task_name, 'Component Name'
         tooltip = 'Set Component Name'
 
-        self.task_name_options_widget = UIPropertyFactory.create(
+        task_name_options_widget = UIPropertyFactory.create(
             type(value),
             key = key,
             value = value,
@@ -1065,4 +1066,4 @@ class FtrackProcessorUI(FtrackBase):
             tooltip = tooltip
 
         )
-        self.formLayout.addRow(label + ':', self.task_name_options_widget)
+        form_layout.addRow(label + ':', task_name_options_widget)
