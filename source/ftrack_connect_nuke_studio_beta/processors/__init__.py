@@ -31,10 +31,7 @@ def register_processors():
     shot_name = 'Ftrack Shot Preset'
 
     nuke_script_processor = FtrackNukeShotExporterPreset(
-        'NukeScript',
-        {
-            'timelineWriteNode': '',
-        }
+        'NukeScript', {}
     )
 
     reviewable_processor = FtrackReviewableExporterPreset(
