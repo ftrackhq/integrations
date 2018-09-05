@@ -41,7 +41,11 @@ class FtrackTimelineProcessorUI(TimelineProcessorUI, FtrackProcessorUI):
         ''' Override path preview widget to show ftrack server address.'''
         location_name = self.ftrack_location['name']
         mount_point = self.ftrack_location.accessor.prefix
-        self._pathPreviewWidget.setText('Using Location: {0}, with mount point: {1}'.format(location_name, mount_point))
+        self._pathPreviewWidget.setText(
+            'Using Location: {0}, with mount point: {1}'.format(
+                location_name, mount_point
+            )
+        )
 
     def _checkExistingVersions(self, exportItems):
         ''' Override to disable internal version existence.'''

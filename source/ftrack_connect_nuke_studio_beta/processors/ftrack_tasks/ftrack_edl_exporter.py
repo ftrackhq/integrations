@@ -52,6 +52,7 @@ class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
         self.setName(self.properties()['ftrack']['component_name'])
 
     def name(self):
+        '''Return task/component name.'''
         return self.properties()['ftrack']['component_name']
 
     def set_ftrack_properties(self, properties):
