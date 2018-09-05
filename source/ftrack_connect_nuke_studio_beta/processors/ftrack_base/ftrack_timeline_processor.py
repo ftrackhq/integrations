@@ -83,6 +83,7 @@ class FtrackTimelineProcessorPreset(TimelineProcessorPreset, FtrackProcessorPres
     def addCustomResolveEntries(self, resolver):
         '''Add ftrack resolve entries to *resolver*.'''
         FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)
+        TimelineProcessorPreset.addCustomResolveEntries(self, resolver)
 
     def set_ftrack_properties(self, properties):
         '''Set ftrack specific *properties* for processor.'''
@@ -92,7 +93,7 @@ class FtrackTimelineProcessorPreset(TimelineProcessorPreset, FtrackProcessorPres
         self.properties()['ftrack']['task_type'] = 'Editing'
 
         # set asset name for processor
-        self.properties()['ftrack']['asset_name'] = 'Ingest'
+        self.properties()['ftrack']['asset_name'] = '{sequence}'
 
         # asset type for processor
         self.properties()['ftrack']['asset_type_code'] = 'edl'

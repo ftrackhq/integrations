@@ -260,7 +260,10 @@ class FtrackProcessor(FtrackBase):
     def _create_version_fragment(self, name, parent, task, version):
         '''Return ftrack asset version entity from *name*, *parent*, *task* and *version*.'''
         # retrieve asset name from task preset
-        asset_name = self.sanitise_for_filesystem(self.ftrack_properties['asset_name'])
+
+        resolved_asset_name = task._resolver.resolve(task, self.ftrack_properties['asset_name'])
+        asset_name = self.sanitise_for_filesystem(resolved_asset_name)
+
         self.logger.debug('Creating asset fragment: {} {} {} {}'.format(asset_name, parent, task, version))
 
         asset = self.session.query(
