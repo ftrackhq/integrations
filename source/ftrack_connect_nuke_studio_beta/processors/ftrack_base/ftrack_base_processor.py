@@ -246,7 +246,9 @@ class FtrackProcessor(FtrackBase):
                         'parent': parent,
                     })
                 else:
-                    self.logger.debug('Creating {} with name {} and project_schema {}'.format(object_type, object_name, self.schema(task._project)))
+                    self.logger.debug('Creating {} with name {} and project_schema {}'.format(
+                        object_type, object_name, self.schema(task._project))
+                    )
                     ftrack_type = self.session.create(object_type, {
                         'name': object_name,
                         'full_name': object_name,
@@ -436,23 +438,23 @@ class FtrackProcessor(FtrackBase):
                     preset.properties()['exportRoot'],
                     exportPath,
                     'v0',
-                   self._exportTemplate,
-                   project=track_item.project(),
-                   cutHandles=cut_handles,
-                   retime=retime,
-                   startFrame=start_frame,
-                   startFrameSource=self._preset.properties()['startFrameSource'],
-                   resolver=self._preset.createResolver(),
-                   submission=self._submission,
-                   skipOffline=self.skipOffline(),
-                   presetId=hiero.core.taskRegistry.addPresetToProjectExportHistory(track_item.project(), self._preset),
-                   shotNameIndex=shot_name_index
+                    self._exportTemplate,
+                    project=track_item.project(),
+                    cutHandles=cut_handles,
+                    retime=retime,
+                    startFrame=start_frame,
+                    startFrameSource=self._preset.properties()['startFrameSource'],
+                    resolver=self._preset.createResolver(),
+                    submission=self._submission,
+                    skipOffline=self.skipOffline(),
+                    presetId=hiero.core.taskRegistry.addPresetToProjectExportHistory(track_item.project(), self._preset),
+                    shotNameIndex=shot_name_index
                 )
 
                 task = hiero.core.taskRegistry.createTaskFromPreset(preset, taskData)
 
-                if hasattr(task, '_nothingToDo') and task._nothingToDo == True:
-                    # let's not create anything if the task is set not to do anything.
+                if getattr(task, '_nothingToDo', False) is True:
+                    # Do not create anything if the task is set not to do anything.
                     self.logger.warning('Skipping Task {} is set as disabled'.format(task))
                     continue
 

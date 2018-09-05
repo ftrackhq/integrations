@@ -29,12 +29,14 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
         self._source_tag = None
 
     def _beforeNukeScriptWrite(self, script):
-        ''' Call-back method introduced to allow modifications of the script object before it is written to disk.'''
+        '''Call-back method introduced to allow modifications of the script
+        object before it is written to disk.
+        '''
         track_item = self._init_dict.get('item')
         task_label = self._preset.properties()['ftrack']['reference_task']
         ftrack_tags = [
             tag for tag in track_item.tags() if (
-                    tag.metadata().hasKey('tag.provider') and tag.metadata()['tag.provider'] == 'ftrack'
+                tag.metadata().hasKey('tag.provider') and tag.metadata()['tag.provider'] == 'ftrack'
             )
         ]
 
@@ -46,7 +48,7 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
         self.logger.info('tag: {}'.format(self._source_tag))
 
         if not self._source_tag :
-            # if the plate tag is not existing we cannot reference the plate.
+            # If the plate tag is not existing we cannot reference the plate.
             self._nothingToDo = True
 
         nodes = script.getNodes()
@@ -62,13 +64,13 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
                 ftrack_asset_name = ftrack_asset['name']
                 ftrack_asset_type = ftrack_asset['type']['short']
 
-                node.addTabKnob("ftracktab", "ftrack")
-                node.addInputTextKnob("componentId", "componentId", value=component_id)
-                node.addInputTextKnob("componentName", "componentName", value=ftrack_component_name)
-                node.addInputTextKnob("assetVersionId", "assetVersionId", value=ftrack_version_id)
-                node.addInputTextKnob("assetVersion", "assetVersion", value=ftrack_version)
-                node.addInputTextKnob("assetName", "assetName", value=ftrack_asset_name)
-                node.addInputTextKnob("assetType", "assetType", value=ftrack_asset_type)
+                node.addTabKnob('ftracktab', 'ftrack')
+                node.addInputTextKnob('componentId', 'componentId', value=component_id)
+                node.addInputTextKnob('componentName', 'componentName', value=ftrack_component_name)
+                node.addInputTextKnob('assetVersionId', 'assetVersionId', value=ftrack_version_id)
+                node.addInputTextKnob('assetVersion', 'assetVersion', value=ftrack_version)
+                node.addInputTextKnob('assetName', 'assetName', value=ftrack_asset_name)
+                node.addInputTextKnob('assetType', 'assetType', value=ftrack_asset_type)
 
     def _makePath(self):
         '''Disable file path creation.'''
@@ -119,7 +121,9 @@ class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackProcessorUI):
         self._taskType = FtrackNukeShotExporter
 
     def addTaskSelector(self, layout, exportTemplate):
-        '''Provide widget praented to *layout* to select from available intanciated tasks from *exportTemplate*.'''
+        '''Provide widget praented to *layout* to select
+        from available instanciated tasks from *exportTemplate*.
+        '''
         form_layout = TaskUIFormLayout()
         layout.addLayout(form_layout)
         form_layout.addDivider('Ftrack Options')
@@ -143,8 +147,8 @@ class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackProcessorUI):
         available_tasks_options.update(True)
 
     def populateUI(self, widget, exportTemplate):
-        '''PopulateUIExport dialog to allow the TaskUI to populate a QWidget with the ui *widget*
-        neccessary to reflect the current preset
+        '''PopulateUIExport dialog to allow the TaskUI to populate
+        a QWidget with the ui *widget* neccessary to reflect the current preset.
         '''
         NukeShotExporterUI.populateUI(self, widget, exportTemplate)
         self.addTaskSelector(widget.layout(), exportTemplate)
