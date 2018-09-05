@@ -31,12 +31,7 @@ def register_processors():
     shot_name = 'Ftrack Shot Preset'
 
     nuke_script_processor = FtrackNukeShotExporterPreset(
-        'NukeScript',
-        {
-            'readPaths': [''],
-            'writePaths': [''],
-            'timelineWriteNode': '',
-        }
+        'NukeScript', {}
     )
 
     reviewable_processor = FtrackReviewableExporterPreset(
@@ -69,8 +64,8 @@ def register_processors():
 
     shot_properties = {
         'exportTemplate': (
-            (FTRACK_PROJECT_STRUCTURE, nuke_script_processor),
             (FTRACK_PROJECT_STRUCTURE, nuke_render_processor),
+            (FTRACK_PROJECT_STRUCTURE, nuke_script_processor),
             (FTRACK_PROJECT_STRUCTURE, reviewable_processor),
             (FTRACK_PROJECT_STRUCTURE, audio_processor)
 
