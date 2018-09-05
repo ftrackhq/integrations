@@ -92,7 +92,11 @@ class FtrackReviewableExporterPreset(TranscodePreset, FtrackProcessorPreset):
 
         # Update preset with loaded data
         self.properties().update(properties)
-        self.setName('Reviewable')
+        self.setName(self.properties()['ftrack']['component_name'])
+
+    def name(self):
+        '''Return task/component name.'''
+        return self.properties()['ftrack']['component_name']
 
     def set_ftrack_properties(self, properties):
         '''Set ftrack specific *properties* for task.'''
@@ -102,6 +106,7 @@ class FtrackReviewableExporterPreset(TranscodePreset, FtrackProcessorPreset):
 
         # add placeholders for default ftrack defaults
         self.properties()['ftrack']['component_pattern'] = '.mov'
+        self.properties()['ftrack']['component_name'] = 'Reviewable'
         self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__)
 
         # enforce mov for newly created task
@@ -128,6 +133,10 @@ class FtrackReviewableExporterUI(TranscodeExporterUI, FtrackProcessorUI):
 
         self._displayName = 'Ftrack Reviewable Render'
         self._taskType = FtrackReviewableExporter
+
+    def populateUI(self, widget, exportTemplate):
+        TranscodeExporterUI.populateUI(self, widget, exportTemplate)
+        self.addFtrackTaskUI(widget, exportTemplate)
 
 
 hiero.core.taskRegistry.registerTask(FtrackReviewableExporterPreset, FtrackReviewableExporter)

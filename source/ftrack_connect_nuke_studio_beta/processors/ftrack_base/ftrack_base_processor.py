@@ -35,7 +35,7 @@ import ftrack_connect_nuke_studio_beta.exception
 class FtrackSettingsValidator(QtWidgets.QDialog):
     '''Settings validation Dialog.'''
 
-    def __init__(self, session, error_data, missing_assets_types):
+    def __init__(self, session, error_data, missing_assets_types, duplicated_components):
         '''Return a validator widget for the given *error_data* and *missing_assets_types*.'''
         super(FtrackSettingsValidator, self).__init__()
 
@@ -61,6 +61,24 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
 
         form_layout = TaskUIFormLayout()
         box_layout.addLayout(form_layout)
+        if duplicated_components:
+            form_layout.addDivider('Duplicated components name have been found')
+            for component_name, preset in duplicated_components:
+
+                uiProperty = UIPropertyFactory.create(
+                    type(component_name),
+                    key='component_name',
+                    value=component_name,
+                    dictionary=preset.properties()['ftrack'],
+                    label='Component ' + ':',
+                    tooltip='Duplicated component name'
+                )
+                uiProperty.update(True)
+                form_layout.addRow('Duplicated component' + ':', uiProperty)
+
+                if component_name != preset.name():
+                    component_index = duplicated_components.index((preset.name(), preset))
+                    duplicated_components.pop(component_index)
 
         for processor, values in error_data.items():
             form_layout.addDivider('Wrong {0} presets'.format(processor.__class__.__name__))
@@ -79,6 +97,7 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
                     tooltip=tooltip
                 )
                 form_layout.addRow(label + ':', uiProperty)
+                uiProperty.update(True)
 
         if missing_assets_types:
             form_layout.addDivider('Missing asset types')
@@ -317,8 +336,11 @@ class FtrackProcessor(FtrackBase):
         '''Return ftrack component entity from *name*, *parent*, *task* and *version*.'''
         self.logger.debug('Creating component fragment: {} {} {} {}'.format(name, parent, task, version))
 
+        component_name = task._preset.name()
+        self.logger.info('Creating component for : {} with name {}'.format(task, component_name))
+
         component = parent.create_component('/', {
-            'name': task._preset.name().lower()
+            'name': component_name
         }, location=None)
 
         return component
@@ -463,9 +485,10 @@ class FtrackProcessor(FtrackBase):
                     filtered_export_items.append(export_item)
 
                 file_name = '{0}{1}'.format(
-                    preset.name().lower(),
+                    preset.name(),
                     preset.properties()['ftrack']['component_pattern']
-                )
+                ).lower()
+
                 resolved_file_name = task.resolvePath(file_name)
 
                 path = task.resolvePath(exportPath)
@@ -526,8 +549,8 @@ class FtrackProcessor(FtrackBase):
         start_handle, end_handle = task.outputHandles()
 
         task_id = str(task._preset.properties()['ftrack']['task_id'])
-
-        data = self._components[original_item.name()][task._preset.name()]
+        task_name = task._preset.name()
+        data = self._components[original_item.name()][task_name]
         component = data['component']
 
         path = data['path']
@@ -539,7 +562,10 @@ class FtrackProcessor(FtrackBase):
 
         existing_tag = None
         for tag in original_item.tags():
-            if tag.metadata().hasKey('tag.presetid') and tag.metadata()['tag.presetid'] == task_id:
+            if (
+                    tag.metadata().hasKey('tag.presetid') and tag.metadata()['tag.presetid'] == task_id and
+                    tag.metadata().hasKey('tag.task_name') and tag.metadata()['tag.task_name'] == task_name
+            ):
                 existing_tag = tag
                 break
 
@@ -572,11 +598,12 @@ class FtrackProcessor(FtrackBase):
             return
 
         tag = hiero.core.Tag(
-            '{0}'.format(task._preset.name()),
+            '{0}'.format(task_name),
             ':/ftrack/image/default/ftrackLogoLight',
             False
         )
         tag.metadata().setValue('tag.provider', 'ftrack')
+        tag.metadata().setValue('tag.task_name', task._preset.name())
 
         tag.metadata().setValue('tag.presetid', task_id)
         tag.metadata().setValue('tag.component_id', component['id'])
@@ -609,6 +636,7 @@ class FtrackProcessor(FtrackBase):
 
     def setup_export_paths_event(self, task):
         ''' Event spawned when *task* start. '''
+        self.logger.info(self._components)
         has_data = self._components.get(
             task._item.name(), {}
         ).get(task._preset.name())
@@ -778,8 +806,19 @@ class FtrackProcessor(FtrackBase):
                         if len(filtered_task_types) == 1:
                             task_tags.add(task_name)
 
+                duplicated_components = []
+                components = []
+
                 for (export_path, preset) in self._exportTemplate.flatten():
+
+                    self.logger.info('Getting preset {} for deduplication'.format(preset.name()))
+                    if preset.name() not in components:
+                        components.append(preset.name())
+                    else:
+                        duplicated_components.append((preset.name(), preset))
+
                     progress_index += 1
+
                     self._validate_project_progress_widget.setProgress(int(100.0 * (float(progress_index) / float(num_items))))
                     asset_type_code = preset.properties()['ftrack']['asset_type_code']
 
@@ -799,13 +838,13 @@ class FtrackProcessor(FtrackBase):
             self._validate_project_progress_widget = None
 
             # raise validation window
-            if errors or missing_assets_type:
-                settings_validator = FtrackSettingsValidator(self.session, errors, missing_assets_type)
+            if errors or missing_assets_type or duplicated_components:
+                settings_validator = FtrackSettingsValidator(self.session, errors, missing_assets_type, duplicated_components)
 
                 if settings_validator.exec_() != QtWidgets.QDialog.Accepted:
                     return False
 
-                self.validate_ftrack_processing(export_items)
+                self.validate_ftrack_processing(export_items, preview)
 
             # raise notification for error parsing items
             if non_matching_template_items:
@@ -1023,3 +1062,24 @@ class FtrackProcessorUI(FtrackBase):
         self.add_reviewable_options(form_layout)
         self.set_ui_tweaks()
 
+    def addFtrackTaskUI(self, widget, exportTemplate):
+        layout = widget.layout()
+
+        form_layout = TaskUIFormLayout()
+        layout.addLayout(form_layout)
+        form_layout.addDivider('Ftrack Options')
+
+        current_task_name = self._preset.name()
+        key, value, label = 'component_name', current_task_name, 'Component Name'
+        tooltip = 'Set Component Name'
+
+        task_name_options_widget = UIPropertyFactory.create(
+            type(value),
+            key = key,
+            value = value,
+            dictionary = self._preset.properties()['ftrack'],
+            label = label + ':',
+            tooltip = tooltip
+
+        )
+        form_layout.addRow(label + ':', task_name_options_widget)

@@ -31,11 +31,11 @@ def register_processors():
     shot_name = 'Ftrack Shot Preset'
 
     nuke_script_processor = FtrackNukeShotExporterPreset(
-        'NukeScript', {}
+        '', {}
     )
 
     reviewable_processor = FtrackReviewableExporterPreset(
-        'Reviewable',
+        '',
         {
             'file_type': 'mov',
             'mov': {
@@ -49,7 +49,7 @@ def register_processors():
     )
 
     nuke_render_processor = FtrackNukeRenderExporterPreset(
-        'Plate',
+        '',
         {
             'file_type': 'dpx',
             'dpx': {
@@ -59,7 +59,7 @@ def register_processors():
     )
 
     audio_processor = FtrackAudioExporterPreset(
-        'Audio', {}
+        '', {}
     )
 
     shot_properties = {
@@ -83,7 +83,7 @@ def register_processors():
     timeline_name = 'Ftrack Timeline Preset'
 
     edl_processor = FtrackEDLExporterPreset(
-        'EDL', {}
+        '', {}
     )
 
     timeline_properties = {

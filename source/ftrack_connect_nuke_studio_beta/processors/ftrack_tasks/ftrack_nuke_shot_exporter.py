@@ -86,12 +86,17 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
         FtrackProcessorPreset.__init__(self, name, properties)
         # Update preset with loaded data
         self.properties().update(properties)
-        self.setName('NukeScript')
-
-        # Ensure to nullify read and write paths by default to ensure duplication of task.
+        self.setName(self.properties()['ftrack']['component_name'])
+        
+        # Ensure to nullify read and write paths by default
+        # to ensure duplication of task.
         self.properties()["readPaths"] = ['']
         self.properties()["writePaths"] = ['']
         self.properties()["timelineWriteNode"] = ''
+
+    def name(self):
+        '''Return task/component name.'''
+        return self.properties()['ftrack']['component_name']
 
     def set_ftrack_properties(self, properties):
         '''Set ftrack specific *properties* for task.'''
@@ -100,6 +105,7 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
         properties.setdefault('ftrack', {})
         # add placeholders for default ftrack defaults
         self.properties()['ftrack']['component_pattern'] = '.{ext}'
+        self.properties()['ftrack']['component_name'] = 'NukeScript'
         self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__)
         self.properties()['ftrack']['reference_task'] = None
 
@@ -151,10 +157,12 @@ class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackProcessorUI):
         a QWidget with the ui *widget* neccessary to reflect the current preset.
         '''
         NukeShotExporterUI.populateUI(self, widget, exportTemplate)
+        self.addFtrackTaskUI(widget, exportTemplate)
         self.addTaskSelector(widget.layout(), exportTemplate)
 
         self._nodeSelectionWidget.setHidden(True)
         self._timelineWriteNode.setHidden(True)
+
 
 hiero.core.taskRegistry.registerTask(FtrackNukeShotExporterPreset, FtrackNukeShotExporter)
 hiero.ui.taskUIRegistry.registerTaskUI(FtrackNukeShotExporterPreset, FtrackNukeShotExporterUI)
