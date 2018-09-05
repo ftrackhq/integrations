@@ -2,9 +2,15 @@
 # :copyright: Copyright (c) 2018 ftrack
 
 import hiero
+import nuke
 import hiero.core.util
 from hiero.exporters.FnNukeShotExporter import NukeShotExporter, NukeShotPreset
 from hiero.exporters.FnNukeShotExporterUI import NukeShotExporterUI
+from hiero.exporters.FnTranscodeExporter import TranscodePreset
+from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
+from hiero.ui.FnUIProperty import UIPropertyFactory
+
+from QtExt import QtCore, QtWidgets, QtGui
 
 from ftrack_connect_nuke_studio_beta.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,
@@ -20,6 +26,51 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
         '''Initialise task with *initDict*.'''
         NukeShotExporter.__init__(self, initDict)
         FtrackProcessor.__init__(self, initDict)
+        self._source_tag = None
+
+    def _beforeNukeScriptWrite(self, script):
+        '''Call-back method introduced to allow modifications of the script
+        object before it is written to disk.
+        '''
+        track_item = self._init_dict.get('item')
+        task_label = self._preset.properties()['ftrack']['reference_task']
+        ftrack_tags = [
+            tag for tag in track_item.tags() if (
+                tag.metadata().hasKey('tag.provider') and tag.metadata()['tag.provider'] == 'ftrack'
+            )
+        ]
+
+        for tag in ftrack_tags:
+            if tag.name() == task_label:
+                self._source_tag = tag
+                break
+
+        self.logger.info('tag: {}'.format(self._source_tag))
+
+        if not self._source_tag :
+            # If the plate tag is not existing we cannot reference the plate.
+            self._nothingToDo = True
+
+        nodes = script.getNodes()
+        for node in nodes:
+            if node.type() == 'Read' and self._source_tag:
+                tag_metadata = self._source_tag.metadata()
+                component_id = tag_metadata['tag.component_id']
+                ftrack_component = self.session.get('Component', component_id)
+                ftrack_component_name = ftrack_component['name']
+                ftrack_version_id = ftrack_component['version']['id']
+                ftrack_version = ftrack_component['version']['version']
+                ftrack_asset = ftrack_component['version']['asset']
+                ftrack_asset_name = ftrack_asset['name']
+                ftrack_asset_type = ftrack_asset['type']['short']
+
+                node.addTabKnob('ftracktab', 'ftrack')
+                node.addInputTextKnob('componentId', 'componentId', value=component_id)
+                node.addInputTextKnob('componentName', 'componentName', value=ftrack_component_name)
+                node.addInputTextKnob('assetVersionId', 'assetVersionId', value=ftrack_version_id)
+                node.addInputTextKnob('assetVersion', 'assetVersion', value=ftrack_version)
+                node.addInputTextKnob('assetName', 'assetName', value=ftrack_asset_name)
+                node.addInputTextKnob('assetType', 'assetType', value=ftrack_asset_type)
 
     def _makePath(self):
         '''Disable file path creation.'''
@@ -36,6 +87,11 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
         # Update preset with loaded data
         self.properties().update(properties)
         self.setName(self.properties()['ftrack']['component_name'])
+        
+	# Ensure to nullify read and write paths by default to ensure duplication of task.
+        self.properties()["readPaths"] = ['']
+        self.properties()["writePaths"] = ['']
+        self.properties()["timelineWriteNode"] = ''
 
     def name(self):
         return self.properties()['ftrack']['component_name']
@@ -49,6 +105,7 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
         self.properties()['ftrack']['component_pattern'] = '.{ext}'
         self.properties()['ftrack']['component_name'] = 'NukeScript'
         self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__)
+        self.properties()['ftrack']['reference_task'] = None
 
     def addUserResolveEntries(self, resolver):
         '''Add ftrack resolve entries to *resolver*.'''
@@ -67,10 +124,42 @@ class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackProcessorUI):
         self._displayName = 'Ftrack Nuke File'
         self._taskType = FtrackNukeShotExporter
 
+    def addTaskSelector(self, layout, exportTemplate):
+        '''Provide widget praented to *layout* to select
+        from available instanciated tasks from *exportTemplate*.
+        '''
+        form_layout = TaskUIFormLayout()
+        layout.addLayout(form_layout)
+        form_layout.addDivider('Ftrack Options')
+
+        available_tasks_names = [
+            preset.name() for path, preset in exportTemplate.flatten() if isinstance(preset, TranscodePreset)
+        ]
+
+        key, value, label = 'reference_task', available_tasks_names, 'Source Tasks'
+        tooltip = 'Select task as input for nuke script read node.'
+
+        available_tasks_options = UIPropertyFactory.create(
+            type(value),
+            key=key,
+            value=value,
+            dictionary=self._preset.properties()['ftrack'],
+            label=label + ':',
+            tooltip=tooltip
+        )
+        form_layout.addRow(label + ':', available_tasks_options)
+        available_tasks_options.update(True)
+
     def populateUI(self, widget, exportTemplate):
+        '''PopulateUIExport dialog to allow the TaskUI to populate
+        a QWidget with the ui *widget* neccessary to reflect the current preset.
+        '''
         NukeShotExporterUI.populateUI(self, widget, exportTemplate)
         self.addFtrackTaskUI(widget, exportTemplate)
+        self.addTaskSelector(widget.layout(), exportTemplate)
 
+        self._nodeSelectionWidget.setHidden(True)
+        self._timelineWriteNode.setHidden(True)
 
 
 hiero.core.taskRegistry.registerTask(FtrackNukeShotExporterPreset, FtrackNukeShotExporter)
