@@ -1014,7 +1014,7 @@ class FtrackProcessorUI(FtrackBase):
         ).all()
 
         project_names = [project['name'] for project in ftrack_projects]
-        key, value, label = 'project_name', project_names, 'Create under Project'
+        key, value, label = 'project_name', project_names, 'Create under project'
         tooltip = 'Updating/Creating Project.'
 
         self.project_options_widget = UIPropertyFactory.create(
@@ -1081,7 +1081,7 @@ class FtrackProcessorUI(FtrackBase):
                     task_tags.add(task_name)
 
         task_tags = list(task_tags) or [self._preset.properties()['ftrack']['task_type']]
-        key, value, label = 'task_type', list(task_tags), 'Publish to Task'
+        key, value, label = 'task_type', list(task_tags), 'Publish to task'
         tooltip = 'Select a task to publish to.'
 
         self.task_type_options_widget = UIPropertyFactory.create(
@@ -1114,7 +1114,7 @@ class FtrackProcessorUI(FtrackBase):
     def add_thumbnail_options(self, parent_layout):
         '''Create thumbnail options widget with parent *parent_layout*.'''
         # Thumbanil generation.
-        key, value, label = 'opt_publish_thumbnail', True, 'Publish Thumbnail'
+        key, value, label = 'opt_publish_thumbnail', True, 'Publish thumbnail'
         tooltip = 'Generate and upload thumbnail'
 
         self.thumbnail_options_widget = UIPropertyFactory.create(
@@ -1129,7 +1129,7 @@ class FtrackProcessorUI(FtrackBase):
 
     def add_reviewable_options(self, parent_layout):
         '''Create reviewable options widget with parent *parent_layout*.'''
-        key, value, label = 'opt_publish_reviewable', True, 'Publish Reviewable'
+        key, value, label = 'opt_publish_reviewable', True, 'Publish reviewable'
         tooltip = 'Upload reviewable'
 
         self.reviewable_options_widget = UIPropertyFactory.create(
@@ -1149,7 +1149,7 @@ class FtrackProcessorUI(FtrackBase):
         ).all()
 
         asset_type_names = [asset_type['short'] for asset_type in asset_types]
-        key, value, label = 'asset_type_code', asset_type_names, 'Asset Type'
+        key, value, label = 'asset_type_code', asset_type_names, 'Asset type'
         tooltip = 'Asset type to be created.'
 
         self.asset_type_options_widget = UIPropertyFactory.create(
@@ -1166,7 +1166,7 @@ class FtrackProcessorUI(FtrackBase):
     def add_task_templates_options(self, parent_layout):
         ''' Create task template options widget with parent *parent_layout*.'''
         self.template_widget_options_widget = Template(self._project)
-        parent_layout.addRow('Shot Template' + ':', self.template_widget_options_widget)
+        parent_layout.addRow('Shot template' + ':', self.template_widget_options_widget)
 
     def set_ui_tweaks(self):
         ''' Utility function to tweak NS ui.'''
@@ -1198,7 +1198,7 @@ class FtrackProcessorUI(FtrackBase):
 
     def addFtrackTaskUI(self, parent_layout, exportTemplate):
         current_task_name = self._preset.name()
-        key, value, label = 'component_name', current_task_name, 'Component Name'
+        key, value, label = 'component_name', current_task_name, 'Component name'
         tooltip = 'Component Name'
 
         task_name_options_widget = UIPropertyFactory.create(

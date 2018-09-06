@@ -131,7 +131,7 @@ class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackProcessorUI):
             )
         ]
 
-        key, value, label = 'reference_task', available_tasks_names, 'Source Component'
+        key, value, label = 'reference_task', available_tasks_names, 'Source component'
         tooltip = 'Select component output as input for nuke script read node.'
 
         available_tasks_options = UIPropertyFactory.create(
