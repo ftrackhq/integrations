@@ -964,7 +964,7 @@ class FtrackProcessorUI(FtrackBase):
     def add_asset_name_options(self, parent_layout):
         '''Create asset name options widget with parent *parent_layout*.'''
         asset_name = self._preset.properties()['ftrack']['asset_name']
-        key, value, label = 'asset_name', asset_name, 'Set asset name as'
+        key, value, label = 'asset_name', asset_name, 'Asset name'
         tooltip = 'Select an asset name to publish to.'
         self.asset_name_options_widget = UIPropertyFactory.create(
             type(value),
@@ -1062,16 +1062,10 @@ class FtrackProcessorUI(FtrackBase):
         self.add_reviewable_options(form_layout)
         self.set_ui_tweaks()
 
-    def addFtrackTaskUI(self, widget, exportTemplate):
-        layout = widget.layout()
-
-        form_layout = TaskUIFormLayout()
-        layout.addLayout(form_layout)
-        form_layout.addDivider('Ftrack Options')
-
+    def addFtrackTaskUI(self, parent_layout, exportTemplate):
         current_task_name = self._preset.name()
         key, value, label = 'component_name', current_task_name, 'Component Name'
-        tooltip = 'Set Component Name'
+        tooltip = 'Component Name'
 
         task_name_options_widget = UIPropertyFactory.create(
             type(value),
@@ -1082,4 +1076,4 @@ class FtrackProcessorUI(FtrackBase):
             tooltip = tooltip
 
         )
-        form_layout.addRow(label + ':', task_name_options_widget)
+        parent_layout.addRow(label + ':', task_name_options_widget)

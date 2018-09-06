@@ -4,7 +4,6 @@
 import os
 import re
 import copy
-from hiero.ui.FnUIProperty import UIPropertyFactory
 import tempfile
 
 import hiero
@@ -13,6 +12,7 @@ from hiero.exporters.FnSubmission import Submission
 from hiero.exporters.FnTranscodeExporter import TranscodeExporter, TranscodePreset
 from hiero.exporters.FnTranscodeExporterUI import TranscodeExporterUI
 from hiero.exporters.FnExternalRender import NukeRenderTask
+from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 
 from ftrack_connect_nuke_studio_beta.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,
@@ -122,7 +122,11 @@ class FtrackNukeRenderExporterUI(TranscodeExporterUI, FtrackProcessorUI):
 
     def populateUI(self, widget, exportTemplate):
         TranscodeExporterUI.populateUI(self, widget, exportTemplate)
-        self.addFtrackTaskUI(widget, exportTemplate)
+        form_layout = TaskUIFormLayout()
+        layout = widget.layout()
+        layout.addLayout(form_layout)
+        form_layout.addDivider('Ftrack Options')
+        self.addFtrackTaskUI(form_layout, exportTemplate)
 
 hiero.core.taskRegistry.registerTask(FtrackNukeRenderExporterPreset, FtrackNukeRenderExporter)
 hiero.ui.taskUIRegistry.registerTaskUI(FtrackNukeRenderExporterPreset, FtrackNukeRenderExporterUI)

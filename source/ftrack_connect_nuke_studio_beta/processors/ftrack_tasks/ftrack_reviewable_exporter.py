@@ -7,7 +7,8 @@ import re
 import copy
 import hiero
 import hiero.core.util
-from hiero.ui.FnUIProperty import UIPropertyFactory
+from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
+
 import tempfile
 
 from hiero.exporters.FnSubmission import Submission
@@ -136,7 +137,12 @@ class FtrackReviewableExporterUI(TranscodeExporterUI, FtrackProcessorUI):
 
     def populateUI(self, widget, exportTemplate):
         TranscodeExporterUI.populateUI(self, widget, exportTemplate)
-        self.addFtrackTaskUI(widget, exportTemplate)
+        form_layout = TaskUIFormLayout()
+        layout = widget.layout()
+        layout.addLayout(form_layout)
+        form_layout.addDivider('Ftrack Options')
+
+        self.addFtrackTaskUI(form_layout, exportTemplate)
 
 
 hiero.core.taskRegistry.registerTask(FtrackReviewableExporterPreset, FtrackReviewableExporter)

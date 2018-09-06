@@ -1,8 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2018 ftrack
 
-import hiero
-import nuke
 import hiero.core.util
 from hiero.exporters.FnNukeShotExporter import NukeShotExporter, NukeShotPreset
 from hiero.exporters.FnNukeShotExporterUI import NukeShotExporterUI
@@ -10,7 +8,6 @@ from hiero.exporters.FnTranscodeExporter import TranscodePreset
 from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 from hiero.ui.FnUIProperty import UIPropertyFactory
 
-from QtExt import QtCore, QtWidgets, QtGui
 
 from ftrack_connect_nuke_studio_beta.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,
@@ -45,9 +42,7 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
                 self._source_tag = tag
                 break
 
-        self.logger.info('tag: {}'.format(self._source_tag))
-
-        if not self._source_tag :
+        if not self._source_tag:
             # If the plate tag is not existing we cannot reference the plate.
             self._nothingToDo = True
 
@@ -87,7 +82,7 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
         # Update preset with loaded data
         self.properties().update(properties)
         self.setName(self.properties()['ftrack']['component_name'])
-        
+
         # Ensure to nullify read and write paths by default
         # to ensure duplication of task.
         self.properties()["readPaths"] = ['']
@@ -126,20 +121,18 @@ class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackProcessorUI):
         self._displayName = 'Ftrack Nuke File'
         self._taskType = FtrackNukeShotExporter
 
-    def addTaskSelector(self, layout, exportTemplate):
+    def addTaskSelector(self, parent_layout, exportTemplate):
         '''Provide widget praented to *layout* to select
         from available instanciated tasks from *exportTemplate*.
         '''
-        form_layout = TaskUIFormLayout()
-        layout.addLayout(form_layout)
-        form_layout.addDivider('Ftrack Options')
-
         available_tasks_names = [
-            preset.name() for path, preset in exportTemplate.flatten() if isinstance(preset, TranscodePreset)
+            preset.name() for path, preset in exportTemplate.flatten() if (
+                isinstance(preset, TranscodePreset)
+            )
         ]
 
-        key, value, label = 'reference_task', available_tasks_names, 'Source Tasks'
-        tooltip = 'Select task as input for nuke script read node.'
+        key, value, label = 'reference_task', available_tasks_names, 'Source Component'
+        tooltip = 'Select component output as input for nuke script read node.'
 
         available_tasks_options = UIPropertyFactory.create(
             type(value),
@@ -149,7 +142,7 @@ class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackProcessorUI):
             label=label + ':',
             tooltip=tooltip
         )
-        form_layout.addRow(label + ':', available_tasks_options)
+        parent_layout.addRow(label + ':', available_tasks_options)
         available_tasks_options.update(True)
 
     def populateUI(self, widget, exportTemplate):
@@ -157,8 +150,14 @@ class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackProcessorUI):
         a QWidget with the ui *widget* neccessary to reflect the current preset.
         '''
         NukeShotExporterUI.populateUI(self, widget, exportTemplate)
-        self.addFtrackTaskUI(widget, exportTemplate)
-        self.addTaskSelector(widget.layout(), exportTemplate)
+
+        form_layout = TaskUIFormLayout()
+        layout = widget.layout()
+        layout.addLayout(form_layout)
+        form_layout.addDivider('Ftrack Options')
+
+        self.addFtrackTaskUI(form_layout, exportTemplate)
+        self.addTaskSelector(form_layout, exportTemplate)
 
         self._nodeSelectionWidget.setHidden(True)
         self._timelineWriteNode.setHidden(True)

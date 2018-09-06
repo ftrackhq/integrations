@@ -4,6 +4,7 @@
 import hiero
 from hiero.exporters.FnAudioExportTask import AudioExportTask, AudioExportPreset
 from hiero.exporters.FnAudioExportUI import AudioExportUI
+from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 
 from ftrack_connect_nuke_studio_beta.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,
@@ -77,7 +78,12 @@ class FtrackAudioExporterUI(AudioExportUI, FtrackProcessorUI):
 
     def populateUI(self, widget, exportTemplate):
         AudioExportUI.populateUI(self, widget, exportTemplate)
-        self.addFtrackTaskUI(widget, exportTemplate)
+        form_layout = TaskUIFormLayout()
+        layout = widget.layout()
+        layout.addLayout(form_layout)
+        form_layout.addDivider('Ftrack Options')
+
+        self.addFtrackTaskUI(form_layout, exportTemplate)
 
 hiero.core.taskRegistry.registerTask(FtrackAudioExporterPreset, FtrackAudioExporter)
 hiero.ui.taskUIRegistry.registerTaskUI(FtrackAudioExporterPreset, FtrackAudioExporterUI)
