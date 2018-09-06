@@ -85,9 +85,9 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
 
         # Ensure to nullify read and write paths by default
         # to ensure duplication of task.
-        self.properties()["readPaths"] = ['']
-        self.properties()["writePaths"] = ['']
-        self.properties()["timelineWriteNode"] = ''
+        self.properties()['readPaths'] = ['']
+        self.properties()['writePaths'] = ['']
+        self.properties()['timelineWriteNode'] = ''
 
     def name(self):
         '''Return task/component name.'''

@@ -9,7 +9,7 @@ import hiero.core.events
 
 class TagDropHandler(object):
 
-    kTextMimeType = "text/plain"
+    kTextMimeType = 'text/plain'
 
     def __init__(self):
         '''Initialize the class and register the handler.'''

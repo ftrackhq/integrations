@@ -40,15 +40,15 @@ class FtrackTrackFinderByNameWithDialog(TrackFinderByNameWithDialog):
         # Look for existing track
         for existingtrack in sequence.videoTracks():
             if existingtrack.trackName() == track_name:
-                # hiero.core.log.debug( "Track Already Exists  : " + trackName )
                 track = existingtrack
 
         # No existing track. Create new video track
         if track is None:
-            # hiero.core.log.debug( "Track Created : " + trackName )
             track = hiero.core.VideoTrack(str(track_name))
             sequence.addTrack(track)
-            track.addTag(hiero.core.Tag(track_name, ':ftrack/image/default/ftrackLogoLight'))
+            track.addTag(hiero.core.Tag(
+                track_name, ':ftrack/image/default/ftrackLogoLight')
+            )
             is_new_track = True
         return track, is_new_track
 
@@ -107,7 +107,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         # Add the standard ok/cancel buttons, default to ok.
         self._buttonbox = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.StandardButton.Ok | QtWidgets.QDialogButtonBox.StandardButton.Cancel)
-        self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setText("Build")
+        self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setText('Build')
         self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setDisabled(True)
         self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setAutoDefault(True)
         self._buttonbox.accepted.connect(self.accept_test)
@@ -201,8 +201,8 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             self.accept()
         else:
             QtWidgets.QMessageBox.warning(
-                self, "Build track from ftrack",
-                "Please set track names",
+                self, 'Build track from ftrack',
+                'Please set track names',
                 QtWidgets.QMessageBox.Ok
         )
 
