@@ -17,18 +17,18 @@ SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 RESOURCE_TARGET_PATH = os.path.join(
-    SOURCE_PATH, 'ftrack_connect_nuke_studio_beta', 'resource.py'
+    SOURCE_PATH, 'ftrack_connect_nuke_studio', 'resource.py'
 )
 HIERO_PLUGIN_PATH = os.path.join(RESOURCE_PATH, 'plugin')
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
-STAGING_PATH = os.path.join(BUILD_PATH, 'ftrack-connect-nuke-studio-beta-plugin-{0}')
+STAGING_PATH = os.path.join(BUILD_PATH, 'ftrack-connect-nuke-studio-plugin-{0}')
 HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
 APPLICATION_HOOK_PATH = os.path.join(RESOURCE_PATH, 'application_hook')
 
 
 # Read version from source.
 with open(os.path.join(
-    SOURCE_PATH, 'ftrack_connect_nuke_studio_beta', '_version.py'
+    SOURCE_PATH, 'ftrack_connect_nuke_studio', '_version.py'
 )) as _version_file:
     VERSION = re.match(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
@@ -154,7 +154,7 @@ class BuildPlugin(Command):
         result_path = shutil.make_archive(
             os.path.join(
                 BUILD_PATH,
-                'ftrack-connect-nuke-studio-beta-{0}'.format(VERSION)
+                'ftrack-connect-nuke-studio-{0}'.format(VERSION)
             ),
             'zip',
             os.path.dirname(STAGING_PATH),
@@ -166,7 +166,7 @@ class BuildPlugin(Command):
 
 # Call main setup.
 setup(
-    name='ftrack-connect-nuke-studio-beta',
+    name='ftrack-connect-nuke-studio',
     version=VERSION,
     description='ftrack integration with NUKE STUDIO.',
     long_description=open(README_PATH).read(),

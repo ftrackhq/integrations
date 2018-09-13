@@ -9,7 +9,7 @@ import lucidity.error
 
 import ftrack_api
 
-import ftrack_connect_nuke_studio_beta.exception
+import ftrack_connect_nuke_studio.exception
 
 from ftrack_connect.session import get_shared_session
 
@@ -27,7 +27,7 @@ def available_templates(project):
     templates = []
     responses = session.event_hub.publish(
         ftrack_api.event.base.Event(
-            topic='ftrack.connect.nuke-studio-beta.get-context-templates'
+            topic='ftrack.connect.nuke-studio.get-context-templates'
         ),
         synchronous=True
     )
@@ -109,7 +109,7 @@ def match(item, template):
     try:
         objects = lucidity_template.parse(item_name)
     except lucidity.error.ParseError:
-        raise ftrack_connect_nuke_studio_beta.exception.TemplateError(
+        raise ftrack_connect_nuke_studio.exception.TemplateError(
             message=(
                 '"{item_name}" did not match the '
                 'template "{template_name}"'.format(

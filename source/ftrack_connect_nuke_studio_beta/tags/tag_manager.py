@@ -5,7 +5,7 @@ import logging
 
 import hiero.core
 
-from ftrack_connect_nuke_studio_beta.base import FtrackBase
+from ftrack_connect_nuke_studio.base import FtrackBase
 
 class TagManager(FtrackBase):
     '''Creates all the custom tags wrapping the ftrack's entities.'''

@@ -14,7 +14,7 @@ from hiero.exporters.FnTranscodeExporterUI import TranscodeExporterUI
 from hiero.exporters.FnExternalRender import NukeRenderTask
 from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 
-from ftrack_connect_nuke_studio_beta.processors.ftrack_base.ftrack_base_processor import (
+from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,
     FtrackProcessor,
     FtrackProcessorUI

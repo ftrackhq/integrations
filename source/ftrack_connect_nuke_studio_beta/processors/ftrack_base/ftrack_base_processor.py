@@ -17,19 +17,19 @@ from hiero.core.FnExporterBase import TaskCallbacks
 from hiero.exporters.FnTimelineProcessor import TimelineProcessor
 from hiero.exporters.FnShotProcessor import getShotNameIndex
 
-from ftrack_connect_nuke_studio_beta.processors.ftrack_base import (
+from ftrack_connect_nuke_studio.processors.ftrack_base import (
     FtrackBasePreset,
     FtrackBase,
     FtrackProcessorValidationError,
     FtrackProcessorError
 )
-from ftrack_connect_nuke_studio_beta.ui.widget.template import Template
-import ftrack_connect_nuke_studio_beta.template as template_manager
-from ftrack_connect_nuke_studio_beta.processors.ftrack_base import (
+from ftrack_connect_nuke_studio.ui.widget.template import Template
+import ftrack_connect_nuke_studio.template as template_manager
+from ftrack_connect_nuke_studio.processors.ftrack_base import (
     get_reference_ftrack_project, set_reference_ftrack_project,
     lock_reference_ftrack_project, remove_reference_ftrack_project
 )
-import ftrack_connect_nuke_studio_beta.exception
+import ftrack_connect_nuke_studio.exception
 
 
 class FtrackSettingsValidator(QtWidgets.QDialog):
@@ -479,7 +479,7 @@ class FtrackProcessor(FtrackBase):
 
             try:
                 template_manager.match(track_item, parsing_template)
-            except ftrack_connect_nuke_studio_beta.exception.TemplateError:
+            except ftrack_connect_nuke_studio.exception.TemplateError:
                 self.logger.warning(
                     'Skipping {} as does not match {}'.format(
                         track_item, parsing_template['expression']
@@ -894,7 +894,7 @@ class FtrackProcessor(FtrackBase):
 
                 try:
                     template_manager.match(item, parsing_template)
-                except ftrack_connect_nuke_studio_beta.exception.TemplateError:
+                except ftrack_connect_nuke_studio.exception.TemplateError:
                     self.logger.warning(
                         'Skipping {} as does not match {}'.format(
                             item, parsing_template['expression']
