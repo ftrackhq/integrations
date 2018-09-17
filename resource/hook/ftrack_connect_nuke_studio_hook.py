@@ -140,7 +140,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
             applications.extend(self._searchFilesystem(
                 expression=prefix + ['Nuke.*', 'NukeStudio\d[\w.]+.app'],
-                label='Nuke Studio Beta',
+                label='Nuke Studio',
                 variant='{version}',
                 applicationIdentifier='nuke_studio_{version}',
                 icon='nuke_studio',
@@ -159,7 +159,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
             applications.extend(self._searchFilesystem(
                 expression=prefix + ['Nuke.*', 'Nuke\d.+.exe'],
                 versionExpression=nuke_version_expression,
-                label='Nuke Studio Beta',
+                label='Nuke Studio',
                 variant='{version}',
                 applicationIdentifier='nuke_studio_{version}',
                 icon='nuke_studio',
@@ -171,7 +171,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
             applications.extend(self._searchFilesystem(
                 versionExpression=r'Nuke(?P<version>.*)\/.+$',
                 expression=['/', 'usr', 'local', 'Nuke.*', 'Nuke\d.+'],
-                label='Nuke Studio Beta',
+                label='Nuke Studio',
                 variant='{version}',
                 applicationIdentifier='nuke_studio_{version}',
                 icon='nuke_studio',
@@ -232,7 +232,6 @@ def register(session, **kw):
     # return without doing anything.
     if not isinstance(session, ftrack_api.session.Session):
         return
-
 
     applicationStore = ApplicationStore()
 
