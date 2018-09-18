@@ -5,11 +5,11 @@ import os
 import logging
 from QtExt import QtWidgets, QtGui, QtCore
 
-from ftrack_connect_nuke_studio_beta.base import FtrackBase
-from ftrack_connect_nuke_studio_beta.overrides.version_scanner import add_ftrack_build_tag
-from ftrack_connect_nuke_studio_beta.template import get_project_template, match
-import ftrack_connect_nuke_studio_beta.exception
-from ftrack_connect_nuke_studio_beta.processors.ftrack_base import get_reference_ftrack_project
+from ftrack_connect_nuke_studio.base import FtrackBase
+from ftrack_connect_nuke_studio.overrides.version_scanner import add_ftrack_build_tag
+from ftrack_connect_nuke_studio.template import get_project_template, match
+import ftrack_connect_nuke_studio.exception
+from ftrack_connect_nuke_studio.processors.ftrack_base import get_reference_ftrack_project
 import hiero
 
 from hiero.ui.BuildExternalMediaTrack import (
@@ -162,7 +162,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         ftrack_project = self.session.get('Project', project_id)
 
         if not project_template:
-            raise ftrack_connect_nuke_studio_beta.exception.TemplateError(
+            raise ftrack_connect_nuke_studio.exception.TemplateError(
                 'No template defined for project {}'.format(project_name)
         )
 
@@ -171,7 +171,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
                 continue
             try:
                 parsed_results = match(trackItem, project_template)
-            except ftrack_connect_nuke_studio_beta.exception.TemplateError:
+            except ftrack_connect_nuke_studio.exception.TemplateError:
                 continue
 
             results[trackItem] = [ftrack_project['name']] + [result['name'] for result in parsed_results]

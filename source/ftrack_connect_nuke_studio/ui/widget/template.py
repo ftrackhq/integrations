@@ -1,6 +1,6 @@
 import logging
 import ftrack_connect.ui.widget.html_combobox
-import ftrack_connect_nuke_studio_beta.template as template_manager
+import ftrack_connect_nuke_studio.template as template_manager
 
 logger = logging.getLogger(__name__)
 

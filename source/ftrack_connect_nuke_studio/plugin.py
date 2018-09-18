@@ -8,14 +8,14 @@ import hiero.ui
 import hiero.core
 
 from ftrack_connect import config
-config.configure_logging('ftrack_connect_nuke_studio_beta', level='WARNING')
+config.configure_logging('ftrack_connect_nuke_studio', level='WARNING')
 
-from ftrack_connect_nuke_studio_beta.actions.build_track import FtrackBuildTrack
-from ftrack_connect_nuke_studio_beta.tags.tag_drop_handler import TagDropHandler
-from ftrack_connect_nuke_studio_beta.tags.tag_manager import TagManager
-from ftrack_connect_nuke_studio_beta.overrides.version_scanner import register_versioning_overrides
-from ftrack_connect_nuke_studio_beta.processors import register_processors
-import ftrack_connect_nuke_studio_beta.resource
+from ftrack_connect_nuke_studio.actions.build_track import FtrackBuildTrack
+from ftrack_connect_nuke_studio.tags.tag_drop_handler import TagDropHandler
+from ftrack_connect_nuke_studio.tags.tag_manager import TagManager
+from ftrack_connect_nuke_studio.overrides.version_scanner import register_versioning_overrides
+from ftrack_connect_nuke_studio.processors import register_processors
+import ftrack_connect_nuke_studio.resource
 
 
 def populate_ftrack(event):
