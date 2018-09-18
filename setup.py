@@ -10,7 +10,7 @@ import opcode
 import logging
 import zipfile
 
-# Package and dependencies versions
+# Package and dependencies versions.
 
 ftrack_connect_version = '1.1.4'
 ftrack_connect_maya_publish_version = '0.6.1'
