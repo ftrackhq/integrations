@@ -16,7 +16,6 @@ ftrack_connect_version = '1.1.4'
 ftrack_connect_maya_publish_version = '0.6.1'
 ftrack_connect_nuke_publish_version = '0.6.1'
 ftrack_connect_3dsmax_version = '0.3.1'
-ftrack_connect_legacy_plugins_version = '1.1.0'
 ftrack_connect_hieroplayer_version = '1.2.0'
 ftrack_connect_nuke_version = '1.1.4'
 ftrack_connect_maya_version = '1.1.3'
@@ -79,19 +78,6 @@ connect_3ds_max_dependency_link = (
     'https://bitbucket.org/ftrack/ftrack-connect-3dsmax/get/{0}.tar.gz'
     '#egg=ftrack-connect-3dsmax-{0}'
 ).format(ftrack_connect_3dsmax_version)
-
-
-connect_legacy_plugins_install_require = (
-    'ftrack-connect-legacy-plugins'
-    ' >=1.0, < 2'
-)
-connect_legacy_plugins_dependency_link = (
-    'file://{0}#egg=ftrack-connect-legacy-plugins-{1}'
-    .format(
-        os.environ['FTRACK_CONNECT_LEGACY_PLUGINS_PATH'].replace('\\', '/'),
-        ftrack_connect_legacy_plugins_version
-    )
-)
 
 connect_hieroplayer_install_require = (
     'ftrack-connect-hieroplayer'
@@ -188,7 +174,6 @@ configuration = dict(
         ftrack_python_legacy_api_install_require,
         connect_install_require,
         connect_3ds_max_install_require,
-        connect_legacy_plugins_install_require,
         connect_hieroplayer_install_require,
         connect_nuke_dependency_install_require,
         connect_maya_dependency_install_require,
@@ -200,7 +185,6 @@ configuration = dict(
     ],
     dependency_links=[
         connect_dependency_link,
-        connect_legacy_plugins_dependency_link,
         ('https://bitbucket.org/ftrack/lowdown/get/0.1.0.zip'
          '#egg=lowdown-0.1.0'),
         connect_3ds_max_dependency_link,
@@ -289,7 +273,6 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         setup_requires=[
             connect_install_require,
             connect_3ds_max_install_require,
-            connect_legacy_plugins_install_require,
             connect_hieroplayer_install_require,
             connect_maya_dependency_install_require,
             connect_nuke_dependency_install_require,
@@ -301,7 +284,6 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         dependency_links=[
             connect_dependency_link,
             connect_3ds_max_dependency_link,
-            connect_legacy_plugins_dependency_link,
             connect_hieroplayer_dependency_link,
             connect_maya_dependency_link,
             connect_nuke_dependency_link,
@@ -314,16 +296,6 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
     connect_resource_hook = pkg_resources.resource_filename(
         pkg_resources.Requirement.parse('ftrack-connect'),
         'ftrack_connect_resource/hook'
-    )
-
-    ftrack_connect_legacy_plugins_source = pkg_resources.resource_filename(
-        pkg_resources.Requirement.parse('ftrack-connect-legacy-plugins'),
-        'ftrack_connect_legacy_plugins/legacy_plugins'
-    )
-
-    ftrack_connect_legacy_plugins_hook = pkg_resources.resource_filename(
-        pkg_resources.Requirement.parse('ftrack-connect-legacy-plugins'),
-        'ftrack_connect_legacy_plugins/hook'
     )
 
     ftrack_connect_hieroplayer_source = pkg_resources.resource_filename(
@@ -399,8 +371,6 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         (connect_resource_hook, 'resource/hook'),
         (ftrack_connect_3ds_max_hook, 'resource/hook'),
         (ftrack_connect_3ds_max_source, 'resource/ftrack_connect_3dsmax'),
-        (ftrack_connect_legacy_plugins_source, 'resource/legacy_plugins'),
-        (ftrack_connect_legacy_plugins_hook, 'resource/hook'),
         (ftrack_connect_hieroplayer_hook, 'resource/hook'),
         (ftrack_connect_hieroplayer_source, 'resource/hieroplayer'),
         (ftrack_connect_rv_hook, 'resource/hook'),
@@ -578,7 +548,6 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_nuke.logging',
         'ftrack_api.resource_identifier_transformer.base',
         'ftrack_api.structure.id',
-        'ftrack_connect_legacy_plugins',
         'ftrack_connect_hieroplayer',
         'ftrack_connect_rv',
         'ftrack_connect_cinema_4d',
