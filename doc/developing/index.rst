@@ -9,4 +9,7 @@ Discover how to develop and extend the default ftrack integration with Nuke
 studio.
 
 .. toctree::
-    :maxdepth: 1
+   :maxdepth: 1
+
+   adding_custom_templates
+   api_reference/index
