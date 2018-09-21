@@ -1,4 +1,4 @@
-ftrack\_connect\_nuke\_studio\_beta.processors package
+ftrack\_connect\_nuke\_studio.processors package
 ======================================================
 
 Subpackages
@@ -6,13 +6,13 @@ Subpackages
 
 .. toctree::
 
-    ftrack_connect_nuke_studio_beta.processors.ftrack_base
-    ftrack_connect_nuke_studio_beta.processors.ftrack_tasks
+    ftrack_connect_nuke_studio.processors.ftrack_base
+    ftrack_connect_nuke_studio.processors.ftrack_tasks
 
 Module contents
 ---------------
 
-.. automodule:: ftrack_connect_nuke_studio_beta.processors
+.. automodule:: ftrack_connect_nuke_studio.processors
     :members:
     :undoc-members:
     :show-inheritance:

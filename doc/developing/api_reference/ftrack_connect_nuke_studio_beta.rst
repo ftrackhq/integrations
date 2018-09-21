@@ -1,4 +1,4 @@
-ftrack\_connect\_nuke\_studio\_beta package
+ftrack\_connect\_nuke\_studio package
 ===========================================
 
 Subpackages
@@ -6,68 +6,68 @@ Subpackages
 
 .. toctree::
 
-    ftrack_connect_nuke_studio_beta.actions
-    ftrack_connect_nuke_studio_beta.overrides
-    ftrack_connect_nuke_studio_beta.processors
-    ftrack_connect_nuke_studio_beta.tags
-    ftrack_connect_nuke_studio_beta.ui
+    ftrack_connect_nuke_studio.actions
+    ftrack_connect_nuke_studio.overrides
+    ftrack_connect_nuke_studio.processors
+    ftrack_connect_nuke_studio.tags
+    ftrack_connect_nuke_studio.ui
 
 
 Submodules
 ----------
 
-ftrack\_connect\_nuke\_studio\_beta.\_version module
+ftrack\_connect\_nuke\_studio.\_version module
 ----------------------------------------------------
 
-.. automodule:: ftrack_connect_nuke_studio_beta._version
+.. automodule:: ftrack_connect_nuke_studio._version
     :members:
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_nuke\_studio\_beta.base module
+ftrack\_connect\_nuke\_studio.base module
 -----------------------------------------------
 
-.. automodule:: ftrack_connect_nuke_studio_beta.base
+.. automodule:: ftrack_connect_nuke_studio.base
     :members:
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_nuke\_studio\_beta.exception module
+ftrack\_connect\_nuke\_studio.exception module
 ----------------------------------------------------
 
-.. automodule:: ftrack_connect_nuke_studio_beta.exception
+.. automodule:: ftrack_connect_nuke_studio.exception
     :members:
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_nuke\_studio\_beta.plugin module
+ftrack\_connect\_nuke\_studio.plugin module
 -------------------------------------------------
 
-.. automodule:: ftrack_connect_nuke_studio_beta.plugin
+.. automodule:: ftrack_connect_nuke_studio.plugin
     :members:
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_nuke\_studio\_beta.resource module
+ftrack\_connect\_nuke\_studio.resource module
 ---------------------------------------------------
 
-.. automodule:: ftrack_connect_nuke_studio_beta.resource
+.. automodule:: ftrack_connect_nuke_studio.resource
     :members:
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_nuke\_studio\_beta.template module
+ftrack\_connect\_nuke\_studio.template module
 ---------------------------------------------------
 
-.. automodule:: ftrack_connect_nuke_studio_beta.template
+.. automodule:: ftrack_connect_nuke_studio.template
     :members:
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_nuke\_studio\_beta.usage module
+ftrack\_connect\_nuke\_studio.usage module
 ------------------------------------------------
 
-.. automodule:: ftrack_connect_nuke_studio_beta.usage
+.. automodule:: ftrack_connect_nuke_studio.usage
     :members:
     :undoc-members:
     :show-inheritance:
@@ -76,7 +76,7 @@ ftrack\_connect\_nuke\_studio\_beta.usage module
 Module contents
 ---------------
 
-.. automodule:: ftrack_connect_nuke_studio_beta
+.. automodule:: ftrack_connect_nuke_studio
     :members:
     :undoc-members:
     :show-inheritance:

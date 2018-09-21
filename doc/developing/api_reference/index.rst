@@ -10,4 +10,4 @@ Welcome to source's documentation!
    :maxdepth: 4
    :caption: Contents:
 
-   ftrack_connect_nuke_studio_beta
+   ftrack_connect_nuke_studio
