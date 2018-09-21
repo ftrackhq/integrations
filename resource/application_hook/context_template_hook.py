@@ -57,7 +57,7 @@ class ContextTemplates(object):
     def register(self):
         '''Register hook.'''
         self.session.event_hub.subscribe(
-            'topic=ftrack.connect.nuke-studio-beta.get-context-templates',
+            'topic=ftrack.connect.nuke-studio.get-context-templates',
             self.launch
         )
 

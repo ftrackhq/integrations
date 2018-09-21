@@ -13,10 +13,10 @@ import ftrack_connect.application
 
 cwd = os.path.dirname(__file__)
 sources = os.path.abspath(os.path.join(cwd, '..', 'dependencies'))
-ftrack_connect_nuke_studio_beta_path = os.path.join(cwd, '..',  'resource')
+ftrack_connect_nuke_studio_path = os.path.join(cwd, '..',  'resource')
 sys.path.append(sources)
 
-import ftrack_connect_nuke_studio_beta
+import ftrack_connect_nuke_studio
 
 
 class LaunchAction(object):
@@ -111,7 +111,7 @@ class LaunchAction(object):
         '''Return version information.'''
         return dict(
             name='ftrack connect nuke studio',
-            version=ftrack_connect_nuke_studio_beta.__version__
+            version=ftrack_connect_nuke_studio.__version__
         )
 
 
@@ -140,9 +140,9 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
             applications.extend(self._searchFilesystem(
                 expression=prefix + ['Nuke.*', 'NukeStudio\d[\w.]+.app'],
-                label='Nuke Studio Beta',
+                label='Nuke Studio',
                 variant='{version}',
-                applicationIdentifier='nuke_studio_beta_{version}',
+                applicationIdentifier='nuke_studio_{version}',
                 icon='nuke_studio',
             ))
 
@@ -159,9 +159,9 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
             applications.extend(self._searchFilesystem(
                 expression=prefix + ['Nuke.*', 'Nuke\d.+.exe'],
                 versionExpression=nuke_version_expression,
-                label='Nuke Studio Beta',
+                label='Nuke Studio',
                 variant='{version}',
-                applicationIdentifier='nuke_studio_beta_{version}',
+                applicationIdentifier='nuke_studio_{version}',
                 icon='nuke_studio',
                 launchArguments=['--studio']
             ))
@@ -171,9 +171,9 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
             applications.extend(self._searchFilesystem(
                 versionExpression=r'Nuke(?P<version>.*)\/.+$',
                 expression=['/', 'usr', 'local', 'Nuke.*', 'Nuke\d.+'],
-                label='Nuke Studio Beta',
+                label='Nuke Studio',
                 variant='{version}',
-                applicationIdentifier='nuke_studio_beta_{version}',
+                applicationIdentifier='nuke_studio_{version}',
                 icon='nuke_studio',
                 launchArguments=['--studio']
             ))
@@ -209,7 +209,7 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
         )
 
         environment = ftrack_connect.application.appendPath(
-            ftrack_connect_nuke_studio_beta_path, 'HIERO_PLUGIN_PATH', environment
+            ftrack_connect_nuke_studio_path, 'HIERO_PLUGIN_PATH', environment
         )
 
         environment = ftrack_connect.application.appendPath(
@@ -232,7 +232,6 @@ def register(session, **kw):
     # return without doing anything.
     if not isinstance(session, ftrack_api.session.Session):
         return
-
 
     applicationStore = ApplicationStore()
 

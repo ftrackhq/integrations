@@ -1,39 +1,33 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2018 ftrack
 
-import logging
 import os
 import re
 import copy
-import hiero
-import hiero.core.util
-from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
-
 import tempfile
 
+import hiero
+import hiero.core.util
 from hiero.exporters.FnSubmission import Submission
 from hiero.exporters.FnTranscodeExporter import TranscodeExporter, TranscodePreset
 from hiero.exporters.FnTranscodeExporterUI import TranscodeExporterUI
 from hiero.exporters.FnExternalRender import NukeRenderTask
+from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 
-from ftrack_connect_nuke_studio_beta.processors.ftrack_base.ftrack_base_processor import (
+from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,
     FtrackProcessor,
     FtrackProcessorUI
 )
 
 
-class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
-    '''Reviewable Task exporter.'''
+class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
+    '''NukeRender Task exporter.'''
 
     def __init__(self, initDict):
         '''Initialise task with *initDict*.'''
         NukeRenderTask.__init__(self, initDict)
         FtrackProcessor.__init__(self, initDict)
-
-        self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
-        )
 
     def addWriteNodeToScript(self, script, rootNode, framerate):
         '''Restore original function from parent class.'''
@@ -48,18 +42,18 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
 
         # Figure out the script location
         path = tempfile.NamedTemporaryFile(suffix='.nk').name
-        dirname, filename = os.path.split(path)
-        root, ext = os.path.splitext(filename)
+        dir_name, file_name = os.path.split(path)
+        root, ext = os.path.splitext(file_name)
 
-        percentmatch = re.search('%\d+d', root)
-        if percentmatch:
-            percentpad = percentmatch.group()
-            root = root.replace(percentpad, '')
+        percent_match = re.search('%\d+d', root)
+        if percent_match:
+            percent_padding = percent_match.group()
+            root = root.replace(percent_padding, '')
 
-        self._root = dirname + '/' + root.rstrip('#').rstrip('.')
+        self._root = dir_name + '/' + root.rstrip('#').rstrip('.')
 
-        scriptExtension = '.nknc' if hiero.core.isNC() else '.nk'
-        self._scriptfile = str(self._root + scriptExtension)
+        script_extension = '.nknc' if hiero.core.isNC() else '.nk'
+        self._scriptfile = str(self._root + script_extension)
 
         self._renderTask = None
         if self._submission is not None:
@@ -82,14 +76,14 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
         pass
 
 
-class FtrackReviewableExporterPreset(TranscodePreset, FtrackProcessorPreset):
-    '''Reviewable Task preset.'''
+class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
+    '''NukeRender Task preset.'''
 
     def __init__(self, name, properties):
         '''Initialise task with *name* and *properties*.'''
         TranscodePreset.__init__(self, name, properties)
         FtrackProcessorPreset.__init__(self, name, properties)
-        self._parentType = FtrackReviewableExporter
+        self._parentType = FtrackNukeRenderExporter
 
         # Update preset with loaded data
         self.properties().update(properties)
@@ -106,34 +100,25 @@ class FtrackReviewableExporterPreset(TranscodePreset, FtrackProcessorPreset):
         properties.setdefault('ftrack', {})
 
         # add placeholders for default ftrack defaults
-        self.properties()['ftrack']['component_pattern'] = '.mov'
-        self.properties()['ftrack']['component_name'] = 'Reviewable'
+        self.properties()['ftrack']['component_pattern'] = '.####.{ext}'
+        self.properties()['ftrack']['component_name'] = 'Plate'
         self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__)
 
-        # enforce mov for newly created task
-        self.properties()['file_type'] = 'mov'
-        self.properties()['mov'] = {
-                'encoder': 'mov64',
-                'codec': 'avc1\tH.264',
-                'quality': 3,
-                'settingsString': 'H.264, High Quality',
-                'keyframerate': 1,
-        }
-
     def addUserResolveEntries(self, resolver):
+        '''Add ftrack resolve entries to *resolver*.'''
         FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)
 
 
-class FtrackReviewableExporterUI(TranscodeExporterUI, FtrackProcessorUI):
-    '''Reviewable Task Ui.'''
+class FtrackNukeRenderExporterUI(TranscodeExporterUI, FtrackProcessorUI):
+    '''NukeRender Task Ui.'''
 
     def __init__(self, preset):
         '''Initialise task ui with *preset*.'''
         TranscodeExporterUI.__init__(self, preset)
         FtrackProcessorUI.__init__(self, preset)
 
-        self._displayName = 'Ftrack Reviewable Render'
-        self._taskType = FtrackReviewableExporter
+        self._displayName = 'Ftrack Nuke Render'
+        self._taskType = FtrackNukeRenderExporter
 
     def populateUI(self, widget, exportTemplate):
         TranscodeExporterUI.populateUI(self, widget, exportTemplate)
@@ -141,9 +126,7 @@ class FtrackReviewableExporterUI(TranscodeExporterUI, FtrackProcessorUI):
         layout = widget.layout()
         layout.addLayout(form_layout)
         form_layout.addDivider('Ftrack Options')
-
         self.addFtrackTaskUI(form_layout, exportTemplate)
 
-
-hiero.core.taskRegistry.registerTask(FtrackReviewableExporterPreset, FtrackReviewableExporter)
-hiero.ui.taskUIRegistry.registerTaskUI(FtrackReviewableExporterPreset, FtrackReviewableExporterUI)
+hiero.core.taskRegistry.registerTask(FtrackNukeRenderExporterPreset, FtrackNukeRenderExporter)
+hiero.ui.taskUIRegistry.registerTaskUI(FtrackNukeRenderExporterPreset, FtrackNukeRenderExporterUI)

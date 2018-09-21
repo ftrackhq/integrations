@@ -4,7 +4,7 @@
 import nuke
 
 import ftrack_connect.usage
-import ftrack_connect_nuke_studio_beta
+import ftrack_connect_nuke_studio
 
 
 def send_event(event_name, metadata=None):
@@ -12,10 +12,10 @@ def send_event(event_name, metadata=None):
 
     if metadata is None:
         metadata = {
-            'nuke_studio_beta_version':
+            'nuke_studio_version':
                 nuke.NUKE_VERSION_STRING,
-            'ftrack_connect_nuke_studio_beta_version':
-                ftrack_connect_nuke_studio_beta.__version__
+            'ftrack_connect_nuke_studio_version':
+                ftrack_connect_nuke_studio.__version__
         }
 
     ftrack_connect.usage.send_event(
