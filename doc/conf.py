@@ -27,20 +27,19 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'ftrack connect nuke studio beta'
+project = u'ftrack connect nuke studio'
 copyright = u'2018, ftrack'
 
 # Version
 sources = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'source'))
-print sources
 sys.path.append(sources)
 
-
+# sys.path.append('/usr/local/Nuke11.2v2/pythonextensions/site-packages')
 # Version
 with open(
     os.path.join(
         os.path.dirname(__file__), '..', 'source',
-        'ftrack_connect_nuke_studio_beta', '_version.py'
+        'ftrack_connect_nuke_studio', '_version.py'
     )
 ) as _version_file:
     _version = re.match(
@@ -55,7 +54,7 @@ release = _version
 exclude_patterns = ['_template']
 
 # A list of prefixes to ignore for module listings
-modindex_common_prefix = ['ftrack_connect_nuke_studio_beta.']
+modindex_common_prefix = ['ftrack_connect_nuke_studio.']
 
 
 # -- HTML output --------------------------------------------------------------
@@ -79,7 +78,7 @@ html_copy_source = True
 
 # -- Autodoc ------------------------------------------------------------------
 
-autodoc_default_flags = ['members', 'undoc-members']
+autodoc_default_flags = ['members']
 autodoc_member_order = 'bysource'
 
 
@@ -92,10 +91,15 @@ def autodoc_skip(app, what, name, obj, skip, options):
 
 
 # Packages / modules to mock so that build does not fail.
-for module in [
-    'hiero', 'hiero.ui', 'hiero.core', 'hiero.core.events', 'nuke', 'ftrack',
-    'QtExt', 'ftrack_connect', 'ui.widget.html_combobox',
-    'ftrack_connect.session', 'lucidity', 'hiero.core.VersionScanner', 'error'
+for module in ['ftrack','ftrack_api',
+    'QtExt', 'ftrack_connect', 'ui.widget.html_combobox','ftrack_connect_nuke_studio.resource',
+    'ftrack_connect.session', 'lucidity', 'lucidity.error','ftrack_connect.ui','ftrack_connect.ui.widget','ftrack_connect.ui.widget.html_combobox',
+    'ftrack_connect','ui.widget.html_combobox', 'libpyside2-python2.7.so.2.0', 'hiero', 'hiero.core', 'hiero.ui',
+    'hiero.exporters', 'exporters.FnShotProcessor', 'hiero.exporters.FnShotProcessor', 'hiero.exporters.FnShotProcessorUI','hiero.core.FnExporterBase',
+    'foundry', 'foundry.ui', 'hiero.ui.FnTaskUIFormLayout', 'hiero.ui.FnUIProperty', 'hiero.core.VersionScanner', 'hiero.exporters.FnTimelineProcessor',
+    'hiero.exporters.FnTimelineProcessorUI','hiero.core.events','nuke','hiero.core.util', 'hiero.exporters.FnNukeShotExporter', 'hiero.exporters.FnNukeShotExporterUI',
+    'hiero.exporters.FnTranscodeExporter', 'hiero.exporters.FnTranscodeExporterUI', 'hiero.exporters.FnSubmission', 'hiero.exporters.FnExternalRender',
+    'hiero.exporters.FnAudioExportTask', 'hiero.exporters.FnAudioExportUI', 'hiero.exporters.FnEDLExportTask', 'hiero.exporters.FnEDLExportUI'
 ]:
     sys.modules[module] = mock.MagicMock()
 

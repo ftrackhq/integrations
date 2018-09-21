@@ -1,5 +1,5 @@
 ftrack\_connect\_nuke\_studio package
-===========================================
+=====================================
 
 Subpackages
 -----------
@@ -10,22 +10,12 @@ Subpackages
     ftrack_connect_nuke_studio.overrides
     ftrack_connect_nuke_studio.processors
     ftrack_connect_nuke_studio.tags
-    ftrack_connect_nuke_studio.ui
-
 
 Submodules
 ----------
 
-ftrack\_connect\_nuke\_studio.\_version module
-----------------------------------------------------
-
-.. automodule:: ftrack_connect_nuke_studio._version
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 ftrack\_connect\_nuke\_studio.base module
------------------------------------------------
+-----------------------------------------
 
 .. automodule:: ftrack_connect_nuke_studio.base
     :members:
@@ -33,7 +23,7 @@ ftrack\_connect\_nuke\_studio.base module
     :show-inheritance:
 
 ftrack\_connect\_nuke\_studio.exception module
-----------------------------------------------------
+----------------------------------------------
 
 .. automodule:: ftrack_connect_nuke_studio.exception
     :members:
@@ -41,23 +31,15 @@ ftrack\_connect\_nuke\_studio.exception module
     :show-inheritance:
 
 ftrack\_connect\_nuke\_studio.plugin module
--------------------------------------------------
+-------------------------------------------
 
 .. automodule:: ftrack_connect_nuke_studio.plugin
     :members:
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_nuke\_studio.resource module
----------------------------------------------------
-
-.. automodule:: ftrack_connect_nuke_studio.resource
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 ftrack\_connect\_nuke\_studio.template module
----------------------------------------------------
+---------------------------------------------
 
 .. automodule:: ftrack_connect_nuke_studio.template
     :members:
@@ -65,7 +47,7 @@ ftrack\_connect\_nuke\_studio.template module
     :show-inheritance:
 
 ftrack\_connect\_nuke\_studio.usage module
-------------------------------------------------
+------------------------------------------
 
 .. automodule:: ftrack_connect_nuke_studio.usage
     :members:

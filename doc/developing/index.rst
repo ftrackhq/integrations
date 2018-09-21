@@ -12,4 +12,4 @@ studio.
    :maxdepth: 1
 
    adding_custom_templates
-   api_reference/index
+   api_reference/modules
