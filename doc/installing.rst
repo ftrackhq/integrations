@@ -37,9 +37,9 @@ cloning the public repository::
 Then you can build and install the package into your current Python
 site-packages folder::
 
-    python setup.py  build_plugin
+    python setup.py build_plugin
 
-Once build you can move or symlink the folder to the ftrack-connect-plugin folder directory.
+Once build you can `install <http://help.ftrack.com/connect/getting-started-with-connect/installing-and-using-connect#customizing-ftrack-connect>`_ the result plugin in the ftrack-connect-plugin folder directory.
 
 Building documentation from source
 ----------------------------------
