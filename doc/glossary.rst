@@ -17,4 +17,5 @@ Glossary
     Context template
 
         Context templates are used to define the hierarchy in ftrack when
-        exporting. :ref:`Read more <using/templates>`
+        exporting.
+

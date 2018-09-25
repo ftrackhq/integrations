@@ -7,6 +7,17 @@
 Release Notes
 *************
 
+
+.. release:: 2.0.0
+
+    .. change:: new
+
+        Complete re write of the integration as standalone plugin.
+
+        .. seealso::
+
+            :ref:`migration guide <release/migration>`
+
 .. release:: 1.1.2
     :date: 2017-04-27
 
