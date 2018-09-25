@@ -21,6 +21,14 @@ and remove any previously saved task and processor presets users might have been
 saving. Is prefereable though to create a new project from scratch so no old
 settings and hidden tags are retained.
 
+Custom Processors
+-----------------
+With this new integration we have been moving away from separated processors and task logic
+and we now rely on the natural Nuke Studio / Hiero ones.
+If you had any custom processor written for the previous version, it is suggested
+to see at first if the customisation of the settings of the new default ftrack tasks and processors
+is enough.
+
 
 Moving to the new API
 =====================
