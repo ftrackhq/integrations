@@ -1010,7 +1010,7 @@ class FtrackProcessorUI(FtrackBase):
         '''Create project options widget with parent *parent_layout*.'''
 
         ftrack_projects = self.session.query(
-            'select id, name from Project where status is "active"'
+            'select id, name from Project where status is "active" order by name'
         ).all()
 
         project_names = [project['name'] for project in ftrack_projects]
