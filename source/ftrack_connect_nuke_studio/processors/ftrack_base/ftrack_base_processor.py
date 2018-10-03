@@ -1068,7 +1068,7 @@ class FtrackProcessorUI(FtrackBase):
                     task_name = meta.value('ftrack.name')
                     task_tags.add(task_name)
 
-        task_tags = list(task_tags) or [self._preset.properties()['ftrack']['task_type']]
+        task_tags = sorted(list(task_tags)) or [self._preset.properties()['ftrack']['task_type']]
         key, value, label = 'task_type', list(task_tags), 'Publish to task'
         tooltip = 'Select a task to publish to.'
 
