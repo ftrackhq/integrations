@@ -100,7 +100,7 @@ class FtrackTimelineProcessorPreset(TimelineProcessorPreset, FtrackProcessorPres
         self.properties()['ftrack']['asset_name'] = '{sequence}'
 
         # asset type for processor
-        self.properties()['ftrack']['asset_type_code'] = 'edl'
+        self.properties()['ftrack']['asset_type_name'] = 'EDL'
 
 
 # Register the ftrack sequence processor.

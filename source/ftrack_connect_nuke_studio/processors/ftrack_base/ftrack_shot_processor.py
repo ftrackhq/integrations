@@ -96,7 +96,7 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackProcessorPreset):
         self.properties()['ftrack']['asset_name'] = '{track}'
 
         # asset type for processor
-        self.properties()['ftrack']['asset_type_code'] = 'img'
+        self.properties()['ftrack']['asset_type_name'] = 'Image Sequence'
 
     def isValid(self):
         '''Check if write nodes are present and valid.'''

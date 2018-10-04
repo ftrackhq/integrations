@@ -236,11 +236,11 @@ class FtrackProcessor(FtrackBase):
 
     def asset_type_per_task(self, task):
         '''Return the ftrack object available asset type.'''
-        asset_type = task._preset.properties()['ftrack']['asset_type_code']
+        asset_type = task._preset.properties()['ftrack']['asset_type_name']
         try:
             result = self.session.query(
-                'AssetType where short is "{0}"'.format(asset_type)
-            ).one()
+                'AssetType where name is "{0}"'.format(asset_type)
+            ).first()
         except Exception as error:
             raise FtrackProcessorError(error)
         return result
@@ -846,13 +846,13 @@ class FtrackProcessor(FtrackBase):
         '''
 
         task_type = self._preset.properties()['ftrack']['task_type']
-        asset_type_code = self._preset.properties()['ftrack']['asset_type_code']
+        asset_type_name = self._preset.properties()['ftrack']['asset_type_name']
         asset_name = self._preset.properties()['ftrack']['asset_name']
 
         for (export_path, preset) in self._exportTemplate.flatten():
             # propagate properties from processor to tasks.
             preset.properties()['ftrack']['task_type'] = task_type
-            preset.properties()['ftrack']['asset_type_code'] = asset_type_code
+            preset.properties()['ftrack']['asset_type_name'] = asset_type_name
             preset.properties()['ftrack']['asset_name'] = asset_name
 
         if preview:
@@ -927,14 +927,14 @@ class FtrackProcessor(FtrackBase):
                     self._validate_project_progress_widget.setProgress(
                         int(100.0 * (float(progress_index) / float(num_items)))
                     )
-                    asset_type_code = preset.properties()['ftrack']['asset_type_code']
+                    asset_type_name = preset.properties()['ftrack']['asset_type_name']
 
                     ftrack_asset_type = self.session.query(
-                        'AssetType where short is "{0}"'.format(asset_type_code)
+                        'AssetType where short is "{0}"'.format(asset_type_name)
                     ).first()
 
-                    if not ftrack_asset_type and asset_type_code not in missing_assets_type:
-                        missing_assets_type.append(asset_type_code)
+                    if not ftrack_asset_type and asset_type_name not in missing_assets_type:
+                        missing_assets_type.append(asset_type_name)
 
                     try:
                         result = self.task_type(project)
@@ -1136,8 +1136,8 @@ class FtrackProcessorUI(FtrackBase):
             'AssetType'
         ).all()
 
-        asset_type_names = [asset_type['short'] for asset_type in asset_types]
-        key, value, label = 'asset_type_code', asset_type_names, 'Asset type'
+        asset_type_names = [asset_type['name'] for asset_type in asset_types]
+        key, value, label = 'asset_type_name', asset_type_names, 'Asset type'
         tooltip = 'Asset type to be created.'
 
         self.asset_type_options_widget = UIPropertyFactory.create(
