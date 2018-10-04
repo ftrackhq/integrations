@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2015 ftrack
+# :copyright: Copyright (c) 2018 ftrack
 
 import logging
 import ftrack_api
@@ -22,6 +22,15 @@ class ContextTemplates(object):
         '''Return context templates.'''
         # Define tag regular expressions.
         return [{
+            'name': 'Basic, sequence and shot',
+            'description': (
+                'Match Sequence and Shot by underscores naming. '
+                'Example: SQ001_SH010 will be matched as Sequence with name '
+                'SQ001 and a shot named SH010.'
+            ),
+            'expression': '{Sequence:.+}_{Shot:.+}'
+        },
+        {
             'name': 'Classic, sequence and shot',
             'description': (
                 'Match SQ or SH and any subsequent numbers. '
@@ -29,7 +38,7 @@ class ContextTemplates(object):
                 '001 and a shot named 010.'
             ),
             'expression': '{_:SQ|sq}{Sequence:\d+}{_:.+(SH|sh)}{Shot:\d+}'
-        }, {
+        },{
             'name': 'Classic, shot only',
             'description': (
                 'Match SH and any subsequent digits. '

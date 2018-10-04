@@ -10,7 +10,6 @@ ftrack connect nuke studio
 
     about
     installing
-    using/index
     developing/index
     glossary
     release/index

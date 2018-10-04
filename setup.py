@@ -1,15 +1,30 @@
 # :coding: utf-8
+# :copyright: Copyright (c) 2018 ftrack
 
 import os
+import sys
 import re
-import glob
+import shutil
+import subprocess
+from pip._internal import main as pip_main
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Command
+
+import fileinput
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
+RESOURCE_TARGET_PATH = os.path.join(
+    SOURCE_PATH, 'ftrack_connect_nuke_studio', 'resource.py'
+)
+HIERO_PLUGIN_PATH = os.path.join(RESOURCE_PATH, 'plugin')
+BUILD_PATH = os.path.join(ROOT_PATH, 'build')
+STAGING_PATH = os.path.join(BUILD_PATH, 'ftrack-connect-nuke-studio-plugin-{0}')
+HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
+APPLICATION_HOOK_PATH = os.path.join(RESOURCE_PATH, 'application_hook')
+
 
 # Read version from source.
 with open(os.path.join(
@@ -20,50 +35,134 @@ with open(os.path.join(
     ).group(1)
 
 
-def get_files_from_folder(folder):
-    '''Get all files in a folder in resource folder.'''
-    plugin_directory = os.path.join(RESOURCE_PATH, folder)
-    plugin_data_files = []
+# ensure result plugin has the version set
+STAGING_PATH = STAGING_PATH.format(VERSION)
 
-    for root, directories, files in os.walk(plugin_directory):
-        files_list = []
-        if files:
-            for filename in files:
-                files_list.append(
-                    os.path.join(root, filename)
+
+# Custom commands.
+class BuildResources(Command):
+    '''Build additional resources.'''
+
+    user_options = []
+
+    def initialize_options(self):
+        '''Configure default options.'''
+
+    def finalize_options(self):
+        '''Finalize options to be used.'''
+        self.resource_source_path = os.path.join(
+            RESOURCE_PATH, 'resource.qrc'
+        )
+        self.resource_target_path = RESOURCE_TARGET_PATH
+
+    def _replace_imports_(self):
+        '''Replace imports in resource files to QtExt instead of QtCore.
+
+        This allows the resource file to work with many different versions of
+        Qt.
+
+        '''
+        replace = 'from QtExt import QtCore'
+        for line in fileinput.input(self.resource_target_path, inplace=True):
+            if 'import QtCore' in line:
+                # Calling print will yield a new line in the resource file.
+                print line.replace(line, replace)
+            else:
+                # Calling print will yield a new line in the resource file.
+                print line
+
+    def run(self):
+        '''Run build.'''
+        try:
+            pyside_rcc_command = 'pyside-rcc'
+
+            # On Windows, pyside-rcc is not automatically available on the
+            # PATH so try to find it manually.
+            if sys.platform == 'win32':
+                import PySide
+                pyside_rcc_command = os.path.join(
+                    os.path.dirname(PySide.__file__),
+                    'pyside-rcc.exe'
                 )
 
-        if files_list:
-            destination_folder = root.replace(
-                RESOURCE_PATH, 'ftrack_connect_nuke_studio/resource'
+            subprocess.check_call([
+                pyside_rcc_command,
+                '-o',
+                self.resource_target_path,
+                self.resource_source_path
+            ])
+        except (subprocess.CalledProcessError, OSError) as error:
+            raise RuntimeError(
+                'Error compiling resource.py using pyside-rcc. Possibly '
+                'pyside-rcc could not be found. You might need to manually add '
+                'it to your PATH. See README for more information.'
+                'error : {}'.format(error)
             )
-            plugin_data_files.append(
-                (destination_folder, files_list)
-            )
 
-    return plugin_data_files
+        self._replace_imports_()
 
-data_files = []
 
-for child in os.listdir(
-    RESOURCE_PATH
-):
-    if os.path.isdir(os.path.join(RESOURCE_PATH, child)) and child != 'hook':
-        data_files += get_files_from_folder(child)
+class BuildPlugin(Command):
+    '''Build plugin.'''
 
-data_files += get_files_from_folder(RESOURCE_PATH)
+    description = 'Download dependencies and build plugin .'
 
-data_files.append(
-    (
-        'ftrack_connect_nuke_studio/hook',
-        glob.glob(os.path.join(RESOURCE_PATH, 'hook', '*.py'))
-    )
-)
+    user_options = []
 
-connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/1.1.4.zip'
-    '#egg=ftrack-connect-1.1.4'
-)
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        '''Run the build step.'''
+        # Clean staging path
+        shutil.rmtree(STAGING_PATH, ignore_errors=True)
+
+        # build resources
+        self.run_command('build_resources')
+
+        # Copy plugin files
+        shutil.copytree(
+            HIERO_PLUGIN_PATH,
+            os.path.join(STAGING_PATH, 'resource')
+        )
+
+        # Copy hook files
+        shutil.copytree(
+            HOOK_PATH,
+            os.path.join(STAGING_PATH, 'hook')
+        )
+
+        # Copy applipcation hooks files
+        shutil.copytree(
+            APPLICATION_HOOK_PATH,
+            os.path.join(STAGING_PATH, 'application_hook')
+        )
+
+        pip_main(
+            [
+                'install',
+                '.',
+                '--target',
+                os.path.join(STAGING_PATH, 'dependencies'),
+                '--process-dependency-links'
+            ]
+        )
+
+        result_path = shutil.make_archive(
+            os.path.join(
+                BUILD_PATH,
+                'ftrack-connect-nuke-studio-{0}'.format(VERSION)
+            ),
+            'zip',
+            os.path.dirname(STAGING_PATH),
+            os.path.basename(STAGING_PATH)
+        )
+
+        print 'Result: ' + result_path
+
 
 # Call main setup.
 setup(
@@ -87,15 +186,14 @@ setup(
         'mock >= 1.3, < 2'
     ],
     install_requires=[
-        'ftrack-connect >= 0.1.2, < 2',
-        'ftrack-python-api >= 1, < 2',
-        'lucidity >= 1.5, < 2'
-    ],
-    dependency_links=[
-        connect_dependency_link
+        'appdirs == 1.4.0',
     ],
     tests_require=[
     ],
     zip_safe=False,
-    data_files=data_files
+    cmdclass={
+        'build_plugin': BuildPlugin,
+        'build_resources': BuildResources
+
+    },
 )

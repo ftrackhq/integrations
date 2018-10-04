@@ -23,18 +23,6 @@ download it for your platform.
     :ref:`article <using/launching>` to launch Nuke studio with the ftrack
     integration.
 
-Installing with pip
-===================
-
-.. highlight:: bash
-
-Installation is simple with `pip <http://www.pip-installer.org/>`_::
-
-    pip install ftrack-connect-nuke-studio
-
-.. note::
-
-    This project is not yet available on PyPi.
 
 Building from source
 ====================
@@ -49,11 +37,9 @@ cloning the public repository::
 Then you can build and install the package into your current Python
 site-packages folder::
 
-    python setup.py install
+    python setup.py build_plugin
 
-Alternatively, just build locally and manage yourself::
-
-    python setup.py build
+Once build you can `install <http://help.ftrack.com/connect/getting-started-with-connect/installing-and-using-connect#customizing-ftrack-connect>`_ the result plugin in the ftrack-connect-plugin folder directory.
 
 Building documentation from source
 ----------------------------------
@@ -78,7 +64,7 @@ Dependencies
 
 * `Python <http://python.org>`_ >= 2.6, < 3
 * `ftrack connect <https://bitbucket.org/ftrack/ftrack-connect>`_ >= 0.1.2, < 2
-* `Nuke Studio <https://www.thefoundry.co.uk/products/nuke/studio/>`_ >= 9.0v1, < 9.1
+* `Nuke Studio <https://www.thefoundry.co.uk/products/nuke/studio/>`_ >= 2 < 3
 
 Additional For building
 -----------------------
