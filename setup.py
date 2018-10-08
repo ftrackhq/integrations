@@ -168,7 +168,6 @@ configuration = dict(
         connect_hieroplayer_install_require,
         connect_nuke_dependency_install_require,
         connect_maya_dependency_install_require,
-        connect_nuke_studio_dependency_install_require,
         connect_rv_dependency_install_require,
         connect_cinema_4d_dependency_install_require,
         connect_ftrack_location_compatibilty_install_require,
@@ -182,7 +181,6 @@ configuration = dict(
         connect_hieroplayer_dependency_link,
         connect_maya_dependency_link,
         connect_nuke_dependency_link,
-        connect_nuke_studio_dependency_link,
         connect_rv_dependency_link,
         connect_cinema_4d_dependency_link,
         connect_ftrack_location_compatibilty_dependency_link
@@ -267,7 +265,6 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             connect_hieroplayer_install_require,
             connect_maya_dependency_install_require,
             connect_nuke_dependency_install_require,
-            connect_nuke_studio_dependency_install_require,
             connect_rv_dependency_install_require,
             connect_cinema_4d_dependency_install_require,
             connect_ftrack_location_compatibilty_install_require
@@ -278,7 +275,6 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             connect_hieroplayer_dependency_link,
             connect_maya_dependency_link,
             connect_nuke_dependency_link,
-            connect_nuke_studio_dependency_link,
             connect_rv_dependency_link,
             connect_cinema_4d_dependency_link,
             connect_ftrack_location_compatibilty_dependency_link
@@ -347,7 +343,6 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
     # Add requests certificates to resource folder.
     import requests.certs
 
-
     include_files = [
         (connect_resource_hook, 'resource/hook'),
         (ftrack_connect_3ds_max_hook, 'resource/hook'),
@@ -363,11 +358,6 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         (ftrack_connect_nuke_source, 'resource/ftrack_connect_nuke'),
         (connect_ftrack_location_compatibilty_hook, 'resource/hook/ftrack_location_compatibility'),
         (requests.certs.where(), 'resource/cacert.pem'),
-        (
-            ftrack_connect_nuke_studio_source,
-            'resource/ftrack_connect_nuke_studio'
-        ),
-        (ftrack_connect_nuke_studio_hook, 'resource/hook'),
         (os.path.join(
             SOURCE_PATH, 'ftrack_connect_package', '_version.py'
         ), 'resource/ftrack_connect_package_version.py'),
