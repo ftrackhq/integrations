@@ -109,16 +109,6 @@ connect_maya_dependency_install_require = (
     ' >=1.0, < 2'
 )
 
-connect_nuke_studio_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke-studio/get/{0}.zip'
-    '#egg=ftrack-connect-nuke-studio-{0}'
-).format(ftrack_connect_nuke_studio_version)
-
-connect_nuke_studio_dependency_install_require = (
-    'ftrack-connect-nuke-studio'
-    ' >=1.0, < 2'
-)
-
 connect_rv_dependency_install_require = 'ftrack-connect-rv >=3.4, < 4'
 
 connect_rv_dependency_link = (
@@ -327,16 +317,6 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
     ftrack_connect_maya_hook = pkg_resources.resource_filename(
         pkg_resources.Requirement.parse('ftrack-connect-maya'),
         'ftrack_connect_maya/hook'
-    )
-
-    ftrack_connect_nuke_studio_source = pkg_resources.resource_filename(
-        pkg_resources.Requirement.parse('ftrack-connect-nuke-studio'),
-        'ftrack_connect_nuke_studio/resource'
-    )
-
-    ftrack_connect_nuke_studio_hook = pkg_resources.resource_filename(
-        pkg_resources.Requirement.parse('ftrack-connect-nuke-studio'),
-        'ftrack_connect_nuke_studio/hook'
     )
 
     ftrack_connect_rv_hook = pkg_resources.resource_filename(
