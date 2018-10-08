@@ -13,14 +13,9 @@ ENV FTRACK_CONNECT_PACKAGE_VERSION master
 # Define Python Version to build and use
 ENV PYTHON_VERSION 2.7.9
 
-# Ftrack required environments
-# Legacy Plugins
-ENV FTRACK_CONNECT_LEGACY_PLUGINS_PATH /opt/ftrack-connect-legacy-plugins
-ENV FTRACK_CONNECT_LEGACY_PLUGINS_VERSION 1.1.0
-
 # Legacy API
 ENV FTRACK_LEGACY_PYTHON_API_PATH /opt/ftrack-python-legacy-api
-ENV FTRACK_LEGACY_PYTHON_API_VERSION 3.6.2
+ENV FTRACK_LEGACY_PYTHON_API_VERSION 3.6.3
 
 # Utility environments
 ENV OUT_FOLDER build

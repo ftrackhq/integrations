@@ -2,7 +2,6 @@
 # :copyright: Copyright (c) 2018 ftrack
 
 # Clone respositories.
-git clone --branch ${FTRACK_CONNECT_LEGACY_PLUGINS_VERSION} https://bitbucket.org/ftrack/ftrack-connect-legacy-plugins.git ${FTRACK_CONNECT_LEGACY_PLUGINS_PATH};
 git clone --branch ${FTRACK_LEGACY_PYTHON_API_VERSION} https://bitbucket.org/ftrack/ftrack-python-legacy-api.git  ${FTRACK_LEGACY_PYTHON_API_PATH};
 git clone --branch ${FTRACK_CONNECT_PACKAGE_VERSION} https://bitbucket.org/ftrack/ftrack-connect-package.git ${BUILD_DIR};
 

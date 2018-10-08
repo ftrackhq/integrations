@@ -12,7 +12,7 @@ import zipfile
 
 # Package and dependencies versions.
 
-ftrack_connect_version = '1.1.4'
+ftrack_connect_version = '1.1.6'
 ftrack_connect_maya_publish_version = '0.6.1'
 ftrack_connect_nuke_publish_version = '0.6.1'
 ftrack_connect_3dsmax_version = '0.3.1'
@@ -58,7 +58,8 @@ with open(os.path.join(
 external_connect_plugins = []
 for plugin in (
     'ftrack-connect-maya-publish-{0}.zip'.format(ftrack_connect_maya_publish_version),
-    'ftrack-connect-nuke-publish-{0}.zip'.format(ftrack_connect_nuke_publish_version)
+    'ftrack-connect-nuke-publish-{0}.zip'.format(ftrack_connect_nuke_publish_version),
+    'ftrack-connect-nuke-studio-{0}.zip'.format(ftrack_connect_nuke_studio_version)
 ):
     external_connect_plugins.append(
         (plugin, plugin.replace('.zip', ''))
