@@ -7,8 +7,8 @@
 Release Notes
 *************
 
-
 .. release:: 2.0.0
+    :date: 2018-10-08
 
     .. change:: new
 
