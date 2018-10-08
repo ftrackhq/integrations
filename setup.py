@@ -212,7 +212,7 @@ setup(
         'test': PyTest
     },
     dependency_links=[
-        'git+https://bitbucket.org/ftrack/qtext/get/0.2.0.zip#egg=QtExt-0.2.0'
+        'git+https://bitbucket.org/ftrack/qtext/get/0.2.1.zip#egg=QtExt-0.2.1'
     ],
     zip_safe=False
 )

@@ -15,7 +15,7 @@ class BusyIndicator(QtWidgets.QWidget):
         self._speed = 8.0
         self._spinnerAngle = 0
         # TODO: Use properties to enable setting this colour via stylesheets.
-        self._spinnerColor = '#11b0e9'
+        self._spinnerColor = QtGui.QColor(147, 91, 162)  # Color: '#935BA2'
         self._logo = ':ftrack/image/default/ftrackLogoColor'
 
         self.start()
@@ -68,25 +68,18 @@ class BusyIndicator(QtWidgets.QWidget):
                 shortestSide / normalisedEdge
             )
 
-            # Draw logo.
-            svgRenderer = QtSvg.QSvgRenderer()
-            svgRenderer.load(self._logo)
-            logoMargin = 30.0
-            logoArea = normalisedArea.adjusted(
-                logoMargin, logoMargin, -logoMargin, -logoMargin
-            )
-            svgRenderer.render(painter, logoArea)
-
             # Draw spinner at current spin angle.
             pen = QtGui.QPen()
-            penWidth = 5.0
+            penWidth = 8.0
             pen.setWidth(penWidth)
+            pen.setColor(self._spinnerColor)
+            pen.setCapStyle(QtCore.Qt.RoundCap)
 
             gradient = QtGui.QConicalGradient(
                 QtCore.QPoint(0, 0),
                 -self._spinnerAngle
             )
-            gradient.setColorAt(0.95, QtCore.Qt.transparent)
+            gradient.setColorAt(0.95, self._spinnerColor)
             gradient.setColorAt(0, self._spinnerColor)
 
             brush = QtGui.QBrush(gradient)
@@ -102,8 +95,8 @@ class BusyIndicator(QtWidgets.QWidget):
 
             painter.drawArc(
                 spinnerArea,
-                0,  # Start angle.
-                360 * 16  # Span angle.
+                -self._spinnerAngle * 16,  # Start angle.
+                250 * 16  # Span angle.
             )
 
         finally:

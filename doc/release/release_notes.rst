@@ -6,6 +6,16 @@
 *************
 Release Notes
 *************
+
+
+.. release:: Upcoming
+
+   .. change:: changed
+       :tags: User interface
+
+        Update icons.
+
+
 .. release:: 0.8.2
     :date: 2018-02-02
 
