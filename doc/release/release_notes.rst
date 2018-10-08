@@ -7,14 +7,13 @@
 Release Notes
 *************
 
-
-.. release:: Upcoming
+.. release:: 0.8.3
+    :date: 2018-10-08
 
    .. change:: changed
        :tags: User interface
 
         Update icons.
-
 
 .. release:: 0.8.2
     :date: 2018-02-02
