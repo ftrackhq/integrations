@@ -157,8 +157,7 @@ class BuildPlugin(Command):
                 'ftrack-connect-nuke-studio-{0}'.format(VERSION)
             ),
             'zip',
-            os.path.dirname(STAGING_PATH),
-            os.path.basename(STAGING_PATH)
+            STAGING_PATH
         )
 
         print 'Result: ' + result_path
