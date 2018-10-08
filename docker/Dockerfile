@@ -11,7 +11,7 @@ LABEL ftrack AB
 ENV FTRACK_CONNECT_PACKAGE_VERSION master
 
 # Define Python Version to build and use
-ENV PYTHON_VERSION 2.7.9
+ENV PYTHON_VERSION 2.7.15
 
 # Legacy API
 ENV FTRACK_LEGACY_PYTHON_API_PATH /opt/ftrack-python-legacy-api
