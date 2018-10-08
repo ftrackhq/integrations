@@ -524,7 +524,6 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_cinema_4d',
         'ftrack_action_handler',
         'ftrack_action_handler.action',
-        'lucidity',
         'ftrack_connect_maya',
         'ftrack_location_compatibility',
         'boto',
