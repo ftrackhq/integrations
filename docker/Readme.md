@@ -11,12 +11,12 @@ $ docker build -t ftrack/connect-package  .
 Run and deploy:
 ---------------
 This step will build and upload the file to the amazon folder
-$ docker run --env-file <yourenvfile> --rm -it ftrack/connect-package
+$ docker run --env-file <yourenvfile> -it ftrack/connect-package
 
 Run and debug:
 --------------
 This step will build and test locally the result, please remembre to unset UPLOAD_BUILD environment in the envfile
- docker run --env-file <yourenvfile> --rm -it -v `pwd`/volume:/build ftrack/connect-package  
+docker cp <result_docker_image>:/build/ftrack-connect-package-master.tar.gz .
 
 EnvFile
 -------
