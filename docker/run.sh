@@ -12,7 +12,7 @@ cd ${BUILD_DIR} && python2.7 setup.py build
 
 # Package result code.
 cd ${BUILD_DIR}/build/ && tar -zcvf /${OUT_FOLDER}/ftrack-connect-package-${FTRACK_CONNECT_PACKAGE_VERSION}.tar.gz exe.linux-x86_64-2.7 --transform 's/exe.linux-x86_64-2.7/ftrack-connect-package/' 
-echo 
+
 if [ -v $UPLOAD_BUILD ]; then
     # Install awscli for amazon upload.
     yum install -y libyaml-devel
@@ -24,6 +24,6 @@ if [ -v $UPLOAD_BUILD ]; then
         /${OUT_FOLDER}/ftrack-connect-package-${FTRACK_CONNECT_PACKAGE_VERSION}.tar.gz \
         s3://ftrack-deployment/ftrack-connect/ftrack-connect-package-${FTRACK_CONNECT_PACKAGE_VERSION}.tar.gz
 else
-    echo 'BUILD UPLOAD DISABLED, please run: docker cp <result_docker_image>:/build/ftrack-connect-package-master.tar.gz .
+    echo 'BUILD UPLOAD DISABLED, please run docker cp <result_docker_image>:/build/ftrack-connect-package-master.tar.gz .'
 fi
 
