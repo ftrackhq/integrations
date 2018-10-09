@@ -555,7 +555,10 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
 
             # Exclude distutils from virtualenv due to entire package with
             # sub-modules not being copied to virtualenv.
-            'distutils'
+            'distutils',
+            
+            # https://www.reddit.com/r/learnpython/comments/4rjkgj/no_file_named_sys_for_module_collectionssys/
+            'collections.abc'
         ],
         'include_files': include_files,
         'bin_includes': bin_includes,
