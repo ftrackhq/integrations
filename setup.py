@@ -186,6 +186,7 @@ setup(
     ],
     install_requires=[
         'appdirs == 1.4.0',
+        'lucidity >= 1.5, < 2'
     ],
     tests_require=[
     ],
