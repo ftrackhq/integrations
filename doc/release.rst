@@ -8,7 +8,9 @@ Releases
 .. release:: 1.1.0
 
     .. change:: changed
-        `ftrack ptython api 1.5.0 <http://ftrack-python-api.rtd.ftrack.com/en/1.7.0/>`_
+        `ftrack python api 1.5.0 <http://ftrack-python-api.rtd.ftrack.com/en/1.7.0/>`_
+
+        `ftrack python legacy api 3.6.3 <http://ftrack-python-legacy-api.rtd.ftrack.com/en/latest/>`_
 
         `ftrack connect 1.1.6 <http://ftrack-connect.rtd.ftrack.com/en/1.1.6/>`_
     
@@ -17,6 +19,8 @@ Releases
         `ftrack connect pipeline 0.8.3 <http://ftrack-connect-pipeline.rtd.ftrack.com/en/0.8.3/>`_
 
         `ftrack connect nuke studio 2.0.0 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/2.0.0/>`_
+
+        `ftrack action handler 0.1.3 <http://ftrack-action-handler.rtd.ftrack.com/en/0.1.3/>`_
 
 .. release:: 0.7.6
     :date: 2017-04-28
