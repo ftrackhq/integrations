@@ -16,14 +16,14 @@ ftrack_connect_version = '1.1.6'
 ftrack_connect_maya_publish_version = '0.6.1'
 ftrack_connect_nuke_publish_version = '0.6.1'
 ftrack_connect_3dsmax_version = '0.3.1'
-ftrack_connect_hieroplayer_version = '1.2.0'
+ftrack_connect_hieroplayer_version = '1.2.1'
 ftrack_connect_nuke_version = '1.1.4'
-ftrack_connect_maya_version = '1.1.3'
+ftrack_connect_maya_version = '1.1.4'
 ftrack_connect_nuke_studio_version = '2.0.0'
 ftrack_connect_rv_version = '3.7'
 ftrack_connect_cinema_4d_version = '0.1.5'
 ftrack_location_compatibility_version = '0.3.2'
-ftrack_action_handler_version = '0.1.2'
+ftrack_action_handler_version = '0.1.3'
 
 # Setup code
 

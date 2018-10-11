@@ -5,18 +5,25 @@
 Releases
 ########
 
-.. release:: 1.1.0
+.. release:: 1.0.0
 
     .. change:: changed
-        `ftrack ptython api 1.5.0 <http://ftrack-python-api.rtd.ftrack.com/en/1.7.0/>`_
+
+        `ftrack ptython api 1.7.0 <http://ftrack-python-api.rtd.ftrack.com/en/1.7.0/>`_
 
         `ftrack connect 1.1.6 <http://ftrack-connect.rtd.ftrack.com/en/1.1.6/>`_
     
-        `ftrack connect maya 1.1.4 <http://ftrack-connect-maya.rtd.ftrack.com/en/1.1.4/>`_
-
         `ftrack connect pipeline 0.8.3 <http://ftrack-connect-pipeline.rtd.ftrack.com/en/0.8.3/>`_
 
         `ftrack connect nuke studio 2.0.0 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/2.0.0/>`_
+
+        `ftrack connect maya 1.1.4 <http://ftrack-connect-maya.rtd.ftrack.com/en/1.1.4/>`_
+
+        `ftrack connect hieroplayer 1.2.1 <http://ftrack-connect-hieroplayer.rtd.ftrack.com/en/1.2.1/>`_
+
+        `ftrack action handler 1.1.3 <http://ftrack-action-handler.rtd.ftrack.com/en/1.1.3/>`_
+
+        `ftrack legacy api 3.6.3 <http://ftrack-python-legacy-api.rtd.ftrack.com/en/3.6.3/>`_
 
 .. release:: 0.7.6
     :date: 2017-04-28

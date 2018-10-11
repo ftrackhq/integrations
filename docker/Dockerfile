@@ -61,7 +61,8 @@ RUN yum -y install \
     tk-devel \
     wget \
     xz-devel \
-    zlib-devel;
+    zlib-devel \
+    patchelf;
 
 RUN wget http://python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz -P /tmp
 RUN cd /tmp && tar xf Python-${PYTHON_VERSION}.tar.xz
