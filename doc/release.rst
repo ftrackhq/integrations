@@ -20,11 +20,15 @@ Releases
 
         `ftrack connect maya 1.1.4 <http://ftrack-connect-maya.rtd.ftrack.com/en/1.1.4/>`_
 
+        `ftrack connect maya 1.1.5 <http://ftrack-connect-maya.rtd.ftrack.com/en/1.1.5/>`_
+
         `ftrack connect hieroplayer 1.2.1 <http://ftrack-connect-hieroplayer.rtd.ftrack.com/en/1.2.1/>`_
 
         `ftrack action handler 1.1.3 <http://ftrack-action-handler.rtd.ftrack.com/en/1.1.3/>`_
 
         `ftrack legacy api 3.6.3 <http://ftrack-python-legacy-api.rtd.ftrack.com/en/3.6.3/>`_
+
+        Lucidity module has been removed from connect package.
 
 .. release:: 0.7.6
     :date: 2017-04-28
