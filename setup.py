@@ -13,8 +13,8 @@ import zipfile
 # Package and dependencies versions.
 
 ftrack_connect_version = '1.1.6'
-ftrack_connect_maya_publish_version = '0.6.1'
-ftrack_connect_nuke_publish_version = '0.6.1'
+ftrack_connect_maya_publish_version = '0.6.2'
+ftrack_connect_nuke_publish_version = '0.6.2'
 ftrack_connect_3dsmax_version = '0.3.1'
 ftrack_connect_hieroplayer_version = '1.2.1'
 ftrack_connect_nuke_version = '1.1.5'
