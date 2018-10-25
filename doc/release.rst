@@ -6,7 +6,7 @@ Releases
 ########
 
 .. release:: 1.0.0
-    :date: 2018-10-11
+    :date: 2018-10-25
 
     .. change:: changed
 
