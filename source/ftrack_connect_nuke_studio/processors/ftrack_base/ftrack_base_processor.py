@@ -861,10 +861,13 @@ class FtrackProcessor(FtrackBase):
             self._validate_project_progress_widget = foundry.ui.ProgressTask('Validating settings.')
             errors = {}
             missing_assets_type = []
+            duplicated_components = []
+
             non_matching_template_items = []
 
             num_items = len(self._exportTemplate.flatten()) + len(export_items)
             progress_index = 0
+
             for exportItem in export_items:
 
                 item = exportItem.item()
@@ -907,7 +910,6 @@ class FtrackProcessor(FtrackBase):
                         if len(filtered_task_types) == 1:
                             task_tags.add(task_name)
 
-                duplicated_components = []
                 components = []
 
                 for (export_path, preset) in self._exportTemplate.flatten():

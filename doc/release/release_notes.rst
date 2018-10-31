@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: fix
+
+        Validation breaks on variable assignment.
+
+
 .. release:: 2.0.0
     :date: 2018-10-08
 
