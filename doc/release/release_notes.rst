@@ -7,6 +7,12 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: fixed
+
+        Error when trying to validate duplicated components.
+
 .. release:: 2.0.0
     :date: 2018-10-08
 
