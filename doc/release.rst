@@ -5,6 +5,16 @@
 Releases
 ########
 
+.. release:: 1.0.1
+    :date: 2018-11-13
+
+    .. change:: changed
+
+        `ftrack ptython api 1.7.1 <http://ftrack-python-api.rtd.ftrack.com/en/1.7.1/>`_
+        `ftrack connect nuke studio 2.0.1 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/2.0.1/>`_
+
+
+
 .. release:: 1.0.0
     :date: 2018-10-25
 
@@ -22,7 +32,7 @@ Releases
 
         `ftrack connect hieroplayer 1.2.1 <http://ftrack-connect-hieroplayer.rtd.ftrack.com/en/1.2.1/>`_
 
-        `ftrack action handler 1.1.3 <http://ftrack-action-handler.rtd.ftrack.com/en/1.1.3/>`_
+        `ftrack action handler 0.1.3 <http://ftrack-action-handler.rtd.ftrack.com/en/0.1.3/>`_
 
         `ftrack connect pipeline 0.8.3 <http://ftrack-connect-pipeline.rtd.ftrack.com/en/0.8.3/>`_
 
