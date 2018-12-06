@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+    :date: 2018-11-12
+
+    .. change:: new
+
+        Support multi track export.
+
 .. release:: 2.0.1
     :date: 2018-11-12
 
