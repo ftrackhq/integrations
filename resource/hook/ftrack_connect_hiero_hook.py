@@ -249,8 +249,10 @@ class ApplicationLauncher(
             application, context
         )
 
-        application_hooks_path = os.path.join(
-            ftrack_connect_nuke_studio_path, 'application_hook'
+        application_hooks_path = os.path.abspath(
+            os.path.join(
+                cwd, '..', 'application_hook'
+            )
         )
 
         environment = ftrack_connect.application.appendPath(
