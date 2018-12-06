@@ -725,7 +725,7 @@ class FtrackProcessor(FtrackBase):
 
     def setup_export_paths_event(self, task):
         ''' Event spawned when *task* start. '''
-        self.logger.info('COMPONENTS: {}'.format(self._components))
+
         has_data = self._components.get(
             task._item.parent().name(), {}
         ).get(
