@@ -199,3 +199,10 @@ class FtrackBasePreset(FtrackBase):
             lambda keyword, task: self.resolve_ftrack_component(task)
         )
 
+        resolver.addResolver(
+            "{track}",
+            "Name of the track being processed",
+            lambda keyword, task: task.trackName()
+        )
+
+

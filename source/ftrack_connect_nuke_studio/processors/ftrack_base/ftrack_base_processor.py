@@ -6,7 +6,7 @@ import time
 import tempfile
 import logging
 import foundry.ui
-
+import uuid
 import hiero.core
 
 from QtExt import QtCore, QtWidgets, QtGui
@@ -500,8 +500,9 @@ class FtrackProcessor(FtrackBase):
                     shot_name_index = ''
 
                 # create entry points on where to store ftrack component and path data.
-                self._components.setdefault(track_item.name(), {})
-                self._components[track_item.name()].setdefault(preset.name(), {})
+                self._components.setdefault(track_item.parent().name(), {})
+                self._components[track_item.parent().name()].setdefault(track_item.name(), {})
+                self._components[track_item.parent().name()][track_item.name()].setdefault(preset.name(), {})
 
                 retime = self._preset.properties().get('includeRetimes', False)
 
@@ -537,7 +538,7 @@ class FtrackProcessor(FtrackBase):
                     retime=retime,
                     startFrame=start_frame,
                     startFrameSource=self._preset.properties()['startFrameSource'],
-                    resolver=self._preset.createResolver(),
+                    resolver=preset.createResolver(),
                     submission=self._submission,
                     skipOffline=self.skipOffline(),
                     presetId=preset_id,
@@ -563,7 +564,8 @@ class FtrackProcessor(FtrackBase):
                 resolved_file_name = task.resolvePath(file_name)
 
                 path = task.resolvePath(exportPath)
-                path_id = os.path.dirname(path)
+                path_id = uuid.uuid4().hex
+
                 versions.setdefault(path_id, None)
 
                 # After the loop this will be containing the component object.
@@ -609,7 +611,7 @@ class FtrackProcessor(FtrackBase):
                     'published': False
                 }
 
-                self._components[track_item.name()][preset.name()] = data
+                self._components[track_item.parent().name()][track_item.name()][preset.name()] = data
                 self.add_ftrack_tag(track_item, task)
 
         # we have successfully exported the project, so now we can lock it.
@@ -635,7 +637,7 @@ class FtrackProcessor(FtrackBase):
 
         task_id = str(task._preset.properties()['ftrack']['task_id'])
         task_name = task._preset.name()
-        data = self._components[original_item.name()][task_name]
+        data = self._components[original_item.parent().name()][original_item.name()][task_name]
         component = data['component']
 
         path = data['path']
@@ -723,10 +725,14 @@ class FtrackProcessor(FtrackBase):
 
     def setup_export_paths_event(self, task):
         ''' Event spawned when *task* start. '''
-        self.logger.info(self._components)
+        self.logger.info('COMPONENTS: {}'.format(self._components))
         has_data = self._components.get(
+            task._item.parent().name(), {}
+        ).get(
             task._item.name(), {}
-        ).get(task._preset.name())
+        ).get(
+            task._preset.name()
+        )
 
         if not has_data:
             return
@@ -746,8 +752,12 @@ class FtrackProcessor(FtrackBase):
     def publish_result_component_event(self, render_task):
         ''' Event spawned when *render_task* frame is rendered. '''
         has_data = self._components.get(
+            render_task._item.parent().name(), {}
+        ).get(
             render_task._item.name(), {}
-        ).get(render_task._preset.name())
+        ).get(
+            render_task._preset.name()
+        )
 
         if not has_data:
             return
