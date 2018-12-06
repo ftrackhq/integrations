@@ -7,12 +7,13 @@
 Release Notes
 *************
 
-.. release:: 2.0.1
-    :date: 2018-11-12
+
+.. release:: Upcoming
 
     .. change:: fixed
 
-        Error when trying to validate duplicated components.
+        Hiero under windows does not load templates.
+
 
 .. release:: 2.0.0
     :date: 2018-10-08
