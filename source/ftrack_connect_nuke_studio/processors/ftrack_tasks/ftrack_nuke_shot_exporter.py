@@ -26,7 +26,9 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
         self._source_tag = None
 
     def component_name(self):
-        return self._resolver.resolve(self, self._preset.name())
+        return self.sanitise_for_filesystem(
+            self._resolver.resolve(self, self._preset.name())
+        )
 
     def _beforeNukeScriptWrite(self, script):
         '''Call-back method introduced to allow modifications of the script

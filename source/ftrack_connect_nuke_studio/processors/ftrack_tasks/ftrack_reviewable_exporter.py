@@ -36,7 +36,9 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
         )
 
     def component_name(self):
-        return self._resolver.resolve(self, self._preset.name())
+        return self.sanitise_for_filesystem(
+            self._resolver.resolve(self, self._preset.name())
+        )
 
     def addWriteNodeToScript(self, script, rootNode, framerate):
         '''Restore original function from parent class.'''
