@@ -206,3 +206,13 @@ class FtrackBasePreset(FtrackBase):
             lambda keyword, task: self.resolve_ftrack_component(task)
         )
 
+        resolver.addResolver("{clip}",
+                             "Name of the clip used in the shot being processed",
+                             lambda keyword, task: task.clipName())
+        resolver.addResolver("{shot}", "Name of the shot being processed",
+                             lambda keyword, task: task.shotName())
+        resolver.addResolver("{track}", "Name of the track being processed",
+                             lambda keyword, task: task.trackName())
+        resolver.addResolver("{sequence}",
+                             "Name of the sequence being processed",
+                             lambda keyword, task: task.sequenceName())

@@ -25,6 +25,9 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
         FtrackProcessor.__init__(self, initDict)
         self._source_tag = None
 
+    def component_name(self):
+        return self._resolver.resolve(self, self._preset.name())
+
     def _beforeNukeScriptWrite(self, script):
         '''Call-back method introduced to allow modifications of the script
         object before it is written to disk.
@@ -92,6 +95,7 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
     def name(self):
         '''Return task/component name.'''
         return self.properties()['ftrack']['component_name']
+
 
     def set_ftrack_properties(self, properties):
         '''Set ftrack specific *properties* for task.'''

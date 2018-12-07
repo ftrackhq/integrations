@@ -62,22 +62,22 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
         form_layout = TaskUIFormLayout()
         box_layout.addLayout(form_layout)
         if duplicated_components:
-            form_layout.addDivider('Duplicated components name have been found')
-            for component_name, preset in duplicated_components:
+            form_layout.addDivider('{} Duplicated components name have been found'.format(len(duplicated_components)))
+            for component_name, task in duplicated_components:
 
                 ui_property = UIPropertyFactory.create(
                     type(component_name),
                     key='component_name',
                     value=component_name,
-                    dictionary=preset.properties()['ftrack'],
+                    dictionary=task._preset.properties()['ftrack'],
                     label='Component ' + ':',
                     tooltip='Duplicated component name'
                 )
                 ui_property.update(True)
                 form_layout.addRow('Duplicated component' + ':', ui_property)
 
-                if component_name != preset.name():
-                    component_index = duplicated_components.index((preset.name(), preset))
+                if component_name != task.component_name():
+                    component_index = duplicated_components.index((task.component_name(), task))
                     duplicated_components.pop(component_index)
 
         for processor, values in error_data.items():
@@ -376,7 +376,7 @@ class FtrackProcessor(FtrackBase):
             )
         )
 
-        component_name = task._resolver.resolve(task, task._preset.name())
+        component_name = task.component_name()
 
         self.logger.info(
             'Creating component for : {} with name {}'.format(
@@ -502,7 +502,6 @@ class FtrackProcessor(FtrackBase):
 
                 # create entry points on where to store ftrack component and path data.
                 self._components.setdefault(track_item.name(), {})
-                self._components[track_item.name()].setdefault(preset.name(), {})
 
                 retime = self._preset.properties().get('includeRetimes', False)
 
@@ -521,10 +520,6 @@ class FtrackProcessor(FtrackBase):
                     else:
                         cut_handles = 0
 
-                preset_id = hiero.core.taskRegistry.addPresetToProjectExportHistory(
-                    track_item.project(), self._preset
-                )
-
                 # Build TaskData seed
                 taskData = hiero.core.TaskData(
                     preset,
@@ -541,11 +536,11 @@ class FtrackProcessor(FtrackBase):
                     resolver=self._preset.createResolver(),
                     submission=self._submission,
                     skipOffline=self.skipOffline(),
-                    presetId=preset_id,
                     shotNameIndex=shot_name_index
                 )
 
                 task = hiero.core.taskRegistry.createTaskFromPreset(preset, taskData)
+                self._components[track_item.name()].setdefault(task.component_name(), {})
 
                 if getattr(task, '_nothingToDo', False) is True:
                     # Do not create anything if the task is set not to do anything.
@@ -557,7 +552,7 @@ class FtrackProcessor(FtrackBase):
                     filtered_export_items.append(export_item)
 
                 file_name = '{0}{1}'.format(
-                    preset.name(),
+                    task.component_name(),
                     preset.properties()['ftrack']['component_pattern']
                 ).lower()
 
@@ -610,7 +605,7 @@ class FtrackProcessor(FtrackBase):
                     'published': False
                 }
 
-                self._components[track_item.name()][preset.name()] = data
+                self._components[track_item.name()][task.component_name()] = data
                 self.add_ftrack_tag(track_item, task)
 
         # we have successfully exported the project, so now we can lock it.
@@ -633,10 +628,9 @@ class FtrackProcessor(FtrackBase):
 
         start, end = task.outputRange(clampToSource=False)
         start_handle, end_handle = task.outputHandles()
-
+        task_name = task.component_name()
         task_id = str(task._preset.properties()['ftrack']['task_id'])
-        task_name = task._preset.name()
-        data = self._components[original_item.name()][task_name]
+        data = self._components[original_item.name()][task.component_name()]
         component = data['component']
 
         path = data['path']
@@ -691,7 +685,7 @@ class FtrackProcessor(FtrackBase):
             False
         )
         tag.metadata().setValue('tag.provider', 'ftrack')
-        tag.metadata().setValue('tag.task_name', task._preset.name())
+        tag.metadata().setValue('tag.task_name', task_name)
 
         tag.metadata().setValue('tag.presetid', task_id)
         tag.metadata().setValue('tag.component_id', component['id'])
@@ -699,7 +693,7 @@ class FtrackProcessor(FtrackBase):
         tag.metadata().setValue('tag.asset_id', component['version']['asset']['id'])
         tag.metadata().setValue('tag.version', str(component['version']['version']))
         tag.metadata().setValue('tag.path', path)
-        tag.metadata().setValue('tag.description', 'ftrack {0}'.format(task._preset.name()))
+        tag.metadata().setValue('tag.description', 'ftrack {0}'.format(task_name))
 
         tag.metadata().setValue('tag.pathtemplate', task._exportPath)
 
@@ -727,7 +721,7 @@ class FtrackProcessor(FtrackBase):
         self.logger.info(self._components)
         has_data = self._components.get(
             task._item.name(), {}
-        ).get(task._preset.name())
+        ).get(task.component_name())
 
         if not has_data:
             return
@@ -748,7 +742,7 @@ class FtrackProcessor(FtrackBase):
         ''' Event spawned when *render_task* frame is rendered. '''
         has_data = self._components.get(
             render_task._item.name(), {}
-        ).get(render_task._preset.name())
+        ).get(render_task.component_name())
 
         if not has_data:
             return
@@ -914,16 +908,32 @@ class FtrackProcessor(FtrackBase):
                 components = []
 
                 for (export_path, preset) in self._exportTemplate.flatten():
+                    # Build TaskData seed
+                    taskData = hiero.core.TaskData(
+                        preset,
+                        item,
+                        preset.properties()['exportRoot'],
+                        export_path,
+                        'v0',
+                        self._exportTemplate,
+                        project=item.project(),
+                        resolver=self._preset.createResolver()
+                    )
+                    task = hiero.core.taskRegistry.createTaskFromPreset(
+                        preset,
+                        taskData
+                    )
 
                     self.logger.info(
                         'Getting preset {} for deduplication'.format(
-                            preset.name()
+                            task.component_name()
                         )
                     )
-                    if preset.name() not in components:
-                        components.append(preset.name())
+
+                    if task.component_name() not in components:
+                        components.append(task.component_name())
                     else:
-                        duplicated_components.append((preset.name(), preset))
+                        duplicated_components.append((task.component_name(), task))
 
                     progress_index += 1
 

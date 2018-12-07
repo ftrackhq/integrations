@@ -21,6 +21,9 @@ class FtrackAudioExporter(AudioExportTask, FtrackProcessor):
         AudioExportTask.__init__(self, initDict)
         FtrackProcessor.__init__(self, initDict)
 
+    def component_name(self):
+        return self._resolver.resolve(self, self._preset.name())
+
     def startTask(self):
         '''Override startTask.'''
         AudioExportTask.startTask(self)

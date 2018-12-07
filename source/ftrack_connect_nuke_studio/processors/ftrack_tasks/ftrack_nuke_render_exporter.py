@@ -29,6 +29,9 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
         NukeRenderTask.__init__(self, initDict)
         FtrackProcessor.__init__(self, initDict)
 
+    def component_name(self):
+        return self._resolver.resolve(self, self._preset.name())
+
     def addWriteNodeToScript(self, script, rootNode, framerate):
         '''Restore original function from parent class.'''
         TranscodeExporter.addWriteNodeToScript(self, script, rootNode, framerate)
