@@ -3,6 +3,7 @@
 
 import logging
 import hiero
+import datetime
 from ftrack_connect_nuke_studio.base import FtrackBase
 from ftrack_connect_nuke_studio.template import match, get_project_template
 import ftrack_connect_nuke_studio.exception
@@ -105,6 +106,12 @@ class FtrackBasePreset(FtrackBase):
 
         self.set_export_root()
         self.set_ftrack_properties(properties)
+        self._timeStamp = datetime.datetime.now()
+
+    def timeStamp(self):
+        """timeStamp(self)
+        Returns the datetime object from time of task creation"""
+        return self._timeStamp
 
     def set_ftrack_properties(self, properties):
         ''' Ensure and extend common ftrack *properties* . '''

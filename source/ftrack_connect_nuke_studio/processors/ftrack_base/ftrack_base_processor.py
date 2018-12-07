@@ -376,7 +376,8 @@ class FtrackProcessor(FtrackBase):
             )
         )
 
-        component_name = task._preset.name()
+        component_name = task._resolver.resolve(task, task._preset.name())
+
         self.logger.info(
             'Creating component for : {} with name {}'.format(
                 task, component_name
