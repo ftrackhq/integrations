@@ -7,6 +7,12 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: new
+
+        Support tokens resolution in component names.
+
 .. release:: 2.0.1
     :date: 2018-11-12
 
