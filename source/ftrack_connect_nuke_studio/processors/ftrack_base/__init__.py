@@ -170,7 +170,7 @@ class FtrackBasePreset(FtrackBase):
 
         has_data = self._components.get(
             task._item.name(), {}
-        ).get(task._preset.name())
+        ).get(task.component_name())
 
         if not has_data:
             return 'v{:03d}'.format(version)
