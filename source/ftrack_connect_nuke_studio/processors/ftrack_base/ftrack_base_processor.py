@@ -62,7 +62,13 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
         form_layout = TaskUIFormLayout()
         box_layout.addLayout(form_layout)
         if duplicated_components:
-            form_layout.addDivider('{} Duplicated components name have been found'.format(len(duplicated_components)))
+
+            form_layout.addDivider(
+                '{} Duplicated components name have been found'.format(
+                    len(duplicated_components)
+                )
+            )
+
             for component_name, task in duplicated_components:
 
                 ui_property = UIPropertyFactory.create(
