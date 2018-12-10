@@ -109,8 +109,8 @@ class FtrackBasePreset(FtrackBase):
         self._timeStamp = datetime.datetime.now()
 
     def timeStamp(self):
-        """timeStamp(self)
-        Returns the datetime object from time of task creation"""
+        '''timeStamp(self)
+        Returns the datetime object from time of task creation'''
         return self._timeStamp
 
     def set_ftrack_properties(self, properties):
