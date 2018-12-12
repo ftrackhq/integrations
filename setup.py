@@ -2,34 +2,104 @@
 # :copyright: Copyright (c) 2016 ftrack
 
 import os
-import sys
 import re
-import subprocess
-import fileinput
+import shutil
+from pip._internal import main as pip_main
 
-from setuptools import setup, find_packages, Command
-from distutils.command.build import build as BuildCommand
-from setuptools.command.bdist_egg import bdist_egg as BuildEggCommand
+from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
-
+import setuptools
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
+
 RESOURCE_PATH = os.path.join(
     ROOT_PATH, 'resource'
 )
-RESOURCE_TARGET_PATH = os.path.join(
-    SOURCE_PATH, 'ftrack_connect_pipeline', 'ui', 'resource.py'
+
+HOOK_PATH = os.path.join(
+    ROOT_PATH, 'hook'
 )
+
+BUILD_PATH = os.path.join(
+    ROOT_PATH, 'build'
+)
+
 
 # Read version from source.
 with open(os.path.join(
-    SOURCE_PATH, 'ftrack_connect_pipeline', '_version.py')
+    SOURCE_PATH, 'ftrack_connect_framework', '_version.py')
 ) as _version_file:
     VERSION = re.match(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
+
+STAGING_PATH = os.path.join(
+    BUILD_PATH, 'ftrack-connect-framework-{}'.format(VERSION)
+)
+
+class BuildPlugin(setuptools.Command):
+    '''Build plugin.'''
+
+    description = 'Download dependencies and build plugin .'
+
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        '''Run the build step.'''
+        # Clean staging path
+        shutil.rmtree(STAGING_PATH, ignore_errors=True)
+
+        # Copy resource files
+        shutil.copytree(
+            RESOURCE_PATH,
+            os.path.join(STAGING_PATH, 'resource')
+        )
+
+        # Copy plugin files
+        shutil.copytree(
+            HOOK_PATH,
+            os.path.join(STAGING_PATH, 'hook')
+        )
+
+        pip_main(
+            [
+                'install',
+                '.',
+                '--target',
+                os.path.join(STAGING_PATH, 'dependencies'),
+                '--process-dependency-links'
+            ]
+        )
+        # ensure framework is executable
+        os.chmod(
+            os.path.join(
+                STAGING_PATH, 
+                'dependencies',
+                'ftrack_connect_framework',
+                'ui', 
+                'qt', 
+                '__main__.py'
+            ), int('777', 8)
+        )
+
+        result_path = shutil.make_archive(
+            os.path.join(
+                BUILD_PATH,
+                'ftrack-connect-framework-{0}'.format(VERSION)
+            ),
+            'zip',
+            STAGING_PATH
+        )
+
+        print 'Result: ' + result_path
 
 
 # Custom commands.
@@ -48,131 +118,14 @@ class PyTest(TestCommand):
         raise SystemExit(errno)
 
 
-# Custom commands.
-class BuildResources(Command):
-    '''Build additional resources.'''
-
-    user_options = []
-
-    def initialize_options(self):
-        '''Configure default options.'''
-
-    def finalize_options(self):
-        '''Finalize options to be used.'''
-        self.sass_path = os.path.join(RESOURCE_PATH, 'sass')
-        self.css_path = RESOURCE_PATH
-        self.resource_source_path = os.path.join(
-            RESOURCE_PATH, 'resource.qrc'
-        )
-        self.resource_target_path = RESOURCE_TARGET_PATH
-
-    def _replace_imports_(self):
-        '''Replace imports in resource files to QtExt instead of QtCore.
-
-        This allows the resource file to work with many different versions of
-        Qt.
-
-        '''
-        replace = 'from QtExt import QtCore'
-        for line in fileinput.input(self.resource_target_path, inplace=True):
-            if 'import QtCore' in line:
-                # Calling print will yield a new line in the resource file.
-                print line.replace(line, replace)
-            else:
-                # Calling print will yield a new line in the resource file.
-                print line
-
-    def run(self):
-        '''Run build.'''
-        try:
-            import scss
-        except ImportError:
-            raise RuntimeError(
-                'Error compiling sass files. Could not import "scss". '
-                'Check you have the pyScss Python package installed.'
-            )
-
-        compiler = scss.Scss(
-            search_paths=[self.sass_path]
-        )
-
-        themes = [
-            'style_dark'
-        ]
-
-        for theme in themes:
-            scss_source = os.path.join(self.sass_path, '{0}.scss'.format(theme))
-            css_target = os.path.join(self.css_path, '{0}.css'.format(theme))
-
-            compiled = compiler.compile(
-                scss_file=scss_source
-            )
-            with open(css_target, 'w') as file_handle:
-                file_handle.write(compiled)
-                print('Compiled {0}'.format(css_target))
-
-        try:
-            pyside_rcc_command = 'pyside-rcc'
-
-            # On Windows, pyside-rcc is not automatically available on the
-            # PATH so try to find it manually.
-            if sys.platform == 'win32':
-                import PySide
-                pyside_rcc_command = os.path.join(
-                    os.path.dirname(PySide.__file__),
-                    'pyside-rcc.exe'
-                )
-
-            subprocess.check_call([
-                pyside_rcc_command,
-                '-o',
-                self.resource_target_path,
-                self.resource_source_path
-            ])
-        except (subprocess.CalledProcessError, OSError) as error:
-            raise RuntimeError(
-                'Error compiling resource.py using pyside-rcc. Possibly '
-                'pyside-rcc could not be found. You might need to manually add '
-                'it to your PATH. See README for more information.'
-            )
-
-
-        self._replace_imports_()
-
-
-class BuildEgg(BuildEggCommand):
-    '''Custom egg build to ensure resources built.
-
-    .. note::
-
-        Required because when this project is a dependency for another project,
-        only bdist_egg will be called and *not* build.
-
-    '''
-
-    def run(self):
-        '''Run egg build ensuring build_resources called first.'''
-        self.run_command('build_resources')
-        BuildEggCommand.run(self)
-
-
-class Build(BuildCommand):
-    '''Custom build to pre-build resources.'''
-
-    def run(self):
-        '''Run build ensuring build_resources called first.'''
-        self.run_command('build_resources')
-        BuildCommand.run(self)
-
-
 # Configuration.
 setup(
-    name='ftrack-connect-pipeline',
+    name='ftrack-connect-framework',
     version=VERSION,
-    description='Common building blocks for building pipeline development',
+    description='A dialog to publish assets from Maya to ftrack',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
-    url='https://bitbucket.org/ftrack/ftrack-connect-pipeline',
+    url='https://bitbucket.org/efestolab/ftrack-connect-framework',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
@@ -181,38 +134,21 @@ setup(
         '': 'source'
     },
     setup_requires=[
-        'qtext',
-        'pyScss >= 1.2.0, < 2',
-        'PySide >= 1.2.2, < 2',
-    ],
-    build_sphinx_requires=[
         'sphinx >= 1.2.2, < 2',
         'sphinx_rtd_theme >= 0.1.6, < 2',
         'lowdown >= 0.1.0, < 2'
     ],
-    build_resources_requires=[
-        'qtext'
-        'pyScss >= 1.2.0, < 2'
-    ],
     install_requires=[
-        'appdirs == 1.4.0',
-        'qtext',
-        'ftrack-python-api'
+        'appdirs',
+        'ftrack-python-api',
+        'ftrack_action_handler < 1'
     ],
     tests_require=[
-        'pytest >= 2.3.5, < 3',
-        'PySide == 1.2.2',
-        'ftrack-python-api',
-        'pyblish-base'
+        'pytest >= 2.3.5, < 3'
     ],
     cmdclass={
-        'build': Build,
-        'bdist_egg': BuildEgg,
-        'build_resources': BuildResources,
-        'test': PyTest
+        'test': PyTest,
+        'build_plugin': BuildPlugin
     },
-    dependency_links=[
-        'git+https://bitbucket.org/ftrack/qtext/get/0.2.1.zip#egg=QtExt-0.2.1'
-    ],
     zip_safe=False
 )
