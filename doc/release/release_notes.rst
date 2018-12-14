@@ -11,6 +11,10 @@ Release Notes
 
     .. change:: new
 
+        Support tokens resolution in component names.
+
+    .. change:: new
+
         Support multi track export.
 
     .. change:: fixed

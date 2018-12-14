@@ -28,6 +28,11 @@ class FtrackEDLExporter(EDLExportTask, FtrackProcessor):
         EDLExportTask.__init__(self, initDict)
         FtrackProcessor.__init__(self, initDict)
 
+    def component_name(self):
+        return self.sanitise_for_filesystem(
+            self._resolver.resolve(self, self._preset.name())
+        )
+
     def startTask(self):
         '''Override startTask.'''
         # foundry forgot to call the superclass....so we do it.
