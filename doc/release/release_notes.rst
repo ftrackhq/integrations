@@ -7,7 +7,7 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 2.1.0
 
     .. change:: new
 
