@@ -7,13 +7,22 @@
 Release Notes
 *************
 
-
 .. release:: Upcoming
+
+    .. change:: new
+
+        Support multi track export.
 
     .. change:: fixed
 
         Hiero under windows does not load templates.
 
+.. release:: 2.0.1
+    :date: 2018-11-12
+
+    .. change:: fixed
+
+        Error when trying to validate duplicated components.
 
 .. release:: 2.0.0
     :date: 2018-10-08
