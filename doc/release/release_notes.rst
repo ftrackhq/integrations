@@ -8,6 +8,7 @@ Release Notes
 *************
 
 .. release:: 2.1.0
+    :date: 2018-12-17
 
     .. change:: new
 
