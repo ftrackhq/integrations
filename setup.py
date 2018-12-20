@@ -63,8 +63,8 @@ for plugin in (
     'ftrack-connect-nuke-studio-{0}.zip'.format(ftrack_connect_nuke_studio_version),
     'ftrack-connect-maya-{0}.zip'.format(ftrack_connect_maya_version),
     'ftrack-connect-nuke-{0}.zip'.format(ftrack_connect_nuke_version),
-    'ftrack-connect-3dsmax-{0}.zip'.format(ftrack_connect_3dsmax_version),
-    'ftrack-connect-hieroplayer-{0}.zip'.format(ftrack_connect_hieroplayer_version)
+    # 'ftrack-connect-3dsmax-{0}.zip'.format(ftrack_connect_3dsmax_version),
+    # 'ftrack-connect-hieroplayer-{0}.zip'.format(ftrack_connect_hieroplayer_version)
 ):
     external_connect_plugins.append(
         (plugin, plugin.replace('.zip', ''))
