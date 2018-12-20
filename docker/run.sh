@@ -6,12 +6,12 @@ git clone --branch ${FTRACK_LEGACY_PYTHON_API_VERSION} https://bitbucket.org/ftr
 git clone --branch ${FTRACK_CONNECT_PACKAGE_VERSION} https://bitbucket.org/ftrack/ftrack-connect-package.git ${BUILD_DIR};
 
 # Build connect package.
-echo Building Connect Package Version: ${FTRACK_CONNECT_PACKAGE_VERSION} in /${OUT_FOLDER}/ftrack-connect-package-${FTRACK_CONNECT_PACKAGE_VERSION}.tar.gz
+echo Building Connect Package Version: ${FTRACK_CONNECT_PACKAGE_VERSION} in /${OUT_FOLDER}/ftrack-connect-package-master.tar.gz
 
 cd ${BUILD_DIR} && python2.7 setup.py build
 
 # Package result code.
-cd ${BUILD_DIR}/build/ && tar -zcvf /${OUT_FOLDER}/ftrack-connect-package-${FTRACK_CONNECT_PACKAGE_VERSION}.tar.gz exe.linux-x86_64-2.7 --transform 's/exe.linux-x86_64-2.7/ftrack-connect-package/' 
+cd ${BUILD_DIR}/build/ && tar -zcvf /${OUT_FOLDER}/ftrack-connect-package-master-.tar.gz exe.linux-x86_64-2.7 --transform 's/exe.linux-x86_64-2.7/ftrack-connect-package/' 
 
 if [ -v $UPLOAD_BUILD ]; then
     # Install awscli for amazon upload.
@@ -21,8 +21,8 @@ if [ -v $UPLOAD_BUILD ]; then
     echo "RUN "
     # Copy result file to amazon storage.
     aws s3 cp \
-        /${OUT_FOLDER}/ftrack-connect-package-${FTRACK_CONNECT_PACKAGE_VERSION}.tar.gz \
-        s3://ftrack-deployment/ftrack-connect/ftrack-connect-package-${FTRACK_CONNECT_PACKAGE_VERSION}.tar.gz
+        /${OUT_FOLDER}/ftrack-connect-package-master.tar.gz \
+        s3://ftrack-deployment/ftrack-connect/ftrack-connect-package-master.tar.gz
 else
     echo 'BUILD UPLOAD DISABLED, please run docker cp <result_docker_image>:/build/ftrack-connect-package-master.tar.gz .'
 fi
