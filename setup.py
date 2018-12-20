@@ -11,19 +11,20 @@ import logging
 import zipfile
 
 # Package and dependencies versions.
-
 ftrack_connect_version = '1.1.6'
-ftrack_connect_maya_publish_version = '0.6.2'
-ftrack_connect_nuke_publish_version = '0.6.2'
-ftrack_connect_3dsmax_version = '0.3.1'
-ftrack_connect_hieroplayer_version = '1.2.1'
-ftrack_connect_nuke_version = '1.1.5'
-ftrack_connect_maya_version = '1.1.4'
-ftrack_connect_nuke_studio_version = '2.0.1'
 ftrack_connect_rv_version = '3.7'
 ftrack_connect_cinema_4d_version = '0.1.5'
 ftrack_location_compatibility_version = '0.3.2'
 ftrack_action_handler_version = '0.1.3'
+
+# embedded plugins
+ftrack_connect_maya_publish_version = '0.6.2'
+ftrack_connect_nuke_publish_version = '0.6.2'
+ftrack_connect_3dsmax_version = '0.4.0'
+ftrack_connect_hieroplayer_version = '1.3.0'
+ftrack_connect_nuke_version = '1.2.0'
+ftrack_connect_maya_version = '1.2.0'
+ftrack_connect_nuke_studio_version = '2.1.0'
 
 # Setup code
 
@@ -59,7 +60,11 @@ external_connect_plugins = []
 for plugin in (
     'ftrack-connect-maya-publish-{0}.zip'.format(ftrack_connect_maya_publish_version),
     'ftrack-connect-nuke-publish-{0}.zip'.format(ftrack_connect_nuke_publish_version),
-    'ftrack-connect-nuke-studio-{0}.zip'.format(ftrack_connect_nuke_studio_version)
+    'ftrack-connect-nuke-studio-{0}.zip'.format(ftrack_connect_nuke_studio_version),
+    'ftrack-connect-maya-{0}.zip'.format(ftrack_connect_maya_version),
+    'ftrack-connect-nuke-{0}.zip'.format(ftrack_connect_nuke_version),
+    'ftrack-connect-3dsmax-{0}.zip'.format(ftrack_connect_3dsmax_version),
+    'ftrack-connect-hieroplayer-{0}.zip'.format(ftrack_connect_hieroplayer_version)
 ):
     external_connect_plugins.append(
         (plugin, plugin.replace('.zip', ''))
