@@ -78,42 +78,6 @@ connect_dependency_link = (
     '#egg=ftrack-connect-{0}'
 ).format(ftrack_connect_version)
 
-connect_3ds_max_install_require = 'ftrack-connect-3dsmax >=0.1, < 1'
-
-connect_3ds_max_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-3dsmax/get/{0}.tar.gz'
-    '#egg=ftrack-connect-3dsmax-{0}'
-).format(ftrack_connect_3dsmax_version)
-
-connect_hieroplayer_install_require = (
-    'ftrack-connect-hieroplayer'
-    ' >=1, < 2'
-)
-connect_hieroplayer_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-hieroplayer/get/{0}.zip'
-    '#egg=ftrack-connect-hieroplayer-{0}'
-).format(ftrack_connect_hieroplayer_version)
-
-connect_nuke_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-nuke/get/{0}.zip'
-    '#egg=ftrack-connect-nuke-{0}'
-).format(ftrack_connect_nuke_version)
-
-connect_nuke_dependency_install_require = (
-    'ftrack-connect-nuke'
-    ' >=1, < 2'
-)
-
-connect_maya_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-maya/get/{0}.zip'
-    '#egg=ftrack-connect-maya-{0}'
-).format(ftrack_connect_maya_version)
-
-connect_maya_dependency_install_require = (
-    'ftrack-connect-maya'
-    ' >=1.0, < 2'
-)
-
 connect_rv_dependency_install_require = 'ftrack-connect-rv >=3.4, < 4'
 
 connect_rv_dependency_link = (
@@ -169,10 +133,6 @@ configuration = dict(
     install_requires=[
         ftrack_python_legacy_api_install_require,
         connect_install_require,
-        connect_3ds_max_install_require,
-        connect_hieroplayer_install_require,
-        connect_nuke_dependency_install_require,
-        connect_maya_dependency_install_require,
         connect_rv_dependency_install_require,
         connect_cinema_4d_dependency_install_require,
         connect_ftrack_location_compatibilty_install_require,
@@ -182,10 +142,6 @@ configuration = dict(
         connect_dependency_link,
         ('https://bitbucket.org/ftrack/lowdown/get/0.1.0.zip'
          '#egg=lowdown-0.1.0'),
-        connect_3ds_max_dependency_link,
-        connect_hieroplayer_dependency_link,
-        connect_maya_dependency_link,
-        connect_nuke_dependency_link,
         connect_rv_dependency_link,
         connect_cinema_4d_dependency_link,
         connect_ftrack_location_compatibilty_dependency_link
@@ -266,20 +222,12 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
     Distribution(dict(
         setup_requires=[
             connect_install_require,
-            connect_3ds_max_install_require,
-            connect_hieroplayer_install_require,
-            connect_maya_dependency_install_require,
-            connect_nuke_dependency_install_require,
             connect_rv_dependency_install_require,
             connect_cinema_4d_dependency_install_require,
             connect_ftrack_location_compatibilty_install_require
         ],
         dependency_links=[
             connect_dependency_link,
-            connect_3ds_max_dependency_link,
-            connect_hieroplayer_dependency_link,
-            connect_maya_dependency_link,
-            connect_nuke_dependency_link,
             connect_rv_dependency_link,
             connect_cinema_4d_dependency_link,
             connect_ftrack_location_compatibilty_dependency_link
@@ -288,36 +236,6 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
     connect_resource_hook = pkg_resources.resource_filename(
         pkg_resources.Requirement.parse('ftrack-connect'),
         'ftrack_connect_resource/hook'
-    )
-
-    ftrack_connect_hieroplayer_source = pkg_resources.resource_filename(
-        pkg_resources.Requirement.parse('ftrack-connect-hieroplayer'),
-        'ftrack_connect_hieroplayer_source'
-    )
-
-    ftrack_connect_hieroplayer_hook = pkg_resources.resource_filename(
-        pkg_resources.Requirement.parse('ftrack-connect-hieroplayer'),
-        'ftrack_connect_hieroplayer_resource/hook'
-    )
-
-    ftrack_connect_nuke_source = pkg_resources.resource_filename(
-        pkg_resources.Requirement.parse('ftrack-connect-nuke'),
-        'ftrack_connect_nuke/ftrack_connect_nuke'
-    )
-
-    ftrack_connect_nuke_hook = pkg_resources.resource_filename(
-        pkg_resources.Requirement.parse('ftrack-connect-nuke'),
-        'ftrack_connect_nuke/hook'
-    )
-
-    ftrack_connect_maya_source = pkg_resources.resource_filename(
-        pkg_resources.Requirement.parse('ftrack-connect-maya'),
-        'ftrack_connect_maya/ftrack_connect_maya'
-    )
-
-    ftrack_connect_maya_hook = pkg_resources.resource_filename(
-        pkg_resources.Requirement.parse('ftrack-connect-maya'),
-        'ftrack_connect_maya/hook'
     )
 
     ftrack_connect_rv_hook = pkg_resources.resource_filename(
@@ -330,16 +248,6 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_connect_cinema_4d/hook'
     )
 
-    ftrack_connect_3ds_max_source = pkg_resources.resource_filename(
-        pkg_resources.Requirement.parse('ftrack-connect-3dsmax'),
-        'ftrack_connect_3dsmax/ftrack_connect_3dsmax'
-    )
-
-    ftrack_connect_3ds_max_hook = pkg_resources.resource_filename(
-        pkg_resources.Requirement.parse('ftrack-connect-3dsmax'),
-        'ftrack_connect_3dsmax/hook'
-    )
-
     connect_ftrack_location_compatibilty_hook = pkg_resources.resource_filename(
         pkg_resources.Requirement.parse('ftrack-location-compatibility'),
         'ftrack_location_compatibility/hook'
@@ -350,17 +258,9 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
 
     include_files = [
         (connect_resource_hook, 'resource/hook'),
-        (ftrack_connect_3ds_max_hook, 'resource/hook'),
-        (ftrack_connect_3ds_max_source, 'resource/ftrack_connect_3dsmax'),
-        (ftrack_connect_hieroplayer_hook, 'resource/hook'),
-        (ftrack_connect_hieroplayer_source, 'resource/hieroplayer'),
         (ftrack_connect_rv_hook, 'resource/hook'),
         (ftrack_connect_cinema_4d_hook, 'resource/hook'),
         (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'),
-        (ftrack_connect_maya_hook, 'resource/hook'),
-        (ftrack_connect_maya_source, 'resource/ftrack_connect_maya'),
-        (ftrack_connect_nuke_hook, 'resource/hook'),
-        (ftrack_connect_nuke_source, 'resource/ftrack_connect_nuke'),
         (connect_ftrack_location_compatibilty_hook, 'resource/hook/ftrack_location_compatibility'),
         (requests.certs.where(), 'resource/cacert.pem'),
         (os.path.join(
@@ -515,21 +415,12 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack',
         'atexit',  # Required for PySide
         'ftrack_connect.application',
-        'assetmgr_hiero',
-        'assetmgr_nuke',
-        'FnAssetAPI',
-        'ftrack_connect_nuke',
-        'ftrack_connect_3dsmax',
-        'ftrack_connect_nuke.plugin',
-        'ftrack_connect_nuke.logging',
         'ftrack_api.resource_identifier_transformer.base',
         'ftrack_api.structure.id',
-        'ftrack_connect_hieroplayer',
         'ftrack_connect_rv',
         'ftrack_connect_cinema_4d',
         'ftrack_action_handler',
         'ftrack_action_handler.action',
-        'ftrack_connect_maya',
         'ftrack_location_compatibility',
         'boto',
         'PySide.QtSvg',
