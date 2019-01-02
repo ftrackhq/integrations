@@ -20,10 +20,16 @@ if [ -v $UPLOAD_BUILD ]; then
     
     echo "RUN "
     # Copy result file to amazon storage.
-    aws s3 cp \
+    aws s3 cp --acl public-read \
         /${OUT_FOLDER}/ftrack-connect-package-master.tar.gz \
         s3://ftrack-deployment/ftrack-connect/ftrack-connect-package-master.tar.gz
 else
-    echo 'BUILD UPLOAD DISABLED, please run docker cp <result_docker_image>:/build/ftrack-connect-package-master.tar.gz .'
+    echo 'BUILD UPLOAD DISABLED'
+
+    if [ -f /${OUT_FOLDER}/ftrack-connect-package-*.tar.gz ]; then
+        filename=$(ls /${OUT_FOLDER}/ftrack-connect-package-*.tar.gz)
+        echo "Use docker cp to copy the package:"
+        echo "  docker cp $HOSTNAME:/$filename ./"
+    fi
 fi
 
