@@ -155,13 +155,11 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
 
     # Ensure cx_freeze available for import.
 
-    # TODO: RESTORE TO MASTER ONCE TESTED.
-
     Distribution(
         dict(
             setup_requires='cx-freeze == 4.3.3.ftrack',
             dependency_links=[
-                'https://bitbucket.org/ftrack/cx-freeze/get/backlog/remove-integrations.zip'
+                'https://bitbucket.org/ftrack/cx-freeze/get/ftrack.zip'
                 '#egg=cx-freeze-4.3.3.ftrack'
             ]
         )
