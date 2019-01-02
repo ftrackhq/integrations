@@ -17,7 +17,7 @@ ftrack_connect_cinema_4d_version = '0.1.5'
 ftrack_location_compatibility_version = '0.3.2'
 ftrack_action_handler_version = '0.1.3'
 
-# embedded plugins
+# Embedded plugins.
 ftrack_connect_maya_publish_version = '0.6.2'
 ftrack_connect_nuke_publish_version = '0.6.2'
 ftrack_connect_3dsmax_version = '0.4.0'
