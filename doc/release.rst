@@ -5,6 +5,22 @@
 Releases
 ########
 
+.. release:: 1.1.0
+    :date: 2019-01-02
+
+    .. change:: changed
+
+        `ftrack connect nuke studio 2.1.0 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/2.1.0/>`_
+        `ftrack connect maya 1.2.0 <http://ftrack-connect-maya.rtd.ftrack.com/en/1.2.0/>`_
+        `ftrack connect nuke 1.2.0 <http://ftrack-connect-nuke.rtd.ftrack.com/en/1.2.0/>`_
+        `ftrack connect 3dsmax 0.4.0 <http://ftrack-connect-3dsmax.rtd.ftrack.com/en/0.4.0/>`_
+        `ftrack connect hieroplayer 1.3.0 <http://ftrack-connect-hieroplayer.rtd.ftrack.com/en/1.3.0/>`_
+        `ftrack connect foundry 1.2.0 <http://ftrack-connect-foundry.rtd.ftrack.com/en/1.2.0/>`_
+
+    .. note::
+
+        The changed packages are now proper connect plugins and therefore can be indipendently updated.
+
 .. release:: 1.0.1
     :date: 2018-11-13
 
@@ -12,8 +28,6 @@ Releases
 
         `ftrack ptython api 1.7.1 <http://ftrack-python-api.rtd.ftrack.com/en/1.7.1/>`_
         `ftrack connect nuke studio 2.0.1 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/2.0.1/>`_
-
-
 
 .. release:: 1.0.0
     :date: 2018-10-25
@@ -28,7 +42,7 @@ Releases
 
         `ftrack connect maya 1.1.4 <http://ftrack-connect-maya.rtd.ftrack.com/en/1.1.4/>`_
 
-        `ftrack connect maya 1.1.5 <http://ftrack-connect-maya.rtd.ftrack.com/en/1.1.5/>`_
+        `ftrack connect nuke 1.1.5 <http://ftrack-connect-nuke.rtd.ftrack.com/en/1.1.5/>`_
 
         `ftrack connect hieroplayer 1.2.1 <http://ftrack-connect-hieroplayer.rtd.ftrack.com/en/1.2.1/>`_
 
