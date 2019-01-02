@@ -30,6 +30,7 @@ pip-log.txt
 .pydevproject
 .settings
 .idea/
+.vscode/
 
 # exclude built files
-docker/volume/
+docker/**
