@@ -2,7 +2,7 @@
 
 import os
 import sys
-from ftrack_connect_framework.ui import qt
+from ftrack_connect_pipeline.ui import qt
 from QtExt import QtGui
 
 

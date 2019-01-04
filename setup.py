@@ -29,14 +29,14 @@ BUILD_PATH = os.path.join(
 
 # Read version from source.
 with open(os.path.join(
-    SOURCE_PATH, 'ftrack_connect_framework', '_version.py')
+    SOURCE_PATH, 'ftrack_connect_pipeline', '_version.py')
 ) as _version_file:
     VERSION = re.match(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
 STAGING_PATH = os.path.join(
-    BUILD_PATH, 'ftrack-connect-framework-{}'.format(VERSION)
+    BUILD_PATH, 'ftrack-connect-pipeline-{}'.format(VERSION)
 )
 
 class BuildPlugin(setuptools.Command):
@@ -78,12 +78,12 @@ class BuildPlugin(setuptools.Command):
                 '--process-dependency-links'
             ]
         )
-        # ensure framework is executable
+        # ensure pipeline is executable
         os.chmod(
             os.path.join(
                 STAGING_PATH, 
                 'dependencies',
-                'ftrack_connect_framework',
+                'ftrack_connect_pipeline',
                 'ui', 
                 'qt', 
                 '__main__.py'
@@ -93,7 +93,7 @@ class BuildPlugin(setuptools.Command):
         result_path = shutil.make_archive(
             os.path.join(
                 BUILD_PATH,
-                'ftrack-connect-framework-{0}'.format(VERSION)
+                'ftrack-connect-pipeline-{0}'.format(VERSION)
             ),
             'zip',
             STAGING_PATH
@@ -120,12 +120,12 @@ class PyTest(TestCommand):
 
 # Configuration.
 setup(
-    name='ftrack-connect-framework',
+    name='ftrack-connect-pipeline',
     version=VERSION,
     description='A dialog to publish assets from Maya to ftrack',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
-    url='https://bitbucket.org/efestolab/ftrack-connect-framework',
+    url='https://bitbucket.org/ftrack/ftrack-connect-pipeline',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',

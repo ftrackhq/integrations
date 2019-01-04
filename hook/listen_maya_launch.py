@@ -7,7 +7,7 @@ import ftrack_api
 import ftrack_connect.application
 import logging
 
-logger = logging.getLogger('ftrack_connect_framework.listen_maya_launch')
+logger = logging.getLogger('ftrack_connect_pipeline.listen_maya_launch')
 
 plugin_base_dir = os.path.normpath(
     os.path.join(

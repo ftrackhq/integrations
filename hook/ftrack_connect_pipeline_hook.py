@@ -28,7 +28,7 @@ application_hook = os.path.join(
 class LaunchApplicationAction(object):
     '''Discover and launch maya.'''
 
-    identifier = 'ftrack-connect-launch-framework'
+    identifier = 'ftrack-connect-launch-pipeline'
 
     def __init__(self, application_store, launcher):
         '''Initialise action with *applicationStore* and *launcher*.
@@ -43,7 +43,7 @@ class LaunchApplicationAction(object):
         super(LaunchApplicationAction, self).__init__()
 
         self.logger = logging.getLogger(
-            'ftrack_connect_framework' + '.' + self.__class__.__name__
+            'ftrack_connect_pipeline' + '.' + self.__class__.__name__
         )
 
         self.application_store = application_store
@@ -146,8 +146,8 @@ class LaunchApplicationAction(object):
     def get_version_information(self, event):
         '''Return version information.'''
         return dict(
-            name='ftrack connect framework',
-            version="0.0.1"
+            name='ftrack connect pipeline',
+            version="1.0.0"
         )
 
 
@@ -187,7 +187,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
         path_parts.extend(
             [
                 'dependencies',
-                'ftrack_connect_framework',
+                'ftrack_connect_pipeline',
                 'ui',
                 'qt',
                 '__main__.py$'
@@ -196,8 +196,8 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
         applications.extend(self._searchFilesystem(
             expression=path_parts,
-            label='framework',
-            applicationIdentifier='framework',
+            label='pipeline',
+            applicationIdentifier='pipeline',
             variant='standalone'
         ))
 

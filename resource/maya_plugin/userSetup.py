@@ -9,6 +9,7 @@ import threading
 import maya.cmds as mc
 
 logger = logging.getLogger(__name__)
+from ftrack_connect_pipeline import constants
 
 
 def run_local_events(session, event):
@@ -44,7 +45,7 @@ def start_host_listener():
     session = ftrack_api.Session(auto_connect_event_hub=True)
     session.event_hub.connect()
     session.event_hub.subscribe(
-        'topic=ftrack.framework.host.call',
+        'topic={}'.format(constants.PIPELINE_RUN_TOPIC),
         functools.partial(run_local_events, session)
     )
     session.event_hub.wait()

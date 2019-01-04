@@ -1,4 +1,4 @@
-_BASE_ = 'ftrack.framework'
+_BASE_ = 'ftrack.pipeline'
 
 CONTEXT    = 'context'
 COLLECTORS = 'collectors'
@@ -7,7 +7,7 @@ EXTRACTORS = 'extractors'
 PUBLISHERS = 'publishers'
 
 REGISTER_ASSET_TOPIC = '{}.asset.register_assets'.format(_BASE_)
-FRAMEWORK_RUN_TOPIC = '{}.run'.format(_BASE_)
+PIPELINE_RUN_TOPIC = '{}.host.run'.format(_BASE_)
 
 
 CONTEXT_PLUGIN_TOPIC = '{}.{}.{{}}'.format(_BASE_, CONTEXT)
@@ -17,7 +17,7 @@ EXTRACTORS_PLUGIN_TOPIC = '{}.{}.{{}}'.format(_BASE_, EXTRACTORS)
 PUBLISHERS_PLUGIN_TOPIC = '{}.{}.{{}}'.format(_BASE_, PUBLISHERS)
 
 
-FRAMEWORK_ASSET_PATH_ENV = 'FTRACK_FRAMEWORK_ASSET_PATH'
+PIPELINE_ASSET_PATH_ENV = 'FTRACK_PIPELINE_ASSET_PATH'
 
 
 PUBLISH_ORDER = [

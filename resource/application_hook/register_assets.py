@@ -1,13 +1,13 @@
 import os
 import ftrack_api
 import json
-from ftrack_connect_framework import constants
+from ftrack_connect_pipeline import constants
 
 cwd = os.path.dirname(__file__)
 
 
 def register_asset(event):
-    asset_dirs = os.getenv(constants.FRAMEWORK_ASSET_PATH_ENV) or os.path.join(cwd, '..', 'assets')
+    asset_dirs = os.getenv(constants.PIPELINE_ASSET_PATH_ENV) or os.path.join(cwd, '..', 'assets')
     files = os.listdir(asset_dirs)
     json_files = [file for file in files if file.endswith('json')]
     results = []

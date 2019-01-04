@@ -4,7 +4,7 @@ import functools
 import logging
 
 import ftrack_api
-from ftrack_connect_framework import constants
+from ftrack_connect_pipeline import constants
 
 logger = logging.getLogger(__name__)
 

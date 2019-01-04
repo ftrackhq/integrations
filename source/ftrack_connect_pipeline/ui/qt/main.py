@@ -2,9 +2,9 @@ import ftrack_api
 import functools
 import itertools
 from QtExt import QtWidgets, QtGui, QtCore
-from ftrack_connect_framework import get_registered_assets, register_assets
-from ftrack_connect_framework import constants
-from ftrack_connect_framework.ui.base import BaseUiFramework
+from ftrack_connect_pipeline import get_registered_assets, register_assets
+from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline.ui.base import BaseUiFramework
 from ftrack_connect.ui.widget import header
 
 
@@ -84,7 +84,7 @@ class QtFrameworkWidget(BaseUiFramework, QtWidgets.QWidget):
 
         self.session.event_hub.publish(
             ftrack_api.event.base.Event(
-                topic='ftrack.framework.host.call',
+                topic=constants.PIPELINE_RUN_TOPIC,
                 data={'event_list': event_list}
             ),
             on_reply=self.on_handle_async_reply
@@ -203,7 +203,7 @@ class QtFrameworkWidget(BaseUiFramework, QtWidgets.QWidget):
 
     def __init__(self, host=None, parent=None):
         super(QtFrameworkWidget, self).__init__(parent=None)
-        self.setWindowTitle('Standalone Framework Publisher')
+        self.setWindowTitle('Standalone Pipeline Publisher')
         self.__widget_stack = {}
         self._task_results = {}
 
