@@ -162,7 +162,6 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
         if launchArguments:
             command.extend(launchArguments)
 
-        print 'COMMAND ', command
         return command
 
     def _discoverApplications(self):
@@ -190,13 +189,13 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 'ftrack_connect_pipeline',
                 'ui',
                 'qt',
-                '__main__.py$'
+                'publish.py$'
             ]
         )
 
         applications.extend(self._searchFilesystem(
             expression=path_parts,
-            label='pipeline',
+            label='pipeline-publisher',
             applicationIdentifier='pipeline',
             variant='standalone'
         ))

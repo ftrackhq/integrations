@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 import ftrack_api
 import sys
 import itertools
