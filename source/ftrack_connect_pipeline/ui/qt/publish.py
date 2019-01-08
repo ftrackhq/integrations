@@ -1,5 +1,5 @@
 import ftrack_api
-import functools
+import sys
 import itertools
 from QtExt import QtWidgets, QtGui, QtCore
 from ftrack_connect_pipeline import get_registered_assets, register_assets
@@ -39,7 +39,7 @@ class NewApiEventHubThread(QtCore.QThread):
         self._session.event_hub.wait()
 
 
-class QtFrameworkWidget(BaseUiFramework, QtWidgets.QWidget):
+class QtFrameworkPublishWidget(BaseUiFramework, QtWidgets.QWidget):
     stage_start = QtCore.Signal(object)
     stage_done = QtCore.Signal(object)
 
@@ -202,7 +202,7 @@ class QtFrameworkWidget(BaseUiFramework, QtWidgets.QWidget):
         self.run_async(event_list)
 
     def __init__(self, host=None, parent=None):
-        super(QtFrameworkWidget, self).__init__(parent=None)
+        super(QtFrameworkPublishWidget, self).__init__(parent=None)
         self.setWindowTitle('Standalone Pipeline Publisher')
         self.__widget_stack = {}
         self._task_results = {}
@@ -258,7 +258,7 @@ class QtFrameworkWidget(BaseUiFramework, QtWidgets.QWidget):
         if not asset_schema:
             return
 
-        publish_stages = asset_schema['publish']['plugins']
+        publish_stages = asset_schema[constants.PUBLISH]['plugins']
         for publish_stage in publish_stages:
             for publish_stage, publish_plugins in publish_stage.items():
 
@@ -287,3 +287,10 @@ class QtFrameworkWidget(BaseUiFramework, QtWidgets.QWidget):
             self.combo.addItem(asset_name, asset_name)
 
 
+
+
+if __name__ == '__main__':
+    app = QtGui.QApplication(sys.argv)
+    wid = QtFrameworkPublishWidget()
+    wid.show()
+    sys.exit(app.exec_())

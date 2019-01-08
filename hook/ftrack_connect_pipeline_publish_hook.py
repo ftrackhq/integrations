@@ -28,7 +28,7 @@ application_hook = os.path.join(
 class LaunchApplicationAction(object):
     '''Discover and launch maya.'''
 
-    identifier = 'ftrack-connect-launch-pipeline'
+    identifier = 'ftrack-connect-launch-pipeline-publish'
 
     def __init__(self, application_store, launcher):
         '''Initialise action with *applicationStore* and *launcher*.

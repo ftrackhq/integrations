@@ -6,6 +6,9 @@ VALIDATORS = 'validators'
 EXTRACTORS = 'extractors'
 PUBLISHERS = 'publishers'
 
+PUBLISH = 'publish'
+LOAD = 'load'
+
 REGISTER_ASSET_TOPIC = '{}.asset.register_assets'.format(_BASE_)
 PIPELINE_RUN_TOPIC = '{}.host.run'.format(_BASE_)
 

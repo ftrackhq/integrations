@@ -1,2 +1,2 @@
-import main
-from main import QtFrameworkWidget
+import publish
+from publish import QtFrameworkPublishWidget

@@ -86,7 +86,7 @@ class BuildPlugin(setuptools.Command):
                 'ftrack_connect_pipeline',
                 'ui', 
                 'qt', 
-                '__main__.py'
+                'publish.py'
             ), int('777', 8)
         )
 
