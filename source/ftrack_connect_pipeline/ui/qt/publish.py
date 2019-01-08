@@ -6,7 +6,7 @@ import itertools
 from QtExt import QtWidgets, QtGui, QtCore
 from ftrack_connect_pipeline import get_registered_assets, register_assets
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.ui.base import BaseUiFramework
+from ftrack_connect_pipeline.ui.base.publish import BasePublishUiFramework
 from ftrack_connect.ui.widget import header
 
 
@@ -41,7 +41,7 @@ class NewApiEventHubThread(QtCore.QThread):
         self._session.event_hub.wait()
 
 
-class QtFrameworkPublishWidget(BaseUiFramework, QtWidgets.QWidget):
+class QtFrameworkPublishWidget(BasePublishUiFramework, QtWidgets.QWidget):
     stage_start = QtCore.Signal(object)
     stage_done = QtCore.Signal(object)
 
@@ -206,6 +206,7 @@ class QtFrameworkPublishWidget(BaseUiFramework, QtWidgets.QWidget):
     def __init__(self, host=None, parent=None):
         super(QtFrameworkPublishWidget, self).__init__(parent=None)
         self.setWindowTitle('Standalone Pipeline Publisher')
+
         self.__widget_stack = {}
         self._task_results = {}
 
