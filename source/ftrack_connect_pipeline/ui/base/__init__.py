@@ -2,6 +2,9 @@ import logging
 import ftrack_api
 import itertools
 
+from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline import get_registered_assets, register_assets
+
 logger = logging.getLogger(__name__)
 
 
@@ -11,11 +14,17 @@ class BaseUiFramework(object):
     def __init__(self, *args, **kwargs):
         super(BaseUiFramework, self).__init__()
 
+        self.stack_exec_order = []
         self.mapping = {}
-        self.session = ftrack_api.Session(auto_connect_event_hub=True)
+        self._task_results = {}
+
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+        self.session = ftrack_api.Session(auto_connect_event_hub=True)
+
+        register_assets(self.session)
+        self._asset_configs = get_registered_assets('Task')
 
     @staticmethod
     def merge_list(list_data):
@@ -33,6 +42,32 @@ class BaseUiFramework(object):
 
     def build(self):
         raise NotImplementedError()
+
+    def on_handle_async_reply(self, event):
+        event_data = event['data']
+        event_task_name = event_data.keys()[0]
+        event_task_value = event_data.values()[0]
+
+        self.logger.debug(
+            'setting result for task: {} as {}'.format(
+                event_task_name, event_task_value
+            )
+        )
+        self._task_results[event_task_name] = event_task_value
+        self.stage_done.emit(event_task_name)
+
+    def run_async(self, event_list):
+        self.logger.debug(
+            'Sending event list {} to host'.format(event_list)
+        )
+
+        self.session.event_hub.publish(
+            ftrack_api.event.base.Event(
+                topic=constants.PIPELINE_RUN_TOPIC,
+                data={'event_list': event_list}
+            ),
+            on_reply=self.on_handle_async_reply
+        )
 
     def fetch_widget(self, plugin, base_topic, plugin_type):
         ui = plugin.get('ui', 'default.{}'.format(self.widget_suffix))

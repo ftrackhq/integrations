@@ -18,6 +18,8 @@ class BasePublishUiFramework(base.BaseUiFramework):
             constants.PUBLISHERS: (constants.PUBLISHERS_PLUGIN_TOPIC, self._on_run_publishers)
         }
 
+        self.stack_exec_order = constants.PUBLISH_ORDER
+
     @staticmethod
     def _on_run_context(widgets, previous_results=None):
         raise NotImplementedError()

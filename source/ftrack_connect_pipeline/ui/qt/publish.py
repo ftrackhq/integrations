@@ -6,7 +6,6 @@ import ftrack_api
 
 from QtExt import QtWidgets, QtGui, QtCore
 
-from ftrack_connect_pipeline import get_registered_assets, register_assets
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.ui.base.publish import BasePublishUiFramework
 from ftrack_connect_pipeline.ui.qt import QtFrameworkBaseWidget, utils
@@ -17,31 +16,30 @@ from ftrack_connect.ui.widget import header
 class QtFrameworkPublishWidget(BasePublishUiFramework, QtFrameworkBaseWidget):
     widget_suffix = 'widget.qt'
 
-    def on_handle_async_reply(self, event):
-        event_data = event['data']
-        event_task_name = event_data.keys()[0]
-        event_task_value = event_data.values()[0]
+    def __init__(self, host=None, parent=None):
+        super(QtFrameworkPublishWidget, self).__init__(parent=None)
+        self.setWindowTitle('Standalone Pipeline Publisher')
 
-        self.logger.debug(
-            'setting result for task: {} as {}'.format(
-                event_task_name, event_task_value
-            )
-        )
-        self._task_results[event_task_name] = event_task_value
-        self.stage_done.emit(event_task_name)
+        self.__widget_stack = {}
 
-    def run_async(self, event_list):
-        self.logger.debug(
-            'Sending event list {} to host'.format(event_list)
-        )
+        layout = QtWidgets.QVBoxLayout()
+        self.setLayout(layout)
 
-        self.session.event_hub.publish(
-            ftrack_api.event.base.Event(
-                topic=constants.PIPELINE_RUN_TOPIC,
-                data={'event_list': event_list}
-            ),
-            on_reply=self.on_handle_async_reply
-        )
+        self.header = header.Header(self.session.api_user)
+        self.layout().addWidget(self.header)
+
+        self.combo = QtWidgets.QComboBox()
+        self.combo.addItem('- Select asset type -')
+        self.layout().addWidget(self.combo)
+        self.combo.currentIndexChanged.connect(self._on_asset_change)
+        self.task_layout = QtWidgets.QVBoxLayout()
+        self.layout().addLayout(self.task_layout)
+
+        self.build()
+
+        button = QtWidgets.QPushButton('Run')
+        button.clicked.connect(self._on_run)
+        self.layout().addWidget(button)
 
     def _on_run_context(self, widgets):
         event_list = []
@@ -154,44 +152,6 @@ class QtFrameworkPublishWidget(BasePublishUiFramework, QtFrameworkBaseWidget):
             )
         self.run_async(event_list)
 
-    def __init__(self, host=None, parent=None):
-        super(QtFrameworkPublishWidget, self).__init__(parent=None)
-        self.setWindowTitle('Standalone Pipeline Publisher')
-
-        self.__widget_stack = {}
-        self._task_results = {}
-
-        self._event_thread = utils.NewApiEventHubThread()
-        self._event_thread.start(self.session)
-
-        register_assets(self.session)
-        self._asset_configs = get_registered_assets('Task')
-
-        layout = QtWidgets.QVBoxLayout()
-        self.setLayout(layout)
-
-        self.header = header.Header(self.session.api_user)
-        self.layout().addWidget(self.header)
-
-        self.combo = QtWidgets.QComboBox()
-        self.combo.addItem('- Select asset type -')
-        self.layout().addWidget(self.combo)
-        self.combo.currentIndexChanged.connect(self._on_asset_change)
-        self.task_layout = QtWidgets.QVBoxLayout()
-        self.layout().addLayout(self.task_layout)
-
-        self.build()
-
-        button = QtWidgets.QPushButton('Run')
-        button.clicked.connect(self._on_run)
-        self.layout().addWidget(button)
-
-    def _on_run(self):
-        for stage in constants.PUBLISH_ORDER:
-            self._task_results.setdefault(stage, [])
-
-        self.stage_start.emit('context')
-
     def clearLayout(self, layout):
         if layout is not None:
             while layout.count():
@@ -237,7 +197,6 @@ class QtFrameworkPublishWidget(BasePublishUiFramework, QtFrameworkBaseWidget):
     def build(self):
         for asset_name in self._asset_configs.keys():
             self.combo.addItem(asset_name, asset_name)
-
 
 
 

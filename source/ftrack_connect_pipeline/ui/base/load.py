@@ -14,6 +14,7 @@ class BaseLoadUiFramework(base.BaseUiFramework):
             constants.COMPONENTS : (constants.COMPONENTS_PLUGIN_TOPIC, self._on_run_components),
             constants.INTEGRATORS : (constants.INTEGRATORS_PLUGIN_TOPIC, self._on_run_integrators)
         }
+        self.stack_exec_order = constants.LOAD_ORDER
 
     @staticmethod
     def _on_run_context(widgets, previous_results=None):
