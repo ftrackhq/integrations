@@ -67,8 +67,19 @@
     },
     "load": {
         "plugins": [
+               {
+                "context": [
+                    {
+                        "ui": "custom_context.widget.qt",
+                        "call":"context_set",
+                        "name" : "Set Context",
+                        "options": {"context_id": null, "asset_name": null},
+                        "description": "Set context where to publish to"
+                    }
+                ]
+            },
             {
-                "importer": [
+                "importers": [
                     {
                         "call":"importers.test.cam",
                         "options": {"component_prefix": "CAM"}

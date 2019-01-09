@@ -5,14 +5,14 @@ from ftrack_connect_pipeline.ui import base
 logger = logging.getLogger(__name__)
 
 
-class BaseLoadUiFramework(base.BaseUiFramework):
+class BaseLoadUiPipeline(base.BaseUiPipeline):
     def __init__(self, *args, **kwargs):
-        super(BaseLoadUiFramework, self).__init__()
+        super(BaseLoadUiPipeline, self).__init__()
 
         self.mapping = {
             constants.CONTEXT: (constants.CONTEXT_PLUGIN_TOPIC, self._on_run_context),
             constants.COMPONENTS : (constants.COMPONENTS_PLUGIN_TOPIC, self._on_run_components),
-            constants.INTEGRATORS : (constants.INTEGRATORS_PLUGIN_TOPIC, self._on_run_integrators)
+            constants.IMPORTERS : (constants.INTEGRATORS_PLUGIN_TOPIC, self._on_run_integrators)
         }
         self.stack_exec_order = constants.LOAD_ORDER
 

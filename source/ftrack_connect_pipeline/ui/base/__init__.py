@@ -8,13 +8,14 @@ from ftrack_connect_pipeline import get_registered_assets, register_assets
 logger = logging.getLogger(__name__)
 
 
-class BaseUiFramework(object):
+class BaseUiPipeline(object):
     widget_suffix = None
 
     def __init__(self, *args, **kwargs):
-        super(BaseUiFramework, self).__init__()
+        super(BaseUiPipeline, self).__init__()
 
         self.stack_exec_order = []
+        self.stage_type = None
         self.mapping = {}
         self._task_results = {}
 

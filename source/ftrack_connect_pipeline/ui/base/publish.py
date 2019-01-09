@@ -5,10 +5,10 @@ from ftrack_connect_pipeline.ui import base
 logger = logging.getLogger(__name__)
 
 
-class BasePublishUiFramework(base.BaseUiFramework):
+class BasePublishUiPipeline(base.BaseUiPipeline):
 
     def __init__(self, *args, **kwargs):
-        super(BasePublishUiFramework, self).__init__()
+        super(BasePublishUiPipeline, self).__init__()
 
         self.mapping = {
             constants.CONTEXT:    (constants.CONTEXT_PLUGIN_TOPIC, self._on_run_context),

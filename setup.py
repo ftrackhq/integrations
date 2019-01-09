@@ -78,7 +78,8 @@ class BuildPlugin(setuptools.Command):
                 '--process-dependency-links'
             ]
         )
-        # ensure pipeline is executable
+
+        # ensure publish pipeline is executable
         os.chmod(
             os.path.join(
                 STAGING_PATH, 
@@ -87,6 +88,20 @@ class BuildPlugin(setuptools.Command):
                 'ui', 
                 'qt', 
                 'publish.py'
+            ), int('777', 8)
+        )
+
+        # ensure load pipeline is executable
+
+        # ensure publish pipeline is executable
+        os.chmod(
+            os.path.join(
+                STAGING_PATH,
+                'dependencies',
+                'ftrack_connect_pipeline',
+                'ui',
+                'qt',
+                'load.py'
             ), int('777', 8)
         )
 
