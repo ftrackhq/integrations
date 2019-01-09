@@ -1,77 +1,28 @@
 #! /usr/bin/env python
 
-import ftrack_api
 import sys
-import itertools
+
+import ftrack_api
+
 from QtExt import QtWidgets, QtGui, QtCore
+
 from ftrack_connect_pipeline import get_registered_assets, register_assets
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.ui.base.publish import BasePublishUiFramework
+from ftrack_connect_pipeline.ui.qt import QtFrameworkBaseWidget, utils
+
 from ftrack_connect.ui.widget import header
 
 
-import logging
-logger = logging.getLogger(__name__)
-
-
-def merge_list(list_data):
-    logger.info('Merging {} '.format(list_data))
-    result = list(set(itertools.chain.from_iterable(list_data)))
-    logger.info('into {}'.format(result))
-    return result
-
-
-def merge_dict(dict_data):
-    logger.info('Merging {} '.format(dict_data))
-    result =  {k: v for d in dict_data for k, v in d.items()}
-    logger.info('into {}'.format(result))
-    return result
-
-
-class NewApiEventHubThread(QtCore.QThread):
-    '''Listen for events from ftrack's event hub.'''
-
-    def start(self, session):
-        '''Start thread for *session*.'''
-        self._session = session
-        super(NewApiEventHubThread, self).start()
-
-    def run(self):
-        '''Listen for events.'''
-        self._session.event_hub.wait()
-
-
-class QtFrameworkPublishWidget(BasePublishUiFramework, QtWidgets.QWidget):
-    stage_start = QtCore.Signal(object)
-    stage_done = QtCore.Signal(object)
-
+class QtFrameworkPublishWidget(BasePublishUiFramework, QtFrameworkBaseWidget):
     widget_suffix = 'widget.qt'
-
-    def _on_stage_start(self, event_task_name):
-        logger.debug('Starting stage: {}'.format(event_task_name))
-        fn = self.mapping[event_task_name][1]
-        widgets = self.__widget_stack[event_task_name]
-        fn(widgets)
-
-    def _on_stage_done(self, event_task_name):
-        logger.debug('stage: {} done'.format(event_task_name))
-        current_stage = constants.PUBLISH_ORDER.index(event_task_name)
-
-        next_stage_idx = current_stage+1
-
-        if next_stage_idx >= len(constants.PUBLISH_ORDER):
-            # we reached the end, no more steps to perform !
-            return
-
-        next_stage = constants.PUBLISH_ORDER[current_stage+1]
-        self.stage_start.emit(next_stage)
 
     def on_handle_async_reply(self, event):
         event_data = event['data']
         event_task_name = event_data.keys()[0]
         event_task_value = event_data.values()[0]
 
-        logger.debug(
+        self.logger.debug(
             'setting result for task: {} as {}'.format(
                 event_task_name, event_task_value
             )
@@ -80,7 +31,7 @@ class QtFrameworkPublishWidget(BasePublishUiFramework, QtWidgets.QWidget):
         self.stage_done.emit(event_task_name)
 
     def run_async(self, event_list):
-        logger.debug(
+        self.logger.debug(
             'Sending event list {} to host'.format(event_list)
         )
 
@@ -126,11 +77,11 @@ class QtFrameworkPublishWidget(BasePublishUiFramework, QtWidgets.QWidget):
         self.run_async(event_list)
 
     def _on_run_validators(self, widgets):
-        collected_data = merge_list(self._task_results[constants.COLLECTORS])
-        context_data = merge_dict(self._task_results[constants.CONTEXT])
+        collected_data = self.merge_list(self._task_results[constants.COLLECTORS])
+        context_data = self.merge_dict(self._task_results[constants.CONTEXT])
 
-        logger.debug('collected data:{}'.format(collected_data))
-        logger.debug('context data:{}'.format(context_data))
+        self.logger.debug('collected data:{}'.format(collected_data))
+        self.logger.debug('context data:{}'.format(context_data))
 
         event_list = []
 
@@ -151,8 +102,8 @@ class QtFrameworkPublishWidget(BasePublishUiFramework, QtWidgets.QWidget):
         self.run_async(event_list)
 
     def _on_run_extractors(self, widgets):
-        collected_data = merge_list(self._task_results[constants.COLLECTORS])
-        context_data = merge_dict(self._task_results[constants.CONTEXT])
+        collected_data = self.merge_list(self._task_results[constants.COLLECTORS])
+        context_data = self.merge_dict(self._task_results[constants.CONTEXT])
         validators_data = self._task_results[constants.VALIDATORS]
 
         if not all(validators_data):
@@ -179,7 +130,7 @@ class QtFrameworkPublishWidget(BasePublishUiFramework, QtWidgets.QWidget):
     def _on_run_publishers(self, widgets):
 
         extracted_data = self._task_results[constants.EXTRACTORS]
-        context_data = merge_dict(self._task_results[constants.CONTEXT])
+        context_data = self.merge_dict(self._task_results[constants.CONTEXT])
         validators_data = self._task_results[constants.VALIDATORS]
 
         if not all(validators_data):
@@ -210,7 +161,7 @@ class QtFrameworkPublishWidget(BasePublishUiFramework, QtWidgets.QWidget):
         self.__widget_stack = {}
         self._task_results = {}
 
-        self._event_thread = NewApiEventHubThread()
+        self._event_thread = utils.NewApiEventHubThread()
         self._event_thread.start(self.session)
 
         register_assets(self.session)
@@ -234,8 +185,6 @@ class QtFrameworkPublishWidget(BasePublishUiFramework, QtWidgets.QWidget):
         button = QtWidgets.QPushButton('Run')
         button.clicked.connect(self._on_run)
         self.layout().addWidget(button)
-        self.stage_done.connect(self._on_stage_done)
-        self.stage_start.connect(self._on_stage_start)
 
     def _on_run(self):
         for stage in constants.PUBLISH_ORDER:

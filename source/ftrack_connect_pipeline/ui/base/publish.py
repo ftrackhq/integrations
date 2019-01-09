@@ -1,6 +1,4 @@
 import logging
-import ftrack_api
-import os
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.ui import base
 
@@ -13,11 +11,11 @@ class BasePublishUiFramework(base.BaseUiFramework):
         super(BasePublishUiFramework, self).__init__()
 
         self.mapping = {
-            'context':    (constants.CONTEXT_PLUGIN_TOPIC, self._on_run_context),
-            'collectors': (constants.COLLECTORS_PLUGIN_TOPIC, self._on_run_collectors),
-            'validators': (constants.VALIDATORS_PLUGIN_TOPIC, self._on_run_validators),
-            'extractors': (constants.EXTRACTORS_PLUGIN_TOPIC, self._on_run_extractors),
-            'publishers': (constants.PUBLISHERS_PLUGIN_TOPIC, self._on_run_publishers)
+            constants.CONTEXT:    (constants.CONTEXT_PLUGIN_TOPIC, self._on_run_context),
+            constants.COLLECTORS: (constants.COLLECTORS_PLUGIN_TOPIC, self._on_run_collectors),
+            constants.VALIDATORS: (constants.VALIDATORS_PLUGIN_TOPIC, self._on_run_validators),
+            constants.EXTRACTORS: (constants.EXTRACTORS_PLUGIN_TOPIC, self._on_run_extractors),
+            constants.PUBLISHERS: (constants.PUBLISHERS_PLUGIN_TOPIC, self._on_run_publishers)
         }
 
     @staticmethod
