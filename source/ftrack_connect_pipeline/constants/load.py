@@ -8,11 +8,10 @@ IMPORTERS = 'importers'
 # load stack
 LOAD_ORDER = [
     CONTEXT,
-    COMPONENTS,
     IMPORTERS
 ]
 
 # load events
 COMPONENTS_PLUGIN_TOPIC = '{}.{}.{{}}'.format(_BASE_, COMPONENTS)
-INTEGRATORS_PLUGIN_TOPIC = '{}.{}.{{}}'.format(_BASE_, IMPORTERS)
+IMPORTERS_PLUGIN_TOPIC = '{}.{}.{{}}'.format(_BASE_, IMPORTERS)
 

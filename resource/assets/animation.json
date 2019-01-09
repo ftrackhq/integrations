@@ -1,5 +1,5 @@
 {
-    "asset_name": "Animation (maya)",
+    "asset_name": "Animation",
     "asset_type": "anim",
     "context": ["Task"],
     "publish": {
@@ -74,17 +74,17 @@
                         "call":"context_set",
                         "name" : "Set Context",
                         "options": {"context_id": null, "asset_name": null},
-                        "description": "Set context where to publish to"
+                        "description": "Set context where to load from to"
                     }
                 ]
             },
             {
-                "importers": [
-                    {
-                        "call":"importers.test.cam",
-                        "options": {"component_prefix": "CAM"}
-                    }
-                ]
+             "importers": [
+                {
+                    "call":"maya.ma",
+                    "options": {"component_prefix": "CAM"}
+                }
+             ]
             }
         ]
     }
