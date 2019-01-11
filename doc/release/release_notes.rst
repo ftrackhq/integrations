@@ -7,6 +7,12 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: fixed
+
+        Presets are not properly restored between sessions.
+
 .. release:: 2.1.0
     :date: 2018-12-17
 

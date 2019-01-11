@@ -105,8 +105,10 @@ class FtrackBasePreset(FtrackBase):
             )
 
         self.set_export_root()
-        self.set_ftrack_properties(properties)
         self._timeStamp = datetime.datetime.now()
+
+        if not properties.get('ftrack'):
+            self.set_ftrack_properties(properties)
 
     def timeStamp(self):
         '''timeStamp(self)
