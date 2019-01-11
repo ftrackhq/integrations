@@ -571,7 +571,7 @@ class FtrackProcessor(FtrackBase):
                 resolved_file_name = task.resolvePath(file_name)
 
                 path = task.resolvePath(exportPath)
-                path_id = uuid.uuid4().hex
+                path_id = os.path.dirname(path)
 
                 versions.setdefault(path_id, None)
 
