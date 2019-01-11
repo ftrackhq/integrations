@@ -749,6 +749,12 @@ class FtrackProcessor(FtrackBase):
         task._exportPath = output_path
         task.setDestinationDescription(output_path)
 
+        # ensure output path exists....
+        base_path = os.path.dirname(output_path)
+        if not os.path.exists(base_path):
+            self.logger.debug('ensuring folder: {}'.format(base_path))
+            os.makedirs(base_path)
+
         def _makeNullPath():
             pass
 
