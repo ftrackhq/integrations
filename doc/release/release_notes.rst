@@ -7,11 +7,16 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 2.1.1
+    :date: 2019-01-11
 
     .. change:: fixed
 
         Presets are not properly restored between sessions.
+
+    .. change:: fixed
+
+        Components are not collected under one single asset.
 
 .. release:: 2.1.0
     :date: 2018-12-17
