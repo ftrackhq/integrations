@@ -13,6 +13,10 @@ Release Notes
 
         Presets are not properly restored between sessions.
 
+    .. change:: fixed
+
+        Components are not collected under one single asset.
+
 .. release:: 2.1.0
     :date: 2018-12-17
 
