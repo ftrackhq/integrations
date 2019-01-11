@@ -8,11 +8,14 @@ from QtExt import QtGui
 import hiero
 from hiero.core.VersionScanner import VersionScanner
 from ftrack_connect.session import get_shared_session
+from ftrack_connect_nuke_studio.base import FtrackBase
 
 session = get_shared_session()
 logger = logging.getLogger(__name__)
 
 current_ftrack_location = session.pick_location()
+Base = FtrackBase()
+hiero_version_touple = Base.hiero_version_touple
 
 
 def register_versioning_overrides():
@@ -26,25 +29,33 @@ def register_versioning_overrides():
         VersionScanner._default_findVersionFiles = VersionScanner.findVersionFiles
         VersionScanner.findVersionFiles = ftrack_find_version_files
 
-    if not hasattr(VersionScanner, '_default_insertClips'):
-        VersionScanner._default_insertClips = VersionScanner.insertClips
-        VersionScanner.insertClips = ftrack_insert_clips
-
     if not hasattr(VersionScanner, '_default_filterVersion'):
         VersionScanner._default_filterVersion = VersionScanner.filterVersion
         VersionScanner.filterVersion = ftrack_filter_version
 
-    if not hasattr(VersionScanner, '_default_createClip'):
-        VersionScanner._default_createClip = VersionScanner.createClip
-        VersionScanner.createClip = ftrack_create_clip
+    # Conditional depending on nuke studio / hiero version
+    if (hiero_version_touple[0] <= 11 and hiero_version_touple[1] <= 2):
+        # <= 11.2vX
+        if not hasattr(VersionScanner, '_default_insertClips'):
+            VersionScanner._default_insertClips = VersionScanner.insertClips
+            VersionScanner.insertClips = ftrack_insert_clips
+
+        if not hasattr(VersionScanner, '_default_createClip'):
+            VersionScanner._default_createClip = VersionScanner.createClip
+            VersionScanner.createClip = ftrack_create_clip
+    else:
+        # > 11.2vX
+        if not hasattr(VersionScanner, '_default_createAndInsertClipVersion'):
+            VersionScanner._default_createAndInsertClipVersion = VersionScanner.createAndInsertClipVersion
+            VersionScanner.createAndInsertClipVersion = ftrack_create_and_insert_clip_version
 
     VersionScanner._ftrack_component_reference = []
-
     hiero.core.events.registerInterest('kShowContextMenu/kTimeline', customise_menu)
 
 
 def customise_menu(event):
     ''' Set ftrack icon looking in menu from given *event*. '''
+    logger.debug('adding icon to Version and export')
     actions = event.menu.actions()
     for action in actions:
         if action.text() in ['Version', 'Export...']:
@@ -223,4 +234,11 @@ def ftrack_insert_clips(scanner_instance, bin_item, clips):
     scanner_instance._ftrack_component_reference = []
     return new_versions
 
+# NS >= 11.3vX
+def ftrack_create_and_insert_clip_version(scanner_instance, bin_item, new_filename):
+    if new_filename not in scanner_instance._ftrack_component_reference:
+        return scanner_instance._default_createAndInsertClipVersion(bin_item, new_filename)
 
+    clip = ftrack_create_clip(scanner_instance, new_filename)
+    version = add_clip_as_version(clip, bin_item, scanner_instance._ftrack_component_reference)
+    return version
