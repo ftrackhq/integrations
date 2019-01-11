@@ -34,7 +34,7 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
 
         TranscodeExporter.__init__(self, initDict)
         FtrackProcessor.__init__(self, initDict)
-        self._renderTask = None
+        self.createTranscodeScript()
 
     def component_name(self):
         return self.sanitise_for_filesystem(
@@ -67,10 +67,6 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
 
             # Create a job on our submission to do the actual rendering.
             self._renderTask = self._submission.addJob(Submission.kNukeRender, submissionDict, self._scriptfile)
-
-    def updateItem(self, originalItem, localtime):
-        '''Override to inject new trascode script.'''
-        self.createTranscodeScript()
 
     def _makePath(self):
         '''Disable file path creation.'''
