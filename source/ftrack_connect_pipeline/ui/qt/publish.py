@@ -21,7 +21,7 @@ class QtPipelinePublishWidget(BasePublishUiPipeline, BaseQtPipelineWidget):
         event_list = []
         for widget in widgets:
             options = widget.extract_options()
-            topic = widget.call_topic
+            topic = widget.plugin_topic
 
             event_list.append(
                 {
@@ -38,7 +38,7 @@ class QtPipelinePublishWidget(BasePublishUiPipeline, BaseQtPipelineWidget):
 
         for widget in widgets:
             options = widget.extract_options()
-            topic = widget.call_topic
+            topic = widget.plugin_topic
 
             event_list.append(
                 {
@@ -63,7 +63,7 @@ class QtPipelinePublishWidget(BasePublishUiPipeline, BaseQtPipelineWidget):
 
         for widget in widgets:
             options = widget.extract_options()
-            topic = widget.call_topic
+            topic = widget.plugin_topic
             options.update(context_data)
             event_list.append(
                 {
@@ -89,7 +89,7 @@ class QtPipelinePublishWidget(BasePublishUiPipeline, BaseQtPipelineWidget):
 
         for widget in widgets:
             options = widget.extract_options()
-            topic = widget.call_topic
+            topic = widget.plugin_topic
             options.update(context_data)
             event_list.append(
                 {
@@ -116,7 +116,7 @@ class QtPipelinePublishWidget(BasePublishUiPipeline, BaseQtPipelineWidget):
 
         for widget in widgets:
             options = widget.extract_options()
-            topic = widget.call_topic
+            topic = widget.plugin_topic
             options.update(context_data)
             event_list.append(
                 {

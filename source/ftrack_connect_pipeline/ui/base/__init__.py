@@ -71,7 +71,7 @@ class BaseUiPipeline(object):
         )
 
     def fetch_widget(self, plugin, base_topic, plugin_type):
-        ui = plugin.get('ui', 'default.{}'.format(self.widget_suffix))
+        ui = plugin.get('plugin_ui', 'default.{}'.format(self.widget_suffix))
         mytopic = base_topic.format(ui)
 
         # filter widgets which cannot be loaded in this host.
@@ -84,7 +84,7 @@ class BaseUiPipeline(object):
         plugin_options = plugin.get('options', {})
         plugin_name = plugin.get('name', 'no name provided')
         description = plugin.get('description', 'No description provided')
-        call_topic = self.mapping[plugin_type][0].format(plugin['call'])
+        plugin_topic = self.mapping[plugin_type][0].format(plugin['plugin'])
 
         result_widget = self.session.event_hub.publish(
             ftrack_api.event.base.Event(
@@ -93,7 +93,7 @@ class BaseUiPipeline(object):
                     'options': plugin_options,
                     'name': plugin_name,
                     'description': description,
-                    'call_topic': call_topic
+                    'plugin_topic': plugin_topic
                 }
             ),
             synchronous=True

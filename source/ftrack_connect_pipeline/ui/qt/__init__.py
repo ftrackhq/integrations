@@ -85,9 +85,7 @@ class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
 
         stages = asset_schema[self.stage_type]['plugins']
         for stage in stages:
-            print 'stage', stage
             for current_stage, current_plugins in stage.items():
-                print 'current_stage', current_stage
                 base_topic = self.mapping[current_stage][0]
 
                 box = QtWidgets.QGroupBox(current_stage)

@@ -27,10 +27,10 @@ class SimpleWidget(QtWidgets.QWidget):
             option_layout.addWidget(value)
             self.layout().addLayout(option_layout)
 
-    def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None, call_topic=None):
+    def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None, plugin_topic=None):
         super(SimpleWidget, self).__init__(parent=parent)
         self.session = session
-        self.call_topic = call_topic
+        self.plugin_topic = plugin_topic
         self.widget_options = {}
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
