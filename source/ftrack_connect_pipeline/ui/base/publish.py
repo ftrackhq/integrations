@@ -20,23 +20,18 @@ class BasePublishUiPipeline(base.BaseUiPipeline):
 
         self.stack_exec_order = constants.PUBLISH_ORDER
 
-    @staticmethod
-    def _on_run_context(widgets, previous_results=None):
+    def _on_run_context(self, widgets, previous_results=None):
         raise NotImplementedError()
 
-    @staticmethod
-    def _on_run_collectors(widgets, previous_results=None):
+    def _on_run_collectors(self, widgets, previous_results=None):
         raise NotImplementedError()
 
-    @staticmethod
-    def _on_run_validators(widgets, previous_results=None):
+    def _on_run_validators(self, widgets, previous_results=None):
         raise NotImplementedError()
 
-    @staticmethod
-    def _on_run_extractors(widgets, previous_results=None):
+    def _on_run_extractors(self, widgets, previous_results=None):
         raise NotImplementedError()
 
-    @staticmethod
-    def _on_run_publishers(widgets, previous_results=None):
+    def _on_run_publishers(self, widgets, previous_results=None):
         raise NotImplementedError()
 

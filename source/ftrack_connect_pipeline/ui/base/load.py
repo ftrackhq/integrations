@@ -16,14 +16,11 @@ class BaseLoadUiPipeline(base.BaseUiPipeline):
         }
         self.stack_exec_order = constants.LOAD_ORDER
 
-    @staticmethod
-    def _on_run_context(widgets, previous_results=None):
+    def _on_run_context(self, widgets, previous_results=None):
         raise NotImplementedError()
 
-    @staticmethod
-    def _on_run_components(widgets, previous_results=None):
+    def _on_run_components(self, widgets, previous_results=None):
         raise NotImplementedError()
 
-    @staticmethod
-    def _on_run_importers(widgets, previous_results=None):
+    def _on_run_importers(self, widgets, previous_results=None):
         raise NotImplementedError()
