@@ -55,7 +55,6 @@ def register_versioning_overrides():
 
 def customise_menu(event):
     ''' Set ftrack icon looking in menu from given *event*. '''
-    logger.debug('adding icon to Version and export')
     actions = event.menu.actions()
     for action in actions:
         if action.text() in ['Version', 'Export...']:
@@ -241,4 +240,5 @@ def ftrack_create_and_insert_clip_version(scanner_instance, bin_item, new_filena
 
     clip = ftrack_create_clip(scanner_instance, new_filename)
     version = add_clip_as_version(clip, bin_item, scanner_instance._ftrack_component_reference)
+
     return version
