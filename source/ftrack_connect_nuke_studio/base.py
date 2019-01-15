@@ -65,7 +65,7 @@ class FtrackBase(object):
         return unicode(value.strip().lower())
 
     @property
-    def hiero_version_touple(self):
+    def hiero_version_tuple(self):
         '''Return current hiero version.'''
         return (
             hiero.core.env['VersionMajor'],

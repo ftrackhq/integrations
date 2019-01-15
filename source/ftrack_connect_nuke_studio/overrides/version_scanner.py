@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 current_ftrack_location = session.pick_location()
 Base = FtrackBase()
-hiero_version_touple = Base.hiero_version_touple
+hiero_version_touple = Base.hiero_version_tuple
 
 
 def register_versioning_overrides():

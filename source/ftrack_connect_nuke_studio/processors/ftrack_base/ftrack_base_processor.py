@@ -366,7 +366,7 @@ class FtrackProcessor(FtrackBase):
             })
 
             app_metadata = 'Published with: {0} From Nuke Studio : {1}.{2}.{3}'.format(
-                self.__class__.__name__, *self.hiero_version_touple
+                self.__class__.__name__, *self.hiero_version_tuple
             )
             version['metadata']['app_metadata'] = app_metadata
 
