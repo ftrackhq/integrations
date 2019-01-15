@@ -14,7 +14,7 @@ def extract_to_tmp(session, data=None, options=None):
     import maya
 
     def call(component_name):
-        new_file_path = tempfile.NamedTemporaryFile(delete=False).name
+        new_file_path = tempfile.NamedTemporaryFile(delete=False, suffix='.ma').name
         logger.debug('Calling extractor options: data {}'.format(data))
         cmd.select(data, r=True)
         cmd.file(rename=new_file_path)
