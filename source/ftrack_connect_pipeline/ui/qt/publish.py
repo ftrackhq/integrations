@@ -105,8 +105,9 @@ class QtPipelinePublishWidget(BasePublishUiPipeline, BaseQtPipelineWidget):
 
         extracted_data = self._task_results[constants.EXTRACTORS]
         context_data = self.merge_dict(self._task_results[constants.CONTEXT])
-        validators_data = self._task_results[constants.VALIDATORS]
+        context_data['asset_type'] = self.asset_type
 
+        validators_data = self._task_results[constants.VALIDATORS]
         if not all(validators_data):
             return
 

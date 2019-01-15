@@ -9,27 +9,23 @@ from ftrack_connect_pipeline import constants
 logger = logging.getLogger(__name__)
 
 
-def import_ma(session, data=None, options=None):
-    logger.info('CALLING IMPORT MA! with: {} {} {}'.format(session, data, options))
+def import_maya(session, data=None, options=None):
+    logger.info('CALLING IMPORT with: {} {} {}'.format(session, data, options))
 
     import maya.cmds as cmd
     import maya
 
-    # def call(component_name):
-    #     new_file_path = tempfile.NamedTemporaryFile(delete=False).name
-    #     logger.debug('Calling extractor options: data {}'.format(data))
-    #     cmd.select(data, r=True)
-    #     cmd.file(rename=new_file_path)
-    #     cmd.file(save=True, type='mayaAscii')
-    #     return (component_name, new_file_path)
-    #
-    # component_name = options['component_name']
-    # return maya.utils.executeInMainThreadWithResult(call, component_name)
-    #
+    def call(component_path):
+        logger.debug('Calling extractor options: data {}'.format(data))
+        cmd.file(component_path, i=True)
+        return True
+
+    component_path = options['component_path']
+    return maya.utils.executeInMainThreadWithResult(call, component_path)
 
 
 def register_importer(session, event):
-    return import_ma(session, **event['data'])
+    return import_maya(session, **event['data'])
 
 
 def register(api_object, **kw):
@@ -42,7 +38,7 @@ def register(api_object, **kw):
         # Exit to avoid registering this plugin again.
         return
 
-    topic = constants.IMPORTERS_PLUGIN_TOPIC.format('maya.ma')
+    topic = constants.IMPORTERS_PLUGIN_TOPIC.format('maya')
     logger.info('discovering :{}'.format(topic))
 
     event_handler = functools.partial(

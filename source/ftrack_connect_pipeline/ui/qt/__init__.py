@@ -83,6 +83,8 @@ class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
         if not asset_schema:
             return
 
+        self._current_asset_type = asset_schema['asset_type']
+
         stages = asset_schema[self.stage_type]['plugins']
         for stage in stages:
             for current_stage, current_plugins in stage.items():

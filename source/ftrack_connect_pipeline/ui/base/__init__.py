@@ -11,6 +11,10 @@ logger = logging.getLogger(__name__)
 class BaseUiPipeline(object):
     widget_suffix = None
 
+    @property
+    def asset_type(self):
+        return self._current_asset_type
+
     def __init__(self, *args, **kwargs):
         super(BaseUiPipeline, self).__init__()
 
@@ -26,6 +30,7 @@ class BaseUiPipeline(object):
 
         register_assets(self.session)
         self._asset_configs = get_registered_assets('Task')
+        self._current_asset_type = None
 
     @staticmethod
     def merge_list(list_data):

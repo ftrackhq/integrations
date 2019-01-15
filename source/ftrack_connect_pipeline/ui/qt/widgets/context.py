@@ -45,6 +45,4 @@ class ContextWidget(SimpleWidget):
                 result[label] = widget._entity.getId()
             else:
                 result[label] = widget.getAssetName()
-                result['asset_type'] = widget.getAssetType().getShort()
-
         return result

@@ -90,8 +90,8 @@
            {
                 "importers": [
                     {
-                        "name" : "Import Ma file",
-                        "plugin":"maya.ma",
+                        "name" : "Import file",
+                        "plugin":"maya",
                         "description": "import Ma file",
                         "visible": false
                     }
