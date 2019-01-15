@@ -1,9 +1,9 @@
 import ftrack_api
 from QtExt import QtWidgets, QtCore
+from ftrack_connect_pipeline.ui.qt.widgets import BaseWidget
 
 
-class SimpleWidget(QtWidgets.QWidget):
-    status_changed = QtCore.Signal(object)
+class SimpleWidget(BaseWidget):
 
     def extract_options(self):
         result = {}
@@ -28,17 +28,8 @@ class SimpleWidget(QtWidgets.QWidget):
             self.layout().addLayout(option_layout)
 
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None, plugin_topic=None):
-        super(SimpleWidget, self).__init__(parent=parent)
-        self.session = session
-        self.plugin_topic = plugin_topic
-        self.widget_options = {}
-        layout = QtWidgets.QVBoxLayout()
-        self.setLayout(layout)
+        super(SimpleWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options, plugin_topic=plugin_topic)
 
-        name = QtWidgets.QLabel(name)
-        name.setToolTip(description)
 
-        layout.addWidget(name)
-        self.build_options(options)
 
 

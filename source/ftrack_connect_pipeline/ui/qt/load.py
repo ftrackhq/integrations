@@ -64,6 +64,7 @@ class QtPipelineLoaderWidget(BaseLoadUiPipeline, BaseQtPipelineWidget):
 
         self.run_async(event_list)
 
+
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
     wid = QtPipelineLoaderWidget()
