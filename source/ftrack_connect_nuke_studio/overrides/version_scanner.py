@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 current_ftrack_location = session.pick_location()
 Base = FtrackBase()
-hiero_version_touple = Base.hiero_version_tuple
+hiero_version_tuple = Base.hiero_version_tuple
 
 
 def register_versioning_overrides():
@@ -34,8 +34,8 @@ def register_versioning_overrides():
         VersionScanner.filterVersion = ftrack_filter_version
 
     # Conditional depending on nuke studio / hiero version
-    if (hiero_version_touple[0] <= 11 and hiero_version_touple[1] <= 2):
-        # <= 11.2vX
+    if hiero_version_tuple < (11, 3, 0):
+        # < 11.3vX
         if not hasattr(VersionScanner, '_default_insertClips'):
             VersionScanner._default_insertClips = VersionScanner.insertClips
             VersionScanner.insertClips = ftrack_insert_clips
