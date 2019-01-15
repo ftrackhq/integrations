@@ -2,7 +2,6 @@ from QtExt import QtWidgets
 from ftrack_connect_pipeline.ui.qt.widgets.simple import SimpleWidget
 from ftrack_connect.ui.widget import entity_selector
 from ftrack_connect.ui.widget import asset_options
-from ftrack_connect.ui.widget import header
 
 
 class ContextWidget(SimpleWidget):
@@ -10,7 +9,6 @@ class ContextWidget(SimpleWidget):
         self.assetOptions = None
         self.entitySelector = None
         self.widget_options = {}
-        self.header = header.Header(session.api_user)
         super(ContextWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options, plugin_topic=plugin_topic)
         self.entitySelector.entityChanged.connect(self.assetOptions.setEntity)
 

@@ -8,7 +8,6 @@ IMPORTERS = 'importers'
 # load stack
 LOAD_ORDER = [
     CONTEXT,
-    COMPONENTS,
     IMPORTERS
 ]
 

@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 def import_ma(session, data=None, options=None):
-    logger.info('CALLING IMPORT MA!')
+    logger.info('CALLING IMPORT MA! with: {} {} {}'.format(session, data, options))
 
     import maya.cmds as cmd
     import maya

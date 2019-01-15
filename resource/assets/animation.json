@@ -67,7 +67,7 @@
     },
     "load": {
         "plugins": [
-               {
+           {
                 "context": [
                     {
                         "plugin_ui": "custom_context.widget.qt",
@@ -77,16 +77,26 @@
                         "description": "Set context where to load from to"
                     }
                 ]
-            },
-            {
-             "importers": [
-                {
-                    "name" : "Import Ma file",
-                    "plugin":"maya.ma",
-                    "description": "import Ma file"
-                }
-             ]
-            }
+           },
+           {
+                "components": [
+                    {
+                        "name" : "Select components",
+                        "plugin":"default.components",
+                        "description": "show components to import"
+                    }
+                ]
+           },
+           {
+                "importers": [
+                    {
+                        "name" : "Import Ma file",
+                        "plugin":"maya.ma",
+                        "description": "import Ma file",
+                        "visible": false
+                    }
+                ]
+           }
         ]
     }
 }
