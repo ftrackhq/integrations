@@ -24,7 +24,8 @@ class ContextWidget(SimpleWidget):
 
         self.assetOptions = asset_options.AssetOptions()
         self.entitySelector.entityChanged.connect(self.assetOptions.setEntity)
-        # self.assetCreated.connect(self.assetOptions.setAsset)
+        self.assetOptions.assetTypeSelector.setDisabled(True)
+
         option_layout.addRow('Asset', self.assetOptions.radioButtonFrame)
         option_layout.addRow('Existing asset', self.assetOptions.existingAssetSelector)
         option_layout.addRow('Type', self.assetOptions.assetTypeSelector)
