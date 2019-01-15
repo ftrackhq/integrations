@@ -11,7 +11,8 @@ Release Notes
 
     .. change:: fixed
 
-        Breaks on nuke studio / hiero >= 11.3v1
+        Due to application api changes, the plugin does not work
+        in Nuke Studio/Hiero versions >= 11.3v1.
 
 .. release:: 2.1.1
     :date: 2019-01-11
