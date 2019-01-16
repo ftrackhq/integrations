@@ -1,6 +1,6 @@
 import logging
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.ui import base
+from ftrack_connect_pipeline import base
 
 logger = logging.getLogger(__name__)
 

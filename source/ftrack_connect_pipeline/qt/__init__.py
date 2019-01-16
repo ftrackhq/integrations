@@ -1,7 +1,7 @@
 from QtExt import QtWidgets, QtGui, QtCore
 
-from ftrack_connect_pipeline.ui.qt import utils
-from ftrack_connect_pipeline.ui.base import BaseUiPipeline
+from ftrack_connect_pipeline.qt import utils
+from ftrack_connect_pipeline.base import BaseUiPipeline
 
 from ftrack_connect.ui.widget import header
 

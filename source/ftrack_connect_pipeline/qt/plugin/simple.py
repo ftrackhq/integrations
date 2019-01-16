@@ -1,6 +1,5 @@
-import ftrack_api
 from QtExt import QtWidgets, QtCore
-from ftrack_connect_pipeline.ui.qt.widgets import BaseWidget
+from ftrack_connect_pipeline.qt.plugin import BaseWidget
 
 
 class SimpleWidget(BaseWidget):

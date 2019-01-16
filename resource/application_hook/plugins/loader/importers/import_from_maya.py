@@ -16,7 +16,7 @@ def import_maya(session, data=None, options=None):
     import maya
 
     def call(component_path):
-        logger.debug('Calling extractor options: data {}'.format(data))
+        logger.debug('Calling importer options: data {}'.format(data))
         cmd.file(component_path, i=True)
         return True
 

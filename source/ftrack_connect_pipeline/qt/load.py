@@ -5,8 +5,8 @@ import sys
 from QtExt import QtWidgets, QtGui, QtCore
 
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.ui.base.load import BaseLoadUiPipeline
-from ftrack_connect_pipeline.ui.qt import BaseQtPipelineWidget
+from ftrack_connect_pipeline.base.load import BaseLoadUiPipeline
+from ftrack_connect_pipeline.qt import BaseQtPipelineWidget
 
 
 class QtPipelineLoaderWidget(BaseLoadUiPipeline, BaseQtPipelineWidget):

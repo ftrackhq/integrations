@@ -187,7 +187,6 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
             [
                 'dependencies',
                 'ftrack_connect_pipeline',
-                'ui',
                 'qt',
                 'load.py$'
             ]

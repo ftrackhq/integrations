@@ -5,8 +5,8 @@ import sys
 from QtExt import QtWidgets, QtGui, QtCore
 
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.ui.base.publish import BasePublishUiPipeline
-from ftrack_connect_pipeline.ui.qt import BaseQtPipelineWidget
+from ftrack_connect_pipeline.base.publish import BasePublishUiPipeline
+from ftrack_connect_pipeline.qt import BaseQtPipelineWidget
 
 
 
