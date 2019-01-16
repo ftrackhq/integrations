@@ -86,6 +86,22 @@ class LoadContextWidget(SimpleWidget):
         self.layout().addWidget(self.listAssetsTableWidget, stretch=4)
         self.layout().addWidget(self.componentTableWidget, stretch=4)
 
+    def selectedComponents(self):
+        '''Import selected components.'''
+        selectedRows = self.componentTableWidget.selectionModel(
+        ).selectedRows()
+        components_id = []
+        for r in selectedRows:
+            componentItem = self.componentTableWidget.item(
+                r,
+                self.componentTableWidget.columns.index('Component')
+            )
+            component_id = componentItem.data(
+                self.componentTableWidget.COMPONENT_ROLE
+            )
+            components_id.append(component_id)
+        return components_id
+
     def clickedIdSignal(self, ftrackId):
         '''Handle click signal.'''
         self.listAssetsTableWidget.initView(ftrackId)
@@ -95,16 +111,13 @@ class LoadContextWidget(SimpleWidget):
         self.componentTableWidget.setAssetVersion(assetVid)
 
     def _build_component_selector(self, value):
-        self.widget_options['component_list'] = self.componentTableWidget
+        self.widget_options['component_list'] = self.selectedComponents
 
     def build_options(self, options):
         self._build_component_selector(options['component_list'])
 
     def extract_options(self):
         result = {}
-        # for label, widget in self.widget_options.items():
-        #     if label == 'context_id':
-        #         result[label] = widget._entity.getId()
-        #     else:
-        #         result[label] = widget.getAssetName()
+        for label, widget in self.widget_options.items():
+                result[label] = widget()
         return result

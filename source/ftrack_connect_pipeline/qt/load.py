@@ -32,27 +32,14 @@ class QtPipelineLoaderWidget(BaseLoadUiPipeline, BaseQtPipelineWidget):
 
         self.run_async(event_list)
 
-    def _on_run_components(self, widgets, previous_results=None):
-        event_list = []
-        for widget in widgets:
-            options = widget.extract_options()
-            topic = widget.plugin_topic
-
-            event_list.append(
-                {
-                    'topic': topic,
-                    'options': options,
-                    'type': constants.COMPONENTS
-                }
-            )
-
-        self.run_async(event_list)
-
     def _on_run_importers(self, widgets, previous_results=None):
+        context_data = self.merge_dict(self._task_results[constants.CONTEXT])
+
         event_list = []
         for widget in widgets:
             options = widget.extract_options()
             topic = widget.plugin_topic
+            options.update(context_data)
 
             event_list.append(
                 {
