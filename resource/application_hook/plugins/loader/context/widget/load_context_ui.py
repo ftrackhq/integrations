@@ -23,8 +23,8 @@ def register(api_object, **kw):
         # Exit to avoid registering this plugin again.
         return
 
-    context_topic_qt = constants.CONTEXT_PLUGIN_TOPIC.format('custom_context.widget.qt')
-    context_topic_maya = constants.CONTEXT_PLUGIN_TOPIC.format('custom_context.widget.maya')
+    context_topic_qt = constants.CONTEXT_PLUGIN_TOPIC.format('context.load.widget.qt')
+    context_topic_maya = constants.CONTEXT_PLUGIN_TOPIC.format('context.load.widget.maya')
 
     topics = [context_topic_qt, context_topic_maya]
 

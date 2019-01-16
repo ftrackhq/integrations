@@ -29,7 +29,7 @@ def register(api_object, **kw):
         # Exit to avoid registering this plugin again.
         return
 
-    topic = constants.CONTEXT_PLUGIN_TOPIC.format('context_set')
+    topic = constants.CONTEXT_PLUGIN_TOPIC.format('context.publish')
     logger.info('discovering :{}'.format(topic))
 
     event_handler = functools.partial(

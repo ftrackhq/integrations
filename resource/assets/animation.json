@@ -8,8 +8,8 @@
                 "context": [
                     {
                         "name" : "Set Context",
-                        "plugin_ui": "custom_context.widget.qt",
-                        "plugin":"context_set",
+                        "plugin_ui": "context.publish.widget.qt",
+                        "plugin":"context.publish",
                         "options": {"context_id": null, "asset_name": null},
                         "description": "Set context where to publish to"
                     }
@@ -70,20 +70,11 @@
            {
                 "context": [
                     {
-                        "plugin_ui": "custom_context.widget.qt",
-                        "plugin":"context_set",
-                        "name" : "Set Context",
+                        "plugin_ui": "context.load.widget.qt",
+                        "plugin":"context.load",
+                        "name" : "Context ",
                         "options": {"context_id": null, "asset_name": null},
                         "description": "Set context where to load from to"
-                    }
-                ]
-           },
-           {
-                "components": [
-                    {
-                        "name" : "Select components",
-                        "plugin":"default.components",
-                        "description": "show components to import"
                     }
                 ]
            },
