@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 def register_widget(session, event):
-    return context.ContextWidget(session=session, **event['data'])
+    return context.LoadContextWidget(session=session, **event['data'])
 
 
 def register(api_object, **kw):

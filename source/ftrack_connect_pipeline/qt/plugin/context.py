@@ -3,14 +3,17 @@ from ftrack_connect_pipeline.qt.plugin.simple import SimpleWidget
 
 from ftrack_connect.ui.widget import entity_selector
 from ftrack_connect.ui.widget import asset_options
+from ftrack_connect.ui.widget import context_selector
+from ftrack_connect.ui.widget import list_assets_table
 
 
-class ContextWidget(SimpleWidget):
+
+class PublishContextWidget(SimpleWidget):
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None, plugin_topic=None):
         self.assetOptions = None
         self.entitySelector = None
         self.widget_options = {}
-        super(ContextWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options, plugin_topic=plugin_topic)
+        super(PublishContextWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options, plugin_topic=plugin_topic)
         self.entitySelector.entityChanged.connect(self.assetOptions.setEntity)
 
     def _build_context_id_selector(self, value):
@@ -47,4 +50,39 @@ class ContextWidget(SimpleWidget):
                 result[label] = widget._entity.getId()
             else:
                 result[label] = widget.getAssetName()
+        return result
+
+
+
+class LoadContextWidget(SimpleWidget):
+
+    def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None, plugin_topic=None):
+        super(LoadContextWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options, plugin_topic=plugin_topic)
+
+        self.browseTasksWidget = None
+        self.listAssetsTableWidget  = None
+
+    def _build_context_id_selector(self, value):
+        self.browseTasksWidget = context_selector.ContextSelector(
+            currentEntity=None, parent=self
+        )
+        self.layout().addWidget(self.browseTasksWidget, stretch=0)
+        self.widget_options['context_id'] = self.browseTasksWidget
+
+    def _build_asset_selector(self, value):
+        self.listAssetsTableWidget = list_assets_table.ListAssetsTableWidget(self)
+        self.layout().addWidget(self.listAssetsTableWidget, stretch=4)
+        self.widget_options['asset_list'] = self.listAssetsTableWidget
+
+    def build_options(self, options):
+        self._build_context_id_selector(options['context_id'])
+        self._build_asset_selector(options['asset_list'])
+
+    def extract_options(self):
+        result = {}
+        # for label, widget in self.widget_options.items():
+        #     if label == 'context_id':
+        #         result[label] = widget._entity.getId()
+        #     else:
+        #         result[label] = widget.getAssetName()
         return result
