@@ -2,6 +2,7 @@ from QtExt import QtWidgets, QtGui, QtCore
 
 from ftrack_connect_pipeline.qt import utils
 from ftrack_connect_pipeline.base import BaseUiPipeline
+from ftrack_connect_pipeline import constants
 
 from ftrack_connect.ui.widget import header
 
@@ -12,14 +13,28 @@ class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
     stage_start = QtCore.Signal(object)
     stage_done = QtCore.Signal(object)
 
+    @property
+    def current_stage(self):
+        return self._current_stage or constants.CONTEXT
+
+    @current_stage.setter
+    def current_stage(self, stage):
+        if stage not in self.mapping.keys():
+            self.logger.warning('Stage {} not in {}'.format(stage, self.mapping.keys()))
+            return
+
+        self._current_stage = stage
+
     def __init__(self, parent=None):
         super(BaseQtPipelineWidget, self).__init__(parent=parent)
         layout = QtWidgets.QVBoxLayout()
+
         self.setLayout(layout)
         self.header = header.Header(self.session.api_user)
         self.layout().addWidget(self.header)
 
         self.__widget_stack = {}
+        self._current_stage = None
 
         self.combo = QtWidgets.QComboBox()
         self.combo.addItem('- Select asset type -')
@@ -44,7 +59,7 @@ class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
         for stage in self.stack_exec_order:
             self._task_results.setdefault(stage, [])
 
-        self.stage_start.emit('context')
+        self.stage_start.emit(self.current_stage)
 
     def _on_stage_start(self, event_task_name):
         self.logger.debug('Starting stage: {}'.format(event_task_name))
@@ -63,6 +78,8 @@ class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
             return
 
         next_stage = self.stack_exec_order[current_stage+1]
+        self._current_stage = next_stage
+
         self.stage_start.emit(next_stage)
 
     def clearLayout(self, layout):
