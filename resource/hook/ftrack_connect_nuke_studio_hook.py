@@ -178,26 +178,13 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 launchArguments=['--studio']
             ))
 
-        filtered_applications = []
-        for app in applications:
-            major, minor, v, patch = app['version'].version
-            if major >= 11 and minor >= 3:
-                # We do not support yet version over 11.2vX
-                self.logger.warning(
-                    'version {} is not supported yet.'.format(
-                        app['version'].vstring
-                    )
-                )
-                continue
-            filtered_applications.append(app)
-
         self.logger.debug(
             'Discovered applications:\n{0}'.format(
-                pprint.pformat(filtered_applications)
+                pprint.pformat(applications)
             )
         )
 
-        return filtered_applications
+        return applications
 
 
 class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):

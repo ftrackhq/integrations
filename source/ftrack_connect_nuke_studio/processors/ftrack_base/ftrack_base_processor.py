@@ -268,7 +268,7 @@ class FtrackProcessor(FtrackBase):
         parent = parent
 
         for object_type, object_name in parsed_names:
-            # check if the object_type already exists:
+            # Check if the object_type already exists.
             ftrack_type = None
 
             query = '{0} where name is "{1}"'
@@ -366,7 +366,7 @@ class FtrackProcessor(FtrackBase):
             })
 
             app_metadata = 'Published with: {0} From Nuke Studio : {1}.{2}.{3}'.format(
-                self.__class__.__name__, *self.hiero_version_touple
+                self.__class__.__name__, *self.hiero_version_tuple
             )
             version['metadata']['app_metadata'] = app_metadata
 
@@ -453,7 +453,7 @@ class FtrackProcessor(FtrackBase):
             'Creating structure in ftrack...'
         )
         progress_index = 0
-        # ensure to reset components before creating a new project.
+        # Ensure to reset components before creating a new project.
         self._components = {}
         versions = {}
 
@@ -489,7 +489,7 @@ class FtrackProcessor(FtrackBase):
                     int(100.0 * (float(progress_index) / float(num_items)))
                 )
 
-                # collect task tags per clip
+                # Collect task tags per clip.
                 task_tags = set()
 
                 if not hasattr(track_item, 'tags'):
@@ -506,7 +506,7 @@ class FtrackProcessor(FtrackBase):
                     track_item = export_item.item().sequence()
                     shot_name_index = ''
 
-                # create entry points on where to store ftrack component and path data.
+                # Create entry points on where to store ftrack component and path data.
                 self._components.setdefault(track_item.parent().name(), {})
                 self._components[track_item.parent().name()].setdefault(track_item.name(), {})
 
@@ -621,7 +621,7 @@ class FtrackProcessor(FtrackBase):
                 self._components[track_item.parent().name()][track_item.name()][task.component_name()] = data
                 self.add_ftrack_tag(track_item, task)
 
-        # we have successfully exported the project, so now we can lock it.
+        # We have successfully exported the project, so now we can lock it.
         lock_reference_ftrack_project(project)
 
         self._create_project_progress_widget = None
@@ -749,6 +749,12 @@ class FtrackProcessor(FtrackBase):
         task._exportPath = output_path
         task.setDestinationDescription(output_path)
 
+        # Ensure output path exists.
+        base_path = os.path.dirname(output_path)
+        if not os.path.exists(base_path):
+            self.logger.debug('ensuring folder: {}'.format(base_path))
+            os.makedirs(base_path)
+
         def _makeNullPath():
             pass
 
@@ -863,7 +869,7 @@ class FtrackProcessor(FtrackBase):
         asset_name = self._preset.properties()['ftrack']['asset_name']
 
         for (export_path, preset) in self._exportTemplate.flatten():
-            # propagate properties from processor to tasks.
+            # Propagate properties from processor to tasks.
             preset.properties()['ftrack']['task_type'] = task_type
             preset.properties()['ftrack']['asset_type_name'] = asset_type_name
             preset.properties()['ftrack']['asset_name'] = asset_name
@@ -975,7 +981,7 @@ class FtrackProcessor(FtrackBase):
 
             self._validate_project_progress_widget = None
 
-            # raise validation window
+            # Raise validation window.
             if errors or missing_assets_type or duplicated_components:
                 settings_validator = FtrackSettingsValidator(
                     self.session, errors,
@@ -987,7 +993,7 @@ class FtrackProcessor(FtrackBase):
 
                 self.validate_ftrack_processing(export_items, preview)
 
-            # raise notification for error parsing items
+            # Raise notification for error parsing items.
             if non_matching_template_items:
                 item_warning = QtWidgets.QMessageBox().warning(
                     None,
@@ -1051,7 +1057,7 @@ class FtrackProcessorUI(FtrackBase):
             self._set_project_tag
         )
 
-        # check if the project is be locked
+        # Check if the project is be locked.
         project_id_tag, project_is_locked = get_reference_ftrack_project(self._project)
         if project_is_locked and project_id_tag:
             project = self.session.get('Project', project_id_tag)
@@ -1075,7 +1081,7 @@ class FtrackProcessorUI(FtrackBase):
             self.project_options_widget.setDisabled(True)
 
         else:
-            # force event emission
+            # Force event emission.
             current_index = self.project_options_widget._widget.currentIndex()
             self.project_options_widget._widget.currentIndexChanged.emit(current_index)
 

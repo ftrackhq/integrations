@@ -28,12 +28,13 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
 
     def __init__(self, initDict):
         '''Initialise task with *initDict*.'''
-        NukeRenderTask.__init__(self, initDict)
-        FtrackProcessor.__init__(self, initDict)
-
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+
+        TranscodeExporter.__init__(self, initDict)
+        FtrackProcessor.__init__(self, initDict)
+        self.createTranscodeScript()
 
     def component_name(self):
         return self.sanitise_for_filesystem(
@@ -52,19 +53,8 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
         self._audioFile = None
 
         # Figure out the script location
-        path = tempfile.NamedTemporaryFile(suffix='.nk').name
-        dirname, filename = os.path.split(path)
-        root, ext = os.path.splitext(filename)
-
-        percentmatch = re.search('%\d+d', root)
-        if percentmatch:
-            percentpad = percentmatch.group()
-            root = root.replace(percentpad, '')
-
-        self._root = dirname + '/' + root.rstrip('#').rstrip('.')
-
-        scriptExtension = '.nknc' if hiero.core.isNC() else '.nk'
-        self._scriptfile = str(self._root + scriptExtension)
+        path = tempfile.NamedTemporaryFile(suffix='.nk', delete=False).name
+        self._scriptfile = str(path)
 
         self._renderTask = None
         if self._submission is not None:
@@ -77,10 +67,6 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
 
             # Create a job on our submission to do the actual rendering.
             self._renderTask = self._submission.addJob(Submission.kNukeRender, submissionDict, self._scriptfile)
-
-    def updateItem(self, originalItem, localtime):
-        '''Override to inject new trascode script.'''
-        self.createTranscodeScript()
 
     def _makePath(self):
         '''Disable file path creation.'''

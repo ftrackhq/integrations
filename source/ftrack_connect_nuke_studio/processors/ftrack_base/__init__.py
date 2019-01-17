@@ -123,6 +123,7 @@ class FtrackBasePreset(FtrackBase):
         self.properties()['ftrack']['opt_publish_reviewable'] = True
         self.properties()['ftrack']['opt_publish_thumbnail'] = False
         self.properties()['useAssets'] = False
+        self.properties()['keepNukeScript'] = True
 
     def set_export_root(self):
         '''Set project export root to current ftrack location's accessor prefix.'''

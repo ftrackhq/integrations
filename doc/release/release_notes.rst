@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: fixed
+
+        Due to application api changes, the plugin does not work
+        in Nuke Studio/Hiero versions >= 11.3v1.
+
 .. release:: 2.1.1
     :date: 2019-01-11
 
