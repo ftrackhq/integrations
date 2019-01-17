@@ -90,15 +90,13 @@ class LoadContextWidget(SimpleWidget):
         ).selectedRows()
         components_id = []
         for r in selectedRows:
-            print 'row', r
             componentItem = self.componentTableWidget.item(
-                r,
+                r.row(),
                 self.componentTableWidget.columns.index('Component')
             )
             component_id = componentItem.data(
                 self.componentTableWidget.COMPONENT_ROLE
             )
-            print 'component_id', component_id
             components_id.append(component_id)
         return components_id
 
@@ -118,7 +116,6 @@ class LoadContextWidget(SimpleWidget):
         self._build_component_selector(options['component_list'])
 
     def extract_options(self):
-        print 'EXTRACTING OPTIONS....', self.widget_options
         result = {}
         for label, widget in self.widget_options.items():
             print 'EXTRACTING FROM :{}, {}'.format(label, widget)
