@@ -14,6 +14,7 @@ def import_maya(session, data=None, options=None):
 
     import maya.cmds as cmd
     import maya
+    accepted_formats = options.get('accepts', [])
 
     def call(component_path):
         logger.debug('Calling importer options: data {}'.format(data))
@@ -25,11 +26,13 @@ def import_maya(session, data=None, options=None):
     results = []
     for component_id in component_list:
         component = session.get('Component', component_id)
-        print 'Component', component
 
         component_path = location.get_filesystem_path(component)
-        print 'Component Path', component_path
-
+        if accepted_formats and not os.path.splitext(component_path)[-1] in accepted_formats:
+            logger.warning('{} not among accepted formats {}'.format(
+                component_path, accepted_formats
+            ))
+            continue
         result = maya.utils.executeInMainThreadWithResult(call, component_path)
         results.append(result)
 

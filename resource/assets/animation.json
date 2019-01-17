@@ -73,7 +73,7 @@
                         "plugin_ui": "context.load.widget.qt",
                         "plugin":"context.load",
                         "name" : "Context ",
-                        "options": {"component_list": null},
+                        "options": {"component_list": null, "accepts":[".ma", ".mb"]},
                         "description": "Set context where to load from to"
                     }
                 ]
