@@ -9,9 +9,9 @@ logger = logging.getLogger(__name__)
 
 
 def set_context(session, data=None, options=None):
-    logger.debug('Calling set_context with options: {}'.format(options))
-    os.environ['FTRACK_CONTEXT_ID'] = options['context_id']
-    os.environ['FTRACK_TASKID'] = options['context_id']
+    # logger.debug('Calling set_context with options: {}'.format(options))
+    # os.environ['FTRACK_CONTEXT_ID'] = options['context_id']
+    # os.environ['FTRACK_TASKID'] = options['context_id']
     return options
 
 

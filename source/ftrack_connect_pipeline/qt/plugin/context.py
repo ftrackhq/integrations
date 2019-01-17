@@ -21,7 +21,6 @@ class PublishContextWidget(SimpleWidget):
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None, plugin_topic=None):
         self.assetOptions = None
         self.entitySelector = None
-        self.widget_options = {}
         super(PublishContextWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options, plugin_topic=plugin_topic)
         self.entitySelector.entityChanged.connect(self.assetOptions.setEntity)
 
@@ -67,9 +66,8 @@ class LoadContextWidget(SimpleWidget):
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None, plugin_topic=None):
         self._connector_wrapper = ConnectorWrapper(session)
         super(LoadContextWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options, plugin_topic=plugin_topic)
-        self.widget_options = {}
 
-    def build(self):
+    def _build_others(self):
         self.listAssetsTableWidget = list_assets_table.ListAssetsTableWidget(self)
         self.browseTasksWidget = context_selector.ContextSelector(
             currentEntity=None, parent=self
@@ -80,18 +78,19 @@ class LoadContextWidget(SimpleWidget):
             self.clickedAssetVSignal
         )
 
-        super(LoadContextWidget, self).build()
-
         self.layout().addWidget(self.browseTasksWidget, stretch=0)
         self.layout().addWidget(self.listAssetsTableWidget, stretch=4)
         self.layout().addWidget(self.componentTableWidget, stretch=4)
 
     def selectedComponents(self):
         '''Import selected components.'''
+        print 'calling selectedComponents'
+
         selectedRows = self.componentTableWidget.selectionModel(
         ).selectedRows()
         components_id = []
         for r in selectedRows:
+            print 'row', r
             componentItem = self.componentTableWidget.item(
                 r,
                 self.componentTableWidget.columns.index('Component')
@@ -99,6 +98,7 @@ class LoadContextWidget(SimpleWidget):
             component_id = componentItem.data(
                 self.componentTableWidget.COMPONENT_ROLE
             )
+            print 'component_id', component_id
             components_id.append(component_id)
         return components_id
 
@@ -114,10 +114,13 @@ class LoadContextWidget(SimpleWidget):
         self.widget_options['component_list'] = self.selectedComponents
 
     def build_options(self, options):
+        self._build_others()
         self._build_component_selector(options['component_list'])
 
     def extract_options(self):
+        print 'EXTRACTING OPTIONS....', self.widget_options
         result = {}
         for label, widget in self.widget_options.items():
-                result[label] = widget()
+            print 'EXTRACTING FROM :{}, {}'.format(label, widget)
+            result[label] = widget()
         return result

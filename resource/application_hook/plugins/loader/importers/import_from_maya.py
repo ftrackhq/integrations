@@ -20,7 +20,7 @@ def import_maya(session, data=None, options=None):
         cmd.file(component_path, i=True)
         return True
 
-    component_path = options['component_path']
+    component_path = options['component_list']
     return maya.utils.executeInMainThreadWithResult(call, component_path)
 
 
