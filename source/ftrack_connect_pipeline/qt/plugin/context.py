@@ -84,7 +84,6 @@ class LoadContextWidget(SimpleWidget):
 
     def selectedComponents(self):
         '''Import selected components.'''
-        print 'calling selectedComponents'
 
         selectedRows = self.componentTableWidget.selectionModel(
         ).selectedRows()
@@ -118,6 +117,5 @@ class LoadContextWidget(SimpleWidget):
     def extract_options(self):
         result = {}
         for label, widget in self.widget_options.items():
-            print 'EXTRACTING FROM :{}, {}'.format(label, widget)
             result[label] = widget()
         return result

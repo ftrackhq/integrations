@@ -20,8 +20,20 @@ def import_maya(session, data=None, options=None):
         cmd.file(component_path, i=True)
         return True
 
-    component_path = options['component_list']
-    return maya.utils.executeInMainThreadWithResult(call, component_path)
+    component_list = options['component_list']
+    location = session.pick_location()
+    results = []
+    for component_id in component_list:
+        component = session.get('Component', component_id)
+        print 'Component', component
+
+        component_path = location.get_filesystem_path(component)
+        print 'Component Path', component_path
+
+        result = maya.utils.executeInMainThreadWithResult(call, component_path)
+        results.append(result)
+
+    return results
 
 
 def register_importer(session, event):
