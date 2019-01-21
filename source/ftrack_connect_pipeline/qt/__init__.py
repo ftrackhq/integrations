@@ -10,8 +10,26 @@ from ftrack_connect.ui.widget import header
 class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
     widget_suffix = 'widget.qt'
 
-    stage_start = QtCore.Signal(object)
-    stage_done = QtCore.Signal(object)
+    stage_start = QtCore.Signal()
+    stage_done = QtCore.Signal()
+
+    def reset_stages(self):
+        self._current_stage = None
+
+    @property
+    def next_stage(self):
+        self.logger.info('current_stage :{}'.format(self.current_stage))
+        current_stage_idx = self.mapping.keys().index(self.current_stage)
+
+        next_stage_idx = current_stage_idx + 1
+
+        if next_stage_idx >= len(self.mapping.keys()):
+            # we reached the end, no more steps to perform !
+            return
+
+        next_stage = self.mapping.keys()[next_stage_idx]
+        self.logger.info('next_stage :{}'.format(next_stage))
+        return next_stage
 
     @property
     def current_stage(self):
@@ -35,7 +53,7 @@ class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
         self.layout().addWidget(self.header)
 
         self.__widget_stack = {}
-        self._current_stage = None
+        self.reset_stages()
 
         self.combo = QtWidgets.QComboBox()
         self.combo.addItem('- Select asset type -')
@@ -61,28 +79,22 @@ class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
         for stage in self.mapping.keys():
             self._task_results.setdefault(stage, [])
 
-        self.stage_start.emit(self.current_stage)
+        self.stage_start.emit()
 
-    def _on_stage_start(self, event_task_name):
-        self.logger.debug('Starting stage: {}'.format(event_task_name))
-        fn = self.mapping[event_task_name][1]
-        widgets = self.__widget_stack[event_task_name]
+    def _on_stage_start(self, ):
+        self.logger.debug('Starting stage: {}'.format(self.current_stage))
+        fn = self.mapping[self.current_stage][1]
+        widgets = self.__widget_stack[self.current_stage]
         fn(widgets)
 
-    def _on_stage_done(self, event_task_name):
-        self.logger.debug('stage: {} done'.format(event_task_name))
-        current_stage = self.mapping.keys().index(event_task_name)
-
-        next_stage_idx = current_stage+1
-
-        if next_stage_idx >= len(self.mapping.keys()):
-            # we reached the end, no more steps to perform !
+    def _on_stage_done(self):
+        self.logger.debug('stage: {} done'.format(self.current_stage))
+        if not self.next_stage:
+            self.reset_stages()
             return
 
-        next_stage = self.mapping.keys()[current_stage+1]
-        self._current_stage = next_stage
-
-        self.stage_start.emit(next_stage)
+        self._current_stage = self.next_stage
+        self.stage_start.emit()
 
     def clearLayout(self, layout):
         if layout is not None:
@@ -143,5 +155,4 @@ class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
             )
         )
         self._task_results[event_task_name] = event_task_value
-        if not self._iteractive:
-            self.stage_done.emit(event_task_name)
+        self.stage_done.emit()
