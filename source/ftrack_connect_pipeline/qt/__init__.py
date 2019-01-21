@@ -155,4 +155,5 @@ class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
             )
         )
         self._task_results[event_task_name] = event_task_value
-        self.stage_done.emit()
+        if not self._iteractive:
+            self.stage_done.emit()
