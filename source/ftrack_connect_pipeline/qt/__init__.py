@@ -15,7 +15,7 @@ class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
 
     @property
     def current_stage(self):
-        return self._current_stage or constants.CONTEXT
+        return self._current_stage or self.mapping.keys()[0]
 
     @current_stage.setter
     def current_stage(self, stage):
@@ -27,6 +27,7 @@ class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
 
     def __init__(self, parent=None):
         super(BaseQtPipelineWidget, self).__init__(parent=parent)
+        self._iteractive = False
         layout = QtWidgets.QVBoxLayout()
 
         self.setLayout(layout)
@@ -130,3 +131,17 @@ class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
         for asset_name in self._asset_configs.keys():
             asset_type = self._asset_configs[asset_name]['asset_type']
             self.combo.addItem('{} ({})'.format(asset_name, asset_type), asset_name)
+
+    def on_handle_async_reply(self, event):
+        event_data = event['data']
+        event_task_name = event_data.keys()[0]
+        event_task_value = event_data.values()[0]
+
+        self.logger.debug(
+            'setting result for task: {} as {}'.format(
+                event_task_name, event_task_value
+            )
+        )
+        self._task_results[event_task_name] = event_task_value
+        if not self._iteractive:
+            self.stage_done.emit(event_task_name)

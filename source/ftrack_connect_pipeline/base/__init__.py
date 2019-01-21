@@ -48,19 +48,6 @@ class BaseUiPipeline(object):
     def build(self):
         raise NotImplementedError()
 
-    def on_handle_async_reply(self, event):
-        event_data = event['data']
-        event_task_name = event_data.keys()[0]
-        event_task_value = event_data.values()[0]
-
-        self.logger.debug(
-            'setting result for task: {} as {}'.format(
-                event_task_name, event_task_value
-            )
-        )
-        self._task_results[event_task_name] = event_task_value
-        self.stage_done.emit(event_task_name)
-
     def run_async(self, event_list):
         self.logger.debug(
             'Sending event list {} to host'.format(event_list)
