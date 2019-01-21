@@ -5,12 +5,6 @@ LOAD = 'load'
 COMPONENTS = 'components'
 IMPORTERS = 'importers'
 
-# load stack
-LOAD_ORDER = [
-    CONTEXT,
-    IMPORTERS
-]
-
 # load events
 COMPONENTS_PLUGIN_TOPIC = '{}.{}.{{}}'.format(_BASE_, COMPONENTS)
 IMPORTERS_PLUGIN_TOPIC = '{}.{}.{{}}'.format(_BASE_, IMPORTERS)

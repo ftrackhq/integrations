@@ -18,7 +18,6 @@ class BaseUiPipeline(object):
     def __init__(self, *args, **kwargs):
         super(BaseUiPipeline, self).__init__()
 
-        self.stack_exec_order = []
         self.stage_type = None
         self.mapping = {}
         self._task_results = {}

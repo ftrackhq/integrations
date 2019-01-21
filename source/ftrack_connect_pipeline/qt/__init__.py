@@ -57,7 +57,7 @@ class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
         self.stage_start.connect(self._on_stage_start)
 
     def _on_run(self):
-        for stage in self.stack_exec_order:
+        for stage in self.mapping.keys():
             self._task_results.setdefault(stage, [])
 
         self.stage_start.emit(self.current_stage)
@@ -70,15 +70,15 @@ class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
 
     def _on_stage_done(self, event_task_name):
         self.logger.debug('stage: {} done'.format(event_task_name))
-        current_stage = self.stack_exec_order.index(event_task_name)
+        current_stage = self.mapping.keys().index(event_task_name)
 
         next_stage_idx = current_stage+1
 
-        if next_stage_idx >= len(self.stack_exec_order):
+        if next_stage_idx >= len(self.mapping.keys()):
             # we reached the end, no more steps to perform !
             return
 
-        next_stage = self.stack_exec_order[current_stage+1]
+        next_stage = self.mapping.keys()[current_stage+1]
         self._current_stage = next_stage
 
         self.stage_start.emit(next_stage)

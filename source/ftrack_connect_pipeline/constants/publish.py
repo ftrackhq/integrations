@@ -8,14 +8,6 @@ VALIDATORS = 'validators'
 EXTRACTORS = 'extractors'
 PUBLISHERS = 'publishers'
 
-# publish stack
-PUBLISH_ORDER = [
-    CONTEXT,
-    COLLECTORS,
-    VALIDATORS,
-    EXTRACTORS,
-    PUBLISHERS
-]
 
 # publish events
 COLLECTORS_PLUGIN_TOPIC = '{}.{}.{{}}'.format(_BASE_, COLLECTORS)
