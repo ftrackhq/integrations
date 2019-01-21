@@ -39,11 +39,12 @@ class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
         self.combo = QtWidgets.QComboBox()
         self.combo.addItem('- Select asset type -')
         self.layout().addWidget(self.combo)
-        self.combo.currentIndexChanged.connect(self._on_asset_change)
         self.task_layout = QtWidgets.QVBoxLayout()
         self.layout().addLayout(self.task_layout)
 
         self.build()
+
+        self.combo.currentIndexChanged.connect(self._on_asset_change)
 
         button = QtWidgets.QPushButton('Run')
         button.clicked.connect(self._on_run)
@@ -127,4 +128,5 @@ class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
 
     def build(self):
         for asset_name in self._asset_configs.keys():
-            self.combo.addItem(asset_name, asset_name)
+            asset_type = self._asset_configs[asset_name]['asset_type']
+            self.combo.addItem('{} ({})'.format(asset_name, asset_type), asset_name)
