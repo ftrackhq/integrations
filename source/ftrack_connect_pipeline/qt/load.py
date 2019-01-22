@@ -14,9 +14,11 @@ class QtPipelineLoaderWidget(BaseQtPipelineWidget):
         super(QtPipelineLoaderWidget, self).__init__(parent=None)
         self.setWindowTitle('Standalone Pipeline Loader')
         self.stage_type = constants.LOAD
+        self._iteractive = True
 
         self.mapping = OrderedDict([
-            (constants.CONTEXT,  (constants.CONTEXT_PLUGIN_TOPIC, self._on_run_context)),
+            (constants.CONTEXT,    (constants.CONTEXT_PLUGIN_TOPIC, self._on_run_context)),
+            (constants.COMPONENTS, (constants.COMPONENTS_PLUGIN_TOPIC, self._on_run_components)),
             (constants.IMPORTERS,  (constants.IMPORTERS_PLUGIN_TOPIC, self._on_run_importers))
         ])
 
@@ -37,7 +39,7 @@ class QtPipelineLoaderWidget(BaseQtPipelineWidget):
         self.run_async(event_list)
 
     def _on_run_importers(self, widgets):
-        context_data = self.merge_dict(self._task_results[constants.CONTEXT])
+        context_data = self.merge_dict(self._stages_results[constants.CONTEXT])
 
         self.logger.debug('context data:{}'.format(context_data))
 

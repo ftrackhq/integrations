@@ -20,7 +20,7 @@ class BaseUiPipeline(object):
 
         self.stage_type = None
         self.mapping = {}
-        self._task_results = {}
+        self._stages_results = {}
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
