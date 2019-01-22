@@ -1,8 +1,10 @@
+import ftrack_api
+
 from QtExt import QtWidgets, QtGui, QtCore
 
+from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.qt import utils
 from ftrack_connect_pipeline.base import BaseUiPipeline
-from ftrack_connect_pipeline import constants
 
 from ftrack_connect.ui.widget import header
 
@@ -15,6 +17,21 @@ class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
 
     def reset_stages(self):
         self._current_stage = None
+
+    @property
+    def previous_stage(self):
+        self.logger.info('current_stage :{}'.format(self.current_stage))
+        current_stage_idx = self.mapping.keys().index(self.current_stage)
+
+        previous_stage_idx = current_stage_idx - 1
+
+        if previous_stage_idx < 0:
+            # we reached the end, no more steps to perform !
+            return
+
+        previous_stage = self.mapping.keys()[previous_stage_idx]
+        self.logger.info('previous_stage :{}'.format(previous_stage))
+        return previous_stage
 
     @property
     def next_stage(self):
@@ -93,7 +110,7 @@ class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
             self.reset_stages()
             return
 
-        self._current_stage = self.next_stage
+        self.current_stage = self.next_stage
         self.stage_start.emit()
 
     def clearLayout(self, layout):
@@ -144,6 +161,7 @@ class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
             asset_type = self._asset_configs[asset_name]['asset_type']
             self.combo.addItem('{} ({})'.format(asset_name, asset_type), asset_name)
 
+    # event handling
     def on_handle_async_reply(self, event):
         event_data = event['data']
         event_task_name = event_data.keys()[0]
@@ -155,5 +173,53 @@ class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
             )
         )
         self._task_results[event_task_name] = event_task_value
+
         if not self._iteractive:
+            # automatically process next stage
             self.stage_done.emit()
+
+    def run_async(self, event_list):
+        self.logger.debug(
+            'Sending event list {} to host'.format(event_list)
+        )
+
+        self.session.event_hub.publish(
+            ftrack_api.event.base.Event(
+                topic=constants.PIPELINE_RUN_TOPIC,
+                data={'event_list': event_list}
+            ),
+            on_reply=self.on_handle_async_reply
+        )
+
+    # widget handling
+    def fetch_widget(self, plugin, base_topic, plugin_type):
+        ui = plugin.get('plugin_ui', 'default.{}'.format(self.widget_suffix))
+        mytopic = base_topic.format(ui)
+
+        # filter widgets which cannot be loaded in this host.
+        if self.widget_suffix not in mytopic:
+            self.logger.warning('cannot load widget topic of type {} for {}'.format(
+                mytopic, self.widget_suffix
+            ))
+            return
+
+        plugin_options = plugin.get('options', {})
+        plugin_name = plugin.get('name', 'no name provided')
+        description = plugin.get('description', 'No description provided')
+        plugin_topic = self.mapping[plugin_type][0].format(plugin['plugin'])
+
+        result_widget = self.session.event_hub.publish(
+            ftrack_api.event.base.Event(
+                topic=mytopic,
+                data={
+                    'options': plugin_options,
+                    'name': plugin_name,
+                    'description': description,
+                    'plugin_topic': plugin_topic
+                }
+            ),
+            synchronous=True
+        )
+        self.logger.info('UI WIDGET : {} FOUND: {}'.format(mytopic, result_widget))
+        if result_widget:
+            return result_widget[0]
