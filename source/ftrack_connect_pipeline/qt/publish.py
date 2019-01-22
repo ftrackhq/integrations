@@ -1,21 +1,30 @@
 #! /usr/bin/env python
 
 import sys
+from collections import OrderedDict
 
 from QtExt import QtWidgets, QtGui, QtCore
 
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.base.publish import BasePublishUiPipeline
 from ftrack_connect_pipeline.qt import BaseQtPipelineWidget
 
 
 
-class QtPipelinePublishWidget(BasePublishUiPipeline, BaseQtPipelineWidget):
+class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
     def __init__(self, host=None, parent=None):
         super(QtPipelinePublishWidget, self).__init__(parent=None)
         self.setWindowTitle('Standalone Pipeline Publisher')
         self.stage_type = constants.PUBLISH
+
+        self.mapping = OrderedDict([
+            (constants.CONTEXT,    (constants.CONTEXT_PLUGIN_TOPIC, self._on_run_context)),
+            (constants.COLLECTORS, (constants.COLLECTORS_PLUGIN_TOPIC, self._on_run_collectors)),
+            (constants.VALIDATORS, (constants.VALIDATORS_PLUGIN_TOPIC, self._on_run_validators)),
+            (constants.EXTRACTORS, (constants.EXTRACTORS_PLUGIN_TOPIC, self._on_run_extractors)),
+            (constants.PUBLISHERS, (constants.PUBLISHERS_PLUGIN_TOPIC, self._on_run_publishers))
+        ])
+
 
     def _on_run_context(self, widgets):
         event_list = []

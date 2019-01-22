@@ -1,20 +1,24 @@
 #! /usr/bin/env python
 
 import sys
+from collections import OrderedDict
 
 from QtExt import QtWidgets, QtGui, QtCore
-
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.base.load import BaseLoadUiPipeline
 from ftrack_connect_pipeline.qt import BaseQtPipelineWidget
 
 
-class QtPipelineLoaderWidget(BaseLoadUiPipeline, BaseQtPipelineWidget):
+class QtPipelineLoaderWidget(BaseQtPipelineWidget):
 
     def __init__(self, host=None, parent=None):
         super(QtPipelineLoaderWidget, self).__init__(parent=None)
         self.setWindowTitle('Standalone Pipeline Loader')
         self.stage_type = constants.LOAD
+
+        self.mapping = OrderedDict([
+            (constants.CONTEXT,  (constants.CONTEXT_PLUGIN_TOPIC, self._on_run_context)),
+            (constants.IMPORTERS,  (constants.IMPORTERS_PLUGIN_TOPIC, self._on_run_importers))
+        ])
 
     def _on_run_context(self, widgets):
         event_list = []
