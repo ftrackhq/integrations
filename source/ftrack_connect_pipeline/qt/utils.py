@@ -12,3 +12,5 @@ class NewApiEventHubThread(QtCore.QThread):
     def run(self):
         '''Listen for events.'''
         self._session.event_hub.wait()
+
+

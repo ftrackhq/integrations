@@ -1,22 +1,41 @@
 import ftrack_api
+import logging
 
 from QtExt import QtWidgets, QtGui, QtCore
 
 from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline import get_registered_assets, register_assets
 from ftrack_connect_pipeline.qt import utils
-from ftrack_connect_pipeline.base import BaseUiPipeline
 
 from ftrack_connect.ui.widget import header
 
 
-class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
+class BaseQtPipelineWidget(QtWidgets.QWidget):
     widget_suffix = 'widget.qt'
 
     stage_start = QtCore.Signal()
     stage_done = QtCore.Signal()
 
+    @property
+    def asset_type(self):
+        return self._current_asset_type
+
     def __init__(self, parent=None):
         super(BaseQtPipelineWidget, self).__init__(parent=parent)
+
+        self.stage_type = None
+        self.mapping = {}
+        self._stages_results = {}
+
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+        self.session = ftrack_api.Session(auto_connect_event_hub=True)
+
+        register_assets(self.session)
+        self._asset_configs = get_registered_assets('Task')
+        self._current_asset_type = None
+
         layout = QtWidgets.QVBoxLayout()
 
         self.setLayout(layout)

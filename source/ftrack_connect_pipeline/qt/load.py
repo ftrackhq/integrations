@@ -5,7 +5,9 @@ from collections import OrderedDict
 
 from QtExt import QtWidgets, QtGui, QtCore
 from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline import utils
 from ftrack_connect_pipeline.qt import BaseQtPipelineWidget
+
 
 
 class QtPipelineLoaderWidget(BaseQtPipelineWidget):
@@ -37,7 +39,7 @@ class QtPipelineLoaderWidget(BaseQtPipelineWidget):
         self.run_async(event_list)
 
     def _on_run_importers(self, widgets):
-        component_data = self.merge_dict(self._stages_results[constants.CONTEXT])
+        component_data = utils.merge_dict(self._stages_results[constants.CONTEXT])
 
         event_list = []
         for widget in widgets:

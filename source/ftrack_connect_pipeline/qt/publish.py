@@ -4,10 +4,10 @@ import sys
 from collections import OrderedDict
 
 from QtExt import QtWidgets, QtGui, QtCore
+from ftrack_connect_pipeline import utils
 
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.qt import BaseQtPipelineWidget
-
 
 
 class QtPipelinePublishWidget(BaseQtPipelineWidget):
@@ -24,7 +24,6 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
             (constants.EXTRACTORS, (constants.EXTRACTORS_PLUGIN_TOPIC, self._on_run_extractors)),
             (constants.PUBLISHERS, (constants.PUBLISHERS_PLUGIN_TOPIC, self._on_run_publishers))
         ])
-
 
     def _on_run_context(self, widgets):
         event_list = []
@@ -60,8 +59,8 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self.run_async(event_list)
 
     def _on_run_validators(self, widgets):
-        collected_data = self.merge_list(self._stages_results[constants.COLLECTORS])
-        context_data = self.merge_dict(self._stages_results[constants.CONTEXT])
+        collected_data = utils.merge_list(self._stages_results[constants.COLLECTORS])
+        context_data = utils.merge_dict(self._stages_results[constants.CONTEXT])
 
         self.logger.debug('collected data:{}'.format(collected_data))
         self.logger.debug('context data:{}'.format(context_data))
@@ -85,8 +84,8 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self.run_async(event_list)
 
     def _on_run_extractors(self, widgets):
-        collected_data = self.merge_list(self._stages_results[constants.COLLECTORS])
-        context_data = self.merge_dict(self._stages_results[constants.CONTEXT])
+        collected_data = utils.merge_list(self._stages_results[constants.COLLECTORS])
+        context_data = utils.merge_dict(self._stages_results[constants.CONTEXT])
         validators_data = self._stages_results[constants.VALIDATORS]
 
         if not all(validators_data):
@@ -113,7 +112,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
     def _on_run_publishers(self, widgets):
 
         extracted_data = self._stages_results[constants.EXTRACTORS]
-        context_data = self.merge_dict(self._stages_results[constants.CONTEXT])
+        context_data = utils.merge_dict(self._stages_results[constants.CONTEXT])
         context_data['asset_type'] = self.asset_type
 
         validators_data = self._stages_results[constants.VALIDATORS]
