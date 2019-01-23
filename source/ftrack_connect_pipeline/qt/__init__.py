@@ -3,8 +3,8 @@ import logging
 
 from QtExt import QtWidgets, QtGui, QtCore
 
-from ftrack_connect_pipeline import get_registered_assets, register_assets
-from ftrack_connect_pipeline.qt import utils
+from ftrack_connect_pipeline.qt import utils as qtutils
+from ftrack_connect_pipeline import utils
 
 from ftrack_connect.ui.widget import header
 
@@ -24,12 +24,12 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         )
         self.session = ftrack_api.Session(auto_connect_event_hub=True)
 
-        self.stages_manager = utils.StageManager(
+        self.stages_manager = qtutils.StageManager(
             self.session, stages_mapping, stage_type
         )
+        context_type = 'Task'
+        self.assets_manager = utils.AssetSchemaManager(self.session, context_type)
 
-        register_assets(self.session)
-        self._asset_configs = get_registered_assets('Task')
         self._current_asset_type = None
 
         layout = QtWidgets.QVBoxLayout()
@@ -51,7 +51,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         button.clicked.connect(self._on_run)
         self.layout().addWidget(button)
 
-        self._event_thread = utils.NewApiEventHubThread()
+        self._event_thread = qtutils.NewApiEventHubThread()
         self._event_thread.start(self.session)
 
     def clearLayout(self, layout):
@@ -68,7 +68,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.clearLayout(self.task_layout)
 
         asset_name = self.combo.itemData(index)
-        asset_schema = self._asset_configs.get(asset_name)
+        asset_schema = self.assets_manager.assets.get(asset_name)
         if not asset_schema:
             return
 
@@ -103,8 +103,8 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
                 self.task_layout.addWidget(box)
 
     def build(self):
-        for asset_name in self._asset_configs.keys():
-            asset_type = self._asset_configs[asset_name]['asset_type']
+        for asset_name in self.assets_manager.assets.keys():
+            asset_type = self.assets_manager.assets[asset_name]['asset_type']
             self.combo.addItem('{} ({})'.format(asset_name, asset_type), asset_name)
 
     # widget handling

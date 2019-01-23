@@ -1,4 +1,4 @@
-from ftrack_connect_pipeline.constants import CONTEXT, _BASE_
+from ftrack_connect_pipeline.constants import _BASE_
 
 LOAD = 'load'
 # load stages
