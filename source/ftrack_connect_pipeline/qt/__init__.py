@@ -13,24 +13,26 @@ from ftrack_connect.ui.widget import header
 class BaseQtPipelineWidget(QtWidgets.QWidget):
     widget_suffix = 'widget.qt'
 
-    stage_start = QtCore.Signal()
-    stage_done = QtCore.Signal()
+    # stage_start = QtCore.Signal()
+    # stage_done = QtCore.Signal()
 
     @property
     def asset_type(self):
         return self._current_asset_type
 
-    def __init__(self, parent=None):
+    def __init__(self, stage_type, stages_mapping, parent=None):
         super(BaseQtPipelineWidget, self).__init__(parent=parent)
-
-        self.stage_type = None
-        self.mapping = {}
-        self._stages_results = {}
+        self._widget_stack = {}
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
         self.session = ftrack_api.Session(auto_connect_event_hub=True)
+
+        self.stages_manager = utils.StageManager(
+            self.session, stages_mapping, stage_type, self._widget_stack
+        )
+        self.stages_manager.reset_stages()
 
         register_assets(self.session)
         self._asset_configs = get_registered_assets('Task')
@@ -41,10 +43,6 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.setLayout(layout)
         self.header = header.Header(self.session.api_user)
         self.layout().addWidget(self.header)
-
-        self._widget_stack = {}
-        self.reset_stages()
-
         self.combo = QtWidgets.QComboBox()
         self.combo.addItem('- Select asset type -')
         self.layout().addWidget(self.combo)
@@ -61,9 +59,6 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
         self._event_thread = utils.NewApiEventHubThread()
         self._event_thread.start(self.session)
-
-        self.stage_done.connect(self._on_stage_done)
-        self.stage_start.connect(self._on_stage_start)
 
     def clearLayout(self, layout):
         if layout is not None:
@@ -85,10 +80,10 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
         self._current_asset_type = asset_schema['asset_type']
 
-        stages = asset_schema[self.stage_type]['plugins']
+        stages = asset_schema[self.stages_manager.type]['plugins']
         for stage in stages:
             for current_stage, current_plugins in stage.items():
-                base_topic = self.mapping.get(current_stage)
+                base_topic = self.stages_manager.stages.get(current_stage)
                 if not base_topic:
                     self.logger.warning('stage {} cannot be evaluated'.format(current_stage))
                     continue
@@ -118,35 +113,6 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             asset_type = self._asset_configs[asset_name]['asset_type']
             self.combo.addItem('{} ({})'.format(asset_name, asset_type), asset_name)
 
-    # event handling
-    def on_handle_async_reply(self, event):
-        event_data = event['data']
-        event_task_name = event_data.keys()[0]
-        event_task_value = event_data.values()[0]
-
-        self.logger.debug(
-            'setting result for task: {} as {}'.format(
-                event_task_name, event_task_value
-            )
-        )
-        self._stages_results[event_task_name] = event_task_value
-
-        # automatically process next stage
-        self.stage_done.emit()
-
-    def run_async(self, event_list):
-        self.logger.debug(
-            'Sending event list {} to host'.format(event_list)
-        )
-
-        self.session.event_hub.publish(
-            ftrack_api.event.base.Event(
-                topic=constants.PIPELINE_RUN_TOPIC,
-                data={'event_list': event_list}
-            ),
-            on_reply=self.on_handle_async_reply
-        )
-
     # widget handling
     def fetch_widget(self, plugin, base_topic, plugin_type):
         ui = plugin.get('plugin_ui', 'default.{}'.format(self.widget_suffix))
@@ -162,7 +128,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         plugin_options = plugin.get('options', {})
         plugin_name = plugin.get('name', 'no name provided')
         description = plugin.get('description', 'No description provided')
-        plugin_topic = self.mapping[plugin_type][0].format(plugin['plugin'])
+        plugin_topic = self.stages_manager.stages[plugin_type][0].format(plugin['plugin'])
 
         result_widget = self.session.event_hub.publish(
             ftrack_api.event.base.Event(
@@ -182,70 +148,4 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
     # Stage management
     def _on_run(self):
-        self.process_stages()
-
-    def _on_stage_start(self, ):
-        self.logger.debug('Starting stage: {}'.format(self.current_stage))
-        fn = self.mapping[self.current_stage][1]
-        widgets = self._widget_stack[self.current_stage]
-        fn(widgets)
-
-    def _on_stage_done(self):
-        self.logger.debug('stage: {} done'.format(self.current_stage))
-        if not self.next_stage:
-            self.reset_stages()
-            return
-
-        self.current_stage = self.next_stage
-        self.stage_start.emit()
-
-    def process_stages(self):
-        for stage in self.mapping.keys():
-            self._stages_results.setdefault(stage, [])
-
-        self.stage_start.emit()
-
-    def reset_stages(self):
-        self._current_stage = None
-
-    @property
-    def previous_stage(self):
-        self.logger.info('current_stage :{}'.format(self.current_stage))
-        current_stage_idx = self.mapping.keys().index(self.current_stage)
-
-        previous_stage_idx = current_stage_idx - 1
-
-        if previous_stage_idx < 0:
-            # we reached the end, no more steps to perform !
-            return
-
-        previous_stage = self.mapping.keys()[previous_stage_idx]
-        self.logger.info('previous_stage :{}'.format(previous_stage))
-        return previous_stage
-
-    @property
-    def next_stage(self):
-        self.logger.info('current_stage :{}'.format(self.current_stage))
-        current_stage_idx = self.mapping.keys().index(self.current_stage)
-
-        next_stage_idx = current_stage_idx + 1
-
-        if next_stage_idx >= len(self.mapping.keys()):
-            # we reached the end, no more steps to perform !
-            return
-
-        next_stage = self.mapping.keys()[next_stage_idx]
-        self.logger.info('next_stage :{}'.format(next_stage))
-        return next_stage
-
-    @property
-    def current_stage(self):
-        return self._current_stage or self.mapping.keys()[0]
-
-    @current_stage.setter
-    def current_stage(self, stage):
-        if stage not in self.mapping.keys():
-            self.logger.warning('Stage {} not in {}'.format(stage, self.mapping.keys()))
-            return
-
-        self._current_stage = stage
+        self.stages_manager.process_stages()

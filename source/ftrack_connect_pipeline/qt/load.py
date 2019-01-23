@@ -12,14 +12,13 @@ from ftrack_connect_pipeline.qt import BaseQtPipelineWidget
 class QtPipelineLoaderWidget(BaseQtPipelineWidget):
 
     def __init__(self, parent=None):
-        super(QtPipelineLoaderWidget, self).__init__(parent=parent)
-        self.setWindowTitle('Standalone Pipeline Loader')
-        self.stage_type = constants.LOAD
-
-        self.mapping = OrderedDict([
+        stage_type = constants.LOAD
+        stages_mapping = OrderedDict([
             (constants.CONTEXT,    (constants.CONTEXT_PLUGIN_TOPIC, self._on_run_context)),
             (constants.IMPORTERS,  (constants.IMPORTERS_PLUGIN_TOPIC, self._on_run_importers))
         ])
+        super(QtPipelineLoaderWidget, self).__init__(stage_type, stages_mapping, parent=parent)
+        self.setWindowTitle('Standalone Pipeline Loader')
 
     def _on_run_context(self, widgets):
         event_list = []
@@ -35,10 +34,10 @@ class QtPipelineLoaderWidget(BaseQtPipelineWidget):
                 }
             )
 
-        self.run_async(event_list)
+        self.stages_manager.run_async(event_list)
 
     def _on_run_importers(self, widgets):
-        component_data = utils.merge_dict(self._stages_results[constants.CONTEXT])
+        component_data = utils.merge_dict(self.stages_manager.results[constants.CONTEXT])
 
         event_list = []
         for widget in widgets:
@@ -54,7 +53,7 @@ class QtPipelineLoaderWidget(BaseQtPipelineWidget):
                 }
             )
 
-        self.run_async(event_list)
+        self.stages_manager.run_async(event_list)
 
 
 if __name__ == '__main__':
