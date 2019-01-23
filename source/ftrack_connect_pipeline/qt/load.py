@@ -14,7 +14,6 @@ class QtPipelineLoaderWidget(BaseQtPipelineWidget):
         super(QtPipelineLoaderWidget, self).__init__(parent=None)
         self.setWindowTitle('Standalone Pipeline Loader')
         self.stage_type = constants.LOAD
-        self._iteractive = False
 
         self.mapping = OrderedDict([
             (constants.CONTEXT,    (constants.CONTEXT_PLUGIN_TOPIC, self._on_run_context)),

@@ -17,7 +17,6 @@ class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
 
     def __init__(self, parent=None):
         super(BaseQtPipelineWidget, self).__init__(parent=parent)
-        self._iteractive = False
         layout = QtWidgets.QVBoxLayout()
 
         self.setLayout(layout)
@@ -70,7 +69,12 @@ class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
         stages = asset_schema[self.stage_type]['plugins']
         for stage in stages:
             for current_stage, current_plugins in stage.items():
-                base_topic = self.mapping[current_stage][0]
+                base_topic = self.mapping.get(current_stage)
+                if not base_topic:
+                    self.logger.warning('stage {} cannot be evaluated'.format(current_stage))
+                    continue
+
+                base_topic = base_topic[0]
 
                 box = QtWidgets.QGroupBox(current_stage)
                 plugin_layout = QtWidgets.QVBoxLayout()
@@ -108,9 +112,8 @@ class BaseQtPipelineWidget(BaseUiPipeline, QtWidgets.QWidget):
         )
         self._stages_results[event_task_name] = event_task_value
 
-        if not self._iteractive:
-            # automatically process next stage
-            self.stage_done.emit()
+        # automatically process next stage
+        self.stage_done.emit()
 
     def run_async(self, event_list):
         self.logger.debug(
