@@ -12,8 +12,8 @@ from ftrack_connect_pipeline.qt import BaseQtPipelineWidget
 
 class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
-    def __init__(self, host=None, parent=None):
-        super(QtPipelinePublishWidget, self).__init__(parent=None)
+    def __init__(self, parent=None):
+        super(QtPipelinePublishWidget, self).__init__(parent=parent)
         self.setWindowTitle('Standalone Pipeline Publisher')
         self.stage_type = constants.PUBLISH
 

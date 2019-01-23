@@ -42,7 +42,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.header = header.Header(self.session.api_user)
         self.layout().addWidget(self.header)
 
-        self.__widget_stack = {}
+        self._widget_stack = {}
         self.reset_stages()
 
         self.combo = QtWidgets.QComboBox()
@@ -99,7 +99,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
                 plugin_layout = QtWidgets.QVBoxLayout()
                 box.setLayout(plugin_layout)
 
-                self.__widget_stack.setdefault(current_stage, [])
+                self._widget_stack.setdefault(current_stage, [])
 
                 for plugin in current_plugins:
                     widget = self.fetch_widget(plugin, base_topic, current_stage)
@@ -109,7 +109,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
                             widget.setVisible(False)
 
                         plugin_layout.addWidget(widget)
-                        self.__widget_stack[current_stage].append(widget)
+                        self._widget_stack[current_stage].append(widget)
 
                 self.task_layout.addWidget(box)
 
@@ -187,7 +187,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
     def _on_stage_start(self, ):
         self.logger.debug('Starting stage: {}'.format(self.current_stage))
         fn = self.mapping[self.current_stage][1]
-        widgets = self.__widget_stack[self.current_stage]
+        widgets = self._widget_stack[self.current_stage]
         fn(widgets)
 
     def _on_stage_done(self):

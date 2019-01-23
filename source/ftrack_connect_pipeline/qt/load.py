@@ -9,11 +9,10 @@ from ftrack_connect_pipeline import utils
 from ftrack_connect_pipeline.qt import BaseQtPipelineWidget
 
 
-
 class QtPipelineLoaderWidget(BaseQtPipelineWidget):
 
-    def __init__(self, host=None, parent=None):
-        super(QtPipelineLoaderWidget, self).__init__(parent=None)
+    def __init__(self, parent=None):
+        super(QtPipelineLoaderWidget, self).__init__(parent=parent)
         self.setWindowTitle('Standalone Pipeline Loader')
         self.stage_type = constants.LOAD
 
