@@ -19,8 +19,63 @@ class NewApiEventHubThread(QtCore.QThread):
 
 class StageManager(QtCore.QObject):
 
+    # todo: replace with blinker or ftrack-events for abstraction from qt?
     stage_start = QtCore.Signal()
     stage_done = QtCore.Signal()
+
+    @property
+    def results(self):
+        return self._stages_results
+
+    @property
+    def type(self):
+        return self._stage_type
+
+    @property
+    def stages(self):
+        return self._stages_mapping
+
+    @property
+    def previous_stage(self):
+        self.logger.info('current_stage :{}'.format(self.current_stage))
+        current_stage_idx = self.stages.keys().index(self.current_stage)
+
+        previous_stage_idx = current_stage_idx - 1
+
+        if previous_stage_idx < 0:
+            # we reached the end, no more steps to perform !
+            return
+
+        previous_stage = self.stages.keys()[previous_stage_idx]
+        self.logger.info('previous_stage :{}'.format(previous_stage))
+        return previous_stage
+
+    @property
+    def next_stage(self):
+        self.logger.info('current_stage :{}'.format(self.current_stage))
+        current_stage_idx = self.stages.keys().index(self.current_stage)
+
+        next_stage_idx = current_stage_idx + 1
+
+        if next_stage_idx >= len(self.stages.keys()):
+            # we reached the end, no more steps to perform !
+            return
+
+        next_stage = self.stages.keys()[next_stage_idx]
+        self.logger.info('next_stage :{}'.format(next_stage))
+        return next_stage
+
+    @property
+    def current_stage(self):
+        return self._current_stage or self.stages.keys()[0]
+
+    @current_stage.setter
+    def current_stage(self, stage):
+        if stage not in self.stages.keys():
+            self.logger.warning('Stage {} not in {}'.format(stage, self.stages.keys()))
+            return
+
+        self._current_stage = stage
 
     def __init__(self, session, stages_mapping, stage_type, widgets):
         super(StageManager, self).__init__()
@@ -93,57 +148,3 @@ class StageManager(QtCore.QObject):
 
     def reset_stages(self):
         self._current_stage = None
-
-    @property
-    def results(self):
-        return self._stages_results
-
-    @property
-    def type(self):
-        return self._stage_type
-
-    @property
-    def stages(self):
-        return self._stages_mapping
-
-    @property
-    def previous_stage(self):
-        self.logger.info('current_stage :{}'.format(self.current_stage))
-        current_stage_idx = self.stages.keys().index(self.current_stage)
-
-        previous_stage_idx = current_stage_idx - 1
-
-        if previous_stage_idx < 0:
-            # we reached the end, no more steps to perform !
-            return
-
-        previous_stage = self.stages.keys()[previous_stage_idx]
-        self.logger.info('previous_stage :{}'.format(previous_stage))
-        return previous_stage
-
-    @property
-    def next_stage(self):
-        self.logger.info('current_stage :{}'.format(self.current_stage))
-        current_stage_idx = self.stages.keys().index(self.current_stage)
-
-        next_stage_idx = current_stage_idx + 1
-
-        if next_stage_idx >= len(self.stages.keys()):
-            # we reached the end, no more steps to perform !
-            return
-
-        next_stage = self.stages.keys()[next_stage_idx]
-        self.logger.info('next_stage :{}'.format(next_stage))
-        return next_stage
-
-    @property
-    def current_stage(self):
-        return self._current_stage or self.stages.keys()[0]
-
-    @current_stage.setter
-    def current_stage(self, stage):
-        if stage not in self.stages.keys():
-            self.logger.warning('Stage {} not in {}'.format(stage, self.stages.keys()))
-            return
-
-        self._current_stage = stage

@@ -15,16 +15,16 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
     def __init__(self, parent=None):
         stage_type = constants.PUBLISH
         stages_mapping = OrderedDict([
-            (constants.CONTEXT,    (constants.CONTEXT_PLUGIN_TOPIC, self._on_run_context)),
-            (constants.COLLECTORS, (constants.COLLECTORS_PLUGIN_TOPIC, self._on_run_collectors)),
-            (constants.VALIDATORS, (constants.VALIDATORS_PLUGIN_TOPIC, self._on_run_validators)),
-            (constants.EXTRACTORS, (constants.EXTRACTORS_PLUGIN_TOPIC, self._on_run_extractors)),
-            (constants.PUBLISHERS, (constants.PUBLISHERS_PLUGIN_TOPIC, self._on_run_publishers))
+            (constants.CONTEXT,    (constants.CONTEXT_PLUGIN_TOPIC, self.run_context)),
+            (constants.COLLECTORS, (constants.COLLECTORS_PLUGIN_TOPIC, self.run_collectors)),
+            (constants.VALIDATORS, (constants.VALIDATORS_PLUGIN_TOPIC, self.run_validators)),
+            (constants.EXTRACTORS, (constants.EXTRACTORS_PLUGIN_TOPIC, self.run_extractors)),
+            (constants.PUBLISHERS, (constants.PUBLISHERS_PLUGIN_TOPIC, self.run_publishers))
         ])
         super(QtPipelinePublishWidget, self).__init__(stage_type, stages_mapping, parent=parent)
         self.setWindowTitle('Standalone Pipeline Publisher')
 
-    def _on_run_context(self, widgets):
+    def run_context(self, widgets):
         event_list = []
         for widget in widgets:
             options = widget.extract_options()
@@ -40,7 +40,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
         self.stages_manager.run_async(event_list)
 
-    def _on_run_collectors(self, widgets):
+    def run_collectors(self, widgets):
         event_list = []
 
         for widget in widgets:
@@ -57,7 +57,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
         self.stages_manager.run_async(event_list)
 
-    def _on_run_validators(self, widgets):
+    def run_validators(self, widgets):
         collected_data = utils.merge_list(self.stages_manager.results[constants.COLLECTORS])
         context_data = utils.merge_dict(self.stages_manager.results[constants.CONTEXT])
 
@@ -82,7 +82,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
             )
         self.stages_manager.run_async(event_list)
 
-    def _on_run_extractors(self, widgets):
+    def run_extractors(self, widgets):
         collected_data = utils.merge_list(self.stages_manager.results[constants.COLLECTORS])
         context_data = utils.merge_dict(self.stages_manager.results[constants.CONTEXT])
         validators_data = self.stages_manager.results[constants.VALIDATORS]
@@ -108,7 +108,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
             )
         self.stages_manager.run_async(event_list)
 
-    def _on_run_publishers(self, widgets):
+    def run_publishers(self, widgets):
 
         extracted_data = self.stages_manager.results[constants.EXTRACTORS]
         context_data = utils.merge_dict(self.stages_manager.results[constants.CONTEXT])
