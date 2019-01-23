@@ -24,7 +24,8 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         super(QtPipelinePublishWidget, self).__init__(stage_type, stages_mapping, parent=parent)
         self.setWindowTitle('Standalone Pipeline Publisher')
 
-    def run_context(self, widgets):
+    def run_context(self):
+        widgets = self.stages_manager.widgets[self.stages_manager.current_stage]
         event_list = []
         for widget in widgets:
             options = widget.extract_options()
@@ -40,7 +41,9 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
         self.stages_manager.run_async(event_list)
 
-    def run_collectors(self, widgets):
+    def run_collectors(self):
+        widgets = self.stages_manager.widgets[self.stages_manager.current_stage]
+
         event_list = []
 
         for widget in widgets:
@@ -57,7 +60,9 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
         self.stages_manager.run_async(event_list)
 
-    def run_validators(self, widgets):
+    def run_validators(self):
+        widgets = self.stages_manager.widgets[self.stages_manager.current_stage]
+
         collected_data = utils.merge_list(self.stages_manager.results[constants.COLLECTORS])
         context_data = utils.merge_dict(self.stages_manager.results[constants.CONTEXT])
 
@@ -82,7 +87,9 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
             )
         self.stages_manager.run_async(event_list)
 
-    def run_extractors(self, widgets):
+    def run_extractors(self):
+        widgets = self.stages_manager.widgets[self.stages_manager.current_stage]
+
         collected_data = utils.merge_list(self.stages_manager.results[constants.COLLECTORS])
         context_data = utils.merge_dict(self.stages_manager.results[constants.CONTEXT])
         validators_data = self.stages_manager.results[constants.VALIDATORS]
@@ -108,7 +115,8 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
             )
         self.stages_manager.run_async(event_list)
 
-    def run_publishers(self, widgets):
+    def run_publishers(self):
+        widgets = self.stages_manager.widgets[self.stages_manager.current_stage]
 
         extracted_data = self.stages_manager.results[constants.EXTRACTORS]
         context_data = utils.merge_dict(self.stages_manager.results[constants.CONTEXT])

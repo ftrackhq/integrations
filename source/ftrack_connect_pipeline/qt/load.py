@@ -20,7 +20,8 @@ class QtPipelineLoaderWidget(BaseQtPipelineWidget):
         super(QtPipelineLoaderWidget, self).__init__(stage_type, stages_mapping, parent=parent)
         self.setWindowTitle('Standalone Pipeline Loader')
 
-    def run_context(self, widgets):
+    def run_context(self):
+        widgets = self.stages_manager.widgets[self.stages_manager.current_stage]
         event_list = []
         for widget in widgets:
             options = widget.extract_options()
@@ -36,7 +37,8 @@ class QtPipelineLoaderWidget(BaseQtPipelineWidget):
 
         self.stages_manager.run_async(event_list)
 
-    def run_importers(self, widgets):
+    def run_importers(self):
+        widgets = self.stages_manager.widgets[self.stages_manager.current_stage]
         component_data = utils.merge_dict(self.stages_manager.results[constants.CONTEXT])
 
         event_list = []

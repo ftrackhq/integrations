@@ -24,6 +24,10 @@ class StageManager(QtCore.QObject):
     stage_done = QtCore.Signal()
 
     @property
+    def widgets(self):
+        return self._widget_stack
+
+    @property
     def results(self):
         return self._stages_results
 
@@ -126,8 +130,7 @@ class StageManager(QtCore.QObject):
     def _on_stage_start(self, ):
         self.logger.debug('Starting stage: {}'.format(self.current_stage))
         fn = self.stages[self.current_stage][1]
-        widgets = self._widget_stack[self.current_stage]
-        fn(widgets)
+        fn()
 
     def _on_stage_done(self):
         self.logger.debug('stage: {} done'.format(self.current_stage))
