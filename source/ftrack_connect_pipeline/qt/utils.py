@@ -81,7 +81,7 @@ class StageManager(QtCore.QObject):
 
         self._current_stage = stage
 
-    def __init__(self, session, stages_mapping, stage_type, widgets):
+    def __init__(self, session, stages_mapping, stage_type):
         super(StageManager, self).__init__()
 
         self.logger = logging.getLogger(
@@ -93,7 +93,7 @@ class StageManager(QtCore.QObject):
         self._stages_results = {}
         self._session = session
         self._stages_mapping = stages_mapping
-        self._widget_stack = widgets
+        self._widget_stack = {}
 
         self.stage_done.connect(self._on_stage_done)
         self.stage_start.connect(self._on_stage_start)

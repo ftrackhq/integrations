@@ -13,16 +13,12 @@ from ftrack_connect.ui.widget import header
 class BaseQtPipelineWidget(QtWidgets.QWidget):
     widget_suffix = 'widget.qt'
 
-    # stage_start = QtCore.Signal()
-    # stage_done = QtCore.Signal()
-
     @property
     def asset_type(self):
         return self._current_asset_type
 
     def __init__(self, stage_type, stages_mapping, parent=None):
         super(BaseQtPipelineWidget, self).__init__(parent=parent)
-        self._widget_stack = {}
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -30,7 +26,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.session = ftrack_api.Session(auto_connect_event_hub=True)
 
         self.stages_manager = utils.StageManager(
-            self.session, stages_mapping, stage_type, self._widget_stack
+            self.session, stages_mapping, stage_type
         )
         self.stages_manager.reset_stages()
 
@@ -94,7 +90,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
                 plugin_layout = QtWidgets.QVBoxLayout()
                 box.setLayout(plugin_layout)
 
-                self._widget_stack.setdefault(current_stage, [])
+                self.stages_manager.widgets.setdefault(current_stage, [])
 
                 for plugin in current_plugins:
                     widget = self.fetch_widget(plugin, base_topic, current_stage)
@@ -104,7 +100,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
                             widget.setVisible(False)
 
                         plugin_layout.addWidget(widget)
-                        self._widget_stack[current_stage].append(widget)
+                        self.stages_manager.widgets[current_stage].append(widget)
 
                 self.task_layout.addWidget(box)
 
