@@ -41,7 +41,6 @@ class StageManager(QtCore.QObject):
 
     @property
     def previous_stage(self):
-        self.logger.info('current_stage :{}'.format(self.current_stage))
         current_stage_idx = self.stages.keys().index(self.current_stage)
 
         previous_stage_idx = current_stage_idx - 1
@@ -51,12 +50,10 @@ class StageManager(QtCore.QObject):
             return
 
         previous_stage = self.stages.keys()[previous_stage_idx]
-        self.logger.info('previous_stage :{}'.format(previous_stage))
         return previous_stage
 
     @property
     def next_stage(self):
-        self.logger.info('current_stage :{}'.format(self.current_stage))
         current_stage_idx = self.stages.keys().index(self.current_stage)
 
         next_stage_idx = current_stage_idx + 1
@@ -66,7 +63,6 @@ class StageManager(QtCore.QObject):
             return
 
         next_stage = self.stages.keys()[next_stage_idx]
-        self.logger.info('next_stage :{}'.format(next_stage))
         return next_stage
 
     @property
@@ -89,14 +85,16 @@ class StageManager(QtCore.QObject):
         )
 
         self._current_stage = None
-        self._stage_type = stage_type
         self._stages_results = {}
+        self._widget_stack = {}
+
+        self._stage_type = stage_type
         self._session = session
         self._stages_mapping = stages_mapping
-        self._widget_stack = {}
 
         self.stage_done.connect(self._on_stage_done)
         self.stage_start.connect(self._on_stage_start)
+        self.reset_stages()
 
     # event handling
     def _on_handle_async_reply(self, event):

@@ -28,7 +28,6 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.stages_manager = utils.StageManager(
             self.session, stages_mapping, stage_type
         )
-        self.stages_manager.reset_stages()
 
         register_assets(self.session)
         self._asset_configs = get_registered_assets('Task')
