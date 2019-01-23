@@ -1,5 +1,5 @@
 from QtExt import QtWidgets
-from ftrack_connect_pipeline.qt.plugin.simple import SimpleWidget
+from ftrack_connect_pipeline.qt.widgets.simple import SimpleWidget
 
 from ftrack_connect.ui.widget import entity_selector
 from ftrack_connect.ui.widget import asset_options

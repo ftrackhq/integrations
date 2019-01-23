@@ -4,7 +4,7 @@ import logging
 import ftrack_api
 
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.qt.plugin import simple
+from ftrack_connect_pipeline.qt.widgets import simple
 
 logger = logging.getLogger(__name__)
 

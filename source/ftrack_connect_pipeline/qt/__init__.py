@@ -3,7 +3,6 @@ import logging
 
 from QtExt import QtWidgets, QtGui, QtCore
 
-from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import get_registered_assets, register_assets
 from ftrack_connect_pipeline.qt import utils
 
