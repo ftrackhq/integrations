@@ -40,14 +40,14 @@
                     {
                         "name" : "Save as Maya Ascii",
                         "plugin": "to_tmp.maya.ma",
-                        "options": {"component_name": "mayaAscii.ma"},
+                        "options": {"component_name": "mayaAscii"},
                         "description": "Save an .ma file in /tmp"
 
                     },
                     {
                         "name" : "Save as Maya Binary",
                         "plugin": "to_tmp.maya.mb",
-                        "options": {"component_name": "mayaBinary.mb"},
+                        "options": {"component_name": "mayaBinary"},
                         "description": "Save an .mb file in /tmp"
 
                     }

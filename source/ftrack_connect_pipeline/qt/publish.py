@@ -1,11 +1,13 @@
 #! /usr/bin/env python
+# :coding: utf-8
+# :copyright: Copyright (c) 2019 ftrack
 
 import sys
 from collections import OrderedDict
 
 from QtExt import QtWidgets, QtGui, QtCore
-from ftrack_connect_pipeline import utils
 
+from ftrack_connect_pipeline import utils
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.qt import BaseQtPipelineWidget
 

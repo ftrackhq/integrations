@@ -14,47 +14,32 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
     @property
     def asset_type(self):
+        '''Return current asset type'''
         return self._current_asset_type
 
     def __init__(self, stage_type, stages_mapping, parent=None):
+        '''Initialise widget with *stage_type* and *stage_mapping*.'''
         super(BaseQtPipelineWidget, self).__init__(parent=parent)
+
+        self._current_asset_type = None
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        self.session = ftrack_api.Session(auto_connect_event_hub=True)
 
+        self.session = ftrack_api.Session(auto_connect_event_hub=True)
         self.stages_manager = qtutils.StageManager(
             self.session, stages_mapping, stage_type
         )
+
         context_type = 'Task'
         self.assets_manager = utils.AssetSchemaManager(self.session, context_type)
 
-        self._current_asset_type = None
-
-        layout = QtWidgets.QVBoxLayout()
-
-        self.setLayout(layout)
-        self.header = header.Header(self.session.api_user)
-        self.layout().addWidget(self.header)
-        self.combo = QtWidgets.QComboBox()
-        self.combo.addItem('- Select asset type -')
-        self.layout().addWidget(self.combo)
-        self.task_layout = QtWidgets.QVBoxLayout()
-        self.layout().addLayout(self.task_layout)
-
         self.build()
+        self.post_build()
 
-        self.combo.currentIndexChanged.connect(self._on_asset_change)
-
-        button = QtWidgets.QPushButton('Run')
-        button.clicked.connect(self._on_run)
-        self.layout().addWidget(button)
-
-        self._event_thread = qtutils.NewApiEventHubThread()
-        self._event_thread.start(self.session)
-
-    def clearLayout(self, layout):
+    def resetLayout(self, layout):
+        '''Reset layout and delete widgets.'''
         if layout is not None:
             while layout.count():
                 item = layout.takeAt(0)
@@ -62,10 +47,11 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
                 if widget is not None:
                     widget.deleteLater()
                 else:
-                    self.clearLayout(item.layout())
+                    self.resetLayout(item.layout())
 
-    def _on_asset_change(self, index):
-        self.clearLayout(self.task_layout)
+    def _on_asset_type_change(self, index):
+        '''Slot triggered on asset type change.'''
+        self.resetLayout(self.task_layout)
 
         asset_name = self.combo.itemData(index)
         asset_schema = self.assets_manager.assets.get(asset_name)
@@ -103,12 +89,35 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
                 self.task_layout.addWidget(box)
 
     def build(self):
+        '''Build ui method.'''
+        layout = QtWidgets.QVBoxLayout()
+        self.setLayout(layout)
+        self.header = header.Header(self.session.api_user)
+        self.layout().addWidget(self.header)
+        self.combo = QtWidgets.QComboBox()
+        self.combo.addItem('- Select asset type -')
+        self.layout().addWidget(self.combo)
+        self.task_layout = QtWidgets.QVBoxLayout()
+        self.layout().addLayout(self.task_layout)
+
         for asset_name in self.assets_manager.assets.keys():
             asset_type = self.assets_manager.assets[asset_name]['asset_type']
             self.combo.addItem('{} ({})'.format(asset_name, asset_type), asset_name)
 
+        self.run_button = QtWidgets.QPushButton('Run')
+        self.layout().addWidget(self.run_button)
+
+    def post_build(self):
+        '''Post Build ui method.'''
+        self.run_button.clicked.connect(self._on_run)
+        self.combo.currentIndexChanged.connect(self._on_asset_type_change)
+
+        self._event_thread = qtutils.NewApiEventHubThread()
+        self._event_thread.start(self.session)
+
     # widget handling
     def fetch_widget(self, plugin, base_topic, plugin_type):
+        '''Fetch widgets defined in the asset schema.'''
         ui = plugin.get('plugin_ui', 'default.{}'.format(self.widget_suffix))
         mytopic = base_topic.format(ui)
 
@@ -142,4 +151,6 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
     # Stage management
     def _on_run(self):
+        '''Slot triggered with run button.'''
+        # start processing the stages.
         self.stages_manager.process_stages()

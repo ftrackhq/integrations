@@ -1,3 +1,6 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2019 ftrack
+
 # base name
 _BASE_ = 'ftrack.pipeline'
 
@@ -8,7 +11,7 @@ CONTEXT = 'context'
 CONTEXT_PLUGIN_TOPIC = '{}.{}.{{}}'.format(_BASE_, CONTEXT)
 
 # external events
-REGISTER_ASSET_TOPIC = '{}.asset.register_assets'.format(_BASE_)
+REGISTER_ASSET_TOPIC = '{}.asset._register_assets'.format(_BASE_)
 PIPELINE_RUN_TOPIC = '{}.host.run'.format(_BASE_)
 
 # environment variables

@@ -1,3 +1,6 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2019 ftrack
+
 import logging
 import itertools
 import copy
@@ -10,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def merge_list(list_data):
+    '''Utility function to merge *list_data*'''
     logger.info('Merging {} '.format(list_data))
     result = list(set(itertools.chain.from_iterable(list_data)))
     logger.info('into {}'.format(result))
@@ -17,6 +21,7 @@ def merge_list(list_data):
 
 
 def merge_dict(dict_data):
+    '''Utility function to merge *dict_data*'''
     logger.info('Merging {} '.format(dict_data))
     result = {k: v for d in dict_data for k, v in d.items()}
     logger.info('into {}'.format(result))
@@ -24,19 +29,27 @@ def merge_dict(dict_data):
 
 
 class AssetSchemaManager(object):
+    '''Asset schema manager class.'''
 
     @property
     def assets(self):
-        return self.get_registered_assets()
+        '''return the registered assets.'''
+        filtered_results = {}
+        for asset_name, asset_data in self.asset_registry.items():
+            if self._context_type in asset_data['context']:
+                filtered_results[asset_name] = asset_data
+
+        return copy.deepcopy(filtered_results)
 
     def __init__(self, session, context_type):
-
+        '''Initialise the class with ftrack *session* and *context_type*'''
         self.asset_registry = {}
         self._context_type = context_type
         self.session = session
-        self.register_assets()
+        self._register_assets()
 
-    def register_assets(self):
+    def _register_assets(self):
+        '''register assets'''
         results = self.session.event_hub.publish(
             ftrack_api.event.base.Event(
                 topic=constants.REGISTER_ASSET_TOPIC,
@@ -46,11 +59,3 @@ class AssetSchemaManager(object):
         )
         for result in results[0]:
             self.asset_registry[result['asset_name']] = result
-
-    def get_registered_assets(self):
-        filtered_results = {}
-        for asset_name , asset_data in self.asset_registry.items():
-            if self._context_type in asset_data['context']:
-                filtered_results[asset_name] = asset_data
-
-        return copy.deepcopy(filtered_results)

@@ -1,7 +1,13 @@
-import ftrack_api
+# :coding: utf-8
+# :copyright: Copyright (c) 2019 ftrack
+
 import logging
-from ftrack_connect_pipeline import constants
+
+import ftrack_api
 from QtExt import QtCore
+
+from ftrack_connect_pipeline import constants
+
 
 
 class NewApiEventHubThread(QtCore.QThread):
