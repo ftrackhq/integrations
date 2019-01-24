@@ -27,6 +27,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self.setWindowTitle('Standalone Pipeline Publisher')
 
     def run_context(self):
+        '''Run context stage'''
         widgets = self.stages_manager.widgets[self.stages_manager.current_stage]
         event_list = []
         for widget in widgets:
@@ -44,6 +45,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self.stages_manager.run_async(event_list)
 
     def run_collectors(self):
+        '''Run collectors stage'''
         widgets = self.stages_manager.widgets[self.stages_manager.current_stage]
 
         event_list = []
@@ -63,6 +65,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self.stages_manager.run_async(event_list)
 
     def run_validators(self):
+        '''Run validators stage'''
         widgets = self.stages_manager.widgets[self.stages_manager.current_stage]
 
         collected_data = utils.merge_list(self.stages_manager.results[constants.COLLECTORS])
@@ -90,6 +93,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self.stages_manager.run_async(event_list)
 
     def run_extractors(self):
+        '''Run extractors stage'''
         widgets = self.stages_manager.widgets[self.stages_manager.current_stage]
 
         collected_data = utils.merge_list(self.stages_manager.results[constants.COLLECTORS])
@@ -118,6 +122,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self.stages_manager.run_async(event_list)
 
     def run_publishers(self):
+        '''Run validators stage'''
         widgets = self.stages_manager.widgets[self.stages_manager.current_stage]
 
         extracted_data = self.stages_manager.results[constants.EXTRACTORS]

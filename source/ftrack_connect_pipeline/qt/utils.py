@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import logging
-
+from collections import OrderedDict
 import ftrack_api
 from QtExt import QtCore
 
@@ -24,6 +24,7 @@ class NewApiEventHubThread(QtCore.QThread):
 
 
 class StageManager(QtCore.QObject):
+    '''Manage stages defined in asset definition'''
 
     # todo: replace with blinker or ftrack-events for abstraction from qt?
     stage_start = QtCore.Signal()
@@ -31,22 +32,27 @@ class StageManager(QtCore.QObject):
 
     @property
     def widgets(self):
+        '''Stores widgets visually representing the stages'''
         return self._widget_stack
 
     @property
     def results(self):
+        '''Stores the final results of each stage.'''
         return self._stages_results
 
     @property
     def type(self):
+        '''Retirm the stage type (publish or load)'''
         return self._stage_type
 
     @property
     def stages(self):
+        '''Stores all the stages definition and callables.'''
         return self._stages_mapping
 
     @property
     def previous_stage(self):
+        '''Return the previous stage.'''
         current_stage_idx = self.stages.keys().index(self.current_stage)
 
         previous_stage_idx = current_stage_idx - 1
@@ -60,6 +66,7 @@ class StageManager(QtCore.QObject):
 
     @property
     def next_stage(self):
+        '''Return the next stage.'''
         current_stage_idx = self.stages.keys().index(self.current_stage)
 
         next_stage_idx = current_stage_idx + 1
@@ -73,10 +80,13 @@ class StageManager(QtCore.QObject):
 
     @property
     def current_stage(self):
+        '''Return the current stage.'''
         return self._current_stage or self.stages.keys()[0]
 
     @current_stage.setter
     def current_stage(self, stage):
+        '''Set the current stage.'''
+
         if stage not in self.stages.keys():
             self.logger.warning('Stage {} not in {}'.format(stage, self.stages.keys()))
             return
@@ -84,11 +94,15 @@ class StageManager(QtCore.QObject):
         self._current_stage = stage
 
     def __init__(self, session, stages_mapping, stage_type):
+        '''Initialise with *session*, *stage mapping* and *stage_type*'''
         super(StageManager, self).__init__()
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+
+        if not isinstance(stages_mapping, OrderedDict):
+            self.logger.error('{} is not an OrderedDict'.format(stages_mapping))
 
         self._current_stage = None
         self._stages_results = {}
@@ -103,7 +117,8 @@ class StageManager(QtCore.QObject):
         self.reset_stages()
 
     # event handling
-    def _on_handle_async_reply(self, event):
+    def __on_handle_async_reply(self, event):
+        '''handle async ftrack event reply '''
         event_data = event['data']
         event_task_name = event_data.keys()[0]
         event_task_value = event_data.values()[0]
@@ -119,6 +134,7 @@ class StageManager(QtCore.QObject):
         self.stage_done.emit()
 
     def run_async(self, event_list):
+        '''Run *event_list* asyncronously'''
         self.logger.debug(
             'Sending event list {} to host'.format(event_list)
         )
@@ -128,15 +144,17 @@ class StageManager(QtCore.QObject):
                 topic=constants.PIPELINE_RUN_TOPIC,
                 data={'event_list': event_list}
             ),
-            on_reply=self._on_handle_async_reply
+            on_reply=self.__on_handle_async_reply
         )
 
     def _on_stage_start(self, ):
+        '''Slot triggered when the stage start'''
         self.logger.debug('Starting stage: {}'.format(self.current_stage))
         fn = self.stages[self.current_stage][1]
         fn()
 
     def _on_stage_done(self):
+        '''Slot triggered when the stage is finished'''
         self.logger.debug('stage: {} done'.format(self.current_stage))
         if not self.next_stage:
             self.reset_stages()
@@ -146,12 +164,15 @@ class StageManager(QtCore.QObject):
         self.stage_start.emit()
 
     def process_stages(self):
+        '''Process all the stages.'''
         self._reset_results()
         self.stage_start.emit()
 
     def _reset_results(self):
+        '''Reset stages results'''
         for stage in self.stages.keys():
             self.results.setdefault(stage, [])
 
     def reset_stages(self):
+        '''reset stages'''
         self._current_stage = None
