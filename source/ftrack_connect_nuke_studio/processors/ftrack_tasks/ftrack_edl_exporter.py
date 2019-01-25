@@ -76,6 +76,12 @@ class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
         '''Add ftrack resolve entries to *resolver*.'''
         FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)
 
+        resolver.addResolver(
+            "{sequence}",
+            "Name of the sequence being processed",
+            lambda keyword, task: task.sequenceName()
+        )
+
 
 class FtrackEDLExporterUI(EDLExportUI, FtrackProcessorUI):
     '''EDL Task Ui.'''
