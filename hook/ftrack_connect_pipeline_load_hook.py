@@ -153,17 +153,6 @@ class LaunchApplicationAction(object):
 
 class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
-    def _getApplicationLaunchCommand(self, application, context=None):
-
-        command = [sys.executable, application['path']]
-
-        # Add any extra launch arguments if specified.
-        launchArguments = application.get('launchArguments')
-        if launchArguments:
-            command.extend(launchArguments)
-
-        return command
-
     def _discoverApplications(self):
         '''Return a list of applications that can be launched from this host.
 
