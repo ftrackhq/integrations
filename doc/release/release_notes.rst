@@ -7,6 +7,12 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: fixed
+
+        Edl Exporter generates empty components.
+
 .. release:: 2.1.2
     :date: 2019-01-17
 
