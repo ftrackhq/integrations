@@ -457,9 +457,6 @@ class FtrackProcessor(FtrackBase):
         self._components = {}
         versions = {}
 
-        if isinstance(self, TimelineProcessor):
-            export_items = [list(export_items)[0]]
-
         num_items = len(self._exportTemplate.flatten()) * len(export_items)
         for export_item in export_items:
             track_item = export_item.item()
