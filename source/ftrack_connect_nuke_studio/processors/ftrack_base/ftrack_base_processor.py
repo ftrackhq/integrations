@@ -508,15 +508,13 @@ class FtrackProcessor(FtrackBase):
                 if isinstance(self, TimelineProcessor):
                     track_item = export_item.item().sequence()
                     shot_name_index = ''
-
-                try:
-                    root = track_item.parentTrack().name()
-                except:
-                    root = track_item.name()
+                    root_item = track_item.name()
+                else:
+                    root_item = track_item.parentTrack().name()
 
                 # Create entry points on where to store ftrack component and path data.
-                self._components.setdefault(root, {})
-                self._components[root].setdefault(track_item.name(), {})
+                self._components.setdefault(root_item, {})
+                self._components[root_item].setdefault(track_item.name(), {})
 
                 retime = self._preset.properties().get('includeRetimes', False)
 
@@ -555,7 +553,7 @@ class FtrackProcessor(FtrackBase):
                 )
 
                 task = hiero.core.taskRegistry.createTaskFromPreset(preset, taskData)
-                self._components[root][track_item.name()].setdefault(task.component_name(), {})
+                self._components[root_item][track_item.name()].setdefault(task.component_name(), {})
 
                 if getattr(task, '_nothingToDo', False) is True:
                     # Do not create anything if the task is set not to do anything.
@@ -621,7 +619,7 @@ class FtrackProcessor(FtrackBase):
                     'published': False
                 }
 
-                self._components[root][track_item.name()][task.component_name()] = data
+                self._components[root_item][track_item.name()][task.component_name()] = data
                 self.add_ftrack_tag(track_item, task)
 
         # We have successfully exported the project, so now we can lock it.
@@ -639,10 +637,11 @@ class FtrackProcessor(FtrackBase):
         # TrackItem
         item = task._item
         self.logger.info('Adding tag to {}'.format(original_item))
-        try:
-            root = original_item.parentTrack().name()
-        except:
-            root = original_item.name()
+
+        if isinstance(self, TimelineProcessor):
+            root_item = original_item.name()
+        else:
+            root_item = original_item.parentTrack().name()
 
         localtime = time.localtime(time.time())
 
@@ -651,7 +650,7 @@ class FtrackProcessor(FtrackBase):
 
         task_id = str(task._preset.properties()['ftrack']['task_id'])
         task_name = task.component_name()
-        data = self._components[root][original_item.name()][task_name]
+        data = self._components[root_item][original_item.name()][task_name]
         component = data['component']
 
         path = data['path']
@@ -739,13 +738,14 @@ class FtrackProcessor(FtrackBase):
 
     def setup_export_paths_event(self, task):
         ''' Event spawned when *task* start. '''
-        try:
-            root = task._item.parentTrack().name()
-        except:
-            root = task._item.name()
+
+        if isinstance(self, TimelineProcessor):
+            root_item = task._item.name()
+        else:
+            root_item = task._item.parentTrack().name()
 
         has_data = self._components.get(
-            root, {}
+            root_item, {}
         ).get(
             task._item.name(), {}
         ).get(task.component_name())
@@ -773,13 +773,14 @@ class FtrackProcessor(FtrackBase):
 
     def publish_result_component_event(self, render_task):
         ''' Event spawned when *render_task* frame is rendered. '''
-        try:
-            root = render_task._item.parentTrack().name()
-        except:
-            root = render_task._item.name()
+
+        if isinstance(self, TimelineProcessor):
+            root_item = render_task._item.name()
+        else:
+            root_item = render_task._item.parentTrack().name()
 
         has_data = self._components.get(
-            root, {}
+            root_item, {}
         ).get(
             render_task._item.name(), {}
         ).get(render_task.component_name())
