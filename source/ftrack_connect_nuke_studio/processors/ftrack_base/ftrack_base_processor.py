@@ -501,11 +501,15 @@ class FtrackProcessor(FtrackBase):
                         task_name = meta.value('ftrack.name')
                         task_tags.add(task_name)
 
-                root = track_item.parentTrack().name()
                 shot_name_index = getShotNameIndex(track_item)
                 if isinstance(self, TimelineProcessor):
                     track_item = export_item.item().sequence()
                     shot_name_index = ''
+
+                try:
+                    root = track_item.parentTrack().name()
+                except:
+                    root = track_item.name()
 
                 # Create entry points on where to store ftrack component and path data.
                 self._components.setdefault(root, {})
@@ -637,7 +641,10 @@ class FtrackProcessor(FtrackBase):
         # TrackItem
         item = task._item
         self.logger.info('Adding tag to {}'.format(original_item))
-        root = original_item.parentTrack().name()
+        try:
+            root = original_item.parentTrack().name()
+        except:
+            root = original_item.name()
 
         localtime = time.localtime(time.time())
 
@@ -734,7 +741,11 @@ class FtrackProcessor(FtrackBase):
 
     def setup_export_paths_event(self, task):
         ''' Event spawned when *task* start. '''
-        root = task._item.parentTrack().name()
+        try:
+            root = task._item.parentTrack().name()
+        except:
+            root = task._item.name()
+
         has_data = self._components.get(
             root, {}
         ).get(
@@ -764,7 +775,10 @@ class FtrackProcessor(FtrackBase):
 
     def publish_result_component_event(self, render_task):
         ''' Event spawned when *render_task* frame is rendered. '''
-        root = render_task._item.parentTrack().name()
+        try:
+            root = render_task._item.parentTrack().name()
+        except:
+            root = render_task._item.name()
 
         has_data = self._components.get(
             root, {}
