@@ -384,15 +384,21 @@ class FtrackProcessor(FtrackBase):
 
         component_name = task.component_name()
 
-        self.logger.info(
-            'Creating component for : {} with name {}'.format(
-                task, component_name
-            )
-        )
+        # check if a component with the same name, under the version already exist.
+        component = self.session.query('Component where name is "{}" and version.id is "{}"'.format(
+            component_name, parent['id']
+        )).first()
 
-        component = parent.create_component('/', {
-            'name': component_name
-        }, location=None)
+        if not component:
+            self.logger.info(
+                'Creating component for : {} with name {}'.format(
+                    task, component_name
+                )
+            )
+
+            component = parent.create_component('/', {
+                'name': component_name
+            }, location=None)
 
         return component
 
