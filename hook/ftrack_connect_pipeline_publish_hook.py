@@ -168,10 +168,16 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
         '''
         applications = []
+        path_parts = []
 
         # build path
-        path_parts = ['/']  # TODO : this is for linux only
-        path_parts.extend(plugin_base_dir.split(os.path.sep)[1:])
+        if sys.platform != 'win32' :
+            path_parts.append(os.path.sep)
+            path_parts.extend(plugin_base_dir.split(os.path.sep)[1:])
+
+        else:
+            path_parts.extend(plugin_base_dir.split(os.path.sep))
+
         path_parts.extend(
             [
                 'dependencies',
@@ -180,7 +186,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 'publish.py$'
             ]
         )
-
+        print 'parts', path_parts
         applications.extend(self._searchFilesystem(
             expression=path_parts,
             label='pipeline',
