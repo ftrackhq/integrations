@@ -5,7 +5,7 @@
 import os
 import sys
 
-deps_paths = os.environ.get('PYTHONPATH').split(os.pathsep)
+deps_paths = os.environ.get('PYTHONPATH','').split(os.pathsep)
 for path in deps_paths:
     sys.path.append(path)
 
