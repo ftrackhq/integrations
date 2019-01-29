@@ -186,7 +186,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 'publish.py$'
             ]
         )
-        print 'parts', path_parts
+
         applications.extend(self._searchFilesystem(
             expression=path_parts,
             label='pipeline',
