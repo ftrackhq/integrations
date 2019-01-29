@@ -6,6 +6,9 @@ from hiero.exporters.FnAudioExportTask import AudioExportTask, AudioExportPreset
 from hiero.exporters.FnAudioExportUI import AudioExportUI
 from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 
+
+from ftrack_connect_nuke_studio.config import report_exception
+
 from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,
     FtrackProcessor,
@@ -16,6 +19,7 @@ from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor imp
 class FtrackAudioExporter(AudioExportTask, FtrackProcessor):
     '''Audio Task exporter.'''
 
+    @report_exception
     def __init__(self, initDict):
         '''Initialise task with *initDict*.'''
         AudioExportTask.__init__(self, initDict)
@@ -38,6 +42,7 @@ class FtrackAudioExporter(AudioExportTask, FtrackProcessor):
 class FtrackAudioExporterPreset(AudioExportPreset, FtrackProcessorPreset):
     '''Audio Task preset.'''
 
+    @report_exception
     def __init__(self, name, properties):
         '''Initialise task with *name* and *properties*.'''
         AudioExportPreset.__init__(self, name, properties)
@@ -73,6 +78,7 @@ class FtrackAudioExporterPreset(AudioExportPreset, FtrackProcessorPreset):
 class FtrackAudioExporterUI(AudioExportUI, FtrackProcessorUI):
     '''Audio Task Ui.'''
 
+    @report_exception
     def __init__(self, preset):
         '''Initialise task ui with *preset*.'''
         AudioExportUI.__init__(self, preset)
