@@ -12,7 +12,16 @@ for path in deps_paths:
 
 from collections import OrderedDict
 
-from QtExt import QtWidgets, QtGui, QtCore
+from QtExt import QtGui
+
+import inspect
+import os
+filename = inspect.getframeinfo(inspect.currentframe()).filename
+
+PACKAGE_DIRECTORY = os.path.abspath(
+    os.path.join(os.path.dirname(filename), '..', '..'))
+
+sys.path.append(PACKAGE_DIRECTORY)
 
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import utils

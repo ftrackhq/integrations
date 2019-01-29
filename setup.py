@@ -40,6 +40,7 @@ STAGING_PATH = os.path.join(
     BUILD_PATH, 'ftrack-connect-pipeline-{}'.format(VERSION)
 )
 
+
 class BuildPlugin(setuptools.Command):
     '''Build plugin.'''
 
@@ -83,7 +84,7 @@ class BuildPlugin(setuptools.Command):
         # ensure publish pipeline is executable
         os.chmod(
             os.path.join(
-                STAGING_PATH, 
+                STAGING_PATH,
                 'dependencies',
                 'ftrack_connect_pipeline',
                 'qt',
