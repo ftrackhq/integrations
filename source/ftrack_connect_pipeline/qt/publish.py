@@ -3,6 +3,12 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import sys
+import os
+
+deps_paths = os.environ.get('PYTHONPATH').split(os.pathsep)
+for path in deps_paths:
+    sys.path.append(path)
+
 from collections import OrderedDict
 
 from QtExt import QtWidgets, QtGui, QtCore
@@ -10,6 +16,7 @@ from QtExt import QtWidgets, QtGui, QtCore
 from ftrack_connect_pipeline import utils
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.qt import BaseQtPipelineWidget
+
 
 
 class QtPipelinePublishWidget(BaseQtPipelineWidget):

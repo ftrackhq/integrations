@@ -2,7 +2,14 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
+import os
 import sys
+
+deps_paths = os.environ.get('PYTHONPATH').split(os.pathsep)
+for path in deps_paths:
+    sys.path.append(path)
+
+
 from collections import OrderedDict
 
 from QtExt import QtWidgets, QtGui, QtCore

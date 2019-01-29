@@ -204,6 +204,17 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
         '''.'''
         super(ApplicationLauncher, self).__init__(application_store)
 
+    def _getApplicationLaunchCommand(self, application, context=None):
+
+        command = [sys.executable, application['path']]
+
+        # Add any extra launch arguments if specified.
+        launchArguments = application.get('launchArguments')
+        if launchArguments:
+            command.extend(launchArguments)
+
+        return command
+
     def _getApplicationEnvironment(
         self, application, context=None
     ):
