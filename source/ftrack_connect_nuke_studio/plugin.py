@@ -6,7 +6,7 @@ from __future__ import absolute_import
 import hiero.core
 from QtExt import QtWidgets, QtCore
 
-from ftrack_connect import config
+from ftrack_connect_nuke_studio import config
 config.configure_logging('ftrack_connect_nuke_studio', level='WARNING')
 
 from ftrack_connect_nuke_studio.actions.build_track import FtrackBuildTrack
