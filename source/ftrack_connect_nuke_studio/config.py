@@ -24,7 +24,8 @@ def report_exception(function):
             return function(*args, **kwargs)
         except:
             # log the exception
-            err = function.__name__
+            err = 'Exception cought in : '
+            err += function.__name__
             logger.exception(err)
 
             # re-raise the exception
