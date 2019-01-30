@@ -9,7 +9,8 @@ from ftrack_connect_pipeline import utils
 from ftrack_connect.ui.widget import header
 from ftrack_connect.ui import theme
 
-class BaseQtPipelineWidget(QtWidgets.QWidget):
+
+class BaseQtPipelineWidget(QtWidgets.QDialog):
     widget_suffix = 'widget.qt'
 
     @property
