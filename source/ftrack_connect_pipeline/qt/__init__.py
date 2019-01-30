@@ -7,7 +7,7 @@ from ftrack_connect_pipeline.qt import utils as qtutils
 from ftrack_connect_pipeline import utils
 
 from ftrack_connect.ui.widget import header
-
+from ftrack_connect.ui import theme
 
 class BaseQtPipelineWidget(QtWidgets.QWidget):
     widget_suffix = 'widget.qt'
@@ -37,6 +37,9 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
         self.build()
         self.post_build()
+
+        theme.applyFont()
+        theme.applyTheme(self, 'dark', 'cleanlooks')
 
     def resetLayout(self, layout):
         '''Reset layout and delete widgets.'''
@@ -155,4 +158,5 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
     def _on_run(self):
         '''Slot triggered with run button.'''
         # start processing the stages.
+        self.stages_manager.reset_stages()
         self.stages_manager.process_stages()
