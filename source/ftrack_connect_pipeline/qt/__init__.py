@@ -48,6 +48,8 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
                     widget.deleteLater()
                 else:
                     self.resetLayout(item.layout())
+        self.stages_manager.reset_stages()
+        self.stages_manager.widgets.clear()
 
     def _on_asset_type_change(self, index):
         '''Slot triggered on asset type change.'''

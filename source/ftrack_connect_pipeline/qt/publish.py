@@ -34,7 +34,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
     def run_context(self):
         '''Run context stage'''
-        widgets = self.stages_manager.widgets[self.stages_manager.current_stage]
+        widgets = self.stages_manager.widgets.get(self.stages_manager.current_stage, [])
         event_list = []
         for widget in widgets:
             options = widget.extract_options()
