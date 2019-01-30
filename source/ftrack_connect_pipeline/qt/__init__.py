@@ -10,7 +10,7 @@ from ftrack_connect.ui.widget import header
 from ftrack_connect.ui import theme
 
 
-class BaseQtPipelineWidget(QtWidgets.QDialog):
+class BaseQtPipelineWidget(QtWidgets.QWidget):
     widget_suffix = 'widget.qt'
 
     @property
@@ -40,7 +40,7 @@ class BaseQtPipelineWidget(QtWidgets.QDialog):
         self.post_build()
 
         theme.applyFont()
-        theme.applyTheme(self, 'dark', 'cleanlooks')
+        # theme.applyTheme(self, 'dark', 'cleanlooks')
 
     def resetLayout(self, layout):
         '''Reset layout and delete widgets.'''
