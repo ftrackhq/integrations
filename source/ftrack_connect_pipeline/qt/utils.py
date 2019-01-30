@@ -29,6 +29,9 @@ class StageManager(QtCore.QObject):
     # todo: replace with blinker or ftrack-events for abstraction from qt?
     stage_start = QtCore.Signal()
     stage_done = QtCore.Signal()
+    stage_error = QtCore.Signal(object)
+
+    stages_end = QtCore.Signal()
 
     @property
     def widgets(self):
@@ -72,6 +75,7 @@ class StageManager(QtCore.QObject):
         next_stage_idx = current_stage_idx + 1
 
         if next_stage_idx >= len(self.stages.keys()):
+            self.stages_end.emit()
             # we reached the end, no more steps to perform !
             return
 
@@ -151,7 +155,11 @@ class StageManager(QtCore.QObject):
         '''Slot triggered when the stage start'''
         self.logger.debug('Starting stage: {}'.format(self.current_stage))
         fn = self.stages[self.current_stage][1]
-        fn()
+        try:
+            fn()
+        except Exception as error: # we catch anything as we have no idea what might come from here...
+            self.logger.exception(error)
+            self.stage_error.emit(str(error))
 
     def _on_stage_done(self):
         '''Slot triggered when the stage is finished'''

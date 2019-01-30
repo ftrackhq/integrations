@@ -117,8 +117,17 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.run_button.clicked.connect(self._on_run)
         self.combo.currentIndexChanged.connect(self._on_asset_type_change)
 
+        self.stages_manager.stage_error.connect(self._on_stage_error)
+        self.stages_manager.stages_end.connect(self._on_stages_end)
+
         self._event_thread = qtutils.NewApiEventHubThread()
         self._event_thread.start(self.session)
+
+    def _on_stage_error(self, error):
+        self.header.setMessage(error, level='error')
+
+    def _on_stages_end(self):
+        self.header.setMessage('DONE!', level='info')
 
     # widget handling
     def fetch_widget(self, plugin, base_topic, plugin_type):
