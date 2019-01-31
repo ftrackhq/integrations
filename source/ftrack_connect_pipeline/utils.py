@@ -43,6 +43,10 @@ class AssetSchemaManager(object):
 
     def __init__(self, session, context_type):
         '''Initialise the class with ftrack *session* and *context_type*'''
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+
         self.asset_registry = {}
         self._context_type = context_type
         self.session = session
@@ -57,5 +61,11 @@ class AssetSchemaManager(object):
             ),
             synchronous=True
         )
-        for result in results[0]:
-            self.asset_registry[result['asset_name']] = result
+        for result in results:
+            asset_name = result['asset_name']
+            if asset_name in self.asset_registry:
+                self.logger.warning('Asset {} already registered!'.format(asset_name))
+                return
+
+            self.asset_registry[asset_name] = result
+
