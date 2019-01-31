@@ -160,7 +160,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             ),
             synchronous=True
         )
-        self.logger.info('UI WIDGET : {} FOUND: {}'.format(mytopic, result_widget))
+        self.logger.debug('widget found {} for {}'.format(result_widget, mytopic))
         if result_widget:
             return result_widget[0]
 

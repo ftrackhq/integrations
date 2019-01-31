@@ -14,17 +14,17 @@ logger = logging.getLogger(__name__)
 
 def merge_list(list_data):
     '''Utility function to merge *list_data*'''
-    logger.info('Merging {} '.format(list_data))
+    logger.debug('Merging {} '.format(list_data))
     result = list(set(itertools.chain.from_iterable(list_data)))
-    logger.info('into {}'.format(result))
+    logger.debug('into {}'.format(result))
     return result
 
 
 def merge_dict(dict_data):
     '''Utility function to merge *dict_data*'''
-    logger.info('Merging {} '.format(dict_data))
+    logger.debug('Merging {} '.format(dict_data))
     result = {k: v for d in dict_data for k, v in d.items()}
-    logger.info('into {}'.format(result))
+    logger.debug('into {}'.format(result))
     return result
 
 
@@ -66,6 +66,6 @@ class AssetSchemaManager(object):
             if asset_name in self.asset_registry:
                 self.logger.warning('Asset {} already registered!'.format(asset_name))
                 return
-
+            self.logger.debug('Registering asset {}'.format(asset_name))
             self.asset_registry[asset_name] = result
 

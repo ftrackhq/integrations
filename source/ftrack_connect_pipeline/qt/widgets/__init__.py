@@ -1,6 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
-
+import logging
 from QtExt import QtWidgets, QtCore
 
 
@@ -32,6 +32,11 @@ class BaseWidget(QtWidgets.QWidget):
 
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None, plugin_topic=None):
         super(BaseWidget, self).__init__(parent=parent)
+
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+
         self._session = session
         self._data = data
         self._name = name
