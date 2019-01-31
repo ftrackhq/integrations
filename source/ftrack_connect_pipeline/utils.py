@@ -66,6 +66,14 @@ class AssetSchemaManager(object):
             if asset_name in self.asset_registry:
                 self.logger.warning('Asset {} already registered!'.format(asset_name))
                 return
+
+            asset_type = result['asset_type']
+            asset_type_object = self.session.query('AssetType where short is "{}"'.format(asset_type)).first()
+
+            if not asset_type_object:
+                self.logger.warning('Asset type {} does not exists!'.format(asset_type))
+                return
+
             self.logger.debug('Registering asset {}'.format(asset_name))
             self.asset_registry[asset_name] = result
 
