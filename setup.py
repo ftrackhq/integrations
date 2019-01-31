@@ -1,5 +1,6 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2016 ftrack
+# :copyright: Copyright (c) 2019 ftrack
+
 
 import os
 import re
@@ -38,6 +39,7 @@ with open(os.path.join(
 STAGING_PATH = os.path.join(
     BUILD_PATH, 'ftrack-connect-pipeline-{}'.format(VERSION)
 )
+
 
 class BuildPlugin(setuptools.Command):
     '''Build plugin.'''
@@ -78,15 +80,28 @@ class BuildPlugin(setuptools.Command):
                 '--process-dependency-links'
             ]
         )
-        # ensure pipeline is executable
+
+        # ensure publish pipeline is executable
         os.chmod(
             os.path.join(
-                STAGING_PATH, 
+                STAGING_PATH,
                 'dependencies',
                 'ftrack_connect_pipeline',
-                'ui', 
-                'qt', 
-                '__main__.py'
+                'qt',
+                'publish.py'
+            ), int('777', 8)
+        )
+
+        # ensure load pipeline is executable
+
+        # ensure publish pipeline is executable
+        os.chmod(
+            os.path.join(
+                STAGING_PATH,
+                'dependencies',
+                'ftrack_connect_pipeline',
+                'qt',
+                'load.py'
             ), int('777', 8)
         )
 

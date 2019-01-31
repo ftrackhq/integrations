@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2016 ftrack
+# :copyright: Copyright (c) 2019 ftrack
 
 import os
 import functools
@@ -42,7 +42,7 @@ def run_local_events(session, event):
 
 def start_host_listener():
     logger.info('START EVENT LISTENER')
-    session = ftrack_api.Session(auto_connect_event_hub=True)
+    session = ftrack_api.Session(auto_connect_event_hub=False)
     session.event_hub.connect()
     session.event_hub.subscribe(
         'topic={}'.format(constants.PIPELINE_RUN_TOPIC),
