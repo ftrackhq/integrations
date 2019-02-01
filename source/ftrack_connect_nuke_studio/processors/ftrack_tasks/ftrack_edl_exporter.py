@@ -1,8 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2018 ftrack
 
-import time
-
 import hiero
 
 from hiero.exporters.FnEDLExportTask import (
@@ -12,6 +10,8 @@ from hiero.exporters.FnEDLExportTask import (
 from hiero.exporters.FnEDLExportUI import EDLExportUI
 from hiero.core.FnExporterBase import TaskCallbacks
 from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
+
+from ftrack_connect_nuke_studio.config import report_exception
 
 from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,
@@ -23,6 +23,7 @@ from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor imp
 class FtrackEDLExporter(EDLExportTask, FtrackProcessor):
     '''EDL Task exporter.'''
 
+    @report_exception
     def __init__(self, initDict):
         '''Initialise task with *initDict*.'''
         EDLExportTask.__init__(self, initDict)
@@ -47,6 +48,7 @@ class FtrackEDLExporter(EDLExportTask, FtrackProcessor):
 class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
     '''EDL Task preset.'''
 
+    @report_exception
     def __init__(self, name, properties):
         '''Initialise task with *name* and *properties*.'''
         EDLExportPreset.__init__(self, name, properties)
@@ -86,6 +88,7 @@ class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
 class FtrackEDLExporterUI(EDLExportUI, FtrackProcessorUI):
     '''EDL Task Ui.'''
 
+    @report_exception
     def __init__(self, preset):
         '''Initialise task ui with *preset*.'''
         EDLExportUI.__init__(self, preset)

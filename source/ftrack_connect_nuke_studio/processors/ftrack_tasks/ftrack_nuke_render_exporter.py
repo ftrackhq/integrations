@@ -11,8 +11,9 @@ import hiero.core.util
 from hiero.exporters.FnSubmission import Submission
 from hiero.exporters.FnTranscodeExporter import TranscodeExporter, TranscodePreset
 from hiero.exporters.FnTranscodeExporterUI import TranscodeExporterUI
-from hiero.exporters.FnExternalRender import NukeRenderTask
 from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
+
+from ftrack_connect_nuke_studio.config import report_exception
 
 from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,
@@ -24,6 +25,7 @@ from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor imp
 class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
     '''NukeRender Task exporter.'''
 
+    @report_exception
     def __init__(self, initDict):
         '''Initialise task with *initDict*.'''
 
@@ -71,6 +73,7 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
 class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
     '''NukeRender Task preset.'''
 
+    @report_exception
     def __init__(self, name, properties):
         '''Initialise task with *name* and *properties*.'''
         TranscodePreset.__init__(self, name, properties)
@@ -129,6 +132,7 @@ class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
 class FtrackNukeRenderExporterUI(TranscodeExporterUI, FtrackProcessorUI):
     '''NukeRender Task Ui.'''
 
+    @report_exception
     def __init__(self, preset):
         '''Initialise task ui with *preset*.'''
         TranscodeExporterUI.__init__(self, preset)

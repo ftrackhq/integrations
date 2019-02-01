@@ -8,7 +8,6 @@ from ftrack_connect_nuke_studio.base import FtrackBase
 from ftrack_connect_nuke_studio.template import match, get_project_template
 import ftrack_connect_nuke_studio.exception
 
-
 logger = logging.getLogger(__name__)
 
 

@@ -8,6 +8,7 @@ from hiero.exporters.FnTranscodeExporter import TranscodePreset
 from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 from hiero.ui.FnUIProperty import UIPropertyFactory
 
+from ftrack_connect_nuke_studio.config import report_exception
 
 from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,
@@ -19,6 +20,7 @@ from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor imp
 class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
     '''Shot Task exporter.'''
 
+    @report_exception
     def __init__(self, initDict):
         '''Initialise task with *initDict*.'''
         NukeShotExporter.__init__(self, initDict)
@@ -80,6 +82,7 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
 class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
     '''Shot Task preset.'''
 
+    @report_exception
     def __init__(self, name, properties, task=FtrackNukeShotExporter):
         '''Initialise task with *name* and *properties*.'''
         NukeShotPreset.__init__(self, name, properties, task)
@@ -143,6 +146,7 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
 class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackProcessorUI):
     '''Shot Task Ui.'''
 
+    @report_exception
     def __init__(self, preset):
         '''Initialise task ui with *preset*.'''
 

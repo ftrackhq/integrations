@@ -13,6 +13,11 @@ Release Notes
 
         Edl Exporter generates empty components.
 
+    .. change:: new
+       :tags: Logging
+
+        Better error handling to log.
+
 .. release:: 2.1.2
     :date: 2019-01-17
 
