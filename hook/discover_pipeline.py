@@ -2,12 +2,12 @@
 # :copyright: Copyright (c) 2016 ftrack
 
 import os
-import ftrack
 import ftrack_api
 import ftrack_connect.application
+
 import logging
 
-logger = logging.getLogger('ftrack_connect_pipeline.listen_maya_launch')
+logger = logging.getLogger('ftrack_connect_pipeline.discover')
 
 plugin_base_dir = os.path.normpath(
     os.path.join(
@@ -22,27 +22,17 @@ application_hook = os.path.join(
     plugin_base_dir, 'resource', 'application_hook'
 )
 
-
-maya_script_path = os.path.join(
-    plugin_base_dir, 'resource', 'maya_plugin'
-)
-
 python_dependencies = os.path.join(
     plugin_base_dir, 'dependencies'
 )
 
 
-def on_application_launch(event):
+def on_discover_pipeline(event):
     '''Handle application launch and add environment to *event*.'''
+
 
     ftrack_connect.application.appendPath(
         python_dependencies,
-        'PYTHONPATH',
-        event['data']['options']['env']
-    )
-
-    ftrack_connect.application.appendPath(
-        maya_script_path,
         'PYTHONPATH',
         event['data']['options']['env']
     )
@@ -58,12 +48,13 @@ def on_application_launch(event):
     )
 
 
-def register(registry):
+def register(session):
     '''Subscribe to application launch events on *registry*.'''
-    if registry is not ftrack.EVENT_HANDLERS:
+    if not isinstance(session, ftrack_api.session.Session):
         return
 
-    ftrack.EVENT_HUB.subscribe(
-        'topic=ftrack.connect.application.launch and data.application.identifier=maya*',
-        on_application_launch
+    logger.info('discovering :{}'.format('ftrack.pipeline.discover'))
+    session.event_hub.subscribe(
+        'topic=ftrack.connect.application.launch',
+        on_discover_pipeline
     )
