@@ -27,9 +27,8 @@ def register(api_object, **kw):
         return
 
     context_topic_qt = constants.CONTEXT_PLUGIN_TOPIC.format('context.publish.widget.qt')
-    context_topic_maya = constants.CONTEXT_PLUGIN_TOPIC.format('context.publish.widget.maya')
 
-    topics = [context_topic_qt, context_topic_maya]
+    topics = [context_topic_qt]
 
     for context_topic in topics:
         logger.info('discovering :{}'.format(context_topic))
