@@ -9,9 +9,8 @@ import threading
 import maya.cmds as mc
 
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.configure_logging import configure_logging
+import ftrack_connect_pipeline_maya
 
-configure_logging(__name__)
 logger = logging.getLogger(__name__)
 
 
