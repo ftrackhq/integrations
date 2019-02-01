@@ -1,2 +1,2 @@
-ftrack-connect-pipeline
-=======================
+ftrack-connect-pipeline_maya
+============================
