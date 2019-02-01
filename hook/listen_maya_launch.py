@@ -4,7 +4,6 @@
 import os
 import ftrack_api
 import ftrack_connect.application
-import functools
 import logging
 
 logger = logging.getLogger('ftrack_connect_pipeline.listen_maya_launch')
@@ -28,30 +27,24 @@ python_dependencies = os.path.join(
 )
 
 
-def on_application_launch(session, event):
+def on_application_launch(event):
     '''Handle application launch and add environment to *event*.'''
 
-    result = session.event_hub.publish(
-        ftrack_api.event.base.Event(topic='ftrack.pipeline.discover')
+    ftrack_connect.application.appendPath(
+        python_dependencies,
+        'PYTHONPATH',
+        event['data']['options']['env']
     )
 
-    print '-------- ENVS --------', result
-    #
-    # ftrack_connect.application.appendPath(
-    #     python_dependencies,
-    #     'PYTHONPATH',
-    #     event['data']['options']['env']
-    # )
-    #
-    # ftrack_connect.application.appendPath(
-    #     maya_script_path,
-    #     'PYTHONPATH',
-    #     event['data']['options']['env']
-    # )
-    #
-    # event['data']['options']['env']['FTRACK_CONTEXT_ID'] = (
-    #     event['data']['options']['env']['FTRACK_TASKID']
-    # )
+    ftrack_connect.application.appendPath(
+        maya_script_path,
+        'PYTHONPATH',
+        event['data']['options']['env']
+    )
+
+    event['data']['options']['env']['FTRACK_CONTEXT_ID'] = (
+        event['data']['options']['env']['FTRACK_TASKID']
+    )
 
 
 def register(session):
@@ -61,6 +54,5 @@ def register(session):
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch and data.application.identifier=maya*',
-        functools.partial(on_application_launch, session)
-
+        on_application_launch
     )
