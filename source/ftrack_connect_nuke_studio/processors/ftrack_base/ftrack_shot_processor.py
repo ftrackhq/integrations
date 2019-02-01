@@ -5,6 +5,7 @@ import hiero
 from hiero.exporters.FnShotProcessor import ShotProcessorPreset
 from hiero.exporters.FnShotProcessor import ShotProcessor
 from hiero.exporters.FnShotProcessorUI import ShotProcessorUI
+from ftrack_connect_nuke_studio.config import report_exception
 
 from QtExt import QtWidgets
 
@@ -16,11 +17,13 @@ from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor imp
 class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
     '''Ftrack shot processor.'''
 
+    @report_exception
     def __init__(self, preset, submission, synchronous=False):
         '''Initialise processor with *preset* , *submission* and option to run as *synchronous*.'''
         ShotProcessor.__init__(self, preset, submission, synchronous=synchronous)
         FtrackProcessor.__init__(self, preset)
 
+    @report_exception
     def startProcessing(self, exportItems, preview=False):
         ''' Start processing of *exportItems* with optional *preview* mode. '''
         result = FtrackProcessor.validate_ftrack_processing(self, exportItems, preview)
@@ -65,6 +68,7 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackProcessorUI):
         ''' Return processor tooltip. '''
         return 'Process as Shots generates output on a per shot basis.'
 
+    @report_exception
     def populateUI(self, processorUIWidget, taskUIWidget, exportItems):
         '''Populate processor ui with *exportItems*, with parent widget *processorUIWidget* or *taskUIWidget*.'''
         ShotProcessorUI.populateUI(self, processorUIWidget, taskUIWidget, exportItems)

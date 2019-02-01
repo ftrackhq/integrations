@@ -2,10 +2,7 @@
 # :copyright: Copyright (c) 2018 ftrack
 
 import logging
-import os
-import re
 import copy
-import hiero
 import hiero.core.util
 from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 
@@ -14,8 +11,8 @@ import tempfile
 from hiero.exporters.FnSubmission import Submission
 from hiero.exporters.FnTranscodeExporter import TranscodeExporter, TranscodePreset
 from hiero.exporters.FnTranscodeExporterUI import TranscodeExporterUI
-from hiero.exporters.FnExternalRender import NukeRenderTask
 
+from ftrack_connect_nuke_studio.config import report_exception
 from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,
     FtrackProcessor,
@@ -26,6 +23,7 @@ from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor imp
 class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
     '''Reviewable Task exporter.'''
 
+    @report_exception
     def __init__(self, initDict):
         '''Initialise task with *initDict*.'''
         self.logger = logging.getLogger(
@@ -76,6 +74,7 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
 class FtrackReviewableExporterPreset(TranscodePreset, FtrackProcessorPreset):
     '''Reviewable Task preset.'''
 
+    @report_exception
     def __init__(self, name, properties):
         '''Initialise task with *name* and *properties*.'''
         TranscodePreset.__init__(self, name, properties)
@@ -118,6 +117,7 @@ class FtrackReviewableExporterPreset(TranscodePreset, FtrackProcessorPreset):
 class FtrackReviewableExporterUI(TranscodeExporterUI, FtrackProcessorUI):
     '''Reviewable Task Ui.'''
 
+    @report_exception
     def __init__(self, preset):
         '''Initialise task ui with *preset*.'''
         TranscodeExporterUI.__init__(self, preset)

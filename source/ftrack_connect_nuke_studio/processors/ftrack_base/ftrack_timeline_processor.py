@@ -5,6 +5,7 @@ import hiero
 from hiero.exporters.FnTimelineProcessor import TimelineProcessor
 from hiero.exporters.FnTimelineProcessor import TimelineProcessorPreset
 from hiero.exporters.FnTimelineProcessorUI import TimelineProcessorUI
+from ftrack_connect_nuke_studio.config import report_exception
 
 from QtExt import QtWidgets
 
@@ -16,11 +17,13 @@ from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor imp
 class FtrackTimelineProcessor(TimelineProcessor, FtrackProcessor):
     '''Ftrack timeline processor.'''
 
+    @report_exception
     def __init__(self, preset, submission, synchronous=False):
         '''Initialise processor with *preset* , *submission* and option to run as *synchronous*.'''
         TimelineProcessor.__init__(self, preset, submission, synchronous=synchronous)
         FtrackProcessor.__init__(self, preset)
 
+    @report_exception
     def startProcessing(self, exportItems, preview=False):
         ''' Start processing of *exportItems* with optional *preview* mode. '''
         result = FtrackProcessor.validate_ftrack_processing(self, exportItems, preview)
@@ -32,6 +35,7 @@ class FtrackTimelineProcessor(TimelineProcessor, FtrackProcessor):
 class FtrackTimelineProcessorUI(TimelineProcessorUI, FtrackProcessorUI):
     '''Ftrack timeline processor Ui.'''
 
+    @report_exception
     def __init__(self, preset):
         '''Initialise processor ui with *preset*.'''
         TimelineProcessorUI.__init__(self, preset)
@@ -69,6 +73,7 @@ class FtrackTimelineProcessorUI(TimelineProcessorUI, FtrackProcessorUI):
         ''' Return processor tooltip. '''
         return 'Process as Shots generates output on a per shot basis.'
 
+    @report_exception
     def populateUI(self, processorUIWidget, taskUIWidget, exportItems):
         '''Populate processor ui with *exportItems*, with parent widget *processorUIWidget* or *taskUIWidget*.'''
         TimelineProcessorUI.populateUI(self, processorUIWidget, taskUIWidget, exportItems)
