@@ -22,6 +22,10 @@ maya_script_path = os.path.join(
     plugin_base_dir, 'resource', 'maya_plugin'
 )
 
+application_hook = os.path.join(
+    plugin_base_dir, 'resource', 'application_hook'
+)
+
 python_dependencies = os.path.join(
     plugin_base_dir, 'dependencies'
 )
@@ -41,6 +45,13 @@ def on_application_launch(event):
         'PYTHONPATH',
         event['data']['options']['env']
     )
+
+    ftrack_connect.application.appendPath(
+        application_hook,
+        'FTRACK_EVENT_PLUGIN_PATH',
+        event['data']['options']['env']
+    )
+
 
     event['data']['options']['env']['FTRACK_CONTEXT_ID'] = (
         event['data']['options']['env']['FTRACK_TASKID']
