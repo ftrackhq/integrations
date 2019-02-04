@@ -37,12 +37,14 @@ python_dependencies = os.path.join(
 def on_application_launch(event):
     '''Handle application launch and add environment to *event*.'''
 
+    # Add dependencies in pythonpath
     ftrack_connect.application.appendPath(
         python_dependencies,
         'PYTHONPATH',
         event['data']['options']['env']
     )
 
+    # Maya scripts
     ftrack_connect.application.appendPath(
         maya_script_path,
         'PYTHONPATH',
@@ -55,20 +57,18 @@ def on_application_launch(event):
         event['data']['options']['env']
     )
 
+    # Maya plugins
     ftrack_connect.application.appendPath(
         maya_connect_plugins_path,
         'MAYA_PLUG_IN_PATH',
         event['data']['options']['env']
     )
 
+    # Pipeline plugins
     ftrack_connect.application.appendPath(
         application_hook,
         'FTRACK_EVENT_PLUGIN_PATH',
         event['data']['options']['env']
-    )
-
-    event['data']['options']['env']['FTRACK_CONTEXT_ID'] = (
-        event['data']['options']['env']['FTRACK_TASKID']
     )
 
 
