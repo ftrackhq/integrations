@@ -6,7 +6,7 @@ import ftrack_api
 import ftrack_connect.application
 import logging
 
-logger = logging.getLogger('ftrack_connect_pipeline.listen_maya_launch')
+logger = logging.getLogger('ftrack_connect_pipeline_maya.listen_maya_launch')
 
 plugin_base_dir = os.path.normpath(
     os.path.join(
@@ -36,6 +36,8 @@ python_dependencies = os.path.join(
 
 def on_application_launch(event):
     '''Handle application launch and add environment to *event*.'''
+
+    logger.debug('Adding maya pipeline environments.')
 
     # Add dependencies in pythonpath
     ftrack_connect.application.appendPath(
