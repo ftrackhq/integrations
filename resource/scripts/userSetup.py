@@ -28,29 +28,30 @@ def open_dialog(dialog_class):
     created_dialogs[dialog_name].show()
 
 
-def get_ftrack_menu(menu_name= 'ftrack-pipeline'):
+def get_ftrack_menu(menu_name = 'ftrack-pipeline'):
     gMainWindow = mm.eval('$temp1=$gMainWindow')
+
     if mc.menu(menu_name, exists=True):
-        mc.deleteUI(menu_name)
+        menu = menu_name
 
-    ftrackMenu = mc.menu(
-        menu_name,
-        parent=gMainWindow,
-        tearOff=False,
-        label=menu_name
-    )
+    else:
+        menu = mc.menu(
+            menu_name,
+            parent=gMainWindow,
+            tearOff=False,
+            label=menu_name
+        )
 
-    return ftrackMenu
-
+    return menu
 
 
 def load_and_init():
     # TODO : later we need to bring back here all the maya initialiations from ftrack-connect-maya
     # such as frame start / end etc....
 
-    # usage.send_event(
-    #     'USED-FTRACK-CONNECT-PIPELINE-MAYA'
-    # )
+    usage.send_event(
+        'USED-FTRACK-CONNECT-PIPELINE-MAYA'
+    )
 
     mc.loadPlugin('ftrackMayaPlugin.py', quiet=True)
 
@@ -103,5 +104,5 @@ def register_hub_host():
     logger.info('thread started!')
 
 
-mc.evalDeferred("register_hub_host()")
-mc.evalDeferred("load_and_init()")
+mc.evalDeferred("register_hub_host()", lp=True)
+mc.evalDeferred("load_and_init()", lp=True)
