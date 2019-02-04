@@ -41,8 +41,8 @@ def register(api_object, **kw):
 
     # collect all topics
     topics = [
-        validator_topic_qt, collector_topic_qt, extractor_topic_qt, publisher_topic_qt,
-        components_topic_qt, importers_topic_qt,
+        validator_topic_qt, collector_topic_qt, extractor_topic_qt,
+        publisher_topic_qt, components_topic_qt, importers_topic_qt,
     ]
 
     for topic in topics:

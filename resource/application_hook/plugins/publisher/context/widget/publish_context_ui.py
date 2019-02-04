@@ -28,15 +28,12 @@ def register(api_object, **kw):
 
     context_topic_qt = constants.CONTEXT_PLUGIN_TOPIC.format('context.publish.widget.qt')
 
-    topics = [context_topic_qt]
+    logger.info('discovering :{}'.format(context_topic_qt))
 
-    for context_topic in topics:
-        logger.info('discovering :{}'.format(context_topic))
-
-        event_handler = functools.partial(
-            register_widget, api_object
-        )
-        api_object.event_hub.subscribe(
-            'topic={}'.format(context_topic),
-            event_handler
-        )
+    event_handler = functools.partial(
+        register_widget, api_object
+    )
+    api_object.event_hub.subscribe(
+        'topic={}'.format(context_topic_qt),
+        event_handler
+    )

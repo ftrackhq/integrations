@@ -30,21 +30,18 @@ python_dependencies = os.path.join(
 def on_discover_pipeline(event):
     '''Handle application launch and add environment to *event*.'''
 
-
+    # Add pipeline dependencies to pythonpath.
     ftrack_connect.application.appendPath(
         python_dependencies,
         'PYTHONPATH',
         event['data']['options']['env']
     )
 
+    # Add base plugins to events path.
     ftrack_connect.application.appendPath(
         application_hook,
         'FTRACK_EVENT_PLUGIN_PATH',
         event['data']['options']['env']
-    )
-
-    event['data']['options']['env']['FTRACK_CONTEXT_ID'] = (
-        event['data']['options']['env']['FTRACK_TASKID']
     )
 
 
