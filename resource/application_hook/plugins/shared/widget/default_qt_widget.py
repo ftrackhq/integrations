@@ -39,30 +39,10 @@ def register(api_object, **kw):
     components_topic_qt = constants.COMPONENTS_PLUGIN_TOPIC.format(default_widget_qt)
     importers_topic_qt = constants.IMPORTERS_PLUGIN_TOPIC.format(default_widget_qt)
 
-    # Register for Maya
-
-    # Register for Qt based integrations
-    default_widget_maya = 'default.widget.maya'
-
-    # publisher
-    validator_topic_maya = constants.VALIDATORS_PLUGIN_TOPIC.format(default_widget_maya)
-    collector_topic_maya = constants.COLLECTORS_PLUGIN_TOPIC.format(default_widget_maya)
-    extractor_topic_maya = constants.EXTRACTORS_PLUGIN_TOPIC.format(default_widget_maya)
-    publisher_topic_maya = constants.PUBLISHERS_PLUGIN_TOPIC.format(default_widget_maya)
-
-    # loader
-    components_topic_maya = constants.COMPONENTS_PLUGIN_TOPIC.format(default_widget_maya)
-    importers_topic_maya = constants.IMPORTERS_PLUGIN_TOPIC.format(default_widget_maya)
-
     # collect all topics
     topics = [
-        validator_topic_qt, collector_topic_qt, extractor_topic_qt, publisher_topic_qt,
-        validator_topic_maya, collector_topic_maya, extractor_topic_maya, publisher_topic_maya,
-
-        components_topic_qt, importers_topic_qt,
-        components_topic_maya, importers_topic_maya
-
-
+        validator_topic_qt, collector_topic_qt, extractor_topic_qt,
+        publisher_topic_qt, components_topic_qt, importers_topic_qt,
     ]
 
     for topic in topics:

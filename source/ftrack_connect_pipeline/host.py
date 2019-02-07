@@ -1,15 +1,10 @@
-# :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
-
-import os
 import functools
 import logging
 import ftrack_api
-import threading
-import maya.cmds as mc
+
+from ftrack_connect_pipeline import constants
 
 logger = logging.getLogger(__name__)
-from ftrack_connect_pipeline import constants
 
 
 def run_local_events(session, event):
@@ -49,15 +44,3 @@ def start_host_listener():
         functools.partial(run_local_events, session)
     )
     session.event_hub.wait()
-
-
-def register_hub_host():
-    t = threading.Thread(target=start_host_listener)
-    t.daemon = True
-    t.start()
-    logger.info('thread started!')
-
-
-
-
-mc.evalDeferred("register_hub_host()")
