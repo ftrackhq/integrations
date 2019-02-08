@@ -1,12 +1,60 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
+import threading
 import logging
 from collections import OrderedDict
+
 import ftrack_api
 from QtExt import QtCore
 
 from ftrack_connect_pipeline import constants
+
+
+class _EventThread(threading.Thread):
+
+    def __init__(self, event, callback, parent=None):
+        self._callback = callback
+        session = ftrack_api.Session()
+        self._event = event
+        session.event_hub.publish(
+            event,
+            synchronous=True
+        )
+        self.parent = parent
+        super(_EventThread, self).__init__()
+
+    def run(self):
+        self.parent and self._callback(self._event)
+
+
+class EventManager(object):
+    def __init__(self, enable_remote_events=False):
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+        self.enable_remote_events = enable_remote_events
+
+    def _emit(self, event, callback):
+        if not self.enable_remote_events:
+            self.logger.info('threaded event')
+            event_thread = _EventThread(event, callback, parent=self)
+            event_thread.start()
+        else:
+            self.logger.info('remote event')
+            session = ftrack_api.Session()
+            session.event_hub.publish(
+                event,
+                on_reply=callback
+            )
+
+    def publish(self, topic, event_list, callback):
+
+        event = ftrack_api.event.base.Event(
+            topic=topic,
+            data={'event_list': event_list}
+        )
+        self._emit(event, callback)
 
 
 class NewApiEventHubThread(QtCore.QThread):
@@ -104,7 +152,7 @@ class StageManager(QtCore.QObject):
 
         self._current_stage = stage
 
-    def __init__(self, session, stages_mapping, stage_type):
+    def __init__(self, session, stages_mapping, stage_type, enable_remote_events=False):
         '''Initialise with *session*, *stage mapping* and *stage_type*'''
         super(StageManager, self).__init__()
 
@@ -126,6 +174,7 @@ class StageManager(QtCore.QObject):
         self.stage_done.connect(self._on_stage_done)
         self.stage_start.connect(self._on_stage_start)
         self.reset_stages()
+        self.event_manager = EventManager(enable_remote_events)
 
     # event handling
     def __on_handle_async_reply(self, event):
@@ -149,13 +198,10 @@ class StageManager(QtCore.QObject):
         self.logger.debug(
             'Sending event list {} to host'.format(event_list)
         )
-
-        self._session.event_hub.publish(
-            ftrack_api.event.base.Event(
-                topic=constants.PIPELINE_RUN_TOPIC,
-                data={'event_list': event_list}
-            ),
-            on_reply=self.__on_handle_async_reply
+        self.event_manager.publish(
+            constants.PIPELINE_RUN_TOPIC,
+            event_list,
+            self.__on_handle_async_reply
         )
 
     def _on_stage_start(self, ):
