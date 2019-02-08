@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
+import os
 import threading
 import logging
 from collections import OrderedDict
@@ -13,47 +14,56 @@ from ftrack_connect_pipeline import constants
 
 class _EventThread(threading.Thread):
 
-    def __init__(self, session, event, callback, parent=None):
+    def __init__(self, session, event, callback):
+        super(_EventThread, self).__init__(target=self.run)
+
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+
         self._callback = callback
         self._event = event
         self._session = session
-        self.parent = parent
-
-        super(_EventThread, self).__init__()
+        self._result = {}
 
     def run(self):
+        self.logger.info('running thread {}'.format(self))
+
         result = self._session.event_hub.publish(
             self._event,
             synchronous=True,
         )
+        self.logger.info('event result {}'.format(result))
 
+        # mock async event reply
         event = ftrack_api.event.base.Event(
             topic='ftrack.meta.reply',
             data=result,
             in_reply_to_event=self._event['id'],
-            sent=False
         )
 
+        self.logger.info('returning callback {} with {}'.format(self._callback, event))
         self._callback(event)
 
 
 class EventManager(object):
-    def __init__(self, session, enable_remote_events=False):
+    def __init__(self, session):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
         self.session = session
-        self.enable_remote_events = enable_remote_events
+        self.enable_remote_events = int(
+            os.getenv(constants.PIPELINE_EVENT_TYPE_ENV, '0')
+        ) # default to local events
 
     def _emit(self, event, callback):
-        if not self.enable_remote_events:
+
+        if self.enable_remote_events == 0:
             self.logger.info('threaded event')
-            event_thread = _EventThread(self.session, event, callback, parent=self)
+            event_thread = _EventThread(self.session, event, callback)
             event_thread.start()
-        else:
+
+        elif self.enable_remote_events == 1:
             self.logger.info('remote event')
             self.session.event_hub.publish(
                 event,
@@ -164,7 +174,7 @@ class StageManager(QtCore.QObject):
 
         self._current_stage = stage
 
-    def __init__(self, session, stages_mapping, stage_type, enable_remote_events=False):
+    def __init__(self, session, stages_mapping, stage_type):
         '''Initialise with *session*, *stage mapping* and *stage_type*'''
         super(StageManager, self).__init__()
 
@@ -186,7 +196,7 @@ class StageManager(QtCore.QObject):
         self.stage_done.connect(self._on_stage_done)
         self.stage_start.connect(self._on_stage_start)
         self.reset_stages()
-        self.event_manager = EventManager(self._session, enable_remote_events)
+        self.event_manager = EventManager(self._session)
 
     # event handling
     def __on_handle_async_reply(self, event):
