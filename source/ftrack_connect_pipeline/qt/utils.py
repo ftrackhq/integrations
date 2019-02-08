@@ -13,37 +13,49 @@ from ftrack_connect_pipeline import constants
 
 class _EventThread(threading.Thread):
 
-    def __init__(self, event, callback, parent=None):
-        self._callback = callback
-        session = ftrack_api.Session()
-        self._event = event
-        session.event_hub.publish(
-            event,
-            synchronous=True
-        )
-        self.parent = parent
-        super(_EventThread, self).__init__()
-
-    def run(self):
-        self.parent and self._callback(self._event)
-
-
-class EventManager(object):
-    def __init__(self, enable_remote_events=False):
+    def __init__(self, session, event, callback, parent=None):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+        self._callback = callback
+        self._event = event
+        self._session = session
+        self.parent = parent
+
+        super(_EventThread, self).__init__()
+
+    def run(self):
+        result = self._session.event_hub.publish(
+            self._event,
+            synchronous=True,
+        )
+
+        event = ftrack_api.event.base.Event(
+            topic='ftrack.meta.reply',
+            data=result,
+            in_reply_to_event=self._event['id'],
+            sent=False
+        )
+
+        self._callback(event)
+
+
+class EventManager(object):
+    def __init__(self, session, enable_remote_events=False):
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+        self.session = session
         self.enable_remote_events = enable_remote_events
 
     def _emit(self, event, callback):
         if not self.enable_remote_events:
             self.logger.info('threaded event')
-            event_thread = _EventThread(event, callback, parent=self)
+            event_thread = _EventThread(self.session, event, callback, parent=self)
             event_thread.start()
         else:
             self.logger.info('remote event')
-            session = ftrack_api.Session()
-            session.event_hub.publish(
+            self.session.event_hub.publish(
                 event,
                 on_reply=callback
             )
@@ -174,11 +186,13 @@ class StageManager(QtCore.QObject):
         self.stage_done.connect(self._on_stage_done)
         self.stage_start.connect(self._on_stage_start)
         self.reset_stages()
-        self.event_manager = EventManager(enable_remote_events)
+        self.event_manager = EventManager(self._session, enable_remote_events)
 
     # event handling
     def __on_handle_async_reply(self, event):
         '''handle async ftrack event reply '''
+        self.logger.info('handling result: {}'.format(event))
+
         event_data = event['data']
         event_task_name = event_data.keys()[0]
         event_task_value = event_data.values()[0]
