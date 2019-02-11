@@ -37,7 +37,7 @@ class _EventThread(threading.Thread):
 
         # mock async event reply
         event = ftrack_api.event.base.Event(
-            topic='ftrack.meta.reply',
+            topic=u'ftrack.meta.reply',
             data=result,
             in_reply_to_event=self._event['id'],
         )
