@@ -35,15 +35,11 @@ def run_local_events(session, event):
     return {event_type: results}
 
 
-def start_host_listener(host=None):
+def start_host_listener():
     logger.info('start event listener')
     session = get_shared_session()
     session.event_hub.subscribe(
         'topic={}'.format(constants.PIPELINE_RUN_TOPIC),
-        functools.partial(run_local_events, session),
-        subscriber={
-            'id': uuid.uuid4().hex,
-            'applicationId': host or 'undefined'
-        }
+        functools.partial(run_local_events, session)
     )
     session.event_hub.wait()
