@@ -5,7 +5,8 @@ from QtExt import QtWidgets, QtGui, QtCore
 
 from ftrack_connect_pipeline.qt import utils as qtutils
 from ftrack_connect_pipeline import utils
-
+from ftrack_connect_pipeline.session import get_shared_session
+from ftrack_api.exception import EventHubConnectionError
 from ftrack_connect.ui.widget import header
 from ftrack_connect.ui import theme
 
@@ -28,8 +29,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             __name__ + '.' + self.__class__.__name__
         )
 
-        self.session = ftrack_api.Session(auto_connect_event_hub=False)
-        self.session.event_hub.connect()
+        self.session = get_shared_session()
         self.stages_manager = qtutils.StageManager(
             self.session, stages_mapping, stage_type
         )
