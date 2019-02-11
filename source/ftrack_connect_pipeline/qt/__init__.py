@@ -28,7 +28,8 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             __name__ + '.' + self.__class__.__name__
         )
 
-        self.session = ftrack_api.Session(auto_connect_event_hub=True)
+        self.session = ftrack_api.Session(auto_connect_event_hub=False)
+        self.session.event_hub.connect()
         self.stages_manager = qtutils.StageManager(
             self.session, stages_mapping, stage_type
         )
