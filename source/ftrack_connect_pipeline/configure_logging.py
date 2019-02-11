@@ -78,7 +78,6 @@ def configure_logging(logger_name, level=None, format=None, extra_modules=None):
                 'stream': 'ext://sys.stdout',
             },
             'file': {
-                'filters': ['limit_to'],
                 'class': 'logging.handlers.RotatingFileHandler',
                 'level': 'DEBUG',
                 'formatter': 'file',
@@ -89,7 +88,6 @@ def configure_logging(logger_name, level=None, format=None, extra_modules=None):
             },
 
         },
-        'filters': {'limit_to': {'name': logger_name}},
         'formatters': {
             'file': {
                 'format': format
