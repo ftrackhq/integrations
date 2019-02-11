@@ -12,7 +12,7 @@ import ftrack_connect_pipeline_maya #  import to configure logging
 import maya.cmds as mc
 import maya.mel as mm
 
-logger = logging.getLogger('userSetup')
+logger = logging.getLogger('ftrack_connect_pipeline_maya.scripts.userSetup')
 
 created_dialogs = dict()
 
