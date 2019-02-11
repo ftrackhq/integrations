@@ -13,7 +13,7 @@ from ftrack_connect_pipeline import constants
 
 
 class _EventThread(threading.Thread):
-
+    '''Wrapper object to simulate asyncronus events.'''
     def __init__(self, session, event, callback):
         super(_EventThread, self).__init__(target=self.run)
 
@@ -27,6 +27,7 @@ class _EventThread(threading.Thread):
         self._result = {}
 
     def run(self):
+        '''Target thread method.'''
         result = self._session.event_hub.publish(
             self._event,
             synchronous=True,
@@ -42,6 +43,7 @@ class _EventThread(threading.Thread):
 
 
 class EventManager(object):
+    '''Manages the events handling.'''
     def __init__(self, session):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -52,21 +54,22 @@ class EventManager(object):
         ) # default to local events
 
     def _emit(self, event, callback):
-
+        '''Emit *event* and provide *callback* function.'''
+        self.logger.info('remote events enabled : {}'.format(
+            bool(self.enable_remote_events))
+        )
         if self.enable_remote_events == 0:
-            self.logger.info('threaded event')
             event_thread = _EventThread(self.session, event, callback)
             event_thread.start()
 
         elif self.enable_remote_events == 1:
-            self.logger.info('remote event')
             self.session.event_hub.publish(
                 event,
                 on_reply=callback
             )
 
     def publish(self, topic, event_list, callback):
-
+        '''Publish to *topic* the *event_list* and provide *callback* function.'''
         event = ftrack_api.event.base.Event(
             topic=topic,
             data={'event_list': event_list}
