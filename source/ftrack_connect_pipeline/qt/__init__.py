@@ -30,7 +30,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
         self.session = ftrack_api.Session(auto_connect_event_hub=True)
         self.stages_manager = qtutils.StageManager(
-            self.session, stages_mapping, stage_type, enable_remote_events=False
+            self.session, stages_mapping, stage_type
         )
 
         context_type = 'Task'
