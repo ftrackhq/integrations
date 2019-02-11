@@ -27,13 +27,10 @@ class _EventThread(threading.Thread):
         self._result = {}
 
     def run(self):
-        self.logger.info('running thread {}'.format(self))
-
         result = self._session.event_hub.publish(
             self._event,
             synchronous=True,
         )
-        self.logger.info('event result {}'.format(result))
 
         # mock async event reply
         event = ftrack_api.event.base.Event(
@@ -41,8 +38,6 @@ class _EventThread(threading.Thread):
             data=result[0],
             in_reply_to_event=self._event['id'],
         )
-
-        self.logger.info('returning callback {} with {}'.format(self._callback, event))
         self._callback(event)
 
 
@@ -53,7 +48,7 @@ class EventManager(object):
         )
         self.session = session
         self.enable_remote_events = int(
-            os.getenv(constants.PIPELINE_EVENT_TYPE_ENV, '0')
+            os.getenv(constants.PIPELINE_REMOTE_EVENTS_ENV, '0')
         ) # default to local events
 
     def _emit(self, event, callback):
