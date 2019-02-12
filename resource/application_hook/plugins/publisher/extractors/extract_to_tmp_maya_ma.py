@@ -50,7 +50,7 @@ def register(api_object, **kw):
         register_extractor, api_object
     )
     api_object.event_hub.subscribe(
-        'topic={} and data.host={}'.format(topic, HOST),
+        'topic={} and data.host={} and data.type=plugin'.format(topic, HOST),
         event_handler
     )
 
