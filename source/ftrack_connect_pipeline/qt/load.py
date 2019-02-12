@@ -20,13 +20,13 @@ from ftrack_connect_pipeline.qt import BaseQtPipelineWidget
 
 class QtPipelineLoaderWidget(BaseQtPipelineWidget):
 
-    def __init__(self, parent=None):
+    def __init__(self, ui, host, parent=None):
         stage_type = constants.LOAD
         stages_mapping = OrderedDict([
             (constants.CONTEXT,    (constants.CONTEXT_PLUGIN_TOPIC, self.run_context)),
             (constants.IMPORTERS,  (constants.IMPORTERS_PLUGIN_TOPIC, self.run_importers))
         ])
-        super(QtPipelineLoaderWidget, self).__init__(stage_type, stages_mapping, parent=parent)
+        super(QtPipelineLoaderWidget, self).__init__(stage_type, stages_mapping, ui, host, parent=parent)
         self.setWindowTitle('Standalone Pipeline Loader')
 
     def run_context(self):
@@ -71,6 +71,6 @@ class QtPipelineLoaderWidget(BaseQtPipelineWidget):
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
-    wid = QtPipelineLoaderWidget()
+    wid = QtPipelineLoaderWidget(host='standalone', ui='qt')
     wid.show()
     sys.exit(app.exec_())

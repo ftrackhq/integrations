@@ -11,16 +11,26 @@ from ftrack_connect.ui import theme
 
 
 class BaseQtPipelineWidget(QtWidgets.QWidget):
-    widget_suffix = 'widget.qt'
+    
+    @property
+    def host(self):
+        return self._host
+
+    @property
+    def ui(self):
+        return self._ui
 
     @property
     def asset_type(self):
         '''Return current asset type'''
         return self._current_asset_type
 
-    def __init__(self, stage_type, stages_mapping, parent=None):
+    def __init__(self, stage_type, stages_mapping, ui, host, parent=None):
         '''Initialise widget with *stage_type* and *stage_mapping*.'''
         super(BaseQtPipelineWidget, self).__init__(parent=parent)
+
+        self._ui = 'widget.{}'.format(ui)
+        self._host = host
 
         self._current_asset_type = None
 
@@ -34,7 +44,9 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         )
 
         context_type = 'Task'
-        self.assets_manager = utils.AssetSchemaManager(self.session, context_type)
+        self.assets_manager = utils.AssetSchemaManager(
+            self.session, context_type
+        )
 
         self.build()
         self.post_build()
@@ -133,13 +145,13 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
     # widget handling
     def fetch_widget(self, plugin, base_topic, plugin_type):
         '''Fetch widgets defined in the asset schema.'''
-        ui = plugin.get('plugin_ui', 'default.{}'.format(self.widget_suffix))
+        ui = plugin.get('plugin_ui', 'default.{}'.format(self.ui))
         mytopic = base_topic.format(ui)
 
         # filter widgets which cannot be loaded in this host.
-        if self.widget_suffix not in mytopic:
+        if self.ui not in mytopic:
             self.logger.warning('cannot load widget topic of type {} for {}'.format(
-                mytopic, self.widget_suffix
+                mytopic, self.ui
             ))
             return
 
@@ -152,10 +164,15 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             ftrack_api.event.base.Event(
                 topic=mytopic,
                 data={
-                    'options': plugin_options,
-                    'name': plugin_name,
-                    'description': description,
-                    'plugin_topic': plugin_topic
+                    'ui': self.ui,
+                    'host': self.host,
+                    'settings':
+                        {
+                            'options': plugin_options,
+                            'name': plugin_name,
+                            'description': description,
+                            'plugin_topic': plugin_topic
+                        }
                 }
             ),
             synchronous=True

@@ -25,7 +25,7 @@ def extract_to_tmp(session, data=None, options=None):
 
 
 def register_extractor(session, event):
-    return extract_to_tmp(session, **event['data'])
+    return extract_to_tmp(session, **event['data']['settings'])
 
 
 def register(api_object, **kw):

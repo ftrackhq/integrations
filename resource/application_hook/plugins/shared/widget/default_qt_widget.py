@@ -13,7 +13,7 @@ logger = logging.getLogger('ftrack_connect_pipeline.plugin')
 
 
 def register_widget(session, event):
-    return simple.SimpleWidget(session=session, **event['data'])
+    return simple.SimpleWidget(session=session, **event['data']['settings'])
 
 
 def register(api_object, **kw):

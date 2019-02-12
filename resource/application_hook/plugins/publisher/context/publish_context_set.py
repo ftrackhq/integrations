@@ -19,7 +19,7 @@ def set_context(session, data=None, options=None):
 
 
 def register_collector(session, event):
-    return set_context(session, **event['data'])
+    return set_context(session, **event['data']['settings'])
 
 
 def register(api_object, **kw):

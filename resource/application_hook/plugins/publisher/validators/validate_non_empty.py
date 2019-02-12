@@ -16,7 +16,7 @@ def validate_non_empty(session, data=None, options=None):
 
 
 def register_validator(session, event):
-    return validate_non_empty(session, **event['data'])
+    return validate_non_empty(session, **event['data']['settings'])
 
 
 def register(api_object, **kw):

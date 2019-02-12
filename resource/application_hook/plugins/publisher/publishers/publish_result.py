@@ -48,7 +48,7 @@ def publish_result(session, data=None, options=None):
 
 
 def register_publisher(session,event):
-    return publish_result(session, **event['data'])
+    return publish_result(session, **event['data']['settings'])
 
 
 def register(api_object, **kw):

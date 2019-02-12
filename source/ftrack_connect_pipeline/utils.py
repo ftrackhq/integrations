@@ -41,7 +41,7 @@ class AssetSchemaManager(object):
 
         return copy.deepcopy(filtered_results)
 
-    def __init__(self, session, context_type):
+    def __init__(self, session, context_type ):
         '''Initialise the class with ftrack *session* and *context_type*'''
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__

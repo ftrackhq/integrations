@@ -20,7 +20,7 @@ from ftrack_connect_pipeline.qt import BaseQtPipelineWidget
 
 class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
-    def __init__(self, parent=None):
+    def __init__(self, ui, host, parent=None):
         stage_type = constants.PUBLISH
         stages_mapping = OrderedDict([
             (constants.CONTEXT,    (constants.CONTEXT_PLUGIN_TOPIC, self.run_context)),
@@ -29,7 +29,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
             (constants.EXTRACTORS, (constants.EXTRACTORS_PLUGIN_TOPIC, self.run_extractors)),
             (constants.PUBLISHERS, (constants.PUBLISHERS_PLUGIN_TOPIC, self.run_publishers))
         ])
-        super(QtPipelinePublishWidget, self).__init__(stage_type, stages_mapping, parent=parent)
+        super(QtPipelinePublishWidget, self).__init__(stage_type, stages_mapping, ui, host, parent=parent)
         self.setWindowTitle('Standalone Pipeline Publisher')
 
     def run_context(self):
@@ -160,6 +160,6 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
-    wid = QtPipelinePublishWidget()
+    wid = QtPipelinePublishWidget(host='standalone', ui='qt')
     wid.show()
     sys.exit(app.exec_())
