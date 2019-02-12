@@ -7,7 +7,7 @@ import logging
 import ftrack_api
 from ftrack_connect_pipeline import constants
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('ftrack_connect_pipeline.plugin')
 
 
 def set_context(session, data=None, options=None):
