@@ -7,7 +7,7 @@ from ftrack_connect_pipeline import constants
 logger = logging.getLogger(__name__)
 
 
-def run_local_events(session, event):
+def run_local_events(session, event, host=None, ui=None):
     logger.info('run_local_events:{}'.format(event))
     event_list = event['data']['event_list']
     results = []
@@ -23,7 +23,11 @@ def run_local_events(session, event):
 
         event = ftrack_api.event.base.Event(
             topic=str(event_topic),
-            data={'settings': event_data}
+            data={
+                'ui': ui,
+                'host': host,
+                'settings': event_data
+            }
         )
 
         result = session.event_hub.publish(
@@ -43,11 +47,6 @@ def start_host_listener(host=None, ui=None):
     session.event_hub.connect()
     session.event_hub.subscribe(
         'topic={}'.format(constants.PIPELINE_RUN_TOPIC),
-        functools.partial(run_local_events, session),
-        subscriber={
-            'id': uuid.uuid4().hex,
-            'host': host or 'undefined',
-            'ui': ui or 'undefined'
-         }
+        functools.partial(run_local_events, session, host=host, ui=ui)
     )
     session.event_hub.wait()
