@@ -6,8 +6,9 @@ import logging
 
 import ftrack_api
 from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline_maya.constants import HOST
 
-logger = logging.getLogger('ftrack_connect_pipeline_maya.plugin.collectors.from_set.maya')
+logger = logging.getLogger('ftrack_connect_pipeline_maya.plugin')
 
 
 def collect_from_set(session, data=None, options=None):
@@ -25,7 +26,7 @@ def collect_from_set(session, data=None, options=None):
 
 def register_collector(session, event):
     logger.info('registering collet from set collector...')
-    return collect_from_set(session, **event['data'])
+    return collect_from_set(session, **event['data']['settings'])
 
 
 def register(api_object, **kw):

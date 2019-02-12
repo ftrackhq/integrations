@@ -7,8 +7,9 @@ import logging
 
 import ftrack_api
 from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline_maya.constants import HOST
 
-logger = logging.getLogger('ftrack_connect_pipeline_maya.plugin.importers.maya')
+logger = logging.getLogger('ftrack_connect_pipeline_maya.plugin')
 
 
 def import_maya(session, data=None, options=None):
@@ -42,7 +43,7 @@ def import_maya(session, data=None, options=None):
 
 
 def register_importer(session, event):
-    return import_maya(session, **event['data'])
+    return import_maya(session, **event['data']['settings'])
 
 
 def register(api_object, **kw):

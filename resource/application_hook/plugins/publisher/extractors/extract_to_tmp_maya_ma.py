@@ -7,8 +7,9 @@ import logging
 
 import ftrack_api
 from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline_maya.constants import HOST
 
-logger = logging.getLogger('ftrack_connect_pipeline_maya.plugin.extractors.to_tmp.maya.ma')
+logger = logging.getLogger('ftrack_connect_pipeline_maya.plugin')
 
 
 def extract_to_tmp(session, data=None, options=None):
@@ -29,7 +30,7 @@ def extract_to_tmp(session, data=None, options=None):
 
 
 def register_extractor(session, event):
-    return extract_to_tmp(session, **event['data'])
+    return extract_to_tmp(session, **event['data']['settings'])
 
 
 def register(api_object, **kw):
@@ -52,3 +53,4 @@ def register(api_object, **kw):
         'topic={}'.format(topic),
         event_handler
     )
+
