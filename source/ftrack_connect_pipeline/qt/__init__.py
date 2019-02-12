@@ -29,7 +29,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         '''Initialise widget with *stage_type* and *stage_mapping*.'''
         super(BaseQtPipelineWidget, self).__init__(parent=parent)
 
-        self._ui = 'widget.{}'.format(ui)
+        self._ui = ui
         self._host = host
 
         self._current_asset_type = None
@@ -145,15 +145,8 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
     # widget handling
     def fetch_widget(self, plugin, base_topic, plugin_type):
         '''Fetch widgets defined in the asset schema.'''
-        ui = plugin.get('plugin_ui', 'default.{}'.format(self.ui))
+        ui = plugin.get('widget', 'default.widget')
         mytopic = base_topic.format(ui)
-
-        # filter widgets which cannot be loaded in this host.
-        if self.ui not in mytopic:
-            self.logger.warning('cannot load widget topic of type {} for {}'.format(
-                mytopic, self.ui
-            ))
-            return
 
         plugin_options = plugin.get('options', {})
         plugin_name = plugin.get('name', 'no name provided')
@@ -164,6 +157,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             ftrack_api.event.base.Event(
                 topic=mytopic,
                 data={
+                    'type': 'widget',
                     'ui': self.ui,
                     'host': self.host,
                     'settings':

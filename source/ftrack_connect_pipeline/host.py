@@ -24,6 +24,7 @@ def run_local_events(session, event, host=None, ui=None):
         event = ftrack_api.event.base.Event(
             topic=str(event_topic),
             data={
+                'type': 'plugin',
                 'ui': ui,
                 'host': host,
                 'settings': event_data

@@ -16,7 +16,7 @@ def register_asset(event):
                     'context': [
                         {
                             'name' : 'Set Context',
-                            'plugin_ui': 'context.publish.widget.qt',
+                            'widget': 'context.publish',
                             'plugin':'context.publish',
                             'options': {'context_id': None, 'asset_name': None},
                             'description': 'Set context where to publish to'
@@ -78,7 +78,7 @@ def register_asset(event):
                {
                     'context': [
                         {
-                            'plugin_ui': 'context.load.widget.qt',
+                            'widget': 'context.load',
                             'plugin':'context.load',
                             'name' : 'Context ',
                             'options': {'component_list': None, 'accepts':['.ma', '.mb']},

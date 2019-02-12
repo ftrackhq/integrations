@@ -26,7 +26,7 @@ def register(api_object, **kw):
         # Exit to avoid registering this plugin again.
         return
 
-    context_topic_qt = constants.CONTEXT_PLUGIN_TOPIC.format('context.load.widget.qt')
+    context_topic_qt = constants.CONTEXT_PLUGIN_TOPIC.format('context.load')
 
     logger.info('discovering :{}'.format(context_topic_qt))
 
@@ -34,6 +34,6 @@ def register(api_object, **kw):
         register_widget, api_object
     )
     api_object.event_hub.subscribe(
-        'topic={}'.format(context_topic_qt),
+        'topic={} and data.ui={} and data.type=widget'.format(context_topic_qt, constants.UI),
         event_handler
     )

@@ -27,7 +27,7 @@ def register(api_object, **kw):
         return
 
     # Register for Qt based integrations
-    default_widget_qt = 'default.widget.qt'
+    default_widget_qt = 'default.widget'
 
     # publisher
     validator_topic_qt = constants.VALIDATORS_PLUGIN_TOPIC.format(default_widget_qt)
@@ -52,6 +52,8 @@ def register(api_object, **kw):
             register_widget, api_object
         )
         api_object.event_hub.subscribe(
-            'topic={}'.format(topic),
+            'topic={} and data.ui={} and data.type=widget'.format(
+                topic, constants.UI
+            ),
             event_handler
         )
