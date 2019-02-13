@@ -32,7 +32,7 @@ class _EventThread(threading.Thread):
             synchronous=True,
         )
 
-        # mock async event reply
+        # Mock async event reply.
         event = ftrack_api.event.base.Event(
             topic=u'ftrack.meta.reply',
             data=result[0],
@@ -125,7 +125,7 @@ class StageManager(QtCore.QObject):
         previous_stage_idx = current_stage_idx - 1
 
         if previous_stage_idx < 0:
-            # we reached the end, no more steps to perform !
+            # We reached the start, no more steps to perform !
             return
 
         previous_stage = self.stages.keys()[previous_stage_idx]
@@ -140,7 +140,7 @@ class StageManager(QtCore.QObject):
 
         if next_stage_idx >= len(self.stages.keys()):
             self.stages_end.emit()
-            # we reached the end, no more steps to perform !
+            # We reached the end, no more steps to perform !
             return
 
         next_stage = self.stages.keys()[next_stage_idx]
@@ -187,7 +187,7 @@ class StageManager(QtCore.QObject):
             self._session, enable_remote_events
         )
 
-    # event handling
+    # Event handling.
     def __on_handle_async_reply(self, event):
         '''handle async ftrack event reply '''
         self.logger.info('handling result: {}'.format(event))
@@ -203,7 +203,7 @@ class StageManager(QtCore.QObject):
         )
         self._stages_results[event_task_name] = event_task_value
 
-        # automatically process next stage
+        # Automatically process next stage.
         self.stage_done.emit()
 
     def run_async(self, event_list):
@@ -228,7 +228,7 @@ class StageManager(QtCore.QObject):
         fn = self.stages[self.current_stage][1]
         try:
             fn()
-        except Exception as error: # we catch anything as we have no idea what might come from here...
+        except Exception as error: # We catch anything as we have no idea what might come from here.
             self.logger.exception(error)
             self.stage_error.emit(str(error))
 

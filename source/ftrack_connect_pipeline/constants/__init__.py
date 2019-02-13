@@ -1,22 +1,21 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-# base name
+# Base name.
 _BASE_ = 'ftrack.pipeline'
 
-# common stages
+# Common stages.
 CONTEXT = 'context'
 
-# common events
+# Common events.
 CONTEXT_PLUGIN_TOPIC = '{}.{}.{{}}'.format(_BASE_, CONTEXT)
 
-# external events
+# External events.
 REGISTER_ASSET_TOPIC = '{}.asset._register_assets'.format(_BASE_)
 PIPELINE_RUN_TOPIC = '{}.host.run'.format(_BASE_)
 
 
-
-# avoid circular dependencies
+# Avoid circular dependencies.
 from ftrack_connect_pipeline.constants.load import *
 from ftrack_connect_pipeline.constants.publish import *
 from ftrack_connect_pipeline.constants.environments import *

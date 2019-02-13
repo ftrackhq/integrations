@@ -1,3 +1,6 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2019 ftrack
+
 import functools
 import logging
 import ftrack_api

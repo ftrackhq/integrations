@@ -1,5 +1,6 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2015 ftrack
+# :copyright: Copyright (c) 2019 ftrack
+
 import os
 import logging
 
@@ -29,7 +30,7 @@ def get_shared_session(plugin_paths=None):
             plugin_paths=plugin_paths
         )
 
-        # if is not connected, connect to event hub
+        # If is not already connected, connect to event hub.
         if not _shared_session.event_hub.connected:
             logger.debug('connecting to event hub')
             _shared_session.event_hub.connect()
