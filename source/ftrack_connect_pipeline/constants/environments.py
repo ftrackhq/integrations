@@ -1,3 +1,6 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2019 ftrack
+
 # environment variables
 PIPELINE_ASSET_PATH_ENV = 'FTRACK_PIPELINE_ASSET_PATH'
 

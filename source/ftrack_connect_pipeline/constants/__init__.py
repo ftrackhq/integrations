@@ -19,4 +19,4 @@ PIPELINE_RUN_TOPIC = '{}.host.run'.format(_BASE_)
 # avoid circular dependencies
 from ftrack_connect_pipeline.constants.load import *
 from ftrack_connect_pipeline.constants.publish import *
-from ftrack_connect_pipeline.constants.envs import *
+from ftrack_connect_pipeline.constants.environments import *
