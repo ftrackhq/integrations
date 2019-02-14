@@ -9,7 +9,7 @@ import ftrack_api
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.qt.widgets import simple
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('ftrack_connect_pipeline.plugin.default.widget.qt')
 
 
 def register_widget(session, event):
