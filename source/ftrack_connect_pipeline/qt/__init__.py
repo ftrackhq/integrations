@@ -1,3 +1,7 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2019 ftrack
+
+import os
 import ftrack_api
 import logging
 
@@ -5,7 +9,8 @@ from QtExt import QtWidgets, QtGui, QtCore
 
 from ftrack_connect_pipeline.qt import utils as qtutils
 from ftrack_connect_pipeline import utils
-
+from ftrack_connect_pipeline.session import get_shared_session
+from ftrack_connect_pipeline import constants
 from ftrack_connect.ui.widget import header
 from ftrack_connect.ui import theme
 
@@ -38,9 +43,19 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             __name__ + '.' + self.__class__.__name__
         )
 
-        self.session = ftrack_api.Session(auto_connect_event_hub=True)
+        enable_remote_events = bool(
+            int(os.getenv(constants.PIPELINE_REMOTE_EVENTS_ENV, '0'))
+        )
+
+        self.logger.info(
+            'Remote events enabled : {}'.format(
+                enable_remote_events
+            )
+        )
+        self.session = get_shared_session()
         self.stages_manager = qtutils.StageManager(
-            self.session, stages_mapping, stage_type
+            self.session, stages_mapping, stage_type,
+            enable_remote_events=enable_remote_events
         )
 
         context_type = 'Task'
@@ -52,7 +67,6 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.post_build()
 
         theme.applyFont()
-        # theme.applyTheme(self, 'dark', 'cleanlooks')
 
     def resetLayout(self, layout):
         '''Reset layout and delete widgets.'''

@@ -1,8 +1,11 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2019 ftrack
+
 import functools
 import logging
 import ftrack_api
-import uuid
 from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline.session import get_shared_session
 
 logger = logging.getLogger(__name__)
 
@@ -43,9 +46,8 @@ def run_local_events(session, event, host=None, ui=None):
 
 
 def start_host_listener(host=None, ui=None):
-    logger.info('START EVENT LISTENER')
-    session = ftrack_api.Session(auto_connect_event_hub=False)
-    session.event_hub.connect()
+    logger.info('start event listener')
+    session = get_shared_session()
     session.event_hub.subscribe(
         'topic={}'.format(constants.PIPELINE_RUN_TOPIC),
         functools.partial(run_local_events, session, host=host, ui=ui)

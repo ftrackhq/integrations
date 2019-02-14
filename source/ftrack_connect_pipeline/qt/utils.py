@@ -1,12 +1,69 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
+import threading
 import logging
 from collections import OrderedDict
+
 import ftrack_api
 from QtExt import QtCore
 
 from ftrack_connect_pipeline import constants
+
+
+class _EventThread(threading.Thread):
+    '''Wrapper object to simulate asyncronus events.'''
+    def __init__(self, session, event, callback):
+        super(_EventThread, self).__init__(target=self.run)
+
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+
+        self._callback = callback
+        self._event = event
+        self._session = session
+        self._result = {}
+
+    def run(self):
+        '''Target thread method.'''
+        result = self._session.event_hub.publish(
+            self._event,
+            synchronous=True,
+        )
+
+        # Mock async event reply.
+        event = ftrack_api.event.base.Event(
+            topic=u'ftrack.meta.reply',
+            data=result[0],
+            in_reply_to_event=self._event['id'],
+        )
+        self._callback(event)
+
+
+class EventManager(object):
+    '''Manages the events handling.'''
+    def __init__(self, session, enable_remote_events):
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+        self.session = session
+        self.enable_remote_events = enable_remote_events
+
+    def publish(self, event, callback):
+        '''Emit *event* and provide *callback* function.'''
+
+        if not self.enable_remote_events:
+            self.logger.info('running local events')
+            event_thread = _EventThread(self.session, event, callback)
+            event_thread.start()
+
+        else:
+            self.logger.info('running remote events')
+            self.session.event_hub.publish(
+                event,
+                on_reply=callback
+            )
 
 
 class NewApiEventHubThread(QtCore.QThread):
@@ -68,7 +125,7 @@ class StageManager(QtCore.QObject):
         previous_stage_idx = current_stage_idx - 1
 
         if previous_stage_idx < 0:
-            # we reached the end, no more steps to perform !
+            # We reached the start, no more steps to perform !
             return
 
         previous_stage = self.stages.keys()[previous_stage_idx]
@@ -83,7 +140,7 @@ class StageManager(QtCore.QObject):
 
         if next_stage_idx >= len(self.stages.keys()):
             self.stages_end.emit()
-            # we reached the end, no more steps to perform !
+            # We reached the end, no more steps to perform !
             return
 
         next_stage = self.stages.keys()[next_stage_idx]
@@ -104,7 +161,7 @@ class StageManager(QtCore.QObject):
 
         self._current_stage = stage
 
-    def __init__(self, session, stages_mapping, stage_type):
+    def __init__(self, session, stages_mapping, stage_type, enable_remote_events=False):
         '''Initialise with *session*, *stage mapping* and *stage_type*'''
         super(StageManager, self).__init__()
 
@@ -126,10 +183,15 @@ class StageManager(QtCore.QObject):
         self.stage_done.connect(self._on_stage_done)
         self.stage_start.connect(self._on_stage_start)
         self.reset_stages()
+        self.event_manager = EventManager(
+            self._session, enable_remote_events
+        )
 
-    # event handling
+    # Event handling.
     def __on_handle_async_reply(self, event):
         '''handle async ftrack event reply '''
+        self.logger.info('handling result: {}'.format(event))
+
         event_data = event['data']
         event_task_name = event_data.keys()[0]
         event_task_value = event_data.values()[0]
@@ -141,7 +203,7 @@ class StageManager(QtCore.QObject):
         )
         self._stages_results[event_task_name] = event_task_value
 
-        # automatically process next stage
+        # Automatically process next stage.
         self.stage_done.emit()
 
     def run_async(self, event_list):
@@ -150,12 +212,14 @@ class StageManager(QtCore.QObject):
             'Sending event list {} to host'.format(event_list)
         )
 
-        self._session.event_hub.publish(
-            ftrack_api.event.base.Event(
-                topic=constants.PIPELINE_RUN_TOPIC,
-                data={'event_list': event_list}
-            ),
-            on_reply=self.__on_handle_async_reply
+        event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_RUN_TOPIC,
+            data={'event_list': event_list}
+        )
+
+        self.event_manager.publish(
+            event,
+            self.__on_handle_async_reply
         )
 
     def _on_stage_start(self, ):
@@ -164,7 +228,7 @@ class StageManager(QtCore.QObject):
         fn = self.stages[self.current_stage][1]
         try:
             fn()
-        except Exception as error: # we catch anything as we have no idea what might come from here...
+        except Exception as error: # We catch anything as we have no idea what might come from here.
             self.logger.exception(error)
             self.stage_error.emit(str(error))
 
