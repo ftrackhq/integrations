@@ -38,3 +38,4 @@ Thumbs.db
 .settings
 .idea/
 source/ftrack_connect_pipeline/ui/resource.py
+*.orig
