@@ -8,16 +8,16 @@ from ftrack_connect_pipeline import constants
 def register_asset(event):
     return {
         'asset_name': 'Animation',
-        'asset_type': 'anim',
+        'asset_type': 'geo',
         'context': ['Task'],
         'publish': {
-            'plugins' : [
+            'plugins': [
                 {
                     'context': [
                         {
-                            'name' : 'Set Context',
+                            'name'  : 'Set Context',
                             'widget': 'context.publish',
-                            'plugin':'context.publish',
+                            'plugin': 'context.publish',
                             'options': {'context_id': None, 'asset_name': None},
                             'description': 'Set context where to publish to'
                         }
@@ -26,8 +26,8 @@ def register_asset(event):
                 {
                     'collectors': [
                         {
-                            'name' : 'From Maya Set',
-                            'plugin':'from_set.maya',
+                            'name'  : 'From Maya Set',
+                            'plugin': 'from_set',
                             'options': {'set_name': 'geometry'},
                             'description': 'collect all the geometry in maya set with the given name.'
                         }
@@ -47,14 +47,14 @@ def register_asset(event):
                     'extractors': [
                         {
                             'name' : 'Save as Maya Ascii',
-                            'plugin': 'to_tmp.maya.ma',
+                            'plugin': 'mayaascii',
                             'options': {'component_name': 'mayaAscii'},
                             'description': 'Save an .ma file in /tmp'
 
                         },
                         {
                             'name' : 'Save as Maya Binary',
-                            'plugin': 'to_tmp.maya.mb',
+                            'plugin': 'mayabinary',
                             'options': {'component_name': 'mayaBinary'},
                             'description': 'Save an .mb file in /tmp'
 
@@ -79,8 +79,8 @@ def register_asset(event):
                     'context': [
                         {
                             'widget': 'context.load',
-                            'plugin':'context.load',
-                            'name' : 'Context ',
+                            'plugin': 'context.load',
+                            'name'  : 'Context ',
                             'options': {'component_list': None, 'accepts':['.ma', '.mb']},
                             'description': 'Set context where to load from to'
                         }
@@ -90,8 +90,8 @@ def register_asset(event):
                     'importers': [
                         {
                             'name' : 'Import file',
-                            'plugin':'maya',
-                            'description': 'import Ma file',
+                            'plugin': 'maya_load',
+                            'description': 'import Maya file',
                             'visible': None
                         }
                     ]
