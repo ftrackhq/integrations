@@ -42,7 +42,7 @@ def register(api_object, **kw):
         # Exit to avoid registering this plugin again.
         return
 
-    topic = constants.EXTRACTORS_PLUGIN_TOPIC.format('to_tmp.maya.mb')
+    topic = constants.EXTRACTORS_PLUGIN_TOPIC.format('mayabinary')
     logger.info('discovering :{}'.format(topic))
 
     event_handler = functools.partial(
