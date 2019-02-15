@@ -80,6 +80,7 @@ def configure_logging(logger_name, level=None, format=None, extra_modules=None):
             'file': {
                 'class': 'logging.handlers.RotatingFileHandler',
                 'level': 'DEBUG',
+                'filters': ['pipeline_modules_only'],
                 'formatter': 'file',
                 'filename': logfile,
                 'mode': 'a',
@@ -88,6 +89,7 @@ def configure_logging(logger_name, level=None, format=None, extra_modules=None):
             },
 
         },
+        'filters': {'pipeline_modules_only': {'name': logger_name}},
         'formatters': {
             'file': {
                 'format': format
