@@ -3,7 +3,7 @@ from ftrack_connect_pipeline.session import get_shared_session
 session = get_shared_session()
 
 _context_types = [str(t['name']) for t in session.query('ObjectType').all()]
-_asset_types = [str(t['short']) for t in session.query('AssetType').all()]
+_asset_types = list(set([str(t['short']) for t in session.query('AssetType').all()]))
 
 _plugin_schema = {
     "type": "object",
