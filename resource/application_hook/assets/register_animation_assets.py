@@ -3,10 +3,13 @@
 
 import ftrack_api
 from ftrack_connect_pipeline import constants
+import json
 
 
 def register_asset(event):
-    return {
+
+    # return json so we can validate it
+    return json.dumps({
         'asset_name': 'Animation',
         'asset_type': 'geo',
         'context': ['Task'],
@@ -98,7 +101,7 @@ def register_asset(event):
                }
             ]
         }
-    }
+    })
 
 
 def register(api_object, **kw):

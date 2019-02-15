@@ -6,9 +6,10 @@ import itertools
 import copy
 
 import ftrack_api
+import json
 
 from ftrack_connect_pipeline import constants
-
+from ftrack_connect_pipeline import schema
 logger = logging.getLogger(__name__)
 
 
@@ -61,7 +62,10 @@ class AssetSchemaManager(object):
             ),
             synchronous=True
         )
-        for result in results:
+        for raw_result in results:
+            result = json.loads(raw_result)
+
+            # schema.validate(result)
             asset_name = result['asset_name']
             if asset_name in self.asset_registry:
                 self.logger.warning('Asset {} already registered!'.format(asset_name))
