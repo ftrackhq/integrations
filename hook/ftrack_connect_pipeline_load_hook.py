@@ -249,17 +249,6 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
         environment['FTRACK_SHOTID'] = task.get('parent_id')
         environment['FTRACK_CONTEXTID'] = task.getId()
 
-        environment = ftrack_connect.application.appendPath(
-            os.path.join(plugin_base_dir, 'dependencies'),
-            'PYTHONPATH',
-            environment
-        )
-
-        ftrack_connect.application.appendPath(
-            application_hook,
-            'FTRACK_EVENT_PLUGIN_PATH',
-            environment
-        )
 
         return environment
 
