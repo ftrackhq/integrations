@@ -71,6 +71,6 @@ class QtPipelineLoaderWidget(BaseQtPipelineWidget):
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
-    wid = QtPipelineLoaderWidget(host='standalone', ui='qt')
+    wid = QtPipelineLoaderWidget(ui=constants.UI, host=constants.HOST)
     wid.show()
     sys.exit(app.exec_())

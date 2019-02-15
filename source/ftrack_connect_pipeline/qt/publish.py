@@ -160,6 +160,6 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
-    wid = QtPipelinePublishWidget(host='standalone', ui='qt')
+    wid = QtPipelinePublishWidget(ui=constants.UI, host=constants.HOST)
     wid.show()
     sys.exit(app.exec_())
