@@ -8,6 +8,18 @@ _context_types = [str(t['name']) for t in session.query('ObjectType').all()]
 _asset_types = list(set([str(t['short']) for t in session.query('AssetType').all()]))
 
 
+_plugin_schema = {
+    "type": "object",
+    "properties": {
+        "widget":       {"type": "string"},
+        "plugin":       {"type": "string"},
+        "name":         {"type": "string"},
+        "options":      {"type": "object"},
+        "description":  {"type": "string"},
+    }
+}
+
+
 _publish_plugins_schema = {
     "type": "object",
     "propertyNames": {
@@ -17,7 +29,8 @@ _publish_plugins_schema = {
             constants.VALIDATORS,
             constants.EXTRACTORS,
             constants.PUBLISHERS
-        ]
+        ],
+        'type': _plugin_schema
     }
 }
 
