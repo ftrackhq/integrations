@@ -2,6 +2,8 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import os
+import sys
+
 import ftrack_api
 import logging
 

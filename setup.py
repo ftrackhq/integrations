@@ -156,7 +156,6 @@ setup(
     install_requires=[
         'jsonschema',
         'appdirs',
-        'ftrack-python-api',
         'ftrack_action_handler < 1'
     ],
     tests_require=[
