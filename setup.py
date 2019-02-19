@@ -129,10 +129,6 @@ setup(
         'sphinx_rtd_theme >= 0.1.6, < 2',
         'lowdown >= 0.1.0, < 2'
     ],
-    install_requires=[
-        'ftrack-python-api',
-        'ftrack_action_handler < 1'
-    ],
     tests_require=[
         'pytest >= 2.3.5, < 3'
     ],
