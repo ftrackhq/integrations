@@ -68,7 +68,8 @@ class AssetSchemaManager(object):
                 schema.validate(result)
             except Exception as error:
                 self.logger.warn(error)
-                pass
+                continue
+
             asset_name = result['asset_name']
             if asset_name in self.asset_registry:
                 self.logger.warning('Asset {} already registered!'.format(asset_name))

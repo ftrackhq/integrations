@@ -95,7 +95,7 @@ def register_asset(event):
                             'name' : 'Import file',
                             'plugin': 'maya_load',
                             'description': 'import Maya file',
-                            'visible': None
+                            'visible': False
                         }
                     ]
                }

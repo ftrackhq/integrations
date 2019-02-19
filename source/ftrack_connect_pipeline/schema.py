@@ -4,39 +4,73 @@ from ftrack_connect_pipeline import constants
 
 session = get_shared_session()
 
-_context_types = [str(t['name']) for t in session.query('ObjectType').all()]
-_asset_types = list(set([str(t['short']) for t in session.query('AssetType').all()]))
+_context_types = [str(t["name"]) for t in session.query("ObjectType").all()]
+_asset_types = list(set([str(t["short"]) for t in session.query("AssetType").all()]))
 
 
 _plugin_schema = {
     "type": "object",
+    "required": [
+        "name", "plugin"
+    ],
+    "additionalProperties": False,
     "properties": {
-        "widget":       {"type": "string"},
-        "plugin":       {"type": "string"},
-        "name":         {"type": "string"},
-        "options":      {"type": "object"},
-        "description":  {"type": "string"},
+        "name": {"type": "string"},
+        "plugin": {"type": "string"},
+        "options": {"type": "object"},
+        "description": {"type": "string"},
+        "widget": {"type": "string"},
+        "visible": {"type": "boolean"}
     }
 }
 
 
 _publish_plugins_schema = {
     "type": "object",
-    "propertyNames": {
-        "enum": [
-            constants.CONTEXT,
-            constants.COLLECTORS,
-            constants.VALIDATORS,
-            constants.EXTRACTORS,
-            constants.PUBLISHERS
-        ],
-        'type': _plugin_schema
+    "additionalProperties": False,
+    "properties": {
+        constants.CONTEXT :{
+            "type": "array",
+            "items": _plugin_schema
+        },
+        constants.COLLECTORS: {
+            "type": "array",
+            "items": _plugin_schema
+        },
+        constants.VALIDATORS: {
+            "type": "array",
+            "items": _plugin_schema
+        },
+        constants.EXTRACTORS: {
+            "type": "array",
+            "items": _plugin_schema
+        },
+        constants.PUBLISHERS: {
+            "type": "array",
+            "items": _plugin_schema
+        }
+    }
+}
+
+_load_plugins_schema = {
+    "type": "object",
+    "additionalProperties": False,
+    "properties": {
+        constants.CONTEXT :{
+            "type": "array",
+            "items": _plugin_schema
+        },
+        constants.IMPORTERS: {
+            "type": "array",
+            "items": _plugin_schema
+        }
     }
 }
 
 
 _publish_schema = {
     "type" : "object",
+    "additionalProperties": False,
     "properties": {
         "plugins": {
             "type": "array",
@@ -46,9 +80,27 @@ _publish_schema = {
 }
 
 
+_load_schema = {
+    "type" : "object",
+    "additionalProperties": False,
+    "properties": {
+        "plugins": {
+            "type": "array",
+            "items": _load_plugins_schema
+        },
+    }
+}
+
 asset_schema = {
-     "type" : "object",
-     "properties" : {
+    "type" : "object",
+    "required": [
+        "asset_name",
+        "asset_type",
+        "context",
+        "publish"
+    ],
+    "additionalProperties": False,
+    "properties" : {
          "asset_name" : {
              "type" : "string"
          },
@@ -63,11 +115,13 @@ asset_schema = {
                  "enum": _context_types
             }
          },
-         'publish': _publish_schema
+         "publish": _publish_schema,
+         "load": _load_schema
     }
 }
 from pprint import pformat
 print pformat(asset_schema)
+
 
 def validate(schema):
     _validate(schema, asset_schema)
