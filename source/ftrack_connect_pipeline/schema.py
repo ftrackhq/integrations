@@ -119,8 +119,6 @@ asset_schema = {
          "load": _load_schema
     }
 }
-from pprint import pformat
-print pformat(asset_schema)
 
 
 def validate(schema):
