@@ -34,6 +34,6 @@ def register(api_object, **kw):
         register_widget, api_object
     )
     api_object.event_hub.subscribe(
-        'topic={} and data.ui={} and data.type=widget'.format(context_topic_qt, constants.UI),
+        'topic={} and data.pipeline.ui={} and data.pipeline.type=widget'.format(context_topic_qt, constants.UI),
         event_handler
     )

@@ -173,9 +173,11 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             ftrack_api.event.base.Event(
                 topic=mytopic,
                 data={
-                    'type': 'widget',
-                    'ui': self.ui,
-                    'host': self.host,
+                    'pipeline': {
+                        'type': 'widget',
+                        'ui': self.ui,
+                        'host': self.host,
+                    },
                     'settings':
                         {
                             'options': plugin_options,

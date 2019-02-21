@@ -35,6 +35,6 @@ def register(api_object, **kw):
         register_context, api_object
     )
     api_object.event_hub.subscribe(
-        'topic={} and data.type=plugin'.format(topic),
+        'topic={} and data.pipeline.type=plugin'.format(topic),
         event_handler
     )
