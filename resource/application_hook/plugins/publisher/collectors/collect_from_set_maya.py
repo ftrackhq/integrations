@@ -38,14 +38,29 @@ def register(api_object, **kw):
     if not isinstance(api_object, ftrack_api.Session):
         # Exit to avoid registering this plugin again.
         return
-
-    topic = constants.COLLECTORS_PLUGIN_TOPIC.format('from_set')
-    logger.info('discovering :{}'.format(topic))
+    #
+    # topic = constants.COLLECTORS_PLUGIN_TOPIC.format('from_set')
+    # logger.info('discovering :{}'.format(topic))
 
     event_handler = functools.partial(
         register_collector, api_object
     )
+
+    # api_object.event_hub.subscribe(
+    #     'topic={} and data.pipeline.host={} and data.pipeline.type=plugin'.format(topic, HOST),
+    #     event_handler
+    # )
+
     api_object.event_hub.subscribe(
-        'topic={} and data.pipeline.host={} and data.pipeline.type=plugin'.format(topic, HOST),
+        'topic={} and '
+        'data.pipeline.host={} and '
+        'data.pipeline.plugin_type={} and '
+        'data.pipeline.plugin_name={} and '
+        'data.pipeline.type=plugin'.format(
+            constants.PIPELINE_REGISTER_TOPIC,
+            HOST,
+            constants.IMPORTERS,
+            'from_set'
+        ),
         event_handler
     )
