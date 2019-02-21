@@ -63,6 +63,6 @@ def register(api_object, **kw):
         register_importer, api_object
     )
     api_object.event_hub.subscribe(
-        'topic={} and data.host={} and data.type=plugin'.format(topic, HOST),
+        'topic={} and data.pipeline.host={} and data.pipeline.type=plugin'.format(topic, HOST),
         event_handler
     )
