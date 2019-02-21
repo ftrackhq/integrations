@@ -102,8 +102,6 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
                     self.logger.warning('stage {} cannot be evaluated'.format(current_stage))
                     continue
 
-                base_topic = base_topic[0]
-
                 box = QtWidgets.QGroupBox(current_stage)
                 plugin_layout = QtWidgets.QVBoxLayout()
                 box.setLayout(plugin_layout)
@@ -111,7 +109,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
                 self.stages_manager.widgets.setdefault(current_stage, [])
 
                 for plugin in current_plugins:
-                    widget = self.fetch_widget(plugin, base_topic, current_stage)
+                    widget = self.fetch_widget(plugin, current_stage)
                     if widget:
                         widget_is_visible = plugin.get('visible', True)
                         if not widget_is_visible:
@@ -159,22 +157,19 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.header.setMessage('DONE!', level='info')
 
     # widget handling
-    def fetch_widget(self, plugin, base_topic, plugin_type):
+    def fetch_widget(self, plugin, plugin_type):
         '''Fetch widgets defined in the asset schema.'''
         ui = plugin.get('widget', 'default.widget')
-        self.logger.info(base_topic)
-        mytopic = base_topic.format(ui)
 
         plugin_options = plugin.get('options', {})
         plugin_name = plugin.get('name', 'no name provided')
         description = plugin.get('description', 'No description provided')
-        plugin_topic = self.stages_manager.stages[plugin_type][0].format(plugin['plugin'])
 
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_REGISTER_TOPIC,
             data={
                 'pipeline': {
-                    'plugin_name': ui,
+                    'plugin_name':  ui,
                     'plugin_type': plugin_type,
                     'type': 'widget',
                     'ui': self.ui,
@@ -185,7 +180,6 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
                         'options': plugin_options,
                         'name': plugin_name,
                         'description': description,
-                        'plugin_topic': plugin_topic
                     }
             }
         )
@@ -196,7 +190,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             event,
             synchronous=True
         )
-        self.logger.debug('widget found {} for {}'.format(result_widget, mytopic))
+
         if result_widget:
             return result_widget[0]
 

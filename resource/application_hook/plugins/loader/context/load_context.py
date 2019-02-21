@@ -28,15 +28,27 @@ def register(api_object, **kw):
         # Exit to avoid registering this plugin again.
         return
 
-    topic = constants.CONTEXT_PLUGIN_TOPIC.format('context.load')
-    logger.info('discovering :{}'.format(topic))
+    # topic = constants.CONTEXT_PLUGIN_TOPIC.format('context.load')
+    # logger.info('discovering :{}'.format(topic))
 
     event_handler = functools.partial(
         register_context, api_object
     )
+    # api_object.event_hub.subscribe(
+    #     'topic={} and data.pipeline.type=plugin'.format(
+    #         topic
+    #     ),
+    #     event_handler
+    # )
+
     api_object.event_hub.subscribe(
-        'topic={} and data.pipeline.type=plugin'.format(
-            topic
+        'topic={} and '
+        'data.pipeline.type=plugin and '
+        'data.pipeline.plugin_type={} and '
+        'data.pipeline.plugin_name={}'.format(
+            constants.PIPELINE_REGISTER_TOPIC,
+            constants.CONTEXT,
+            'context.load'
         ),
         event_handler
     )

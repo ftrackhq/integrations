@@ -29,13 +29,25 @@ def register(api_object, **kw):
         # Exit to avoid registering this plugin again.
         return
 
-    topic = constants.VALIDATORS_PLUGIN_TOPIC.format('nonempty')
-    logger.info('discovering :{}'.format(topic))
+    # topic = constants.VALIDATORS_PLUGIN_TOPIC.format('nonempty')
+    # logger.info('discovering :{}'.format(topic))
 
     event_handler = functools.partial(
         register_validator, api_object
     )
+    # api_object.event_hub.subscribe(
+    #     'topic={} and data.pipeline.type=plugin'.format(topic),
+    #     event_handler
+    # )
+
     api_object.event_hub.subscribe(
-        'topic={} and data.pipeline.type=plugin'.format(topic),
+        'topic={} and '
+        'data.pipeline.type=plugin and '
+        'data.pipeline.plugin_type={} and '
+        'data.pipeline.plugin_name={}'.format(
+            constants.PIPELINE_REGISTER_TOPIC,
+            constants.VALIDATORS,
+            'nonempty'
+        ),
         event_handler
     )

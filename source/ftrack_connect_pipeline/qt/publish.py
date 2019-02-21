@@ -23,11 +23,11 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
     def __init__(self, ui, host, parent=None):
         stage_type = constants.PUBLISH
         stages_mapping = OrderedDict([
-            (constants.CONTEXT,    (constants.CONTEXT_PLUGIN_TOPIC, self.run_context)),
-            (constants.COLLECTORS, (constants.COLLECTORS_PLUGIN_TOPIC, self.run_collectors)),
-            (constants.VALIDATORS, (constants.VALIDATORS_PLUGIN_TOPIC, self.run_validators)),
-            (constants.EXTRACTORS, (constants.EXTRACTORS_PLUGIN_TOPIC, self.run_extractors)),
-            (constants.PUBLISHERS, (constants.PUBLISHERS_PLUGIN_TOPIC, self.run_publishers))
+            (constants.CONTEXT,    self.run_context),
+            (constants.COLLECTORS, self.run_collectors),
+            (constants.VALIDATORS, self.run_validators),
+            (constants.EXTRACTORS, self.run_extractors),
+            (constants.PUBLISHERS, self.run_publishers)
         ])
         super(QtPipelinePublishWidget, self).__init__(stage_type, stages_mapping, ui, host, parent=parent)
         self.setWindowTitle('Standalone Pipeline Publisher')
@@ -38,13 +38,17 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         event_list = []
         for widget in widgets:
             options = widget.extract_options()
-            topic = widget.plugin_topic
 
             event_list.append(
                 {
-                    'topic': topic,
                     'options': options,
-                    'type': constants.CONTEXT
+                    'pipeline': {
+                        'plugin_name': ui,
+                        'plugin_type': constants.CONTEXT,
+                        'type': 'widget',
+                        'ui': self.ui,
+                        'host': self.host,
+                    },
                 }
             )
 

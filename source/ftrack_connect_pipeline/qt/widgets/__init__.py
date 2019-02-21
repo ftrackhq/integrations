@@ -26,11 +26,7 @@ class BaseWidget(QtWidgets.QWidget):
     def options(self):
         return self._options
 
-    @property
-    def plugin_topic(self):
-        return self._plugin_topic
-
-    def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None, plugin_topic=None):
+    def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
         super(BaseWidget, self).__init__(parent=parent)
 
         self.logger = logging.getLogger(
@@ -42,7 +38,6 @@ class BaseWidget(QtWidgets.QWidget):
         self._name = name
         self._description = description
         self._options = options
-        self._plugin_topic = plugin_topic
 
         self.widget_options = {}
 
