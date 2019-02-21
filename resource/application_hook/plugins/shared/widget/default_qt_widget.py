@@ -36,13 +36,12 @@ def register(api_object, **kw):
     publisher_topic_qt = constants.PUBLISHERS_PLUGIN_TOPIC.format(default_widget_qt)
 
     # loader
-    components_topic_qt = constants.COMPONENTS_PLUGIN_TOPIC.format(default_widget_qt)
     importers_topic_qt = constants.IMPORTERS_PLUGIN_TOPIC.format(default_widget_qt)
 
     # collect all topics
     topics = [
         validator_topic_qt, collector_topic_qt, extractor_topic_qt,
-        publisher_topic_qt, components_topic_qt, importers_topic_qt,
+        publisher_topic_qt, importers_topic_qt,
     ]
 
     for topic in topics:

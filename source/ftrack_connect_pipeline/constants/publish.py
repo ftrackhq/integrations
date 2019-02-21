@@ -6,10 +6,10 @@ from ftrack_connect_pipeline.constants import _BASE_
 PUBLISH = 'publish'
 
 # Publish stages.
-COLLECTORS = 'collectors'
-VALIDATORS = 'validators'
-EXTRACTORS = 'extractors'
-PUBLISHERS = 'publishers'
+COLLECTORS = 'collector'
+VALIDATORS = 'validator'
+EXTRACTORS = 'extractor'
+PUBLISHERS = 'publisher'
 
 
 # Publish events.

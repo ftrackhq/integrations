@@ -27,7 +27,7 @@ def register_asset(event):
                     ]
                 },
                 {
-                    'collectors': [
+                    'collector': [
                         {
                             'name'  : 'From Maya Set',
                             'plugin': 'from_set',
@@ -37,7 +37,7 @@ def register_asset(event):
                     ]
                 },
                 {
-                    'validators': [
+                    'validator': [
                         {
                             'name' : 'Is not empty',
                             'plugin': 'nonempty',
@@ -47,7 +47,7 @@ def register_asset(event):
                     ]
                 },
                 {
-                    'extractors': [
+                    'extractor': [
                         {
                             'name' : 'Save as Maya Ascii',
                             'plugin': 'mayaascii',
@@ -65,7 +65,7 @@ def register_asset(event):
                     ]
                 },
                 {
-                    'publishers': [
+                    'publisher': [
                         {
                             'name' : 'Publish to ftrack',
                             'plugin': 'result',
@@ -90,7 +90,7 @@ def register_asset(event):
                     ]
                },
                {
-                    'importers': [
+                    'importer': [
                         {
                             'name' : 'Import file',
                             'plugin': 'maya_load',

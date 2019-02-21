@@ -5,10 +5,8 @@ from ftrack_connect_pipeline.constants import _BASE_
 
 LOAD = 'load'
 # Load stages.
-COMPONENTS = 'components'
-IMPORTERS = 'importers'
+IMPORTERS = 'importer'
 
 # Load events.
-COMPONENTS_PLUGIN_TOPIC = '{}.{}.{{}}'.format(_BASE_, COMPONENTS)
 IMPORTERS_PLUGIN_TOPIC = '{}.{}.{{}}'.format(_BASE_, IMPORTERS)
 
