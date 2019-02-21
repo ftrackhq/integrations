@@ -12,6 +12,7 @@ logger = logging.getLogger('ftrack_connect_pipeline.plugin')
 
 
 def register_widget(session, event):
+    logger.info(event)
     from ftrack_connect_pipeline.qt.widgets import context
     return context.LoadContextWidget(session=session, **event['data']['settings'])
 
@@ -26,14 +27,19 @@ def register(api_object, **kw):
         # Exit to avoid registering this plugin again.
         return
 
-    context_topic_qt = constants.CONTEXT_PLUGIN_TOPIC.format('context.load')
-
-    logger.info('discovering :{}'.format(context_topic_qt))
-
     event_handler = functools.partial(
         register_widget, api_object
     )
     api_object.event_hub.subscribe(
-        'topic={} and data.pipeline.ui={} and data.pipeline.type=widget'.format(context_topic_qt, constants.UI),
+        'topic={} and '
+        'data.pipeline.ui={} and '
+        'data.pipeline.type=widget and '
+        'data.pipeline.plugin_type={} and '
+        'data.pipeline.plugin_name={}'.format(
+            constants.PIPELINE_REGISTER_TOPIC,
+            constants.UI,
+            constants.CONTEXT,
+            'context.load'
+        ),
         event_handler
     )

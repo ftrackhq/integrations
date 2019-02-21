@@ -57,8 +57,12 @@ class AssetSchemaManager(object):
         '''register assets'''
         results = self.session.event_hub.publish(
             ftrack_api.event.base.Event(
-                topic=constants.REGISTER_ASSET_TOPIC,
-                data=dict()
+                topic=constants.PIPELINE_REGISTER_TOPIC,
+                data={
+                    'pipeline': {
+                        'type': 'asset'
+                    }
+                }
             ),
             synchronous=True
         )

@@ -26,14 +26,20 @@ def register(api_object, **kw):
         # Exit to avoid registering this plugin again.
         return
 
-    context_topic_qt = constants.CONTEXT_PLUGIN_TOPIC.format('context.publish')
-
-    logger.info('discovering :{}'.format(context_topic_qt))
-
     event_handler = functools.partial(
         register_widget, api_object
     )
     api_object.event_hub.subscribe(
-        'topic={} and data.pipeline.ui={} and data.pipeline.type=widget'.format(context_topic_qt, constants.UI),
+        'topic={} and '
+        'data.pipeline.ui={} and '
+        'data.pipeline.type=widget and '
+        'data.pipeline.plugin_type={} and '
+        'data.pipeline.plugin_name={}'.format(
+            constants.PIPELINE_REGISTER_TOPIC,
+            constants.UI,
+            constants.CONTEXT,
+            'context.publish'
+        ),
         event_handler
     )
+

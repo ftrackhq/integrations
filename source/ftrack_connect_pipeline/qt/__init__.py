@@ -162,6 +162,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
     def fetch_widget(self, plugin, base_topic, plugin_type):
         '''Fetch widgets defined in the asset schema.'''
         ui = plugin.get('widget', 'default.widget')
+        self.logger.info(base_topic)
         mytopic = base_topic.format(ui)
 
         plugin_options = plugin.get('options', {})
@@ -169,24 +170,30 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         description = plugin.get('description', 'No description provided')
         plugin_topic = self.stages_manager.stages[plugin_type][0].format(plugin['plugin'])
 
+        event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_REGISTER_TOPIC,
+            data={
+                'pipeline': {
+                    'plugin_name': ui,
+                    'plugin_type': plugin_type,
+                    'type': 'widget',
+                    'ui': self.ui,
+                    'host': self.host,
+                },
+                'settings':
+                    {
+                        'options': plugin_options,
+                        'name': plugin_name,
+                        'description': description,
+                        'plugin_topic': plugin_topic
+                    }
+            }
+        )
+
+        self.logger.info('publishing event: {}'.format(event))
+
         result_widget = self.session.event_hub.publish(
-            ftrack_api.event.base.Event(
-                topic=mytopic,
-                data={
-                    'pipeline': {
-                        'type': 'widget',
-                        'ui': self.ui,
-                        'host': self.host,
-                    },
-                    'settings':
-                        {
-                            'options': plugin_options,
-                            'name': plugin_name,
-                            'description': description,
-                            'plugin_topic': plugin_topic
-                        }
-                }
-            ),
+            event,
             synchronous=True
         )
         self.logger.debug('widget found {} for {}'.format(result_widget, mytopic))

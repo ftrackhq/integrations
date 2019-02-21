@@ -115,6 +115,6 @@ def register(api_object, **kw):
         return
 
     api_object.event_hub.subscribe(
-        'topic={}'.format(constants.REGISTER_ASSET_TOPIC),
+        'topic={} and data.pipeline.type=asset'.format(constants.PIPELINE_REGISTER_TOPIC),
         register_asset
     )

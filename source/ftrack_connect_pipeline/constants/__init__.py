@@ -14,9 +14,7 @@ CONTEXT = 'context'
 CONTEXT_PLUGIN_TOPIC = '{}.{}.{{}}'.format(_BASE_, CONTEXT)
 
 # External events.
-REGISTER_ASSET_TOPIC = '{}.asset.register'.format(_BASE_)
-REGISTER_PLUGIN_TOPIC = '{}.plugin.register'.format(_BASE_)
-REGISTER_WIDGET_TOPIC = '{}.widget.register'.format(_BASE_)
+PIPELINE_REGISTER_TOPIC = '{}.register'.format(_BASE_)
 
 PIPELINE_RUN_TOPIC = '{}.host.run'.format(_BASE_)
 

@@ -26,33 +26,28 @@ def register(api_object, **kw):
         # Exit to avoid registering this plugin again.
         return
 
-    # Register for Qt based integrations
-    default_widget_qt = 'default.widget'
-
-    # publisher
-    validator_topic_qt = constants.VALIDATORS_PLUGIN_TOPIC.format(default_widget_qt)
-    collector_topic_qt = constants.COLLECTORS_PLUGIN_TOPIC.format(default_widget_qt)
-    extractor_topic_qt = constants.EXTRACTORS_PLUGIN_TOPIC.format(default_widget_qt)
-    publisher_topic_qt = constants.PUBLISHERS_PLUGIN_TOPIC.format(default_widget_qt)
-
-    # loader
-    importers_topic_qt = constants.IMPORTERS_PLUGIN_TOPIC.format(default_widget_qt)
-
-    # collect all topics
-    topics = [
-        validator_topic_qt, collector_topic_qt, extractor_topic_qt,
-        publisher_topic_qt, importers_topic_qt,
+    plugin_types = [
+        constants.VALIDATORS,
+        constants.COLLECTORS,
+        constants.EXTRACTORS,
+        constants.PUBLISHERS,
+        constants.IMPORTERS
     ]
 
-    for topic in topics:
-        logger.info('discovering :{}'.format(topic))
-
+    for plugin_type in plugin_types:
         event_handler = functools.partial(
             register_widget, api_object
         )
         api_object.event_hub.subscribe(
-            'topic={} and data.pipeline.ui={} and data.pipeline.type=widget'.format(
-                topic, constants.UI
+            'topic={} and '
+            'data.pipeline.ui={} and '
+            'data.pipeline.type=widget and '
+            'data.pipeline.plugin_type={} and '
+            'data.pipeline.plugin_name={}'.format(
+                constants.PIPELINE_REGISTER_TOPIC,
+                constants.UI,
+                plugin_type,
+                'default.widget'
             ),
             event_handler
         )
