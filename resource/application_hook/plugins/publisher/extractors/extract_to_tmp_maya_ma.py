@@ -12,7 +12,7 @@ from ftrack_connect_pipeline_maya.constants import HOST
 logger = logging.getLogger('ftrack_connect_pipeline_maya.plugin')
 
 
-def extract_to_tmp(session, data=None, options=None):
+def extract_to_tmp(session, context=None, data=None, options=None):
     import maya.cmds as cmd
     import maya
 
@@ -30,6 +30,7 @@ def extract_to_tmp(session, data=None, options=None):
 
 
 def register_extractor(session, event):
+    logger.debug('Calling extract with options: data {}'.format(event))
     return extract_to_tmp(session, **event['data']['settings'])
 
 

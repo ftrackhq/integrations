@@ -12,7 +12,7 @@ from ftrack_connect_pipeline_maya.constants import HOST
 logger = logging.getLogger('ftrack_connect_pipeline_maya.plugin')
 
 
-def import_maya(session, data=None, options=None):
+def import_maya(session,context=None, data=None, options=None):
     logger.info('CALLING IMPORT with: {} {} {}'.format(session, data, options))
 
     import maya.cmds as cmd

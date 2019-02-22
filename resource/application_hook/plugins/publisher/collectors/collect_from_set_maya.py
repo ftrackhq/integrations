@@ -11,9 +11,7 @@ from ftrack_connect_pipeline_maya.constants import HOST
 logger = logging.getLogger('ftrack_connect_pipeline_maya.plugin')
 
 
-def collect_from_set(session, data=None, options=None):
-    logger.debug('Calling collect from set with options: {}'.format(options))
-
+def collect_from_set(session, context=None, data=None, options=None):
     import maya.cmds as cmd
     import maya
 
@@ -25,7 +23,7 @@ def collect_from_set(session, data=None, options=None):
 
 
 def register_collector(session, event):
-    logger.info('registering collet from set collector...')
+    logger.debug('Calling collect with options: data {}'.format(event))
     return collect_from_set(session, **event['data']['settings'])
 
 

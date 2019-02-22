@@ -12,7 +12,7 @@ from ftrack_connect_pipeline_maya.constants import HOST
 logger = logging.getLogger('ftrack_connect_pipeline_maya.plugin')
 
 
-def extract_to_tmp(session, data=None, options=None):
+def extract_to_tmp(session, context=None, data=None, options=None):
     import maya.cmds as cmd
     import maya
 
@@ -29,6 +29,7 @@ def extract_to_tmp(session, data=None, options=None):
 
 
 def register_extractor(session, event):
+    logger.debug('Calling extract with options: data {}'.format(event))
     return extract_to_tmp(session, **event['data']['settings'])
 
 
@@ -41,9 +42,6 @@ def register(api_object, **kw):
     if not isinstance(api_object, ftrack_api.Session):
         # Exit to avoid registering this plugin again.
         return
-    #
-    # topic = constants.EXTRACTORS_PLUGIN_TOPIC.format('mayabinary')
-    # logger.info('discovering :{}'.format(topic))
 
     event_handler = functools.partial(
         register_extractor, api_object
