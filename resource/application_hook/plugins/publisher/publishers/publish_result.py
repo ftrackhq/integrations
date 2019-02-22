@@ -11,9 +11,9 @@ from ftrack_connect_pipeline import constants
 logger = logging.getLogger('ftrack_connect_pipeline.plugin')
 
 
-def publish_result(session, data=None, options=None):
+def publish_result(session, context=None, data=None, options=None):
     asset_name = options['asset_name']
-    context = session.get('Context', options['context_id'])
+    context = session.get('Context', context['context_id'])
     asset_parent = context['parent']
     asset_type = session.query('AssetType where short is "{}"'.format(options['asset_type'])).first()
     location = session.pick_location()
@@ -48,6 +48,7 @@ def publish_result(session, data=None, options=None):
 
 
 def register_publisher(session,event):
+    logger.debug('Calling publish with options: data {}'.format(event))
     return publish_result(session, **event['data']['settings'])
 
 

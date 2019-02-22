@@ -10,12 +10,12 @@ from ftrack_connect_pipeline import constants
 logger = logging.getLogger('ftrack_connect_pipeline.plugin')
 
 
-def validate_non_empty(session, data=None, options=None):
-    logger.debug('Calling validate non empty with options: data {}'.format(data))
+def validate_non_empty(session, context=None, data=None, options=None):
     return bool(data)
 
 
 def register_validator(session, event):
+    logger.debug('Calling validate non empty with options: data {}'.format(event))
     return validate_non_empty(session, **event['data']['settings'])
 
 

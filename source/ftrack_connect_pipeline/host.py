@@ -16,36 +16,25 @@ def run_local_events(session, event, host=None, ui=None):
     results = []
     event_type = None
     for one_event in event_list:
+        event_type = one_event['pipeline']['plugin_type']
+
         logger.info('one event: {}'.format(one_event))
-
-        event_type = one_event['type']
-        event_options = {'options': one_event.get('options',{})}
-        event_data = {'data': one_event.get('data', [])}
-        event_data.update(event_options)
-
-        logger.info('event_data {}'.format(event_data))
 
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_REGISTER_TOPIC,
-            data={
-                'pipeline': {
-                    'type': 'plugin',
-                    'ui': ui,
-                    'host': host,
-                },
-                'settings': event_data
-            }
+            data=one_event
         )
-
         result = session.event_hub.publish(
             event,
             synchronous=True
         )
+
         if result:
             results.append(result[0])
 
-    logger.info('Event result: {}'.format(results))
-    return {event_type: results}
+    local_event_result = {event_type: results}
+    logger.info('one event result: {}'.format(local_event_result))
+    return local_event_result
 
 
 def start_host_listener(host=None, ui=None):

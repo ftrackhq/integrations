@@ -116,7 +116,9 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
                             widget.setVisible(False)
 
                         plugin_layout.addWidget(widget)
-                        self.stages_manager.widgets[current_stage].append(widget)
+                        self.stages_manager.widgets[current_stage].append(
+                            (widget, plugin)
+                        )
 
                 self.task_layout.addWidget(box)
 

@@ -10,7 +10,7 @@ from ftrack_connect_pipeline import constants
 logger = logging.getLogger('ftrack_connect_pipeline.plugin')
 
 
-def set_context(session, data=None, options=None):
+def set_context(session, context=None, data=None, options=None):
     return options
 
 

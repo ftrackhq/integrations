@@ -12,7 +12,7 @@ from ftrack_connect_pipeline import constants
 logger = logging.getLogger('ftrack_connect_pipeline.plugin')
 
 
-def extract_to_tmp(session, data=None, options=None):
+def extract_to_tmp(session, context=None, data=None, options=None):
     logger.debug('Calling extractor options: data {}'.format(data))
 
     result = []
@@ -25,6 +25,7 @@ def extract_to_tmp(session, data=None, options=None):
 
 
 def register_extractor(session, event):
+    logger.debug('Calling extract with options: data {}'.format(event))
     return extract_to_tmp(session, **event['data']['settings'])
 
 

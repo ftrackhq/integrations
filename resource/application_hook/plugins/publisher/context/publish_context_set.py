@@ -11,14 +11,14 @@ from ftrack_connect_pipeline import constants
 logger = logging.getLogger('ftrack_connect_pipeline.plugin')
 
 
-def set_context(session, data=None, options=None):
-    logger.debug('Calling set_context with options: {}'.format(options))
-    os.environ['FTRACK_CONTEXT_ID'] = options['context_id']
-    os.environ['FTRACK_TASKID'] = options['context_id']
+def set_context(session, context=None, data=None, options=None):
+    os.environ['FTRACK_CONTEXT_ID'] = context['context_id']
+    os.environ['FTRACK_TASKID'] = context['context_id']
     return options
 
 
 def register_collector(session, event):
+    logger.debug('Calling set_context with options: {}'.format(event))
     return set_context(session, **event['data']['settings'])
 
 
