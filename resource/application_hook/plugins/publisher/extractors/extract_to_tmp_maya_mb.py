@@ -46,11 +46,6 @@ def register(api_object, **kw):
     event_handler = functools.partial(
         register_extractor, api_object
     )
-    # api_object.event_hub.subscribe(
-    #     'topic={} and data.pipeline.host={} and data.pipeline.type=plugin'.format(topic, HOST),
-    #     event_handler
-    # )
-
 
     api_object.event_hub.subscribe(
         'topic={} and '

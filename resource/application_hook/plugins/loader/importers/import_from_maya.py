@@ -24,7 +24,7 @@ def import_maya(session,context=None, data=None, options=None):
         cmd.file(component_path, i=True)
         return True
 
-    component_list = options['component_list']
+    component_list = data['component_list']
     location = session.pick_location()
     results = []
     for component_id in component_list:
@@ -55,9 +55,6 @@ def register(api_object, **kw):
     if not isinstance(api_object, ftrack_api.Session):
         # Exit to avoid registering this plugin again.
         return
-
-    # topic = constants.IMPORTERS_PLUGIN_TOPIC.format('maya_load')
-    # logger.info('discovering :{}'.format(topic))
 
     event_handler = functools.partial(
         register_importer, api_object

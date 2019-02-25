@@ -44,16 +44,9 @@ def register(api_object, **kw):
         # Exit to avoid registering this plugin again.
         return
 
-    # topic = constants.EXTRACTORS_PLUGIN_TOPIC.format('mayaascii')
-    # logger.info('discovering :{}'.format(topic))
-
     event_handler = functools.partial(
         register_extractor, api_object
     )
-    # api_object.event_hub.subscribe(
-    #     'topic={} and data.pipeline.host={} and data.pipeline.type=plugin'.format(topic, HOST),
-    #     event_handler
-    # )
 
     api_object.event_hub.subscribe(
         'topic={} and '
