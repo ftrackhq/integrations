@@ -13,26 +13,28 @@ logger = logging.getLogger('ftrack_connect_pipeline.plugin')
 
 def publish_result(session, context=None, data=None, options=None):
     asset_name = context['asset_name']
-    context = session.get('Context', context['context_id'])
-    asset_parent = context['parent']
-    asset_type = session.query('AssetType where short is "{}"'.format(context['asset_type'])).first()
+    asset_type = context['asset_type']
+    context_object = session.get('Context', context['context_id'])
+    asset_type_object = session.query('AssetType where short is "{}"'.format(asset_type)).first()
+    asset_parent_object = context_object['parent']
+
     location = session.pick_location()
 
-    asset = session.query(
+    asset_object = session.query(
         'Asset where name is "{}" and type.short is "{}" and parent.id is "{}"'.format(
-            asset_name, options['asset_type'], asset_parent['id'])
+            asset_name, asset_type, asset_parent_object['id'])
     ).first()
 
-    if not asset:
-        asset = session.create('Asset', {
+    if not asset_object:
+        asset_object = session.create('Asset', {
             'name': asset_name,
-            'type': asset_type,
-            'parent': asset_parent
+            'type': asset_type_object,
+            'parent': asset_parent_object
         })
 
     asset_version = session.create('AssetVersion', {
-        'asset': asset,
-        'task': context,
+        'asset': asset_object,
+        'task': context_object,
     })
 
     session.commit()
@@ -43,7 +45,7 @@ def publish_result(session, context=None, data=None, options=None):
         )
     session.commit()
 
-    logger.debug("publishing: {} to {} as {}".format(data, context, asset_type))
+    logger.debug("publishing: {} to {} as {}".format(data, context, asset_object))
     return True
 
 
@@ -62,17 +64,10 @@ def register(api_object, **kw):
         # Exit to avoid registering this plugin again.
         return
 
-    # topic = constants.PUBLISHERS_PLUGIN_TOPIC.format('result')
-    # logger.info('discovering :{}'.format(topic))
-
     event_handler = functools.partial(
         register_publisher, api_object
     )
 
-    # api_object.event_hub.subscribe(
-    #     'topic={} and data.pipeline.type=plugin'.format(topic),
-    #     event_handler
-    # )
 
     api_object.event_hub.subscribe(
         'topic={} and '

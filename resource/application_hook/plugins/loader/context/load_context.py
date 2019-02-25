@@ -11,7 +11,7 @@ logger = logging.getLogger('ftrack_connect_pipeline.plugin')
 
 
 def set_context(session, context=None, data=None, options=None):
-    return options
+    return context
 
 
 def register_context(session, event):
@@ -28,18 +28,9 @@ def register(api_object, **kw):
         # Exit to avoid registering this plugin again.
         return
 
-    # topic = constants.CONTEXT_PLUGIN_TOPIC.format('context.load')
-    # logger.info('discovering :{}'.format(topic))
-
     event_handler = functools.partial(
         register_context, api_object
     )
-    # api_object.event_hub.subscribe(
-    #     'topic={} and data.pipeline.type=plugin'.format(
-    #         topic
-    #     ),
-    #     event_handler
-    # )
 
     api_object.event_hub.subscribe(
         'topic={} and '

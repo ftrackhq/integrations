@@ -31,17 +31,10 @@ def register(api_object, **kw):
     if not isinstance(api_object, ftrack_api.Session):
         # Exit to avoid registering this plugin again.
         return
-    #
-    # topic = constants.CONTEXT_PLUGIN_TOPIC.format('context.publish')
-    # logger.info('discovering :{}'.format(topic))
 
     event_handler = functools.partial(
         register_collector, api_object
     )
-    # api_object.event_hub.subscribe(
-    #     'topic={} and data.pipeline.type=plugin'.format(topic),
-    #     event_handler
-    # )
 
     api_object.event_hub.subscribe(
         'topic={} and '
