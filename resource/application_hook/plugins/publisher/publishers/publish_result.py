@@ -12,10 +12,10 @@ logger = logging.getLogger('ftrack_connect_pipeline.plugin')
 
 
 def publish_result(session, context=None, data=None, options=None):
-    asset_name = options['asset_name']
+    asset_name = context['asset_name']
     context = session.get('Context', context['context_id'])
     asset_parent = context['parent']
-    asset_type = session.query('AssetType where short is "{}"'.format(options['asset_type'])).first()
+    asset_type = session.query('AssetType where short is "{}"'.format(context['asset_type'])).first()
     location = session.pick_location()
 
     asset = session.query(
@@ -81,7 +81,7 @@ def register(api_object, **kw):
         'data.pipeline.plugin_name={}'.format(
             constants.PIPELINE_REGISTER_TOPIC,
             constants.PUBLISHERS,
-            'to_tmp'
+            'result'
         ),
         event_handler
     )

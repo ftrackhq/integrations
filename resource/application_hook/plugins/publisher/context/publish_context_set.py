@@ -14,7 +14,7 @@ logger = logging.getLogger('ftrack_connect_pipeline.plugin')
 def set_context(session, context=None, data=None, options=None):
     os.environ['FTRACK_CONTEXT_ID'] = context['context_id']
     os.environ['FTRACK_TASKID'] = context['context_id']
-    return options
+    return context
 
 
 def register_collector(session, event):
