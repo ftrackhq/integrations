@@ -48,7 +48,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
                     },
                     'pipeline': {
                         'plugin_name': plugin['plugin'],
-                        'plugin_type': constants.CONTEXT,
+                        'plugin_type': self.stages_manager.current_stage,
                         'type': 'plugin',
                         'host': self.host,
                     },
@@ -74,7 +74,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
                     },
                     'pipeline': {
                         'plugin_name': plugin['plugin'],
-                        'plugin_type': constants.COLLECTORS,
+                        'plugin_type': self.stages_manager.current_stage,
                         'type': 'plugin',
                         'host': self.host,
                     },
@@ -107,7 +107,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
                     },
                     'pipeline': {
                         'plugin_name': plugin['plugin'],
-                        'plugin_type': constants.VALIDATORS,
+                        'plugin_type': self.stages_manager.current_stage,
                         'type': 'plugin',
                         'host': self.host,
                     },
@@ -143,7 +143,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
                     },
                     'pipeline': {
                         'plugin_name': plugin['plugin'],
-                        'plugin_type': constants.EXTRACTORS,
+                        'plugin_type': self.stages_manager.current_stage,
                         'type': 'plugin',
                         'host': self.host,
                     },
