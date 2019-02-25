@@ -60,7 +60,7 @@ def register(api_object, **kw):
         'data.pipeline.type=plugin'.format(
             constants.PIPELINE_REGISTER_TOPIC,
             HOST,
-            constants.IMPORTERS,
+            constants.EXTRACTORS,
             'mayabinary'
         ),
         event_handler
