@@ -21,7 +21,17 @@ class ContextTemplates(object):
     def launch(self, event):
         '''Return context templates.'''
         # Define tag regular expressions.
-        return [{
+        return [
+        {
+            'name': 'Episodic exporter',
+            'description': (
+                'Episodic exporter'
+                'Example: EP001_SH010 will be matched as Episode with name '
+                'EP001 and a shot named SH010.'
+            ),
+            'expression': '{Episode:.+}_{Shot:.+}'
+        },
+        {
             'name': 'Basic, sequence and shot',
             'description': (
                 'Match Sequence and Shot by underscores naming. '
