@@ -7,13 +7,13 @@ import logging
 import ftrack_api
 
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.qt.widgets import simple
 
-logger = logging.getLogger('ftrack_connect_pipeline.plugin.default.widget.qt')
+logger = logging.getLogger('ftrack_connect_pipeline.plugin')
 
 
 def register_widget(session, event):
-    return simple.SimpleWidget(session=session, **event['data'])
+    from ftrack_connect_pipeline.qt.widgets import simple
+    return simple.SimpleWidget(session=session, **event['data']['settings'])
 
 
 def register(api_object, **kw):
@@ -26,32 +26,28 @@ def register(api_object, **kw):
         # Exit to avoid registering this plugin again.
         return
 
-    # Register for Qt based integrations
-    default_widget_qt = 'default.widget.qt'
-
-    # publisher
-    validator_topic_qt = constants.VALIDATORS_PLUGIN_TOPIC.format(default_widget_qt)
-    collector_topic_qt = constants.COLLECTORS_PLUGIN_TOPIC.format(default_widget_qt)
-    extractor_topic_qt = constants.EXTRACTORS_PLUGIN_TOPIC.format(default_widget_qt)
-    publisher_topic_qt = constants.PUBLISHERS_PLUGIN_TOPIC.format(default_widget_qt)
-
-    # loader
-    components_topic_qt = constants.COMPONENTS_PLUGIN_TOPIC.format(default_widget_qt)
-    importers_topic_qt = constants.IMPORTERS_PLUGIN_TOPIC.format(default_widget_qt)
-
-    # collect all topics
-    topics = [
-        validator_topic_qt, collector_topic_qt, extractor_topic_qt,
-        publisher_topic_qt, components_topic_qt, importers_topic_qt,
+    plugin_types = [
+        constants.VALIDATORS,
+        constants.COLLECTORS,
+        constants.EXTRACTORS,
+        constants.PUBLISHERS,
+        constants.IMPORTERS
     ]
 
-    for topic in topics:
-        logger.info('discovering :{}'.format(topic))
-
+    for plugin_type in plugin_types:
         event_handler = functools.partial(
             register_widget, api_object
         )
         api_object.event_hub.subscribe(
-            'topic={}'.format(topic),
+            'topic={} and '
+            'data.pipeline.ui={} and '
+            'data.pipeline.type=widget and '
+            'data.pipeline.plugin_type={} and '
+            'data.pipeline.plugin_name={}'.format(
+                constants.PIPELINE_REGISTER_TOPIC,
+                constants.UI,
+                plugin_type,
+                'default.widget'
+            ),
             event_handler
         )

@@ -7,16 +7,16 @@ import functools
 import ftrack_api
 from ftrack_connect_pipeline import constants
 
-logger = logging.getLogger('ftrack_connect_pipeline.plugin.validators.nonempty')
+logger = logging.getLogger('ftrack_connect_pipeline.plugin')
 
 
-def validate_non_empty(session, data=None, options=None):
-    logger.debug('Calling validate non empty with options: data {}'.format(data))
+def validate_non_empty(session, context=None, data=None, options=None):
     return bool(data)
 
 
 def register_validator(session, event):
-    return validate_non_empty(session, **event['data'])
+    logger.debug('Calling validate non empty with options: data {}'.format(event))
+    return validate_non_empty(session, **event['data']['settings'])
 
 
 def register(api_object, **kw):
@@ -29,13 +29,18 @@ def register(api_object, **kw):
         # Exit to avoid registering this plugin again.
         return
 
-    topic = constants.VALIDATORS_PLUGIN_TOPIC.format('nonempty')
-    logger.info('discovering :{}'.format(topic))
-
     event_handler = functools.partial(
         register_validator, api_object
     )
+
     api_object.event_hub.subscribe(
-        'topic={}'.format(topic),
+        'topic={} and '
+        'data.pipeline.type=plugin and '
+        'data.pipeline.plugin_type={} and '
+        'data.pipeline.plugin_name={}'.format(
+            constants.PIPELINE_REGISTER_TOPIC,
+            constants.VALIDATORS,
+            'nonempty'
+        ),
         event_handler
     )

@@ -154,8 +154,8 @@ setup(
         'lowdown >= 0.1.0, < 2'
     ],
     install_requires=[
+        'jsonschema',
         'appdirs',
-        'ftrack-python-api',
         'ftrack_action_handler < 1'
     ],
     tests_require=[

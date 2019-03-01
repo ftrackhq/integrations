@@ -21,10 +21,10 @@ class ConnectorWrapper(object):
 
 
 class PublishContextWidget(SimpleWidget):
-    def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None, plugin_topic=None):
+    def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
         self.assetOptions = None
         self.entitySelector = None
-        super(PublishContextWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options, plugin_topic=plugin_topic)
+        super(PublishContextWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options)
         self.entitySelector.entityChanged.connect(self.assetOptions.setEntity)
 
     def _build_context_id_selector(self, value):
@@ -66,9 +66,9 @@ class PublishContextWidget(SimpleWidget):
 
 class LoadContextWidget(SimpleWidget):
 
-    def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None, plugin_topic=None):
+    def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
         self._connector_wrapper = ConnectorWrapper(session)
-        super(LoadContextWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options, plugin_topic=plugin_topic)
+        super(LoadContextWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options)
 
     def _build_others(self):
         self.listAssetsTableWidget = list_assets_table.ListAssetsTableWidget(self)

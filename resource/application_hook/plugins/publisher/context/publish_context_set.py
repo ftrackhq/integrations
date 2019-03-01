@@ -8,18 +8,18 @@ import logging
 import ftrack_api
 from ftrack_connect_pipeline import constants
 
-logger = logging.getLogger('ftrack_connect_pipeline.plugin.context.publish')
+logger = logging.getLogger('ftrack_connect_pipeline.plugin')
 
 
-def set_context(session, data=None, options=None):
-    logger.debug('Calling set_context with options: {}'.format(options))
-    os.environ['FTRACK_CONTEXT_ID'] = options['context_id']
-    os.environ['FTRACK_TASKID'] = options['context_id']
-    return options
+def set_context(session, context=None, data=None, options=None):
+    os.environ['FTRACK_CONTEXT_ID'] = context['context_id']
+    os.environ['FTRACK_TASKID'] = context['context_id']
+    return context
 
 
 def register_collector(session, event):
-    return set_context(session, **event['data'])
+    logger.debug('Calling set_context with options: {}'.format(event))
+    return set_context(session, **event['data']['settings'])
 
 
 def register(api_object, **kw):
@@ -32,13 +32,19 @@ def register(api_object, **kw):
         # Exit to avoid registering this plugin again.
         return
 
-    topic = constants.CONTEXT_PLUGIN_TOPIC.format('context.publish')
-    logger.info('discovering :{}'.format(topic))
-
     event_handler = functools.partial(
         register_collector, api_object
     )
+
     api_object.event_hub.subscribe(
-        'topic={}'.format(topic),
+        'topic={} and '
+        'data.pipeline.type=plugin and '
+        'data.pipeline.plugin_type={} and '
+        'data.pipeline.plugin_name={}'.format(
+            constants.PIPELINE_REGISTER_TOPIC,
+            constants.CONTEXT,
+            'context.publish'
+        ),
         event_handler
     )
+

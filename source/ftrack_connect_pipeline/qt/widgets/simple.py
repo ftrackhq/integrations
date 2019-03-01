@@ -29,8 +29,8 @@ class SimpleWidget(BaseWidget):
             option_layout.addWidget(value)
             self.layout().addLayout(option_layout)
 
-    def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None, plugin_topic=None):
-        super(SimpleWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options, plugin_topic=plugin_topic)
+    def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
+        super(SimpleWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options)
 
 
 

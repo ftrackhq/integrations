@@ -20,28 +20,35 @@ from ftrack_connect_pipeline.qt import BaseQtPipelineWidget
 
 class QtPipelineLoaderWidget(BaseQtPipelineWidget):
 
-    def __init__(self, parent=None):
+    def __init__(self, ui, host, parent=None):
         stage_type = constants.LOAD
         stages_mapping = OrderedDict([
-            (constants.CONTEXT,    (constants.CONTEXT_PLUGIN_TOPIC, self.run_context)),
-            (constants.IMPORTERS,  (constants.IMPORTERS_PLUGIN_TOPIC, self.run_importers))
+            (constants.CONTEXT,   self.run_context),
+            (constants.IMPORTERS, self.run_importers)
         ])
-        super(QtPipelineLoaderWidget, self).__init__(stage_type, stages_mapping, parent=parent)
+        super(QtPipelineLoaderWidget, self).__init__(stage_type, stages_mapping, ui, host, parent=parent)
         self.setWindowTitle('Standalone Pipeline Loader')
 
     def run_context(self):
         '''Run context stage'''
-        widgets = self.stages_manager.widgets.get(self.stages_manager.current_stage, [])
+        data = self.stages_manager.widgets.get(self.stages_manager.current_stage, [])
         event_list = []
-        for widget in widgets:
-            options = widget.extract_options()
-            topic = widget.plugin_topic
+        for (widget, plugin) in data:
+            context = widget.extract_options()
 
             event_list.append(
                 {
-                    'topic': topic,
-                    'options': options,
-                    'type': constants.CONTEXT
+                    'settings': {
+                        'context': context,
+                        'data': None,
+                        'options': None
+                    },
+                    'pipeline': {
+                        'plugin_name': plugin['plugin'],
+                        'plugin_type': self.stages_manager.current_stage,
+                        'type': 'plugin',
+                        'host': self.host,
+                    },
                 }
             )
 
@@ -49,20 +56,27 @@ class QtPipelineLoaderWidget(BaseQtPipelineWidget):
 
     def run_importers(self):
         '''Run importers stage'''
-        widgets = self.stages_manager.widgets[self.stages_manager.current_stage]
+
         component_data = utils.merge_dict(self.stages_manager.results[constants.CONTEXT])
 
+        data = self.stages_manager.widgets.get(self.stages_manager.current_stage, [])
         event_list = []
-        for widget in widgets:
+        for (widget, plugin) in data:
             options = widget.extract_options()
-            topic = widget.plugin_topic
-            options.update(component_data)
 
             event_list.append(
                 {
-                    'topic': topic,
-                    'options': options,
-                    'type': constants.IMPORTERS
+                    'settings': {
+                        'context':None,
+                        'data': component_data,
+                        'options': options
+                    },
+                    'pipeline': {
+                        'plugin_name': plugin['plugin'],
+                        'plugin_type': self.stages_manager.current_stage,
+                        'type': 'plugin',
+                        'host': self.host,
+                    },
                 }
             )
 
@@ -71,6 +85,6 @@ class QtPipelineLoaderWidget(BaseQtPipelineWidget):
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
-    wid = QtPipelineLoaderWidget()
+    wid = QtPipelineLoaderWidget(ui=constants.UI, host=constants.HOST)
     wid.show()
     sys.exit(app.exec_())

@@ -9,10 +9,10 @@ import logging
 import ftrack_api
 from ftrack_connect_pipeline import constants
 
-logger = logging.getLogger('ftrack_connect_pipeline.plugin.extractors.to_tmp')
+logger = logging.getLogger('ftrack_connect_pipeline.plugin')
 
 
-def extract_to_tmp(session, data=None, options=None):
+def extract_to_tmp(session, context=None, data=None, options=None):
     logger.debug('Calling extractor options: data {}'.format(data))
 
     result = []
@@ -25,7 +25,8 @@ def extract_to_tmp(session, data=None, options=None):
 
 
 def register_extractor(session, event):
-    return extract_to_tmp(session, **event['data'])
+    logger.debug('Calling extract with options: data {}'.format(event))
+    return extract_to_tmp(session, **event['data']['settings'])
 
 
 def register(api_object, **kw):
@@ -38,13 +39,18 @@ def register(api_object, **kw):
         # Exit to avoid registering this plugin again.
         return
 
-    topic = constants.EXTRACTORS_PLUGIN_TOPIC.format('to_tmp')
-    logger.info('discovering :{}'.format(topic))
-
     event_handler = functools.partial(
         register_extractor, api_object
     )
+
     api_object.event_hub.subscribe(
-        'topic={}'.format(topic),
+        'topic={} and '
+        'data.pipeline.type=plugin and '
+        'data.pipeline.plugin_type={} and '
+        'data.pipeline.plugin_name={}'.format(
+            constants.PIPELINE_REGISTER_TOPIC,
+            constants.EXTRACTORS,
+            'to_tmp'
+        ),
         event_handler
     )

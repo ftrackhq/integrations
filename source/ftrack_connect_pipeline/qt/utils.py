@@ -225,7 +225,7 @@ class StageManager(QtCore.QObject):
     def _on_stage_start(self, ):
         '''Slot triggered when the stage start'''
         self.logger.debug('Starting stage: {}'.format(self.current_stage))
-        fn = self.stages[self.current_stage][1]
+        fn = self.stages[self.current_stage]
         try:
             fn()
         except Exception as error: # We catch anything as we have no idea what might come from here.

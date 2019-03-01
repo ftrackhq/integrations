@@ -2,6 +2,8 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import os
+import sys
+
 import ftrack_api
 import logging
 
@@ -16,16 +18,26 @@ from ftrack_connect.ui import theme
 
 
 class BaseQtPipelineWidget(QtWidgets.QWidget):
-    widget_suffix = 'widget.qt'
+    
+    @property
+    def host(self):
+        return self._host
+
+    @property
+    def ui(self):
+        return self._ui
 
     @property
     def asset_type(self):
         '''Return current asset type'''
         return self._current_asset_type
 
-    def __init__(self, stage_type, stages_mapping, parent=None):
+    def __init__(self, stage_type, stages_mapping, ui, host, parent=None):
         '''Initialise widget with *stage_type* and *stage_mapping*.'''
         super(BaseQtPipelineWidget, self).__init__(parent=parent)
+
+        self._ui = ui
+        self._host = host
 
         self._current_asset_type = None
 
@@ -49,7 +61,9 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         )
 
         context_type = 'Task'
-        self.assets_manager = utils.AssetSchemaManager(self.session, context_type)
+        self.assets_manager = utils.AssetSchemaManager(
+            self.session, context_type
+        )
 
         self.build()
         self.post_build()
@@ -88,8 +102,6 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
                     self.logger.warning('stage {} cannot be evaluated'.format(current_stage))
                     continue
 
-                base_topic = base_topic[0]
-
                 box = QtWidgets.QGroupBox(current_stage)
                 plugin_layout = QtWidgets.QVBoxLayout()
                 box.setLayout(plugin_layout)
@@ -97,14 +109,16 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
                 self.stages_manager.widgets.setdefault(current_stage, [])
 
                 for plugin in current_plugins:
-                    widget = self.fetch_widget(plugin, base_topic, current_stage)
+                    widget = self.fetch_widget(plugin, current_stage)
                     if widget:
                         widget_is_visible = plugin.get('visible', True)
                         if not widget_is_visible:
                             widget.setVisible(False)
 
                         plugin_layout.addWidget(widget)
-                        self.stages_manager.widgets[current_stage].append(widget)
+                        self.stages_manager.widgets[current_stage].append(
+                            (widget, plugin)
+                        )
 
                 self.task_layout.addWidget(box)
 
@@ -145,36 +159,40 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.header.setMessage('DONE!', level='info')
 
     # widget handling
-    def fetch_widget(self, plugin, base_topic, plugin_type):
+    def fetch_widget(self, plugin, plugin_type):
         '''Fetch widgets defined in the asset schema.'''
-        ui = plugin.get('plugin_ui', 'default.{}'.format(self.widget_suffix))
-        mytopic = base_topic.format(ui)
-
-        # filter widgets which cannot be loaded in this host.
-        if self.widget_suffix not in mytopic:
-            self.logger.warning('cannot load widget topic of type {} for {}'.format(
-                mytopic, self.widget_suffix
-            ))
-            return
+        ui = plugin.get('widget', 'default.widget')
 
         plugin_options = plugin.get('options', {})
         plugin_name = plugin.get('name', 'no name provided')
         description = plugin.get('description', 'No description provided')
-        plugin_topic = self.stages_manager.stages[plugin_type][0].format(plugin['plugin'])
+
+        event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_REGISTER_TOPIC,
+            data={
+                'pipeline': {
+                    'plugin_name':  ui,
+                    'plugin_type': plugin_type,
+                    'type': 'widget',
+                    'ui': self.ui,
+                    'host': self.host,
+                },
+                'settings':
+                    {
+                        'options': plugin_options,
+                        'name': plugin_name,
+                        'description': description,
+                    }
+            }
+        )
+
+        self.logger.info('publishing event: {}'.format(event))
 
         result_widget = self.session.event_hub.publish(
-            ftrack_api.event.base.Event(
-                topic=mytopic,
-                data={
-                    'options': plugin_options,
-                    'name': plugin_name,
-                    'description': description,
-                    'plugin_topic': plugin_topic
-                }
-            ),
+            event,
             synchronous=True
         )
-        self.logger.debug('widget found {} for {}'.format(result_widget, mytopic))
+
         if result_widget:
             return result_widget[0]
 

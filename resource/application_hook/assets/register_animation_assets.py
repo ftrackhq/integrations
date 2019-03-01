@@ -3,38 +3,41 @@
 
 import ftrack_api
 from ftrack_connect_pipeline import constants
+import json
 
 
 def register_asset(event):
-    return {
+
+    # return json so we can validate it
+    return json.dumps({
         'asset_name': 'Animation',
-        'asset_type': 'anim',
+        'asset_type': 'geo',
         'context': ['Task'],
         'publish': {
-            'plugins' : [
+            'plugins': [
                 {
                     'context': [
                         {
-                            'name' : 'Set Context',
-                            'plugin_ui': 'context.publish.widget.qt',
-                            'plugin':'context.publish',
+                            'name'  : 'Set Context',
+                            'widget': 'context.publish',
+                            'plugin': 'context.publish',
                             'options': {'context_id': None, 'asset_name': None},
                             'description': 'Set context where to publish to'
                         }
                     ]
                 },
                 {
-                    'collectors': [
+                    'collector': [
                         {
-                            'name' : 'From Maya Set',
-                            'plugin':'from_set.maya',
+                            'name'  : 'From Maya Set',
+                            'plugin': 'from_set',
                             'options': {'set_name': 'geometry'},
                             'description': 'collect all the geometry in maya set with the given name.'
                         }
                     ]
                 },
                 {
-                    'validators': [
+                    'validator': [
                         {
                             'name' : 'Is not empty',
                             'plugin': 'nonempty',
@@ -44,17 +47,17 @@ def register_asset(event):
                     ]
                 },
                 {
-                    'extractors': [
+                    'extractor': [
                         {
                             'name' : 'Save as Maya Ascii',
-                            'plugin': 'to_tmp.maya.ma',
+                            'plugin': 'mayaascii',
                             'options': {'component_name': 'mayaAscii'},
                             'description': 'Save an .ma file in /tmp'
 
                         },
                         {
                             'name' : 'Save as Maya Binary',
-                            'plugin': 'to_tmp.maya.mb',
+                            'plugin': 'mayabinary',
                             'options': {'component_name': 'mayaBinary'},
                             'description': 'Save an .mb file in /tmp'
 
@@ -62,7 +65,7 @@ def register_asset(event):
                     ]
                 },
                 {
-                    'publishers': [
+                    'publisher': [
                         {
                             'name' : 'Publish to ftrack',
                             'plugin': 'result',
@@ -78,27 +81,27 @@ def register_asset(event):
                {
                     'context': [
                         {
-                            'plugin_ui': 'context.load.widget.qt',
-                            'plugin':'context.load',
-                            'name' : 'Context ',
+                            'widget': 'context.load',
+                            'plugin': 'context.load',
+                            'name'  : 'Context ',
                             'options': {'component_list': None, 'accepts':['.ma', '.mb']},
                             'description': 'Set context where to load from to'
                         }
                     ]
                },
                {
-                    'importers': [
+                    'importer': [
                         {
                             'name' : 'Import file',
-                            'plugin':'maya',
-                            'description': 'import Ma file',
-                            'visible': None
+                            'plugin': 'maya_load',
+                            'description': 'import Maya file',
+                            'visible': False
                         }
                     ]
                }
             ]
         }
-    }
+    })
 
 
 def register(api_object, **kw):
@@ -112,6 +115,6 @@ def register(api_object, **kw):
         return
 
     api_object.event_hub.subscribe(
-        'topic={}'.format(constants.REGISTER_ASSET_TOPIC),
+        'topic={} and data.pipeline.type=asset'.format(constants.PIPELINE_REGISTER_TOPIC),
         register_asset
     )
