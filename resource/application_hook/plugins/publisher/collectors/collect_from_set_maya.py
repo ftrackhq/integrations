@@ -6,13 +6,12 @@ import logging
 
 import ftrack_api
 from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline_maya.constants import HOST
 
-logger = logging.getLogger('ftrack_connect_pipeline_maya.plugin.collectors.from_set.maya')
+logger = logging.getLogger('ftrack_connect_pipeline_maya.plugin')
 
 
-def collect_from_set(session, data=None, options=None):
-    logger.debug('Calling collect from set with options: {}'.format(options))
-
+def collect_from_set(session, context=None, data=None, options=None):
     import maya.cmds as cmd
     import maya
 
@@ -24,8 +23,8 @@ def collect_from_set(session, data=None, options=None):
 
 
 def register_collector(session, event):
-    logger.info('registering collet from set collector...')
-    return collect_from_set(session, **event['data'])
+    logger.debug('Calling collect with options: data {}'.format(event))
+    return collect_from_set(session, **event['data']['settings'])
 
 
 def register(api_object, **kw):
@@ -38,13 +37,20 @@ def register(api_object, **kw):
         # Exit to avoid registering this plugin again.
         return
 
-    topic = constants.COLLECTORS_PLUGIN_TOPIC.format('from_set.maya')
-    logger.info('discovering :{}'.format(topic))
-
     event_handler = functools.partial(
         register_collector, api_object
     )
+
     api_object.event_hub.subscribe(
-        'topic={}'.format(topic),
+        'topic={} and '
+        'data.pipeline.host={} and '
+        'data.pipeline.plugin_type={} and '
+        'data.pipeline.plugin_name={} and '
+        'data.pipeline.type=plugin'.format(
+            constants.PIPELINE_REGISTER_TOPIC,
+            HOST,
+            constants.COLLECTORS,
+            'from_set'
+        ),
         event_handler
     )

@@ -5,8 +5,11 @@
 import logging
 import threading
 import re
+import functools
 from ftrack_connect_pipeline import host
 from ftrack_connect_pipeline_maya import usage
+from ftrack_connect_pipeline_maya.constants import HOST, UI
+
 import ftrack_connect_pipeline_maya #  import to configure logging
 
 import maya.cmds as mc
@@ -98,7 +101,10 @@ def load_and_init():
 
 
 def register_hub_host():
-    t = threading.Thread(target=host.start_host_listener)
+    target = functools.partial(
+        host.start_host_listener, host=HOST, ui=UI
+    )
+    t = threading.Thread(target=target)
     t.daemon = True
     t.start()
     logger.info('thread started!')

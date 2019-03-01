@@ -7,11 +7,12 @@ import logging
 
 import ftrack_api
 from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline_maya.constants import HOST
 
-logger = logging.getLogger('ftrack_connect_pipeline_maya.plugin.importers.maya')
+logger = logging.getLogger('ftrack_connect_pipeline_maya.plugin')
 
 
-def import_maya(session, data=None, options=None):
+def import_maya(session,context=None, data=None, options=None):
     logger.info('CALLING IMPORT with: {} {} {}'.format(session, data, options))
 
     import maya.cmds as cmd
@@ -23,7 +24,7 @@ def import_maya(session, data=None, options=None):
         cmd.file(component_path, i=True)
         return True
 
-    component_list = options['component_list']
+    component_list = data['component_list']
     location = session.pick_location()
     results = []
     for component_id in component_list:
@@ -42,7 +43,7 @@ def import_maya(session, data=None, options=None):
 
 
 def register_importer(session, event):
-    return import_maya(session, **event['data'])
+    return import_maya(session, **event['data']['settings'])
 
 
 def register(api_object, **kw):
@@ -55,13 +56,19 @@ def register(api_object, **kw):
         # Exit to avoid registering this plugin again.
         return
 
-    topic = constants.IMPORTERS_PLUGIN_TOPIC.format('maya')
-    logger.info('discovering :{}'.format(topic))
-
     event_handler = functools.partial(
         register_importer, api_object
     )
     api_object.event_hub.subscribe(
-        'topic={}'.format(topic),
+        'topic={} and '
+        'data.pipeline.host={} and '
+        'data.pipeline.plugin_type={} and '
+        'data.pipeline.plugin_name={} and '
+        'data.pipeline.type=plugin'.format(
+            constants.PIPELINE_REGISTER_TOPIC,
+            HOST,
+            constants.IMPORTERS,
+            'maya_load'
+        ),
         event_handler
     )

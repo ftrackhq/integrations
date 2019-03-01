@@ -7,11 +7,12 @@ import logging
 
 import ftrack_api
 from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline_maya.constants import HOST
 
-logger = logging.getLogger('ftrack_connect_pipeline_maya.plugin.extractors.to_tmp.maya.mb')
+logger = logging.getLogger('ftrack_connect_pipeline_maya.plugin')
 
 
-def extract_to_tmp(session, data=None, options=None):
+def extract_to_tmp(session, context=None, data=None, options=None):
     import maya.cmds as cmd
     import maya
 
@@ -28,7 +29,8 @@ def extract_to_tmp(session, data=None, options=None):
 
 
 def register_extractor(session, event):
-    return extract_to_tmp(session, **event['data'])
+    logger.debug('Calling extract with options: data {}'.format(event))
+    return extract_to_tmp(session, **event['data']['settings'])
 
 
 def register(api_object, **kw):
@@ -41,13 +43,20 @@ def register(api_object, **kw):
         # Exit to avoid registering this plugin again.
         return
 
-    topic = constants.EXTRACTORS_PLUGIN_TOPIC.format('to_tmp.maya.mb')
-    logger.info('discovering :{}'.format(topic))
-
     event_handler = functools.partial(
         register_extractor, api_object
     )
+
     api_object.event_hub.subscribe(
-        'topic={}'.format(topic),
+        'topic={} and '
+        'data.pipeline.host={} and '
+        'data.pipeline.plugin_type={} and '
+        'data.pipeline.plugin_name={} and '
+        'data.pipeline.type=plugin'.format(
+            constants.PIPELINE_REGISTER_TOPIC,
+            HOST,
+            constants.EXTRACTORS,
+            'mayabinary'
+        ),
         event_handler
     )
