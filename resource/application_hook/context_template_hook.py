@@ -25,7 +25,7 @@ class ContextTemplates(object):
         {
             'name': 'Full, episode, sequence and shot',
             'description': (
-                'Episode exporter with shots'
+                'Episode exporter with sequences and shots'
                 'Example: EP001_SQAA_SH010 will be matched as Episode with name '
                 '001 , a sequence named AA and shot named 010.'
             ),
