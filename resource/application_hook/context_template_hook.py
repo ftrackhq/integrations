@@ -27,7 +27,7 @@ class ContextTemplates(object):
             'description': (
                 'Episode exporter with sequences and shots'
                 'Example: EP001_SQAA_SH010 will be matched as Episode with name '
-                '001 , a sequence named AA and shot named 010.'
+                '001 , Sequence named AA and Shot named 010.'
             ),
             'expression': '{_:EP|ep}{Episode:\w+}{_:.+SQ|sq}{Sequence:\w+}{_:.+(SH|sh)}{Shot:\w+}'
         },
@@ -36,7 +36,7 @@ class ContextTemplates(object):
             'description': (
                 'Episode exporter with shots'
                 'Example: EP001_SH010 will be matched as Episode with name '
-                '001 and a shot named 010.'
+                '001 and a Shot named 010.'
             ),
             'expression': '{_:EP|ep}{Episode:\w+}{_:.+(SH|sh)}{Shot:\w+}'
         },
@@ -45,7 +45,7 @@ class ContextTemplates(object):
             'description': (
                 'Match Sequence and Shot by underscores naming. '
                 'Example: SQ001_SH010 will be matched as Sequence with name '
-                'SQ001 and a shot named SH010.'
+                'SQ001 and a Shot named SH010.'
             ),
             'expression': '{Sequence:.+}_{Shot:.+}'
         },
@@ -54,7 +54,7 @@ class ContextTemplates(object):
             'description': (
                 'Match SQ or SH and any subsequent numbers. '
                 'Example: SQ001_SH010 will be matched as Sequence with name '
-                '001 and a shot named 010.'
+                '001 and a Shot named 010.'
             ),
             'expression': '{_:SQ|sq}{Sequence:\d+}{_:.+(SH|sh)}{Shot:\d+}'
         },{
