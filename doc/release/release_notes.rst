@@ -7,6 +7,12 @@
 Release Notes
 *************
 
+
+.. release:: Upcoming
+    .. change:: new
+
+        Extend context template to support episodes.
+
 .. release:: 2.1.3
     :date: 2019-02-21
 

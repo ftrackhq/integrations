@@ -23,13 +23,22 @@ class ContextTemplates(object):
         # Define tag regular expressions.
         return [
         {
-            'name': 'Episodic exporter',
+            'name': 'Full, episode, sequence and shot',
             'description': (
-                'Episodic exporter'
-                'Example: EP001_SH010 will be matched as Episode with name '
-                'EP001 and a shot named SH010.'
+                'Episode exporter with shots'
+                'Example: EP001_SQAA_SH010 will be matched as Episode with name '
+                '001 , a sequence named AA and shot named 010.'
             ),
-            'expression': '{Episode:.+}_{Shot:.+}'
+            'expression': '{_:EP|ep}{Episode:\w+}{_:.+SQ|sq}{Sequence:\w+}{_:.+(SH|sh)}{Shot:\w+}'
+        },
+        {
+            'name': 'Classic, episode and shot',
+            'description': (
+                'Episode exporter with shots'
+                'Example: EP001_SH010 will be matched as Episode with name '
+                '001 and a shot named 010.'
+            ),
+            'expression': '{_:EP|ep}{Episode:\w+}{_:.+(SH|sh)}{Shot:\w+}'
         },
         {
             'name': 'Basic, sequence and shot',
