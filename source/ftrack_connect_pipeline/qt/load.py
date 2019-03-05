@@ -47,7 +47,7 @@ class QtPipelineLoaderWidget(BaseQtPipelineWidget):
                         'plugin_name': plugin['plugin'],
                         'plugin_type': self.stages_manager.current_stage,
                         'type': 'plugin',
-                        'host': self.host,
+                        'host': self.host
                     },
                 }
             )
