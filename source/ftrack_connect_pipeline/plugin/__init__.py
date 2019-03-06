@@ -1,6 +1,7 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2019 ftrack
+
 import logging
-import functools
-import abc
 import ftrack_api
 
 from ftrack_connect_pipeline import constants
@@ -12,8 +13,8 @@ class _Base(object):
     plugin_type = None
     plugin_name = None
     type = None
-    host = None
-    ui = None
+    host = constants.HOST
+    ui = constants.UI
 
     @property
     def topic(self):
@@ -60,6 +61,7 @@ class BasePlugin(_Base):
     @property
     def topic(self):
         required = [
+            self.host,
             self.type,
             self.plugin_type,
             self.plugin_name,
@@ -70,11 +72,13 @@ class BasePlugin(_Base):
 
         topic = (
             'topic={} and '
+            'data.pipeline.host={} and '
             'data.pipeline.type={} and '
             'data.pipeline.plugin_type={} and '
             'data.pipeline.plugin_name={}'
         ).format(
             constants.PIPELINE_REGISTER_TOPIC,
+            self.host,
             self.type,
             self.plugin_type,
             self.plugin_name
@@ -85,11 +89,11 @@ class BasePlugin(_Base):
 
 class BaseWidget(_Base):
     type = 'widget'
-    ui = 'qt'
 
     @property
     def topic(self):
         required = [
+            self.host,
             self.type,
             self.plugin_type,
             self.plugin_name,
@@ -101,12 +105,14 @@ class BaseWidget(_Base):
 
         topic = (
             'topic={} and '
+            'data.pipeline.host={} and '
             'data.pipeline.ui={} and '
             'data.pipeline.type={} and '
             'data.pipeline.plugin_type={} and '
             'data.pipeline.plugin_name={}'
         ).format(
             constants.PIPELINE_REGISTER_TOPIC,
+            self.host,
             self.ui,
             self.type,
             self.plugin_type,

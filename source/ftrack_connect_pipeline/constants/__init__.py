@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 UI = 'qt'
-HOST = 'standalone'
+HOST = '*'
 
 # Base name.
 _BASE_ = 'ftrack.pipeline'
