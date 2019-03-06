@@ -1,56 +1,25 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-import functools
-import logging
+import maya.cmds as cmd
+import maya
 
-import ftrack_api
-from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline_maya.constants import HOST
-
-logger = logging.getLogger('ftrack_connect_pipeline_maya.plugin')
+from ftrack_connect_pipeline_maya import plugin
 
 
-def collect_from_set(session, context=None, data=None, options=None):
-    import maya.cmds as cmd
-    import maya
+class CollectFromSetMayaPlugin(plugin.CollectorMayaPlugin):
+    plugin_name = 'from_set'
 
-    def call(set_name):
-        return cmd.sets(set_name, q=True)
+    def run(self, context=None, data=None, options=None):
 
-    set_name = options['set_name']
-    return maya.utils.executeInMainThreadWithResult(call, set_name)
+        def call(set_name):
+            return cmd.sets(set_name, q=True)
 
-
-def register_collector(session, event):
-    logger.debug('Calling collect with options: data {}'.format(event))
-    return collect_from_set(session, **event['data']['settings'])
+        set_name = options['set_name']
+        return maya.utils.executeInMainThreadWithResult(call, set_name)
 
 
 def register(api_object, **kw):
-    '''Register plugin to api_object.'''
+    plugin = CollectFromSetMayaPlugin(api_object)
+    plugin.register()
 
-    # Validate that api_object is an instance of ftrack_api.Session. If not,
-    # assume that _register_assets is being called from an incompatible API
-    # and return without doing anything.
-    if not isinstance(api_object, ftrack_api.Session):
-        # Exit to avoid registering this plugin again.
-        return
-
-    event_handler = functools.partial(
-        register_collector, api_object
-    )
-
-    api_object.event_hub.subscribe(
-        'topic={} and '
-        'data.pipeline.host={} and '
-        'data.pipeline.plugin_type={} and '
-        'data.pipeline.plugin_name={} and '
-        'data.pipeline.type=plugin'.format(
-            constants.PIPELINE_REGISTER_TOPIC,
-            HOST,
-            constants.COLLECTORS,
-            'from_set'
-        ),
-        event_handler
-    )
