@@ -16,6 +16,10 @@ class _Base(object):
     ui = None
 
     @property
+    def topic(self):
+        return NotImplementedError()
+
+    @property
     def session(self):
         '''Return current session.'''
         return self._session
@@ -45,7 +49,7 @@ class _Base(object):
 
     def _run(self, event):
         settings = event['data']['settings']
-
+        self.logger.debug(settings)
         result = self.run(**settings)
         return result
 
@@ -113,6 +117,10 @@ class BaseWidget(_Base):
 
 
 class ContextPlugin(BasePlugin):
+    plugin_type = constants.CONTEXT
+
+
+class ContextWidget(BaseWidget):
     plugin_type = constants.CONTEXT
 
 
