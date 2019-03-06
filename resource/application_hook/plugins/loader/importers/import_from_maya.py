@@ -2,73 +2,43 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import os
-import functools
-import logging
 
-import ftrack_api
-from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline_maya.constants import HOST
+import maya.cmds as cmd
+import maya
 
-logger = logging.getLogger('ftrack_connect_pipeline_maya.plugin')
+from ftrack_connect_pipeline_maya import plugin
 
 
-def import_maya(session,context=None, data=None, options=None):
-    logger.info('CALLING IMPORT with: {} {} {}'.format(session, data, options))
+class ImportMayaPlugin(plugin.ImportMayaPlugin):
+    plugin_name = 'maya_load'
 
-    import maya.cmds as cmd
-    import maya
-    accepted_formats = options.get('accepts', [])
+    def run(self, context=None, data=None, options=None):
 
-    def call(component_path):
-        logger.debug('Calling importer options: data {}'.format(data))
-        cmd.file(component_path, i=True)
-        return True
+        accepted_formats = options.get('accepts', [])
 
-    component_list = data['component_list']
-    location = session.pick_location()
-    results = []
-    for component_id in component_list:
-        component = session.get('Component', component_id)
+        def call(component_path):
+            self.logger.debug('Calling importer options: data {}'.format(data))
+            cmd.file(component_path, i=True)
+            return True
 
-        component_path = location.get_filesystem_path(component)
-        if accepted_formats and not os.path.splitext(component_path)[-1] in accepted_formats:
-            logger.warning('{} not among accepted formats {}'.format(
-                component_path, accepted_formats
-            ))
-            continue
-        result = maya.utils.executeInMainThreadWithResult(call, component_path)
-        results.append(result)
+        component_list = data['component_list']
+        location = self.session.pick_location()
+        results = []
+        for component_id in component_list:
+            component = self.session.get('Component', component_id)
 
-    return results
+            component_path = location.get_filesystem_path(component)
+            if accepted_formats and not os.path.splitext(component_path)[-1] in accepted_formats:
+                self.logger.warning('{} not among accepted formats {}'.format(
+                    component_path, accepted_formats
+                ))
+                continue
+            result = maya.utils.executeInMainThreadWithResult(call, component_path)
+            results.append(result)
 
-
-def register_importer(session, event):
-    return import_maya(session, **event['data']['settings'])
+        return results
 
 
 def register(api_object, **kw):
-    '''Register plugin to api_object.'''
-
-    # Validate that api_object is an instance of ftrack_api.Session. If not,
-    # assume that _register_assets is being called from an incompatible API
-    # and return without doing anything.
-    if not isinstance(api_object, ftrack_api.Session):
-        # Exit to avoid registering this plugin again.
-        return
-
-    event_handler = functools.partial(
-        register_importer, api_object
-    )
-    api_object.event_hub.subscribe(
-        'topic={} and '
-        'data.pipeline.host={} and '
-        'data.pipeline.plugin_type={} and '
-        'data.pipeline.plugin_name={} and '
-        'data.pipeline.type=plugin'.format(
-            constants.PIPELINE_REGISTER_TOPIC,
-            HOST,
-            constants.IMPORTERS,
-            'maya_load'
-        ),
-        event_handler
-    )
+    plugin = ImportMayaPlugin(api_object)
+    plugin.register()
