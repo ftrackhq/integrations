@@ -259,6 +259,10 @@ class ApplicationLauncher(
 ):
     '''Launch applications with legacy plugin support.'''
 
+    def __init__(self, applicationStore, session):
+        self.session = session
+        super(ApplicationLauncher, self).__init__(applicationStore)
+
     def _getApplicationEnvironment(self, application, context):
         '''Modify and return environment with legacy plugins added.'''
         environment = super(
@@ -285,6 +289,11 @@ class ApplicationLauncher(
             sources, 'PYTHONPATH', environment
         )
 
+        entity = context['selection'][0]
+        project = self.session.get('Project', entity['entityId'])
+
+        environment['FTRACK_CONTEXTID'] = project['id']
+
         return environment
 
 
@@ -304,7 +313,7 @@ def register(session, **kw):
 
     applicationStore = ApplicationStore()
 
-    launcher = ApplicationLauncher(applicationStore)
+    launcher = ApplicationLauncher(applicationStore, session)
 
     # Create action and register to respond to discover and launch events.
     action = LaunchAction(applicationStore, launcher, session)

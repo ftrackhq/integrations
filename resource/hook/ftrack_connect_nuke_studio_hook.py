@@ -209,6 +209,11 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
     '''Launch nuke studio.'''
 
+    def __init__(self, applicationStore, session):
+        self.session = session
+        super(ApplicationLauncher, self).__init__(applicationStore)
+
+
     def _getApplicationEnvironment(self, application, context):
         '''Modify and return environment with nuke studio added.'''
         environment = super(
@@ -235,6 +240,11 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
             sources, 'PYTHONPATH', environment
         )
 
+        entity = context['selection'][0]
+        project = self.session.get('Project', entity['entityId'])
+
+        environment['FTRACK_CONTEXTID'] = project['id']
+
         return environment
 
 
@@ -254,7 +264,7 @@ def register(session, **kw):
 
     applicationStore = ApplicationStore()
 
-    launcher = ApplicationLauncher(applicationStore)
+    launcher = ApplicationLauncher(applicationStore, session)
 
     # Create action and register to respond to discover and launch events.
     action = LaunchAction(applicationStore, launcher, session)
