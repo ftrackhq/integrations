@@ -47,6 +47,19 @@ class LaunchAction(object):
         self.launcher = launcher
         self.session = session
 
+    def is_valid_selection(self, selection):
+        '''Return true if the selection is valid.'''
+        if len(selection) != 1:
+            return False
+
+        entity = selection[0]
+        task = self.session.get('Context', entity['entityId'])
+
+        if task.entity_type != 'Project':
+            return False
+
+        return True
+
     def register(self):
         '''Override register to filter discover actions on logged in user.'''
         self.session.event_hub.subscribe(
@@ -71,6 +84,12 @@ class LaunchAction(object):
 
     def discover(self, event):
         '''Return discovered applications.'''
+
+        if not self.is_valid_selection(
+            event['data'].get('selection', [])
+        ):
+            return
+
         items = []
         applications = self.applicationStore.applications
         applications = sorted(
