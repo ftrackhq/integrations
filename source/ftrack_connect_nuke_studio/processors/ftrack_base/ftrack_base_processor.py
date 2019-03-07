@@ -25,10 +25,6 @@ from ftrack_connect_nuke_studio.processors.ftrack_base import (
 )
 from ftrack_connect_nuke_studio.ui.widget.template import Template
 import ftrack_connect_nuke_studio.template as template_manager
-from ftrack_connect_nuke_studio.processors.ftrack_base import (
-    get_reference_ftrack_project, set_reference_ftrack_project,
-    lock_reference_ftrack_project, remove_reference_ftrack_project
-)
 import ftrack_connect_nuke_studio.exception
 
 
@@ -190,8 +186,11 @@ class FtrackProcessor(FtrackBase):
 
     def schema(self, project):
         ''' Return the current ftrack project schema. '''
-        project_id, is_locked = get_reference_ftrack_project(project)
-        query = 'select project_schema from Project where id is "{0}"'.format(project_id)
+
+        project_id = os.getenv('FTRACK_CONTEXTID')
+        project = self.session.get('Project', project_id)
+
+        query = 'select project_schema from Project where id is "{0}"'.format(project['id'])
         project_entity = self.session.query(query).one()
         return project_entity['project_schema']
 
@@ -628,9 +627,6 @@ class FtrackProcessor(FtrackBase):
                 self._components[root_item][track_item.name()][task.component_name()] = data
                 self.add_ftrack_tag(track_item, task)
 
-        # We have successfully exported the project, so now we can lock it.
-        lock_reference_ftrack_project(project)
-
         self._create_project_progress_widget = None
         return filtered_export_items
 
@@ -1054,12 +1050,11 @@ class FtrackProcessorUI(FtrackBase):
     def add_project_options(self, parent_layout):
         '''Create project options widget with parent *parent_layout*.'''
 
-        ftrack_projects = self.session.query(
-            'select id, full_name from Project where status is "active" order by name'
-        ).all()
+        project_id = os.getenv('FTRACK_CONTEXTID')
+        project = self.session.get('Project', project_id)
 
-        project_names = [project['full_name'] for project in ftrack_projects]
-        key, value, label = 'project_name', project_names, 'Create under project'
+        self.logger.info('Project: {}'.format(project))
+        key, value, label = 'project_name', str(project['full_name']), 'Create under project'
         tooltip = 'Updating/Creating Project.'
 
         self.project_options_widget = UIPropertyFactory.create(
@@ -1071,44 +1066,7 @@ class FtrackProcessorUI(FtrackBase):
             tooltip=tooltip
         )
         parent_layout.addRow(label + ':', self.project_options_widget)
-
-        # Update project tag on changes
-        self.project_options_widget._widget.currentIndexChanged.connect(
-            self._set_project_tag
-        )
-
-        # Check if the project is be locked.
-        project_id_tag, project_is_locked = get_reference_ftrack_project(self._project)
-        if project_is_locked and project_id_tag:
-            project = self.session.get('Project', project_id_tag)
-            if not project:
-                self.logger.warning(
-                    'Project id {} found, but project does not exist on server!'.format(
-                        project_id_tag
-                    )
-                )
-                remove_reference_ftrack_project(self._project)
-                return
-
-            project_name = project['full_name']
-            self.logger.debug(
-                'Found Project id tag, locking project to : {}'.format(
-                    project_name
-                )
-            )
-            project_index = self.project_options_widget._widget.findText(project_name)
-            self.project_options_widget._widget.setCurrentIndex(project_index)
-            self.project_options_widget.setDisabled(True)
-
-        else:
-            # Force event emission.
-            current_index = self.project_options_widget._widget.currentIndex()
-            self.project_options_widget._widget.currentIndexChanged.emit(current_index)
-
-    def _set_project_tag(self):
-        project_name = self.project_options_widget._widget.currentText()
-        ftrack_project = self.session.query('Project where full_name is "{}"'.format(project_name)).one()
-        set_reference_ftrack_project(self._project, ftrack_project['id'])
+        self.project_options_widget.setDisabled(True)
 
     def add_task_type_options(self, parent_layout, export_items):
         '''Create task type options widget for *export_items* with parent *parent_layout*.'''

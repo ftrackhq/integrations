@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2018 ftrack
 
+import os
 import logging
 import hiero
 import datetime
@@ -24,69 +25,6 @@ class FtrackProcessorError(Exception):
 
 class FtrackProcessorValidationError(FtrackProcessorError):
     ''' Ftrack processor validation error. '''
-
-
-def remove_reference_ftrack_project(project):
-    '''Remove reference ftrack tag from *project*.'''
-    for sequence in project.sequences():
-        for tag in sequence.tags()[:]:
-            if tag.name() == 'ftrack.project_reference':
-                logger.debug('removing project reference')
-                sequence.removeTag(tag)
-
-
-def lock_reference_ftrack_project(project):
-    '''Set *project* reference tag to locked so cannot be updated.'''
-    for sequence in project.sequences():
-        for tag in sequence.tags():
-            if tag.name() == 'ftrack.project_reference':
-                logger.debug('Locking project')
-                tag.metadata().setValue('ftrack.project_reference.locked', str(1))
-
-
-def get_reference_ftrack_project(project):
-    '''Return ftrack project reference stored on *project* and whether is locked.'''
-    ftrack_project_id = None
-    is_project_locked = False
-    # Fetch the templates from tags on sequences on the project.
-    # This is a workaround due to that projects do not have tags or metadata.
-    for sequence in project.sequences():
-        for tag in sequence.tags():
-            if tag.name() == 'ftrack.project_reference':
-                ftrack_project_id = tag.metadata().value('ftrack.project_reference.id')
-                is_project_locked = bool(int(tag.metadata().value('ftrack.project_reference.locked')))
-                break
-
-        if ftrack_project_id:
-            break
-
-    return ftrack_project_id, is_project_locked
-
-
-def set_reference_ftrack_project(project, project_id):
-    '''Set *project* tags to ftrack *project_id* if doesn't exist.'''
-    for sequence in project.sequences():
-        existing_tag = None
-        for tag in sequence.tags():
-            if tag.name() == 'ftrack.project_reference':
-                existing_tag = tag
-                break
-
-        if existing_tag and bool(int(existing_tag.metadata().value('ftrack.project_reference.locked'))):
-            # project is locked , not much we can do ...
-            logger.debug('Tag {} is locked....'.format(tag))
-            continue
-
-        if existing_tag:
-            # tag exists and is not locked, we can update...
-            existing_tag.metadata().setValue('ftrack.project_reference.id', project_id)
-            # tag.setVisible(False)
-        else:
-            # tag does not exists
-            tag = hiero.core.Tag('ftrack.project_reference')
-            tag.metadata().setValue('ftrack.project_reference.id', project_id)
-            tag.metadata().setValue('ftrack.project_reference.locked', str(0))
-            sequence.addTag(tag)
 
 
 class FtrackBasePreset(FtrackBase):
@@ -136,9 +74,8 @@ class FtrackBasePreset(FtrackBase):
         '''
 
         ''' Return project name for the given *task*. '''
-        project = task._project
-        ftrack_project_id , project_is_locked = get_reference_ftrack_project(project)
-        ftrack_project = self.session.get('Project', ftrack_project_id)
+        project_id = os.getenv('FTRACK_CONTEXTID')
+        ftrack_project = self.session.get('Project', project_id)
         ftrack_project_name = ftrack_project['full_name']
 
         track_item = task._item
