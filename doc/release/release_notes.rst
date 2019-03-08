@@ -13,6 +13,11 @@ Release Notes
 
         Extend context template to support episodes.
 
+    .. change:: changed
+
+        Application requires a project to start and
+        project selection from export is now disabled.
+
 .. release:: 2.1.3
     :date: 2019-02-21
 

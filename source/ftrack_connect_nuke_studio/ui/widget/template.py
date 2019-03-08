@@ -1,3 +1,6 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2018 ftrack
+
 import logging
 import ftrack_connect.ui.widget.html_combobox
 import ftrack_connect_nuke_studio.template as template_manager

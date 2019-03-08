@@ -47,6 +47,19 @@ class LaunchAction(object):
         self.launcher = launcher
         self.session = session
 
+    def is_valid_selection(self, selection):
+        '''Return true if the selection is valid.'''
+        if len(selection) != 1:
+            return False
+
+        entity = selection[0]
+        task = self.session.get('Context', entity['entityId'])
+
+        if task.entity_type != 'Project':
+            return False
+
+        return True
+
     def register(self):
         '''Override register to filter discover actions on logged in user.'''
         self.session.event_hub.subscribe(
@@ -71,6 +84,12 @@ class LaunchAction(object):
 
     def discover(self, event):
         '''Return discovered applications.'''
+
+        if not self.is_valid_selection(
+            event['data'].get('selection', [])
+        ):
+            return
+
         items = []
         applications = self.applicationStore.applications
         applications = sorted(
@@ -190,6 +209,11 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
     '''Launch nuke studio.'''
 
+    def __init__(self, applicationStore, session):
+        self.session = session
+        super(ApplicationLauncher, self).__init__(applicationStore)
+
+
     def _getApplicationEnvironment(self, application, context):
         '''Modify and return environment with nuke studio added.'''
         environment = super(
@@ -216,6 +240,11 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
             sources, 'PYTHONPATH', environment
         )
 
+        entity = context['selection'][0]
+        project = self.session.get('Project', entity['entityId'])
+
+        environment['FTRACK_CONTEXTID'] = project['id']
+
         return environment
 
 
@@ -235,7 +264,7 @@ def register(session, **kw):
 
     applicationStore = ApplicationStore()
 
-    launcher = ApplicationLauncher(applicationStore)
+    launcher = ApplicationLauncher(applicationStore, session)
 
     # Create action and register to respond to discover and launch events.
     action = LaunchAction(applicationStore, launcher, session)

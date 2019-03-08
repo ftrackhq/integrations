@@ -9,7 +9,7 @@ from ftrack_connect_nuke_studio.base import FtrackBase
 from ftrack_connect_nuke_studio.overrides.version_scanner import add_ftrack_build_tag
 from ftrack_connect_nuke_studio.template import get_project_template, match
 import ftrack_connect_nuke_studio.exception
-from ftrack_connect_nuke_studio.processors.ftrack_base import get_reference_ftrack_project
+
 import hiero
 
 from hiero.ui.BuildExternalMediaTrack import (
@@ -155,10 +155,8 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         results = {}
         project_name = self.project.name()
         project_template = get_project_template(self.project)
-        project_id, is_locked = get_reference_ftrack_project(self.project)
-        if not project_id:
-            raise Exception('Project Id not found!')
 
+        project_id = os.getenv('FTRACK_CONTEXTID')
         ftrack_project = self.session.get('Project', project_id)
 
         if not project_template:
