@@ -11,7 +11,7 @@ import logging
 import zipfile
 
 # Package and dependencies versions.
-ftrack_connect_version = '1.1.6'
+ftrack_connect_version = '1.1.7'
 ftrack_connect_rv_version = '3.7'
 ftrack_connect_cinema_4d_version = '0.1.5'
 ftrack_location_compatibility_version = '0.3.2'
