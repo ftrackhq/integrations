@@ -24,7 +24,7 @@ ftrack_connect_3dsmax_version = '0.4.0'
 ftrack_connect_hieroplayer_version = '1.3.0'
 ftrack_connect_nuke_version = '1.2.0'
 ftrack_connect_maya_version = '1.2.0'
-ftrack_connect_nuke_studio_version = '2.1.0'
+ftrack_connect_nuke_studio_version = '2.2.0'
 
 # Setup code
 
