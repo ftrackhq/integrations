@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 UI = 'qt'
-HOST = 'standalone'
+HOST = '*'
 
 # Base name.
 _BASE_ = 'ftrack.pipeline'
@@ -17,6 +17,7 @@ CONTEXT_PLUGIN_TOPIC = '{}.{}.{{}}'.format(_BASE_, CONTEXT)
 PIPELINE_REGISTER_TOPIC = '{}.register'.format(_BASE_)
 
 PIPELINE_RUN_TOPIC = '{}.host.run'.format(_BASE_)
+
 
 # Avoid circular dependencies.
 from ftrack_connect_pipeline.constants.load import *
