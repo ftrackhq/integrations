@@ -1,8 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-from QtExt import QtWidgets, QtCore
-from ftrack_connect_pipeline.qt.widgets import BaseWidget
+from QtExt import QtWidgets
+from ftrack_connect_pipeline.client.qt.widgets import BaseWidget
 
 
 class SimpleWidget(BaseWidget):

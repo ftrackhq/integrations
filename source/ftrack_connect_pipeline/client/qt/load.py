@@ -14,8 +14,8 @@ from collections import OrderedDict
 
 from QtExt import QtGui
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline import utils
-from ftrack_connect_pipeline.qt import BaseQtPipelineWidget
+from ftrack_connect_pipeline.host import utils
+from ftrack_connect_pipeline.client.qt import BaseQtPipelineWidget
 
 
 class QtPipelineLoaderWidget(BaseQtPipelineWidget):

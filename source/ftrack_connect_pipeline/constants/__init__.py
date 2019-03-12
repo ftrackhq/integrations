@@ -15,6 +15,8 @@ CONTEXT_PLUGIN_TOPIC = '{}.{}.{{}}'.format(_BASE_, CONTEXT)
 
 # External events.
 PIPELINE_REGISTER_TOPIC = '{}.register'.format(_BASE_)
+PIPELINE_DEFINITION_TOPIC = '{}.definition'.format(_BASE_)
+
 
 PIPELINE_RUN_TOPIC = '{}.host.run'.format(_BASE_)
 

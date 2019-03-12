@@ -7,119 +7,117 @@ session = get_shared_session()
 _context_types = [str(t["name"]) for t in session.query("ObjectType").all()]
 _asset_types = list(set([str(t["short"]) for t in session.query("AssetType").all()]))
 
+# Package schema
+
+package_component_schema = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": [
+        "name"
+    ],
+    "properties": {
+        "name": {"type": "string"},
+        "file_type": {"type": "array", "items":{"type": "string"}},
+        "optional": {"type": "boolean"}
+    }
+}
+
+
+package_schema = {
+    "type": "object",
+    "additionalProperties":False,
+    "required": [
+        "name", "type", "context"
+    ],
+    "properties":{
+        "name": {"type" : "string"},
+        "type": {"type": "string"},
+        "context": {"type": "array", "items": {"type": "string"}},
+        "components":{"type": "array", "items": package_component_schema}
+    }
+
+}
+
+# Stage Plugin Schema
 
 _plugin_schema = {
     "type": "object",
     "required": [
-        "name", "plugin"
+        "plugin"
     ],
     "additionalProperties": False,
     "properties": {
         "name": {"type": "string"},
-        "plugin": {"type": "string"},
-        "options": {"type": "object"},
         "description": {"type": "string"},
+        "plugin": {"type": "string"},
         "widget": {"type": "string"},
-        "visible": {"type": "boolean"}
+        "visible": {"type": "boolean"},
+        "editable": {"type": "boolean"},
+        "disabled": {"type": "boolean"},
+        "options": {"type": "object"},
+
     }
 }
 
+# Package publisher Schema
 
-_publish_plugins_schema = {
+
+publisher_schema = {
     "type": "object",
-    "additionalProperties": False,
-    "properties": {
-        constants.CONTEXT :{
-            "type": "array",
-            "items": _plugin_schema
-        },
-        constants.COLLECTORS: {
-            "type": "array",
-            "items": _plugin_schema
-        },
-        constants.VALIDATORS: {
-            "type": "array",
-            "items": _plugin_schema
-        },
-        constants.EXTRACTORS: {
-            "type": "array",
-            "items": _plugin_schema
-        },
-        constants.PUBLISHERS: {
-            "type": "array",
-            "items": _plugin_schema
-        }
-    }
-}
-
-_load_plugins_schema = {
-    "type": "object",
-    "additionalProperties": False,
-    "properties": {
-        constants.CONTEXT :{
-            "type": "array",
-            "items": _plugin_schema
-        },
-        constants.IMPORTERS: {
-            "type": "array",
-            "items": _plugin_schema
-        }
-    }
-}
-
-
-_publish_schema = {
-    "type" : "object",
-    "additionalProperties": False,
-    "properties": {
-        "plugins": {
-            "type": "array",
-            "items": _publish_plugins_schema
-        },
-    }
-}
-
-
-_load_schema = {
-    "type" : "object",
-    "additionalProperties": False,
-    "properties": {
-        "plugins": {
-            "type": "array",
-            "items": _load_plugins_schema
-        },
-    }
-}
-
-asset_schema = {
-    "type" : "object",
     "required": [
-        "asset_name",
-        "asset_type",
-        "context",
-        "publish"
+        "name", "asset", "host", "ui", "context"
     ],
-    "additionalProperties": False,
-    "properties" : {
-         "asset_name" : {
-             "type" : "string"
-         },
-         "asset_type" : {
-             "type" : "string",
-             "enum": _asset_types
-         },
-         "context": {
-             "type": "array",
-             "items": {
-                 "type": "string",
-                 "enum": _context_types
+    "properties": {
+        "name": {"type": "string"},
+        "asset": {"type": "string"},
+        "host": {"type": "string"},
+        "ui": {"type": "string"},
+        "context": {"type": "array", "items": _plugin_schema},
+        "components": {
+            "type": "object",
+            "properties": {
+                "collect": {"type":"array", "items": _plugin_schema},
+                "validate": {"type": "array", "items": _plugin_schema},
+                "output": {"type": "array", "items": _plugin_schema}
             }
-         },
-         "publish": _publish_schema,
-         "load": _load_schema
+        },
+        "publish": {
+            "type": "array",
+            "items": _plugin_schema
+        }
+    }
+}
+
+# Package loader Schema
+
+loader_schema = {
+    "type": "object",
+    "required": [
+        "host", "ui"
+    ],
+    "properties": {
+        "name": {"type": "string"},
+        "host": {"type": "string"},
+        "ui": {"type": "string"},
+        "components": {
+            "type": "array",
+            "items": _plugin_schema
+        },
+        "post": {
+            "type": "array",
+            "items": _plugin_schema
+        }
     }
 }
 
 
-def validate(schema):
-    _validate(schema, asset_schema)
+def validate_package(schema):
+    _validate(schema, package_schema)
+
+
+def validate_publisher(schema):
+    _validate(schema, publisher_schema)
+
+
+def validate_loader(schema):
+    _validate(schema, loader_schema)

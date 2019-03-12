@@ -2,15 +2,14 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import os
-import sys
 
 import ftrack_api
 import logging
 
-from QtExt import QtWidgets, QtGui, QtCore
+from QtExt import QtWidgets
 
-from ftrack_connect_pipeline.qt import utils as qtutils
-from ftrack_connect_pipeline import utils
+from ftrack_connect_pipeline.client.qt import utils as qtutils
+from ftrack_connect_pipeline.host import utils
 from ftrack_connect_pipeline.session import get_shared_session
 from ftrack_connect_pipeline import constants
 from ftrack_connect.ui.widget import header
@@ -32,7 +31,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         '''Return current asset type'''
         return self._current_asset_type
 
-    def __init__(self, stage_type, stages_mapping, ui, host, parent=None):
+    def __init__(self, stage_type, ui, host, parent=None):
         '''Initialise widget with *stage_type* and *stage_mapping*.'''
         super(BaseQtPipelineWidget, self).__init__(parent=parent)
 
@@ -55,13 +54,9 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             )
         )
         self.session = get_shared_session()
-        self.stages_manager = qtutils.StageManager(
-            self.session, stages_mapping, stage_type,
-            enable_remote_events=enable_remote_events
-        )
 
         context_type = 'Task'
-        self.assets_manager = utils.AssetSchemaManager(
+        self.package_manager = utils.PackageManager(
             self.session, context_type
         )
 
@@ -83,12 +78,12 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.stages_manager.reset_stages()
         self.stages_manager.widgets.clear()
 
-    def _on_asset_type_change(self, index):
+    def _on_package_type_change(self, index):
         '''Slot triggered on asset type change.'''
         self.resetLayout(self.task_layout)
 
         asset_name = self.combo.itemData(index)
-        asset_schema = self.assets_manager.assets.get(asset_name)
+        asset_schema = self.package_manager.package.get(asset_name)
         if not asset_schema:
             return
 
@@ -134,8 +129,8 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.task_layout = QtWidgets.QVBoxLayout()
         self.layout().addLayout(self.task_layout)
 
-        for asset_name in self.assets_manager.assets.keys():
-            asset_type = self.assets_manager.assets[asset_name]['asset_type']
+        for asset_name in self.package_manager.package.keys():
+            asset_type = self.package_manager.package[asset_name]['asset_type']
             self.combo.addItem('{} ({})'.format(asset_name, asset_type), asset_name)
 
         self.run_button = QtWidgets.QPushButton('Run')
@@ -144,7 +139,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
     def post_build(self):
         '''Post Build ui method.'''
         self.run_button.clicked.connect(self._on_run)
-        self.combo.currentIndexChanged.connect(self._on_asset_type_change)
+        self.combo.currentIndexChanged.connect(self._on_package_type_change)
 
         self.stages_manager.stage_error.connect(self._on_stage_error)
         self.stages_manager.stages_end.connect(self._on_stages_end)

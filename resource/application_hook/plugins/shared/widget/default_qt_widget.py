@@ -3,7 +3,7 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 from ftrack_connect_pipeline import plugin
-from ftrack_connect_pipeline.qt.widgets import simple as simple_widget
+from ftrack_connect_pipeline.client.qt.widgets import simple as simple_widget
 
 
 class ContextWidget(plugin.BaseWidget):
