@@ -9,20 +9,18 @@ deps_paths = os.environ.get('PYTHONPATH', '').split(os.pathsep)
 for path in deps_paths:
     sys.path.append(path)
 
-from QtExt import QtGui
+from QtExt import QtGui, QtWidgets
 
 from ftrack_connect_pipeline.host import utils
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.client.qt import BaseQtPipelineWidget
+from ftrack_connect_pipeline.client import BaseQtPipelineWidget
 
 
 class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
     def __init__(self, ui, host, parent=None):
-        stage_type = constants.PUBLISH
-        super(QtPipelinePublishWidget, self).__init__(stage_type, ui, host, parent=parent)
+        super(QtPipelinePublishWidget, self).__init__(ui, host, parent=parent)
         self.setWindowTitle('Standalone Pipeline Publisher')
-        self.publisher_manager = utils.PackageManager(self.package_manager)
 
     def _on_publisher_change(self, index):
         '''Slot triggered on asset type change.'''

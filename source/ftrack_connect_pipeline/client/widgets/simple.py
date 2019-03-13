@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 from QtExt import QtWidgets
-from ftrack_connect_pipeline.client.qt.widgets import BaseWidget
+from ftrack_connect_pipeline.client.widgets import BaseWidget
 
 
 class SimpleWidget(BaseWidget):

@@ -21,7 +21,7 @@ class BaseDefinitionManager(QtCore.QObject):
 
     @property
     def result(self):
-        return copy.deepcopy(self.result_registry)
+        return copy.deepcopy(self._registry)
 
     def __init__(self, session, schema_type, validator):
         '''Initialise the class with ftrack *session* and *context_type*'''
@@ -30,7 +30,7 @@ class BaseDefinitionManager(QtCore.QObject):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        self.result_registry = {}
+        self._registry = {}
         self.session = session
         self.event_manager = EventManager(self.session)
         self._validator = validator
@@ -62,12 +62,12 @@ class BaseDefinitionManager(QtCore.QObject):
                 return
 
             name = result['name']
-            if name in self.result_registry:
+            if name in self._registry:
                 self.logger.warning('{} already registered!'.format(name))
                 return
 
             self.logger.info('Registering {}'.format(result['name']))
-            self.result_registry[name] = result
+            self._registry[name] = result
 
         self.finished.emit()
 
@@ -100,9 +100,9 @@ class LoaderDefinitionManager(BaseDefinitionManager):
         super(LoaderDefinitionManager, self).__init__(package_manager.session, 'loader', schema.validate_loader)
         self.package_manager = package_manager
 
-
     def validate(self, data):
         schema_validation = super(LoaderDefinitionManager, self).validate(data)
+        # TODO validate consistency of components against package definition
         return schema_validation
 
 
@@ -115,6 +115,7 @@ class PublisherDefinitionManager(BaseDefinitionManager):
 
     def validate(self, data):
         schema_validation = super(PublisherDefinitionManager, self).validate(data)
+        # TODO validate consistency of components against package definition
         return schema_validation
 
 

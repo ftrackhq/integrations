@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 from QtExt import QtWidgets
-from ftrack_connect_pipeline.client.qt.widgets.simple import SimpleWidget
+from ftrack_connect_pipeline.client.widgets.simple import SimpleWidget
 
 from ftrack_connect.ui.widget import entity_selector
 from ftrack_connect.ui.widget import asset_options
