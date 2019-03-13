@@ -1,4 +1,4 @@
-from ftrack_connect_pipeline.client.qt import QtPipelineLoaderWidget
+from ftrack_connect_pipeline.client.load import QtPipelineLoaderWidget
 from ftrack_connect_pipeline_maya.constants import HOST, UI
 
 from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
