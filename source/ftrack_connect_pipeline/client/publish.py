@@ -34,8 +34,8 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self.event_manager.publish(publisher_event, self.on_publishers)
 
     def on_publishers(self, event):
-        self.logger.info('FETCHED PUBLISHERS...')
-        self.logger.info(event['data'])
+        for item_name, item in event['data'].items():
+            self.combo.addItem(item_name, item)
 
     def _on_publisher_change(self, index):
         '''Slot triggered on asset type change.'''
