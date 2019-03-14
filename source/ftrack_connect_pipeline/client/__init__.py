@@ -40,26 +40,10 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.session = get_shared_session()
         self.event_manager = event.EventManager(self.session, True)
 
-        publisher_event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_DEFINITION_TOPIC,
-            data={
-                'pipeline': {
-                    'type': "publisher"
-                }
-            }
-        )
-        self.logger.info('emitting{}'.format(publisher_event))
-        self.event_manager.publish(publisher_event, self.on_publishers)
-
         self.build()
         self.post_build()
 
         theme.applyFont()
-
-    def on_publishers(self, event):
-        self.logger.info('FETCHED PUBLISHERS...')
-        self.logger.info(event['data'])
-
 
     def resetLayout(self, layout):
         '''Reset layout and delete widgets.'''

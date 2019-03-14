@@ -11,7 +11,7 @@ for path in deps_paths:
 
 from QtExt import QtGui, QtWidgets
 
-from ftrack_connect_pipeline.host import utils
+import ftrack_api
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.client import BaseQtPipelineWidget
 
@@ -21,6 +21,21 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
     def __init__(self, ui, host, parent=None):
         super(QtPipelinePublishWidget, self).__init__(ui, host, parent=parent)
         self.setWindowTitle('Standalone Pipeline Publisher')
+
+        publisher_event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_DEFINITION_TOPIC,
+            data={
+                'pipeline': {
+                    'type': "publisher"
+                }
+            }
+        )
+        self.logger.info('emitting: {}'.format(publisher_event))
+        self.event_manager.publish(publisher_event, self.on_publishers)
+
+    def on_publishers(self, event):
+        self.logger.info('FETCHED PUBLISHERS...')
+        self.logger.info(event['data'])
 
     def _on_publisher_change(self, index):
         '''Slot triggered on asset type change.'''

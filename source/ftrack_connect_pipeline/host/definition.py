@@ -19,8 +19,7 @@ class BaseDefinitionManager(QtCore.QObject):
 
     finished = QtCore.Signal()
 
-    @property
-    def result(self):
+    def result(self, *args, **kwargs):
         return copy.deepcopy(self._registry)
 
     def __init__(self, session, schema_type, validator):
@@ -127,17 +126,16 @@ class DefintionManager(QtCore.QObject):
         self.loaders = LoaderDefinitionManager(self.packages)
         self.publishers = PublisherDefinitionManager(self.packages)
 
-        self.publishers.finished.connect(self.on_publishers)
 
-    def on_publishers(self):
+        logger.info('published parsed : {}'.format(self.publishers.result()))
         self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.type="publisher"'.format(constants.PIPELINE_DEFINITION_TOPIC),
-            self.publishers.results
+            'topic={} and data.pipeline.type=publisher'.format(constants.PIPELINE_DEFINITION_TOPIC),
+            self.publishers.result
         )
 
-    def on_loaders(self):
+        logger.info('loaders parsed : {}'.format(self.publishers.result()))
         self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.type="loader"'.format(constants.PIPELINE_DEFINITION_TOPIC),
-            self.loaders.results
+            'topic={} and data.pipeline.type=loader'.format(constants.PIPELINE_DEFINITION_TOPIC),
+            self.loaders.result
         )
 
