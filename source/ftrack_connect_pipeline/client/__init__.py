@@ -109,22 +109,12 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.combo)
         self.task_layout = QtWidgets.QVBoxLayout()
         self.layout().addLayout(self.task_layout)
-
-        # for asset_name in self.package_manager.package.keys():
-        #     asset_type = self.package_manager.package[asset_name]['asset_type']
-        #     self.combo.addItem('{} ({})'.format(asset_name, asset_type),
-        #                        asset_name)
-
         self.run_button = QtWidgets.QPushButton('Run')
         self.layout().addWidget(self.run_button)
 
     def post_build(self):
         '''Post Build ui method.'''
         self.run_button.clicked.connect(self._on_run)
-        # self.combo.currentIndexChanged.connect(self._on_package_type_change)
-
-        # self.stages_manager.stage_error.connect(self._on_stage_error)
-        # self.stages_manager.stages_end.connect(self._on_stages_end)
 
     def _on_stage_error(self, error):
         self.header.setMessage(error, level='error')
@@ -132,20 +122,17 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
     def _on_stages_end(self):
         self.header.setMessage('DONE!', level='info')
 
-    # widget handling
-    def fetch_widget(self, plugin, plugin_type):
-        '''Fetch widgets defined in the asset schema.'''
-        ui = plugin.get('widget', 'default.widget')
-
+    def _fetch_default_widget(self, plugin, plugin_type):
+        plugin_name = 'default.widget'
         plugin_options = plugin.get('options', {})
-        plugin_name = plugin.get('name', 'no name provided')
+        name = plugin.get('name', 'no name provided')
         description = plugin.get('description', 'No description provided')
 
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_REGISTER_TOPIC,
             data={
                 'pipeline': {
-                    'plugin_name': ui,
+                    'plugin_name': plugin_name,
                     'plugin_type': plugin_type,
                     'type': 'widget',
                     'ui': self.ui,
@@ -154,21 +141,58 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
                 'settings':
                     {
                         'options': plugin_options,
-                        'name': plugin_name,
+                        'name': name,
                         'description': description,
                     }
             }
         )
 
-        self.logger.info('publishing event: {}'.format(event))
+        default_widget = self.session.event_hub.publish(
+            event,
+            synchronous=True
+        )
+
+        return default_widget
+
+    # widget handling
+    def fetch_widget(self, plugin, plugin_type):
+        '''Fetch widgets defined in the asset schema.'''
+        plugin_name = plugin.get('widget', 'default.widget')
+
+        plugin_options = plugin.get('options', {})
+        name = plugin.get('name', 'no name provided')
+        description = plugin.get('description', 'No description provided')
+
+        event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_REGISTER_TOPIC,
+            data={
+                'pipeline': {
+                    'plugin_name': plugin_name,
+                    'plugin_type': plugin_type,
+                    'type': 'widget',
+                    'ui': self.ui,
+                    'host': self.host,
+                },
+                'settings':
+                    {
+                        'options': plugin_options,
+                        'name': name,
+                        'description': description,
+                    }
+            }
+        )
 
         result_widget = self.session.event_hub.publish(
             event,
             synchronous=True
         )
 
-        if result_widget:
-            return result_widget[0]
+        if not result_widget:
+            result_widget = self._fetch_default_widget(plugin, plugin_type)
+
+        self.logger.info(result_widget)
+
+        return result_widget[0]
 
     # Stage management
     def _on_run(self):

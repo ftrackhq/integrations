@@ -30,51 +30,65 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
                 }
             }
         )
-        self.logger.info('emitting: {}'.format(publisher_event))
-        self.event_manager.publish(publisher_event, self.on_publishers)
+        self.event_manager.publish(publisher_event, self.on_publishers_loaded)
 
-    def on_publishers(self, event):
+    def post_build(self):
+        super(QtPipelinePublishWidget, self).post_build()
+        self.combo.currentIndexChanged.connect(self._on_publisher_changed)
+
+    def on_publishers_loaded(self, event):
         for item_name, item in event['data'].items():
             self.combo.addItem(item_name, item)
 
-    def _on_publisher_change(self, index):
+    def _on_publisher_changed(self, index):
         '''Slot triggered on asset type change.'''
         self.resetLayout(self.task_layout)
 
-        asset_name = self.combo.itemData(index)
-        asset_schema = self.package_manager.package.get(asset_name)
-        if not asset_schema:
-            return
+        package_publisher = self.combo.itemData(index)
 
-        self._current_asset_type = asset_schema['asset_type']
+        contexts = package_publisher['context']
+        components = package_publisher['components']
 
-        stages = asset_schema[self.stages_manager.type]['plugins']
-        for stage in stages:
-            for current_stage, current_plugins in stage.items():
-                base_topic = self.stages_manager.stages.get(current_stage)
-                if not base_topic:
-                    self.logger.warning('stage {} cannot be evaluated'.format(current_stage))
-                    continue
+        for context in contexts:
+            context_plugin = context
+            context_widget = self.fetch_widget(context_plugin, 'context')
+            self.logger.info('context_widget: {}'.format(context_widget))
 
-                box = QtWidgets.QGroupBox(current_stage)
-                plugin_layout = QtWidgets.QVBoxLayout()
-                box.setLayout(plugin_layout)
+        for component_name, component_stages in components.items():
+            for stage_name, stage_plugins in component_stages.items():
+                for stage_plugin in stage_plugins:
+                    stage_widget = self.fetch_widget(stage_plugin, stage_name)
+                    self.logger.info('{}::{}_widget: {}'.format(component_name, stage_name, stage_widget))
 
-                self.stages_manager.widgets.setdefault(current_stage, [])
-
-                for plugin in current_plugins:
-                    widget = self.fetch_widget(plugin, current_stage)
-                    if widget:
-                        widget_is_visible = plugin.get('visible', True)
-                        if not widget_is_visible:
-                            widget.setVisible(False)
-
-                        plugin_layout.addWidget(widget)
-                        self.stages_manager.widgets[current_stage].append(
-                            (widget, plugin)
-                        )
-
-                self.task_layout.addWidget(box)
+        # self._current_asset_type = package['type']
+        #
+        # stages = asset_schema[self.stages_manager.type]['plugins']
+        # for stage in stages:
+        #     for current_stage, current_plugins in stage.items():
+        #         base_topic = self.stages_manager.stages.get(current_stage)
+        #         if not base_topic:
+        #             self.logger.warning('stage {} cannot be evaluated'.format(current_stage))
+        #             continue
+        #
+        #         box = QtWidgets.QGroupBox(current_stage)
+        #         plugin_layout = QtWidgets.QVBoxLayout()
+        #         box.setLayout(plugin_layout)
+        #
+        #         self.stages_manager.widgets.setdefault(current_stage, [])
+        #
+        #         for plugin in current_plugins:
+        #             widget = self.fetch_widget(plugin, current_stage)
+        #             if widget:
+        #                 widget_is_visible = plugin.get('visible', True)
+        #                 if not widget_is_visible:
+        #                     widget.setVisible(False)
+        #
+        #                 plugin_layout.addWidget(widget)
+        #                 self.stages_manager.widgets[current_stage].append(
+        #                     (widget, plugin)
+        #                 )
+        #
+        #         self.task_layout.addWidget(box)
 
 
 if __name__ == '__main__':

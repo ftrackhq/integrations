@@ -20,8 +20,7 @@ class SimpleWidget(BaseWidget):
             option_layout = QtWidgets.QHBoxLayout()
             label = QtWidgets.QLabel(key)
 
-            value_type = type(value)
-            value = QtWidgets.QLineEdit(value)
+            value = QtWidgets.QLineEdit(str(value))
 
             self.widget_options[key] = value.text
 

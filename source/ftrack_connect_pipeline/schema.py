@@ -7,37 +7,6 @@ session = get_shared_session()
 _context_types = [str(t["name"]) for t in session.query("ObjectType").all()]
 _asset_types = list(set([str(t["short"]) for t in session.query("AssetType").all()]))
 
-# Package schema
-
-package_component_schema = {
-    "type": "object",
-    "additionalProperties": False,
-    "required": [
-        "name"
-    ],
-    "properties": {
-        "name": {"type": "string"},
-        "file_type": {"type": "array", "items":{"type": "string"}},
-        "optional": {"type": "boolean"}
-    }
-}
-
-
-package_schema = {
-    "type": "object",
-    "additionalProperties":False,
-    "required": [
-        "name", "type", "context"
-    ],
-    "properties":{
-        "name": {"type" : "string"},
-        "type": {"type": "string"},
-        "context": {"type": "array", "items": {"type": "string"}},
-        "components":{"type": "array", "items": package_component_schema}
-    }
-
-}
-
 # Stage Plugin Schema
 
 _plugin_schema = {
@@ -59,17 +28,48 @@ _plugin_schema = {
     }
 }
 
+# Package schema
+
+package_component_schema = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": [
+        "name"
+    ],
+    "properties": {
+        "name": {"type": "string"},
+        "file_type": {"type": "array", "items":{"type": "string"}},
+        "optional": {"type": "boolean"}
+    }
+}
+
+
+package_schema = {
+    "type": "object",
+    "additionalProperties":False,
+    "required": [
+        "name", "type", "context", "components"
+    ],
+    "properties":{
+        "name": {"type" : "string"},
+        "type": {"type": "string"},
+        "context": {"type": "array", "items": {"type": "string"}},
+        "components":{"type": "array", "items": package_component_schema},
+    }
+
+}
+
 # Package publisher Schema
 
 
 publisher_schema = {
     "type": "object",
     "required": [
-        "name", "asset", "host", "ui", "context"
+        "name", "package", "host", "ui", "context", "components", "publish"
     ],
     "properties": {
         "name": {"type": "string"},
-        "asset": {"type": "string"},
+        "package": {"type": "string"},
         "host": {"type": "string"},
         "ui": {"type": "string"},
         "context": {"type": "array", "items": _plugin_schema},
