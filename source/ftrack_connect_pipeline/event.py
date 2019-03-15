@@ -46,17 +46,16 @@ class _EventThread(threading.Thread):
 
 class EventManager(object):
     '''Manages the events handling.'''
-    def __init__(self, session, enable_remote_events=False):
+    def __init__(self, session):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
         self.session = session
-        self.enable_remote_events = enable_remote_events
 
-    def publish(self, event, callback):
+    def publish(self, event, callback, remote=False):
         '''Emit *event* and provide *callback* function.'''
 
-        if not self.enable_remote_events:
+        if not remote:
             self.logger.info('running local events')
             event_thread = _EventThread(self.session, event, callback)
             event_thread.start()

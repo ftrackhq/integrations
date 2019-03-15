@@ -38,8 +38,9 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         )
 
         self.session = get_shared_session()
-        self.event_manager = event.EventManager(self.session, True)
+        self.event_manager = event.EventManager(self.session)
 
+        self.pre_build()
         self.build()
         self.post_build()
 
@@ -57,48 +58,9 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
                     self.resetLayout(item.layout())
         # self.stages_manager.reset_stages()
         # self.stages_manager.widgets.clear()
-    #
-    # def _on_package_type_change(self, index):
-    #     '''Slot triggered on asset type change.'''
-    #     self.resetLayout(self.task_layout)
-    #
-    #     asset_name = self.combo.itemData(index)
-    #     asset_schema = self.package_manager.package.get(asset_name)
-    #     if not asset_schema:
-    #         return
-    #
-    #     self._current_asset_type = asset_schema['asset_type']
-    #
-    #     stages = asset_schema[self.stages_manager.type]['plugins']
-    #     for stage in stages:
-    #         for current_stage, current_plugins in stage.items():
-    #             base_topic = self.stages_manager.stages.get(current_stage)
-    #             if not base_topic:
-    #                 self.logger.warning(
-    #                     'stage {} cannot be evaluated'.format(current_stage))
-    #                 continue
-    #
-    #             box = QtWidgets.QGroupBox(current_stage)
-    #             plugin_layout = QtWidgets.QVBoxLayout()
-    #             box.setLayout(plugin_layout)
-    #
-    #             self.stages_manager.widgets.setdefault(current_stage, [])
-    #
-    #             for plugin in current_plugins:
-    #                 widget = self.fetch_widget(plugin, current_stage)
-    #                 if widget:
-    #                     widget_is_visible = plugin.get('visible', True)
-    #                     if not widget_is_visible:
-    #                         widget.setVisible(False)
-    #
-    #                     plugin_layout.addWidget(widget)
-    #                     self.stages_manager.widgets[current_stage].append(
-    #                         (widget, plugin)
-    #                     )
-    #
-    #             self.task_layout.addWidget(box)
 
-    def build(self):
+
+    def pre_build(self):
         '''Build ui method.'''
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
@@ -111,6 +73,9 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.layout().addLayout(self.task_layout)
         self.run_button = QtWidgets.QPushButton('Run')
         self.layout().addWidget(self.run_button)
+
+    def build(self):
+        pass
 
     def post_build(self):
         '''Post Build ui method.'''

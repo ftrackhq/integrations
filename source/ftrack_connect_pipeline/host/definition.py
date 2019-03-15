@@ -33,6 +33,7 @@ class BaseDefinitionManager(QtCore.QObject):
         self.session = session
         self.event_manager = EventManager(self.session)
         self._validator = validator
+        self._schema_type = schema_type
         self.register(schema_type)
 
     def validate(self, data):
@@ -45,28 +46,28 @@ class BaseDefinitionManager(QtCore.QObject):
         return True
 
     def on_register_definition(self, event):
-        results = event['data']
+        raw_result = event['data']
 
-        for raw_result in results:
-            try:
-                result = json.loads(raw_result)
-            except Exception as error:
-                self.logger.warning(
-                    'Failed to read definition {}, error :{}'.format(
-                        raw_result, error
-                    )
+        result = None
+        try:
+            result = json.loads(raw_result)
+        except Exception as error:
+            self.logger.warning(
+                'Failed to read definition {}, error :{} for {}'.format(
+                    raw_result, error, self._schema_type
                 )
+            )
 
-            if not self.validate(result):
-                return
+        if not result or not self.validate(result):
+            return
 
-            name = result['name']
-            if name in self._registry:
-                self.logger.warning('{} already registered!'.format(name))
-                return
+        name = result['name']
+        if name in self._registry:
+            self.logger.warning('{} already registered!'.format(name))
+            return
 
-            self.logger.info('Registering {}'.format(result['name']))
-            self._registry[name] = result
+        self.logger.info('Registering {}'.format(result['name']))
+        self._registry[name] = result
 
         self.finished.emit()
 
@@ -81,7 +82,12 @@ class BaseDefinitionManager(QtCore.QObject):
                 }
             }
         )
-        self.event_manager.publish(event, self.on_register_definition)
+
+        self.event_manager.publish(
+            event,
+            self.on_register_definition,
+            remote=True
+        )
 
 
 class PackageDefinitionManager(BaseDefinitionManager):

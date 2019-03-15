@@ -46,7 +46,7 @@ package_component_schema = {
 
 package_schema = {
     "type": "object",
-    "additionalProperties":False,
+    "additionalProperties": False,
     "required": [
         "name", "type", "context", "components"
     ],
