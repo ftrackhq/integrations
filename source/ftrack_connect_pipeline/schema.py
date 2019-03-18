@@ -12,7 +12,7 @@ _asset_types = list(set([str(t["short"]) for t in session.query("AssetType").all
 _plugin_schema = {
     "type": "object",
     "required": [
-        "plugin"
+        "name", "plugin"
     ],
     "additionalProperties": False,
     "properties": {

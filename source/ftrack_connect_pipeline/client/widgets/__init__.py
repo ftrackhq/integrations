@@ -32,7 +32,6 @@ class BaseWidget(QtWidgets.QWidget):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-
         self._session = session
         self._data = data
         self._name = name
@@ -45,6 +44,8 @@ class BaseWidget(QtWidgets.QWidget):
 
     def build(self):
         layout = QtWidgets.QVBoxLayout()
+        layout.setContentsMargins(5, 1, 5, 1)
+        layout.setAlignment(QtCore.Qt.AlignTop)
         self.setLayout(layout)
 
         name_label = QtWidgets.QLabel(self.name)

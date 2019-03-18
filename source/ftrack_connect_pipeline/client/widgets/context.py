@@ -27,14 +27,14 @@ class PublishContextWidget(SimpleWidget):
         super(PublishContextWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options)
         self.entitySelector.entityChanged.connect(self.assetOptions.setEntity)
 
-    def _build_context_id_selector(self, value):
+    def _build_context_id_selector(self):
         option_layout = QtWidgets.QHBoxLayout()
         self.layout().addLayout(option_layout)
         self.entitySelector = entity_selector.EntitySelector()
         option_layout.addWidget(self.entitySelector)
         self.widget_options['context_id'] = self.entitySelector
 
-    def _build_asset_selector(self, value):
+    def _build_asset_selector(self):
         option_layout = QtWidgets.QFormLayout()
 
         self.assetOptions = asset_options.AssetOptions()
@@ -51,8 +51,8 @@ class PublishContextWidget(SimpleWidget):
         self.layout().addLayout(option_layout, stretch=0)
 
     def build_options(self, options):
-        self._build_context_id_selector(options['context_id'])
-        self._build_asset_selector(options['asset_name'])
+        self._build_context_id_selector()
+        self._build_asset_selector()
 
     def extract_options(self):
         result = {}
