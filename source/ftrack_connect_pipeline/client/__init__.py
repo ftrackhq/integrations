@@ -30,6 +30,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         '''Initialise widget with *stage_type* and *stage_mapping*.'''
         super(BaseQtPipelineWidget, self).__init__(parent=parent)
 
+        self._current_publisher = None
         self._ui = ui
         self._host = host
 
@@ -56,9 +57,6 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
                     widget.deleteLater()
                 else:
                     self.resetLayout(item.layout())
-        # self.stages_manager.reset_stages()
-        # self.stages_manager.widgets.clear()
-
 
     def pre_build(self):
         '''Build ui method.'''
@@ -87,8 +85,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
     def _on_stages_end(self):
         self.header.setMessage('DONE!', level='info')
 
-    def _fetch_default_widget(self, plugin, plugin_type):
-        plugin_name = 'default.widget'
+    def _fetch_widget(self, plugin, plugin_type, plugin_name):
         plugin_options = plugin.get('options', {})
         name = plugin.get('name', 'no name provided')
         description = plugin.get('description', 'No description provided')
@@ -119,39 +116,16 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
         return default_widget
 
+    def _fetch_default_widget(self, plugin, plugin_type):
+        plugin_name = 'default.widget'
+        return self._fetch_widget(plugin, plugin_type, plugin_name)
+
     # widget handling
     def fetch_widget(self, plugin, plugin_type):
         '''Fetch widgets defined in the asset schema.'''
-        plugin_name = plugin.get('widget', 'default.widget')
 
-        plugin_options = plugin.get('options', {})
-        name = plugin.get('name', 'no name provided')
-        description = plugin.get('description', 'No description provided')
-
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_REGISTER_TOPIC,
-            data={
-                'pipeline': {
-                    'plugin_name': plugin_name,
-                    'plugin_type': plugin_type,
-                    'type': 'widget',
-                    'ui': self.ui,
-                    'host': self.host,
-                },
-                'settings':
-                    {
-                        'options': plugin_options,
-                        'name': name,
-                        'description': description,
-                    }
-            }
-        )
-
-        result_widget = self.session.event_hub.publish(
-            event,
-            synchronous=True
-        )
-
+        plugin_name = plugin.get('widget')
+        result_widget = self._fetch_widget(plugin, plugin_type, plugin_name)
         if not result_widget:
             result_widget = self._fetch_default_widget(plugin, plugin_type)
 
