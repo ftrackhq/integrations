@@ -107,7 +107,7 @@ class LoaderDefinitionManager(BaseDefinitionManager):
 
     def validate(self, data):
         schema_validation = super(LoaderDefinitionManager, self).validate(data)
-        # TODO validate consistency of components against package definition
+        # TODO validate consistency of components against package definition also discover plugins
         return schema_validation
 
 
@@ -120,7 +120,7 @@ class PublisherDefinitionManager(BaseDefinitionManager):
 
     def validate(self, data):
         schema_validation = super(PublisherDefinitionManager, self).validate(data)
-        # TODO validate consistency of components against package definition
+        # TODO validate consistency of components against package definition also discover plugins
         return schema_validation
 
 

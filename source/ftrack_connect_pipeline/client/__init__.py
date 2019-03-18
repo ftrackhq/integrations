@@ -30,7 +30,6 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         '''Initialise widget with *stage_type* and *stage_mapping*.'''
         super(BaseQtPipelineWidget, self).__init__(parent=parent)
 
-        self._current_publisher = None
         self._ui = ui
         self._host = host
 
