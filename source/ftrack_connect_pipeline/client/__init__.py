@@ -37,6 +37,8 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             __name__ + '.' + self.__class__.__name__
         )
 
+        self._widgets = {}
+
         self.session = get_shared_session()
         self.event_manager = event.EventManager(self.session)
 
@@ -48,6 +50,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
     def resetLayout(self, layout):
         '''Reset layout and delete widgets.'''
+        self._widgets = {}
         if layout is not None:
             while layout.count():
                 item = layout.takeAt(0)
@@ -131,6 +134,22 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.logger.info(result_widget)
 
         return result_widget[0]
+
+    def send_to_host(self, data):
+
+        event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_RUN_TOPIC,
+            data=data
+        )
+
+        def callback(event):
+            print event
+
+        self.event_manager.publish(
+            event,
+            callback,
+            remote=True
+        )
 
     # Stage management
     def _on_run(self):
