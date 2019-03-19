@@ -141,7 +141,6 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             topic=topic,
             data=data
         )
-        self.logger.info(event)
         self.event_manager.publish(
             event,
             remote=True

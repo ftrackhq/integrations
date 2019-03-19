@@ -82,7 +82,6 @@ class BasePlugin(_Base):
             self.type,
             self.plugin_type,
             self.plugin_name
-
         )
         return topic
 
@@ -117,7 +116,6 @@ class BaseWidget(_Base):
             self.type,
             self.plugin_type,
             self.plugin_name
-
         )
         return topic
 

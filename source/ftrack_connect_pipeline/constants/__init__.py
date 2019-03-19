@@ -19,6 +19,8 @@ PIPELINE_DEFINITION_TOPIC = '{}.definition'.format(_BASE_)
 
 
 PIPELINE_RUN_PUBLISHER = '{}.host.publish'.format(_BASE_)
+PIPELINE_UPDATE_UI = '{}.client.update'.format(_BASE_)
+
 
 
 # Avoid circular dependencies.
