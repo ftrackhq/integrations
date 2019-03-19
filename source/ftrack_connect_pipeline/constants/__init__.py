@@ -18,7 +18,7 @@ PIPELINE_REGISTER_TOPIC = '{}.register'.format(_BASE_)
 PIPELINE_DEFINITION_TOPIC = '{}.definition'.format(_BASE_)
 
 
-PIPELINE_RUN_TOPIC = '{}.host.run'.format(_BASE_)
+PIPELINE_RUN_PUBLISHER = '{}.host.publish'.format(_BASE_)
 
 
 # Avoid circular dependencies.

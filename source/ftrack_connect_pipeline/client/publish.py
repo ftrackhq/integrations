@@ -183,7 +183,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
     def _on_run(self):
         self.update_publish_data()
-        self.send_to_host(self.current)
+        self.send_to_host(self.current, constants.PIPELINE_RUN_PUBLISHER)
 
 
 if __name__ == '__main__':

@@ -16,7 +16,7 @@ from QtExt import QtCore
 
 class _EventThread(threading.Thread):
     '''Wrapper object to simulate asyncronus events.'''
-    def __init__(self, session, event, callback):
+    def __init__(self, session, event, callback=None):
         super(_EventThread, self).__init__(target=self.run)
 
         self.logger = logging.getLogger(
@@ -41,7 +41,9 @@ class _EventThread(threading.Thread):
             data=result,
             in_reply_to_event=self._event['id'],
         )
-        self._callback(event)
+
+        if self._callback:
+            self._callback(event)
 
 
 class EventManager(object):
@@ -52,7 +54,7 @@ class EventManager(object):
         )
         self.session = session
 
-    def publish(self, event, callback, remote=False):
+    def publish(self, event, callback=None, remote=False):
         '''Emit *event* and provide *callback* function.'''
 
         if not remote:
@@ -120,7 +122,7 @@ def start_host_listener(host=None, ui=None):
     logger.info('start event listener')
     session = get_shared_session()
     session.event_hub.subscribe(
-        'topic={}'.format(constants.PIPELINE_RUN_TOPIC),
+        'topic={}'.format(constants.PIPELINE_RUN_PUBLISHER),
         functools.partial(_run_local_events, session, host=host, ui=ui)
     )
     session.event_hub.wait()

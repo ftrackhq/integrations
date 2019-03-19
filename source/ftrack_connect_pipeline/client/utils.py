@@ -136,7 +136,7 @@ class StageManager(QtCore.QObject):
         )
 
         event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_RUN_TOPIC,
+            topic=constants.PIPELINE_RUN_PUBLISHER,
             data={'event_list': event_list}
         )
 

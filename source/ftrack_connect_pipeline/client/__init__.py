@@ -135,19 +135,15 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
         return result_widget[0]
 
-    def send_to_host(self, data):
+    def send_to_host(self, data, topic):
 
         event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_RUN_TOPIC,
+            topic=topic,
             data=data
         )
-
-        def callback(event):
-            print event
-
+        self.logger.info(event)
         self.event_manager.publish(
             event,
-            callback,
             remote=True
         )
 
