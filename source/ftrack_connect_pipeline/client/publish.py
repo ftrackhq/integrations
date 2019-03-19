@@ -39,6 +39,22 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
             }
         )
         self.event_manager.publish(publisher_event, self.on_publishers_loaded)
+        self._listen_widget_updates()
+
+    def _update_widget(self, event):
+        data = event['data']['data']
+        widget_ref = event['data']['widget_ref']
+        widget = self._widgets[widget_ref]
+
+        self.logger.info('updating widget: {} with {}'.format(widget, data))
+        widget.setDisabled(True)
+
+    def _listen_widget_updates(self):
+        self.session.event_hub.subscribe(
+            'topic={}'.format(constants.PIPELINE_UPDATE_UI),
+            self._update_widget
+        )
+
 
     def build(self):
         self.context_layout = QtWidgets.QVBoxLayout()
