@@ -44,7 +44,7 @@ class BaseWidget(QtWidgets.QWidget):
 
     def build(self):
         layout = QtWidgets.QVBoxLayout()
-        layout.setContentsMargins(5, 1, 5, 1)
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.setAlignment(QtCore.Qt.AlignTop)
         self.setLayout(layout)
 

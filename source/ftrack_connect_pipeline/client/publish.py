@@ -133,8 +133,8 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         publish_layout = QtWidgets.QVBoxLayout()
         publish_group_widget.setLayout(publish_layout)
         for index, publish_plugin in enumerate(publish_plugins):
-            publish_plugin.setdefault('options', {})
             widget_options = self._widgets[publish_plugin['widget_ref']].extract_options()
+            publish_plugin.setdefault('options', {})
             publish_plugin['options'].update(widget_options)
 
     def _parse_context(self, context_plugins):
@@ -142,8 +142,8 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         publish_layout = QtWidgets.QVBoxLayout()
         publish_group_widget.setLayout(publish_layout)
         for index, context_plugin in enumerate(context_plugins):
-            context_plugin.setdefault('options', {})
             widget_options = self._widgets[context_plugin['widget_ref']].extract_options()
+            context_plugin.setdefault('options', {})
             context_plugin['options'].update(widget_options)
 
     def _parse_stages(self, component_stages):
@@ -158,8 +158,8 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
             component_layout.addWidget(stage_widget)
 
             for index, stage_plugin in enumerate(stage_plugins):
-                stage_plugin.setdefault('options', {})
                 widget_options = self._widgets[stage_plugin['widget_ref']].extract_options()
+                stage_plugin.setdefault('options', {})
                 stage_plugin['options'].update(widget_options)
 
     def _on_publisher_changed(self, index):
@@ -171,7 +171,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self._current_publisher = package_publisher
         self.build_widgets(package_publisher)
 
-    def extract(self):
+    def update_publish_data(self):
         contexts = self.current['context']
         self._parse_context(contexts)
         components = self.current['components']
@@ -182,7 +182,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self._parse_publish(publishers)
 
     def _on_run(self):
-        self.logger.info(self._widgets)
+        self.update_publish_data()
         self.send_to_host(self.current)
 
 
