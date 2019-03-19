@@ -5,7 +5,7 @@ from ftrack_connect_pipeline.event import EventManager
 
 
 class PublisherRunner(object):
-    def __init__(self, session, ui, host):
+    def __init__(self, session, host,  ui):
         self.order = ['collect', 'validate', 'output']
 
         self.session = session
@@ -33,18 +33,17 @@ class PublisherRunner(object):
                     'plugin_name': plugin_name,
                     'plugin_type': plugin_type,
                     'type': 'plugin',
-                    'ui': self.ui,
                     'host': self.host,
                 },
                 'settings':
                     {
                         'data': data,
                         'options': options,
-                        'context':context
+                        'context': context
                     }
             }
         )
-        self.logger.info('running plugin: {}'.format(event))
+        self.logger.info('Running plugin: {}'.format(event))
 
         plugin_result = self.session.event_hub.publish(
             event,
@@ -62,7 +61,6 @@ class PublisherRunner(object):
                 'data': data
             }
         )
-        self.logger.info('notifying client: {}'.format(event))
 
         self.event_manager.publish(
             event,
@@ -70,21 +68,25 @@ class PublisherRunner(object):
         )
 
     def run_context(self, context):
-        results = []
+        results = {}
         for ctx in context:
             result = self._run_plugin(ctx, 'context', context=ctx['options'])
-            results.append(result)
+            results.update(result)
 
         return results
 
     def run_component(self, component_stages, context_data):
-        self.logger.info('stages: {}'.format(component_stages))
         results = {}
         sorted_stages = dict(sorted(component_stages.items(), key=lambda i: self.order.index(i[0])))
         for stage, plugins in sorted_stages.items():
+            stages_result = []
             for plugin in plugins:
-                result = self._run_plugin(plugin, stage, options=plugin['options'])
-                self.logger.info('stage: {} result: {}'.format(stage, result))
+                result = self._run_plugin(plugin, stage, options=plugin['options'], context=context_data)
+                stages_result += result
+
+            results[stage] = list(set(stages_result))
+
+        return results
 
     def run(self, event):
         data = event['data']
@@ -94,12 +96,11 @@ class PublisherRunner(object):
         context_result = self.run_context(context)
 
         components = data['components']
-        self.logger.info('components : {}'.format(components))
         for component_name, component_stages in components.items():
             component_result = self.run_component(component_stages, context_result)
             self.logger.info('{} : {}'.format(component_name, component_result))
 
-        publisher = data['publish']
+        publish = data['publish']
 
 
 

@@ -58,12 +58,10 @@ class EventManager(object):
         '''Emit *event* and provide *callback* function.'''
 
         if not remote:
-            self.logger.info('running local events')
             event_thread = _EventThread(self.session, event, callback)
             event_thread.start()
 
         else:
-            self.logger.info('running remote events')
             self.session.event_hub.publish(
                 event,
                 on_reply=callback

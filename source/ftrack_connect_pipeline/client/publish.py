@@ -44,7 +44,10 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
     def _update_widget(self, event):
         data = event['data']['data']
         widget_ref = event['data']['widget_ref']
-        widget = self._widgets[widget_ref]
+        widget = self._widgets.get(widget_ref)
+        if not widget:
+            self.logger.warning('Widget ref :{} not found ! '.format(widget_ref))
+            return
 
         self.logger.info('updating widget: {} with {}'.format(widget, data))
         widget.setDisabled(True)
