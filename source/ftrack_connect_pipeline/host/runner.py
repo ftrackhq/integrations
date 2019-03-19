@@ -23,7 +23,6 @@ class PublisherRunner(object):
         )
 
     def _run_plugin(self, plugin, plugin_type, options=None, data=None, context=None):
-        plugin_widget_ref = plugin['widget_ref']
         plugin_name = plugin['plugin']
 
         event = ftrack_api.event.base.Event(
@@ -50,6 +49,7 @@ class PublisherRunner(object):
             synchronous=True
         )
 
+        plugin_widget_ref = plugin['widget_ref']
         self._notify_client(plugin_result, plugin_widget_ref)
         return plugin_result
 
@@ -82,9 +82,10 @@ class PublisherRunner(object):
             stages_result = []
             for plugin in plugins:
                 result = self._run_plugin(plugin, stage, options=plugin['options'], context=context_data)
-                stages_result += result
+                self.logger.info('result of {}-{} = {}'.format(stage, plugin['name'], result))
+                stages_result += result[0]
 
-            results[stage] = list(set(stages_result))
+            results[stage] = stages_result
 
         return results
 
