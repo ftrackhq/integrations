@@ -15,12 +15,10 @@ from ftrack_connect_pipeline.event import EventManager
 logger = logging.getLogger(__name__)
 
 
-class BaseDefinitionManager(QtCore.QObject):
-
-    finished = QtCore.Signal()
+class BaseDefinitionManager(object):
 
     def result(self, *args, **kwargs):
-        return copy.deepcopy(self._registry)
+        return self.__registry
 
     def __init__(self, session, schema_type, validator):
         '''Initialise the class with ftrack *session* and *context_type*'''
@@ -29,7 +27,7 @@ class BaseDefinitionManager(QtCore.QObject):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        self._registry = {}
+        self.__registry = {}
         self.session = session
         self.event_manager = EventManager(self.session)
         self._validator = validator
@@ -47,7 +45,6 @@ class BaseDefinitionManager(QtCore.QObject):
 
     def on_register_definition(self, event):
         raw_result = event['data']
-
         result = None
         try:
             result = json.loads(raw_result)
@@ -62,14 +59,12 @@ class BaseDefinitionManager(QtCore.QObject):
             return
 
         name = result['name']
-        if name in self._registry:
+        if name in self.__registry:
             self.logger.warning('{} already registered!'.format(name))
             return
 
         self.logger.info('Registering {}'.format(result['name']))
-        self._registry[name] = result
-
-        self.finished.emit()
+        self.__registry[name] = result
 
     def register(self, schema_type):
         '''register package'''
@@ -132,14 +127,11 @@ class DefintionManager(QtCore.QObject):
         self.loaders = LoaderDefinitionManager(self.packages)
         self.publishers = PublisherDefinitionManager(self.packages)
 
-
-        logger.info('published parsed : {}'.format(self.publishers.result()))
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.type=publisher'.format(constants.PIPELINE_DEFINITION_TOPIC),
             self.publishers.result
         )
 
-        logger.info('loaders parsed : {}'.format(self.publishers.result()))
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.type=loader'.format(constants.PIPELINE_DEFINITION_TOPIC),
             self.loaders.result

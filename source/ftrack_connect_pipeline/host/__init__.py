@@ -14,8 +14,8 @@ def initalise(session, host, ui):
     event_thread = event.NewApiEventHubThread()
     event_thread.start(session)
 
-    DefintionManager(session)
-    PublisherRunner(session, host, ui)
+    definition_manager = DefintionManager(session)
+    PublisherRunner(session, definition_manager.packages, host, ui)
 
 
 

@@ -5,12 +5,13 @@ from ftrack_connect_pipeline.event import EventManager
 
 
 class PublisherRunner(object):
-    def __init__(self, session, host,  ui):
+    def __init__(self, session, package_definitions, host,  ui):
         self.order = ['collect', 'validate', 'output']
 
         self.session = session
         self.host = host
         self.ui = ui
+        self.packages = package_definitions.result()
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -98,7 +99,7 @@ class PublisherRunner(object):
 
         return results
 
-    def run_publis(self, publisher, publish_data, context_data):
+    def run_publis(self, publisher, publish_data, context_data, options):
         results = {}
         for plugin in publisher:
             result = self._run_plugin(plugin, 'publish', data=publish_data, options=plugin['options'], context=context_data)
@@ -108,20 +109,24 @@ class PublisherRunner(object):
 
     def run(self, event):
         data = event['data']
-        self.logger.info(data)
+        publish_package = data['package']
+        self.logger.info('available packages {}'.format(self.packages))
 
-        context = data['context']
-        context_result = self.run_context(context)
+        asset_type = self.packages[publish_package]['type']
 
-        components = data['components']
+        context_plugins = data['context']
+        context_result = self.run_context(context_plugins)
+        context_result['asset_type'] = asset_type
+
+        components_plugins = data['components']
         components_result = []
-        for component_name, component_stages in components.items():
+        for component_name, component_stages in components_plugins.items():
             component_result = self.run_component(component_stages, context_result)
             components_result.append(component_result)
 
         self.logger.info('components_results {}'.format(components_result))
 
-        publish = data['publish']
+        publish_plugins = data['publish']
         outputs = {}
         for item in components_result:
             for output in item.get(constants.EXTRACTORS):
