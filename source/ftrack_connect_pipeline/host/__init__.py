@@ -1,16 +1,14 @@
 from ftrack_connect_pipeline.host.definition import DefintionManager
 from ftrack_connect_pipeline.host.runner import PublisherRunner
-from ftrack_connect_pipeline import event, constants
+from ftrack_connect_pipeline import event
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-def run(event):
-    logger.info('RUNNING: {}'.format(event))
-
-
 def initalise(session, host, ui):
+    logger.info('initialising host: {} and ui:{}'.format(host, ui))
+
     event_thread = event.NewApiEventHubThread()
     event_thread.start(session)
 
