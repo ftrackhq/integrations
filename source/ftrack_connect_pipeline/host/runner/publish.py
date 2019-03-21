@@ -28,7 +28,7 @@ class PublisherRunner(object):
         plugin_name = plugin['plugin']
 
         event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_REGISTER_PLUGIN_TOPIC,
+            topic=constants.PIPELINE_REGISTER_TOPIC,
             data={
                 'pipeline': {
                     'plugin_name': plugin_name,

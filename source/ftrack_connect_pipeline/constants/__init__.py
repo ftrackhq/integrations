@@ -11,7 +11,7 @@ _BASE_ = 'ftrack.pipeline'
 CONTEXT = 'context'
 
 # External events.
-PIPELINE_REGISTER_PLUGIN_TOPIC = '{}.register.plugin'.format(_BASE_)
+PIPELINE_REGISTER_TOPIC = '{}.register'.format(_BASE_)
 PIPELINE_REGISTER_DEFINITION_TOPIC = '{}.register.definition'.format(_BASE_)
 
 

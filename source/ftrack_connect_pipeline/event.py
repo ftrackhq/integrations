@@ -100,7 +100,7 @@ class NewApiEventHubThread(QtCore.QThread):
 #         logger.info('one event: {}'.format(one_event))
 #
 #         event = ftrack_api.event.base.Event(
-#             topic=constants.PIPELINE_REGISTER_PLUGIN_TOPIC,
+#             topic=constants.PIPELINE_REGISTER_TOPIC,
 #             data=one_event
 #         )
 #         result = session.event_hub.publish(
