@@ -23,7 +23,7 @@ class ExtractMayaBinaryPlugin(plugin.ExtractorMayaPlugin):
             cmd.select(data, r=True)
             cmd.file(rename=new_file_path)
             cmd.file(save=True, type='mayaBinary')
-            return (component_name, new_file_path)
+            return {component_name: new_file_path}
 
         component_name = options['component_name']
         return maya.utils.executeInMainThreadWithResult(call, component_name)
