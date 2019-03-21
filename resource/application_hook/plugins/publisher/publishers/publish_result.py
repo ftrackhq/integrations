@@ -37,9 +37,11 @@ class FtrackPublishPlugin(plugin.PublisherPlugin):
 
         self.session.commit()
 
-        for path in data:
+        for component_name, component_path in data.items():
             asset_version.create_component(
-                path[1], data={'name': os.path.basename(path[0])}, location=location
+                component_path[1],
+                data={'name': component_name},
+                location=location
             )
         self.session.commit()
 

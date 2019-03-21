@@ -1,3 +1,4 @@
+import copy
 import logging
 import ftrack_api
 from ftrack_connect_pipeline import constants
@@ -71,8 +72,8 @@ class PublisherRunner(object):
         results = {}
         for plugin in context:
             result = self._run_plugin(plugin, 'context', context=plugin['options'])
-            results.update(result)
-
+            results.update(result[0])
+        self.logger.info('context_result: {}'.format(results))
         return results
 
     def run_component(self, component_stages, context_data):
@@ -88,8 +89,6 @@ class PublisherRunner(object):
 
             for plugin in plugins:
                 result = self._run_plugin(plugin, stage, data=collected_data, options=plugin['options'], context=context_data)
-                # self.logger.info('result of {}-{} = {}'.format(stage, plugin['name'], result))
-
                 if len(result) > 0 and isinstance(result[0], list):
                     result = result[0]
 
@@ -99,7 +98,7 @@ class PublisherRunner(object):
 
         return results
 
-    def run_publis(self, publisher, publish_data, context_data, options):
+    def run_publish(self, publisher, publish_data, context_data):
         results = {}
         for plugin in publisher:
             result = self._run_plugin(plugin, 'publish', data=publish_data, options=plugin['options'], context=context_data)
@@ -127,17 +126,16 @@ class PublisherRunner(object):
         self.logger.info('components_results {}'.format(components_result))
 
         publish_plugins = data['publish']
-        outputs = {}
+
+        publish_data = {}
         for item in components_result:
             for output in item.get(constants.EXTRACTORS):
                 for key, value in output.items():
-                    outputs[key] = value
+                    publish_data[key] = value
 
-        self.logger.info(outputs)
 
-        publish_data = []
-        # self.run_publis(publish, publish_data, context_result)
-
+        publish_result = self.run_publish(publish_plugins, publish_data, context_result)
+        self.logger.info(publish_result)
 
 
 
