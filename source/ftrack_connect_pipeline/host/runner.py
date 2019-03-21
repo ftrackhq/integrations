@@ -68,8 +68,8 @@ class PublisherRunner(object):
 
     def run_context(self, context):
         results = {}
-        for ctx in context:
-            result = self._run_plugin(ctx, 'context', context=ctx['options'])
+        for plugin in context:
+            result = self._run_plugin(plugin, 'context', context=plugin['options'])
             results.update(result)
 
         return results
@@ -87,7 +87,7 @@ class PublisherRunner(object):
 
             for plugin in plugins:
                 result = self._run_plugin(plugin, stage, data=collected_data, options=plugin['options'], context=context_data)
-                self.logger.info('result of {}-{} = {}'.format(stage, plugin['name'], result))
+                # self.logger.info('result of {}-{} = {}'.format(stage, plugin['name'], result))
 
                 if len(result) > 0 and isinstance(result[0], list):
                     result = result[0]
@@ -95,6 +95,14 @@ class PublisherRunner(object):
                 stages_result += result
 
             results[stage] = stages_result
+
+        return results
+
+    def run_publis(self, publisher, publish_data, context_data):
+        results = {}
+        for plugin in publisher:
+            result = self._run_plugin(plugin, 'publish', data=publish_data, options=plugin['options'], context=context_data)
+            results.update(result)
 
         return results
 
@@ -106,11 +114,24 @@ class PublisherRunner(object):
         context_result = self.run_context(context)
 
         components = data['components']
+        components_result = []
         for component_name, component_stages in components.items():
             component_result = self.run_component(component_stages, context_result)
-            self.logger.info('{} : {}'.format(component_name, component_result))
+            components_result.append(component_result)
+
+        self.logger.info('components_results {}'.format(components_result))
 
         publish = data['publish']
+        outputs = {}
+        for item in components_result:
+            for output in item.get(constants.EXTRACTORS):
+                for key, value in output.items():
+                    outputs[key] = value
+
+        self.logger.info(outputs)
+
+        publish_data = []
+        # self.run_publis(publish, publish_data, context_result)
 
 
 

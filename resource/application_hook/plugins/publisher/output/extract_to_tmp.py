@@ -10,11 +10,11 @@ class TmpExtractorPlugin(plugin.ExtractorPlugin):
     plugin_name = 'to_tmp'
 
     def run(self, context=None, data=None, options=None):
-        result = []
+        result = {}
         for item in data:
             new_file_path = tempfile.NamedTemporaryFile(delete=False).name
             shutil.copy(item, new_file_path)
-            result.append((item, new_file_path))
+            result[item] = new_file_path
 
         return result
 
