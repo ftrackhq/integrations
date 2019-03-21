@@ -37,7 +37,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             __name__ + '.' + self.__class__.__name__
         )
 
-        self._widgets = {}
+        self._widgets_ref = {}
 
         self.session = get_shared_session()
         self.event_manager = event.EventManager(self.session)
@@ -50,7 +50,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
     def resetLayout(self, layout):
         '''Reset layout and delete widgets.'''
-        self._widgets = {}
+        self._widgets_ref = {}
         if layout is not None:
             while layout.count():
                 item = layout.takeAt(0)
@@ -148,7 +148,4 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
     # Stage management
     def _on_run(self):
-        '''Slot triggered with run button.'''
-        # start processing the stages.
-        # self.stages_manager.reset_stages()
-        self.stages_manager.process_stages()
+        raise NotImplementedError()
