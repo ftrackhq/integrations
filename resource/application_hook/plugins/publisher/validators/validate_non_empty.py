@@ -10,7 +10,6 @@ class NoneEmptyValidatorPlugin(plugin.ValidatorPlugin):
     def run(self, context=None, data=None, options=None):
         return bool(data)
 
-
 def register(api_object, **kw):
     plugin = NoneEmptyValidatorPlugin(api_object)
     plugin.register()

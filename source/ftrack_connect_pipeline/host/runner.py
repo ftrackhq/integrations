@@ -42,7 +42,6 @@ class PublisherRunner(object):
                     }
             }
         )
-        self.logger.info('Running plugin: {}'.format(event))
 
         plugin_result = self.session.event_hub.publish(
             event,
@@ -79,11 +78,21 @@ class PublisherRunner(object):
         results = {}
         sorted_stages = dict(sorted(component_stages.items(), key=lambda i: self.order.index(i[0])))
         for stage, plugins in sorted_stages.items():
+            collected_data = results.get(constants.COLLECTORS,[])
             stages_result = []
+            validators = results.get(constants.VALIDATORS)
+
+            if validators and not all(validators):
+                raise Exception('Validation Error')
+
             for plugin in plugins:
-                result = self._run_plugin(plugin, stage, options=plugin['options'], context=context_data)
+                result = self._run_plugin(plugin, stage, data=collected_data, options=plugin['options'], context=context_data)
                 self.logger.info('result of {}-{} = {}'.format(stage, plugin['name'], result))
-                stages_result += result[0]
+
+                if len(result) > 0 and isinstance(result[0], list):
+                    result = result[0]
+
+                stages_result += result
 
             results[stage] = stages_result
 
