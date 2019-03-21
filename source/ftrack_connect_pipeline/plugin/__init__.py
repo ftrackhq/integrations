@@ -15,6 +15,7 @@ class _Base(object):
     type = None
     host = constants.HOST
     ui = constants.UI
+    return_type = None
 
     @property
     def topic(self):
@@ -52,6 +53,15 @@ class _Base(object):
         settings = event['data']['settings']
         self.logger.debug(settings)
         result = self.run(**settings)
+
+        if self.return_type:
+            if not isinstance(result , self.return_type):
+                raise Exception(
+                    'Return value of {} is of type {}, should return {} type'.format(
+                        self, type(result), self.return_type
+                    )
+                )
+
         return result
 
 
@@ -121,6 +131,7 @@ class BaseWidget(_Base):
 
 
 class ContextPlugin(BasePlugin):
+    return_type = dict
     plugin_type = constants.CONTEXT
 
 
