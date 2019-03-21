@@ -31,7 +31,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self._current_publisher = {}
 
         publisher_event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_DEFINITION_TOPIC,
+            topic=constants.PIPELINE_REGISTER_DEFINITION_TOPIC,
             data={
                 'pipeline': {
                     'type': "publisher"

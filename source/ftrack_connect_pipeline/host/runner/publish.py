@@ -7,7 +7,7 @@ from ftrack_connect_pipeline.event import EventManager
 
 class PublisherRunner(object):
     def __init__(self, session, package_definitions, host,  ui):
-        self.order = ['collect', 'validate', 'output']
+        self.order = [constants.COLLECT, 'validate', 'output']
 
         self.session = session
         self.host = host
@@ -28,7 +28,7 @@ class PublisherRunner(object):
         plugin_name = plugin['plugin']
 
         event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_REGISTER_TOPIC,
+            topic=constants.PIPELINE_REGISTER_PLUGIN_TOPIC,
             data={
                 'pipeline': {
                     'plugin_name': plugin_name,
@@ -80,9 +80,9 @@ class PublisherRunner(object):
         results = {}
         sorted_stages = dict(sorted(component_stages.items(), key=lambda i: self.order.index(i[0])))
         for stage, plugins in sorted_stages.items():
-            collected_data = results.get(constants.COLLECTORS,[])
+            collected_data = results.get(constants.COLLECT, [])
             stages_result = []
-            validators = results.get(constants.VALIDATORS)
+            validators = results.get(constants.VALIDATE)
 
             if validators and not all(validators):
                 raise Exception('Validation Error')
@@ -127,7 +127,7 @@ class PublisherRunner(object):
 
         publish_data = {}
         for item in components_result:
-            for output in item.get(constants.EXTRACTORS):
+            for output in item.get(constants.OUTPUT):
                 for key, value in output.items():
                     publish_data[key] = value
 

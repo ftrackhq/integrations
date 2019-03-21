@@ -8,36 +8,36 @@ from ftrack_connect_pipeline.plugin import BasePlugin, BaseWidget
 # PLUGINS
 class CollectorPlugin(BasePlugin):
     return_type = list
-    plugin_type = constants.COLLECTORS
+    plugin_type = constants.COLLECT
 
 
 class ValidatorPlugin(BasePlugin):
     return_type = bool
-    plugin_type = constants.VALIDATORS
+    plugin_type = constants.VALIDATE
 
 
 class ExtractorPlugin(BasePlugin):
     return_type = dict
-    plugin_type = constants.EXTRACTORS
+    plugin_type = constants.OUTPUT
 
 
 class PublisherPlugin(BasePlugin):
     return_type = bool
-    plugin_type = constants.PUBLISHERS
+    plugin_type = constants.PUBLISH
 
 
 # WIDGET
 class CollectorWidget(BaseWidget):
-    plugin_type = constants.COLLECTORS
+    plugin_type = constants.COLLECT
 
 
 class ValidatorWidget(BaseWidget):
-    plugin_type = constants.VALIDATORS
+    plugin_type = constants.VALIDATE
 
 
 class ExtractorWidget(BaseWidget):
-    plugin_type = constants.EXTRACTORS
+    plugin_type = constants.OUTPUT
 
 
 class PublisherWidget(BaseWidget):
-    plugin_type = constants.PUBLISHERS
+    plugin_type = constants.PUBLISH

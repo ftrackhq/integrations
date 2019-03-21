@@ -87,7 +87,7 @@ class BasePlugin(_Base):
             'data.pipeline.plugin_type={} and '
             'data.pipeline.plugin_name={}'
         ).format(
-            constants.PIPELINE_REGISTER_TOPIC,
+            constants.PIPELINE_REGISTER_PLUGIN_TOPIC,
             self.host,
             self.type,
             self.plugin_type,
@@ -120,7 +120,7 @@ class BaseWidget(_Base):
             'data.pipeline.plugin_type={} and '
             'data.pipeline.plugin_name={}'
         ).format(
-            constants.PIPELINE_REGISTER_TOPIC,
+            constants.PIPELINE_REGISTER_PLUGIN_TOPIC,
             self.host,
             self.ui,
             self.type,

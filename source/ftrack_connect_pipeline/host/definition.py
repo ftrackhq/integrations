@@ -70,7 +70,7 @@ class BaseDefinitionManager(object):
         '''register package'''
 
         event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_REGISTER_TOPIC,
+            topic=constants.PIPELINE_REGISTER_PLUGIN_TOPIC,
             data={
                 'pipeline': {
                     'type': str(schema_type)
@@ -128,12 +128,12 @@ class DefintionManager(QtCore.QObject):
         self.publishers = PublisherDefinitionManager(self.packages)
 
         self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.type=publisher'.format(constants.PIPELINE_DEFINITION_TOPIC),
+            'topic={} and data.pipeline.type=publisher'.format(constants.PIPELINE_REGISTER_DEFINITION_TOPIC),
             self.publishers.result
         )
 
         self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.type=loader'.format(constants.PIPELINE_DEFINITION_TOPIC),
+            'topic={} and data.pipeline.type=loader'.format(constants.PIPELINE_REGISTER_DEFINITION_TOPIC),
             self.loaders.result
         )
 
