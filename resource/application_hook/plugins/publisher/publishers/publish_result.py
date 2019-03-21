@@ -39,7 +39,7 @@ class FtrackPublishPlugin(plugin.PublisherPlugin):
 
         for component_name, component_path in data.items():
             asset_version.create_component(
-                component_path[1],
+                component_path,
                 data={'name': component_name},
                 location=location
             )

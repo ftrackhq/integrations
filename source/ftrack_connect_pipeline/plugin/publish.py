@@ -22,7 +22,7 @@ class ExtractorPlugin(BasePlugin):
 
 
 class PublisherPlugin(BasePlugin):
-    return_type = list
+    return_type = bool
     plugin_type = constants.PUBLISHERS
 
 

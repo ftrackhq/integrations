@@ -99,10 +99,10 @@ class PublisherRunner(object):
         return results
 
     def run_publish(self, publisher, publish_data, context_data):
-        results = {}
+        results = []
         for plugin in publisher:
             result = self._run_plugin(plugin, 'publish', data=publish_data, options=plugin['options'], context=context_data)
-            results.update(result)
+            results.append(result[0])
 
         return results
 
@@ -122,8 +122,6 @@ class PublisherRunner(object):
         for component_name, component_stages in components_plugins.items():
             component_result = self.run_component(component_stages, context_result)
             components_result.append(component_result)
-
-        self.logger.info('components_results {}'.format(components_result))
 
         publish_plugins = data['publish']
 
