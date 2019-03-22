@@ -95,6 +95,10 @@ class PackageDefinitionManager(BaseDefinitionManager):
 
 class LoaderDefinitionManager(BaseDefinitionManager):
 
+    @property
+    def packages(self):
+        return self.package_manager.result()
+
     def __init__(self, package_manager):
         '''Initialise the class with ftrack *session* and *context_type*'''
         super(LoaderDefinitionManager, self).__init__(package_manager.session, 'loader', schema.validate_loader)
@@ -108,6 +112,10 @@ class LoaderDefinitionManager(BaseDefinitionManager):
 
 class PublisherDefinitionManager(BaseDefinitionManager):
 
+    @property
+    def packages(self):
+        return self.package_manager.result()
+
     def __init__(self, package_manager):
         '''Initialise the class with ftrack *session* and *context_type*'''
         super(PublisherDefinitionManager, self).__init__(package_manager.session, 'publisher', schema.validate_publisher)
@@ -115,8 +123,10 @@ class PublisherDefinitionManager(BaseDefinitionManager):
 
     def validate(self, data):
         schema_validation = super(PublisherDefinitionManager, self).validate(data)
+        package_validation = data['package'] in self.packages #  check to package in use is registered
+
         # TODO validate consistency of components against package definition also discover plugins
-        return schema_validation
+        return all([schema_validation, package_validation])
 
 
 class DefintionManager(QtCore.QObject):
