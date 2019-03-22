@@ -52,8 +52,8 @@ package_schema = {
     ],
     "properties":{
         "name": {"type" : "string"},
-        "type": {"type": "string"},
-        "context": {"type": "array", "items": {"type": "string"}},
+        "type": {"type": "string", "enum": _asset_types},
+        "context": {"type": "array", "items": {"type": "string", "enum": _context_types}},
         "components":{"type": "array", "items": package_component_schema},
     }
 
@@ -72,16 +72,16 @@ publisher_schema = {
         "package": {"type": "string"},
         "host": {"type": "string"},
         "ui": {"type": "string"},
-        "context": {"type": "array", "items": _plugin_schema},
+        constants.CONTEXT: {"type": "array", "items": _plugin_schema},
         "components": {
             "type": "object",
             "properties": {
-                "collect": {"type":"array", "items": _plugin_schema},
-                "validate": {"type": "array", "items": _plugin_schema},
-                "output": {"type": "array", "items": _plugin_schema}
+                constants.COLLECT: {"type":"array", "items": _plugin_schema},
+                constants.VALIDATE: {"type": "array", "items": _plugin_schema},
+                constants.OUTPUT: {"type": "array", "items": _plugin_schema}
             }
         },
-        "publish": {
+        constants.PUBLISH: {
             "type": "array",
             "items": _plugin_schema
         }

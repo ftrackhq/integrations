@@ -7,7 +7,11 @@ from ftrack_connect_pipeline.event import EventManager
 
 class PublisherRunner(object):
     def __init__(self, session, package_definitions, host,  ui):
-        self.order = [constants.COLLECT, 'validate', 'output']
+
+        self.component_stages_order = [
+            constants.COLLECT,
+            constants.VALIDATE,
+            constants.OUTPUT]
 
         self.session = session
         self.host = host
@@ -57,7 +61,7 @@ class PublisherRunner(object):
     def _notify_client(self, data, widget_id):
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_UPDATE_UI,
-            data = {
+            data={
                 'widget_ref': widget_id,
                 'data': data
             }
@@ -71,24 +75,40 @@ class PublisherRunner(object):
     def run_context(self, context):
         results = {}
         for plugin in context:
-            result = self._run_plugin(plugin, 'context', context=plugin['options'])
+            result = self._run_plugin(
+                plugin, constants.CONTEXT,
+                context=plugin['options']
+            )
             results.update(result[0])
-        self.logger.info('context_result: {}'.format(results))
         return results
 
     def run_component(self, component_stages, context_data):
         results = {}
-        sorted_stages = dict(sorted(component_stages.items(), key=lambda i: self.order.index(i[0])))
+
+        sorted_stages = dict(
+            sorted(
+                component_stages.items(),
+                key=lambda i: self.component_stages_order.index(i[0])
+            )
+        )
+
         for stage, plugins in sorted_stages.items():
             collected_data = results.get(constants.COLLECT, [])
             stages_result = []
             validators = results.get(constants.VALIDATE)
 
             if validators and not all(validators):
-                raise Exception('Validation Error')
+                # todo : customise exceptions
+                raise Exception('Stage Validation Error')
 
             for plugin in plugins:
-                result = self._run_plugin(plugin, stage, data=collected_data, options=plugin['options'], context=context_data)
+                result = self._run_plugin(
+                    plugin, stage,
+                    data=collected_data,
+                    options=plugin['options'],
+                    context=context_data
+                )
+
                 if len(result) > 0 and isinstance(result[0], list):
                     result = result[0]
 
@@ -101,7 +121,12 @@ class PublisherRunner(object):
     def run_publish(self, publisher, publish_data, context_data):
         results = []
         for plugin in publisher:
-            result = self._run_plugin(plugin, 'publish', data=publish_data, options=plugin['options'], context=context_data)
+            result = self._run_plugin(
+                plugin, constants.PUBLISH,
+                data=publish_data,
+                options=plugin['options'],
+                context=context_data
+            )
             results.append(result[0])
 
         return results
@@ -109,21 +134,21 @@ class PublisherRunner(object):
     def run(self, event):
         data = event['data']
         publish_package = data['package']
-        self.logger.info('available packages {}'.format(self.packages))
-
         asset_type = self.packages[publish_package]['type']
 
-        context_plugins = data['context']
+        context_plugins = data[constants.CONTEXT]
         context_result = self.run_context(context_plugins)
         context_result['asset_type'] = asset_type
 
-        components_plugins = data['components']
+        components_plugins = data[constants.COMPONENTS]
         components_result = []
         for component_name, component_stages in components_plugins.items():
-            component_result = self.run_component(component_stages, context_result)
+            component_result = self.run_component(
+                component_stages, context_result
+            )
             components_result.append(component_result)
 
-        publish_plugins = data['publish']
+        publish_plugins = data[constants.PUBLISH]
 
         publish_data = {}
         for item in components_result:
@@ -131,8 +156,10 @@ class PublisherRunner(object):
                 for key, value in output.items():
                     publish_data[key] = value
 
+        publish_result = self.run_publish(
+            publish_plugins, publish_data, context_result
+        )
 
-        publish_result = self.run_publish(publish_plugins, publish_data, context_result)
         self.logger.info(publish_result)
 
 
