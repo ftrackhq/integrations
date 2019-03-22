@@ -5,7 +5,7 @@
 import sys
 import os
 import uuid
-import copy
+
 deps_paths = os.environ.get('PYTHONPATH', '').split(os.pathsep)
 for path in deps_paths:
     sys.path.append(path)
@@ -15,7 +15,6 @@ from QtExt import QtGui, QtWidgets
 import ftrack_api
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.client import BaseQtPipelineWidget
-from pprint import pformat
 
 
 class QtPipelinePublishWidget(BaseQtPipelineWidget):

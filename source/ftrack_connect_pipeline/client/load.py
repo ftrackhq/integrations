@@ -22,6 +22,7 @@ class QtPipelineLoaderWidget(BaseQtPipelineWidget):
         super(QtPipelineLoaderWidget, self).__init__(ui, host, parent=parent)
         self.setWindowTitle('Standalone Pipeline Loader')
 
+
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
     wid = QtPipelineLoaderWidget(ui=constants.UI, host=constants.HOST)

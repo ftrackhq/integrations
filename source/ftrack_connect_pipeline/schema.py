@@ -1,3 +1,6 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2019 ftrack
+
 from jsonschema import validate as _validate
 from ftrack_connect_pipeline.session import get_shared_session
 from ftrack_connect_pipeline import constants

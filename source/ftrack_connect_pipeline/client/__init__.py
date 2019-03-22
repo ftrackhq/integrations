@@ -1,14 +1,12 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-import os
 
 import ftrack_api
 import logging
 
 from QtExt import QtWidgets
 
-from ftrack_connect_pipeline.client import utils as qtutils
 from ftrack_connect_pipeline import event
 from ftrack_connect_pipeline.session import get_shared_session
 from ftrack_connect_pipeline import constants

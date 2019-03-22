@@ -1,3 +1,7 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2019 ftrack
+
+
 from ftrack_connect_pipeline.host.definition import DefintionManager
 from ftrack_connect_pipeline.host.runner import PublisherRunner
 from ftrack_connect_pipeline import event

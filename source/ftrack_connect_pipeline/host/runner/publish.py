@@ -1,4 +1,6 @@
-import copy
+# :coding: utf-8
+# :copyright: Copyright (c) 2019 ftrack
+
 import logging
 import ftrack_api
 from ftrack_connect_pipeline import constants
