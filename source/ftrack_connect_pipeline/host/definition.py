@@ -48,7 +48,6 @@ class BaseDefinitionManager(object):
         try:
             result = json.loads(raw_result)
         except Exception as error:
-            # todo : catch the right exception here rather than generic one.
             self.logger.warning(
                 'Failed to read definition {}, error :{} for {}'.format(
                     raw_result, error, self._schema_type
