@@ -56,8 +56,19 @@ package_schema = {
     "properties":{
         "name": {"type" : "string"},
         "type": {"type": "string", "enum": _asset_types},
-        "context": {"type": "array", "items": {"type": "string", "enum": _context_types}},
-        "components":{"type": "array", "items": package_component_schema},
+        "context": {
+            "type": "array",
+            'minItems': 1,
+            "items": {
+                "type": "string",
+                "enum": _context_types
+            }
+        },
+        "components":{
+            "type": "array",
+            "items": package_component_schema,
+            'minItems': 1
+        },
     }
 
 }
@@ -67,6 +78,7 @@ package_schema = {
 
 publisher_schema = {
     "type": "object",
+    "additionalProperties": False,
     "required": [
         "name", "package", "host", "ui", "context", "components", "publish"
     ],
@@ -75,18 +87,41 @@ publisher_schema = {
         "package": {"type": "string"},
         "host": {"type": "string"},
         "ui": {"type": "string"},
-        constants.CONTEXT: {"type": "array", "items": _plugin_schema},
+        constants.CONTEXT: {
+            "type": "array",
+            "items": _plugin_schema,
+            'minItems': 1,
+            'maxItems': 1,
+        },
         "components": {
             "type": "object",
             "properties": {
-                constants.COLLECT: {"type":"array", "items": _plugin_schema},
-                constants.VALIDATE: {"type": "array", "items": _plugin_schema},
-                constants.OUTPUT: {"type": "array", "items": _plugin_schema}
+                constants.COLLECT: {
+                    "type": "array",
+                    "items": _plugin_schema,
+                    'minItems': 1,
+                    'uniqueItems': True
+                },
+                constants.VALIDATE: {
+                    "type": "array",
+                    "items": _plugin_schema,
+                    'minItems': 1,
+                    'uniqueItems': True
+                },
+                constants.OUTPUT: {
+                    "type": "array",
+                    "items": _plugin_schema,
+                    'maxItems': 1,
+                    'minItems': 1,
+                    'uniqueItems': True
+                }
             }
         },
         constants.PUBLISH: {
             "type": "array",
-            "items": _plugin_schema
+            "items": _plugin_schema,
+            'minItems': 1,
+            'uniqueItems': True
         }
     }
 }
