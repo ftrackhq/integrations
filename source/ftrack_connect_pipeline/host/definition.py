@@ -130,19 +130,19 @@ class PublisherDefinitionManager(BaseDefinitionManager):
 
 class DefintionManager(QtCore.QObject):
 
-    def __init__(self, session):
+    def __init__(self, session, hostid):
         self.session = session
         self.packages = PackageDefinitionManager(session)
         self.loaders = LoaderDefinitionManager(self.packages)
         self.publishers = PublisherDefinitionManager(self.packages)
 
         self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.type=publisher'.format(constants.PIPELINE_REGISTER_DEFINITION_TOPIC),
+            'topic={} and data.pipeline.type=publisher and data.pipeline.hostid={}'.format(constants.PIPELINE_REGISTER_DEFINITION_TOPIC, hostid),
             self.publishers.result
         )
 
         self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.type=loader'.format(constants.PIPELINE_REGISTER_DEFINITION_TOPIC),
+            'topic={} and data.pipeline.type=loader and data.pipeline.hostid={}'.format(constants.PIPELINE_REGISTER_DEFINITION_TOPIC, hostid),
             self.loaders.result
         )
 

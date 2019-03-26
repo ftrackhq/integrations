@@ -24,13 +24,13 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
     def ui(self):
         return self._ui
 
-    def __init__(self, ui, host, parent=None):
+    def __init__(self, ui, host, hostid, parent=None):
         '''Initialise widget with *stage_type* and *stage_mapping*.'''
         super(BaseQtPipelineWidget, self).__init__(parent=parent)
 
         self._ui = ui
         self._host = host
-
+        self._hostid  = hostid
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
@@ -137,7 +137,10 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
         event = ftrack_api.event.base.Event(
             topic=topic,
-            data=data
+            data={
+                'schema': data,
+                'pipeline':{'hostid':self._hostid}
+            }
         )
         self.event_manager.publish(
             event,

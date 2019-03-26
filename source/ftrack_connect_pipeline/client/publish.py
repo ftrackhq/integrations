@@ -23,8 +23,8 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
     def current(self):
         return self._current_publisher
 
-    def __init__(self, ui, host, parent=None):
-        super(QtPipelinePublishWidget, self).__init__(ui, host, parent=parent)
+    def __init__(self, ui, host, hostid, parent=None):
+        super(QtPipelinePublishWidget, self).__init__(ui, host, hostid, parent=parent)
         self.setWindowTitle('Standalone Pipeline Publisher')
 
         self._current_publisher = {}
@@ -33,7 +33,8 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
             topic=constants.PIPELINE_REGISTER_DEFINITION_TOPIC,
             data={
                 'pipeline': {
-                    'type': "publisher"
+                    'type': "publisher",
+                    'hostid': self._hostid
                 }
             }
         )
@@ -53,7 +54,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
     def _listen_widget_updates(self):
         self.session.event_hub.subscribe(
-            'topic={}'.format(constants.PIPELINE_UPDATE_UI),
+            'topic={} and data.pipeline.hostid={}'.format(constants.PIPELINE_UPDATE_UI, self._hostid),
             self._update_widget
         )
 

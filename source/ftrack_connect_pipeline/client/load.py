@@ -17,9 +17,9 @@ from ftrack_connect_pipeline.client import BaseQtPipelineWidget
 
 class QtPipelineLoaderWidget(BaseQtPipelineWidget):
 
-    def __init__(self, ui, host, parent=None):
+    def __init__(self, ui, host, hostid, parent=None):
 
-        super(QtPipelineLoaderWidget, self).__init__(ui, host, parent=parent)
+        super(QtPipelineLoaderWidget, self).__init__(ui, host, hostid, parent=parent)
         self.setWindowTitle('Standalone Pipeline Loader')
 
 

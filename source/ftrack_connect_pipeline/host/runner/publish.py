@@ -8,7 +8,7 @@ from ftrack_connect_pipeline.event import EventManager
 
 
 class PublisherRunner(object):
-    def __init__(self, session, package_definitions, host,  ui):
+    def __init__(self, session, package_definitions, host,  ui, hostid):
 
         self.component_stages_order = [
             constants.COLLECT,
@@ -18,6 +18,7 @@ class PublisherRunner(object):
         self.session = session
         self.host = host
         self.ui = ui
+        self.hostid = hostid
         self.packages = package_definitions.result()
 
         self.logger = logging.getLogger(
@@ -26,7 +27,7 @@ class PublisherRunner(object):
         self.event_manager = EventManager(session)
 
         session.event_hub.subscribe(
-            'topic={}'.format(constants.PIPELINE_RUN_PUBLISHER),
+            'topic={} and data.pipeline.hostid={}'.format(constants.PIPELINE_RUN_PUBLISHER, self.hostid),
             self.run
         )
 
@@ -40,7 +41,7 @@ class PublisherRunner(object):
                     'plugin_name': plugin_name,
                     'plugin_type': plugin_type,
                     'type': 'plugin',
-                    'host': self.host,
+                    'host': self.host
                 },
                 'settings':
                     {
@@ -65,7 +66,8 @@ class PublisherRunner(object):
             topic=constants.PIPELINE_UPDATE_UI,
             data={
                 'widget_ref': widget_id,
-                'data': data
+                'data': data,
+                'pipeline': {'hostid': self.hostid}
             }
         )
 
@@ -134,7 +136,7 @@ class PublisherRunner(object):
         return results
 
     def run(self, event):
-        data = event['data']
+        data = event['data']['schema']
         publish_package = data['package']
         asset_type = self.packages[publish_package]['type']
 
