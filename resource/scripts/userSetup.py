@@ -19,13 +19,15 @@ logger = logging.getLogger('ftrack_connect_pipeline_maya.scripts.userSetup')
 created_dialogs = dict()
 
 
-def open_dialog(dialog_class):
+def open_dialog(dialog_class, hostid):
     '''Open *dialog_class* and create if not already existing.'''
     dialog_name = dialog_class
 
     if dialog_name not in created_dialogs:
         ftrack_dialog = dialog_class
-        created_dialogs[dialog_name] = ftrack_dialog()
+        created_dialogs[dialog_name] = ftrack_dialog(
+            hostid
+        )
 
     created_dialogs[dialog_name].show()
 
@@ -50,6 +52,8 @@ def get_ftrack_menu(menu_name = 'ftrack-pipeline'):
 def load_and_init():
     # TODO : later we need to bring back here all the maya initialiations from ftrack-connect-maya
     # such as frame start / end etc....
+    session = get_shared_session()
+    hostid = host.initalise(session, constants.HOST, constants.UI)
 
     usage.send_event(
         'USED-FTRACK-CONNECT-PIPELINE-MAYA'
@@ -94,16 +98,13 @@ def load_and_init():
             parent=ftrack_menu,
             label=label,
             command=(
-                lambda x, dialog_class=dialog_class: open_dialog(dialog_class)
+                lambda x, dialog_class=dialog_class: open_dialog(dialog_class, hostid)
             )
         )
 
 
-def register():
-    session = get_shared_session()
-    host.initalise(session, constants.HOST, constants.UI)
 
 
-mc.evalDeferred("register()", lp=True)
+
 
 mc.evalDeferred("load_and_init()", lp=True)

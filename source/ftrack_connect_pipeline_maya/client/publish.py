@@ -6,9 +6,9 @@ from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 
 class QtPipelineMayaPublishWidget(MayaQWidgetDockableMixin, QtPipelinePublishWidget):
     '''Dockable maya load widget'''
-    def __init__(self, parent=None):
-        super(QtPipelineMayaPublishWidget, self).__init__(host=HOST, ui=UI,parent=parent)
-        self.setWindowTitle('Maya Pipeline Publisher')
+    def __init__(self, hostid, parent=None):
+        super(QtPipelineMayaPublishWidget, self).__init__(host=HOST, ui=UI,hostid=hostid, parent=parent)
+        self.setWindowTitle('Maya Pipeline Publisher:{}'.format(hostid))
 
     def show(self):
         super(QtPipelineMayaPublishWidget, self).show(
