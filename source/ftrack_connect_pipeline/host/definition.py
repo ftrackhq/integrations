@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 class BaseDefinitionManager(object):
 
     def result(self, *args, **kwargs):
+        '''Return the result definitions.'''
         return self.__registry
 
     def __init__(self, session, schema_type, validator):
@@ -34,6 +35,7 @@ class BaseDefinitionManager(object):
         self.register(schema_type)
 
     def validate(self, data):
+        '''validate definitions against schema, coming from *data*.'''
         try:
             self._validator(data)
         except Exception as error:
@@ -43,6 +45,7 @@ class BaseDefinitionManager(object):
         return True
 
     def on_register_definition(self, event):
+        '''Register definition coming from *event* and store them.'''
         raw_result = event['data']
         result = None
         try:
@@ -96,6 +99,7 @@ class LoaderDefinitionManager(BaseDefinitionManager):
 
     @property
     def packages(self):
+        '''return available packages definitions.'''
         return self.package_manager.result()
 
     def __init__(self, package_manager):
@@ -113,6 +117,7 @@ class PublisherDefinitionManager(BaseDefinitionManager):
 
     @property
     def packages(self):
+        '''return available packages definitions.'''
         return self.package_manager.result()
 
     def __init__(self, package_manager):
@@ -129,6 +134,7 @@ class PublisherDefinitionManager(BaseDefinitionManager):
 
 
 class DefintionManager(QtCore.QObject):
+    '''class wrapper to contain all the definition managers.'''
 
     def __init__(self, session, hostid):
         self.session = session

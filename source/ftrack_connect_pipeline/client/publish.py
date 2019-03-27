@@ -44,7 +44,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
     def _update_widget(self, event):
         data = event['data']['pipeline']['data']
         widget_ref = event['data']['pipeline']['widget_ref']
-        widget = self._widgets_ref.get(widget_ref)
+        widget = self.widgets.get(widget_ref)
         if not widget:
             self.logger.warning('Widget ref :{} not found ! '.format(widget_ref))
             return
@@ -108,7 +108,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
             context_widget = self.fetch_widget(context_plugin, 'context')
             uid = uuid.uuid4().hex
             self.current['context'][index]['widget_ref'] = uid
-            self._widgets_ref[uid] = context_widget
+            self.widgets[uid] = context_widget
             context_layout.addWidget(context_widget)
 
         return context_group_widget
@@ -129,7 +129,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
                 uid = uuid.uuid4().hex
 
                 self.current['components'][component_name][stage_name][index]['widget_ref'] = uid
-                self._widgets_ref[uid] = stage_widget
+                self.widgets[uid] = stage_widget
 
                 stage_layout.addWidget(stage_widget)
 
@@ -143,7 +143,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
             publish_widget = self.fetch_widget(publish_plugin, 'publish')
             uid = uuid.uuid4().hex
             self.current['publish'][index]['widget_ref'] = uid
-            self._widgets_ref[uid] = publish_widget
+            self.widgets[uid] = publish_widget
             publish_layout.addWidget(publish_widget)
 
         return publish_group_widget
@@ -153,7 +153,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         publish_layout = QtWidgets.QVBoxLayout()
         publish_group_widget.setLayout(publish_layout)
         for index, publish_plugin in enumerate(publish_plugins):
-            widget_options = self._widgets_ref[publish_plugin['widget_ref']].extract_options()
+            widget_options = self.widgets[publish_plugin['widget_ref']].extract_options()
             publish_plugin.setdefault('options', {})
             publish_plugin['options'].update(widget_options)
 
@@ -162,7 +162,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         publish_layout = QtWidgets.QVBoxLayout()
         publish_group_widget.setLayout(publish_layout)
         for index, context_plugin in enumerate(context_plugins):
-            widget_options = self._widgets_ref[context_plugin['widget_ref']].extract_options()
+            widget_options = self.widgets[context_plugin['widget_ref']].extract_options()
             context_plugin.setdefault('options', {})
             context_plugin['options'].update(widget_options)
 
@@ -178,7 +178,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
             component_layout.addWidget(stage_widget)
 
             for index, stage_plugin in enumerate(stage_plugins):
-                widget_options = self._widgets_ref[stage_plugin['widget_ref']].extract_options()
+                widget_options = self.widgets[stage_plugin['widget_ref']].extract_options()
                 stage_plugin.setdefault('options', {})
                 stage_plugin['options'].update(widget_options)
 

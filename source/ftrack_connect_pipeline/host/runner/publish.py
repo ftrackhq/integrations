@@ -6,24 +6,28 @@ import logging
 import ftrack_api
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.event import EventManager
+from ftrack_connect_pipeline import exception
 
 
 class PublisherRunner(object):
 
     @property
     def hostid(self):
+        '''Return the current hostid.'''
         return self._hostid
 
     @property
     def host(self):
+        '''Return the current host type.'''
         return self._host
 
     @property
     def ui(self):
+        '''Return the current ui type.'''
         return self._ui
 
     def __init__(self, session, package_definitions, host,  ui, hostid):
-
+        '''Initialise publish runnder with *session*, *package_definitions*, *host*, *ui* and *hostid*.'''
         self.__remote_events = bool(os.environ.get(
             constants.PIPELINE_REMOTE_EVENTS_ENV, False
         ))
@@ -31,25 +35,30 @@ class PublisherRunner(object):
         self.component_stages_order = [
             constants.COLLECT,
             constants.VALIDATE,
-            constants.OUTPUT]
+            constants.OUTPUT
+        ]
 
         self.session = session
         self._host = host
         self._ui = ui
         self._hostid = hostid
-        self.packages = package_definitions.result()
+        self.packages = package_definitions
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+
         self.event_manager = EventManager(session)
 
         session.event_hub.subscribe(
-            'topic={} and data.pipeline.hostid={}'.format(constants.PIPELINE_RUN_PUBLISHER, self.hostid),
+            'topic={} and data.pipeline.hostid={}'.format(
+                constants.PIPELINE_RUN_PUBLISHER, self.hostid
+            ),
             self.run
         )
 
     def _run_plugin(self, plugin, plugin_type, options=None, data=None, context=None):
+        '''Run *plugin*, *plugin_type*, with given *options*, *data* and *context*'''
         plugin_name = plugin['plugin']
 
         event = ftrack_api.event.base.Event(
@@ -80,6 +89,7 @@ class PublisherRunner(object):
         return plugin_result
 
     def _notify_client(self, data, widget_id):
+        '''Notify client with *data* for *widget_id*'''
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_UPDATE_UI,
             data={
@@ -96,9 +106,10 @@ class PublisherRunner(object):
             remote=self.__remote_events
         )
 
-    def run_context(self, context):
+    def run_context(self, context_pligins):
+        '''Run *context_pligins*.'''
         results = {}
-        for plugin in context:
+        for plugin in context_pligins:
             result = self._run_plugin(
                 plugin, constants.CONTEXT,
                 context=plugin['options']
@@ -106,9 +117,11 @@ class PublisherRunner(object):
             results.update(result[0])
         return results
 
-    def run_component(self, component_stages, context_data):
+    def run_component(self, component_name, component_stages, context_data):
+        '''Run component plugins for *component_name*, *component_stages* with *context_data*.'''
         results = {}
 
+        # sort stages for execution order.
         sorted_stages = dict(
             sorted(
                 component_stages.items(),
@@ -122,8 +135,9 @@ class PublisherRunner(object):
             validators = results.get(constants.VALIDATE)
 
             if validators and not all(validators):
-                # todo : customise exceptions
-                raise Exception('Stage Validation Error')
+                raise exception.ValidatorPluginError(
+                    'error while validating: {}'.format(component_name)
+                )
 
             for plugin in plugins:
                 result = self._run_plugin(
@@ -133,6 +147,7 @@ class PublisherRunner(object):
                     context=context_data
                 )
 
+                # Merge list of lists.
                 if len(result) > 0 and isinstance(result[0], list):
                     result = result[0]
 
@@ -142,9 +157,10 @@ class PublisherRunner(object):
 
         return results
 
-    def run_publish(self, publisher, publish_data, context_data):
+    def run_publish(self, publish_plugins, publish_data, context_data):
+        '''Run component plugins for *component_name*, *component_stages* with *context_data*.'''
         results = []
-        for plugin in publisher:
+        for plugin in publish_plugins:
             result = self._run_plugin(
                 plugin, constants.PUBLISH,
                 data=publish_data,
@@ -156,6 +172,7 @@ class PublisherRunner(object):
         return results
 
     def run(self, event):
+        '''Run the package definition based on the result of incoming *event*.'''
         data = event['data']['pipeline']['data']
         publish_package = data['package']
         asset_type = self.packages[publish_package]['type']
@@ -168,7 +185,7 @@ class PublisherRunner(object):
         components_result = []
         for component_name, component_stages in components_plugins.items():
             component_result = self.run_component(
-                component_stages, context_result
+                component_name, component_stages, context_result
             )
             components_result.append(component_result)
 

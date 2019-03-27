@@ -11,13 +11,15 @@ logger = logging.getLogger(__name__)
 
 
 def initalise(session, host, ui):
+    '''Initialize host with *session*, *host* and *ui*'''
     hostid = '{}-{}-{}'.format(host, ui, uuid.uuid4().hex)
 
     event_thread = event.NewApiEventHubThread()
     event_thread.start(session)
 
     definition_manager = DefintionManager(session, hostid)
-    PublisherRunner(session, definition_manager.packages, host, ui, hostid)
+    package_results = definition_manager.packages.result()
+    PublisherRunner(session, package_results, host, ui, hostid)
     logger.info('initialising host: {}'.format(hostid))
     return hostid
 

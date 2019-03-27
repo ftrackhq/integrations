@@ -15,35 +15,46 @@ from ftrack_connect.ui import theme
 
 
 class BaseQtPipelineWidget(QtWidgets.QWidget):
+    '''
+    Base client widget class.
+    '''
+
+    @property
+    def widgets(self):
+        '''Return registered plugin's widgets.'''
+        return self._widgets_ref
 
     @property
     def hostid(self):
+        '''Return the current hostid.'''
         return self._hostid
 
     @property
     def host(self):
+        '''Return the current host type.'''
         return self._host
 
     @property
     def ui(self):
+        '''Return the current ui type.'''
         return self._ui
 
     def __init__(self, ui, host, hostid, parent=None):
-        '''Initialise widget with *stage_type* and *stage_mapping*.'''
+        '''Initialise widget with *ui* , *host* and *hostid*.'''
         super(BaseQtPipelineWidget, self).__init__(parent=parent)
+
+        self._widgets_ref = {}
+        self._ui = ui
+        self._host = host
+        self._hostid = hostid
 
         self.__remote_events = bool(os.environ.get(
             constants.PIPELINE_REMOTE_EVENTS_ENV, False
         ))
 
-        self._ui = ui
-        self._host = host
-        self._hostid = hostid
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-
-        self._widgets_ref = {}
 
         self.session = get_shared_session()
         self.event_manager = event.EventManager(self.session)
@@ -69,7 +80,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
                     self.resetLayout(item.layout())
 
     def pre_build(self):
-        '''Build ui method.'''
+        '''Prepare general layout.'''
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
         self.header = header.Header(self.session.api_user)
@@ -83,19 +94,16 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.run_button)
 
     def build(self):
+        '''Build widgets and parent them.'''
         raise NotImplementedError()
 
     def post_build(self):
-        '''Post Build ui method.'''
+        '''Post Build ui method for events connections.'''
         self.run_button.clicked.connect(self._on_run)
 
-    def _on_stage_error(self, error):
-        self.header.setMessage(error, level='error')
-
-    def _on_stages_end(self):
-        self.header.setMessage('DONE!', level='info')
-
     def _fetch_widget(self, plugin, plugin_type, plugin_name):
+        '''Retrieve widget for the given *plugin*, *plugin_type* and *plugin_name*.'''
+
         plugin_options = plugin.get('options', {})
         name = plugin.get('name', 'no name provided')
         description = plugin.get('description', 'No description provided')
@@ -127,12 +135,13 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         return default_widget
 
     def _fetch_default_widget(self, plugin, plugin_type):
+        '''Retrieve the default widget based on *plugin* and *plugin_type*'''
         plugin_name = 'default.widget'
         return self._fetch_widget(plugin, plugin_type, plugin_name)
 
     # widget handling
     def fetch_widget(self, plugin, plugin_type):
-        '''Fetch widgets defined in the asset schema.'''
+        '''Retrieve widget for the given *plugin*, *plugin_type*.'''
 
         plugin_name = plugin.get('widget')
         result_widget = self._fetch_widget(plugin, plugin_type, plugin_name)
@@ -144,7 +153,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         return result_widget[0]
 
     def send_to_host(self, data, topic):
-
+        '''Send *data* to the host through the given *topic*.'''
         event = ftrack_api.event.base.Event(
             topic=topic,
             data={
@@ -159,6 +168,5 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             remote=self.__remote_events
         )
 
-    # Stage management
     def _on_run(self):
         raise NotImplementedError()

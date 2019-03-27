@@ -16,7 +16,9 @@ from ftrack_connect_pipeline.client import BaseQtPipelineWidget
 
 
 class QtPipelineLoaderWidget(BaseQtPipelineWidget):
-
+    '''
+    Base load widget class.
+    '''
     def __init__(self, ui, host, hostid, parent=None):
 
         super(QtPipelineLoaderWidget, self).__init__(ui, host, hostid, parent=parent)
