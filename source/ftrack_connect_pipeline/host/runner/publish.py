@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
+import os
 import logging
 import ftrack_api
 from ftrack_connect_pipeline import constants
@@ -9,6 +10,10 @@ from ftrack_connect_pipeline.event import EventManager
 
 class PublisherRunner(object):
     def __init__(self, session, package_definitions, host,  ui, hostid):
+
+        self.__remote_events = bool(os.environ.get(
+            constants.PIPELINE_REMOTE_EVENTS_ENV, False
+        ))
 
         self.component_stages_order = [
             constants.COLLECT,
@@ -65,15 +70,17 @@ class PublisherRunner(object):
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_UPDATE_UI,
             data={
-                'widget_ref': widget_id,
-                'data': data,
-                'pipeline': {'hostid': self.hostid}
+                'pipeline': {
+                    'hostid': self.hostid,
+                    'widget_ref': widget_id,
+                    'data': data,
+                }
             }
         )
 
         self.event_manager.publish(
             event,
-            remote=True
+            remote=self.__remote_events
         )
 
     def run_context(self, context):
@@ -136,7 +143,7 @@ class PublisherRunner(object):
         return results
 
     def run(self, event):
-        data = event['data']['schema']
+        data = event['data']['pipeline']['data']
         publish_package = data['package']
         asset_type = self.packages[publish_package]['type']
 

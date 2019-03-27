@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-
+import os
 import ftrack_api
 import logging
 
@@ -27,6 +27,10 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
     def __init__(self, ui, host, hostid, parent=None):
         '''Initialise widget with *stage_type* and *stage_mapping*.'''
         super(BaseQtPipelineWidget, self).__init__(parent=parent)
+
+        self.__remote_events = bool(os.environ.get(
+            constants.PIPELINE_REMOTE_EVENTS_ENV, False
+        ))
 
         self._ui = ui
         self._host = host
@@ -138,13 +142,15 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         event = ftrack_api.event.base.Event(
             topic=topic,
             data={
-                'schema': data,
-                'pipeline':{'hostid':self._hostid}
+                'pipeline':{
+                    'hostid':self._hostid,
+                    'data': data,
+                }
             }
         )
         self.event_manager.publish(
             event,
-            remote=True
+            remote=self.__remote_events
         )
 
     # Stage management
