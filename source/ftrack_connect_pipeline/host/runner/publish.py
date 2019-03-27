@@ -9,6 +9,19 @@ from ftrack_connect_pipeline.event import EventManager
 
 
 class PublisherRunner(object):
+
+    @property
+    def hostid(self):
+        return self._hostid
+
+    @property
+    def host(self):
+        return self._host
+
+    @property
+    def ui(self):
+        return self._ui
+
     def __init__(self, session, package_definitions, host,  ui, hostid):
 
         self.__remote_events = bool(os.environ.get(
@@ -21,9 +34,9 @@ class PublisherRunner(object):
             constants.OUTPUT]
 
         self.session = session
-        self.host = host
-        self.ui = ui
-        self.hostid = hostid
+        self._host = host
+        self._ui = ui
+        self._hostid = hostid
         self.packages = package_definitions.result()
 
         self.logger = logging.getLogger(

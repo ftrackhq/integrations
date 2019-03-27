@@ -17,6 +17,10 @@ from ftrack_connect.ui import theme
 class BaseQtPipelineWidget(QtWidgets.QWidget):
 
     @property
+    def hostid(self):
+        return self._hostid
+
+    @property
     def host(self):
         return self._host
 
@@ -34,7 +38,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
         self._ui = ui
         self._host = host
-        self._hostid  = hostid
+        self._hostid = hostid
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
@@ -48,7 +52,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.build()
         self.post_build()
 
-        theme.applyTheme(self, 'dark', 'cleanlooks')
+        # theme.applyTheme(self, 'dark', 'cleanlooks')
 
         theme.applyFont()
 
@@ -145,7 +149,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             topic=topic,
             data={
                 'pipeline':{
-                    'hostid':self._hostid,
+                    'hostid':self.hostid,
                     'data': data,
                 }
             }

@@ -34,7 +34,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
             data={
                 'pipeline': {
                     'type': "publisher",
-                    'hostid': self._hostid
+                    'hostid': self.hostid
                 }
             }
         )
@@ -54,10 +54,9 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
     def _listen_widget_updates(self):
         self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.hostid={}'.format(constants.PIPELINE_UPDATE_UI, self._hostid),
+            'topic={} and data.pipeline.hostid={}'.format(constants.PIPELINE_UPDATE_UI, self.hostid),
             self._update_widget
         )
-
 
     def build(self):
         self.context_layout = QtWidgets.QVBoxLayout()
@@ -84,6 +83,8 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
                 self.combo.addItem(item_name, item)
 
     def build_widgets(self, package_publisher):
+        if not package_publisher:
+            return
 
         contexts = package_publisher['context']
         components = package_publisher['components']
