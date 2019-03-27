@@ -8,7 +8,7 @@ class QtPipelineMayaPublishWidget(MayaQWidgetDockableMixin, QtPipelinePublishWid
     '''Dockable maya load widget'''
     def __init__(self, hostid, parent=None):
         super(QtPipelineMayaPublishWidget, self).__init__(host=HOST, ui=UI,hostid=hostid, parent=parent)
-        self.setWindowTitle('Maya Pipeline Publisher:{}'.format(hostid))
+        self.setWindowTitle('Maya Pipeline Publisher')
 
     def show(self):
         super(QtPipelineMayaPublishWidget, self).show(
