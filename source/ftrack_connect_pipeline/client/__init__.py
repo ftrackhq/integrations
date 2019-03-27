@@ -48,6 +48,8 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.build()
         self.post_build()
 
+        theme.applyTheme(self, 'dark', 'cleanlooks')
+
         theme.applyFont()
 
     def resetLayout(self, layout):
