@@ -83,7 +83,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.run_button)
 
     def build(self):
-        pass
+        raise NotImplementedError()
 
     def post_build(self):
         '''Post Build ui method.'''
