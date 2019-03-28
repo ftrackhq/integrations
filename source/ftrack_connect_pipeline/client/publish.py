@@ -29,16 +29,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
         self._current_publisher = {}
 
-        publisher_event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_REGISTER_DEFINITION_TOPIC,
-            data={
-                'pipeline': {
-                    'type': "publisher",
-                    'hostid': self.hostid
-                }
-            }
-        )
-        self.event_manager.publish(publisher_event, self.on_publishers_loaded)
+        self._fetch_defintions()
         self._listen_widget_updates()
 
     def _update_widget(self, event):
@@ -51,6 +42,22 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
         self.logger.info('updating widget: {} with {}'.format(widget, data))
         widget.setDisabled(True)
+
+    def _fetch_defintions(self):
+        publisher_event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_REGISTER_DEFINITION_TOPIC,
+            data={
+                'pipeline': {
+                    'type': "publisher",
+                    'hostid': self.hostid
+                }
+            }
+        )
+        self.event_manager.publish(
+            publisher_event,
+            callback=self.on_publishers_loaded,
+            remote=self._remote_events
+        )
 
     def _listen_widget_updates(self):
         self.session.event_hub.subscribe(

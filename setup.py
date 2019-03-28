@@ -87,7 +87,7 @@ class BuildPlugin(setuptools.Command):
                 STAGING_PATH,
                 'dependencies',
                 'ftrack_connect_pipeline',
-                'qt',
+                'client',
                 'publish.py'
             ), int('777', 8)
         )
@@ -100,7 +100,7 @@ class BuildPlugin(setuptools.Command):
                 STAGING_PATH,
                 'dependencies',
                 'ftrack_connect_pipeline',
-                'qt',
+                'client',
                 'load.py'
             ), int('777', 8)
         )

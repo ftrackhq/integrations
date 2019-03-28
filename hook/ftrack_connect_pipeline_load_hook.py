@@ -248,7 +248,7 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
         environment['FTRACK_TASKID'] = task.getId()
         environment['FTRACK_SHOTID'] = task.get('parent_id')
         environment['FTRACK_CONTEXTID'] = task.getId()
-
+        environment['FTRACK_PIPELINE_REMOTE_EVENTS'] = 1
 
         return environment
 

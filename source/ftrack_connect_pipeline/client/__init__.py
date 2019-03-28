@@ -46,19 +46,19 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self._widgets_ref = {}
         self._ui = ui
         self._host = host
-        self._hostid = hostid
 
-        self.__remote_events = bool(os.environ.get(
+        self._remote_events = bool(os.environ.get(
             constants.PIPELINE_REMOTE_EVENTS_ENV, False
         ))
 
         self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
+            'ftrack_connect_pipeline.'+__name__ + '.' + self.__class__.__name__
         )
 
         self.session = get_shared_session()
         self.event_manager = event.EventManager(self.session)
 
+        self._hostid = hostid
         self.pre_build()
         self.build()
         self.post_build()
@@ -165,7 +165,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         )
         self.event_manager.publish(
             event,
-            remote=self.__remote_events
+            remote=self._remote_events
         )
 
     def _on_run(self):
