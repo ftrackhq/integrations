@@ -19,7 +19,7 @@ class QtPipelineLoaderWidget(BaseQtPipelineWidget):
     '''
     Base load widget class.
     '''
-    def __init__(self, ui, host, hostid, parent=None):
+    def __init__(self, ui, host, hostid=None, parent=None):
 
         super(QtPipelineLoaderWidget, self).__init__(ui, host, hostid, parent=parent)
         self.setWindowTitle('Standalone Pipeline Loader')

@@ -23,7 +23,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
     def current(self):
         return self._current_publisher
 
-    def __init__(self, ui, host, hostid, parent=None):
+    def __init__(self, ui, host, hostid=None, parent=None):
         super(QtPipelinePublishWidget, self).__init__(ui, host, hostid, parent=parent)
         self.setWindowTitle('Standalone Pipeline Publisher')
 
@@ -83,11 +83,17 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
     def post_build(self):
         super(QtPipelinePublishWidget, self).post_build()
         self.combo.currentIndexChanged.connect(self._on_publisher_changed)
+        self.hostid_changed.connect(self._fetch_defintions)
 
     def on_publishers_loaded(self, event):
-        for publisher in event['data']:
-            for item_name, item in publisher.items():
-                self.combo.addItem(item_name, item)
+        self.logger.info('on_publishers_loaded: {}'.format(event['data']))
+        raw_data = event['data']
+
+        if isinstance(raw_data, list):
+            raw_data = raw_data[0]
+
+        for item_name, item in raw_data.items():
+            self.combo.addItem(item_name, item)
 
     def build_widgets(self, package_publisher):
         if not package_publisher:

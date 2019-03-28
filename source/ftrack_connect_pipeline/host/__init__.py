@@ -2,12 +2,18 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import uuid
+import functools
 from ftrack_connect_pipeline.host.definition import DefintionManager
 from ftrack_connect_pipeline.host.runner import PublisherRunner
 from ftrack_connect_pipeline import event, constants
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+def provide_hostid(hostid, event):
+    logger.info('providing hostid: {}'.format(hostid))
+    return hostid
 
 
 def initalise(session, host, ui):
@@ -22,15 +28,12 @@ def initalise(session, host, ui):
     PublisherRunner(session, package_results, host, ui, hostid)
     logger.info('initialising host: {}'.format(hostid))
 
-    def provide_hostid(event):
-        logger.info('providing hostid: {} from event: {}'.format(hostid, event))
-        return hostid
-
+    handle_event = functools.partial(provide_hostid, hostid)
     session.event_hub.subscribe(
         'topic={}'.format(
             constants.PIPELINE_DISCOVER_HOST
         ),
-        provide_hostid
+        handle_event
     )
 
     return hostid

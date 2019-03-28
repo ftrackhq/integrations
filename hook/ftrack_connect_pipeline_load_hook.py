@@ -8,6 +8,7 @@ import logging
 import os
 
 import ftrack
+import ftrack_api
 import ftrack_connect.application
 
 
@@ -253,13 +254,10 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
         return environment
 
 
-def register(registry, **kw):
+def register(session, **kw):
     '''Register hooks.'''
-    # Validate that registry is the event handler registry. If not,
-    # assume that register is being called to regiter Locations or from a new
-    # or incompatible API, and return without doing anything.
-    # or incompatible API, and return without doing anything.
-    if registry is not ftrack.EVENT_HANDLERS:
+    '''Subscribe to application launch events on *registry*.'''
+    if not isinstance(session, ftrack_api.session.Session):
         return
 
     # Create store containing applications.

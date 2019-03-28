@@ -5,7 +5,7 @@ import os
 import ftrack_api
 import logging
 
-from QtExt import QtWidgets
+from QtExt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline import event
 from ftrack_connect_pipeline.session import get_shared_session
@@ -18,6 +18,8 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
     '''
     Base client widget class.
     '''
+
+    hostid_changed = QtCore.Signal()
 
     @property
     def widgets(self):
@@ -39,13 +41,14 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         '''Return the current ui type.'''
         return self._ui
 
-    def __init__(self, ui, host, hostid, parent=None):
+    def __init__(self, ui, host, hostid=None, parent=None):
         '''Initialise widget with *ui* , *host* and *hostid*.'''
         super(BaseQtPipelineWidget, self).__init__(parent=parent)
 
         self._widgets_ref = {}
         self._ui = ui
         self._host = host
+        self._hostid = hostid
 
         self._remote_events = bool(os.environ.get(
             constants.PIPELINE_REMOTE_EVENTS_ENV, False
@@ -58,14 +61,44 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.session = get_shared_session()
         self.event_manager = event.EventManager(self.session)
 
-        self._hostid = hostid
         self.pre_build()
         self.build()
         self.post_build()
 
+        if not self.hostid:
+            event_thread = event.NewApiEventHubThread()
+            event_thread.start(self.session)
+            self.discover_hosts()
+
         # theme.applyTheme(self, 'dark', 'cleanlooks')
 
         theme.applyFont()
+
+    def on_change_host(self, index):
+        hostid = self.combo_hosts.itemData(index)
+
+        if not hostid:
+            return
+
+        self.logger.info('setting current hostid to:{}'.format(hostid))
+        self._hostid = hostid
+        self.hostid_changed.emit()
+
+    def on_host_discovered(self, event):
+        hostid = str(event['data'])
+        self.combo_hosts.addItem(hostid, hostid)
+
+    def discover_hosts(self):
+
+        discover_event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_DISCOVER_HOST
+        )
+
+        self.event_manager.publish(
+            discover_event,
+            callback=self.on_host_discovered,
+            remote=True
+        )
 
     def resetLayout(self, layout):
         '''Reset layout and delete widgets.'''
@@ -83,6 +116,14 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         '''Prepare general layout.'''
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
+
+        self.combo_hosts = QtWidgets.QComboBox()
+        self.layout().addWidget(self.combo_hosts)
+        self.combo_hosts.addItem('- Select host -')
+
+        if self.hostid:
+            self.combo_hosts.setVisible(False)
+
         self.header = header.Header(self.session.api_user)
         self.layout().addWidget(self.header)
         self.combo = QtWidgets.QComboBox()
@@ -99,6 +140,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
     def post_build(self):
         '''Post Build ui method for events connections.'''
+        self.combo_hosts.currentIndexChanged.connect(self.on_change_host)
         self.run_button.clicked.connect(self._on_run)
 
     def _fetch_widget(self, plugin, plugin_type, plugin_name):
