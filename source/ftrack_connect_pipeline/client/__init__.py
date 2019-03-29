@@ -142,6 +142,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         '''Post Build ui method for events connections.'''
         self.combo_hosts.currentIndexChanged.connect(self.on_change_host)
         self.run_button.clicked.connect(self._on_run)
+        self.hostid_changed.connect(self._listen_widget_updates)
 
     def _fetch_widget(self, plugin, plugin_type, plugin_name):
         '''Retrieve widget for the given *plugin*, *plugin_type* and *plugin_name*.'''
@@ -175,6 +176,26 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         )
 
         return default_widget
+
+    def _update_widget(self, event):
+        self.logger.info('_update_widget:{}'.format(event))
+
+        data = event['data']['pipeline']['data']
+        widget_ref = event['data']['pipeline']['widget_ref']
+        widget = self.widgets.get(widget_ref)
+        if not widget:
+            self.logger.warning('Widget ref :{} not found ! '.format(widget_ref))
+            return
+
+        self.logger.info('updating widget: {} with {}'.format(widget, data))
+        widget.setDisabled(True)
+
+    def _listen_widget_updates(self):
+        self.logger.info('listening updates from host: {}'.format(self.hostid))
+        self.session.event_hub.subscribe(
+            'topic={} and data.pipeline.hostid={}'.format(constants.PIPELINE_UPDATE_UI, self.hostid),
+            self._update_widget
+        )
 
     def _fetch_default_widget(self, plugin, plugin_type):
         '''Retrieve the default widget based on *plugin* and *plugin_type*'''

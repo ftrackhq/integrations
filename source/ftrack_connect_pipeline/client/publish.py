@@ -30,20 +30,6 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self._current_publisher = {}
 
         self._fetch_defintions()
-        self._listen_widget_updates()
-
-    def _update_widget(self, event):
-        self.logger.info('_update_widget:{}'.format(event))
-
-        data = event['data']['pipeline']['data']
-        widget_ref = event['data']['pipeline']['widget_ref']
-        widget = self.widgets.get(widget_ref)
-        if not widget:
-            self.logger.warning('Widget ref :{} not found ! '.format(widget_ref))
-            return
-
-        self.logger.info('updating widget: {} with {}'.format(widget, data))
-        widget.setDisabled(True)
 
     def _fetch_defintions(self):
         publisher_event = ftrack_api.event.base.Event(
@@ -59,13 +45,6 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
             publisher_event,
             callback=self.on_publishers_loaded,
             remote=self._remote_events
-        )
-
-    def _listen_widget_updates(self):
-        self.logger.info('listening updates from host: {}'.format(self.hostid))
-        self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.hostid={}'.format(constants.PIPELINE_UPDATE_UI, self.hostid),
-            self._update_widget
         )
 
     def build(self):
@@ -90,7 +69,6 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self.hostid_changed.connect(self.combo.clear)
         # fetch new defintions
         self.hostid_changed.connect(self._fetch_defintions)
-
 
     def on_publishers_loaded(self, event):
         self.logger.info('on_publishers_loaded: {}'.format(event['data']))
