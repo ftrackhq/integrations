@@ -4,8 +4,8 @@
 import os
 import logging
 import re
+from ftrack_connect_pipeline_maya import usage, host as maya_host
 from ftrack_connect_pipeline import event, host
-from ftrack_connect_pipeline_maya import usage
 from ftrack_connect_pipeline.session import get_shared_session
 from ftrack_connect_pipeline_maya import constants
 
@@ -30,28 +30,13 @@ def open_dialog(dialog_class, hostid):
     created_dialogs[dialog_name].show()
 
 
-def get_ftrack_menu(menu_name = 'ftrack-pipeline'):
-    gMainWindow = mm.eval('$temp1=$gMainWindow')
-
-    if mc.menu(menu_name, exists=True):
-        menu = menu_name
-
-    else:
-        menu = mc.menu(
-            menu_name,
-            parent=gMainWindow,
-            tearOff=False,
-            label=menu_name
-        )
-
-    return menu
 
 
 def load_and_init():
     # TODO : later we need to bring back here all the maya initialiations from ftrack-connect-maya
     # such as frame start / end etc....
     session = get_shared_session()
-    hostid = host.initalise(session, constants.HOST, constants.UI)
+    hostid = host.initialise(session, constants.HOST, constants.UI)
 
     usage.send_event(
         'USED-FTRACK-CONNECT-PIPELINE-MAYA'
@@ -87,8 +72,10 @@ def load_and_init():
             (load.QtPipelineMayaLoaderWidget, 'Loader'),
             (publish.QtPipelineMayaPublishWidget, 'Publisher')
         ]
+    else:
+        maya_host.notify_connected_client(session, hostid)
 
-    ftrack_menu = get_ftrack_menu()
+    ftrack_menu = maya_host.get_ftrack_menu()
     # Register and hook the dialog in ftrack menu
     for item in dialogs:
         if item == 'divider':
