@@ -34,8 +34,10 @@ def mark_menu(hostid, event):
 
     if client_hostid == hostid:
         logger.info('client connected {}'.format(menu))
+        # TODO: Mark somehow the menu to be connected
     else:
         logger.info('client disconnected :{}'.format(menu))
+        # TODO: remove marked menu
 
 
 def notify_connected_client(session, hostid):
