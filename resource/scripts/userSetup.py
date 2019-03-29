@@ -1,11 +1,9 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-
+import os
 import logging
-import threading
 import re
-import functools
 from ftrack_connect_pipeline import event, host
 from ftrack_connect_pipeline_maya import usage
 from ftrack_connect_pipeline.session import get_shared_session
@@ -80,10 +78,15 @@ def load_and_init():
     from ftrack_connect_pipeline_maya.client import load
     from ftrack_connect_pipeline_maya.client import publish
 
-    dialogs = [
-        (load.QtPipelineMayaLoaderWidget, 'Loader'),
-        (publish.QtPipelineMayaPublishWidget, 'Publisher')
-    ]
+    # Enable loader and publisher only if is set to run local (default)
+    remote_set = os.environ.get(
+        'FTRACK_PIPELINE_REMOTE_EVENTS', False
+    )
+    if not remote_set:
+        dialogs = [
+            (load.QtPipelineMayaLoaderWidget, 'Loader'),
+            (publish.QtPipelineMayaPublishWidget, 'Publisher')
+        ]
 
     ftrack_menu = get_ftrack_menu()
     # Register and hook the dialog in ftrack menu
