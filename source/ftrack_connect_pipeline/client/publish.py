@@ -33,6 +33,8 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self._listen_widget_updates()
 
     def _update_widget(self, event):
+        self.logger.info('_update_widget:{}'.format(event))
+
         data = event['data']['pipeline']['data']
         widget_ref = event['data']['pipeline']['widget_ref']
         widget = self.widgets.get(widget_ref)
@@ -60,6 +62,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         )
 
     def _listen_widget_updates(self):
+        self.logger.info('listening updates from host: {}'.format(self.hostid))
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.hostid={}'.format(constants.PIPELINE_UPDATE_UI, self.hostid),
             self._update_widget
@@ -83,12 +86,17 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
     def post_build(self):
         super(QtPipelinePublishWidget, self).post_build()
         self.combo.currentIndexChanged.connect(self._on_publisher_changed)
+        # reset the definitions compboxbox
+        self.hostid_changed.connect(self.combo.clear)
+        # fetch new defintions
         self.hostid_changed.connect(self._fetch_defintions)
+
 
     def on_publishers_loaded(self, event):
         self.logger.info('on_publishers_loaded: {}'.format(event['data']))
         raw_data = event['data']
 
+        # TODO: maya publish return a list where standalone return dict... ?
         if isinstance(raw_data, list):
             raw_data = raw_data[0]
 

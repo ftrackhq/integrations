@@ -60,18 +60,18 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
         self.session = get_shared_session()
         self.event_manager = event.EventManager(self.session)
+        self.event_thread = event.NewApiEventHubThread()
+        self.event_thread.start(self.session)
 
         self.pre_build()
         self.build()
         self.post_build()
 
         if not self.hostid:
-            event_thread = event.NewApiEventHubThread()
-            event_thread.start(self.session)
             self.discover_hosts()
 
+        # apply styles
         # theme.applyTheme(self, 'dark', 'cleanlooks')
-
         theme.applyFont()
 
     def on_change_host(self, index):
@@ -97,7 +97,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.event_manager.publish(
             discover_event,
             callback=self.on_host_discovered,
-            remote=True
+            remote=self._remote_events
         )
 
     def resetLayout(self, layout):
