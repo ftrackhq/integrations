@@ -140,10 +140,14 @@ class PublisherRunner(object):
                 )
 
             for plugin in plugins:
+
+                plugin_options = plugin['options']
+                plugin_options['component_name'] = component_name
+
                 result = self._run_plugin(
                     plugin, stage,
                     data=collected_data,
-                    options=plugin['options'],
+                    options=plugin_options,
                     context=context_data
                 )
 
