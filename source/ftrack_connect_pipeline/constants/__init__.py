@@ -17,7 +17,7 @@ PIPELINE_REGISTER_DEFINITION_TOPIC = '{}.register.definition'.format(_BASE_)
 PIPELINE_RUN_PUBLISHER = '{}.host.publish'.format(_BASE_)
 PIPELINE_UPDATE_UI = '{}.client.update'.format(_BASE_)
 PIPELINE_DISCOVER_HOST = '{}.host.discover'.format(_BASE_)
-
+PIPELINE_CONNECT_CLIENT = '{}.client.connect'.format(_BASE_)
 
 # Avoid circular dependencies.
 from ftrack_connect_pipeline.constants.load import *

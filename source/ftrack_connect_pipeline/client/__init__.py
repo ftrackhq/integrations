@@ -74,15 +74,44 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         # theme.applyTheme(self, 'dark', 'cleanlooks')
         theme.applyFont()
 
+    def _fetch_defintions(self, definition_type, callback):
+        publisher_event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_REGISTER_DEFINITION_TOPIC,
+            data={
+                'pipeline': {
+                    'type': definition_type,
+                    'hostid': self.hostid
+                }
+            }
+        )
+        self.event_manager.publish(
+            publisher_event,
+            callback=callback,
+            remote=self._remote_events
+        )
+
     def on_change_host(self, index):
         hostid = self.combo_hosts.itemData(index)
 
         if not hostid:
             return
 
-        self.logger.info('setting current hostid to:{}'.format(hostid))
         self._hostid = hostid
         self.hostid_changed.emit()
+
+        # notify host we are connected
+        hook_host_event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_CONNECT_CLIENT,
+            data={
+                'pipeline':{'hostid': hostid}
+            }
+        )
+
+        self.event_manager.publish(
+            hook_host_event,
+            remote=self._remote_events
+        )
+
 
     def on_host_discovered(self, event):
         hostid = str(event['data'])

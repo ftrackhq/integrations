@@ -28,24 +28,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self.setWindowTitle('Standalone Pipeline Publisher')
 
         self._current_publisher = {}
-
-        self._fetch_defintions()
-
-    def _fetch_defintions(self):
-        publisher_event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_REGISTER_DEFINITION_TOPIC,
-            data={
-                'pipeline': {
-                    'type': "publisher",
-                    'hostid': self.hostid
-                }
-            }
-        )
-        self.event_manager.publish(
-            publisher_event,
-            callback=self.on_publishers_loaded,
-            remote=self._remote_events
-        )
+        self.fetch_publisher_definitions()
 
     def build(self):
         self.context_layout = QtWidgets.QVBoxLayout()
@@ -62,13 +45,16 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self.publisher_layout = QtWidgets.QVBoxLayout()
         self.task_layout.addLayout(self.publisher_layout)
 
+    def fetch_publisher_definitions(self):
+        self._fetch_defintions("publisher", self.on_publishers_loaded)
+
     def post_build(self):
         super(QtPipelinePublishWidget, self).post_build()
         self.combo.currentIndexChanged.connect(self._on_publisher_changed)
         # reset the definitions compboxbox
         self.hostid_changed.connect(self.combo.clear)
         # fetch new defintions
-        self.hostid_changed.connect(self._fetch_defintions)
+        self.hostid_changed.connect(self.fetch_publisher_definitions)
 
     def on_publishers_loaded(self, event):
         self.logger.info('on_publishers_loaded: {}'.format(event['data']))

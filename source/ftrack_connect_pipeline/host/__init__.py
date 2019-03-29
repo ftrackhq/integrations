@@ -16,7 +16,7 @@ def provide_hostid(hostid, event):
     return hostid
 
 
-def initalise(session, host, ui):
+def initialise(session, host, ui):
     '''Initialize host with *session*, *host* and *ui*, return *hostid*'''
     hostid = '{}-{}-{}'.format(host, ui, uuid.uuid4().hex)
 
