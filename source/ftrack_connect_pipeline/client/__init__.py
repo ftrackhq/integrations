@@ -75,6 +75,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         theme.applyFont()
 
     def _fetch_defintions(self, definition_type, callback):
+        '''Helper to retrieve defintion for *definition_type* and *callback*.'''
         publisher_event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_REGISTER_DEFINITION_TOPIC,
             data={
@@ -91,10 +92,8 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         )
 
     def on_change_host(self, index):
+        '''triggered when chaging host selection to *index*'''
         hostid = self.combo_hosts.itemData(index)
-
-        if not hostid:
-            return
 
         self._hostid = hostid
         self.hostid_changed.emit()
@@ -103,7 +102,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         hook_host_event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_CONNECT_CLIENT,
             data={
-                'pipeline':{'hostid': hostid}
+                'pipeline': {'hostid': hostid}
             }
         )
 
@@ -112,20 +111,20 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             remote=self._remote_events
         )
 
-
-    def on_host_discovered(self, event):
+    def _host_discovered(self, event):
+        '''callback to to add new hosts *event*.'''
         hostid = str(event['data'])
         self.combo_hosts.addItem(hostid, hostid)
 
     def discover_hosts(self):
-
+        '''Event to discover new available hosts.'''
         discover_event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_DISCOVER_HOST
         )
 
         self.event_manager.publish(
             discover_event,
-            callback=self.on_host_discovered,
+            callback=self._host_discovered,
             remote=self._remote_events
         )
 
@@ -156,7 +155,6 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.header = header.Header(self.session.api_user)
         self.layout().addWidget(self.header)
         self.combo = QtWidgets.QComboBox()
-        self.combo.addItem('- Select asset type -')
         self.layout().addWidget(self.combo)
         self.task_layout = QtWidgets.QVBoxLayout()
         self.layout().addLayout(self.task_layout)
@@ -220,7 +218,6 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         widget.setDisabled(True)
 
     def _listen_widget_updates(self):
-        self.logger.info('listening updates from host: {}'.format(self.hostid))
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.hostid={}'.format(constants.PIPELINE_UPDATE_UI, self.hostid),
             self._update_widget

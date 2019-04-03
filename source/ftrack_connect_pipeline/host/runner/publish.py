@@ -100,7 +100,6 @@ class PublisherRunner(object):
                 }
             }
         )
-        self.logger.info('notifying client with:{}'.format(event))
         self.event_manager.publish(
             event,
             remote=self.__remote_events
