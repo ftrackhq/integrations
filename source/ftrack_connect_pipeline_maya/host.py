@@ -12,6 +12,7 @@ logger = logging.getLogger(
 
 
 def get_ftrack_menu(menu_name = 'ftrack_pipeline'):
+    '''Get the current ftrack menu, create it if does not exists.'''
     gMainWindow = mm.eval('$temp1=$gMainWindow')
 
     if mc.menu(
@@ -34,6 +35,7 @@ def get_ftrack_menu(menu_name = 'ftrack_pipeline'):
 
 
 def mark_menu(hostid, event):
+    '''mark menu as connected or disconnnected.'''
     client_hostid = event['data']['pipeline']['hostid']
     menu = get_ftrack_menu()
     if client_hostid == hostid:
@@ -47,6 +49,7 @@ def mark_menu(hostid, event):
 
 
 def notify_connected_client(session, hostid):
+    '''event handler to notify connected clients.'''
     event_handler = functools.partial(mark_menu, hostid)
 
     session.event_hub.subscribe(
