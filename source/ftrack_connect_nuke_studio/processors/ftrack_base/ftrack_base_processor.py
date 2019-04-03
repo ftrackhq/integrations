@@ -872,6 +872,7 @@ class FtrackProcessor(FtrackBase):
         version = component['version']
         version.create_thumbnail(thumbnail_file)
         version['task'].create_thumbnail(thumbnail_file)
+        version['task']['parent'].create_thumbnail(thumbnail_file)
 
     def validate_ftrack_processing(self, export_items, preview):
         ''' Return whether the *export_items* and processor are valid to be rendered.
