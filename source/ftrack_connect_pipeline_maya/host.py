@@ -10,10 +10,16 @@ logger = logging.getLogger(
     __name__
 )
 
-def get_ftrack_menu(menu_name = 'ftrack-pipeline'):
+
+def get_ftrack_menu(menu_name = 'ftrack_pipeline'):
     gMainWindow = mm.eval('$temp1=$gMainWindow')
 
-    if mc.menu(menu_name, exists=True):
+    if mc.menu(
+            menu_name,
+            exists=True,
+            parent=gMainWindow,
+            label=menu_name
+    ):
         menu = menu_name
 
     else:
@@ -29,14 +35,14 @@ def get_ftrack_menu(menu_name = 'ftrack-pipeline'):
 
 def mark_menu(hostid, event):
     client_hostid = event['data']['pipeline']['hostid']
-
     menu = get_ftrack_menu()
-
     if client_hostid == hostid:
-        logger.info('client connected {}'.format(menu))
+        logger.info('client connected')
+        mc.menu(menu, e=True, l='ftrack_pipeline (connected)')
         # TODO: Mark somehow the menu to be connected
     else:
-        logger.info('client disconnected :{}'.format(menu))
+        logger.info('client disconnected')
+        mc.menu(menu, e=True, l='ftrack_pipeline')
         # TODO: remove marked menu
 
 

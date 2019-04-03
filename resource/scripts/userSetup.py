@@ -30,8 +30,6 @@ def open_dialog(dialog_class, hostid):
     created_dialogs[dialog_name].show()
 
 
-
-
 def load_and_init():
     # TODO : later we need to bring back here all the maya initialiations from ftrack-connect-maya
     # such as frame start / end etc....
