@@ -7,6 +7,12 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: new
+
+        Thumbnails are published also to parent entity.
+
 .. release:: 2.2.0
     :date: 2019-03-08
 
