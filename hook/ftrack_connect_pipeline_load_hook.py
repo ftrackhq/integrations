@@ -259,19 +259,19 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
 
         return environment
 
-
-def register(session, **kw):
-    '''Register hooks.'''
-    '''Subscribe to application launch events on *registry*.'''
-    if not isinstance(session, ftrack_api.session.Session):
-        return
-
-    # Create store containing applications.
-    application_store = ApplicationStore()
-
-    # Create a launcher with the store containing applications.
-    launcher = ApplicationLauncher(application_store)
-
-    # Create action and register to respond to discover and launch actions.
-    action = LaunchApplicationAction(application_store, launcher)
-    action.register()
+#
+# def register(session, **kw):
+#     '''Register hooks.'''
+#     '''Subscribe to application launch events on *registry*.'''
+#     if not isinstance(session, ftrack_api.session.Session):
+#         return
+#
+#     # Create store containing applications.
+#     application_store = ApplicationStore()
+#
+#     # Create a launcher with the store containing applications.
+#     launcher = ApplicationLauncher(application_store)
+#
+#     # Create action and register to respond to discover and launch actions.
+#     action = LaunchApplicationAction(application_store, launcher)
+#     action.register()
