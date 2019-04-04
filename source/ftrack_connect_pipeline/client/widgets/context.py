@@ -2,13 +2,14 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 from QtExt import QtWidgets
-from ftrack_connect_pipeline.client.widgets.simple import SimpleWidget
+from ftrack_connect_pipeline.client.widgets.simple import BaseWidget
 
 from ftrack_connect.ui.widget import entity_selector
 from ftrack_connect.ui.widget import asset_options
 from ftrack_connect.ui.widget import context_selector
 from ftrack_connect.ui.widget import list_assets_table
 from ftrack_connect.ui.widget import component_table
+
 
 # dummy wrap to make old class work
 class ConnectorWrapper(object):
@@ -20,10 +21,13 @@ class ConnectorWrapper(object):
         return "foobar"
 
 
-class PublishContextWidget(SimpleWidget):
+class MyAssetOptions(asset_options.AssetOptions, QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super(MyAssetOptions, self).__init__(parent=parent)
+
+
+class PublishContextWidget(BaseWidget):
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
-        self.assetOptions = None
-        self.entitySelector = None
         super(PublishContextWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options)
 
     def build(self):
@@ -35,29 +39,29 @@ class PublishContextWidget(SimpleWidget):
         self.entitySelector.entityChanged.connect(self.assetOptions.setEntity)
 
     def _build_context_id_selector(self):
-        option_layout = QtWidgets.QHBoxLayout()
-        option_layout.setContentsMargins(0, 0, 0, 0)
+        self.context_layout = QtWidgets.QHBoxLayout()
+        self.context_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.layout().addLayout(option_layout)
+        self.layout().addLayout(self.context_layout)
         self.entitySelector = entity_selector.EntitySelector()
-        option_layout.addWidget(self.entitySelector)
+        self.context_layout.addWidget(self.entitySelector)
         self.add_widget('context_id', self.entitySelector)
 
     def _build_asset_selector(self):
-        option_layout = QtWidgets.QFormLayout()
-        option_layout.setContentsMargins(0, 0, 0, 0)
+        self.asset_layout = QtWidgets.QFormLayout()
+        self.asset_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.assetOptions = asset_options.AssetOptions()
+        self.assetOptions = MyAssetOptions()
         self.entitySelector.entityChanged.connect(self.assetOptions.setEntity)
         self.assetOptions.assetTypeSelector.setDisabled(True)
 
-        option_layout.addRow('Asset', self.assetOptions.radioButtonFrame)
-        option_layout.addRow('Existing asset', self.assetOptions.existingAssetSelector)
-        option_layout.addRow('Type', self.assetOptions.assetTypeSelector)
-        option_layout.addRow('Name', self.assetOptions.assetNameLineEdit)
-        self.assetOptions.initializeFieldLabels(option_layout)
+        self.asset_layout.addRow('Asset', self.assetOptions.radioButtonFrame)
+        self.asset_layout.addRow('Existing asset', self.assetOptions.existingAssetSelector)
+        self.asset_layout.addRow('Type', self.assetOptions.assetTypeSelector)
+        self.asset_layout.addRow('Name', self.assetOptions.assetNameLineEdit)
+        self.assetOptions.initializeFieldLabels(self.asset_layout)
 
-        self.layout().addLayout(option_layout, stretch=0)
+        self.layout().addLayout(self.asset_layout, stretch=0)
         self.add_widget('asset_name', self.assetOptions)
 
     def value(self):
@@ -70,7 +74,7 @@ class PublishContextWidget(SimpleWidget):
         return result
 
 
-class LoadContextWidget(SimpleWidget):
+class LoadContextWidget(BaseWidget):
 
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
         self._connector_wrapper = ConnectorWrapper(session)

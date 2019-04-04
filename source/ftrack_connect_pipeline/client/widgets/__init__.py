@@ -34,6 +34,7 @@ class BaseWidget(QtWidgets.QWidget):
 
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
         super(BaseWidget, self).__init__(parent=parent)
+        self.setParent(parent)
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -77,8 +78,4 @@ class BaseWidget(QtWidgets.QWidget):
         pass
 
     def value(self):
-        result = {}
-        for label, widget in self.widgets.items():
-            result[label] = widget.text()
-
-        return result
+        raise NotImplementedError()
