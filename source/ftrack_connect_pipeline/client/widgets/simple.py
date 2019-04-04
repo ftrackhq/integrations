@@ -14,9 +14,10 @@ class SimpleWidget(BaseWidget):
 
         return result
 
-    def build_options(self, options):
+    def build(self):
+        super(SimpleWidget, self).build()
 
-        for key, value in options.items():
+        for key, value in self.options.items():
             option_layout = QtWidgets.QHBoxLayout()
             option_layout.setContentsMargins(5, 1, 5, 1)
             option_layout.setAlignment(QtCore.Qt.AlignTop)

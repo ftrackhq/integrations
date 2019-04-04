@@ -25,6 +25,13 @@ class PublishContextWidget(SimpleWidget):
         self.assetOptions = None
         self.entitySelector = None
         super(PublishContextWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options)
+
+    def build(self):
+        super(PublishContextWidget, self).build()
+        self._build_context_id_selector()
+        self._build_asset_selector()
+
+    def post_build(self):
         self.entitySelector.entityChanged.connect(self.assetOptions.setEntity)
 
     def _build_context_id_selector(self):
@@ -52,10 +59,6 @@ class PublishContextWidget(SimpleWidget):
 
         self.widget_options['asset_name'] = self.assetOptions
         self.layout().addLayout(option_layout, stretch=0)
-
-    def build_options(self, options):
-        self._build_context_id_selector()
-        self._build_asset_selector()
 
     def extract_options(self):
         result = {}
@@ -116,9 +119,10 @@ class LoadContextWidget(SimpleWidget):
     def _build_component_selector(self, value):
         self.widget_options['component_list'] = self.selectedComponents
 
-    def build_options(self, options):
+    def build(self):
+        super(LoadContextWidget, self).build()
         self._build_others()
-        self._build_component_selector(options['component_list'])
+        self._build_component_selector(self.options['component_list'])
 
     def extract_options(self):
         result = {}

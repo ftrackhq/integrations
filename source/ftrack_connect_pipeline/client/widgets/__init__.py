@@ -6,6 +6,7 @@ from QtExt import QtWidgets, QtCore
 
 
 class BaseWidget(QtWidgets.QWidget):
+    updated = QtCore.Signal()
 
     @property
     def session(self):
@@ -33,31 +34,32 @@ class BaseWidget(QtWidgets.QWidget):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+        self.widget_options = {}
+
         self._session = session
         self._data = data
         self._name = name
         self._description = description
         self._options = options
 
-        self.widget_options = {}
-
+        self.pre_build()
         self.build()
+        self.post_build()
 
-    def build(self):
+    def pre_build(self):
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setAlignment(QtCore.Qt.AlignTop)
         self.setLayout(layout)
 
+    def build(self):
         name_label = QtWidgets.QLabel(self.name)
         name_label.setToolTip(self.description)
+        self.layout().addWidget(name_label)
 
-        layout.addWidget(name_label)
-        self.build_options(self.options)
+    def post_build(self):
+        # used to connect qt events
+        pass
 
     def extract_options(self):
         raise NotImplementedError()
-
-    def build_options(self, options):
-        raise NotImplementedError()
-
