@@ -65,11 +65,16 @@ def load_and_init():
     remote_set = os.environ.get(
         'FTRACK_PIPELINE_REMOTE_EVENTS', False
     )
+    dialogs = []
+
     if not remote_set:
-        dialogs = [
-            (load.QtPipelineMayaLoaderWidget, 'Loader'),
+        dialogs.append(
+            (load.QtPipelineMayaLoaderWidget, 'Loader')
+        )
+        dialogs.append(
             (publish.QtPipelineMayaPublishWidget, 'Publisher')
-        ]
+        )
+
     else:
         maya_host.notify_connected_client(session, hostid)
 
