@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-from QtExt import QtWidgets
+from qtpy import QtWidgets
 from ftrack_connect_pipeline.client.widgets.simple import SimpleWidget
 
 from ftrack_connect.ui.widget import entity_selector
