@@ -41,7 +41,7 @@ class PublishContextWidget(SimpleWidget):
         self.layout().addLayout(option_layout)
         self.entitySelector = entity_selector.EntitySelector()
         option_layout.addWidget(self.entitySelector)
-        self.widget_options['context_id'] = self.entitySelector
+        self.add_widget('context_id', self.entitySelector)
 
     def _build_asset_selector(self):
         option_layout = QtWidgets.QFormLayout()
@@ -57,12 +57,12 @@ class PublishContextWidget(SimpleWidget):
         option_layout.addRow('Name', self.assetOptions.assetNameLineEdit)
         self.assetOptions.initializeFieldLabels(option_layout)
 
-        self.widget_options['asset_name'] = self.assetOptions
         self.layout().addLayout(option_layout, stretch=0)
+        self.add_widget('asset_name', self.assetOptions)
 
-    def extract_options(self):
+    def value(self):
         result = {}
-        for label, widget in self.widget_options.items():
+        for label, widget in self.widgets.items():
             if label == 'context_id':
                 result[label] = widget._entity.getId()
             else:
@@ -117,15 +117,15 @@ class LoadContextWidget(SimpleWidget):
         self.componentTableWidget.setAssetVersion(assetVid)
 
     def _build_component_selector(self, value):
-        self.widget_options['component_list'] = self.selectedComponents
+        self.widgets['component_list'] = self.selectedComponents
 
     def build(self):
         super(LoadContextWidget, self).build()
         self._build_others()
         self._build_component_selector(self.options['component_list'])
 
-    def extract_options(self):
+    def value(self):
         result = {}
-        for label, widget in self.widget_options.items():
+        for label, widget in self.widgets.items():
             result[label] = widget()
         return result

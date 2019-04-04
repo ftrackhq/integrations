@@ -7,13 +7,6 @@ from ftrack_connect_pipeline.client.widgets import BaseWidget
 
 class SimpleWidget(BaseWidget):
 
-    def extract_options(self):
-        result = {}
-        for label, widget in self.widget_options.items():
-            result[label] = widget()
-
-        return result
-
     def build(self):
         super(SimpleWidget, self).build()
 
@@ -25,8 +18,7 @@ class SimpleWidget(BaseWidget):
             label = QtWidgets.QLabel(key)
 
             value = QtWidgets.QLineEdit(str(value))
-
-            self.widget_options[key] = value.text
+            self.add_widget(key, value)
 
             option_layout.addWidget(label)
             option_layout.addWidget(value)

@@ -28,13 +28,17 @@ class BaseWidget(QtWidgets.QWidget):
     def options(self):
         return self._options
 
+    @property
+    def widgets(self):
+        return self._widgets
+
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
         super(BaseWidget, self).__init__(parent=parent)
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        self.widget_options = {}
+        self._widgets = {}
 
         self._session = session
         self._data = data
@@ -45,6 +49,17 @@ class BaseWidget(QtWidgets.QWidget):
         self.pre_build()
         self.build()
         self.post_build()
+
+    def add_widget(self, name, widget):
+        if name in self.widgets:
+            raise Exception('widget with name {} already exists'.format(name))
+        self._widgets[name] = widget
+
+    def get_widget(self, name):
+        if name not in self.widgets:
+            raise Exception('could not find widget with name {}'.format(name))
+
+        return self.widgets[name]
 
     def pre_build(self):
         layout = QtWidgets.QVBoxLayout()
@@ -61,5 +76,9 @@ class BaseWidget(QtWidgets.QWidget):
         # used to connect qt events
         pass
 
-    def extract_options(self):
-        raise NotImplementedError()
+    def value(self):
+        result = {}
+        for label, widget in self.widgets.items():
+            result[label] = widget.text()
+
+        return result
