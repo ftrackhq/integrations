@@ -1,6 +1,9 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
+
+import os
 from functools import partial
+import ftrack
 from QtExt import QtWidgets
 from ftrack_connect_pipeline.client.widgets.simple import BaseWidget
 
@@ -23,14 +26,23 @@ class ConnectorWrapper(object):
 
 class PublishContextWidget(BaseWidget):
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
-        self.assetOptions = None
-        self.entitySelector = None
         super(PublishContextWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options)
 
     def build(self):
         super(PublishContextWidget, self).build()
         self._build_context_id_selector()
         self._build_asset_selector()
+
+    def get_current_context(self):
+        context_id = os.getenv(
+            'FTRACK_CONTEXTID',
+                os.getenv('FTRACK_TASKID',
+                    os.getenv('FTRACK_SHOTID'
+                )
+            )
+        )
+        current_entity = ftrack.Task(context_id)
+        return current_entity
 
     def post_build(self):
         self.entitySelector.entityChanged.connect(self.assetOptions.setEntity)
@@ -43,11 +55,15 @@ class PublishContextWidget(BaseWidget):
         self.context_layout.setContentsMargins(0, 0, 0, 0)
 
         self.layout().addLayout(self.context_layout)
+        current_context = self.get_current_context()
         self.entitySelector = entity_selector.EntitySelector()
+        self.entitySelector.setEntity(current_context)
+
         self.context_layout.addWidget(self.entitySelector)
         update_fn = partial(self._set_context_option_result, key='context_id')
 
         self.entitySelector.entityChanged.connect(update_fn)
+        self.set_option_result(self.get_current_context(), 'context_id')
 
     def _build_asset_selector(self):
         self.asset_layout = QtWidgets.QFormLayout()
