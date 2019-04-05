@@ -89,8 +89,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         context_group_widget.setLayout(context_layout)
         for index, context_plugin in enumerate(context_plugins):
             context_widget = self.fetch_widget(context_plugin, 'context')
-            uid = self.register_widget(context_widget)
-            self.current['context'][index]['widget_ref'] = uid
+            self.register_widget_plugin(context_widget, context_plugin)
             context_layout.addWidget(context_widget)
 
         return context_group_widget
@@ -108,8 +107,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
             for index, stage_plugin in enumerate(stage_plugins):
                 stage_widget = self.fetch_widget(stage_plugin, stage_name)
-                uid = self.register_widget(stage_widget)
-                self.current['components'][component_name][stage_name][index]['widget_ref'] = uid
+                self.register_widget_plugin(stage_widget, stage_plugin)
                 stage_layout.addWidget(stage_widget)
 
         return component_widget
@@ -120,8 +118,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         publish_group_widget.setLayout(publish_layout)
         for index, publish_plugin in enumerate(publish_plugins):
             publish_widget = self.fetch_widget(publish_plugin, 'publish')
-            uid = self.register_widget(publish_widget)
-            self.current['publish'][index]['widget_ref'] = uid
+            self.register_widget_plugin(publish_widget, publish_plugin)
             publish_layout.addWidget(publish_widget)
 
         return publish_group_widget

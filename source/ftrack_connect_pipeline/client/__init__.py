@@ -75,9 +75,11 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         # theme.applyTheme(self, 'dark', 'cleanlooks')
         theme.applyFont()
 
-    def register_widget(self, widget):
+    def register_widget_plugin(self, widget, plugin):
         uid = uuid.uuid4().hex
         self._widgets_ref[uid] = widget
+        plugin['widget_ref'] = uid
+
         return uid
 
     def _fetch_defintions(self, definition_type, callback):
