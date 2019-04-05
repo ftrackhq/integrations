@@ -6,9 +6,6 @@ from QtExt import QtWidgets, QtCore
 
 
 class BaseWidget(QtWidgets.QWidget):
-    updated = QtCore.Signal()
-
-
 
     @property
     def session(self):
@@ -30,10 +27,6 @@ class BaseWidget(QtWidgets.QWidget):
     def options(self):
         return self._options
 
-    @property
-    def widgets(self):
-        return self._widgets
-
     def set_option_result(self, value, key):
         self.logger.info('setting : {} to {}'.format(key, value))
         self._results[key] = value
@@ -49,28 +42,17 @@ class BaseWidget(QtWidgets.QWidget):
             __name__ + '.' + self.__class__.__name__
         )
         self._widgets = {}
-        self._results = {}
 
         self._session = session
         self._data = data
         self._name = name
         self._description = description
         self._options = options
+        self._results = {}
 
         self.pre_build()
         self.build()
         self.post_build()
-
-    def register_widget(self, name, widget):
-        if name in self.widgets:
-            raise Exception('widget with name {} already exists'.format(name))
-        self._widgets[name] = widget
-
-    def get_registered_widget(self, name):
-        if name not in self.widgets:
-            raise Exception('could not find widget with name {}'.format(name))
-
-        return self.widgets[name]
 
     def pre_build(self):
         layout = QtWidgets.QVBoxLayout()

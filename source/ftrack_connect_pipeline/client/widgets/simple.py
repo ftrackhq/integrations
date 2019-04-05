@@ -18,8 +18,9 @@ class SimpleWidget(BaseWidget):
         super(SimpleWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options)
 
     def register_widget(self, name, widget):
-        super(SimpleWidget, self).register_widget(name, widget)
         widget_layout = QtWidgets.QHBoxLayout()
+        widget_layout.setContentsMargins(0, 0, 0, 0)
+        widget_layout.setAlignment(QtCore.Qt.AlignTop)
         label = QtWidgets.QLabel(name)
 
         widget_layout.addWidget(label)
@@ -31,6 +32,7 @@ class SimpleWidget(BaseWidget):
         self.register_widget(key, widget)
         update_fn = partial(self.set_option_result, key=key)
         widget.textChanged.connect(update_fn)
+        self.set_option_result(value, key)
 
     def _build_int_widget(self, key, value):
         widget = QtWidgets.QSpinBox()
@@ -38,6 +40,7 @@ class SimpleWidget(BaseWidget):
         self.register_widget(key, widget)
         update_fn = partial(self.set_option_result, key=key)
         widget.valueChanged.connect(update_fn)
+        self.set_option_result(value, key)
 
     def _build_float_widget(self, key, value):
         widget= QtWidgets.QDoubleSpinBox()
@@ -45,13 +48,16 @@ class SimpleWidget(BaseWidget):
         self.register_widget(key, widget)
         update_fn = partial(self.set_option_result, key=key)
         widget.valueChanged.connect(update_fn)
+        self.set_option_result(value, key)
 
     def _build_list_widget(self, key, values):
         widget = QtWidgets.QComboBox()
         widget.addItems(values)
         self.register_widget(key, widget)
         update_fn = partial(self.set_option_result, key=key)
-        widget.currentTextChanged.connect(update_fn)
+        widget.editTextChanged.connect(update_fn)
+        if len(values) > 0:
+            self.set_option_result(values[0], key)
 
     def build(self):
         super(SimpleWidget, self).build()

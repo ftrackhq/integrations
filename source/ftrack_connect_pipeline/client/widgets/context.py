@@ -23,6 +23,8 @@ class ConnectorWrapper(object):
 
 class PublishContextWidget(BaseWidget):
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
+        self.assetOptions = None
+        self.entitySelector = None
         super(PublishContextWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options)
 
     def build(self):
@@ -43,7 +45,6 @@ class PublishContextWidget(BaseWidget):
         self.layout().addLayout(self.context_layout)
         self.entitySelector = entity_selector.EntitySelector()
         self.context_layout.addWidget(self.entitySelector)
-        self.register_widget('context_id', self.entitySelector)
         update_fn = partial(self._set_context_option_result, key='context_id')
 
         self.entitySelector.entityChanged.connect(update_fn)
@@ -62,9 +63,7 @@ class PublishContextWidget(BaseWidget):
         self.assetOptions.initializeFieldLabels(self.asset_layout)
 
         self.layout().addLayout(self.asset_layout, stretch=0)
-        self.register_widget('asset_name', self.assetOptions)
-
-        update_fn = partial(self._set_context_option_result, key='asset_name')
+        update_fn = partial(self.set_option_result, key='asset_name')
         self.assetOptions.assetNameLineEdit.textEdited.connect(update_fn)
 
 
