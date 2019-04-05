@@ -1,6 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
-
+from functools import partial
 from QtExt import QtWidgets
 from ftrack_connect_pipeline.client.widgets.simple import BaseWidget
 
@@ -21,11 +21,6 @@ class ConnectorWrapper(object):
         return "foobar"
 
 
-class MyAssetOptions(asset_options.AssetOptions, QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        super(MyAssetOptions, self).__init__(parent=parent)
-
-
 class PublishContextWidget(BaseWidget):
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
         super(PublishContextWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options)
@@ -38,6 +33,9 @@ class PublishContextWidget(BaseWidget):
     def post_build(self):
         self.entitySelector.entityChanged.connect(self.assetOptions.setEntity)
 
+    def _set_context_option_result(self, entity, key):
+        self.set_option_result(entity.getId(), key=key)
+
     def _build_context_id_selector(self):
         self.context_layout = QtWidgets.QHBoxLayout()
         self.context_layout.setContentsMargins(0, 0, 0, 0)
@@ -45,14 +43,16 @@ class PublishContextWidget(BaseWidget):
         self.layout().addLayout(self.context_layout)
         self.entitySelector = entity_selector.EntitySelector()
         self.context_layout.addWidget(self.entitySelector)
-        self.add_widget('context_id', self.entitySelector)
+        self.register_widget('context_id', self.entitySelector)
+        update_fn = partial(self._set_context_option_result, key='context_id')
+
+        self.entitySelector.entityChanged.connect(update_fn)
 
     def _build_asset_selector(self):
         self.asset_layout = QtWidgets.QFormLayout()
         self.asset_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.assetOptions = MyAssetOptions()
-        self.entitySelector.entityChanged.connect(self.assetOptions.setEntity)
+        self.assetOptions = asset_options.AssetOptions()
         self.assetOptions.assetTypeSelector.setDisabled(True)
 
         self.asset_layout.addRow('Asset', self.assetOptions.radioButtonFrame)
@@ -62,16 +62,10 @@ class PublishContextWidget(BaseWidget):
         self.assetOptions.initializeFieldLabels(self.asset_layout)
 
         self.layout().addLayout(self.asset_layout, stretch=0)
-        self.add_widget('asset_name', self.assetOptions)
+        self.register_widget('asset_name', self.assetOptions)
 
-    def value(self):
-        result = {}
-        for label, widget in self.widgets.items():
-            if label == 'context_id':
-                result[label] = widget._entity.getId()
-            else:
-                result[label] = widget.getAssetName()
-        return result
+        update_fn = partial(self._set_context_option_result, key='asset_name')
+        self.assetOptions.assetNameLineEdit.textEdited.connect(update_fn)
 
 
 class LoadContextWidget(BaseWidget):
