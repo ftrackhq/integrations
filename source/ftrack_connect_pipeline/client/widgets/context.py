@@ -63,7 +63,7 @@ class PublishContextWidget(BaseWidget):
         update_fn = partial(self._set_context_option_result, key='context_id')
 
         self.entitySelector.entityChanged.connect(update_fn)
-        self.set_option_result(self.get_current_context(), 'context_id')
+        self.set_option_result(self.get_current_context().getId(), 'context_id')
 
     def _build_asset_selector(self):
         self.asset_layout = QtWidgets.QFormLayout()

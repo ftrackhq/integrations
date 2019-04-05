@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import os
+import uuid
 import ftrack_api
 import logging
 
@@ -73,6 +74,11 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         # apply styles
         # theme.applyTheme(self, 'dark', 'cleanlooks')
         theme.applyFont()
+
+    def register_widget(self, widget):
+        uid = uuid.uuid4().hex
+        self._widgets_ref[uid] = widget
+        return uid
 
     def _fetch_defintions(self, definition_type, callback):
         '''Helper to retrieve defintion for *definition_type* and *callback*.'''

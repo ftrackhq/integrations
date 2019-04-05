@@ -50,6 +50,7 @@ class BaseWidget(QtWidgets.QWidget):
         self._options = options
         self._results = {}
 
+        # Build widget
         self.pre_build()
         self.build()
         self.post_build()

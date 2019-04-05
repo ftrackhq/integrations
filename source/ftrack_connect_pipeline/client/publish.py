@@ -4,7 +4,6 @@
 
 import sys
 import os
-import uuid
 
 deps_paths = os.environ.get('PYTHONPATH', '').split(os.pathsep)
 for path in deps_paths:
@@ -12,7 +11,6 @@ for path in deps_paths:
 
 from QtExt import QtGui, QtWidgets
 
-import ftrack_api
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.client import BaseQtPipelineWidget
 
@@ -91,9 +89,8 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         context_group_widget.setLayout(context_layout)
         for index, context_plugin in enumerate(context_plugins):
             context_widget = self.fetch_widget(context_plugin, 'context')
-            uid = uuid.uuid4().hex
+            uid = self.register_widget(context_widget)
             self.current['context'][index]['widget_ref'] = uid
-            self.widgets[uid] = context_widget
             context_layout.addWidget(context_widget)
 
         return context_group_widget
@@ -111,11 +108,8 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
             for index, stage_plugin in enumerate(stage_plugins):
                 stage_widget = self.fetch_widget(stage_plugin, stage_name)
-                uid = uuid.uuid4().hex
-
+                uid = self.register_widget(stage_widget)
                 self.current['components'][component_name][stage_name][index]['widget_ref'] = uid
-                self.widgets[uid] = stage_widget
-
                 stage_layout.addWidget(stage_widget)
 
         return component_widget
@@ -126,9 +120,8 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         publish_group_widget.setLayout(publish_layout)
         for index, publish_plugin in enumerate(publish_plugins):
             publish_widget = self.fetch_widget(publish_plugin, 'publish')
-            uid = uuid.uuid4().hex
+            uid = self.register_widget(publish_widget)
             self.current['publish'][index]['widget_ref'] = uid
-            self.widgets[uid] = publish_widget
             publish_layout.addWidget(publish_widget)
 
         return publish_group_widget
