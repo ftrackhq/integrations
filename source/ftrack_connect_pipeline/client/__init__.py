@@ -75,13 +75,16 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         # theme.applyTheme(self, 'dark', 'cleanlooks')
         theme.applyFont()
 
+    def get_registered_widget_plugin(self, plugin):
+        return self._widgets_ref[plugin['widget_ref']]
+
     def register_widget_plugin(self, widget, plugin):
         uid = uuid.uuid4().hex
         self._widgets_ref[uid] = widget
         plugin['widget_ref'] = uid
 
         return uid
-
+    
     def _fetch_defintions(self, definition_type, callback):
         '''Helper to retrieve defintion for *definition_type* and *callback*.'''
         publisher_event = ftrack_api.event.base.Event(
@@ -213,8 +216,6 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         return default_widget
 
     def _update_widget(self, event):
-        self.logger.info('_update_widget:{}'.format(event))
-
         data = event['data']['pipeline']['data']
         widget_ref = event['data']['pipeline']['widget_ref']
         widget = self.widgets.get(widget_ref)
