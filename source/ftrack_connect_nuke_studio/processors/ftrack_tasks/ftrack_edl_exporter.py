@@ -133,6 +133,24 @@ class FtrackEDLExporter(EDLExportTask, FtrackProcessor):
         except Exception, e:
             self.setError(str(e))
 
+    def taskStep(self):
+        try:
+            trackTask = self._trackTasks[self._trackTaskIndex]
+            self._currentTrack = trackTask._track
+
+            if not trackTask.taskStep():
+                path = self.exportFilePath()
+
+                otio.core.serialize_json_to_file(self.timeline, path)
+                self._trackTaskIndex += 1
+
+            self._stepCount += 1
+            return self._stepCount < self._stepTotal
+        except Exception, e:
+            self.setError(str(e))
+            log.exception(e)
+            return False
+
     def _makePath(self):
         '''Disable file path creation.'''
         pass
@@ -154,6 +172,13 @@ class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
         # Update preset with loaded data
         self.properties().update(properties)
         self.setName(self.properties()['ftrack']['component_name'])
+
+    def exportFilePath(self):
+        exportPath = self.resolvedExportPath()
+        # Check file extension
+        if not exportPath.lower().endswith(".json"):
+            exportPath += ".json"
+        return exportPath
 
     def name(self):
         '''Return task/component name.'''
@@ -179,6 +204,10 @@ class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
             "Name of the sequence being processed",
             lambda keyword, task: task.sequenceName()
         )
+
+    def addCustomResolveEntries(self, resolver):
+        EDLExportPreset.addCustomResolveEntries(self, resolver)
+        resolver.addResolver("{ext}", "Extension of the file to be output", lambda keyword, task: "json")
 
 
 class FtrackEDLExporterUI(EDLExportUI, FtrackProcessorUI):
