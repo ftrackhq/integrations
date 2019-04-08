@@ -76,15 +76,17 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         theme.applyFont()
 
     def get_registered_widget_plugin(self, plugin):
+        '''return the widget registered for the given *plugin*.'''
         return self._widgets_ref[plugin['widget_ref']]
 
     def register_widget_plugin(self, widget, plugin):
+        '''regiter the *widget* against the given *plugin*'''
         uid = uuid.uuid4().hex
         self._widgets_ref[uid] = widget
         plugin['widget_ref'] = uid
 
         return uid
-    
+
     def _fetch_defintions(self, definition_type, callback):
         '''Helper to retrieve defintion for *definition_type* and *callback*.'''
         publisher_event = ftrack_api.event.base.Event(
