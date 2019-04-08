@@ -30,7 +30,7 @@ def open_dialog(dialog_class, hostid):
     created_dialogs[dialog_name].show()
 
 
-def load_and_init():
+def initialise():
     # TODO : later we need to bring back here all the maya initialiations from ftrack-connect-maya
     # such as frame start / end etc....
     session = get_shared_session()
@@ -100,4 +100,4 @@ def load_and_init():
 
 
 
-mc.evalDeferred("load_and_init()", lp=True)
+mc.evalDeferred("initialise()", lp=True)
