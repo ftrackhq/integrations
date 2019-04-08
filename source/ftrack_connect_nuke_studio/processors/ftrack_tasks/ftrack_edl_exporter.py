@@ -36,23 +36,30 @@ class OTIOExportTrackTask(EDLExportTrackTask):
         self._otio_track.name = track.name()
 
     def createCut(self, trackItem):
-        srcEntry, srcExit, syncEntry, syncExit = self.trackItemTimes(trackItem)
+        sourceIn = trackItem.sourceIn()
+        sourceOut = trackItem.sourceOut()
 
         clip = otio.schema.Clip()
         clip.name = trackItem.name()
 
         available_range = otio.opentime.TimeRange(
-            otio.opentime.from_timecode(str(srcEntry), self._fps),
-            otio.opentime.from_timecode(str(srcExit), self._fps)
+            otio.opentime.from_frames(sourceIn, self._fps),
+            otio.opentime.from_frames(sourceOut - sourceIn , self._fps)
         )
         clip.source_range = available_range
 
-        media_file = None
         media_source = trackItem.source().mediaSource()
         if media_source:
-            media_file = media_source.fileinfos()[0].filename()
+            media_file = media_source.fileinfos()[0]
+            media_file_path = media_file.filename()
             clip.media_reference = otio.schema.ExternalReference()
-            clip.media_reference.target_url = media_file
+            clip.media_reference.target_url = media_file_path
+
+            media_range = otio.opentime.TimeRange(
+                otio.opentime.from_frames(media_file.startFrame(), self._fps),
+                otio.opentime.from_frames(media_file.endFrame() - media_file.startFrame(), self._fps)
+            )
+            clip.media_reference.available_range = media_range
 
         self.logger.info(
             'Adding clip {} to track {}'.format(clip, self._otio_track)
