@@ -47,12 +47,12 @@ class OTIOExportTrackTask(EDLExportTrackTask):
         )
         clip.source_range = available_range
 
-        # media_file = None
-        # media_source = trackItem.source().mediaSource()
-        # if media_source:
-        #     media_file = media_source.fileinfos()[0].filename()        # if media_file:
-        #     clip.media_reference = otio.schema.ExternalReference()
-        #     clip.media_reference.target_url = media_file
+        media_file = None
+        media_source = trackItem.source().mediaSource()
+        if media_source:
+            media_file = media_source.fileinfos()[0].filename()
+            clip.media_reference = otio.schema.ExternalReference()
+            clip.media_reference.target_url = media_file
 
         self.logger.info(
             'Adding clip {} to track {}'.format(clip, self._otio_track)
@@ -148,12 +148,19 @@ class FtrackEDLExporter(EDLExportTask, FtrackProcessor):
             return self._stepCount < self._stepTotal
         except Exception, e:
             self.setError(str(e))
-            log.exception(e)
+            self.logger.exception(e)
             return False
 
     def _makePath(self):
         '''Disable file path creation.'''
         pass
+
+    def exportFilePath(self):
+        exportPath = self.resolvedExportPath()
+        # Check file extension
+        if not exportPath.lower().endswith(".otio"):
+            exportPath += ".otio"
+        return exportPath
 
 
 class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
@@ -172,13 +179,6 @@ class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
         # Update preset with loaded data
         self.properties().update(properties)
         self.setName(self.properties()['ftrack']['component_name'])
-
-    def exportFilePath(self):
-        exportPath = self.resolvedExportPath()
-        # Check file extension
-        if not exportPath.lower().endswith(".json"):
-            exportPath += ".json"
-        return exportPath
 
     def name(self):
         '''Return task/component name.'''
@@ -207,7 +207,7 @@ class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
 
     def addCustomResolveEntries(self, resolver):
         EDLExportPreset.addCustomResolveEntries(self, resolver)
-        resolver.addResolver("{ext}", "Extension of the file to be output", lambda keyword, task: "json")
+        resolver.addResolver("{ext}", "Extension of the file to be output", lambda keyword, task: "otio")
 
 
 class FtrackEDLExporterUI(EDLExportUI, FtrackProcessorUI):
@@ -219,7 +219,7 @@ class FtrackEDLExporterUI(EDLExportUI, FtrackProcessorUI):
         EDLExportUI.__init__(self, preset)
         FtrackProcessorUI.__init__(self, preset)
 
-        self._displayName = 'Ftrack EDL Exporter'
+        self._displayName = 'Ftrack OTIO-EDL Exporter'
         self._taskType = FtrackEDLExporter
 
     def populateUI(self, widget, exportTemplate):
