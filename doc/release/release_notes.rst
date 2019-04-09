@@ -9,6 +9,10 @@ Release Notes
 
 .. release:: Upcoming
 
+    .. change:: changed
+
+        Replaced simple EDL export with OpenTimelineIO edl export.
+
     .. change:: new
 
         Thumbnails are published also to parent entity.
