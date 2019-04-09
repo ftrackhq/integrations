@@ -151,6 +151,7 @@ class FtrackEDLExporter(EDLExportTask, FtrackProcessor):
         pass
 
     def exportFilePath(self):
+        '''Ensure file has the correct extension'''
         exportPath = self.resolvedExportPath()
         # Check file extension
         if not exportPath.lower().endswith(".otio"):
