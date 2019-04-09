@@ -59,6 +59,7 @@ class OTIOExportTrackTask(EDLExportTrackTask):
             media_file = media_source.fileinfos()[0]
             media_file_path = media_file.filename()
             clip.media_reference = otio.schema.ExternalReference()
+            clip.media_reference.name = media_source.filename()
             clip.media_reference.target_url = media_file_path
             clip.media_reference.metadata = media_metadata
 
