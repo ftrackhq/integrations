@@ -75,7 +75,6 @@ class OTIOExportTrackTask(EDLExportTrackTask):
         self._otio_track.append(clip)
 
     def createFadeIn(self, trackItem):
-        otio.schema.Transition()
         pass
 
     def createFadeOut(self, trackItem):
