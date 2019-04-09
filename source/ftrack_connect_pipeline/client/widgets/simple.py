@@ -17,7 +17,8 @@ class SimpleWidget(BaseWidget):
         }
         super(SimpleWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options)
 
-    def register_widget(self, name, widget):
+    def _register_widget(self, name, widget):
+        '''Register *widget* with *name* and add it to main layout.'''
         widget_layout = QtWidgets.QHBoxLayout()
         widget_layout.setContentsMargins(0, 0, 0, 0)
         widget_layout.setAlignment(QtCore.Qt.AlignTop)
@@ -28,16 +29,18 @@ class SimpleWidget(BaseWidget):
         self.layout().addLayout(widget_layout)
 
     def _build_str_widget(self, key, value):
+        '''build a string widget out of options *key* and *value* '''
         widget = QtWidgets.QLineEdit(str(value))
-        self.register_widget(key, widget)
+        self._register_widget(key, widget)
         update_fn = partial(self.set_option_result, key=key)
         widget.textChanged.connect(update_fn)
         self.set_option_result(value, key)
 
     def _build_int_widget(self, key, value):
+        '''build an integer widget out of options *key* and *value* '''
         widget = QtWidgets.QSpinBox()
         widget.setValue(value)
-        self.register_widget(key, widget)
+        self._register_widget(key, widget)
         update_fn = partial(self.set_option_result, key=key)
         widget.valueChanged.connect(update_fn)
         self.set_option_result(value, key)
@@ -45,7 +48,7 @@ class SimpleWidget(BaseWidget):
     def _build_float_widget(self, key, value):
         widget= QtWidgets.QDoubleSpinBox()
         widget.setValue(value)
-        self.register_widget(key, widget)
+        self._register_widget(key, widget)
         update_fn = partial(self.set_option_result, key=key)
         widget.valueChanged.connect(update_fn)
         self.set_option_result(value, key)
@@ -53,7 +56,7 @@ class SimpleWidget(BaseWidget):
     def _build_list_widget(self, key, values):
         widget = QtWidgets.QComboBox()
         widget.addItems(values)
-        self.register_widget(key, widget)
+        self._register_widget(key, widget)
         update_fn = partial(self.set_option_result, key=key)
         widget.editTextChanged.connect(update_fn)
         if len(values) > 0:

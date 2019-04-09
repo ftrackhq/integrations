@@ -29,11 +29,13 @@ class PublishContextWidget(BaseWidget):
         super(PublishContextWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options)
 
     def build(self):
+        '''build function widgets.'''
         super(PublishContextWidget, self).build()
         self._build_context_id_selector()
         self._build_asset_selector()
 
     def get_current_context(self):
+        '''return an api object representing the current context.'''
         context_id = os.getenv(
             'FTRACK_CONTEXTID',
                 os.getenv('FTRACK_TASKID',
@@ -45,6 +47,7 @@ class PublishContextWidget(BaseWidget):
         return current_entity
 
     def post_build(self):
+        '''hook events'''
         self.entitySelector.entityChanged.connect(self.assetOptions.setEntity)
 
     def _set_context_option_result(self, entity, key):
