@@ -34,12 +34,17 @@ class OTIOExportTrackTask(EDLExportTrackTask):
 
         self._otio_track = otio.schema.Track()
         self._otio_track.name = track.name()
+        self._otio_track.metadata = track.metadata().dict()
 
-    def createCut(self, trackItem):
+    def createClip(self, trackItem):
         sourceIn = trackItem.sourceIn()
         sourceOut = trackItem.sourceOut()
 
+        clip_metadata = trackItem.metadata().dict()
+
         clip = otio.schema.Clip()
+        clip.metadata = clip_metadata
+
         clip.name = trackItem.name()
 
         available_range = otio.opentime.TimeRange(
@@ -50,10 +55,12 @@ class OTIOExportTrackTask(EDLExportTrackTask):
 
         media_source = trackItem.source().mediaSource()
         if media_source:
+            media_metadata = media_source.metadata().dict()
             media_file = media_source.fileinfos()[0]
             media_file_path = media_file.filename()
             clip.media_reference = otio.schema.ExternalReference()
             clip.media_reference.target_url = media_file_path
+            clip.media_reference.metadata = media_metadata
 
             media_range = otio.opentime.TimeRange(
                 otio.opentime.from_frames(media_file.startFrame(), self._fps),
@@ -67,6 +74,7 @@ class OTIOExportTrackTask(EDLExportTrackTask):
         self._otio_track.append(clip)
 
     def createFadeIn(self, trackItem):
+        otio.schema.Transition()
         pass
 
     def createFadeOut(self, trackItem):
@@ -84,7 +92,7 @@ class OTIOExportTrackTask(EDLExportTrackTask):
         inTransition = trackItem.inTransition()
         outTransition = trackItem.outTransition()
 
-        self.createCut(trackItem)
+        self.createClip(trackItem)
 
         if inTransition:
             if inTransition.alignment() is Transition.kFadeIn:
