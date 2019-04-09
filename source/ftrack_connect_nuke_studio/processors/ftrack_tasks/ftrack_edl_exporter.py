@@ -26,6 +26,7 @@ from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor imp
 
 class OTIOExportTrackTask(EDLExportTrackTask):
     def __init__(self, parent, track, trackItems):
+        '''Initialise export track task with *parent*, *track* and *trackItems*.'''
         EDLExportTrackTask.__init__(self, parent, track, trackItems)
 
         self.logger = logging.getLogger(
@@ -37,6 +38,7 @@ class OTIOExportTrackTask(EDLExportTrackTask):
         self._otio_track.metadata = track.metadata().dict()
 
     def createClip(self, trackItem):
+        '''Create a new clip object from *trackItem*.'''
         sourceIn = trackItem.sourceIn()
         sourceOut = trackItem.sourceOut()
 
@@ -74,36 +76,14 @@ class OTIOExportTrackTask(EDLExportTrackTask):
         )
         self._otio_track.append(clip)
 
-    def createFadeIn(self, trackItem):
-        pass
-
-    def createFadeOut(self, trackItem):
-        pass
-
-    def createTransitionTo(self, trackItem, nextTrackItem):
-        pass
-
     def taskStep(self):
+        '''Run all the steps from this task.'''
         if len(self._trackItems) == 0:
             return False
 
         trackItem = self._trackItems[self._trackItemIndex]
 
-        inTransition = trackItem.inTransition()
-        outTransition = trackItem.outTransition()
-
         self.createClip(trackItem)
-
-        if inTransition:
-            if inTransition.alignment() is Transition.kFadeIn:
-                self.createFadeIn(trackItem)
-        if outTransition:
-            if outTransition.alignment() is Transition.kFadeOut:
-                self.createFadeOut(trackItem)
-            else:
-                nextTrackItem = self._trackItems[self._trackItemIndex + 1]
-                self.createTransitionTo(trackItem, nextTrackItem)
-
         self._eventIndex += 1
         self._trackItemIndex += 1
 
@@ -182,6 +162,7 @@ class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
     '''EDL Task preset.'''
 
     def supportsAudio(self):
+        '''Report whether autio is supported.'''
         return False
 
     @report_exception
