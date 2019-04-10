@@ -106,7 +106,10 @@ class BaseDefinitionManager(object):
             event,
             synchronous=True
         )
-        self.logger.info('plugin result: {}'.format(plugin_result))
+
+        if plugin_result:
+            plugin_result = plugin_result[0]
+
         return plugin_result
 
 
@@ -150,44 +153,42 @@ class PublisherDefinitionManager(BaseDefinitionManager):
         self.package_manager = package_manager
         self.host = host
 
-    def _extract_plugins_from_publisher(self, data, _results=None):
-        if isinstance(data, dict):
-            for key, value in data.items():
-                if key == 'plugin':
-                    _results.append(data)
-                self._extract_plugins_from_publisher(value, _results)
-
-        elif isinstance(data, list):
-            for item in data:
-                self._extract_plugins_from_publisher(item, _results)
-
     def validate_plugins(self, data):
-        # get context plugins
-        contexts = data[constants.CONTEXT]
-        context_plugins = []
-        self._extract_plugins_from_publisher(contexts, context_plugins)
+        # discover context plugins
+        package_name = data['package']
+        context_plugins = data[constants.CONTEXT]
+        for context_plugin in context_plugins:
+            if not self._discover_plugin(context_plugin, constants.CONTEXT):
+                self.logger.error(
+                    'could not discover {} for {} in {}'.format(
+                        context_plugin, constants.CONTEXT, package_name
+                    )
+                )
+                return False
 
-        # get components plugins
-        components = data[constants.COMPONENTS]
-        component_plugins = []
-        for component_name, component_stages in components.items():
-            self._extract_plugins_from_publisher(component_stages, component_plugins)
+        # discover component plugins
+        component_plugins = data[constants.COMPONENTS]
+        for component_name, component_stages in component_plugins.items():
+            for component_stage, plugins in component_stages.items():
+                for plugin in plugins:
+                    if not self._discover_plugin(plugin, component_stage):
+                        self.logger.error(
+                            'could not discover {} for {} in {}'.format(
+                                plugin, component_stage, package_name
+                            )
+                        )
+                        return False
 
         # get publish plugins
-        publishers = data[constants.PUBLISH]
-        publisher_plugins = []
-        self._extract_plugins_from_publisher(publishers, publisher_plugins)
-
-        # discover plugins
-        for context_plugin in context_plugins:
-            plugin_result = self._discover_plugin(context_plugin, constants.CONTEXT)
-
-        for component_plugin in component_plugins:
-            print self._discover_plugin(component_plugin, constants.COMPONENTS)
-
+        publisher_plugins = data[constants.PUBLISH]
         for publisher_plugin in publisher_plugins:
-            print self._discover_plugin(publisher_plugin, constants.PUBLISH)
-
+            if not self._discover_plugin(publisher_plugin, constants.PUBLISH):
+                self.logger.error(
+                    'could not discover {} for {} in {}'.format(
+                        publisher_plugin, constants.PUBLISH, package_name
+                    )
+                )
+                return False
 
     def validate_components(self, data):
         '''
