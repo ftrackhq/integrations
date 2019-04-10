@@ -159,7 +159,7 @@ class PublisherDefinitionManager(BaseDefinitionManager):
         context_plugins = data[constants.CONTEXT]
         for context_plugin in context_plugins:
             if not self._discover_plugin(context_plugin, constants.CONTEXT):
-                self.logger.error(
+                self.logger.warning(
                     'Could not discover plugin {} for {} in {}'.format(
                         context_plugin['plugin'], constants.CONTEXT, package_name
                     )
@@ -172,8 +172,8 @@ class PublisherDefinitionManager(BaseDefinitionManager):
             for component_stage, plugins in component_stages.items():
                 for plugin in plugins:
                     if not self._discover_plugin(plugin, component_stage):
-                        self.logger.error(
-                            'Could not discover plugin {} for {} in {}'.format(
+                        self.logger.warning(
+                            'Could not discover plugin {} for stage {} in {}'.format(
                                 plugin['plugin'], component_stage, package_name
                             )
                         )
@@ -183,7 +183,7 @@ class PublisherDefinitionManager(BaseDefinitionManager):
         publisher_plugins = data[constants.PUBLISH]
         for publisher_plugin in publisher_plugins:
             if not self._discover_plugin(publisher_plugin, constants.PUBLISH):
-                self.logger.error(
+                self.logger.warning(
                     'Could not discover plugin {} for {} in {}'.format(
                         publisher_plugin['plugin'], constants.PUBLISH, package_name
                     )
@@ -211,7 +211,7 @@ class PublisherDefinitionManager(BaseDefinitionManager):
                 continue
 
             if package_component_name not in publisher_components:
-                self.logger.error(
+                self.logger.warning(
                     '{} is not defined in {}'.format(
                         package_component_name, data['package']
                     )
@@ -222,7 +222,7 @@ class PublisherDefinitionManager(BaseDefinitionManager):
         # are all available of the package definition
         for publisher_component in publisher_components:
             if publisher_component not in package_components.keys():
-                self.logger.error(
+                self.logger.warning(
                     '{} is not found in {}'.format(
                         publisher_component, package_components.keys()
                     )
@@ -235,9 +235,9 @@ class PublisherDefinitionManager(BaseDefinitionManager):
         '''validate if the publisher package type is defined in the packages'''
         package_validation = data['package'] in self.packages
         if not package_validation:
-            self.logger.error(
-                'Publisher {} does not have a registered package'.format(
-                    data['package']
+            self.logger.warning(
+                'Publisher {} is not among the validated packages: {}'.format(
+                    data['package'], self.packages.keys()
                 )
             )
         return package_validation
