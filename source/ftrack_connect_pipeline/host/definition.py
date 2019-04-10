@@ -86,6 +86,32 @@ class BaseDefinitionManager(object):
             remote=True
         )
 
+    def _discover_plugin(self, plugin, plugin_type):
+        '''Run *plugin*, *plugin_type*, with given *options*, *data* and *context*'''
+        plugin_name = plugin['plugin']
+
+        event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_DISCOVER_TOPIC,
+            data={
+                'pipeline': {
+                    'plugin_name': plugin_name,
+                    'plugin_type': plugin_type,
+                    'type': 'plugin',
+                    'host': self.host
+                }
+            }
+        )
+
+        plugin_result = self.session.event_hub.publish(
+            event,
+            synchronous=True
+        )
+
+        if plugin_result:
+            plugin_result = plugin_result[0]
+
+        return plugin_result
+
 
 class PackageDefinitionManager(BaseDefinitionManager):
     '''Package schema manager class.'''
@@ -102,10 +128,11 @@ class LoaderDefinitionManager(BaseDefinitionManager):
         '''return available packages definitions.'''
         return self.package_manager.result()
 
-    def __init__(self, package_manager):
+    def __init__(self, package_manager, host):
         '''Initialise the class with ftrack *session* and *context_type*'''
         super(LoaderDefinitionManager, self).__init__(package_manager.session, 'loader', schema.validate_loader)
         self.package_manager = package_manager
+        self.host = host
 
     def validate(self, data):
         schema_validation = super(LoaderDefinitionManager, self).validate(data)
@@ -120,27 +147,129 @@ class PublisherDefinitionManager(BaseDefinitionManager):
         '''return available packages definitions.'''
         return self.package_manager.result()
 
-    def __init__(self, package_manager):
+    def __init__(self, package_manager, host):
         '''Initialise the class with ftrack *session* and *context_type*'''
         super(PublisherDefinitionManager, self).__init__(package_manager.session, 'publisher', schema.validate_publisher)
         self.package_manager = package_manager
+        self.host = host
+
+    def validate_plugins(self, data):
+        # discover context plugins
+        package_name = data['package']
+        context_plugins = data[constants.CONTEXT]
+        for context_plugin in context_plugins:
+            if not self._discover_plugin(context_plugin, constants.CONTEXT):
+                self.logger.warning(
+                    'Could not discover plugin {} for {} in {}'.format(
+                        context_plugin['plugin'], constants.CONTEXT, package_name
+                    )
+                )
+                return False
+
+        # discover component plugins
+        component_plugins = data[constants.COMPONENTS]
+        for component_name, component_stages in component_plugins.items():
+            for component_stage, plugins in component_stages.items():
+                for plugin in plugins:
+                    if not self._discover_plugin(plugin, component_stage):
+                        self.logger.warning(
+                            'Could not discover plugin {} for stage {} in {}'.format(
+                                plugin['plugin'], component_stage, package_name
+                            )
+                        )
+                        return False
+
+        # get publish plugins
+        publisher_plugins = data[constants.PUBLISH]
+        for publisher_plugin in publisher_plugins:
+            if not self._discover_plugin(publisher_plugin, constants.PUBLISH):
+                self.logger.warning(
+                    'Could not discover plugin {} for {} in {}'.format(
+                        publisher_plugin['plugin'], constants.PUBLISH, package_name
+                    )
+                )
+                return False
+
+    def validate_components(self, data):
+        '''
+        validate if the publisher defines the correct components based on the
+        package definition.
+        '''
+
+        package_components = dict([
+                (package['name'], package.get('optional', False)) for package
+                in self.packages[data['package']]['components']
+            ]
+        )
+
+        publisher_components = data['components'].keys()
+
+        # check if the mandatory components defined in the package definition
+        # are available in the publisher definition.
+        for package_component_name, optional in package_components.items():
+            if optional:
+                continue
+
+            if package_component_name not in publisher_components:
+                self.logger.warning(
+                    '{} is not defined in {}'.format(
+                        package_component_name, data['package']
+                    )
+                )
+                return False
+
+        # check if the components defined in the publisher
+        # are all available of the package definition
+        for publisher_component in publisher_components:
+            if publisher_component not in package_components.keys():
+                self.logger.warning(
+                    '{} is not found in {}'.format(
+                        publisher_component, package_components.keys()
+                    )
+                )
+                return False
+
+        return True
+
+    def validate_packages(self, data):
+        '''validate if the publisher package type is defined in the packages'''
+        package_validation = data['package'] in self.packages
+        if not package_validation:
+            self.logger.warning(
+                'Publisher {} is not among the validated packages: {}'.format(
+                    data['package'], self.packages.keys()
+                )
+            )
+        return package_validation
 
     def validate(self, data):
         schema_validation = super(PublisherDefinitionManager, self).validate(data)
-        package_validation = data['package'] in self.packages #  check to package in use is registered
+        if not schema_validation:
+            return False
 
-        # TODO validate consistency of components against package definition also discover plugins
-        return all([schema_validation, package_validation])
+        package_validation = self.validate_packages(data)
+        if not package_validation:
+            return False
+
+        components_validation = self.validate_components(data)
+        if not components_validation:
+            return False
+
+        plugins_validation = self.validate_plugins(data)
+        if not plugins_validation:
+            return False
+
+        return True
 
 
 class DefintionManager(QtCore.QObject):
     '''class wrapper to contain all the definition managers.'''
 
-    def __init__(self, session, hostid):
+    def __init__(self, session, host, hostid):
         self.session = session
         self.packages = PackageDefinitionManager(session)
-        self.loaders = LoaderDefinitionManager(self.packages)
-        self.publishers = PublisherDefinitionManager(self.packages)
+        self.loaders = LoaderDefinitionManager(self.packages, host)
+        self.publishers = PublisherDefinitionManager(self.packages, host)
 
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.type=publisher and data.pipeline.hostid={}'.format(constants.PIPELINE_REGISTER_DEFINITION_TOPIC, hostid),

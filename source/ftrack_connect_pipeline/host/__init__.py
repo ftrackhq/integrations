@@ -23,7 +23,7 @@ def initialise(session, host, ui):
     event_thread = event.NewApiEventHubThread()
     event_thread.start(session)
 
-    definition_manager = DefintionManager(session, hostid)
+    definition_manager = DefintionManager(session, host, hostid)
     package_results = definition_manager.packages.result()
     PublisherRunner(session, package_results, host, ui, hostid)
     logger.info('initialising host: {}'.format(hostid))
