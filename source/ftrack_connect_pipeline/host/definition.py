@@ -107,6 +107,7 @@ class BaseDefinitionManager(object):
             synchronous=True
         )
 
+
         if plugin_result:
             plugin_result = plugin_result[0]
 
@@ -190,6 +191,8 @@ class PublisherDefinitionManager(BaseDefinitionManager):
                 )
                 return False
 
+        return True
+
     def validate_components(self, data):
         '''
         validate if the publisher defines the correct components based on the
@@ -244,6 +247,7 @@ class PublisherDefinitionManager(BaseDefinitionManager):
 
     def validate(self, data):
         schema_validation = super(PublisherDefinitionManager, self).validate(data)
+
         if not schema_validation:
             return False
 
