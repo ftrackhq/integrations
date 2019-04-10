@@ -10,7 +10,7 @@ for path in deps_paths:
     sys.path.append(path)
 
 
-from QtExt import QtGui
+from qtpy import QtWidgets
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.client import BaseQtPipelineWidget
 
@@ -26,7 +26,7 @@ class QtPipelineLoaderWidget(BaseQtPipelineWidget):
 
 
 if __name__ == '__main__':
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     wid = QtPipelineLoaderWidget(ui=constants.UI, host=constants.HOST)
     wid.show()
     sys.exit(app.exec_())

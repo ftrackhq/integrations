@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import logging
-from QtExt import QtWidgets, QtCore
+from qtpy import QtWidgets, QtCore
 
 
 class BaseWidget(QtWidgets.QWidget):

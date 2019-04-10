@@ -6,7 +6,7 @@ import uuid
 import ftrack_api
 import logging
 
-from QtExt import QtWidgets, QtCore
+from qtpy import QtWidgets, QtCore
 
 from ftrack_connect_pipeline import event
 from ftrack_connect_pipeline.session import get_shared_session

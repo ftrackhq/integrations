@@ -1,18 +1,14 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-import os
-from functools import partial
-import ftrack
-from QtExt import QtWidgets
-from ftrack_connect_pipeline.client.widgets.simple import BaseWidget
+from qtpy import QtWidgets
+from ftrack_connect_pipeline.client.widgets.simple import SimpleWidget
 
 from ftrack_connect.ui.widget import entity_selector
 from ftrack_connect.ui.widget import asset_options
 from ftrack_connect.ui.widget import context_selector
 from ftrack_connect.ui.widget import list_assets_table
 from ftrack_connect.ui.widget import component_table
-
 
 # dummy wrap to make old class work
 class ConnectorWrapper(object):
@@ -24,69 +20,54 @@ class ConnectorWrapper(object):
         return "foobar"
 
 
-class PublishContextWidget(BaseWidget):
+class PublishContextWidget(SimpleWidget):
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
+        self.assetOptions = None
+        self.entitySelector = None
         super(PublishContextWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options)
+        self.entitySelector.entityChanged.connect(self.assetOptions.setEntity)
 
-    def build(self):
-        '''build function widgets.'''
-        super(PublishContextWidget, self).build()
+    def _build_context_id_selector(self):
+        option_layout = QtWidgets.QHBoxLayout()
+        option_layout.setContentsMargins(0, 0, 0, 0)
+
+        self.layout().addLayout(option_layout)
+        self.entitySelector = entity_selector.EntitySelector()
+        option_layout.addWidget(self.entitySelector)
+        self.widget_options['context_id'] = self.entitySelector
+
+    def _build_asset_selector(self):
+        option_layout = QtWidgets.QFormLayout()
+        option_layout.setContentsMargins(0, 0, 0, 0)
+
+        self.assetOptions = asset_options.AssetOptions()
+        self.entitySelector.entityChanged.connect(self.assetOptions.setEntity)
+        self.assetOptions.assetTypeSelector.setDisabled(True)
+
+        option_layout.addRow('Asset', self.assetOptions.radioButtonFrame)
+        option_layout.addRow('Existing asset', self.assetOptions.existingAssetSelector)
+        option_layout.addRow('Type', self.assetOptions.assetTypeSelector)
+        option_layout.addRow('Name', self.assetOptions.assetNameLineEdit)
+        self.assetOptions.initializeFieldLabels(option_layout)
+
+        self.widget_options['asset_name'] = self.assetOptions
+        self.layout().addLayout(option_layout, stretch=0)
+
+    def build_options(self, options):
         self._build_context_id_selector()
         self._build_asset_selector()
 
-    def get_current_context(self):
-        '''return an api object representing the current context.'''
-        context_id = os.getenv(
-            'FTRACK_CONTEXTID',
-                os.getenv('FTRACK_TASKID',
-                    os.getenv('FTRACK_SHOTID'
-                )
-            )
-        )
-        current_entity = ftrack.Task(context_id)
-        return current_entity
-
-    def post_build(self):
-        '''hook events'''
-        self.entitySelector.entityChanged.connect(self.assetOptions.setEntity)
-
-    def _set_context_option_result(self, entity, key):
-        self.set_option_result(entity.getId(), key=key)
-
-    def _build_context_id_selector(self):
-        self.context_layout = QtWidgets.QHBoxLayout()
-        self.context_layout.setContentsMargins(0, 0, 0, 0)
-
-        self.layout().addLayout(self.context_layout)
-        current_context = self.get_current_context()
-        self.entitySelector = entity_selector.EntitySelector()
-        self.entitySelector.setEntity(current_context)
-
-        self.context_layout.addWidget(self.entitySelector)
-        update_fn = partial(self._set_context_option_result, key='context_id')
-
-        self.entitySelector.entityChanged.connect(update_fn)
-        self.set_option_result(self.get_current_context().getId(), 'context_id')
-
-    def _build_asset_selector(self):
-        self.asset_layout = QtWidgets.QFormLayout()
-        self.asset_layout.setContentsMargins(0, 0, 0, 0)
-
-        self.assetOptions = asset_options.AssetOptions()
-        self.assetOptions.assetTypeSelector.setDisabled(True)
-
-        self.asset_layout.addRow('Asset', self.assetOptions.radioButtonFrame)
-        self.asset_layout.addRow('Existing asset', self.assetOptions.existingAssetSelector)
-        self.asset_layout.addRow('Type', self.assetOptions.assetTypeSelector)
-        self.asset_layout.addRow('Name', self.assetOptions.assetNameLineEdit)
-        self.assetOptions.initializeFieldLabels(self.asset_layout)
-
-        self.layout().addLayout(self.asset_layout, stretch=0)
-        update_fn = partial(self.set_option_result, key='asset_name')
-        self.assetOptions.assetNameLineEdit.textEdited.connect(update_fn)
+    def extract_options(self):
+        result = {}
+        for label, widget in self.widget_options.items():
+            if label == 'context_id':
+                result[label] = widget._entity.getId()
+            else:
+                result[label] = widget.getAssetName()
+        return result
 
 
-class LoadContextWidget(BaseWidget):
+class LoadContextWidget(SimpleWidget):
 
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
         self._connector_wrapper = ConnectorWrapper(session)
@@ -133,15 +114,14 @@ class LoadContextWidget(BaseWidget):
         self.componentTableWidget.setAssetVersion(assetVid)
 
     def _build_component_selector(self, value):
-        self.widgets['component_list'] = self.selectedComponents
+        self.widget_options['component_list'] = self.selectedComponents
 
-    def build(self):
-        super(LoadContextWidget, self).build()
+    def build_options(self, options):
         self._build_others()
-        self._build_component_selector(self.options['component_list'])
+        self._build_component_selector(options['component_list'])
 
-    def value(self):
+    def extract_options(self):
         result = {}
-        for label, widget in self.widgets.items():
+        for label, widget in self.widget_options.items():
             result[label] = widget()
         return result
