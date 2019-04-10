@@ -27,37 +27,45 @@ class BaseWidget(QtWidgets.QWidget):
     def options(self):
         return self._options
 
+    def set_option_result(self, value, key):
+        self.logger.info('setting : {} to {}'.format(key, value))
+        self._results[key] = value
+
+    def get_option_result(self):
+        return self._results
+
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
         super(BaseWidget, self).__init__(parent=parent)
+        self.setParent(parent)
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+        self._widgets = {}
+
         self._session = session
         self._data = data
         self._name = name
         self._description = description
         self._options = options
+        self._results = {}
 
-        self.widget_options = {}
-
+        # Build widget
+        self.pre_build()
         self.build()
+        self.post_build()
 
-    def build(self):
+    def pre_build(self):
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setAlignment(QtCore.Qt.AlignTop)
         self.setLayout(layout)
 
+    def build(self):
         name_label = QtWidgets.QLabel(self.name)
         name_label.setToolTip(self.description)
+        self.layout().addWidget(name_label)
 
-        layout.addWidget(name_label)
-        self.build_options(self.options)
-
-    def extract_options(self):
-        raise NotImplementedError()
-
-    def build_options(self, options):
-        raise NotImplementedError()
-
+    def post_build(self):
+        # used to connect qt events
+        pass

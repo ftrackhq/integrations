@@ -84,18 +84,20 @@ class PublisherRunner(object):
             synchronous=True
         )
 
-        plugin_widget_ref = plugin['widget_ref']
-        self._notify_client(plugin_result, plugin_widget_ref)
+        self._notify_client(plugin_result, plugin)
         return plugin_result
 
-    def _notify_client(self, data, widget_id):
-        '''Notify client with *data* for *widget_id*'''
+    def _notify_client(self, data, plugin):
+        '''Notify client with *data* for *plugin*'''
+
+        widget_ref = plugin['widget_ref']
+
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_UPDATE_UI,
             data={
                 'pipeline': {
                     'hostid': self.hostid,
-                    'widget_ref': widget_id,
+                    'widget_ref': widget_ref,
                     'data': data,
                 }
             }
