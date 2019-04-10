@@ -11,7 +11,7 @@ from ftrack_connect_pipeline.session import get_shared_session
 
 logger = logging.getLogger(__name__)
 
-from QtExt import QtCore
+from qtpy import QtCore
 
 
 class _EventThread(threading.Thread):

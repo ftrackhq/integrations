@@ -10,7 +10,7 @@ deps_paths = os.environ.get('PYTHONPATH', '').split(os.pathsep)
 for path in deps_paths:
     sys.path.append(path)
 
-from QtExt import QtGui, QtWidgets
+from qtpy import QtWidgets
 
 import ftrack_api
 from ftrack_connect_pipeline import constants
@@ -192,7 +192,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
 
 if __name__ == '__main__':
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     wid = QtPipelinePublishWidget(ui=constants.UI, host=constants.HOST)
     wid.show()
     sys.exit(app.exec_())

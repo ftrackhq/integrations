@@ -156,7 +156,8 @@ setup(
     install_requires=[
         'jsonschema',
         'appdirs',
-        'ftrack_action_handler < 1'
+        'ftrack_action_handler < 1',
+        'qtpy >=1.0.0, < 2'
     ],
     tests_require=[
         'pytest >= 2.3.5, < 3'
