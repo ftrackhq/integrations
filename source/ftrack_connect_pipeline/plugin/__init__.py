@@ -18,13 +18,20 @@ class _Base(object):
     return_type = None
 
     @property
-    def topic(self):
-        return NotImplementedError()
+    def discover_topic(self):
+        return self._base_topic(constants.PIPELINE_DISCOVER_TOPIC)
+
+    @property
+    def register_topic(self):
+        return self._base_topic(constants.PIPELINE_REGISTER_TOPIC)
 
     @property
     def session(self):
         '''Return current session.'''
         return self._session
+
+    def _base_topic(self, topic):
+        return NotImplementedError()
 
     def __init__(self, session):
         self.logger = logging.getLogger(
@@ -43,8 +50,19 @@ class _Base(object):
         )
 
         self.session.event_hub.subscribe(
-            self.topic, self._run
+            self.register_topic, self._run
         )
+
+        self.session.event_hub.subscribe(
+            self.discover_topic, self._discover
+        )
+
+    def _discover(self, event):
+        if not isinstance(self.session, ftrack_api.Session):
+            # Exit to avoid registering this plugin again.
+            return
+
+        return True
 
     def run(self, context=None, data=None, options=None):
         raise NotImplementedError('Missing run method.')
@@ -68,8 +86,7 @@ class _Base(object):
 class BasePlugin(_Base):
     type = 'plugin'
 
-    @property
-    def topic(self):
+    def _base_topic(self, topic):
         required = [
             self.host,
             self.type,
@@ -87,7 +104,7 @@ class BasePlugin(_Base):
             'data.pipeline.plugin_type={} and '
             'data.pipeline.plugin_name={}'
         ).format(
-            constants.PIPELINE_REGISTER_TOPIC,
+            topic,
             self.host,
             self.type,
             self.plugin_type,
@@ -99,8 +116,7 @@ class BasePlugin(_Base):
 class BaseWidget(_Base):
     type = 'widget'
 
-    @property
-    def topic(self):
+    def _base_topic(self, topic):
         required = [
             self.host,
             self.type,
@@ -120,7 +136,7 @@ class BaseWidget(_Base):
             'data.pipeline.plugin_type={} and '
             'data.pipeline.plugin_name={}'
         ).format(
-            constants.PIPELINE_REGISTER_TOPIC,
+            topic,
             self.host,
             self.ui,
             self.type,
