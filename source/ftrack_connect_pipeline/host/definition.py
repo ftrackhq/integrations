@@ -125,12 +125,52 @@ class PublisherDefinitionManager(BaseDefinitionManager):
         super(PublisherDefinitionManager, self).__init__(package_manager.session, 'publisher', schema.validate_publisher)
         self.package_manager = package_manager
 
+    def validate_components(self, data):
+        package_components = dict([
+                (package['name'], package.get('optional', False)) for package
+                in self.packages[data['package']]['components']
+            ]
+        )
+
+        publisher_components = data['components'].keys()
+
+        # check if the mandatory components defined in the package definition
+        # are available in the publisher definition.
+        for package_component_name, optional in package_components.items():
+            if optional:
+                continue
+
+            if package_component_name not in publisher_components:
+                self.logger.warning('{} is not defined in {}'.format(package_component_name, data['package']))
+                return False
+
+        # check if the components defined in the publisher
+        # are all available of the package definition
+        for publisher_component in publisher_components:
+            if publisher_component not in package_components.keys():
+                self.logger.warning('{} is not found in {}'.format(publisher_component, package_components.keys()))
+                return False
+
+        return True
+
+    def validate_packages(self, data):
+        package_validation = data['package'] in self.packages #  check to package in use is registered
+        return package_validation
+
     def validate(self, data):
         schema_validation = super(PublisherDefinitionManager, self).validate(data)
-        package_validation = data['package'] in self.packages #  check to package in use is registered
+        if not schema_validation:
+            return False
 
-        # TODO validate consistency of components against package definition also discover plugins
-        return all([schema_validation, package_validation])
+        package_validation = self.validate_packages(data)
+        if not package_validation:
+            return False
+
+        components_validation = self.validate_components(data)
+        if not components_validation:
+            return False
+
+        return True
 
 
 class DefintionManager(QtCore.QObject):
