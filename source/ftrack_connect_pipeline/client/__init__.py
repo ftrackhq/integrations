@@ -11,6 +11,8 @@ from qtpy import QtWidgets, QtCore
 from ftrack_connect_pipeline import event
 from ftrack_connect_pipeline.session import get_shared_session
 from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline import utils
+
 from ftrack_connect.ui.widget import header
 from ftrack_connect.ui import theme
 
@@ -51,9 +53,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self._host = host
         self._hostid = hostid
 
-        self._remote_events = bool(os.environ.get(
-            constants.PIPELINE_REMOTE_EVENTS_ENV, False
-        ))
+        self._remote_events = utils.remote_event_mode()
 
         self.logger = logging.getLogger(
             'ftrack_connect_pipeline.'+__name__ + '.' + self.__class__.__name__

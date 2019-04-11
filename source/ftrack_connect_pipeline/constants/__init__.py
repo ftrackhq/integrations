@@ -26,4 +26,4 @@ PIPELINE_CONNECT_CLIENT = '{}.client.connect'.format(_BASE_)
 from ftrack_connect_pipeline.constants.load import *
 from ftrack_connect_pipeline.constants.publish import *
 from ftrack_connect_pipeline.constants.environments import *
-from ftrack_connect_pipeline.constants.topic import *
+from ftrack_connect_pipeline.constants.event import *

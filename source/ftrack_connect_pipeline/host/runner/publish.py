@@ -7,7 +7,7 @@ import ftrack_api
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.event import EventManager
 from ftrack_connect_pipeline import exception
-
+from ftrack_connect_pipeline import utils
 
 class PublisherRunner(object):
 
@@ -28,9 +28,7 @@ class PublisherRunner(object):
 
     def __init__(self, session, package_definitions, host,  ui, hostid):
         '''Initialise publish runnder with *session*, *package_definitions*, *host*, *ui* and *hostid*.'''
-        self.__remote_events = bool(os.environ.get(
-            constants.PIPELINE_REMOTE_EVENTS_ENV, False
-        ))
+        self.__remote_events = utils.remote_event_mode()
 
         self.component_stages_order = [
             constants.COLLECT,

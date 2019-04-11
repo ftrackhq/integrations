@@ -19,6 +19,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
     @property
     def current(self):
+        '''return current publisher schema.'''
         return self._current_publisher
 
     def __init__(self, ui, host, hostid=None, parent=None):
@@ -29,6 +30,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self.fetch_publisher_definitions()
 
     def build(self):
+        '''build widgets.'''
         self.context_layout = QtWidgets.QVBoxLayout()
         self.components_layout = QtWidgets.QVBoxLayout()
         self.publisher_layout = QtWidgets.QVBoxLayout()
@@ -43,10 +45,8 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self.publisher_layout = QtWidgets.QVBoxLayout()
         self.task_layout.addLayout(self.publisher_layout)
 
-    def fetch_publisher_definitions(self):
-        self._fetch_defintions("publisher", self.on_publishers_loaded)
-
     def post_build(self):
+        '''connect widget events'''
         super(QtPipelinePublishWidget, self).post_build()
         self.combo.currentIndexChanged.connect(self._on_publisher_changed)
         # reset the definitions compboxbox
@@ -54,8 +54,12 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         # fetch new defintions
         self.hostid_changed.connect(self.fetch_publisher_definitions)
 
-    def on_publishers_loaded(self, event):
-        self.logger.info('on_publishers_loaded: {}'.format(event['data']))
+    def fetch_publisher_definitions(self):
+        '''fetch the publishers definitions.'''
+        self._fetch_defintions("publisher", self._publishers_loaded)
+
+    def _publishers_loaded(self, event):
+        '''event callback for when the publishers are loaded.'''
         raw_data = event['data']
 
         # TODO: maya publish return a list where standalone return dict... ?
@@ -65,7 +69,9 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         for item_name, item in raw_data.items():
             self.combo.addItem(item_name, item)
 
-    def build_widgets(self, package_publisher):
+    # build widgets functions
+    def _build_widgets(self, package_publisher):
+        '''build all the widgets defined by the *package_publisher*'''
         if not package_publisher:
             return
 
@@ -123,6 +129,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
         return publish_group_widget
 
+    # parse widgets results functions
     def _parse_publish(self, publish_plugins):
         publish_group_widget = QtWidgets.QGroupBox(constants.PUBLISH)
         publish_layout = QtWidgets.QVBoxLayout()
@@ -167,9 +174,9 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
         package_publisher = self.combo.itemData(index)
         self._current_publisher = package_publisher
-        self.build_widgets(package_publisher)
+        self._build_widgets(package_publisher)
 
-    def update_publish_data(self):
+    def _update_publish_data(self):
         contexts = self.current[constants.CONTEXT]
         self._parse_context(contexts)
         components = self.current[constants.COMPONENTS]
@@ -180,7 +187,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self._parse_publish(publishers)
 
     def _on_run(self):
-        self.update_publish_data()
+        self._update_publish_data()
         self.send_to_host(self.current, constants.PIPELINE_RUN_HOST_PUBLISHER)
 
 
