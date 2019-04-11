@@ -15,6 +15,7 @@ from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_nuke_shot_exporte
 from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_nuke_render_exporter import FtrackNukeRenderExporterPreset
 from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_audio_exporter import FtrackAudioExporterPreset
 from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_edl_exporter import FtrackEDLExporterPreset
+from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_otio_exporter import FtrackOTIOExporterPreset
 from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_reviewable_exporter import FtrackReviewableExporterPreset
 
 from ftrack_base import FTRACK_PROJECT_STRUCTURE
@@ -82,7 +83,7 @@ def register_processors():
     # this could be moved to a discover function
     timeline_name = 'Ftrack Timeline Preset'
 
-    edl_processor = FtrackEDLExporterPreset(
+    edl_processor = FtrackOTIOExporterPreset(
         '', {}
     )
 
