@@ -177,6 +177,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self._build_widgets(package_publisher)
 
     def _update_publish_data(self):
+        '''ensure the stored data are updated with the latest value'''
         contexts = self.current[constants.CONTEXT]
         self._parse_context(contexts)
         components = self.current[constants.COMPONENTS]

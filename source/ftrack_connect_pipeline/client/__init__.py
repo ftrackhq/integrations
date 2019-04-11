@@ -218,6 +218,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         return default_widget
 
     def _update_widget(self, event):
+        '''*event* callback to update widget with the current status/value'''
         data = event['data']['pipeline']['data']
         widget_ref = event['data']['pipeline']['widget_ref']
         status = event['data']['pipeline']['status']
@@ -278,4 +279,5 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         )
 
     def _on_run(self):
+        '''main run function'''
         raise NotImplementedError()
