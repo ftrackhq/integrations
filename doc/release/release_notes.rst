@@ -11,7 +11,7 @@ Release Notes
 
     .. change:: changed
 
-        Replaced simple EDL export with OpenTimelineIO edl export.
+        Replace simple EDL export with OpenTimelineIO edl export.
 
     .. change:: new
 
