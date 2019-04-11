@@ -220,12 +220,21 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
     def _update_widget(self, event):
         data = event['data']['pipeline']['data']
         widget_ref = event['data']['pipeline']['widget_ref']
+        status = event['data']['pipeline']['status']
+
         widget = self.widgets.get(widget_ref)
         if not widget:
             self.logger.warning('Widget ref :{} not found ! '.format(widget_ref))
             return
 
         self.logger.info('updating widget: {} with {}'.format(widget, data))
+
+        if status == constants.SUCCESS_STATUS:
+            widget.setStyleSheet('QWidget {color:green}')
+
+        if status == constants.ERROR_STATUS:
+            widget.setStyleSheet('QWidget {color:orange}')
+
         widget.setDisabled(True)
 
     def _listen_widget_updates(self):

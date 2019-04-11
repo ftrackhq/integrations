@@ -82,10 +82,14 @@ class PublisherRunner(object):
             synchronous=True
         )
 
-        self._notify_client(plugin_result, plugin)
+        status = constants.SUCCESS_STATUS
+        if not plugin_result:
+            status = constants.ERROR_STATUS
+
+        self._notify_client(plugin_result, plugin, status)
         return plugin_result
 
-    def _notify_client(self, data, plugin):
+    def _notify_client(self, data, plugin, status):
         '''Notify client with *data* for *plugin*'''
 
         widget_ref = plugin['widget_ref']
@@ -97,6 +101,7 @@ class PublisherRunner(object):
                     'hostid': self.hostid,
                     'widget_ref': widget_ref,
                     'data': data,
+                    'status': status
                 }
             }
         )
