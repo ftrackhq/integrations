@@ -46,6 +46,7 @@ class SimpleWidget(BaseWidget):
         self.set_option_result(value, key)
 
     def _build_float_widget(self, key, value):
+        '''build a float widget out of options *key* and *value* '''
         widget= QtWidgets.QDoubleSpinBox()
         widget.setValue(value)
         self._register_widget(key, widget)
@@ -54,6 +55,7 @@ class SimpleWidget(BaseWidget):
         self.set_option_result(value, key)
 
     def _build_list_widget(self, key, values):
+        '''build a list widget out of options *key* and *values* '''
         widget = QtWidgets.QComboBox()
         widget.addItems(values)
         self._register_widget(key, widget)

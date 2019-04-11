@@ -19,11 +19,11 @@ class _Base(object):
 
     @property
     def discover_topic(self):
-        return self._base_topic(constants.PIPELINE_DISCOVER_TOPIC)
+        return self._base_topic(constants.PIPELINE_DISCOVER_PLUGIN_TOPIC)
 
     @property
-    def register_topic(self):
-        return self._base_topic(constants.PIPELINE_REGISTER_TOPIC)
+    def run_topic(self):
+        return self._base_topic(constants.PIPELINE_RUN_PLUGIN_TOPIC)
 
     @property
     def session(self):
@@ -50,7 +50,7 @@ class _Base(object):
         )
 
         self.session.event_hub.subscribe(
-            self.register_topic, self._run
+            self.run_topic, self._run
         )
 
         self.session.event_hub.subscribe(
@@ -97,13 +97,7 @@ class BasePlugin(_Base):
         if not all(required):
             raise exception.PluginError('Some required fields are missing')
 
-        topic = (
-            'topic={} and '
-            'data.pipeline.host={} and '
-            'data.pipeline.type={} and '
-            'data.pipeline.plugin_type={} and '
-            'data.pipeline.plugin_name={}'
-        ).format(
+        topic = constants.PLUGIN_EVENT.format(
             topic,
             self.host,
             self.type,
@@ -128,14 +122,7 @@ class BaseWidget(_Base):
         if not all(required):
             raise exception.PluginError('Some required fields are missing')
 
-        topic = (
-            'topic={} and '
-            'data.pipeline.host={} and '
-            'data.pipeline.ui={} and '
-            'data.pipeline.type={} and '
-            'data.pipeline.plugin_type={} and '
-            'data.pipeline.plugin_name={}'
-        ).format(
+        topic = constants.WIDGET_EVENT.format(
             topic,
             self.host,
             self.ui,

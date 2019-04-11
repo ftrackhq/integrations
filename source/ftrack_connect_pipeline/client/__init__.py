@@ -192,7 +192,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         description = plugin.get('description', 'No description provided')
 
         event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_REGISTER_TOPIC,
+            topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
             data={
                 'pipeline': {
                     'plugin_name': plugin_name,

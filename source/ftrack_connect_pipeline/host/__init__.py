@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 def provide_hostid(hostid, event):
+    '''return the current hostid'''
     logger.info('providing hostid: {}'.format(hostid))
     return hostid
 

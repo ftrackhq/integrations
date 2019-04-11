@@ -69,9 +69,9 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         if not package_publisher:
             return
 
-        contexts = package_publisher['context']
-        components = package_publisher['components']
-        publishers = package_publisher['publish']
+        contexts = package_publisher[constants.CONTEXT]
+        components = package_publisher[constants.COMPONENTS]
+        publishers = package_publisher[constants.PUBLISH]
 
         context_widget = self._build_context(contexts)
         self.context_layout.addWidget(context_widget)
@@ -84,11 +84,11 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self.publisher_layout.addWidget(publish_widget)
 
     def _build_context(self, context_plugins):
-        context_group_widget = QtWidgets.QGroupBox('context')
+        context_group_widget = QtWidgets.QGroupBox(constants.CONTEXT)
         context_layout = QtWidgets.QVBoxLayout()
         context_group_widget.setLayout(context_layout)
         for context_plugin in context_plugins:
-            context_widget = self.fetch_widget(context_plugin, 'context')
+            context_widget = self.fetch_widget(context_plugin, constants.CONTEXT)
             self.register_widget_plugin(context_widget, context_plugin)
             context_layout.addWidget(context_widget)
 
@@ -113,33 +113,33 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         return component_widget
 
     def _build_publish(self, publish_plugins):
-        publish_group_widget = QtWidgets.QGroupBox('publish')
+        publish_group_widget = QtWidgets.QGroupBox(constants.PUBLISH)
         publish_layout = QtWidgets.QVBoxLayout()
         publish_group_widget.setLayout(publish_layout)
         for publish_plugin in publish_plugins:
-            publish_widget = self.fetch_widget(publish_plugin, 'publish')
+            publish_widget = self.fetch_widget(publish_plugin, constants.PUBLISH)
             self.register_widget_plugin(publish_widget, publish_plugin)
             publish_layout.addWidget(publish_widget)
 
         return publish_group_widget
 
     def _parse_publish(self, publish_plugins):
-        publish_group_widget = QtWidgets.QGroupBox('publish')
+        publish_group_widget = QtWidgets.QGroupBox(constants.PUBLISH)
         publish_layout = QtWidgets.QVBoxLayout()
         publish_group_widget.setLayout(publish_layout)
         for publish_plugin in publish_plugins:
             widget = self.get_registered_widget_plugin(publish_plugin)
-            widget_options = widget.get_option_result()
+            widget_options = widget.get_option_results()
             publish_plugin.setdefault('options', {})
             publish_plugin['options'].update(widget_options)
 
     def _parse_context(self, context_plugins):
-        publish_group_widget = QtWidgets.QGroupBox('context')
+        publish_group_widget = QtWidgets.QGroupBox(constants.CONTEXT)
         publish_layout = QtWidgets.QVBoxLayout()
         publish_group_widget.setLayout(publish_layout)
         for context_plugin in context_plugins:
             widget = self.get_registered_widget_plugin(context_plugin)
-            widget_options = widget.get_option_result()
+            widget_options = widget.get_option_results()
             context_plugin.setdefault('options', {})
             context_plugin['options'].update(widget_options)
 
@@ -156,7 +156,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
             for stage_plugin in stage_plugins:
                 widget = self.get_registered_widget_plugin(stage_plugin)
-                widget_options = widget.get_option_result()
+                widget_options = widget.get_option_results()
                 stage_plugin.setdefault('options', {})
                 stage_plugin['options'].update(widget_options)
 
@@ -170,18 +170,18 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self.build_widgets(package_publisher)
 
     def update_publish_data(self):
-        contexts = self.current['context']
+        contexts = self.current[constants.CONTEXT]
         self._parse_context(contexts)
-        components = self.current['components']
+        components = self.current[constants.COMPONENTS]
         for component_name, component_stages in components.items():
             self._parse_stages(component_stages)
 
-        publishers = self.current['publish']
+        publishers = self.current[constants.PUBLISH]
         self._parse_publish(publishers)
 
     def _on_run(self):
         self.update_publish_data()
-        self.send_to_host(self.current, constants.PIPELINE_RUN_PUBLISHER)
+        self.send_to_host(self.current, constants.PIPELINE_RUN_HOST_PUBLISHER)
 
 
 if __name__ == '__main__':

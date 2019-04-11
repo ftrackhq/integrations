@@ -9,32 +9,40 @@ class BaseWidget(QtWidgets.QWidget):
 
     @property
     def session(self):
+        '''return current session object.'''
         return self._session
 
     @property
     def data(self):
+        '''return the widget's data.'''
         return self._data
 
     @property
     def name(self):
+        '''return the widget's name.'''
         return self._name
 
     @property
     def description(self):
+        '''return the widget's description.'''
         return self._description
 
     @property
     def options(self):
+        '''return the widget's options.'''
         return self._options
 
     def set_option_result(self, value, key):
+        '''set the result options of value for the key.'''
         self.logger.info('setting : {} to {}'.format(key, value))
         self._results[key] = value
 
-    def get_option_result(self):
+    def get_option_results(self):
+        '''return the current option results'''
         return self._results
 
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
+        '''initialise widget.'''
         super(BaseWidget, self).__init__(parent=parent)
         self.setParent(parent)
 
@@ -56,16 +64,18 @@ class BaseWidget(QtWidgets.QWidget):
         self.post_build()
 
     def pre_build(self):
+        '''pre build function, mostly used setup the widget's layout.'''
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setAlignment(QtCore.Qt.AlignTop)
         self.setLayout(layout)
 
     def build(self):
+        '''build function , mostly used to create the widgets.'''
         name_label = QtWidgets.QLabel(self.name)
         name_label.setToolTip(self.description)
         self.layout().addWidget(name_label)
 
     def post_build(self):
-        # used to connect qt events
+        '''post build function , mostly used connect widgets events.'''
         pass

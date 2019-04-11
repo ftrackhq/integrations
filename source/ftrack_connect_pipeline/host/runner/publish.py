@@ -52,7 +52,7 @@ class PublisherRunner(object):
 
         session.event_hub.subscribe(
             'topic={} and data.pipeline.hostid={}'.format(
-                constants.PIPELINE_RUN_PUBLISHER, self.hostid
+                constants.PIPELINE_RUN_HOST_PUBLISHER, self.hostid
             ),
             self.run
         )
@@ -62,7 +62,7 @@ class PublisherRunner(object):
         plugin_name = plugin['plugin']
 
         event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_REGISTER_TOPIC,
+            topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
             data={
                 'pipeline': {
                     'plugin_name': plugin_name,

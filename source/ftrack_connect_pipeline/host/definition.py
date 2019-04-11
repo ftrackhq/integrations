@@ -91,7 +91,7 @@ class BaseDefinitionManager(object):
         plugin_name = plugin['plugin']
 
         event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_DISCOVER_TOPIC,
+            topic=constants.PIPELINE_DISCOVER_PLUGIN_TOPIC,
             data={
                 'pipeline': {
                     'plugin_name': plugin_name,
@@ -246,6 +246,7 @@ class PublisherDefinitionManager(BaseDefinitionManager):
         return package_validation
 
     def validate(self, data):
+        '''main validate function of *data*'''
         schema_validation = super(PublisherDefinitionManager, self).validate(data)
 
         if not schema_validation:
@@ -276,12 +277,14 @@ class DefintionManager(QtCore.QObject):
         self.publishers = PublisherDefinitionManager(self.packages, host)
 
         self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.type=publisher and data.pipeline.hostid={}'.format(constants.PIPELINE_REGISTER_DEFINITION_TOPIC, hostid),
+            'topic={} and data.pipeline.type=publisher and data.pipeline.hostid={}'.format(
+                constants.PIPELINE_REGISTER_DEFINITION_TOPIC, hostid),
             self.publishers.result
         )
 
         self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.type=loader and data.pipeline.hostid={}'.format(constants.PIPELINE_REGISTER_DEFINITION_TOPIC, hostid),
+            'topic={} and data.pipeline.type=loader and data.pipeline.hostid={}'.format(
+                constants.PIPELINE_REGISTER_DEFINITION_TOPIC, hostid),
             self.loaders.result
         )
 
