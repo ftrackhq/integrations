@@ -1,11 +1,15 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
+
+
 import logging
 from qtpy import QtWidgets, QtCore
 
+from ftrack_connect_pipeline import constants
 
 class BaseWidget(QtWidgets.QWidget):
+    status_updated = QtCore.Signal(object)
 
     @property
     def session(self):
@@ -41,11 +45,20 @@ class BaseWidget(QtWidgets.QWidget):
         '''return the current option results'''
         return self._results
 
+    def _set_status(self, result):
+        status, message = result
+
+        if status == constants.ERROR_STATUS:
+            self.setStyleSheet('QWidget {color:orange}')
+
+        elif status == constants.SUCCESS_STATUS:
+            self.setStyleSheet('QWidget {color:green}')
+
     def set_error(self, message=None):
-        self.setStyleSheet('QWidget {color:orange}')
+        self.status_updated.emit((constants.ERROR_STATUS, message))
 
     def set_success(self, message=None):
-        self.setStyleSheet('QWidget {color:green}')
+        self.status_updated.emit((constants.SUCCESS_STATUS, message))
 
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
         '''initialise widget.'''
@@ -84,4 +97,5 @@ class BaseWidget(QtWidgets.QWidget):
 
     def post_build(self):
         '''post build function , mostly used connect widgets events.'''
+        self.status_updated.connect(self._set_status)
         pass
