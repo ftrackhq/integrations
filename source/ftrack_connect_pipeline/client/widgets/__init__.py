@@ -41,6 +41,12 @@ class BaseWidget(QtWidgets.QWidget):
         '''return the current option results'''
         return self._results
 
+    def set_error(self, message=None):
+        self.setStyleSheet('QWidget {color:orange}')
+
+    def set_success(self, message=None):
+        self.setStyleSheet('QWidget {color:green}')
+
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
         '''initialise widget.'''
         super(BaseWidget, self).__init__(parent=parent)
