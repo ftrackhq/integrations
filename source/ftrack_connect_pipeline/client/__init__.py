@@ -25,6 +25,14 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
     hostid_changed = QtCore.Signal()
 
     @property
+    def context(self):
+        return self._context
+
+    @property
+    def schema(self):
+        return self._current
+
+    @property
     def widgets(self):
         '''Return registered plugin's widgets.'''
         return self._widgets_ref
@@ -47,7 +55,8 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
     def __init__(self, ui, host, hostid=None, parent=None):
         '''Initialise widget with *ui* , *host* and *hostid*.'''
         super(BaseQtPipelineWidget, self).__init__(parent=parent)
-
+        self._context = {}
+        self._current = {}
         self._widgets_ref = {}
         self._ui = ui
         self._host = host
@@ -126,7 +135,10 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
     def _host_discovered(self, event):
         '''callback to to add new hosts *event*.'''
-        hostid = str(event['data'])
+        self.logger.info('_host_discovered : {}'.format(event['data']))
+        hostid = str(event['data']['hostid'])
+        context_id = str(event['data']['context_id'])
+        self._context = self.session.get('Context', context_id)
         self.combo_hosts.addItem(hostid, hostid)
 
     def discover_hosts(self):
@@ -190,6 +202,10 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         plugin_options = plugin.get('options', {})
         name = plugin.get('name', 'no name provided')
         description = plugin.get('description', 'No description provided')
+
+        if plugin_type == constants.CONTEXT:
+            # plugin_options['asset_type'] = self.schema['type']
+            plugin_options['context_id'] = self.context['id']
 
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,

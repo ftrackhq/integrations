@@ -17,16 +17,10 @@ from ftrack_connect_pipeline.client import BaseQtPipelineWidget
 
 class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
-    @property
-    def current(self):
-        '''return current publisher schema.'''
-        return self._current_publisher
-
     def __init__(self, ui, host, hostid=None, parent=None):
         super(QtPipelinePublishWidget, self).__init__(ui, host, hostid, parent=parent)
         self.setWindowTitle('Standalone Pipeline Publisher')
 
-        self._current_publisher = {}
         self.fetch_publisher_definitions()
 
     def build(self):
@@ -173,23 +167,23 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self.build()
 
         package_publisher = self.combo.itemData(index)
-        self._current_publisher = package_publisher
+        self._current = package_publisher
         self._build_widgets(package_publisher)
 
     def _update_publish_data(self):
         '''ensure the stored data are updated with the latest value'''
-        contexts = self.current[constants.CONTEXT]
+        contexts = self.schema[constants.CONTEXT]
         self._parse_context(contexts)
-        components = self.current[constants.COMPONENTS]
+        components = self.schema[constants.COMPONENTS]
         for component_name, component_stages in components.items():
             self._parse_stages(component_stages)
 
-        publishers = self.current[constants.PUBLISH]
+        publishers = self.schema[constants.PUBLISH]
         self._parse_publish(publishers)
 
     def _on_run(self):
         self._update_publish_data()
-        self.send_to_host(self.current, constants.PIPELINE_RUN_HOST_PUBLISHER)
+        self.send_to_host(self.schema, constants.PIPELINE_RUN_HOST_PUBLISHER)
 
 
 if __name__ == '__main__':
