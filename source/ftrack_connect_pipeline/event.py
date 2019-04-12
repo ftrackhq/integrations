@@ -3,11 +3,8 @@
 
 import threading
 
-import functools
 import logging
 import ftrack_api
-from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.session import get_shared_session
 
 logger = logging.getLogger(__name__)
 

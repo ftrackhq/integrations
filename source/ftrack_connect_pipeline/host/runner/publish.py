@@ -1,13 +1,13 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-import os
 import logging
 import ftrack_api
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.event import EventManager
 from ftrack_connect_pipeline import exception
 from ftrack_connect_pipeline import utils
+
 
 class PublisherRunner(object):
 
