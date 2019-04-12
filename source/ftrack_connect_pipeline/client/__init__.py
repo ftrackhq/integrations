@@ -73,7 +73,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             self.discover_hosts()
 
         # apply styles
-        # theme.applyTheme(self, 'dark', 'cleanlooks')
+        theme.applyTheme(self, 'dark', 'cleanlooks')
         theme.applyFont()
 
     def get_registered_widget_plugin(self, plugin):
