@@ -115,8 +115,8 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
     def on_change_host(self, index):
         '''triggered when chaging host selection to *index*'''
-        hostid = self.combo_hosts.itemData(index)
-
+        hostid, context_id = self.combo_hosts.itemData(index)
+        self._context = self.session.get('Context', context_id)
         self._hostid = hostid
         self.hostid_changed.emit()
 
@@ -138,8 +138,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.logger.info('_host_discovered : {}'.format(event['data']))
         hostid = str(event['data']['hostid'])
         context_id = str(event['data']['context_id'])
-        self._context = self.session.get('Context', context_id)
-        self.combo_hosts.addItem(hostid, hostid)
+        self.combo_hosts.addItem(hostid, (hostid, context_id))
 
     def discover_hosts(self):
         '''Event to discover new available hosts.'''
