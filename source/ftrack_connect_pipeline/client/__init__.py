@@ -259,9 +259,9 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         if not result_widget:
             result_widget = self._fetch_default_widget(plugin, plugin_type)
 
-        if not isinstance(result_widget[0], BaseWidget):
+        if result_widget and not isinstance(result_widget[0], BaseWidget):
             raise Exception(
-                'Widget is not a baseclass of {}'.format(
+                'Widget should inherit from {}'.format(
                     BaseWidget
                 )
             )

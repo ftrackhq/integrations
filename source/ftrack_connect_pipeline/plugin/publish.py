@@ -17,6 +17,7 @@ class ValidatorPlugin(BasePlugin):
 
 
 class ExtractorPlugin(BasePlugin):
+    input_options = ['component_name']
     return_type = dict
     plugin_type = constants.OUTPUT
 
@@ -24,6 +25,7 @@ class ExtractorPlugin(BasePlugin):
 class PublisherPlugin(BasePlugin):
     return_type = bool
     plugin_type = constants.PUBLISH
+    output_input = ['context_id', 'asset_name', 'asset_type']
 
 
 # WIDGET

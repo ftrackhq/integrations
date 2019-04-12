@@ -118,7 +118,11 @@ class PublisherRunner(object):
                 plugin, constants.CONTEXT,
                 context=plugin['options']
             )
+            if not result:
+                raise Exception('No value from context')
+
             results.update(result[0])
+
         return results
 
     def run_component(self, component_name, component_stages, context_data):
@@ -154,6 +158,8 @@ class PublisherRunner(object):
                     options=plugin_options,
                     context=context_data
                 )
+                if not result:
+                    raise Exception('No value from component')
 
                 # Merge list of lists.
                 if len(result) > 0 and isinstance(result[0], list):
@@ -175,6 +181,9 @@ class PublisherRunner(object):
                 options=plugin['options'],
                 context=context_data
             )
+            if not result:
+                raise Exception('No value from publish')
+
             results.append(result[0])
 
         return results
