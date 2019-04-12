@@ -7,16 +7,7 @@ from qtpy import QtWidgets
 from ftrack_connect_pipeline.client.widgets.simple import BaseWidget
 
 from ftrack_connect_pipeline.ui.widget.context_selector import ContextSelector
-
-
-# dummy wrap to make old class work
-class ConnectorWrapper(object):
-
-    def __init__(self, session):
-        self.session = session
-
-    def getConnectorName(self):
-        return "foobar"
+from ftrack_connect_pipeline.ui.widget.asset_selector import AssetSelector
 
 
 class PublishContextWidget(BaseWidget):
@@ -63,20 +54,20 @@ class PublishContextWidget(BaseWidget):
         # self.entitySelector.entityChanged.connect(update_fn)
         # self.set_option_result(self.get_current_context().getId(), 'context_id')
     #
-    # def _build_asset_selector(self):
-    #     self.asset_layout = QtWidgets.QFormLayout()
-    #     self.asset_layout.setContentsMargins(0, 0, 0, 0)
-    #
-    #     self.assetOptions = asset_options.AssetOptions()
-    #     self.assetOptions.assetTypeSelector.setDisabled(True)
-    #
+    def _build_asset_selector(self):
+        self.asset_layout = QtWidgets.QFormLayout()
+        self.asset_layout.setContentsMargins(0, 0, 0, 0)
+
+        self.asset_selector = AssetSelector(self.session)
+        self.asset_layout.addWidget(self.asset_selector)
+        self.layout().addLayout(self.asset_layout, stretch=0)
+
     #     self.asset_layout.addRow('Asset', self.assetOptions.radioButtonFrame)
     #     self.asset_layout.addRow('Existing asset', self.assetOptions.existingAssetSelector)
     #     self.asset_layout.addRow('Type', self.assetOptions.assetTypeSelector)
     #     self.asset_layout.addRow('Name', self.assetOptions.assetNameLineEdit)
     #     self.assetOptions.initializeFieldLabels(self.asset_layout)
     #
-    #     self.layout().addLayout(self.asset_layout, stretch=0)
     #     update_fn = partial(self.set_option_result, key='asset_name')
     #     self.assetOptions.assetNameLineEdit.textEdited.connect(update_fn)
 
