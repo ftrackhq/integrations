@@ -11,6 +11,7 @@ from qtpy import QtCore
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import schema
 from ftrack_connect_pipeline.event import EventManager
+
 logger = logging.getLogger(__name__)
 
 
@@ -287,4 +288,12 @@ class DefintionManager(QtCore.QObject):
                 constants.PIPELINE_REGISTER_DEFINITION_TOPIC, hostid),
             self.loaders.result
         )
+
+        self.session.event_hub.subscribe(
+            'topic={} and data.pipeline.type=package and data.pipeline.hostid={}'.format(
+                constants.PIPELINE_REGISTER_DEFINITION_TOPIC, hostid),
+            self.packages.result
+        )
+
+
 

@@ -20,7 +20,6 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
     def __init__(self, ui, host, hostid=None, parent=None):
         super(QtPipelinePublishWidget, self).__init__(ui, host, hostid, parent=parent)
         self.setWindowTitle('Standalone Pipeline Publisher')
-
         self.fetch_publisher_definitions()
 
     def build(self):
@@ -87,8 +86,16 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         context_group_widget = QtWidgets.QGroupBox(constants.CONTEXT)
         context_layout = QtWidgets.QVBoxLayout()
         context_group_widget.setLayout(context_layout)
+        extra_options = {
+            'context_id': self.context['id'],
+            'asset_type': self.packages[self.schema['package']]['type']
+        }
+
         for context_plugin in context_plugins:
-            context_widget = self.fetch_widget(context_plugin, constants.CONTEXT)
+            context_widget = self.fetch_widget(
+                context_plugin, constants.CONTEXT,
+                extra_options
+            )
             self.register_widget_plugin(context_widget, context_plugin)
             context_layout.addWidget(context_widget)
 

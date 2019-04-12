@@ -29,6 +29,10 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         return self._context
 
     @property
+    def packages(self):
+        return self._packages
+
+    @property
     def schema(self):
         return self._current
 
@@ -56,6 +60,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         '''Initialise widget with *ui* , *host* and *hostid*.'''
         super(BaseQtPipelineWidget, self).__init__(parent=parent)
         self._context = {}
+        self._packages = {}
         self._current = {}
         self._widgets_ref = {}
         self._ui = ui
@@ -65,7 +70,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self._remote_events = utils.remote_event_mode()
 
         self.logger = logging.getLogger(
-            'ftrack_connect_pipeline.'+__name__ + '.' + self.__class__.__name__
+            __name__ + '.' + self.__class__.__name__
         )
 
         self.session = get_shared_session()
@@ -80,9 +85,21 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         if not self.hostid:
             self.discover_hosts()
 
+        self._fetch_defintions('package', self._packages_loaded)
+
         # apply styles
-        # theme.applyTheme(self, 'dark', 'cleanlooks')
+        theme.applyTheme(self, 'dark', 'cleanlooks')
         theme.applyFont()
+
+    def _packages_loaded(self, event):
+        '''event callback for when the publishers are loaded.'''
+        raw_data = event['data']
+
+        # TODO: maya publish return a list where standalone return dict... ?
+        if isinstance(raw_data, list):
+            raw_data = raw_data[0]
+
+        self._packages = raw_data
 
     def get_registered_widget_plugin(self, plugin):
         '''return the widget registered for the given *plugin*.'''
@@ -195,16 +212,13 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.run_button.clicked.connect(self._on_run)
         self.hostid_changed.connect(self._listen_widget_updates)
 
-    def _fetch_widget(self, plugin, plugin_type, plugin_name):
+    def _fetch_widget(self, plugin, plugin_type, plugin_name, extra_options=None):
         '''Retrieve widget for the given *plugin*, *plugin_type* and *plugin_name*.'''
-
+        extra_options = extra_options or {}
         plugin_options = plugin.get('options', {})
+        plugin_options.update(extra_options)
         name = plugin.get('name', 'no name provided')
         description = plugin.get('description', 'No description provided')
-
-        if plugin_type == constants.CONTEXT:
-            # plugin_options['asset_type'] = self.schema['type']
-            plugin_options['context_id'] = self.context['id']
 
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
@@ -265,11 +279,11 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         return self._fetch_widget(plugin, plugin_type, plugin_name)
 
     # widget handling
-    def fetch_widget(self, plugin, plugin_type):
+    def fetch_widget(self, plugin, plugin_type, extra_options=None):
         '''Retrieve widget for the given *plugin*, *plugin_type*.'''
 
         plugin_name = plugin.get('widget')
-        result_widget = self._fetch_widget(plugin, plugin_type, plugin_name)
+        result_widget = self._fetch_widget(plugin, plugin_type, plugin_name, extra_options=extra_options)
         if not result_widget:
             result_widget = self._fetch_default_widget(plugin, plugin_type)
 
