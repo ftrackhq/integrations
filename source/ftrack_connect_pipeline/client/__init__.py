@@ -12,6 +12,7 @@ from ftrack_connect_pipeline import event
 from ftrack_connect_pipeline.session import get_shared_session
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import utils
+from ftrack_connect_pipeline.client.widgets import BaseWidget
 
 from ftrack_connect.ui.widget import header
 from ftrack_connect.ui import theme
@@ -264,10 +265,10 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.logger.info('updating widget: {} with {}'.format(widget, data))
 
         if status == constants.SUCCESS_STATUS:
-            widget.setStyleSheet('QWidget {color:green}')
+            widget.set_success()
 
         if status == constants.ERROR_STATUS:
-            widget.setStyleSheet('QWidget {color:orange}')
+            widget.set_error()
 
         widget.setDisabled(True)
 
@@ -291,8 +292,12 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         if not result_widget:
             result_widget = self._fetch_default_widget(plugin, plugin_type)
 
-        self.logger.info(result_widget)
-
+        if result_widget and not isinstance(result_widget[0], BaseWidget):
+            raise Exception(
+                'Widget should inherit from {}'.format(
+                    BaseWidget
+                )
+            )
         return result_widget[0]
 
     def send_to_host(self, data, topic):

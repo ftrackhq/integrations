@@ -3,11 +3,8 @@
 
 import threading
 
-import functools
 import logging
 import ftrack_api
-from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.session import get_shared_session
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +35,7 @@ class _EventThread(threading.Thread):
         # Mock async event reply.
         event = ftrack_api.event.base.Event(
             topic=u'ftrack.meta.reply',
-            data=result,
+            data=result[0],
             in_reply_to_event=self._event['id'],
         )
 

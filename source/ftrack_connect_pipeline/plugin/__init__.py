@@ -6,6 +6,7 @@ import ftrack_api
 
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import exception
+from ftrack_connect_pipeline.client.widgets import BaseWidget
 
 
 class _Base(object):
@@ -16,6 +17,8 @@ class _Base(object):
     host = constants.HOST
     ui = constants.UI
     return_type = None
+    input_options = []
+    output_options = []
 
     @property
     def discover_topic(self):
@@ -67,18 +70,51 @@ class _Base(object):
     def run(self, context=None, data=None, options=None):
         raise NotImplementedError('Missing run method.')
 
+    def _validate_input_options(self, settings):
+        if settings.get('options'):
+            for input_option in self.input_options:
+                if input_option not in settings['options']:
+                    message = '{} require {} input option'.format(
+                            self.__name__, input_option
+                        )
+                    return False, message
+        return True, ""
+
+    def _validate_result_options(self, result):
+        for output_option in self.output_options:
+            if output_option not in result:
+                message = '{} require {} result option'.format(
+                    self.__name__, output_option
+                )
+                return False, message
+        return True, ""
+
+    def _validate_result_type(self, result):
+        if self.return_type:
+            if not isinstance(result, self.return_type):
+                message = 'Return value of {} is of type {}, should {} type'.format(
+                    self.__name__, type(result), self.return_type
+                )
+                return False, message
+
+        return True, ""
+
     def _run(self, event):
         settings = event['data']['settings']
         self.logger.debug(settings)
+        input_valid, message = self._validate_input_options(settings)
+        if not input_valid:
+            raise Exception(message)
+
         result = self.run(**settings)
 
-        if self.return_type:
-            if not isinstance(result , self.return_type):
-                raise Exception(
-                    'Return value of {} is of type {}, should return {} type'.format(
-                        self, type(result), self.return_type
-                    )
-                )
+        output_valid, message = self._validate_result_options(result)
+        if not output_valid:
+            raise Exception(message)
+
+        result_valid, message = self._validate_result_type(result)
+        if not result_valid:
+            raise Exception(message)
 
         return result
 
@@ -109,6 +145,7 @@ class BasePlugin(_Base):
 
 class BaseWidget(_Base):
     type = 'widget'
+    return_type = BaseWidget
 
     def _base_topic(self, topic):
         required = [
@@ -136,6 +173,8 @@ class BaseWidget(_Base):
 class ContextPlugin(BasePlugin):
     return_type = dict
     plugin_type = constants.CONTEXT
+    input_options = ['context_id']
+    output_options = ['context_id', 'asset_name']
 
 
 class ContextWidget(BaseWidget):
