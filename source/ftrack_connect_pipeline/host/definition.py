@@ -272,28 +272,24 @@ class DefintionManager(QtCore.QObject):
     '''class wrapper to contain all the definition managers.'''
 
     def __init__(self, session, host, hostid):
+        super(DefintionManager, self).__init__()
+
         self.session = session
         self.packages = PackageDefinitionManager(session)
         self.loaders = LoaderDefinitionManager(self.packages, host)
         self.publishers = PublisherDefinitionManager(self.packages, host)
 
-        self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.type=publisher and data.pipeline.hostid={}'.format(
-                constants.PIPELINE_REGISTER_DEFINITION_TOPIC, hostid),
-            self.publishers.result
-        )
+        events_types = {
+            'publisher': self.publishers.result,
+            'loader': self.loaders.result,
+            'package': self.packages.result
+        }
 
-        self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.type=loader and data.pipeline.hostid={}'.format(
-                constants.PIPELINE_REGISTER_DEFINITION_TOPIC, hostid),
-            self.loaders.result
-        )
+        for event_name, event_callback in events_types.items():
+            self.session.event_hub.subscribe(
+                'topic={} and data.pipeline.type={} and data.pipeline.hostid={}'.format(
+                    constants.PIPELINE_REGISTER_DEFINITION_TOPIC, event_name, hostid),
+                event_callback
 
-        self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.type=package and data.pipeline.hostid={}'.format(
-                constants.PIPELINE_REGISTER_DEFINITION_TOPIC, hostid),
-            self.packages.result
-        )
-
-
+            )
 
