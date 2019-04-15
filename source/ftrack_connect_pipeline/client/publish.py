@@ -62,10 +62,6 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         '''event callback for when the publishers are loaded.'''
         raw_data = event['data']
 
-        # TODO: maya publish return a list where standalone return dict... ?
-        if isinstance(raw_data, list):
-            raw_data = raw_data[0]
-
         for item_name, item in raw_data.items():
             self.combo.addItem(item_name, item)
 
