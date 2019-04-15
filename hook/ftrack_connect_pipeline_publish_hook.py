@@ -52,8 +52,6 @@ class LaunchApplicationAction(object):
 
     def is_valid_selection(self, selection):
         '''Return true if the selection is valid.'''
-        if len(selection) > 1:
-            return False
         return True
 
     def register(self):
