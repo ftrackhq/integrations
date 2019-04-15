@@ -67,6 +67,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self._host = host
         self._hostid = hostid
 
+
         self._remote_events = utils.remote_event_mode()
 
         self.logger = logging.getLogger(
@@ -84,6 +85,9 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
         if not self.hostid:
             self.discover_hosts()
+        else:
+            context_id = utils.get_current_context()
+            self._context = self.session.get('Context', context_id)
 
         self._fetch_defintions('package', self._packages_loaded)
 

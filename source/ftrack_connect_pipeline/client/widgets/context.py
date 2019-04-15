@@ -12,6 +12,7 @@ from ftrack_connect_pipeline.ui.widget.asset_selector import AssetSelector
 
 class PublishContextWidget(BaseWidget):
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
+        self.context_id = options.get('context_id')
         super(PublishContextWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options)
 
     def build(self):
@@ -19,18 +20,6 @@ class PublishContextWidget(BaseWidget):
         super(PublishContextWidget, self).build()
         self._build_context_id_selector()
         # self._build_asset_selector()
-
-    def get_current_context(self):
-        '''return an api object representing the current context.'''
-        context_id = os.getenv(
-            'FTRACK_CONTEXTID',
-                os.getenv('FTRACK_TASKID',
-                    os.getenv('FTRACK_SHOTID'
-                )
-            )
-        )
-        current_entity = self.session.get('Context', context_id)
-        return current_entity
 
     def post_build(self):
         '''hook events'''
@@ -44,9 +33,9 @@ class PublishContextWidget(BaseWidget):
         self.context_layout.setContentsMargins(0, 0, 0, 0)
 
         self.layout().addLayout(self.context_layout)
-        current_context = self.get_current_context()
         self.context_selector = ContextSelector(self.session)
-        self.context_selector.setEntity(current_context)
+        context = self.session.get('Context', self.context_id)
+        self.context_selector.setEntity(context)
 
         self.context_layout.addWidget(self.context_selector)
         # update_fn = partial(self._set_context_option_result, key='context_id')
@@ -75,5 +64,5 @@ class PublishContextWidget(BaseWidget):
 class LoadContextWidget(BaseWidget):
 
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
-        self._connector_wrapper = ConnectorWrapper(session)
+        # self._connector_wrapper = ConnectorWrapper(session)
         super(LoadContextWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options)

@@ -120,23 +120,12 @@ class EntityBrowser(QtWidgets.QDialog):
         self.model.sourceModel().loadStarted.connect(self._onLoadStarted)
         self.model.sourceModel().loadEnded.connect(self._onLoadEnded)
 
-        # Compatibility layer for PySide2/Qt5.
-        # Please see: https://github.com/mottosso/Qt.py/issues/72
-        # for more information.
-        try:
-            self.view.horizontalHeader().setResizeMode(
-                QtWidgets.QHeaderView.ResizeToContents
-            )
-            self.view.horizontalHeader().setResizeMode(
-                0, QtWidgets.QHeaderView.Stretch
-            )
-        except Exception:
-            self.view.horizontalHeader().setSectionResizeMode(
-                QtWidgets.QHeaderView.ResizeToContents
-            )
-            self.view.horizontalHeader().setSectionResizeMode(
-                0, QtWidgets.QHeaderView.Stretch
-            )
+        self.view.horizontalHeader().setSectionResizeMode(
+            QtWidgets.QHeaderView.ResizeToContents
+        )
+        self.view.horizontalHeader().setSectionResizeMode(
+            0, QtWidgets.QHeaderView.Stretch
+        )
 
         self.acceptButton.clicked.connect(self.accept)
         self.cancelButton.clicked.connect(self.reject)
