@@ -218,6 +218,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.run_button.clicked.connect(self._on_run)
         self.hostid_changed.connect(self._listen_widget_updates)
 
+
     def _fetch_widget(self, plugin, plugin_type, plugin_name, extra_options=None):
         '''Retrieve widget for the given *plugin*, *plugin_type* and *plugin_name*.'''
         extra_options = extra_options or {}
