@@ -108,7 +108,6 @@ class BaseDefinitionManager(object):
             synchronous=True
         )
 
-
         if plugin_result:
             plugin_result = plugin_result[0]
 

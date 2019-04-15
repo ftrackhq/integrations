@@ -83,6 +83,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.pre_build()
         self.build()
         self.post_build()
+        self.fetch_package_definitions()
 
         if not self.hostid:
             self.discover_hosts()
@@ -90,21 +91,21 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             context_id = utils.get_current_context()
             self._context = self.session.get('Context', context_id)
 
-        self._fetch_defintions('package', self._packages_loaded)
-
         # apply styles
         theme.applyTheme(self, 'dark', 'cleanlooks')
         theme.applyFont()
 
+    def fetch_package_definitions(self):
+        self.logger.info('fetching packages')
+        self._fetch_defintions('package', self._packages_loaded)
+
     def _packages_loaded(self, event):
         '''event callback for when the publishers are loaded.'''
         raw_data = event['data']
-
-        # TODO: maya publish return a list where standalone return dict... ?
-        if isinstance(raw_data, list):
-            raw_data = raw_data[0]
-
-        self._packages = raw_data
+        self.logger.info('packages found: {}'.format(raw_data))
+        for item_name, item in raw_data.items():
+            self.logger.warning('adding package: {}'.format(item_name))
+            self._packages[item_name] = item
 
     def get_registered_widget_plugin(self, plugin):
         '''return the widget registered for the given *plugin*.'''

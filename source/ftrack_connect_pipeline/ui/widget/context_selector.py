@@ -10,6 +10,10 @@ import ftrack_connect_pipeline.ui.widget.entity_browser as entityBrowser
 class ContextSelector(QtWidgets.QWidget):
     entityChanged = QtCore.Signal(object)
 
+    @property
+    def entity(self):
+        return self._entity
+
     def __init__(self, session, currentEntity=None, parent=None):
         '''Initialise ContextSelector widget with the *currentEntity* and
         *parent* widget.

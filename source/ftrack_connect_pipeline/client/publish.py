@@ -82,9 +82,12 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         context_group_widget = QtWidgets.QGroupBox(constants.CONTEXT)
         context_layout = QtWidgets.QVBoxLayout()
         context_group_widget.setLayout(context_layout)
+
+        self.logger.info('PACKAGES: {}'.format(self.packages))
+
         extra_options = {
             'context_id': self.context['id'],
-            'asset_type': self.packages[self.schema['package']]['type']
+            # 'asset_type': self.packages[self.schema['package']]['type']
         }
 
         for context_plugin in context_plugins:

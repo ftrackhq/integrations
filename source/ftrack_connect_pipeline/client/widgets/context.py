@@ -26,7 +26,7 @@ class PublishContextWidget(BaseWidget):
         # self.entitySelector.entityChanged.connect(self.assetOptions.setEntity)
 
     def _set_context_option_result(self, entity, key):
-        self.set_option_result(entity.getId(), key=key)
+        self.set_option_result(entity['id'], key=key)
 
     def _build_context_id_selector(self):
         self.context_layout = QtWidgets.QHBoxLayout()
@@ -38,10 +38,10 @@ class PublishContextWidget(BaseWidget):
         self.context_selector.setEntity(context)
 
         self.context_layout.addWidget(self.context_selector)
-        # update_fn = partial(self._set_context_option_result, key='context_id')
-        #
-        # self.entitySelector.entityChanged.connect(update_fn)
-        # self.set_option_result(self.get_current_context().getId(), 'context_id')
+        update_fn = partial(self._set_context_option_result, key='context_id')
+
+        self.context_selector.entityChanged.connect(update_fn)
+        self.set_option_result(self.context_selector.entity['id'], 'context_id')
     #
     def _build_asset_selector(self):
         self.asset_layout = QtWidgets.QFormLayout()
