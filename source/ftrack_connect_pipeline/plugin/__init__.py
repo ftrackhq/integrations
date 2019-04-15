@@ -75,7 +75,7 @@ class _Base(object):
             for input_option in self.input_options:
                 if input_option not in settings['options']:
                     message = '{} require {} input option'.format(
-                            self.__name__, input_option
+                            self.__class__.__name__, input_option
                         )
                     return False, message
         return True, ""
@@ -84,7 +84,7 @@ class _Base(object):
         for output_option in self.output_options:
             if output_option not in result:
                 message = '{} require {} result option'.format(
-                    self.__name__, output_option
+                    self.__class__.__name__, output_option
                 )
                 return False, message
         return True, ""
@@ -93,7 +93,7 @@ class _Base(object):
         if self.return_type:
             if not isinstance(result, self.return_type):
                 message = 'Return value of {} is of type {}, should {} type'.format(
-                    self.__name__, type(result), self.return_type
+                    self.__class__.__name__, type(result), self.return_type
                 )
                 return False, message
 
