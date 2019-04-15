@@ -68,7 +68,6 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self._host = host
         self._hostid = hostid
 
-
         self._remote_events = utils.remote_event_mode()
 
         self.logger = logging.getLogger(
@@ -96,15 +95,13 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         theme.applyFont()
 
     def fetch_package_definitions(self):
-        self.logger.info('fetching packages')
         self._fetch_defintions('package', self._packages_loaded)
 
     def _packages_loaded(self, event):
         '''event callback for when the publishers are loaded.'''
         raw_data = event['data']
-        self.logger.info('packages found: {}'.format(raw_data))
+
         for item_name, item in raw_data.items():
-            self.logger.warning('adding package: {}'.format(item_name))
             self._packages[item_name] = item
 
     def get_registered_widget_plugin(self, plugin):
@@ -138,7 +135,11 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
     def on_change_host(self, index):
         '''triggered when chaging host selection to *index*'''
-        hostid, context_id = self.combo_hosts.itemData(index)
+        results  = self.combo_hosts.itemData(index)
+        if not results:
+            return
+
+        hostid, context_id = results
         self._context = self.session.get('Context', context_id)
         self._hostid = hostid
         self.hostid_changed.emit()
