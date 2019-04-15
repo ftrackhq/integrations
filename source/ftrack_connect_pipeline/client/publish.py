@@ -46,6 +46,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self.hostid_changed.connect(self.combo.clear)
         # fetch new defintions
         self.hostid_changed.connect(self.fetch_publisher_definitions)
+        self.hostid_changed.connect(self.fetch_package_definitions)
 
     def fetch_publisher_definitions(self):
         '''fetch the publishers definitions.'''
@@ -83,11 +84,9 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         context_layout = QtWidgets.QVBoxLayout()
         context_group_widget.setLayout(context_layout)
 
-        self.logger.info('PACKAGES: {}'.format(self.packages))
-
         extra_options = {
             'context_id': self.context['id'],
-            # 'asset_type': self.packages[self.schema['package']]['type']
+            'asset_type': self.packages[self.schema['package']]['type']
         }
 
         for context_plugin in context_plugins:
