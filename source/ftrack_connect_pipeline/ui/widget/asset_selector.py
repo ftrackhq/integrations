@@ -53,6 +53,7 @@ class AssetSelector(QtWidgets.QWidget):
         self.asset_combobox = AssetComboBox(self.session, self.asset_type)
         self.layout().addWidget(self.asset_combobox)
         self.asset_combobox.currentIndexChanged.connect(self._current_asset_changed)
+        self.asset_combobox.editTextChanged.connect(self._current_asset_changed)
 
     def _current_asset_changed(self, index):
         asset_name = self.asset_combobox.currentText()

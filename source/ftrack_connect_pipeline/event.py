@@ -32,10 +32,13 @@ class _EventThread(threading.Thread):
             synchronous=True,
         )
 
+        if result:
+            result = result[0]
+
         # Mock async event reply.
         event = ftrack_api.event.base.Event(
             topic=u'ftrack.meta.reply',
-            data=result[0],
+            data=result,
             in_reply_to_event=self._event['id'],
         )
 
