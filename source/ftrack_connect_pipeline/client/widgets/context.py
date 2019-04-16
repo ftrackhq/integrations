@@ -24,6 +24,7 @@ class PublishContextWidget(BaseWidget):
     def post_build(self):
         '''hook events'''
         self.context_selector.entityChanged.connect(self._on_context_changed)
+        self.asset_selector.asset_changed.connect(self._on_asset_changed)
 
     def _on_context_changed(self, context):
         self.set_option_result(context['id'], key='context_id')
@@ -38,6 +39,10 @@ class PublishContextWidget(BaseWidget):
         self.context_selector.setEntity(self.context)
 
         self.context_layout.addWidget(self.context_selector)
+        self.set_option_result(self.context['id'], key='context_id')
+
+    def _on_asset_changed(self, asset_name):
+        self.set_option_result(asset_name, key='asset_name')
 
     def _build_asset_selector(self):
         self.asset_layout = QtWidgets.QHBoxLayout()
@@ -46,6 +51,10 @@ class PublishContextWidget(BaseWidget):
         self.asset_selector = AssetSelector(self.session, self.asset_type)
         self.asset_layout.addWidget(self.asset_selector)
         self.layout().addLayout(self.asset_layout)
+        current_asset = self.asset_selector.asset_combobox.currentText()
+        self.set_option_result(current_asset, key='asset_name')
+
+
 
 
 
