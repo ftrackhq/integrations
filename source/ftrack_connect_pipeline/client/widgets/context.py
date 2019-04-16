@@ -13,6 +13,7 @@ class PublishContextWidget(BaseWidget):
         self.context = session.get('Context', options['context_id'])
         self.asset_type = options.get('asset_type')
         super(PublishContextWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options)
+        self.asset_selector.set_context(self.context)
 
     def build(self):
         '''build function widgets.'''
