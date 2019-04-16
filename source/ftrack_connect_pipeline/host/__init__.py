@@ -11,10 +11,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def provide_hostid(hostid, event):
+
+def provide_host_information(hostid, event):
     '''return the current hostid'''
     logger.info('providing hostid: {}'.format(hostid))
-    return hostid
+    context_id = utils.get_current_context()
+    return {'hostid': hostid, 'context_id': context_id}
 
 
 def initialise(session, host, ui):
@@ -33,7 +35,7 @@ def initialise(session, host, ui):
     if is_remote_event:
         logger.info('initialising host: {}'.format(hostid))
 
-        handle_event = functools.partial(provide_hostid, hostid)
+        handle_event = functools.partial(provide_host_information, hostid)
         session.event_hub.subscribe(
             'topic={}'.format(
                 constants.PIPELINE_DISCOVER_HOST

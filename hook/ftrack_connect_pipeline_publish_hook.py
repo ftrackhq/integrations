@@ -52,18 +52,6 @@ class LaunchApplicationAction(object):
 
     def is_valid_selection(self, selection):
         '''Return true if the selection is valid.'''
-        if (
-            len(selection) != 1 or
-            selection[0]['entityType'] != 'task'
-        ):
-            return False
-
-        entity = selection[0]
-        task = ftrack.Task(entity['entityId'])
-
-        if task.getObjectType() != 'Task':
-            return False
-
         return True
 
     def register(self):
@@ -238,25 +226,7 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
             ApplicationLauncher, self
         )._getApplicationEnvironment(application, context)
 
-        entity = context['selection'][0]
-        task = ftrack.Task(entity['entityId'])
-        taskParent = task.getParent()
-
-        try:
-            environment['FS'] = str(int(taskParent.getFrameStart()))
-        except Exception:
-            environment['FS'] = '1'
-
-        try:
-            environment['FE'] = str(int(taskParent.getFrameEnd()))
-        except Exception:
-            environment['FE'] = '1'
-
-        environment['FTRACK_TASKID'] = task.getId()
-        environment['FTRACK_SHOTID'] = task.get('parent_id')
-        environment['FTRACK_CONTEXTID'] = task.getId()
         environment['FTRACK_PIPELINE_REMOTE_EVENTS'] = True
-
 
         return environment
 

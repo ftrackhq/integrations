@@ -26,6 +26,18 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
     hostid_changed = QtCore.Signal()
 
     @property
+    def context(self):
+        return self._context
+
+    @property
+    def packages(self):
+        return self._packages
+
+    @property
+    def schema(self):
+        return self._current
+
+    @property
     def widgets(self):
         '''Return registered plugin's widgets.'''
         return self._widgets_ref
@@ -48,7 +60,9 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
     def __init__(self, ui, host, hostid=None, parent=None):
         '''Initialise widget with *ui* , *host* and *hostid*.'''
         super(BaseQtPipelineWidget, self).__init__(parent=parent)
-
+        self._context = {}
+        self._packages = {}
+        self._current = {}
         self._widgets_ref = {}
         self._ui = ui
         self._host = host
@@ -57,7 +71,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self._remote_events = utils.remote_event_mode()
 
         self.logger = logging.getLogger(
-            'ftrack_connect_pipeline.'+__name__ + '.' + self.__class__.__name__
+            __name__ + '.' + self.__class__.__name__
         )
 
         self.session = get_shared_session()
@@ -68,13 +82,27 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.pre_build()
         self.build()
         self.post_build()
+        self.fetch_package_definitions()
 
         if not self.hostid:
             self.discover_hosts()
+        else:
+            context_id = utils.get_current_context()
+            self._context = self.session.get('Context', context_id)
 
         # apply styles
         theme.applyTheme(self, 'dark', 'cleanlooks')
         theme.applyFont()
+
+    def fetch_package_definitions(self):
+        self._fetch_defintions('package', self._packages_loaded)
+
+    def _packages_loaded(self, event):
+        '''event callback for when the publishers are loaded.'''
+        raw_data = event['data']
+
+        for item_name, item in raw_data.items():
+            self._packages[item_name] = item
 
     def get_registered_widget_plugin(self, plugin):
         '''return the widget registered for the given *plugin*.'''
@@ -107,8 +135,12 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
     def on_change_host(self, index):
         '''triggered when chaging host selection to *index*'''
-        hostid = self.combo_hosts.itemData(index)
+        results  = self.combo_hosts.itemData(index)
+        if not results:
+            return
 
+        hostid, context_id = results
+        self._context = self.session.get('Context', context_id)
         self._hostid = hostid
         self.hostid_changed.emit()
 
@@ -127,8 +159,10 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
     def _host_discovered(self, event):
         '''callback to to add new hosts *event*.'''
-        hostid = str(event['data'])
-        self.combo_hosts.addItem(hostid, hostid)
+        self.logger.info('_host_discovered : {}'.format(event['data']))
+        hostid = str(event['data']['hostid'])
+        context_id = str(event['data']['context_id'])
+        self.combo_hosts.addItem(hostid, (hostid, context_id))
 
     def discover_hosts(self):
         '''Event to discover new available hosts.'''
@@ -185,10 +219,12 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.run_button.clicked.connect(self._on_run)
         self.hostid_changed.connect(self._listen_widget_updates)
 
-    def _fetch_widget(self, plugin, plugin_type, plugin_name):
-        '''Retrieve widget for the given *plugin*, *plugin_type* and *plugin_name*.'''
 
+    def _fetch_widget(self, plugin, plugin_type, plugin_name, extra_options=None):
+        '''Retrieve widget for the given *plugin*, *plugin_type* and *plugin_name*.'''
+        extra_options = extra_options or {}
         plugin_options = plugin.get('options', {})
+        plugin_options.update(extra_options)
         name = plugin.get('name', 'no name provided')
         description = plugin.get('description', 'No description provided')
 
@@ -251,11 +287,11 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         return self._fetch_widget(plugin, plugin_type, plugin_name)
 
     # widget handling
-    def fetch_widget(self, plugin, plugin_type):
+    def fetch_widget(self, plugin, plugin_type, extra_options=None):
         '''Retrieve widget for the given *plugin*, *plugin_type*.'''
 
         plugin_name = plugin.get('widget')
-        result_widget = self._fetch_widget(plugin, plugin_type, plugin_name)
+        result_widget = self._fetch_widget(plugin, plugin_type, plugin_name, extra_options=extra_options)
         if not result_widget:
             result_widget = self._fetch_default_widget(plugin, plugin_type)
 
