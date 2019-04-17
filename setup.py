@@ -154,7 +154,7 @@ setup(
         'lowdown >= 0.1.0, < 2'
     ],
     install_requires=[
-        'jsonschema',
+        'jsonschema==2.6.0',
         'appdirs',
         'ftrack_action_handler < 1',
         'qtpy >=1.0.0, < 2'
