@@ -111,7 +111,7 @@ class PyTest(TestCommand):
 
 # Configuration.
 setup(
-    name='ftrack-connect-pipeline',
+    name='ftrack-connect-pipeline-nuke',
     version=VERSION,
     description='A dialog to publish package from nuke to ftrack',
     long_description=open(README_PATH).read(),

@@ -1,29 +1,76 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
+import sys
+import re
+import glob
+import os
+import traceback
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline_nuke import constants as nuke_constants
 
 
-class _Basenuke(plugin._Base):
+class _BaseNuke(plugin._Base):
     host = nuke_constants.HOST
 
 
-class BasenukePlugin(plugin.BasePlugin, _Basenuke):
+class BaseNukePlugin(plugin.BasePlugin, _BaseNuke):
     type = 'plugin'
 
+    def get_sequence_start_end(self, path):
+        try:
+            if '%V' in path:
+                path = path.replace('%V', 'left')
+            hashMatch = re.search('#+', path)
+            if hashMatch:
+                path = path[:hashMatch.start(0)] + '*' + path[hashMatch.end(0):]
 
-class BasenukeWidget(plugin.BaseWidget,_Basenuke):
+            nukeFormatMatch = re.search('%\d+d', path)
+            if nukeFormatMatch:
+                path = (
+                    path[:nukeFormatMatch.start(0)] + '*' +
+                    path[nukeFormatMatch.end(0):]
+                )
+
+            fileExtension = os.path.splitext(path)[1].replace('.', '\.')
+            files = sorted(glob.glob(path))
+            regexp = '(\d+)' + fileExtension + ''
+            first = int(re.findall(regexp, files[0])[0])
+            last = int(re.findall(regexp, files[-1])[0])
+        except:
+            traceback.print_exc(file=sys.stdout)
+            first = 1
+            last = 1
+        return first, last
+
+    def sequence_exists(self, filepath):
+        if '#' in filepath:
+            filepath = filepath.replace('#', '*')
+        if '@' in filepath:
+            filepath = filepath.replace('@', '*')
+
+        frames = glob.glob(filepath)
+        nfiles = len(frames)
+        first, last = self.get_sequence_start_end()
+        total_frames = last-first
+        if nfiles != total_frames:
+            return False
+
+        return True
+
+
+
+class BaseNukeWidget(plugin.BaseWidget,_BaseNuke):
     type = 'widget'
     ui = nuke_constants.UI
 
 
-class ContextnukePlugin(BasenukePlugin):
+class ContextNukePlugin(BaseNukePlugin):
     plugin_type = constants.CONTEXT
 
 
-class ContextnukeWidget(BasenukeWidget):
+class ContextNukeWidget(BaseNukeWidget):
     plugin_type = constants.CONTEXT
 
 

@@ -2,38 +2,38 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline_nuke.plugin import BasenukePlugin, BasenukeWidget
+from ftrack_connect_pipeline_nuke.plugin import BaseNukePlugin, BaseNukeWidget
 
 
 # PLUGINS
-class CollectorNukePlugin(BasenukePlugin):
+class CollectorNukePlugin(BaseNukePlugin):
     plugin_type = constants.COLLECT
 
 
-class ValidatorNukePlugin(BasenukePlugin):
+class ValidatorNukePlugin(BaseNukePlugin):
     plugin_type = constants.VALIDATE
 
 
-class ExtractorNukePlugin(BasenukePlugin):
+class ExtractorNukePlugin(BaseNukePlugin):
     plugin_type = constants.OUTPUT
 
 
-class PublisherNukePlugin(BasenukePlugin):
+class PublisherNukePlugin(BaseNukePlugin):
     plugin_type = constants.PUBLISH
 
 
 # WIDGET
-class CollectorNukeWidget(BasenukeWidget):
+class CollectorNukeWidget(BaseNukeWidget):
     plugin_type = constants.COLLECT
 
 
-class ValidatorNukeWidget(BasenukeWidget):
+class ValidatorNukeWidget(BaseNukeWidget):
     plugin_type = constants.VALIDATE
 
 
-class ExtractorNukeWidget(BasenukeWidget):
+class ExtractorNukeWidget(BaseNukeWidget):
     plugin_type = constants.OUTPUT
 
 
-class PublisherNukeWidget(BasenukeWidget):
+class PublisherNukeWidget(BaseNukeWidget):
     plugin_type = constants.PUBLISH
