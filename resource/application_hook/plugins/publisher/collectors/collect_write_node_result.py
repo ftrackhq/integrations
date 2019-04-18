@@ -19,13 +19,15 @@ class CollectWriteResultNodeNukePlugin(plugin.CollectorNukePlugin):
         node_name = options['node_name']
         node = nuke.toNode(node_name)
         if not node:
-            raise Exception('Node {} not found'.format(node))
+            raise Exception('Node {} not found'.format(node_name))
 
         if node.Class() != 'Write':
             raise Exception('Node {} is not of type Write'.format(node))
 
         filepath = node['file'].getValue()
-        # todo: use self.
+        sequence_exists = self.sequence_exists(filepath)
+        # if not sequence_exists:
+        #     raise Exception('Sequence {} does not exists'.format(filepath))
 
         return filepath
 

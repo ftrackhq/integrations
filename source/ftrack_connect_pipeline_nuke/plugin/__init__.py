@@ -18,7 +18,7 @@ class _BaseNuke(plugin._Base):
 class BaseNukePlugin(plugin.BasePlugin, _BaseNuke):
     type = 'plugin'
 
-    def get_sequence_start_end(self, path):
+    def get_sequence_fist_last_frame(self, path):
         try:
             if '%V' in path:
                 path = path.replace('%V', 'left')
@@ -45,20 +45,19 @@ class BaseNukePlugin(plugin.BasePlugin, _BaseNuke):
         return first, last
 
     def sequence_exists(self, filepath):
-        if '#' in filepath:
-            filepath = filepath.replace('#', '*')
-        if '@' in filepath:
-            filepath = filepath.replace('@', '*')
+        seq = re.compile('(\w+).+(\%\d+d).(\w+)')
+        self.logger.info('searching for {}'.format(filepath))
 
         frames = glob.glob(filepath)
         nfiles = len(frames)
-        first, last = self.get_sequence_start_end()
-        total_frames = last-first
+        self.logger.info('Sequence frames {}'.format(nfiles))
+        first, last = self.get_sequence_fist_last_frame(filepath)
+        total_frames = (last - first) + 1
+        self.logger.info('Sequence lenght {}'.format(total_frames))
         if nfiles != total_frames:
             return False
 
         return True
-
 
 
 class BaseNukeWidget(plugin.BaseWidget,_BaseNuke):

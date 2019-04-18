@@ -6,4 +6,4 @@ class QtPipelineNukePublishWidget(QtPipelinePublishWidget):
     '''Dockable nuke load widget'''
     def __init__(self, hostid, parent=None):
         super(QtPipelineNukePublishWidget, self).__init__(host=HOST, ui=UI,hostid=hostid, parent=parent)
-        self.setWindowTitle('nuke Pipeline Publisher')
+        self.setWindowTitle('Nuke Pipeline Publisher')
