@@ -129,15 +129,11 @@ class PublisherRunner(object):
         '''Run component plugins for *component_name*, *component_stages* with *context_data*.'''
         results = {}
 
-        # sort stages for execution order.
-        sorted_stages = dict(
-            sorted(
-                component_stages.items(),
-                key=lambda i: self.component_stages_order.index(i[0])
-            )
-        )
+        for stage_name in self.component_stages_order:
+            plugins = component_stages.get(stage_name)
+            if not plugins:
+                continue
 
-        for stage, plugins in sorted_stages.items():
             collected_data = results.get(constants.COLLECT, [])
             stages_result = []
             validators = results.get(constants.VALIDATE)
@@ -153,7 +149,7 @@ class PublisherRunner(object):
                 plugin_options['component_name'] = component_name
 
                 result = self._run_plugin(
-                    plugin, stage,
+                    plugin, stage_name,
                     data=collected_data,
                     options=plugin_options,
                     context=context_data
@@ -167,7 +163,7 @@ class PublisherRunner(object):
 
                 stages_result += result
 
-            results[stage] = stages_result
+            results[stage_name] = stages_result
 
         return results
 
