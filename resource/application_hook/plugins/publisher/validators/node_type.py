@@ -12,10 +12,9 @@ class NoneEmptyValidatorPlugin(plugin.ValidatorNukePlugin):
     def run(self, context=None, data=None, options=None):
         node_type = options['node_type']
         node_name = data[0]
-        self.logger.info('validating {} as node type {}'.format(node_name, node_type))
         node = nuke.toNode(node_name)
         if node.Class() != node_type:
-            self.logger.error('Node {} is not of type Write'.format(node))
+            self.logger.error('Node {} is not of type {}'.format(node, node_type))
             return False
 
         return bool(node_name)
