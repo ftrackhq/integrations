@@ -2,12 +2,6 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import nuke
-import os
-import sys
-import glob
-import re
-import traceback
-import clique
 
 from ftrack_connect_pipeline_nuke import plugin
 
