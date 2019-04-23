@@ -10,9 +10,18 @@ from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline_nuke import constants as nuke_constants
 
+import nuke
+
 
 class _BaseNuke(plugin._Base):
     host = nuke_constants.HOST
+
+    def _run(self, event):
+        super_fn = super(_BaseNuke, self)._run
+        result = nuke.executeInMainThreadWithResult(
+            super_fn, args=(event)
+        )
+        return result
 
 
 class BaseNukePlugin(plugin.BasePlugin, _BaseNuke):

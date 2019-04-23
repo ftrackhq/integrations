@@ -37,6 +37,7 @@ class ExtractSequencePlugin(plugin.ExtractorNukePlugin):
         new_write_node['file_type'].setValue('png')
         # render thumbnail
         curFrame = int(nuke.knob("frame"))
+
         nuke.execute(new_write_node, curFrame, curFrame)
 
         # delete thumbnail network after render
