@@ -23,7 +23,7 @@ class ExtractorPlugin(BasePlugin):
 
 
 class PublisherPlugin(BasePlugin):
-    return_type = bool
+    return_type = dict
     plugin_type = constants.PUBLISH
     output_input = ['context_id', 'asset_name', 'asset_type']
 
