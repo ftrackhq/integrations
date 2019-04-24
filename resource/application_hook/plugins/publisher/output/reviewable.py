@@ -31,12 +31,16 @@ class ExtractSequencePlugin(plugin.ExtractorNukePlugin):
         review_node['mov64_codec'].setValue('png')
 
         if write_node['use_limit'].getValue():
-            first = str(int(write_node['first'].getValue()))
-            last = str(int(write_node['last'].getValue()))
             review_node['use_limit'].setValue(True)
 
+            first = str(int(write_node['first'].getValue()))
+            last = str(int(write_node['last'].getValue()))
+
+            review_node['first'].setValue(int(first))
+            review_node['last'].setValue(int(last))
+
         self.logger.info('Rendering sequence {}-{}'.format(first, last))
-        ranges = nuke.FrameRanges('{0}-{1}'.format(first, last))
+        ranges = nuke.FrameRanges('{}-{}'.format(first, last))
         nuke.render(review_node, ranges)
 
         # delete thumbnail network after render
