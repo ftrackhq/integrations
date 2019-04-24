@@ -9,7 +9,7 @@ import maya
 from ftrack_connect_pipeline_maya import plugin
 
 
-class ExtractMayaBinaryPlugin(plugin.ExtractorMayaPlugin):
+class ExtractMayaBinaryPlugin(plugin.OutputMayaPlugin):
     plugin_name = 'mayabinary'
 
     def run(self, context=None, data=None, options=None):

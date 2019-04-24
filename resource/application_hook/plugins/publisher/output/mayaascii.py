@@ -9,7 +9,7 @@ import maya
 from ftrack_connect_pipeline_maya import plugin
 
 
-class ExtractMayaAsciiPlugin(plugin.ExtractorMayaPlugin):
+class ExtractMayaAsciiPlugin(plugin.OutputMayaPlugin):
     plugin_name = 'mayaascii'
 
     def run(self, context=None, data=None, options=None):

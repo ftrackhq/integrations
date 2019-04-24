@@ -2,7 +2,6 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import maya.cmds as cmd
-import maya
 
 from ftrack_connect_pipeline_maya import plugin
 

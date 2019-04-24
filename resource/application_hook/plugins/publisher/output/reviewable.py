@@ -9,7 +9,7 @@ import maya
 from ftrack_connect_pipeline_maya import plugin
 
 
-class ExtractMayaReviewablePlugin(plugin.ExtractorMayaPlugin):
+class ExtractMayaReviewablePlugin(plugin.OutputMayaPlugin):
     plugin_name = 'reviewable'
 
     def run(self, context=None, data=None, options=None):
