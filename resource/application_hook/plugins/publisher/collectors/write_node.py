@@ -6,16 +6,15 @@ import nuke
 from ftrack_connect_pipeline_nuke import plugin
 
 
-class CollectWriteResultNodeNukePlugin(plugin.CollectorNukePlugin):
-    plugin_name = 'write_node_result'
+class CollectWriteNodeNukePlugin(plugin.CollectorNukePlugin):
+    plugin_name = 'write_node'
 
     def run(self, context=None, data=None, options=None):
 
         node_name = options['node_name']
-        node = nuke.toNode(node_name)
-        return node_name
+        return [node_name]
 
 def register(api_object, **kw):
-    plugin = CollectWriteResultNodeNukePlugin(api_object)
+    plugin = CollectWriteNodeNukePlugin(api_object)
     plugin.register()
 

@@ -1,17 +1,13 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-# :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
-
 import tempfile
-
 import nuke
 
 from ftrack_connect_pipeline_nuke import plugin
 
 
-class ExtractNukeScriptPlugin(plugin.ExtractorNukePlugin):
+class OutputNukeScriptPlugin(plugin.OutputNukePlugin):
     plugin_name = 'nukescript'
 
     def run(self, context=None, data=None, options=None):
@@ -25,5 +21,5 @@ class ExtractNukeScriptPlugin(plugin.ExtractorNukePlugin):
 
 
 def register(api_object, **kw):
-    plugin = ExtractNukeScriptPlugin(api_object)
+    plugin = OutputNukeScriptPlugin(api_object)
     plugin.register()

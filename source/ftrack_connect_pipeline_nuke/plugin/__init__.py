@@ -74,11 +74,11 @@ class BaseNukeWidget(plugin.BaseWidget,_BaseNuke):
     ui = nuke_constants.UI
 
 
-class ContextNukePlugin(BaseNukePlugin):
+class ContextNukePlugin(BaseNukePlugin, plugin.ContextPlugin):
     plugin_type = constants.CONTEXT
 
 
-class ContextNukeWidget(BaseNukeWidget):
+class ContextNukeWidget(BaseNukeWidget, plugin.ContextWidget):
     plugin_type = constants.CONTEXT
 
 

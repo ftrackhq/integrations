@@ -38,7 +38,7 @@ class WriteNodesNukeWidget(BaseWidget):
 
 
 class WriteNodesWidgetPlugin(plugin.CollectorNukeWidget):
-    plugin_name = 'write_node_result'
+    plugin_name = 'write_node'
 
     def run(self, data=None, name=None, description=None, options=None):
         return WriteNodesNukeWidget(

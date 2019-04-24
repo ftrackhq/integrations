@@ -1,18 +1,12 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-import sys
-import tempfile
-import os
-import glob
-import re
-import traceback
 import nuke
 
 from ftrack_connect_pipeline_nuke import plugin
 
 
-class ExtractSequencePlugin(plugin.ExtractorNukePlugin):
+class OutputSequencePlugin(plugin.OutputNukePlugin):
     plugin_name = 'sequence'
 
     def run(self, context=None, data=None, options=None):
@@ -27,5 +21,5 @@ class ExtractSequencePlugin(plugin.ExtractorNukePlugin):
 
 
 def register(api_object, **kw):
-    plugin = ExtractSequencePlugin(api_object)
+    plugin = OutputSequencePlugin(api_object)
     plugin.register()

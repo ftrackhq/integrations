@@ -10,7 +10,7 @@ class CollectNukeScenePlugin(plugin.CollectorNukePlugin):
     plugin_name = 'nukescene'
 
     def run(self, context=None, data=None, options=None):
-        return nuke.root().knob('name').value()
+        return [nuke.root().knob('name').value()]
 
 
 def register(api_object, **kw):
