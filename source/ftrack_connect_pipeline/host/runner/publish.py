@@ -207,6 +207,9 @@ class PublisherRunner(object):
         publish_data = {}
         for item in components_result:
             for output in item.get(constants.OUTPUT):
+                if not output:
+                    continue
+
                 for key, value in output.items():
                     publish_data[key] = value
 

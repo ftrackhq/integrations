@@ -16,6 +16,11 @@ class FtrackPublishPlugin(plugin.PublisherPlugin):
         }
 
     def create_component(self, asset_version, component_name, component_path):
+        self.logger.info(
+            'publishing component:{} to from {}'.format(
+                component_name, component_path
+            )
+        )
         location = self.session.pick_location()
 
         asset_version.create_component(
@@ -26,9 +31,11 @@ class FtrackPublishPlugin(plugin.PublisherPlugin):
 
     def create_thumbnail(self, asset_version, component_name, component_path):
         asset_version.create_thumbnail(component_path)
+        os.remove(component_path)
 
     def create_reviewable(self, asset_version, component_name, component_path):
         asset_version.encode_media(component_path)
+        os.remove(component_path)
 
     def run(self, context=None, data=None, options=None):
 
@@ -37,7 +44,6 @@ class FtrackPublishPlugin(plugin.PublisherPlugin):
         context_object = self.session.get('Context', context['context_id'])
         asset_type_object = self.session.query('AssetType where short is "{}"'.format(asset_type)).first()
         asset_parent_object = context_object['parent']
-
 
         asset_object = self.session.query(
             'Asset where name is "{}" and type.short is "{}" and parent.id is "{}"'.format(
