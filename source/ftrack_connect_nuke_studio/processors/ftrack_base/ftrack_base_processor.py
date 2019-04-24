@@ -1196,9 +1196,8 @@ class FtrackProcessorUI(FtrackBase):
         self.add_task_type_options(form_layout, export_items)
         self.add_asset_type_options(form_layout)
         self.add_asset_name_options(form_layout)
-        self.add_thumbnail_options(form_layout)
-        self.add_reviewable_options(form_layout)
         self.set_ui_tweaks()
+        return form_layout
 
     def addFtrackTaskUI(self, parent_layout, exportTemplate):
         current_task_name = self._preset.name()

@@ -72,7 +72,9 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackProcessorUI):
     def populateUI(self, processorUIWidget, taskUIWidget, exportItems):
         '''Populate processor ui with *exportItems*, with parent widget *processorUIWidget* or *taskUIWidget*.'''
         ShotProcessorUI.populateUI(self, processorUIWidget, taskUIWidget, exportItems)
-        FtrackProcessorUI.addFtrackProcessorUI(self, processorUIWidget, exportItems)
+        form_layout = FtrackProcessorUI.addFtrackProcessorUI(self, processorUIWidget, exportItems)
+        self.add_thumbnail_options(form_layout)
+        self.add_reviewable_options(form_layout)
 
 
 class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackProcessorPreset):
