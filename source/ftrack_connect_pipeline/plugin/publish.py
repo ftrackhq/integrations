@@ -16,7 +16,7 @@ class ValidatorPlugin(BasePlugin):
     plugin_type = constants.VALIDATE
 
 
-class ExtractorPlugin(BasePlugin):
+class OutputPlugin(BasePlugin):
     input_options = ['component_name']
     return_type = dict
     plugin_type = constants.OUTPUT
@@ -37,7 +37,7 @@ class ValidatorWidget(BaseWidget):
     plugin_type = constants.VALIDATE
 
 
-class ExtractorWidget(BaseWidget):
+class OutputWidget(BaseWidget):
     plugin_type = constants.OUTPUT
 
 
