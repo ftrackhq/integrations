@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-from qtpy import QtWidgets
+from qtpy import QtWidgets, QtCore, QtGui
 from ftrack_connect_pipeline.client.widgets.simple import BaseWidget
 
 from ftrack_connect_pipeline.ui.widget.context_selector import ContextSelector
@@ -76,6 +76,12 @@ class PublishContextWidget(BaseWidget):
         statuses = self._get_statuses()
         for index, status in enumerate(statuses):
             self.status_selector.addItem(status['name'], status['id'])
+            status_color = status['color']
+            self.status_selector.setItemData(
+                index,
+                QtGui.QColor(status_color),
+                QtCore.Qt.BackgroundColorRole
+            )
 
         self.set_option_result(statuses[0]['id'], key='status_id')
 
