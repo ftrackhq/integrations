@@ -1,9 +1,10 @@
 import logging
-from qtpy import QtWidgets, QtCore
+from qtpy import QtWidgets, QtCore, QtGui
 
 
 class AssetComboBox(QtWidgets.QComboBox):
     context_changed = QtCore.Signal(object)
+    valid_asset_name = QtCore.QRegExp('[A-Za-z0-9_]+')
 
     def __init__(self, session, asset_type, parent=None):
         super(AssetComboBox, self).__init__(parent=parent)
@@ -15,6 +16,8 @@ class AssetComboBox(QtWidgets.QComboBox):
         self.session = session
         self.asset_type = asset_type
         self.context_changed.connect(self._on_context_changed)
+        validator = QtGui.QRegExpValidator(self.valid_asset_name)
+        self.setValidator(validator)
 
     def _on_context_changed(self, context):
         self.clear()
