@@ -265,13 +265,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             return
 
         self.logger.info('updating widget: {} with {}'.format(widget, data))
-
-        if status == constants.SUCCESS_STATUS:
-            widget.set_success()
-
-        if status == constants.ERROR_STATUS:
-            widget.set_error()
-
+        widget.set_status(status)
         widget.setDisabled(True)
 
     def _listen_widget_updates(self):
@@ -320,4 +314,5 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
     def _on_run(self):
         '''main run function'''
-        raise NotImplementedError()
+        for widget in self.widgets.values():
+            widget.set_status(constants.RUNNING_STATUS)

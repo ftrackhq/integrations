@@ -4,13 +4,18 @@
 
 
 import logging
-from qtpy import QtWidgets, QtCore
+from qtpy import QtWidgets, QtCore, QtGui
 
 from ftrack_connect_pipeline import constants
 
 
 class BaseWidget(QtWidgets.QWidget):
     status_updated = QtCore.Signal(object)
+
+    @property
+    def status_icons(self):
+        '''return the status icons'''
+        return self._status_icons
 
     @property
     def session(self):
@@ -46,20 +51,44 @@ class BaseWidget(QtWidgets.QWidget):
         '''return the current option results'''
         return self._results
 
-    def _set_status(self, result):
-        status, message = result
+    def _set_internal_status(self, result):
+        icon = self.status_icons[result]
+        self._status_icon.setPixmap(icon)
 
-        if status == constants.ERROR_STATUS:
-            self.setStyleSheet('QWidget {color:orange}')
+    def set_status(self, status):
+        self.status_updated.emit(status)
 
-        elif status == constants.SUCCESS_STATUS:
-            self.setStyleSheet('QWidget {color:green}')
+    def _setup_status_icons(self):
 
-    def set_error(self, message=None):
-        self.status_updated.emit((constants.ERROR_STATUS, message))
+        success_icon = self.style().standardIcon(
+            QtWidgets.QStyle.SP_DialogOkButton
+        ).pixmap(QtCore.QSize(16, 16))
 
-    def set_success(self, message=None):
-        self.status_updated.emit((constants.SUCCESS_STATUS, message))
+        error_icon = self.style().standardIcon(
+            QtWidgets.QStyle.SP_MessageBoxCritical
+        ).pixmap(QtCore.QSize(16, 16))
+
+
+        warning_icon = self.style().standardIcon(
+            QtWidgets.QStyle.SP_MessageBoxWarning
+        ).pixmap(QtCore.QSize(16, 16))
+
+
+        running_icon = self.style().standardIcon(
+            QtWidgets.QStyle.SP_MediaPlay
+        ).pixmap(QtCore.QSize(16, 16))
+
+        default_icon = self.style().standardIcon(
+            QtWidgets.QStyle.SP_MediaPause
+        ).pixmap(QtCore.QSize(16, 16))
+
+        self._status_icons = {
+            constants.SUCCESS_STATUS: success_icon,
+            constants.ERROR_STATUS: error_icon,
+            constants.SUCCESS_STATUS: warning_icon,
+            constants.RUNNING_STATUS: running_icon,
+            constants.DEFAULT_STATUS: default_icon
+        }
 
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
         '''initialise widget.'''
@@ -78,6 +107,7 @@ class BaseWidget(QtWidgets.QWidget):
         self._options = options
         self._results = {}
 
+        self._setup_status_icons()
         # Build widget
         self.pre_build()
         self.build()
@@ -86,6 +116,13 @@ class BaseWidget(QtWidgets.QWidget):
     def pre_build(self):
         '''pre build function, mostly used setup the widget's layout.'''
         layout = QtWidgets.QVBoxLayout()
+
+        self._status_icon = QtWidgets.QLabel()
+        icon = self.status_icons[constants.DEFAULT_STATUS]
+        self._status_icon.setPixmap(icon)
+        self._status_icon.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+
+        layout.addWidget(self._status_icon)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setAlignment(QtCore.Qt.AlignTop)
         self.setLayout(layout)
@@ -98,5 +135,4 @@ class BaseWidget(QtWidgets.QWidget):
 
     def post_build(self):
         '''post build function , mostly used connect widgets events.'''
-        self.status_updated.connect(self._set_status)
-        pass
+        self.status_updated.connect(self._set_internal_status)

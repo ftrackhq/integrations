@@ -187,6 +187,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         self._parse_publish(publishers)
 
     def _on_run(self):
+        super(QtPipelinePublishWidget, self)._on_run()
         self._update_publish_data()
         self.send_to_host(self.schema, constants.PIPELINE_RUN_HOST_PUBLISHER)
 
