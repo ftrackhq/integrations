@@ -17,7 +17,7 @@ logger = logging.getLogger('ftrack_connect_pipeline_maya.scripts.userSetup')
 created_dialogs = dict()
 
 
-def open_dialog(dialog_class, hostid):
+def _open_dialog(dialog_class, hostid):
     '''Open *dialog_class* and create if not already existing.'''
     dialog_name = dialog_class
 
@@ -91,7 +91,7 @@ def initialise():
             parent=ftrack_menu,
             label=label,
             command=(
-                lambda x, dialog_class=dialog_class: open_dialog(dialog_class, hostid)
+                lambda x, dialog_class=dialog_class: _open_dialog(dialog_class, hostid)
             )
         )
 
