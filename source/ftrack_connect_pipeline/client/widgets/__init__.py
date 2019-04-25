@@ -8,6 +8,7 @@ from qtpy import QtWidgets, QtCore
 
 from ftrack_connect_pipeline import constants
 
+
 class BaseWidget(QtWidgets.QWidget):
     status_updated = QtCore.Signal(object)
 

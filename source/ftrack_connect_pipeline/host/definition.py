@@ -21,13 +21,14 @@ class BaseDefinitionManager(object):
         '''Return the result definitions.'''
         return self.__registry
 
-    def __init__(self, session, schema_type, validator):
+    def __init__(self, session, host, schema_type, validator):
         '''Initialise the class with ftrack *session* and *context_type*'''
         super(BaseDefinitionManager, self).__init__()
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+        self.host = host
         self.__registry = {}
         self.session = session
         self.event_manager = EventManager(self.session)
@@ -76,7 +77,8 @@ class BaseDefinitionManager(object):
             topic=constants.PIPELINE_REGISTER_TOPIC,
             data={
                 'pipeline': {
-                    'type': str(schema_type)
+                    'type': str(schema_type),
+                    'host': self.host
                 }
             }
         )
@@ -100,8 +102,6 @@ class BaseDefinitionManager(object):
             }
         }
 
-        self.logger.debug('discovering plugin for :{}'.format(data))
-
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_DISCOVER_PLUGIN_TOPIC,
             data=data
@@ -121,9 +121,9 @@ class BaseDefinitionManager(object):
 class PackageDefinitionManager(BaseDefinitionManager):
     '''Package schema manager class.'''
 
-    def __init__(self, session):
+    def __init__(self, session, host):
         '''Initialise the class with ftrack *session* and *context_type*'''
-        super(PackageDefinitionManager, self).__init__(session, 'package', schema.validate_package)
+        super(PackageDefinitionManager, self).__init__(session, host, 'package', schema.validate_package)
 
 
 class LoaderDefinitionManager(BaseDefinitionManager):
@@ -135,7 +135,7 @@ class LoaderDefinitionManager(BaseDefinitionManager):
 
     def __init__(self, package_manager, host):
         '''Initialise the class with ftrack *session* and *context_type*'''
-        super(LoaderDefinitionManager, self).__init__(package_manager.session, 'loader', schema.validate_loader)
+        super(LoaderDefinitionManager, self).__init__(package_manager.session, host, 'loader', schema.validate_loader)
         self.package_manager = package_manager
         self.host = host
 
@@ -154,7 +154,7 @@ class PublisherDefinitionManager(BaseDefinitionManager):
 
     def __init__(self, package_manager, host):
         '''Initialise the class with ftrack *session* and *context_type*'''
-        super(PublisherDefinitionManager, self).__init__(package_manager.session, 'publisher', schema.validate_publisher)
+        super(PublisherDefinitionManager, self).__init__(package_manager.session, host, 'publisher', schema.validate_publisher)
         self.package_manager = package_manager
         self.host = host
 
@@ -278,7 +278,7 @@ class DefintionManager(QtCore.QObject):
         super(DefintionManager, self).__init__()
 
         self.session = session
-        self.packages = PackageDefinitionManager(session)
+        self.packages = PackageDefinitionManager(session, host)
         self.loaders = LoaderDefinitionManager(self.packages, host)
         self.publishers = PublisherDefinitionManager(self.packages, host)
 
