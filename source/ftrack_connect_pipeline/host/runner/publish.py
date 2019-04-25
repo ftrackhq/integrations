@@ -59,6 +59,8 @@ class PublisherRunner(object):
         '''Run *plugin*, *plugin_type*, with given *options*, *data* and *context*'''
         plugin_name = plugin['plugin']
 
+        self._notify_client(None, plugin, constants.RUNNING_STATUS)
+
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
             data={
@@ -83,9 +85,6 @@ class PublisherRunner(object):
         )
 
         status = constants.SUCCESS_STATUS
-        if not plugin_result:
-            status = constants.ERROR_STATUS
-
         self._notify_client(plugin_result, plugin, status)
         return plugin_result
 

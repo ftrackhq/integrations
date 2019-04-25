@@ -218,6 +218,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.combo_hosts.currentIndexChanged.connect(self.on_change_host)
         self.run_button.clicked.connect(self._on_run)
         self.hostid_changed.connect(self._listen_widget_updates)
+        self._listen_widget_updates()
 
     def _fetch_widget(self, plugin, plugin_type, plugin_name, extra_options=None):
         '''Retrieve widget for the given *plugin*, *plugin_type* and *plugin_name*.'''
@@ -314,5 +315,4 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
     def _on_run(self):
         '''main run function'''
-        for widget in self.widgets.values():
-            widget.set_status(constants.RUNNING_STATUS)
+        pass

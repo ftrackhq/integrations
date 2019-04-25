@@ -68,11 +68,9 @@ class BaseWidget(QtWidgets.QWidget):
             QtWidgets.QStyle.SP_MessageBoxCritical
         ).pixmap(QtCore.QSize(16, 16))
 
-
         warning_icon = self.style().standardIcon(
             QtWidgets.QStyle.SP_MessageBoxWarning
         ).pixmap(QtCore.QSize(16, 16))
-
 
         running_icon = self.style().standardIcon(
             QtWidgets.QStyle.SP_MediaPlay
