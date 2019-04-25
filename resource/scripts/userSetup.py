@@ -42,22 +42,6 @@ def initialise():
 
     mc.loadPlugin('ftrackMayaPlugin.py', quiet=True)
 
-    if mc.about(win=True):
-        match = re.match(
-            '([0-9]{4}).*', mc.about(version=True)
-        )
-
-        if int(match.groups()[0]) >= 2018:
-            import QtExt
-
-            # Disable web widgets.
-            QtExt.is_webwidget_supported = lambda: False
-
-            logger.debug(
-                'Disabling webwidgets due to maya 2018 '
-                'QtWebEngineWidgets incompatibility.'
-            )
-
     from ftrack_connect_pipeline_maya.client import load
     from ftrack_connect_pipeline_maya.client import publish
 
@@ -94,8 +78,6 @@ def initialise():
                 lambda x, dialog_class=dialog_class: _open_dialog(dialog_class, hostid)
             )
         )
-
-
 
 
 
