@@ -40,7 +40,7 @@ class BaseDefinitionManager(object):
         try:
             self._validator(data)
         except Exception as error:
-            self.logger.warn(error)
+            self.logger.debug(error)
             return False
 
         return True
@@ -91,16 +91,20 @@ class BaseDefinitionManager(object):
         '''Run *plugin*, *plugin_type*, with given *options*, *data* and *context*'''
         plugin_name = plugin['plugin']
 
+        data = {
+            'pipeline': {
+                'plugin_name': plugin_name,
+                'plugin_type': plugin_type,
+                'type': 'plugin',
+                'host': self.host
+            }
+        }
+
+        self.logger.debug('discovering plugin for :{}'.format(data))
+
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_DISCOVER_PLUGIN_TOPIC,
-            data={
-                'pipeline': {
-                    'plugin_name': plugin_name,
-                    'plugin_type': plugin_type,
-                    'type': 'plugin',
-                    'host': self.host
-                }
-            }
+            data=data
         )
 
         plugin_result = self.session.event_hub.publish(
