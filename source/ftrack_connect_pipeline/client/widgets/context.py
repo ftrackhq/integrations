@@ -20,15 +20,24 @@ class PublishContextWidget(BaseWidget):
         super(PublishContextWidget, self).build()
         self._build_context_id_selector()
         self._build_asset_selector()
+        self._build_comments_input()
 
     def post_build(self):
         '''hook events'''
         self.context_selector.entityChanged.connect(self._on_context_changed)
         self.asset_selector.asset_changed.connect(self._on_asset_changed)
+        self.comments_input.textChanged.connect(self._on_comment_updated)
+
+    def _on_comment_updated(self):
+        current_text = self.comments_input.toPlainText()
+        self.set_option_result(current_text, key='comment')
 
     def _on_context_changed(self, context):
         self.set_option_result(context['id'], key='context_id')
         self.asset_selector.set_context(context)
+
+    def _on_asset_changed(self, asset_name):
+        self.set_option_result(asset_name, key='asset_name')
 
     def _build_context_id_selector(self):
         self.context_layout = QtWidgets.QHBoxLayout()
@@ -41,9 +50,6 @@ class PublishContextWidget(BaseWidget):
         self.context_layout.addWidget(self.context_selector)
         self.set_option_result(self.context['id'], key='context_id')
 
-    def _on_asset_changed(self, asset_name):
-        self.set_option_result(asset_name, key='asset_name')
-
     def _build_asset_selector(self):
         self.asset_layout = QtWidgets.QHBoxLayout()
         self.asset_layout.setContentsMargins(0, 0, 0, 0)
@@ -54,7 +60,18 @@ class PublishContextWidget(BaseWidget):
         current_asset = self.asset_selector.asset_combobox.currentText()
         self.set_option_result(current_asset, key='asset_name')
 
+    def _build_comments_input(self):
+        self.comments_container = QtWidgets.QGroupBox('Comment')
 
+        self.comments_layout = QtWidgets.QHBoxLayout()
+
+        self.comments_input = QtWidgets.QTextEdit()
+        self.comments_layout.addWidget(self.comments_input)
+        self.comments_container.setLayout(self.comments_layout)
+
+        self.layout().addWidget(self.comments_container)
+        current_text = self.comments_input.toPlainText()
+        self.set_option_result(current_text, key='comment')
 
 
 

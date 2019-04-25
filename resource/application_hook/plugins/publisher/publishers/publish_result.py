@@ -38,7 +38,7 @@ class FtrackPublishPlugin(plugin.PublisherPlugin):
         os.remove(component_path)
 
     def run(self, context=None, data=None, options=None):
-
+        comment = context['comment']
         asset_name = context['asset_name']
         asset_type = context['asset_type']
         context_object = self.session.get('Context', context['context_id'])
@@ -60,6 +60,7 @@ class FtrackPublishPlugin(plugin.PublisherPlugin):
         asset_version = self.session.create('AssetVersion', {
             'asset': asset_object,
             'task': context_object,
+            'comment': comment
         })
 
         self.session.commit()
