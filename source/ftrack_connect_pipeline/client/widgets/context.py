@@ -20,6 +20,7 @@ class PublishContextWidget(BaseWidget):
         super(PublishContextWidget, self).build()
         self._build_context_id_selector()
         self._build_asset_selector()
+        self._build_status_selector()
         self._build_comments_input()
 
     def post_build(self):
@@ -27,6 +28,11 @@ class PublishContextWidget(BaseWidget):
         self.context_selector.entityChanged.connect(self._on_context_changed)
         self.asset_selector.asset_changed.connect(self._on_asset_changed)
         self.comments_input.textChanged.connect(self._on_comment_updated)
+        self.status_selector.currentIndexChanged.connect(self._on_status_changed)
+
+    def _on_status_changed(self, status):
+        status_id = self.status_selector.itemData(status)
+        self.set_option_result(status_id, key='status_id')
 
     def _on_comment_updated(self):
         current_text = self.comments_input.toPlainText()
@@ -59,6 +65,25 @@ class PublishContextWidget(BaseWidget):
         self.layout().addLayout(self.asset_layout)
         current_asset = self.asset_selector.asset_combobox.currentText()
         self.set_option_result(current_asset, key='asset_name')
+
+    def _build_status_selector(self):
+        self.status_layout = QtWidgets.QHBoxLayout()
+        self.status_layout.setContentsMargins(0, 0, 0, 0)
+
+        self.status_selector = QtWidgets.QComboBox()
+        self.status_layout.addWidget(self.status_selector)
+        self.layout().addLayout(self.status_layout)
+        statuses = self._get_statuses()
+        for index, status in enumerate(statuses):
+            self.status_selector.addItem(status['name'], status['id'])
+
+        self.set_option_result(statuses[0]['id'], key='status_id')
+
+    def _get_statuses(self):
+        project = self.session.get('Context', self.context['link'][0]['id'])
+        schema = project['project_schema']
+        statuses = schema.get_statuses('AssetVersion')
+        return statuses
 
     def _build_comments_input(self):
         self.comments_container = QtWidgets.QGroupBox('Comment')

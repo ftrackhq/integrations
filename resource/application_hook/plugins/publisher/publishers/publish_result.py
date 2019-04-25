@@ -39,8 +39,12 @@ class FtrackPublishPlugin(plugin.PublisherPlugin):
 
     def run(self, context=None, data=None, options=None):
         comment = context['comment']
+        status_id = context['status_id']
         asset_name = context['asset_name']
         asset_type = context['asset_type']
+
+        status = self.session.get('Status', status_id)
+
         context_object = self.session.get('Context', context['context_id'])
         asset_type_object = self.session.query('AssetType where short is "{}"'.format(asset_type)).first()
         asset_parent_object = context_object['parent']
@@ -60,7 +64,8 @@ class FtrackPublishPlugin(plugin.PublisherPlugin):
         asset_version = self.session.create('AssetVersion', {
             'asset': asset_object,
             'task': context_object,
-            'comment': comment
+            'comment': comment,
+            'status': status
         })
 
         self.session.commit()

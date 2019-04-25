@@ -25,7 +25,13 @@ class OutputPlugin(BasePlugin):
 class PublisherPlugin(BasePlugin):
     return_type = dict
     plugin_type = constants.PUBLISH
-    output_input = ['context_id', 'asset_name', 'asset_type']
+    output_input = [
+        'context_id',
+        'asset_name',
+        'asset_type',
+        'comment',
+        'status_id'
+    ]
 
 
 # WIDGET

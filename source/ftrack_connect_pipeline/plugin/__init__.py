@@ -174,7 +174,7 @@ class ContextPlugin(BasePlugin):
     return_type = dict
     plugin_type = constants.CONTEXT
     input_options = ['context_id']
-    output_options = ['context_id', 'asset_name', 'comment']
+    output_options = ['context_id', 'asset_name', 'comment', 'status_id']
 
 
 class ContextWidget(BaseWidget):
