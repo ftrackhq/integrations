@@ -98,6 +98,10 @@ class FtrackTimelineProcessorPreset(TimelineProcessorPreset, FtrackProcessorPres
         '''Set ftrack specific *properties* for processor.'''
         FtrackProcessorPreset.set_ftrack_properties(self, properties)
 
+        # Disable reviewable and thumbnail default values.
+        self.properties()['ftrack']['opt_publish_reviewable'] = False
+        self.properties()['ftrack']['opt_publish_thumbnail'] = False
+
         # add placeholders for default task properties
         self.properties()['ftrack']['task_type'] = 'Editing'
 

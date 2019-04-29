@@ -186,7 +186,8 @@ setup(
     ],
     install_requires=[
         'appdirs == 1.4.0',
-        'lucidity >= 1.5, < 2'
+        'lucidity >= 1.5, < 2',
+        'opentimelineio >=0.9, <1'
     ],
     tests_require=[
     ],
