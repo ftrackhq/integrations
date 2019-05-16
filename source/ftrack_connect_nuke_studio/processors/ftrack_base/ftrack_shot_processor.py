@@ -5,6 +5,7 @@ import hiero
 from hiero.exporters.FnShotProcessor import ShotProcessorPreset
 from hiero.exporters.FnShotProcessor import ShotProcessor
 from hiero.exporters.FnShotProcessorUI import ShotProcessorUI
+from hiero.core.FnProcessor import _expandTaskGroup
 from ftrack_connect_nuke_studio.config import report_exception
 
 from QtExt import QtWidgets
@@ -30,6 +31,20 @@ class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
         if result:
             exportItems = self.create_project_structure(exportItems)
         return ShotProcessor.startProcessing(self, exportItems, preview)
+
+    def processTaskPreQueue(self):
+        '''Walk Tasks in submission and mark any duplicates.'''
+
+        components = []
+        for task in _expandTaskGroup(self._submission):
+            component_name = task.component_name()
+
+            if hasattr(task, "resolvedExportPath"):
+                if component_name not in components:
+                    components.append(component_name)
+                else:
+                    self.logger.info('{} is duplicated component'.format(component_name))
+                    task.setDuplicate()
 
 
 class FtrackShotProcessorUI(ShotProcessorUI, FtrackProcessorUI):
@@ -117,9 +132,6 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackProcessorPreset):
             "Name of the sequence being processed",
             lambda keyword, task: task.sequenceName()
         )
-
-
-
 
     def set_ftrack_properties(self, properties):
         '''Set ftrack specific *properties* for processor.'''
