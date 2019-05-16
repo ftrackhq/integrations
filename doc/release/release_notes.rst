@@ -9,6 +9,10 @@ Release Notes
 
 .. release:: Upcoming
 
+    .. change:: fixed
+
+        Tasks are marked as duplicated if the same clip name is present on multiple tracks.
+
     .. change:: changed
 
         Replace simple EDL export with OpenTimelineIO edl export.
