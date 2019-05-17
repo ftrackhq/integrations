@@ -9,6 +9,10 @@ Release Notes
 
 .. release:: Upcoming
 
+    .. change:: fixed
+
+        Tasks generate empty unwanted components.
+
     .. change:: changed
 
         Replace simple EDL export with OpenTimelineIO edl export.
