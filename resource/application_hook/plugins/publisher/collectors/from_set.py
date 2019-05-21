@@ -2,7 +2,6 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import maya.cmds as cmd
-import maya
 
 from ftrack_connect_pipeline_maya import plugin
 
@@ -12,11 +11,8 @@ class CollectFromSetMayaPlugin(plugin.CollectorMayaPlugin):
 
     def run(self, context=None, data=None, options=None):
 
-        def call(set_name):
-            return cmd.sets(set_name, q=True)
-
         set_name = options['set_name']
-        return maya.utils.executeInMainThreadWithResult(call, set_name)
+        return cmd.sets(set_name, q=True)
 
 
 def register(api_object, **kw):

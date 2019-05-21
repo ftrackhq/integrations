@@ -111,9 +111,9 @@ class PyTest(TestCommand):
 
 # Configuration.
 setup(
-    name='ftrack-connect-pipeline',
+    name='ftrack-connect-pipeline-maya',
     version=VERSION,
-    description='A dialog to publish assets from Maya to ftrack',
+    description='A dialog to publish package from Maya to ftrack',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
     url='https://bitbucket.org/ftrack/ftrack-connect-pipeline-maya',
