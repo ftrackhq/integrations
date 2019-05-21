@@ -1,0 +1,2 @@
+HOST = 'nuke'
+UI = 'qt'
