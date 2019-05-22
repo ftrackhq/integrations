@@ -558,6 +558,9 @@ class FtrackProcessor(FtrackBase):
                 )
 
                 task = hiero.core.taskRegistry.createTaskFromPreset(preset, taskData)
+                if not task.hasValidItem():
+                    continue
+
                 self._components[root_item][track_item.name()].setdefault(task.component_name(), {})
 
                 if getattr(task, '_nothingToDo', False) is True:
@@ -587,6 +590,7 @@ class FtrackProcessor(FtrackBase):
                     path.split(self.path_separator)
                 )
                 parent = None
+
                 for template, token in zipped_path_separator:
                     if (
                             not versions[path_id] and
@@ -739,6 +743,7 @@ class FtrackProcessor(FtrackBase):
 
     def setup_export_paths_event(self, task):
         ''' Event spawned when *task* start. '''
+
         try:
             root_item = task._item.parentTrack().name()
         except:

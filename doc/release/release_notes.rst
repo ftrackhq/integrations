@@ -13,6 +13,10 @@ Release Notes
 
         Tasks are marked as duplicated if the same clip name is present on multiple tracks.
 
+    .. change:: fixed
+
+        Tasks generate empty unwanted components.
+
     .. change:: changed
 
         Replace simple EDL export with OpenTimelineIO edl export.
