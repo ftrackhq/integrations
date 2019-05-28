@@ -247,12 +247,11 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             }
         )
 
-        default_widget = self.session.event_hub.publish(
+        result = self.session.event_hub.publish(
             event,
             synchronous=True
         )
-
-        return default_widget
+        return result
 
     def _update_widget(self, event):
         '''*event* callback to update widget with the current status/value'''
@@ -285,17 +284,25 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         '''Retrieve widget for the given *plugin*, *plugin_type*.'''
 
         plugin_name = plugin.get('widget')
-        result_widget = self._fetch_widget(plugin, plugin_type, plugin_name, extra_options=extra_options)
-        if not result_widget:
-            result_widget = self._fetch_default_widget(plugin, plugin_type)
+        data = self._fetch_widget(plugin, plugin_type, plugin_name, extra_options=extra_options)
 
-        if result_widget and not isinstance(result_widget[0], BaseWidget):
+        if not data:
+            data = self._fetch_default_widget(plugin, plugin_type)
+
+        data = data[0] # extract first element of the list
+
+        status = data['status']
+        result = data['result']
+
+        if result and not isinstance(result, BaseWidget):
             raise Exception(
-                'Widget should inherit from {}'.format(
+                'Widget {} should inherit from {}'.format(
+                    result,
                     BaseWidget
                 )
             )
-        return result_widget[0]
+
+        return result
 
     def send_to_host(self, data, topic):
         '''Send *data* to the host through the given *topic*.'''

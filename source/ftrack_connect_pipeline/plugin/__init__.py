@@ -104,19 +104,22 @@ class _Base(object):
         self.logger.debug(settings)
         input_valid, message = self._validate_input_options(settings)
         if not input_valid:
-            raise Exception(message)
+            return {'status': constants.ERROR_STATUS, 'result':str(message)}
 
-        result = self.run(**settings)
+        try:
+            result = self.run(**settings)
+        except Exception as message:
+            return {'status': constants.ERROR_STATUS, 'result':str(message)}
 
         output_valid, message = self._validate_result_options(result)
         if not output_valid:
-            raise Exception(message)
+            return {'status': constants.ERROR_STATUS, 'result':str(message)}
 
         result_valid, message = self._validate_result_type(result)
         if not result_valid:
-            raise Exception(message)
+            return {'status': constants.ERROR_STATUS, 'result':str(message)}
 
-        return result
+        return {'status': constants.SUCCESS_STATUS, 'result': result}
 
 
 class BasePlugin(_Base):

@@ -79,31 +79,38 @@ class PublisherRunner(object):
             }
         )
 
-        plugin_result = self.session.event_hub.publish(
+        data = self.session.event_hub.publish(
             event,
             synchronous=True
         )
+        self.logger.info('run_plugin:{}'.format(data))
+        status = data[0]['status']
+        result = data[0]['result']
 
-        status = constants.SUCCESS_STATUS
-        self._notify_client(plugin_result, plugin, status)
-        return plugin_result
+        self._notify_client(result, plugin, status)
+        return result
 
     def _notify_client(self, data, plugin, status):
         '''Notify client with *data* for *plugin*'''
 
         widget_ref = plugin['widget_ref']
 
+        pipeline_data = {
+            'hostid': self.hostid,
+            'widget_ref': widget_ref,
+            'data': data,
+            'status': status
+        }
+
+        self.logger.debug('notifying client with : {}'.format(pipeline_data))
+
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_UPDATE_UI,
             data={
-                'pipeline': {
-                    'hostid': self.hostid,
-                    'widget_ref': widget_ref,
-                    'data': data,
-                    'status': status
-                }
+                'pipeline':pipeline_data
             }
         )
+
         self.event_manager.publish(
             event,
             remote=self.__remote_events
@@ -120,7 +127,7 @@ class PublisherRunner(object):
             if not result:
                 raise Exception('No value from context')
 
-            results.update(result[0])
+            results.update(result)
 
         return results
 
@@ -157,10 +164,10 @@ class PublisherRunner(object):
                     raise Exception('No value from component')
 
                 # Merge list of lists.
-                if len(result) > 0 and isinstance(result[0], list):
+                if result and isinstance(result, list):
                     result = result[0]
 
-                stages_result += result
+                stages_result.append(result)
 
             results[stage_name] = stages_result
 
@@ -179,7 +186,7 @@ class PublisherRunner(object):
             if not result:
                 raise Exception('No value from publish')
 
-            results.append(result[0])
+            results.append(result)
 
         return results
 
@@ -202,6 +209,8 @@ class PublisherRunner(object):
             components_result.append(component_result)
 
         publish_plugins = data[constants.PUBLISH]
+
+        self.logger.info('components_results:{}'.format(components_result))
 
         publish_data = {}
         for item in components_result:

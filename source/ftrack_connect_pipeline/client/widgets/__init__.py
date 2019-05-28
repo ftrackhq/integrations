@@ -83,7 +83,7 @@ class BaseWidget(QtWidgets.QWidget):
         self._status_icons = {
             constants.SUCCESS_STATUS: success_icon,
             constants.ERROR_STATUS: error_icon,
-            constants.SUCCESS_STATUS: warning_icon,
+            constants.WARNING_STATUS: warning_icon,
             constants.RUNNING_STATUS: running_icon,
             constants.DEFAULT_STATUS: default_icon
         }
