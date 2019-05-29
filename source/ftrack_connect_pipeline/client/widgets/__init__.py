@@ -60,22 +60,32 @@ class BaseWidget(QtWidgets.QWidget):
 
     def _setup_status_icons(self):
 
-        success_icon = self.style().standardIcon(
-            QtWidgets.QStyle.SP_DialogOkButton
+        # RUNNING
+        running_icon = self.style().standardIcon(
+            QtWidgets.QStyle.SP_BrowserReload
         ).pixmap(QtCore.QSize(16, 16))
 
+        # SUCCESS
+        success_icon = self.style().standardIcon(
+            QtWidgets.QStyle.SP_DialogApplyButton
+        ).pixmap(QtCore.QSize(16, 16))
+
+        # ERROR
+        error_icon = self.style().standardIcon(
+            QtWidgets.QStyle.SP_BrowserStop
+        ).pixmap(QtCore.QSize(16, 16))
+
+        # EXCEPTION
         error_icon = self.style().standardIcon(
             QtWidgets.QStyle.SP_MessageBoxCritical
         ).pixmap(QtCore.QSize(16, 16))
 
+        # WARNING
         warning_icon = self.style().standardIcon(
             QtWidgets.QStyle.SP_MessageBoxWarning
         ).pixmap(QtCore.QSize(16, 16))
 
-        running_icon = self.style().standardIcon(
-            QtWidgets.QStyle.SP_MediaPlay
-        ).pixmap(QtCore.QSize(16, 16))
-
+        # DEFAULT
         default_icon = self.style().standardIcon(
             QtWidgets.QStyle.SP_MediaPause
         ).pixmap(QtCore.QSize(16, 16))

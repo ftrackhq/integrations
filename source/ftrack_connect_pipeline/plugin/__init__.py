@@ -119,6 +119,9 @@ class _Base(object):
         if not result_valid:
             return {'status': constants.ERROR_STATUS, 'result':str(message)}
 
+        if not result:
+            return {'status': constants.WARNING_STATUS, 'result': None}
+
         return {'status': constants.SUCCESS_STATUS, 'result': result}
 
 

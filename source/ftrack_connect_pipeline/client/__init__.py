@@ -91,7 +91,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             self._context = self.session.get('Context', context_id)
 
         # apply styles
-        theme.applyTheme(self, 'dark', 'cleanlooks')
+        theme.applyTheme(self, 'dark')
         theme.applyFont()
 
     def fetch_package_definitions(self):

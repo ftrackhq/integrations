@@ -88,6 +88,7 @@ class PublisherRunner(object):
         result = data[0]['result']
 
         self._notify_client(result, plugin, status)
+
         return result
 
     def _notify_client(self, data, plugin, status):
@@ -124,9 +125,6 @@ class PublisherRunner(object):
                 plugin, constants.CONTEXT,
                 context=plugin['options']
             )
-            if not result:
-                raise Exception('No value from context')
-
             results.update(result)
 
         return results
@@ -142,12 +140,6 @@ class PublisherRunner(object):
 
             collected_data = results.get(constants.COLLECT, [])
             stages_result = []
-            validators = results.get(constants.VALIDATE)
-
-            if validators and not all(validators):
-                raise exception.ValidatorPluginError(
-                    'error while validating: {}'.format(component_name)
-                )
 
             for plugin in plugins:
 
@@ -160,8 +152,6 @@ class PublisherRunner(object):
                     options=plugin_options,
                     context=context_data
                 )
-                if not result:
-                    raise Exception('No value from component')
 
                 # Merge list of lists.
                 if result and isinstance(result, list):
@@ -183,8 +173,6 @@ class PublisherRunner(object):
                 options=plugin['options'],
                 context=context_data
             )
-            if not result:
-                raise Exception('No value from publish')
 
             results.append(result)
 
@@ -209,8 +197,6 @@ class PublisherRunner(object):
             components_result.append(component_result)
 
         publish_plugins = data[constants.PUBLISH]
-
-        self.logger.info('components_results:{}'.format(components_result))
 
         publish_data = {}
         for item in components_result:
