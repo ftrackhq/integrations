@@ -100,30 +100,33 @@ class _Base(object):
         return True, ""
 
     def _run(self, event):
+        result = None
         settings = event['data']['settings']
-        self.logger.debug(settings)
         input_valid, message = self._validate_input_options(settings)
         if not input_valid:
-            return {'status': constants.ERROR_STATUS, 'result':str(message)}
+            result = {'status': constants.ERROR_STATUS, 'result':str(message)}
 
         try:
             result = self.run(**settings)
         except Exception as message:
-            return {'status': constants.ERROR_STATUS, 'result':str(message)}
+            result = {'status': constants.ERROR_STATUS, 'result':str(message)}
 
         output_valid, message = self._validate_result_options(result)
         if not output_valid:
-            return {'status': constants.ERROR_STATUS, 'result':str(message)}
+            result = {'status': constants.ERROR_STATUS, 'result':str(message)}
 
         result_valid, message = self._validate_result_type(result)
         if not result_valid:
-            return {'status': constants.ERROR_STATUS, 'result':str(message)}
+            result = {'status': constants.ERROR_STATUS, 'result':str(message)}
 
         if not result:
-            return {'status': constants.WARNING_STATUS, 'result': None}
+            result = {'status': constants.WARNING_STATUS, 'result': None}
+        else:
+            result = {'status': constants.SUCCESS_STATUS, 'result': result}
 
-        return {'status': constants.SUCCESS_STATUS, 'result': result}
+        self.logger.debug('PLUGIN {} RESULT : {}'.format(self, result))
 
+        return result
 
 class BasePlugin(_Base):
     type = 'plugin'

@@ -25,6 +25,7 @@ class PublishContextWidget(BaseWidget):
 
     def post_build(self):
         '''hook events'''
+        super(PublishContextWidget, self).post_build()
         self.context_selector.entityChanged.connect(self._on_context_changed)
         self.asset_selector.asset_changed.connect(self._on_asset_changed)
         self.comments_input.textChanged.connect(self._on_comment_updated)
