@@ -6,29 +6,30 @@
 
 import tempfile
 
-import maya.cmds as cmd
-import maya
+import pymxs
 
 from ftrack_connect_pipeline_3dsmax import plugin
 
 
-class ExtractMaxAsciiPlugin(plugin.ExtractorMaxPlugin):
-    plugin_name = 'mayaascii'
+class ExtractMaxAlembicPlugin(plugin.ExtractorMaxPlugin):
+    plugin_name = 'ExtractMaxAlembicPlugin'
 
     def run(self, context=None, data=None, options=None):
 
         def call(component_name):
-            new_file_path = tempfile.NamedTemporaryFile(delete=False, suffix='.ma').name
+            new_file_path = tempfile.NamedTemporaryFile(
+                delete=False, suffix='.abc'
+            ).name
             self.logger.debug('Calling extractor options: data {}'.format(data))
-            cmd.select(data, r=True)
-            cmd.file(rename=new_file_path)
-            cmd.file(save=True, type='mayaAscii')
+            pymxs.runtime.select(data)
+            pymxs.runtime.exportFile(new_file_path, pymxs.runtime.Name("noPrompt"))
             return {component_name: new_file_path}
 
         component_name = options['component_name']
-        return maya.utils.executeInMainThreadWithResult(call, component_name)
+        # TODO figure out if we need to duplicate the Maya main thread construstion
+        return call(component_name)
 
 
 def register(api_object, **kw):
-    plugin = ExtractMayaAsciiPlugin(api_object)
+    plugin = ExtractMaxAlembicPlugin(api_object)
     plugin.register()

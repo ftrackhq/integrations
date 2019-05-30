@@ -1,8 +1,6 @@
 from ftrack_connect_pipeline.client.publish import QtPipelinePublishWidget
 from ftrack_connect_pipeline_3dsmax.constants import HOST, UI
 
-from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
-
 
 # TODO(spetterborg) Figure out whether we have one of these for max
 

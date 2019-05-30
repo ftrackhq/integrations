@@ -1,10 +1,11 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2016 ftrack
 
+import logging
 import os
+
 import ftrack_api
 import ftrack_connect.application
-import logging
 
 logger = logging.getLogger('ftrack_connect_pipeline_3dsmax.listen_3dsmax_launch')
 
