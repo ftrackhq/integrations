@@ -84,7 +84,6 @@ class PublisherRunner(object):
             synchronous=True
         )
 
-        self.logger.info('run_plugin:{} {}'.format(plugin_name, data))
         result = data[0]['result']
         status = data[0]['status']
 

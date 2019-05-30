@@ -44,7 +44,6 @@ class BaseWidget(QtWidgets.QWidget):
 
     def set_option_result(self, value, key):
         '''set the result options of value for the key.'''
-        # self.logger.info('setting : {} to {}'.format(key, value))
         self._results[key] = value
 
     def get_option_results(self):
@@ -52,7 +51,6 @@ class BaseWidget(QtWidgets.QWidget):
         return self._results
 
     def _set_internal_status(self, status):
-        self.logger.debug('setting internal status of {} to {}'.format(self.__class__.__name__, status))
         icon = self.status_icons[status]
         self._status_icon.setPixmap(icon)
 
@@ -60,6 +58,11 @@ class BaseWidget(QtWidgets.QWidget):
         self.status_updated.emit(status)
 
     def _setup_status_icons(self):
+
+        # UNKNOWN
+        unknown_icon = self.style().standardIcon(
+            QtWidgets.QStyle.SP_TitleBarContextHelpButton
+        ).pixmap(QtCore.QSize(16, 16))
 
         # RUNNING
         running_icon = self.style().standardIcon(
@@ -77,7 +80,7 @@ class BaseWidget(QtWidgets.QWidget):
         ).pixmap(QtCore.QSize(16, 16))
 
         # EXCEPTION
-        error_icon = self.style().standardIcon(
+        exception_icon = self.style().standardIcon(
             QtWidgets.QStyle.SP_MessageBoxCritical
         ).pixmap(QtCore.QSize(16, 16))
 
@@ -92,11 +95,13 @@ class BaseWidget(QtWidgets.QWidget):
         ).pixmap(QtCore.QSize(16, 16))
 
         self._status_icons = {
-            constants.SUCCESS_STATUS: success_icon,
+            constants.UNKNOWN_STATUS:unknown_icon,
+            constants.DEFAULT_STATUS: default_icon,
             constants.ERROR_STATUS: error_icon,
             constants.WARNING_STATUS: warning_icon,
+            constants.EXCEPTION_STATUS: exception_icon,
             constants.RUNNING_STATUS: running_icon,
-            constants.DEFAULT_STATUS: default_icon
+            constants.SUCCESS_STATUS: success_icon,
         }
 
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):

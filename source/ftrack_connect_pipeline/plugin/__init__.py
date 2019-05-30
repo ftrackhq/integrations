@@ -3,7 +3,7 @@
 
 import logging
 import ftrack_api
-
+import time
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import exception
 from ftrack_connect_pipeline.client.widgets import BaseWidget
@@ -100,27 +100,35 @@ class _Base(object):
         return True, ""
 
     def _run(self, event):
-        return_value = None
+        return_value = {'status': constants.UNKNOWN_STATUS, 'result': 'Something went wrong...', 'execution_time': 0}
         result = None
 
         settings = event['data']['settings']
         input_valid, message = self._validate_input_options(settings)
         if not input_valid:
-            return_value = {'status': constants.ERROR_STATUS, 'result': str(message)}
+            return_value = {'status': constants.ERROR_STATUS, 'result': str(message), 'execution_time': 0}
+
+        start_time = time.time()
+
         try:
             result = self.run(**settings)
         except Exception as message:
-            return_value = {'status': constants.ERROR_STATUS, 'result': str(message)}
+            end_time = time.time()
+            total_time = end_time - start_time
+            return_value = {'status': constants.EXCEPTION_STATUS, 'result': str(message), 'execution_time': total_time}
+
+        end_time = time.time()
+        total_time = end_time - start_time
 
         output_valid, message = self._validate_result_options(result)
         if not output_valid:
-            return_value = {'status': constants.ERROR_STATUS, 'result': str(message)}
+            return_value = {'status': constants.ERROR_STATUS, 'result': str(message), 'execution_time': total_time}
 
         result_valid, message = self._validate_result_type(result)
         if not result_valid:
-            return_value = {'status': constants.ERROR_STATUS, 'result': str(message)}
+            return_value = {'status': constants.ERROR_STATUS, 'result': str(message), 'execution_time': total_time}
         else:
-            return_value = {'status': constants.SUCCESS_STATUS, 'result': result}
+            return_value = {'status': constants.SUCCESS_STATUS, 'result': result, 'execution_time': total_time}
 
         self.logger.info('run result for {} with result {}'.format(self.__class__.__name__, return_value))
         return return_value
