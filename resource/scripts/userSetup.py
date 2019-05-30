@@ -7,6 +7,7 @@ import os
 
 from ftrack_connect_pipeline import host
 from ftrack_connect_pipeline.session import get_shared_session
+import MaxPlus
 
 from ftrack_connect_pipeline_3dsmax import constants, usage, host as max_host
 
@@ -37,9 +38,6 @@ def load_and_init():
         'USED-FTRACK-CONNECT-PIPELINE-3DS-MAX'
     )
 
-    # mc.loadPlugin('ftrackMayaPlugin.py', quiet=True)
-
-    from ftrack_connect_pipeline_3dsmax.client import load
     from ftrack_connect_pipeline_3dsmax.client import publish
 
     # Enable loader and publisher only if is set to run local (default)
@@ -48,8 +46,7 @@ def load_and_init():
     )
     if not remote_set:
         dialogs = [
-            (load.QtPipelineMaxLoaderWidget, 'Loader'),
-            (publish.QtPipelineMaxPublishWidget, 'Publisher')
+            (publish.QtPipelineMaxPublishWidget, 'Publisher'),
         ]
     else:
         max_host.notify_connected_client(session, hostid)
@@ -59,13 +56,16 @@ def load_and_init():
     for item in dialogs:
         if item == 'divider':
             ftrack_menu_builder.AddSeparator()
-            # mc.menuItem(divider=True)  # Replace with 3ds separator
             continue
 
         dialog_class, label = item
 
         ftrack_menu_builder.addItem(
-            MaxPlus.ActionFactory.Create(category='ftrack', name=label, fxn=functools.partial(open_dialog, dialog_class, hostid))
+            MaxPlus.ActionFactory.Create(
+                category='ftrack', name=label, fxn=functools.partial(
+                    open_dialog, dialog_class, hostid
+                )
+            )
         )
 
 
