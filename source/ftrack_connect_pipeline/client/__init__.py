@@ -159,7 +159,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
     def _host_discovered(self, event):
         '''callback to to add new hosts *event*.'''
-        self.logger.info('_host_discovered : {}'.format(event['data']))
+        self.logger.debug('_host_discovered : {}'.format(event['data']))
         hostid = str(event['data']['hostid'])
         context_id = str(event['data']['context_id'])
         self.combo_hosts.addItem(hostid, (hostid, context_id))
@@ -264,9 +264,8 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             self.logger.warning('Widget ref :{} not found ! '.format(widget_ref))
             return
 
-        self.logger.info('updating widget: {} with {}'.format(widget, data))
+        self.logger.debug('updating widget: {} with {}'.format(widget, data))
         widget.set_status(status)
-        widget.setDisabled(True)
 
     def _listen_widget_updates(self):
         self.session.event_hub.subscribe(
@@ -291,7 +290,6 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
         data = data[0] # extract first element of the list
 
-        status = data['status']
         result = data['result']
 
         if result and not isinstance(result, BaseWidget):

@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 def provide_host_information(hostid, event):
     '''return the current hostid'''
-    logger.info('providing hostid: {}'.format(hostid))
+    logger.debug('providing hostid: {}'.format(hostid))
     context_id = utils.get_current_context()
     return {'hostid': hostid, 'context_id': context_id}
 
@@ -33,7 +33,7 @@ def initialise(session, host, ui):
     is_remote_event = utils.remote_event_mode()
 
     if is_remote_event:
-        logger.info('initialising host: {}'.format(hostid))
+        logger.debug('initialising host: {}'.format(hostid))
 
         handle_event = functools.partial(provide_host_information, hostid)
         session.event_hub.subscribe(

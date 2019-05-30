@@ -44,15 +44,16 @@ class BaseWidget(QtWidgets.QWidget):
 
     def set_option_result(self, value, key):
         '''set the result options of value for the key.'''
-        self.logger.info('setting : {} to {}'.format(key, value))
+        # self.logger.info('setting : {} to {}'.format(key, value))
         self._results[key] = value
 
     def get_option_results(self):
         '''return the current option results'''
         return self._results
 
-    def _set_internal_status(self, result):
-        icon = self.status_icons[result]
+    def _set_internal_status(self, status):
+        self.logger.debug('setting internal status of {} to {}'.format(self.__class__.__name__, status))
+        icon = self.status_icons[status]
         self._status_icon.setPixmap(icon)
 
     def set_status(self, status):

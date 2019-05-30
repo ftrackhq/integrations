@@ -83,9 +83,10 @@ class PublisherRunner(object):
             event,
             synchronous=True
         )
-        self.logger.info('run_plugin:{}'.format(data))
-        status = data[0]['status']
+
+        self.logger.info('run_plugin:{} {}'.format(plugin_name, data))
         result = data[0]['result']
+        status = data[0]['status']
 
         self._notify_client(result, plugin, status)
 
@@ -125,6 +126,7 @@ class PublisherRunner(object):
                 plugin, constants.CONTEXT,
                 context=plugin['options']
             )
+            self.logger.debug('context result : {}'.format(result))
             results.update(result)
 
         return results
