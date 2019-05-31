@@ -103,8 +103,6 @@ class PublisherRunner(object):
             'status': status
         }
 
-        self.logger.debug('notifying client with : {}'.format(pipeline_data))
-
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_UPDATE_UI,
             data={

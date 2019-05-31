@@ -14,6 +14,7 @@ class CollectorPlugin(BasePlugin):
 class ValidatorPlugin(BasePlugin):
     return_type = bool
     plugin_type = constants.VALIDATE
+    return_value = True
 
 
 class OutputPlugin(BasePlugin):
