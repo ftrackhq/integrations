@@ -265,7 +265,8 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             return
 
         self.logger.debug('updating widget: {} with {}'.format(widget, data))
-        widget.set_status(status)
+
+        widget.set_status(status, data)
 
     def _listen_widget_updates(self):
         self.session.event_hub.subscribe(
@@ -288,7 +289,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         if not data:
             data = self._fetch_default_widget(plugin, plugin_type)
 
-        data = data[0] # extract first element of the list
+        data = data[0]
 
         result = data['result']
 
@@ -300,7 +301,21 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
                 )
             )
 
+        result.status_updated.connect(self.on_widget_status_updated)
+
         return result
+
+    def on_widget_status_updated(self, data):
+        status, message = data
+        status_mapping = {
+            constants.UNKNOWN_STATUS: 'warning',
+            constants.ERROR_STATUS: 'error',
+            constants.WARNING_STATUS: 'warning',
+            constants.EXCEPTION_STATUS: 'error',
+        }
+        if isinstance(message, basestring) and status != constants.SUCCESS_STATUS:
+            header_status = status_mapping.get(status)
+            self.header.setMessage(message, header_status)
 
     def send_to_host(self, data, topic):
         '''Send *data* to the host through the given *topic*.'''

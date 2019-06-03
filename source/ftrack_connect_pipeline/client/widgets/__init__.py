@@ -50,12 +50,14 @@ class BaseWidget(QtWidgets.QWidget):
         '''return the current option results'''
         return self._results
 
-    def _set_internal_status(self, status):
+    def _set_internal_status(self, message_and_satus):
+        status = message_and_satus[0]
+        message = message_and_satus[1]
         icon = self.status_icons[status]
         self._status_icon.setPixmap(icon)
 
-    def set_status(self, status):
-        self.status_updated.emit(status)
+    def set_status(self, status, message):
+        self.status_updated.emit((status, message))
 
     def _setup_status_icons(self):
 
