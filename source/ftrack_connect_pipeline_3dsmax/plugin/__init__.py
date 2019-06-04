@@ -28,5 +28,4 @@ class ContextMaxWidget(BaseMaxWidget):
 
 
 # TODO(spetterborg) figure out why he likes this construction
-from ftrack_connect_pipeline_3dsmax.plugin.load import *
 from ftrack_connect_pipeline_3dsmax.plugin.publish import *

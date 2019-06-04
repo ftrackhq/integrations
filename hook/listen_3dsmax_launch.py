@@ -34,6 +34,8 @@ python_dependencies = os.path.join(
     plugin_base_dir, 'dependencies'
 )
 
+max_startup_script = os.path.join(max_script_path, 'startup', 'initftrack.py')
+
 
 def on_application_launch(event):
     '''Handle application launch and add environment to *event*.'''
@@ -73,6 +75,10 @@ def on_application_launch(event):
         'FTRACK_EVENT_PLUGIN_PATH',
         event['data']['options']['env']
     )
+
+    max_startup_script = os.path.join(max_script_path, 'test.py')
+    event['data']['command'].extend(['-U', 'PythonHost', max_startup_script])
+    # event['data']['command'] = event['data']['command'][:1] + ['-U', 'PythonHost', max_startup_script]
 
 
 def register(session):
