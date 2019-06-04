@@ -89,7 +89,7 @@ class PublisherRunner(object):
 
         self._notify_client(result, plugin, status)
 
-        return result
+        return status, result
 
     def _notify_client(self, data, plugin, status):
         '''Notify client with *data* for *plugin*'''
@@ -117,20 +117,25 @@ class PublisherRunner(object):
 
     def run_context(self, context_pligins):
         '''Run *context_pligins*.'''
+        statuses = []
         results = {}
         for plugin in context_pligins:
-            result = self._run_plugin(
+            status, result = self._run_plugin(
                 plugin, constants.CONTEXT,
                 context=plugin['options']
             )
-            self.logger.debug('context result : {}'.format(result))
+
+            bool_status = constants.status_bool_mapping[status]
+            statuses.append(bool_status)
+
             results.update(result)
 
-        return results
+        return statuses, results
 
     def run_component(self, component_name, component_stages, context_data):
         '''Run component plugins for *component_name*, *component_stages* with *context_data*.'''
         results = {}
+        statuses = {}
 
         for stage_name in self.component_stages_order:
             plugins = component_stages.get(stage_name)
@@ -139,13 +144,14 @@ class PublisherRunner(object):
 
             collected_data = results.get(constants.COLLECT, [])
             stages_result = []
+            stage_status = []
 
             for plugin in plugins:
 
                 plugin_options = plugin['options']
                 plugin_options['component_name'] = component_name
 
-                result = self._run_plugin(
+                status, result = self._run_plugin(
                     plugin, stage_name,
                     data=collected_data,
                     options=plugin_options,
@@ -156,46 +162,65 @@ class PublisherRunner(object):
                 if result and isinstance(result, list):
                     result = result[0]
 
+                bool_status = constants.status_bool_mapping[status]
+                stage_status.append(bool_status)
                 stages_result.append(result)
 
             results[stage_name] = stages_result
+            statuses[stage_name] = all(stage_status)
 
-        return results
+        return statuses, results
 
     def run_publish(self, publish_plugins, publish_data, context_data):
         '''Run component plugins for *component_name*, *component_stages* with *context_data*.'''
+        statuses = []
         results = []
         for plugin in publish_plugins:
-            result = self._run_plugin(
+            status, result = self._run_plugin(
                 plugin, constants.PUBLISH,
                 data=publish_data,
                 options=plugin['options'],
                 context=context_data
             )
-
+            bool_status = constants.status_bool_mapping[status]
+            statuses.append(bool_status)
             results.append(result)
 
-        return results
+        return statuses, results
 
     def run(self, event):
         '''Run the package definition based on the result of incoming *event*.'''
         data = event['data']['pipeline']['data']
+
         publish_package = data['package']
         asset_type = self.packages[publish_package]['type']
 
         context_plugins = data[constants.CONTEXT]
-        context_result = self.run_context(context_plugins)
+        context_status, context_result = self.run_context(context_plugins)
+
+        if not all(context_status):
+            return
+
         context_result['asset_type'] = asset_type
 
         components_plugins = data[constants.COMPONENTS]
         components_result = []
+        components_status = []
+
         for component_name, component_stages in components_plugins.items():
-            component_result = self.run_component(
+            component_status , component_result = self.run_component(
                 component_name, component_stages, context_result
             )
+            if not all(component_status.values()):
+                continue
+
+            components_status.append(component_status)
             components_result.append(component_result)
 
         publish_plugins = data[constants.PUBLISH]
+
+        self.logger.info('components_status {}'.format(components_status))
+        self.logger.info('components_result {}'.format(components_result))
 
         publish_data = {}
         for item in components_result:
@@ -206,11 +231,14 @@ class PublisherRunner(object):
                 for key, value in output.items():
                     publish_data[key] = value
 
-        publish_result = self.run_publish(
+        publish_status, publish_result = self.run_publish(
             publish_plugins, publish_data, context_result
         )
+        if not all(context_status):
+            return
 
-        self.logger.info(publish_result)
+        self.logger.info('publish_status {}'.format(publish_status))
+        self.logger.info('publish_result {}'.format(publish_result))
 
 
 

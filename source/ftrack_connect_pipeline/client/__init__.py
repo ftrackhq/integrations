@@ -310,6 +310,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         status_mapping = {
             constants.UNKNOWN_STATUS: 'warning',
             constants.ERROR_STATUS: 'error',
+            constants.SUCCESS_STATUS: 'info',
             constants.WARNING_STATUS: 'warning',
             constants.EXCEPTION_STATUS: 'error',
         }
