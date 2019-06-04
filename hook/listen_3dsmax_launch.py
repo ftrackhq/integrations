@@ -76,7 +76,7 @@ def on_application_launch(event):
         event['data']['options']['env']
     )
 
-    max_startup_script = os.path.join(max_script_path, 'test.py')
+    # max_startup_script = os.path.join(max_script_path, 'test.py')
     event['data']['command'].extend(['-U', 'PythonHost', max_startup_script])
     # event['data']['command'] = event['data']['command'][:1] + ['-U', 'PythonHost', max_startup_script]
 
