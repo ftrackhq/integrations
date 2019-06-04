@@ -1,3 +1,6 @@
+# file will be exec'd; there can be no encoding tag
+# :copyright: Copyright (c) 2019 ftrack
+
 import functools
 import logging
 import os

@@ -34,7 +34,7 @@ python_dependencies = os.path.join(
     plugin_base_dir, 'dependencies'
 )
 
-max_startup_script = os.path.join(max_script_path, 'startup', 'initftrack.py')
+max_startup_script = os.path.join(max_script_path, 'startup', 'initftrack.ms')
 
 
 def on_application_launch(event):
@@ -76,9 +76,7 @@ def on_application_launch(event):
         event['data']['options']['env']
     )
 
-    # max_startup_script = os.path.join(max_script_path, 'test.py')
-    event['data']['command'].extend(['-U', 'PythonHost', max_startup_script])
-    # event['data']['command'] = event['data']['command'][:1] + ['-U', 'PythonHost', max_startup_script]
+    event['data']['command'].extend(['-U', 'MAXScript', max_startup_script])
 
 
 def register(session):
@@ -87,6 +85,7 @@ def register(session):
         return
 
     session.event_hub.subscribe(
-        'topic=ftrack.connect.application.launch and data.application.identifier=3ds_max*',
+        'topic=ftrack.connect.application.launch'
+        ' and data.application.identifier=3ds_max*',
         on_application_launch
     )
