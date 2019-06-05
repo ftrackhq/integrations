@@ -19,19 +19,19 @@ plugin_base_dir = os.path.normpath(
 )
 
 
-max_script_path = os.path.join(
+max_script_path = os.path.abspath(os.path.join(
     plugin_base_dir, 'resource', 'scripts'
-)
+))
 
-application_hook = os.path.join(
+application_hook = os.path.abspath(os.path.join(
     plugin_base_dir, 'resource', 'application_hook'
-)
+))
 
-python_dependencies = os.path.join(
+python_dependencies = os.path.abspath(os.path.join(
     plugin_base_dir, 'dependencies'
-)
+))
 
-max_startup_folder =  os.path.join(max_script_path, 'startup')
+max_startup_folder = os.path.abspath(os.path.join(max_script_path, 'startup'))
 max_startup_script = os.path.join(max_startup_folder, 'initftrack.ms')
 
 
@@ -54,12 +54,12 @@ def on_application_launch(event):
         event['data']['options']['env']
     )
 
-    # redestributable DLL
-    ftrack_connect.application.appendPath(
-        max_startup_folder,
-        'PATH',
-        event['data']['options']['env']
-    )
+    # # redestributable DLL
+    # ftrack_connect.application.appendPath(
+    #     max_startup_folder,
+    #     'PATH',
+    #     event['data']['options']['env']
+    # )
 
     # Pipeline plugins
     ftrack_connect.application.appendPath(
