@@ -18,9 +18,6 @@ plugin_base_dir = os.path.normpath(
     )
 )
 
-max_connect_plugins_path = os.path.join(
-    plugin_base_dir, 'resource', 'plug_ins'
-)
 
 max_script_path = os.path.join(
     plugin_base_dir, 'resource', 'scripts'
@@ -34,7 +31,8 @@ python_dependencies = os.path.join(
     plugin_base_dir, 'dependencies'
 )
 
-max_startup_script = os.path.join(max_script_path, 'startup', 'initftrack.ms')
+max_startup_folder =  os.path.join(max_script_path, 'startup')
+max_startup_script = os.path.join(max_startup_folder, 'initftrack.ms')
 
 
 def on_application_launch(event):
@@ -56,16 +54,10 @@ def on_application_launch(event):
         event['data']['options']['env']
     )
 
+    # redestributable DLL
     ftrack_connect.application.appendPath(
-        max_script_path,
-        '3DS_MAX_SCRIPT_PATH',
-        event['data']['options']['env']
-    )
-
-    # 3dsmax plugins
-    ftrack_connect.application.appendPath(
-        max_connect_plugins_path,
-        '3DS_MAX_PLUG_IN_PATH',
+        max_startup_folder,
+        'PATH',
         event['data']['options']['env']
     )
 
@@ -76,7 +68,13 @@ def on_application_launch(event):
         event['data']['options']['env']
     )
 
-    event['data']['command'].extend(['-U', 'MAXScript', max_startup_script])
+    # extract executable
+    command = [event['data']['command'][0]]
+
+    # replace startup script
+    command.extend(['-U', 'MAXScript', max_startup_script])
+    event['data']['command'] = command
+
 
 
 def register(session):
