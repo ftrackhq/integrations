@@ -4,6 +4,7 @@
 import functools
 import logging
 import os
+from qtpy import QtWidgets, QtCore, QtGui
 
 from ftrack_connect_pipeline import host
 from ftrack_connect_pipeline.session import get_shared_session
