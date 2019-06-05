@@ -54,12 +54,11 @@ def on_application_launch(event):
         event['data']['options']['env']
     )
 
-    # # redestributable DLL
-    # ftrack_connect.application.appendPath(
-    #     max_startup_folder,
-    #     'PATH',
-    #     event['data']['options']['env']
-    # )
+    ftrack_connect.application.appendPath(
+        max_startup_folder,
+        'PATH',
+        event['data']['options']['env']
+    )
 
     # Pipeline plugins
     ftrack_connect.application.appendPath(
