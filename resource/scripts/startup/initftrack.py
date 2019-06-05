@@ -28,10 +28,6 @@ def open_dialog(dialog_class, hostid):
         created_dialogs[dialog_name] = ftrack_dialog(
             hostid, parent=mainWindow
         )
-        mainWindow.addDockWidget(QtCore.Qt.LeftDockWidgetArea, dockWidget)
-        dockWidget.setFloating(True)
-
-
     created_dialogs[dialog_name].show()
 
 
