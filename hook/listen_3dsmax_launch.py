@@ -60,6 +60,16 @@ def on_application_launch(event):
         event['data']['options']['env']
     )
 
+    paths = event['data']['options']['env']['PATH']
+    new_paths = ';'.join(
+        [
+            path
+            for path in paths.split(';')
+            if 'Perforce' not in path
+        ]
+    )
+    event['data']['options']['env']['PATH'] = new_paths
+
     # Pipeline plugins
     ftrack_connect.application.appendPath(
         application_hook,
@@ -73,7 +83,6 @@ def on_application_launch(event):
     # replace startup script
     command.extend(['-U', 'MAXScript', max_startup_script])
     event['data']['command'] = command
-
 
 
 def register(session):

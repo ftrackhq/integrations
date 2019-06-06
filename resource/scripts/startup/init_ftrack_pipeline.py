@@ -23,10 +23,10 @@ def open_dialog(dialog_class, hostid):
     dialog_name = dialog_class
 
     if dialog_name not in created_dialogs:
-        mainWindow = MaxPlus.GetQMaxMainWindow()
+        main_window = MaxPlus.GetQMaxMainWindow()
         ftrack_dialog = dialog_class
         created_dialogs[dialog_name] = ftrack_dialog(
-            hostid, parent=mainWindow
+            hostid, parent=main_window
         )
     created_dialogs[dialog_name].show()
 
@@ -53,7 +53,7 @@ def load_and_init():
         max_host.notify_connected_client(session, hostid)
 
     menu_name = 'ftrack_pipeline'
-    #ftrack_menu_builder = max_host.get_ftrack_menu()
+    # ftrack_menu_builder = max_host.get_ftrack_menu()
     if MaxPlus.MenuManager.MenuExists(menu_name):
         MaxPlus.MenuManager.UnregisterMenu(menu_name)
     ftrack_menu_builder = MaxPlus.MenuBuilder(menu_name)
