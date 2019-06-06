@@ -1,9 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-# :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
-
 import tempfile
 
 import pymxs
