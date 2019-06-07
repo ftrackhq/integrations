@@ -14,7 +14,7 @@ from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import utils
 from ftrack_connect_pipeline.client.widgets import BaseWidget
 
-from ftrack_connect.ui.widget import header
+from ftrack_connect_pipeline.ui.widget import header
 from ftrack_connect.ui import theme
 
 
@@ -200,7 +200,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         if self.hostid:
             self.combo_hosts.setVisible(False)
 
-        self.header = header.Header(self.session.api_user)
+        self.header = header.Header(self.session)
         self.layout().addWidget(self.header)
         self.combo = QtWidgets.QComboBox()
         self.layout().addWidget(self.combo)
