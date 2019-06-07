@@ -307,9 +307,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
     def on_widget_status_updated(self, data):
         status, message = data
-
-        if isinstance(message, basestring) and status != constants.SUCCESS_STATUS:
-            self.header.setMessage(message, status)
+        self.header.setMessage(message, status)
 
     def send_to_host(self, data, topic):
         '''Send *data* to the host through the given *topic*.'''
@@ -329,4 +327,5 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
     def _on_run(self):
         '''main run function'''
+        self.header.dismissMessage()
         pass

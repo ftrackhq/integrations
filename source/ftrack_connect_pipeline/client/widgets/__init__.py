@@ -51,6 +51,7 @@ class BaseWidget(QtWidgets.QWidget):
         message = message_and_satus[1]
         icon = self.status_icons[status]
         self._status_icon.setPixmap(icon)
+        self._status_icon.setToolTip(str(message))
 
     def set_status(self, status, message):
         self.status_updated.emit((status, message))

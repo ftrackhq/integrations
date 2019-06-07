@@ -183,7 +183,7 @@ class MessageBox(QtWidgets.QWidget):
         self.label.setObjectName(class_type)
 
         self.setStyleSheet(self.styleSheet())
-        self.label.setText(message)
+        self.label.setText(str(message))
         self.icon.setPixmap(constants.status_icons[level])
         self.icon.setVisible(True)
         self.label.setVisible(True)
