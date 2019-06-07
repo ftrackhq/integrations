@@ -86,12 +86,13 @@ class PublisherRunner(object):
 
         result = data[0]['result']
         status = data[0]['status']
+        message = data[0]['message']
 
-        self._notify_client(result, plugin, status)
+        self._notify_client(result, plugin, status, message)
 
         return status, result
 
-    def _notify_client(self, data, plugin, status):
+    def _notify_client(self, data, plugin, status, message=None):
         '''Notify client with *data* for *plugin*'''
 
         widget_ref = plugin['widget_ref']
@@ -100,7 +101,8 @@ class PublisherRunner(object):
             'hostid': self.hostid,
             'widget_ref': widget_ref,
             'data': data,
-            'status': status
+            'status': status,
+            'message': message
         }
 
         event = ftrack_api.event.base.Event(
@@ -219,9 +221,6 @@ class PublisherRunner(object):
 
         publish_plugins = data[constants.PUBLISH]
 
-        self.logger.info('components_status {}'.format(components_status))
-        self.logger.info('components_result {}'.format(components_result))
-
         publish_data = {}
         for item in components_result:
             for output in item.get(constants.OUTPUT):
@@ -236,9 +235,6 @@ class PublisherRunner(object):
         )
         if not all(context_status):
             return
-
-        self.logger.info('publish_status {}'.format(publish_status))
-        self.logger.info('publish_result {}'.format(publish_result))
 
 
 

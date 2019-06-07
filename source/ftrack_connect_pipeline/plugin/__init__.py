@@ -126,12 +126,10 @@ class _Base(object):
         return validator_result
 
     def _run(self, event):
-        result = None
-
         settings = event['data']['settings']
         input_valid, message = self._validate_input_options(settings)
         if not input_valid:
-            return {'status': constants.ERROR_STATUS, 'result': str(message), 'execution_time': 0}
+            return {'status': constants.ERROR_STATUS, 'result': None, 'execution_time': 0, 'message': str(message)}
 
         start_time = time.time()
 
@@ -140,7 +138,7 @@ class _Base(object):
         except Exception as message:
             end_time = time.time()
             total_time = end_time - start_time
-            return {'status': constants.EXCEPTION_STATUS, 'result': str(message), 'execution_time': total_time}
+            return {'status': constants.EXCEPTION_STATUS, 'result': None, 'execution_time': total_time, 'message': str(message)}
 
         end_time = time.time()
         total_time = end_time - start_time
@@ -148,19 +146,19 @@ class _Base(object):
         # Output is valid
         output_valid, output_valid_message = self._validate_result_options(result)
         if not output_valid:
-            return {'status': constants.ERROR_STATUS, 'result': str(output_valid_message), 'execution_time': total_time}
+            return {'status': constants.ERROR_STATUS, 'result': None, 'execution_time': total_time, 'message': str(output_valid_message)}
 
         # Return type is valid
         result_type_valid, result_type_valid_message = self._validate_result_type(result)
         if not result_type_valid:
-            return {'status': constants.ERROR_STATUS, 'result': str(result_type_valid_message), 'execution_time': total_time}
+            return {'status': constants.ERROR_STATUS, 'result': None, 'execution_time': total_time, 'message': str(result_type_valid_message)}
 
         # Return value is valid
         result_value_valid, result_value_valid_message = self._validate_result_value(result)
         if not result_value_valid:
-            return {'status': constants.ERROR_STATUS, 'result': str(result_value_valid_message), 'execution_time': total_time}
+            return {'status': constants.ERROR_STATUS, 'result': None, 'execution_time': total_time, 'message': str(result_value_valid_message)}
 
-        return {'status': constants.SUCCESS_STATUS, 'result': result, 'execution_time': total_time}
+        return {'status': constants.SUCCESS_STATUS, 'result': result, 'execution_time': total_time, 'message': 'Successfully run :{}'.format(self.__class__.__name__)}
 
 
 class BasePlugin(_Base):

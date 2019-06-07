@@ -258,6 +258,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         data = event['data']['pipeline']['data']
         widget_ref = event['data']['pipeline']['widget_ref']
         status = event['data']['pipeline']['status']
+        message = event['data']['pipeline']['message']
 
         widget = self.widgets.get(widget_ref)
         if not widget:
@@ -266,7 +267,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
         self.logger.debug('updating widget: {} with {}'.format(widget, data))
 
-        widget.set_status(status, data)
+        widget.set_status(status, message)
 
     def _listen_widget_updates(self):
         self.session.event_hub.subscribe(
