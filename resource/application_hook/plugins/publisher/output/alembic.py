@@ -18,8 +18,9 @@ class ExtractMaxAlembicPlugin(plugin.ExtractorMaxPlugin):
                 delete=False, suffix='.abc'
             ).name
             self.logger.debug('Calling extractor options: data {}'.format(data))
-            pymxs.runtime.select(data)
-            pymxs.runtime.exportFile(new_file_path, pymxs.runtime.Name("noPrompt"))
+            with pymxs.mxstoken():
+                pymxs.runtime.select(data)
+                pymxs.runtime.exportFile(new_file_path, pymxs.runtime.Name("noPrompt"))
             return {component_name: new_file_path}
 
         component_name = options['component_name']

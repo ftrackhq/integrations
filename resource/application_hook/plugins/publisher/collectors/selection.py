@@ -10,7 +10,7 @@ class CollectSelectionMaxPlugin(plugin.CollectorMaxPlugin):
     plugin_name = 'selection'
 
     def run(self, context=None, data=None, options=None):
-        selection = pymxs.runtime.selection
+        selection = list(pymxs.runtime.selection)
         return selection
 
 
