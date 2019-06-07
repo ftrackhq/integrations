@@ -5,7 +5,7 @@ import os
 import logging
 from QtExt import QtCore, QtWidgets, QtGui
 from ftrack_connect_pipeline.ui.widget import thumbnail
-
+from ftrack_connect_pipeline import constants
 
 # Cache of user names.
 NAME_CACHE = dict()
@@ -151,6 +151,7 @@ class MessageBox(QtWidgets.QWidget):
         self.main_layout = QtWidgets.QHBoxLayout()
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
+
         self.main_layout.setAlignment(
             QtCore.Qt.AlignTop
         )
@@ -159,12 +160,18 @@ class MessageBox(QtWidgets.QWidget):
         self.label = QtWidgets.QLabel(parent=self)
         self.label.resize(QtCore.QSize(900, 80))
 
+        self.icon = QtWidgets.QLabel(parent=self)
+        self.icon.resize(QtCore.QSize(45, 45))
+
         self.label.setSizePolicy(
             QtWidgets.QSizePolicy.Expanding,
             QtWidgets.QSizePolicy.Fixed
         )
         self.label.hide()
         self.label.setObjectName('ftrack-header-message-info')
+
+        self.main_layout.addWidget(self.icon)
+        self.main_layout.addStretch()
 
         self.main_layout.addWidget(self.label)
 
@@ -177,9 +184,13 @@ class MessageBox(QtWidgets.QWidget):
 
         self.setStyleSheet(self.styleSheet())
         self.label.setText(message)
+        self.icon.setPixmap(constants.status_icons[level])
+        self.icon.setVisible(True)
         self.label.setVisible(True)
 
     def dismissMessage(self):
         '''Dismiss the message.'''
         self.label.setText('')
         self.label.setVisible(False)
+        self.icon.setText('')
+        self.icon.setVisible(False)

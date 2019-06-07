@@ -307,16 +307,9 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
     def on_widget_status_updated(self, data):
         status, message = data
-        status_mapping = {
-            constants.UNKNOWN_STATUS: 'warning',
-            constants.ERROR_STATUS: 'error',
-            constants.SUCCESS_STATUS: 'info',
-            constants.WARNING_STATUS: 'warning',
-            constants.EXCEPTION_STATUS: 'error',
-        }
+
         if isinstance(message, basestring) and status != constants.SUCCESS_STATUS:
-            header_status = status_mapping.get(status)
-            self.header.setMessage(message, header_status)
+            self.header.setMessage(message, status)
 
     def send_to_host(self, data, topic):
         '''Send *data* to the host through the given *topic*.'''
