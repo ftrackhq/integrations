@@ -11,11 +11,7 @@ from ftrack_connect_pipeline import constants
 
 class BaseWidget(QtWidgets.QWidget):
     status_updated = QtCore.Signal(object)
-
-    @property
-    def status_icons(self):
-        '''return the status icons'''
-        return self._status_icons
+    status_icons = constants.icons.status_icons
 
     @property
     def session(self):
@@ -59,53 +55,6 @@ class BaseWidget(QtWidgets.QWidget):
     def set_status(self, status, message):
         self.status_updated.emit((status, message))
 
-    def _setup_status_icons(self):
-
-        # UNKNOWN
-        unknown_icon = self.style().standardIcon(
-            QtWidgets.QStyle.SP_TitleBarContextHelpButton
-        ).pixmap(QtCore.QSize(16, 16))
-
-        # RUNNING
-        running_icon = self.style().standardIcon(
-            QtWidgets.QStyle.SP_BrowserReload
-        ).pixmap(QtCore.QSize(16, 16))
-
-        # SUCCESS
-        success_icon = self.style().standardIcon(
-            QtWidgets.QStyle.SP_DialogApplyButton
-        ).pixmap(QtCore.QSize(16, 16))
-
-        # ERROR
-        error_icon = self.style().standardIcon(
-            QtWidgets.QStyle.SP_BrowserStop
-        ).pixmap(QtCore.QSize(16, 16))
-
-        # EXCEPTION
-        exception_icon = self.style().standardIcon(
-            QtWidgets.QStyle.SP_MessageBoxCritical
-        ).pixmap(QtCore.QSize(16, 16))
-
-        # WARNING
-        warning_icon = self.style().standardIcon(
-            QtWidgets.QStyle.SP_MessageBoxWarning
-        ).pixmap(QtCore.QSize(16, 16))
-
-        # DEFAULT
-        default_icon = self.style().standardIcon(
-            QtWidgets.QStyle.SP_MediaPause
-        ).pixmap(QtCore.QSize(16, 16))
-
-        self._status_icons = {
-            constants.UNKNOWN_STATUS:unknown_icon,
-            constants.DEFAULT_STATUS: default_icon,
-            constants.ERROR_STATUS: error_icon,
-            constants.WARNING_STATUS: warning_icon,
-            constants.EXCEPTION_STATUS: exception_icon,
-            constants.RUNNING_STATUS: running_icon,
-            constants.SUCCESS_STATUS: success_icon,
-        }
-
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
         '''initialise widget.'''
         super(BaseWidget, self).__init__(parent=parent)
@@ -123,7 +72,6 @@ class BaseWidget(QtWidgets.QWidget):
         self._options = options
         self._results = {}
 
-        self._setup_status_icons()
         # Build widget
         self.pre_build()
         self.build()
