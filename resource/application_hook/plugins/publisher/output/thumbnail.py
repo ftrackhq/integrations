@@ -12,22 +12,18 @@ class ExtractThumbnailPlugin(plugin.ExtractorMaxPlugin):
     plugin_name = 'thumbnail'
 
     def run(self, context=None, data=None, options=None):
-        view = MaxPlus.ViewportManager.GetActiveViewport()
-        bm = MaxPlus.Factory.CreateBitmap()
-        storage = MaxPlus.Factory.CreateStorage(7)
-        info = storage.GetBitmapInfo()
-        bm.SetStorage(storage)
-        bm.DeleteStorage()
-        res = view.GetDIB(info, bm)
-        if not res:
-            return
+        viewport_index = data[0]
+        MaxPlus.ViewportManager.SetActiveViewport(viewport_index)
+        MaxPlus.ViewportManager.SetViewportMax(True)
 
         filename = '{0}.jpg'.format(uuid.uuid4().hex)
         outpath = os.path.join(MaxPlus.PathManager.GetTempDir(), filename)
-        info.SetName(outpath)
-        bm.OpenOutput(info)
-        bm.Write(info)
-        bm.Close(info)
+        render = MaxPlus.RenderSettings
+        render.SetOutputFile(outpath)
+        render.SetSaveFile(True)
+
+        MaxPlus.RenderExecute.QuickRender()
+
         return outpath
 
 

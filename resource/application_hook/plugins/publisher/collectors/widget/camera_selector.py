@@ -1,30 +1,30 @@
-
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
 from functools import partial
 
+from ftrack_connect_pipeline.client.widgets import BaseWidget
 from qtpy import QtWidgets
 
-
 from ftrack_connect_pipeline_3dsmax import plugin
-from ftrack_connect_pipeline.client.widgets import BaseWidget
 
 
 class Camera3dsMaxWidget(BaseWidget):
     MAX_CAMERA_CLASS_ID = 32
-    def __init__(self, session=None, data=None, name=None, description=None, options=None):
 
+    def __init__(self, session=None, data=None, name=None, description=None, options=None):
         import MaxPlus
         self.cameras = []
         root = MaxPlus.Core.GetRootNode()
 
         for node in root.Children:
             if node.Object.SuperClassID == self.MAX_CAMERA_CLASS_ID:
-                self.cameras(node.GetName())
+                self.cameras.append(node.name)
 
-        super(Camera3dsMaxWidget, self).__init__(session=session, data=data, name=name,
-            description=description, options=options)
+        super(Camera3dsMaxWidget, self).__init__(
+            session=session, data=data, name=name, description=description,
+            options=options
+        )
 
     def build(self):
         super(Camera3dsMaxWidget, self).build()
@@ -37,7 +37,7 @@ class Camera3dsMaxWidget(BaseWidget):
             self.nodes_cb.editTextChanged.connect(update_fn)
             self.set_option_result(camera_names[0], 'camera_name')
         else:
-            self.nodes_cb.addItem('No Camera found found.')
+            self.nodes_cb.addItem('No Camera found.')
             self.nodes_cb.setDisabled(True)
 
 

@@ -12,20 +12,20 @@ class ExtractMaxAlembicPlugin(plugin.ExtractorMaxPlugin):
     plugin_name = 'ExtractMaxAlembicPlugin'
 
     def run(self, context=None, data=None, options=None):
-
-        def call(component_name):
-            new_file_path = tempfile.NamedTemporaryFile(
-                delete=False, suffix='.abc'
-            ).name
-            self.logger.debug('Calling extractor options: data {}'.format(data))
-            with pymxs.mxstoken():
-                pymxs.runtime.select(data)
-                pymxs.runtime.exportFile(new_file_path, pymxs.runtime.Name("noPrompt"))
-            return {component_name: new_file_path}
-
         component_name = options['component_name']
-        # TODO figure out if we need to duplicate the Maya main thread construstion
-        return call(component_name)
+        new_file_path = tempfile.NamedTemporaryFile(
+            delete=False, suffix='.abc'
+        ).name
+        self.logger.debug('Calling extractor options: data {}'.format(data))
+
+        with pymxs.mxstoken():
+            pymxs.runtime.clearSelection()
+            for node_name in data:
+                pymxs.runtime.selectMore(
+                    pymxs.runtime.getNodeByName(node_name)
+                )
+            pymxs.runtime.exportFile(new_file_path, pymxs.runtime.Name("noPrompt"))
+        return {component_name: new_file_path}
 
 
 def register(api_object, **kw):

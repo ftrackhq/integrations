@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import pymxs
+
 from ftrack_connect_pipeline_3dsmax import plugin
 
 
@@ -10,9 +11,11 @@ class CollectCameraMaxPlugin(plugin.CollectorMaxPlugin):
 
     def run(self, context=None, data=None, options=None):
         camera_name = options.get('camera_name', 'persp')
-        camera = pymxs.runtime.getNodeByName(camera_name)
+        with pymxs.mxstoken():
+            camera = pymxs.runtime.getNodeByName(camera_name)
         if camera:
-            return camera.name
+            return [camera.name]
+        return []
 
 
 def register(api_object, **kw):

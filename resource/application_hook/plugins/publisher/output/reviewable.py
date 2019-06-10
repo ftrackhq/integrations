@@ -14,6 +14,7 @@ class ExtractReviewablePlugin(plugin.ExtractorMaxPlugin):
     def run(self, context=None, data=None, options=None):
         pass
 
+
 def register(api_object, **kw):
     plugin = ExtractReviewablePlugin(api_object)
     plugin.register()
