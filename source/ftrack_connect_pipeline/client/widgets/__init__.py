@@ -1,10 +1,9 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-
-
 import logging
-from qtpy import QtWidgets, QtCore, QtGui
+
+from qtpy import QtCore, QtWidgets
 
 from ftrack_connect_pipeline import constants
 
@@ -12,6 +11,9 @@ from ftrack_connect_pipeline import constants
 class BaseWidget(QtWidgets.QWidget):
     status_updated = QtCore.Signal(object)
     status_icons = constants.icons.status_icons
+
+    def __str__(self):
+        return '{} {}'.format(self.__class__.__name__, self.name)
 
     @property
     def session(self):
@@ -46,9 +48,8 @@ class BaseWidget(QtWidgets.QWidget):
         '''return the current option results'''
         return self._results
 
-    def _set_internal_status(self, message_and_satus):
-        status = message_and_satus[0]
-        message = message_and_satus[1]
+    def _set_internal_status(self, data):
+        status, message = data
         icon = self.status_icons[status]
         self._status_icon.setPixmap(icon)
         self._status_icon.setToolTip(str(message))

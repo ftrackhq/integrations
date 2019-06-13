@@ -2,11 +2,12 @@
 # :copyright: Copyright (c) 2015 ftrack
 
 import os
-import urllib2
-import urllib
 import logging
+import urllib
+import urllib2
 
-from qtpy import QtWidgets, QtCore, QtGui
+from qtpy import QtCore, QtGui, QtWidgets
+
 from ftrack_connect_pipeline.utils import Worker
 
 # Cache of thumbnail images.
@@ -153,7 +154,7 @@ class User(EllipseBase):
     def _download(self, reference):
         '''Return thumbnail from *reference*.'''
         thumbnail = self.session.query(
-            'select thumbnail from User where username is {}'.format(
+            'select thumbnail from User where username is "{}"'.format(
                 reference
             )
         ).first()['thumbnail']

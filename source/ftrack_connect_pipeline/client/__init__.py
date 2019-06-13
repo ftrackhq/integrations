@@ -1,21 +1,19 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-import os
-import uuid
-import ftrack_api
 import logging
+import uuid
 
-from qtpy import QtWidgets, QtCore
+from ftrack_connect.ui import theme
+from qtpy import QtCore, QtWidgets
+import ftrack_api
 
-from ftrack_connect_pipeline import event
-from ftrack_connect_pipeline.session import get_shared_session
 from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline import event
 from ftrack_connect_pipeline import utils
 from ftrack_connect_pipeline.client.widgets import BaseWidget
-
+from ftrack_connect_pipeline.session import get_shared_session
 from ftrack_connect_pipeline.ui.widget import header
-from ftrack_connect.ui import theme
 
 
 class BaseQtPipelineWidget(QtWidgets.QWidget):
@@ -135,7 +133,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
     def on_change_host(self, index):
         '''triggered when chaging host selection to *index*'''
-        results  = self.combo_hosts.itemData(index)
+        results = self.combo_hosts.itemData(index)
         if not results:
             return
 
@@ -238,12 +236,11 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
                     'ui': self.ui,
                     'host': self.host,
                 },
-                'settings':
-                    {
-                        'options': plugin_options,
-                        'name': name,
-                        'description': description,
-                    }
+                'settings': {
+                    'options': plugin_options,
+                    'name': name,
+                    'description': description,
+                }
             }
         )
 
@@ -286,13 +283,22 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
         plugin_name = plugin.get('widget')
         data = self._fetch_widget(plugin, plugin_type, plugin_name, extra_options=extra_options)
-
         if not data:
             data = self._fetch_default_widget(plugin, plugin_type)
 
         data = data[0]
 
+        message = data['message']
         result = data['result']
+        status = data['status']
+
+        if status == constants.EXCEPTION_STATUS:
+            raise Exception(
+                'Got response "{}"" while fetching:\n'
+                'plugin: {}\n'
+                'plugin_type: {}\n'
+                'plugin_name: {}'.format(message, plugin, plugin_type, plugin_name)
+            )
 
         if result and not isinstance(result, BaseWidget):
             raise Exception(
@@ -315,8 +321,8 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         event = ftrack_api.event.base.Event(
             topic=topic,
             data={
-                'pipeline':{
-                    'hostid':self.hostid,
+                'pipeline': {
+                    'hostid': self.hostid,
                     'data': data,
                 }
             }

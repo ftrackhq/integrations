@@ -1,11 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015 ftrack
 
-import os
-import logging
 from QtExt import QtCore, QtWidgets, QtGui
-from ftrack_connect_pipeline.ui.widget import thumbnail
+
 from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline.ui.widget import thumbnail
 
 # Cache of user names.
 NAME_CACHE = dict()
@@ -132,10 +131,14 @@ class User(QtWidgets.QWidget):
 
         if username not in NAME_CACHE:
             user = self.session.query(
-                'select first_name, last_name from User where username is {}'.format(username)
+                'select first_name, last_name from User where username is "{}"'.format(
+                    username
+                )
             ).first()
 
-            NAME_CACHE[username] = '{} {}'.format(user['first_name'], user['last_name']).title()
+            NAME_CACHE[username] = '{} {}'.format(
+                user['first_name'], user['last_name']
+            ).title()
 
         self.label.setText(NAME_CACHE[username])
 

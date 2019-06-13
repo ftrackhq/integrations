@@ -138,6 +138,7 @@ class _Base(object):
         except Exception as message:
             end_time = time.time()
             total_time = end_time - start_time
+            self.logger.debug(message, exc_info=True)
             return {'status': constants.EXCEPTION_STATUS, 'result': None, 'execution_time': total_time, 'message': str(message)}
 
         end_time = time.time()

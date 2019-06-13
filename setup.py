@@ -156,7 +156,6 @@ setup(
     install_requires=[
         'jsonschema==2.6.0',
         'appdirs',
-        'ftrack_action_handler < 1',
         'qtpy >=1.0.0, < 2'
     ],
     tests_require=[
