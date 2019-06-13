@@ -1,14 +1,15 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-from qtpy import QtCore, QtWidgets
 from ftrack_connect_pipeline.client.publish import QtPipelinePublishWidget
+from qtpy import QtCore, QtWidgets
 
 from ftrack_connect_pipeline_3dsmax.constants import HOST, UI
 
 
 class QtPipelineMaxPublishWidget(QtWidgets.QDockWidget):
     '''Dockable maya load widget'''
+
     def __init__(self, hostid, parent=None):
         super(QtPipelineMaxPublishWidget, self).__init__(parent=parent)
         self.my_widget = QtPipelinePublishWidget(

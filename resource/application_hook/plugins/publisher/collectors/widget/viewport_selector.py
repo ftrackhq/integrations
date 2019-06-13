@@ -16,11 +16,12 @@ class Viewport3dsMaxWidget(BaseWidget):
         self.viewports = []
 
         for index, view in enumerate(MaxPlus.ViewportManager.Viewports):
-            # view_type = view.GetViewType()
-            # if view_type == 7:  # USER_PERSP
-            self.viewports.append(
-                (MaxPlus.ViewportManager.getViewportLabel(index), index)
-            )
+            entry = (MaxPlus.ViewportManager.getViewportLabel(index), index)
+            view_type = view.GetViewType()
+            if view_type == 7:  # USER_PERSP
+                self.viewports.insert(0, entry)
+            else:
+                self.viewports.append(entry)
 
         super(Viewport3dsMaxWidget, self).__init__(
             session=session, data=data, name=name, description=description,
@@ -34,15 +35,14 @@ class Viewport3dsMaxWidget(BaseWidget):
         if self.viewports:
             for label, index in self.viewports:
                 self.nodes_cb.addItem(label, index)
-            self.nodes_cb.currentIndexChanged.connect(
-                lambda x: self.set_option_result(
-                    self.notes_cb.currentData(), key='viewport_index'
-                )
-            )
+            self.nodes_cb.currentIndexChanged.connect(self._process_change)
             self.set_option_result(self.nodes_cb.currentData(), 'viewport_index')
         else:
             self.nodes_cb.addItem('No Viewport found.')
             self.nodes_cb.setDisabled(True)
+
+    def _process_change(self, *args):
+        self.set_option_result(self.nodes_cb.currentData(), 'viewport_index')
 
 
 class Viewport3dsMaxPlugin(plugin.CollectorMaxWidget):
