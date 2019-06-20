@@ -9,7 +9,7 @@ import maya
 from ftrack_connect_pipeline_maya import plugin
 
 
-class ExtractMayaReviewablePlugin(plugin.OutputMayaPlugin):
+class OutputMayaReviewablePlugin(plugin.OutputMayaPlugin):
     plugin_name = 'reviewable'
 
     def run(self, context=None, data=None, options=None):
@@ -60,5 +60,5 @@ class ExtractMayaReviewablePlugin(plugin.OutputMayaPlugin):
 
 
 def register(api_object, **kw):
-    plugin = ExtractMayaReviewablePlugin(api_object)
+    plugin = OutputMayaReviewablePlugin(api_object)
     plugin.register()

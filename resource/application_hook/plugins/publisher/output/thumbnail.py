@@ -12,7 +12,7 @@ import maya
 from ftrack_connect_pipeline_maya import plugin
 
 
-class ExtractMayaThumbnailPlugin(plugin.OutputMayaPlugin):
+class OutputMayaThumbnailPlugin(plugin.OutputMayaPlugin):
     plugin_name = 'thumbnail'
 
     def run(self, context=None, data=None, options=None):
@@ -72,5 +72,5 @@ class ExtractMayaThumbnailPlugin(plugin.OutputMayaPlugin):
 
 
 def register(api_object, **kw):
-    plugin = ExtractMayaThumbnailPlugin(api_object)
+    plugin = OutputMayaThumbnailPlugin(api_object)
     plugin.register()
