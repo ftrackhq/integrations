@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: changed
+       :tags: Internal
+
+        Replace QtExt module with QtPy.
+
 .. release:: 2.2.1
     :date: 2019-05-22
 
