@@ -6,7 +6,7 @@ import tempfile
 from ftrack_connect_pipeline import plugin
 
 
-class TmpExtractorPlugin(plugin.OutputPlugin):
+class TmpOutputPlugin(plugin.OutputPlugin):
     plugin_name = 'to_tmp'
 
     def run(self, context=None, data=None, options=None):
@@ -20,5 +20,5 @@ class TmpExtractorPlugin(plugin.OutputPlugin):
 
 
 def register(api_object, **kw):
-    plugin = TmpExtractorPlugin(api_object)
+    plugin = TmpOutputPlugin(api_object)
     plugin.register()
