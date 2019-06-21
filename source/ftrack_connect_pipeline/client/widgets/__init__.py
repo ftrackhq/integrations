@@ -1,21 +1,19 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-
-
 import logging
-from qtpy import QtWidgets, QtCore, QtGui
+
+from qtpy import QtCore, QtWidgets
 
 from ftrack_connect_pipeline import constants
 
 
 class BaseWidget(QtWidgets.QWidget):
     status_updated = QtCore.Signal(object)
+    status_icons = constants.icons.status_icons
 
-    @property
-    def status_icons(self):
-        '''return the status icons'''
-        return self._status_icons
+    def __str__(self):
+        return '{} {}'.format(self.__class__.__name__, self.name)
 
     @property
     def session(self):
@@ -44,49 +42,20 @@ class BaseWidget(QtWidgets.QWidget):
 
     def set_option_result(self, value, key):
         '''set the result options of value for the key.'''
-        self.logger.info('setting : {} to {}'.format(key, value))
         self._results[key] = value
 
     def get_option_results(self):
         '''return the current option results'''
         return self._results
 
-    def _set_internal_status(self, result):
-        icon = self.status_icons[result]
+    def _set_internal_status(self, data):
+        status, message = data
+        icon = self.status_icons[status]
         self._status_icon.setPixmap(icon)
+        self._status_icon.setToolTip(str(message))
 
-    def set_status(self, status):
-        self.status_updated.emit(status)
-
-    def _setup_status_icons(self):
-
-        success_icon = self.style().standardIcon(
-            QtWidgets.QStyle.SP_DialogOkButton
-        ).pixmap(QtCore.QSize(16, 16))
-
-        error_icon = self.style().standardIcon(
-            QtWidgets.QStyle.SP_MessageBoxCritical
-        ).pixmap(QtCore.QSize(16, 16))
-
-        warning_icon = self.style().standardIcon(
-            QtWidgets.QStyle.SP_MessageBoxWarning
-        ).pixmap(QtCore.QSize(16, 16))
-
-        running_icon = self.style().standardIcon(
-            QtWidgets.QStyle.SP_MediaPlay
-        ).pixmap(QtCore.QSize(16, 16))
-
-        default_icon = self.style().standardIcon(
-            QtWidgets.QStyle.SP_MediaPause
-        ).pixmap(QtCore.QSize(16, 16))
-
-        self._status_icons = {
-            constants.SUCCESS_STATUS: success_icon,
-            constants.ERROR_STATUS: error_icon,
-            constants.SUCCESS_STATUS: warning_icon,
-            constants.RUNNING_STATUS: running_icon,
-            constants.DEFAULT_STATUS: default_icon
-        }
+    def set_status(self, status, message):
+        self.status_updated.emit((status, message))
 
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
         '''initialise widget.'''
@@ -105,7 +74,6 @@ class BaseWidget(QtWidgets.QWidget):
         self._options = options
         self._results = {}
 
-        self._setup_status_icons()
         # Build widget
         self.pre_build()
         self.build()

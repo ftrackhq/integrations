@@ -1,21 +1,19 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-import os
-import uuid
-import ftrack_api
 import logging
+import uuid
 
-from qtpy import QtWidgets, QtCore
+from ftrack_connect.ui import theme
+from qtpy import QtCore, QtWidgets
+import ftrack_api
 
-from ftrack_connect_pipeline import event
-from ftrack_connect_pipeline.session import get_shared_session
 from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline import event
 from ftrack_connect_pipeline import utils
 from ftrack_connect_pipeline.client.widgets import BaseWidget
-
-from ftrack_connect.ui.widget import header
-from ftrack_connect.ui import theme
+from ftrack_connect_pipeline.session import get_shared_session
+from ftrack_connect_pipeline.ui.widget import header
 
 
 class BaseQtPipelineWidget(QtWidgets.QWidget):
@@ -91,7 +89,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             self._context = self.session.get('Context', context_id)
 
         # apply styles
-        theme.applyTheme(self, 'dark', 'cleanlooks')
+        theme.applyTheme(self, 'dark')
         theme.applyFont()
 
     def fetch_package_definitions(self):
@@ -135,7 +133,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
     def on_change_host(self, index):
         '''triggered when chaging host selection to *index*'''
-        results  = self.combo_hosts.itemData(index)
+        results = self.combo_hosts.itemData(index)
         if not results:
             return
 
@@ -159,7 +157,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
     def _host_discovered(self, event):
         '''callback to to add new hosts *event*.'''
-        self.logger.info('_host_discovered : {}'.format(event['data']))
+        self.logger.debug('_host_discovered : {}'.format(event['data']))
         hostid = str(event['data']['hostid'])
         context_id = str(event['data']['context_id'])
         self.combo_hosts.addItem(hostid, (hostid, context_id))
@@ -200,7 +198,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         if self.hostid:
             self.combo_hosts.setVisible(False)
 
-        self.header = header.Header(self.session.api_user)
+        self.header = header.Header(self.session)
         self.layout().addWidget(self.header)
         self.combo = QtWidgets.QComboBox()
         self.layout().addWidget(self.combo)
@@ -238,36 +236,35 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
                     'ui': self.ui,
                     'host': self.host,
                 },
-                'settings':
-                    {
-                        'options': plugin_options,
-                        'name': name,
-                        'description': description,
-                    }
+                'settings': {
+                    'options': plugin_options,
+                    'name': name,
+                    'description': description,
+                }
             }
         )
 
-        default_widget = self.session.event_hub.publish(
+        result = self.session.event_hub.publish(
             event,
             synchronous=True
         )
-
-        return default_widget
+        return result
 
     def _update_widget(self, event):
         '''*event* callback to update widget with the current status/value'''
         data = event['data']['pipeline']['data']
         widget_ref = event['data']['pipeline']['widget_ref']
         status = event['data']['pipeline']['status']
+        message = event['data']['pipeline']['message']
 
         widget = self.widgets.get(widget_ref)
         if not widget:
             self.logger.warning('Widget ref :{} not found ! '.format(widget_ref))
             return
 
-        self.logger.info('updating widget: {} with {}'.format(widget, data))
-        widget.set_status(status)
-        widget.setDisabled(True)
+        self.logger.debug('updating widget: {} with {}'.format(widget, data))
+
+        widget.set_status(status, message)
 
     def _listen_widget_updates(self):
         self.session.event_hub.subscribe(
@@ -285,25 +282,47 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         '''Retrieve widget for the given *plugin*, *plugin_type*.'''
 
         plugin_name = plugin.get('widget')
-        result_widget = self._fetch_widget(plugin, plugin_type, plugin_name, extra_options=extra_options)
-        if not result_widget:
-            result_widget = self._fetch_default_widget(plugin, plugin_type)
+        data = self._fetch_widget(plugin, plugin_type, plugin_name, extra_options=extra_options)
+        if not data:
+            data = self._fetch_default_widget(plugin, plugin_type)
 
-        if result_widget and not isinstance(result_widget[0], BaseWidget):
+        data = data[0]
+
+        message = data['message']
+        result = data['result']
+        status = data['status']
+
+        if status == constants.EXCEPTION_STATUS:
             raise Exception(
-                'Widget should inherit from {}'.format(
+                'Got response "{}"" while fetching:\n'
+                'plugin: {}\n'
+                'plugin_type: {}\n'
+                'plugin_name: {}'.format(message, plugin, plugin_type, plugin_name)
+            )
+
+        if result and not isinstance(result, BaseWidget):
+            raise Exception(
+                'Widget {} should inherit from {}'.format(
+                    result,
                     BaseWidget
                 )
             )
-        return result_widget[0]
+
+        result.status_updated.connect(self.on_widget_status_updated)
+
+        return result
+
+    def on_widget_status_updated(self, data):
+        status, message = data
+        self.header.setMessage(message, status)
 
     def send_to_host(self, data, topic):
         '''Send *data* to the host through the given *topic*.'''
         event = ftrack_api.event.base.Event(
             topic=topic,
             data={
-                'pipeline':{
-                    'hostid':self.hostid,
+                'pipeline': {
+                    'hostid': self.hostid,
                     'data': data,
                 }
             }
@@ -315,4 +334,5 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
     def _on_run(self):
         '''main run function'''
+        self.header.dismissMessage()
         pass

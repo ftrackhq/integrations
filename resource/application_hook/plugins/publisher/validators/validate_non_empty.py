@@ -4,12 +4,14 @@
 from ftrack_connect_pipeline import plugin
 
 
-class NoneEmptyValidatorPlugin(plugin.ValidatorPlugin):
+class NonEmptyValidatorPlugin(plugin.ValidatorPlugin):
     plugin_name = 'nonempty'
 
     def run(self, context=None, data=None, options=None):
-        return bool(data)
+        self.logger.info('data: {}'.format(data))
+        return all(bool(datum) for datum in data)
+
 
 def register(api_object, **kw):
-    plugin = NoneEmptyValidatorPlugin(api_object)
+    plugin = NonEmptyValidatorPlugin(api_object)
     plugin.register()

@@ -26,7 +26,6 @@ class AssetComboBox(QtWidgets.QComboBox):
             'from Asset where versions.task.id is {} and type.id is {}'.format(
                 context['id'], self.asset_type['id'])
         ).all()
-        self.logger.info('assets: {}'.format(assets))
         for asset in assets:
             self.addItem(asset['name'], asset['id'])
 
@@ -51,7 +50,6 @@ class AssetSelector(QtWidgets.QWidget):
             'AssetType where short is "{}"'.format(asset_type)
         ).one()
 
-        self.logger.info('asset type:{}'.format(self.asset_type))
 
         self.asset_combobox = AssetComboBox(self.session, self.asset_type)
         self.layout().addWidget(self.asset_combobox)

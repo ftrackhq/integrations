@@ -3,7 +3,7 @@
 
 import logging
 import ftrack_api
-
+import time
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import exception
 from ftrack_connect_pipeline.client.widgets import BaseWidget
@@ -17,8 +17,12 @@ class _Base(object):
     host = constants.HOST
     ui = constants.UI
     return_type = None
+    return_value = None
     input_options = []
     output_options = []
+
+    def __repr__(self):
+        return '<{}:{}>'.format(self.plugin_type, self.plugin_name)
 
     @property
     def discover_topic(self):
@@ -71,52 +75,91 @@ class _Base(object):
         raise NotImplementedError('Missing run method.')
 
     def _validate_input_options(self, settings):
+        validator_result = (True, "")
         if settings.get('options'):
             for input_option in self.input_options:
                 if input_option not in settings['options']:
                     message = '{} require {} input option'.format(
                             self.__class__.__name__, input_option
                         )
-                    return False, message
-        return True, ""
+                    validator_result= (False, message)
+
+        return validator_result
 
     def _validate_result_options(self, result):
+        validator_result = (True, "")
+
         for output_option in self.output_options:
+
             if output_option not in result:
                 message = '{} require {} result option'.format(
                     self.__class__.__name__, output_option
                 )
-                return False, message
-        return True, ""
+                validator_result = (False, message)
+
+
+        return validator_result
+
+    def _validate_result_value(self, result):
+        validator_result = (True, "")
+
+        if self.return_value is not None:
+
+            if result != self.return_value:
+                message = 'Return value of {} is not {}'.format(
+                    self.__class__.__name__, self.return_value
+                )
+                validator_result = (False, message)
+
+        return validator_result
 
     def _validate_result_type(self, result):
-        if self.return_type:
+        validator_result = (True, "")
+
+        if self.return_type is not None:
             if not isinstance(result, self.return_type):
                 message = 'Return value of {} is of type {}, should {} type'.format(
                     self.__class__.__name__, type(result), self.return_type
                 )
-                return False, message
+                validator_result = (False, message)
 
-        return True, ""
+        return validator_result
 
     def _run(self, event):
         settings = event['data']['settings']
-        self.logger.debug(settings)
         input_valid, message = self._validate_input_options(settings)
         if not input_valid:
-            raise Exception(message)
+            return {'status': constants.ERROR_STATUS, 'result': None, 'execution_time': 0, 'message': str(message)}
 
-        result = self.run(**settings)
+        start_time = time.time()
 
-        output_valid, message = self._validate_result_options(result)
+        try:
+            result = self.run(**settings)
+        except Exception as message:
+            end_time = time.time()
+            total_time = end_time - start_time
+            self.logger.debug(message, exc_info=True)
+            return {'status': constants.EXCEPTION_STATUS, 'result': None, 'execution_time': total_time, 'message': str(message)}
+
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        # Output is valid
+        output_valid, output_valid_message = self._validate_result_options(result)
         if not output_valid:
-            raise Exception(message)
+            return {'status': constants.ERROR_STATUS, 'result': None, 'execution_time': total_time, 'message': str(output_valid_message)}
 
-        result_valid, message = self._validate_result_type(result)
-        if not result_valid:
-            raise Exception(message)
+        # Return type is valid
+        result_type_valid, result_type_valid_message = self._validate_result_type(result)
+        if not result_type_valid:
+            return {'status': constants.ERROR_STATUS, 'result': None, 'execution_time': total_time, 'message': str(result_type_valid_message)}
 
-        return result
+        # Return value is valid
+        result_value_valid, result_value_valid_message = self._validate_result_value(result)
+        if not result_value_valid:
+            return {'status': constants.ERROR_STATUS, 'result': None, 'execution_time': total_time, 'message': str(result_value_valid_message)}
+
+        return {'status': constants.SUCCESS_STATUS, 'result': result, 'execution_time': total_time, 'message': 'Successfully run :{}'.format(self.__class__.__name__)}
 
 
 class BasePlugin(_Base):

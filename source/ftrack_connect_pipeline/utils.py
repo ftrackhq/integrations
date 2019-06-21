@@ -3,6 +3,7 @@
 
 import threading
 import sys
+import logging
 
 import os
 from qtpy import QtCore
@@ -65,6 +66,11 @@ class Worker(QtCore.QThread):
 
         '''
         super(Worker, self).__init__(parent=parent)
+
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+
         self.function = function
         self.args = args or []
         self.kwargs = kwargs or {}
@@ -75,7 +81,8 @@ class Worker(QtCore.QThread):
         '''Execute function and store result.'''
         try:
             self.result = self.function(*self.args, **self.kwargs)
-        except Exception:
+        except Exception as error:
+            self.logger.error(str(error))
             self.error = sys.exc_info()
 
 
