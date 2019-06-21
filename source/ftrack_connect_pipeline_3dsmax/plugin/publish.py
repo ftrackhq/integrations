@@ -14,7 +14,7 @@ class ValidatorMaxPlugin(BaseMaxPlugin, plugin.ValidatorPlugin):
     plugin_type = constants.VALIDATE
 
 
-class ExtractorMaxPlugin(BaseMaxPlugin, plugin.OutputPlugin):
+class OutputMaxPlugin(BaseMaxPlugin, plugin.OutputPlugin):
     plugin_type = constants.OUTPUT
 
 
@@ -31,7 +31,7 @@ class ValidatorMaxWidget(BaseMaxWidget, plugin.ValidatorWidget):
     plugin_type = constants.VALIDATE
 
 
-class ExtractorMaxWidget(BaseMaxWidget, plugin.OutputWidget):
+class OutputMaxWidget(BaseMaxWidget, plugin.OutputWidget):
     plugin_type = constants.OUTPUT
 
 

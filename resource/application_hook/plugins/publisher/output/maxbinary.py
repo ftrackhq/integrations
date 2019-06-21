@@ -9,8 +9,8 @@ import pymxs
 from ftrack_connect_pipeline_3dsmax import plugin
 
 
-class ExtractMaxBinaryPlugin(plugin.ExtractorMaxPlugin):
-    plugin_name = 'ExtractMaxBinaryPlugin'
+class OutputMaxBinaryPlugin(plugin.OutputMaxPlugin):
+    plugin_name = 'OutputMaxBinaryPlugin'
 
     def run(self, context=None, data=None, options=None):
         component_name = options['component_name']
@@ -37,5 +37,5 @@ class ExtractMaxBinaryPlugin(plugin.ExtractorMaxPlugin):
 
 
 def register(api_object, **kw):
-    plugin = ExtractMaxBinaryPlugin(api_object)
+    plugin = OutputMaxBinaryPlugin(api_object)
     plugin.register()

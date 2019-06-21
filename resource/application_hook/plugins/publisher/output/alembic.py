@@ -9,8 +9,8 @@ import pymxs
 from ftrack_connect_pipeline_3dsmax import plugin
 
 
-class ExtractMaxAlembicPlugin(plugin.ExtractorMaxPlugin):
-    plugin_name = 'ExtractMaxAlembicPlugin'
+class OutputMaxAlembicPlugin(plugin.OutputMaxPlugin):
+    plugin_name = 'OutputMaxAlembicPlugin'
 
     def run(self, context=None, data=None, options=None):
         component_name = options['component_name']
@@ -47,5 +47,5 @@ class ExtractMaxAlembicPlugin(plugin.ExtractorMaxPlugin):
 
 
 def register(api_object, **kw):
-    plugin = ExtractMaxAlembicPlugin(api_object)
+    plugin = OutputMaxAlembicPlugin(api_object)
     plugin.register()

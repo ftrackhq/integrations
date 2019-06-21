@@ -8,7 +8,7 @@ import pymxs
 from ftrack_connect_pipeline_3dsmax import plugin
 
 
-class ExtractReviewablePlugin(plugin.ExtractorMaxPlugin):
+class OutputReviewablePlugin(plugin.OutputMaxPlugin):
     plugin_name = 'reviewable'
 
     def run(self, context=None, data=None, options=None):
@@ -16,5 +16,5 @@ class ExtractReviewablePlugin(plugin.ExtractorMaxPlugin):
 
 
 def register(api_object, **kw):
-    plugin = ExtractReviewablePlugin(api_object)
+    plugin = OutputReviewablePlugin(api_object)
     plugin.register()
