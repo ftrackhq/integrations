@@ -4,7 +4,8 @@
 from __future__ import absolute_import
 
 import hiero.core
-from QtExt import QtWidgets, QtCore
+from qtpy import QtWidgets, QtCore, QtGui
+
 
 from ftrack_connect_nuke_studio import config
 config.configure_logging('ftrack_connect_nuke_studio', level='WARNING')
@@ -20,7 +21,7 @@ import ftrack_connect_nuke_studio.resource
 def populate_ftrack(event):
     '''Populate the ftrack menu with items.'''
     import hiero.ui
-    from QtExt import QtGui
+    from qtpy import QtWidgets, QtCore, QtGui
 
     menu_bar = hiero.ui.menuBar()
     ftrack_menu = menu_bar.addMenu(

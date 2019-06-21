@@ -62,7 +62,7 @@ class BuildResources(Command):
         Qt.
 
         '''
-        replace = 'from QtExt import QtCore'
+        replace = 'from qtpy import QtCore'
         for line in fileinput.input(self.resource_target_path, inplace=True):
             if 'import QtCore' in line:
                 # Calling print will yield a new line in the resource file.
@@ -187,7 +187,8 @@ setup(
     install_requires=[
         'appdirs == 1.4.0',
         'lucidity >= 1.5, < 2',
-        'opentimelineio >=0.9, <1'
+        'opentimelineio >=0.9, <1',
+        'qtpy >=1.0.0, < 2'
     ],
     tests_require=[
     ],

@@ -3,7 +3,7 @@
 
 import os
 import logging
-from QtExt import QtWidgets, QtGui, QtCore
+from qtpy import QtWidgets, QtCore, QtGui
 
 from ftrack_connect_nuke_studio.base import FtrackBase
 from ftrack_connect_nuke_studio.overrides.version_scanner import add_ftrack_build_tag
