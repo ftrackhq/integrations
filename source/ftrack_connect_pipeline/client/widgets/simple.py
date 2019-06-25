@@ -14,6 +14,7 @@ class SimpleWidget(BaseWidget):
             int: self._build_int_widget,
             float: self._build_float_widget,
             list: self._build_list_widget,
+            bool: self._build_bool_widget
         }
         super(SimpleWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options)
 
@@ -52,6 +53,16 @@ class SimpleWidget(BaseWidget):
         self._register_widget(key, widget)
         update_fn = partial(self.set_option_result, key=key)
         widget.valueChanged.connect(update_fn)
+        self.set_option_result(value, key)
+
+    def _build_bool_widget(self, key, value):
+        '''build a float widget out of options *key* and *value* '''
+        widget= QtWidgets.QCheckBox()
+        widget.setTristate(False)
+        widget.setCheckState(QtCore.Qt.CheckState(value))
+        self._register_widget(key, widget)
+        update_fn = partial(self.set_option_result, key=key)
+        widget.stateChanged.connect(update_fn)
         self.set_option_result(value, key)
 
     def _build_list_widget(self, key, values):
