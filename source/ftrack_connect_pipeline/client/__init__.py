@@ -4,7 +4,7 @@
 import logging
 import uuid
 
-from ftrack_connect.ui import theme
+# from ftrack_connect.ui import theme
 from qtpy import QtCore, QtWidgets
 import ftrack_api
 
@@ -89,8 +89,8 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             self._context = self.session.get('Context', context_id)
 
         # apply styles
-        theme.applyTheme(self, 'dark')
-        theme.applyFont()
+        # theme.applyTheme(self, 'dark')
+        # theme.applyFont()
 
     def fetch_package_definitions(self):
         self._fetch_defintions('package', self._packages_loaded)
