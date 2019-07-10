@@ -7,7 +7,8 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 2.2.2
+    :date: 2019-07-10
 
     .. change:: changed
        :tags: Internal
