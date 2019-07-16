@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: fix
+       :tags: Internal
+
+        Thumbnail frame is now generated from the mid frame of the exported clip.
+
 .. release:: 2.2.2
     :date: 2019-07-10
 
