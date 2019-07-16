@@ -875,7 +875,7 @@ class FtrackProcessor(FtrackBase):
         source = render_task._clip
 
         start, end = render_task.outputRange(clampToSource=False)
-        mid_frame = int((end - start) / 2 )
+        mid_frame = int(((end - start) / 2 ) + start)
 
         self.logger.info('setting poster frame to {} for {}'.format(mid_frame, source))
 
