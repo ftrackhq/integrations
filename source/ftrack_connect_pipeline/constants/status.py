@@ -1,3 +1,6 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2019 ftrack
+
 UNKNOWN_STATUS = 'UNKONWN_STATUS'
 SUCCESS_STATUS = 'SUCCESS_STATUS'
 WARNING_STATUS = 'WARNING_STATUS'
