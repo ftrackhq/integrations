@@ -6,19 +6,19 @@ import tempfile
 from ftrack_connect_pipeline import plugin
 
 
-class TmpExtractorPlugin(plugin.ExtractorPlugin):
+class TmpOutputPlugin(plugin.OutputPlugin):
     plugin_name = 'to_tmp'
 
     def run(self, context=None, data=None, options=None):
-        result = []
+        result = {}
         for item in data:
             new_file_path = tempfile.NamedTemporaryFile(delete=False).name
             shutil.copy(item, new_file_path)
-            result.append((item, new_file_path))
+            result[item] = new_file_path
 
         return result
 
 
 def register(api_object, **kw):
-    plugin = TmpExtractorPlugin(api_object)
+    plugin = TmpOutputPlugin(api_object)
     plugin.register()

@@ -87,7 +87,7 @@ class BuildPlugin(setuptools.Command):
                 STAGING_PATH,
                 'dependencies',
                 'ftrack_connect_pipeline',
-                'qt',
+                'client',
                 'publish.py'
             ), int('777', 8)
         )
@@ -100,7 +100,7 @@ class BuildPlugin(setuptools.Command):
                 STAGING_PATH,
                 'dependencies',
                 'ftrack_connect_pipeline',
-                'qt',
+                'client',
                 'load.py'
             ), int('777', 8)
         )
@@ -154,9 +154,9 @@ setup(
         'lowdown >= 0.1.0, < 2'
     ],
     install_requires=[
-        'jsonschema',
+        'jsonschema==2.6.0',
         'appdirs',
-        'ftrack_action_handler < 1'
+        'qtpy >=1.0.0, < 2'
     ],
     tests_require=[
         'pytest >= 2.3.5, < 3'

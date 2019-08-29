@@ -1,93 +1,115 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
+import threading
+import sys
 import logging
-import itertools
-import copy
 
-import ftrack_api
-import json
+import os
+from qtpy import QtCore
 
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline import schema
-logger = logging.getLogger(__name__)
 
 
-def merge_list(list_data):
-    '''Utility function to merge *list_data*'''
-    logger.debug('Merging {} '.format(list_data))
-    list_data = list_data or []
-    result = list(set(itertools.chain.from_iterable(list_data)))
-    logger.debug('into {}'.format(result))
-    return result
+def get_current_context():
+    '''return an api object representing the current context.'''
+    context_id = os.getenv(
+        'FTRACK_CONTEXTID',
+            os.getenv('FTRACK_TASKID',
+                os.getenv('FTRACK_SHOTID'
+            )
+        )
+    )
+
+    return context_id
 
 
-def merge_dict(dict_data):
-    '''Utility function to merge *dict_data*'''
-    logger.debug('Merging {} '.format(dict_data))
-    dict_data = dict_data or {}
-    result = {k: v for d in dict_data for k, v in d.items()}
-    logger.debug('into {}'.format(result))
-    return result
+def remote_event_mode():
+    return bool(os.environ.get(
+        constants.PIPELINE_REMOTE_EVENTS_ENV, 0
+    ))
 
 
-class AssetSchemaManager(object):
-    '''Asset schema manager class.'''
+class Worker(QtCore.QThread):
+    '''Perform work in a background thread.'''
 
-    @property
-    def assets(self):
-        '''return the registered assets.'''
-        filtered_results = {}
-        for asset_name, asset_data in self.asset_registry.items():
-            if self._context_type in asset_data['context']:
-                filtered_results[asset_name] = asset_data
+    def __init__(self, function, args=None, kwargs=None, parent=None):
+        '''Execute *function* in separate thread.
 
-        return copy.deepcopy(filtered_results)
+        *args* should be a list of positional arguments and *kwargs* a
+        mapping of keyword arguments to pass to the function on execution.
 
-    def __init__(self, session, context_type ):
-        '''Initialise the class with ftrack *session* and *context_type*'''
+        Store function call as self.result. If an exception occurs
+        store as self.error.
+
+        Example::
+
+            try:
+                worker = Worker(theQuestion, [42])
+                worker.start()
+
+                while worker.isRunning():
+                    app = QtGui.QApplication.instance()
+                    app.processEvents()
+
+                if worker.error:
+                    raise worker.error[1], None, worker.error[2]
+
+            except Exception as error:
+                traceback.print_exc()
+                QtGui.QMessageBox.critical(
+                    None,
+                    'Error',
+                    'An unhandled error occurred:'
+                    '\\n{0}'.format(error)
+                )
+
+        '''
+        super(Worker, self).__init__(parent=parent)
+
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
 
-        self.asset_registry = {}
-        self._context_type = context_type
-        self.session = session
-        self._register_assets()
+        self.function = function
+        self.args = args or []
+        self.kwargs = kwargs or {}
+        self.result = None
+        self.error = None
 
-    def _register_assets(self):
-        '''register assets'''
-        results = self.session.event_hub.publish(
-            ftrack_api.event.base.Event(
-                topic=constants.PIPELINE_REGISTER_TOPIC,
-                data={
-                    'pipeline': {
-                        'type': 'asset'
-                    }
-                }
-            ),
-            synchronous=True
-        )
-        for raw_result in results:
-            result = json.loads(raw_result)
+    def run(self):
+        '''Execute function and store result.'''
+        try:
+            self.result = self.function(*self.args, **self.kwargs)
+        except Exception as error:
+            self.logger.error(str(error))
+            self.error = sys.exc_info()
+
+
+def asynchronous(method):
+    '''Decorator to make a method asynchronous using its own thread.'''
+
+    def wrapper(*args, **kwargs):
+        '''Thread wrapped method.'''
+
+        def exceptHookWrapper(*args, **kwargs):
+            '''Wrapp method and pass exceptions to global excepthook.
+
+            This is needed in threads because of
+            https://sourceforge.net/tracker/?func=detail&atid=105470&aid=1230540&group_id=5470
+            '''
             try:
-                schema.validate(result)
-            except Exception as error:
-                self.logger.warn(error)
-                continue
+                method(*args, **kwargs)
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except:
+                sys.excepthook(*sys.exc_info())
 
-            asset_name = result['asset_name']
-            if asset_name in self.asset_registry:
-                self.logger.warning('Asset {} already registered!'.format(asset_name))
-                return
+        thread = threading.Thread(
+            target=exceptHookWrapper,
+            args=args,
+            kwargs=kwargs
+        )
+        thread.start()
 
-            asset_type = result['asset_type']
-            asset_type_object = self.session.query('AssetType where short is "{}"'.format(asset_type)).first()
-
-            if not asset_type_object:
-                self.logger.warning('Asset type {} does not exists!'.format(asset_type))
-                return
-
-            self.logger.debug('Registering asset {}'.format(asset_name))
-            self.asset_registry[asset_name] = result
-
+    return wrapper

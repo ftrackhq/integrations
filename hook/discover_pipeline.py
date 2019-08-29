@@ -31,7 +31,7 @@ def on_discover_pipeline(event):
     '''Handle application launch and add environment to *event*.'''
 
     # Add pipeline dependencies to pythonpath.
-    ftrack_connect.application.appendPath(
+    ftrack_connect.application.prependPath(
         python_dependencies,
         'PYTHONPATH',
         event['data']['options']['env']

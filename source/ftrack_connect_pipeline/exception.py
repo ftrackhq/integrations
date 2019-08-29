@@ -1,3 +1,5 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2019 ftrack
 
 
 class PipelineError(Exception):
@@ -6,3 +8,7 @@ class PipelineError(Exception):
 
 class PluginError(PipelineError):
     '''Exception raised in case of plugin error'''
+
+
+class ValidatorPluginError(PluginError):
+    '''Exception raised in case of validator plugin error'''

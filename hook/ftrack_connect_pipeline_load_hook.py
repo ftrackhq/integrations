@@ -8,6 +8,7 @@ import logging
 import os
 
 import ftrack
+import ftrack_api
 import ftrack_connect.application
 
 
@@ -51,18 +52,6 @@ class LaunchApplicationAction(object):
 
     def is_valid_selection(self, selection):
         '''Return true if the selection is valid.'''
-        if (
-            len(selection) != 1 or
-            selection[0]['entityType'] != 'task'
-        ):
-            return False
-
-        entity = selection[0]
-        task = ftrack.Task(entity['entityId'])
-
-        if task.getObjectType() != 'Task':
-            return False
-
         return True
 
     def register(self):
@@ -89,6 +78,12 @@ class LaunchApplicationAction(object):
 
     def discover(self, event):
         '''Return discovered applications.'''
+
+        remote_set = os.environ.get(
+            'FTRACK_PIPELINE_REMOTE_EVENTS', False
+        )
+        if not remote_set:
+            return
 
         if not self.is_valid_selection(
             event['data'].get('selection', [])
@@ -181,7 +176,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
             [
                 'dependencies',
                 'ftrack_connect_pipeline',
-                'qt',
+                'client',
                 'load.py$'
             ]
         )
@@ -231,43 +226,23 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
             ApplicationLauncher, self
         )._getApplicationEnvironment(application, context)
 
-        entity = context['selection'][0]
-        task = ftrack.Task(entity['entityId'])
-        taskParent = task.getParent()
-
-        try:
-            environment['FS'] = str(int(taskParent.getFrameStart()))
-        except Exception:
-            environment['FS'] = '1'
-
-        try:
-            environment['FE'] = str(int(taskParent.getFrameEnd()))
-        except Exception:
-            environment['FE'] = '1'
-
-        environment['FTRACK_TASKID'] = task.getId()
-        environment['FTRACK_SHOTID'] = task.get('parent_id')
-        environment['FTRACK_CONTEXTID'] = task.getId()
-
+        environment['FTRACK_PIPELINE_REMOTE_EVENTS'] = True
 
         return environment
 
-
-def register(registry, **kw):
-    '''Register hooks.'''
-    # Validate that registry is the event handler registry. If not,
-    # assume that register is being called to regiter Locations or from a new
-    # or incompatible API, and return without doing anything.
-    # or incompatible API, and return without doing anything.
-    if registry is not ftrack.EVENT_HANDLERS:
-        return
-
-    # Create store containing applications.
-    application_store = ApplicationStore()
-
-    # Create a launcher with the store containing applications.
-    launcher = ApplicationLauncher(application_store)
-
-    # Create action and register to respond to discover and launch actions.
-    action = LaunchApplicationAction(application_store, launcher)
-    action.register()
+#
+# def register(session, **kw):
+#     '''Register hooks.'''
+#     '''Subscribe to application launch events on *registry*.'''
+#     if not isinstance(session, ftrack_api.session.Session):
+#         return
+#
+#     # Create store containing applications.
+#     application_store = ApplicationStore()
+#
+#     # Create a launcher with the store containing applications.
+#     launcher = ApplicationLauncher(application_store)
+#
+#     # Create action and register to respond to discover and launch actions.
+#     action = LaunchApplicationAction(application_store, launcher)
+#     action.register()

@@ -1,9 +1,8 @@
-
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
 from ftrack_connect_pipeline import plugin
-from ftrack_connect_pipeline.qt.widgets import context as context_widget
+from ftrack_connect_pipeline.client.widgets import context as context_widget
 
 
 class ContextWidget(plugin.ContextWidget):
