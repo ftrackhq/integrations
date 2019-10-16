@@ -37,15 +37,15 @@ class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
 
         components = {}
         for task in _expandTaskGroup(self._submission):
-            task_name = task._item.name()
+            target_task = task._item
             component_name = task.component_name()
 
             if hasattr(task, "resolvedExportPath"):
-                if component_name not in components.get(task_name, []):
-                    components.setdefault(task_name, [])
-                    components[task_name].append(component_name)
+                components.setdefault(target_task, [])
+                if component_name not in components[target_task]:
+                    components[target_task].append(component_name)
                 else:
-                    self.logger.info('{} is duplicated component for {}'.format(component_name, task_name))
+                    self.logger.info('{} is duplicated component for {}'.format(component_name, target_task.name()))
                     task.setDuplicate()
 
 
