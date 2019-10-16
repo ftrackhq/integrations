@@ -10,6 +10,11 @@ Release Notes
 .. release:: Upcoming
 
     .. change:: fix
+        :tags: Internal
+
+        Improve render task deduplication logic.
+
+    .. change:: fix
        :tags: Internal
 
         Thumbnail frame is now generated from the mid frame of the exported clip.
