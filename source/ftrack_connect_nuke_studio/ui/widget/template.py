@@ -2,13 +2,13 @@
 # :copyright: Copyright (c) 2018 ftrack
 
 import logging
-import ftrack_connect.ui.widget.html_combobox
+import ftrack_connect_nuke_studio.ui.widget.html_combobox
 import ftrack_connect_nuke_studio.template as template_manager
 
 logger = logging.getLogger(__name__)
 
 
-class Template(ftrack_connect.ui.widget.html_combobox.HtmlComboBox):
+class Template(ftrack_connect_nuke_studio.ui.widget.html_combobox.HtmlComboBox):
     '''Template combobox.'''
 
     def __init__(self, project, parent=None):
