@@ -12,6 +12,11 @@ Release Notes
     .. change:: fix
         :tags: Internal
 
+        Improve render task deduplication logic.
+
+    .. change:: fix
+        :tags: Internal
+
         Integration fails to start on nuke >= 12.
 
     .. change:: fix
