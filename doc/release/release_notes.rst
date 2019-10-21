@@ -15,6 +15,11 @@ Release Notes
         Improve render task deduplication logic.
 
     .. change:: fix
+        :tags: Internal
+
+        Integration fails to start on nuke >= 12.
+
+    .. change:: fix
        :tags: Internal
 
         Thumbnail frame is now generated from the mid frame of the exported clip.
