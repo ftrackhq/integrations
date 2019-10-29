@@ -9,7 +9,6 @@ import logging
 import re
 
 import ftrack_api
-import ftrack_connect.application
 
 cwd = os.path.dirname(__file__)
 sources = os.path.abspath(os.path.join(cwd, '..', 'dependencies'))
@@ -17,6 +16,7 @@ ftrack_connect_nuke_studio_path = os.path.join(cwd, '..',  'resource')
 sys.path.insert(0,sources)
 
 import ftrack_connect_nuke_studio
+import ftrack_connect.application
 
 
 class LaunchAction(object):
@@ -236,7 +236,7 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
             ftrack_connect_nuke_studio_path, 'HIERO_PLUGIN_PATH', environment
         )
 
-        environment = ftrack_connect.application.appendPath(
+        environment = ftrack_connect.application.prependPath(
             sources, 'PYTHONPATH', environment
         )
 
