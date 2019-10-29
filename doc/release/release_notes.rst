@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: fix
+        :tags: Internal
+
+        Replace pyqt with qt.py
+
 .. release:: 2.2.3
     :date: 2019-10-21
 
