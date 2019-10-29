@@ -7,7 +7,7 @@ from hiero.exporters.FnTimelineProcessor import TimelineProcessorPreset
 from hiero.exporters.FnTimelineProcessorUI import TimelineProcessorUI
 from ftrack_connect_nuke_studio.config import report_exception
 
-from qtpy import QtWidgets
+from Qt import QtWidgets
 
 from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset, FtrackProcessor, FtrackProcessorUI

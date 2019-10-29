@@ -9,7 +9,7 @@ import foundry.ui
 import uuid
 import hiero.core
 
-from qtpy import QtWidgets, QtCore, QtGui
+from Qt import QtWidgets, QtCore, QtGui
 
 
 from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout

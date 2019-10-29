@@ -3,7 +3,7 @@
 
 import logging
 
-from qtpy import QtGui
+from Qt import QtGui
 
 import hiero
 from hiero.core.VersionScanner import VersionScanner
