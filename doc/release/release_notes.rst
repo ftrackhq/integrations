@@ -9,6 +9,11 @@ Release Notes
 
 .. release:: Upcoming
 
+    .. change:: Add
+        :tags: Internal
+
+        Mark ftrack.perforce-location as non compatible.
+
     .. change:: fix
         :tags: Internal
 
