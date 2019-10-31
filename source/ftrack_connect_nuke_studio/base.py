@@ -22,7 +22,8 @@ class FtrackBase(object):
         'ftrack.review',
         'ftrack.origin',
         'ftrack.unmanaged',
-        'ftrack.connect'
+        'ftrack.connect',
+        'ftrack.perforce-scenario'
     ]
     illegal_character_substitute = '_'
     path_separator = '/'
