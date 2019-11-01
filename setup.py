@@ -11,6 +11,11 @@ from setuptools import setup, find_packages, Command
 from distutils.command.build import build as BuildCommand
 from setuptools.command.bdist_egg import bdist_egg as BuildEggCommand
 from setuptools.command.test import test as TestCommand
+from pkg_resources import parse_version
+import pip
+
+if parse_version(pip.__version__) < parse_version('19.3.0'):
+    raise ValueError('Pip should be version 19.3.0 or higher')
 
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -191,12 +196,12 @@ setup(
         'lowdown >= 0.1.0, < 2'
     ],
     build_resources_requires=[
-        'qtext'
+        'qtext',
         'pyScss >= 1.2.0, < 2'
     ],
     install_requires=[
         'appdirs == 1.4.0',
-        'qtext',
+        'qtext @ git+https://bitbucket.org/ftrack/qtext/get/0.2.1.zip#egg=QtExt-0.2.1',
         'ftrack-python-api'
     ],
     tests_require=[
@@ -211,8 +216,5 @@ setup(
         'build_resources': BuildResources,
         'test': PyTest
     },
-    dependency_links=[
-        'git+https://bitbucket.org/ftrack/qtext/get/0.2.1.zip#egg=QtExt-0.2.1'
-    ],
     zip_safe=False
 )
