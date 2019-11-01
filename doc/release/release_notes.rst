@@ -14,6 +14,11 @@ Release Notes
 
         Pip compatibility for version 19.3.0 or higher
 
+    .. change:: Add
+        :tags: Internal
+
+        Mark ftrack.perforce-location as non compatible.
+
     .. change:: fix
         :tags: Internal
 
