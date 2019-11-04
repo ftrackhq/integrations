@@ -12,6 +12,11 @@ Release Notes
     ..change:: changed
         :tags: Setup
 
+        Removed qtext dependency
+
+    ..change:: changed
+        :tags: Setup
+
         Pip compatibility for version 19.3.0 or higher
 
 .. release:: 0.8.3
