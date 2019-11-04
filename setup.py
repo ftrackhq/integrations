@@ -202,7 +202,7 @@ setup(
     ],
     dependency_links=
     [
-        'git+https://bitbucket.org/ftrack/qtext/get/0.2.1.zip#egg=QtExt-0.2.1'
+        'git+https://bitbucket.org/ftrack/qtext/get/0.2.2.zip#egg=QtExt-0.2.2'
     ],
     tests_require=[
         'pytest >= 2.3.5, < 3',
