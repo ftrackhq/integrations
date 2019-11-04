@@ -181,7 +181,6 @@ setup(
         '': 'source'
     },
     setup_requires=[
-        'qtext',
         'pyScss >= 1.2.0, < 2',
         'PySide >= 1.2.2, < 2',
     ],
@@ -191,17 +190,16 @@ setup(
         'lowdown >= 0.1.0, < 2'
     ],
     build_resources_requires=[
-        'qtext'
         'pyScss >= 1.2.0, < 2'
     ],
     install_requires=[
         'appdirs == 1.4.0',
-        'qtext',
-        'ftrack-python-api'
+        'ftrack-python-api',
+        
     ],
     tests_require=[
         'pytest >= 2.3.5, < 3',
-        'PySide == 1.2.2',
+        'PySide >= 1.2.2',
         'ftrack-python-api',
         'pyblish-base'
     ],
@@ -211,8 +209,5 @@ setup(
         'build_resources': BuildResources,
         'test': PyTest
     },
-    dependency_links=[
-        'git+https://bitbucket.org/ftrack/qtext/get/0.2.1.zip#egg=QtExt-0.2.1'
-    ],
     zip_safe=False
 )
