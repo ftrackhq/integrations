@@ -181,7 +181,6 @@ setup(
         '': 'source'
     },
     setup_requires=[
-        'qtext',
         'pyScss >= 1.2.0, < 2',
         'PySide >= 1.2.2',
     ],
@@ -191,18 +190,12 @@ setup(
         'lowdown >= 0.1.0, < 2'
     ],
     build_resources_requires=[
-        'qtext',
         'pyScss >= 1.2.0, < 2'
     ],
     install_requires=[
         'appdirs == 1.4.0',
-        'qtext',
         'ftrack-python-api',
         
-    ],
-    dependency_links=
-    [
-        'git+https://bitbucket.org/ftrack/qtext/get/0.2.2.zip#egg=QtExt-0.2.2'
     ],
     tests_require=[
         'pytest >= 2.3.5, < 3',
