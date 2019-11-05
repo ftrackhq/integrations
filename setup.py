@@ -6,13 +6,23 @@ import sys
 import re
 import glob
 import shutil
-import pip
+
 import tempfile
 import fileinput
 
 from setuptools import setup, find_packages, Command
 from setuptools.command.test import test as TestCommand
+from pkg_resources import parse_version
+import pip
 
+if parse_version(pip.__version__) < parse_version('19.3.0'):
+    raise ValueError('Pip should be version 19.3.0 or higher')
+
+from pip._internal import main as pip_main
+
+FTRACK_LOCATION_COMPATIBILITY = '0.3.3'
+
+PLUGIN_NAME = 'ftrack-connect-rv-{0}'
 
 ROOT_PATH = os.path.dirname(
     os.path.realpath(__file__)
@@ -40,7 +50,7 @@ BUILD_PATH = os.path.join(
 )
 
 STAGING_PATH = os.path.join(
-    BUILD_PATH, 'plugin'
+    BUILD_PATH, PLUGIN_NAME
 )
 
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
@@ -52,6 +62,8 @@ with open(os.path.join(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
+# Update staging path with the plugin version
+STAGING_PATH = STAGING_PATH.format(VERSION)
 
 class BuildPlugin(Command):
     '''Build plugin.'''
@@ -88,7 +100,7 @@ class BuildPlugin(Command):
         shutil.copytree(
             SOURCE_PATH,
             os.path.join(
-                STAGING_PATH, 'package'
+                STAGING_PATH, 'dependencies'
             )
         )
 
@@ -98,7 +110,7 @@ class BuildPlugin(Command):
         shutil.make_archive(
             os.path.join(
                 BUILD_PATH,
-                'ftrack-connect-rv-{0}'.format(VERSION)
+                PLUGIN_NAME.format(VERSION)
             ),
             'zip',
             STAGING_PATH
@@ -158,13 +170,12 @@ class BuildPlugin(Command):
 
         # Clean staging path.
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
-        pip.main(
+        pip_main.main(
             [
                 'install',
                 '.',
                 '--target',
-                os.path.join(self.rvpkg_staging, 'dependencies'),
-                '--process-dependency-links'
+                os.path.join(self.rvpkg_staging, 'dependencies')
             ]
         )
 
@@ -220,9 +231,13 @@ setup(
         'lowdown >= 0.1.0, < 1',
     ],
     install_requires=[
-        'ftrack-location-compatibility >= 0.1.0',
         'ftrack-python-api >= 1, < 2',
         'appdirs == 1.4.0',
+        (
+            'ftrack-location-compatibility @ https://bitbucket.org/'
+            'ftrack/ftrack-location-compatibility/get/{0}.zip#egg='
+            'ftrack-location-compatibility-{0}'
+        ).format(FTRACK_LOCATION_COMPATIBILITY)
     ],
     tests_require=[
         'pytest >= 2.3.5, < 3'
@@ -231,12 +246,6 @@ setup(
         'test': PyTest,
         'build_plugin': BuildPlugin,
     },
-    dependency_links=[
-        (
-            'https://bitbucket.org/ftrack/ftrack-location-compatibility/get/0.1.0.zip'
-            '#egg=ftrack-location-compatibility-0.1.0'
-        )
-    ],
     data_files=[
         (
             'ftrack_connect_rv_resource/hook',
