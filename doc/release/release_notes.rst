@@ -7,6 +7,23 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    ..change:: changed
+        :tags: Setup
+
+        Build resultant folder renamed with the plugin name + version
+
+    ..change:: changed
+        :tags: Setup
+
+        ftrack-location-compatibility version updated to 0.3.3
+
+    ..change:: changed
+        :tags: Setup
+
+        Pip compatibility for version 19.3.0 or higher
+
 .. release:: 3.7
     :date: 2017-11-17
 
