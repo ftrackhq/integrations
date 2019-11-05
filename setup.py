@@ -100,7 +100,7 @@ class BuildPlugin(Command):
         shutil.copytree(
             SOURCE_PATH,
             os.path.join(
-                STAGING_PATH, 'packages'
+                STAGING_PATH, 'dependencies'
             )
         )
 
@@ -177,11 +177,6 @@ class BuildPlugin(Command):
                 '--target',
                 os.path.join(self.rvpkg_staging, 'dependencies')
             ]
-        )
-
-        self.copytree(
-            os.path.join(self.rvpkg_staging, 'dependencies'),
-            os.path.join(STAGING_PATH, 'dependencies')
         )
 
         shutil.make_archive(
