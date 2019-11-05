@@ -12,6 +12,11 @@ Release Notes
     ..change:: changed
         :tags: Setup
 
+        Exposing dependencies folder to resultan build folder
+
+    ..change:: changed
+        :tags: Setup
+
         Build resultant folder renamed with the plugin name + version
 
     ..change:: changed
