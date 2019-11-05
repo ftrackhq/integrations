@@ -20,7 +20,7 @@ if parse_version(pip.__version__) < parse_version('19.3.0'):
 
 from pip._internal import main as pip_main
 
-FTRACK_LOCATION_COMPATIBILITY = '0.3.2'
+FTRACK_LOCATION_COMPATIBILITY = '0.3.3'
 
 PLUGIN_NAME = 'ftrack-connect-rv-{0}'
 
@@ -110,7 +110,7 @@ class BuildPlugin(Command):
         shutil.make_archive(
             os.path.join(
                 BUILD_PATH,
-                'ftrack-connect-rv-{0}'.format(VERSION)
+                PLUGIN_NAME.format(VERSION)
             ),
             'zip',
             STAGING_PATH
@@ -233,8 +233,11 @@ setup(
     install_requires=[
         'ftrack-python-api >= 1, < 2',
         'appdirs == 1.4.0',
-        'ftrack-location-compatibility @ git+https://bitbucket.org/ftrack/'
-        'ftrack-location-compatibility/branch/backlog/update-pip-version'
+        (
+            'ftrack-location-compatibility @ https://bitbucket.org/'
+            'ftrack/ftrack-location-compatibility/get/{0}.zip#egg='
+            'ftrack-location-compatibility-{0}'
+        ).format(FTRACK_LOCATION_COMPATIBILITY)
     ],
     tests_require=[
         'pytest >= 2.3.5, < 3'
