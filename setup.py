@@ -100,7 +100,7 @@ class BuildPlugin(Command):
         shutil.copytree(
             SOURCE_PATH,
             os.path.join(
-                STAGING_PATH, 'package'
+                STAGING_PATH, 'dependencies'
             )
         )
 

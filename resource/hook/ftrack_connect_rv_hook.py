@@ -17,7 +17,7 @@ try:
     import ftrack_connect_rv
 except ImportError:
     dependencies_path = os.path.abspath(os.path.realpath(
-        os.path.join(os.path.dirname(__file__), '..', 'package')
+        os.path.join(os.path.dirname(__file__), '..', 'dependencies')
     ))
 
     sys.path.append(dependencies_path)
@@ -47,7 +47,7 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
 
         PYTHONPATH = os.path.join(
             os.path.dirname(ftrack_connect_rv.__file__),
-            '..', 'package'
+            '..', 'dependencies'
         )
 
         environment = ftrack_connect.application.appendPath(
