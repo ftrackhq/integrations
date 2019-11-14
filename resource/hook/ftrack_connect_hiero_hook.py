@@ -293,6 +293,7 @@ class ApplicationLauncher(
         project = self.session.get('Project', entity['entityId'])
 
         environment['FTRACK_CONTEXTID'] = project['id']
+        environment['QT_PREFERRED_BINDING']='PySide2:PySide'
 
         return environment
 
