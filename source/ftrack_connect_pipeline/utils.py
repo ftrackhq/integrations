@@ -6,7 +6,7 @@ import sys
 import logging
 
 import os
-from qtpy import QtCore
+from Qt import QtCore
 
 from ftrack_connect_pipeline import constants
 

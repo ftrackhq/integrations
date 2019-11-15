@@ -3,7 +3,7 @@
 
 import logging
 
-from qtpy import QtCore, QtWidgets
+from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline import constants
 

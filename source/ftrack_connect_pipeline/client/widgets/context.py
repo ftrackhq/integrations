@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-from qtpy import QtWidgets, QtCore, QtGui
+from Qt import QtWidgets, QtCore, QtGui
 from ftrack_connect_pipeline.client.widgets.simple import BaseWidget
 
 from ftrack_connect_pipeline.ui.widget.context_selector import ContextSelector

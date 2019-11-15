@@ -5,7 +5,7 @@ import logging
 import uuid
 
 # from ftrack_connect.ui import theme
-from qtpy import QtCore, QtWidgets
+from Qt import QtCore, QtWidgets
 import ftrack_api
 
 from ftrack_connect_pipeline import constants

@@ -10,7 +10,7 @@ for path in deps_paths:
     sys.path.append(path)
 
 
-from qtpy import QtWidgets
+from Qt import QtWidgets
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.client import BaseQtPipelineWidget
 

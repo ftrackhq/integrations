@@ -6,7 +6,7 @@ import logging
 import ftrack_api
 import json
 
-from qtpy import QtCore
+from Qt import QtCore
 
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import schema

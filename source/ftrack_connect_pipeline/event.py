@@ -8,7 +8,7 @@ import ftrack_api
 
 logger = logging.getLogger(__name__)
 
-from qtpy import QtCore
+from Qt import QtCore
 
 
 class _EventThread(threading.Thread):

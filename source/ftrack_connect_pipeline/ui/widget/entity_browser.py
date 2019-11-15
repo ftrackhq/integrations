@@ -4,7 +4,7 @@
 # :notice: Derived from Riffle (https://github.com/4degrees/riffle)
 
 
-from qtpy import QtWidgets, QtCore, QtGui
+from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect_pipeline.ui.model.entity_tree import EntityTreeModel, EntityTreeProxyModel, ItemFactory
 

@@ -6,7 +6,7 @@ import logging
 import urllib
 import urllib2
 
-from qtpy import QtCore, QtGui, QtWidgets
+from Qt import QtCore, QtGui, QtWidgets
 
 from ftrack_connect_pipeline.utils import Worker
 

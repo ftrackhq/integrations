@@ -1,5 +1,5 @@
 import logging
-from qtpy import QtWidgets, QtCore, QtGui
+from Qt import QtWidgets, QtCore, QtGui
 
 
 class AssetComboBox(QtWidgets.QComboBox):

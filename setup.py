@@ -156,7 +156,7 @@ setup(
     install_requires=[
         'jsonschema==2.6.0',
         'appdirs',
-        'qtpy >=1.0.0, < 2'
+        'qt.py >=1.0.0, < 2'
     ],
     tests_require=[
         'pytest >= 2.3.5, < 3'

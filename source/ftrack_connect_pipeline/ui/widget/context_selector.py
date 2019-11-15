@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015 ftrack
 
-from qtpy import QtWidgets, QtCore
+from Qt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline.ui.widget.entity_path import EntityPath
 import ftrack_connect_pipeline.ui.widget.entity_browser as entityBrowser

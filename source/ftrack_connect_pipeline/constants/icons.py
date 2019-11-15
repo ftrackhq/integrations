@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-from qtpy import QtWidgets, QtCore, QtGui
+from Qt import QtWidgets, QtCore, QtGui
 from ftrack_connect_pipeline.constants.status import (
     UNKNOWN_STATUS, DEFAULT_STATUS, ERROR_STATUS, WARNING_STATUS, EXCEPTION_STATUS, RUNNING_STATUS, SUCCESS_STATUS
 )
