@@ -4,7 +4,7 @@
 
 from functools import partial
 
-from qtpy import QtWidgets
+from Qt import QtWidgets
 
 
 from ftrack_connect_pipeline_nuke import plugin
