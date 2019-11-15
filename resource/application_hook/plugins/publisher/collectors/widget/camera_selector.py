@@ -4,7 +4,7 @@
 from functools import partial
 
 from ftrack_connect_pipeline.client.widgets import BaseWidget
-from qtpy import QtWidgets
+from Qt import QtWidgets
 
 from ftrack_connect_pipeline_3dsmax import plugin
 
