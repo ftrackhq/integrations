@@ -178,6 +178,9 @@ class LaunchAction(object):
             ), dict(
                 name='ftrack connect after effects',
                 version='-'
+            ), dict(
+                name='ftrack connect illustrator',
+                version='-'
             )
         ]
 
@@ -238,6 +241,17 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 icon='after_effects'
             ))
 
+            applications.extend(self._searchFilesystem(
+                expression=prefix + [
+                    r'Adobe Illustrator ((?:CC )?\d+)', r'Adobe Illustrator ((?:CC )?\d+)\.app'
+                ],
+                label='Illustrator',
+                variant='CC {version}',
+                applicationIdentifier='illustrator_cc_{version}',
+                versionExpression=ADOBE_VERSION_EXPRESSION,
+                icon='illustrator'
+            ))
+
         elif sys.platform == 'win32':
             prefix = ['C:\\', 'Program Files.*']
 
@@ -278,6 +292,19 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 applicationIdentifier='after_effects_cc_{version}',
                 versionExpression=ADOBE_VERSION_EXPRESSION,
                 icon='after_effects'
+            ))
+
+            applications.extend(self._searchFilesystem(
+                expression=(
+                    prefix +
+                    ['Adobe', r'Adobe Illustrator ((?:CC )?\d+)', 'Support Files',
+                     'Contents', 'Windows', 'Illustrator.exe']
+                ),
+                label='Illustrator',
+                variant='CC {version}',
+                applicationIdentifier='illustrator_cc_{version}',
+                versionExpression=ADOBE_VERSION_EXPRESSION,
+                icon='illustrator'
             ))
 
         self.logger.debug(
@@ -336,7 +363,8 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
                 applicationExtensions = {
                     'photoshop_cc': 'psd',
                     'premiere_pro_cc': 'prproj',
-                    'after_effects_cc': 'aep'
+                    'after_effects_cc': 'aep',
+                    'illustrator_cc': 'ai',
                 }
 
                 for identifier, extension in applicationExtensions.items():
