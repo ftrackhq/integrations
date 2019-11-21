@@ -43,7 +43,7 @@ def configure_logging(logger_name, level=None, format=None, extra_modules=None):
     '''
 
     # Provide default values for level and format.
-    format = format or '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format = format or '%(levelname)s - %(threadName)s - %(asctime)s - %(name)s - %(message)s'
     level = level or logging.WARNING
 
     log_directory = get_log_directory()
