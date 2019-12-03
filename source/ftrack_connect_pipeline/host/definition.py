@@ -9,7 +9,7 @@ import json
 from Qt import QtCore
 
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline import schema
+#from ftrack_connect_pipeline.host import schema
 from ftrack_connect_pipeline.event import EventManager
 
 logger = logging.getLogger(__name__)
@@ -121,9 +121,9 @@ class BaseDefinitionManager(object):
 class PackageDefinitionManager(BaseDefinitionManager):
     '''Package schema manager class.'''
 
-    def __init__(self, session, host):
+    def __init__(self, session, host, schema_manager):
         '''Initialise the class with ftrack *session* and *context_type*'''
-        super(PackageDefinitionManager, self).__init__(session, host, 'package', schema.validate_package)
+        super(PackageDefinitionManager, self).__init__(session, host, 'package', schema_manager.validate_package)
 
 
 class LoaderDefinitionManager(BaseDefinitionManager):
@@ -133,9 +133,9 @@ class LoaderDefinitionManager(BaseDefinitionManager):
         '''return available packages definitions.'''
         return self.package_manager.result()
 
-    def __init__(self, package_manager, host):
+    def __init__(self, package_manager, host, schema_manager):
         '''Initialise the class with ftrack *session* and *context_type*'''
-        super(LoaderDefinitionManager, self).__init__(package_manager.session, host, 'loader', schema.validate_loader)
+        super(LoaderDefinitionManager, self).__init__(package_manager.session, host, 'loader', schema_manager.validate_loader)
         self.package_manager = package_manager
         self.host = host
 
@@ -152,9 +152,9 @@ class PublisherDefinitionManager(BaseDefinitionManager):
         '''return available packages definitions.'''
         return self.package_manager.result()
 
-    def __init__(self, package_manager, host):
+    def __init__(self, package_manager, host, schema_manager):
         '''Initialise the class with ftrack *session* and *context_type*'''
-        super(PublisherDefinitionManager, self).__init__(package_manager.session, host, 'publisher', schema.validate_publisher)
+        super(PublisherDefinitionManager, self).__init__(package_manager.session, host, 'publisher', schema_manager.validate_publisher)
         self.package_manager = package_manager
         self.host = host
 
@@ -274,13 +274,13 @@ class PublisherDefinitionManager(BaseDefinitionManager):
 class DefintionManager(QtCore.QObject):
     '''class wrapper to contain all the definition managers.'''
 
-    def __init__(self, session, host, hostid):
+    def __init__(self, session, host, hostid, schema_manager):
         super(DefintionManager, self).__init__()
 
         self.session = session
-        self.packages = PackageDefinitionManager(session, host)
-        self.loaders = LoaderDefinitionManager(self.packages, host)
-        self.publishers = PublisherDefinitionManager(self.packages, host)
+        self.packages = PackageDefinitionManager(session, host, schema_manager) # passing the class for now, should pass the validator directly
+        self.loaders = LoaderDefinitionManager(self.packages, host, schema_manager)
+        self.publishers = PublisherDefinitionManager(self.packages, host, schema_manager)
 
         events_types = {
             'publisher': self.publishers.result,

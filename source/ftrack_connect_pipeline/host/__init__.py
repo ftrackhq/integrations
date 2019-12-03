@@ -4,6 +4,7 @@
 import uuid
 import functools
 from ftrack_connect_pipeline.host.definition import DefintionManager
+from ftrack_connect_pipeline.host.schema import SchemaManager
 from ftrack_connect_pipeline.host.runner import PublisherRunner
 from ftrack_connect_pipeline import event, constants, utils
 import logging
@@ -21,12 +22,16 @@ def provide_host_information(hostid, event):
 
 def initialise(session, host, ui):
     '''Initialize host with *session*, *host* and *ui*, return *hostid*'''
+    #we should call initialize schemas here
     hostid = '{}-{}-{}'.format(host, ui, uuid.uuid4().hex)
 
+    #Starting new event thread
     event_thread = event.NewApiEventHubThread()
     event_thread.start(session)
 
-    definition_manager = DefintionManager(session, host, hostid)
+    schema_manager = SchemaManager(session);
+
+    definition_manager = DefintionManager(session, host, hostid, schema_manager)
     package_results = definition_manager.packages.result()
     PublisherRunner(session, package_results, host, ui, hostid)
 
@@ -44,6 +49,3 @@ def initialise(session, host, ui):
         )
 
     return hostid
-
-
-

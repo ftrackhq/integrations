@@ -18,6 +18,8 @@ PIPELINE_DISCOVER_PLUGIN_TOPIC = '{}.discover'.format(_BASE_)
 
 PIPELINE_REGISTER_DEFINITION_TOPIC = '{}.register.definition'.format(_BASE_)
 
+PIPELINE_REGISTER_SCHEMA_TOPIC = '{}.register.schema'.format(_BASE_)
+
 PIPELINE_RUN_HOST_PUBLISHER = '{}.host.publish'.format(_BASE_)
 PIPELINE_UPDATE_UI = '{}.client.update'.format(_BASE_)
 PIPELINE_DISCOVER_HOST = '{}.host.discover'.format(_BASE_)
@@ -30,3 +32,4 @@ from ftrack_connect_pipeline.constants.environments import *
 from ftrack_connect_pipeline.constants.event import *
 from ftrack_connect_pipeline.constants.status import *
 from ftrack_connect_pipeline.constants.icons import *
+from ftrack_connect_pipeline.constants.schema import *
