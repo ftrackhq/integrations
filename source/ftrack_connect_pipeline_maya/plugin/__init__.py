@@ -5,13 +5,17 @@ from ftrack_connect_pipeline import constants, plugin
 from ftrack_connect_pipeline_maya import constants as maya_constants
 import maya
 
+from ftrack_connect_pipeline.utils import MainThreadWorker
+
 
 class _BaseMaya(plugin._Base):
     host = maya_constants.HOST
 
     def _run(self, event):
         super_fn = super(_BaseMaya, self)._run
-        result = maya.utils.executeInMainThreadWithResult(super_fn, event)
+        #result = maya.utils.executeInMainThreadWithResult(super_fn, event)
+        mThreadWorker = MainThreadWorker()
+        result = mThreadWorker.execute_in_main_thread(super_fn, event)
         return result
 
 
