@@ -31,7 +31,7 @@ def initialise(session, host, ui):
 
     schema_manager = SchemaManager(session);
 
-    definition_manager = DefintionManager(session, host, hostid, schema_manager)
+    definition_manager = DefintionManager(session, host, hostid, **schema_manager)
     package_results = definition_manager.packages.result()
     PublisherRunner(session, package_results, host, ui, hostid)
 

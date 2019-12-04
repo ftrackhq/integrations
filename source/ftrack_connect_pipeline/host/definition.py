@@ -123,7 +123,7 @@ class PackageDefinitionManager(BaseDefinitionManager):
 
     def __init__(self, session, host, schema_manager):
         '''Initialise the class with ftrack *session* and *context_type*'''
-        super(PackageDefinitionManager, self).__init__(session, host, 'package', schema_manager.validate_package)
+        super(PackageDefinitionManager, self).__init__(session, host, 'package', **schema_manager.validate_package)
 
 
 class LoaderDefinitionManager(BaseDefinitionManager):
@@ -135,7 +135,7 @@ class LoaderDefinitionManager(BaseDefinitionManager):
 
     def __init__(self, package_manager, host, schema_manager):
         '''Initialise the class with ftrack *session* and *context_type*'''
-        super(LoaderDefinitionManager, self).__init__(package_manager.session, host, 'loader', schema_manager.validate_loader)
+        super(LoaderDefinitionManager, self).__init__(package_manager.session, host, 'loader', **schema_manager.validate_loader)
         self.package_manager = package_manager
         self.host = host
 
@@ -154,7 +154,7 @@ class PublisherDefinitionManager(BaseDefinitionManager):
 
     def __init__(self, package_manager, host, schema_manager):
         '''Initialise the class with ftrack *session* and *context_type*'''
-        super(PublisherDefinitionManager, self).__init__(package_manager.session, host, 'publisher', schema_manager.validate_publisher)
+        super(PublisherDefinitionManager, self).__init__(package_manager.session, host, 'publisher', **schema_manager.validate_publisher)
         self.package_manager = package_manager
         self.host = host
 
@@ -278,9 +278,9 @@ class DefintionManager(QtCore.QObject):
         super(DefintionManager, self).__init__()
 
         self.session = session
-        self.packages = PackageDefinitionManager(session, host, schema_manager) # passing the class for now, should pass the validator directly
-        self.loaders = LoaderDefinitionManager(self.packages, host, schema_manager)
-        self.publishers = PublisherDefinitionManager(self.packages, host, schema_manager)
+        self.packages = PackageDefinitionManager(session, host, **schema_manager) # passing the class for now, should pass the validator directly
+        self.loaders = LoaderDefinitionManager(self.packages, host, **schema_manager)
+        self.publishers = PublisherDefinitionManager(self.packages, host, **schema_manager)
 
         events_types = {
             'publisher': self.publishers.result,
