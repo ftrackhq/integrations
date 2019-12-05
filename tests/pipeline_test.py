@@ -11,9 +11,7 @@ import ftrack_api
 
 
 os.environ['FTRACK_EVENT_PLUGIN_PATH'] = '/Users/lluisftrack/work/brokenC/ftrack/repos/ftrack-connect-pipeline-definition/resource/application_hook'
-#logging.getLogger(__name__)
 session = ftrack_api.Session()
-#session = get_shared_session()
 print session
 
 

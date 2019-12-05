@@ -9,4 +9,13 @@ COLLECT = 'collectors'
 VALIDATE = 'validators'
 OUTPUT = 'outputs'
 PUBLISH = 'publishers'
+
 COMPONENTS = 'components'
+
+#TODO: replace this in the future
+'''
+COLLECTORS = 'collectors'
+VALIDATORS = 'validators'
+OUTPUTS = 'outputs'
+PUBLISHERS = 'publishers'
+'''

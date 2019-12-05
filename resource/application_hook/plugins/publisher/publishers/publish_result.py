@@ -71,14 +71,22 @@ class FtrackPublishPlugin(plugin.PublisherPlugin):
         self.session.commit()
 
         results = {}
+
+        self.logger.debug("data lluisTest -------> {}".format(data))
+        self.logger.debug("data.items lluisTest -------> {}".format(data.items()))
+
         for component_name, component_path in data.items():
+            self.logger.debug("publishing component -------> {}".format(component_name))
             publish_component_fn = self.component_functions.get(
                 component_name, self.create_component
             )
             publish_component_fn(asset_version, component_name, component_path)
             results[component_name] = True
+            self.logger.debug("finish publishing component -------> {}".format(component_name))
 
+        self.logger.debug("finish publishing all components ")
         self.session.commit()
+        self.logger.debug("finish commit ")
 
         self.logger.debug("publishing: {} to {} as {}".format(data, context, asset_object))
 

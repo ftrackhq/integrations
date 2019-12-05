@@ -72,7 +72,9 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         context_widget = self._build_context(contexts)
         self.context_layout.addWidget(context_widget)
 
-        for component_name, component_stages in components.items():
+        for component in components:
+            component_name = component["name"]
+            component_stages = {k:v for k,v in component.items() if k != "name"}
             stages_widget = self._build_stages(component_stages)
             self.components_widget.addTab(stages_widget, component_name)
 
@@ -180,7 +182,9 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         contexts = self.schema[constants.CONTEXT]
         self._parse_context(contexts)
         components = self.schema[constants.COMPONENTS]
-        for component_name, component_stages in components.items():
+
+        for component in components:
+            component_stages = {k:v for k,v in component.items() if k != "name"}
             self._parse_stages(component_stages)
 
         publishers = self.schema[constants.PUBLISH]

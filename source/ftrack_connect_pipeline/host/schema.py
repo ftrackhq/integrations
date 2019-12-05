@@ -109,11 +109,11 @@ class SchemaManager(object):
         super(SchemaManager, self).__init__()
 
         self.session = session
-        self.packages = PackageSchemaManager(session) # this should be singular
-        self.loaders = LoaderSchemaManager(session) # this should be singular
-        self.publishers = PublisherSchemaManager(session) # this should be singular
+        self.packages = PackageSchemaManager(session)
+        self.loaders = LoaderSchemaManager(session)
+        self.publishers = PublisherSchemaManager(session)
 
-
+        #TODO: This is not needed and should be deleted, then the result function should be set as a property
         events_types = {
             constants.PUBLISHER_SCHEMA: self.publishers.result,
             constants.LOADER_SCHEMA: self.loaders.result,
@@ -128,10 +128,10 @@ class SchemaManager(object):
             )
 
     def validate_package(self, schema):
-        _validate(schema, self.packages.result["Package"])
+        _validate(schema, self.packages.result()["Package"])
 
     def validate_publisher(self, schema):
-        _validate(schema, self.publishers.result["Publisher"])
+        _validate(schema, self.publishers.result()["Publisher"])
 
     def validate_loader(self, schema):
-        _validate(schema, self.loaders.result["Loader"])
+        _validate(schema, self.loaders.result()["Loader"])
