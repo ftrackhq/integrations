@@ -179,8 +179,6 @@ class PublisherRunner(object):
         statuses = []
         results = []
 
-        self.logger.debug("publish_plugins --->  {} publish_data --->  {} context_data ---> {}".format(publish_plugins, publish_data, context_data))
-
         for plugin in publish_plugins:
             status, result = self._run_plugin(
                 plugin, constants.PUBLISHERS,
@@ -236,7 +234,6 @@ class PublisherRunner(object):
                 for key, value in output.items():
                     publish_data[key] = value
 
-        self.logger.debug("publish data --> {} ".format(publish_data))
         publish_status, publish_result = self.run_publish(
             publish_plugins, publish_data, context_result
         )
