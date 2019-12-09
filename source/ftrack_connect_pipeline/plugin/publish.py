@@ -8,24 +8,24 @@ from ftrack_connect_pipeline.plugin import BasePlugin, BaseWidget
 # PLUGINS
 class CollectorPlugin(BasePlugin):
     return_type = list
-    plugin_type = constants.COLLECT
+    plugin_type = constants.COLLECTORS
 
 
 class ValidatorPlugin(BasePlugin):
     return_type = bool
-    plugin_type = constants.VALIDATE
+    plugin_type = constants.VALIDATORS
     return_value = True
 
 
 class OutputPlugin(BasePlugin):
     input_options = ['component_name']
     return_type = dict
-    plugin_type = constants.OUTPUT
+    plugin_type = constants.OUTPUTS
 
 
 class PublisherPlugin(BasePlugin):
     return_type = dict
-    plugin_type = constants.PUBLISH
+    plugin_type = constants.PUBLISHERS
     output_input = [
         'context_id',
         'asset_name',
@@ -37,16 +37,16 @@ class PublisherPlugin(BasePlugin):
 
 # WIDGET
 class CollectorWidget(BaseWidget):
-    plugin_type = constants.COLLECT
+    plugin_type = constants.COLLECTORS
 
 
 class ValidatorWidget(BaseWidget):
-    plugin_type = constants.VALIDATE
+    plugin_type = constants.VALIDATORS
 
 
 class OutputWidget(BaseWidget):
-    plugin_type = constants.OUTPUT
+    plugin_type = constants.OUTPUTS
 
 
 class PublisherWidget(BaseWidget):
-    plugin_type = constants.PUBLISH
+    plugin_type = constants.PUBLISHERS

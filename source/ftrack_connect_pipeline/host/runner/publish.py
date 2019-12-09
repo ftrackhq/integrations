@@ -31,9 +31,9 @@ class PublisherRunner(object):
         self.__remote_events = utils.remote_event_mode()
 
         self.component_stages_order = [
-            constants.COLLECT,
-            constants.VALIDATE,
-            constants.OUTPUT
+            constants.COLLECTORS,
+            constants.VALIDATORS,
+            constants.OUTPUTS
         ]
 
         self.session = session
@@ -139,37 +139,38 @@ class PublisherRunner(object):
         results = {}
         statuses = {}
 
-        for stage_name in self.component_stages_order:
-            plugins = component_stages.get(stage_name)
-            if not plugins:
-                continue
+        for component_stage in component_stages:
+            for stage_name in self.component_stages_order:
+                plugins = component_stage.get(stage_name)
+                if not plugins:
+                    continue
 
-            collected_data = results.get(constants.COLLECT, [])
-            stages_result = []
-            stage_status = []
+                collected_data = results.get(constants.COLLECTORS, [])
+                stages_result = []
+                stage_status = []
 
-            for plugin in plugins:
+                for plugin in plugins:
 
-                plugin_options = plugin['options']
-                plugin_options['component_name'] = component_name
+                    plugin_options = plugin['options']
+                    plugin_options['component_name'] = component_name
 
-                status, result = self._run_plugin(
-                    plugin, stage_name,
-                    data=collected_data,
-                    options=plugin_options,
-                    context=context_data
-                )
+                    status, result = self._run_plugin(
+                        plugin, stage_name,
+                        data=collected_data,
+                        options=plugin_options,
+                        context=context_data
+                    )
 
-                # Merge list of lists.
-                if result and isinstance(result, list):
-                    result = result[0]
+                    # Merge list of lists.
+                    if result and isinstance(result, list):
+                        result = result[0]
 
-                bool_status = constants.status_bool_mapping[status]
-                stage_status.append(bool_status)
-                stages_result.append(result)
+                    bool_status = constants.status_bool_mapping[status]
+                    stage_status.append(bool_status)
+                    stages_result.append(result)
 
-            results[stage_name] = stages_result
-            statuses[stage_name] = all(stage_status)
+                results[stage_name] = stages_result
+                statuses[stage_name] = all(stage_status)
 
         return statuses, results
 
@@ -182,7 +183,7 @@ class PublisherRunner(object):
 
         for plugin in publish_plugins:
             status, result = self._run_plugin(
-                plugin, constants.PUBLISH,
+                plugin, constants.PUBLISHERS,
                 data=publish_data,
                 options=plugin['options'],
                 context=context_data
@@ -208,13 +209,13 @@ class PublisherRunner(object):
 
         context_result['asset_type'] = asset_type
 
-        components_plugins = data[constants.COMPONENTS]
+        publisher_components = data[constants.COMPONENTS]
         components_result = []
         components_status = []
 
-        for components_plugin in components_plugins:
-            component_name = components_plugin["name"]
-            component_stages = {k: v for k, v in components_plugin.items() if k != "name"}
+        for publisher_component in publisher_components:
+            component_name = publisher_component["name"]
+            component_stages = publisher_component["stages"]
             component_status, component_result = self.run_component(
                 component_name, component_stages, context_result
             )
@@ -224,11 +225,11 @@ class PublisherRunner(object):
             components_status.append(component_status)
             components_result.append(component_result)
 
-        publish_plugins = data[constants.PUBLISH]
+        publish_plugins = data[constants.PUBLISHERS]
 
         publish_data = {}
         for item in components_result:
-            for output in item.get(constants.OUTPUT):
+            for output in item.get(constants.OUTPUTS):
                 if not output:
                     continue
 

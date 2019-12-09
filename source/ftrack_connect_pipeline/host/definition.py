@@ -172,26 +172,26 @@ class PublisherDefinitionManager(BaseDefinitionManager):
                 return False
 
         # discover component plugins
-        component_plugins = data[constants.COMPONENTS]
-        for component_plugin in component_plugins:
-            for component_stage, plugins in component_plugin.items():
-                if component_stage != 'name':
-                    for plugin in plugins:
-                        if not self._discover_plugin(plugin, component_stage):
+        publisher_components = data[constants.COMPONENTS]
+        for publisher_component in publisher_components:
+            for publisher_stage in publisher_component['stages']:
+                for component_stage, component_plugins in publisher_stage.items():
+                    for component_plugin in component_plugins:
+                        if not self._discover_plugin(component_plugin, component_stage):
                             self.logger.warning(
                                 'Could not discover plugin {} for stage {} in {}'.format(
-                                    plugin['plugin'], component_stage, package_name
+                                    component_plugin['plugin'], component_stage, package_name
                                 )
                             )
                             return False
 
         # get publish plugins
-        publisher_plugins = data[constants.PUBLISH]
+        publisher_plugins = data[constants.PUBLISHERS]
         for publisher_plugin in publisher_plugins:
-            if not self._discover_plugin(publisher_plugin, constants.PUBLISH):
+            if not self._discover_plugin(publisher_plugin, constants.PUBLISHERS):
                 self.logger.warning(
                     'Could not discover plugin {} for {} in {}'.format(
-                        publisher_plugin['plugin'], constants.PUBLISH, package_name
+                        publisher_plugin['plugin'], constants.PUBLISHERS, package_name
                     )
                 )
                 return False
@@ -233,11 +233,11 @@ class PublisherDefinitionManager(BaseDefinitionManager):
 
         # check if the components defined in the publisher
         # are all available of the package definition
-        for publisher_component in publisher_names:
-            if publisher_component not in package_components.keys():
+        for publisher_component_name in publisher_names:
+            if publisher_component_name not in package_components.keys():
                 self.logger.warning(
                     '{} is not found in {}'.format(
-                        publisher_component, package_components.keys()
+                        publisher_component_name, package_components.keys()
                     )
                 )
                 return False
