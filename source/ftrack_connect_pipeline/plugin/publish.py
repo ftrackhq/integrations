@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.plugin import BasePlugin, BaseWidget
+from ftrack_connect_pipeline.plugin import BasePlugin
 
 
 # PLUGINS
@@ -33,20 +33,3 @@ class PublisherPlugin(BasePlugin):
         'comment',
         'status_id'
     ]
-
-
-# WIDGET
-class CollectorWidget(BaseWidget):
-    plugin_type = constants.COLLECTORS
-
-
-class ValidatorWidget(BaseWidget):
-    plugin_type = constants.VALIDATORS
-
-
-class OutputWidget(BaseWidget):
-    plugin_type = constants.OUTPUTS
-
-
-class PublisherWidget(BaseWidget):
-    plugin_type = constants.PUBLISHERS

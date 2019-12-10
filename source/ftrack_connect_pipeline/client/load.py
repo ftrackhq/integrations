@@ -10,23 +10,21 @@ for path in deps_paths:
     sys.path.append(path)
 
 
-from Qt import QtWidgets
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.client import BaseQtPipelineWidget
+from ftrack_connect_pipeline.client import BasePipelineClient
 
 
-class QtPipelineLoaderWidget(BaseQtPipelineWidget):
+class PipelineLoader(BasePipelineClient):
     '''
     Base load widget class.
     '''
-    def __init__(self, ui, host, hostid=None, parent=None):
+    def __init__(self, ui, host, hostid=None):
 
-        super(QtPipelineLoaderWidget, self).__init__(ui, host, hostid, parent=parent)
-        self.setWindowTitle('Standalone Pipeline Loader')
+        super(PipelineLoader, self).__init__(ui, host, hostid)
 
 
-if __name__ == '__main__':
+'''if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     wid = QtPipelineLoaderWidget(ui=constants.UI, host=constants.HOST)
     wid.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec_())'''

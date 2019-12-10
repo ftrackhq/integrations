@@ -6,7 +6,6 @@ import ftrack_api
 import time
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import exception
-from ftrack_connect_pipeline.client.widgets import BaseWidget
 
 
 class _Base(object):
@@ -184,44 +183,6 @@ class BasePlugin(_Base):
             self.plugin_name
         )
         return topic
-
-
-class BaseWidget(_Base):
-    type = 'widget'
-    return_type = BaseWidget
-
-    def _base_topic(self, topic):
-        required = [
-            self.host,
-            self.type,
-            self.plugin_type,
-            self.plugin_name,
-            self.ui
-        ]
-
-        if not all(required):
-            raise exception.PluginError('Some required fields are missing')
-
-        topic = constants.WIDGET_EVENT.format(
-            topic,
-            self.host,
-            self.ui,
-            self.type,
-            self.plugin_type,
-            self.plugin_name
-        )
-        return topic
-
-
-class ContextPlugin(BasePlugin):
-    return_type = dict
-    plugin_type = constants.CONTEXT
-    input_options = ['context_id']
-    output_options = ['context_id', 'asset_name', 'comment', 'status_id']
-
-
-class ContextWidget(BaseWidget):
-    plugin_type = constants.CONTEXT
 
 
 from ftrack_connect_pipeline.plugin.load import *
