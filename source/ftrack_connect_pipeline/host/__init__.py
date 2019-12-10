@@ -26,7 +26,7 @@ def initialise(session, host, ui):
     hostid = '{}-{}-{}'.format(host, ui, uuid.uuid4().hex)
 
     #Starting new event thread
-    event_thread = event.NewApiEventHubThread()
+    event_thread = event.EventHubThread()
     event_thread.start(session)
 
     schema_manager = SchemaManager(session);

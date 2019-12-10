@@ -3,7 +3,7 @@
 
 from Qt import QtWidgets, QtCore
 
-from ftrack_connect_pipeline.utils import asynchronous
+from ftrack_connect_pipeline_qt.utils import asynchronous
 
 
 class EntityPath(QtWidgets.QLineEdit):

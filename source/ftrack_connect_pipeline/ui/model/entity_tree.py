@@ -4,7 +4,7 @@
 # :notice: Derived from Riffle (https://github.com/4degrees/riffle)
 
 from Qt import QtWidgets, QtCore, QtGui
-from ftrack_connect_pipeline.utils import Worker
+from ftrack_connect_pipeline_qt.utils import Worker
 
 
 def ItemFactory(session, entity):

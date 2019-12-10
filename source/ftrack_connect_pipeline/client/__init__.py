@@ -74,7 +74,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
         self.session = get_shared_session()
         self.event_manager = event.EventManager(self.session)
-        self.event_thread = event.NewApiEventHubThread()
+        self.event_thread = event.EventHubThread()
         self.event_thread.start(self.session)
 
         self.pre_build()

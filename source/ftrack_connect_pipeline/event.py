@@ -67,12 +67,11 @@ class EventManager(object):
                 on_reply=callback
             )
 
-
-class NewApiEventHubThread(QtCore.QThread):
+class EventHubThread(threading.Thread):
     '''Listen for events from ftrack's event hub.'''
 
     def __init__(self, parent=None):
-        super(NewApiEventHubThread, self).__init__(parent=parent)
+        super(EventHubThread, self).__init__()
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
@@ -81,7 +80,7 @@ class NewApiEventHubThread(QtCore.QThread):
         '''Start thread for *_session*.'''
         self._session = session
         self.logger.debug('Starting event hub thread.')
-        super(NewApiEventHubThread, self).start()
+        super(EventHubThread, self).start()
 
     def run(self):
         '''Listen for events.'''

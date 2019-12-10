@@ -8,7 +8,7 @@ import urllib2
 
 from Qt import QtCore, QtGui, QtWidgets
 
-from ftrack_connect_pipeline.utils import Worker
+from ftrack_connect_pipeline_qt.utils import Worker
 
 # Cache of thumbnail images.
 IMAGE_CACHE = dict()
