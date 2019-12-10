@@ -6,10 +6,7 @@ import logging
 import ftrack_api
 import json
 
-from Qt import QtCore
-
 from ftrack_connect_pipeline import constants
-#from ftrack_connect_pipeline.host import schema
 from ftrack_connect_pipeline.event import EventManager
 
 logger = logging.getLogger(__name__)
@@ -277,7 +274,7 @@ class PublisherDefinitionManager(BaseDefinitionManager):
         return True
 
 
-class DefintionManager(QtCore.QObject):
+class DefintionManager(object):
     '''class wrapper to contain all the definition managers.'''
 
     def __init__(self, session, host, hostid, schema_manager):

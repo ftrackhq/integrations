@@ -4,8 +4,8 @@
 from Qt import QtWidgets, QtCore, QtGui
 from ftrack_connect_pipeline.client.widgets.simple import BaseWidget
 
-from ftrack_connect_pipeline.ui.widget.context_selector import ContextSelector
-from ftrack_connect_pipeline.ui.widget.asset_selector import AssetSelector
+from ftrack_connect_pipeline_qt.ui.widget.context_selector import ContextSelector
+from ftrack_connect_pipeline_qt.ui.widget.asset_selector import AssetSelector
 
 
 class PublishContextWidget(BaseWidget):

@@ -13,7 +13,7 @@ from ftrack_connect_pipeline import event
 from ftrack_connect_pipeline import utils
 from ftrack_connect_pipeline.client.widgets import BaseWidget
 from ftrack_connect_pipeline.session import get_shared_session
-from ftrack_connect_pipeline.ui.widget import header
+from ftrack_connect_pipeline_qt.ui.widget import header
 
 
 class BaseQtPipelineWidget(QtWidgets.QWidget):

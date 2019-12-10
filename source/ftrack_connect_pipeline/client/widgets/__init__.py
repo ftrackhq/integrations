@@ -5,7 +5,7 @@ import logging
 
 from Qt import QtCore, QtWidgets
 
-from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline_qt import constants
 
 
 class BaseWidget(QtWidgets.QWidget):
