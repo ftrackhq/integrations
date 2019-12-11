@@ -10,12 +10,6 @@ class CheckGeoNamesValidatorPlugin(plugin.ValidatorMayaPlugin):
     plugin_name = 'name_validator'
 
     def run(self, context=None, data=None, options=None):
-        print "The context --> ", context
-        print "The data --> ", data
-        print "The options --> ", options
-        self.logger.info('context: {}'.format(context))
-        self.logger.info('data: {}'.format(data))
-        self.logger.info('options: {}'.format(options))
         allObj = mc.ls(data, tr=True)
         for obj in allObj:
             if obj.startswith("ftrack_") == False:
