@@ -1,7 +1,9 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-from ftrack_connect_pipeline import constants, plugin
+from ftrack_connect_pipeline import plugin
+from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_nuke.plugin import BaseNukePlugin, BaseNukeWidget
 
 
@@ -23,17 +25,17 @@ class PublisherNukePlugin(BaseNukePlugin, plugin.PublisherPlugin):
 
 
 # WIDGET
-class CollectorNukeWidget(BaseNukeWidget, plugin.CollectorWidget):
+class CollectorNukeWidget(BaseNukeWidget, pluginWidget.CollectorWidget):
     plugin_type = constants.COLLECT
 
 
-class ValidatorNukeWidget(BaseNukeWidget, plugin.ValidatorWidget):
+class ValidatorNukeWidget(BaseNukeWidget, pluginWidget.ValidatorWidget):
     plugin_type = constants.VALIDATE
 
 
-class OutputNukeWidget(BaseNukeWidget, plugin.OutputWidget):
+class OutputNukeWidget(BaseNukeWidget, pluginWidget.OutputWidget):
     plugin_type = constants.OUTPUT
 
 
-class PublisherNukeWidget(BaseNukeWidget, plugin.PublisherWidget):
+class PublisherNukeWidget(BaseNukeWidget, pluginWidget.PublisherWidget):
     plugin_type = constants.PUBLISH

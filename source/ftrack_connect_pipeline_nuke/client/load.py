@@ -1,4 +1,4 @@
-from ftrack_connect_pipeline.client.load import QtPipelineLoaderWidget
+from ftrack_connect_pipeline_qt.client.load import QtPipelineLoaderWidget
 from ftrack_connect_pipeline_nuke.constants import HOST, UI
 
 

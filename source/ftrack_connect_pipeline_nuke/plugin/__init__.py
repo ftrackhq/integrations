@@ -6,9 +6,10 @@ import re
 import glob
 import os
 import traceback
-from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline_nuke import constants as nuke_constants
+from ftrack_connect_pipeline import plugin
+from ftrack_connect_pipeline_qt import plugin as pluginWidget
 
 import nuke
 
@@ -69,7 +70,7 @@ class BaseNukePlugin(plugin.BasePlugin, _BaseNuke):
         return True
 
 
-class BaseNukeWidget(plugin.BaseWidget,_BaseNuke):
+class BaseNukeWidget(pluginWidget.BasePluginWidget,_BaseNuke):
     type = 'widget'
     ui = nuke_constants.UI
 
@@ -78,7 +79,7 @@ class ContextNukePlugin(BaseNukePlugin, plugin.ContextPlugin):
     plugin_type = constants.CONTEXT
 
 
-class ContextNukeWidget(BaseNukeWidget, plugin.ContextWidget):
+class ContextNukeWidget(BaseNukeWidget, pluginWidget.ContextWidget):
     plugin_type = constants.CONTEXT
 
 

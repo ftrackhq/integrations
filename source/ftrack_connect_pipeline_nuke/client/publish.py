@@ -1,4 +1,4 @@
-from ftrack_connect_pipeline.client.publish import QtPipelinePublishWidget
+from ftrack_connect_pipeline_qt.client.publish import QtPipelinePublishWidget
 from ftrack_connect_pipeline_nuke.constants import HOST, UI
 
 
