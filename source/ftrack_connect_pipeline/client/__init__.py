@@ -51,9 +51,9 @@ class BasePipelineClient(object):
         '''Return the current ui type.'''
         return self._hosts_ids_l
 
-    def __init__(self, ui, host, hostid=None, **kwarg):
+    def __init__(self, ui, host, hostid=None):
         '''Initialise widget with *ui* , *host* and *hostid*.'''
-        super(BasePipelineClient, self).__init__(**kwarg)
+        #super(BasePipelineClient, self).__init__()
         self._context = {}
         self._packages = {}
         self._current = {}
