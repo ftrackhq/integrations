@@ -20,10 +20,6 @@ class BasePipelineClient(object):
     '''
 
     @property
-    def context(self):
-        return self._context
-
-    @property
     def packages(self):
         return self._packages
 
@@ -54,7 +50,6 @@ class BasePipelineClient(object):
     def __init__(self, ui, host, hostid=None):
         '''Initialise widget with *ui* , *host* and *hostid*.'''
         #super(BasePipelineClient, self).__init__()
-        self._context = {}
         self._packages = {}
         self._current = {}
         self._ui = ui
@@ -77,10 +72,6 @@ class BasePipelineClient(object):
 
         if not self.hostid:
             self.discover_hosts()
-
-        else:
-            context_id = utils.get_current_context()
-            self._context = self.session.get('Context', context_id)
 
     def fetch_package_definitions(self):
         self._fetch_defintions('package', self._packages_loaded)
@@ -132,12 +123,12 @@ class BasePipelineClient(object):
         hostid = str(event['data']['hostid'])
         context_id = str(event['data']['context_id'])
         hostDict = {"hostid":hostid, "context_id":context_id}
-        self.hosts_ids_l.add(hostDict)
+        self._hosts_ids_l.add(hostDict)
 
     def discover_hosts(self):
         '''Event to discover new available hosts.'''
         #clear self.host_ids_l before discover hosts
-        self.hosts_ids_l.clear()
+        self._hosts_ids_l.clear()
         discover_event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_DISCOVER_HOST
         )
