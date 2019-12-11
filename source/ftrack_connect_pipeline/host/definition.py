@@ -9,7 +9,7 @@ import json
 from Qt import QtCore
 
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline import schema
+#from ftrack_connect_pipeline.host import schema
 from ftrack_connect_pipeline.event import EventManager
 
 logger = logging.getLogger(__name__)
@@ -121,9 +121,9 @@ class BaseDefinitionManager(object):
 class PackageDefinitionManager(BaseDefinitionManager):
     '''Package schema manager class.'''
 
-    def __init__(self, session, host):
+    def __init__(self, session, host, schema_manager):
         '''Initialise the class with ftrack *session* and *context_type*'''
-        super(PackageDefinitionManager, self).__init__(session, host, 'package', schema.validate_package)
+        super(PackageDefinitionManager, self).__init__(session, host, 'package', schema_manager.validate_package)
 
 
 class LoaderDefinitionManager(BaseDefinitionManager):
@@ -133,9 +133,9 @@ class LoaderDefinitionManager(BaseDefinitionManager):
         '''return available packages definitions.'''
         return self.package_manager.result()
 
-    def __init__(self, package_manager, host):
+    def __init__(self, package_manager, host, schema_manager):
         '''Initialise the class with ftrack *session* and *context_type*'''
-        super(LoaderDefinitionManager, self).__init__(package_manager.session, host, 'loader', schema.validate_loader)
+        super(LoaderDefinitionManager, self).__init__(package_manager.session, host, 'loader', schema_manager.validate_loader)
         self.package_manager = package_manager
         self.host = host
 
@@ -152,9 +152,9 @@ class PublisherDefinitionManager(BaseDefinitionManager):
         '''return available packages definitions.'''
         return self.package_manager.result()
 
-    def __init__(self, package_manager, host):
+    def __init__(self, package_manager, host, schema_manager):
         '''Initialise the class with ftrack *session* and *context_type*'''
-        super(PublisherDefinitionManager, self).__init__(package_manager.session, host, 'publisher', schema.validate_publisher)
+        super(PublisherDefinitionManager, self).__init__(package_manager.session, host, 'publisher', schema_manager.validate_publisher)
         self.package_manager = package_manager
         self.host = host
 
@@ -172,25 +172,26 @@ class PublisherDefinitionManager(BaseDefinitionManager):
                 return False
 
         # discover component plugins
-        component_plugins = data[constants.COMPONENTS]
-        for component_name, component_stages in component_plugins.items():
-            for component_stage, plugins in component_stages.items():
-                for plugin in plugins:
-                    if not self._discover_plugin(plugin, component_stage):
-                        self.logger.warning(
-                            'Could not discover plugin {} for stage {} in {}'.format(
-                                plugin['plugin'], component_stage, package_name
+        publisher_components = data[constants.COMPONENTS]
+        for publisher_component in publisher_components:
+            for publisher_stage in publisher_component['stages']:
+                for component_stage, component_plugins in publisher_stage.items():
+                    for component_plugin in component_plugins:
+                        if not self._discover_plugin(component_plugin, component_stage):
+                            self.logger.warning(
+                                'Could not discover plugin {} for stage {} in {}'.format(
+                                    component_plugin['plugin'], component_stage, package_name
+                                )
                             )
-                        )
-                        return False
+                            return False
 
         # get publish plugins
-        publisher_plugins = data[constants.PUBLISH]
+        publisher_plugins = data[constants.PUBLISHERS]
         for publisher_plugin in publisher_plugins:
-            if not self._discover_plugin(publisher_plugin, constants.PUBLISH):
+            if not self._discover_plugin(publisher_plugin, constants.PUBLISHERS):
                 self.logger.warning(
                     'Could not discover plugin {} for {} in {}'.format(
-                        publisher_plugin['plugin'], constants.PUBLISH, package_name
+                        publisher_plugin['plugin'], constants.PUBLISHERS, package_name
                     )
                 )
                 return False
@@ -209,7 +210,11 @@ class PublisherDefinitionManager(BaseDefinitionManager):
             ]
         )
 
-        publisher_components = data['components'].keys()
+        publisher_names = []
+        publisher_components = data[constants.COMPONENTS]
+        for publisher_component in publisher_components:
+            if publisher_component['name']:
+                publisher_names.append(publisher_component['name'])
 
         # check if the mandatory components defined in the package definition
         # are available in the publisher definition.
@@ -217,7 +222,7 @@ class PublisherDefinitionManager(BaseDefinitionManager):
             if optional:
                 continue
 
-            if package_component_name not in publisher_components:
+            if package_component_name not in publisher_names:
                 self.logger.warning(
                     '{} is not defined in {}'.format(
                         package_component_name, data['package']
@@ -225,13 +230,14 @@ class PublisherDefinitionManager(BaseDefinitionManager):
                 )
                 return False
 
+
         # check if the components defined in the publisher
         # are all available of the package definition
-        for publisher_component in publisher_components:
-            if publisher_component not in package_components.keys():
+        for publisher_component_name in publisher_names:
+            if publisher_component_name not in package_components.keys():
                 self.logger.warning(
                     '{} is not found in {}'.format(
-                        publisher_component, package_components.keys()
+                        publisher_component_name, package_components.keys()
                     )
                 )
                 return False
@@ -274,13 +280,13 @@ class PublisherDefinitionManager(BaseDefinitionManager):
 class DefintionManager(QtCore.QObject):
     '''class wrapper to contain all the definition managers.'''
 
-    def __init__(self, session, host, hostid):
+    def __init__(self, session, host, hostid, schema_manager):
         super(DefintionManager, self).__init__()
 
         self.session = session
-        self.packages = PackageDefinitionManager(session, host)
-        self.loaders = LoaderDefinitionManager(self.packages, host)
-        self.publishers = PublisherDefinitionManager(self.packages, host)
+        self.packages = PackageDefinitionManager(session, host, schema_manager)
+        self.loaders = LoaderDefinitionManager(self.packages, host, schema_manager)
+        self.publishers = PublisherDefinitionManager(self.packages, host, schema_manager)
 
         events_types = {
             'publisher': self.publishers.result,

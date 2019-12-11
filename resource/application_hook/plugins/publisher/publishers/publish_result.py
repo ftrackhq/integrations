@@ -71,6 +71,7 @@ class FtrackPublishPlugin(plugin.PublisherPlugin):
         self.session.commit()
 
         results = {}
+
         for component_name, component_path in data.items():
             publish_component_fn = self.component_functions.get(
                 component_name, self.create_component

@@ -66,13 +66,15 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
             return
 
         contexts = package_publisher[constants.CONTEXT]
-        components = package_publisher[constants.COMPONENTS]
-        publishers = package_publisher[constants.PUBLISH]
+        publisher_components = package_publisher[constants.COMPONENTS]
+        publishers = package_publisher[constants.PUBLISHERS]
 
         context_widget = self._build_context(contexts)
         self.context_layout.addWidget(context_widget)
 
-        for component_name, component_stages in components.items():
+        for publisher_component in publisher_components:
+            component_name = publisher_component["name"]
+            component_stages = publisher_component["stages"]
             stages_widget = self._build_stages(component_stages)
             self.components_widget.addTab(stages_widget, component_name)
 
@@ -104,25 +106,26 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         component_layout = QtWidgets.QVBoxLayout()
         component_widget.setLayout(component_layout)
 
-        for stage_name, stage_plugins in component_stages.items():
-            stage_widget = QtWidgets.QGroupBox(stage_name)
-            stage_layout = QtWidgets.QVBoxLayout()
-            stage_widget.setLayout(stage_layout)
-            component_layout.addWidget(stage_widget)
+        for component_stage in component_stages:
+            for stage_name, stage_plugins in component_stage.items():
+                stage_widget = QtWidgets.QGroupBox(stage_name)
+                stage_layout = QtWidgets.QVBoxLayout()
+                stage_widget.setLayout(stage_layout)
+                component_layout.addWidget(stage_widget)
 
-            for stage_plugin in stage_plugins:
-                stage_widget = self.fetch_widget(stage_plugin, stage_name)
-                self.register_widget_plugin(stage_widget, stage_plugin)
-                stage_layout.addWidget(stage_widget)
+                for stage_plugin in stage_plugins:
+                    stage_widget = self.fetch_widget(stage_plugin, stage_name)
+                    self.register_widget_plugin(stage_widget, stage_plugin)
+                    stage_layout.addWidget(stage_widget)
 
         return component_widget
 
     def _build_publish(self, publish_plugins):
-        publish_group_widget = QtWidgets.QGroupBox(constants.PUBLISH)
+        publish_group_widget = QtWidgets.QGroupBox(constants.PUBLISHERS)
         publish_layout = QtWidgets.QVBoxLayout()
         publish_group_widget.setLayout(publish_layout)
         for publish_plugin in publish_plugins:
-            publish_widget = self.fetch_widget(publish_plugin, constants.PUBLISH)
+            publish_widget = self.fetch_widget(publish_plugin, constants.PUBLISHERS)
             self.register_widget_plugin(publish_widget, publish_plugin)
             publish_layout.addWidget(publish_widget)
 
@@ -130,7 +133,7 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
     # parse widgets results functions
     def _parse_publish(self, publish_plugins):
-        publish_group_widget = QtWidgets.QGroupBox(constants.PUBLISH)
+        publish_group_widget = QtWidgets.QGroupBox(constants.PUBLISHERS)
         publish_layout = QtWidgets.QVBoxLayout()
         publish_group_widget.setLayout(publish_layout)
         for publish_plugin in publish_plugins:
@@ -154,17 +157,18 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         component_layout = QtWidgets.QVBoxLayout()
         component_widget.setLayout(component_layout)
 
-        for stage_name, stage_plugins in component_stages.items():
-            stage_widget = QtWidgets.QGroupBox(stage_name)
-            stage_layout = QtWidgets.QVBoxLayout()
-            stage_widget.setLayout(stage_layout)
-            component_layout.addWidget(stage_widget)
+        for component_stage in component_stages:
+            for stage_name, stage_plugins in component_stage.items():
+                stage_widget = QtWidgets.QGroupBox(stage_name)
+                stage_layout = QtWidgets.QVBoxLayout()
+                stage_widget.setLayout(stage_layout)
+                component_layout.addWidget(stage_widget)
 
-            for stage_plugin in stage_plugins:
-                widget = self.get_registered_widget_plugin(stage_plugin)
-                widget_options = widget.get_option_results()
-                stage_plugin.setdefault('options', {})
-                stage_plugin['options'].update(widget_options)
+                for stage_plugin in stage_plugins:
+                    widget = self.get_registered_widget_plugin(stage_plugin)
+                    widget_options = widget.get_option_results()
+                    stage_plugin.setdefault('options', {})
+                    stage_plugin['options'].update(widget_options)
 
     def _on_publisher_changed(self, index):
         '''Slot triggered on asset type change.'''
@@ -179,11 +183,13 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
         '''ensure the stored data are updated with the latest value'''
         contexts = self.schema[constants.CONTEXT]
         self._parse_context(contexts)
-        components = self.schema[constants.COMPONENTS]
-        for component_name, component_stages in components.items():
+        publisher_components = self.schema[constants.COMPONENTS]
+
+        for publisher_component in publisher_components:
+            component_stages = publisher_component['stages']
             self._parse_stages(component_stages)
 
-        publishers = self.schema[constants.PUBLISH]
+        publishers = self.schema[constants.PUBLISHERS]
         self._parse_publish(publishers)
 
     def _on_run(self):
