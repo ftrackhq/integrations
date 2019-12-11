@@ -51,9 +51,9 @@ class BasePipelineClient(object):
         '''Return the current ui type.'''
         return self._hosts_ids_l
 
-    def __init__(self, ui, host, hostid=None):
+    def __init__(self, ui, host, hostid=None, **kwarg):
         '''Initialise widget with *ui* , *host* and *hostid*.'''
-        super(BasePipelineClient, self).__init__()
+        super(BasePipelineClient, self).__init__(**kwarg)
         self._context = {}
         self._packages = {}
         self._current = {}
@@ -136,7 +136,7 @@ class BasePipelineClient(object):
 
     def discover_hosts(self):
         '''Event to discover new available hosts.'''
-        #cleaning self.host_ids_l before discover hosts
+        #clear self.host_ids_l before discover hosts
         self.hosts_ids_l.clear()
         discover_event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_DISCOVER_HOST

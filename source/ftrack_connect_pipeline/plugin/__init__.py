@@ -184,6 +184,12 @@ class BasePlugin(_Base):
         )
         return topic
 
+class ContextPlugin(BasePlugin):
+    return_type = dict
+    plugin_type = constants.CONTEXT
+    input_options = ['context_id']
+    output_options = ['context_id', 'asset_name', 'comment', 'status_id']
+
 
 from ftrack_connect_pipeline.plugin.load import *
 from ftrack_connect_pipeline.plugin.publish import *
