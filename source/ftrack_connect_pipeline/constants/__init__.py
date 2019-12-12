@@ -1,8 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-UI = 'qt'
-HOST = '*'
+UI = None
+HOST = 'api'
 
 # Base name.
 _BASE_ = 'ftrack.pipeline'
