@@ -8,7 +8,7 @@ event_paths = [
 ]
 
 
-session =get_shared_session(plugin_paths=event_paths)
+session = get_shared_session(plugin_paths=event_paths)
 host = host.initialise(session, host=constants.HOST, ui=constants.UI)
-baseClient = client.BasePipelineClient(ui=None, host=constants.UI, hostid=constants.HOST)
+baseClient = client.BasePipelineClient(ui=None, host=constants.UI, hostid=host)
 print baseClient.packages
