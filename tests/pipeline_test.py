@@ -7,7 +7,9 @@ event_paths = [
     os.path.abspath(os.path.join('ftrack-connect-pipeline', 'resource', 'application_hook'))
 ]
 
-os.environ['FTRACK_EVENT_PLUGIN_PATH'] = os.pathsep.join(event_paths)
+paths = os.pathsep.join(event_paths)
+print paths
+os.environ['FTRACK_EVENT_PLUGIN_PATH'] = paths
 
 session = get_shared_session()
 host_id = host.initialise(session, host=constants.HOST, ui=constants.UI)
