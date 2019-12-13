@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 def provide_host_information(hostid, event):
     '''return the current hostid'''
+    print "provide host information has been called"
     logger.debug('providing hostid: {}'.format(hostid))
     context_id = utils.get_current_context()
     return {'hostid': hostid, 'context_id': context_id}

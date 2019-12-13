@@ -8,6 +8,7 @@ import json
 
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.event import EventManager
+from functools import partial
 
 logger = logging.getLogger(__name__)
 
@@ -43,8 +44,9 @@ class BaseDefinitionManager(object):
 
         return True
 
-    def on_register_definition(self, event):
+    def on_register_definition(self, schema_type, event):
         '''Register definition coming from *event* and store them.'''
+        print "schecma type -->{0}, registrating definition event['data'] -->{1}".format(schema_type, event['data'])
         raw_result = event['data']
         result = None
         try:
@@ -82,7 +84,7 @@ class BaseDefinitionManager(object):
 
         self.event_manager.publish(
             event,
-            self.on_register_definition,
+            partial(self.on_register_definition, schema_type),
             remote=True
         )
 

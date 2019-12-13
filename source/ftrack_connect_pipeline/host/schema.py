@@ -19,19 +19,17 @@ class BaseSchemaManager(object):
         '''Return the result definitions.'''
         return self.__registry
 
-    def __init__(self, session, schema_type):
+    def __init__(self, session):
         '''Initialise the class with ftrack *session* and *context_type*'''
         super(BaseSchemaManager, self).__init__()
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        #self.schema_result = {}
         self.__registry = {}
         self.session = session
         self.event_manager = EventManager(self.session)
-        self._schema_type = schema_type
-        self.register(schema_type)
+        self.register()
 
     def on_register_schema(self, event):
         '''Register definition coming from *event* and store them.'''
@@ -49,23 +47,22 @@ class BaseSchemaManager(object):
         if not result:
             return
 
-        title = result['title']
-        if title in self.__registry:
-            self.logger.warning('{} already registered!'.format(title))
-            return
+        for schema_result in result:
+            schema_type = schema_result['title']
+            if schema_type in self.__registry:
+                self.logger.warning('{} already registered!'.format(schema_type))
+                return
+            self.logger.info('Registering {}'.format(schema_type))
+            self.__registry[schema_type] = schema_result
 
-        self.logger.info('Registering {}'.format(result['title']))
-        self.schema_result = result;
-        self.__registry[title] = result
-
-    def register(self, schema_type):
+    def register(self):
         '''register package'''
 
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_REGISTER_TOPIC,
             data={
                 'pipeline': {
-                    'type': str(schema_type)
+                    'type': "schema"#str(schema_type)
                 }
             }
         )
@@ -76,62 +73,26 @@ class BaseSchemaManager(object):
             remote=True
         )
 
-
-class PackageSchemaManager(BaseSchemaManager):
-    '''Package schema manager class.'''
-
-    def __init__(self, session):
-        '''Initialise the class with ftrack *session* and *context_type*'''
-        super(PackageSchemaManager, self).__init__(session, constants.PACKAGE_SCHEMA)
-
-
-class LoaderSchemaManager(BaseSchemaManager):
-
-    def __init__(self, session):
-        '''Initialise the class with ftrack *session* and *context_type*'''
-        super(LoaderSchemaManager, self).__init__(session, constants.LOADER_SCHEMA)
-
-
-class PublisherSchemaManager(BaseSchemaManager):
-
-    def __init__(self, session):
-        '''Initialise the class with ftrack *session* and *context_type*'''
-        super(PublisherSchemaManager, self).__init__(session, constants.PUBLISHER_SCHEMA)
-
-
 class SchemaManager(object):
     '''class wrapper to contain all the definition managers.'''
-    #TODO: at some point make the baseSchema to load one package schema, one loader and one publisher instead of various.
-    # we can also create a class schema validators with all the validators generated in th schema manager, so we can pass the schema
-    # validators to the definition instead of the schemaManager itself
 
     def __init__(self, session):
         super(SchemaManager, self).__init__()
 
         self.session = session
-        self.packages = PackageSchemaManager(session)
-        self.loaders = LoaderSchemaManager(session)
-        self.publishers = PublisherSchemaManager(session)
+        self.schemas = BaseSchemaManager(session)
 
-        #TODO: This is not needed and should be deleted, then the result function should be set as a property
-        events_types = {
-            constants.PUBLISHER_SCHEMA: self.publishers.result,
-            constants.LOADER_SCHEMA: self.loaders.result,
-            constants.PACKAGE_SCHEMA: self.packages.result
-        }
-
-        for event_name, event_callback in events_types.items():
-            self.session.event_hub.subscribe(
-                'topic={} and data.pipeline.type={}'.format(
-                    constants.PIPELINE_REGISTER_SCHEMA_TOPIC, event_name),
-                event_callback
-            )
+        self.session.event_hub.subscribe(
+            'topic={} and data.pipeline.type={}'.format(
+                constants.PIPELINE_REGISTER_SCHEMA_TOPIC, "schema"),
+            self.schemas.result
+        )
 
     def validate_package(self, schema):
-        _validate(schema, self.packages.result()["Package"])
+        _validate(schema, self.schemas.result()["Package"])
 
     def validate_publisher(self, schema):
-        _validate(schema, self.publishers.result()["Publisher"])
+        _validate(schema, self.schemas.result()["Publisher"])
 
     def validate_loader(self, schema):
-        _validate(schema, self.loaders.result()["Loader"])
+        _validate(schema, self.schemas.result()["Loader"])
