@@ -33,11 +33,6 @@ class BasePipelineClient(object):
         return self._hostid
 
     @property
-    def host(self):
-        '''Return the current host type.'''
-        return self._host
-
-    @property
     def ui(self):
         '''Return the current ui type.'''
         return self._ui
@@ -47,13 +42,12 @@ class BasePipelineClient(object):
         '''Return the current ui type.'''
         return self._hosts_ids_l
 
-    def __init__(self, ui, host, hostid=None):
+    def __init__(self, ui, hostid=None):
         '''Initialise widget with *ui* , *host* and *hostid*.'''
         #super(BasePipelineClient, self).__init__()
         self._packages = {}
         self._current = {}
         self._ui = ui
-        self._host = host
         self._hostid = hostid
         self._hosts_ids_l = [] #list of dictionaries as {"hostid":hostId, "contextid":contextid}
 

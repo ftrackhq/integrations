@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 UI = None
-HOST = 'api'
+HOST = 'python'
 
 # Base name.
 _BASE_ = 'ftrack.pipeline'

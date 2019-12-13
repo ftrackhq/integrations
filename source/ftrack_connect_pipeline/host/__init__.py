@@ -21,10 +21,10 @@ def provide_host_information(hostid, event):
     return {'hostid': hostid, 'context_id': context_id}
 
 
-def initialise(session, host, ui):
+def initialise(session, host):
     '''Initialize host with *session*, *host* and *ui*, return *hostid*'''
     #we should call initialize schemas here
-    hostid = '{}-{}-{}'.format(host, ui, uuid.uuid4().hex)
+    hostid = '{}-{}'.format(host, uuid.uuid4().hex)
 
     #Starting new event thread
     event_thread = event.EventHubThread()
@@ -34,7 +34,7 @@ def initialise(session, host, ui):
 
     definition_manager = DefintionManager(session, host, hostid, schema_manager)
     package_results = definition_manager.packages.result()
-    PublisherRunner(session, package_results, host, ui, hostid)
+    PublisherRunner(session, package_results, host, hostid)
 
     is_remote_event = utils.remote_event_mode()
 
