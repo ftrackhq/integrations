@@ -21,7 +21,11 @@ def provide_host_information(hostid, definitions, event):
     print "provide host information has been called"
     logger.debug('providing hostid: {}'.format(hostid))
     context_id = utils.get_current_context()
-    host_dict = {'hostid': hostid, 'context_id': context_id, 'definitions':definitions}
+    host_dict = {
+        'host_id': hostid,
+        'context_id': context_id,
+        'definitions':definitions
+    }
     return host_dict
 
 
@@ -31,7 +35,7 @@ class BaseDefinitionManager(object):
         '''Return the result definitions.'''
         return self.__registry
 
-    def __init__(self, session, host):
+    def __init__(self, event_manager, host):
         '''Initialise the class with ftrack *session* and *context_type*'''
         super(BaseDefinitionManager, self).__init__()
 
@@ -44,8 +48,8 @@ class BaseDefinitionManager(object):
         self.hostid = hostid
         self.__registry = {}
         self.host = host
-        self.session = session
-        self.event_manager = EventManager(self.session)
+        self.session = event_manager.session
+        self.event_manager = event_manager
         self.register()
 
     def on_register_definition(self, event):
@@ -162,11 +166,11 @@ class BaseDefinitionManager(object):
 class DefintionManager(object):
     '''class wrapper to contain all the definition managers.'''
 
-    def __init__(self, session, host):
+    def __init__(self, event_manager, host):
         super(DefintionManager, self).__init__()
 
-        self.session = session
+        self.session = event_manager.session
 
-        self.definitions = BaseDefinitionManager(session, host)
+        self.definitions = BaseDefinitionManager(event_manager, host)
 
         self.json_definitions = self.definitions.result()

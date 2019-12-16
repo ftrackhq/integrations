@@ -12,11 +12,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def initialise(session, host):
+def initialise(event_manager, host):
     '''Initialize host with *session*, *host* and *ui*, return *hostid*'''
 
-    #Starting new event thread
-    event_thread = event.EventHubThread()
-    event_thread.start(session)
-
-    definition_manager = DefintionManager(session, host)
+    DefintionManager(event_manager, host)

@@ -5,7 +5,7 @@ import threading
 
 import logging
 import ftrack_api
-
+from ftrack_connect_pipeline import session
 logger = logging.getLogger(__name__)
 
 from Qt import QtCore
@@ -48,11 +48,13 @@ class _EventThread(threading.Thread):
 
 class EventManager(object):
     '''Manages the events handling.'''
-    def __init__(self, session):
+    def __init__(self):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        self.session = session
+        self.session = session.get_shared_session()
+        self._event_hub_thread = _EventHubThread()
+        self._event_hub_thread.start(self.session)
 
     def publish(self, event, callback=None, remote=False):
         '''Emit *event* and provide *callback* function.'''
@@ -67,11 +69,12 @@ class EventManager(object):
                 on_reply=callback
             )
 
-class EventHubThread(threading.Thread):
+
+class _EventHubThread(threading.Thread):
     '''Listen for events from ftrack's event hub.'''
 
-    def __init__(self, parent=None):
-        super(EventHubThread, self).__init__()
+    def __init__(self):
+        super(_EventHubThread, self).__init__()
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
@@ -80,7 +83,7 @@ class EventHubThread(threading.Thread):
         '''Start thread for *_session*.'''
         self._session = session
         self.logger.debug('Starting event hub thread.')
-        super(EventHubThread, self).start()
+        super(_EventHubThread, self).start()
 
     def run(self):
         '''Listen for events.'''

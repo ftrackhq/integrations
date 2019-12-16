@@ -22,7 +22,7 @@ class HostConnection(object):
 
     @property
     def id(self):
-        return self._raw_host_data['hostid']
+        return self._raw_host_data['host_id']
 
     def __repr__(self):
         return '<HostConnection: {}>'.format(self.id)
@@ -33,8 +33,8 @@ class HostConnection(object):
     def __eq__(self, other):
         return self.id == other.id
 
-    def __init__(self, session, host_data):
-        self.session = session
+    def __init__(self, event_manager, host_data):
+        self.event_manager = event_manager
         self._raw_host_data = host_data
 
     def run(self, data):
@@ -55,9 +55,6 @@ class HostConnection(object):
         )
 
 
-
-
-
 class BasePipelineClient(object):
     '''
     Base client widget class.
@@ -68,7 +65,7 @@ class BasePipelineClient(object):
         '''Return the current ui type.'''
         return self._host_list
 
-    def __init__(self, session, ui):
+    def __init__(self, event_manager, ui):
         '''Initialise widget with *ui* , *host* and *hostid*.'''
         #super(BasePipelineClient, self).__init__()
         self._packages = {}
@@ -82,10 +79,8 @@ class BasePipelineClient(object):
             __name__ + '.' + self.__class__.__name__
         )
 
-        self.session = session
-        self.event_manager = event.EventManager(self.session)
-        self.event_thread = event.EventHubThread()
-        self.event_thread.start(self.session)
+        self.session = event_manager.session
+        self.event_manager = event_manager
 
         while not self.hosts:
             self.discover_hosts()
@@ -95,7 +90,7 @@ class BasePipelineClient(object):
         if not event['data']:
             return
 
-        host_connection = HostConnection(self.session, event['data'])
+        host_connection = HostConnection(self.event_manager, event['data'])
         if host_connection not in self.hosts:
             self._host_list.append(host_connection)
 
