@@ -116,57 +116,79 @@ class BaseDefinitionManager(object):
             force_mode=constants.REMOTE_EVENT_MODE
         )
 
-    '''def validate_result(self, data):
-        for definition_l in data.values():
-            for definition_d in definition_l:
-                for values_l in definition_d.values():
-                    for values_d in values_l:
-                        if isinstance(values_d, dict):
-                            if values_d['type'] == 'plugin':
-                                print "plugin"
-                                print "this is a plugin ---> {}".format(values_d)'''
-    '''def validate_plugin(self):
+    def parse_dictonary(self, data, valueFilter, newList):
+        if isinstance(data, dict):
+            if data.get('type') == valueFilter:
+                newList.append(data)
+            else:
+                for key, value in data.items():
+                    self.parse_dictonary(value, valueFilter, newList)
+        if isinstance(data, list):
+            for item in data:
+                self.parse_dictonary(item, valueFilter, newList)
 
-    def validate_plugins(self, data):
-        # discover context plugins
-        package_name = data['package']
-        context_plugins = data[constants.CONTEXT]
-        for context_plugin in context_plugins:
-            if not self._discover_plugin(context_plugin, constants.CONTEXT):
-                self.logger.warning(
-                    'Could not discover plugin {} for {} in {}'.format(
-                        context_plugin['plugin'], constants.CONTEXT, package_name
-                    )
+    def validate_result(self, data):
+        plugins_l = []
+        self.parse_dictonary(data, 'plugin', plugins_l)
+        print plugins_l
+        invalid_plugins = self.validate_plugins(plugins_l)
+
+        components_l = []
+        self.parse_dictonary(data, 'component', components_l)
+        invalid_components = self.validate_components(plugins_l)
+
+        packages_l = []
+        self.parse_dictonary(data, 'package', packages_l)
+        invalid_packages = self.validate_packages(plugins_l)
+
+        self.cleanDefinitions(invalid_plugins, invalid_components, invalid_packages)
+
+
+    '''def validate_plugins(self, data):
+        for plugin in data:
+
+        if not self._discover_plugin(context_plugin, constants.CONTEXT):
+            self.logger.warning(
+                'Could not discover plugin {} for {} in {}'.format(
+                    context_plugin['plugin'], constants.CONTEXT, package_name
                 )
-                return False
+            )
+        return list of plugins to delete
 
-        # discover component plugins
-        publisher_components = data[constants.COMPONENTS]
-        for publisher_component in publisher_components:
-            for publisher_stage in publisher_component['stages']:
-                for component_stage, component_plugins in publisher_stage.items():
-                    for component_plugin in component_plugins:
-                        if not self._discover_plugin(component_plugin, component_stage):
-                            self.logger.warning(
-                                'Could not discover plugin {} for stage {} in {}'.format(
-                                    component_plugin['plugin'], component_stage, package_name
-                                )
-                            )
-                            return False
+    def validate_components(self, data):
+        pass
+    def validate_packages(self, data):
+        pass
 
-        # get publish plugins
-        publisher_plugins = data[constants.PUBLISHERS]
-        for publisher_plugin in publisher_plugins:
-            if not self._discover_plugin(publisher_plugin, constants.PUBLISHERS):
-                self.logger.warning(
-                    'Could not discover plugin {} for {} in {}'.format(
-                        publisher_plugin['plugin'], constants.PUBLISHERS, package_name
-                    )
-                )
-                return False
+    def cleanDefinitions(self):
+        pass
 
-        return True'''
+    def _discover_plugin(self, plugin, plugin_type):
+        '''Run *plugin*, *plugin_type*, with given *options*, *data* and *context*'''
+        plugin_name = plugin['plugin']
 
+        data = {
+            'pipeline': {
+                'plugin_name': plugin_name,
+                'type': 'plugin',
+                'host': self.host
+            }
+        }
+
+        event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_DISCOVER_PLUGIN_TOPIC,
+            data=data
+        )
+
+        plugin_result = self.session.event_hub.publish(
+            event,
+            synchronous=True
+        )
+
+        if plugin_result:
+            plugin_result = plugin_result[0]
+
+        return plugin_result'''
 
 class DefintionManager(object):
     '''class wrapper to contain all the definition managers.'''
