@@ -29,9 +29,26 @@ class HostConnection(object):
     def __eq__(self, other):
         return self.id == other.id
 
-    def __init__(self, host_data):
+    def __init__(self, session, host_data):
+        self.session = session
         self._raw_host_data = host_data
 
+    def run(self, data):
+        '''Send *data* to the host through the given *topic*.'''
+        topic = constants.PIPELINE_RUN_HOST_PUBLISHER
+        event = ftrack_api.event.base.Event(
+            topic=topic,
+            data={
+                'pipeline': {
+                    'hostid': self.id,
+                    'data': data,
+                }
+            }
+        )
+        self.event_manager.publish(
+            event,
+            remote=True
+        )
 
 
 
@@ -69,21 +86,19 @@ class BasePipelineClient(object):
         while not self.hosts:
             self.discover_hosts()
 
-        print 'HOSTLIST:', self.hosts
-
     def _host_discovered(self, event):
         '''callback to to add new hosts *event*.'''
         if not event['data']:
             return
 
-        host_connection = HostConnection(event['data'])
+        host_connection = HostConnection(self.session, event['data'])
         if host_connection not in self.hosts:
             self._host_list.append(host_connection)
 
     def discover_hosts(self):
         '''Event to discover new available hosts.'''
         #clear self.host_ids_l before discover hosts
-        self._host_list=[]
+        self._host_list = []
         discover_event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_DISCOVER_HOST
         )
@@ -91,21 +106,5 @@ class BasePipelineClient(object):
         self.event_manager.publish(
             discover_event,
             callback=self._host_discovered,
-            remote=self._remote_events
-        )
-
-    def send_to_host(self, data, topic):
-        '''Send *data* to the host through the given *topic*.'''
-        event = ftrack_api.event.base.Event(
-            topic=topic,
-            data={
-                'pipeline': {
-                    'hostid': self.hostid,
-                    'data': data,
-                }
-            }
-        )
-        self.event_manager.publish(
-            event,
             remote=self._remote_events
         )
