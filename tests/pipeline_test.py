@@ -16,8 +16,8 @@ event_manager = event.EventManager()
 host_id = host.initialise(event_manager, host=constants.HOST)
 
 # init client
-baseClient = client.BasePipelineClient(event_manager, ui=constants.UI)
-host = baseClient.hosts[0]
+client_connection= client.Client(event_manager, ui=constants.UI)
+host = client_connection.hosts[0]
 publisher = host.data['publishers'][0]
 print 'using publisher: ', publisher['name']
 host.run(publisher)

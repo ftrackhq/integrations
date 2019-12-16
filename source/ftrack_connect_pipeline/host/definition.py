@@ -66,10 +66,6 @@ class BaseDefinitionManager(object):
         #self.validate_result(parsedResult)
         # validate here
 
-        print "This is the final json {}".format(parsedResult)
-        '''for obj in parsedResult['publishers']:
-            print obj'''
-
         self.__registry = parsedResult
 
         handle_event = partial(provide_host_information, self.hostid, parsedResult)

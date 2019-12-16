@@ -55,7 +55,7 @@ class HostConnection(object):
         )
 
 
-class BasePipelineClient(object):
+class Client(object):
     '''
     Base client widget class.
     '''
