@@ -6,12 +6,19 @@ import logging
 import ftrack_api
 import json
 
-from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.event import EventManager
 from functools import partial
+from ftrack_connect_pipeline import constants, utils
+import uuid
 
 logger = logging.getLogger(__name__)
 
+def provide_host_information(hostid, event):
+    '''return the current hostid'''
+    print "provide host information has been called"
+    logger.debug('providing hostid: {}'.format(hostid))
+    context_id = utils.get_current_context()
+    return {'hostid': hostid, 'context_id': context_id}
 
 class BaseDefinitionManager(object):
 
@@ -27,6 +34,9 @@ class BaseDefinitionManager(object):
             __name__ + '.' + self.__class__.__name__
         )
 
+        hostid = '{}-{}'.format(host, uuid.uuid4().hex)
+
+        self.hostid = hostid
         self.__registry = {}
         self.host = host
         self.session = session
@@ -51,6 +61,14 @@ class BaseDefinitionManager(object):
             print obj
 
         self.__registry = parsedResult
+
+        handle_event = partial(provide_host_information, self.hostid)
+        self.session.event_hub.subscribe(
+            'topic={}'.format(
+                constants.PIPELINE_DISCOVER_HOST
+            ),
+            handle_event
+        )
 
     def _parese_json(self, jsonResult, host):
         parsedJson = {}
