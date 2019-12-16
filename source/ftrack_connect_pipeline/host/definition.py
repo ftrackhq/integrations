@@ -15,13 +15,13 @@ logger = logging.getLogger(__name__)
 mapping = {'package': 'packages', 'publisher': 'publishers',
            'loader': 'loaders', 'object': 'schemas'}
 
+
 def provide_host_information(hostid, definitions, event):
     '''return the current hostid'''
     print "provide host information has been called"
     logger.debug('providing hostid: {}'.format(hostid))
     context_id = utils.get_current_context()
     host_dict = {'hostid': hostid, 'context_id': context_id, 'definitions':definitions}
-    print "hostDict ---> {}".format(host_dict)
     return host_dict
 
 
@@ -69,6 +69,7 @@ class BaseDefinitionManager(object):
         self.__registry = parsedResult
 
         handle_event = partial(provide_host_information, self.hostid, parsedResult)
+        self.logger.info('host {} ready'.format(self.hostid))
         self.session.event_hub.subscribe(
             'topic={}'.format(
                 constants.PIPELINE_DISCOVER_HOST
