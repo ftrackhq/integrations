@@ -144,7 +144,7 @@ class BaseDefinitionManager(object):
         self.cleanDefinitions(invalid_plugins, invalid_components, invalid_packages)
 
 
-    '''def validate_plugins(self, data):
+    def validate_plugins(self, data):
         for plugin in data:
 
         if not self._discover_plugin(context_plugin, constants.CONTEXT):
@@ -164,7 +164,7 @@ class BaseDefinitionManager(object):
         pass
 
     def _discover_plugin(self, plugin, plugin_type):
-        #Run *plugin*, *plugin_type*, with given *options*, *data* and *context*
+        '''Run *plugin*, *plugin_type*, with given *options*, *data* and *context*'''
         plugin_name = plugin['plugin']
 
         data = {
@@ -188,7 +188,7 @@ class BaseDefinitionManager(object):
         if plugin_result:
             plugin_result = plugin_result[0]
 
-        return plugin_result'''
+        return plugin_result
 
 class DefintionManager(object):
     '''class wrapper to contain all the definition managers.'''
