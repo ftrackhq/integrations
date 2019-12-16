@@ -20,17 +20,9 @@ class BasePipelineClient(object):
     '''
 
     @property
-    def packages(self):
-        return self._packages
-
-    @property
-    def schema(self):
-        return self._current
-
-    @property
     def hosts(self):
         '''Return the current ui type.'''
-        return self._hosts_ids_l
+        return self._host_list
 
     def __init__(self, session, ui):
         '''Initialise widget with *ui* , *host* and *hostid*.'''
@@ -51,32 +43,11 @@ class BasePipelineClient(object):
         self.event_thread = event.EventHubThread()
         self.event_thread.start(self.session)
 
-        self.discover_hosts()
+        while not self.hosts:
+            print 'discovering...'
+            self.discover_hosts()
 
-    def _packages_loaded(self, event):
-        '''event callback for when the publishers are loaded.'''
-        raw_data = event['data']
-
-        for item_name, item in raw_data.items():
-            self._packages[item_name] = item
-
-    def set_host_and_context(self, host_id, context_id):
-        '''Change the current host and context'''
-        self._context = self.session.get('Context', context_id)
-        self._hostid = host_id
-
-        # notify host we are connected
-        hook_host_event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_CONNECT_CLIENT,
-            data={
-                'pipeline': {'hostid': host_id}
-            }
-        )
-
-        self.event_manager.publish(
-            hook_host_event,
-            remote=self._remote_events
-        )
+        print 'HOSTLIST:', self.hosts
 
     def _host_discovered(self, event):
         '''callback to to add new hosts *event*.'''
