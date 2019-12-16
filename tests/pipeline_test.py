@@ -14,6 +14,9 @@ os.environ['FTRACK_EVENT_PLUGIN_PATH'] = os.pathsep.join(event_paths)
 
 session = get_shared_session()
 host_id = host.initialise(session, host=constants.HOST)
+# init client
 baseClient = client.BasePipelineClient(session, ui=constants.UI)
 host = baseClient.hosts[0]
-print host
+publisher = host.data['publishers'][0]
+print 'using publisher: ', publisher['name']
+host.run(publisher)
