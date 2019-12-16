@@ -18,7 +18,6 @@ mapping = {'package': 'packages', 'publisher': 'publishers',
 
 def provide_host_information(hostid, definitions, event):
     '''return the current hostid'''
-    print "provide host information has been called"
     logger.debug('providing host_id: {}'.format(hostid))
     context_id = utils.get_current_context()
     host_dict = {
@@ -55,14 +54,12 @@ class BaseDefinitionManager(object):
     def on_register_definition(self, event):
         '''Register definition coming from *event* and store them.'''
         # print 'EVENT', event
-        self.logger.info('receiving defintions...')
         raw_result = event['data']
         # print "on register definition ---> {}".format(raw_result)
         result = raw_result
 
         if not result:
             return
-        self.logger.info('parsing definitions {} ready.'.format(self.hostid))
 
         parsedResult = self._parese_json(result, self.host)
 

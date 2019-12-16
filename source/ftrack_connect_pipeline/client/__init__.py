@@ -99,7 +99,7 @@ class Client(object):
 
             self._discover_hosts()
 
-        if self.__callback:
+        if self.__callback and self.hosts:
             self.logger.info(
                 'calling {} with {}'.format(self.__callback, self.hosts)
             )
@@ -114,7 +114,7 @@ class Client(object):
         if host_connection not in self.hosts:
             self._host_list.append(host_connection)
 
-
+        self._connected = True
 
     def _discover_hosts(self):
         '''Event to discover new available hosts.'''

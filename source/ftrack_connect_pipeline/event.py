@@ -46,12 +46,12 @@ class _EventThread(threading.Thread):
 
 class EventManager(object):
     '''Manages the events handling.'''
-    def __init__(self, mode=constants.LOCAL_EVENT_MODE):
+    def __init__(self, session, mode=constants.LOCAL_EVENT_MODE):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
         self.mode = mode
-        self.session = session.get_shared_session()
+        self.session = session
         self._event_hub_thread = _EventHubThread()
         self._event_hub_thread.start(self.session)
 
