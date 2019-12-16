@@ -62,8 +62,8 @@ class BaseDefinitionManager(object):
         #self.validate_result(parsedResult)
         # validate here
 
-        '''print "This is the final json {}".format(parsedResult)
-        for obj in parsedResult['publishers']:
+        print "This is the final json {}".format(parsedResult)
+        '''for obj in parsedResult['publishers']:
             print obj'''
 
         self.__registry = parsedResult
@@ -116,6 +116,15 @@ class BaseDefinitionManager(object):
             remote=True
         )
 
+    '''def validate_result(self, data):
+        for definition_l in data.values():
+            for definition_d in definition_l:
+                for values_l in definition_d.values():
+                    for values_d in values_l:
+                        if isinstance(values_d, dict):
+                            if values_d['type'] == 'plugin':
+                                print "plugin"
+                                print "this is a plugin ---> {}".format(values_d)'''
     '''def validate_plugin(self):
 
     def validate_plugins(self, data):
