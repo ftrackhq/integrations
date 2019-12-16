@@ -17,6 +17,10 @@ from ftrack_connect_pipeline.session import get_shared_session
 class HostConnection(object):
 
     @property
+    def data(self):
+        return self._raw_host_data['definitions']
+
+    @property
     def id(self):
         return self._raw_host_data['hostid']
 
