@@ -45,7 +45,7 @@ class HostConnection(object):
         )
         self.event_manager.publish(
             event,
-            force_mode=constants.REMOTE_EVENT_MODE
+            mode=constants.REMOTE_EVENT_MODE
         )
 
 

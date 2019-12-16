@@ -117,7 +117,7 @@ class BaseDefinitionManager(object):
         self.event_manager.publish(
             event,
             self.on_register_definition,
-            force_mode=constants.REMOTE_EVENT_MODE
+            mode=constants.REMOTE_EVENT_MODE
         )
 
     '''def parse_dictonary(self, data, valueFilter, newList):

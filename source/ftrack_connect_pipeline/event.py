@@ -55,14 +55,14 @@ class EventManager(object):
         self._event_hub_thread = _EventHubThread()
         self._event_hub_thread.start(self.session)
 
-    def publish(self, event, callback=None, force_mode=None):
+    def publish(self, event, callback=None, mode=None):
         '''Emit *event* and provide *callback* function.'''
 
-        mode = force_mode or self.mode
+        mode = mode or self.mode
         if mode is constants.LOCAL_EVENT_MODE:
             event_thread = _EventThread(self.session, event, callback)
             event_thread.start()
-            event_thread.join()
+            # event_thread.join()
 
         else:
             self.session.event_hub.publish(
