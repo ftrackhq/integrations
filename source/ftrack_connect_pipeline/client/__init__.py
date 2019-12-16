@@ -26,7 +26,7 @@ class HostConnection(object):
         return hash(self.id)
 
     def __eq__(self, other):
-        return self.id == other.id
+        return self.__hash__() == other.__hash__()
 
     def __init__(self, event_manager, host_data):
         self.event_manager = event_manager
@@ -111,7 +111,6 @@ class Client(object):
             return
 
         host_connection = HostConnection(self.event_manager, event['data'])
-        self.logger.info('Adding hostconnection : {}'.format(host_connection))
         if host_connection not in self.hosts:
             self._host_list.append(host_connection)
 

@@ -31,3 +31,6 @@ def ready_callback(hosts):
 client_connection= client.Client(event_manager, ui=constants.UI)
 # print client_connection.connected
 client_connection.on_ready(ready_callback, time_out=3)
+
+print client_connection.hosts
+print 'host', client_connection.hosts[0].id
