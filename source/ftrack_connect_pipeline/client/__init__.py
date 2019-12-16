@@ -51,7 +51,9 @@ class BasePipelineClient(object):
 
     def _host_discovered(self, event):
         '''callback to to add new hosts *event*.'''
-        self.logger.debug('_host_discovered : {}'.format(event['data']))
+        self.logger.info('_host_discovered : {}'.format(event))
+        if not event['data']:
+            return
         self._host_list.append(event['data'])
 
     def discover_hosts(self):
