@@ -28,28 +28,17 @@ class BasePipelineClient(object):
         return self._current
 
     @property
-    def hostid(self):
-        '''Return the current hostid.'''
-        return self._hostid
-
-    @property
-    def ui(self):
-        '''Return the current ui type.'''
-        return self._ui
-
-    @property
-    def availableHosts(self):
+    def hosts(self):
         '''Return the current ui type.'''
         return self._hosts_ids_l
 
-    def __init__(self, ui, hostid=None):
+    def __init__(self, session, ui):
         '''Initialise widget with *ui* , *host* and *hostid*.'''
         #super(BasePipelineClient, self).__init__()
         self._packages = {}
         self._current = {}
         self._ui = ui
-        self._hostid = hostid
-        self._hosts_ids_l = [] #list of dictionaries as {"hostid":hostId, "contextid":contextid}
+        self._host_list = []
 
         self._remote_events = utils.remote_event_mode()
 
@@ -57,18 +46,12 @@ class BasePipelineClient(object):
             __name__ + '.' + self.__class__.__name__
         )
 
-        self.session = get_shared_session()
+        self.session = session
         self.event_manager = event.EventManager(self.session)
         self.event_thread = event.EventHubThread()
         self.event_thread.start(self.session)
 
-        self.fetch_package_definitions()
-
-        if not self.hostid:
-            self.discover_hosts()
-
-    def fetch_package_definitions(self):
-        self._fetch_defintions('package', self._packages_loaded)
+        self.discover_hosts()
 
     def _packages_loaded(self, event):
         '''event callback for when the publishers are loaded.'''
@@ -77,22 +60,6 @@ class BasePipelineClient(object):
         for item_name, item in raw_data.items():
             self._packages[item_name] = item
 
-    def _fetch_defintions(self, definition_type, callback):
-        '''Helper to retrieve defintion for *definition_type* and *callback*.'''
-        publisher_event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_REGISTER_DEFINITION_TOPIC,
-            data={
-                'pipeline': {
-                    'type': definition_type,
-                    'hostid': self.hostid
-                }
-            }
-        )
-        self.event_manager.publish(
-            publisher_event,
-            callback=callback,
-            remote=self._remote_events
-        )
     def set_host_and_context(self, host_id, context_id):
         '''Change the current host and context'''
         self._context = self.session.get('Context', context_id)
@@ -114,15 +81,12 @@ class BasePipelineClient(object):
     def _host_discovered(self, event):
         '''callback to to add new hosts *event*.'''
         self.logger.debug('_host_discovered : {}'.format(event['data']))
-        hostid = str(event['data']['hostid'])
-        context_id = str(event['data']['context_id'])
-        hostDict = {"hostid":hostid, "context_id":context_id}
-        self._hosts_ids_l.append(hostDict)
+        self._host_list.append(event['data'])
 
     def discover_hosts(self):
         '''Event to discover new available hosts.'''
         #clear self.host_ids_l before discover hosts
-        self._hosts_ids_l=[]
+        self._host_list=[]
         discover_event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_DISCOVER_HOST
         )

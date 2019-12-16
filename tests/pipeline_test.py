@@ -14,5 +14,4 @@ os.environ['FTRACK_EVENT_PLUGIN_PATH'] = os.pathsep.join(event_paths)
 
 session = get_shared_session()
 host_id = host.initialise(session, host=constants.HOST)
-baseClient = client.BasePipelineClient(ui=None, host=constants.UI)
-print baseClient.packages
+baseClient = client.BasePipelineClient(session, ui=constants.UI)
