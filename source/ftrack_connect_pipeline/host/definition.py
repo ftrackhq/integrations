@@ -4,7 +4,6 @@
 
 import logging
 import ftrack_api
-import json
 
 from ftrack_connect_pipeline.event import EventManager
 from functools import partial
@@ -13,12 +12,18 @@ import uuid
 
 logger = logging.getLogger(__name__)
 
-def provide_host_information(hostid, event):
+mapping = {'package': 'packages', 'publisher': 'publishers',
+           'loader': 'loaders', 'object': 'schemas'}
+
+def provide_host_information(hostid, definitions, event):
     '''return the current hostid'''
     print "provide host information has been called"
     logger.debug('providing hostid: {}'.format(hostid))
     context_id = utils.get_current_context()
-    return {'hostid': hostid, 'context_id': context_id}
+    host_dict = {'hostid': hostid, 'context_id': context_id, 'definitions':definitions}
+    print "hostDict ---> {}".format(host_dict)
+    return host_dict
+
 
 class BaseDefinitionManager(object):
 
@@ -46,7 +51,7 @@ class BaseDefinitionManager(object):
     def on_register_definition(self, event):
         '''Register definition coming from *event* and store them.'''
         raw_result = event['data']
-        print "on register definition ---> {}".format(raw_result)
+        #print "on register definition ---> {}".format(raw_result)
         result = raw_result
 
         if not result:
@@ -54,15 +59,16 @@ class BaseDefinitionManager(object):
 
         parsedResult = self._parese_json(result, self.host)
 
-        #validate here
+        #self.validate_result(parsedResult)
+        # validate here
 
-        print "This is the final json {}".format(parsedResult)
-        for obj in parsedResult['publisher']:
-            print obj
+        '''print "This is the final json {}".format(parsedResult)
+        for obj in parsedResult['publishers']:
+            print obj'''
 
         self.__registry = parsedResult
 
-        handle_event = partial(provide_host_information, self.hostid)
+        handle_event = partial(provide_host_information, self.hostid, parsedResult)
         self.session.event_hub.subscribe(
             'topic={}'.format(
                 constants.PIPELINE_DISCOVER_HOST
@@ -73,23 +79,22 @@ class BaseDefinitionManager(object):
     def _parese_json(self, jsonResult, host):
         parsedJson = {}
         for definition in jsonResult:
-            if parsedJson.has_key(definition['type']):
+            if definition['type'] in mapping.keys():
+                definitionType = mapping[definition['type']]
+            else:
+                definitionType = definition['type']
+            if parsedJson.has_key(definitionType):
                 if definition.has_key('host'):
                     if definition.get('host') == host:
-                        parsedJson[definition['type']][definition['host']] = [definition]
-                    '''if parsedJson[definition['type']].has_key(definition['host']):
-                        parsedJson[definition['type']][definition['host']].append(definition)
-                    else:
-                        parsedJson[definition['type']][definition['host']] = [definition]'''
+                        parsedJson[definitionType][definition['host']] = [definition]
                 else:
-                    parsedJson[definition['type']].append(definition)
+                    parsedJson[definitionType].append(definition)
             else:
                 if definition.has_key('host'):
                     if definition.get('host') == host:
-                        parsedJson[definition['type']] = [definition]
-                    #parsedJson[definition['type']]={definition['host']:[definition]}
+                        parsedJson[definitionType] = [definition]
                 else:
-                    parsedJson[definition['type']] = [definition]
+                    parsedJson[definitionType] = [definition]
         return parsedJson
 
     def register(self):
@@ -110,10 +115,51 @@ class BaseDefinitionManager(object):
             remote=True
         )
 
+    '''def validate_plugin(self):
+
+    def validate_plugins(self, data):
+        # discover context plugins
+        package_name = data['package']
+        context_plugins = data[constants.CONTEXT]
+        for context_plugin in context_plugins:
+            if not self._discover_plugin(context_plugin, constants.CONTEXT):
+                self.logger.warning(
+                    'Could not discover plugin {} for {} in {}'.format(
+                        context_plugin['plugin'], constants.CONTEXT, package_name
+                    )
+                )
+                return False
+
+        # discover component plugins
+        publisher_components = data[constants.COMPONENTS]
+        for publisher_component in publisher_components:
+            for publisher_stage in publisher_component['stages']:
+                for component_stage, component_plugins in publisher_stage.items():
+                    for component_plugin in component_plugins:
+                        if not self._discover_plugin(component_plugin, component_stage):
+                            self.logger.warning(
+                                'Could not discover plugin {} for stage {} in {}'.format(
+                                    component_plugin['plugin'], component_stage, package_name
+                                )
+                            )
+                            return False
+
+        # get publish plugins
+        publisher_plugins = data[constants.PUBLISHERS]
+        for publisher_plugin in publisher_plugins:
+            if not self._discover_plugin(publisher_plugin, constants.PUBLISHERS):
+                self.logger.warning(
+                    'Could not discover plugin {} for {} in {}'.format(
+                        publisher_plugin['plugin'], constants.PUBLISHERS, package_name
+                    )
+                )
+                return False
+
+        return True'''
+
 
 class DefintionManager(object):
     '''class wrapper to contain all the definition managers.'''
-
 
     def __init__(self, session, host):
         super(DefintionManager, self).__init__()
@@ -123,10 +169,3 @@ class DefintionManager(object):
         self.definitions = BaseDefinitionManager(session, host)
 
         self.json_definitions = self.definitions.result()
-
-        '''#Why do we use this one?
-        self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.type={}'.format(
-                constants.PIPELINE_REGISTER_SCHEMA_TOPIC, "definition"),
-            self.schemas.result
-        )'''
