@@ -14,6 +14,29 @@ from ftrack_connect_pipeline import utils
 from ftrack_connect_pipeline.session import get_shared_session
 
 
+class HostConnection(object):
+
+    @property
+    def id(self):
+        return self._raw_host_data['hostid']
+
+    def __repr__(self):
+        return '<HostConnection: {}>'.format(self.id)
+
+    def __hash__(self):
+        return hash(self.id)
+
+    def __eq__(self, other):
+        return self.id == other.id
+
+    def __init__(self, host_data):
+        self._raw_host_data = host_data
+
+
+
+
+
+
 class BasePipelineClient(object):
     '''
     Base client widget class.
@@ -53,10 +76,9 @@ class BasePipelineClient(object):
         if not event['data']:
             return
 
-        if event['data'] in self.hosts:
-            return
-
-        self._host_list.append(event['data'])
+        host_connection = HostConnection(event['data'])
+        if host_connection not in self.hosts:
+            self._host_list.append(host_connection)
 
     def discover_hosts(self):
         '''Event to discover new available hosts.'''
