@@ -164,7 +164,7 @@ class BaseDefinitionManager(object):
         pass
 
     def _discover_plugin(self, plugin, plugin_type):
-        '''Run *plugin*, *plugin_type*, with given *options*, *data* and *context*'''
+        #Run *plugin*, *plugin_type*, with given *options*, *data* and *context*
         plugin_name = plugin['plugin']
 
         data = {
