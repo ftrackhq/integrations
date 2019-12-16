@@ -130,7 +130,6 @@ class BaseDefinitionManager(object):
     def validate_result(self, data):
         plugins_l = []
         self.parse_dictonary(data, 'plugin', plugins_l)
-        print plugins_l
         invalid_plugins = self.validate_plugins(plugins_l)
 
         components_l = []
@@ -145,15 +144,12 @@ class BaseDefinitionManager(object):
 
 
     def validate_plugins(self, data):
+        invalidPlugins = []
         for plugin in data:
-
-        if not self._discover_plugin(context_plugin, constants.CONTEXT):
-            self.logger.warning(
-                'Could not discover plugin {} for {} in {}'.format(
-                    context_plugin['plugin'], constants.CONTEXT, package_name
-                )
-            )
-        return list of plugins to delete
+            if not self._discover_plugin(plugin):
+                self.logger.warning('Could not discover plugin {}'.format(plugin))
+                invalidPlugins.append(plugin)
+        return invalidPlugins or None
 
     def validate_components(self, data):
         pass
@@ -163,7 +159,7 @@ class BaseDefinitionManager(object):
     def cleanDefinitions(self):
         pass
 
-    def _discover_plugin(self, plugin, plugin_type):
+    def _discover_plugin(self, plugin):
         #Run *plugin*, *plugin_type*, with given *options*, *data* and *context*
         plugin_name = plugin['plugin']
 
