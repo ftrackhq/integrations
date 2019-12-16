@@ -113,7 +113,7 @@ class BaseDefinitionManager(object):
         self.event_manager.publish(
             event,
             self.on_register_definition,
-            remote=True
+            force_mode=constants.REMOTE_EVENT_MODE
         )
 
     '''def validate_result(self, data):

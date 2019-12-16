@@ -12,7 +12,7 @@ event_paths = [
 
 os.environ['FTRACK_EVENT_PLUGIN_PATH'] = os.pathsep.join(event_paths)
 
-event_manager = event.EventManager()
+event_manager = event.EventManager(mode=constants.LOCAL_EVENT_MODE)
 host_id = host.initialise(event_manager, host=constants.HOST)
 
 # init client

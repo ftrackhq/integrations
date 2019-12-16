@@ -34,9 +34,8 @@ class HostConnection(object):
 
     def run(self, data):
         '''Send *data* to the host through the given *topic*.'''
-        topic = constants.PIPELINE_HOST_RUN
         event = ftrack_api.event.base.Event(
-            topic=topic,
+            topic=constants.PIPELINE_HOST_RUN,
             data={
                 'pipeline': {
                     'host_id': self.id,
@@ -46,7 +45,7 @@ class HostConnection(object):
         )
         self.event_manager.publish(
             event,
-            remote=True
+            force_mode=constants.REMOTE_EVENT_MODE
         )
 
 
@@ -67,8 +66,6 @@ class Client(object):
         self._current = {}
         self._ui = ui
         self._host_list = []
-
-        self._remote_events = utils.remote_event_mode()
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -99,6 +96,5 @@ class Client(object):
 
         self.event_manager.publish(
             discover_event,
-            callback=self._host_discovered,
-            remote=self._remote_events
+            callback=self._host_discovered
         )
