@@ -43,7 +43,7 @@ class PublisherRunner(object):
         self.event_manager = EventManager(session)
 
         session.event_hub.subscribe(
-            'topic={} and data.pipeline.hostid={}'.format(
+            'topic={} and data.pipeline.host_id={}'.format(
                 constants.PIPELINE_RUN_HOST_PUBLISHER, self.hostid
             ),
             self.run
@@ -92,7 +92,7 @@ class PublisherRunner(object):
         widget_ref = plugin['widget_ref']
 
         pipeline_data = {
-            'hostid': self.hostid,
+            'host_id': self.hostid,
             'widget_ref': widget_ref,
             'data': data,
             'status': status,

@@ -44,7 +44,7 @@ class HostConnection(object):
             topic=topic,
             data={
                 'pipeline': {
-                    'hostid': self.id,
+                    'host_id': self.id,
                     'data': data,
                 }
             }

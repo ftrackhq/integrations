@@ -19,7 +19,7 @@ mapping = {'package': 'packages', 'publisher': 'publishers',
 def provide_host_information(hostid, definitions, event):
     '''return the current hostid'''
     print "provide host information has been called"
-    logger.debug('providing hostid: {}'.format(hostid))
+    logger.debug('providing host_id: {}'.format(hostid))
     context_id = utils.get_current_context()
     host_dict = {
         'host_id': hostid,
