@@ -44,16 +44,18 @@ class BasePipelineClient(object):
         self.event_thread.start(self.session)
 
         while not self.hosts:
-            print 'discovering...'
             self.discover_hosts()
 
         print 'HOSTLIST:', self.hosts
 
     def _host_discovered(self, event):
         '''callback to to add new hosts *event*.'''
-        self.logger.info('_host_discovered : {}'.format(event))
         if not event['data']:
             return
+
+        if event['data'] in self.hosts:
+            return
+
         self._host_list.append(event['data'])
 
     def discover_hosts(self):
