@@ -20,7 +20,7 @@ PIPELINE_REGISTER_DEFINITION_TOPIC = '{}.register.definition'.format(_BASE_)
 
 PIPELINE_REGISTER_SCHEMA_TOPIC = '{}.register.schema'.format(_BASE_)
 
-PIPELINE_RUN_HOST_PUBLISHER = '{}.host.publish'.format(_BASE_)
+PIPELINE_HOST_RUN = '{}.host.run'.format(_BASE_)
 PIPELINE_UPDATE_UI = '{}.client.update'.format(_BASE_)
 PIPELINE_DISCOVER_HOST = '{}.host.discover'.format(_BASE_)
 PIPELINE_CONNECT_CLIENT = '{}.client.connect'.format(_BASE_)

@@ -44,7 +44,7 @@ class PublisherRunner(object):
 
         session.event_hub.subscribe(
             'topic={} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_RUN_HOST_PUBLISHER, self.hostid
+                constants.PIPELINE_HOST_RUN, self.hostid
             ),
             self.run
         )

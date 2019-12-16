@@ -2,16 +2,11 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import logging
-import uuid
 
-# from ftrack_connect.ui import theme
-#from Qt import QtCore, QtWidgets
 import ftrack_api
 
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline import event
 from ftrack_connect_pipeline import utils
-from ftrack_connect_pipeline.session import get_shared_session
 
 
 class HostConnection(object):
@@ -39,7 +34,7 @@ class HostConnection(object):
 
     def run(self, data):
         '''Send *data* to the host through the given *topic*.'''
-        topic = constants.PIPELINE_RUN_HOST_PUBLISHER
+        topic = constants.PIPELINE_HOST_RUN
         event = ftrack_api.event.base.Event(
             topic=topic,
             data={
