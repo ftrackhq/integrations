@@ -116,7 +116,7 @@ class BaseDefinitionManager(object):
             force_mode=constants.REMOTE_EVENT_MODE
         )
 
-    def parse_dictonary(self, data, valueFilter, newList):
+    '''def parse_dictonary(self, data, valueFilter, newList):
         if isinstance(data, dict):
             if data.get('type') == valueFilter:
                 newList.append(data)
@@ -164,7 +164,7 @@ class BaseDefinitionManager(object):
         pass
 
     def _discover_plugin(self, plugin, plugin_type):
-        '''Run *plugin*, *plugin_type*, with given *options*, *data* and *context*'''
+        #Run *plugin*, *plugin_type*, with given *options*, *data* and *context*
         plugin_name = plugin['plugin']
 
         data = {
@@ -188,7 +188,7 @@ class BaseDefinitionManager(object):
         if plugin_result:
             plugin_result = plugin_result[0]
 
-        return plugin_result
+        return plugin_result'''
 
 class DefintionManager(object):
     '''class wrapper to contain all the definition managers.'''
