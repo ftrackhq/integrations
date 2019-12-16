@@ -84,10 +84,10 @@ class _EventHubThread(threading.Thread):
     def start(self, session):
         '''Start thread for *_session*.'''
         self._session = session
-        self.logger.debug('Starting event hub thread.')
+        self.logger.info('Starting event hub thread.')
         super(_EventHubThread, self).start()
 
     def run(self):
         '''Listen for events.'''
-        self.logger.debug('Event hub thread started.')
+        self.logger.info('Event hub thread started.')
         self._session.event_hub.wait()
