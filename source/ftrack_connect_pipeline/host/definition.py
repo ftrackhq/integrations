@@ -44,7 +44,7 @@ class BaseDefinitionManager(object):
         )
 
         hostid = '{}-{}'.format(host, uuid.uuid4().hex)
-
+        self.logger.info('initializing Definition manager {}'.format(hostid))
         self.hostid = hostid
         self.__registry = {}
         self.host = host
@@ -54,12 +54,15 @@ class BaseDefinitionManager(object):
 
     def on_register_definition(self, event):
         '''Register definition coming from *event* and store them.'''
+        # print 'EVENT', event
+        self.logger.info('receiving defintions...')
         raw_result = event['data']
-        #print "on register definition ---> {}".format(raw_result)
+        # print "on register definition ---> {}".format(raw_result)
         result = raw_result
 
         if not result:
             return
+        self.logger.info('parsing definitions {} ready.'.format(self.hostid))
 
         parsedResult = self._parese_json(result, self.host)
 
@@ -76,6 +79,7 @@ class BaseDefinitionManager(object):
             ),
             handle_event
         )
+        self.logger.info('host {} ready.'.format(self.hostid))
 
     def _parese_json(self, jsonResult, host):
         parsedJson = {}
@@ -185,6 +189,7 @@ class BaseDefinitionManager(object):
             plugin_result = plugin_result[0]
 
         return plugin_result'''
+
 
 class DefintionManager(object):
     '''class wrapper to contain all the definition managers.'''

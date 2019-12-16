@@ -8,8 +8,6 @@ import ftrack_api
 from ftrack_connect_pipeline import session, constants
 logger = logging.getLogger(__name__)
 
-from Qt import QtCore
-
 
 class _EventThread(threading.Thread):
     '''Wrapper object to simulate asyncronus events.'''
@@ -64,6 +62,7 @@ class EventManager(object):
         if mode is constants.LOCAL_EVENT_MODE:
             event_thread = _EventThread(self.session, event, callback)
             event_thread.start()
+            event_thread.join()
 
         else:
             self.session.event_hub.publish(

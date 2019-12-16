@@ -1,12 +1,12 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
+import time
 import logging
 
 import ftrack_api
 
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline import utils
 
 
 class HostConnection(object):
@@ -55,6 +55,10 @@ class Client(object):
     '''
 
     @property
+    def connected(self):
+        return self._connected
+
+    @property
     def hosts(self):
         '''Return the current ui type.'''
         return self._host_list
@@ -66,16 +70,40 @@ class Client(object):
         self._current = {}
         self._ui = ui
         self._host_list = []
+        self._connected = False
 
+        self.__callback = None
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-
-        self.session = event_manager.session
         self.event_manager = event_manager
+        self.session = event_manager.session
+
+    def discover_hosts(self, time_out=3):
+        # discovery host loop and timeout.
+        start_time = time.time()
+        self.logger.info('time out set to {}:'.format(time_out))
+        if not time_out:
+            self.logger.warning(
+                'Running client with no time out.'
+                'Will not stop until discover a host.'
+                'Terminate with: Ctrl-C'
+            )
 
         while not self.hosts:
-            self.discover_hosts()
+            delta_time = time.time() - start_time
+
+            if time_out and delta_time >= time_out:
+                self.logger.warning('Could not discover any host.')
+                break
+
+            self._discover_hosts()
+
+        if self.__callback:
+            self.logger.info(
+                'calling {} with {}'.format(self.__callback, self.hosts)
+            )
+            self.__callback(self.hosts)
 
     def _host_discovered(self, event):
         '''callback to to add new hosts *event*.'''
@@ -83,12 +111,14 @@ class Client(object):
             return
 
         host_connection = HostConnection(self.event_manager, event['data'])
+        self.logger.info('Adding hostconnection : {}'.format(host_connection))
         if host_connection not in self.hosts:
             self._host_list.append(host_connection)
 
-    def discover_hosts(self):
+
+
+    def _discover_hosts(self):
         '''Event to discover new available hosts.'''
-        #clear self.host_ids_l before discover hosts
         self._host_list = []
         discover_event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_DISCOVER_HOST
@@ -98,3 +128,7 @@ class Client(object):
             discover_event,
             callback=self._host_discovered
         )
+
+    def on_ready(self, callback, time_out=3):
+        self.__callback = callback
+        self.discover_hosts(time_out=time_out)
