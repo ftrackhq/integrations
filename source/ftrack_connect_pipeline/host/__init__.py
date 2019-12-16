@@ -30,9 +30,10 @@ def initialise(session, host):
     event_thread = event.EventHubThread()
     event_thread.start(session)
 
-    schema_manager = SchemaManager(session);
+    #schema_manager = SchemaManager(session);
+    definition_manager = DefintionManager(session, host)
 
-    definition_manager = DefintionManager(session, host, hostid, schema_manager)
+    '''definition_manager = DefintionManager(session, host, hostid, schema_manager)
     package_results = definition_manager.packages.result()
     PublisherRunner(session, package_results, host, hostid)
 
@@ -49,4 +50,4 @@ def initialise(session, host):
             handle_event
         )
 
-    return hostid
+    return hostid'''
