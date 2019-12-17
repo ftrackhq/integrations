@@ -22,7 +22,7 @@ event_manager = event.EventManager(
 )
 
 # init host
-host_id = host.initialise(event_manager, host=constants.HOST)
+host.Host(event_manager, host=constants.HOST)
 
 
 # on client ready callback
