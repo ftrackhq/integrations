@@ -60,13 +60,14 @@ class BaseDefinitionManager(object):
 
         if not result:
             return
-        self.validate_result(result)
+
+        validated_result = self.validate_result(result)
 
         # validate here
 
-        self.__registry = result
+        self.__registry = validated_result
 
-        handle_event = partial(provide_host_information, self.hostid, result)
+        handle_event = partial(provide_host_information, self.hostid, validated_result)
         self.session.event_hub.subscribe(
             'topic={}'.format(
                 constants.PIPELINE_DISCOVER_HOST
@@ -102,39 +103,45 @@ class BaseDefinitionManager(object):
             mode=constants.REMOTE_EVENT_MODE
         )
 
-    def parse_dictonary(self, data, valueFilter, newList):
+    def parse_dictonary(self, data, value_filter, new_list):
         if isinstance(data, dict):
-            if data.get('type') == valueFilter:
-                newList.append(data)
+            if data.get('type') == value_filter:
+                new_list.append(data)
             else:
                 for key, value in data.items():
-                    self.parse_dictonary(value, valueFilter, newList)
+                    self.parse_dictonary(value, value_filter, new_list)
         if isinstance(data, list):
             for item in data:
-                self.parse_dictonary(item, valueFilter, newList)
+                self.parse_dictonary(item, value_filter, new_list)
 
     def validate_result(self, data):
 
         self.validate_definitions(data)
 
-        plugins_l = []
-        self.parse_dictonary(data, 'plugin', plugins_l)
-        invalid_plugins = self.validate_plugins(plugins_l)
-        #
-        # components_l = []
-        # self.parse_dictonary(data, 'component', components_l)
-        # package_components_l = []
-        # self.parse_dictonary(data, 'package_component', package_components_l)
-        # invalid_components = self.validate_components(components_l, package_components_l)
-        #
-        # asset_types = [x['asset_type'] for x in data['packages']]
-        # invalid_publishers = self.validate_publishers_package(data['publishers'], asset_types)
-        # invalid_loaders = self.validate_loaders_package(data['loaders'], asset_types)
-        #
-        # print "invalid_plugins --> {}".format(invalid_plugins)
-        # print "invalid_components --> {}".format(invalid_components)
-        # print "invalid_publishers --> {}".format(invalid_publishers)
-        # print "invalid_loaders --> {}".format(invalid_loaders)
+        invalid_publishers_idxs = self.validate_publishers_plugins(data['publishers'])
+        for idx in invalid_publishers_idxs:
+            data['publishers'].pop(idx)
+
+        invalid_loaders_idxs = self.validate_loaders_plugins(data['loaders'])
+        for idx in invalid_loaders_idxs:
+            data['loaders'].pop(idx)
+
+        invalid_publishers_idxs = self.validate_publishers_components(data['publishers'])
+        for idx in invalid_publishers_idxs:
+            data['publishers'].pop(idx)
+
+        components_l = []
+        self.parse_dictonary(data, 'component', components_l)
+        package_components_l = []
+        self.parse_dictonary(data, 'package_component', package_components_l)
+        invalid_components = self.validate_components(components_l, package_components_l)
+        #self.clear_invalid_components(data, invalid_components)
+
+        '''asset_types = [x['asset_type'] for x in data['packages']]
+        invalid_publishers = self.validate_publishers_package(data['publishers'], asset_types)
+        invalid_loaders = self.validate_loaders_package(data['loaders'], asset_types)'''
+
+        return data
 
         #self.cleanDefinitions(invalid_plugins, invalid_components, invalid_publishers, invalid_loaders)
 
@@ -158,13 +165,70 @@ class BaseDefinitionManager(object):
             except Exception as error:
                 self.logger.debug(error)
 
-    def validate_plugins(self, data):
-        invalidPlugins = []
-        for plugin in data:
-            if not self._discover_plugin(plugin):
-                self.logger.warning('Could not discover plugin {}'.format(plugin))
-                invalidPlugins.append(plugin)
-        return invalidPlugins or None
+    def validate_publishers_plugins(self, publishers):
+        idxs_to_pop = []
+        for definition in publishers:
+            valid_definition = True
+            # context plugins
+            if not self.vaildate_context_plugins(definition[constants.CONTEXT], definition["name"]):
+                valid_definition = False
+            if not self.validate_component_plugins(definition[constants.COMPONENTS], definition["name"]):
+                valid_definition = False
+            if not self.vaildate_publish_plugins(definition[constants.PUBLISHERS], definition["name"]):
+                valid_definition = False
+            if not valid_definition:
+                idx = publishers.index(definition)
+                idxs_to_pop.append(idx)
+                self.logger.warning('The definition {} from type {} contains invalid plugins '
+                                    'and will not be used'.format(definition["name"], 'publishers'))
+
+        return idxs_to_pop or None
+
+    def validate_loaders_plugins(self, loaders):
+        idxs_to_pop = []
+        for definition in loaders:
+            valid_definition = True
+            # context plugins
+            if not self.validate_component_plugins(definition[constants.COMPONENTS], definition["name"]):
+                valid_definition = False
+            if not valid_definition:
+                idx = loaders.index(definition)
+                idxs_to_pop.append(idx)
+                self.logger.warning('The definition {} from type {} contains invalid plugins '
+                                    'and will not be used'.format(definition["name"], 'publishers'))
+
+        return idxs_to_pop or None
+
+    def vaildate_context_plugins(self, plugin_list, definition_name):
+        is_valid = True
+        for context_plugin in plugin_list:
+            if not self._discover_plugin(context_plugin, constants.CONTEXT):
+                is_valid = False
+                self.logger.warning('Could not discover plugin {} for {} in {}'.format(
+                    context_plugin['plugin'], constants.CONTEXT, definition_name))
+        return is_valid
+
+    def validate_component_plugins(self, plugin_list, definition_name):
+        # components plugins
+        is_valid = True
+        for component in plugin_list:
+            for component_stage in component['stages']:
+                for stage_name, component_plugins in component_stage.items():
+                    for component_plugin in component_plugins:
+                        if not self._discover_plugin(component_plugin, stage_name):
+                            is_valid = False
+                            self.logger.warning('Could not discover plugin {} for stage {} in {}'.format(
+                                component_plugin['plugin'], stage_name, definition_name))
+        return is_valid
+
+    def vaildate_publish_plugins(self, plugin_list, definition_name):
+        is_valid = True
+        for publisher_plugin in plugin_list:
+            if not self._discover_plugin(publisher_plugin, constants.PUBLISHERS):
+                is_valid = False
+                self.logger.warning('Could not discover plugin {} for {} in {}'.format(
+                    publisher_plugin['plugin'], constants.PUBLISHERS, definition_name))
+        return is_valid
 
     def validate_components(self, components_data, package_compnents_data):
         '''
@@ -220,16 +284,18 @@ class BaseDefinitionManager(object):
                 invalidLoaders.append(loader)
         return invalidLoaders or None
 
+
     def cleanDefinitions(self):
         pass
 
-    def _discover_plugin(self, plugin):
+    def _discover_plugin(self, plugin, plugin_type):
         '''Run *plugin*, *plugin_type*, with given *options*, *data* and *context*'''
         plugin_name = plugin['plugin']
 
         data = {
             'pipeline': {
                 'plugin_name': plugin_name,
+                'plugin_type': plugin_type,
                 'type': 'plugin',
                 'host': self.host
             }
