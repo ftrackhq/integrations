@@ -69,7 +69,6 @@ class BaseDefinitionManager(object):
         self.__registry = parsedResult
 
         handle_event = partial(provide_host_information, self.hostid, parsedResult)
-        self.logger.info('host {} ready'.format(self.hostid))
         self.session.event_hub.subscribe(
             'topic={}'.format(
                 constants.PIPELINE_DISCOVER_HOST
