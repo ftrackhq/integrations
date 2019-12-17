@@ -25,6 +25,28 @@ def provide_host_information(hostid, definitions, event):
     return host_dict
 
 
+def filter_by_host(json_data, host):
+    json_copy = copy.deepcopy(json_data)
+    for definition_name, values in json_data.items():
+        for definition in values:
+            if definition.get('host') and definition.get('host') != host:
+                idx = json_copy[definition_name].index(definition)
+                json_copy[definition_name].pop(idx)
+    return json_copy
+
+
+def parse_dictonary(self, data, value_filter, new_list):
+    if isinstance(data, dict):
+        if data.get('type') == value_filter:
+            new_list.append(data)
+        else:
+            for key, value in data.items():
+                parse_dictonary(value, value_filter, new_list)
+    if isinstance(data, list):
+        for item in data:
+            parse_dictonary(item, value_filter, new_list)
+
+
 class BaseDefinitionManager(object):
 
     def result(self, *args, **kwargs):
@@ -56,7 +78,7 @@ class BaseDefinitionManager(object):
         if not raw_result:
             return
 
-        result = self.filter_by_host(raw_result, self.host)
+        result = filter_by_host(raw_result, self.host)
 
         if not result:
             return
@@ -76,15 +98,6 @@ class BaseDefinitionManager(object):
         )
         self.logger.info('host {} ready.'.format(self.hostid))
 
-    def filter_by_host(self, json_data, host):
-        json_copy = copy.deepcopy(json_data)
-        for definition_name, values in json_data.items():
-            for definition in values:
-                if definition.get('host') and definition.get('host') != host:
-                    idx = json_copy[definition_name].index(definition)
-                    pop_result = json_copy[definition_name].pop(idx)
-        return json_copy
-
     def register(self):
         '''register package'''
 
@@ -103,39 +116,28 @@ class BaseDefinitionManager(object):
             mode=constants.REMOTE_EVENT_MODE
         )
 
-    def parse_dictonary(self, data, value_filter, new_list):
-        if isinstance(data, dict):
-            if data.get('type') == value_filter:
-                new_list.append(data)
-            else:
-                for key, value in data.items():
-                    self.parse_dictonary(value, value_filter, new_list)
-        if isinstance(data, list):
-            for item in data:
-                self.parse_dictonary(item, value_filter, new_list)
-
     def validate_result(self, data):
 
         self.validate_definitions(data)
 
-        invalid_publishers_idxs = self.validate_publishers_plugins(data['publishers'])
-        for idx in invalid_publishers_idxs:
-            data['publishers'].pop(idx)
+        # invalid_publishers_idxs = self.validate_publishers_plugins(data['publishers'])
+        # for idx in invalid_publishers_idxs:
+        #     data['publishers'].pop(idx)
+        #
+        # invalid_loaders_idxs = self.validate_loaders_plugins(data['loaders'])
+        # for idx in invalid_loaders_idxs:
+        #     data['loaders'].pop(idx)
+        #
+        # invalid_publishers_idxs = self.validate_publishers_components(data['publishers'])
+        # for idx in invalid_publishers_idxs:
+        #     data['publishers'].pop(idx)
 
-        invalid_loaders_idxs = self.validate_loaders_plugins(data['loaders'])
-        for idx in invalid_loaders_idxs:
-            data['loaders'].pop(idx)
-
-        invalid_publishers_idxs = self.validate_publishers_components(data['publishers'])
-        for idx in invalid_publishers_idxs:
-            data['publishers'].pop(idx)
-
-        components_l = []
-        self.parse_dictonary(data, 'component', components_l)
-        package_components_l = []
-        self.parse_dictonary(data, 'package_component', package_components_l)
-        invalid_components = self.validate_components(components_l, package_components_l)
-        #self.clear_invalid_components(data, invalid_components)
+        # components_l = []
+        # self.parse_dictonary(data, 'component', components_l)
+        # package_components_l = []
+        # self.parse_dictonary(data, 'package_component', package_components_l)
+        # invalid_components = self.validate_components(components_l, package_components_l)
+        # #self.clear_invalid_components(data, invalid_components)
 
         '''asset_types = [x['asset_type'] for x in data['packages']]
         invalid_publishers = self.validate_publishers_package(data['publishers'], asset_types)

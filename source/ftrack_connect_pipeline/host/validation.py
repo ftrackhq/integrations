@@ -15,26 +15,6 @@ class BaseValidation(object):
         if not definition:
             return False
 
-    def filter_by_host(self, json_data, host):
-        json_copy = copy.deepcopy(json_data)
-        for definition_name, values in json_data.items():
-            for definition in values:
-                if definition.get('host') and definition.get('host') != host:
-                    idx = json_copy[definition_name].index(definition)
-                    json_copy[definition_name].pop(idx)
-        return json_copy
-
-    def parse_dictonary(self, data, value_filter, new_list):
-        if isinstance(data, dict):
-            if data.get('type') == value_filter:
-                new_list.append(data)
-            else:
-                for key, value in data.items():
-                    self.parse_dictonary(value, value_filter, new_list)
-        if isinstance(data, list):
-            for item in data:
-                self.parse_dictonary(item, value_filter, new_list)
-
     def _discover_plugin(self, host, plugin, plugin_type):
         '''Run *plugin*, *plugin_type*, with given *options*, *data* and *context*'''
         plugin_name = plugin['plugin']
@@ -62,3 +42,19 @@ class BaseValidation(object):
             plugin_result = plugin_result[0]
 
         return plugin_result
+
+
+class PublisherValidation(BaseValidation):
+    def __init__(self, session, schema, packages):
+        super(PublisherValidation, self).__init__(session, schema, packages)
+
+    def validate(self, definition):
+        super(PublisherValidation, self).validate(definition)
+
+
+class LoaderValidation(BaseValidation):
+    def __init__(self, session, schema, packages):
+        super(LoaderValidation, self).__init__(session, schema, packages)
+
+    def validate(self, definition):
+        super(LoaderValidation, self).validate(definition)
