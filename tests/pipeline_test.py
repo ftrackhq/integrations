@@ -30,14 +30,12 @@ def ready_callback(hosts):
     host = hosts[0]
     publisher = host.data['publishers'][0]
     print 'using publisher: ', publisher['name']
-    # host.run(publisher)
+    host.run(publisher)
 
 
 # init client
 client_connection= client.Client(event_manager, ui=constants.UI)
 
-# print client_connection.connected
-# client_connection.on_ready(ready_callback, time_out=10)
+print client_connection.connected
+client_connection.on_ready(ready_callback, time_out=10)
 
-hosts = client_connection.discover_hosts()
-print hosts

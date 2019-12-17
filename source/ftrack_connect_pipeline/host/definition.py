@@ -56,18 +56,10 @@ class BaseDefinitionManager(object):
         if not raw_result:
             return
 
-        print "on register definition raw---> {}".format(raw_result)
-
         result = self._parese_json(raw_result, self.host)
 
         if not result:
             return
-
-        from pprint import pformat
-        print len(result['publishers'])
-        print len(result['packages'])
-        print len(result['schemas'])
-
 
         #self.validate_result(result)
         # validate here
@@ -89,8 +81,7 @@ class BaseDefinitionManager(object):
             for definition in values:
                 if definition.get('host') and definition.get('host') != host:
                     idx = json_copy[definition_name].index(definition)
-                    pop_result = json_copy[definition_name].pop(idx)
-                    print 'POPPING', pop_result
+                    json_copy[definition_name].pop(idx)
         return json_copy
 
     def register(self):
