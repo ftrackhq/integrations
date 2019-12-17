@@ -4,6 +4,7 @@
 import uuid
 import logging
 import ftrack_api
+import copy
 
 from ftrack_connect_pipeline import constants, utils
 from jsonschema import validate as _validate
@@ -67,8 +68,6 @@ class BaseDefinitionManager(object):
         print len(result['packages'])
         print len(result['schemas'])
 
-        #parsedResult = self._parese_json(result, self.host)
-
 
         #self.validate_result(result)
         # validate here
@@ -85,14 +84,14 @@ class BaseDefinitionManager(object):
         self.logger.info('host {} ready.'.format(self.hostid))
 
     def _parese_json(self, json_data, host):
+        json_copy = copy.deepcopy(json_data)
         for definition_name, values in json_data.items():
             for definition in values:
-                if definition.has_key('host'):
-                    if definition.get('host') != host:
-                        idx = json_data[definition_name].index(definition)
-                        pop_result = json_data[definition_name].pop(idx)
-                        print 'POPPING', pop_result
-        return json_data
+                if definition.get('host') and definition.get('host') != host:
+                    idx = json_copy[definition_name].index(definition)
+                    pop_result = json_copy[definition_name].pop(idx)
+                    print 'POPPING', pop_result
+        return json_copy
 
     def register(self):
         '''register package'''
