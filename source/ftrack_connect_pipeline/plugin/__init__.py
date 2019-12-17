@@ -184,6 +184,7 @@ class BasePlugin(_Base):
         )
         return topic
 
+
 class ContextPlugin(BasePlugin):
     return_type = dict
     plugin_type = constants.CONTEXT

@@ -12,4 +12,10 @@ logger = logging.getLogger(__name__)
 class Host(object):
     def __init__(self, event_manager, host):
         self._definition_manager = DefintionManager(event_manager, host)
-        self._runner = Runner(event_manager, self._definition_manager.json_definitions, host, self._definition_manager.definitions.hostid)
+        print self._definition_manager.json_definitions
+        self._runner = Runner(
+            event_manager,
+            self._definition_manager.json_definitions,
+            host,
+            self._definition_manager.definitions.hostid
+)

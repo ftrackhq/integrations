@@ -120,21 +120,21 @@ class BaseDefinitionManager(object):
         plugins_l = []
         self.parse_dictonary(data, 'plugin', plugins_l)
         invalid_plugins = self.validate_plugins(plugins_l)
-
-        components_l = []
-        self.parse_dictonary(data, 'component', components_l)
-        package_components_l = []
-        self.parse_dictonary(data, 'package_component', package_components_l)
-        invalid_components = self.validate_components(components_l, package_components_l)
-
-        asset_types = [x['asset_type'] for x in data['packages']]
-        invalid_publishers = self.validate_publishers_package(data['publishers'], asset_types)
-        invalid_loaders = self.validate_loaders_package(data['loaders'], asset_types)
-
-        print "invalid_plugins --> {}".format(invalid_plugins)
-        print "invalid_components --> {}".format(invalid_components)
-        print "invalid_publishers --> {}".format(invalid_publishers)
-        print "invalid_loaders --> {}".format(invalid_loaders)
+        #
+        # components_l = []
+        # self.parse_dictonary(data, 'component', components_l)
+        # package_components_l = []
+        # self.parse_dictonary(data, 'package_component', package_components_l)
+        # invalid_components = self.validate_components(components_l, package_components_l)
+        #
+        # asset_types = [x['asset_type'] for x in data['packages']]
+        # invalid_publishers = self.validate_publishers_package(data['publishers'], asset_types)
+        # invalid_loaders = self.validate_loaders_package(data['loaders'], asset_types)
+        #
+        # print "invalid_plugins --> {}".format(invalid_plugins)
+        # print "invalid_components --> {}".format(invalid_components)
+        # print "invalid_publishers --> {}".format(invalid_publishers)
+        # print "invalid_loaders --> {}".format(invalid_loaders)
 
         #self.cleanDefinitions(invalid_plugins, invalid_components, invalid_publishers, invalid_loaders)
 
@@ -149,7 +149,6 @@ class BaseDefinitionManager(object):
                 self.validate_definition(schema, data['packages'])
             else:
                 self.logger.warning('The schema {} is not defined and can not be validated'.format(schema))
-
 
     def validate_definition(self, schema, data):
         '''Validate all the given definitions with the given schema'''
@@ -235,7 +234,6 @@ class BaseDefinitionManager(object):
                 'host': self.host
             }
         }
-
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_DISCOVER_PLUGIN_TOPIC,
             data=data
@@ -245,6 +243,7 @@ class BaseDefinitionManager(object):
             event,
             synchronous=True
         )
+        print plugin_result
 
         if plugin_result:
             plugin_result = plugin_result[0]

@@ -35,6 +35,7 @@ class Runner(object):
         self._host = host
         self._hostid = hostid
         self.packages = package_definitions
+        print self.packages
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -190,9 +191,8 @@ class Runner(object):
         '''Run the package definition based on the result of incoming *event*.'''
         data = event['data']['pipeline']['data']
 
-        print 'running:', data
-        #
-        # publish_package = data['package']
+        publish_package = data['package']
+
         # asset_type = self.packages[publish_package]['type']
         #
         # context_plugins = data[constants.CONTEXT]
