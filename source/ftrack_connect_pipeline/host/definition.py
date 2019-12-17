@@ -62,8 +62,10 @@ class BaseDefinitionManager(object):
         if not result:
             return
 
-
-        print "on register definition result---> {}".format(result)
+        from pprint import pformat
+        print len(result['publishers'])
+        print len(result['packages'])
+        print len(result['schemas'])
 
         #parsedResult = self._parese_json(result, self.host)
 
@@ -83,17 +85,14 @@ class BaseDefinitionManager(object):
         self.logger.info('host {} ready.'.format(self.hostid))
 
     def _parese_json(self, json_data, host):
-        parsedData = json_data
         for definition_name, values in json_data.items():
             for definition in values:
                 if definition.has_key('host'):
                     if definition.get('host') != host:
-                        idx = parsedData[definition_name].index(definition)
-                        print "idx ---> {}".format(idx)
-                        parsedData[definition_name].pop(idx)
-                    else:
-                        print "we don't pop {}".format(definition)
-        return parsedData
+                        idx = json_data[definition_name].index(definition)
+                        pop_result = json_data[definition_name].pop(idx)
+                        print 'POPPING', pop_result
+        return json_data
 
     def register(self):
         '''register package'''
