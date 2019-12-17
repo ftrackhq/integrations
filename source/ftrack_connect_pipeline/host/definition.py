@@ -56,12 +56,12 @@ class BaseDefinitionManager(object):
         if not raw_result:
             return
 
-        result = self._parese_json(raw_result, self.host)
+        result = self.filter_by_host(raw_result, self.host)
 
         if not result:
             return
+        self.validate_result(result)
 
-        #self.validate_result(result)
         # validate here
 
         self.__registry = result
@@ -75,13 +75,13 @@ class BaseDefinitionManager(object):
         )
         self.logger.info('host {} ready.'.format(self.hostid))
 
-    def _parese_json(self, json_data, host):
+    def filter_by_host(self, json_data, host):
         json_copy = copy.deepcopy(json_data)
         for definition_name, values in json_data.items():
             for definition in values:
                 if definition.get('host') and definition.get('host') != host:
                     idx = json_copy[definition_name].index(definition)
-                    json_copy[definition_name].pop(idx)
+                    pop_result = json_copy[definition_name].pop(idx)
         return json_copy
 
     def register(self):
@@ -130,6 +130,11 @@ class BaseDefinitionManager(object):
         asset_types = [x['asset_type'] for x in data['packages']]
         invalid_publishers = self.validate_publishers_package(data['publishers'], asset_types)
         invalid_loaders = self.validate_loaders_package(data['loaders'], asset_types)
+
+        print "invalid_plugins --> {}".format(invalid_plugins)
+        print "invalid_components --> {}".format(invalid_components)
+        print "invalid_publishers --> {}".format(invalid_publishers)
+        print "invalid_loaders --> {}".format(invalid_loaders)
 
         #self.cleanDefinitions(invalid_plugins, invalid_components, invalid_publishers, invalid_loaders)
 
