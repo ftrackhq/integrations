@@ -8,6 +8,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def initialise(event_manager, host):
-    '''Initialize host with *session*, *host* and *ui*, return *hostid*'''
-    DefintionManager(event_manager, host)
+class Host(object):
+    def __init__(self, event_manager, host):
+        self._definition_manager = DefintionManager(event_manager, host)

@@ -70,6 +70,14 @@ class EventManager(object):
                 on_reply=callback
             )
 
+    def subscribe(self, topic, callback):
+        self.session.event_hub.subscribe(
+            'topic={}'.format(
+                topic
+            ),
+            callback
+        )
+
 
 class _EventHubThread(threading.Thread):
     '''Listen for events from ftrack's event hub.'''
