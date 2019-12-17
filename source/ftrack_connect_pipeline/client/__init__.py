@@ -100,10 +100,9 @@ class Client(object):
             self._discover_hosts()
 
         if self.__callback and self.hosts:
-            self.logger.info(
-                'calling {} with {}'.format(self.__callback, self.hosts)
-            )
             self.__callback(self.hosts)
+
+        return self.hosts
 
     def _host_discovered(self, event):
         '''callback to to add new hosts *event*.'''

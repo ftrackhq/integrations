@@ -15,6 +15,7 @@ event_paths = [
 
 # create event manager
 session = get_shared_session(plugin_paths=event_paths)
+
 # session = ftrack_api.Session(auto_connect_event_hub=True)
 event_manager = event.EventManager(
     session=session, mode=constants.LOCAL_EVENT_MODE
@@ -22,6 +23,7 @@ event_manager = event.EventManager(
 
 # init host
 host_id = host.initialise(event_manager, host=constants.HOST)
+
 
 # on client ready callback
 def ready_callback(hosts):
@@ -35,4 +37,7 @@ def ready_callback(hosts):
 client_connection= client.Client(event_manager, ui=constants.UI)
 
 # print client_connection.connected
-client_connection.on_ready(ready_callback, time_out=10)
+# client_connection.on_ready(ready_callback, time_out=10)
+
+hosts = client_connection.discover_hosts()
+print hosts
