@@ -27,9 +27,6 @@ host.Host(event_manager, host=constants.HOST)
 # on client ready callback
 def ready_callback(hosts):
     host = hosts[0]
-    print "host {}".format(host)
-    print "host.definitions {}".format(host.definitions)
-    print "host.definitions['publishers'] {}".format(host.definitions['publishers'])
     publisher = host.definitions['publishers'][0]
     print 'using publisher: ', publisher
     publisher['components'][0]['stages'][0]['collectors'][0]['options']['path'] = "/test/path"
