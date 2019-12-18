@@ -22,7 +22,7 @@ def get_schema(definition_type, schemas):
 
 
 def validate_schema(schemas, definition):
-    schema = get_schema(definition[type], schemas)
+    schema = get_schema(definition['type'], schemas)
     _validate_jsonschema(schema, definition)
 
 

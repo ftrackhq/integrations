@@ -61,6 +61,13 @@ class HostConnection(object):
         # if isinstance(data, object):
         #     data = data.serialize()
 
+        #TODO: why we want the host_id and the pipeline here? Can we Do something like???:
+        # data={
+        #       'pipeline': {
+        #          'host_id': self.id,
+        #          'data': data,
+        #          }
+        #       }
         '''Send *data* to the host through the given *topic*.'''
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_HOST_RUN,
@@ -137,6 +144,9 @@ class Client(object):
         if not event['data']:
             return
 
+        #TODO: Decide whether we use objects or dictionary,
+        # but if we use dictionary we shouldn't use the class HostConnection
+        # because its returning definitions as object instead of a dictionary
         host_connection = HostConnection(self.event_manager, event['data'])
         if host_connection not in self.hosts:
             self._host_list.append(host_connection)

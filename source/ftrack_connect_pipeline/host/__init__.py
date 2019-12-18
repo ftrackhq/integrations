@@ -53,11 +53,12 @@ class Host(object):
 
     def run(self, event):
         self.logger.info('HOST RUN {}'.format(event['data']))
+        data = event['data']['pipeline']['data']
 
         try:
-            validation.validate_schema(self.__registry['schemas'], event['data'])
+            validation.validate_schema(self.__registry['schemas'], data)
         except Exception as error:
-            self.logger.error("Can't validate the schema {} error: {}".format(event['data'], error))
+            self.logger.error("Can't validate the data {} error: {}".format(data, error))
             return False
 
         return True
