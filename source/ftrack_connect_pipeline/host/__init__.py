@@ -10,8 +10,6 @@ from ftrack_connect_pipeline.host.runner import Runner
 from ftrack_connect_pipeline.host import validation
 from ftrack_connect_pipeline import constants, utils
 
-from jsonschema import validate as _validate_jsonschema
-
 
 from functools import partial
 
@@ -56,37 +54,13 @@ class Host(object):
     def run(self, event):
         self.logger.info('HOST RUN {}'.format(event['data']))
 
-        definitionType = None
-        if event['data'].get('type'):
-            definitionType = event['data']['type']
-        else:
-            self.logger.error("Invalid definition: The definition has no key type. "
-                              "Definition: {}".format(event["data"]))
-
-        schema = self.get_schema(definitionType)
         try:
-            self.validate_schema(schema, event['data'])
+            validation.validate_schema(self.__registry['schemas'], event['data'])
         except Exception as error:
             self.logger.error(error)
             return False
 
         return True
-
-    def get_schema(self, definition_type):
-        for schema in self.__registry['schemas']:
-            if schema['title'] == constants.LOADER_SCHEMA:
-                if definition_type == 'loader':
-                    return schema
-            elif schema['title'] == constants.PUBLISHER_SCHEMA:
-                if definition_type == 'publisher':
-                    return schema
-            elif schema['title'] == constants.PACKAGE_SCHEMA:
-                if definition_type == 'package':
-                    return schema
-        return None
-
-    def validate_schema(self, schema, definition):
-        _validate_jsonschema(schema, definition)
 
     def on_register_definition(self, event):
         '''Register definition coming from *event* and store them.'''
@@ -122,16 +96,16 @@ class Host(object):
         self.logger.info('host {} ready.'.format(self.hostid))
 
     def validate(self, data):
-        #plugin Validation
+        # plugin Validation
 
-        pluginValidator = validation.PluginValidation(self.session, self.host)
+        plugin_validator = validation.PluginValidation(self.session, self.host)
 
-        invalid_publishers_idxs = pluginValidator.validate_publishers_plugins(data['publishers'])
+        invalid_publishers_idxs = plugin_validator.validate_publishers_plugins(data['publishers'])
         if invalid_publishers_idxs:
             for idx in invalid_publishers_idxs:
                 data['publishers'].pop(idx)
 
-        invalid_loaders_idxs = pluginValidator.validate_loaders_plugins(data['loaders'])
+        invalid_loaders_idxs = plugin_validator.validate_loaders_plugins(data['loaders'])
         if invalid_loaders_idxs:
             for idx in invalid_loaders_idxs:
                 data['loaders'].pop(idx)

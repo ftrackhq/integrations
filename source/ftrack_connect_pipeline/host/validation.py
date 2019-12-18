@@ -4,9 +4,26 @@
 import logging
 import ftrack_api
 
+from jsonschema import validate as _validate_jsonschema
 from ftrack_connect_pipeline import constants
 
 logger = logging.getLogger(__name__)
+
+
+def get_schema(definition_type, schemas):
+    for schema in schemas:
+        if schema['title'] == constants.LOADER_SCHEMA:
+            if definition_type == 'loader':
+                return schema
+        elif schema['title'] == constants.PUBLISHER_SCHEMA:
+            if definition_type == 'publisher':
+                return schema
+    return None
+
+
+def validate_schema(schemas, definition):
+    schema = get_schema(definition[type], schemas)
+    _validate_jsonschema(schema, definition)
 
 
 class PluginValidation(object):
@@ -40,7 +57,6 @@ class PluginValidation(object):
 
         return idxs_to_pop or None
 
-
     def validate_loaders_plugins(self, loaders):
         idxs_to_pop = []
         for definition in loaders:
@@ -56,7 +72,6 @@ class PluginValidation(object):
 
         return idxs_to_pop or None
 
-
     def vaildate_context_plugins(self, plugin_list, definition_name):
         is_valid = True
         for context_plugin in plugin_list:
@@ -65,7 +80,6 @@ class PluginValidation(object):
                 self.logger.warning('Could not discover plugin {} for {} in {}'.format(
                     context_plugin['plugin'], constants.CONTEXT, definition_name))
         return is_valid
-
 
     def validate_component_plugins(self, plugin_list, definition_name):
         # components plugins
@@ -80,7 +94,6 @@ class PluginValidation(object):
                                 component_plugin['plugin'], stage_name, definition_name))
         return is_valid
 
-
     def vaildate_publish_plugins(self, plugin_list, definition_name):
         is_valid = True
         for publisher_plugin in plugin_list:
@@ -89,7 +102,6 @@ class PluginValidation(object):
                 self.logger.warning('Could not discover plugin {} for {} in {}'.format(
                     publisher_plugin['plugin'], constants.PUBLISHERS, definition_name))
         return is_valid
-
 
     def _discover_plugin(self, plugin, plugin_type):
         '''Run *plugin*, *plugin_type*, with given *options*, *data* and *context*'''
