@@ -1,5 +1,4 @@
 import os
-import ftrack_api
 from ftrack_connect_pipeline import client, host, constants, event
 from ftrack_connect_pipeline.session import get_shared_session
 
@@ -35,7 +34,5 @@ def ready_callback(hosts):
 
 # init client
 client_connection= client.Client(event_manager, ui=constants.UI)
-
-print client_connection.connected
 client_connection.on_ready(ready_callback, time_out=10)
 

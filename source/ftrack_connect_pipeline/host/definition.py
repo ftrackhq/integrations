@@ -7,7 +7,6 @@ import ftrack_api
 import copy
 
 from ftrack_connect_pipeline import constants, utils
-from jsonschema import validate as _validate
 from functools import partial
 
 logger = logging.getLogger(__name__)
@@ -20,19 +19,9 @@ def provide_host_information(hostid, definitions, event):
     host_dict = {
         'host_id': hostid,
         'context_id': context_id,
-        'definitions':definitions
+        'definitions': definitions
     }
     return host_dict
-
-
-def filter_by_host(json_data, host):
-    json_copy = copy.deepcopy(json_data)
-    for definition_name, values in json_data.items():
-        for definition in values:
-            if definition.get('host') and definition.get('host') != host:
-                idx = json_copy[definition_name].index(definition)
-                json_copy[definition_name].pop(idx)
-    return json_copy
 
 
 def parse_dictonary(self, data, value_filter, new_list):
@@ -72,28 +61,20 @@ class BaseDefinitionManager(object):
 
     def on_register_definition(self, event):
         '''Register definition coming from *event* and store them.'''
-        # print 'EVENT', event
         raw_result = event['data']
 
         if not raw_result:
             return
 
-        result = filter_by_host(raw_result, self.host)
-
-        if not result:
-            return
-
-        validated_result = self.validate_result(result)
+        validated_result = self.validate_result(raw_result)
 
         # validate here
 
         self.__registry = validated_result
 
         handle_event = partial(provide_host_information, self.hostid, validated_result)
-        self.session.event_hub.subscribe(
-            'topic={}'.format(
-                constants.PIPELINE_DISCOVER_HOST
-            ),
+        self.event_manager.subscribe(
+            constants.PIPELINE_DISCOVER_HOST,
             handle_event
         )
         self.logger.info('host {} ready.'.format(self.hostid))
@@ -105,7 +86,8 @@ class BaseDefinitionManager(object):
             topic=constants.PIPELINE_REGISTER_TOPIC,
             data={
                 'pipeline': {
-                    'type': "definition"
+                    'type': "definition",
+                    'host': self.host
                 }
             }
         )
@@ -117,9 +99,6 @@ class BaseDefinitionManager(object):
         )
 
     def validate_result(self, data):
-
-        self.validate_definitions(data)
-
         # invalid_publishers_idxs = self.validate_publishers_plugins(data['publishers'])
         # for idx in invalid_publishers_idxs:
         #     data['publishers'].pop(idx)
@@ -146,26 +125,6 @@ class BaseDefinitionManager(object):
         return data
 
         #self.cleanDefinitions(invalid_plugins, invalid_components, invalid_publishers, invalid_loaders)
-
-    def validate_definitions(self, data):
-        '''Find all schemas and validate all the definitions with the correcspondant schema'''
-        for schema in data['schemas']:
-            if schema['title'] == constants.LOADER_SCHEMA:
-                self.validate_definition(schema, data['loaders'])
-            elif schema['title'] == constants.PUBLISHER_SCHEMA:
-                self.validate_definition(schema, data['publishers'])
-            elif schema['title'] == constants.PACKAGE_SCHEMA:
-                self.validate_definition(schema, data['packages'])
-            else:
-                self.logger.warning('The schema {} is not defined and can not be validated'.format(schema))
-
-    def validate_definition(self, schema, data):
-        '''Validate all the given definitions with the given schema'''
-        for definition in data:
-            try:
-                _validate(schema, definition)
-            except Exception as error:
-                self.logger.debug(error)
 
     def validate_publishers_plugins(self, publishers):
         idxs_to_pop = []
@@ -232,64 +191,6 @@ class BaseDefinitionManager(object):
                     publisher_plugin['plugin'], constants.PUBLISHERS, definition_name))
         return is_valid
 
-    def validate_components(self, components_data, package_compnents_data):
-        '''
-        validate if the publisher defines the correct components based on the
-        package definition.
-        '''
-        invalidCompoenents=[]
-        publisher_names = []
-        for component in components_data:
-            if component['name']:
-                publisher_names.append(component['name'])
-
-        # check if the mandatory components defined in the package definition
-        # are available in the publisher definition.
-        package_components_names = []
-        for package_component in package_compnents_data:
-            for package_component_name, optional in package_component.items():
-                package_components_names.append(package_component_name)
-                if optional:
-                    continue
-                if package_component_name not in publisher_names:
-                    self.logger.warning('{} is not defined'.format(package_component_name))
-                    invalidCompoenents.append(package_component)
-
-        # check if the components defined in the publisher
-        # are all available of the package definition
-        for component in components_data:
-            if component['name'] not in package_components_names:
-                self.logger.warning('{} is not found in {}'.format(
-                        component['name'], package_components_names))
-                invalidCompoenents.append(component)
-
-        return invalidCompoenents or None
-
-    def validate_publishers_package(self, data, asset_types):
-        '''validate if the publisher package is defined in the packages as asset_type'''
-        invalidPublishers = []
-        for publisher in data:
-            if not publisher['package'] in asset_types:
-                self.logger.warning(
-                    'Publisher {} is not among the validated packages: {}'.format(
-                        publisher, asset_types))
-                invalidPublishers.append(publisher)
-
-    def validate_loaders_package(self, data, asset_types):
-        '''validate if the loader package is defined in the packages as asset_type'''
-        invalidLoaders = []
-        for loader in data:
-            if not loader['package'] in asset_types:
-                self.logger.warning(
-                    'Loader {} is not among the validated packages: {}'.format(
-                        loader, asset_types))
-                invalidLoaders.append(loader)
-        return invalidLoaders or None
-
-
-    def cleanDefinitions(self):
-        pass
-
     def _discover_plugin(self, plugin, plugin_type):
         '''Run *plugin*, *plugin_type*, with given *options*, *data* and *context*'''
         plugin_name = plugin['plugin']
@@ -311,7 +212,6 @@ class BaseDefinitionManager(object):
             event,
             synchronous=True
         )
-        print plugin_result
 
         if plugin_result:
             plugin_result = plugin_result[0]

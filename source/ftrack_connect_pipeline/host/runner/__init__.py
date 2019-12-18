@@ -4,9 +4,6 @@
 import logging
 import ftrack_api
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.event import EventManager
-from ftrack_connect_pipeline import exception
-from ftrack_connect_pipeline import utils
 
 
 class Runner(object):
@@ -21,10 +18,14 @@ class Runner(object):
         '''Return the current host type.'''
         return self._host
 
-    def __init__(self, event_manager, package_definitions, host,  hostid):
-        '''Initialise publish runnder with *session*, *package_definitions*, *host*, *ui* and *hostid*.'''
-        self.__remote_events = utils.remote_event_mode()
+    def validate(self, data):
+        print 'validate data....'
 
+    def run(self, data):
+        print 'run data'
+
+    def __init__(self, event_manager, schema, host,  hostid):
+        '''Initialise publish runnder with *session*, *package_definitions*, *host*, *ui* and *hostid*.'''
         self.component_stages_order = [
             constants.COLLECTORS,
             constants.VALIDATORS,
@@ -34,21 +35,12 @@ class Runner(object):
         self.session = event_manager.session
         self._host = host
         self._hostid = hostid
-        self.packages = package_definitions
-        print self.packages
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
 
         self.event_manager = event_manager
-
-        self.event_manager.subscribe(
-            '{} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_HOST_RUN, self.hostid
-            ),
-            self.run
-        )
 
     def _run_plugin(self, plugin, plugin_type, options=None, data=None, context=None):
         '''Run *plugin*, *plugin_type*, with given *options*, *data* and *context*'''
