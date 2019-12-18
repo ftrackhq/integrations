@@ -27,7 +27,7 @@ host.Host(event_manager, host=constants.HOST)
 # on client ready callback
 def ready_callback(hosts):
     host = hosts[0]
-    publisher = host.data['publishers'][0]
+    publisher = host.publishers[0]
     print 'using publisher: ', publisher
     host.run(publisher)
 
