@@ -13,7 +13,7 @@ from ftrack_connect_pipeline import constants
 class HostConnection(object):
 
     @property
-    def data(self):
+    def definitions(self):
         return self._raw_host_data['definitions']
 
     @property
@@ -34,33 +34,32 @@ class HostConnection(object):
 
         self.event_manager = event_manager
         self._raw_host_data = copy_data
-        definitions = copy_data['definitions']
-        self._schemas = definitions.pop('schemas')
-
-        objects = self.build_entity_classes(definitions)
-        for key, value in objects.items():
-            self.__dict__[key] = value
-
-    def build_entity_classes(self, data):
-        objects = {}
-        for key, value in data.items():
-            objects.setdefault(key, [])
-            for schema in self._schemas:
-                if key.lower() in schema['title'].lower():
-                    print 'building schema', schema['title']
-                    builder = pjo.ObjectBuilder(schema)
-                    classes = builder.build_classes(standardize_names=False)
-                    ClassType = getattr(classes, schema['title'])
-                    for item in value:
-                        print 'building {} for {}'.format(schema['title'] , item['name'])
-
-                        objects[key].append(ClassType(**item))
-        return objects
-
+    #     definitions = copy_data['definitions']
+    #     self._schemas = definitions.pop('schemas')
+    #
+    #     objects = self.build_entity_classes(definitions)
+    #     for key, value in objects.items():
+    #         self.__dict__[key] = value
+    #
+    # def build_entity_classes(self, data):
+    #     objects = {}
+    #     for key, value in data.items():
+    #         objects.setdefault(key, [])
+    #         for schema in self._schemas:
+    #             if key.lower() in schema['title'].lower():
+    #                 print 'building schema', schema['title']
+    #                 builder = pjo.ObjectBuilder(schema)
+    #                 classes = builder.build_classes(standardize_names=False)
+    #                 ClassType = getattr(classes, schema['title'])
+    #                 for item in value:
+    #                     print 'building {} for {}'.format(schema['title'] , item['name'])
+    #
+    #                     objects[key].append(ClassType(**item))
+    #     return objects
 
     def run(self, data):
-        if isinstance(data, object):
-            data = data.serialize()
+        # if isinstance(data, object):
+        #     data = data.serialize()
 
         '''Send *data* to the host through the given *topic*.'''
         event = ftrack_api.event.base.Event(
@@ -76,8 +75,6 @@ class HostConnection(object):
             event,
             mode=constants.REMOTE_EVENT_MODE
         )
-
-
 
 
 class Client(object):
