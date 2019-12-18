@@ -57,8 +57,7 @@ class Host(object):
         try:
             validation.validate_schema(self.__registry['schemas'], event['data'])
         except Exception as error:
-            #self.logger.error("Can't validate the schema {} error: {}".format(event['data'], error))
-            self.logger.error(error)
+            self.logger.error("Can't validate the schema {} error: {}".format(event['data'], error))
             return False
 
         return True
