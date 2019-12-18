@@ -49,13 +49,6 @@ class Host(object):
         self.event_manager = event_manager
         self.register()
 
-        self.event_manager.subscribe(
-            '{} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_HOST_RUN, self.hostid
-            ),
-            self.run
-        )
-
     def run(self, event):
         self.logger.info('HOST RUN {}'.format(event['data']))
         # Runner(self.event_manager....)
@@ -73,13 +66,23 @@ class Host(object):
 
         self.__registry = validated_result
 
-        handle_event = partial(provide_host_information, self.hostid,
-                               validated_result)
+        handle_event = partial(
+            provide_host_information,
+            self.hostid,
+            validated_result
+        )
+
         self.event_manager.subscribe(
             constants.PIPELINE_DISCOVER_HOST,
             handle_event
         )
 
+        self.event_manager.subscribe(
+            '{} and data.pipeline.host_id={}'.format(
+                constants.PIPELINE_HOST_RUN, self.hostid
+            ),
+            self.run
+        )
         self.logger.info('host {} ready.'.format(self.hostid))
 
     def validate_result(self, data):
