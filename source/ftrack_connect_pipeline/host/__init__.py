@@ -62,7 +62,7 @@ class Host(object):
         if not raw_result:
             return
 
-        validated_result = self.validate_result(raw_result)
+        validated_result = self.validate(raw_result)
 
         for key, value in validated_result.items():
             logger.info('Valid packages : {} : {}'.format(key, len(value)))
@@ -88,7 +88,7 @@ class Host(object):
         )
         self.logger.info('host {} ready.'.format(self.hostid))
 
-    def validate_result(self, data):
+    def validate(self, data):
         #plugin Validation
 
         pluginValidator = validation.PluginValidation(self.session, self.host)
