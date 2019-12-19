@@ -26,9 +26,9 @@ class BaseRunner(object):
         '''Initialise publish runnder with *session*, *package_definitions*, *host*, *ui* and *hostid*.'''
         super(BaseRunner, self).__init__()
         self.component_stages_order = [
-            constants.COLLECTORS,
-            constants.VALIDATORS,
-            constants.OUTPUTS
+            constants.COLLECTOR,
+            constants.VALIDATOR,
+            constants.OUTPUT
         ]
 
         self.session = event_manager.session
@@ -80,7 +80,7 @@ class BaseRunner(object):
         for plugin in context_plugins:
             print "plugin ----> {}".format(plugin)
             status, result = self._run_plugin(
-                plugin, constants.CONTEXT,
+                plugin, constants.CONTEXTS,
                 context=plugin['options']
             )
 
@@ -102,7 +102,7 @@ class BaseRunner(object):
                 if not plugins:
                     continue
 
-                collected_data = results.get(constants.COLLECTORS, [])
+                collected_data = results.get(constants.COLLECTOR, [])
                 stages_result = []
                 stage_status = []
 
@@ -131,15 +131,15 @@ class BaseRunner(object):
 
         return statuses, results
 
-    def run_publish(self, publish_plugins, publish_data, context_data):
+    def run_finaliser(self, finaliser_plugins, finaliser_data, context_data):
         '''Run component plugins for *component_name*, *component_stages* with *context_data*.'''
         statuses = []
         results = []
 
-        for plugin in publish_plugins:
+        for plugin in finaliser_plugins:
             status, result = self._run_plugin(
-                plugin, constants.PUBLISHERS,
-                data=publish_data,
+                plugin, constants.FINALISERS,
+                data=finaliser_data,
                 options=plugin['options'],
                 context=context_data
             )
@@ -152,7 +152,7 @@ class BaseRunner(object):
     def run(self, data):
         '''Run the package definition based on the result of incoming *event*.'''
 
-        context_plugins = data[constants.CONTEXT]
+        context_plugins = data[constants.CONTEXTS]
         context_status, context_result = self.run_context(context_plugins)
         if not all(context_status):
             return
@@ -174,21 +174,21 @@ class BaseRunner(object):
             components_status.append(component_status)
             components_result.append(component_result)
 
-        publish_plugins = data[constants.PUBLISHERS]
+        finaliser_plugins = data[constants.FINALISERS]
 
-        publish_data = {}
+        finaliser_data = {}
         for item in components_result:
-            for output in item.get(constants.OUTPUTS):
+            for output in item.get(constants.OUTPUT):
                 if not output:
                     continue
 
                 for key, value in output.items():
-                    publish_data[key] = value
+                    finaliser_data[key] = value
 
-        publish_status, publish_result = self.run_publish(
-            publish_plugins, publish_data, context_result
+        finalisers_status, finalisers_result = self.run_finaliser(
+            finaliser_plugins, finaliser_data, context_result
         )
-        if not all(publish_status):
+        if not all(finalisers_status):
             return
 
         return True

@@ -8,7 +8,7 @@ HOST = 'python'
 _BASE_ = 'ftrack.pipeline'
 
 # Common stages.
-CONTEXT = 'context'
+CONTEXTS = 'contexts'
 
 # External events.
 PIPELINE_REGISTER_TOPIC = '{}.register'.format(_BASE_)

@@ -12,12 +12,8 @@ logger = logging.getLogger(__name__)
 
 def get_schema(definition_type, schemas):
     for schema in schemas:
-        if schema['title'] == constants.LOADER_SCHEMA:
-            if definition_type == 'loader':
-                return schema
-        elif schema['title'] == constants.PUBLISHER_SCHEMA:
-            if definition_type == 'publisher':
-                return schema
+        if definition_type == schema['title'].lower():
+            return schema
     return None
 
 
@@ -43,11 +39,11 @@ class PluginValidation(object):
         for definition in publishers:
             valid_definition = True
             # context plugins
-            if not self.vaildate_context_plugins(definition[constants.CONTEXT], definition["name"]):
+            if not self.vaildate_contexts_plugins(definition[constants.CONTEXTS], definition["name"]):
                 valid_definition = False
-            if not self.validate_component_plugins(definition[constants.COMPONENTS], definition["name"]):
+            if not self.validate_components_plugins(definition[constants.COMPONENTS], definition["name"]):
                 valid_definition = False
-            if not self.vaildate_publish_plugins(definition[constants.PUBLISHERS], definition["name"]):
+            if not self.vaildate_finalisers_plugins(definition[constants.FINALISERS], definition["name"]):
                 valid_definition = False
             if not valid_definition:
                 idx = publishers.index(definition)
@@ -62,7 +58,7 @@ class PluginValidation(object):
         for definition in loaders:
             valid_definition = True
             # context plugins
-            if not self.validate_component_plugins(definition[constants.COMPONENTS], definition["name"]):
+            if not self.validate_components_plugins(definition[constants.COMPONENTS], definition["name"]):
                 valid_definition = False
             if not valid_definition:
                 idx = loaders.index(definition)
@@ -72,35 +68,35 @@ class PluginValidation(object):
 
         return idxs_to_pop or None
 
-    def vaildate_context_plugins(self, plugin_list, definition_name):
+    def vaildate_contexts_plugins(self, plugin_list, definition_name):
         is_valid = True
         for context_plugin in plugin_list:
-            if not self._discover_plugin(context_plugin, constants.CONTEXT):
+            if not self._discover_plugin(context_plugin, constants.CONTEXTS):
                 is_valid = False
                 self.logger.warning('Could not discover plugin {} for {} in {}'.format(
-                    context_plugin['plugin'], constants.CONTEXT, definition_name))
+                    context_plugin['plugin'], constants.CONTEXTS, definition_name))
         return is_valid
 
-    def validate_component_plugins(self, plugin_list, definition_name):
+    def validate_components_plugins(self, components_list, definition_name):
         # components plugins
         is_valid = True
-        for component in plugin_list:
+        for component in components_list:
             for component_stage in component['stages']:
-                for stage_name, component_plugins in component_stage.items():
-                    for component_plugin in component_plugins:
-                        if not self._discover_plugin(component_plugin, stage_name):
-                            is_valid = False
-                            self.logger.warning('Could not discover plugin {} for stage {} in {}'.format(
-                                component_plugin['plugin'], stage_name, definition_name))
+                stage_name = component_stage['name']
+                for component_plugin in component_stage['plugins']:
+                    if not self._discover_plugin(component_plugin, stage_name):
+                        is_valid = False
+                        self.logger.warning('Could not discover plugin {} for stage {} in {}'.format(
+                            component_plugin['plugin'], stage_name, definition_name))
         return is_valid
 
-    def vaildate_publish_plugins(self, plugin_list, definition_name):
+    def vaildate_finalisers_plugins(self, plugin_list, definition_name):
         is_valid = True
         for publisher_plugin in plugin_list:
-            if not self._discover_plugin(publisher_plugin, constants.PUBLISHERS):
+            if not self._discover_plugin(publisher_plugin, constants.FINALISERS):
                 is_valid = False
                 self.logger.warning('Could not discover plugin {} for {} in {}'.format(
-                    publisher_plugin['plugin'], constants.PUBLISHERS, definition_name))
+                    publisher_plugin['plugin'], constants.FINALISERS, definition_name))
         return is_valid
 
     def _discover_plugin(self, plugin, plugin_type):

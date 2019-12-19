@@ -187,7 +187,7 @@ class BasePlugin(_Base):
 
 class ContextPlugin(BasePlugin):
     return_type = dict
-    plugin_type = constants.CONTEXT
+    plugin_type = constants.CONTEXTS
     input_options = ['context_id']
     output_options = ['context_id', 'asset_name', 'comment', 'status_id']
 

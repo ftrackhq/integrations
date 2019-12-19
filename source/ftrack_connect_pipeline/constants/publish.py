@@ -5,9 +5,9 @@ from ftrack_connect_pipeline.constants import _BASE_, PIPELINE_RUN_PLUGIN_TOPIC
 
 
 # Publish stages.
-COLLECTORS = 'collectors'
-VALIDATORS = 'validators'
-OUTPUTS = 'outputs'
-PUBLISHERS = 'publishers'
+COLLECTOR = 'collector'
+VALIDATOR = 'validator'
+OUTPUT = 'output'
+FINALISERS = 'finalisers'
 
 COMPONENTS = 'components'

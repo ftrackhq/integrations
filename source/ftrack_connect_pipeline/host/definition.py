@@ -131,11 +131,11 @@ class BaseDefinitionManager(object):
         for definition in publishers:
             valid_definition = True
             # context plugins
-            if not self.vaildate_context_plugins(definition[constants.CONTEXT], definition["name"]):
+            if not self.vaildate_context_plugins(definition[constants.CONTEXTS], definition["name"]):
                 valid_definition = False
             if not self.validate_component_plugins(definition[constants.COMPONENTS], definition["name"]):
                 valid_definition = False
-            if not self.vaildate_publish_plugins(definition[constants.PUBLISHERS], definition["name"]):
+            if not self.vaildate_publish_plugins(definition[constants.FINALISERS], definition["name"]):
                 valid_definition = False
             if not valid_definition:
                 idx = publishers.index(definition)
@@ -163,10 +163,10 @@ class BaseDefinitionManager(object):
     def vaildate_context_plugins(self, plugin_list, definition_name):
         is_valid = True
         for context_plugin in plugin_list:
-            if not self._discover_plugin(context_plugin, constants.CONTEXT):
+            if not self._discover_plugin(context_plugin, constants.CONTEXTS):
                 is_valid = False
                 self.logger.warning('Could not discover plugin {} for {} in {}'.format(
-                    context_plugin['plugin'], constants.CONTEXT, definition_name))
+                    context_plugin['plugin'], constants.CONTEXTS, definition_name))
         return is_valid
 
     def validate_component_plugins(self, plugin_list, definition_name):
@@ -185,10 +185,10 @@ class BaseDefinitionManager(object):
     def vaildate_publish_plugins(self, plugin_list, definition_name):
         is_valid = True
         for publisher_plugin in plugin_list:
-            if not self._discover_plugin(publisher_plugin, constants.PUBLISHERS):
+            if not self._discover_plugin(publisher_plugin, constants.FINALISERS):
                 is_valid = False
                 self.logger.warning('Could not discover plugin {} for {} in {}'.format(
-                    publisher_plugin['plugin'], constants.PUBLISHERS, definition_name))
+                    publisher_plugin['plugin'], constants.FINALISERS, definition_name))
         return is_valid
 
     def _discover_plugin(self, plugin, plugin_type):
