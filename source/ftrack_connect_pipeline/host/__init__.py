@@ -53,7 +53,7 @@ class Host(object):
         self.register()
 
     def run(self, event):
-        self.logger.info('HOST RUN {}'.format(event['data']))
+        # self.logger.info('HOST RUN {}'.format(event['data']))
         data = event['data']['pipeline']['data']
 
         try:

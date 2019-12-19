@@ -69,7 +69,7 @@ class BaseRunner(object):
             event,
             synchronous=True
         )
-        print "data ---> []".format(data)
+        # print "data ---> []".format(data)
         result = data[0]['result']
         status = data[0]['status']
 
@@ -100,7 +100,11 @@ class BaseRunner(object):
 
         for component_stage in component_stages:
             for stage_name in self.component_stages_order:
-                plugins = component_stage.get(stage_name)
+                if stage_name != component_stage['name']:
+                    continue
+
+                plugins = component_stage['plugins']
+
                 if not plugins:
                     continue
 
