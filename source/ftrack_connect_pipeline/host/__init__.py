@@ -62,8 +62,8 @@ class Host(object):
             self.logger.error("Can't validate the data {} error: {}".format(data, error))
             return False
 
-        #engine = data['_config']['engine']
-        MyEngine = runner.getEngine(runner.BaseRunner, "PublisherRunner")
+        engine = data['_config']['engine']
+        MyEngine = runner.getEngine(runner.BaseRunner, engine)
         engine_runner = MyEngine(self.event_manager, self.host, self.hostid)
         runnerResult = engine_runner.run(data)
 
