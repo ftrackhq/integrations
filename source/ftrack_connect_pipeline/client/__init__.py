@@ -32,7 +32,8 @@ class HostConnection(object):
     def __init__(self, event_manager, host_data):
         copy_data = copy.deepcopy(host_data)
 
-        self.event_manager = event_manager
+        self.session = event_manager.session
+        self._event_manager = event_manager
         self._raw_host_data = copy_data
     #     definitions = copy_data['definitions']
     #     self._schemas = definitions.pop('schemas')
@@ -71,9 +72,9 @@ class HostConnection(object):
                 }
             }
         )
-        self.event_manager.publish(
+        self._event_manager.publish(
             event,
-            mode=constants.REMOTE_EVENT_MODE
+            # mode=constants.REMOTE_EVENT_MODE
         )
 
 

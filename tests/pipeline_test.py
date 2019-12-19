@@ -27,14 +27,14 @@ host.Host(event_manager, host=constants.HOST)
 # on client ready callback
 def ready_callback(hosts):
 
-    task = session.query(
+    host = hosts[0]
+    task = host.session.query(
         'select name from Task where project.name is "pipelinetest"'
     ).first()
 
     schema = task['project']['project_schema']
     task_status = schema.get_statuses('Task')[0]
 
-    host = hosts[0]
     publisher = host.definitions['publishers'][0]
     publisher['contexts'][0]['options']['context_id'] = task['id']
     publisher['contexts'][0]['options']['asset_name'] = 'PipelineAsset'
@@ -46,5 +46,5 @@ def ready_callback(hosts):
 
 # init client
 client_connection= client.Client(event_manager, ui=constants.UI)
-client_connection.on_ready(ready_callback, time_out=10)
+client_connection.on_ready(ready_callback, time_out=30)
 

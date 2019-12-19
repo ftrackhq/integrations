@@ -146,7 +146,7 @@ class Host(object):
         self.event_manager.publish(
             event,
             self.on_register_definition,
-            mode=constants.REMOTE_EVENT_MODE
+            # mode=constants.REMOTE_EVENT_MODE
         )
 
 
