@@ -10,9 +10,10 @@ class PassthroughPlugin(plugin.OutputPlugin):
     plugin_name = 'passthrough'
 
     def run(self, context=None, data=None, options=None):
+        component_name = options['component_name']
         result = {}
         for item in data:
-            result[item] = item
+            result[component_name] = item
 
         return result
 
