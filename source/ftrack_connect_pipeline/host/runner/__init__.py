@@ -44,6 +44,7 @@ class BaseRunner(object):
     def _run_plugin(self, plugin, plugin_type, options=None, data=None, context=None):
         '''Run *plugin*, *plugin_type*, with given *options*, *data* and *context*'''
         plugin_name = plugin['plugin']
+        print "running ---> {}".format(plugin_name)
 
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
@@ -67,7 +68,7 @@ class BaseRunner(object):
             event,
             synchronous=True
         )
-
+        print "data ---> []".format(data)
         result = data[0]['result']
         status = data[0]['status']
 
@@ -78,12 +79,12 @@ class BaseRunner(object):
         statuses = []
         results = {}
         for plugin in context_plugins:
-            print "plugin ----> {}".format(plugin)
+            print "plugin['options']----> {}".format(plugin['options'])
             status, result = self._run_plugin(
                 plugin, constants.CONTEXTS,
                 context=plugin['options']
             )
-
+            print "result ---> {}".format(result)
             bool_status = constants.status_bool_mapping[status]
             statuses.append(bool_status)
             # rise error here if result is none

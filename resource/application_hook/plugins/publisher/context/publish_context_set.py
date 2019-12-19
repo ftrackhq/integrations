@@ -9,7 +9,6 @@ class EnvContextPlugin(plugin.ContextPlugin):
     plugin_name = 'context.publish'
 
     def run(self, context=None, data=None, options=None):
-        context['context_id'] = options['context_id']
         return context
 
 

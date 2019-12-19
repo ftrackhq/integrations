@@ -30,6 +30,9 @@ def ready_callback(hosts):
     publisher = host.definitions['publishers'][0]
     print 'using publisher: ', publisher
     publisher['contexts'][0]['options']['context_id'] = 'somethingrandom'
+    publisher['contexts'][0]['options']['asset_name'] = 'asset_name'
+    publisher['contexts'][0]['options']['comment'] = 'comment'
+    publisher['contexts'][0]['options']['status_id'] = 'Approve'
     publisher['components'][0]['stages'][0]['plugins'][0]['options']['path'] = "/test/path"
     host.run(publisher)
 
