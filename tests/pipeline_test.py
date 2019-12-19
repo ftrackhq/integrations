@@ -26,13 +26,20 @@ host.Host(event_manager, host=constants.HOST)
 
 # on client ready callback
 def ready_callback(hosts):
+
+    task = session.query(
+        'select name from Task where project.name is "pipelinetest"'
+    ).first()
+
+    schema = task['project']['project_schema']
+    task_status = schema.get_statuses('Task')[0]
+
     host = hosts[0]
     publisher = host.definitions['publishers'][0]
-    print 'using publisher: ', publisher
-    publisher['contexts'][0]['options']['context_id'] = 'somethingrandom'
-    publisher['contexts'][0]['options']['asset_name'] = 'asset_name'
-    publisher['contexts'][0]['options']['comment'] = 'comment'
-    publisher['contexts'][0]['options']['status_id'] = 'Approve'
+    publisher['contexts'][0]['options']['context_id'] = task['id']
+    publisher['contexts'][0]['options']['asset_name'] = 'PipelineAsset'
+    publisher['contexts'][0]['options']['comment'] = 'A new hope'
+    publisher['contexts'][0]['options']['status_id'] = task_status['id']
     publisher['components'][0]['stages'][0]['plugins'][0]['options']['path'] = "/test/path"
     host.run(publisher)
 
