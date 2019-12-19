@@ -40,7 +40,7 @@ def ready_callback(hosts):
     publisher['contexts'][0]['options']['asset_name'] = 'PipelineAsset'
     publisher['contexts'][0]['options']['comment'] = 'A new hope'
     publisher['contexts'][0]['options']['status_id'] = task_status['id']
-    publisher['components'][0]['stages'][0]['plugins'][0]['options']['path'] = "/test/path"
+    publisher['components'][0]['stages'][0]['plugins'][0]['options']['path'] = "/home/ftrackwork/devel/testn11info.nk"
     host.run(publisher)
 
 

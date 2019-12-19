@@ -12,7 +12,7 @@ class PassthroughPlugin(plugin.OutputPlugin):
     def run(self, context=None, data=None, options=None):
         result = {}
         for item in data:
-            result['item'] = item
+            result[item] = item
 
         return result
 
