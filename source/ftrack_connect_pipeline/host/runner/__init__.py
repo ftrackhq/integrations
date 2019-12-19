@@ -5,8 +5,12 @@ import logging
 import ftrack_api
 from ftrack_connect_pipeline import constants
 
+def getEngine(baseClass, runnerType):
+    for subclass in baseClass.__subclasses__():
+        if runnerType == subclass.__name__:
+            return subclass
 
-class Runner(object):
+class BaseRunner(object):
 
     @property
     def hostid(self):
@@ -18,14 +22,9 @@ class Runner(object):
         '''Return the current host type.'''
         return self._host
 
-    def validate(self, data):
-        print 'validate data....'
-
-    def run(self, data):
-        print 'run data'
-
-    def __init__(self, event_manager, schema, host,  hostid):
+    def __init__(self, event_manager, host,  hostid):
         '''Initialise publish runnder with *session*, *package_definitions*, *host*, *ui* and *hostid*.'''
+        super(BaseRunner, self).__init__()
         self.component_stages_order = [
             constants.COLLECTORS,
             constants.VALIDATORS,
@@ -45,8 +44,6 @@ class Runner(object):
     def _run_plugin(self, plugin, plugin_type, options=None, data=None, context=None):
         '''Run *plugin*, *plugin_type*, with given *options*, *data* and *context*'''
         plugin_name = plugin['plugin']
-
-        self._notify_client(None, plugin, constants.RUNNING_STATUS)
 
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
@@ -73,42 +70,15 @@ class Runner(object):
 
         result = data[0]['result']
         status = data[0]['status']
-        message = data[0]['message']
-
-        self._notify_client(result, plugin, status, message)
 
         return status, result
 
-    def _notify_client(self, data, plugin, status, message=None):
-        '''Notify client with *data* for *plugin*'''
-
-        widget_ref = plugin['widget_ref']
-
-        pipeline_data = {
-            'host_id': self.hostid,
-            'widget_ref': widget_ref,
-            'data': data,
-            'status': status,
-            'message': message
-        }
-
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_UPDATE_UI,
-            data={
-                'pipeline':pipeline_data
-            }
-        )
-
-        self.event_manager.publish(
-            event,
-            remote=self.__remote_events
-        )
-
-    def run_context(self, context_pligins):
+    def run_context(self, context_plugins):
         '''Run *context_pligins*.'''
         statuses = []
         results = {}
-        for plugin in context_pligins:
+        for plugin in context_plugins:
+            print "plugin ----> {}".format(plugin)
             status, result = self._run_plugin(
                 plugin, constants.CONTEXT,
                 context=plugin['options']
@@ -179,51 +149,49 @@ class Runner(object):
 
         return statuses, results
 
-    def run(self, event):
+    def run(self, data):
         '''Run the package definition based on the result of incoming *event*.'''
-        data = event['data']['pipeline']['data']
 
-        publish_package = data['package']
+        context_plugins = data[constants.CONTEXT]
+        context_status, context_result = self.run_context(context_plugins)
+        if not all(context_status):
+            return
+        context_result['asset_type'] = data['package']['type']
 
-        # asset_type = self.packages[publish_package]['type']
-        #
-        # context_plugins = data[constants.CONTEXT]
-        # context_status, context_result = self.run_context(context_plugins)
-        #
-        # if not all(context_status):
-        #     return
-        #
-        # context_result['asset_type'] = asset_type
-        #
-        # publisher_components = data[constants.COMPONENTS]
-        # components_result = []
-        # components_status = []
-        #
-        # for publisher_component in publisher_components:
-        #     component_name = publisher_component["name"]
-        #     component_stages = publisher_component["stages"]
-        #     component_status, component_result = self.run_component(
-        #         component_name, component_stages, context_result
-        #     )
-        #     if not all(component_status.values()):
-        #         continue
-        #
-        #     components_status.append(component_status)
-        #     components_result.append(component_result)
-        #
-        # publish_plugins = data[constants.PUBLISHERS]
-        #
-        # publish_data = {}
-        # for item in components_result:
-        #     for output in item.get(constants.OUTPUTS):
-        #         if not output:
-        #             continue
-        #
-        #         for key, value in output.items():
-        #             publish_data[key] = value
-        #
-        # publish_status, publish_result = self.run_publish(
-        #     publish_plugins, publish_data, context_result
-        # )
-        # if not all(context_status):
-        #     return
+        components = data[constants.COMPONENTS]
+        components_result = []
+        components_status = []
+
+        for component in components:
+            component_name = component["name"]
+            component_stages = component["stages"]
+            component_status, component_result = self.run_component(
+                component_name, component_stages, context_result
+            )
+            if not all(component_status.values()):
+                continue
+
+            components_status.append(component_status)
+            components_result.append(component_result)
+
+        publish_plugins = data[constants.PUBLISHERS]
+
+        publish_data = {}
+        for item in components_result:
+            for output in item.get(constants.OUTPUTS):
+                if not output:
+                    continue
+
+                for key, value in output.items():
+                    publish_data[key] = value
+
+        publish_status, publish_result = self.run_publish(
+            publish_plugins, publish_data, context_result
+        )
+        if not all(publish_status):
+            return
+
+        return True
+
+from ftrack_connect_pipeline.host.runner.publish import *
+from ftrack_connect_pipeline.host.runner.load import *

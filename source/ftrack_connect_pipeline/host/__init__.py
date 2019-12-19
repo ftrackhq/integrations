@@ -6,7 +6,8 @@ import ftrack_api
 import logging
 
 from ftrack_connect_pipeline.host.definition import DefintionManager
-from ftrack_connect_pipeline.host.runner import Runner
+#from ftrack_connect_pipeline.host.runner.publish import PublisherRunner
+from ftrack_connect_pipeline.host import runner
 from ftrack_connect_pipeline.host import validation
 from ftrack_connect_pipeline import constants, utils
 
@@ -61,7 +62,17 @@ class Host(object):
             self.logger.error("Can't validate the data {} error: {}".format(data, error))
             return False
 
-        return True
+        #engine = data['_config']['engine']
+        MyEngine = runner.getEngine(runner.BaseRunner, "PublisherRunner")
+        engine_runner = MyEngine(self.event_manager, self.host, self.hostid)
+        runnerResult = engine_runner.run(data)
+
+
+        '''if data['type'] == 'publisher':
+            publisher = PublisherRunner(self.event_manager, self.host,  self.hostid)
+            runnerResult = publisher.run(data) #this is true or false'''
+
+        return runnerResult
 
     def on_register_definition(self, event):
         '''Register definition coming from *event* and store them.'''
