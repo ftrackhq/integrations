@@ -22,7 +22,7 @@ class BaseRunner(object):
         '''Return the current host type.'''
         return self._host
 
-    def __init__(self, event_manager, host,  hostid):
+    def __init__(self, event_manager, host,  hostid, asset_type):
         '''Initialise publish runnder with *session*, *package_definitions*, *host*, *ui* and *hostid*.'''
         super(BaseRunner, self).__init__()
         self.component_stages_order = [
@@ -31,6 +31,7 @@ class BaseRunner(object):
             constants.OUTPUT
         ]
 
+        self.asset_type = asset_type
         self.session = event_manager.session
         self._host = host
         self._hostid = hostid
@@ -152,12 +153,11 @@ class BaseRunner(object):
 
     def run(self, data):
         '''Run the package definition based on the result of incoming *event*.'''
-
         context_plugins = data[constants.CONTEXTS]
         context_status, context_result = self.run_context(context_plugins)
         if not all(context_status):
             return
-        context_result['asset_type'] = data['package']['type']
+        context_result['asset_type'] = self.asset_type#data['package']['type']
 
         components = data[constants.COMPONENTS]
         components_result = []

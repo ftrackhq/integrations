@@ -62,9 +62,10 @@ class Host(object):
             self.logger.error("Can't validate the data {} error: {}".format(data, error))
             return False
 
+        asset_type = self.get_asset_type_from_packages(self.__registry['packages'], data['package'])
         engine = data['_config']['engine']
         MyEngine = runner.getEngine(runner.BaseRunner, engine)
-        engine_runner = MyEngine(self.event_manager, self.host, self.hostid)
+        engine_runner = MyEngine(self.event_manager, self.host, self.hostid, asset_type)
         runnerResult = engine_runner.run(data)
 
 
@@ -73,6 +74,11 @@ class Host(object):
             runnerResult = publisher.run(data) #this is true or false'''
 
         return runnerResult
+
+    def get_asset_type_from_packages(self, packages, data_package):
+        for package in packages:
+            if package["name"] == data_package:
+                return package["asset_type"]
 
     def on_register_definition(self, event):
         '''Register definition coming from *event* and store them.'''

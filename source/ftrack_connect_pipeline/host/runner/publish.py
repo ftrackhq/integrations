@@ -9,9 +9,9 @@ from ftrack_connect_pipeline.host.runner import BaseRunner
 
 class PublisherRunner(BaseRunner):
 
-    def __init__(self, event_manager, host,  hostid):
+    def __init__(self, event_manager, host,  hostid, asset_type):
         '''Initialise publish runnder with *session*, *package_definitions*, *host*, *ui* and *hostid*.'''
-        super(PublisherRunner, self).__init__(event_manager, host,  hostid)
+        super(PublisherRunner, self).__init__(event_manager, host,  hostid, asset_type)
 
 
 
