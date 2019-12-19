@@ -80,12 +80,10 @@ class BaseRunner(object):
         statuses = []
         results = {}
         for plugin in context_plugins:
-            print "plugin['options']----> {}".format(plugin['options'])
             status, result = self._run_plugin(
                 plugin, constants.CONTEXTS,
                 context=plugin['options']
             )
-            print "result ---> {}".format(result)
             bool_status = constants.status_bool_mapping[status]
             statuses.append(bool_status)
             # rise error here if result is none
@@ -173,11 +171,14 @@ class BaseRunner(object):
             component_status, component_result = self.run_component(
                 component_name, component_stages, context_result
             )
+
             if not all(component_status.values()):
                 continue
 
             components_status.append(component_status)
             components_result.append(component_result)
+
+        print components_status, components_result
 
         finaliser_plugins = data[constants.FINALISERS]
 

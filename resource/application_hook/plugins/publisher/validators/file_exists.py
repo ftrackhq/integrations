@@ -8,9 +8,8 @@ class FileExistsValidatorPlugin(plugin.ValidatorPlugin):
     plugin_name = 'file_exists'
 
     def run(self, context=None, data=None, options=None):
-
-        self.logger.info('data: {}'.format(data))
-        return all(bool(os.path.exists(datum)) for datum in data)
+        result = all(bool(os.path.exists(datum)) for datum in data)
+        self.logger('result  : {}'.format(result))
 
 
 def register(api_object, **kw):
