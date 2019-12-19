@@ -9,8 +9,8 @@ class EnvContextPlugin(plugin.ContextPlugin):
     plugin_name = 'context.publish'
 
     def run(self, context=None, data=None, options=None):
-        os.environ['FTRACK_CONTEXT_ID'] = context['context_id']
-        os.environ['FTRACK_TASKID'] = context['context_id']
+        os.environ['FTRACK_CONTEXT_ID'] = options['context_id']
+        os.environ['FTRACK_TASKID'] = options['context_id']
         return context
 
 
