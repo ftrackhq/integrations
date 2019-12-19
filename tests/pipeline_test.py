@@ -29,7 +29,7 @@ def ready_callback(hosts):
     host = hosts[0]
     publisher = host.definitions['publishers'][0]
     print 'using publisher: ', publisher
-    publisher['components'][0]['stages'][0]['collectors'][0]['options']['path'] = "/test/path"
+    publisher['components'][0]['stages'][0]['plugins'][0]['options']['path'] = "/test/path"
     host.run(publisher)
 
 
