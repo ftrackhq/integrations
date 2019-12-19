@@ -86,7 +86,7 @@ class BaseRunner(object):
 
             bool_status = constants.status_bool_mapping[status]
             statuses.append(bool_status)
-
+            # rise error here if result is none
             results.update(result)
 
         return statuses, results
