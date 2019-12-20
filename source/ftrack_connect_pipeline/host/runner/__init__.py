@@ -45,7 +45,6 @@ class BaseRunner(object):
     def _run_plugin(self, plugin, plugin_type, options=None, data=None, context=None):
         '''Run *plugin*, *plugin_type*, with given *options*, *data* and *context*'''
         plugin_name = plugin['plugin']
-        print "running ---> {}".format(plugin_name)
 
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
@@ -69,7 +68,6 @@ class BaseRunner(object):
             event,
             synchronous=True
         )
-        # print "data ---> []".format(data)
         result = data[0]['result']
         status = data[0]['status']
 
@@ -159,7 +157,7 @@ class BaseRunner(object):
         context_status, context_result = self.run_context(context_plugins)
         if not all(context_status):
             return
-        context_result['asset_type'] = self.asset_type#data['package']['type']
+        context_result['asset_type'] = self.asset_type
 
         components = data[constants.COMPONENTS]
         components_result = []

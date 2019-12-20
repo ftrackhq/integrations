@@ -68,11 +68,6 @@ class Host(object):
         engine_runner = MyEngine(self.event_manager, self.host, self.hostid, asset_type)
         runnerResult = engine_runner.run(data)
 
-
-        '''if data['type'] == 'publisher':
-            publisher = PublisherRunner(self.event_manager, self.host,  self.hostid)
-            runnerResult = publisher.run(data) #this is true or false'''
-
         return runnerResult
 
     def get_asset_type_from_packages(self, packages, data_package):
@@ -142,7 +137,7 @@ class Host(object):
                 }
             }
         )
-
+        #TODO: Why is the remote mode comented here???
         self.event_manager.publish(
             event,
             self.on_register_definition,
