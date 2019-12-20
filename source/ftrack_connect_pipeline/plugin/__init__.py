@@ -171,6 +171,6 @@ class BasePlugin(object):
 from ftrack_connect_pipeline.plugin.load import *
 from ftrack_connect_pipeline.plugin.collector import *
 from ftrack_connect_pipeline.plugin.context import *
-from ftrack_connect_pipeline.plugin.finalizer import *
+from ftrack_connect_pipeline.plugin.finaliser import *
 from ftrack_connect_pipeline.plugin.output import *
 from ftrack_connect_pipeline.plugin.validator import *

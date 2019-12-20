@@ -46,6 +46,8 @@ class BaseRunner(object):
         '''Run *plugin*, *plugin_type*, with given *options*, *data* and *context*'''
         plugin_name = plugin['plugin']
 
+        self._notify_client(None, plugin, constants.RUNNING_STATUS)
+
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
             data={
@@ -70,8 +72,38 @@ class BaseRunner(object):
         )
         result = data[0]['result']
         status = data[0]['status']
+        message = data[0]['message']
+
+        self._notify_client(result, plugin, status, message)
 
         return status, result
+
+    def _notify_client(self, data, plugin, status, message=None):
+        '''Notify client with *data* for *plugin*'''
+        # self.logger.info('plugin: {} \n status: {} \n '
+        #                   'result: {} \n message: {}'.format(plugin['plugin'], status, data, message))
+
+        #widget_ref = plugin['widget_ref']
+
+        pipeline_data = {
+            'hostid': self.hostid,
+            #'widget_ref': widget_ref,
+            'data': data,
+            'status': status,
+            'message': message
+        }
+
+        event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_CLIENT_NOTIFICATION, #PIPELINE_UPDATE_UI
+            data={
+                'pipeline': pipeline_data
+            }
+        )
+
+        self.event_manager.publish(
+            event,
+            #remote= constants.REMOTE_EVENT_MODE
+        )
 
     def run_context(self, context_plugins):
         '''Run *context_pligins*.'''

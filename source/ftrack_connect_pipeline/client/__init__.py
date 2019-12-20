@@ -30,11 +30,18 @@ class HostConnection(object):
         return self.__hash__() == other.__hash__()
 
     def __init__(self, event_manager, host_data):
+        self.logger = logging.getLogger(
+            '{0}.{1}'.format(__name__, self.__class__.__name__)
+        )
+
         copy_data = copy.deepcopy(host_data)
 
         self.session = event_manager.session
         self._event_manager = event_manager
         self._raw_host_data = copy_data
+
+        self.on_client_notification()
+
     #     definitions = copy_data['definitions']
     #     self._schemas = definitions.pop('schemas')
     #
@@ -75,6 +82,32 @@ class HostConnection(object):
         self._event_manager.publish(
             event,
             # mode=constants.REMOTE_EVENT_MODE
+        )
+
+    def _notify_client(self, event):
+        '''*event* callback to update widget with the current status/value'''
+        data = event['data']['pipeline']['data']
+        #widget_ref = event['data']['pipeline']['widget_ref']
+        status = event['data']['pipeline']['status']
+        message = event['data']['pipeline']['message']
+
+        if data:
+            self.logger.info('status: {} \n result: {} \n message: {}'.format(status, data, message))
+
+        # widget = self.widgets.get(widget_ref)
+        # if not widget:
+        #     self.logger.warning('Widget ref :{} not found ! '.format(widget_ref))
+        #     return
+        #
+        # self.logger.debug('updating widget: {} with {}'.format(widget, data))
+
+        # widget.set_status(status, message)
+
+    def on_client_notification(self):
+        self.session.event_hub.subscribe(
+            'topic={} and data.pipeline.hostid={}'.format(constants.PIPELINE_CLIENT_NOTIFICATION,
+                                                          self._raw_host_data['host_id']),
+            self._notify_client
         )
 
 
@@ -159,3 +192,28 @@ class Client(object):
     def on_ready(self, callback, time_out=3):
         self.__callback = callback
         self.discover_hosts(time_out=time_out)
+
+    ##############
+
+    # def _notify_client(self, event):
+    #     '''*event* callback to update widget with the current status/value'''
+    #     data = event['data']['pipeline']['data']
+    #     widget_ref = event['data']['pipeline']['widget_ref']
+    #     status = event['data']['pipeline']['status']
+    #     message = event['data']['pipeline']['message']
+    #
+    #     widget = self.widgets.get(widget_ref)
+    #     if not widget:
+    #         self.logger.warning('Widget ref :{} not found ! '.format(widget_ref))
+    #         return
+    #
+    #     self.logger.debug('updating widget: {} with {}'.format(widget, data))
+    #
+    #     widget.set_status(status, message)
+    #
+    # def on_client_notification(self):
+    #     self.session.event_hub.subscribe(
+    #         'topic={} and data.pipeline.hostid={}'.format(constants.PIPELINE_CLIENT_NOTIFICATION, self.hostid),
+    #         self._notify_client
+    #     )
+

@@ -29,6 +29,7 @@ PIPELINE_REGISTER_SCHEMA_TOPIC = '{}.register.schema'.format(_BASE_)
 
 PIPELINE_HOST_RUN = '{}.host.run'.format(_BASE_)
 PIPELINE_UPDATE_UI = '{}.client.update'.format(_BASE_)
+PIPELINE_CLIENT_NOTIFICATION = '{}.client.notification'.format(_BASE_)
 PIPELINE_DISCOVER_HOST = '{}.host.discover'.format(_BASE_)
 PIPELINE_CONNECT_CLIENT = '{}.client.connect'.format(_BASE_)
 
@@ -39,5 +40,4 @@ from ftrack_connect_pipeline.constants.publish import *
 from ftrack_connect_pipeline.constants.environments import *
 from ftrack_connect_pipeline.constants.event import *
 from ftrack_connect_pipeline.constants.status import *
-#from ftrack_connect_pipeline.constants.icons import *
 from ftrack_connect_pipeline.constants.schema import *
