@@ -5,8 +5,6 @@ import uuid
 import ftrack_api
 import logging
 
-from ftrack_connect_pipeline.host.definition import DefintionManager
-#from ftrack_connect_pipeline.host.runner.publish import PublisherRunner
 from ftrack_connect_pipeline.host import runner
 from ftrack_connect_pipeline.host import validation
 from ftrack_connect_pipeline import constants, utils
@@ -111,7 +109,7 @@ class Host(object):
     def validate(self, data):
         # plugin Validation
 
-        plugin_validator = validation.PluginValidation(self.session, self.host)
+        plugin_validator = validation.PluginDiscoverValidation(self.session, self.host)
 
         invalid_publishers_idxs = plugin_validator.validate_publishers_plugins(data['publishers'])
         if invalid_publishers_idxs:

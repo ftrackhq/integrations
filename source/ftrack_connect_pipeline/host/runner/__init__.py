@@ -79,7 +79,7 @@ class BaseRunner(object):
         results = {}
         for plugin in context_plugins:
             status, result = self._run_plugin(
-                plugin, constants.CONTEXTS,
+                plugin, constants.PLUGIN_CONTEXT_TYPE,
                 context=plugin['options']
             )
             bool_status = constants.status_bool_mapping[status]
@@ -140,7 +140,7 @@ class BaseRunner(object):
 
         for plugin in finaliser_plugins:
             status, result = self._run_plugin(
-                plugin, constants.FINALISERS,
+                plugin, constants.PLUGIN_FINALISER_TYPE,
                 data=finaliser_data,
                 options=plugin['options'],
                 context=context_data
@@ -176,7 +176,12 @@ class BaseRunner(object):
             components_status.append(component_status)
             components_result.append(component_result)
 
-        print components_status, components_result
+        print "components_status --> {}, components_result -->{}".format(components_status, components_result)
+
+        #TODO: add check if any components_status is false, do not continue, rise an error
+        # components_status = [{'output': True, 'validator': True, 'collector': True}]
+        # compoentens_result = [{'output': [{u'main': '/Users/lluisftrack/Desktop/file_to_publish.txt'}],
+        #                       'validator': [True], 'collector': ['/Users/lluisftrack/Desktop/file_to_publish.txt']}]
 
         finaliser_plugins = data[constants.FINALISERS]
 

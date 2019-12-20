@@ -9,6 +9,13 @@ _BASE_ = 'ftrack.pipeline'
 
 # Common stages.
 CONTEXTS = 'contexts'
+FINALISERS = 'finalisers'
+COMPONENTS = 'components'
+
+# component stages.
+COLLECTOR = 'collector'
+VALIDATOR = 'validator'
+OUTPUT = 'output'
 
 # External events.
 PIPELINE_REGISTER_TOPIC = '{}.register'.format(_BASE_)
@@ -26,6 +33,7 @@ PIPELINE_DISCOVER_HOST = '{}.host.discover'.format(_BASE_)
 PIPELINE_CONNECT_CLIENT = '{}.client.connect'.format(_BASE_)
 
 # Avoid circular dependencies.
+from ftrack_connect_pipeline.constants.plugin import *
 from ftrack_connect_pipeline.constants.load import *
 from ftrack_connect_pipeline.constants.publish import *
 from ftrack_connect_pipeline.constants.environments import *

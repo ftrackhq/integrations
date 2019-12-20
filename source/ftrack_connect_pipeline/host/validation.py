@@ -22,10 +22,10 @@ def validate_schema(schemas, definition):
     _validate_jsonschema(definition, schema)
 
 
-class PluginValidation(object):
+class PluginDiscoverValidation(object):
 
     def __init__(self, session, host):
-        super(PluginValidation, self).__init__()
+        super(PluginDiscoverValidation, self).__init__()
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -71,10 +71,10 @@ class PluginValidation(object):
     def vaildate_contexts_plugins(self, plugin_list, definition_name):
         is_valid = True
         for context_plugin in plugin_list:
-            if not self._discover_plugin(context_plugin, constants.CONTEXTS):
+            if not self._discover_plugin(context_plugin, constants.PLUGIN_CONTEXT_TYPE):
                 is_valid = False
                 self.logger.warning('Could not discover plugin {} for {} in {}'.format(
-                    context_plugin['plugin'], constants.CONTEXTS, definition_name))
+                    context_plugin['plugin'], constants.PLUGIN_CONTEXT_TYPE, definition_name))
         return is_valid
 
     def validate_components_plugins(self, components_list, definition_name):
@@ -93,10 +93,10 @@ class PluginValidation(object):
     def vaildate_finalisers_plugins(self, plugin_list, definition_name):
         is_valid = True
         for publisher_plugin in plugin_list:
-            if not self._discover_plugin(publisher_plugin, constants.FINALISERS):
+            if not self._discover_plugin(publisher_plugin, constants.PLUGIN_FINALISER_TYPE):
                 is_valid = False
                 self.logger.warning('Could not discover plugin {} for {} in {}'.format(
-                    publisher_plugin['plugin'], constants.FINALISERS, definition_name))
+                    publisher_plugin['plugin'], constants.PLUGIN_FINALISER_TYPE, definition_name))
         return is_valid
 
     def _discover_plugin(self, plugin, plugin_type):
