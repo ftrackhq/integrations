@@ -8,6 +8,8 @@ Release Notes
 *************
 
 .. release:: Upcoming
+    ..change:: changed
+        Moved from Qt Webkit to Qt WebEngine for Qt 5.12 / RV 7.5+
 
     ..change:: changed
         :tags: Setup

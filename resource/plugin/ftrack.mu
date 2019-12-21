@@ -19,14 +19,12 @@ class: FtrackMode : MinorMode
     QWidget        _baseNavigationWidget;
     QWidget        _baseActionWidget;
 
-    QWebView       _webNavigationWidget;
-    QWebView       _webActionWidget;
-
+    QWebEngineView       _webNavigationWidget;
+    QWebEngineView       _webActionWidget;
 
     QWidget         _titleNavigationWidget;
     QWidget         _titleActionWidget;
 
-    QNetworkAccessManager _networkAccessManager;
     bool           _firstRender;
     bool           _isHidden;
     bool           _debug;
@@ -113,7 +111,7 @@ class: FtrackMode : MinorMode
         verticalLayout.setContentsMargins(4, 4, 4, 4);
         verticalLayout.setObjectName("verticalLayout");
 
-        let webView = QWebView(Form);
+        let webView = QWebEngineView(Form);
         webView.setObjectName("webView");
         verticalLayout.addWidget(webView);
         return Form;
@@ -205,8 +203,8 @@ class: FtrackMode : MinorMode
     method: shutdown (void; Event event)
     {
         event.reject();
-        if (_webNavigationWidget neq nil) _webNavigationWidget.page().mainFrame().setHtml("", qt.QUrl());
-        if (_webActionWidget neq nil) _webActionWidget.page().mainFrame().setHtml("", qt.QUrl());
+        if (_webNavigationWidget neq nil) _webNavigationWidget.page().setHtml("", qt.QUrl());
+        if (_webActionWidget neq nil) _webActionWidget.page().setHtml("", qt.QUrl());
         
     }
     
@@ -236,7 +234,6 @@ class: FtrackMode : MinorMode
              }
         });
         commands.sendInternalEvent("key-down--`");
-        _networkAccessManager = QNetworkAccessManager(mainWindowWidget());
         _drawOnEmpty  = true;
         _firstRender  = true;
         
@@ -270,12 +267,11 @@ class: FtrackMode : MinorMode
             _baseActionWidget = makeit();
             
             _webActionWidget = _baseActionWidget.findChild("webView");
-            connect(_webNavigationWidget, QWebView.loadFinished, viewLoaded(_baseActionWidget,));
+            connect(_webNavigationWidget, QWebEngineView.loadFinished, viewLoaded(_baseActionWidget,));
 
-            _webActionWidget.page().setNetworkAccessManager(_networkAccessManager);
             _webActionWidget.load(QUrl(url));
 
-            javascriptMuExport(_webActionWidget.page().mainFrame());
+            javascriptMuExport(_webActionWidget.page());
 
             _dockActionWidget.setWidget(_baseActionWidget);
 
@@ -351,13 +347,11 @@ class: FtrackMode : MinorMode
         _baseNavigationWidget = makeit();
         
         _webNavigationWidget     = _baseNavigationWidget.findChild("webView");
-        connect(_webNavigationWidget, QWebView.loadFinished, viewLoaded(_baseNavigationWidget,));
-
-        _webNavigationWidget.page().setNetworkAccessManager(_networkAccessManager);
+        connect(_webNavigationWidget, QWebEngineView.loadFinished, viewLoaded(_baseNavigationWidget,));
 
         _webNavigationWidget.load(QUrl(url));
 
-        javascriptMuExport(_webNavigationWidget.page().mainFrame());
+        javascriptMuExport(_webNavigationWidget.page());
 
         _dockNavigationWidget.setWidget(_baseNavigationWidget);
 
@@ -388,7 +382,7 @@ class: FtrackMode : MinorMode
     {
         
         try {
-            _webNavigationWidget.page().mainFrame().evaluateJavaScript("FT.updateFtrack(\"" + event.contents() + "\")");
+            _webNavigationWidget.page().runJavaScript("FT.updateFtrack(\"" + event.contents() + "\")");
         }
         catch (...)
         {
@@ -396,7 +390,7 @@ class: FtrackMode : MinorMode
         }
 
         try {
-            _webActionWidget.page().mainFrame().evaluateJavaScript("FT.updateFtrack(\"" + event.contents() + "\")");
+            _webActionWidget.page().runJavaScript("FT.updateFtrack(\"" + event.contents() + "\")");
         }
         catch (...)
         {
@@ -414,7 +408,7 @@ class: FtrackMode : MinorMode
             string data_string = "{\"type\":\"changedGroup\",\"index\":\"" + _currentSource + "\"}";
             byte[] data = encoding.string_to_utf8 (data_string);
             data = encoding.to_base64 ( data ); 
-            _webNavigationWidget.page().mainFrame().evaluateJavaScript("FT.updateFtrack(\"" + encoding.utf8_to_string( data ) + "\")");
+            _webNavigationWidget.page().runJavaScript("FT.updateFtrack(\"" + encoding.utf8_to_string( data ) + "\")");
         }
         
         
@@ -466,7 +460,7 @@ class: FtrackMode : MinorMode
         string data_string = "{\"type\":\"uploadCount\",\"count\":\"" + count + "\"}";
         byte[] data = encoding.string_to_utf8 (data_string);
         data = encoding.to_base64 ( data ); 
-        _webActionWidget.page().mainFrame().evaluateJavaScript("FT.updateFtrack(\"" + encoding.utf8_to_string( data ) + "\")");
+        _webActionWidget.page().runJavaScript("FT.updateFtrack(\"" + encoding.utf8_to_string( data ) + "\")");
     }    
 
     method: ftrackExportAll (void; Event event) {
@@ -556,7 +550,7 @@ class: FtrackMode : MinorMode
     method: _update_ftrack(void; string data_string) {
         byte[] data = encoding.string_to_utf8(data_string);
         data = encoding.to_base64(data);
-        _webActionWidget.page().mainFrame().evaluateJavaScript("FT.updateFtrack(\"" + encoding.utf8_to_string( data ) + "\")");
+        _webActionWidget.page().runJavaScript("FT.updateFtrack(\"" + encoding.utf8_to_string( data ) + "\")");
     }
 }
 
