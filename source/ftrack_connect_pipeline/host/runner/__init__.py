@@ -25,11 +25,6 @@ class BaseRunner(object):
     def __init__(self, event_manager, host,  hostid, asset_type):
         '''Initialise publish runnder with *session*, *package_definitions*, *host*, *ui* and *hostid*.'''
         super(BaseRunner, self).__init__()
-        self.component_stages_order = [
-            constants.COLLECTOR,
-            constants.VALIDATOR,
-            constants.OUTPUT
-        ]
 
         self.asset_type = asset_type
         self.session = event_manager.session
@@ -121,13 +116,13 @@ class BaseRunner(object):
 
         return statuses, results
 
-    def run_component(self, component_name, component_stages, context_data):
+    def run_component(self, component_name, component_stages, context_data, stages_order):
         '''Run component plugins for *component_name*, *component_stages* with *context_data*.'''
         results = {}
         statuses = {}
 
         for component_stage in component_stages:
-            for stage_name in self.component_stages_order:
+            for stage_name in stages_order:
                 if stage_name != component_stage['name']:
                     continue
 
@@ -199,7 +194,7 @@ class BaseRunner(object):
             component_name = component["name"]
             component_stages = component["stages"]
             component_status, component_result = self.run_component(
-                component_name, component_stages, context_result
+                component_name, component_stages, context_result, data['_config']['stage_order']
             )
 
             if not all(component_status.values()):
@@ -208,12 +203,12 @@ class BaseRunner(object):
             components_status.append(component_status)
             components_result.append(component_result)
 
-        print "components_status --> {}, components_result -->{}".format(components_status, components_result)
+        #print "components_status --> {}, components_result -->{}".format(components_status, components_result)
 
-        #TODO: add check if any components_status is false, do not continue, rise an error
-        # components_status = [{'output': True, 'validator': True, 'collector': True}]
-        # compoentens_result = [{'output': [{u'main': '/Users/lluisftrack/Desktop/file_to_publish.txt'}],
-        #                       'validator': [True], 'collector': ['/Users/lluisftrack/Desktop/file_to_publish.txt']}]
+        for component_status in components_status:
+            for k, v in component_status.items():
+                if v == False:
+                    return False
 
         finaliser_plugins = data[constants.FINALISERS]
 

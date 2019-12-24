@@ -66,6 +66,9 @@ class Host(object):
         engine_runner = MyEngine(self.event_manager, self.host, self.hostid, asset_type)
         runnerResult = engine_runner.run(data)
 
+        if runnerResult == False:
+            self.logger.error("Couldn't publish the data {}".format(data))
+
         return runnerResult
 
     def get_asset_type_from_packages(self, packages, data_package):
