@@ -15,8 +15,6 @@ class BasePlugin(object):
     type = 'plugin'#None
     host = constants.HOST
 
-    #ui = constants.UI #No needed for now
-
     return_type = None
     return_value = None
     input_options = []
@@ -109,12 +107,6 @@ class BasePlugin(object):
         '''Function that executes the plugin used by the runner, called by the PIPELINE_RUN_PLUGIN_TOPIC.
         returns a dictionary with the status, result and message of the execution'''
 
-        #TODO: what event['target'] is expected to be used for?
-        # and the same whith event['in_reply_to_event'] and event['sent']
-
-        #print "we are _running the plugin, event ---> {}".format(event)
-
-
         plugin_settings = event['data']['settings']
 
         plugin_validator = PluginValidation(self.plugin_name, self.input_options, self.output_options, self.return_type,
@@ -129,7 +121,7 @@ class BasePlugin(object):
         start_time = time.time()
         try:
             result = self.run(**plugin_settings)
-            #print "this is the reurning data of the plugin {} ---> {}".format(self.plugin_name, result)
+
         except Exception as message:
             end_time = time.time()
             total_time = end_time - start_time
@@ -138,7 +130,10 @@ class BasePlugin(object):
         end_time = time.time()
         total_time = end_time - start_time
 
-        # TODO we should change the validation order: validate result_type, validate result_value, validate result_options
+        # TODO check validation order maybe should be changed:
+        #  validate result_type,
+        #  validate result_value,
+        #  validate result_options
 
         # validate result with output options
         output_valid, output_valid_message = plugin_validator.validate_result_options(result)

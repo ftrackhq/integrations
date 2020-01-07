@@ -5,7 +5,7 @@ import uuid
 import ftrack_api
 import logging
 
-from ftrack_connect_pipeline.host import runner
+from ftrack_connect_pipeline.host import engine
 from ftrack_connect_pipeline.host import validation
 from ftrack_connect_pipeline import constants, utils
 
@@ -51,7 +51,6 @@ class Host(object):
         self.register()
 
     def run(self, event):
-        # self.logger.info('HOST RUN {}'.format(event['data']))
         data = event['data']['pipeline']['data']
 
         try:
@@ -61,8 +60,8 @@ class Host(object):
             return False
 
         asset_type = self.get_asset_type_from_packages(self.__registry['packages'], data['package'])
-        engine = data['_config']['engine']
-        MyEngine = runner.getEngine(runner.BaseRunner, engine)
+        schema_engine = data['_config']['engine']
+        MyEngine = engine.getEngine(engine.BaseEngine, schema_engine)
         engine_runner = MyEngine(self.event_manager, self.host, self.hostid, asset_type)
         runnerResult = engine_runner.run(data)
 
@@ -110,7 +109,6 @@ class Host(object):
         self.logger.info('host {} ready.'.format(self.hostid))
 
     def validate(self, data):
-        # plugin Validation
 
         plugin_validator = validation.PluginDiscoverValidation(self.session, self.host)
 
@@ -138,11 +136,10 @@ class Host(object):
                 }
             }
         )
-        #TODO: Why is the remote mode comented here???
+
         self.event_manager.publish(
             event,
-            self.on_register_definition,
-            # mode=constants.REMOTE_EVENT_MODE
+            self.on_register_definition
         )
 
 

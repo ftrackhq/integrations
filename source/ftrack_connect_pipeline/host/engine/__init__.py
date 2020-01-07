@@ -5,12 +5,12 @@ import logging
 import ftrack_api
 from ftrack_connect_pipeline import constants
 
-def getEngine(baseClass, runnerType):
+def getEngine(baseClass, engineType):
     for subclass in baseClass.__subclasses__():
-        if runnerType == subclass.__name__:
+        if engineType == subclass.__name__:
             return subclass
 
-class BaseRunner(object):
+class BaseEngine(object):
 
     @property
     def hostid(self):
@@ -24,7 +24,7 @@ class BaseRunner(object):
 
     def __init__(self, event_manager, host,  hostid, asset_type):
         '''Initialise publish runnder with *session*, *package_definitions*, *host*, *ui* and *hostid*.'''
-        super(BaseRunner, self).__init__()
+        super(BaseEngine, self).__init__()
 
         self.asset_type = asset_type
         self.session = event_manager.session
@@ -75,21 +75,16 @@ class BaseRunner(object):
 
     def _notify_client(self, data, plugin, status, message=None):
         '''Notify client with *data* for *plugin*'''
-        # self.logger.info('plugin: {} \n status: {} \n '
-        #                   'result: {} \n message: {}'.format(plugin['plugin'], status, data, message))
-
-        #widget_ref = plugin['widget_ref']
 
         pipeline_data = {
             'hostid': self.hostid,
-            #'widget_ref': widget_ref,
             'data': data,
             'status': status,
             'message': message
         }
 
         event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_CLIENT_NOTIFICATION, #PIPELINE_UPDATE_UI
+            topic=constants.PIPELINE_CLIENT_NOTIFICATION,
             data={
                 'pipeline': pipeline_data
             }
@@ -97,7 +92,6 @@ class BaseRunner(object):
 
         self.event_manager.publish(
             event,
-            #remote= constants.REMOTE_EVENT_MODE
         )
 
     def run_context(self, context_plugins):
@@ -111,7 +105,7 @@ class BaseRunner(object):
             )
             bool_status = constants.status_bool_mapping[status]
             statuses.append(bool_status)
-            # rise error here if result is none
+            # TODO: raise and error if result is None
             results.update(result)
 
         return statuses, results
@@ -203,8 +197,6 @@ class BaseRunner(object):
             components_status.append(component_status)
             components_result.append(component_result)
 
-        #print "components_status --> {}, components_result -->{}".format(components_status, components_result)
-
         for component_status in components_status:
             for k, v in component_status.items():
                 if v == False:
@@ -229,5 +221,5 @@ class BaseRunner(object):
 
         return True
 
-from ftrack_connect_pipeline.host.runner.publish import *
-from ftrack_connect_pipeline.host.runner.load import *
+from ftrack_connect_pipeline.host.engine.publish import *
+from ftrack_connect_pipeline.host.engine.load import *
