@@ -5,7 +5,7 @@ import os
 from ftrack_connect_pipeline import plugin
 
 
-class FtrackPublishPlugin(plugin.PublisherPlugin):
+class FtrackPublishPlugin(plugin.FinaliserPlugin):
     plugin_name = 'result'
 
     def __init__(self, session):

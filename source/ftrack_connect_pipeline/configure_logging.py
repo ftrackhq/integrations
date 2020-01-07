@@ -44,7 +44,7 @@ def configure_logging(logger_name, level=None, format=None, extra_modules=None):
 
     # Provide default values for level and format.
     format = format or '%(levelname)s - %(threadName)s - %(asctime)s - %(name)s - %(message)s'
-    level = level or logging.WARNING
+    level = level or logging.INFO
 
     log_directory = get_log_directory()
     logfile = os.path.join(

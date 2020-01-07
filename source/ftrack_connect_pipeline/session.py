@@ -26,12 +26,11 @@ def get_shared_session(plugin_paths=None):
             auto_connect_event_hub=False,
             plugin_paths=plugin_paths
         )
+        logger.info('creating new session {}'.format(_shared_session))
 
-        # If is not already connected, connect to event hub.
-        if not _shared_session.event_hub.connected:
-            logger.debug('connecting to event hub')
-            _shared_session.event_hub.connect()
-
-        logger.debug('creating new session {}'.format(_shared_session))
+    # If is not already connected, connect to event hub.
+    if not _shared_session.event_hub.connected:
+        logger.info('connecting to event hub')
+        _shared_session.event_hub.connect()
 
     return _shared_session

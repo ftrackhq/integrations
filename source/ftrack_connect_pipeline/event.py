@@ -5,10 +5,8 @@ import threading
 
 import logging
 import ftrack_api
-
+from ftrack_connect_pipeline import session, constants
 logger = logging.getLogger(__name__)
-
-from Qt import QtCore
 
 
 class _EventThread(threading.Thread):
@@ -48,18 +46,23 @@ class _EventThread(threading.Thread):
 
 class EventManager(object):
     '''Manages the events handling.'''
-    def __init__(self, session):
+    def __init__(self, session, mode=constants.LOCAL_EVENT_MODE):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+        self.mode = mode
         self.session = session
+        self._event_hub_thread = _EventHubThread()
+        self._event_hub_thread.start(self.session)
 
-    def publish(self, event, callback=None, remote=False):
+    def publish(self, event, callback=None, mode=None):
         '''Emit *event* and provide *callback* function.'''
 
-        if not remote:
+        mode = mode or self.mode
+        if mode is constants.LOCAL_EVENT_MODE:
             event_thread = _EventThread(self.session, event, callback)
             event_thread.start()
+            event_thread.join()
 
         else:
             self.session.event_hub.publish(
@@ -67,12 +70,20 @@ class EventManager(object):
                 on_reply=callback
             )
 
+    def subscribe(self, topic, callback):
+        self.session.event_hub.subscribe(
+            'topic={}'.format(
+                topic
+            ),
+            callback
+        )
 
-class NewApiEventHubThread(QtCore.QThread):
+
+class _EventHubThread(threading.Thread):
     '''Listen for events from ftrack's event hub.'''
 
-    def __init__(self, parent=None):
-        super(NewApiEventHubThread, self).__init__(parent=parent)
+    def __init__(self):
+        super(_EventHubThread, self).__init__()
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
@@ -80,10 +91,10 @@ class NewApiEventHubThread(QtCore.QThread):
     def start(self, session):
         '''Start thread for *_session*.'''
         self._session = session
-        self.logger.debug('Starting event hub thread.')
-        super(NewApiEventHubThread, self).start()
+        self.logger.info('Starting event hub thread.')
+        super(_EventHubThread, self).start()
 
     def run(self):
         '''Listen for events.'''
-        self.logger.debug('Event hub thread started.')
+        self.logger.info('Event hub thread started.')
         self._session.event_hub.wait()

@@ -1,338 +1,183 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
+import time
 import logging
-import uuid
-
-# from ftrack_connect.ui import theme
-from Qt import QtCore, QtWidgets
+import copy
 import ftrack_api
+import python_jsonschema_objects as pjo
 
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline import event
-from ftrack_connect_pipeline import utils
-from ftrack_connect_pipeline.client.widgets import BaseWidget
-from ftrack_connect_pipeline.session import get_shared_session
-from ftrack_connect_pipeline.ui.widget import header
 
 
-class BaseQtPipelineWidget(QtWidgets.QWidget):
+class HostConnection(object):
+
+    @property
+    def definitions(self):
+        return self._raw_host_data['definitions']
+
+    @property
+    def id(self):
+        return self._raw_host_data['host_id']
+
+    def __repr__(self):
+        return '<HostConnection: {}>'.format(self.id)
+
+    def __hash__(self):
+        return hash(self.id)
+
+    def __eq__(self, other):
+        return self.__hash__() == other.__hash__()
+
+    def __init__(self, event_manager, host_data):
+        self.logger = logging.getLogger(
+            '{0}.{1}'.format(__name__, self.__class__.__name__)
+        )
+
+        copy_data = copy.deepcopy(host_data)
+
+        self.session = event_manager.session
+        self._event_manager = event_manager
+        self._raw_host_data = copy_data
+
+        self.on_client_notification()
+
+    #     definitions = copy_data['definitions']
+    #     self._schemas = definitions.pop('schemas')
+    #
+    #     objects = self.build_entity_classes(definitions)
+    #     for key, value in objects.items():
+    #         self.__dict__[key] = value
+    #
+    # def build_entity_classes(self, data):
+    #     objects = {}
+    #     for key, value in data.items():
+    #         objects.setdefault(key, [])
+    #         for schema in self._schemas:
+    #             if key.lower() in schema['title'].lower():
+    #                 print 'building schema', schema['title']
+    #                 builder = pjo.ObjectBuilder(schema)
+    #                 classes = builder.build_classes(standardize_names=False)
+    #                 ClassType = getattr(classes, schema['title'])
+    #                 for item in value:
+    #                     print 'building {} for {}'.format(schema['title'] , item['name'])
+    #
+    #                     objects[key].append(ClassType(**item))
+    #     return objects
+
+    def run(self, data):
+        # if isinstance(data, object):
+        #     data = data.serialize()
+
+        '''Send *data* to the host through the given *topic*.'''
+        event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_HOST_RUN,
+            data={
+                'pipeline': {
+                    'host_id': self.id,
+                    'data': data,
+                }
+            }
+        )
+        self._event_manager.publish(
+            event,
+            # mode=constants.REMOTE_EVENT_MODE
+        )
+
+    def _notify_client(self, event):
+        '''*event* callback to update widget with the current status/value'''
+        data = event['data']['pipeline']['data']
+        status = event['data']['pipeline']['status']
+        message = event['data']['pipeline']['message']
+
+        if data:
+            self.logger.info('status: {} \n result: {} \n message: {}'.format(status, data, message))
+
+    def on_client_notification(self):
+        self.session.event_hub.subscribe(
+            'topic={} and data.pipeline.hostid={}'.format(constants.PIPELINE_CLIENT_NOTIFICATION,
+                                                          self._raw_host_data['host_id']),
+            self._notify_client
+        )
+
+
+class Client(object):
     '''
     Base client widget class.
     '''
 
-    hostid_changed = QtCore.Signal()
+    @property
+    def connected(self):
+        return self._connected
 
     @property
-    def context(self):
-        return self._context
-
-    @property
-    def packages(self):
-        return self._packages
-
-    @property
-    def schema(self):
-        return self._current
-
-    @property
-    def widgets(self):
-        '''Return registered plugin's widgets.'''
-        return self._widgets_ref
-
-    @property
-    def hostid(self):
-        '''Return the current hostid.'''
-        return self._hostid
-
-    @property
-    def host(self):
-        '''Return the current host type.'''
-        return self._host
-
-    @property
-    def ui(self):
+    def hosts(self):
         '''Return the current ui type.'''
-        return self._ui
+        return self._host_list
 
-    def __init__(self, ui, host, hostid=None, parent=None):
+    def __init__(self, event_manager, ui):
         '''Initialise widget with *ui* , *host* and *hostid*.'''
-        super(BaseQtPipelineWidget, self).__init__(parent=parent)
-        self._context = {}
         self._packages = {}
         self._current = {}
-        self._widgets_ref = {}
         self._ui = ui
-        self._host = host
-        self._hostid = hostid
+        self._host_list = []
+        self._connected = False
 
-        self._remote_events = utils.remote_event_mode()
-
+        self.__callback = None
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+        self.event_manager = event_manager
+        self.session = event_manager.session
 
-        self.session = get_shared_session()
-        self.event_manager = event.EventManager(self.session)
-        self.event_thread = event.NewApiEventHubThread()
-        self.event_thread.start(self.session)
+    def discover_hosts(self, time_out=3):
+        # discovery host loop and timeout.
+        start_time = time.time()
+        self.logger.info('time out set to {}:'.format(time_out))
+        if not time_out:
+            self.logger.warning(
+                'Running client with no time out.'
+                'Will not stop until discover a host.'
+                'Terminate with: Ctrl-C'
+            )
 
-        self.pre_build()
-        self.build()
-        self.post_build()
-        self.fetch_package_definitions()
+        while not self.hosts:
+            delta_time = time.time() - start_time
 
-        if not self.hostid:
-            self.discover_hosts()
-        else:
-            context_id = utils.get_current_context()
-            self._context = self.session.get('Context', context_id)
+            if time_out and delta_time >= time_out:
+                self.logger.warning('Could not discover any host.')
+                break
 
-        # apply styles
-        # theme.applyTheme(self, 'dark')
-        # theme.applyFont()
+            self._discover_hosts()
 
-    def fetch_package_definitions(self):
-        self._fetch_defintions('package', self._packages_loaded)
+        if self.__callback and self.hosts:
+            self.__callback(self.hosts)
 
-    def _packages_loaded(self, event):
-        '''event callback for when the publishers are loaded.'''
-        raw_data = event['data']
-
-        for item_name, item in raw_data.items():
-            self._packages[item_name] = item
-
-    def get_registered_widget_plugin(self, plugin):
-        '''return the widget registered for the given *plugin*.'''
-        return self._widgets_ref[plugin['widget_ref']]
-
-    def register_widget_plugin(self, widget, plugin):
-        '''regiter the *widget* against the given *plugin*'''
-        uid = uuid.uuid4().hex
-        self._widgets_ref[uid] = widget
-        plugin['widget_ref'] = uid
-
-        return uid
-
-    def _fetch_defintions(self, definition_type, callback):
-        '''Helper to retrieve defintion for *definition_type* and *callback*.'''
-        publisher_event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_REGISTER_DEFINITION_TOPIC,
-            data={
-                'pipeline': {
-                    'type': definition_type,
-                    'hostid': self.hostid
-                }
-            }
-        )
-        self.event_manager.publish(
-            publisher_event,
-            callback=callback,
-            remote=self._remote_events
-        )
-
-    def on_change_host(self, index):
-        '''triggered when chaging host selection to *index*'''
-        results = self.combo_hosts.itemData(index)
-        if not results:
-            return
-
-        hostid, context_id = results
-        self._context = self.session.get('Context', context_id)
-        self._hostid = hostid
-        self.hostid_changed.emit()
-
-        # notify host we are connected
-        hook_host_event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_CONNECT_CLIENT,
-            data={
-                'pipeline': {'hostid': hostid}
-            }
-        )
-
-        self.event_manager.publish(
-            hook_host_event,
-            remote=self._remote_events
-        )
+        return self.hosts
 
     def _host_discovered(self, event):
         '''callback to to add new hosts *event*.'''
-        self.logger.debug('_host_discovered : {}'.format(event['data']))
-        hostid = str(event['data']['hostid'])
-        context_id = str(event['data']['context_id'])
-        self.combo_hosts.addItem(hostid, (hostid, context_id))
+        if not event['data']:
+            return
 
-    def discover_hosts(self):
+        host_connection = HostConnection(self.event_manager, event['data'])
+        if host_connection not in self.hosts:
+            self._host_list.append(host_connection)
+
+        self._connected = True
+
+    def _discover_hosts(self):
         '''Event to discover new available hosts.'''
+        self._host_list = []
         discover_event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_DISCOVER_HOST
         )
 
         self.event_manager.publish(
             discover_event,
-            callback=self._host_discovered,
-            remote=self._remote_events
+            callback=self._host_discovered
         )
 
-    def resetLayout(self, layout):
-        '''Reset layout and delete widgets.'''
-        self._widgets_ref = {}
-        if layout is not None:
-            while layout.count():
-                item = layout.takeAt(0)
-                widget = item.widget()
-                if widget is not None:
-                    widget.deleteLater()
-                else:
-                    self.resetLayout(item.layout())
-
-    def pre_build(self):
-        '''Prepare general layout.'''
-        layout = QtWidgets.QVBoxLayout()
-        self.setLayout(layout)
-
-        self.combo_hosts = QtWidgets.QComboBox()
-        self.layout().addWidget(self.combo_hosts)
-        self.combo_hosts.addItem('- Select host -')
-
-        if self.hostid:
-            self.combo_hosts.setVisible(False)
-
-        self.header = header.Header(self.session)
-        self.layout().addWidget(self.header)
-        self.combo = QtWidgets.QComboBox()
-        self.layout().addWidget(self.combo)
-        self.task_layout = QtWidgets.QVBoxLayout()
-        self.layout().addLayout(self.task_layout)
-        self.run_button = QtWidgets.QPushButton('Run')
-        self.layout().addWidget(self.run_button)
-
-    def build(self):
-        '''Build widgets and parent them.'''
-        raise NotImplementedError()
-
-    def post_build(self):
-        '''Post Build ui method for events connections.'''
-        self.combo_hosts.currentIndexChanged.connect(self.on_change_host)
-        self.run_button.clicked.connect(self._on_run)
-        self.hostid_changed.connect(self._listen_widget_updates)
-        self._listen_widget_updates()
-
-    def _fetch_widget(self, plugin, plugin_type, plugin_name, extra_options=None):
-        '''Retrieve widget for the given *plugin*, *plugin_type* and *plugin_name*.'''
-        extra_options = extra_options or {}
-        plugin_options = plugin.get('options', {})
-        plugin_options.update(extra_options)
-        name = plugin.get('name', 'no name provided')
-        description = plugin.get('description', 'No description provided')
-
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
-            data={
-                'pipeline': {
-                    'plugin_name': plugin_name,
-                    'plugin_type': plugin_type,
-                    'type': 'widget',
-                    'ui': self.ui,
-                    'host': self.host,
-                },
-                'settings': {
-                    'options': plugin_options,
-                    'name': name,
-                    'description': description,
-                }
-            }
-        )
-
-        result = self.session.event_hub.publish(
-            event,
-            synchronous=True
-        )
-        return result
-
-    def _update_widget(self, event):
-        '''*event* callback to update widget with the current status/value'''
-        data = event['data']['pipeline']['data']
-        widget_ref = event['data']['pipeline']['widget_ref']
-        status = event['data']['pipeline']['status']
-        message = event['data']['pipeline']['message']
-
-        widget = self.widgets.get(widget_ref)
-        if not widget:
-            self.logger.warning('Widget ref :{} not found ! '.format(widget_ref))
-            return
-
-        self.logger.debug('updating widget: {} with {}'.format(widget, data))
-
-        widget.set_status(status, message)
-
-    def _listen_widget_updates(self):
-        self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.hostid={}'.format(constants.PIPELINE_UPDATE_UI, self.hostid),
-            self._update_widget
-        )
-
-    def _fetch_default_widget(self, plugin, plugin_type):
-        '''Retrieve the default widget based on *plugin* and *plugin_type*'''
-        plugin_name = 'default.widget'
-        return self._fetch_widget(plugin, plugin_type, plugin_name)
-
-    # widget handling
-    def fetch_widget(self, plugin, plugin_type, extra_options=None):
-        '''Retrieve widget for the given *plugin*, *plugin_type*.'''
-
-        plugin_name = plugin.get('widget')
-        data = self._fetch_widget(plugin, plugin_type, plugin_name, extra_options=extra_options)
-        if not data:
-            data = self._fetch_default_widget(plugin, plugin_type)
-
-        data = data[0]
-
-        message = data['message']
-        result = data['result']
-        status = data['status']
-
-        if status == constants.EXCEPTION_STATUS:
-            raise Exception(
-                'Got response "{}"" while fetching:\n'
-                'plugin: {}\n'
-                'plugin_type: {}\n'
-                'plugin_name: {}'.format(message, plugin, plugin_type, plugin_name)
-            )
-
-        if result and not isinstance(result, BaseWidget):
-            raise Exception(
-                'Widget {} should inherit from {}'.format(
-                    result,
-                    BaseWidget
-                )
-            )
-
-        result.status_updated.connect(self.on_widget_status_updated)
-
-        return result
-
-    def on_widget_status_updated(self, data):
-        status, message = data
-        self.header.setMessage(message, status)
-
-    def send_to_host(self, data, topic):
-        '''Send *data* to the host through the given *topic*.'''
-        event = ftrack_api.event.base.Event(
-            topic=topic,
-            data={
-                'pipeline': {
-                    'hostid': self.hostid,
-                    'data': data,
-                }
-            }
-        )
-        self.event_manager.publish(
-            event,
-            remote=self._remote_events
-        )
-
-    def _on_run(self):
-        '''main run function'''
-        self.header.dismissMessage()
-        pass
+    def on_ready(self, callback, time_out=3):
+        self.__callback = callback
+        self.discover_hosts(time_out=time_out)

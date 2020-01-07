@@ -5,6 +5,6 @@ from ftrack_connect_pipeline.constants import _BASE_
 
 
 # Publish stages.
-LOADER_SCHEMA = 'loader.schema'
-PACKAGE_SCHEMA = 'package.schema'
-PUBLISHER_SCHEMA = 'publisher.schema'
+LOADER_SCHEMA = 'Loader'
+PACKAGE_SCHEMA = 'Package'
+PUBLISHER_SCHEMA = 'Publisher'

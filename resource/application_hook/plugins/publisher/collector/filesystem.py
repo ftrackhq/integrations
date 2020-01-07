@@ -5,13 +5,13 @@ import os
 from ftrack_connect_pipeline import plugin
 
 
-class EnvContextPlugin(plugin.ContextPlugin):
-    plugin_name = 'context.publish'
+class FilesystemCollectPlugin(plugin.CollectorPlugin):
+    plugin_name = 'filesystem'
 
     def run(self, context=None, data=None, options=None):
-        return context
+        return [options['path']]
 
 
 def register(api_object, **kw):
-    plugin = EnvContextPlugin(api_object)
+    plugin = FilesystemCollectPlugin(api_object)
     plugin.register()
