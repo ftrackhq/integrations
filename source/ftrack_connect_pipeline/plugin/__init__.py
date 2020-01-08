@@ -182,6 +182,9 @@ class BasePlugin(object):
 
         plugin_settings = event['data']['settings']
 
+        print "plugin_settings --> {}".format(plugin_settings)
+
+
         # validate input options
         input_valid, message = self.validator.validate_input_options(plugin_settings)
         if not input_valid:

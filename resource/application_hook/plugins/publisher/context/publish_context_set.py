@@ -9,7 +9,7 @@ class EnvContextPlugin(plugin.ContextPlugin):
     plugin_name = 'context.publish'
 
     def run(self, context=None, data=None, options=None):
-        return context
+        return options
 
 
 def register(api_object, **kw):

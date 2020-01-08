@@ -106,7 +106,8 @@ class BaseEngine(object):
         for plugin in context_plugins:
             status, result = self._run_plugin(
                 plugin, constants.PLUGIN_CONTEXT_TYPE,
-                context=plugin['options']
+                options=plugin['options']
+                #context=plugin['options']
             )
             bool_status = constants.status_bool_mapping[status]
             if not bool_status:
