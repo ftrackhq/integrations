@@ -36,7 +36,6 @@ PIPELINE_CONNECT_CLIENT = '{}.client.connect'.format(_BASE_)
 # Avoid circular dependencies.
 from ftrack_connect_pipeline.constants.plugin import *
 from ftrack_connect_pipeline.constants.load import *
-from ftrack_connect_pipeline.constants.publish import *
 from ftrack_connect_pipeline.constants.environments import *
 from ftrack_connect_pipeline.constants.event import *
 from ftrack_connect_pipeline.constants.status import *

@@ -80,6 +80,7 @@ class BaseEngine(object):
             'hostid': self.hostid,
             'data': data,
             'status': status,
+            'plugin_name': plugin['plugin'],
             'message': message
         }
 
@@ -105,8 +106,10 @@ class BaseEngine(object):
             )
             bool_status = constants.status_bool_mapping[status]
             statuses.append(bool_status)
-            # TODO: raise and error if result is None
             results.update(result)
+            if not bool_status:
+                raise Exception('An error occurred during the execution of the context plugin {} \n status: {} '
+                                '\n result: {}'.format(plugin['plugin'], status, result))
 
         return statuses, results
 
@@ -133,7 +136,6 @@ class BaseEngine(object):
 
                     plugin_options = plugin['options']
                     plugin_options['component_name'] = component_name
-
                     status, result = self._run_plugin(
                         plugin, stage_name,
                         data=collected_data,
@@ -148,9 +150,15 @@ class BaseEngine(object):
                     bool_status = constants.status_bool_mapping[status]
                     stage_status.append(bool_status)
                     stages_result.append(result)
+                    if not bool_status:
+                        self.logger.error('An error occurred during the execution of the component plugin {} \n '
+                                          'status: {} \n result: {}'.format(plugin['plugin'], status, result))
 
                 results[stage_name] = stages_result
                 statuses[stage_name] = all(stage_status)
+                if not statuses[stage_name]:
+                    raise Exception('An error occurred during the execution of the stage {} \n status: {} '
+                                    '\n result: {}'.format(stage_name, statuses[stage_name], results[stage_name]))
 
         return statuses, results
 
@@ -169,6 +177,9 @@ class BaseEngine(object):
             bool_status = constants.status_bool_mapping[status]
             statuses.append(bool_status)
             results.append(result)
+            if not bool_status:
+                raise Exception('An error occurred during the execution of the finaliser plugin {} \n status: {} '
+                                '\n result: {}'.format(plugin['plugin'], status, result))
 
         return statuses, results
 
@@ -190,17 +201,13 @@ class BaseEngine(object):
             component_status, component_result = self.run_component(
                 component_name, component_stages, context_result, data['_config']['stage_order']
             )
+            print "component_status.values() ---> {}".format(component_status.values())
 
             if not all(component_status.values()):
-                continue
+                raise Exception('An error occurred during the execution of the component name {}'.format(component_name))
 
             components_status.append(component_status)
             components_result.append(component_result)
-
-        for component_status in components_status:
-            for k, v in component_status.items():
-                if v == False:
-                    return False
 
         finaliser_plugins = data[constants.FINALISERS]
 
@@ -217,7 +224,8 @@ class BaseEngine(object):
             finaliser_plugins, finaliser_data, context_result
         )
         if not all(finalisers_status):
-            return
+            raise Exception('An error occurred during the execution of the finalisers')
+            #return
 
         return True
 

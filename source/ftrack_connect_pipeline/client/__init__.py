@@ -81,17 +81,22 @@ class HostConnection(object):
         )
         self._event_manager.publish(
             event,
-            # mode=constants.REMOTE_EVENT_MODE
         )
 
     def _notify_client(self, event):
         '''*event* callback to update widget with the current status/value'''
         data = event['data']['pipeline']['data']
         status = event['data']['pipeline']['status']
+        plugin_name = event['data']['pipeline']['plugin_name']
         message = event['data']['pipeline']['message']
 
-        if data:
-            self.logger.info('status: {} \n result: {} \n message: {}'.format(status, data, message))
+        if constants.status_bool_mapping[status]:
+            self.logger.info('plugin_name: {} \n status: {} \n result: {} \n message: {}'.format(plugin_name, status,
+                                                                                                 data, message))
+
+        if status == constants.ERROR_STATUS or status == constants.EXCEPTION_STATUS:
+            raise Exception('An error occurred during the execution of the plugin name {} \n message: {} '
+                            '\n data: {}'.format(plugin_name, message, data))
 
     def on_client_notification(self):
         self.session.event_hub.subscribe(
