@@ -15,9 +15,9 @@ class FilesystemCollectPlugin(plugin.CollectorPlugin):
         comment and status_id of the asset that we are working on.
 
         *data* a list of data coming from previous collector and
-        *options* a dictionary of options passed from ourside.
+        *options* a dictionary of options passed from outside.
 
-        Returns a List of paths of objects to collect
+        Returns a List of paths of collected objects.
 
         '''
         return [options['path']]
