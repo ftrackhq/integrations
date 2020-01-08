@@ -109,11 +109,11 @@ class BaseEngine(object):
                 context=plugin['options']
             )
             bool_status = constants.status_bool_mapping[status]
-            statuses.append(bool_status)
-            results.update(result)
             if not bool_status:
                 raise Exception('An error occurred during the execution of the context plugin {} \n status: {} '
                                 '\n result: {}'.format(plugin['plugin'], status, result))
+            statuses.append(bool_status)
+            results.update(result)
 
         return statuses, results
 
@@ -184,11 +184,11 @@ class BaseEngine(object):
                 context=context_data
             )
             bool_status = constants.status_bool_mapping[status]
-            statuses.append(bool_status)
-            results.append(result)
             if not bool_status:
                 raise Exception('An error occurred during the execution of the finaliser plugin {} \n status: {} '
                                 '\n result: {}'.format(plugin['plugin'], status, result))
+            statuses.append(bool_status)
+            results.append(result)
 
         return statuses, results
 

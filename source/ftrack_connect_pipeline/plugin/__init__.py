@@ -22,13 +22,19 @@ class PluginValidation(object):
         '''This function checks that the plugin settings contains all the expected input_options
             defined for the specific plugin type'''
         validator_result = (True, "")
-        if settings.get('options'):
-            for input_option in self.input_options:
-                if input_option not in settings['options']:
-                    message = '{} require {} input option'.format(
-                        self.plugin_name, input_option
-                    )
-                    validator_result = (False, message)
+        if self.input_options:
+            if settings.get('options'):
+                for input_option in self.input_options:
+                    if input_option not in settings['options']:
+                        message = '{} require {} input option'.format(
+                            self.plugin_name, input_option
+                        )
+                        validator_result = (False, message)
+            else:
+                message = '{} require {} input options'.format(
+                    self.plugin_name, self.input_options
+                )
+                validator_result = (False, message)
 
         return validator_result
 
@@ -171,8 +177,8 @@ class BasePlugin(object):
         return True
 
     def _run(self, event):
-        '''Function that executes the plugin used by the runner, called by the PIPELINE_RUN_PLUGIN_TOPIC.
-        returns a dictionary with the status, result and message of the execution'''
+        '''Function that executes the plugin used by the runner with the data from the *event*, called by the PIPELINE_RUN_PLUGIN_TOPIC.
+        Returns a dictionary with the status, result, execution time and message of the execution'''
 
         plugin_settings = event['data']['settings']
 
