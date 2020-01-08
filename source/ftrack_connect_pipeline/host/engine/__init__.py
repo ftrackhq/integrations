@@ -6,6 +6,7 @@ import ftrack_api
 from ftrack_connect_pipeline import constants
 
 def getEngine(baseClass, engineType):
+    '''Return the engine Class *subclass* of the given *baseClass* based on the *engineType*'''
     for subclass in baseClass.__subclasses__():
         if engineType == subclass.__name__:
             return subclass
@@ -23,7 +24,7 @@ class BaseEngine(object):
         return self._host
 
     def __init__(self, event_manager, host,  hostid, asset_type):
-        '''Initialise publish runnder with *session*, *package_definitions*, *host*, *ui* and *hostid*.'''
+        '''Initialise BaseEngine with *event_manager*, *host*, *hostid* and *asset_type*'''
         super(BaseEngine, self).__init__()
 
         self.asset_type = asset_type
@@ -38,7 +39,8 @@ class BaseEngine(object):
         self.event_manager = event_manager
 
     def _run_plugin(self, plugin, plugin_type, options=None, data=None, context=None):
-        '''Run *plugin*, *plugin_type*, with given *options*, *data* and *context*'''
+        '''Run *plugin*, *plugin_type*, with given *options*, *data* and *context* and notify client with
+        the status before and after execute the plugin'''
         plugin_name = plugin['plugin']
 
         self._notify_client(None, plugin, constants.RUNNING_STATUS)
@@ -74,7 +76,7 @@ class BaseEngine(object):
         return status, result
 
     def _notify_client(self, data, plugin, status, message=None):
-        '''Notify client with *data* for *plugin*'''
+        '''Publish an event to notify client with *data*, plugin_name from *plugin*, *status* and *message*'''
 
         pipeline_data = {
             'hostid': self.hostid,
@@ -96,7 +98,9 @@ class BaseEngine(object):
         )
 
     def run_context(self, context_plugins):
-        '''Run *context_pligins*.'''
+        '''Run *context_pligins*.
+        Raise Exception if any plugin returns a False status
+        Returns *statuses* (List) *results* (List)'''
         statuses = []
         results = {}
         for plugin in context_plugins:
@@ -114,7 +118,10 @@ class BaseEngine(object):
         return statuses, results
 
     def run_component(self, component_name, component_stages, context_data, stages_order):
-        '''Run component plugins for *component_name*, *component_stages* with *context_data*.'''
+        '''Run component plugins for *component_name*, *component_stages* with *context_data* with the
+        provided *stages_order*.
+        Raise Exception if any plugin returns a False status
+        Returns *statuses* (List) *results* (List)'''
         results = {}
         statuses = {}
 
@@ -163,7 +170,9 @@ class BaseEngine(object):
         return statuses, results
 
     def run_finaliser(self, finaliser_plugins, finaliser_data, context_data):
-        '''Run component plugins for *component_name*, *component_stages* with *context_data*.'''
+        '''Run finaliser plugins for *finaliser_plugins* with *finaliser_data* and *context_data*.
+        Raise Exception if any plugin returns a False status
+        Returns *statuses* (List) *results* (List)'''
         statuses = []
         results = []
 
@@ -184,11 +193,15 @@ class BaseEngine(object):
         return statuses, results
 
     def run(self, data):
-        '''Run the package definition based on the result of incoming *event*.'''
+        '''Run packages from the provided data
+        *data* the json schema
+        Raise Exception if any context plugin, component plugin or finaliser plugin returns a False status
+        Returns Bool'''
+
         context_plugins = data[constants.CONTEXTS]
         context_status, context_result = self.run_context(context_plugins)
         if not all(context_status):
-            return
+            raise Exception('An error occurred during the execution of the context')
         context_result['asset_type'] = self.asset_type
 
         components = data[constants.COMPONENTS]
@@ -201,10 +214,10 @@ class BaseEngine(object):
             component_status, component_result = self.run_component(
                 component_name, component_stages, context_result, data['_config']['stage_order']
             )
-            print "component_status.values() ---> {}".format(component_status.values())
 
             if not all(component_status.values()):
-                raise Exception('An error occurred during the execution of the component name {}'.format(component_name))
+                raise Exception('An error occurred during the execution of the component '
+                                'name {}'.format(component_name))
 
             components_status.append(component_status)
             components_result.append(component_result)
@@ -225,7 +238,6 @@ class BaseEngine(object):
         )
         if not all(finalisers_status):
             raise Exception('An error occurred during the execution of the finalisers')
-            #return
 
         return True
 
