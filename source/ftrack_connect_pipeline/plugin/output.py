@@ -6,6 +6,6 @@ from ftrack_connect_pipeline.plugin import BasePlugin
 
 
 class OutputPlugin(BasePlugin):
-    input_options = ['component_name']
+    required_input_options = ['component_name']
     return_type = dict
     plugin_type = constants.PLUGIN_OUTPUT_TYPE

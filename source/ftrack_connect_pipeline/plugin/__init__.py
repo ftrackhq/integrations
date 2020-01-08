@@ -10,42 +10,40 @@ from ftrack_connect_pipeline import exception
 
 class PluginValidation(object):
 
-    def __init__(self, plugin_name, input_options, output_options, return_type, return_value):
+    def __init__(self, plugin_name, required_input_options, required_output_options, return_type, return_value):
         super(PluginValidation, self).__init__()
         self.plugin_name = plugin_name
-        self.input_options = input_options
-        self.output_options = output_options
+        self.required_input_options = required_input_options
+        self.required_output_options = required_output_options
         self.return_type = return_type
         self.return_value = return_value
 
-    def validate_input_options(self, settings):
+    def validate_required_input_options(self, settings):
         '''This function checks that the plugin settings contains all the expected input_options
             defined for the specific plugin type'''
+
         validator_result = (True, "")
-        if self.input_options:
+        for input_option in self.required_input_options:
             if settings.get('options'):
-                for input_option in self.input_options:
-                    if input_option not in settings['options']:
-                        message = '{} require {} input option'.format(
-                            self.plugin_name, input_option
-                        )
-                        validator_result = (False, message)
+                if input_option not in settings['options']:
+                    message = '{} require {} input option'.format(
+                        self.plugin_name, input_option
+                    )
+                    validator_result = (False, message)
             else:
                 message = '{} require {} input options'.format(
-                    self.plugin_name, self.input_options
+                    self.plugin_name, self.required_input_options
                 )
                 validator_result = (False, message)
-
         return validator_result
 
 
-    def validate_result_options(self, result):
+    def validate_required_output_options(self, result):
         '''This function checks that the plugin result contains all the expected output_options
         defined for the specific plugin type'''
         validator_result = (True, "")
 
-        for output_option in self.output_options:
-
+        for output_option in self.required_output_options:
             if output_option not in result:
                 message = '{} require {} result option'.format(
                     self.plugin_name, output_option
@@ -93,8 +91,8 @@ class BasePlugin(object):
 
     return_type = None
     return_value = None
-    input_options = []
-    output_options = []
+    required_input_options = []
+    required_output_options = []
 
     def __repr__(self):
         return '<{}:{}>'.format(self.plugin_type, self.plugin_name)
@@ -118,7 +116,7 @@ class BasePlugin(object):
         )
 
         self._session = session
-        self.validator = PluginValidation(self.plugin_name, self.input_options, self.output_options,
+        self.validator = PluginValidation(self.plugin_name, self.required_input_options, self.required_output_options,
                                           self.return_type, self.return_value)
 
     def _base_topic(self, topic):
@@ -182,11 +180,8 @@ class BasePlugin(object):
 
         plugin_settings = event['data']['settings']
 
-        print "plugin_settings --> {}".format(plugin_settings)
-
-
         # validate input options
-        input_valid, message = self.validator.validate_input_options(plugin_settings)
+        input_valid, message = self.validator.validate_required_input_options(plugin_settings)
         if not input_valid:
             return {'status': constants.ERROR_STATUS, 'result': None, 'execution_time': 0, 'message': str(message)}
 
@@ -205,7 +200,7 @@ class BasePlugin(object):
         total_time = end_time - start_time
 
         # validate result with output options
-        output_valid, output_valid_message = self.validator.validate_result_options(result)
+        output_valid, output_valid_message = self.validator.validate_required_output_options(result)
         if not output_valid:
             return {'status': constants.ERROR_STATUS, 'result': None, 'execution_time': total_time,
                     'message': str(output_valid_message)}

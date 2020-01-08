@@ -8,7 +8,7 @@ from ftrack_connect_pipeline.plugin import BasePlugin
 class FinaliserPlugin(BasePlugin):
     return_type = dict
     plugin_type = constants.PLUGIN_FINALISER_TYPE
-    output_input = [
+    required_output_input = [
         'context_id',
         'asset_name',
         'asset_type',

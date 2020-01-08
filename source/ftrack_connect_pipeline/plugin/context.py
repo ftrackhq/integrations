@@ -8,5 +8,5 @@ from ftrack_connect_pipeline.plugin import BasePlugin
 class ContextPlugin(BasePlugin):
     return_type = dict
     plugin_type = constants.PLUGIN_CONTEXT_TYPE
-    #input_options = ['context_id']
-    output_options = ['context_id', 'asset_name', 'comment', 'status_id']
+    required_input_options = ['context_id']
+    required_output_options = ['context_id', 'asset_name', 'comment', 'status_id']
