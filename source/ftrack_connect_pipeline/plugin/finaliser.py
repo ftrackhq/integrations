@@ -39,8 +39,7 @@ class FinaliserPlugin(BasePlugin):
     '''
     return_type = dict
     plugin_type = constants.PLUGIN_FINALISER_TYPE
-    _required_output = {'context_id': None, 'asset_name': None,
-                        'asset_type': None, 'comment': None, 'status_id': None}
+    _required_output = {}
 
     def __init__(self, session):
         '''Initialise FinaliserPlugin with *session*
