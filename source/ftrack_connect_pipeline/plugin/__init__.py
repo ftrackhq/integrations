@@ -9,7 +9,7 @@ from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import exception
 
 
-class PluginValidation(object):
+class BasePluginValidation(object):
     '''Plugin Validation base class'''
 
     def __init__(self, plugin_name, required_output, return_type, return_value):
@@ -27,7 +27,7 @@ class PluginValidation(object):
         *return_value* return value of the current plugin stored at the
         plugin base class
         '''
-        super(PluginValidation, self).__init__()
+        super(BasePluginValidation, self).__init__()
         self.plugin_name = plugin_name
         self.required_output = required_output
         self.return_type = return_type
@@ -52,33 +52,14 @@ class PluginValidation(object):
     #             validator_result = (False, message)
     #     return validator_result
 
-    def _validate_required_output_list(self, result):
-        '''Ensures that *result* contains the expected required_output defined
-        for the current plugin.
-
-        *result* output value of the plugin execution
-
-        Return tuple (bool,str)
-        '''
-        validator_result = (True, "")
-
-        for output_value in self.required_output:
-            if output_value not in result:
-                message = '{} require {} result option'.format(
-                    self.plugin_name, output_value
-                )
-                validator_result = (False, message)
-
-        return validator_result
-
-    def _validate_required_output_dict(self, result):
+    def validate_required_output(self, result):
         '''Ensures that *result* contains all the expected required_output keys
-        defined for the current plugin.
+                defined for the current plugin.
 
-        *result* output value of the plugin execution
+                *result* output value of the plugin execution
 
-        Return tuple (bool,str)
-        '''
+                Return tuple (bool,str)
+                '''
         validator_result = (True, "")
 
         for output_key in self.required_output.keys():
@@ -88,43 +69,6 @@ class PluginValidation(object):
                 )
                 validator_result = (False, message)
 
-        return validator_result
-
-    def _validate_required_output_bool(self, result):
-        '''Ensures that *result* contains the expected required_output
-        defined for the current plugin.
-
-        *result* output value of the plugin execution
-
-        Return tuple (bool,str)
-        '''
-        validator_result = (True, "")
-        if type(result) != type(self.required_output):
-            message = '{} require {} result option type'.format(
-                self.plugin_name, type(self.required_output)
-            )
-            validator_result = (False, message)
-
-        return validator_result
-
-    def validate_required_output(self, result):
-        '''Ensures that *result* contains all the expected required_output
-        defined for the current plugin.
-
-        *result* output value of the plugin execution
-
-        Return tuple (bool,str)
-        '''
-        if self.return_type == dict:
-            return self._validate_required_output_dict(result)
-        if self.return_type == list:
-            return self._validate_required_output_list(result)
-        if self.return_type == bool:
-            return self._validate_required_output_bool(result)
-
-        message = 'Return type of {} is not defined on the output validators, ' \
-                  'type: {}'.format(self.plugin_name, self.return_type)
-        validator_result = (False, message)
         return validator_result
 
     def validate_result_type(self, result):
@@ -156,13 +100,13 @@ class PluginValidation(object):
         '''
         validator_result = (True, "")
 
-        if self.return_value is not None:
-
-            if result != self.return_value:
-                message = 'Return value of {} is not {}'.format(
-                    self.__class__.__name__, self.return_value
-                )
-                validator_result = (False, message)
+        # if self.return_value is not None:
+        #
+        #     if result != self.return_value:
+        #         message = 'Return value of {} is not {}'.format(
+        #             self.__class__.__name__, self.return_value
+        #         )
+        #         validator_result = (False, message)
 
         return validator_result
 
@@ -213,7 +157,7 @@ class BasePlugin(object):
         )
 
         self._session = session
-        self.validator = PluginValidation(self.plugin_name,
+        self.validator = BasePluginValidation(self.plugin_name,
                                           self._required_output,
                                           self.return_type, self.return_value)
 

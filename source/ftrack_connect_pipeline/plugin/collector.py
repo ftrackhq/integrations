@@ -2,7 +2,48 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.plugin import BasePlugin
+from ftrack_connect_pipeline.plugin import BasePlugin, BasePluginValidation
+
+class CollectorPluginValidation(BasePluginValidation):
+    '''Collector Plugin Validation class'''
+
+    def __init__(self, plugin_name, required_output, return_type, return_value):
+        '''Initialise CollectorPluginValidation with *plugin_name*, *required_output*,
+        *return_type*, *return_value*.
+
+        *plugin_name* current plugin name stored at the plugin base class
+
+        *required_output* required output of the current plugin stored at
+        _required_output of the plugin base class
+
+        *return_type* return type of the current plugin stored at the plugin
+        base class
+
+        *return_value* return value of the current plugin stored at the
+        plugin base class
+        '''
+        super(CollectorPluginValidation, self).__init__(plugin_name,
+                                                        required_output,
+                                                        return_type,
+                                                        return_value)
+    def validate_required_output(self, result):
+        '''Ensures that *result* contains the expected required_output defined
+        for the current plugin.
+
+        *result* output value of the plugin execution
+
+        Return tuple (bool,str)
+        '''
+        validator_result = (True, "")
+
+        for output_value in self.required_output:
+            if output_value not in result:
+                message = '{} require {} result option'.format(
+                    self.plugin_name, output_value
+                )
+                validator_result = (False, message)
+
+        return validator_result
 
 
 class CollectorPlugin(BasePlugin):
@@ -14,6 +55,18 @@ class CollectorPlugin(BasePlugin):
     return_type = list
     plugin_type = constants.PLUGIN_COLLECTOR_TYPE
     _required_output = []
+
+    def __init__(self, session):
+        '''Initialise CollectorPlugin with *session*
+
+        *session* should be the :class:`ftrack_api.session.Session` instance
+        to use for communication with the server.
+        '''
+        super(CollectorPlugin, self).__init__(session)
+        self.validator = CollectorPluginValidation(self.plugin_name,
+                                              self._required_output,
+                                              self.return_type,
+                                              self.return_value)
 
     def run(self, context=None, data=None, options=None):
         '''Run the current plugin with , *context* , *data* and *options*.
