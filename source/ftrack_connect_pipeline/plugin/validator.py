@@ -71,7 +71,6 @@ class ValidatorPlugin(BasePlugin):
         _required_output a Boolean '''
     return_type = bool
     plugin_type = constants.PLUGIN_VALIDATOR_TYPE
-    #return_value = True
     _required_output = False
 
     def __init__(self, session):

@@ -33,25 +33,6 @@ class BasePluginValidation(object):
         self.return_type = return_type
         self.return_value = return_value
 
-    # def validate_required_input_options(self, settings):
-    #     '''This function checks that the plugin settings contains all
-    #     the expected input_options defined for the specific plugin type'''
-    #
-    #     validator_result = (True, "")
-    #     for input_option in self.required_input_options:
-    #         if settings.get('options'):
-    #             if input_option not in settings['options']:
-    #                 message = '{} require {} input option'.format(
-    #                     self.plugin_name, input_option
-    #                 )
-    #                 validator_result = (False, message)
-    #         else:
-    #             message = '{} require {} input options'.format(
-    #                 self.plugin_name, self.required_input_options
-    #             )
-    #             validator_result = (False, message)
-    #     return validator_result
-
     def validate_required_output(self, result):
         '''Ensures that *result* contains all the expected required_output keys
                 defined for the current plugin.
@@ -99,14 +80,6 @@ class BasePluginValidation(object):
         Return tuple (bool,str)
         '''
         validator_result = (True, "")
-
-        # if self.return_value is not None:
-        #
-        #     if result != self.return_value:
-        #         message = 'Return value of {} is not {}'.format(
-        #             self.__class__.__name__, self.return_value
-        #         )
-        #         validator_result = (False, message)
 
         return validator_result
 
@@ -254,14 +227,6 @@ class BasePlugin(object):
 
         plugin_settings = event['data']['settings']
 
-
-        # # validate input options
-        # input_valid, message = self.validator.validate_required_input_options(plugin_settings)
-        # if not input_valid:
-        #     return {'status': constants.ERROR_STATUS, 'result': None,
-        #             'execution_time': 0, 'message': str(message)}
-
-        # run Plugin
         start_time = time.time()
         try:
             result = self.run(**plugin_settings)

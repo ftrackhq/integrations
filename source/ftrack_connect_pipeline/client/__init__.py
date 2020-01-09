@@ -42,33 +42,7 @@ class HostConnection(object):
 
         self.on_client_notification()
 
-    #     definitions = copy_data['definitions']
-    #     self._schemas = definitions.pop('schemas')
-    #
-    #     objects = self.build_entity_classes(definitions)
-    #     for key, value in objects.items():
-    #         self.__dict__[key] = value
-    #
-    # def build_entity_classes(self, data):
-    #     objects = {}
-    #     for key, value in data.items():
-    #         objects.setdefault(key, [])
-    #         for schema in self._schemas:
-    #             if key.lower() in schema['title'].lower():
-    #                 print 'building schema', schema['title']
-    #                 builder = pjo.ObjectBuilder(schema)
-    #                 classes = builder.build_classes(standardize_names=False)
-    #                 ClassType = getattr(classes, schema['title'])
-    #                 for item in value:
-    #                     print 'building {} for {}'.format(schema['title'] , item['name'])
-    #
-    #                     objects[key].append(ClassType(**item))
-    #     return objects
-
     def run(self, data):
-        # if isinstance(data, object):
-        #     data = data.serialize()
-
         '''Send *data* to the host through the given *topic*.'''
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_HOST_RUN,
@@ -91,17 +65,20 @@ class HostConnection(object):
         message = event['data']['pipeline']['message']
 
         if constants.status_bool_mapping[status]:
-            self.logger.info('plugin_name: {} \n status: {} \n result: {} \n message: {}'.format(plugin_name, status,
-                                                                                                 data, message))
+            self.logger.info('plugin_name: {} \n status: {} \n result: {} \n '
+                             'message: {}'.format(plugin_name, status,
+                                                  data, message))
 
         if status == constants.ERROR_STATUS or status == constants.EXCEPTION_STATUS:
-            raise Exception('An error occurred during the execution of the plugin name {} \n message: {} '
-                            '\n data: {}'.format(plugin_name, message, data))
+            raise Exception('An error occurred during the execution of the '
+                            'plugin name {} \n message: {} \n data: {}'.format(
+                plugin_name, message, data))
 
     def on_client_notification(self):
         self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.hostid={}'.format(constants.PIPELINE_CLIENT_NOTIFICATION,
-                                                          self._raw_host_data['host_id']),
+            'topic={} and data.pipeline.hostid={}'.format(
+                constants.PIPELINE_CLIENT_NOTIFICATION,
+                self._raw_host_data['host_id']),
             self._notify_client
         )
 
