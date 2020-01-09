@@ -23,8 +23,16 @@ def validate_schema(schemas, definition):
 
 
 class PluginDiscoverValidation(object):
+    '''Plugin Discover base class'''
 
     def __init__(self, session, host):
+        '''Initialise PluginDiscoverValidation with *session*, *host*
+
+        *session* should be the :class:`ftrack_api.session.Session` instance
+        to use for communication with the server.
+
+        *host* should be the :class:`Host` instance to use to identify the host.
+        '''
         super(PluginDiscoverValidation, self).__init__()
 
         self.logger = logging.getLogger(
@@ -39,17 +47,22 @@ class PluginDiscoverValidation(object):
         for definition in publishers:
             valid_definition = True
             # context plugins
-            if not self.vaildate_contexts_plugins(definition[constants.CONTEXTS], definition["name"]):
+            if not self.vaildate_contexts_plugins(
+                    definition[constants.CONTEXTS], definition["name"]):
                 valid_definition = False
-            if not self.validate_components_plugins(definition[constants.COMPONENTS], definition["name"]):
+            if not self.validate_components_plugins(
+                    definition[constants.COMPONENTS], definition["name"]):
                 valid_definition = False
-            if not self.vaildate_finalisers_plugins(definition[constants.FINALISERS], definition["name"]):
+            if not self.vaildate_finalisers_plugins(
+                    definition[constants.FINALISERS], definition["name"]):
                 valid_definition = False
             if not valid_definition:
                 idx = publishers.index(definition)
                 idxs_to_pop.append(idx)
-                self.logger.warning('The definition {} from type {} contains invalid plugins '
-                                    'and will not be used'.format(definition["name"], 'publishers'))
+                self.logger.warning('The definition {} from type {} contains '
+                                    'invalid plugins and will not '
+                                    'be used'.format(definition["name"],
+                                                     'publishers'))
 
         return idxs_to_pop or None
 
@@ -58,23 +71,30 @@ class PluginDiscoverValidation(object):
         for definition in loaders:
             valid_definition = True
             # context plugins
-            if not self.validate_components_plugins(definition[constants.COMPONENTS], definition["name"]):
+            if not self.validate_components_plugins(
+                    definition[constants.COMPONENTS], definition["name"]):
                 valid_definition = False
             if not valid_definition:
                 idx = loaders.index(definition)
                 idxs_to_pop.append(idx)
-                self.logger.warning('The definition {} from type {} contains invalid plugins '
-                                    'and will not be used'.format(definition["name"], 'publishers'))
+                self.logger.warning('The definition {} from type {} '
+                                    'contains invalid plugins and will not '
+                                    'be used'.format(definition["name"],
+                                                     'publishers'))
 
         return idxs_to_pop or None
 
     def vaildate_contexts_plugins(self, plugin_list, definition_name):
         is_valid = True
         for context_plugin in plugin_list:
-            if not self._discover_plugin(context_plugin, constants.PLUGIN_CONTEXT_TYPE):
+            if not self._discover_plugin(context_plugin,
+                                         constants.PLUGIN_CONTEXT_TYPE):
                 is_valid = False
-                self.logger.warning('Could not discover plugin {} for {} in {}'.format(
-                    context_plugin['plugin'], constants.PLUGIN_CONTEXT_TYPE, definition_name))
+                self.logger.warning('Could not discover '
+                                    'plugin {} for {} in '
+                                    '{}'.format(context_plugin['plugin'],
+                                                constants.PLUGIN_CONTEXT_TYPE,
+                                                definition_name))
         return is_valid
 
     def validate_components_plugins(self, components_list, definition_name):
@@ -86,21 +106,29 @@ class PluginDiscoverValidation(object):
                 for component_plugin in component_stage['plugins']:
                     if not self._discover_plugin(component_plugin, stage_name):
                         is_valid = False
-                        self.logger.warning('Could not discover plugin {} for stage {} in {}'.format(
-                            component_plugin['plugin'], stage_name, definition_name))
+                        self.logger.warning(
+                            'Could not discover plugin {} for '
+                            'stage {} in {}'.format(component_plugin['plugin'],
+                                                    stage_name,
+                                                    definition_name))
         return is_valid
 
     def vaildate_finalisers_plugins(self, plugin_list, definition_name):
         is_valid = True
         for publisher_plugin in plugin_list:
-            if not self._discover_plugin(publisher_plugin, constants.PLUGIN_FINALISER_TYPE):
+            if not self._discover_plugin(publisher_plugin,
+                                         constants.PLUGIN_FINALISER_TYPE):
                 is_valid = False
-                self.logger.warning('Could not discover plugin {} for {} in {}'.format(
-                    publisher_plugin['plugin'], constants.PLUGIN_FINALISER_TYPE, definition_name))
+                self.logger.warning(
+                    'Could not discover plugin {} '
+                    'for {} in {}'.format(publisher_plugin['plugin'],
+                                          constants.PLUGIN_FINALISER_TYPE,
+                                          definition_name))
         return is_valid
 
     def _discover_plugin(self, plugin, plugin_type):
-        '''Run *plugin*, *plugin_type*, with given *options*, *data* and *context*'''
+        '''Run *plugin*, *plugin_type*, with given *options*, *data* and
+        *context*'''
         plugin_name = plugin['plugin']
 
         data = {

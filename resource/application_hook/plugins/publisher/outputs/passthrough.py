@@ -11,11 +11,11 @@ class PassthroughPlugin(plugin.OutputPlugin):
 
     def run(self, context=None, data=None, options=None):
         component_name = options['component_name']
-        result = {}
+        output = self.output
         for item in data:
-            result[component_name] = item
+            output[component_name] = item
 
-        return result
+        return output
 
 
 def register(api_object, **kw):

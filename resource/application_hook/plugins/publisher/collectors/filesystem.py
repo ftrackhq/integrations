@@ -9,7 +9,9 @@ class FilesystemCollectPlugin(plugin.CollectorPlugin):
     plugin_name = 'filesystem'
 
     def run(self, context=None, data=None, options=None):
-        return [options['path']]
+        output = self.output
+        output.append(options['path'])
+        return output
 
 
 def register(api_object, **kw):
