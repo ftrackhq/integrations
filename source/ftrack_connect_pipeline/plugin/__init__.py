@@ -10,8 +10,23 @@ from ftrack_connect_pipeline import exception
 
 
 class PluginValidation(object):
+    '''Plugin Validation base class'''
 
     def __init__(self, plugin_name, required_output, return_type, return_value):
+        '''Initialise PluginValidation with *plugin_name*, *required_output*,
+        *return_type*, *return_value*.
+
+        *plugin_name* current plugin name stored at the plugin base class
+
+        *required_output* required output of the current plugin stored at
+        _required_output of the plugin base class
+
+        *return_type* return type of the current plugin stored at the plugin
+        base class
+
+        *return_value* return value of the current plugin stored at the
+        plugin base class
+        '''
         super(PluginValidation, self).__init__()
         self.plugin_name = plugin_name
         self.required_output = required_output
@@ -38,8 +53,13 @@ class PluginValidation(object):
     #     return validator_result
 
     def _validate_required_output_list(self, result):
-        '''This function checks that the plugin result contains the expected
-        required_output defined for the specific plugin type'''
+        '''Ensures that *result* contains the expected required_output defined
+        for the current plugin.
+
+        *result* output value of the plugin execution
+
+        Return tuple (bool,str)
+        '''
         validator_result = (True, "")
 
         for output_value in self.required_output:
@@ -52,8 +72,13 @@ class PluginValidation(object):
         return validator_result
 
     def _validate_required_output_dict(self, result):
-        '''This function checks that the plugin result contains all the
-        expected required_output keys defined for the specific plugin type'''
+        '''Ensures that *result* contains all the expected required_output keys
+        defined for the current plugin.
+
+        *result* output value of the plugin execution
+
+        Return tuple (bool,str)
+        '''
         validator_result = (True, "")
 
         for output_key in self.required_output.keys():
@@ -66,8 +91,13 @@ class PluginValidation(object):
         return validator_result
 
     def _validate_required_output_bool(self, result):
-        '''This function checks that the plugin result contains the expected
-        required_output defined for the specific plugin type'''
+        '''Ensures that *result* contains the expected required_output
+        defined for the current plugin.
+
+        *result* output value of the plugin execution
+
+        Return tuple (bool,str)
+        '''
         validator_result = (True, "")
         if type(result) != type(self.required_output):
             message = '{} require {} result option type'.format(
@@ -78,8 +108,13 @@ class PluginValidation(object):
         return validator_result
 
     def validate_required_output(self, result):
-        '''This function checks that the plugin result contains all
-        the expected required_output defined for the specific plugin type'''
+        '''Ensures that *result* contains all the expected required_output
+        defined for the current plugin.
+
+        *result* output value of the plugin execution
+
+        Return tuple (bool,str)
+        '''
         if self.return_type == dict:
             return self._validate_required_output_dict(result)
         if self.return_type == list:
@@ -93,8 +128,13 @@ class PluginValidation(object):
         return validator_result
 
     def validate_result_type(self, result):
-        '''This function checks that the plugin result is instance
-        of the defined return_type for the specific plugin type'''
+        '''Ensures that *result* is instance of the defined return_type of
+        the current plugin.
+
+        *result* output value of the plugin execution
+
+        Return tuple (bool,str)
+        '''
         validator_result = (True, "")
 
         if self.return_type is not None:
@@ -107,8 +147,13 @@ class PluginValidation(object):
         return validator_result
 
     def validate_result_value(self, result):
-        '''This function checks if plugin result is equal as the expected
-        defined return_value for the specific plugin type'''
+        '''Ensures that *result* is equal as the defined return_value of
+        the current plugin.
+
+        *result* output value of the plugin execution
+
+        Return tuple (bool,str)
+        '''
         validator_result = (True, "")
 
         if self.return_value is not None:
@@ -138,15 +183,17 @@ class BasePlugin(object):
 
     @property
     def output(self):
-        ''' Property that returns a copy of required_output '''
+        ''' Returns a copy of required_output '''
         return copy.deepcopy(self._required_output)
 
     @property
     def discover_topic(self):
+        '''Return a formated PIPELINE_DISCOVER_PLUGIN_TOPIC'''
         return self._base_topic(constants.PIPELINE_DISCOVER_PLUGIN_TOPIC)
 
     @property
     def run_topic(self):
+        '''Return a formated PIPELINE_RUN_PLUGIN_TOPIC'''
         return self._base_topic(constants.PIPELINE_RUN_PLUGIN_TOPIC)
 
     @property
@@ -155,6 +202,12 @@ class BasePlugin(object):
         return self._session
 
     def __init__(self, session):
+        '''Initialise BasePlugin with *session*.
+
+        *session* should be the :class:`ftrack_api.session.Session` instance
+        to use for communication with the server.
+        '''
+
         self.logger = logging.getLogger(
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
@@ -165,13 +218,17 @@ class BasePlugin(object):
                                           self.return_type, self.return_value)
 
     def _base_topic(self, topic):
-        '''This function ensures that we pass all the nedded information to
-        the topic.
+        '''Ensures that we pass all the needed information to the topic
+        with *topic*.
+
+        *topic* topic base value
+
         Return formated topic
 
         Raise :exc:`ftrack_connect_pipeline.exception.PluginError` if some
         information is missed.
         '''
+
 
         required = [
             self.host,
@@ -193,11 +250,15 @@ class BasePlugin(object):
         return topic
 
     def register(self):
-        '''Function called by each plugin to register them self.
-        This function subscribes the plugin to two event topics:
-        PIPELINE_DISCOVER_PLUGIN_TOPIC: Topic to make the plugin discoverable
-        for the host.
-        PIPELINE_RUN_PLUGIN_TOPIC: Topic to execute the plugin'''
+        '''Called by each plugin to register them self.
+
+        .. note::
+
+            This function subscribes the plugin to two event topics:
+            PIPELINE_DISCOVER_PLUGIN_TOPIC: Topic to make the plugin discoverable
+            for the host.
+            PIPELINE_RUN_PLUGIN_TOPIC: Topic to execute the plugin
+        '''
         if not isinstance(self.session, ftrack_api.Session):
             # Exit to avoid registering this plugin again.
             return
@@ -218,8 +279,14 @@ class BasePlugin(object):
         )
 
     def _discover(self, event):
-        '''This function makes sure the plugin is discoverable for the host,
-        called by PIPELINE_DISCOVER_PLUGIN_TOPIC'''
+        '''Makes sure the plugin is discoverable for the host.
+
+        *event* not used.
+
+        .. note::
+
+            Called by PIPELINE_DISCOVER_PLUGIN_TOPIC
+        '''
         if not isinstance(self.session, ftrack_api.Session):
             # Exit to avoid registering this plugin again.
             return
@@ -227,10 +294,19 @@ class BasePlugin(object):
         return True
 
     def _run(self, event):
-        '''Function that executes the plugin used by the runner with the data
-        from the *event*, called by the PIPELINE_RUN_PLUGIN_TOPIC.
+        '''Run the current plugin with the settings form the *event*.
+
+        *event* provides a dictionary with the plugin schema information.
+
         Returns a dictionary with the status, result, execution time and
-        message of the execution'''
+        message of the execution
+
+        .. note::
+
+            This function is used by the host engine and called by the
+            PIPELINE_RUN_PLUGIN_TOPIC
+
+        '''
 
         plugin_settings = event['data']['settings']
 
@@ -285,14 +361,24 @@ class BasePlugin(object):
                 'message': 'Successfully run :{}'.format(self.__class__.__name__)}
 
     def run(self, context=None, data=None, options=None):
-        '''plugin execution function of each plugin, should be overrided in the
-        plugin itself
+        '''Run the current plugin with , *context* , *data* and *options*.
 
-        context argument: context of the task that we are working on
-        data: coming from the previous stage, if context or collector stage,
-        data is empty
-        options: plugin options
-        returns dictionary or list with data
+        *context* provides a mapping with the asset_name, context_id, asset_type,
+        comment and status_id of the asset that we are working on.
+
+        *data* a list of data coming from previous collector or empty list
+
+        *options* a dictionary of options passed from outside.
+
+        Returns self.output dictionary, list or boolean.
+
+        Raise NotImplementedError
+
+        .. note::
+
+            Use always self.output as a base to return the values,
+            don't override self.output as it contains the _required_output
+
         '''
         raise NotImplementedError('Missing run method.')
 

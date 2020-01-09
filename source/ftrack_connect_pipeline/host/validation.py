@@ -23,8 +23,16 @@ def validate_schema(schemas, definition):
 
 
 class PluginDiscoverValidation(object):
+    '''Plugin Discover base class'''
 
     def __init__(self, session, host):
+        '''Initialise PluginDiscoverValidation with *session*, *host*
+
+        *session* should be the :class:`ftrack_api.session.Session` instance
+        to use for communication with the server.
+
+        *host* should be the :class:`Host` instance to use to identify the host.
+        '''
         super(PluginDiscoverValidation, self).__init__()
 
         self.logger = logging.getLogger(
