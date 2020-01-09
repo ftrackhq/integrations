@@ -38,6 +38,7 @@ class FtrackPublishPlugin(plugin.FinaliserPlugin):
         os.remove(component_path)
 
     def run(self, context=None, data=None, options=None):
+        output = self.output
 
         comment = context['comment']
         status_id = context['status_id']
@@ -80,11 +81,13 @@ class FtrackPublishPlugin(plugin.FinaliserPlugin):
             publish_component_fn(asset_version, component_name, component_path)
             results[component_name] = True
 
+        output.update(results)
+
         self.session.commit()
 
         self.logger.debug("publishing: {} to {} as {}".format(data, context, asset_object))
 
-        return results
+        return output
 
 
 def register(api_object, **kw):

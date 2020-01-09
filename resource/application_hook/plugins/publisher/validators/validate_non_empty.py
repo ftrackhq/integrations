@@ -8,8 +8,10 @@ class NonEmptyValidatorPlugin(plugin.ValidatorPlugin):
     plugin_name = 'nonempty'
 
     def run(self, context=None, data=None, options=None):
+        output = self.output
         self.logger.info('data: {}'.format(data))
-        return all(bool(datum) for datum in data)
+        output = all(bool(datum) for datum in data)
+        return output
 
 
 def register(api_object, **kw):

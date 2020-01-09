@@ -8,15 +8,18 @@ class NumericValidatorPlugin(plugin.ValidatorPlugin):
     plugin_name = 'numeric'
 
     def run(self, context=None, data=None, options=None):
+        output = self.output
         self.logger.info('data: {}'.format(data))
         test = options.get('test')
         value = options.get('value')
 
         if len(data) != 1:
-            return False
+            output = False
+            return output
 
         if test == '>=':
-            return int(data[0]) >= int(value)
+            output = int(data[0]) >= int(value)
+            return output
 
 
 def register(api_object, **kw):

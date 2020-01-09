@@ -4,52 +4,92 @@
 import logging
 import ftrack_api
 import time
+import copy
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import exception
 
 
 class PluginValidation(object):
 
-    def __init__(self, plugin_name, required_input_options, required_output_options, return_type, return_value):
+    def __init__(self, plugin_name, required_output, return_type, return_value):
         super(PluginValidation, self).__init__()
         self.plugin_name = plugin_name
-        self.required_input_options = required_input_options
-        self.required_output_options = required_output_options
+        self.required_output = required_output
         self.return_type = return_type
         self.return_value = return_value
 
-    def validate_required_input_options(self, settings):
-        '''This function checks that the plugin settings contains all the expected input_options
-            defined for the specific plugin type'''
+    # def validate_required_input_options(self, settings):
+    #     '''This function checks that the plugin settings contains all
+    #     the expected input_options defined for the specific plugin type'''
+    #
+    #     validator_result = (True, "")
+    #     for input_option in self.required_input_options:
+    #         if settings.get('options'):
+    #             if input_option not in settings['options']:
+    #                 message = '{} require {} input option'.format(
+    #                     self.plugin_name, input_option
+    #                 )
+    #                 validator_result = (False, message)
+    #         else:
+    #             message = '{} require {} input options'.format(
+    #                 self.plugin_name, self.required_input_options
+    #             )
+    #             validator_result = (False, message)
+    #     return validator_result
 
+    def _validate_required_output_list(self, result):
+        '''This function checks that the plugin result contains the expected
+        required_output defined for the specific plugin type'''
         validator_result = (True, "")
-        for input_option in self.required_input_options:
-            if settings.get('options'):
-                if input_option not in settings['options']:
-                    message = '{} require {} input option'.format(
-                        self.plugin_name, input_option
-                    )
-                    validator_result = (False, message)
-            else:
-                message = '{} require {} input options'.format(
-                    self.plugin_name, self.required_input_options
+
+        for output_value in self.required_output:
+            if output_value not in result:
+                message = '{} require {} result option'.format(
+                    self.plugin_name, output_value
                 )
                 validator_result = (False, message)
+
         return validator_result
 
-
-    def validate_required_output_options(self, result):
-        '''This function checks that the plugin result contains all the expected output_options
-        defined for the specific plugin type'''
+    def _validate_required_output_dict(self, result):
+        '''This function checks that the plugin result contains all the
+        expected required_output keys defined for the specific plugin type'''
         validator_result = (True, "")
 
-        for output_option in self.required_output_options:
-            if output_option not in result:
+        for output_key in self.required_output.keys():
+            if output_key not in result.keys():
                 message = '{} require {} result option'.format(
-                    self.plugin_name, output_option
+                    self.plugin_name, output_key
                 )
                 validator_result = (False, message)
 
+        return validator_result
+
+    def _validate_required_output_bool(self, result):
+        '''This function checks that the plugin result contains the expected
+        required_output defined for the specific plugin type'''
+        validator_result = (True, "")
+        if type(result) != type(self.required_output):
+            message = '{} require {} result option type'.format(
+                self.plugin_name, type(self.required_output)
+            )
+            validator_result = (False, message)
+
+        return validator_result
+
+    def validate_required_output(self, result):
+        '''This function checks that the plugin result contains all
+        the expected required_output defined for the specific plugin type'''
+        if self.return_type == dict:
+            return self._validate_required_output_dict(result)
+        if self.return_type == list:
+            return self._validate_required_output_list(result)
+        if self.return_type == bool:
+            return self._validate_required_output_bool(result)
+
+        message = 'Return type of {} is not defined on the output validators, ' \
+                  'type: {}'.format(self.plugin_name, self.return_type)
+        validator_result = (False, message)
         return validator_result
 
     def validate_result_type(self, result):
@@ -59,13 +99,12 @@ class PluginValidation(object):
 
         if self.return_type is not None:
             if not isinstance(result, self.return_type):
-                message = 'Return value of {} is of type {}, should {} type'.format(
-                    self.plugin_name, type(result), self.return_type
-                )
+                message = 'Return value of {} is of type {}, should {} ' \
+                          'type'.format(self.plugin_name, type(result),
+                                        self.return_type)
                 validator_result = (False, message)
 
         return validator_result
-
 
     def validate_result_value(self, result):
         '''This function checks if plugin result is equal as the expected
@@ -82,8 +121,9 @@ class PluginValidation(object):
 
         return validator_result
 
-class BasePlugin(object):
 
+class BasePlugin(object):
+    ''' Class representing a Plugin '''
     plugin_type = None
     plugin_name = None
     type = 'plugin'#None
@@ -91,11 +131,15 @@ class BasePlugin(object):
 
     return_type = None
     return_value = None
-    required_input_options = []
-    required_output_options = []
+    _required_output = {}
 
     def __repr__(self):
         return '<{}:{}>'.format(self.plugin_type, self.plugin_name)
+
+    @property
+    def output(self):
+        ''' Property that returns a copy of required_output '''
+        return copy.deepcopy(self._required_output)
 
     @property
     def discover_topic(self):
@@ -116,14 +160,17 @@ class BasePlugin(object):
         )
 
         self._session = session
-        self.validator = PluginValidation(self.plugin_name, self.required_input_options, self.required_output_options,
+        self.validator = PluginValidation(self.plugin_name,
+                                          self._required_output,
                                           self.return_type, self.return_value)
 
     def _base_topic(self, topic):
-        '''This function ensures that we pass all the nedded information to the topic
+        '''This function ensures that we pass all the nedded information to
+        the topic.
         Return formated topic
 
-        Raise :exc:`ftrack_connect_pipeline.exception.PluginError` if some information is missed.
+        Raise :exc:`ftrack_connect_pipeline.exception.PluginError` if some
+        information is missed.
         '''
 
         required = [
@@ -136,15 +183,20 @@ class BasePlugin(object):
         if not all(required):
             raise exception.PluginError('Some required fields are missing')
 
-        topic = 'topic={} and data.pipeline.host={} and data.pipeline.type={} and data.pipeline.plugin_type={} and ' \
-                'data.pipeline.plugin_name={}'.format(topic, self.host, self.type, self.plugin_type, self.plugin_name)
+        topic = 'topic={} and data.pipeline.host={} and data.pipeline.type={} ' \
+                'and data.pipeline.plugin_type={} and ' \
+                'data.pipeline.plugin_name={}'.format(topic, self.host,
+                                                      self.type,
+                                                      self.plugin_type,
+                                                      self.plugin_name)
 
         return topic
 
     def register(self):
         '''Function called by each plugin to register them self.
         This function subscribes the plugin to two event topics:
-        PIPELINE_DISCOVER_PLUGIN_TOPIC: Topic to make the plugin discoverable for the host
+        PIPELINE_DISCOVER_PLUGIN_TOPIC: Topic to make the plugin discoverable
+        for the host.
         PIPELINE_RUN_PLUGIN_TOPIC: Topic to execute the plugin'''
         if not isinstance(self.session, ftrack_api.Session):
             # Exit to avoid registering this plugin again.
@@ -175,15 +227,19 @@ class BasePlugin(object):
         return True
 
     def _run(self, event):
-        '''Function that executes the plugin used by the runner with the data from the *event*, called by the PIPELINE_RUN_PLUGIN_TOPIC.
-        Returns a dictionary with the status, result, execution time and message of the execution'''
+        '''Function that executes the plugin used by the runner with the data
+        from the *event*, called by the PIPELINE_RUN_PLUGIN_TOPIC.
+        Returns a dictionary with the status, result, execution time and
+        message of the execution'''
 
         plugin_settings = event['data']['settings']
 
-        # validate input options
-        input_valid, message = self.validator.validate_required_input_options(plugin_settings)
-        if not input_valid:
-            return {'status': constants.ERROR_STATUS, 'result': None, 'execution_time': 0, 'message': str(message)}
+
+        # # validate input options
+        # input_valid, message = self.validator.validate_required_input_options(plugin_settings)
+        # if not input_valid:
+        #     return {'status': constants.ERROR_STATUS, 'result': None,
+        #             'execution_time': 0, 'message': str(message)}
 
         # run Plugin
         start_time = time.time()
@@ -194,37 +250,47 @@ class BasePlugin(object):
             end_time = time.time()
             total_time = end_time - start_time
             self.logger.debug(message, exc_info=True)
-            return {'status': constants.EXCEPTION_STATUS, 'result': None, 'execution_time': total_time,
+            return {'status': constants.EXCEPTION_STATUS, 'result': None,
+                    'execution_time': total_time,
                     'message': str(message)}
         end_time = time.time()
         total_time = end_time - start_time
 
-        # validate result with output options
-        output_valid, output_valid_message = self.validator.validate_required_output_options(result)
-        if not output_valid:
-            return {'status': constants.ERROR_STATUS, 'result': None, 'execution_time': total_time,
-                    'message': str(output_valid_message)}
-
         # validate result instance type
-        result_type_valid, result_type_valid_message = self.validator.validate_result_type(result)
+        result_type_valid, result_type_valid_message = self.validator.validate_result_type(
+            result)
         if not result_type_valid:
-            return {'status': constants.ERROR_STATUS, 'result': None, 'execution_time': total_time,
+            return {'status': constants.ERROR_STATUS, 'result': None,
+                    'execution_time': total_time,
                     'message': str(result_type_valid_message)}
 
+        # validate result with output options
+        output_valid, output_valid_message = self.validator.validate_required_output(
+            result)
+        if not output_valid:
+            return {'status': constants.ERROR_STATUS, 'result': None,
+                    'execution_time': total_time,
+                    'message': str(output_valid_message)}
+
         # Return value is valid
-        result_value_valid, result_value_valid_message = self.validator.validate_result_value(result)
+        result_value_valid, result_value_valid_message = self.validator.validate_result_value(
+            result)
         if not result_value_valid:
-            return {'status': constants.ERROR_STATUS, 'result': None, 'execution_time': total_time,
+            return {'status': constants.ERROR_STATUS, 'result': None,
+                    'execution_time': total_time,
                     'message': str(result_value_valid_message)}
 
-        return {'status': constants.SUCCESS_STATUS, 'result': result, 'execution_time': total_time,
+        return {'status': constants.SUCCESS_STATUS, 'result': result,
+                'execution_time': total_time,
                 'message': 'Successfully run :{}'.format(self.__class__.__name__)}
 
     def run(self, context=None, data=None, options=None):
-        '''plugin execution function of each plugin, should be overrided in the plugin itself
+        '''plugin execution function of each plugin, should be overrided in the
+        plugin itself
 
         context argument: context of the task that we are working on
-        data: coming from the previous stage, if context or collector stage, data is empty
+        data: coming from the previous stage, if context or collector stage,
+        data is empty
         options: plugin options
         returns dictionary or list with data
         '''

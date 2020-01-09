@@ -6,9 +6,16 @@ from ftrack_connect_pipeline.plugin import BasePlugin
 
 
 class ContextPlugin(BasePlugin):
+    ''' Class representing a Context Plugin
+    .. note::
+
+        _required_output is a dictionary containing the 'context_id',
+        'asset_name', 'comment' and 'status_id' of the current asset
+    '''
     return_type = dict
     plugin_type = constants.PLUGIN_CONTEXT_TYPE
-    required_output_options = ['context_id', 'asset_name', 'comment', 'status_id']
+    _required_output = {'context_id': None, 'asset_name': None,
+                        'comment': None, 'status_id': None}
 
     def run(self, context=None, data=None, options=None):
         '''Run the current plugin with , *context* , *data* and *options*.
@@ -21,12 +28,14 @@ class ContextPlugin(BasePlugin):
 
         *options* a dictionary of options passed from outside.
 
-        Returns a Dictionary with the asset_name, context_id, asset_type,
+        Returns self.output a Dictionary with the asset_name, context_id, asset_type,
         comment and status_id of the asset that we are working on.
 
-        '''
+        .. note::
 
-        required_output_options = ['context_id', 'asset_name', 'comment',
-                                   'status_id']
+            Use always self.output as a base to return the values,
+            don't override self.output as it contains the _required_output
+
+        '''
 
         raise NotImplementedError('Missing run method.')

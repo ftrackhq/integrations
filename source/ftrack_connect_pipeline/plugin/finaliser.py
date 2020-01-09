@@ -6,15 +6,18 @@ from ftrack_connect_pipeline.plugin import BasePlugin
 
 
 class FinaliserPlugin(BasePlugin):
+    ''' Class representing a Finaliser Plugin
+
+        .. note::
+
+            _required_output is a dictionary containing the 'context_id',
+            'asset_name', 'asset_type', 'comment' and 'status_id' of the
+            current asset
+    '''
     return_type = dict
     plugin_type = constants.PLUGIN_FINALISER_TYPE
-    required_output_options = [
-        'context_id',
-        'asset_name',
-        'asset_type',
-        'comment',
-        'status_id'
-    ]
+    _required_output = {'context_id': None, 'asset_name': None,
+                        'asset_type': None, 'comment': None, 'status_id': None}
 
     def run(self, context=None, data=None, options=None):
         '''Run the current plugin with , *context* , *data* and *options*.
@@ -26,8 +29,13 @@ class FinaliserPlugin(BasePlugin):
 
         *options* a dictionary of options passed from outside.
 
-        Returns a Dictionary with ontext_id, asset_name, asset_type, comment, status_id.
+        Returns self.output a Dictionary with ontext_id, asset_name, asset_type,
+        comment, status_id.
 
+        .. note::
+
+            Use always self.output as a base to return the values,
+            don't override self.output as it contains the _required_output
         '''
 
         raise NotImplementedError('Missing run method.')

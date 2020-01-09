@@ -10,13 +10,13 @@ class TmpOutputPlugin(plugin.OutputPlugin):
     plugin_name = 'to_tmp'
 
     def run(self, context=None, data=None, options=None):
-        result = {}
+        output = self.output
         for item in data:
             new_file_path = tempfile.NamedTemporaryFile(delete=False).name
             shutil.copy(item, new_file_path)
-            result[item] = new_file_path
+            output[item] = new_file_path
 
-        return result
+        return output
 
 
 def register(api_object, **kw):

@@ -6,9 +6,15 @@ from ftrack_connect_pipeline.plugin import BasePlugin
 
 
 class ValidatorPlugin(BasePlugin):
+    ''' Class representing a Validator Plugin
+
+    .. note::
+
+        _required_output a Boolean '''
     return_type = bool
     plugin_type = constants.PLUGIN_VALIDATOR_TYPE
     return_value = True
+    _required_output = False
 
     def run(self, context=None, data=None, options=None):
         '''Run the current plugin with , *context* , *data* and *options*.
@@ -20,8 +26,11 @@ class ValidatorPlugin(BasePlugin):
 
         *options* a dictionary of options passed from outside.
 
-        Returns Boolean value
+        Returns self.output Boolean value
 
+        .. note::
+
+            Use always self.output as a base to return the values.
         '''
 
         raise NotImplementedError('Missing run method.')
