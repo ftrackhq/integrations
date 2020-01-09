@@ -9,8 +9,8 @@ class ContextPluginValidation(BasePluginValidation):
     '''Context Plugin Validation class'''
 
     def __init__(self, plugin_name, required_output, return_type, return_value):
-        '''Initialise ContextPluginValidation with *plugin_name*, *required_output*,
-        *return_type*, *return_value*.
+        '''Initialise ContextPluginValidation with *plugin_name*,
+        *required_output*, *return_type*, *return_value*.
 
         *plugin_name* current plugin name stored at the plugin base class
 
@@ -55,16 +55,16 @@ class ContextPlugin(BasePlugin):
     def run(self, context=None, data=None, options=None):
         '''Run the current plugin with , *context* , *data* and *options*.
 
-        *context* provides a mapping with the asset_name, context_id, asset_type,
-        comment and status_id of the asset that we are working on.
+        *context* provides a mapping with the asset_name, context_id,
+        asset_type, comment and status_id of the asset that we are working on.
 
         *data* a list of data coming from previous collector or empty list.
         Not used, should be Empty
 
         *options* a dictionary of options passed from outside.
 
-        Returns self.output a Dictionary with the asset_name, context_id, asset_type,
-        comment and status_id of the asset that we are working on.
+        Returns self.output a Dictionary with the asset_name, context_id,
+        asset_type, comment and status_id of the asset that we are working on.
 
         .. note::
 

@@ -56,13 +56,16 @@ class Host(object):
         try:
             validation.validate_schema(self.__registry['schemas'], data)
         except Exception as error:
-            self.logger.error("Can't validate the data {} error: {}".format(data, error))
+            self.logger.error("Can't validate the data {} "
+                              "error: {}".format(data, error))
             return False
 
-        asset_type = self.get_asset_type_from_packages(self.__registry['packages'], data['package'])
+        asset_type = self.get_asset_type_from_packages(
+            self.__registry['packages'], data['package'])
         schema_engine = data['_config']['engine']
         MyEngine = engine.getEngine(engine.BaseEngine, schema_engine)
-        engine_runner = MyEngine(self.event_manager, self.host, self.hostid, asset_type)
+        engine_runner = MyEngine(self.event_manager, self.host, self.hostid,
+                                 asset_type)
         runnerResult = engine_runner.run(data)
 
         if runnerResult == False:
@@ -110,14 +113,17 @@ class Host(object):
 
     def validate(self, data):
 
-        plugin_validator = validation.PluginDiscoverValidation(self.session, self.host)
+        plugin_validator = validation.PluginDiscoverValidation(self.session,
+                                                               self.host)
 
-        invalid_publishers_idxs = plugin_validator.validate_publishers_plugins(data['publishers'])
+        invalid_publishers_idxs = plugin_validator.validate_publishers_plugins(
+            data['publishers'])
         if invalid_publishers_idxs:
             for idx in invalid_publishers_idxs:
                 data['publishers'].pop(idx)
 
-        invalid_loaders_idxs = plugin_validator.validate_loaders_plugins(data['loaders'])
+        invalid_loaders_idxs = plugin_validator.validate_loaders_plugins(
+            data['loaders'])
         if invalid_loaders_idxs:
             for idx in invalid_loaders_idxs:
                 data['loaders'].pop(idx)

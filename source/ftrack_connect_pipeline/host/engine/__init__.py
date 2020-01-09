@@ -6,7 +6,8 @@ import ftrack_api
 from ftrack_connect_pipeline import constants
 
 def getEngine(baseClass, engineType):
-    '''Return the engine Class *subclass* of the given *baseClass* based on the *engineType*'''
+    '''Return the engine Class *subclass* of the given *baseClass* based on the
+    *engineType*'''
     for subclass in baseClass.__subclasses__():
         if engineType == subclass.__name__:
             return subclass
@@ -24,7 +25,8 @@ class BaseEngine(object):
         return self._host
 
     def __init__(self, event_manager, host,  hostid, asset_type):
-        '''Initialise BaseEngine with *event_manager*, *host*, *hostid* and *asset_type*'''
+        '''Initialise BaseEngine with *event_manager*, *host*, *hostid* and
+        *asset_type*'''
         super(BaseEngine, self).__init__()
 
         self.asset_type = asset_type
@@ -38,9 +40,11 @@ class BaseEngine(object):
 
         self.event_manager = event_manager
 
-    def _run_plugin(self, plugin, plugin_type, options=None, data=None, context=None):
-        '''Run *plugin*, *plugin_type*, with given *options*, *data* and *context* and notify client with
-        the status before and after execute the plugin'''
+    def _run_plugin(self, plugin, plugin_type, options=None, data=None,
+                    context=None):
+        '''Run *plugin*, *plugin_type*, with given *options*, *data* and
+        *context* and notify client with the status before and after execute
+        the plugin'''
         plugin_name = plugin['plugin']
 
         self._notify_client(None, plugin, constants.RUNNING_STATUS)
@@ -76,7 +80,8 @@ class BaseEngine(object):
         return status, result
 
     def _notify_client(self, data, plugin, status, message=None):
-        '''Publish an event to notify client with *data*, plugin_name from *plugin*, *status* and *message*'''
+        '''Publish an event to notify client with *data*, plugin_name from
+        *plugin*, *status* and *message*'''
 
         pipeline_data = {
             'hostid': self.hostid,
@@ -110,15 +115,19 @@ class BaseEngine(object):
             )
             bool_status = constants.status_bool_mapping[status]
             if not bool_status:
-                raise Exception('An error occurred during the execution of the context plugin {} \n status: {} '
-                                '\n result: {}'.format(plugin['plugin'], status, result))
+                raise Exception('An error occurred during the execution of the '
+                                'context plugin {} \n status: {} '
+                                '\n result: {}'.format(plugin['plugin'],
+                                                       status, result))
             statuses.append(bool_status)
             results.update(result)
 
         return statuses, results
 
-    def run_component(self, component_name, component_stages, context_data, stages_order):
-        '''Run component plugins for *component_name*, *component_stages* with *context_data* with the
+    def run_component(self, component_name, component_stages, context_data,
+                      stages_order):
+        '''Run component plugins for *component_name*, *component_stages* with
+        *context_data* with the
         provided *stages_order*.
         Raise Exception if any plugin returns a False status
         Returns *statuses* (List) *results* (List)'''
@@ -158,19 +167,26 @@ class BaseEngine(object):
                     stage_status.append(bool_status)
                     stages_result.append(result)
                     if not bool_status:
-                        self.logger.error('An error occurred during the execution of the component plugin {} \n '
-                                          'status: {} \n result: {}'.format(plugin['plugin'], status, result))
+                        self.logger.error('An error occurred during the '
+                                          'execution of the component plugin {} '
+                                          '\n status: {} \n '
+                                          'result: {}'.format(plugin['plugin'],
+                                                              status, result))
 
                 results[stage_name] = stages_result
                 statuses[stage_name] = all(stage_status)
                 if not statuses[stage_name]:
-                    raise Exception('An error occurred during the execution of the stage {} \n status: {} '
-                                    '\n result: {}'.format(stage_name, statuses[stage_name], results[stage_name]))
+                    raise Exception('An error occurred during the execution of '
+                                    'the stage {} \n status: {} \n '
+                                    'result: {}'.format(stage_name,
+                                                        statuses[stage_name],
+                                                        results[stage_name]))
 
         return statuses, results
 
     def run_finaliser(self, finaliser_plugins, finaliser_data, context_data):
-        '''Run finaliser plugins for *finaliser_plugins* with *finaliser_data* and *context_data*.
+        '''Run finaliser plugins for *finaliser_plugins* with *finaliser_data*
+        and *context_data*.
         Raise Exception if any plugin returns a False status
         Returns *statuses* (List) *results* (List)'''
         statuses = []
@@ -185,8 +201,10 @@ class BaseEngine(object):
             )
             bool_status = constants.status_bool_mapping[status]
             if not bool_status:
-                raise Exception('An error occurred during the execution of the finaliser plugin {} \n status: {} '
-                                '\n result: {}'.format(plugin['plugin'], status, result))
+                raise Exception('An error occurred during the execution of the '
+                                'finaliser plugin {} \n status: {} \n '
+                                'result: {}'.format(plugin['plugin'], status,
+                                                    result))
             statuses.append(bool_status)
             results.append(result)
 
@@ -195,13 +213,15 @@ class BaseEngine(object):
     def run(self, data):
         '''Run packages from the provided data
         *data* the json schema
-        Raise Exception if any context plugin, component plugin or finaliser plugin returns a False status
+        Raise Exception if any context plugin, component plugin or finaliser
+        plugin returns a False status
         Returns Bool'''
 
         context_plugins = data[constants.CONTEXTS]
         context_status, context_result = self.run_context(context_plugins)
         if not all(context_status):
-            raise Exception('An error occurred during the execution of the context')
+            raise Exception('An error occurred during the execution of the '
+                            'context')
         context_result['asset_type'] = self.asset_type
 
         components = data[constants.COMPONENTS]
@@ -212,12 +232,13 @@ class BaseEngine(object):
             component_name = component["name"]
             component_stages = component["stages"]
             component_status, component_result = self.run_component(
-                component_name, component_stages, context_result, data['_config']['stage_order']
+                component_name, component_stages, context_result,
+                data['_config']['stage_order']
             )
 
             if not all(component_status.values()):
-                raise Exception('An error occurred during the execution of the component '
-                                'name {}'.format(component_name))
+                raise Exception('An error occurred during the execution of the '
+                                'component name {}'.format(component_name))
 
             components_status.append(component_status)
             components_result.append(component_result)
@@ -237,7 +258,8 @@ class BaseEngine(object):
             finaliser_plugins, finaliser_data, context_result
         )
         if not all(finalisers_status):
-            raise Exception('An error occurred during the execution of the finalisers')
+            raise Exception('An error occurred during the execution of the '
+                            'finalisers')
 
         return True
 

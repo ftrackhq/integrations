@@ -10,8 +10,10 @@ from ftrack_connect_pipeline.host.engine import BaseEngine
 class PublisherEngine(BaseEngine):
 
     def __init__(self, event_manager, host,  hostid, asset_type):
-        '''Initialise publish runnder with *session*, *package_definitions*, *host*, *ui* and *hostid*.'''
-        super(PublisherEngine, self).__init__(event_manager, host, hostid, asset_type)
+        '''Initialise publish runnder with *session*, *package_definitions*,
+        *host*, *ui* and *hostid*.'''
+        super(PublisherEngine, self).__init__(event_manager, host, hostid,
+                                              asset_type)
 
 
 

@@ -157,8 +157,8 @@ class BasePlugin(object):
         if not all(required):
             raise exception.PluginError('Some required fields are missing')
 
-        topic = 'topic={} and data.pipeline.host={} and data.pipeline.type={} ' \
-                'and data.pipeline.plugin_type={} and ' \
+        topic = 'topic={} and data.pipeline.host={} and ' \
+                'data.pipeline.type={} and data.pipeline.plugin_type={} and ' \
                 'data.pipeline.plugin_name={}'.format(topic, self.host,
                                                       self.type,
                                                       self.plugin_type,
@@ -172,8 +172,8 @@ class BasePlugin(object):
         .. note::
 
             This function subscribes the plugin to two event topics:
-            PIPELINE_DISCOVER_PLUGIN_TOPIC: Topic to make the plugin discoverable
-            for the host.
+            PIPELINE_DISCOVER_PLUGIN_TOPIC: Topic to make the plugin
+            discoverable for the host.
             PIPELINE_RUN_PLUGIN_TOPIC: Topic to execute the plugin
         '''
         if not isinstance(self.session, ftrack_api.Session):

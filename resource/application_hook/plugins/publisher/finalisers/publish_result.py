@@ -48,13 +48,14 @@ class FtrackPublishPlugin(plugin.FinaliserPlugin):
         status = self.session.get('Status', status_id)
 
         context_object = self.session.get('Context', context['context_id'])
-        asset_type_object = self.session.query('AssetType where short is "{}"'.format(asset_type)).first()
+        asset_type_object = self.session.query(
+            'AssetType where short is "{}"'.format(asset_type)).first()
         asset_parent_object = context_object['parent']
 
         asset_object = self.session.query(
-            'Asset where name is "{}" and type.short is "{}" and parent.id is "{}"'.format(
-                asset_name, asset_type, asset_parent_object['id'])
-        ).first()
+            'Asset where name is "{}" and type.short is "{}" and '
+            'parent.id is "{}"'.format(
+                asset_name, asset_type, asset_parent_object['id'])).first()
 
         if not asset_object:
             asset_object = self.session.create('Asset', {
@@ -85,7 +86,8 @@ class FtrackPublishPlugin(plugin.FinaliserPlugin):
 
         self.session.commit()
 
-        self.logger.debug("publishing: {} to {} as {}".format(data, context, asset_object))
+        self.logger.debug("publishing: {} to {} as {}".format(data, context,
+                                                              asset_object))
 
         return output
 

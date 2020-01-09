@@ -69,7 +69,8 @@ class HostConnection(object):
                              'message: {}'.format(plugin_name, status,
                                                   data, message))
 
-        if status == constants.ERROR_STATUS or status == constants.EXCEPTION_STATUS:
+        if status == constants.ERROR_STATUS or \
+                status == constants.EXCEPTION_STATUS:
             raise Exception('An error occurred during the execution of the '
                             'plugin name {} \n message: {} \n data: {}'.format(
                 plugin_name, message, data))
