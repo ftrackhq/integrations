@@ -21,7 +21,7 @@ event_manager = event.EventManager(
 )
 
 # init host
-host.Host(event_manager, host=constants.HOST)
+host.Host(event_manager, host=constants.HOST, extra_hosts_definitions=['maya', 'max'])
 
 
 # on client ready callback

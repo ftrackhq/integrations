@@ -25,7 +25,7 @@ def validate_schema(schemas, definition):
 class PluginDiscoverValidation(object):
     '''Plugin Discover base class'''
 
-    def __init__(self, session, host):
+    def __init__(self, session, host, extra_hosts_definitions):
         '''Initialise PluginDiscoverValidation with *session*, *host*
 
         *session* should be the :class:`ftrack_api.session.Session` instance
@@ -41,6 +41,8 @@ class PluginDiscoverValidation(object):
 
         self.session = session
         self.host = host
+        self.extra_hosts_definitions = extra_hosts_definitions
+        self.host_definition_list = [self.host] + self.extra_hosts_definitions
 
     def validate_publishers_plugins(self, publishers):
         idxs_to_pop = []
@@ -127,29 +129,35 @@ class PluginDiscoverValidation(object):
         return is_valid
 
     def _discover_plugin(self, plugin, plugin_type):
-        '''Run *plugin*, *plugin_type*, with given *options*, *data* and
-        *context*'''
+        '''Checks if the *plugin* of type *plugin_type* for the current host
+        and extra_host_definitions is discoverable
+        '''
         plugin_name = plugin['plugin']
-
-        data = {
-            'pipeline': {
-                'plugin_name': plugin_name,
-                'plugin_type': plugin_type,
-                'type': 'plugin',
-                'host': self.host
+        for host_definition in self.host_definition_list:
+            data = {
+                'pipeline': {
+                    'plugin_name': plugin_name,
+                    'plugin_type': plugin_type,
+                    'type': 'plugin',
+                    'host': host_definition#self.host
+                }
             }
-        }
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_DISCOVER_PLUGIN_TOPIC,
-            data=data
-        )
+            event = ftrack_api.event.base.Event(
+                topic=constants.PIPELINE_DISCOVER_PLUGIN_TOPIC,
+                data=data
+            )
 
-        plugin_result = self.session.event_hub.publish(
-            event,
-            synchronous=True
-        )
+            plugin_result = self.session.event_hub.publish(
+                event,
+                synchronous=True
+            )
 
-        if plugin_result:
-            plugin_result = plugin_result[0]
+            if plugin_result:
+                plugin_result = plugin_result[0]
+                self.logger.info("plugin {} found for definition "
+                                 "host {}".format(plugin_name, host_definition))
+                break
+            self.logger.info("plugin {} not found for definition "
+                             "host {}".format(plugin_name, host_definition))
 
         return plugin_result

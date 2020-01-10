@@ -31,7 +31,7 @@ def provide_host_information(hostid, definitions, event):
 
 class Host(object):
 
-    def __init__(self, event_manager, host):
+    def __init__(self, event_manager, host, extra_hosts_definitions=None):
         '''Initialise the class with ftrack *session* and *context_type*'''
         super(Host, self).__init__()
 
@@ -46,6 +46,7 @@ class Host(object):
         self.hostid = hostid
         self.__registry = {}
         self.host = host
+        self.extra_hosts_definitions = extra_hosts_definitions
         self.session = event_manager.session
         self.event_manager = event_manager
         self.register()
@@ -114,7 +115,8 @@ class Host(object):
     def validate(self, data):
 
         plugin_validator = validation.PluginDiscoverValidation(self.session,
-                                                               self.host)
+                                                               self.host,
+                                                               self.extra_hosts_definitions)
 
         invalid_publishers_idxs = plugin_validator.validate_publishers_plugins(
             data['publishers'])
@@ -138,7 +140,8 @@ class Host(object):
             data={
                 'pipeline': {
                     'type': "definition",
-                    'host': self.host
+                    'host': self.host,
+                    'extra_hosts_definitions': self.extra_hosts_definitions
                 }
             }
         )
