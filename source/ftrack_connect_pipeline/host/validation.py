@@ -25,13 +25,16 @@ def validate_schema(schemas, definition):
 class PluginDiscoverValidation(object):
     '''Plugin Discover base class'''
 
-    def __init__(self, session, host, extra_hosts_definitions):
-        '''Initialise PluginDiscoverValidation with *session*, *host*
+    def __init__(self, session, host, extra_hosts_definitions=None):
+        '''Initialise PluginDiscoverValidation with *session*, *host*,
+        *extra_hosts_definitions* is optional.
 
         *session* should be the :class:`ftrack_api.session.Session` instance
         to use for communication with the server.
 
         *host* should be the :class:`Host` instance to use to identify the host.
+
+        *extra_hosts_definitions* list of compatible hosts definitions
         '''
         super(PluginDiscoverValidation, self).__init__()
 
@@ -42,7 +45,10 @@ class PluginDiscoverValidation(object):
         self.session = session
         self.host = host
         self.extra_hosts_definitions = extra_hosts_definitions
-        self.host_definition_list = [self.host] + self.extra_hosts_definitions
+        if extra_hosts_definitions:
+            self.host_definition_list = [self.host] + self.extra_hosts_definitions
+        else:
+            self.host_definition_list = [self.host]
 
     def validate_publishers_plugins(self, publishers):
         idxs_to_pop = []

@@ -24,15 +24,23 @@ class BaseEngine(object):
         '''Return the current host type.'''
         return self._host
 
-    def __init__(self, event_manager, host,  hostid, asset_type):
+    def __init__(self, event_manager, host,  hostid, asset_type,
+                 extra_hosts_definitions=None):
         '''Initialise BaseEngine with *event_manager*, *host*, *hostid* and
-        *asset_type*'''
+        *asset_type*, *extra_hosts_definitions* is optional'''
         super(BaseEngine, self).__init__()
 
         self.asset_type = asset_type
         self.session = event_manager.session
         self._host = host
         self._hostid = hostid
+        self.extra_hosts_definitions = extra_hosts_definitions
+
+        if extra_hosts_definitions:
+            self.host_definition_list = [self.host] + \
+                                        self.extra_hosts_definitions
+        else:
+            self.host_definition_list = [self.host]
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -49,31 +57,44 @@ class BaseEngine(object):
 
         self._notify_client(None, plugin, constants.RUNNING_STATUS)
 
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
-            data={
-                'pipeline': {
-                    'plugin_name': plugin_name,
-                    'plugin_type': plugin_type,
-                    'type': 'plugin',
-                    'host': self.host
-                },
-                'settings':
-                    {
-                        'data': data,
-                        'options': options,
-                        'context': context
-                    }
-            }
-        )
+        status = None
+        result = None
 
-        data = self.session.event_hub.publish(
-            event,
-            synchronous=True
-        )
-        result = data[0]['result']
-        status = data[0]['status']
-        message = data[0]['message']
+        for host_definition in self.host_definition_list:
+            event = ftrack_api.event.base.Event(
+                topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
+                data={
+                    'pipeline': {
+                        'plugin_name': plugin_name,
+                        'plugin_type': plugin_type,
+                        'type': 'plugin',
+                        'host': host_definition
+                    },
+                    'settings':
+                        {
+                            'data': data,
+                            'options': options,
+                            'context': context
+                        }
+                }
+            )
+            result_data = self.session.event_hub.publish(
+                event,
+                synchronous=True
+            )
+            if result_data:
+                result = result_data[0]['result']
+                status = result_data[0]['status']
+                message = result_data[0]['message']
+                break
+            else:
+                result = None
+                status = constants.ERROR_STATUS
+                message = "Can't run the plugin {}. " \
+                          "Please check if plugin host" \
+                          "is in the given " \
+                          "host list : {}".format(plugin_name,
+                                                  self.host_definition_list)
 
         self._notify_client(result, plugin, status, message)
 

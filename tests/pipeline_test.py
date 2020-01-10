@@ -20,6 +20,8 @@ event_manager = event.EventManager(
     session=session, mode=constants.LOCAL_EVENT_MODE
 )
 
+type(event_manager)
+
 # init host
 host.Host(event_manager, host=constants.HOST, extra_hosts_definitions=['maya', 'max'])
 
@@ -42,6 +44,16 @@ def ready_callback(hosts):
     publisher['contexts'][0]['options']['status_id'] = task_status['id']
     publisher['components'][0]['stages'][0]['plugins'][0]['options']['path'] = "/home/ftrackwork/devel/testn11info.nk"
     host.run(publisher)
+    # Try The maya publisher
+    maya_publisher = host.definitions['publishers'][1]
+    maya_publisher['contexts'][0]['options']['context_id'] = task['id']
+    maya_publisher['contexts'][0]['options']['asset_name'] = 'PipelineAsset'
+    maya_publisher['contexts'][0]['options'][
+        'comment'] = 'A new hope from maya plugin'
+    maya_publisher['contexts'][0]['options']['status_id'] = task_status['id']
+    maya_publisher['components'][0]['stages'][0]['plugins'][0]['options'][
+        'path'] = "/Users/lluisftrack/Desktop/file_to_publish.txt"
+    host.run(maya_publisher)
 
 
 # init client

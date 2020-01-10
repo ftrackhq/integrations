@@ -123,6 +123,13 @@ class BasePlugin(object):
 
         *session* should be the :class:`ftrack_api.session.Session` instance
         to use for communication with the server.
+
+        ..note:
+
+            if host is not defined in the specific plugin, all the plugins has
+            python as default host, that means if a plugin with the default
+            host value is running from max and you are not loading python as an
+            extra_host_definitions the plugin will not run.
         '''
 
         self.logger = logging.getLogger(
@@ -145,7 +152,6 @@ class BasePlugin(object):
         Raise :exc:`ftrack_connect_pipeline.exception.PluginError` if some
         information is missed.
         '''
-
 
         required = [
             self.host,

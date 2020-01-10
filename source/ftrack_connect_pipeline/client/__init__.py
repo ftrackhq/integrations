@@ -142,7 +142,6 @@ class Client(object):
         '''callback to to add new hosts *event*.'''
         if not event['data']:
             return
-
         host_connection = HostConnection(self.event_manager, event['data'])
         if host_connection not in self.hosts:
             self._host_list.append(host_connection)

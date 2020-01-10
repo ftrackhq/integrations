@@ -32,7 +32,16 @@ def provide_host_information(hostid, definitions, event):
 class Host(object):
 
     def __init__(self, event_manager, host, extra_hosts_definitions=None):
-        '''Initialise the class with ftrack *session* and *context_type*'''
+        '''Initialise Host Class with *event_manager* and *host*,
+        *extra_hosts_definitions* is optional
+
+        *event_manager* should be the
+        :class:`ftrack_connect_pipeline.event.EventManager`instance to
+        communicate to the event server.
+
+        *host* string with host definition type.
+
+        *extra_hosts_definitions* list of compatible hosts definitions'''
         super(Host, self).__init__()
 
         self.logger = logging.getLogger(
@@ -66,7 +75,7 @@ class Host(object):
         schema_engine = data['_config']['engine']
         MyEngine = engine.getEngine(engine.BaseEngine, schema_engine)
         engine_runner = MyEngine(self.event_manager, self.host, self.hostid,
-                                 asset_type)
+                                 asset_type, self.extra_hosts_definitions)
         runnerResult = engine_runner.run(data)
 
         if runnerResult == False:

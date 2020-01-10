@@ -5,11 +5,12 @@ import os
 from ftrack_connect_pipeline import plugin
 
 
-class FtrackPublishPlugin(plugin.FinaliserPlugin):
-    plugin_name = 'result'
+class FtrackPublishTestPlugin(plugin.FinaliserPlugin):
+    plugin_name = 'test_result'
+    host = 'maya'
 
     def __init__(self, session):
-        super(FtrackPublishPlugin, self).__init__(session)
+        super(FtrackPublishTestPlugin, self).__init__(session)
         self.component_functions = {
             'thumbnail':  self.create_thumbnail,
             'reviewable': self.create_reviewable
@@ -39,8 +40,6 @@ class FtrackPublishPlugin(plugin.FinaliserPlugin):
 
     def run(self, context=None, data=None, options=None):
         output = self.output
-
-        print "data from result ---> {}".format(data)
 
         comment = context['comment']
         status_id = context['status_id']
@@ -95,5 +94,5 @@ class FtrackPublishPlugin(plugin.FinaliserPlugin):
 
 
 def register(api_object, **kw):
-    plugin = FtrackPublishPlugin(api_object)
+    plugin = FtrackPublishTestPlugin(api_object)
     plugin.register()
