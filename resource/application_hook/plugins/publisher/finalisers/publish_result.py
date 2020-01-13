@@ -40,8 +40,6 @@ class FtrackPublishPlugin(plugin.FinaliserPlugin):
     def run(self, context=None, data=None, options=None):
         output = self.output
 
-        print "data from result ---> {}".format(data)
-
         comment = context['comment']
         status_id = context['status_id']
         asset_name = context['asset_name']

@@ -38,15 +38,14 @@ class Host(object):
         :class:`ftrack_connect_pipeline.event.EventManager`instance to
         communicate to the event server.
 
-        *host* List of host definition types, where the last one is the
-        current host.'''
+        *host* is a list of valid host definitions.'''
         super(Host, self).__init__()
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
 
-        hostid = '{}-{}'.format(host[-1], uuid.uuid4().hex)
+        hostid = '{}-{}'.format(".".join(host), uuid.uuid4().hex)
         self.logger.info(
             'initializing Host {}'.format(hostid)
         )
@@ -126,24 +125,13 @@ class Host(object):
         invalid_publishers_idxs = plugin_validator.validate_publishers_plugins(
             data['publishers'])
         if invalid_publishers_idxs:
-            if len(invalid_publishers_idxs) == len(data['publishers']):
-                self.logger.warning("No valid publishers for the given "
-                                    "hosts : {}".format(self.host))
-                data['publishers'] = []
-            else:
-                for idx in invalid_publishers_idxs:
-                    data['publishers'].pop(idx)
+            for idx in sorted(invalid_publishers_idxs, reverse=True):
+                data['publishers'].pop(idx)
 
         invalid_loaders_idxs = plugin_validator.validate_loaders_plugins(
             data['loaders'])
         if invalid_loaders_idxs:
-            if len(invalid_loaders_idxs) == len(data['loaders']):
-                self.logger.warning(
-                    "No valid loaders for the given hosts : {}".format(
-                        self.host))
-                data['loaders'] = []
-            else:
-                for idx in invalid_loaders_idxs:
+            for idx in sorted(invalid_loaders_idxs, reverse=True):
                     data['loaders'].pop(idx)
 
         return data

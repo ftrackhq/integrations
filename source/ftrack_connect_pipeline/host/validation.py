@@ -31,8 +31,7 @@ class PluginDiscoverValidation(object):
         *session* should be the :class:`ftrack_api.session.Session` instance
         to use for communication with the server.
 
-        *host* List of host definition types, where the last one is the
-        current host.
+        *host* is a list of valid host definitions.
 
         '''
         super(PluginDiscoverValidation, self).__init__()
