@@ -24,23 +24,15 @@ class BaseEngine(object):
         '''Return the current host type.'''
         return self._host
 
-    def __init__(self, event_manager, host,  hostid, asset_type,
-                 extra_hosts_definitions=None):
+    def __init__(self, event_manager, host,  hostid, asset_type):
         '''Initialise BaseEngine with *event_manager*, *host*, *hostid* and
-        *asset_type*, *extra_hosts_definitions* is optional'''
+        *asset_type*'''
         super(BaseEngine, self).__init__()
 
         self.asset_type = asset_type
         self.session = event_manager.session
         self._host = host
         self._hostid = hostid
-        self.extra_hosts_definitions = extra_hosts_definitions
-
-        if extra_hosts_definitions:
-            self.host_definition_list = [self.host] + \
-                                        self.extra_hosts_definitions
-        else:
-            self.host_definition_list = [self.host]
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -60,7 +52,7 @@ class BaseEngine(object):
         status = None
         result = None
 
-        for host_definition in self.host_definition_list:
+        for host_definition in self._host:
             event = ftrack_api.event.base.Event(
                 topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
                 data={
@@ -94,7 +86,7 @@ class BaseEngine(object):
                           "Please check if plugin host" \
                           "is in the given " \
                           "host list : {}".format(plugin_name,
-                                                  self.host_definition_list)
+                                                  self._host)
 
         self._notify_client(result, plugin, status, message)
 

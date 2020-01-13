@@ -31,31 +31,28 @@ def provide_host_information(hostid, definitions, event):
 
 class Host(object):
 
-    def __init__(self, event_manager, host, extra_hosts_definitions=None):
-        '''Initialise Host Class with *event_manager* and *host*,
-        *extra_hosts_definitions* is optional
+    def __init__(self, event_manager, host):
+        '''Initialise Host Class with *event_manager* and *host*
 
         *event_manager* should be the
         :class:`ftrack_connect_pipeline.event.EventManager`instance to
         communicate to the event server.
 
-        *host* string with host definition type.
-
-        *extra_hosts_definitions* list of compatible hosts definitions'''
+        *host* List of host definition types, where the last one is the
+        current host.'''
         super(Host, self).__init__()
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
 
-        hostid = '{}-{}'.format(host, uuid.uuid4().hex)
+        hostid = '{}-{}'.format(host[-1], uuid.uuid4().hex)
         self.logger.info(
             'initializing Host {}'.format(hostid)
         )
         self.hostid = hostid
         self.__registry = {}
         self.host = host
-        self.extra_hosts_definitions = extra_hosts_definitions
         self.session = event_manager.session
         self.event_manager = event_manager
         self.register()
@@ -75,7 +72,7 @@ class Host(object):
         schema_engine = data['_config']['engine']
         MyEngine = engine.getEngine(engine.BaseEngine, schema_engine)
         engine_runner = MyEngine(self.event_manager, self.host, self.hostid,
-                                 asset_type, self.extra_hosts_definitions)
+                                 asset_type)
         runnerResult = engine_runner.run(data)
 
         if runnerResult == False:
@@ -124,20 +121,30 @@ class Host(object):
     def validate(self, data):
 
         plugin_validator = validation.PluginDiscoverValidation(self.session,
-                                                               self.host,
-                                                               self.extra_hosts_definitions)
+                                                               self.host)
 
         invalid_publishers_idxs = plugin_validator.validate_publishers_plugins(
             data['publishers'])
         if invalid_publishers_idxs:
-            for idx in invalid_publishers_idxs:
-                data['publishers'].pop(idx)
+            if len(invalid_publishers_idxs) == len(data['publishers']):
+                self.logger.warning("No valid publishers for the given "
+                                    "hosts : {}".format(self.host))
+                data['publishers'] = []
+            else:
+                for idx in invalid_publishers_idxs:
+                    data['publishers'].pop(idx)
 
         invalid_loaders_idxs = plugin_validator.validate_loaders_plugins(
             data['loaders'])
         if invalid_loaders_idxs:
-            for idx in invalid_loaders_idxs:
-                data['loaders'].pop(idx)
+            if len(invalid_loaders_idxs) == len(data['loaders']):
+                self.logger.warning(
+                    "No valid loaders for the given hosts : {}".format(
+                        self.host))
+                data['loaders'] = []
+            else:
+                for idx in invalid_loaders_idxs:
+                    data['loaders'].pop(idx)
 
         return data
 
@@ -150,7 +157,6 @@ class Host(object):
                 'pipeline': {
                     'type': "definition",
                     'host': self.host,
-                    'extra_hosts_definitions': self.extra_hosts_definitions
                 }
             }
         )

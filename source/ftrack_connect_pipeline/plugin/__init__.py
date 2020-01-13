@@ -128,8 +128,8 @@ class BasePlugin(object):
 
             if host is not defined in the specific plugin, all the plugins has
             python as default host, that means if a plugin with the default
-            host value is running from max and you are not loading python as an
-            extra_host_definitions the plugin will not run.
+            host value is running from max and you are not loading python in
+            the list of host the plugin will not run.
         '''
 
         self.logger = logging.getLogger(

@@ -9,13 +9,11 @@ from ftrack_connect_pipeline.host.engine import BaseEngine
 
 class PublisherEngine(BaseEngine):
 
-    def __init__(self, event_manager, host,  hostid, asset_type,
-                 extra_hosts_definitions=None):
+    def __init__(self, event_manager, host,  hostid, asset_type):
         '''Initialise publisherEngine with *event_manager*, *host*, *hostid* and
-        *asset_type*, *extra_hosts_definitions* is optional'''
+        *asset_type*'''
         super(PublisherEngine, self).__init__(event_manager, host, hostid,
-                                              asset_type,
-                                              extra_hosts_definitions)
+                                              asset_type)
 
 
 
