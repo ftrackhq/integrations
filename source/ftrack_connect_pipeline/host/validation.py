@@ -131,7 +131,8 @@ class PluginDiscoverValidation(object):
         '''Checks if the *plugin* of type *plugin_type* for the current host
         '''
         plugin_name = plugin['plugin']
-        for host_definition in self.host:
+
+        for host_definition in reversed(self.host):
             data = {
                 'pipeline': {
                     'plugin_name': plugin_name,

@@ -52,7 +52,7 @@ class BaseEngine(object):
         status = None
         result = None
 
-        for host_definition in self._host:
+        for host_definition in reversed(self._host):
             event = ftrack_api.event.base.Event(
                 topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
                 data={

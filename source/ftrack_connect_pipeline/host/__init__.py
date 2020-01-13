@@ -144,7 +144,7 @@ class Host(object):
             data={
                 'pipeline': {
                     'type': "definition",
-                    'host': self.host,
+                    'host': self.host[-1],
                 }
             }
         )
