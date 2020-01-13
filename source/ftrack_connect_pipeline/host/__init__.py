@@ -30,28 +30,30 @@ def provide_host_information(hostid, definitions, event):
 
 
 class Host(object):
+    host = [constants.HOST]
 
-    def __init__(self, event_manager, host):
-        '''Initialise Host Class with *event_manager* and *host*
+    def __init__(self, event_manager, host = None):
+        '''Initialise Host Class with *event_manager* and *host*(optional)
 
         *event_manager* should be the
         :class:`ftrack_connect_pipeline.event.EventManager`instance to
         communicate to the event server.
 
-        *host* is a list of valid host definitions.'''
+        *host* is a list of valid host definitions.(optional)'''
         super(Host, self).__init__()
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-
+        host = host or []
+        self.host.extend(host)
+        self.host = list(set(self.host))
         hostid = '{}-{}'.format(".".join(host), uuid.uuid4().hex)
         self.logger.info(
             'initializing Host {}'.format(hostid)
         )
         self.hostid = hostid
         self.__registry = {}
-        self.host = host
         self.session = event_manager.session
         self.event_manager = event_manager
         self.register()
