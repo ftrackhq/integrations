@@ -23,7 +23,7 @@ event_manager = event.EventManager(
 type(event_manager)
 
 # init host
-host.Host(event_manager, host=['python', 'maya'])
+host.Host(event_manager)
 
 
 # on client ready callback
