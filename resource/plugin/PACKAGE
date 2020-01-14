@@ -5,10 +5,10 @@ contact: support@ftrack.com
 version: {VERSION}
 url: http://www.ftrack.com
 optional: true
-rv: 3.12.19
+rv: 7.5.0
 requires: ''
 
-modes: 
+modes:
   - file: ftrack.mu
     load: immediate
 files:

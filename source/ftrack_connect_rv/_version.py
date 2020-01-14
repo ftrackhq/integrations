@@ -3,4 +3,4 @@
 
 # Note: No patch version is used as `.rvpkg` plugins can only contain versions
 # in MAJOR.MINOR format.
-__version__ = '3.7'
+__version__ = '4.0'
