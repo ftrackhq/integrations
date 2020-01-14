@@ -20,8 +20,10 @@ event_manager = event.EventManager(
     session=session, mode=constants.LOCAL_EVENT_MODE
 )
 
+type(event_manager)
+
 # init host
-host.Host(event_manager, host=constants.HOST)
+host.Host(event_manager)
 
 
 # on client ready callback

@@ -26,12 +26,13 @@ class PluginDiscoverValidation(object):
     '''Plugin Discover base class'''
 
     def __init__(self, session, host):
-        '''Initialise PluginDiscoverValidation with *session*, *host*
+        '''Initialise PluginDiscoverValidation with *session*, *host*.
 
         *session* should be the :class:`ftrack_api.session.Session` instance
         to use for communication with the server.
 
-        *host* should be the :class:`Host` instance to use to identify the host.
+        *host* is a list of valid host definitions.
+
         '''
         super(PluginDiscoverValidation, self).__init__()
 
@@ -127,29 +128,41 @@ class PluginDiscoverValidation(object):
         return is_valid
 
     def _discover_plugin(self, plugin, plugin_type):
-        '''Run *plugin*, *plugin_type*, with given *options*, *data* and
-        *context*'''
+        '''Checks if the *plugin* of type *plugin_type* for the current host
+        '''
         plugin_name = plugin['plugin']
 
-        data = {
-            'pipeline': {
-                'plugin_name': plugin_name,
-                'plugin_type': plugin_type,
-                'type': 'plugin',
-                'host': self.host
+        for host_definition in reversed(self.host):
+            data = {
+                'pipeline': {
+                    'plugin_name': plugin_name,
+                    'plugin_type': plugin_type,
+                    'type': 'plugin',
+                    'host': host_definition
+                }
             }
-        }
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_DISCOVER_PLUGIN_TOPIC,
-            data=data
-        )
+            event = ftrack_api.event.base.Event(
+                topic=constants.PIPELINE_DISCOVER_PLUGIN_TOPIC,
+                data=data
+            )
 
-        plugin_result = self.session.event_hub.publish(
-            event,
-            synchronous=True
-        )
+            plugin_result = self.session.event_hub.publish(
+                event,
+                synchronous=True
+            )
 
-        if plugin_result:
-            plugin_result = plugin_result[0]
+            if plugin_result:
+                plugin_result = plugin_result[0]
+                self.logger.info(
+                    'plugin {} found for definition host {}'.format(
+                        plugin_name, host_definition
+                    )
+                )
+                break
+            self.logger.info(
+                'plugin {} not found for definition host {}'.format(
+                    plugin_name, host_definition
+                )
+            )
 
         return plugin_result

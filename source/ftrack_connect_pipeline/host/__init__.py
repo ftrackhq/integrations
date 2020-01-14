@@ -30,22 +30,30 @@ def provide_host_information(hostid, definitions, event):
 
 
 class Host(object):
+    host = [constants.HOST]
 
-    def __init__(self, event_manager, host):
-        '''Initialise the class with ftrack *session* and *context_type*'''
+    def __init__(self, event_manager, host = None):
+        '''Initialise Host Class with *event_manager* and *host*(optional)
+
+        *event_manager* should be the
+        :class:`ftrack_connect_pipeline.event.EventManager`instance to
+        communicate to the event server.
+
+        *host* is a list of valid host definitions.(optional)'''
         super(Host, self).__init__()
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-
-        hostid = '{}-{}'.format(host, uuid.uuid4().hex)
+        host = host or []
+        self.host.extend(host)
+        self.host = list(set(self.host))
+        hostid = '{}-{}'.format(".".join(host), uuid.uuid4().hex)
         self.logger.info(
             'initializing Host {}'.format(hostid)
         )
         self.hostid = hostid
         self.__registry = {}
-        self.host = host
         self.session = event_manager.session
         self.event_manager = event_manager
         self.register()
@@ -119,14 +127,14 @@ class Host(object):
         invalid_publishers_idxs = plugin_validator.validate_publishers_plugins(
             data['publishers'])
         if invalid_publishers_idxs:
-            for idx in invalid_publishers_idxs:
+            for idx in sorted(invalid_publishers_idxs, reverse=True):
                 data['publishers'].pop(idx)
 
         invalid_loaders_idxs = plugin_validator.validate_loaders_plugins(
             data['loaders'])
         if invalid_loaders_idxs:
-            for idx in invalid_loaders_idxs:
-                data['loaders'].pop(idx)
+            for idx in sorted(invalid_loaders_idxs, reverse=True):
+                    data['loaders'].pop(idx)
 
         return data
 
@@ -138,7 +146,7 @@ class Host(object):
             data={
                 'pipeline': {
                     'type': "definition",
-                    'host': self.host
+                    'host': self.host[-1],
                 }
             }
         )

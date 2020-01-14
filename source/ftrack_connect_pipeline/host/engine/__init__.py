@@ -49,31 +49,44 @@ class BaseEngine(object):
 
         self._notify_client(None, plugin, constants.RUNNING_STATUS)
 
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
-            data={
-                'pipeline': {
-                    'plugin_name': plugin_name,
-                    'plugin_type': plugin_type,
-                    'type': 'plugin',
-                    'host': self.host
-                },
-                'settings':
-                    {
-                        'data': data,
-                        'options': options,
-                        'context': context
-                    }
-            }
-        )
+        status = None
+        result = None
 
-        data = self.session.event_hub.publish(
-            event,
-            synchronous=True
-        )
-        result = data[0]['result']
-        status = data[0]['status']
-        message = data[0]['message']
+        for host_definition in reversed(self._host):
+            event = ftrack_api.event.base.Event(
+                topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
+                data={
+                    'pipeline': {
+                        'plugin_name': plugin_name,
+                        'plugin_type': plugin_type,
+                        'type': 'plugin',
+                        'host': host_definition
+                    },
+                    'settings':
+                        {
+                            'data': data,
+                            'options': options,
+                            'context': context
+                        }
+                }
+            )
+            result_data = self.session.event_hub.publish(
+                event,
+                synchronous=True
+            )
+            if result_data:
+                result = result_data[0]['result']
+                status = result_data[0]['status']
+                message = result_data[0]['message']
+                break
+            else:
+                result = None
+                status = constants.ERROR_STATUS
+                message = "Can't run the plugin {}. " \
+                          "Please check if plugin host" \
+                          "is in the given " \
+                          "host list : {}".format(plugin_name,
+                                                  self._host)
 
         self._notify_client(result, plugin, status, message)
 
