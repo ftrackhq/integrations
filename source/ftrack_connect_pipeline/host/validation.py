@@ -138,7 +138,7 @@ class PluginDiscoverValidation(object):
                     'plugin_name': plugin_name,
                     'plugin_type': plugin_type,
                     'type': 'plugin',
-                    'host': host_definition#self.host
+                    'host': host_definition
                 }
             }
             event = ftrack_api.event.base.Event(
@@ -153,10 +153,16 @@ class PluginDiscoverValidation(object):
 
             if plugin_result:
                 plugin_result = plugin_result[0]
-                self.logger.info("plugin {} found for definition "
-                                 "host {}".format(plugin_name, host_definition))
+                self.logger.info(
+                    'plugin {} found for definition host {}'.format(
+                        plugin_name, host_definition
+                    )
+                )
                 break
-            self.logger.info("plugin {} not found for definition "
-                             "host {}".format(plugin_name, host_definition))
+            self.logger.info(
+                'plugin {} not found for definition host {}'.format(
+                    plugin_name, host_definition
+                )
+            )
 
         return plugin_result
