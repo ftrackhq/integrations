@@ -1,5 +1,5 @@
 import os
-from ftrack_connect_pipeline import client, host, constants, event
+from ftrack_connect_pipeline import host, constants, event
 from ftrack_connect_pipeline.session import get_shared_session
 from ftrack_connect_pipeline_qt import client
 from Qt import QtWidgets
