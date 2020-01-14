@@ -1,5 +1,5 @@
 ..
-    :copyright: Copyright (c) 2017 ftrack
+    :copyright: Copyright (c) 2017-2020 ftrack
 
 .. _release/release_notes:
 
@@ -7,8 +7,11 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 4.0
+    :data: 2020-01-14
+
     ..change:: changed
+
         Moved from Qt Webkit to Qt WebEngine for Qt 5.12 / RV 7.5+
 
     ..change:: changed
