@@ -1,7 +1,8 @@
 import os
 from ftrack_connect_pipeline import client, host, constants, event
 from ftrack_connect_pipeline.session import get_shared_session
-
+from Qt import QtWidgets
+import sys
 
 CWD = os.path.dirname(__name__)
 
