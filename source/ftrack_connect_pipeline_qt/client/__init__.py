@@ -11,17 +11,15 @@ class QtHostConnection(client.HostConnection):
     def __init__(self, event_manager, host_data):
         super(QtHostConnection, self).__init__(event_manager, host_data)
 
-class QtClient(QtWidgets.QWidget, client.Client):
+class QtClient(client.Client, QtWidgets.QWidget):
     '''
     Base client widget class.
     '''
 
     def __init__(self, event_manager, ui, parent=None):
         '''Initialise widget with *ui* , *host* and *hostid*.'''
-        #super(QtClient, self).__init__(event_manager, ui)
-        super(QtClient, self).__init__(event_manager, ui, parent=parent)
-        #QtWidgets.QWidget.__init__(self, parent=parent)
-        #client.Client.__init__(self, event_manager, ui)
+        QtWidgets.QWidget.__init__(self, parent=parent)
+        client.Client.__init__(self, event_manager, ui)
         print "eoooooo"
 
     def on_ready(self, time_out=3):

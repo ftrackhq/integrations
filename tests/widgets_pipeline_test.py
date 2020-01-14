@@ -1,8 +1,8 @@
 import os
 from ftrack_connect_pipeline import host, constants, event
 from ftrack_connect_pipeline.session import get_shared_session
-from ftrack_connect_pipeline_qt import client
 from Qt import QtWidgets
+
 import sys
 
 CWD = os.path.dirname(__name__)
@@ -29,9 +29,12 @@ host.Host(event_manager)
 
 # init client
 app = QtWidgets.QApplication(sys.argv)
+
+from ftrack_connect_pipeline_qt import client
+
 client_connection= client.QtClient(event_manager, ui="qt")
 #client_connection.on_ready(ready_callback, time_out=30)
-client_connection.on_ready(time_out=30)
+# client_connection.on_ready(time_out=30)
 client_connection.show()
 sys.exit(app.exec_())
 
