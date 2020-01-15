@@ -53,6 +53,7 @@ class Base(QtWidgets.QLabel):
 
         self.__loadingReference = reference
         self._worker.start()
+
         self._worker.finished.connect(self._workerFinnished)
 
     def _workerFinnished(self):
@@ -66,9 +67,10 @@ class Base(QtWidgets.QLabel):
 
     def _updatePixmapData(self, data):
         '''Update thumbnail with *data*.'''
-        pixmap = QtGui.QPixmap()
-        pixmap.loadFromData(data)
-        self._scaleAndSetPixmap(pixmap)
+        if data:
+            pixmap = QtGui.QPixmap()
+            pixmap.loadFromData(data)
+            self._scaleAndSetPixmap(pixmap)
 
     def _scaleAndSetPixmap(self, pixmap):
         '''Scale and set *pixmap*.'''
@@ -98,24 +100,27 @@ class Base(QtWidgets.QLabel):
 
     def _download(self, url):
         '''Return thumbnail file from *url*.'''
-        ftrackProxy = os.getenv('FTRACK_PROXY', '')
-        ftrackServer = self.session._server_url
+        if url:
+            ftrackProxy = os.getenv('FTRACK_PROXY', '')
+            ftrackServer = self.session._server_url
 
-        if ftrackProxy != '':
-            if ftrackServer.startswith('https'):
-                httpHandle = 'https'
+            if ftrackProxy != '':
+                if ftrackServer.startswith('https'):
+                    httpHandle = 'https'
+                else:
+                    httpHandle = 'http'
+
+                proxy = urllib2.ProxyHandler({httpHandle: ftrackProxy})
+                opener = urllib2.build_opener(proxy)
+                response = self._safeDownload(url, opener.open)
+                html = response.read()
             else:
-                httpHandle = 'http'
+                response = self._safeDownload(url, urllib2.urlopen)
+                html = response.read()
 
-            proxy = urllib2.ProxyHandler({httpHandle: ftrackProxy})
-            opener = urllib2.build_opener(proxy)
-            response = self._safeDownload(url, opener.open)
-            html = response.read()
-        else:
-            response = self._safeDownload(url, urllib2.urlopen)
-            html = response.read()
-
-        return html
+            return html
+        self.logger.warning("There is no url image to download")
+        return None
 
 
 class EllipseBase(Base):

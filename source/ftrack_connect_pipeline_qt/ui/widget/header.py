@@ -92,7 +92,7 @@ class Logo(QtWidgets.QLabel):
         )
         self.setLayout(self.main_layout)
 
-        logoPixmap = QtGui.QPixmap(':ftrack/image/default/ftrackLogoLabel')
+        logoPixmap = QtGui.QPixmap('/Users/lluisftrack/Downloads/IMG_3332.JPG')#':ftrack/image/default/ftrackLogoLabel')
         self.setPixmap(
             logoPixmap.scaled(
                 self.size(),
