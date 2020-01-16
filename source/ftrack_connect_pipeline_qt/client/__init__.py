@@ -52,6 +52,9 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
         self.header = header.Header(self.session)
         self.layout().addWidget(self.header)
+        self.scroll = QtWidgets.QScrollArea()
+
+        self.layout().addWidget(self.scroll)
 
         # self.combo = QtWidgets.QComboBox()
         # self.layout().addWidget(self.combo)
@@ -106,4 +109,4 @@ class QtClient(client.Client, QtWidgets.QWidget):
             publisher_schema,
             publisher_schema
         )
-        self.layout().addWidget(result)
+        self.scroll.setWidget(result)
