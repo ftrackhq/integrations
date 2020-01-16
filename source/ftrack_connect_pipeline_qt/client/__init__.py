@@ -14,6 +14,7 @@ class QtHostConnection(client.HostConnection):
     def __init__(self, event_manager, host_data):
         super(QtHostConnection, self).__init__(event_manager, host_data)
 
+
 class QtClient(client.Client, QtWidgets.QWidget):
     '''
     Base client widget class.
@@ -94,6 +95,15 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
     def _host_changed(self, host_connection):
         print "host changed ---> {}".format(host_connection)
-        result = self.widget_factory.create_widget("testSchema",
-                                                  host_connection.definitions['schemas'][1], host_connection.definitions['schemas'][1])
+        # for now filter out everything but the publisher
+        publisher_schema = [
+            schema for schema in host_connection.definitions['schemas']
+            if schema.get('title') == "Publisher"
+        ][0]
+
+        result = self.widget_factory.create_widget(
+            "testSchema",
+            publisher_schema,
+            publisher_schema
+        )
         self.layout().addWidget(result)
