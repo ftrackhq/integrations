@@ -23,15 +23,18 @@ class WidgetFactory(object):
             Create the appropriate widget for a given schema element.
         """
         schema_fragment_order = schema_fragment.get('order', [])
+
+        # sort schema fragment keys by the order defined in the schema order
+        # any not found entry will be added last.
+
         schema_fragment = OrderedDict(
             sorted(
                 schema_fragment.items(),
                 key=lambda pair: schema_fragment_order.index(pair[0])
                 if pair[0] in schema_fragment_order
-                else len(schema_fragment.keys()))
+                else len(schema_fragment.keys()) -1)
         )
 
-        print 'creating widget from ', name, schema_fragment, schema
 
         if "type" not in schema_fragment:
             return UnsupportedSchema(name, schema_fragment, schema, parent)
