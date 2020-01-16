@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import logging
+from collections import OrderedDict
 
 from Qt import QtCore, QtWidgets
 
@@ -21,6 +22,14 @@ class WidgetFactory(object):
         """
             Create the appropriate widget for a given schema element.
         """
+        schema_fragment_order = schema_fragment.get('order', [])
+        schema_fragment = OrderedDict(
+            sorted(
+                schema_fragment.items(),
+                key=lambda pair: schema_fragment_order.index(pair[0])
+                if pair[0] in schema_fragment_order
+                else len(schema_fragment.keys()))
+        )
 
         print 'creating widget from ', name, schema_fragment, schema
 
