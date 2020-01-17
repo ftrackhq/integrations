@@ -18,45 +18,43 @@ class WidgetFactory(object):
             __name__ + '.' + self.__class__.__name__
         )
 
-    def create_widget(self, name, schema_fragment, schema, parent=None):
+    def create_widget(self, name, schema_fragment, properties_order=None, parent=None):
         """
             Create the appropriate widget for a given schema element.
         """
-        schema_fragment_order = schema_fragment.get('order', [])
+        properties_order = properties_order or []
 
         # sort schema fragment keys by the order defined in the schema order
         # any not found entry will be added last.
-
-        schema_fragment = OrderedDict(
-            sorted(
-                schema_fragment.items(),
-                key=lambda pair: schema_fragment_order.index(pair[0])
-                if pair[0] in schema_fragment_order
-                else len(schema_fragment.keys()) -1)
-        )
-
+        # schema_fragment = OrderedDict(
+        #     sorted(
+        #         schema_fragment.items(),
+        #         key=lambda pair: schema_fragment_order.index(pair[0])
+        #         if pair[0] in schema_fragment_order
+        #         else len(schema_fragment.keys()) -1)
+        # )
 
         if "type" not in schema_fragment:
-            return UnsupportedSchema(name, schema_fragment, schema, parent)
+            return UnsupportedSchema(name, schema_fragment, properties_order, parent)
 
-        if schema_fragment['type'] == "object":#checked
-            return JsonObject(name, schema_fragment, schema, parent)
-        elif schema_fragment['type'] == "string":#checked
-            return JsonString(name, schema_fragment, schema, parent)
+        if schema_fragment['type'] == "object":
+            return JsonObject(name, schema_fragment, properties_order, parent)
+        elif schema_fragment['type'] == "string":
+            return JsonString(name, schema_fragment, properties_order, parent)
         elif schema_fragment['type'] == "integer":
-            return JsonInteger(name, schema_fragment, schema, parent)
-        elif schema_fragment['type'] == "array":#has to be checked
-            return JsonArray(name, schema_fragment, schema, parent)
+            return JsonInteger(name, schema_fragment, properties_order, parent)
+        elif schema_fragment['type'] == "array":
+            return JsonArray(name, schema_fragment, properties_order, parent)
         elif schema_fragment['type'] == "number":
-            return JsonNumber(name, schema_fragment, schema, parent)
+            return JsonNumber(name, schema_fragment, properties_order, parent)
         elif schema_fragment['type'] == "boolean":
-            return JsonBoolean(name, schema_fragment, schema, parent)
+            return JsonBoolean(name, schema_fragment, properties_order, parent)
 
         # TODO: refs
         # TODO: _config misses type
         # TODO: Pattern????
 
-        return UnsupportedSchema(name, schema_fragment, schema, parent)
+        return UnsupportedSchema(name, schema_fragment, properties_order, parent)
 
 #class JsonBaseSchema()
 
@@ -84,7 +82,7 @@ class JsonObject(QtWidgets.QGroupBox):
         We display these in a groupbox, which on most platforms will
         include a border.
     """
-    def __init__(self, name, schema_fragment, schema, parent=None):
+    def __init__(self, name, schema_fragment, properties_order, parent=None):
         QtWidgets.QGroupBox.__init__(self, name, parent)
         self.widget_factory = WidgetFactory()
         self.name = name
@@ -93,7 +91,7 @@ class JsonObject(QtWidgets.QGroupBox):
         self.vbox.setAlignment(QtCore.Qt.AlignTop)
         self.setLayout(self.vbox)
         self.setFlat(False)
-        self.schema = schema
+        self.properties_order = properties_order
         self.layout().setContentsMargins(0, 0, 0, 0)
 
         if "title" in self.fragment:
@@ -109,10 +107,21 @@ class JsonObject(QtWidgets.QGroupBox):
             label.setStyleSheet("QLabel { color: red; }")
             self.vbox.addWidget(label)
         else:
-            for k, v in self.fragment['properties'].items():
-                widget = self.widget_factory.create_widget(k, v, self.schema)
-                self.vbox.addWidget(widget)
-                self.properties[k] = widget
+            if self.properties_order:
+                for property_name in self.properties_order:
+                    new_properties_order = self.fragment['properties'][property_name].get('order', [])
+                    widget = self.widget_factory.create_widget(
+                        property_name,
+                        self.fragment['properties'][property_name],
+                        properties_order = new_properties_order)
+                    self.vbox.addWidget(widget)
+                    self.properties[property_name] = widget
+            else:
+                for k, v in self.fragment['properties'].items():
+                    new_properties_order = v.get('order', [])
+                    widget = self.widget_factory.create_widget(k, v, new_properties_order)
+                    self.vbox.addWidget(widget)
+                    self.properties[k] = widget
 
 
     def to_json_object(self):
@@ -127,7 +136,7 @@ class JsonString(QtWidgets.QWidget):
         Widget representation of a string.
         Strings are text boxes with labels for names.
     """
-    def __init__(self, name, schema_fragment, schema, parent=None):
+    def __init__(self, name, schema_fragment, properties_order, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.name = name
         self.fragment = schema_fragment
@@ -135,7 +144,7 @@ class JsonString(QtWidgets.QWidget):
 
         self.label = QtWidgets.QLabel(name)
         self.edit  = QtWidgets.QLineEdit()
-        self.schema = schema
+        self.properties_order = properties_order
 
         if "description" in self.fragment:
             self.label.setToolTip(self.fragment['description'])
@@ -157,7 +166,7 @@ class JsonInteger(QtWidgets.QWidget):
     """
         Widget representation of an integer (SpinBox)
     """
-    def __init__(self, name, schema_fragment, schema, parent=None):
+    def __init__(self, name, schema_fragment, properties_order, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.name = name
         self.fragment = schema_fragment
@@ -165,7 +174,7 @@ class JsonInteger(QtWidgets.QWidget):
 
         self.label = QtWidgets.QLabel(name)
         self.spin  = QtWidgets.QSpinBox()
-        self.schema = schema
+        self.properties_order = properties_order
 
         if "description" in self.fragment:
             self.label.setToolTip(self.fragment['description'])
@@ -186,7 +195,7 @@ class JsonNumber(QtWidgets.QWidget):
     """
         Widget representation of a number (DoubleSpinBox)
     """
-    def __init__(self, name, schema_fragment, schema, parent=None):
+    def __init__(self, name, schema_fragment, properties_order, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.name = name
         self.fragment = schema_fragment
@@ -194,7 +203,7 @@ class JsonNumber(QtWidgets.QWidget):
 
         self.label = QtWidgets.QLabel(name)
         self.spin  = QtWidgets.QDoubleSpinBox()
-        self.schema = schema
+        self.properties_order = properties_order
 
         if "description" in self.fragment:
             self.label.setToolTip(self.fragment['description'])
@@ -218,7 +227,7 @@ class JsonArray(QtWidgets.QWidget):
         they can contain objects of specific types.
         We include a label and button for adding types.
     """
-    def __init__(self, name, schema_fragment, schema, parent=None):
+    def __init__(self, name, schema_fragment, properties_order, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.widget_factory = WidgetFactory()
         self.name = name
@@ -227,7 +236,7 @@ class JsonArray(QtWidgets.QWidget):
         self.vbox = QtWidgets.QVBoxLayout()
 
         self.controls = QtWidgets.QHBoxLayout()
-        self.schema = schema
+        self.properties_order = properties_order
 
         label = QtWidgets.QLabel(name, self)
         label.setStyleSheet("QLabel { font-weight: bold; }")
@@ -235,8 +244,11 @@ class JsonArray(QtWidgets.QWidget):
         if "description" in self.fragment:
             self.label.setToolTip(self.fragment['description'])
         if "items" in self.fragment:
+            new_properties_order = self.fragment['items'].get('order', [])
             obj = self.widget_factory.create_widget(
-                self.name, self.fragment['items'], self.schema, self)
+                self.name, self.fragment['items'],
+                properties_order=new_properties_order,
+                parent=self)
             self.count += 1
             self.vbox.addWidget(obj)
             #self.label.setToolTip(schema['items'])
@@ -277,11 +289,11 @@ class JsonBoolean(QtWidgets.QCheckBox):
     """
         Widget representing a boolean (CheckBox)
     """
-    def __init__(self, name, schema_fragment, schema, parent=None):
+    def __init__(self, name, schema_fragment, properties_order, parent=None):
         QtWidgets.QCheckBox.__init__(self, name, parent)
         self.name = name
         self.fragment = schema_fragment
-        self.schema = schema
+        self.properties_order = properties_order
 
         if "description" in self.fragment:
             self.setToolTip(self.fragment['description'])
