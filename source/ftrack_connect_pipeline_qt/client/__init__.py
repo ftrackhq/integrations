@@ -56,45 +56,9 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
         self.layout().addWidget(self.scroll)
 
-        # self.combo = QtWidgets.QComboBox()
-        # self.layout().addWidget(self.combo)
-        # self.task_layout = QtWidgets.QVBoxLayout()
-        # self.layout().addLayout(self.task_layout)
-        # self.run_button = QtWidgets.QPushButton('Run')
-        # self.layout().addWidget(self.run_button)
-
     def post_build(self):
         '''Post Build ui method for events connections.'''
-        self.combo_hosts.hostid_changed.connect(self._host_changed)#(self._listen_widget_updates)
-        # self.run_button.clicked.connect(self._on_run)
-        # self._listen_widget_updates()
-
-    def _update_widget(self, event):
-        '''*event* callback to update widget with the current status/value'''
-        pass
-        # data = event['data']['pipeline']['data']
-        # widget_ref = event['data']['pipeline']['widget_ref']
-        # status = event['data']['pipeline']['status']
-        # message = event['data']['pipeline']['message']
-        #
-        # widget = self.widgets.get(widget_ref)
-        # if not widget:
-        #     self.logger.warning('Widget ref :{} not found ! '.format(widget_ref))
-        #     return
-        #
-        # self.logger.debug('updating widget: {} with {}'.format(widget, data))
-        #
-        # widget.set_status(status, message)
-
-    def _listen_widget_updates(self):
-        pass
-        # self.session.event_hub.subscribe(
-        #     'topic={} and data.pipeline.hostid={}'.format(
-        #         constants.PIPELINE_UPDATE_UI, # we now have constants.PIPELINE_CLIENT_NOTIFICATION (see engine init _notify_client)
-        #         self.host_conection.id
-        #     ),
-        #     self._update_widget
-        # )
+        self.combo_hosts.hostid_changed.connect(self._host_changed)
 
     def _host_changed(self, host_connection):
         print "host changed ---> {}".format(host_connection)
