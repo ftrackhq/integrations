@@ -1,7 +1,6 @@
 import os
 from ftrack_connect_pipeline import client, host, constants, event
-from ftrack_connect_pipeline.session import get_shared_session
-
+import ftrack_api
 
 CWD = os.path.dirname(__name__)
 
@@ -10,17 +9,10 @@ event_paths = [
     os.path.abspath(os.path.join('ftrack-connect-pipeline', 'resource', 'application_hook'))
 ]
 
-# os.environ['FTRACK_EVENT_PLUGIN_PATH'] = os.pathsep.join(event_paths)
-
-# create event manager
-session = get_shared_session(plugin_paths=event_paths)
-
-# session = ftrack_api.Session(auto_connect_event_hub=True)
+session = ftrack_api.Session(auto_connect_event_hub=False, plugin_paths=event_paths)
 event_manager = event.EventManager(
     session=session, mode=constants.LOCAL_EVENT_MODE
 )
-
-type(event_manager)
 
 # init host
 host.Host(event_manager)
