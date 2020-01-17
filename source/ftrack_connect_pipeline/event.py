@@ -52,6 +52,12 @@ class EventManager(object):
         )
         self.mode = mode
         self.session = session
+
+        # If is not already connected, connect to event hub.
+        while not self.session.event_hub.connected:
+            self.logger.info('connecting to event hub')
+            self.session.event_hub.connect()
+
         self._event_hub_thread = _EventHubThread()
         self._event_hub_thread.daemon = deamon
         self._event_hub_thread.start(self.session)
