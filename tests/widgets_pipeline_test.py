@@ -1,6 +1,7 @@
 import os
 from ftrack_connect_pipeline import host, constants, event
-from ftrack_connect_pipeline.session import get_shared_session
+import ftrack_api
+
 from Qt import QtWidgets
 
 import sys
@@ -13,18 +14,14 @@ event_paths = [
     os.path.abspath(os.path.join('ftrack-connect-pipeline-qt', 'resource', 'application_hook')),
 ]
 
-# create event manager
-session = get_shared_session(plugin_paths=event_paths)
-
-# session = ftrack_api.Session(auto_connect_event_hub=True)
+session = ftrack_api.Session(auto_connect_event_hub=False, plugin_paths=event_paths)
 event_manager = event.EventManager(
     session=session, mode=constants.LOCAL_EVENT_MODE
 )
 
-type(event_manager)
-
 # init host
 host.Host(event_manager)
+
 
 def ready_callback(event):
     pass
