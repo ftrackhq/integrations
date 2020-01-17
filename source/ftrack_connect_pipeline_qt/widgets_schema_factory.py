@@ -110,10 +110,10 @@ class JsonObject(QtWidgets.QGroupBox):
             self.vbox.addWidget(label)
         else:
             for k, v in self.fragment['properties'].items():
-                #TODO : crate the properties in a sorted order
                 widget = self.widget_factory.create_widget(k, v, self.schema)
                 self.vbox.addWidget(widget)
                 self.properties[k] = widget
+
 
     def to_json_object(self):
         out = {}
@@ -235,22 +235,10 @@ class JsonArray(QtWidgets.QWidget):
         if "description" in self.fragment:
             self.label.setToolTip(self.fragment['description'])
         if "items" in self.fragment:
-            for k,v in self.fragment['items'].items():
-                if k == "$ref":
-                    splitted_values = v.split("/")
-                    definition_value = splitted_values[-1]
-                    self.fragment = self.schema['definitions'][definition_value]
-                    obj = self.widget_factory.create_widget(
-                        self.fragment['title'], self.fragment,
-                        self.schema, self)
-                    self.count += 1
-                    self.vbox.addWidget(obj)
-                else:
-                    obj = self.widget_factory.create_widget(
-                        k, v,
-                        self.schema, self)
-                    self.count += 1
-                    self.vbox.addWidget(obj)
+            obj = self.widget_factory.create_widget(
+                self.name, self.fragment['items'], self.schema, self)
+            self.count += 1
+            self.vbox.addWidget(obj)
             #self.label.setToolTip(schema['items'])
         if "default" in self.fragment:
             self.defaultItems = self.fragment['default']
@@ -270,7 +258,9 @@ class JsonArray(QtWidgets.QWidget):
         # TODO: Support array for "items"
         # TODO: Support additionalItems
         if "items" in self.fragment:
-            obj = self.widget_factory.create_widget("Item #%d" % (self.count,), self.fragment['items'], self.schema, self)
+            obj = self.widget_factory.create_widget("Item #%d" % (self.count,),
+                                                    self.fragment['items'],
+                                                    self.schema, self)
             self.count += 1
             self.vbox.addWidget(obj)
 
