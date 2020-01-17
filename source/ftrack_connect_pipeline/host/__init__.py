@@ -48,7 +48,7 @@ class Host(object):
         host = host or []
         self.host.extend(host)
         self.host = list(set(self.host))
-        hostid = '{}-{}'.format(".".join(host), uuid.uuid4().hex)
+        hostid = '{}-{}'.format(".".join(self.host), uuid.uuid4().hex)
         self.logger.info(
             'initializing Host {}'.format(hostid)
         )
