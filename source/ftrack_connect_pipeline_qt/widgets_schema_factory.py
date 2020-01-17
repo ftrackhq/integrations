@@ -26,13 +26,6 @@ class WidgetFactory(object):
 
         # sort schema fragment keys by the order defined in the schema order
         # any not found entry will be added last.
-        # schema_fragment = OrderedDict(
-        #     sorted(
-        #         schema_fragment.items(),
-        #         key=lambda pair: schema_fragment_order.index(pair[0])
-        #         if pair[0] in schema_fragment_order
-        #         else len(schema_fragment.keys()) -1)
-        # )
 
         if "properties" in schema_fragment:
             schema_fragment_properties = OrderedDict(
@@ -60,25 +53,23 @@ class WidgetFactory(object):
         elif schema_fragment['type'] == "boolean":
             return JsonBoolean(name, schema_fragment, parent)
 
-        # TODO: refs
-        # TODO: _config misses type
-        # TODO: Pattern????
-
         return UnsupportedSchema(name, schema_fragment, parent)
-
-#class JsonBaseSchema()
 
 class UnsupportedSchema(QtWidgets.QLabel):
     """
         Widget representation of an unsupported schema element.
         Presents a label noting the name of the element and its type.
-        If the element is a reference, the reference name is listed instead of a type.
+        If the element is a reference, the reference name is listed
+        instead of a type.
     """
     def __init__(self, name, schema_fragment, parent=None):
         self.name = name
         self.fragment = schema_fragment
-        self._type = schema_fragment.get("type", schema_fragment.get("$ref", "(?)"))
-        QtWidgets.QLabel.__init__(self, "(Unsupported schema entry: %s, %s)" % (name, self._type), parent)
+        self._type = schema_fragment.get("type", schema_fragment.get("$ref",
+                                                                     "(?)"))
+        QtWidgets.QLabel.__init__(
+            self, "(Unsupported schema entry: %s, %s)" % (name, self._type),
+            parent)
         self.setStyleSheet("QLabel { font-style: italic; }")
 
     def to_json_object(self):
@@ -111,17 +102,19 @@ class JsonObject(QtWidgets.QGroupBox):
             self.setToolTip(self.fragment['description'])
 
         if "order" in self.fragment:
-            showable_properties = self.fragment['order']
+            self.showable_properties = self.fragment['order']
 
         self.properties = {}
 
         if "properties" not in self.fragment:
-            label = QtWidgets.QLabel("Invalid object description (missing properties)", self)
+            label = QtWidgets.QLabel(
+                "Invalid object description (missing properties)",
+                self)
             label.setStyleSheet("QLabel { color: red; }")
             self.vbox.addWidget(label)
         else:
             for k, v in self.fragment['properties'].items():
-                if k in showable_properties:
+                if k in self.showable_properties:
                     widget = self.widget_factory.create_widget(k, v)
                     self.vbox.addWidget(widget)
                     self.properties[k] = widget
@@ -248,15 +241,11 @@ class JsonArray(QtWidgets.QWidget):
                 parent=self)
             self.count += 1
             self.vbox.addWidget(obj)
-            #self.label.setToolTip(schema['items'])
         if "default" in self.fragment:
             self.defaultItems = self.fragment['default']
 
-        #button = QtWidgets.QPushButton("Append Item", self)
-        #button.clicked.connect(self.click_add)
 
         self.controls.addWidget(label)
-        #self.controls.addWidget(button)
 
         self.vbox.addLayout(self.controls)
 
