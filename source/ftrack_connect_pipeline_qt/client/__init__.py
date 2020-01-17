@@ -104,11 +104,8 @@ class QtClient(client.Client, QtWidgets.QWidget):
             if schema.get('title') == "Publisher"
         ][0]
 
-        properties_order = publisher_schema.get('order', [])
-
         result = self.widget_factory.create_widget(
             "testSchema",
-            publisher_schema,
-            properties_order=properties_order
+            publisher_schema
         )
         self.scroll.setWidget(result)
