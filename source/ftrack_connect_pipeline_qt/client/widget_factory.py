@@ -89,11 +89,12 @@ class JsonObject(QtWidgets.QGroupBox):
         self.name = name
         self.fragment = schema_fragment
         self.vbox = QtWidgets.QVBoxLayout()
-        self.vbox.setAlignment(QtCore.Qt.AlignTop)
+        self.innerLayout = QtWidgets.QVBoxLayout()
+        #self.vbox.setAlignment(QtCore.Qt.AlignTop)
         self.setLayout(self.vbox)
-        self.setFlat(False)
-        self.layout().setContentsMargins(0, 0, 0, 0)
-        self.showable_properties = []
+        #self.setFlat(False)
+        #self.layout().setContentsMargins(0, 0, 0, 0)
+        self.visible_properties = []
         self.fragment_data = fragment_data
 
         if "title" in self.fragment:
@@ -103,7 +104,7 @@ class JsonObject(QtWidgets.QGroupBox):
             self.setToolTip(self.fragment['description'])
 
         if "order" in self.fragment:
-            self.showable_properties = self.fragment['order']
+            self.visible_properties = self.fragment['order']
 
         self.properties = {}
 
@@ -115,14 +116,15 @@ class JsonObject(QtWidgets.QGroupBox):
             self.vbox.addWidget(label)
         else:
             for k, v in self.fragment['properties'].items():
-                if k in self.showable_properties:
+                if k in self.visible_properties:
                     newFragment_data = None
                     if self.fragment_data:
                         newFragment_data = self.fragment_data.get(k)
                     widget = self.widget_factory.create_widget(k, v,
                                                                newFragment_data)
-                    self.vbox.addWidget(widget)
+                    self.innerLayout.addWidget(widget)
                     self.properties[k] = widget
+        self.vbox.addLayout(self.innerLayout)
 
 
     def to_json_object(self):
@@ -237,34 +239,23 @@ class JsonArray(QtWidgets.QWidget):
         self.count = 0
         self.vbox = QtWidgets.QVBoxLayout()
         self.fragment_data = fragment_data
-
-        self.controls = QtWidgets.QHBoxLayout()
+        self.maxItems = self.fragment.get('maxItems')
 
         label = QtWidgets.QLabel(name, self)
         label.setStyleSheet("QLabel { font-weight: bold; }")
 
-        if "description" in self.fragment:
-            self.label.setToolTip(self.fragment['description'])
+        self.vbox.addWidget(label)
+        self.innerLayout = QtWidgets.QVBoxLayout()
         if "items" in self.fragment:
             if self.fragment_data:
                 for data in self.fragment_data:
                     obj = self.widget_factory.create_widget(
-                        self.name, self.fragment['items'], data,
-                        parent=self)
-            else:
-                obj = self.widget_factory.create_widget(
-                    self.name, self.fragment['items'],
-                    parent=self)
-            self.count += 1
-            self.vbox.addWidget(obj)
-        if "default" in self.fragment:
-            self.defaultItems = self.fragment['default']
+                        self.name, self.fragment['items'], data)
+                    self.innerLayout.addWidget(obj)
+                    self.count += 1
 
 
-        self.controls.addWidget(label)
-
-        self.vbox.addLayout(self.controls)
-
+        self.vbox.addLayout(self.innerLayout)
         self.setLayout(self.vbox)
         self.layout().setContentsMargins(0, 0, 0, 0)
 
