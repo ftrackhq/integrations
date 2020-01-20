@@ -20,6 +20,10 @@ class QtClient(client.Client, QtWidgets.QWidget):
     Base client widget class.
     '''
 
+    host_connection = None
+    schema = None
+    definition = None
+
     def __init__(self, event_manager, ui, parent=None):
         '''Initialise widget with *ui* , *host* and *hostid*.'''
         QtWidgets.QWidget.__init__(self, parent=parent)
@@ -61,11 +65,12 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.host_selector.definition_changed.connect(self._definition_changed)
 
     def _definition_changed(self, host_connection, schema, definition):
-        print "host_connection ---> {}".format(host_connection)
-        print "schema ---> {}".format(schema)
-        print "definition ---> {}".format(definition)
+        self.host_connection = host_connection
+        self.schema = schema
+        self.definition = definition
         result = self.widget_factory.create_widget(
             "testSchema",
-            schema
+            schema,
+            definition
         )
         self.scroll.setWidget(result)

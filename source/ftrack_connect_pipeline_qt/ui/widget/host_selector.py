@@ -3,6 +3,7 @@ from Qt import QtWidgets, QtCore
 
 
 class HostSelector(QtWidgets.QWidget):
+    '''HostSelector Base Class'''
     definition_changed = QtCore.Signal(object, object, object)
     host_connection = None
     schemas = None
@@ -12,6 +13,7 @@ class HostSelector(QtWidgets.QWidget):
         return self._get_selected_host_connection()
 
     def __init__(self, parent=None):
+        '''Initialize HostSelector widget'''
         super(HostSelector, self).__init__(parent=parent)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -32,6 +34,7 @@ class HostSelector(QtWidgets.QWidget):
         self.connect_signals()
 
     def connect_signals(self):
+        '''Connect the widget signals'''
         self.host_combobox.currentIndexChanged.connect(self._on_change_host)
         self.definition_combobox.currentIndexChanged.connect(
             self._on_select_definition

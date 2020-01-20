@@ -18,7 +18,7 @@ class WidgetFactory(object):
             __name__ + '.' + self.__class__.__name__
         )
 
-    def create_widget(self, name, schema_fragment, parent=None):
+    def create_widget(self, name, schema_fragment, fragment_data=None, parent=None):
         """
             Create the appropriate widget for a given schema element.
         """
@@ -41,13 +41,13 @@ class WidgetFactory(object):
             return UnsupportedSchema(name, schema_fragment, parent)
 
         if schema_fragment['type'] == "object":
-            return JsonObject(name, schema_fragment, parent)
+            return JsonObject(name, schema_fragment, fragment_data, parent)
         elif schema_fragment['type'] == "string":
-            return JsonString(name, schema_fragment, parent)
+            return JsonString(name, schema_fragment, fragment_data, parent)
         elif schema_fragment['type'] == "integer":
             return JsonInteger(name, schema_fragment, parent)
         elif schema_fragment['type'] == "array":
-            return JsonArray(name, schema_fragment, parent)
+            return JsonArray(name, schema_fragment, fragment_data, parent)
         elif schema_fragment['type'] == "number":
             return JsonNumber(name, schema_fragment, parent)
         elif schema_fragment['type'] == "boolean":
@@ -83,7 +83,7 @@ class JsonObject(QtWidgets.QGroupBox):
         We display these in a groupbox, which on most platforms will
         include a border.
     """
-    def __init__(self, name, schema_fragment, parent=None):
+    def __init__(self, name, schema_fragment, fragment_data, parent=None):
         QtWidgets.QGroupBox.__init__(self, name, parent)
         self.widget_factory = WidgetFactory()
         self.name = name
@@ -94,6 +94,7 @@ class JsonObject(QtWidgets.QGroupBox):
         self.setFlat(False)
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.showable_properties = []
+        self.fragment_data = fragment_data
 
         if "title" in self.fragment:
             self.name = self.fragment['title']
@@ -115,7 +116,11 @@ class JsonObject(QtWidgets.QGroupBox):
         else:
             for k, v in self.fragment['properties'].items():
                 if k in self.showable_properties:
-                    widget = self.widget_factory.create_widget(k, v)
+                    newFragment_data = None
+                    if self.fragment_data:
+                        newFragment_data = self.fragment_data.get(k)
+                    widget = self.widget_factory.create_widget(k, v,
+                                                               newFragment_data)
                     self.vbox.addWidget(widget)
                     self.properties[k] = widget
 
@@ -132,20 +137,24 @@ class JsonString(QtWidgets.QWidget):
         Widget representation of a string.
         Strings are text boxes with labels for names.
     """
-    def __init__(self, name, schema_fragment, parent=None):
+    def __init__(self, name, schema_fragment, fragment_data, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.name = name
         self.fragment = schema_fragment
         hbox = QtWidgets.QHBoxLayout()
 
         self.label = QtWidgets.QLabel(name)
-        self.edit  = QtWidgets.QLineEdit()
+        self.edit = QtWidgets.QLineEdit()
+        self.fragment_data = fragment_data
 
         if "description" in self.fragment:
             self.label.setToolTip(self.fragment['description'])
 
         if "default" in self.fragment:
             self.edit.setPlaceholderText(self.fragment['default'])
+
+        if self.fragment_data:
+            self.edit.setText(self.fragment_data)
 
         hbox.addWidget(self.label)
         hbox.addWidget(self.edit)
@@ -220,13 +229,14 @@ class JsonArray(QtWidgets.QWidget):
         they can contain objects of specific types.
         We include a label and button for adding types.
     """
-    def __init__(self, name, schema_fragment, parent=None):
+    def __init__(self, name, schema_fragment, fragment_data, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.widget_factory = WidgetFactory()
         self.name = name
         self.fragment = schema_fragment
         self.count = 0
         self.vbox = QtWidgets.QVBoxLayout()
+        self.fragment_data = fragment_data
 
         self.controls = QtWidgets.QHBoxLayout()
 
@@ -236,9 +246,15 @@ class JsonArray(QtWidgets.QWidget):
         if "description" in self.fragment:
             self.label.setToolTip(self.fragment['description'])
         if "items" in self.fragment:
-            obj = self.widget_factory.create_widget(
-                self.name, self.fragment['items'],
-                parent=self)
+            if self.fragment_data:
+                for data in self.fragment_data:
+                    obj = self.widget_factory.create_widget(
+                        self.name, self.fragment['items'], data,
+                        parent=self)
+            else:
+                obj = self.widget_factory.create_widget(
+                    self.name, self.fragment['items'],
+                    parent=self)
             self.count += 1
             self.vbox.addWidget(obj)
         if "default" in self.fragment:
