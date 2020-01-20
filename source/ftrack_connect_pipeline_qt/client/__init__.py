@@ -38,7 +38,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         else:
             new_conections = self.hosts
         for new_connection in new_conections:
-            self.combo_hosts.addItem(new_connection.id, new_connection)
+            self.host_selector.addHost(new_connection.id, new_connection)
 
 
     def pre_build(self):
@@ -46,9 +46,9 @@ class QtClient(client.Client, QtWidgets.QWidget):
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
-        self.combo_hosts = host_selector.HostComboBox()
+        self.host_selector = host_selector.HostSelector()
 
-        self.layout().addWidget(self.combo_hosts)
+        self.layout().addWidget(self.host_selector)
 
         self.header = header.Header(self.session)
         self.layout().addWidget(self.header)
@@ -58,18 +58,14 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
     def post_build(self):
         '''Post Build ui method for events connections.'''
-        self.combo_hosts.hostid_changed.connect(self._host_changed)
+        self.host_selector.definition_changed.connect(self._definition_changed)
 
-    def _host_changed(self, host_connection):
-        print "host changed ---> {}".format(host_connection)
-        # for now filter out everything but the publisher
-        publisher_schema = [
-            schema for schema in host_connection.definitions['schemas']
-            if schema.get('title') == "Publisher"
-        ][0]
-
+    def _definition_changed(self, host_connection, schema, definition):
+        print "host_connection ---> {}".format(host_connection)
+        print "schema ---> {}".format(schema)
+        print "definition ---> {}".format(definition)
         result = self.widget_factory.create_widget(
             "testSchema",
-            publisher_schema
+            schema
         )
         self.scroll.setWidget(result)
