@@ -8,7 +8,7 @@ FROM centos:7
 LABEL ftrack AB
 
 # Set default FTRACK_CONNECT_PACKAGE_VERSION version to master
-ENV FTRACK_CONNECT_PACKAGE_VERSION master
+ENV FTRACK_CONNECT_PACKAGE_VERSION 1.1.2-dev
 
 # Define Python Version to build and use
 ENV PYTHON_VERSION 2.7.9
@@ -74,11 +74,6 @@ RUN cd /tmp/Python-${PYTHON_VERSION} && \
         --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib" \
     && make && make altinstall
 
-# Update to latest pip version
-RUN python2.7 -m pip install pip==19.3.0
-
-# Ensure correct versions of setuptool is installed. 
-RUN python2.7 -m pip install setuptools==36.0.1
 
 # Install pyside. 
 RUN python2.7 -m pip install PySide
