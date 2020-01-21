@@ -11,20 +11,21 @@ import logging
 import zipfile
 
 # Package and dependencies versions.
-ftrack_connect_version = '1.1.7'
-ftrack_connect_rv_version = '3.7'
+ftrack_connect_version = '1.1.8'
+ftrack_connect_rv_version = '4.0'
 ftrack_connect_cinema_4d_version = '0.1.5'
-ftrack_location_compatibility_version = '0.3.2'
-ftrack_action_handler_version = '0.1.3'
+ftrack_location_compatibility_version = '0.3.3'
+ftrack_action_handler_version = '0.1.4'
 
 # Embedded plugins.
-ftrack_connect_maya_publish_version = '0.6.2'
-ftrack_connect_nuke_publish_version = '0.6.2'
-ftrack_connect_3dsmax_version = '0.4.0'
-ftrack_connect_hieroplayer_version = '1.3.0'
-ftrack_connect_nuke_version = '1.2.0'
-ftrack_connect_maya_version = '1.2.0'
-ftrack_connect_nuke_studio_version = '2.2.0'
+ftrack_connect_maya_publish_version = '0.6.3'
+ftrack_connect_nuke_publish_version = '0.6.3'
+ftrack_connect_3dsmax_version = '0.4.3'
+ftrack_connect_hieroplayer_version = '1.3.1'
+ftrack_connect_nuke_version = '1.2.2'
+ftrack_connect_maya_version = '1.2.3'
+ftrack_connect_nuke_studio_version = '2.2.4'
+ftrack_connect_houdini_version = '0.2.3'
 
 # Setup code
 
@@ -64,7 +65,9 @@ for plugin in (
     'ftrack-connect-maya-{0}.zip'.format(ftrack_connect_maya_version),
     'ftrack-connect-nuke-{0}.zip'.format(ftrack_connect_nuke_version),
     'ftrack-connect-3dsmax-{0}.zip'.format(ftrack_connect_3dsmax_version),
-    'ftrack-connect-hieroplayer-{0}.zip'.format(ftrack_connect_hieroplayer_version)
+    'ftrack-connect-hieroplayer-{0}.zip'.format(ftrack_connect_hieroplayer_version),
+    'ftrack-connect-houdini-{0}.zip'.format(ftrack_connect_houdini_version)
+
 ):
     external_connect_plugins.append(
         (plugin, plugin.replace('.zip', ''))
@@ -78,7 +81,7 @@ connect_dependency_link = (
     '#egg=ftrack-connect-{0}'
 ).format(ftrack_connect_version)
 
-connect_rv_dependency_install_require = 'ftrack-connect-rv >=3.4, < 4'
+connect_rv_dependency_install_require = 'ftrack-connect-rv >=3.4, < 5'
 
 connect_rv_dependency_link = (
     'https://bitbucket.org/ftrack/ftrack-connect-rv/get/{0}.zip'
