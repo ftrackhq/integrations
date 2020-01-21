@@ -63,6 +63,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
     def post_build(self):
         '''Post Build ui method for events connections.'''
         self.host_selector.definition_changed.connect(self._definition_changed)
+        #self.widget_factory.widget_status_updated.connect(self._on_widget_status_updated)
 
     def _definition_changed(self, host_connection, schema, definition):
         self.host_connection = host_connection
@@ -77,3 +78,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
             definition
         )
         self.scroll.setWidget(result)
+
+    def _on_widget_status_updated(self, data):
+        status, message = data
+        self.header.setMessage(message, status)

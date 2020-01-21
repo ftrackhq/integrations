@@ -8,9 +8,13 @@ import ftrack_api
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.ui.widget import BaseWidget
 from ftrack_connect_pipeline_qt import json_widgets
+from Qt import QtCore, QtWidgets
 
 class WidgetFactory(object):
     ''''''
+
+    widget_status_updated = QtCore.Signal(object)
+
     host_definitions = None
     ui=None
 
@@ -40,7 +44,8 @@ class WidgetFactory(object):
     def set_host_definitions(self, host_definitions):
         self.host_definitions = host_definitions
 
-    def create_widget(self, name, schema_fragment, fragment_data=None, parent_data=None, parent=None):
+    def create_widget(self, name, schema_fragment, fragment_data=None,
+                      parent_data=None, widgetFactory = None, parent=None):
         """
             Create the appropriate widget for a given schema element.
         """
@@ -59,14 +64,15 @@ class WidgetFactory(object):
             )
             schema_fragment['properties'] = schema_fragment_properties
 
-        widget_fn = self.schema_title_mapping.get(schema_fragment.get('title'),
-                                                  json_widgets.UnsupportedSchema)
+        widget_fn=None
+        # widget_fn = self.schema_title_mapping.get(schema_fragment.get('title'),
+        #                                           json_widgets.UnsupportedSchema)
         if not widget_fn:
             widget_fn = self.schema_type_mapping.get(
                 schema_fragment.get('type'), json_widgets.UnsupportedSchema)
 
-        return widget_fn(name, schema_fragment, fragment_data, parent,
-                         parent_data, parent)
+        return widget_fn(name, schema_fragment, fragment_data,
+                         parent_data, self, parent)
 
     def fetch_plugin_widget(self, plugin_data, plugin_type, extra_options=None):
         '''Retrieve widget for the given *plugin*, *plugin_type*.'''
@@ -100,8 +106,7 @@ class WidgetFactory(object):
                 )
             )
 
-        #TODO: find a way to connect the signals
-        result.status_updated.connect(self.on_widget_status_updated)
+        result.status_updated.connect(self._on_widget_status_updated)
 
         return result
 
@@ -147,3 +152,6 @@ class WidgetFactory(object):
                 if result:
                     break
             return result
+
+    def _on_widget_status_updated(self, status):
+        self.widget_status_updated.emit(status)

@@ -1,7 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-
 from Qt import QtCore, QtWidgets
 
 
@@ -12,9 +11,10 @@ class JsonObject(QtWidgets.QGroupBox):
         We display these in a groupbox, which on most platforms will
         include a border.
     """
-    def __init__(self, name, schema_fragment, fragment_data, parent_data, parent=None):
+    def __init__(self, name, schema_fragment, fragment_data, parent_data,
+                 widgetFactory, parent=None):
         QtWidgets.QGroupBox.__init__(self, name, parent)
-        self.widget_factory = WidgetFactory()
+        self.widget_factory = widgetFactory
         self.name = name
         self.fragment = schema_fragment
         self.vbox = QtWidgets.QVBoxLayout()
@@ -47,7 +47,8 @@ class JsonObject(QtWidgets.QGroupBox):
             for k, v in self.fragment['properties'].items():
                 if k in self.visible_properties:
                     if k == "widget":
-                        self.widget_factory.fetch_plugin_widget()
+                        print "parent_data ---> {}".format(parent_data)
+                        #self.widget_factory.fetch_plugin_widget()
                     newFragment_data = None
                     if self.fragment_data:
                         newFragment_data = self.fragment_data.get(k)
