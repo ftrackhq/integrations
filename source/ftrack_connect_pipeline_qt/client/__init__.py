@@ -28,7 +28,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         '''Initialise widget with *ui* , *host* and *hostid*.'''
         QtWidgets.QWidget.__init__(self, parent=parent)
         client.Client.__init__(self, event_manager, ui)
-        self.widget_factory = widget_factory.WidgetFactory()
+        self.widget_factory = widget_factory.WidgetFactory(event_manager, ui)
         self.pre_build()
         self.post_build()
 
@@ -68,6 +68,9 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.host_connection = host_connection
         self.schema = schema
         self.definition = definition
+        self.widget_factory.set_host_definitions(
+            self.host_connection.host_definitions
+        )
         result = self.widget_factory.create_widget(
             "testSchema",
             schema,
