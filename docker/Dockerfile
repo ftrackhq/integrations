@@ -74,6 +74,9 @@ RUN cd /tmp/Python-${PYTHON_VERSION} && \
         --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib" \
     && make && make altinstall
 
+# Update to latest pip version
+RUN python2.7 -m pip install pip==19.3.0
+
 # Ensure correct versions of setuptool is installed. 
 RUN python2.7 -m pip install setuptools==36.0.1
 
