@@ -65,22 +65,22 @@ class JsonObject(QtWidgets.QGroupBox):
             label.setStyleSheet("QLabel { color: red; }")
             self.vbox.addWidget(label)
         else:
-            for k, v in self.fragment['properties'].items():
-                if k in self.visible_properties:
-                    if k == "widget":
-                        widget = self.widget_factory.fetch_plugin_widget(
-                            self.fragment_data, self.plugin_type
-                        )
+            if "widget" in self.fragment['properties'].keys():
+                widget = self.widget_factory.fetch_plugin_widget(
+                    self.fragment_data, self.plugin_type
+                )
+                self.innerLayout.addWidget(widget)
+            else:
+                for k, v in self.fragment['properties'].items():
+                    if k in self.visible_properties:
+                        newFragment_data = None
+                        if self.fragment_data:
+                            newFragment_data = self.fragment_data.get(k)
+                        widget = self.widget_factory.create_widget(k, v,
+                                                                   newFragment_data,
+                                                                   self.plugin_type)
                         self.innerLayout.addWidget(widget)
-                        continue
-                    newFragment_data = None
-                    if self.fragment_data:
-                        newFragment_data = self.fragment_data.get(k)
-                    widget = self.widget_factory.create_widget(k, v,
-                                                               newFragment_data,
-                                                               self.plugin_type)
-                    self.innerLayout.addWidget(widget)
-                    self.properties[k] = widget
+                        self.properties[k] = widget
         self.vbox.addLayout(self.innerLayout)
 
 
