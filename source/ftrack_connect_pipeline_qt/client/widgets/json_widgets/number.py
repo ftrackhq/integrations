@@ -5,11 +5,11 @@
 from Qt import QtCore, QtWidgets
 
 
-class JsonInteger(QtWidgets.QWidget):
+class JsonNumber(QtWidgets.QWidget):
     """
-        Widget representation of an integer (SpinBox)
+        Widget representation of a number (DoubleSpinBox)
     """
-    def __init__(self, name, schema_fragment, fragment_data, parent_data,
+    def __init__(self, name, schema_fragment, fragment_data, plugin_type,
                  widgetFactory, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.name = name
@@ -17,7 +17,7 @@ class JsonInteger(QtWidgets.QWidget):
         hbox = QtWidgets.QHBoxLayout()
 
         self.label = QtWidgets.QLabel(name)
-        self.spin  = QtWidgets.QSpinBox()
+        self.spin  = QtWidgets.QDoubleSpinBox()
 
         if "description" in self.fragment:
             self.label.setToolTip(self.fragment['description'])

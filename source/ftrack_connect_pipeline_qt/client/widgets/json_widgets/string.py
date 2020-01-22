@@ -5,11 +5,12 @@
 from Qt import QtCore, QtWidgets
 
 
-class JsonNumber(QtWidgets.QWidget):
+class JsonString(QtWidgets.QWidget):
     """
-        Widget representation of a number (DoubleSpinBox)
+        Widget representation of a string.
+        Strings are text boxes with labels for names.
     """
-    def __init__(self, name, schema_fragment, fragment_data, parent_data,
+    def __init__(self, name, schema_fragment, fragment_data, plugin_type,
                  widgetFactory, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.name = name
@@ -17,18 +18,23 @@ class JsonNumber(QtWidgets.QWidget):
         hbox = QtWidgets.QHBoxLayout()
 
         self.label = QtWidgets.QLabel(name)
-        self.spin  = QtWidgets.QDoubleSpinBox()
+        self.edit = QtWidgets.QLineEdit()
+        self.fragment_data = fragment_data
 
         if "description" in self.fragment:
             self.label.setToolTip(self.fragment['description'])
 
-        # TODO: min/max
+        if "default" in self.fragment:
+            self.edit.setPlaceholderText(self.fragment['default'])
+
+        if self.fragment_data:
+            self.edit.setText(self.fragment_data)
 
         hbox.addWidget(self.label)
-        hbox.addWidget(self.spin)
+        hbox.addWidget(self.edit)
 
         self.setLayout(hbox)
         self.layout().setContentsMargins(0, 0, 0, 0)
 
     def to_json_object(self):
-        return self.spin.value()
+        return str(self.edit.text())

@@ -11,7 +11,7 @@ class JsonObject(QtWidgets.QGroupBox):
         We display these in a groupbox, which on most platforms will
         include a border.
     """
-    def __init__(self, name, schema_fragment, fragment_data, parent_data,
+    def __init__(self, name, schema_fragment, fragment_data, plugin_type,
                  widgetFactory, parent=None):
         QtWidgets.QGroupBox.__init__(self, name, parent)
         self.widget_factory = widgetFactory
@@ -25,6 +25,22 @@ class JsonObject(QtWidgets.QGroupBox):
         #self.layout().setContentsMargins(0, 0, 0, 0)
         self.visible_properties = []
         self.fragment_data = fragment_data
+        self.plugin_type = None
+
+        if self.name == 'contexts':
+            self.plugin_type = 'context'
+        elif self.name == 'stages':
+            if self.fragment_data.get('name') == 'collector':
+                self.plugin_type = 'collector'
+            elif self.fragment_data.get('name') == 'validator':
+                self.plugin_type = 'validator'
+            elif self.fragment_data.get('name') == 'output':
+                self.plugin_type = 'output'
+        elif self.name == 'finalisers':
+            self.plugin_type = 'finaliser'
+        else:
+            self.plugin_type = plugin_type
+
 
         if "title" in self.fragment:
             self.name = self.fragment['title']
@@ -47,14 +63,19 @@ class JsonObject(QtWidgets.QGroupBox):
             for k, v in self.fragment['properties'].items():
                 if k in self.visible_properties:
                     if k == "widget":
-                        print "parent_data ---> {}".format(parent_data)
-                        #self.widget_factory.fetch_plugin_widget()
+                        widget = self.widget_factory.fetch_plugin_widget(
+                            self.fragment_data, self.plugin_type
+                        )
+                        # self.register_widget_plugin(context_widget,
+                        #                             context_plugin)
+                        self.innerLayout.addWidget(widget)
+                        continue
                     newFragment_data = None
                     if self.fragment_data:
                         newFragment_data = self.fragment_data.get(k)
                     widget = self.widget_factory.create_widget(k, v,
                                                                newFragment_data,
-                                                               self.fragment_data)
+                                                               self.plugin_type)
                     self.innerLayout.addWidget(widget)
                     self.properties[k] = widget
         self.vbox.addLayout(self.innerLayout)

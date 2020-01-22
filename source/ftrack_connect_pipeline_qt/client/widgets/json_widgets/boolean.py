@@ -9,7 +9,7 @@ class JsonBoolean(QtWidgets.QCheckBox):
     """
         Widget representing a boolean (CheckBox)
     """
-    def __init__(self, name, schema_fragment, fragment_data, parent_data,
+    def __init__(self, name, schema_fragment, fragment_data, plugin_type,
                  widgetFactory, parent=None):
         QtWidgets.QCheckBox.__init__(self, name, parent)
         self.name = name

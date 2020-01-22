@@ -23,12 +23,13 @@ class QtClient(client.Client, QtWidgets.QWidget):
     host_connection = None
     schema = None
     definition = None
+    ui = [constants.UI]
 
-    def __init__(self, event_manager, ui, parent=None):
+    def __init__(self, event_manager, ui=None, parent=None):
         '''Initialise widget with *ui* , *host* and *hostid*.'''
         QtWidgets.QWidget.__init__(self, parent=parent)
-        client.Client.__init__(self, event_manager, ui)
-        self.widget_factory = widget_factory.WidgetFactory(event_manager, ui)
+        client.Client.__init__(self, event_manager, ui=ui)
+        self.widget_factory = widget_factory.WidgetFactory(event_manager, self.ui)
         self.pre_build()
         self.post_build()
 
@@ -72,13 +73,25 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.widget_factory.set_host_definitions(
             self.host_connection.host_definitions
         )
+
+        if self.__callback:
+            output_dict = {"host_connection": self.host_connection,
+                           "schema": self.schema,
+                           "definition": self.definition}
+            self.__callback(output_dict)
+
         result = self.widget_factory.create_widget(
             "testSchema",
             schema,
-            definition
+            self.definition
         )
         self.scroll.setWidget(result)
+
 
     def _on_widget_status_updated(self, data):
         status, message = data
         self.header.setMessage(message, status)
+
+    def on_ready(self, callback, time_out=3):
+        self.discover_hosts(time_out=time_out)
+        self.__callback = callback

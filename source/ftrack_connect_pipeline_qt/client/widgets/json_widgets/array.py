@@ -12,7 +12,7 @@ class JsonArray(QtWidgets.QWidget):
         they can contain objects of specific types.
         We include a label and button for adding types.
     """
-    def __init__(self, name, schema_fragment, fragment_data, parent_data,
+    def __init__(self, name, schema_fragment, fragment_data, plugin_type,
                  widgetFactory, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.widget_factory = widgetFactory
@@ -27,7 +27,7 @@ class JsonArray(QtWidgets.QWidget):
         if "items" in self.fragment and self.fragment_data:
             for data in self.fragment_data:
                 obj = self.widget_factory.create_widget(
-                    self.name, self.fragment['items'], data, self.fragment_data)
+                    self.name, self.fragment['items'], data, plugin_type)
                 self.innerLayout.addWidget(obj)
                 self.count += 1
 

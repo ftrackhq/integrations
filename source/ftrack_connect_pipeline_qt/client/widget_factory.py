@@ -6,8 +6,8 @@ from collections import OrderedDict
 
 import ftrack_api
 from ftrack_connect_pipeline_qt import constants
-from ftrack_connect_pipeline_qt.ui.widget import BaseWidget
-from ftrack_connect_pipeline_qt import json_widgets
+from ftrack_connect_pipeline_qt.client.widgets import BaseWidget
+from ftrack_connect_pipeline_qt.client.widgets import json_widgets
 from Qt import QtCore, QtWidgets
 
 class WidgetFactory(object):
@@ -45,7 +45,7 @@ class WidgetFactory(object):
         self.host_definitions = host_definitions
 
     def create_widget(self, name, schema_fragment, fragment_data=None,
-                      parent_data=None, widgetFactory = None, parent=None):
+                      plugin_type=None, widgetFactory = None, parent=None):
         """
             Create the appropriate widget for a given schema element.
         """
@@ -72,7 +72,7 @@ class WidgetFactory(object):
                 schema_fragment.get('type'), json_widgets.UnsupportedSchema)
 
         return widget_fn(name, schema_fragment, fragment_data,
-                         parent_data, self, parent)
+                         plugin_type, self, parent)
 
     def fetch_plugin_widget(self, plugin_data, plugin_type, extra_options=None):
         '''Retrieve widget for the given *plugin*, *plugin_type*.'''
@@ -82,6 +82,8 @@ class WidgetFactory(object):
                                          extra_options=extra_options)
         if not data:
             data = self._fetch_default_plugin_widget(plugin_data, plugin_type)
+
+        print "data ---> {}".format(data)
 
         data = data[0]
 
@@ -145,10 +147,11 @@ class WidgetFactory(object):
                     }
                 )
 
-                result = self._event_manager.publish(
+                result = self.session.event_hub.publish(
                     event,
                     synchronous=True
                 )
+
                 if result:
                     break
             return result
