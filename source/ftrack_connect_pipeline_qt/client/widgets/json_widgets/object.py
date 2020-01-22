@@ -25,21 +25,26 @@ class JsonObject(QtWidgets.QGroupBox):
         #self.layout().setContentsMargins(0, 0, 0, 0)
         self.visible_properties = []
         self.fragment_data = fragment_data
-        self.plugin_type = None
 
-        if self.name == 'contexts':
-            self.plugin_type = 'context'
-        elif self.name == 'stages':
-            if self.fragment_data.get('name') == 'collector':
-                self.plugin_type = 'collector'
-            elif self.fragment_data.get('name') == 'validator':
-                self.plugin_type = 'validator'
-            elif self.fragment_data.get('name') == 'output':
-                self.plugin_type = 'output'
-        elif self.name == 'finalisers':
-            self.plugin_type = 'finaliser'
-        else:
-            self.plugin_type = plugin_type
+        self.plugin_type = plugin_type
+
+        #TODO: discuss if it's better to have the logic here than in the schemas
+
+        # self.plugin_type = None
+        #
+        # if self.name == 'contexts':
+        #     self.plugin_type = 'context'
+        # elif self.name == 'stages':
+        #     if self.fragment_data.get('name') == 'collector':
+        #         self.plugin_type = 'collector'
+        #     elif self.fragment_data.get('name') == 'validator':
+        #         self.plugin_type = 'validator'
+        #     elif self.fragment_data.get('name') == 'output':
+        #         self.plugin_type = 'output'
+        # elif self.name == 'finalisers':
+        #     self.plugin_type = 'finaliser'
+        # else:
+        #     self.plugin_type = plugin_type
 
 
         if "title" in self.fragment:
@@ -66,8 +71,6 @@ class JsonObject(QtWidgets.QGroupBox):
                         widget = self.widget_factory.fetch_plugin_widget(
                             self.fragment_data, self.plugin_type
                         )
-                        # self.register_widget_plugin(context_widget,
-                        #                             context_plugin)
                         self.innerLayout.addWidget(widget)
                         continue
                     newFragment_data = None

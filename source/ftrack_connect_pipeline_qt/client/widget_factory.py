@@ -4,6 +4,7 @@
 import logging
 from collections import OrderedDict
 
+import uuid
 import ftrack_api
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.client.widgets import BaseWidget
@@ -12,6 +13,11 @@ from Qt import QtCore, QtWidgets
 
 class WidgetFactory(object):
     ''''''
+
+    @property
+    def widgets(self):
+        '''Return registered plugin's widgets.'''
+        return self._widgets_ref
 
     widget_status_updated = QtCore.Signal(object)
 
@@ -27,6 +33,7 @@ class WidgetFactory(object):
         'boolean': json_widgets.JsonBoolean
     }
     schema_title_mapping = {
+        #'components':json_widgets.MyCustomArrayRepresentation
     }
 
     def __init__(self, event_manager, ui):
@@ -40,6 +47,7 @@ class WidgetFactory(object):
         self.session = event_manager.session
         self._event_manager = event_manager
         self.ui = ui
+        self._widgets_ref = {}
 
     def set_host_definitions(self, host_definitions):
         self.host_definitions = host_definitions
@@ -78,13 +86,17 @@ class WidgetFactory(object):
         '''Retrieve widget for the given *plugin*, *plugin_type*.'''
 
         plugin_name = plugin_data.get('widget')
+
+        plugin_type = plugin_data.get('plugin_type')
         data = self._fetch_plugin_widget(plugin_data, plugin_type, plugin_name,
                                          extra_options=extra_options)
         if not data:
-            data = self._fetch_default_plugin_widget(plugin_data, plugin_type)
-
-        print "data ---> {}".format(data)
-
+            plugin_name = 'default.widget'
+            if not plugin_data.get('widget'):
+                plugin_data['widget'] = plugin_name
+            data = self._fetch_plugin_widget(plugin_data, plugin_type,
+                                             plugin_name,
+                                             extra_options=extra_options)
         data = data[0]
 
         message = data['message']
@@ -109,17 +121,19 @@ class WidgetFactory(object):
             )
 
         result.status_updated.connect(self._on_widget_status_updated)
+        self.register_widget_plugin(plugin_data)
 
         return result
 
-    def _fetch_default_plugin_widget(self, plugin, plugin_type):
-        '''Retrieve the default widget based on *plugin* and *plugin_type*'''
-        plugin_name = 'default.widget'
-        return self._fetch_plugin_widget(plugin, plugin_type, plugin_name)
+    # def _fetch_default_plugin_widget(self, plugin, plugin_type):
+    #     '''Retrieve the default widget based on *plugin* and *plugin_type*'''
+    #     plugin_name = 'default.widget'
+    #     return self._fetch_plugin_widget(plugin, plugin_type, plugin_name)
 
     def _fetch_plugin_widget(self, plugin_data, plugin_type, plugin_name,
                              extra_options=None):
-        '''Retrieve widget for the given *plugin*, *plugin_type* and *plugin_name*.'''
+        '''Retrieve widget for the given *plugin*, *plugin_type* and
+        *plugin_name*.'''
         extra_options = extra_options or {}
         plugin_options = plugin_data.get('options', {})
         plugin_options.update(extra_options)
@@ -158,3 +172,15 @@ class WidgetFactory(object):
 
     def _on_widget_status_updated(self, status):
         self.widget_status_updated.emit(status)
+
+    def register_widget_plugin(self, plugin_data):
+        '''regiter the *widget* against the given *plugin*'''
+        uid = uuid.uuid4().hex
+        self._widgets_ref[uid] = plugin_data.get('widget')
+        plugin_data['widget_ref'] = uid
+
+        return uid
+
+    def get_registered_widget_plugin(self, plugin_data):
+        '''return the widget registered for the given *plugin*.'''
+        return self._widgets_ref[plugin_data['widget_ref']]
