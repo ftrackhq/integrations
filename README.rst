@@ -33,7 +33,10 @@ Windows::
     $ python setup.py bdist_msi
 
 OSX::
-    
+    #note, on latest version of OSX these envs are needed in order to properly build.
+    export CPPFLAGS=-I/usr/local/opt/openssl/include
+    export LDFLAGS=-L/usr/local/opt/openssl/lib
+
     $ npm install -g appdmg
     $ python setup.py bdist_mac
     $ appdmg resource/appdmg.json build/ftrack-connect-package-X.X.X.dmg
