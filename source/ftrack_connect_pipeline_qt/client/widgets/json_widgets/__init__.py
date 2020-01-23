@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 
-from ftrack_connect_pipeline_qt.client.widgets.json_widgets.array import JsonArray
+from ftrack_connect_pipeline_qt.client.widgets.json_widgets.array import *
 from ftrack_connect_pipeline_qt.client.widgets.json_widgets.boolean import JsonBoolean
 from ftrack_connect_pipeline_qt.client.widgets.json_widgets.integer import JsonInteger
 from ftrack_connect_pipeline_qt.client.widgets.json_widgets.number import JsonNumber

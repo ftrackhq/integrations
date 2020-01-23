@@ -52,3 +52,31 @@ class JsonArray(QtWidgets.QWidget):
             if "to_json_object" in dir(widget):
                 out.append(widget.to_json_object())
         return out
+
+class ComponentsArrayRepresentation(QtWidgets.QWidget):
+
+    def __init__(self, name, schema_fragment, fragment_data, plugin_type,
+                 widgetFactory, parent=None):
+        QtWidgets.QWidget.__init__(self, parent)
+        self.widget_factory = widgetFactory
+        self.name = name
+        self.fragment = schema_fragment
+        self.fragment_data = fragment_data
+        self.tabWidget = QtWidgets.QTabWidget()
+        self.vbox = QtWidgets.QVBoxLayout()
+
+        if "items" in self.fragment and self.fragment_data:
+            for data in self.fragment_data:
+                newTabWidget = QtWidgets.QWidget()
+                widgetLayout = QtWidgets.QVBoxLayout()
+
+                obj = self.widget_factory.create_widget(
+                    self.name, self.fragment['items'], data, plugin_type)
+
+                widgetLayout.addWidget(obj)
+                newTabWidget.setLayout(widgetLayout)
+                self.tabWidget.addTab(newTabWidget, data["name"])
+
+        self.vbox.addWidget(self.tabWidget)
+        self.setLayout(self.vbox)
+        self.layout().setContentsMargins(0, 0, 0, 0)

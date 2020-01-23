@@ -33,7 +33,7 @@ class WidgetFactory(object):
         'boolean': json_widgets.JsonBoolean
     }
     schema_title_mapping = {
-        #'components':json_widgets.MyCustomArrayRepresentation
+        'components': json_widgets.ComponentsArrayRepresentation
     }
 
     def __init__(self, event_manager, ui):
@@ -72,9 +72,10 @@ class WidgetFactory(object):
             )
             schema_fragment['properties'] = schema_fragment_properties
 
-        widget_fn=None
-        # widget_fn = self.schema_title_mapping.get(schema_fragment.get('title'),
-        #                                           json_widgets.UnsupportedSchema)
+        #widget_fn=None
+        print "schema_fragment.get('title') ---> {}".format(name)
+        widget_fn = self.schema_title_mapping.get(name)#, json_widgets.UnsupportedSchema)
+        print "widget_fn -->{}".format(widget_fn)
         if not widget_fn:
             widget_fn = self.schema_type_mapping.get(
                 schema_fragment.get('type'), json_widgets.UnsupportedSchema)
