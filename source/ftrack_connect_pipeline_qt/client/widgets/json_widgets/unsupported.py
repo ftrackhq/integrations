@@ -12,7 +12,7 @@ class UnsupportedSchema(QtWidgets.QLabel):
         If the element is a reference, the reference name is listed
         instead of a type.
     """
-    def __init__(self, name, schema_fragment, fragment_data, plugin_type,
+    def __init__(self, name, schema_fragment, fragment_data, previous_object_data,
                  widgetFactory, parent=None):
         self.name = name
         self.fragment = schema_fragment

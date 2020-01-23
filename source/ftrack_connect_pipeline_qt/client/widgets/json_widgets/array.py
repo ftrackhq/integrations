@@ -12,7 +12,7 @@ class JsonArray(QtWidgets.QWidget):
         they can contain objects of specific types.
         We include a label and button for adding types.
     """
-    def __init__(self, name, schema_fragment, fragment_data, plugin_type,
+    def __init__(self, name, schema_fragment, fragment_data, previous_object_data,
                  widgetFactory, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.widget_factory = widgetFactory
@@ -28,7 +28,7 @@ class JsonArray(QtWidgets.QWidget):
             for data in self.fragment_data:
                 name = data.get('name')
                 obj = self.widget_factory.create_widget(
-                    name, self.fragment['items'], data, plugin_type)
+                    name, self.fragment['items'], data, previous_object_data)
                 self.innerLayout.addWidget(obj)
                 self.count += 1
 
@@ -57,7 +57,7 @@ class JsonArray(QtWidgets.QWidget):
 
 class ComponentsArrayRepresentation(QtWidgets.QWidget):
 
-    def __init__(self, name, schema_fragment, fragment_data, plugin_type,
+    def __init__(self, name, schema_fragment, fragment_data, previous_object_data,
                  widgetFactory, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.widget_factory = widgetFactory
@@ -72,7 +72,7 @@ class ComponentsArrayRepresentation(QtWidgets.QWidget):
                 newTabWidget = QtWidgets.QWidget()
                 widgetLayout = QtWidgets.QVBoxLayout()
                 obj = self.widget_factory.create_widget(
-                    data['name'], self.fragment['items'], data, plugin_type)
+                    data['name'], self.fragment['items'], data, previous_object_data)
                 widgetLayout.addWidget(obj)
                 newTabWidget.setLayout(widgetLayout)
                 self.tabWidget.addTab(newTabWidget, data["name"])
