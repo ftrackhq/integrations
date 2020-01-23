@@ -72,10 +72,7 @@ class WidgetFactory(object):
             )
             schema_fragment['properties'] = schema_fragment_properties
 
-        #widget_fn=None
-        print "schema_fragment.get('title') ---> {}".format(name)
         widget_fn = self.schema_title_mapping.get(name)#, json_widgets.UnsupportedSchema)
-        print "widget_fn -->{}".format(widget_fn)
         if not widget_fn:
             widget_fn = self.schema_type_mapping.get(
                 schema_fragment.get('type'), json_widgets.UnsupportedSchema)

@@ -54,6 +54,7 @@ class JsonArray(QtWidgets.QWidget):
                 out.append(widget.to_json_object())
         return out
 
+
 class ComponentsArrayRepresentation(QtWidgets.QWidget):
 
     def __init__(self, name, schema_fragment, fragment_data, plugin_type,
