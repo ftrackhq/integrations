@@ -39,6 +39,6 @@ def ready_callback(hosts):
 
 
 # init client
-client_connection= client.Client(event_manager, ui=constants.UI)
+client_connection= client.Client(event_manager)
 client_connection.on_ready(ready_callback, time_out=30)
 

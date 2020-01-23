@@ -20,6 +20,10 @@ class HostConnection(object):
     def id(self):
         return self._raw_host_data['host_id']
 
+    @property
+    def host_definitions(self):
+        return self._raw_host_data['host_id'].split("-")[0].split(".")
+
     def __repr__(self):
         return '<HostConnection: {}>'.format(self.id)
 
@@ -88,6 +92,7 @@ class Client(object):
     '''
     Base client widget class.
     '''
+    ui = [constants.UI]
 
     @property
     def connected(self):
@@ -98,11 +103,15 @@ class Client(object):
         '''Return the current ui type.'''
         return self._host_list
 
-    def __init__(self, event_manager, ui):
+    def __init__(self, event_manager, ui=None):
         '''Initialise widget with *ui* , *host* and *hostid*.'''
         self._packages = {}
         self._current = {}
-        self._ui = ui
+
+        ui = ui or []
+        self.ui.extend(ui)
+        self.ui = list(set(self.ui))
+
         self._host_list = []
         self._connected = False
 
