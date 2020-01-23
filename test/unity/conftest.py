@@ -92,3 +92,12 @@ def session():
     )
 
     return session
+
+
+@pytest.fixture()
+def new_event():
+    event = ftrack_api.event.base.Event(
+        topic='test-event'
+    )
+
+    return event
