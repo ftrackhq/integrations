@@ -33,11 +33,11 @@ def ready_callback(event):
     schema = task['project']['project_schema']
     task_status = schema.get_statuses('Task')[0]
     publisher = event['definition']
-    publisher['contexts'][0]['plugins'][0]['options']['context_id'] = task['id']
-    publisher['contexts'][0]['plugins'][0]['options']['asset_name'] = 'PipelineAsset'
-    publisher['contexts'][0]['plugins'][0]['options']['asset_type'] = 'geo'
-    publisher['contexts'][0]['plugins'][0]['options']['comment'] = 'A new hope'
-    publisher['contexts'][0]['plugins'][0]['options']['status_id'] = task_status['id']
+    publisher['contexts']['plugins'][0]['options']['context_id'] = task['id']
+    publisher['contexts']['plugins'][0]['options']['asset_name'] = 'PipelineAsset'
+    publisher['contexts']['plugins'][0]['options']['asset_type'] = 'geo'
+    publisher['contexts']['plugins'][0]['options']['comment'] = 'A new hope'
+    publisher['contexts']['plugins'][0]['options']['status_id'] = task_status['id']
     publisher['components'][0]['stages'][0]['plugins'][0]['options'][
         'path'] = "/Users/lluisftrack/Desktop/file_to_publish.txt"
     return publisher
