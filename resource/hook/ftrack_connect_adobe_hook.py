@@ -19,6 +19,7 @@ ADOBE_VERSION_EXPRESSION = re.compile(
     r'(?P<version>\d[\d.]*)[^\w\d]'
 )
 
+
 class LaunchAction(object):
     '''Adobe plugins discover and launch action.'''
 
@@ -177,6 +178,9 @@ class LaunchAction(object):
             ), dict(
                 name='ftrack connect after effects',
                 version='-'
+            ), dict(
+                name='ftrack connect illustrator',
+                version='-'
             )
         ]
 
@@ -206,7 +210,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
             applications.extend(self._searchFilesystem(
                 expression=prefix + [
-                    'Adobe Photoshop CC .+', 'Adobe Photoshop CC .+.app'
+                    r'Adobe Photoshop ((?:CC )?\d+)', r'Adobe Photoshop ((?:CC )?\d+)\.app'
                 ],
                 label='Photoshop',
                 variant='CC {version}',
@@ -217,7 +221,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
             applications.extend(self._searchFilesystem(
                 expression=prefix + [
-                    'Adobe Premiere Pro CC .+', 'Adobe Premiere Pro CC .+.app'
+                    r'Adobe Premiere Pro ((?:CC )?\d+)', r'Adobe Premiere Pro ((?:CC )?\d+)\.app'
                 ],
                 label='Premiere Pro',
                 variant='CC {version}',
@@ -228,7 +232,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
             applications.extend(self._searchFilesystem(
                 expression=prefix + [
-                    'Adobe After Effects CC .+', 'Adobe After Effects CC .+.app'
+                    r'Adobe After Effects ((?:CC )?\d+)', r'Adobe After Effects ((?:CC )?\d+)\.app'
                 ],
                 label='After Effects',
                 variant='CC {version}',
@@ -237,13 +241,24 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 icon='after_effects'
             ))
 
+            applications.extend(self._searchFilesystem(
+                expression=prefix + [
+                    r'Adobe Illustrator ((?:CC )?\d+)', r'Adobe Illustrator ((?:CC )?\d+)\.app'
+                ],
+                label='Illustrator',
+                variant='CC {version}',
+                applicationIdentifier='illustrator_cc_{version}',
+                versionExpression=ADOBE_VERSION_EXPRESSION,
+                icon='illustrator'
+            ))
+
         elif sys.platform == 'win32':
             prefix = ['C:\\', 'Program Files.*']
 
             applications.extend(self._searchFilesystem(
                 expression=(
                     prefix +
-                    ['Adobe', 'Adobe Photoshop CC .+',
+                    ['Adobe', r'Adobe Photoshop ((?:CC )?\d+)',
                      'Photoshop.exe']
                 ),
                 label='Photoshop',
@@ -256,7 +271,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
             applications.extend(self._searchFilesystem(
                 expression=(
                     prefix +
-                    ['Adobe', 'Adobe Premiere Pro CC .+',
+                    ['Adobe', r'Adobe Premiere Pro ((?:CC )?\d+)',
                      'Adobe Premiere Pro.exe']
                 ),
                 label='Premiere Pro',
@@ -269,7 +284,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
             applications.extend(self._searchFilesystem(
                 expression=(
                     prefix +
-                    ['Adobe', 'Adobe After Effects CC .+', 'Support Files',
+                    ['Adobe', r'Adobe After Effects ((?:CC )?\d+)', 'Support Files',
                      'AfterFX.exe']
                 ),
                 label='After Effects',
@@ -277,6 +292,19 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
                 applicationIdentifier='after_effects_cc_{version}',
                 versionExpression=ADOBE_VERSION_EXPRESSION,
                 icon='after_effects'
+            ))
+
+            applications.extend(self._searchFilesystem(
+                expression=(
+                    prefix +
+                    ['Adobe', r'Adobe Illustrator ((?:CC )?\d+)', 'Support Files',
+                     'Contents', 'Windows', 'Illustrator.exe']
+                ),
+                label='Illustrator',
+                variant='CC {version}',
+                applicationIdentifier='illustrator_cc_{version}',
+                versionExpression=ADOBE_VERSION_EXPRESSION,
+                icon='illustrator'
             ))
 
         self.logger.debug(
@@ -335,7 +363,8 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
                 applicationExtensions = {
                     'photoshop_cc': 'psd',
                     'premiere_pro_cc': 'prproj',
-                    'after_effects_cc': 'aep'
+                    'after_effects_cc': 'aep',
+                    'illustrator_cc': 'ai',
                 }
 
                 for identifier, extension in applicationExtensions.items():
