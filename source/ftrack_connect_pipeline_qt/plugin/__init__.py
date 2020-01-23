@@ -34,15 +34,13 @@ class BasePluginWidget(plugin.BasePlugin):
         if not all(required):
             raise exception.PluginError('Some required fields are missing')
 
-        topic = 'topic={} and data.pipeline.host={} and data.pipeline.ui={} ' \
-                'and data.pipeline.type={} and data.pipeline.plugin_type={} ' \
-                'and data.pipeline.plugin_name={}'.format(
-            topic,
-            self.host,
-            self.ui,
-            self.type,
-            self.plugin_type,
-            self.plugin_name
+        topic = (
+            'topic={} and data.pipeline.host={} and data.pipeline.ui={} '
+            'and data.pipeline.type={} and data.pipeline.plugin_type={} '
+            'and data.pipeline.plugin_name={}'
+        ).format(
+            topic, self.host, self.ui, self.type,
+            self.plugin_type, self.plugin_name
         )
         return topic
 
