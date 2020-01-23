@@ -45,7 +45,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
         for new_connection in new_conections:
             self.host_selector.addHost(new_connection.id, new_connection)
 
-
     def pre_build(self):
         '''Prepare general layout.'''
         layout = QtWidgets.QVBoxLayout()
@@ -61,10 +60,16 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
         self.layout().addWidget(self.scroll)
 
+        self.run_button = QtWidgets.QPushButton('Run')
+        self.layout().addWidget(self.run_button)
+
     def post_build(self):
         '''Post Build ui method for events connections.'''
         self.host_selector.definition_changed.connect(self._definition_changed)
+        self.run_button.clicked.connect(self._on_run)
+
         #self.widget_factory.widget_status_updated.connect(self._on_widget_status_updated)
+
 
     def _definition_changed(self, host_connection, schema, definition):
         self.host_connection = host_connection
@@ -80,13 +85,12 @@ class QtClient(client.Client, QtWidgets.QWidget):
                            "definition": self.definition}
             self.__callback(output_dict)
 
-        result = self.widget_factory.create_widget(
+        self._current_def = self.widget_factory.create_widget(
             "testSchema",
             schema,
             self.definition
         )
-        self.scroll.setWidget(result)
-
+        self.scroll.setWidget(self._current_def)
 
     def _on_widget_status_updated(self, data):
         status, message = data
@@ -95,3 +99,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
     def on_ready(self, callback, time_out=3):
         self.discover_hosts(time_out=time_out)
         self.__callback = callback
+
+    def _on_run(self):
+        print self._current_def.to_json_object()
+        # self.host_connection.run(self.wid)
