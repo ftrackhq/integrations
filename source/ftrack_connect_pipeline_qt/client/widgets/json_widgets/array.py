@@ -26,8 +26,9 @@ class JsonArray(QtWidgets.QWidget):
         self.innerLayout = QtWidgets.QVBoxLayout()
         if "items" in self.fragment and self.fragment_data:
             for data in self.fragment_data:
+                name = data.get('name')
                 obj = self.widget_factory.create_widget(
-                    self.name, self.fragment['items'], data, plugin_type)
+                    name, self.fragment['items'], data, plugin_type)
                 self.innerLayout.addWidget(obj)
                 self.count += 1
 
@@ -69,10 +70,8 @@ class ComponentsArrayRepresentation(QtWidgets.QWidget):
             for data in self.fragment_data:
                 newTabWidget = QtWidgets.QWidget()
                 widgetLayout = QtWidgets.QVBoxLayout()
-
                 obj = self.widget_factory.create_widget(
-                    self.name, self.fragment['items'], data, plugin_type)
-
+                    data['name'], self.fragment['items'], data, plugin_type)
                 widgetLayout.addWidget(obj)
                 newTabWidget.setLayout(widgetLayout)
                 self.tabWidget.addTab(newTabWidget, data["name"])
