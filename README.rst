@@ -30,6 +30,13 @@ Alternatively, build appropriate bundles for target platform:
 
 Windows::
 
+    .. note ::
+
+        In case of : WindowsError [206] filepath or extension too long
+        manually install the first failing dependencies
+
+    $ python -m pip install setuptools==36.0.1
+    $ python -m pip install pyside
     $ python setup.py bdist_msi
 
 OSX::
