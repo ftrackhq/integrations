@@ -30,10 +30,10 @@ def ready_callback(hosts):
     task_status = schema.get_statuses('Task')[0]
 
     publisher = host.definitions['publishers'][0]
-    publisher['contexts'][0]['options']['context_id'] = task['id']
-    publisher['contexts'][0]['options']['asset_name'] = 'PipelineAsset'
-    publisher['contexts'][0]['options']['comment'] = 'A new hope'
-    publisher['contexts'][0]['options']['status_id'] = task_status['id']
+    publisher['contexts'][0]['plugins'][0]['options']['context_id'] = task['id']
+    publisher['contexts'][0]['plugins'][0]['options']['asset_name'] = 'PipelineAsset'
+    publisher['contexts'][0]['plugins'][0]['options']['comment'] = 'A new hope'
+    publisher['contexts'][0]['plugins'][0]['options']['status_id'] = task_status['id']
     publisher['components'][0]['stages'][0]['plugins'][0]['options']['path'] = "/home/ftrackwork/devel/testn11info.nk"
     host.run(publisher)
 

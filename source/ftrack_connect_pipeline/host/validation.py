@@ -85,17 +85,19 @@ class PluginDiscoverValidation(object):
 
         return idxs_to_pop or None
 
-    def vaildate_contexts_plugins(self, plugin_list, definition_name):
+    def vaildate_contexts_plugins(self, stage_list, definition_name):
         is_valid = True
-        for context_plugin in plugin_list:
-            if not self._discover_plugin(context_plugin,
-                                         constants.PLUGIN_CONTEXT_TYPE):
-                is_valid = False
-                self.logger.warning('Could not discover '
-                                    'plugin {} for {} in '
-                                    '{}'.format(context_plugin['plugin'],
-                                                constants.PLUGIN_CONTEXT_TYPE,
-                                                definition_name))
+        for stage in stage_list:
+            stage_name = stage['name']
+            for context_plugin in stage['plugins']:
+                if not self._discover_plugin(context_plugin,
+                                             stage_name):
+                    is_valid = False
+                    self.logger.warning('Could not discover '
+                                        'plugin {} for stage {} in '
+                                        '{}'.format(context_plugin['plugin'],
+                                                    stage_name,
+                                                    definition_name))
         return is_valid
 
     def validate_components_plugins(self, components_list, definition_name):
@@ -114,17 +116,19 @@ class PluginDiscoverValidation(object):
                                                     definition_name))
         return is_valid
 
-    def vaildate_finalisers_plugins(self, plugin_list, definition_name):
+    def vaildate_finalisers_plugins(self, stage_list, definition_name):
         is_valid = True
-        for publisher_plugin in plugin_list:
-            if not self._discover_plugin(publisher_plugin,
-                                         constants.PLUGIN_FINALISER_TYPE):
-                is_valid = False
-                self.logger.warning(
-                    'Could not discover plugin {} '
-                    'for {} in {}'.format(publisher_plugin['plugin'],
-                                          constants.PLUGIN_FINALISER_TYPE,
-                                          definition_name))
+        for stage in stage_list:
+            stage_name = stage['name']
+            for publisher_plugin in stage['plugins']:
+                if not self._discover_plugin(publisher_plugin,
+                                             stage_name):
+                    is_valid = False
+                    self.logger.warning(
+                        'Could not discover plugin {} '
+                        'for {} in {}'.format(publisher_plugin['plugin'],
+                                              stage_name,
+                                              definition_name))
         return is_valid
 
     def _discover_plugin(self, plugin, plugin_type):
