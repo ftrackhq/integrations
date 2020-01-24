@@ -120,12 +120,12 @@ class EntityBrowser(QtWidgets.QDialog):
         self.model.sourceModel().loadStarted.connect(self._onLoadStarted)
         self.model.sourceModel().loadEnded.connect(self._onLoadEnded)
 
-        self.view.horizontalHeader().setSectionResizeMode(
-            QtWidgets.QHeaderView.ResizeToContents
-        )
-        self.view.horizontalHeader().setSectionResizeMode(
-            0, QtWidgets.QHeaderView.Stretch
-        )
+        # self.view.horizontalHeader().setSectionResizeMode(
+        #     QtWidgets.QHeaderView.ResizeToContents
+        # )
+        # self.view.horizontalHeader().setSectionResizeMode(
+        #     0, QtWidgets.QHeaderView.Stretch
+        # )
 
         self.acceptButton.clicked.connect(self.accept)
         self.cancelButton.clicked.connect(self.reject)

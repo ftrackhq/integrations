@@ -8,7 +8,8 @@ from ftrack_connect_pipeline_qt.client.widgets import BaseWidget
 
 class DynamicWidget(BaseWidget):
 
-    def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
+    def __init__(self, parent=None, session=None, data=None, name=None,
+                 description=None, options=None):
         self._type_mapping = {
             str: self._build_str_widget,
             int: self._build_int_widget,
@@ -16,7 +17,10 @@ class DynamicWidget(BaseWidget):
             list: self._build_list_widget,
             bool: self._build_bool_widget
         }
-        super(DynamicWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options)
+        super(DynamicWidget, self).__init__(
+            parent=parent, session=session,data=data, name=name,
+            description=description, options=options
+        )
 
     def _register_widget(self, name, widget):
         '''Register *widget* with *name* and add it to main layout.'''
@@ -80,5 +84,7 @@ class DynamicWidget(BaseWidget):
 
         for key, value in self.options.items():
             value_type = type(value)
-            widget_fn = self._type_mapping.get(value_type, self._build_str_widget)
+            widget_fn = self._type_mapping.get(
+                value_type, self._build_str_widget
+            )
             widget_fn(key, value)
