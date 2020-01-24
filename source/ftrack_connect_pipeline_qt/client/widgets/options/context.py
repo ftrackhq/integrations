@@ -2,13 +2,13 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 from Qt import QtWidgets, QtCore, QtGui
-from ftrack_connect_pipeline_qt.client.widgets.dynamic import BaseWidget
+from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 
 from ftrack_connect_pipeline_qt.ui.widget.context_selector import ContextSelector
 from ftrack_connect_pipeline_qt.ui.widget.asset_selector import AssetSelector
 
 
-class PublishContextWidget(BaseWidget):
+class PublishContextWidget(BaseOptionsWidget):
     def __init__(self, parent=None, session=None, data=None, name=None,
                  description=None, options=None):
         self.context = session.get('Context', options.get('context_id'))
@@ -111,7 +111,7 @@ class PublishContextWidget(BaseWidget):
 
 
 
-class LoadContextWidget(BaseWidget):
+class LoadContextWidget(BaseOptionsWidget):
 
     def __init__(self, parent=None, session=None, data=None, name=None,
                  description=None, options=None):

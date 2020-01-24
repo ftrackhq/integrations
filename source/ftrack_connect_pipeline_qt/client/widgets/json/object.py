@@ -2,9 +2,10 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 from Qt import QtCore, QtWidgets
+from ftrack_connect_pipeline_qt.client.widgets.json import BaseJsonWidget
 
 
-class JsonObject(QtWidgets.QGroupBox):
+class JsonObject(BaseJsonWidget):
     """
         Widget representaiton of an object.
         Objects have properties, each of which is a widget of its own.
@@ -13,48 +14,43 @@ class JsonObject(QtWidgets.QGroupBox):
     """
     def __init__(self, name, schema_fragment, fragment_data,
                  previous_object_data, widgetFactory, parent=None):
-        QtWidgets.QGroupBox.__init__(self, name, parent)
-        self.widget_factory = widgetFactory
-        self.name = name
-        self.fragment = schema_fragment
-        self.vbox = QtWidgets.QVBoxLayout()
+        super(JsonObject, self).__init__(
+            name, schema_fragment, fragment_data, previous_object_data,
+            widgetFactory, parent=parent
+        )
+
+        self.groupBox = QtWidgets.QGroupBox(self.name, parent)
+        layout = QtWidgets.QVBoxLayout()
         self.innerLayout = QtWidgets.QVBoxLayout()
-        self.vbox.setAlignment(QtCore.Qt.AlignTop)
-        self.setLayout(self.vbox)
-        self.setFlat(False)
-        self.layout().setContentsMargins(0, 0, 0, 0)
-        self.visible_properties = []
-        self.fragment_data = fragment_data
-        self.previous_object_data = previous_object_data
+        layout.setAlignment(QtCore.Qt.AlignTop)
+        self.groupBox.setLayout(layout)
+        self.groupBox.setFlat(False)
+        self.groupBox.layout().setContentsMargins(0, 0, 0, 0)
+
         if self.previous_object_data:
             self.plugin_type = self.previous_object_data.get('name')
 
+        self.name = self.schema_fragment.get('title', name)
 
-        if "title" in self.fragment:
-            self.name = self.fragment['title']
+        self.groupBox.setToolTip(self.description)
 
-        if "description" in self.fragment:
-            self.setToolTip(self.fragment['description'])
 
-        if "order" in self.fragment:
-            self.visible_properties = self.fragment['order']
+        self.properties_widgets = {}
 
-        self.properties = {}
-
-        if "properties" not in self.fragment:
+        if not self.properties:
             label = QtWidgets.QLabel(
                 "Invalid object description (missing properties)",
                 self)
             label.setStyleSheet("QLabel { color: red; }")
-            self.vbox.addWidget(label)
+            layout.addWidget(label)
         else:
-            if "widget" in self.fragment['properties'].keys():
+            if "widget" in self.properties.keys():
                 widget = self.widget_factory.fetch_plugin_widget(
                     self.fragment_data, self.plugin_type
                 )
                 self.innerLayout.addWidget(widget)
             else:
-                for k, v in self.fragment['properties'].items():
+                for k, v in self.properties.items():
                     if k in self.visible_properties:
                         new_fragment_data = None
                         if self.fragment_data:
@@ -62,8 +58,10 @@ class JsonObject(QtWidgets.QGroupBox):
                         widget = self.widget_factory.create_widget(
                             k, v,new_fragment_data, self.fragment_data)
                         self.innerLayout.addWidget(widget)
-                        self.properties[k] = widget
-        self.vbox.addLayout(self.innerLayout)
+                        self.properties_widgets[k] = widget
+        layout.addLayout(self.innerLayout)
+        #self.v_layout.addLayout(layout)
+        self.v_layout.addWidget(self.groupBox)
 
 
     def to_json_object(self):

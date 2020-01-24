@@ -5,7 +5,7 @@ import copy
 from Qt import QtCore, QtWidgets
 from ftrack_connect_pipeline import client
 from ftrack_connect_pipeline_qt.ui.widget import header, host_selector
-from ftrack_connect_pipeline_qt.client import widget_factory
+from ftrack_connect_pipeline_qt.client.widgets.json import factory
 from ftrack_connect_pipeline_qt import constants
 
 
@@ -29,7 +29,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         '''Initialise widget with *ui* , *host* and *hostid*.'''
         QtWidgets.QWidget.__init__(self, parent=parent)
         client.Client.__init__(self, event_manager, ui=ui)
-        self.widget_factory = widget_factory.WidgetFactory(
+        self.widget_factory = factory.WidgetFactory(
             event_manager,
             self.ui
         )

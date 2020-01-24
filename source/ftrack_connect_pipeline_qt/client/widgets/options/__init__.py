@@ -8,7 +8,7 @@ from Qt import QtCore, QtWidgets
 from ftrack_connect_pipeline_qt import constants
 
 
-class BaseWidget(QtWidgets.QWidget):
+class BaseOptionsWidget(QtWidgets.QWidget):
     status_updated = QtCore.Signal(object)
     status_icons = constants.icons.status_icons
 
@@ -60,7 +60,7 @@ class BaseWidget(QtWidgets.QWidget):
     def __init__(self, parent=None, session=None, data=None, name=None,
                  description=None, options=None):
         '''initialise widget.'''
-        super(BaseWidget, self).__init__(parent=parent)
+        super(BaseOptionsWidget, self).__init__(parent=parent)
         self.setParent(parent)
 
         self.logger = logging.getLogger(

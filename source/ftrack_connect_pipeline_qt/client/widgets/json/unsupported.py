@@ -3,9 +3,10 @@
 
 
 from Qt import QtCore, QtWidgets
+from ftrack_connect_pipeline_qt.client.widgets.json import BaseJsonWidget
 
 
-class UnsupportedSchema(QtWidgets.QLabel):
+class UnsupportedSchema(BaseJsonWidget):
     """
         Widget representation of an unsupported schema element.
         Presents a label noting the name of the element and its type.
@@ -14,14 +15,17 @@ class UnsupportedSchema(QtWidgets.QLabel):
     """
     def __init__(self, name, schema_fragment, fragment_data,
                  previous_object_data, widgetFactory, parent=None):
-        self.name = name
-        self.fragment = schema_fragment
-        self._type = schema_fragment.get("type", schema_fragment.get("$ref",
-                                                                     "(?)"))
-        QtWidgets.QLabel.__init__(
-            self, "(Unsupported schema entry: %s, %s)" % (name, self._type),
-            parent)
+        super(UnsupportedSchema, self).__init__(
+            name, schema_fragment, fragment_data, previous_object_data,
+            widgetFactory, parent=parent
+        )
+
+        label = QtWidgets.QLabel(
+            "(Unsupported schema entry: %s, %s)" % (self.name, self._type)
+        )
         self.setStyleSheet("QLabel { font-style: italic; }")
+
+        self.v_layout.addWidget(label)
 
     def to_json_object(self):
         return "(unsupported)"

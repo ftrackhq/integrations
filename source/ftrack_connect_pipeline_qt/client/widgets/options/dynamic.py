@@ -3,10 +3,10 @@
 
 from functools import partial
 from Qt import QtWidgets, QtCore
-from ftrack_connect_pipeline_qt.client.widgets import BaseWidget
+from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 
 
-class DynamicWidget(BaseWidget):
+class DynamicWidget(BaseOptionsWidget):
 
     def __init__(self, parent=None, session=None, data=None, name=None,
                  description=None, options=None):
