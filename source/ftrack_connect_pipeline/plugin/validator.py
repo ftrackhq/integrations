@@ -23,10 +23,9 @@ class ValidatorPluginValidation(BasePluginValidation):
         *return_value* return value of the current plugin stored at the
         plugin base class
         '''
-        super(ValidatorPluginValidation, self).__init__(plugin_name,
-                                                        required_output,
-                                                        return_type,
-                                                        return_value)
+        super(ValidatorPluginValidation, self).__init__(
+            plugin_name, required_output, return_type, return_value
+        )
     def validate_required_output(self, result):
         '''Ensures that *result* contains the expected required_output
         defined for the current plugin.
@@ -80,10 +79,10 @@ class ValidatorPlugin(BasePlugin):
         to use for communication with the server.
         '''
         super(ValidatorPlugin, self).__init__(session)
-        self.validator = ValidatorPluginValidation(self.plugin_name,
-                                                   self._required_output,
-                                                   self.return_type,
-                                                   self.return_value)
+        self.validator = ValidatorPluginValidation(
+            self.plugin_name, self._required_output,
+            self.return_type, self.return_value
+        )
 
     def run(self, context=None, data=None, options=None):
         '''Run the current plugin with , *context* , *data* and *options*.

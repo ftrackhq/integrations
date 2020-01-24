@@ -137,9 +137,10 @@ class BasePlugin(object):
         )
 
         self._session = session
-        self.validator = BasePluginValidation(self.plugin_name,
-                                          self._required_output,
-                                          self.return_type, self.return_value)
+        self.validator = BasePluginValidation(
+            self.plugin_name, self._required_output, self.return_type,
+            self.return_value
+        )
 
     def _base_topic(self, topic):
         '''Ensures that we pass all the needed information to the topic

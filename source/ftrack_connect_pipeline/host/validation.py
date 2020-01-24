@@ -60,10 +60,12 @@ class PluginDiscoverValidation(object):
             if not valid_definition:
                 idx = publishers.index(definition)
                 idxs_to_pop.append(idx)
-                self.logger.warning('The definition {} from type {} contains '
-                                    'invalid plugins and will not '
-                                    'be used'.format(definition["name"],
-                                                     'publishers'))
+                self.logger.warning(
+                    'The definition {} from type {} contains invalid plugins '
+                    'and will not be used'.format(
+                        definition["name"], 'publishers'
+                    )
+                )
 
         return idxs_to_pop or None
 
@@ -78,10 +80,12 @@ class PluginDiscoverValidation(object):
             if not valid_definition:
                 idx = loaders.index(definition)
                 idxs_to_pop.append(idx)
-                self.logger.warning('The definition {} from type {} '
-                                    'contains invalid plugins and will not '
-                                    'be used'.format(definition["name"],
-                                                     'publishers'))
+                self.logger.warning(
+                    'The definition {} from type {} contains invalid plugins '
+                    'and will not be used'.format(
+                        definition["name"], 'publishers'
+                    )
+                )
 
         return idxs_to_pop or None
 
@@ -92,11 +96,10 @@ class PluginDiscoverValidation(object):
             if not self._discover_plugin(context_plugin,
                                          stage_name):
                 is_valid = False
-                self.logger.warning('Could not discover '
-                                    'plugin {} for stage {} in '
-                                    '{}'.format(context_plugin['plugin'],
-                                                stage_name,
-                                                definition_name))
+                self.logger.warning(
+                    'Could not discover plugin {} for stage {} in {}'.format(
+                        context_plugin['plugin'], stage_name, definition_name)
+                )
         return is_valid
 
     def validate_components_plugins(self, components_list, definition_name):
@@ -110,9 +113,10 @@ class PluginDiscoverValidation(object):
                         is_valid = False
                         self.logger.warning(
                             'Could not discover plugin {} for '
-                            'stage {} in {}'.format(component_plugin['plugin'],
-                                                    stage_name,
-                                                    definition_name))
+                            'stage {} in {}'.format(
+                                component_plugin['plugin'], stage_name,
+                                definition_name)
+                        )
         return is_valid
 
     def vaildate_finalisers_plugins(self, finaliser_stage, definition_name):
@@ -123,10 +127,9 @@ class PluginDiscoverValidation(object):
                                          stage_name):
                 is_valid = False
                 self.logger.warning(
-                    'Could not discover plugin {} '
-                    'for {} in {}'.format(publisher_plugin['plugin'],
-                                          stage_name,
-                                          definition_name))
+                    'Could not discover plugin {} for {} in {}'.format(
+                        publisher_plugin['plugin'], stage_name, definition_name)
+                )
         return is_valid
 
     def _discover_plugin(self, plugin, plugin_type):
