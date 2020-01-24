@@ -137,9 +137,10 @@ class BasePlugin(object):
         )
 
         self._session = session
-        self.validator = BasePluginValidation(self.plugin_name,
-                                          self._required_output,
-                                          self.return_type, self.return_value)
+        self.validator = BasePluginValidation(
+            self.plugin_name, self._required_output, self.return_type,
+            self.return_value
+        )
 
     def _base_topic(self, topic):
         '''Ensures that we pass all the needed information to the topic
@@ -163,12 +164,13 @@ class BasePlugin(object):
         if not all(required):
             raise exception.PluginError('Some required fields are missing')
 
-        topic = 'topic={} and data.pipeline.host={} and ' \
-                'data.pipeline.type={} and data.pipeline.plugin_type={} and ' \
-                'data.pipeline.plugin_name={}'.format(topic, self.host,
-                                                      self.type,
-                                                      self.plugin_type,
-                                                      self.plugin_name)
+        topic = (
+            'topic={} and data.pipeline.host={} and '
+            'data.pipeline.type={} and data.pipeline.plugin_type={} and '
+            'data.pipeline.plugin_name={}'
+        ).format(
+            topic, self.host, self.type, self.plugin_type, self.plugin_name
+        )
 
         return topic
 

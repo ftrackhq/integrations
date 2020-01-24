@@ -121,8 +121,9 @@ class Host(object):
 
     def validate(self, data):
 
-        plugin_validator = validation.PluginDiscoverValidation(self.session,
-                                                               self.host)
+        plugin_validator = validation.PluginDiscoverValidation(
+            self.session, self.host
+        )
 
         invalid_publishers_idxs = plugin_validator.validate_publishers_plugins(
             data['publishers'])
