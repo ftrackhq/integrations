@@ -57,7 +57,8 @@ class BaseWidget(QtWidgets.QWidget):
     def set_status(self, status, message):
         self.status_updated.emit((status, message))
 
-    def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
+    def __init__(self, parent=None, session=None, data=None, name=None,
+                 description=None, options=None):
         '''initialise widget.'''
         super(BaseWidget, self).__init__(parent=parent)
         self.setParent(parent)
@@ -86,7 +87,9 @@ class BaseWidget(QtWidgets.QWidget):
         self._status_icon = QtWidgets.QLabel()
         icon = self.status_icons[constants.DEFAULT_STATUS]
         self._status_icon.setPixmap(icon)
-        self._status_icon.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self._status_icon.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
+        )
 
         layout.addWidget(self._status_icon)
         layout.setContentsMargins(0, 0, 0, 0)

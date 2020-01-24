@@ -10,8 +10,8 @@ class JsonString(QtWidgets.QWidget):
         Widget representation of a string.
         Strings are text boxes with labels for names.
     """
-    def __init__(self, name, schema_fragment, fragment_data, previous_object_data,
-                 widgetFactory, parent=None):
+    def __init__(self, name, schema_fragment, fragment_data,
+                 previous_object_data, widgetFactory, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.name = name
         self.fragment = schema_fragment

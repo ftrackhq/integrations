@@ -12,8 +12,8 @@ class JsonArray(QtWidgets.QWidget):
         they can contain objects of specific types.
         We include a label and button for adding types.
     """
-    def __init__(self, name, schema_fragment, fragment_data, previous_object_data,
-                 widgetFactory, parent=None):
+    def __init__(self, name, schema_fragment, fragment_data,
+                 previous_object_data, widgetFactory, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.widget_factory = widgetFactory
         self.name = name
@@ -40,9 +40,10 @@ class JsonArray(QtWidgets.QWidget):
         # TODO: Support array for "items"
         # TODO: Support additionalItems
         if "items" in self.fragment:
-            obj = self.widget_factory.create_widget("Item #%d" % (self.count,),
-                                                    self.fragment['items'],
-                                                    self.schema, self)
+            obj = self.widget_factory.create_widget(
+                "Item #%d" % (self.count,), self.fragment['items'],
+                self.schema, self
+            )
             self.count += 1
             self.vbox.addWidget(obj)
 
@@ -57,8 +58,8 @@ class JsonArray(QtWidgets.QWidget):
 
 class ComponentsArrayRepresentation(QtWidgets.QWidget):
 
-    def __init__(self, name, schema_fragment, fragment_data, previous_object_data,
-                 widgetFactory, parent=None):
+    def __init__(self, name, schema_fragment, fragment_data,
+                 previous_object_data, widgetFactory, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.widget_factory = widgetFactory
         self.name = name
@@ -72,7 +73,8 @@ class ComponentsArrayRepresentation(QtWidgets.QWidget):
                 newTabWidget = QtWidgets.QWidget()
                 widgetLayout = QtWidgets.QVBoxLayout()
                 obj = self.widget_factory.create_widget(
-                    data['name'], self.fragment['items'], data, previous_object_data)
+                    data['name'], self.fragment['items'], data,
+                    previous_object_data)
                 widgetLayout.addWidget(obj)
                 newTabWidget.setLayout(widgetLayout)
                 self.tabWidget.addTab(newTabWidget, data["name"])

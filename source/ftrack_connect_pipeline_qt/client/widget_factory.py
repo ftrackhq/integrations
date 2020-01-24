@@ -53,7 +53,8 @@ class WidgetFactory(QtWidgets.QWidget):
         self.host_definitions = host_definitions
 
     def create_widget(self, name, schema_fragment, fragment_data=None,
-                      previous_object_data=None, widgetFactory = None, parent=None):
+                      previous_object_data=None, widgetFactory = None,
+                      parent=None):
         """
             Create the appropriate widget for a given schema element.
         """
@@ -72,7 +73,7 @@ class WidgetFactory(QtWidgets.QWidget):
             )
             schema_fragment['properties'] = schema_fragment_properties
 
-        widget_fn = self.schema_title_mapping.get(name)#, json_widgets.UnsupportedSchema)
+        widget_fn = self.schema_title_mapping.get(name)
         if not widget_fn:
             widget_fn = self.schema_type_mapping.get(
                 schema_fragment.get('type'), json_widgets.UnsupportedSchema)
@@ -84,17 +85,17 @@ class WidgetFactory(QtWidgets.QWidget):
         '''Retrieve widget for the given *plugin*, *plugin_type*.'''
 
         plugin_name = plugin_data.get('widget')
-        print "plugin_type ---> {}".format(plugin_type)
         plugin_type = plugin_type
-        data = self._fetch_plugin_widget(plugin_data, plugin_type, plugin_name,
-                                         extra_options=extra_options)
+        data = self._fetch_plugin_widget(
+            plugin_data, plugin_type, plugin_name, extra_options=extra_options
+        )
         if not data:
             plugin_name = 'default.widget'
             if not plugin_data.get('widget'):
                 plugin_data['widget'] = plugin_name
-            data = self._fetch_plugin_widget(plugin_data, plugin_type,
-                                             plugin_name,
-                                             extra_options=extra_options)
+            data = self._fetch_plugin_widget(
+                plugin_data, plugin_type, plugin_name,
+                extra_options=extra_options)
         data = data[0]
 
         message = data['message']
@@ -106,8 +107,8 @@ class WidgetFactory(QtWidgets.QWidget):
                 'Got response "{}"" while fetching:\n'
                 'plugin: {}\n'
                 'plugin_type: {}\n'
-                'plugin_name: {}'.format(message, plugin_data, plugin_type,
-                                         plugin_name)
+                'plugin_name: {}'.format(
+                    message, plugin_data, plugin_type, plugin_name)
             )
 
         if result and not isinstance(result, BaseWidget):
@@ -122,11 +123,6 @@ class WidgetFactory(QtWidgets.QWidget):
         self.register_widget_plugin(plugin_data)
 
         return result
-
-    # def _fetch_default_plugin_widget(self, plugin, plugin_type):
-    #     '''Retrieve the default widget based on *plugin* and *plugin_type*'''
-    #     plugin_name = 'default.widget'
-    #     return self._fetch_plugin_widget(plugin, plugin_type, plugin_name)
 
     def _fetch_plugin_widget(self, plugin_data, plugin_type, plugin_name,
                              extra_options=None):

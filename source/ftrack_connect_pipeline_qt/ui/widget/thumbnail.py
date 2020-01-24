@@ -85,8 +85,8 @@ class Base(QtWidgets.QLabel):
 
         .. note::
 
-           A placeholder image will be returned if there is not response within the
-           given *timeout*.
+           A placeholder image will be returned if there is not response within
+           the given *timeout*.
 
         '''
 

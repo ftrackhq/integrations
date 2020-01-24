@@ -29,7 +29,10 @@ class QtClient(client.Client, QtWidgets.QWidget):
         '''Initialise widget with *ui* , *host* and *hostid*.'''
         QtWidgets.QWidget.__init__(self, parent=parent)
         client.Client.__init__(self, event_manager, ui=ui)
-        self.widget_factory = widget_factory.WidgetFactory(event_manager, self.ui)
+        self.widget_factory = widget_factory.WidgetFactory(
+            event_manager,
+            self.ui
+        )
         self.pre_build()
         self.post_build()
 
@@ -68,7 +71,9 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.host_selector.definition_changed.connect(self._definition_changed)
         self.run_button.clicked.connect(self._on_run)
 
-        #self.widget_factory.widget_status_updated.connect(self._on_widget_status_updated)
+        #self.widget_factory.widget_status_updated.connect(
+        # self._on_widget_status_updated
+        # )
 
 
     def _definition_changed(self, host_connection, schema, definition):
