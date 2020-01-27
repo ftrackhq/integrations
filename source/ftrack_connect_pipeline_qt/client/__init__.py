@@ -106,5 +106,5 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.__callback = callback
 
     def _on_run(self):
-        print self._current_def.to_json_object()
-        # self.host_connection.run(self.wid)
+        serialized_data= self._current_def.to_json_object()
+        self.host_connection.run(serialized_data)
