@@ -77,6 +77,8 @@ class JsonObject(BaseJsonWidget):
                 if k in self.visible_properties:
                     widget = self.properties_widgets[k]
                     out[k] = widget.to_json_object()
+                elif k not in self.visible_properties and k in self.required_keys:
+                    out[k] = self.fragment_data[k]
         return out
 
 

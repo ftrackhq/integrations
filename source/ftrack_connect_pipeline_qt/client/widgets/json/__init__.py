@@ -23,6 +23,7 @@ class BaseJsonWidget(QtWidgets.QWidget):
         self.description = self.schema_fragment.get('description')
         self.properties = self.schema_fragment.get('properties')
         self._type = self.schema_fragment.get('type')
+        self.required_keys = self.schema_fragment.get('required')
 
         # add default layout
         self.v_layout = QtWidgets.QVBoxLayout()
