@@ -108,4 +108,4 @@ class QtClient(client.Client, QtWidgets.QWidget):
     def _on_run(self):
         serialized_data= self._current_def.to_json_object()
         print "serialized_data ---> {}".format(serialized_data)
-        #self.host_connection.run(serialized_data)
+        self.host_connection.run(serialized_data)
