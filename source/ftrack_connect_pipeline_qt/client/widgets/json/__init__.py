@@ -18,7 +18,7 @@ class BaseJsonWidget(QtWidgets.QWidget):
         self.previous_object_data = previous_object_data
 
         # checks
-        self.visible_properties = self.schema_fragment.get('order', [])
+        self.properties_order = self.schema_fragment.get('order', [])
         self.name = name
         self.description = self.schema_fragment.get('description')
         self.properties = self.schema_fragment.get('properties')

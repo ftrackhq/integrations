@@ -18,14 +18,18 @@ class ComponentsArray(BaseJsonWidget):
 
         if "items" in self.schema_fragment and self.fragment_data:
             for data in self.fragment_data:
+                if type(data) == dict:
+                    name = data.get('name')
+                else:
+                    name = data
                 new_tab_widget = QtWidgets.QWidget()
                 widget_layout = QtWidgets.QVBoxLayout()
                 obj = self.widget_factory.create_widget(
-                    data['name'], self.schema_fragment['items'], data,
+                    name, self.schema_fragment['items'], data,
                     self.previous_object_data)
                 widget_layout.addWidget(obj)
                 new_tab_widget.setLayout(widget_layout)
-                self.tab_widget.addTab(new_tab_widget, data["name"])
+                self.tab_widget.addTab(new_tab_widget, name)
 
         self.layout().addWidget(self.tab_widget)
         self.layout().setContentsMargins(0, 0, 0, 0)

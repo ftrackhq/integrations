@@ -27,7 +27,10 @@ class JsonArray(BaseJsonWidget):
 
         if "items" in self.schema_fragment and self.fragment_data:
             for data in self.fragment_data:
-                name = data.get('name')
+                if type(data) == dict:
+                    name = data.get('name')
+                else:
+                    name = data
                 obj = self.widget_factory.create_widget(
                     name, self.schema_fragment['items'], data,
                     self.previous_object_data

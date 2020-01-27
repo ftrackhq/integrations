@@ -51,14 +51,13 @@ class JsonObject(BaseJsonWidget):
                 self.innerLayout.addWidget(widget)
             else:
                 for k, v in self.properties.items():
-                    if k in self.visible_properties:
-                        new_fragment_data = None
-                        if self.fragment_data:
-                            new_fragment_data = self.fragment_data.get(k)
-                        widget = self.widget_factory.create_widget(
-                            k, v,new_fragment_data, self.fragment_data)
-                        self.innerLayout.addWidget(widget)
-                        self.properties_widgets[k] = widget
+                    new_fragment_data = None
+                    if self.fragment_data:
+                        new_fragment_data = self.fragment_data.get(k)
+                    widget = self.widget_factory.create_widget(
+                        k, v,new_fragment_data, self.fragment_data)
+                    self.innerLayout.addWidget(widget)
+                    self.properties_widgets[k] = widget
         layout.addLayout(self.innerLayout)
         self.layout().addWidget(self.groupBox)
 
@@ -74,11 +73,8 @@ class JsonObject(BaseJsonWidget):
                     out[k] = v
         else:
             for k, v in self.properties.items():
-                if k in self.visible_properties:
-                    widget = self.properties_widgets[k]
-                    out[k] = widget.to_json_object()
-                elif k not in self.visible_properties and k in self.required_keys:
-                    out[k] = self.fragment_data[k]
+                widget = self.properties_widgets[k]
+                out[k] = widget.to_json_object()
         return out
 
 
