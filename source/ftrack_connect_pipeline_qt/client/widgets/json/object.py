@@ -30,7 +30,7 @@ class JsonObject(BaseJsonWidget):
         if self.previous_object_data:
             self.plugin_type = self.previous_object_data.get('name')
 
-        self.name = self.schema_fragment.get('title', name)
+        #self.name = self.schema_fragment.get('title', name)
 
         self.groupBox.setToolTip(self.description)
 
@@ -60,12 +60,26 @@ class JsonObject(BaseJsonWidget):
                         self.innerLayout.addWidget(widget)
                         self.properties_widgets[k] = widget
         layout.addLayout(self.innerLayout)
-        #self.v_layout.addLayout(layout)
         self.v_layout.addWidget(self.groupBox)
-
 
     def to_json_object(self):
         out = {}
-        for k, v in self.properties.items():
-            out[k] = v.to_json_object()
+
+        if "widget" in self.properties.keys():
+            widget = self.widget_factory.get_registered_widget_plugin(
+                self.fragment_data)
+            out = widget.to_json_object()
+            for k, v in self.fragment_data.items():
+                if k not in out.keys():
+                    out[k] = v
+        else:
+            for k, v in self.properties.items():
+                if k in self.visible_properties:
+                    widget = self.properties_widgets[k]
+                    out[k] = widget.to_json_object()
         return out
+
+
+
+
+

@@ -38,21 +38,10 @@ class JsonArray(BaseJsonWidget):
         self.v_layout.addLayout(self.innerLayout)
         self.layout().setContentsMargins(0, 0, 0, 0)
 
-    def click_add(self):
-        # TODO: Support array for "items"
-        # TODO: Support additionalItems
-        if "items" in self.schema_fragment:
-            obj = self.widget_factory.create_widget(
-                "Item #%d" % (self.count,), self.schema_fragment['items'],
-                self.schema, self
-            )
-            self.count += 1
-            self.vbox.addWidget(obj)
-
     def to_json_object(self):
         out = []
-        for i in range(1, self.vbox.count()):
-            widget = self.vbox.itemAt(i).widget()
+        for i in range(0, self.innerLayout.count()):
+            widget = self.innerLayout.itemAt(i).widget()
             if "to_json_object" in dir(widget):
                 out.append(widget.to_json_object())
         return out

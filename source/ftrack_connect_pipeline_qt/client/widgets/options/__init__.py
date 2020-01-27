@@ -105,3 +105,11 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     def post_build(self):
         '''post build function , mostly used connect widgets events.'''
         self.status_updated.connect(self._set_internal_status)
+
+    def to_json_object(self):
+        out = {}
+        out['name'] = self.name
+        out['options']={}
+        for key, value in self.options.items():
+            out['options'][key] = value
+        return out

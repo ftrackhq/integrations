@@ -121,7 +121,7 @@ class WidgetFactory(QtWidgets.QWidget):
             )
 
         result.status_updated.connect(self._on_widget_status_updated)
-        self.register_widget_plugin(plugin_data)
+        self.register_widget_plugin(plugin_data, result)
 
         return result
 
@@ -168,10 +168,10 @@ class WidgetFactory(QtWidgets.QWidget):
     def _on_widget_status_updated(self, status):
         self.widget_status_updated.emit(status)
 
-    def register_widget_plugin(self, plugin_data):
+    def register_widget_plugin(self, plugin_data, widget):
         '''regiter the *widget* against the given *plugin*'''
         uid = uuid.uuid4().hex
-        self._widgets_ref[uid] = plugin_data.get('widget')
+        self._widgets_ref[uid] = widget#plugin_data.get('widget')
         plugin_data['widget_ref'] = uid
 
         return uid

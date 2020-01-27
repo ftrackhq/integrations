@@ -14,18 +14,28 @@ class ComponentsArray(BaseJsonWidget):
             name, schema_fragment, fragment_data, previous_object_data,
             widgetFactory, parent=parent
         )
-        self.tabWidget = QtWidgets.QTabWidget()
+        self.tab_widget = QtWidgets.QTabWidget()
 
         if "items" in self.schema_fragment and self.fragment_data:
             for data in self.fragment_data:
-                newTabWidget = QtWidgets.QWidget()
-                widgetLayout = QtWidgets.QVBoxLayout()
+                new_tab_widget = QtWidgets.QWidget()
+                widget_layout = QtWidgets.QVBoxLayout()
                 obj = self.widget_factory.create_widget(
                     data['name'], self.schema_fragment['items'], data,
                     self.previous_object_data)
-                widgetLayout.addWidget(obj)
-                newTabWidget.setLayout(widgetLayout)
-                self.tabWidget.addTab(newTabWidget, data["name"])
+                widget_layout.addWidget(obj)
+                new_tab_widget.setLayout(widget_layout)
+                self.tab_widget.addTab(new_tab_widget, data["name"])
 
-        self.v_layout.addWidget(self.tabWidget)
+        self.v_layout.addWidget(self.tab_widget)
         self.layout().setContentsMargins(0, 0, 0, 0)
+
+    def to_json_object(self):
+        out = []
+        for idx in range(0, self.tab_widget.count()):
+            tab_widget = self.tab_widget.widget(idx)
+            for i in range(0, tab_widget.layout().count()):
+                widget = tab_widget.layout().itemAt(i).widget()
+                if "to_json_object" in dir(widget):
+                    out.append(widget.to_json_object())
+        return out
