@@ -14,10 +14,10 @@ class JsonArray(BaseJsonWidget):
         We include a label and button for adding types.
     """
     def __init__(self, name, schema_fragment, fragment_data,
-                 previous_object_data, widgetFactory, parent=None):
+                 previous_object_data, widget_factory, parent=None):
         super(JsonArray, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
-            widgetFactory, parent=parent
+            widget_factory, parent=parent
         )
 
         self.count = 0

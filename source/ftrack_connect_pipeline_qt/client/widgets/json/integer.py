@@ -11,11 +11,11 @@ class JsonInteger(BaseJsonWidget):
         Widget representation of an integer (SpinBox)
     """
     def __init__(self, name, schema_fragment, fragment_data,
-                 previous_object_data, widgetFactory, parent=None):
+                 previous_object_data, widget_factory, parent=None):
 
         super(JsonInteger, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
-            widgetFactory, parent=parent
+            widget_factory, parent=parent
         )
 
         hbox = QtWidgets.QHBoxLayout()

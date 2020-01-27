@@ -9,10 +9,10 @@ from ftrack_connect_pipeline_qt.client.widgets.json import BaseJsonWidget
 class ComponentsArray(BaseJsonWidget):
 
     def __init__(self, name, schema_fragment, fragment_data,
-                 previous_object_data, widgetFactory, parent=None):
+                 previous_object_data, widget_factory, parent=None):
         super(ComponentsArray, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
-            widgetFactory, parent=parent
+            widget_factory, parent=parent
         )
         self.tab_widget = QtWidgets.QTabWidget()
 

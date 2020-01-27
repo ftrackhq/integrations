@@ -13,10 +13,10 @@ class JsonObject(BaseJsonWidget):
         include a border.
     """
     def __init__(self, name, schema_fragment, fragment_data,
-                 previous_object_data, widgetFactory, parent=None):
+                 previous_object_data, widget_factory, parent=None):
         super(JsonObject, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
-            widgetFactory, parent=parent
+            widget_factory, parent=parent
         )
 
         self.groupBox = QtWidgets.QGroupBox(self.name, parent)
