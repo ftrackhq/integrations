@@ -25,7 +25,7 @@ class UnsupportedSchema(BaseJsonWidget):
         )
         self.setStyleSheet("QLabel { font-style: italic; }")
 
-        self.v_layout.addWidget(label)
+        self.layout().addWidget(label)
 
     def to_json_object(self):
         return "(unsupported)"

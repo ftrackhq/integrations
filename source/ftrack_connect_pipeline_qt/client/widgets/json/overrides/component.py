@@ -27,7 +27,7 @@ class ComponentsArray(BaseJsonWidget):
                 new_tab_widget.setLayout(widget_layout)
                 self.tab_widget.addTab(new_tab_widget, data["name"])
 
-        self.v_layout.addWidget(self.tab_widget)
+        self.layout().addWidget(self.tab_widget)
         self.layout().setContentsMargins(0, 0, 0, 0)
 
     def to_json_object(self):

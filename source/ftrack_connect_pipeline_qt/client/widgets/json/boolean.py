@@ -20,7 +20,7 @@ class JsonBoolean(BaseJsonWidget):
 
         self.checkbox.setToolTip(self.description)
 
-        self.v_layout.addWidget(self.checkbox)
+        self.layout().addWidget(self.checkbox)
 
     def to_json_object(self):
         return bool(self.isChecked())

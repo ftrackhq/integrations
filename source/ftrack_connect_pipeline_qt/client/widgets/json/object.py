@@ -60,7 +60,7 @@ class JsonObject(BaseJsonWidget):
                         self.innerLayout.addWidget(widget)
                         self.properties_widgets[k] = widget
         layout.addLayout(self.innerLayout)
-        self.v_layout.addWidget(self.groupBox)
+        self.layout().addWidget(self.groupBox)
 
     def to_json_object(self):
         out = {}

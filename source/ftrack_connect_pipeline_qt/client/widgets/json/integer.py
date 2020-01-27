@@ -29,7 +29,7 @@ class JsonInteger(BaseJsonWidget):
         hbox.addWidget(self.label)
         hbox.addWidget(self.spin)
 
-        self.v_layout.addLayout(hbox)
+        self.layout().addLayout(hbox)
         self.layout().setContentsMargins(0, 0, 0, 0)
 
     def to_json_object(self):

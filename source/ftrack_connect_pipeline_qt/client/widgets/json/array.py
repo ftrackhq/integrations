@@ -35,7 +35,7 @@ class JsonArray(BaseJsonWidget):
                 self.innerLayout.addWidget(obj)
                 self.count += 1
 
-        self.v_layout.addLayout(self.innerLayout)
+        self.layout().addLayout(self.innerLayout)
         self.layout().setContentsMargins(0, 0, 0, 0)
 
     def to_json_object(self):
