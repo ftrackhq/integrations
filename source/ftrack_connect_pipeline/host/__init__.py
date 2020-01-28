@@ -28,7 +28,6 @@ def provide_host_information(hostid, definitions, event):
     return host_dict
 
 
-
 class Host(object):
     host = [constants.HOST]
 

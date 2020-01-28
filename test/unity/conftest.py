@@ -4,7 +4,6 @@ import pytest
 import shutil
 import uuid
 import ftrack_api
-from ftrack_connect_pipeline.session import get_shared_session
 
 
 def _temporary_file(request, **kwargs):
@@ -53,22 +52,6 @@ def temporary_directory(request):
 def unique_name():
     '''Return a unique name.'''
     return 'test-{0}'.format(uuid.uuid4())
-
-
-@pytest.fixture()
-def shared_session():
-    event_paths = [
-        os.path.abspath(os.path.join(
-            '..',
-            'ftrack-connect-pipeline',
-            'resource',
-            'application_hook'))
-    ]
-
-    # create event manager
-    session = get_shared_session(plugin_paths=event_paths)
-
-    return session
 
 
 @pytest.fixture()

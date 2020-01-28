@@ -5,7 +5,7 @@ import threading
 
 import logging
 import ftrack_api
-from ftrack_connect_pipeline import session, constants
+from ftrack_connect_pipeline import constants
 logger = logging.getLogger(__name__)
 
 
