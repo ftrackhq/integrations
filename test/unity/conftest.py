@@ -73,8 +73,6 @@ def shared_session():
 
 @pytest.fixture()
 def session():
-    CWD = os.path.dirname(__name__)
-
     event_paths = [
         os.path.abspath(os.path.join(
             '..',
@@ -83,7 +81,6 @@ def session():
             'application_hook'))
     ]
 
-    # create event manager
     session = ftrack_api.Session(
         plugin_paths=event_paths,
         auto_connect_event_hub=False

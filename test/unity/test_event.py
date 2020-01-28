@@ -25,15 +25,19 @@ def test_event_manager_initalise(session, new_event, manager_mode):
     event_manager.publish(new_event, callback)
 
 
-@pytest.mark.parametrize('manager_mode', [
+@pytest.mark.parametrize('manager_modes', [
     (constants.LOCAL_EVENT_MODE, constants.REMOTE_EVENT_MODE),
-    (constants.REMOTE_EVENT_MODE, constants.LOCAL_EVENT_MODE)
+    (constants.REMOTE_EVENT_MODE, constants.LOCAL_EVENT_MODE),
+    (constants.LOCAL_EVENT_MODE, constants.LOCAL_EVENT_MODE),
+    (constants.REMOTE_EVENT_MODE, constants.REMOTE_EVENT_MODE)
 ], ids=[
-    'remote override local mode',
-    'local override remote mode'
+    'remote override on local mode',
+    'local override on remote mode',
+    'local override on local mode',
+    'remote override on local remote',
 ])
-def test_event_manager_publish_mode_overrides(session, new_event, manager_mode):
-    mode, mode_override = manager_mode
+def test_event_manager_publish_mode_overrides(session, new_event, manager_modes):
+    manager_mode, mode_override = manager_modes
 
     def event_data(event):
         return {'test': 'data'}
@@ -42,7 +46,7 @@ def test_event_manager_publish_mode_overrides(session, new_event, manager_mode):
         assert event['data'] == {'test': 'data'}
 
     event_manager = event.EventManager(
-        session, mode=mode
+        session, mode=manager_mode
     )
     event_manager.subscribe(new_event['topic'], event_data)
     event_manager.publish(new_event, callback, mode=mode_override)
