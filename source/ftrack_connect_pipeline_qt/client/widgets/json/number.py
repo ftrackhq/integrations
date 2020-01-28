@@ -7,11 +7,14 @@ from ftrack_connect_pipeline_qt.client.widgets.json import BaseJsonWidget
 
 
 class JsonNumber(BaseJsonWidget):
-    """
-        Widget representation of a number (DoubleSpinBox)
-    """
-    def __init__(self, name, schema_fragment, fragment_data,
-                 previous_object_data, widget_factory, parent=None):
+    '''Widget representation of an number'''
+
+    def __init__(
+            self, name, schema_fragment, fragment_data,
+            previous_object_data, widget_factory, parent=None
+    ):
+        '''Initialise JsonNumber with *name*, *schema_fragment*,
+        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
         super(JsonNumber, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
             widget_factory, parent=parent

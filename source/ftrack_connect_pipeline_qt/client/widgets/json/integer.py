@@ -7,11 +7,14 @@ from ftrack_connect_pipeline_qt.client.widgets.json import BaseJsonWidget
 
 
 class JsonInteger(BaseJsonWidget):
-    """
-        Widget representation of an integer (SpinBox)
-    """
-    def __init__(self, name, schema_fragment, fragment_data,
-                 previous_object_data, widget_factory, parent=None):
+    '''Widget representation of an integer'''
+
+    def __init__(
+            self, name, schema_fragment, fragment_data,
+            previous_object_data, widget_factory, parent=None
+    ):
+        '''Initialise JsonInteger with *name*, *schema_fragment*,
+        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
 
         super(JsonInteger, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,

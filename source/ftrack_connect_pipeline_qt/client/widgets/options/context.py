@@ -9,8 +9,10 @@ from ftrack_connect_pipeline_qt.ui.widget.asset_selector import AssetSelector
 
 
 class PublishContextWidget(BaseOptionsWidget):
-    def __init__(self, parent=None, session=None, data=None, name=None,
-                 description=None, options=None):
+    def __init__(
+            self, parent=None, session=None, data=None, name=None,
+            description=None, options=None
+    ):
         self.context = session.get('Context', options.get('context_id'))
         self.asset_type = options.get('asset_type')
         super(PublishContextWidget, self).__init__(

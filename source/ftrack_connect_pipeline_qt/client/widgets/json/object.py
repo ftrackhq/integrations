@@ -6,15 +6,14 @@ from ftrack_connect_pipeline_qt.client.widgets.json import BaseJsonWidget
 
 
 class JsonObject(BaseJsonWidget):
-    """
-        Widget representaiton of an object.
-        Objects have properties, each of which is a widget of its own.
-        We display these in a groupbox, which on most platforms will
-        include a border.
-    """
-    def __init__(self, name, schema_fragment, fragment_data,
-                 previous_object_data, widget_factory, parent=None):
+    '''Widget representation of an object'''
 
+    def __init__(
+            self, name, schema_fragment, fragment_data,
+            previous_object_data, widget_factory, parent=None
+    ):
+        '''Initialise JsonObject with *name*, *schema_fragment*,
+        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
         super(JsonObject, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
             widget_factory, parent=parent
@@ -75,8 +74,3 @@ class JsonObject(BaseJsonWidget):
                 widget = self.properties_widgets[k]
                 out[k] = widget.to_json_object()
         return out
-
-
-
-
-

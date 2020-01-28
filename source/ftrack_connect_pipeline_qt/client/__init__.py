@@ -7,6 +7,7 @@ from ftrack_connect_pipeline import client
 from ftrack_connect_pipeline_qt.ui.widget import header, host_selector
 from ftrack_connect_pipeline_qt.client.widgets.json import factory
 from ftrack_connect_pipeline_qt import constants
+from ftrack_connect_pipeline import constants as core_constants
 
 
 class QtHostConnection(client.HostConnection):
@@ -71,10 +72,40 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.host_selector.definition_changed.connect(self._definition_changed)
         self.run_button.clicked.connect(self._on_run)
 
-        #self.widget_factory.widget_status_updated.connect(
-        # self._on_widget_status_updated
-        # )
+        self.widget_factory.widget_status_updated.connect(
+            self._on_widget_status_updated
+        )
 
+    def _update_widget(self, event):
+        # TODO: This can be happening at the factory
+        '''*event* callback to update widget with the current status/value'''
+        data = event['data']['pipeline']['data']
+        widget_ref = event['data']['pipeline']['widget_ref']
+        status = event['data']['pipeline']['status']
+        message = event['data']['pipeline']['message']
+
+        widget = self.widget_factory.widgets.get(widget_ref)
+        if not widget:
+            self.logger.warning('Widget ref :{} not found ! '.format(widget_ref))
+            return
+
+        self.logger.debug('updating widget: {} with {}'.format(widget, data))
+
+        widget.set_status(status, message)
+
+    def _listen_widget_updates(self):
+        # TODO: This can be happening at the factory
+
+        # TODO: We use to use the topic constants.PIPELINE_UPDATE_UI but the
+        #  runner.py rises the notification with the new topic name So we have
+        #  to decide if publish two diferent topics or use the new one.
+        self.session.event_hub.subscribe(
+            'topic={} and data.pipeline.hostid={}'.format(
+                core_constants.PIPELINE_CLIENT_NOTIFICATION,
+                self.host_connection.id
+            ),
+            self._update_widget
+        )
 
     def _definition_changed(self, host_connection, schema, definition):
         self.host_connection = host_connection
@@ -96,6 +127,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
             self.definition
         )
         self.scroll.setWidget(self._current_def)
+        self._listen_widget_updates()# TODO: This can be happening at the factory
 
     def _on_widget_status_updated(self, data):
         status, message = data

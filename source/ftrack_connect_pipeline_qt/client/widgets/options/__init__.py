@@ -9,6 +9,9 @@ from ftrack_connect_pipeline_qt import constants
 
 
 class BaseOptionsWidget(QtWidgets.QWidget):
+    '''
+    Base class of a widget representation for options widgets
+    '''
     status_updated = QtCore.Signal(object)
     status_icons = constants.icons.status_icons
 
@@ -42,11 +45,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
     def set_option_result(self, value, key):
         '''set the result options of value for the key.'''
-        self._results[key] = value
-
-    def get_option_results(self):
-        '''return the current option results'''
-        return self._results
+        self._options[key] = value
 
     def _set_internal_status(self, data):
         status, message = data
@@ -57,9 +56,19 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     def set_status(self, status, message):
         self.status_updated.emit((status, message))
 
-    def __init__(self, parent=None, session=None, data=None, name=None,
-                 description=None, options=None):
-        '''initialise widget.'''
+    def __init__(
+            self, parent=None, session=None, data=None, name=None,
+            description=None, options=None
+    ):
+        '''initialise widget with *parent*, *session*, *data*, *name*,
+        *description*, *options*
+
+        *parent* widget to parent the current widget (optional).
+
+        *session* should be the :class:`ftrack_api.session.Session` instance
+        to use for communication with the server.
+
+        '''
         super(BaseOptionsWidget, self).__init__(parent=parent)
         self.setParent(parent)
 
@@ -73,7 +82,6 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self._name = name
         self._description = description
         self._options = options
-        self._results = {}
 
         # Build widget
         self.pre_build()
@@ -107,6 +115,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self.status_updated.connect(self._set_internal_status)
 
     def to_json_object(self):
+        '''Return a formated json with the data from the current widget'''
         out = {}
         out['name'] = self.name
         out['options']={}

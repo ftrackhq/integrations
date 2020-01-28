@@ -8,8 +8,10 @@ from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 
 class DynamicWidget(BaseOptionsWidget):
 
-    def __init__(self, parent=None, session=None, data=None, name=None,
-                 description=None, options=None):
+    def __init__(
+            self, parent=None, session=None, data=None, name=None,
+            description=None, options=None
+    ):
         self._type_mapping = {
             str: self._build_str_widget,
             int: self._build_int_widget,

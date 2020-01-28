@@ -7,9 +7,16 @@ from ftrack_connect_pipeline_qt.client.widgets.json import BaseJsonWidget
 
 
 class ComponentsArray(BaseJsonWidget):
+    '''
+    Override widget representation of an array
+    '''
 
-    def __init__(self, name, schema_fragment, fragment_data,
-                 previous_object_data, widget_factory, parent=None):
+    def __init__(
+            self, name, schema_fragment, fragment_data,
+            previous_object_data, widget_factory, parent=None
+    ):
+        '''Initialise ComponentsArray with *name*, *schema_fragment*,
+        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
         super(ComponentsArray, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
             widget_factory, parent=parent

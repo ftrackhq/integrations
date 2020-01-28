@@ -7,14 +7,14 @@ from ftrack_connect_pipeline_qt.client.widgets.json import BaseJsonWidget
 
 
 class JsonArray(BaseJsonWidget):
-    """
-        Widget representation of an array.
-        Arrays can contain multiple objects of a type, or
-        they can contain objects of specific types.
-        We include a label and button for adding types.
-    """
-    def __init__(self, name, schema_fragment, fragment_data,
-                 previous_object_data, widget_factory, parent=None):
+    '''Widget representation of an array'''
+
+    def __init__(
+            self, name, schema_fragment, fragment_data,
+            previous_object_data, widget_factory, parent=None
+    ):
+        '''Initialise JsonArray with *name*, *schema_fragment*,
+        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
         super(JsonArray, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
             widget_factory, parent=parent

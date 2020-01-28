@@ -7,14 +7,14 @@ from ftrack_connect_pipeline_qt.client.widgets.json import BaseJsonWidget
 
 
 class UnsupportedSchema(BaseJsonWidget):
-    """
-        Widget representation of an unsupported schema element.
-        Presents a label noting the name of the element and its type.
-        If the element is a reference, the reference name is listed
-        instead of a type.
-    """
-    def __init__(self, name, schema_fragment, fragment_data,
-                 previous_object_data, widget_factory, parent=None):
+    '''Widget representation of an unsupported shcema element'''
+
+    def __init__(
+            self, name, schema_fragment, fragment_data,
+            previous_object_data, widget_factory, parent=None
+    ):
+        '''Initialise UnsupportedSchema with *name*, *schema_fragment*,
+        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
         super(UnsupportedSchema, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
             widget_factory, parent=parent
