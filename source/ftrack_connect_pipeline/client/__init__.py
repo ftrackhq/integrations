@@ -66,6 +66,7 @@ class HostConnection(object):
         data = event['data']['pipeline']['data']
         status = event['data']['pipeline']['status']
         plugin_name = event['data']['pipeline']['plugin_name']
+        widget_ref = event['data']['pipeline']['widget_ref']
         message = event['data']['pipeline']['message']
 
         if constants.status_bool_mapping[status]:
