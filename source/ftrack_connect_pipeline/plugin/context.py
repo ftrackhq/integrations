@@ -23,10 +23,9 @@ class ContextPluginValidation(BasePluginValidation):
         *return_value* return value of the current plugin stored at the
         plugin base class
         '''
-        super(ContextPluginValidation, self).__init__(plugin_name,
-                                                        required_output,
-                                                        return_type,
-                                                        return_value)
+        super(ContextPluginValidation, self).__init__(
+            plugin_name, required_output, return_type, return_value
+        )
 
 class ContextPlugin(BasePlugin):
     ''' Class representing a Context Plugin
@@ -47,10 +46,10 @@ class ContextPlugin(BasePlugin):
         to use for communication with the server.
         '''
         super(ContextPlugin, self).__init__(session)
-        self.validator = ContextPluginValidation(self.plugin_name,
-                                                 self._required_output,
-                                                 self.return_type,
-                                                 self.return_value)
+        self.validator = ContextPluginValidation(
+            self.plugin_name, self._required_output, self.return_type,
+            self.return_value
+        )
 
     def run(self, context=None, data=None, options=None):
         '''Run the current plugin with , *context* , *data* and *options*.
