@@ -57,8 +57,6 @@ def unique_name():
 
 @pytest.fixture()
 def shared_session():
-    CWD = os.path.dirname(__name__)
-
     event_paths = [
         os.path.abspath(os.path.join(
             '..',
@@ -95,9 +93,9 @@ def session():
 
 
 @pytest.fixture()
-def new_event():
+def new_event(unique_name):
     event = ftrack_api.event.base.Event(
-        topic='test-event'
+        topic=unique_name
     )
 
     return event
