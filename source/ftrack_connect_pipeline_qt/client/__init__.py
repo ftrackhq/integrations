@@ -53,12 +53,12 @@ class QtClient(client.Client, QtWidgets.QWidget):
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
-        self.host_selector = host_selector.HostSelector()
-
-        self.layout().addWidget(self.host_selector)
-
         self.header = header.Header(self.session)
         self.layout().addWidget(self.header)
+
+        self.host_selector = host_selector.HostSelector()
+        self.layout().addWidget(self.host_selector)
+
         self.scroll = QtWidgets.QScrollArea()
 
         self.layout().addWidget(self.scroll)
