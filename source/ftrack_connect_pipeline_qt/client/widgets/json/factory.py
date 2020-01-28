@@ -9,7 +9,8 @@ import ftrack_api
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.client.widgets import json
-from ftrack_connect_pipeline_qt.client.widgets.json.overrides import component
+from ftrack_connect_pipeline_qt.client.widgets.json.overrides import component,\
+    hidden, plugin_container
 
 from Qt import QtCore, QtWidgets
 
@@ -35,8 +36,17 @@ class WidgetFactory(QtWidgets.QWidget):
         'number': json.JsonNumber,
         'boolean': json.JsonBoolean
     }
+    schema_name_mapping = {
+        'components': component.ComponentsArray,
+        '_config': hidden.HiddenObject,
+        'ui': hidden.HiddenString,
+        'type': hidden.HiddenString,
+        'name': hidden.HiddenString
+    }
+
     schema_title_mapping = {
-        'components': component.ComponentsArray
+        'Plugin': plugin_container.PluginContainerObject,
+        'Component': plugin_container.PluginContainerObject
     }
 
     def __init__(self, event_manager, ui):
@@ -75,7 +85,10 @@ class WidgetFactory(QtWidgets.QWidget):
             )
             schema_fragment['properties'] = schema_fragment_properties
 
-        widget_fn = self.schema_title_mapping.get(name)
+        widget_fn = self.schema_name_mapping.get(name)
+        if not widget_fn:
+            widget_fn = self.schema_title_mapping.get(
+                schema_fragment.get('title'))
         if not widget_fn:
             widget_fn = self.schema_type_mapping.get(
                 schema_fragment.get('type'), json.UnsupportedSchema)
@@ -172,7 +185,7 @@ class WidgetFactory(QtWidgets.QWidget):
     def register_widget_plugin(self, plugin_data, widget):
         '''regiter the *widget* against the given *plugin*'''
         uid = uuid.uuid4().hex
-        self._widgets_ref[uid] = widget#plugin_data.get('widget')
+        self._widgets_ref[uid] = widget
         plugin_data['widget_ref'] = uid
 
         return uid
