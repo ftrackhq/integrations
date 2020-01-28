@@ -56,8 +56,7 @@ class WidgetFactory(QtWidgets.QWidget):
         self.host_definitions = host_definitions
 
     def create_widget(self, name, schema_fragment, fragment_data=None,
-                      previous_object_data=None, widget_factory = None,
-                      parent=None):
+                      previous_object_data=None, parent=None):
         """
             Create the appropriate widget for a given schema element.
         """
