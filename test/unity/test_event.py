@@ -21,6 +21,7 @@ def test_event_manager_initalise(session, new_event, manager_mode):
     event_manager = event.EventManager(
         session, mode=manager_mode
     )
+    assert event_manager.connected
     event_manager.subscribe(new_event['topic'], event_data)
     event_manager.publish(new_event, callback)
 
@@ -34,7 +35,7 @@ def test_event_manager_initalise(session, new_event, manager_mode):
     'remote override on local mode',
     'local override on remote mode',
     'local override on local mode',
-    'remote override on local remote',
+    'remote override on remote mode',
 ])
 def test_event_manager_publish_mode_overrides(session, new_event, manager_modes):
     manager_mode, mode_override = manager_modes
@@ -48,5 +49,6 @@ def test_event_manager_publish_mode_overrides(session, new_event, manager_modes)
     event_manager = event.EventManager(
         session, mode=manager_mode
     )
+    assert event_manager.connected
     event_manager.subscribe(new_event['topic'], event_data)
     event_manager.publish(new_event, callback, mode=mode_override)
