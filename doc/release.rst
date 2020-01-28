@@ -20,10 +20,20 @@ Releases
         `ftrack connect maya publish 0.6.3 <http://ftrack-connect-maya-publish.rtd.ftrack.com/en/0.6.3/>`_
         `ftrack connect nuke publish 0.6.3 <http://ftrack-connect-nuke-publish.rtd.ftrack.com/en/0.6.3/>`_
         `ftrack connect pipeline 0.8.4 <http://ftrack-connect-pipeline.rtd.ftrack.com/en/0.8.4/>`_
-        `ftrack action handler 0.1.5 <http://ftrack-action-handler.rtd.ftrack.com/en/0.1.5/>`_
+        `ftrack action handler 0.1.4 <http://ftrack-action-handler.rtd.ftrack.com/en/0.1.4/>`_
+        `ftrack connect 1.1.8 <http://ftrack-connect.rtd.ftrack.com/en/1.1.8/>`_
 
     .. change:: added
         `ftrack connect houdini 0.2.3 <http://ftrack-connect-houdini.rtd.ftrack.com/en/0.2.3/>`_
+
+
+.. release:: 1.1.1
+    :date: 2019-08-28
+
+    .. change:: changed
+        `ftrack api 1.8.0 <http://ftrack-python-api.rtd.ftrack.com/en/1.8.0/>`_
+        `ftrack connect 1.1.7 <http://ftrack-connect.rtd.ftrack.com/en/1.1.7/>`_
+        `ftrack connect nuke studio 2.2.2 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/2.2.2/>`_
 
 
 .. release:: 1.1.0
