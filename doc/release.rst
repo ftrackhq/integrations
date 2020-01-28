@@ -7,6 +7,7 @@ Releases
 
 
 .. release:: 1.1.2
+    :date: 2020-01-28
 
     .. change:: changed
         `ftrack api 1.8.2 <http://ftrack-python-api.rtd.ftrack.com/en/1.8.2/>`_
