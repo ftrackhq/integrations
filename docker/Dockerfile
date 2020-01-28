@@ -8,7 +8,7 @@ FROM centos:7
 LABEL ftrack AB
 
 # Set default FTRACK_CONNECT_PACKAGE_VERSION version to master
-ENV FTRACK_CONNECT_PACKAGE_VERSION 1.1.2-dev
+ENV FTRACK_CONNECT_PACKAGE_VERSION master
 
 # Define Python Version to build and use
 ENV PYTHON_VERSION 2.7.9
