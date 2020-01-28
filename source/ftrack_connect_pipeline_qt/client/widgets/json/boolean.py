@@ -16,6 +16,8 @@ class JsonBoolean(BaseJsonWidget):
             name, schema_fragment, fragment_data, previous_object_data,
             widgetFactory, parent=parent
         )
+
+    def build(self):
         self.checkbox = QtWidgets.QCheckBox()
 
         self.checkbox.setToolTip(self.description)

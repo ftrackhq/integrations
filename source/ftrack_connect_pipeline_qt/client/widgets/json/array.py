@@ -20,6 +20,7 @@ class JsonArray(BaseJsonWidget):
             widget_factory, parent=parent
         )
 
+    def build(self):
         self.count = 0
         self.maxItems = self.schema_fragment.get('maxItems')
 

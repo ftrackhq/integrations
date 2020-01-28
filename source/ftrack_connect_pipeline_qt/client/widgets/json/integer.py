@@ -18,6 +18,7 @@ class JsonInteger(BaseJsonWidget):
             widget_factory, parent=parent
         )
 
+    def build(self):
         hbox = QtWidgets.QHBoxLayout()
 
         self.label = QtWidgets.QLabel(self.name)

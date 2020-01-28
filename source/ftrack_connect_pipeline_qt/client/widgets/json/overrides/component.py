@@ -14,6 +14,8 @@ class ComponentsArray(BaseJsonWidget):
             name, schema_fragment, fragment_data, previous_object_data,
             widget_factory, parent=parent
         )
+
+    def build(self):
         self.tab_widget = QtWidgets.QTabWidget()
 
         if "items" in self.schema_fragment and self.fragment_data:

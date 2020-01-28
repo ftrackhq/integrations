@@ -19,9 +19,10 @@ class JsonString(BaseJsonWidget):
             widget_factory, parent=parent
         )
 
+    def build(self):
         hbox = QtWidgets.QHBoxLayout()
 
-        self.label = QtWidgets.QLabel(name)
+        self.label = QtWidgets.QLabel(self.name)
         self.edit = QtWidgets.QLineEdit()
 
         self.label.setToolTip(self.description)

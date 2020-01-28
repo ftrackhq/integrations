@@ -20,6 +20,7 @@ class UnsupportedSchema(BaseJsonWidget):
             widget_factory, parent=parent
         )
 
+    def build(self):
         label = QtWidgets.QLabel(
             "(Unsupported schema entry: %s, %s)" % (self.name, self._type)
         )

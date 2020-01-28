@@ -14,12 +14,14 @@ class JsonObject(BaseJsonWidget):
     """
     def __init__(self, name, schema_fragment, fragment_data,
                  previous_object_data, widget_factory, parent=None):
+
         super(JsonObject, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
             widget_factory, parent=parent
         )
 
-        self.groupBox = QtWidgets.QGroupBox(self.name, parent)
+    def build(self):
+        self.groupBox = QtWidgets.QGroupBox(self.name, self._parent)
         layout = QtWidgets.QVBoxLayout()
         self.innerLayout = QtWidgets.QVBoxLayout()
         layout.setAlignment(QtCore.Qt.AlignTop)
@@ -30,10 +32,7 @@ class JsonObject(BaseJsonWidget):
         if self.previous_object_data:
             self.plugin_type = self.previous_object_data.get('name')
 
-        #self.name = self.schema_fragment.get('title', name)
-
         self.groupBox.setToolTip(self.description)
-
 
         self.properties_widgets = {}
 

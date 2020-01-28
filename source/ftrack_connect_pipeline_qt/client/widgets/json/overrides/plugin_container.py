@@ -3,10 +3,10 @@
 
 
 from Qt import QtCore, QtWidgets
-from ftrack_connect_pipeline_qt.client.widgets.json import BaseJsonWidget
+from ftrack_connect_pipeline_qt.client.widgets.json import JsonObject
 
 
-class PluginContainerObject(BaseJsonWidget):
+class PluginContainerObject(JsonObject):
 
     def __init__(self, name, schema_fragment, fragment_data,
                  previous_object_data, widget_factory, parent=None):
@@ -14,6 +14,8 @@ class PluginContainerObject(BaseJsonWidget):
             name, schema_fragment, fragment_data, previous_object_data,
             widget_factory, parent=parent
         )
+
+    def build(self):
 
         if self.previous_object_data:
             self.plugin_type = self.previous_object_data.get('name')
@@ -41,19 +43,3 @@ class PluginContainerObject(BaseJsonWidget):
                         k, v, new_fragment_data, self.fragment_data)
                     self.layout().addWidget(widget)
                     self.properties_widgets[k] = widget
-
-    def to_json_object(self):
-        out = {}
-
-        if "widget" in self.properties.keys():
-            widget = self.widget_factory.get_registered_widget_plugin(
-                self.fragment_data)
-            out = widget.to_json_object()
-            for k, v in self.fragment_data.items():
-                if k not in out.keys():
-                    out[k] = v
-        else:
-            for k, v in self.properties.items():
-                widget = self.properties_widgets[k]
-                out[k] = widget.to_json_object()
-        return out

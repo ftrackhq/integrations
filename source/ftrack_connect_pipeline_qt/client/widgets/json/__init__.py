@@ -11,24 +11,36 @@ class BaseJsonWidget(QtWidgets.QWidget):
             widget_factory, parent=None
     ):
         super(BaseJsonWidget, self).__init__(parent=parent)
+
         # setup default vars
         self.widget_factory = widget_factory
         self.schema_fragment = schema_fragment
         self.fragment_data = fragment_data
         self.previous_object_data = previous_object_data
+        self._parent = parent
 
         # checks
         self.properties_order = self.schema_fragment.get('order', [])
         self.name = name
         self.description = self.schema_fragment.get('description')
-        self.properties = self.schema_fragment.get('properties')
+        self.properties = self.schema_fragment.get('properties', {})
         self._type = self.schema_fragment.get('type')
-        self.required_keys = self.schema_fragment.get('required')
+        self.required_keys = self.schema_fragment.get('required', [])
 
+        self.pre_build()
+        self.build()
+        self.post_build()
+
+    def pre_build(self):
         # add default layout
         self.v_layout = QtWidgets.QVBoxLayout()
         self.setLayout(self.v_layout)
 
+    def build(self):
+        pass
+
+    def post_build(self):
+        pass
 
     def to_json_object(self):
         return {}
