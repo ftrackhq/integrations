@@ -10,6 +10,7 @@ Releases
     :date: 2020-01-28
 
     .. change:: changed
+
         `ftrack api 1.8.2 <http://ftrack-python-api.rtd.ftrack.com/en/1.8.2/>`_
         `ftrack connect nuke studio 2.2.4 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/2.2.4/>`_
         `ftrack connect maya 1.2.3 <http://ftrack-connect-maya.rtd.ftrack.com/en/1.2.3/>`_
@@ -24,6 +25,7 @@ Releases
         `ftrack connect 1.1.8 <http://ftrack-connect.rtd.ftrack.com/en/1.1.8/>`_
 
     .. change:: added
+
         `ftrack connect houdini 0.2.3 <http://ftrack-connect-houdini.rtd.ftrack.com/en/0.2.3/>`_
 
 
@@ -31,6 +33,7 @@ Releases
     :date: 2019-08-28
 
     .. change:: changed
+
         `ftrack api 1.8.0 <http://ftrack-python-api.rtd.ftrack.com/en/1.8.0/>`_
         `ftrack connect 1.1.7 <http://ftrack-connect.rtd.ftrack.com/en/1.1.7/>`_
         `ftrack connect nuke studio 2.2.2 <http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/2.2.2/>`_
