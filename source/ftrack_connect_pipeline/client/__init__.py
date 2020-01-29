@@ -169,6 +169,6 @@ class Client(object):
             callback=self._host_discovered
         )
 
-    def on_ready(self, callback, time_out=3):
+    def on_ready(self, callback, time_out=5):
         self.__callback = callback
         self.discover_hosts(time_out=time_out)
