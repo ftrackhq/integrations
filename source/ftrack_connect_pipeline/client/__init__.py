@@ -122,7 +122,7 @@ class Client(object):
         self.event_manager = event_manager
         self.session = event_manager.session
 
-    def discover_hosts(self, time_out=3):
+    def discover_hosts(self, time_out=5):
         # discovery host loop and timeout.
         start_time = time.time()
         self.logger.info('time out set to {}:'.format(time_out))
