@@ -7,11 +7,16 @@ from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 
 
 class DynamicWidget(BaseOptionsWidget):
+    '''Main class to represent a various type of widget based on each type of
+    each element of the options diccionary'''
 
     def __init__(
             self, parent=None, session=None, data=None, name=None,
             description=None, options=None
     ):
+        '''initialise DynamicWidget with *parent*, *session*, *data*, *name*,
+        *description*, *options*
+        '''
         self._type_mapping = {
             str: self._build_str_widget,
             int: self._build_int_widget,
@@ -62,7 +67,7 @@ class DynamicWidget(BaseOptionsWidget):
         self.set_option_result(value, key)
 
     def _build_bool_widget(self, key, value):
-        '''build a float widget out of options *key* and *value* '''
+        '''build a bool widget out of options *key* and *value* '''
         widget= QtWidgets.QCheckBox()
         widget.setTristate(False)
         widget.setCheckState(QtCore.Qt.CheckState(value))
@@ -82,6 +87,8 @@ class DynamicWidget(BaseOptionsWidget):
             self.set_option_result(values[0], key)
 
     def build(self):
+        '''build function widgets based on the type of the vaule of every
+        element in the options diccionary'''
         super(DynamicWidget, self).build()
 
         for key, value in self.options.items():

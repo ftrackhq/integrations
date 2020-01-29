@@ -9,10 +9,15 @@ from ftrack_connect_pipeline_qt.ui.widget.asset_selector import AssetSelector
 
 
 class PublishContextWidget(BaseOptionsWidget):
+    '''Main class to represent a context widget on a publish process'''
+
     def __init__(
             self, parent=None, session=None, data=None, name=None,
             description=None, options=None
     ):
+        '''initialise PublishContextWidget with *parent*, *session*, *data*,
+        *name*, *description*, *options*
+        '''
         self.context = session.get('Context', options.get('context_id'))
         self.asset_type = options.get('asset_type')
         super(PublishContextWidget, self).__init__(
@@ -38,21 +43,30 @@ class PublishContextWidget(BaseOptionsWidget):
         self.status_selector.currentIndexChanged.connect(self._on_status_changed)
 
     def _on_status_changed(self, status):
+        '''Updates the options dictionary with provided *status* when
+        currentIndexChanged of status_selector event is triggered'''
         status_id = self.status_selector.itemData(status)
         self.set_option_result(status_id, key='status_id')
 
     def _on_comment_updated(self):
+        '''Updates the option dicctionary with current text when
+        textChanged of comments_input event is triggered'''
         current_text = self.comments_input.toPlainText()
         self.set_option_result(current_text, key='comment')
 
     def _on_context_changed(self, context):
+        '''Updates the option dicctionary with provided *context* when
+        entityChanged of context_selector event is triggered'''
         self.set_option_result(context['id'], key='context_id')
         self.asset_selector.set_context(context)
 
     def _on_asset_changed(self, asset_name):
+        '''Updates the option dicctionary with provided *asset_name* when
+        asset_changed of asset_selector event is triggered'''
         self.set_option_result(asset_name, key='asset_name')
 
     def _build_context_id_selector(self):
+        '''Builds the context_selector widget'''
         self.context_layout = QtWidgets.QHBoxLayout()
         self.context_layout.setContentsMargins(0, 0, 0, 0)
 
@@ -64,6 +78,7 @@ class PublishContextWidget(BaseOptionsWidget):
         self.set_option_result(self.context['id'], key='context_id')
 
     def _build_asset_selector(self):
+        '''Builds the asset_selector widget'''
         self.asset_layout = QtWidgets.QHBoxLayout()
         self.asset_layout.setContentsMargins(0, 0, 0, 0)
 
@@ -74,6 +89,7 @@ class PublishContextWidget(BaseOptionsWidget):
         self.set_option_result(current_asset, key='asset_name')
 
     def _build_status_selector(self):
+        '''Builds the status_selector widget'''
         self.status_layout = QtWidgets.QHBoxLayout()
         self.status_layout.setContentsMargins(0, 0, 0, 0)
 
@@ -93,12 +109,14 @@ class PublishContextWidget(BaseOptionsWidget):
         self.set_option_result(statuses[0]['id'], key='status_id')
 
     def _get_statuses(self):
+        '''Returns the status of the selected assetVersion'''
         project = self.session.get('Context', self.context['link'][0]['id'])
         schema = project['project_schema']
         statuses = schema.get_statuses('AssetVersion')
         return statuses
 
     def _build_comments_input(self):
+        '''Builds the comments_container widget'''
         self.comments_container = QtWidgets.QGroupBox('Comment')
 
         self.comments_layout = QtWidgets.QHBoxLayout()

@@ -48,12 +48,14 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self._options[key] = value
 
     def _set_internal_status(self, data):
+        '''set the status icon with the provided *data*'''
         status, message = data
         icon = self.status_icons[status]
         self._status_icon.setPixmap(icon)
         self._status_icon.setToolTip(str(message))
 
     def set_status(self, status, message):
+        '''emit the status_updated signal with the *status* and *message*'''
         self.status_updated.emit((status, message))
 
     def __init__(

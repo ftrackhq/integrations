@@ -7,6 +7,7 @@ from collections import OrderedDict
 import uuid
 import ftrack_api
 from ftrack_connect_pipeline_qt import constants
+from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.client.widgets import json
 from ftrack_connect_pipeline_qt.client.widgets.json.overrides import component,\
@@ -73,11 +74,13 @@ class WidgetFactory(QtWidgets.QWidget):
         self.ui = ui
         self._widgets_ref = {}
 
-    def create_widget(self, name, schema_fragment, fragment_data=None,
-                      previous_object_data=None, parent=None):
+    def create_widget(
+            self, name, schema_fragment, fragment_data=None,
+            previous_object_data=None, host_connection=None, parent=None):
         '''
         Create the appropriate widget for a given schema element with *name*,
-        *schema_fragment*, *fragment_data*, *previous_object_data*, *parent*
+        *schema_fragment*, *fragment_data*, *previous_object_data*,
+        *host_connection*, *parent*
 
         *name* widget name
 
@@ -89,6 +92,10 @@ class WidgetFactory(QtWidgets.QWidget):
         *previous_object_data* fragment of the data from the previous schema
         fragment
 
+        *host_connection* should be
+        :class:`ftrack_connect_pipeline.client.HostConnection` instance to use
+        to subscribe to the host events.
+
         *widget_factory* should be the
         :class:`ftrack_connect_pipeline_qt.client.widgets.json.factory.WidgetFactory`
         instance to use for recursive generation of json widgets.
@@ -96,6 +103,10 @@ class WidgetFactory(QtWidgets.QWidget):
         *parent* widget to parent the current widget (optional).
 
         '''
+        if host_connection:
+            self.host_connection = host_connection
+            self._listen_widget_updates()
+
         schema_fragment_order = schema_fragment.get('order', [])
 
         # sort schema fragment keys by the order defined in the schema order
@@ -206,6 +217,34 @@ class WidgetFactory(QtWidgets.QWidget):
                 if result:
                     break
             return result
+
+    def _update_widget(self, event):
+        '''*event* callback to update widget with the current status/value'''
+        data = event['data']['pipeline']['data']
+        widget_ref = event['data']['pipeline']['widget_ref']
+        status = event['data']['pipeline']['status']
+        message = event['data']['pipeline']['message']
+
+        widget = self.widgets.get(widget_ref)
+        if not widget:
+            self.logger.warning('Widget ref :{} not found ! '.format(widget_ref))
+            return
+
+        self.logger.debug('updating widget: {} with {}'.format(widget, data))
+
+        widget.set_status(status, message)
+
+    def _listen_widget_updates(self):
+        '''Subscribe to the PIPELINE_CLIENT_NOTIFICATION topic to call the
+        _update_widget function when the host returns and answer through the
+        same topic'''
+        self.session.event_hub.subscribe(
+            'topic={} and data.pipeline.hostid={}'.format(
+                core_constants.PIPELINE_CLIENT_NOTIFICATION,
+                self.host_connection.id
+            ),
+            self._update_widget
+        )
 
     def _on_widget_status_updated(self, status):
         '''Emits signal widget_status_updated when any widget calls the
