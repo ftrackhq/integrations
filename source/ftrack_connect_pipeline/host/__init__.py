@@ -30,6 +30,9 @@ def provide_host_information(hostid, definitions, event):
 
 class Host(object):
 
+    def __repr__(self):
+        return '<Host:{0}>'.format(self.hostid)
+
     def __init__(self, event_manager, host = None):
         '''Initialise Host Class with *event_manager* and *host*(optional)
 
@@ -45,13 +48,12 @@ class Host(object):
         )
         host = host or []
 
-        self.reset()
         self.host = [constants.HOST]
         self.host.extend(host)
         self.host = list(set(self.host))
         self.hostid = '{}-{}'.format(".".join(self.host), uuid.uuid4().hex)
         self.logger.info(
-            'initializing Host {}'.format(self.hostid)
+            'initializing Host {}'.format(self)
         )
         self.session = event_manager.session
         self.event_manager = event_manager
@@ -160,6 +162,9 @@ class Host(object):
         self.host = []
         self.hostid = None
         self.__registry = {}
+
+    def __del__(self):
+        self.logger.info('Closing host {}'.format(self))
 
 
 

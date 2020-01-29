@@ -6,6 +6,7 @@ import logging
 import copy
 import ftrack_api
 import python_jsonschema_objects as pjo
+import uuid
 
 from ftrack_connect_pipeline import constants
 
@@ -103,6 +104,12 @@ class Client(object):
     '''
     Base client class.
     '''
+
+    def __repr__(self):
+        return '<Client:{0}>'.format(self.ui)
+
+    def __del__(self):
+        self.logger.info('Closing host {}'.format(self))
 
     @property
     def connected(self):
