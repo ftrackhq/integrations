@@ -10,7 +10,7 @@ from ftrack_connect_pipeline import event
     'local mode',
     'remote mode'
 ])
-def test_event_manager_initalise(session, new_event, manager_mode):
+def test_event_manager_initalise(session, test_event, manager_mode):
 
     def event_data(event):
         return {'test': 'data'}
@@ -22,8 +22,8 @@ def test_event_manager_initalise(session, new_event, manager_mode):
         session, mode=manager_mode
     )
     assert event_manager.connected
-    event_manager.subscribe(new_event['topic'], event_data)
-    event_manager.publish(new_event, callback)
+    event_manager.subscribe(test_event['topic'], event_data)
+    event_manager.publish(test_event, callback)
 
 
 @pytest.mark.parametrize('manager_modes', [
@@ -37,7 +37,7 @@ def test_event_manager_initalise(session, new_event, manager_mode):
     'local override on local mode',
     'remote override on remote mode',
 ])
-def test_event_manager_publish_mode_overrides(session, new_event, manager_modes):
+def test_event_manager_publish_mode_overrides(session, test_event, manager_modes):
     manager_mode, mode_override = manager_modes
 
     def event_data(event):
@@ -50,5 +50,5 @@ def test_event_manager_publish_mode_overrides(session, new_event, manager_modes)
         session, mode=manager_mode
     )
     assert event_manager.connected
-    event_manager.subscribe(new_event['topic'], event_data)
-    event_manager.publish(new_event, callback, mode=mode_override)
+    event_manager.subscribe(test_event['topic'], event_data)
+    event_manager.publish(test_event, callback, mode=mode_override)

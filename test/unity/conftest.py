@@ -5,6 +5,9 @@ import shutil
 import uuid
 import ftrack_api
 
+from ftrack_connect_pipeline import event
+from ftrack_connect_pipeline import constants
+
 
 def _temporary_file(request, **kwargs):
     '''Return temporary file.'''
@@ -73,9 +76,18 @@ def session():
 
 
 @pytest.fixture()
-def new_event(unique_name):
+def test_event(unique_name):
     event = ftrack_api.event.base.Event(
         topic=unique_name
     )
 
     return event
+
+
+@pytest.fixture()
+def event_manager(session):
+    event_manager = event.EventManager(
+        session, mode=constants.LOCAL_EVENT_MODE
+    )
+
+    return event_manager
