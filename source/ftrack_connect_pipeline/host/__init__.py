@@ -43,18 +43,16 @@ class Host(object):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+        host = host or []
 
         self.reset()
         self.host = [constants.HOST]
-
-        host = host or []
         self.host.extend(host)
         self.host = list(set(self.host))
-        hostid = '{}-{}'.format(".".join(self.host), uuid.uuid4().hex)
+        self.hostid = '{}-{}'.format(".".join(self.host), uuid.uuid4().hex)
         self.logger.info(
-            'initializing Host {}'.format(hostid)
+            'initializing Host {}'.format(self.hostid)
         )
-        self.hostid = hostid
         self.session = event_manager.session
         self.event_manager = event_manager
         self.register()
@@ -162,10 +160,6 @@ class Host(object):
         self.host = []
         self.hostid = None
         self.__registry = {}
-
-    def __del__(self):
-        self.reset()
-
 
 
 

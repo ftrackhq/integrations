@@ -7,6 +7,7 @@ import ftrack_api
 
 from ftrack_connect_pipeline import event
 from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline import host
 
 
 def _temporary_file(request, **kwargs):
@@ -91,3 +92,14 @@ def event_manager(session):
     )
 
     return event_manager
+
+
+@pytest.fixture()
+def host(request, event_manager):
+    host_result = host.Host(event_manager)
+
+    def cleanup():
+        host_result.reset()
+
+    request.addfinalizer(cleanup)
+    return host_result

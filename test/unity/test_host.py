@@ -42,4 +42,3 @@ def test_register_definitions(event_manager):
 
     host.Host(event_manager)
 
-

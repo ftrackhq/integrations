@@ -92,7 +92,6 @@ class Client(object):
     '''
     Base client widget class.
     '''
-    ui = [constants.UI]
 
     @property
     def connected(self):
@@ -107,6 +106,7 @@ class Client(object):
         '''Initialise widget with *ui* , *host* and *hostid*.'''
         self._packages = {}
         self._current = {}
+        self.ui = [constants.UI]
 
         ui = ui or []
         self.ui.extend(ui)
