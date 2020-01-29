@@ -109,7 +109,7 @@ class Client(object):
         return '<Client:{0}>'.format(self.ui)
 
     def __del__(self):
-        self.logger.info('Closing host {}'.format(self))
+        self.logger.info('Closing {}'.format(self))
 
     @property
     def connected(self):

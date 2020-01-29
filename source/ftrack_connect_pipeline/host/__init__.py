@@ -33,6 +33,9 @@ class Host(object):
     def __repr__(self):
         return '<Host:{0}>'.format(self.hostid)
 
+    def __del__(self):
+        self.logger.info('Closing {}'.format(self))
+
     def __init__(self, event_manager, host = None):
         '''Initialise Host Class with *event_manager* and *host*(optional)
 
@@ -163,8 +166,7 @@ class Host(object):
         self.hostid = None
         self.__registry = {}
 
-    def __del__(self):
-        self.logger.info('Closing host {}'.format(self))
+
 
 
 

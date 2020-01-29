@@ -6,6 +6,7 @@ import threading
 import logging
 import ftrack_api
 from ftrack_connect_pipeline import constants
+import uuid
 logger = logging.getLogger(__name__)
 
 
@@ -46,6 +47,12 @@ class _EventThread(threading.Thread):
 
 class EventManager(object):
     '''Manages the events handling.'''
+
+    def __repr__(self):
+        return '<EventManager:{}:{}>'.format(self.mode, uuid.uuid4().hex)
+
+    def __del__(self):
+        self.logger.info('Closing {}'.format(self))
 
     @property
     def session(self):
