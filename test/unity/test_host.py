@@ -15,9 +15,3 @@ def test_initialise_multiple_host(event_manager):
     host_result = host.Host(event_manager, host=['test'])
     assert host_result.hostid
     assert host_result.host == [constants.HOST, 'test']
-
-
-def test_register_definitions(event_manager,  raw_definitions):
-    test_host = host.Host(event_manager)
-    result = test_host.validate(raw_definitions)
-    assert result

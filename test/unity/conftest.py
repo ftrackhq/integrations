@@ -10,6 +10,7 @@ import functools
 from ftrack_connect_pipeline import event
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import host as test_host
+from ftrack_connect_pipeline.definition import collect_and_validate
 
 
 def _temporary_file(request, **kwargs):
@@ -63,13 +64,16 @@ def unique_name():
 @pytest.fixture()
 def session():
     event_paths = [
-        os.path.abspath(os.path.join(
-            '..',
-            'ftrack-connect-pipeline',
-            'resource',
-            'application_hook'))
+        os.path.abspath(
+            os.path.join(
+                os.path.dirname(__file__),
+                '..',
+                'fixtures',
+                'resource',
+                'application_hook'
+            )
+        )
     ]
-
     session = ftrack_api.Session(
         plugin_paths=event_paths,
         auto_connect_event_hub=False
@@ -100,48 +104,29 @@ def host(request, event_manager):
 
 
 @pytest.fixture()
-def raw_definitions():
-    data_folder = os.path.abspath(
-        os.path.join(
-            os.path.dirname(__file__),
-            '..',
-            'fixtures',
-            'json_data'
-        )
-    )
-
-    with open(os.path.join(data_folder, 'publisher_schema.json'), 'r') as datafile:
-        publisher_schema = json.load(datafile)
-
-    with open(os.path.join(data_folder, 'package_schema.json'), 'r') as datafile:
-        package_schema = json.load(datafile)
-
-    with open(os.path.join(data_folder, 'publisher.json'), 'r') as datafile:
-        publisher = json.load(datafile)
-
-    with open(os.path.join(data_folder, 'package.json'), 'r') as datafile:
-        package = json.load(datafile)
-
-
-    data = {
-        'schemas': [publisher_schema, package_schema],
-        'publishers': [publisher],
-        'loaders': [],
-        'packages': [package]
-    }
-
-    return data
-
-
-@pytest.fixture()
-def event_manager(session, raw_definitions):
+def event_manager(session):
     event_manager = event.EventManager(
         session, mode=constants.LOCAL_EVENT_MODE
     )
 
     def register_definitions(session, event):
         host = event['data']['pipeline']['host']
-        return raw_definitions
+
+        dir = os.path.abspath(
+            os.path.join(
+                os.path.dirname(__file__),
+                '..',
+                'fixtures',
+                'definitions'
+            )
+        )
+
+        print dir
+        # collect definitions
+        data = collect_and_validate(
+            session, dir, host
+        )
+        return data
 
     callback = functools.partial(register_definitions, event_manager.session)
 

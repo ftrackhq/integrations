@@ -1,21 +1,14 @@
 {
   "type": "publisher",
-  "name": "File Publisher",
+  "name": "Test Publisher",
   "package": "testPkg",
   "host": "python",
   "contexts": {
       "name": "context",
       "plugins":[
         {
-          "name": "context selector",
-          "plugin": "context.publish",
-          "widget": "context.publish",
-          "options":{
-            "context_id": "",
-            "asset_name": "",
-            "comment": "",
-            "status_id": ""
-          }
+          "name": "test context",
+          "plugin": "test"
         }
       ]
     },
@@ -27,11 +20,8 @@
           "name": "collector",
           "plugins":[
             {
-              "name": "collect from given path",
-              "plugin": "filesystem",
-              "options": {
-                "path": null
-              }
+              "name": "test collect",
+              "plugin": "test"
             }
           ]
         },
@@ -39,8 +29,8 @@
           "name":"validator",
           "plugins": [
             {
-              "name": "file exists",
-              "plugin": "file_exists"
+              "name": "test validator",
+              "plugin": "test"
             }
           ]
         },
@@ -48,8 +38,8 @@
           "name":"output",
           "plugins": [
             {
-              "name": "passthrough output",
-              "plugin": "passthrough"
+              "name": "test output",
+              "plugin": "test"
             }
           ]
         }
@@ -61,7 +51,7 @@
       "plugins":[
         {
           "name": "to ftrack server",
-          "plugin": "result",
+          "plugin": "test",
           "visible": false
         }
       ]
