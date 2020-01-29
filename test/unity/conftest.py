@@ -87,14 +87,6 @@ def test_event(unique_name):
     return event
 
 
-@pytest.fixture()
-def event_manager(session):
-    event_manager = event.EventManager(
-        session, mode=constants.LOCAL_EVENT_MODE
-    )
-
-    return event_manager
-
 
 @pytest.fixture()
 def host(request, event_manager):
@@ -108,7 +100,7 @@ def host(request, event_manager):
 
 
 @pytest.fixture()
-def definitions(event_manager):
+def raw_definitions():
     data_folder = os.path.abspath(
         os.path.join(
             os.path.dirname(__file__),
@@ -138,9 +130,18 @@ def definitions(event_manager):
         'packages': [package]
     }
 
+    return data
+
+
+@pytest.fixture()
+def event_manager(session, raw_definitions):
+    event_manager = event.EventManager(
+        session, mode=constants.LOCAL_EVENT_MODE
+    )
+
     def register_definitions(session, event):
         host = event['data']['pipeline']['host']
-        return data
+        return raw_definitions
 
     callback = functools.partial(register_definitions, event_manager.session)
 

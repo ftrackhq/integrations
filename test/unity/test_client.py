@@ -13,22 +13,19 @@ def test_initialise_mutiple_ui(event_manager):
     assert client_connection.ui == [constants.UI, 'test']
 
 
-def test_discover_host(event_manager, host, definitions):
+def test_discover_host(host, event_manager):
 
     client_connection = client.Client(event_manager)
-    hosts = client_connection.discover_hosts(time_out=10)
-    assert client_connection.hosts
-
+    hosts = client_connection.discover_hosts()
     assert len(hosts) >= 1
 
 
-def test_discover_host_callback(event_manager, host, definitions):
+def test_discover_host_callback(host, event_manager):
 
     def callback(hosts):
-        print 'hosts', hosts
-        assert len(hosts) >= 3
+        assert len(hosts) == 1
 
     client_connection = client.Client(event_manager)
-    client_connection.on_ready(callback, time_out=10)
+    client_connection.on_ready(callback)
     assert client_connection.hosts
 
