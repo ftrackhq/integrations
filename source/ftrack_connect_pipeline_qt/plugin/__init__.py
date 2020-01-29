@@ -4,12 +4,12 @@
 from ftrack_connect_pipeline import exception
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import constants
-from ftrack_connect_pipeline_qt.client.widgets import BaseWidget
+from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 
 
 class BasePluginWidget(plugin.BasePlugin):
     type = 'widget'
-    return_type = BaseWidget
+    return_type = BaseOptionsWidget
     ui = constants.UI
 
     def _base_topic(self, topic):

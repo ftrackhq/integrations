@@ -26,7 +26,6 @@ host.Host(event_manager)
 
 
 def ready_callback(event):
-    #host = event[0]
     task = event['host_connection'].session.query(
         'select name from Task where project.name is "pipelinetest"'
     ).first()
@@ -41,16 +40,12 @@ def ready_callback(event):
     publisher['components'][0]['stages'][0]['plugins'][0]['options'][
         'path'] = "/Users/lluisftrack/Desktop/file_to_publish.txt"
     return publisher
-    # host.run(publisher)
 
-#app = QtWidgets.QApplication(sys.argv)
 
 from ftrack_connect_pipeline_qt import client
 
 client_connection = client.QtClient(event_manager, ui=["qt"])
-#client_connection.on_ready(ready_callback, time_out=30)
 client_connection.on_ready(ready_callback, time_out=30)
-
 
 
 client_connection.show()
