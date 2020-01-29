@@ -95,11 +95,14 @@ class BaseEngine(object):
         '''Publish an event to notify client with *data*, plugin_name from
         *plugin*, *status* and *message*'''
 
+        widget_ref = plugin.get('widget_ref')
+
         pipeline_data = {
             'hostid': self.hostid,
             'data': data,
             'status': status,
             'plugin_name': plugin['plugin'],
+            'widget_ref': widget_ref,
             'message': message
         }
 
