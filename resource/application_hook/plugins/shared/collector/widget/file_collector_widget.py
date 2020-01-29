@@ -41,6 +41,7 @@ class FileCollectorWidget(BaseOptionsWidget):
         self.layout().addLayout(widget_layout)
 
         self.file_selector = QtWidgets.QFileDialog()
+        self.file_selector.setFileMode(QtWidgets.QFileDialog.ExistingFile)
 
     def post_build(self):
         '''hook events'''
@@ -50,6 +51,7 @@ class FileCollectorWidget(BaseOptionsWidget):
         self.line_edit.textChanged.connect(self._on_path_changed)
 
     def _show_file_dialog(self):
+        ''' Shows the file dialog'''
         self.file_selector.show()
 
     def _on_select_file(self, path):
@@ -65,7 +67,7 @@ class FileCollectorWidget(BaseOptionsWidget):
 
 
 class CollectorWidget(plugin.CollectorWidget):
-    plugin_name = 'fileCollector.widget'
+    plugin_name = 'file_collector.widget'
 
     def run(self, data=None, name=None, description=None, options=None):
         return FileCollectorWidget(
