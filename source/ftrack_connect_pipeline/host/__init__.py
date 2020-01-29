@@ -34,7 +34,7 @@ class Host(object):
         return '<Host:{0}>'.format(self.hostid)
 
     def __del__(self):
-        self.logger.info('Closing {}'.format(self))
+        self.logger.debug('Closing {}'.format(self))
 
     def __init__(self, event_manager, host = None):
         '''Initialise Host Class with *event_manager* and *host*(optional)
@@ -55,8 +55,9 @@ class Host(object):
         self.host.extend(host)
         self.host = list(set(self.host))
         self.hostid = '{}-{}'.format(".".join(self.host), uuid.uuid4().hex)
+
         self.logger.info(
-            'initializing Host {}'.format(self)
+            'initializing {}'.format(self)
         )
         self.session = event_manager.session
         self.event_manager = event_manager
@@ -141,6 +142,7 @@ class Host(object):
             for idx in sorted(invalid_loaders_idxs, reverse=True):
                     data['loaders'].pop(idx)
 
+        logger.debug('validated data :{}'.format(data))
         return data
 
     def register(self):

@@ -52,7 +52,7 @@ class EventManager(object):
         return '<EventManager:{}:{}>'.format(self.mode, uuid.uuid4().hex)
 
     def __del__(self):
-        self.logger.info('Closing {}'.format(self))
+        self.logger.debug('Closing {}'.format(self))
 
     @property
     def session(self):
@@ -81,6 +81,8 @@ class EventManager(object):
         self._event_hub_thread = _EventHubThread()
         self._event_hub_thread.daemon = deamon
         self._event_hub_thread.start(self.session)
+
+        self.logger.debug('Initialising {}'.format(self))
 
     def publish(self, event, callback=None, mode=None):
         '''Emit *event* and provide *callback* function.'''

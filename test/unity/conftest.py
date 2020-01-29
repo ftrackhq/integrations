@@ -4,6 +4,8 @@ import pytest
 import shutil
 import uuid
 import ftrack_api
+import json
+import functools
 
 from ftrack_connect_pipeline import event
 from ftrack_connect_pipeline import constants
@@ -103,3 +105,50 @@ def host(request, event_manager):
 
     request.addfinalizer(cleanup)
     return host_result
+
+
+@pytest.fixture()
+def definitions(event_manager):
+    data_folder = os.path.abspath(
+        os.path.join(
+            os.path.dirname(__file__),
+            '..',
+            'fixtures',
+            'json_data'
+        )
+    )
+
+    with open(os.path.join(data_folder, 'publisher_schema.json'), 'r') as datafile:
+        publisher_schema = json.load(datafile)
+
+    with open(os.path.join(data_folder, 'package_schema.json'), 'r') as datafile:
+        package_schema = json.load(datafile)
+
+    with open(os.path.join(data_folder, 'publisher.json'), 'r') as datafile:
+        publisher = json.load(datafile)
+
+    with open(os.path.join(data_folder, 'package.json'), 'r') as datafile:
+        package = json.load(datafile)
+
+
+    data = {
+        'schemas': [publisher_schema, package_schema],
+        'publishers': [publisher],
+        'loaders': [],
+        'packages': [package]
+    }
+
+    def register_definitions(session, event):
+        host = event['data']['pipeline']['host']
+        return data
+
+    callback = functools.partial(register_definitions, event_manager.session)
+
+    event_manager.subscribe(
+        '{} and data.pipeline.type=definition'.format(
+            constants.PIPELINE_REGISTER_TOPIC
+        ),
+        callback
+    )
+
+    return event_manager

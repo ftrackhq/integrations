@@ -1,0 +1,69 @@
+{
+  "type": "publisher",
+  "name": "File Publisher",
+  "package": "geoPkg",
+  "host": "python",
+  "contexts": {
+      "name": "context",
+      "plugins":[
+        {
+          "name": "context selector",
+          "plugin": "context.publish",
+          "widget": "context.publish",
+          "options":{
+            "context_id": "",
+            "asset_name": "",
+            "comment": "",
+            "status_id": ""
+          }
+        }
+      ]
+    },
+  "components": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "collect from given path",
+              "plugin": "filesystem",
+              "options": {
+                "path": null
+              }
+            }
+          ]
+        },
+        {
+          "name":"validator",
+          "plugins": [
+            {
+              "name": "file exists",
+              "plugin": "file_exists"
+            }
+          ]
+        },
+        {
+          "name":"output",
+          "plugins": [
+            {
+              "name": "passthrough output",
+              "plugin": "passthrough"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "finalisers": {
+      "name": "finaliser",
+      "plugins":[
+        {
+          "name": "to ftrack server",
+          "plugin": "result",
+          "visible": false
+        }
+      ]
+    }
+}

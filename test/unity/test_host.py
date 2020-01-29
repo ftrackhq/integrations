@@ -17,28 +17,6 @@ def test_initialise_multiple_host(event_manager):
     assert host_result.host == [constants.HOST, 'test']
 
 
-def test_register_definitions(event_manager):
-
-    def register_definitions(session, event):
-        host = event['data']['pipeline']['host']
-        assert host == constants.HOST
-
-        data = {
-            'schemas': [],
-            'publishers': [],
-            'loaders': [],
-            'packages': []
-        }
-        return data
-
-    callback = functools.partial(register_definitions, event_manager.session)
-
-    event_manager.subscribe(
-        '{} and data.pipeline.type=definition'.format(
-            constants.PIPELINE_REGISTER_TOPIC
-        ),
-        callback
-    )
-
+def test_register_definitions(event_manager,  definitions):
     host.Host(event_manager)
 

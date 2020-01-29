@@ -25,6 +25,9 @@ class HostConnection(object):
     def host_definitions(self):
         return self._raw_host_data['host_id'].split("-")[0].split(".")
 
+    def __del__(self):
+        self.logger.debug('Closing {}'.format(self))
+
     def __repr__(self):
         return '<HostConnection: {}>'.format(self.id)
 
@@ -109,7 +112,7 @@ class Client(object):
         return '<Client:{0}>'.format(self.ui)
 
     def __del__(self):
-        self.logger.info('Closing {}'.format(self))
+        self.logger.debug('Closing {}'.format(self))
 
     @property
     def connected(self):
@@ -147,6 +150,10 @@ class Client(object):
         )
         self.event_manager = event_manager
         self.session = event_manager.session
+
+        self.logger.info(
+            'initializing {}'.format(self)
+        )
 
     def discover_hosts(self, time_out=3):
         '''Returns a list of discovered hosts during the optional *time_out*'''
