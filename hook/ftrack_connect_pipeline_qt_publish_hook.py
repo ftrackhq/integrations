@@ -77,12 +77,6 @@ class LaunchApplicationAction(object):
 
     def discover(self, event):
         '''Return discovered applications.'''
-        remote_set = os.environ.get(
-            'FTRACK_PIPELINE_REMOTE_EVENTS', False
-        )
-        if not remote_set:
-            return
-
         if not self.is_valid_selection(
                 event['data'].get('selection', [])
         ):
@@ -223,8 +217,6 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
         environment = super(
             ApplicationLauncher, self
         )._getApplicationEnvironment(application, context)
-
-        environment['FTRACK_PIPELINE_REMOTE_EVENTS'] = True
 
         return environment
 

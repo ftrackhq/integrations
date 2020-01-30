@@ -87,6 +87,30 @@ class BuildPlugin(setuptools.Command):
             ]
         )
 
+        # ensure publish pipeline is executable
+        os.chmod(
+            os.path.join(
+                STAGING_PATH,
+                'dependencies',
+                'ftrack_connect_pipeline_qt',
+                'client',
+                'publish.py'
+            ), int('777', 8)
+        )
+
+        # ensure load pipeline is executable
+
+        # ensure publish pipeline is executable
+        os.chmod(
+            os.path.join(
+                STAGING_PATH,
+                'dependencies',
+                'ftrack_connect_pipeline_qt',
+                'client',
+                'load.py'
+            ), int('777', 8)
+        )
+
         result_path = shutil.make_archive(
             os.path.join(
                 BUILD_PATH,
