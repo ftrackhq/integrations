@@ -30,20 +30,22 @@ def test_discover_host_callback(host, event_manager):
     assert client_connection.hosts
 
 
-def test_run_host_callback(host, event_manager, temporary_image):
+def test_run_host_callback(host, event_manager, temporary_image, new_project):
 
     def callback(hosts):
         host = hosts[0]
-
+        print host.logs
+        assert host.state is False
         task = host.session.query(
-            'select name from Task where project.name is "pipelinetest"'
+            'select name from Task where project.name is "{}"'.format(
+                new_project['name']
+            )
         ).first()
 
-        schema = task['project']['project_schema']
+        schema = new_project['project_schema']
         task_status = schema.get_statuses('Task')[0]
 
         publisher = host.definitions['publishers'][0]
-        print 'publisher', publisher
 
         publisher['contexts']['plugins'][0]['options']['context_id'] = task['id']
         publisher['contexts']['plugins'][0]['options']['asset_name'] = 'PipelineAsset'
@@ -51,6 +53,7 @@ def test_run_host_callback(host, event_manager, temporary_image):
         publisher['contexts']['plugins'][0]['options']['status_id'] = task_status['id']
         publisher['components'][0]['stages'][0]['plugins'][0]['options']['path'] = temporary_image
         host.run(publisher)
+        assert host.state is True
 
     client_connection = client.Client(event_manager)
     client_connection.on_ready(callback)

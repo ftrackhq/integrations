@@ -91,6 +91,55 @@ def test_event(unique_name):
     return event
 
 
+@pytest.fixture()
+def new_project(request, session):
+    project_schema = session.query('ProjectSchema').first()
+    default_shot_status = project_schema.get_statuses('Shot')[0]
+    default_task_type = project_schema.get_types('Task')[0]
+    default_task_status = project_schema.get_statuses(
+        'Task', default_task_type['id']
+    )[0]
+
+
+    project_name = 'pipeline_test_{0}'.format(uuid.uuid1().hex)
+    project = session.create('Project', {
+        'name': project_name,
+        'full_name': project_name + '_full',
+        'project_schema': project_schema
+    })
+
+    for sequence_number in range(1):
+        sequence = session.create('Sequence', {
+            'name': 'sequence_{0:03d}'.format(sequence_number),
+            'parent': project
+        })
+
+        for shot_number in range(1):
+            shot = session.create('Shot', {
+                'name': 'shot_{0:03d}'.format(shot_number * 10),
+                'parent': sequence,
+                'status': default_shot_status
+            })
+
+            for task_number in range(1):
+                task = session.create('Task', {
+                    'name': 'task_{0:03d}'.format(task_number),
+                    'parent': shot,
+                    'status': default_task_status,
+                    'type': default_task_type
+                })
+
+    session.commit()
+
+    def cleanup():
+        '''Remove created entity.'''
+        session.delete(project)
+        session.commit()
+
+    request.addfinalizer(cleanup)
+
+    return project
+
 
 @pytest.fixture()
 def host(request, event_manager):

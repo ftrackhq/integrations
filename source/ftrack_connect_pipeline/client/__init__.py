@@ -14,6 +14,30 @@ from ftrack_connect_pipeline import constants
 class HostConnection(object):
 
     @property
+    def session(self):
+        '''Return session'''
+        return self._event_manager.session
+
+    @property
+    def state(self):
+        '''
+        Return current state of the host connection.
+        This will always return False, unless the publish has been successful.
+        '''
+        return all(
+            [
+                constants.status_bool_mapping.get(
+                    log['status'], constants.UNKNOWN_STATUS
+                )
+                for log in self.logs
+            ]
+        )
+
+    @property
+    def logs(self):
+        return self.__logs
+
+    @property
     def definitions(self):
         return self._raw_host_data['definitions']
 
@@ -52,14 +76,11 @@ class HostConnection(object):
 
         copy_data = copy.deepcopy(host_data)
 
-        self.session = event_manager.session
+        self.__logs = []
         self._event_manager = event_manager
         self._raw_host_data = copy_data
 
         self.on_client_notification()
-
-    def _on_run_result(self, event):
-        return event['data']
 
     def run(self, data):
         '''Send *data* to the host through the PIPELINE_HOST_RUN topic.'''
@@ -73,8 +94,7 @@ class HostConnection(object):
             }
         )
         self._event_manager.publish(
-            event,
-            self._on_run_result
+            event
         )
 
     def _notify_client(self, event):
@@ -86,18 +106,28 @@ class HostConnection(object):
         message = event['data']['pipeline']['message']
 
         if constants.status_bool_mapping[status]:
-            self.logger.info('plugin_name: {} \n status: {} \n result: {} \n '
-                             'message: {}'.format(plugin_name, status,
-                                                  data, message))
+            self.__logs.append(event['data']['pipeline'])
 
-        if status == constants.ERROR_STATUS or \
-                status == constants.EXCEPTION_STATUS:
-            raise Exception('An error occurred during the execution of the '
-                            'plugin name {} \n message: {} \n data: {}'.format(
-                plugin_name, message, data))
+            self.logger.debug(
+                'plugin_name: {} \n status: {} \n result: {} \n '
+                'message: {}'.format(
+                    plugin_name, status, data, message
+                )
+            )
+
+        if (
+                status == constants.ERROR_STATUS or
+                status == constants.EXCEPTION_STATUS
+        ):
+            raise Exception(
+                'An error occurred during the execution of the '
+                'plugin name {} \n message: {} \n data: {}'.format(
+                    plugin_name, message, data
+                )
+            )
 
     def on_client_notification(self):
-        '''Subscribe to PIPELINE_CLIENT_NOTIFICATION topic to recibe client
+        '''Subscribe to PIPELINE_CLIENT_NOTIFICATION topic to receive client
         notifications from the host'''
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.hostid={}'.format(
@@ -120,10 +150,12 @@ class Client(object):
 
     @property
     def session(self):
+        '''Return session'''
         return self._event_manager.session
 
     @property
     def ui(self):
+        '''Return list of current ui'''
         return self._ui
 
     @property

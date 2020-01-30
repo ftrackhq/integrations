@@ -38,14 +38,17 @@ class Host(object):
 
     @property
     def host(self):
+        '''Return list of hosts'''
         return self._host
 
     @property
     def hostid(self):
+        '''Return current hostid'''
         return self._hostid
 
     @property
     def session(self):
+        '''Return session'''
         return self._event_manager.session
 
     def __init__(self, event_manager, host = None):
