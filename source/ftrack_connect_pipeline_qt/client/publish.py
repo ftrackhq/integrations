@@ -5,9 +5,16 @@
 import os
 import sys
 
+
+deps_paths = os.environ.get('PYTHONPATH', '').split(os.pathsep)
+for path in deps_paths:
+    sys.path.append(path)
+
 from Qt import QtWidgets
-from ftrack_connect_pipeline_qt import constants
+#from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.client import QtClient
+import ftrack_api
+from ftrack_connect_pipeline import constants, event
 
 
 class QtPublisherClient(QtClient):
@@ -21,8 +28,13 @@ class QtPublisherClient(QtClient):
 
 
 if __name__ == '__main__':
+    session = ftrack_api.Session(auto_connect_event_hub=False)
+    event_manager = event.EventManager(
+        session=session, mode=constants.LOCAL_EVENT_MODE
+    )
+    print "sys.argv ----> {}".format(sys.argv)
     app = QtWidgets.QApplication(sys.argv)
     #app.setStyle(QtWidgets.QStyleFactory.create('Fusion'))
-    wid = QtPublisherClient(ui=constants.UI)
+    wid = QtPublisherClient(event_manager, ui=["qt"])
     wid.show()
     sys.exit(app.exec_())
