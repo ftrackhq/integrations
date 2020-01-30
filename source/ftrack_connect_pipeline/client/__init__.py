@@ -115,6 +115,10 @@ class Client(object):
         self.logger.debug('Closing {}'.format(self))
 
     @property
+    def ui(self):
+        return self._ui
+
+    @property
     def connected(self):
         '''Return bool of client connected to a host'''
         return self._connected
@@ -135,11 +139,8 @@ class Client(object):
         '''
         self._packages = {}
         self._current = {}
-        self.ui = [constants.UI]
-
-        ui = ui or []
-        self.ui.extend(ui)
-        self.ui = list(set(self.ui))
+        self._ui = [constants.UI]
+        self._ui.extend(ui or [])
 
         self._host_list = []
         self._connected = False
