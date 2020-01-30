@@ -218,6 +218,12 @@ class ApplicationLauncher(ftrack_connect.application.ApplicationLauncher):
             ApplicationLauncher, self
         )._getApplicationEnvironment(application, context)
 
+        entity = context['selection'][0]
+        task = ftrack.Task(entity['entityId'])
+
+        environment['FTRACK_TASKID'] = task.getId()
+        environment['FTRACK_SHOTID'] = task.get('parent_id')
+
         return environment
 
 
