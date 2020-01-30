@@ -34,7 +34,6 @@ def test_run_host_callback(host, event_manager, temporary_image, new_project):
 
     def callback(hosts):
         host = hosts[0]
-        print host.logs
         assert host.state is False
         task = host.session.query(
             'select name from Task where project.name is "{}"'.format(
@@ -57,5 +56,20 @@ def test_run_host_callback(host, event_manager, temporary_image, new_project):
 
     client_connection = client.Client(event_manager)
     client_connection.on_ready(callback)
+
+
+def test_run_host_fail_callback(host, event_manager, temporary_image, new_project):
+
+    def callback(hosts):
+        host = hosts[0]
+        assert host.state is False
+        publisher = host.definitions['publishers'][0]
+        publisher['components'][0]['stages'][0]['plugins'][0]['options']['path'] = temporary_image
+        host.run(publisher)
+        assert host.state is False
+
+    client_connection = client.Client(event_manager)
+    client_connection.on_ready(callback)
+
 
 
