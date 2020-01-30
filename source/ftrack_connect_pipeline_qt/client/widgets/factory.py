@@ -220,7 +220,7 @@ class WidgetFactory(QtWidgets.QWidget):
 
     def _update_widget(self, event):
         '''*event* callback to update widget with the current status/value'''
-        data = event['data']['pipeline']['data']
+        result = event['data']['pipeline']['result']
         widget_ref = event['data']['pipeline']['widget_ref']
         status = event['data']['pipeline']['status']
         message = event['data']['pipeline']['message']
@@ -230,7 +230,7 @@ class WidgetFactory(QtWidgets.QWidget):
             self.logger.warning('Widget ref :{} not found ! '.format(widget_ref))
             return
 
-        self.logger.debug('updating widget: {} with {}'.format(widget, data))
+        self.logger.debug('updating widget: {} with {}'.format(widget, result))
 
         widget.set_status(status, message)
 
