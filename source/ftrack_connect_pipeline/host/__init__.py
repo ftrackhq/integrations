@@ -28,9 +28,28 @@ def provide_host_information(hostid, definitions, event):
     return host_dict
 
 
-
 class Host(object):
-    host = [constants.HOST]
+
+    def __repr__(self):
+        return '<Host:{0}>'.format(self.hostid)
+
+    def __del__(self):
+        self.logger.debug('Closing {}'.format(self))
+
+    @property
+    def host(self):
+        '''Return list of hosts'''
+        return self._host
+
+    @property
+    def hostid(self):
+        '''Return current hostid'''
+        return self._hostid
+
+    @property
+    def session(self):
+        '''Return session'''
+        return self._event_manager.session
 
     def __init__(self, event_manager, host = None):
         '''Initialise Host Class with *event_manager* and *host*(optional)
@@ -45,17 +64,16 @@ class Host(object):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        host = host or []
-        self.host.extend(host)
-        self.host = list(set(self.host))
-        hostid = '{}-{}'.format(".".join(self.host), uuid.uuid4().hex)
-        self.logger.info(
-            'initializing Host {}'.format(hostid)
+        self._host = [constants.HOST]
+        self._host.extend(
+            [i for i in host or [] if i not in self._host]
         )
-        self.hostid = hostid
-        self.__registry = {}
-        self.session = event_manager.session
-        self.event_manager = event_manager
+        self._hostid = '{}-{}'.format(".".join(self.host), uuid.uuid4().hex)
+
+        self.logger.info(
+            'initializing {}'.format(self)
+        )
+        self._event_manager = event_manager
         self.register()
 
     def run(self, event):
@@ -72,7 +90,7 @@ class Host(object):
             self.__registry['packages'], data['package'])
         schema_engine = data['_config']['engine']
         MyEngine = engine.getEngine(engine.BaseEngine, schema_engine)
-        engine_runner = MyEngine(self.event_manager, self.host, self.hostid,
+        engine_runner = MyEngine(self._event_manager, self.host, self.hostid,
                                  asset_type)
         runnerResult = engine_runner.run(data)
 
@@ -106,12 +124,12 @@ class Host(object):
             validated_result
         )
 
-        self.event_manager.subscribe(
+        self._event_manager.subscribe(
             constants.PIPELINE_DISCOVER_HOST,
             handle_event
         )
 
-        self.event_manager.subscribe(
+        self._event_manager.subscribe(
             '{} and data.pipeline.host_id={}'.format(
                 constants.PIPELINE_HOST_RUN, self.hostid
             ),
@@ -137,6 +155,7 @@ class Host(object):
             for idx in sorted(invalid_loaders_idxs, reverse=True):
                     data['loaders'].pop(idx)
 
+        logger.debug('validated data :{}'.format(data))
         return data
 
     def register(self):
@@ -152,10 +171,17 @@ class Host(object):
             }
         )
 
-        self.event_manager.publish(
+        self._event_manager.publish(
             event,
             self.on_register_definition
         )
+
+    def reset(self):
+        self._host = []
+        self._hostid = None
+        self.__registry = {}
+
+
 
 
 

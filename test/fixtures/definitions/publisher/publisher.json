@@ -1,0 +1,59 @@
+{
+  "type": "publisher",
+  "name": "Test Publisher",
+  "package": "testPkg",
+  "host": "python",
+  "contexts": {
+      "name": "context",
+      "plugins":[
+        {
+          "name": "test context",
+          "plugin": "test"
+        }
+      ]
+    },
+  "components": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "test collect",
+              "plugin": "test"
+            }
+          ]
+        },
+        {
+          "name":"validator",
+          "plugins": [
+            {
+              "name": "test validator",
+              "plugin": "test"
+            }
+          ]
+        },
+        {
+          "name":"output",
+          "plugins": [
+            {
+              "name": "test output",
+              "plugin": "test"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "finalisers": {
+      "name": "finaliser",
+      "plugins":[
+        {
+          "name": "to ftrack server",
+          "plugin": "test",
+          "visible": false
+        }
+      ]
+    }
+}

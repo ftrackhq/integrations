@@ -5,7 +5,8 @@ import threading
 
 import logging
 import ftrack_api
-from ftrack_connect_pipeline import session, constants
+from ftrack_connect_pipeline import constants
+import uuid
 logger = logging.getLogger(__name__)
 
 
@@ -46,21 +47,42 @@ class _EventThread(threading.Thread):
 
 class EventManager(object):
     '''Manages the events handling.'''
+
+    def __repr__(self):
+        return '<EventManager:{}:{}>'.format(self.mode, uuid.uuid4().hex)
+
+    def __del__(self):
+        self.logger.debug('Closing {}'.format(self))
+
+    @property
+    def session(self):
+        return self._session
+
+    @property
+    def connected(self):
+        return self.session.event_hub.connected
+
+    @property
+    def mode(self):
+        return self._mode
+
     def __init__(self, session, mode=constants.LOCAL_EVENT_MODE, deamon=True):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        self.mode = mode
-        self.session = session
+        self._mode = mode
+        self._session = session
 
         # If is not already connected, connect to event hub.
         while not self.session.event_hub.connected:
-            self.logger.info('connecting to event hub')
+            self.logger.debug('connecting to event hub')
             self.session.event_hub.connect()
 
         self._event_hub_thread = _EventHubThread()
         self._event_hub_thread.daemon = deamon
         self._event_hub_thread.start(self.session)
+
+        self.logger.debug('Initialising {}'.format(self))
 
     def publish(self, event, callback=None, mode=None):
         '''Emit *event* and provide *callback* function.'''

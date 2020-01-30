@@ -6,11 +6,38 @@ import logging
 import copy
 import ftrack_api
 import python_jsonschema_objects as pjo
+import uuid
 
 from ftrack_connect_pipeline import constants
 
 
 class HostConnection(object):
+
+    @property
+    def session(self):
+        '''Return session'''
+        return self._event_manager.session
+
+    @property
+    def state(self):
+        '''
+        Return current state of the host connection.
+        This will always return False, unless the publish has been successful.
+        '''
+        return all(
+            [
+                constants.status_bool_mapping.get(
+                    log['status'], constants.UNKNOWN_STATUS
+                )
+                for log in self.logs or [
+                    {'status': constants.UNKNOWN_STATUS}
+                ]
+            ]
+        )
+
+    @property
+    def logs(self):
+        return self.__logs
 
     @property
     def definitions(self):
@@ -23,6 +50,9 @@ class HostConnection(object):
     @property
     def host_definitions(self):
         return self._raw_host_data['host_id'].split("-")[0].split(".")
+
+    def __del__(self):
+        self.logger.debug('Closing {}'.format(self))
 
     def __repr__(self):
         return '<HostConnection: {}>'.format(self.id)
@@ -48,7 +78,7 @@ class HostConnection(object):
 
         copy_data = copy.deepcopy(host_data)
 
-        self.session = event_manager.session
+        self.__logs = []
         self._event_manager = event_manager
         self._raw_host_data = copy_data
 
@@ -66,30 +96,40 @@ class HostConnection(object):
             }
         )
         self._event_manager.publish(
-            event,
+            event
         )
 
     def _notify_client(self, event):
         '''callback to notify the client with the *event* data'''
-        data = event['data']['pipeline']['data']
+        result = event['data']['pipeline']['result']
         status = event['data']['pipeline']['status']
         plugin_name = event['data']['pipeline']['plugin_name']
         widget_ref = event['data']['pipeline']['widget_ref']
         message = event['data']['pipeline']['message']
 
         if constants.status_bool_mapping[status]:
-            self.logger.info('plugin_name: {} \n status: {} \n result: {} \n '
-                             'message: {}'.format(plugin_name, status,
-                                                  data, message))
+            self.__logs.append(event['data']['pipeline'])
 
-        if status == constants.ERROR_STATUS or \
-                status == constants.EXCEPTION_STATUS:
-            raise Exception('An error occurred during the execution of the '
-                            'plugin name {} \n message: {} \n data: {}'.format(
-                plugin_name, message, data))
+            self.logger.debug(
+                'plugin_name: {} \n status: {} \n result: {} \n '
+                'message: {}'.format(
+                    plugin_name, status, result, message
+                )
+            )
+
+        if (
+                status == constants.ERROR_STATUS or
+                status == constants.EXCEPTION_STATUS
+        ):
+            raise Exception(
+                'An error occurred during the execution of the '
+                'plugin name {} \n message: {} \n data: {}'.format(
+                    plugin_name, message, result
+                )
+            )
 
     def on_client_notification(self):
-        '''Subscribe to PIPELINE_CLIENT_NOTIFICATION topic to recibe client
+        '''Subscribe to PIPELINE_CLIENT_NOTIFICATION topic to receive client
         notifications from the host'''
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.hostid={}'.format(
@@ -103,7 +143,22 @@ class Client(object):
     '''
     Base client class.
     '''
-    ui = [constants.UI]
+
+    def __repr__(self):
+        return '<Client:{0}>'.format(self.ui)
+
+    def __del__(self):
+        self.logger.debug('Closing {}'.format(self))
+
+    @property
+    def session(self):
+        '''Return session'''
+        return self._event_manager.session
+
+    @property
+    def ui(self):
+        '''Return list of current ui'''
+        return self._ui
 
     @property
     def connected(self):
@@ -126,10 +181,10 @@ class Client(object):
         '''
         self._packages = {}
         self._current = {}
-
-        ui = ui or []
-        self.ui.extend(ui)
-        self.ui = list(set(self.ui))
+        self._ui = [constants.UI]
+        self._ui.extend(
+            [i for i in ui or [] if i not in self._ui]
+        )
 
         self._host_list = []
         self._connected = False
@@ -138,8 +193,11 @@ class Client(object):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        self.event_manager = event_manager
-        self.session = event_manager.session
+        self._event_manager = event_manager
+
+        self.logger.info(
+            'initializing {}'.format(self)
+        )
 
     def discover_hosts(self, time_out=3):
         '''Returns a list of discovered hosts during the optional *time_out*'''
@@ -171,7 +229,7 @@ class Client(object):
         '''callback, adds new hosts connection from the given *event*'''
         if not event['data']:
             return
-        host_connection = HostConnection(self.event_manager, event['data'])
+        host_connection = HostConnection(self._event_manager, event['data'])
         if host_connection not in self.hosts:
             self._host_list.append(host_connection)
 
@@ -184,7 +242,7 @@ class Client(object):
             topic=constants.PIPELINE_DISCOVER_HOST
         )
 
-        self.event_manager.publish(
+        self._event_manager.publish(
             discover_event,
             callback=self._host_discovered
         )

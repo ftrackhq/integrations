@@ -1,0 +1,21 @@
+{
+    "name": "testPkg",
+    "type": "package",
+    "asset_type": "geo",
+    "context":[
+        "Task"
+    ],
+    "components":[
+        {
+            "name": "main"
+        },
+        {
+            "name": "thumbnail",
+            "optional": true
+        },
+        {
+            "name": "reviewable",
+            "optional": true
+        }
+    ]
+}
