@@ -115,6 +115,10 @@ class Client(object):
         self.logger.debug('Closing {}'.format(self))
 
     @property
+    def session(self):
+        return self._session
+
+    @property
     def ui(self):
         return self._ui
 
@@ -149,8 +153,8 @@ class Client(object):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        self.event_manager = event_manager
-        self.session = event_manager.session
+        self._event_manager = event_manager
+        self._session = event_manager.session
 
         self.logger.info(
             'initializing {}'.format(self)
@@ -186,7 +190,7 @@ class Client(object):
         '''callback, adds new hosts connection from the given *event*'''
         if not event['data']:
             return
-        host_connection = HostConnection(self.event_manager, event['data'])
+        host_connection = HostConnection(self._event_manager, event['data'])
         if host_connection not in self.hosts:
             self._host_list.append(host_connection)
 
@@ -199,7 +203,7 @@ class Client(object):
             topic=constants.PIPELINE_DISCOVER_HOST
         )
 
-        self.event_manager.publish(
+        self._event_manager.publish(
             discover_event,
             callback=self._host_discovered
         )

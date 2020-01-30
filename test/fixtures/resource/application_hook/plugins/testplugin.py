@@ -41,8 +41,8 @@ class TestFinaliser(plugin.FinaliserPlugin):
         return {}
 
 
-
 def register(api_object, **kw):
+
     plugins = [
         TestContext,
         TestCollector,
