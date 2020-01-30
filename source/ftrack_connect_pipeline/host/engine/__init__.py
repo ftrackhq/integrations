@@ -1,9 +1,11 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
+import copy
 import logging
 import ftrack_api
 from ftrack_connect_pipeline import constants
+
 
 def getEngine(baseClass, engineType):
     '''Return the engine Class *subclass* of the given *baseClass* based on the
@@ -11,6 +13,7 @@ def getEngine(baseClass, engineType):
     for subclass in baseClass.__subclasses__():
         if engineType == subclass.__name__:
             return subclass
+
 
 class BaseEngine(object):
 
@@ -46,11 +49,19 @@ class BaseEngine(object):
         *context* and notify client with the status before and after execute
         the plugin'''
         plugin_name = plugin['plugin']
+        start_data = {
+            'plugin_name': plugin_name,
+            'plugin_type': plugin_type,
+            'status': constants.RUNNING_STATUS,
+            'result': None,
+            'execution_time': 0,
+            'message': None
+        }
 
-        self._notify_client(None, plugin, constants.RUNNING_STATUS)
+        self._notify_client(plugin, start_data)
 
-        status = None
-        result = None
+        result_data = copy.deepcopy(start_data)
+        result_data['status'] = constants.UNKNOWN_STATUS
 
         for host_definition in reversed(self._host):
             event = ftrack_api.event.base.Event(
@@ -70,46 +81,28 @@ class BaseEngine(object):
                         }
                 }
             )
-            result_data = self.session.event_hub.publish(
+            plugin_result_data = self.session.event_hub.publish(
                 event,
                 synchronous=True
             )
-            if result_data:
-                result = result_data[0]['result']
-                status = result_data[0]['status']
-                message = result_data[0]['message']
+            if plugin_result_data:
+                result_data= plugin_result_data[0]
                 break
-            else:
-                result = None
-                status = constants.ERROR_STATUS
-                message = "Can't run the plugin {}. " \
-                          "Please check if plugin host" \
-                          "is in the given " \
-                          "host list : {}".format(plugin_name, self._host)
 
-        self._notify_client(result, plugin, status, message)
+        self._notify_client(plugin, result_data)
+        return result_data['status'], result_data['result']
 
-        return status, result
-
-    def _notify_client(self, data, plugin, status, message=None):
+    def _notify_client(self, plugin, result_data):
         '''Publish an event to notify client with *data*, plugin_name from
         *plugin*, *status* and *message*'''
 
-        widget_ref = plugin.get('widget_ref')
-
-        pipeline_data = {
-            'hostid': self.hostid,
-            'data': data,
-            'status': status,
-            'plugin_name': plugin['plugin'],
-            'widget_ref': widget_ref,
-            'message': message
-        }
+        result_data['hostid'] = self.hostid
+        result_data['widget_ref'] = plugin.get('widget_ref')
 
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_CLIENT_NOTIFICATION,
             data={
-                'pipeline': pipeline_data
+                'pipeline': result_data
             }
         )
 

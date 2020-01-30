@@ -29,7 +29,9 @@ class HostConnection(object):
                 constants.status_bool_mapping.get(
                     log['status'], constants.UNKNOWN_STATUS
                 )
-                for log in self.logs
+                for log in self.logs or [
+                    {'status': constants.UNKNOWN_STATUS}
+                ]
             ]
         )
 
@@ -99,7 +101,7 @@ class HostConnection(object):
 
     def _notify_client(self, event):
         '''callback to notify the client with the *event* data'''
-        data = event['data']['pipeline']['data']
+        result = event['data']['pipeline']['result']
         status = event['data']['pipeline']['status']
         plugin_name = event['data']['pipeline']['plugin_name']
         widget_ref = event['data']['pipeline']['widget_ref']
@@ -111,7 +113,7 @@ class HostConnection(object):
             self.logger.debug(
                 'plugin_name: {} \n status: {} \n result: {} \n '
                 'message: {}'.format(
-                    plugin_name, status, data, message
+                    plugin_name, status, result, message
                 )
             )
 
@@ -122,7 +124,7 @@ class HostConnection(object):
             raise Exception(
                 'An error occurred during the execution of the '
                 'plugin name {} \n message: {} \n data: {}'.format(
-                    plugin_name, message, data
+                    plugin_name, message, result
                 )
             )
 
