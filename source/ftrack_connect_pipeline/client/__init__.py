@@ -58,6 +58,9 @@ class HostConnection(object):
 
         self.on_client_notification()
 
+    def _on_run_result(self, event):
+        return event['data']
+
     def run(self, data):
         '''Send *data* to the host through the PIPELINE_HOST_RUN topic.'''
         event = ftrack_api.event.base.Event(
@@ -71,6 +74,7 @@ class HostConnection(object):
         )
         self._event_manager.publish(
             event,
+            self._on_run_result
         )
 
     def _notify_client(self, event):
@@ -116,7 +120,7 @@ class Client(object):
 
     @property
     def session(self):
-        return self._session
+        return self._event_manager.session
 
     @property
     def ui(self):
@@ -144,7 +148,9 @@ class Client(object):
         self._packages = {}
         self._current = {}
         self._ui = [constants.UI]
-        self._ui.extend(ui or [])
+        self._ui.extend(
+            [i for i in ui or [] if i not in self._ui]
+        )
 
         self._host_list = []
         self._connected = False
@@ -154,7 +160,6 @@ class Client(object):
             __name__ + '.' + self.__class__.__name__
         )
         self._event_manager = event_manager
-        self._session = event_manager.session
 
         self.logger.info(
             'initializing {}'.format(self)
