@@ -1,2 +1,2 @@
 HOST = 'maya'
-UI = 'qt'
+UI = 'maya'

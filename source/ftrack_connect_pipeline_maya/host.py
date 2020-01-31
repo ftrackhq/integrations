@@ -13,6 +13,7 @@ logger = logging.getLogger(
 
 def get_ftrack_menu(menu_name = 'ftrack_pipeline'):
     '''Get the current ftrack menu, create it if does not exists.'''
+    print " we are on get_ftrack_menu"
     gMainWindow = mm.eval('$temp1=$gMainWindow')
 
     if mc.menu(
