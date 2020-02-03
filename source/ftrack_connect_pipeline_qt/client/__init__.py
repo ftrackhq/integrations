@@ -48,8 +48,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         '''callback, adds new hosts connection from the given *event* to the
         host_selector'''
         super(QtClient, self)._host_discovered(event)
-        for host in self.hosts:
-            self.host_selector.addHost(host)
+        self.host_selector.add_hosts(self.hosts)
 
     def pre_build(self):
         '''Prepare general layout.'''
@@ -86,17 +85,20 @@ class QtClient(client.Client, QtWidgets.QWidget):
         ''' Triggered when definition_changed is called from the host_selector.
         Generates the widgets interface from the given *host_connection*,
         *schema* and *definition*'''
+
+        self.logger.info('Definition changed !!!')
+
+        if not host_connection:
+            return
+
+        self.logger.info('connection {}'.format(host_connection))
         self.host_connection = host_connection
+
         self.schema = schema
         self.definition = definition
 
-        self.logger.info('Definition changed')
-        self.logger.info('schema', schema)
-        self.logger.info('definition', definition)
-        self.logger.info('connection', host_connection)
-
         self._current_def = self.widget_factory.create_widget(
-            "testSchema",
+            definition['name'],
             schema,
             self.definition,
             host_connection=self.host_connection
@@ -110,19 +112,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
         '''
         status, message = data
         self.header.setMessage(message, status)
-
-    def on_ready(self, callback, time_out=3):
-        '''calls the given *callback* when a host and definition has been
-        selected. Contains an optional *time_out* to discover the hosts.
-
-        *callback* Function to call when a host and a definition is been
-        selected on the host_selector widget
-
-        *time_out* Optional time out time to look for a host
-
-        '''
-        self.discover_hosts(time_out=time_out)
-        self.__callback = callback
 
     def _on_run(self):
         '''Function called when click the run button'''

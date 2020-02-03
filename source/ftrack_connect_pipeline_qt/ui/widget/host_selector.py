@@ -20,7 +20,7 @@ class HostSelector(QtWidgets.QWidget):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-
+        self.hosts = []
         self.pre_build()
         self.build()
         self.post_build()
@@ -36,7 +36,7 @@ class HostSelector(QtWidgets.QWidget):
         self.layout().addWidget(self.host_combobox)
         self.layout().addWidget(self.definition_combobox)
 
-        self.host_combobox.addItem('- Select host -')
+        # self.host_combobox.addItem('- Select host -')
 
     def post_build(self):
         '''Connect the widget signals'''
@@ -49,6 +49,7 @@ class HostSelector(QtWidgets.QWidget):
         '''triggered when chaging host selection to *index*'''
         self.definition_combobox.clear()
         self.host_connection = self.host_combobox.itemData(index)
+
         if not self.host_connection:
             self.logger.warning("No data for selected host")
             return
@@ -57,8 +58,22 @@ class HostSelector(QtWidgets.QWidget):
             schema for schema in self.host_connection.definitions['schema']
             if schema.get('title').lower() != "package"
         ]
-        print 'schemas', self.schemas
+
         self._populate_definitions()
+
+    def _populate_definitions(self):
+        # self.definition_combobox.addItem('- Select Definition -')
+
+        for schema in self.schemas:
+            schema_title = schema.get('title').lower()
+            items = self.host_connection.definitions.get(schema_title)
+
+            for item in items:
+                self.definition_combobox.addItem(
+                    '{} - {}'.format(
+                        schema.get('title'),
+                        item.get('name')
+                    ), item)
 
     def _on_select_definition(self, index):
         self.definition = self.definition_combobox.itemData(index)
@@ -80,20 +95,7 @@ class HostSelector(QtWidgets.QWidget):
             self.schema,
             self.definition)
 
-    def _populate_definitions(self):
-        self.definition_combobox.addItem('- Select Definition -')
-
-        for schema in self.schemas:
-            schema_title = schema.get('title').lower()
-            items =  self.host_connection.definitions.get(schema_title)
-
-            for item in items:
-                self.definition_combobox.addItem(
-                    '{} {}'.format(
-                        schema.get('title'),
-                        item.get('name')
-                    ), item)
-
-    def addHost(self, host):
-        self.host_combobox.addItem(host.id, host)
+    def add_hosts(self, hosts):
+        for host in hosts:
+            self.host_combobox.addItem(host.id, host)
 

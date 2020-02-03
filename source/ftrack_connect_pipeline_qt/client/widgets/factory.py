@@ -99,8 +99,10 @@ class WidgetFactory(QtWidgets.QWidget):
         *parent* widget to parent the current widget (optional).
 
         '''
-        self.host_connection = host_connection
-        self._listen_widget_updates()
+
+        if not host_connection:
+            self.host_connection = host_connection
+            self._listen_widget_updates()
 
         self.set_host_definitions(self.host_connection.host_definitions)
         schema_fragment_order = schema_fragment.get('order', [])
@@ -133,8 +135,6 @@ class WidgetFactory(QtWidgets.QWidget):
         '''Returns a widget from the given *plugin_data*, *plugin_type* with
         the optional *extra_options*.'''
 
-        print 'HOSTDEFS', self.host_definitions
-
         plugin_name = plugin_data.get('widget')
         plugin_type = plugin_type
         data = self._fetch_plugin_widget(
@@ -142,11 +142,14 @@ class WidgetFactory(QtWidgets.QWidget):
         )
         if not data:
             plugin_name = 'default.widget'
+
             if not plugin_data.get('widget'):
                 plugin_data['widget'] = plugin_name
+
             data = self._fetch_plugin_widget(
                 plugin_data, plugin_type, plugin_name,
-                extra_options=extra_options)
+                extra_options=extra_options
+            )
         data = data[0]
 
         message = data['message']
