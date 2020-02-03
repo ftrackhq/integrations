@@ -8,7 +8,7 @@ class MayaLoaderClient(MayaQWidgetDockableMixin, QtLoaderClient):
     '''Dockable maya load widget'''
     def __init__(self, event_manager, parent=None):
         super(MayaLoaderClient, self).__init__(
-            event_manager, ui=['maya'], parent=parent
+            event_manager=event_manager, ui=['maya'], parent=parent
         )
         self.setWindowTitle('Maya Pipeline Loader')
 

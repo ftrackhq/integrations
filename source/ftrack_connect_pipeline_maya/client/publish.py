@@ -8,7 +8,7 @@ class MayaPublisherClient(MayaQWidgetDockableMixin, QtPublisherClient):
     '''Dockable maya load widget'''
     def __init__(self, event_manager, parent=None):
         super(MayaPublisherClient, self).__init__(
-            event_manager, ui=['maya'], parent=parent
+            event_manager=event_manager, ui=['maya'], parent=parent
         )
         self.setWindowTitle('Maya Pipeline Publisher')
 

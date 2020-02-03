@@ -33,6 +33,23 @@ def get_shared_event_manager():
 
     return _shared_event_manager
 
+def ready_callback(event):
+    task = event['host_connection'].session.query(
+        'select name from Task where project.name is "pipelinetest"'
+    ).first()
+    schema = task['project']['project_schema']
+    task_status = schema.get_statuses('Task')[0]
+    publisher = event['definition']
+    publisher['contexts']['plugins'][0]['options']['context_id'] = task['id']
+    publisher['contexts']['plugins'][0]['options']['asset_name'] = 'PipelineAsset'
+    publisher['contexts']['plugins'][0]['options']['asset_type'] = 'geo'
+    publisher['contexts']['plugins'][0]['options']['comment'] = 'A new hope'
+    publisher['contexts']['plugins'][0]['options']['status_id'] = task_status['id']
+    publisher['components'][0]['stages'][0]['plugins'][0]['options'][
+        'path'] = "/Users/lluisftrack/Desktop/file_to_publish.txt"
+    return publisher
+
+
 def _open_dialog(dialog_class):#, hostid):
     '''Open *dialog_class* and create if not already existing.'''
     dialog_name = dialog_class
@@ -43,7 +60,7 @@ def _open_dialog(dialog_class):#, hostid):
         created_dialogs[dialog_name] = ftrack_dialog(
             event_manager
         )
-
+    #created_dialogs[dialog_name].on_ready(ready_callback, time_out=30)
     created_dialogs[dialog_name].show()
 
 
@@ -52,8 +69,10 @@ def initialise():
     #  from ftrack-connect-maya
     # such as frame start / end etc....
 
+    logger.info('Setting up the menu')
+
     event_manager = get_shared_event_manager()
-    host.Host(event_manager)#,  host = ['maya'])
+    host.Host(event_manager, host=['maya'])
 
     usage.send_event(
         'USED-FTRACK-CONNECT-PIPELINE-MAYA'
