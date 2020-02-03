@@ -10,7 +10,9 @@ class HostSelector(QtWidgets.QWidget):
 
     @property
     def selected_host_connection(self):
-        return self._get_selected_host_connection()
+        return self.host_combobox.itemData(
+            self.host_combobox.currentIndex()
+        )
 
     def __init__(self, parent=None):
         '''Initialize HostSelector widget'''
@@ -19,10 +21,15 @@ class HostSelector(QtWidgets.QWidget):
             __name__ + '.' + self.__class__.__name__
         )
 
-        main_layout = QtWidgets.QVBoxLayout()
+        self.pre_build()
+        self.build()
+        self.post_build()
 
+    def pre_build(self):
+        main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
 
+    def build(self):
         self.host_combobox = QtWidgets.QComboBox()
         self.definition_combobox = QtWidgets.QComboBox()
 
@@ -31,9 +38,7 @@ class HostSelector(QtWidgets.QWidget):
 
         self.host_combobox.addItem('- Select host -')
 
-        self.connect_signals()
-
-    def connect_signals(self):
+    def post_build(self):
         '''Connect the widget signals'''
         self.host_combobox.currentIndexChanged.connect(self._on_change_host)
         self.definition_combobox.currentIndexChanged.connect(
@@ -47,11 +52,12 @@ class HostSelector(QtWidgets.QWidget):
         if not self.host_connection:
             self.logger.warning("No data for selected host")
             return
+
         self.schemas = [
-            schema for schema in self.host_connection.definitions['schemas']
-            if schema.get('title') == "Publisher" or
-               schema.get('title') == "Loader"
+            schema for schema in self.host_connection.definitions['schema']
+            if schema.get('title') != "Package"
         ]
+
         self._populate_definitions()
 
     def _on_select_definition(self, index):
@@ -59,46 +65,35 @@ class HostSelector(QtWidgets.QWidget):
         if not self.definition:
             self.logger.warning("No data for selected definition")
             return
+
         for schema in self.schemas:
-            if self.definition.get('type') == "publisher":
-                if schema.get('title') == "Publisher":
-                    self.schema = schema
-                    break
-            elif self.definition.get('type') == "loader":
-                if schema.get('title') == "Loader":
-                    self.schema = schema
-                    break
+            if (
+                    self.definition.get('type').lower() ==
+                    schema.get('title').lower()
+            ):
+                print 'schema', schema['title']
+                self.schema = schema
+                break
 
-        self.definition_changed.emit(self.host_connection, self.schema,
-                                     self.definition)
-
-    def _get_selected_host_connection(self):
-        return self.host_combobox.itemData(
-            self.self.host_combobox.currentIndex()
-        )
+        self.definition_changed.emit(
+            self.host_connection,
+            self.schema,
+            self.definition)
 
     def _populate_definitions(self):
         self.definition_combobox.addItem('- Select Definition -')
         for schema in self.schemas:
-            if schema.get('title') == "Publisher":
-                self._populatePublishers(
-                    self.host_connection.definitions['publishers']
-                )
-            if schema.get('title') == "Loader":
-                self._populateLoaders(
-                    self.host_connection.definitions['loaders']
-                )
+            print schema.get('title').lower()
+            item = self.host_connection.definitions.get(
+                schema.get('title').lower()
+            )
 
-    def _populatePublishers(self, publishers):
-        for publisher in publishers:
-            name = "Publisher : {}".format(publisher['name'])
-            self.definition_combobox.addItem(name, publisher)
+            print 'item',  item
 
-    def _populateLoaders(self, loaders):
-        for loader in loaders:
-            name = "Loader : {}".format(loader['name'])
-            self.definition_combobox.addItem(name, loader)
+            if not item:
+                return
+            self.definition_combobox.addItem(schema.get('title'), item)
 
-    def addHost(self, id, host_connection):
-        self.host_combobox.addItem(id, host_connection)
+    def addHost(self, host):
+        self.host_combobox.addItem(host.id, host)
 

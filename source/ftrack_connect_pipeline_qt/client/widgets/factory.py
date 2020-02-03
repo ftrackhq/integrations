@@ -96,17 +96,13 @@ class WidgetFactory(QtWidgets.QWidget):
         :class:`ftrack_connect_pipeline.client.HostConnection` instance to use
         to subscribe to the host events.
 
-        *widget_factory* should be the
-        :class:`ftrack_connect_pipeline_qt.client.widgets.json.factory.WidgetFactory`
-        instance to use for recursive generation of json widgets.
-
         *parent* widget to parent the current widget (optional).
 
         '''
-        if host_connection:
-            self.host_connection = host_connection
-            self._listen_widget_updates()
+        self.host_connection = host_connection
+        self._listen_widget_updates()
 
+        self.set_host_definitions(self.host_connection.host_definitions)
         schema_fragment_order = schema_fragment.get('order', [])
 
         # sort schema fragment keys by the order defined in the schema order
@@ -136,6 +132,8 @@ class WidgetFactory(QtWidgets.QWidget):
     def fetch_plugin_widget(self, plugin_data, plugin_type, extra_options=None):
         '''Returns a widget from the given *plugin_data*, *plugin_type* with
         the optional *extra_options*.'''
+
+        print 'HOSTDEFS', self.host_definitions
 
         plugin_name = plugin_data.get('widget')
         plugin_type = plugin_type

@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
+import os
 from Qt import QtWidgets, QtCore, QtGui
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 
@@ -18,6 +19,7 @@ class PublishContextWidget(BaseOptionsWidget):
         '''initialise PublishContextWidget with *parent*, *session*, *data*,
         *name*, *description*, *options*
         '''
+
         self.context = session.get('Context', options.get('context_id'))
         self.asset_type = options.get('asset_type')
         super(PublishContextWidget, self).__init__(

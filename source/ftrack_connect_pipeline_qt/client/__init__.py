@@ -6,7 +6,7 @@ from Qt import QtCore, QtWidgets
 from ftrack_connect_pipeline import client
 from ftrack_connect_pipeline_qt.ui.widget import header, host_selector
 from ftrack_connect_pipeline_qt.client.widgets import factory
-from ftrack_connect_pipeline_qt import constants
+from ftrack_connect_pipeline_qt import constants as qt_constants
 
 
 class QtHostConnection(client.HostConnection):
@@ -23,7 +23,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
     host_connection = None
     schema = None
     definition = None
-    ui = [constants.UI]
 
     def __init__(self, event_manager, ui=None, parent=None):
         '''Initialise with *event_manager* , and optional *ui* List and
@@ -37,19 +36,17 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.pre_build()
         self.build()
         self.post_build()
+        self.set_hosts(self.discover_hosts())
+
+    def set_hosts(self, hosts):
+        self._host_list = hosts
 
     def _host_discovered(self, event):
         '''callback, adds new hosts connection from the given *event* to the
         host_selector'''
-        current_hosts = copy.deepcopy(self.hosts)
         super(QtClient, self)._host_discovered(event)
-        new_conections = []
-        if current_hosts:
-            new_conections = list(set(current_hosts) - set(self.hosts))
-        else:
-            new_conections = self.hosts
-        for new_connection in new_conections:
-            self.host_selector.addHost(new_connection.id, new_connection)
+        for host in self.hosts:
+            self.host_selector.addHost(host)
 
     def pre_build(self):
         '''Prepare general layout.'''
@@ -89,15 +86,11 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.host_connection = host_connection
         self.schema = schema
         self.definition = definition
-        self.widget_factory.set_host_definitions(
-            self.host_connection.host_definitions
-        )
 
-        if self.__callback:
-            output_dict = {"host_connection": self.host_connection,
-                           "schema": self.schema,
-                           "definition": self.definition}
-            self.__callback(output_dict)
+        self.logger.info('Definition changed')
+        self.logger.info('schema', schema)
+        self.logger.info('definition', definition)
+        self.logger.info('connection', host_connection)
 
         self._current_def = self.widget_factory.create_widget(
             "testSchema",
