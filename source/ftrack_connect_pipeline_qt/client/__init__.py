@@ -36,10 +36,13 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.pre_build()
         self.build()
         self.post_build()
-        self.set_hosts(self.discover_hosts())
+        self.add_hosts(self.discover_hosts())
 
-    def set_hosts(self, hosts):
-        self._host_list = hosts
+    def add_hosts(self, hosts):
+        for host in hosts:
+            if host in self._host_list:
+                continue
+            self._host_list.append(host)
 
     def _host_discovered(self, event):
         '''callback, adds new hosts connection from the given *event* to the

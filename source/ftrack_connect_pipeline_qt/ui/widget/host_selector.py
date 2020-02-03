@@ -55,13 +55,14 @@ class HostSelector(QtWidgets.QWidget):
 
         self.schemas = [
             schema for schema in self.host_connection.definitions['schema']
-            if schema.get('title') != "Package"
+            if schema.get('title').lower() != "package"
         ]
-
+        print 'schemas', self.schemas
         self._populate_definitions()
 
     def _on_select_definition(self, index):
         self.definition = self.definition_combobox.itemData(index)
+
         if not self.definition:
             self.logger.warning("No data for selected definition")
             return
@@ -71,7 +72,6 @@ class HostSelector(QtWidgets.QWidget):
                     self.definition.get('type').lower() ==
                     schema.get('title').lower()
             ):
-                print 'schema', schema['title']
                 self.schema = schema
                 break
 
@@ -82,17 +82,17 @@ class HostSelector(QtWidgets.QWidget):
 
     def _populate_definitions(self):
         self.definition_combobox.addItem('- Select Definition -')
+
         for schema in self.schemas:
-            print schema.get('title').lower()
-            item = self.host_connection.definitions.get(
-                schema.get('title').lower()
-            )
+            schema_title = schema.get('title').lower()
+            items =  self.host_connection.definitions.get(schema_title)
 
-            print 'item',  item
-
-            if not item:
-                return
-            self.definition_combobox.addItem(schema.get('title'), item)
+            for item in items:
+                self.definition_combobox.addItem(
+                    '{} {}'.format(
+                        schema.get('title'),
+                        item.get('name')
+                    ), item)
 
     def addHost(self, host):
         self.host_combobox.addItem(host.id, host)
