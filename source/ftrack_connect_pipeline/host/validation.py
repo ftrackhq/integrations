@@ -63,7 +63,7 @@ class PluginDiscoverValidation(object):
                 self.logger.warning(
                     'The definition {} from type {} contains invalid plugins '
                     'and will not be used'.format(
-                        definition["name"], 'publishers'
+                        definition["name"], 'publisher'
                     )
                 )
 
@@ -83,7 +83,7 @@ class PluginDiscoverValidation(object):
                 self.logger.warning(
                     'The definition {} from type {} contains invalid plugins '
                     'and will not be used'.format(
-                        definition["name"], 'publishers'
+                        definition["name"], 'publisher'
                     )
                 )
 

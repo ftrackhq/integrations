@@ -143,6 +143,7 @@ setup(
         'jsonref'
     ],
     tests_require=[
+        'mock',
         'pytest >= 2.3.5, < 3'
     ],
     cmdclass={

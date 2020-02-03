@@ -23,7 +23,7 @@ def provide_host_information(hostid, definitions, event):
     host_dict = {
         'host_id': hostid,
         'context_id': context_id,
-        'definitions': definitions
+        'definition': definitions
     }
     return host_dict
 
@@ -80,14 +80,14 @@ class Host(object):
         data = event['data']['pipeline']['data']
 
         try:
-            validation.validate_schema(self.__registry['schemas'], data)
+            validation.validate_schema(self.__registry['schema'], data)
         except Exception as error:
             self.logger.error("Can't validate the data {} "
                               "error: {}".format(data, error))
             return False
 
         asset_type = self.get_asset_type_from_packages(
-            self.__registry['packages'], data['package'])
+            self.__registry['package'], data['package'])
         schema_engine = data['_config']['engine']
         MyEngine = engine.getEngine(engine.BaseEngine, schema_engine)
         engine_runner = MyEngine(self._event_manager, self.host, self.hostid,
@@ -144,16 +144,16 @@ class Host(object):
         )
 
         invalid_publishers_idxs = plugin_validator.validate_publishers_plugins(
-            data['publishers'])
+            data['publisher'])
         if invalid_publishers_idxs:
             for idx in sorted(invalid_publishers_idxs, reverse=True):
-                data['publishers'].pop(idx)
+                data['publisher'].pop(idx)
 
         invalid_loaders_idxs = plugin_validator.validate_loaders_plugins(
-            data['loaders'])
+            data['loader'])
         if invalid_loaders_idxs:
             for idx in sorted(invalid_loaders_idxs, reverse=True):
-                    data['loaders'].pop(idx)
+                    data['loader'].pop(idx)
 
         logger.debug('validated data :{}'.format(data))
         return data

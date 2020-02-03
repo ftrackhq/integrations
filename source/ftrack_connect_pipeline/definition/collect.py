@@ -11,14 +11,14 @@ logger = logging.getLogger(__name__)
 
 
 def resolve_schemas(data):
-    data['schemas'] = [JsonRef.replace_refs(schema) for schema in data['schemas']]
+    data['schema'] = [JsonRef.replace_refs(schema) for schema in data['schema']]
     return data
 
 
 def filter_definitions_by_host(data, host):
     copy_data = copy.deepcopy(data)
     logger.info('filtering definition for host: {}'.format(host))
-    for entry in ['loaders', 'publishers']:
+    for entry in ['loader', 'publisher']:
         for definition in data[entry]:
             if str(definition.get('host')) != str(host):
                 logger.warning(
@@ -49,10 +49,10 @@ def collect_definitions(lookup_dir):
     )
 
     data = {
-        'schemas': schemas or [],
-        'publishers': publishers or [],
-        'loaders': loaders or [],
-        'packages': packages or []
+        'schema': schemas or [],
+        'publisher': publishers or [],
+        'loader': loaders or [],
+        'package': packages or []
     }
 
     return data

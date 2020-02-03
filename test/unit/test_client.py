@@ -44,7 +44,7 @@ def test_run_host_callback(host, event_manager, temporary_image, new_project):
         schema = new_project['project_schema']
         task_status = schema.get_statuses('Task')[0]
 
-        publisher = host.definitions['publishers'][0]
+        publisher = host.definitions['publisher'][0]
 
         publisher['contexts']['plugins'][0]['options']['context_id'] = task['id']
         publisher['contexts']['plugins'][0]['options']['asset_name'] = 'PipelineAsset'
@@ -63,7 +63,7 @@ def test_run_host_fail_callback(host, event_manager, temporary_image, new_projec
     def callback(hosts):
         host = hosts[0]
         assert host.state is False
-        publisher = host.definitions['publishers'][0]
+        publisher = host.definitions['publisher'][0]
         publisher['components'][0]['stages'][0]['plugins'][0]['options']['path'] = temporary_image
         host.run(publisher)
         assert host.state is False

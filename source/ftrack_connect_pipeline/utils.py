@@ -21,9 +21,3 @@ def get_current_context():
     )
 
     return context_id
-
-
-def remote_event_mode():
-    return bool(os.environ.get(
-        constants.PIPELINE_REMOTE_EVENTS_ENV, 0
-    ))

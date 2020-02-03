@@ -39,7 +39,7 @@ class HostConnection(object):
 
     @property
     def definitions(self):
-        return self._raw_host_data['definitions']
+        return self._raw_host_data['definition']
 
     @property
     def id(self):
