@@ -5,8 +5,6 @@ import time
 import logging
 import copy
 import ftrack_api
-import python_jsonschema_objects as pjo
-import uuid
 
 from ftrack_connect_pipeline import constants
 
