@@ -11,10 +11,13 @@ for path in deps_paths:
     sys.path.append(path)
 
 from Qt import QtWidgets
-#from ftrack_connect_pipeline_qt import constants
-from ftrack_connect_pipeline_qt.client import QtClient
 import ftrack_api
+
+QtWidgets.QApplication.setStyle('plastique')
+
+from ftrack_connect_pipeline_qt.client import QtClient
 from ftrack_connect_pipeline import constants, event
+from ftrack_connect_pipeline_qt import constants as qt_contants
 
 
 class QtPublisherClient(QtClient):
@@ -32,9 +35,7 @@ if __name__ == '__main__':
     event_manager = event.EventManager(
         session=session, mode=constants.LOCAL_EVENT_MODE
     )
-    print "sys.argv ----> {}".format(sys.argv)
     app = QtWidgets.QApplication(sys.argv)
-    #app.setStyle(QtWidgets.QStyleFactory.create('Fusion'))
-    wid = QtPublisherClient(event_manager, ui=["qt"])
+    wid = QtPublisherClient(event_manager, ui=[qt_contants.UI])
     wid.show()
     sys.exit(app.exec_())

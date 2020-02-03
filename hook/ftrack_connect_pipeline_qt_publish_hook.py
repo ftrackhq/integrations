@@ -51,7 +51,7 @@ class LaunchApplicationAction(object):
 
     def is_valid_selection(self, selection):
         '''Return true if the selection is valid.'''
-        return True
+        return len(selection) == 1
 
     def register(self):
         '''Register discover actions on logged in user.'''
