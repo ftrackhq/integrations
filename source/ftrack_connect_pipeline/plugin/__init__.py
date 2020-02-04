@@ -4,6 +4,7 @@
 import logging
 import ftrack_api
 import time
+import traceback
 import copy
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import exception
@@ -234,7 +235,11 @@ class BasePlugin(object):
         '''
 
         plugin_settings = event['data']['settings']
-
+        self.logger.info('Running plugig {} {} with settings {}'.format(
+            self.plugin_type,
+            self.plugin_name,
+            plugin_settings
+        ))
         start_time = time.time()
         try:
             result = self.run(**plugin_settings)
@@ -242,6 +247,7 @@ class BasePlugin(object):
         except Exception as message:
             end_time = time.time()
             total_time = end_time - start_time
+            tb = traceback.format_exc()
             self.logger.debug(message, exc_info=True)
             return {
                 'plugin_name': self.plugin_name,
@@ -249,7 +255,7 @@ class BasePlugin(object):
                 'status': constants.EXCEPTION_STATUS,
                 'result': None,
                 'execution_time': total_time,
-                'message': str(message)
+                'message': str(tb)
             }
         end_time = time.time()
         total_time = end_time - start_time
