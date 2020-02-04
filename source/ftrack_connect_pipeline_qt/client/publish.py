@@ -35,7 +35,7 @@ class QtPublisherClient(QtClient):
     Base load widget class.
     '''
 
-    def __init__(self, event_manager, ui, parent=None):
+    def __init__(self, event_manager, ui=[qt_constants.UI], parent=None):
         super(QtPublisherClient, self).__init__(event_manager, ui,
                                                 parent=parent)
         self.setWindowTitle('Standalone Pipeline Publisher')
@@ -51,6 +51,6 @@ if __name__ == '__main__':
 
     host.Host(event_manager)
 
-    wid = QtPublisherClient(event_manager, ui=[qt_constants.UI])
+    wid = QtPublisherClient(event_manager)
     wid.show()
     sys.exit(app.exec_())
