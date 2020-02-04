@@ -40,13 +40,14 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
     def add_hosts(self, hosts):
         for host in hosts:
-            if host in self._host_list:
+            if host in self.hosts:
                 continue
             self._host_list.append(host)
 
     def _host_discovered(self, event):
         '''callback, adds new hosts connection from the given *event* to the
         host_selector'''
+        # current_hosts = copy.deepcopy(self.hosts)
         super(QtClient, self)._host_discovered(event)
         self.host_selector.add_hosts(self.hosts)
 
@@ -96,6 +97,10 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
         self.schema = schema
         self.definition = definition
+
+        self.widget_factory.set_host_definitions(
+            self.host_connection.host_definitions
+        )
 
         self._current_def = self.widget_factory.create_widget(
             definition['name'],

@@ -7,6 +7,7 @@ from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 
 from ftrack_connect_pipeline_qt.ui.widget.context_selector import ContextSelector
 from ftrack_connect_pipeline_qt.ui.widget.asset_selector import AssetSelector
+from ftrack_connect_pipeline.utils import get_current_context
 
 
 class PublishContextWidget(BaseOptionsWidget):
@@ -19,8 +20,8 @@ class PublishContextWidget(BaseOptionsWidget):
         '''initialise PublishContextWidget with *parent*, *session*, *data*,
         *name*, *description*, *options*
         '''
-
-        self.context = session.get('Context', options.get('context_id'))
+        env_context = get_current_context()
+        self.context = session.get('Context', options.get('context_id', env_context))
         self.asset_type = options.get('asset_type')
         super(PublishContextWidget, self).__init__(
             parent=parent, session=session, data=data, name=name,
@@ -77,7 +78,8 @@ class PublishContextWidget(BaseOptionsWidget):
         self.context_selector.setEntity(self.context)
 
         self.context_layout.addWidget(self.context_selector)
-        self.set_option_result(self.context['id'], key='context_id')
+        if self.context:
+            self.set_option_result(self.context['id'], key='context_id')
 
     def _build_asset_selector(self):
         '''Builds the asset_selector widget'''
@@ -108,7 +110,8 @@ class PublishContextWidget(BaseOptionsWidget):
                 QtCore.Qt.BackgroundColorRole
             )
 
-        self.set_option_result(statuses[0]['id'], key='status_id')
+        if statuses:
+            self.set_option_result(statuses[0]['id'], key='status_id')
 
     def _get_statuses(self):
         '''Returns the status of the selected assetVersion'''
@@ -129,7 +132,8 @@ class PublishContextWidget(BaseOptionsWidget):
 
         self.layout().addWidget(self.comments_container)
         current_text = self.comments_input.toPlainText()
-        self.set_option_result(current_text, key='comment')
+        if current_text:
+            self.set_option_result(current_text, key='comment')
 
 
 

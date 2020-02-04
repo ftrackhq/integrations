@@ -36,7 +36,7 @@ class HostSelector(QtWidgets.QWidget):
         self.layout().addWidget(self.host_combobox)
         self.layout().addWidget(self.definition_combobox)
 
-        # self.host_combobox.addItem('- Select host -')
+        self.host_combobox.addItem('- Select host -')
 
     def post_build(self):
         '''Connect the widget signals'''
@@ -62,7 +62,7 @@ class HostSelector(QtWidgets.QWidget):
         self._populate_definitions()
 
     def _populate_definitions(self):
-        # self.definition_combobox.addItem('- Select Definition -')
+        self.definition_combobox.addItem('- Select Definition -')
 
         for schema in self.schemas:
             schema_title = schema.get('title').lower()

@@ -100,11 +100,10 @@ class WidgetFactory(QtWidgets.QWidget):
 
         '''
 
-        if not host_connection:
+        if host_connection:
             self.host_connection = host_connection
             self._listen_widget_updates()
 
-        self.set_host_definitions(self.host_connection.host_definitions)
         schema_fragment_order = schema_fragment.get('order', [])
 
         # sort schema fragment keys by the order defined in the schema order
@@ -192,22 +191,27 @@ class WidgetFactory(QtWidgets.QWidget):
         result = None
         for host_definition in reversed(self.host_definitions):
             for _ui in reversed(self.ui):
+
+                data = {
+                    'pipeline': {
+                        'plugin_name': plugin_name,
+                        'plugin_type': plugin_type,
+                        'type': 'widget',
+                        'host': host_definition,
+                        'ui': _ui
+                    },
+                    'settings': {
+                        'options': plugin_options,
+                        'name': name,
+                        'description': description,
+                    }
+                }
+
+                print 'FETCHING', data
+
                 event = ftrack_api.event.base.Event(
                     topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
-                    data={
-                        'pipeline': {
-                            'plugin_name': plugin_name,
-                            'plugin_type': plugin_type,
-                            'type': 'widget',
-                            'host': host_definition,
-                            'ui': _ui
-                        },
-                        'settings': {
-                            'options': plugin_options,
-                            'name': name,
-                            'description': description,
-                        }
-                    }
+                    data=data
                 )
 
                 result = self.session.event_hub.publish(
@@ -217,7 +221,8 @@ class WidgetFactory(QtWidgets.QWidget):
 
                 if result:
                     break
-            return result
+
+        return result
 
     def _update_widget(self, event):
         '''*event* callback to update widget with the current status/value'''
