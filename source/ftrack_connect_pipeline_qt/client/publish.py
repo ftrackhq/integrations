@@ -36,8 +36,6 @@ class QtPublisherClient(QtClient):
     '''
 
     def __init__(self, event_manager, ui=None, parent=None):
-        ui = ui or []
-        ui.append(ui)
         super(QtPublisherClient, self).__init__(event_manager, ui=ui,
                                                 parent=parent)
         self.setWindowTitle('Standalone Pipeline Publisher')

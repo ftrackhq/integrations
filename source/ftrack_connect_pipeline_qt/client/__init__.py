@@ -29,6 +29,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         *parent* widget'''
         QtWidgets.QWidget.__init__(self, parent=parent)
         client.Client.__init__(self, event_manager, ui=ui)
+        self._ui.append(qt_constants.UI)
         self.widget_factory = factory.WidgetFactory(
             event_manager,
             self.ui
