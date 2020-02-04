@@ -35,8 +35,10 @@ class QtPublisherClient(QtClient):
     Base load widget class.
     '''
 
-    def __init__(self, event_manager, ui=[qt_constants.UI], parent=None):
-        super(QtPublisherClient, self).__init__(event_manager, ui,
+    def __init__(self, event_manager, ui=None, parent=None):
+        ui = ui or []
+        ui.append(ui)
+        super(QtPublisherClient, self).__init__(event_manager, ui=ui,
                                                 parent=parent)
         self.setWindowTitle('Standalone Pipeline Publisher')
         self.logger.info('start qt publisher')
