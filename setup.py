@@ -94,7 +94,7 @@ class BuildPlugin(setuptools.Command):
                 'dependencies',
                 'ftrack_connect_pipeline_qt',
                 'client',
-                'publish.py'
+                'publish/__main__.py'
             ), int('777', 8)
         )
 
@@ -107,7 +107,7 @@ class BuildPlugin(setuptools.Command):
                 'dependencies',
                 'ftrack_connect_pipeline_qt',
                 'client',
-                'load.py'
+                'load/__main__.py'
             ), int('777', 8)
         )
 
