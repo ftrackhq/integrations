@@ -14,7 +14,7 @@ class JsonBoolean(BaseJsonWidget):
     ):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
-        super(BaseJsonWidget, self).__init__(
+        super(JsonBoolean, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
             widgetFactory, parent=parent
         )
