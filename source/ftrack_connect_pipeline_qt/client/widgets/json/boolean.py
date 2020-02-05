@@ -27,4 +27,4 @@ class JsonBoolean(BaseJsonWidget):
         self.layout().addWidget(self.checkbox)
 
     def to_json_object(self):
-        return bool(self.isChecked())
+        return bool(self.checkbox.isChecked())
