@@ -3,7 +3,7 @@
 
 import copy
 from Qt import QtCore, QtWidgets
-from ftrack_connect_pipeline import client
+from ftrack_connect_pipeline import client, constants
 from ftrack_connect_pipeline_qt.ui.widget import header, host_selector
 from ftrack_connect_pipeline_qt.client.widgets import factory
 from ftrack_connect_pipeline_qt import constants as qt_constants
@@ -20,15 +20,16 @@ class QtClient(client.Client, QtWidgets.QWidget):
     Base QT client widget class.
     '''
 
+    ui = [constants.UI, qt_constants.UI]
     host_connection = None
     schema = None
     definition = None
 
-    def __init__(self, event_manager, ui=None, parent=None):
+    def __init__(self, event_manager,parent=None):
         '''Initialise with *event_manager* , and optional *ui* List and
         *parent* widget'''
         QtWidgets.QWidget.__init__(self, parent=parent)
-        client.Client.__init__(self, event_manager, ui=ui)
+        client.Client.__init__(self, event_manager)
         self.widget_factory = factory.WidgetFactory(
             event_manager,
             self.ui
