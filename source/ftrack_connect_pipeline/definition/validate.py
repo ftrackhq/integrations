@@ -29,7 +29,7 @@ def validate_schema(data):
                             schema, definition, entry
                         )
                     except Exception as error:
-                        logger.error(
+                        logger.warning(
                             'definitinon {} does not match any schema. {}'.format(
                                 definition['name'], str(error)
                             )
@@ -52,7 +52,7 @@ def validate_asset_types(data, session):
 
     for package in data['package']:
         if package['asset_type'] not in valid_assets_types:
-            logger.error(
+            logger.warning(
                 'Package {} does use a non existing'
                 ' asset type: {}'.format(
                     package['name'], package['asset_type']
@@ -72,7 +72,7 @@ def validate_package_type(data):
         # check package name in definitions
         for definition in data[entry]:
             if str(definition.get('package')) not in valid_packages:
-                logger.error(
+                logger.warning(
                     '{} {}:{} use unknown package : {} , packages: {}'.format(
                         entry, definition['host'], definition['name'],
                         definition.get('package'), valid_packages)
@@ -103,7 +103,7 @@ def validate_definition_components(data):
 
                 for name in package_component_names:
                     if name not in definition_components_names:
-                        logger.error(
+                        logger.warning(
                             '{} {}:{} package {} components'
                             ' are not matching : required component: {}'.format(
                                 entry, definition['host'], definition['name'],
@@ -133,7 +133,7 @@ def validate_definition_components(data):
                     set(package_component_names)
                 )
                 if len(component_diff) != 0:
-                    logger.error(
+                    logger.warning(
                         '{} {}:{} package {} components'
                         ' are not matching : required component: {}'.format(
                             entry, definition['host'], definition['name'],
