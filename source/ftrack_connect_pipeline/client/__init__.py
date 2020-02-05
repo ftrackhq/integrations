@@ -142,6 +142,8 @@ class Client(object):
     Base client class.
     '''
 
+    ui = [constants.UI]
+
     def __repr__(self):
         return '<Client:{0}>'.format(self.ui)
 
@@ -154,11 +156,6 @@ class Client(object):
         return self._event_manager.session
 
     @property
-    def ui(self):
-        '''Return list of current ui'''
-        return self._ui
-
-    @property
     def connected(self):
         '''Return bool of client connected to a host'''
         return self._connected
@@ -168,7 +165,7 @@ class Client(object):
         '''Return the current list of hosts'''
         return self._host_list
 
-    def __init__(self, event_manager, ui=None):
+    def __init__(self, event_manager):
         '''Initialise with *event_manager* , and optional *ui* List
 
         *event_manager* should be the
@@ -179,10 +176,7 @@ class Client(object):
         '''
         self._packages = {}
         self._current = {}
-        self._ui = [constants.UI]
-        self._ui.extend(
-            [i for i in ui or [] if i not in self._ui]
-        )
+
 
         self._host_list = []
         self._connected = False
@@ -192,10 +186,7 @@ class Client(object):
             __name__ + '.' + self.__class__.__name__
         )
         self._event_manager = event_manager
-
-        self.logger.info(
-            'initializing {}'.format(self)
-        )
+        self.logger.info('Initialising {}'.format(self))
 
     def discover_hosts(self, time_out=3):
         '''Returns a list of discovered hosts during the optional *time_out*'''

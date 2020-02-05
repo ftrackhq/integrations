@@ -30,16 +30,13 @@ def provide_host_information(hostid, definitions, event):
 
 class Host(object):
 
+    host = [constants.HOST]
+
     def __repr__(self):
         return '<Host:{0}>'.format(self.hostid)
 
     def __del__(self):
         self.logger.debug('Closing {}'.format(self))
-
-    @property
-    def host(self):
-        '''Return list of hosts'''
-        return self._host
 
     @property
     def hostid(self):
@@ -51,7 +48,7 @@ class Host(object):
         '''Return session'''
         return self._event_manager.session
 
-    def __init__(self, event_manager, host = None):
+    def __init__(self, event_manager):
         '''Initialise Host Class with *event_manager* and *host*(optional)
 
         *event_manager* should be the
@@ -64,10 +61,7 @@ class Host(object):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        self._host = [constants.HOST]
-        self._host.extend(
-            [i for i in host or [] if i not in self._host]
-        )
+
         self._hostid = '{}-{}'.format(".".join(self.host), uuid.uuid4().hex)
 
         self.logger.info(
