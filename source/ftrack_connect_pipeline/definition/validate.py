@@ -12,7 +12,13 @@ def _validate_and_augment_schema(schema, definition ,type):
     ns = builder.build_classes(standardize_names=False)
     ObjectBuilder = getattr(ns, type.capitalize())
     klass = ObjectBuilder(**definition)
-    return json.loads(klass.serialize())
+    serialised_data = klass.serialize()
+    try:
+        serialised_data['_built'] # check if the schema has been actually augmented
+    except Exception :
+        raise Exception('Definition {} is not built'.format(definition['name']))
+
+    return json.loads(serialised_data)
 
 
 def validate_schema(data):
