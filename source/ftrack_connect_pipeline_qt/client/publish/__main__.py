@@ -21,11 +21,19 @@ if __name__ == '__main__':
     from ftrack_connect_pipeline import constants, event, host
     from ftrack_connect_pipeline_qt.client.publish import QtPublisherClient
 
-    session = ftrack_api.Session(auto_connect_event_hub=False)
-    event_manager = event.EventManager(
-        session=session, mode=constants.LOCAL_EVENT_MODE
-    )
-    host.Host(event_manager)
-    wid = QtPublisherClient(event_manager)
+
+    class StandalonePublisherClient(QtPublisherClient):
+
+        def __init__(self, parent=None):
+            session = ftrack_api.Session(auto_connect_event_hub=False)
+            event_manager = event.EventManager(
+                session=session, mode=constants.LOCAL_EVENT_MODE
+            )
+            self.current_host = host.Host(event_manager)
+            super(StandalonePublisherClient, self).__init__(
+                event_manager, parent=parent
+            )
+
+    wid = StandalonePublisherClient()
     wid.show()
     sys.exit(app.exec_())
