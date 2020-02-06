@@ -236,11 +236,6 @@ class BasePlugin(object):
         '''
 
         plugin_settings = event['data']['settings']
-        self.logger.info('Running plugig {} {} with settings {}'.format(
-            self.plugin_type,
-            self.plugin_name,
-            plugin_settings
-        ))
         start_time = time.time()
         try:
             result = self.run(**plugin_settings)
