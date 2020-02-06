@@ -10,41 +10,6 @@ import uuid
 logger = logging.getLogger(__name__)
 
 
-class _EventThread(threading.Thread):
-    '''Wrapper object to simulate asyncronus events.'''
-    def __init__(self, session, event, callback=None):
-        super(_EventThread, self).__init__(target=self.run)
-
-        self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
-        )
-
-        self._callback = callback
-        self._event = event
-        self._session = session
-        self._result = {}
-
-    def run(self):
-        '''Target thread method.'''
-        result = self._session.event_hub.publish(
-            self._event,
-            synchronous=True,
-        )
-
-        if result:
-            result = result[0]
-
-        # Mock async event reply.
-        event = ftrack_api.event.base.Event(
-            topic=u'ftrack.meta.reply',
-            data=result,
-            in_reply_to_event=self._event['id'],
-        )
-
-        if self._callback:
-            self._callback(event)
-
-
 class EventManager(object):
     '''Manages the events handling.'''
 
@@ -89,9 +54,24 @@ class EventManager(object):
 
         mode = mode or self.mode
         if mode is constants.LOCAL_EVENT_MODE:
-            event_thread = _EventThread(self.session, event, callback)
-            event_thread.start()
-            event_thread.join()
+
+            result = self._session.event_hub.publish(
+                event,
+                synchronous=True,
+            )
+
+            if result:
+                result = result[0]
+
+            # Mock async event reply.
+            new_event = ftrack_api.event.base.Event(
+                topic=u'ftrack.meta.reply',
+                data=result,
+                in_reply_to_event=event['id'],
+            )
+
+            if callback:
+                callback(new_event)
 
         else:
             self.session.event_hub.publish(
