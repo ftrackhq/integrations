@@ -3,10 +3,10 @@
 
 import copy
 from Qt import QtCore, QtWidgets
-from ftrack_connect_pipeline import client
+from ftrack_connect_pipeline import client, constants
 from ftrack_connect_pipeline_qt.ui.widget import header, host_selector
 from ftrack_connect_pipeline_qt.client.widgets import factory
-from ftrack_connect_pipeline_qt import constants
+from ftrack_connect_pipeline_qt import constants as qt_constants
 
 
 class QtHostConnection(client.HostConnection):
@@ -20,16 +20,16 @@ class QtClient(client.Client, QtWidgets.QWidget):
     Base QT client widget class.
     '''
 
+    ui = [constants.UI, qt_constants.UI]
     host_connection = None
     schema = None
     definition = None
-    ui = [constants.UI]
 
-    def __init__(self, event_manager, ui=None, parent=None):
+    def __init__(self, event_manager,parent=None):
         '''Initialise with *event_manager* , and optional *ui* List and
         *parent* widget'''
         QtWidgets.QWidget.__init__(self, parent=parent)
-        client.Client.__init__(self, event_manager, ui=ui)
+        client.Client.__init__(self, event_manager)
         self.widget_factory = factory.WidgetFactory(
             event_manager,
             self.ui
@@ -37,25 +37,28 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.pre_build()
         self.build()
         self.post_build()
+        self.add_hosts(self.discover_hosts())
+
+    def add_hosts(self, hosts):
+        for host in hosts:
+            if host in self.hosts:
+                continue
+            self._host_list.append(host)
 
     def _host_discovered(self, event):
         '''callback, adds new hosts connection from the given *event* to the
         host_selector'''
-        current_hosts = copy.deepcopy(self.hosts)
+        # current_hosts = copy.deepcopy(self.hosts)
         super(QtClient, self)._host_discovered(event)
-        new_conections = []
-        if current_hosts:
-            new_conections = list(set(current_hosts) - set(self.hosts))
-        else:
-            new_conections = self.hosts
-        for new_connection in new_conections:
-            self.host_selector.addHost(new_connection.id, new_connection)
+        self.host_selector.add_hosts(self.hosts)
 
     def pre_build(self):
         '''Prepare general layout.'''
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
+    def build(self):
+        '''Build widgets and parent them.'''
         self.header = header.Header(self.session)
         self.layout().addWidget(self.header)
 
@@ -68,10 +71,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
         self.run_button = QtWidgets.QPushButton('Run')
         self.layout().addWidget(self.run_button)
-
-    def build(self):
-        '''Build widgets and parent them.'''
-        pass
 
     def post_build(self):
         '''Post Build ui method for events connections.'''
@@ -86,21 +85,22 @@ class QtClient(client.Client, QtWidgets.QWidget):
         ''' Triggered when definition_changed is called from the host_selector.
         Generates the widgets interface from the given *host_connection*,
         *schema* and *definition*'''
+
+        if not host_connection:
+            return
+
+        self.logger.info('connection {}'.format(host_connection))
         self.host_connection = host_connection
+
         self.schema = schema
         self.definition = definition
+
         self.widget_factory.set_host_definitions(
             self.host_connection.host_definitions
         )
 
-        if self.__callback:
-            output_dict = {"host_connection": self.host_connection,
-                           "schema": self.schema,
-                           "definition": self.definition}
-            self.__callback(output_dict)
-
         self._current_def = self.widget_factory.create_widget(
-            "testSchema",
+            definition['name'],
             schema,
             self.definition,
             host_connection=self.host_connection
@@ -114,19 +114,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
         '''
         status, message = data
         self.header.setMessage(message, status)
-
-    def on_ready(self, callback, time_out=3):
-        '''calls the given *callback* when a host and definition has been
-        selected. Contains an optional *time_out* to discover the hosts.
-
-        *callback* Function to call when a host and a definition is been
-        selected on the host_selector widget
-
-        *time_out* Optional time out time to look for a host
-
-        '''
-        self.discover_hosts(time_out=time_out)
-        self.__callback = callback
 
     def _on_run(self):
         '''Function called when click the run button'''

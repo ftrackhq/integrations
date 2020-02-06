@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
+from ftrack_connect_pipeline import constants
+
 
 UI = 'qt'
+HOST = constants.HOST
 
 # Base name.
 _BASE_ = 'ftrack.pipeline'

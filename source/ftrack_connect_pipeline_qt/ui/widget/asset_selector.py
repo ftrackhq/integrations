@@ -50,7 +50,6 @@ class AssetSelector(QtWidgets.QWidget):
             'AssetType where short is "{}"'.format(asset_type)
         ).one()
 
-
         self.asset_combobox = AssetComboBox(self.session, self.asset_type)
         self.layout().addWidget(self.asset_combobox)
         self.asset_combobox.currentIndexChanged.connect(

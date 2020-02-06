@@ -96,13 +96,10 @@ class WidgetFactory(QtWidgets.QWidget):
         :class:`ftrack_connect_pipeline.client.HostConnection` instance to use
         to subscribe to the host events.
 
-        *widget_factory* should be the
-        :class:`ftrack_connect_pipeline_qt.client.widgets.json.factory.WidgetFactory`
-        instance to use for recursive generation of json widgets.
-
         *parent* widget to parent the current widget (optional).
 
         '''
+
         if host_connection:
             self.host_connection = host_connection
             self._listen_widget_updates()
@@ -144,11 +141,14 @@ class WidgetFactory(QtWidgets.QWidget):
         )
         if not data:
             plugin_name = 'default.widget'
+
             if not plugin_data.get('widget'):
                 plugin_data['widget'] = plugin_name
+
             data = self._fetch_plugin_widget(
                 plugin_data, plugin_type, plugin_name,
-                extra_options=extra_options)
+                extra_options=extra_options
+            )
         data = data[0]
 
         message = data['message']
@@ -191,22 +191,27 @@ class WidgetFactory(QtWidgets.QWidget):
         result = None
         for host_definition in reversed(self.host_definitions):
             for _ui in reversed(self.ui):
+
+                data = {
+                    'pipeline': {
+                        'plugin_name': plugin_name,
+                        'plugin_type': plugin_type,
+                        'type': 'widget',
+                        'host': host_definition,
+                        'ui': _ui
+                    },
+                    'settings': {
+                        'options': plugin_options,
+                        'name': name,
+                        'description': description,
+                    }
+                }
+
+                print 'FETCHING', data
+
                 event = ftrack_api.event.base.Event(
                     topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
-                    data={
-                        'pipeline': {
-                            'plugin_name': plugin_name,
-                            'plugin_type': plugin_type,
-                            'type': 'widget',
-                            'host': host_definition,
-                            'ui': _ui
-                        },
-                        'settings': {
-                            'options': plugin_options,
-                            'name': name,
-                            'description': description,
-                        }
-                    }
+                    data=data
                 )
 
                 result = self.session.event_hub.publish(
@@ -216,7 +221,8 @@ class WidgetFactory(QtWidgets.QWidget):
 
                 if result:
                     break
-            return result
+
+        return result
 
     def _update_widget(self, event):
         '''*event* callback to update widget with the current status/value'''

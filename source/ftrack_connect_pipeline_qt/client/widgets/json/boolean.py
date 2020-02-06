@@ -10,13 +10,13 @@ class JsonBoolean(BaseJsonWidget):
     '''Widget representation of a boolean'''
     def __init__(
             self, name, schema_fragment, fragment_data,
-            previous_object_data, widgetFactory, parent=None
+            previous_object_data, widget_factory, parent=None
     ):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
-        super(BaseJsonWidget, self).__init__(
+        super(JsonBoolean, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
-            widgetFactory, parent=parent
+            widget_factory, parent=parent
         )
 
     def build(self):
@@ -27,4 +27,4 @@ class JsonBoolean(BaseJsonWidget):
         self.layout().addWidget(self.checkbox)
 
     def to_json_object(self):
-        return bool(self.isChecked())
+        return bool(self.checkbox.isChecked())
