@@ -149,7 +149,6 @@ class Host(object):
             for idx in sorted(invalid_loaders_idxs, reverse=True):
                     data['loader'].pop(idx)
 
-        logger.debug('validated data :{}'.format(data))
         return data
 
     def register(self):
