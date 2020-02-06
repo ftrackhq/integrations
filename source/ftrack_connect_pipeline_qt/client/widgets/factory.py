@@ -207,8 +207,6 @@ class WidgetFactory(QtWidgets.QWidget):
                     }
                 }
 
-                print 'FETCHING', data
-
                 event = ftrack_api.event.base.Event(
                     topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
                     data=data
