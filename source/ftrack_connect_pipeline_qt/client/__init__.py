@@ -86,8 +86,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
         Generates the widgets interface from the given *host_connection*,
         *schema* and *definition*'''
 
-        self.logger.info('Definition changed !!!')
-
         if not host_connection:
             return
 
