@@ -4,4 +4,7 @@
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.configure_logging import configure_logging
 
-configure_logging(__name__)
+configure_logging(
+    __name__,
+    extra_modules=['ftrack-location-compatibility']
+)
