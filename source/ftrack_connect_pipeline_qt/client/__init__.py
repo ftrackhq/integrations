@@ -9,12 +9,6 @@ from ftrack_connect_pipeline_qt.client.widgets import factory
 from ftrack_connect_pipeline_qt import constants as qt_constants
 
 
-class QtHostConnection(client.HostConnection):
-
-    def __init__(self, event_manager, host_data):
-        super(QtHostConnection, self).__init__(event_manager, host_data)
-
-
 class QtClient(client.Client, QtWidgets.QWidget):
     '''
     Base QT client widget class.
@@ -34,6 +28,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
             event_manager,
             self.ui
         )
+
         self.pre_build()
         self.build()
         self.post_build()
@@ -92,12 +87,21 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.logger.info('connection {}'.format(host_connection))
         self.host_connection = host_connection
 
+        asset_type = [
+            package['asset_type'] for package in self.host_connection.definitions['package']
+            if package['name'] == definition['package']
+
+        ][0]
+
+        context = {
+            'context_id': self.context,
+            'asset_type': asset_type
+        }
+
+        print 'CCCC', context
+
         self.schema = schema
         self.definition = definition
-
-        self.widget_factory.set_host_definitions(
-            self.host_connection.host_definitions
-        )
 
         self._current_def = self.widget_factory.create_widget(
             definition['name'],

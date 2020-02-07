@@ -50,10 +50,6 @@ class WidgetFactory(QtWidgets.QWidget):
         '''Return registered plugin's widgets.'''
         return self._widgets_ref
 
-    def set_host_definitions(self, host_definitions):
-        '''Sets the given definitions to self.host_definitions'''
-        self.host_definitions = host_definitions
-
     def __init__(self, event_manager, ui):
         '''Initialise WidgetFactory with *event_manager*, *ui*
 
@@ -100,9 +96,8 @@ class WidgetFactory(QtWidgets.QWidget):
 
         '''
 
-        if host_connection:
-            self.host_connection = host_connection
-            self._listen_widget_updates()
+        self.host_connection = host_connection
+        self._listen_widget_updates()
 
         schema_fragment_order = schema_fragment.get('order', [])
 
@@ -189,7 +184,7 @@ class WidgetFactory(QtWidgets.QWidget):
         description = plugin_data.get('description', 'No description provided')
 
         result = None
-        for host_definition in reversed(self.host_definitions):
+        for host_definition in reversed(self.host_connection.host_definitions):
             for _ui in reversed(self.ui):
 
                 data = {
@@ -206,8 +201,6 @@ class WidgetFactory(QtWidgets.QWidget):
                         'description': description,
                     }
                 }
-
-                print 'FETCHING', data
 
                 event = ftrack_api.event.base.Event(
                     topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
