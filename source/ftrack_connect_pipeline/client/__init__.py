@@ -5,7 +5,7 @@ import time
 import logging
 import copy
 import ftrack_api
-
+from ftrack_connect_pipeline import utils
 from ftrack_connect_pipeline import constants
 
 
@@ -161,6 +161,10 @@ class Client(object):
         return self._connected
 
     @property
+    def context(self):
+        return self._context
+
+    @property
     def hosts(self):
         '''Return the current list of hosts'''
         return self._host_list
@@ -177,7 +181,7 @@ class Client(object):
         self._packages = {}
         self._current = {}
 
-
+        self._context = utils.get_current_context()
         self._host_list = []
         self._connected = False
 
