@@ -22,8 +22,19 @@ class OutputMayaThumbnailPlugin(plugin.OutputMayaPlugin):
         nodes = cmd.ls(sl=True)
         cmd.select(cl=True)
 
-        panel = cmd.getPanel(wf=True)
-        previous_camera = cmd.modelPanel(panel, q=True, camera=True)
+        current_panel = cmd.getPanel(wf=True)
+        panel_type = cmd.getPanel(to=current_panel)  # scriptedPanel
+        if panel_type != 'modelPanel':
+            visible_panels = cmd.getPanel(vis=True)
+            for _panel in visible_panels:
+                if cmd.getPanel(to=_panel) == 'modelPanel':
+                    current_panel = _panel
+                    break
+                else:
+                    current_panel = None
+        previous_camera = 'presp'
+        if current_panel:
+            previous_camera = cmd.modelPanel(current_panel, q=True, camera=True)
 
         cmd.lookThru(camera_name)
 
