@@ -72,7 +72,7 @@ class WidgetFactory(QtWidgets.QWidget):
 
     def create_widget(
             self, name, schema_fragment, fragment_data=None,
-            previous_object_data=None, host_connection=None, parent=None):
+            previous_object_data=None, host_connection=None, context=None, parent=None):
         '''
         Create the appropriate widget for a given schema element with *name*,
         *schema_fragment*, *fragment_data*, *previous_object_data*,
@@ -123,7 +123,7 @@ class WidgetFactory(QtWidgets.QWidget):
                 schema_fragment.get('type'), json.UnsupportedSchema)
 
         return widget_fn(name, schema_fragment, fragment_data,
-                         previous_object_data, self, parent)
+                         previous_object_data, self, context, parent)
 
     def fetch_plugin_widget(self, plugin_data, plugin_type, extra_options=None):
         '''Returns a widget from the given *plugin_data*, *plugin_type* with

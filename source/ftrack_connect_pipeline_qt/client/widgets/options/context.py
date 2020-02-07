@@ -20,8 +20,7 @@ class PublishContextWidget(BaseOptionsWidget):
         '''initialise PublishContextWidget with *parent*, *session*, *data*,
         *name*, *description*, *options*
         '''
-        env_context = get_current_context()
-        self.context = session.get('Context', options.get('context_id', env_context))
+        self.context = session.get('Context', options.get('context_id'))
         self.asset_type = options.get('asset_type')
         super(PublishContextWidget, self).__init__(
             parent=parent, session=session, data=data, name=name,

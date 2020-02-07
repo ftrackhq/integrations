@@ -98,7 +98,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
             'asset_type': asset_type
         }
 
-        print 'CCCC', context
 
         self.schema = schema
         self.definition = definition
@@ -107,7 +106,8 @@ class QtClient(client.Client, QtWidgets.QWidget):
             definition['name'],
             schema,
             self.definition,
-            host_connection=self.host_connection
+            host_connection=self.host_connection,
+            context=context
         )
         self.scroll.setWidget(self._current_def)
 

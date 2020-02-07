@@ -13,13 +13,13 @@ class ComponentsArray(BaseJsonWidget):
 
     def __init__(
             self, name, schema_fragment, fragment_data,
-            previous_object_data, widget_factory, parent=None
+            previous_object_data, widget_factory, context, parent=None
     ):
         '''Initialise ComponentsArray with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
         super(ComponentsArray, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
-            widget_factory, parent=parent
+            widget_factory, context, parent=parent
         )
 
     def build(self):
