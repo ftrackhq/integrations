@@ -435,7 +435,11 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'packaging.requirements',
         'ssl',
         'xml.etree',
-        'xml._elementpath'
+        'xml.etree.ElementTree',
+        'xml.etree.ElementPath',
+        'xml.etree.ElementInclude',
+        'xml.dom'
+        
     ])
 
     configuration['options']['build_exe'] = {
