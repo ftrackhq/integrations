@@ -102,12 +102,13 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.schema = schema
         self.definition = definition
 
+        self.widget_factory.set_context(context)
+        self.widget_factory.set_host_connection(self.host_connection)
+
         self._current_def = self.widget_factory.create_widget(
             definition['name'],
             schema,
-            self.definition,
-            host_connection=self.host_connection,
-            context=context
+            self.definition
         )
         self.scroll.setWidget(self._current_def)
 

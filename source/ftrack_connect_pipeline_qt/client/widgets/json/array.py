@@ -34,8 +34,7 @@ class JsonArray(BaseJsonWidget):
                     name = data
                 obj = self.widget_factory.create_widget(
                     name, self.schema_fragment['items'], data,
-                    self.previous_object_data,
-                    self.widget_factory.host_connection
+                    self.previous_object_data
                 )
                 self.innerLayout.addWidget(obj)
                 self.count += 1

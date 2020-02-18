@@ -46,9 +46,7 @@ class PluginContainerObject(JsonObject):
                     if self.fragment_data:
                         new_fragment_data = self.fragment_data.get(k)
                     widget = self.widget_factory.create_widget(
-                        k, v, new_fragment_data, self.fragment_data,
-                        self.widget_factory.host_connection
-
+                        k, v, new_fragment_data, self.fragment_data
                     )
                     self.layout().addWidget(widget)
                     self.properties_widgets[k] = widget

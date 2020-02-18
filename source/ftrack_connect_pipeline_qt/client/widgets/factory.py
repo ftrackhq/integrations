@@ -69,10 +69,17 @@ class WidgetFactory(QtWidgets.QWidget):
         self._event_manager = event_manager
         self.ui = ui
         self._widgets_ref = {}
+        self.context = {}
+
+    def set_context(self, context):
+        self.context = context
+
+    def set_host_connection(self, host_connection):
+        self.host_connection = host_connection
 
     def create_widget(
             self, name, schema_fragment, fragment_data=None,
-            previous_object_data=None, host_connection=None, context=None, parent=None):
+            previous_object_data=None, parent=None):
         '''
         Create the appropriate widget for a given schema element with *name*,
         *schema_fragment*, *fragment_data*, *previous_object_data*,
@@ -96,9 +103,7 @@ class WidgetFactory(QtWidgets.QWidget):
 
         '''
 
-        self.host_connection = host_connection
-        if self.host_connection:
-            self._listen_widget_updates()
+        self._listen_widget_updates()
 
         schema_fragment_order = schema_fragment.get('order', [])
 
@@ -180,8 +185,13 @@ class WidgetFactory(QtWidgets.QWidget):
         '''Retrieve the widget event with the given *plugin_data*, *plugin_type*
         and *plugin_name* with the optional *extra_options*.'''
         extra_options = extra_options or {}
+
         plugin_options = plugin_data.get('options', {})
         plugin_options.update(extra_options)
+        plugin_options.update(self.context)
+
+        print 'fetcing with options:', self.context,  plugin_options
+
         name = plugin_data.get('name', 'no name provided')
         description = plugin_data.get('description', 'No description provided')
 
