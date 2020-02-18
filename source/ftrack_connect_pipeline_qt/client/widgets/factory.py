@@ -97,7 +97,8 @@ class WidgetFactory(QtWidgets.QWidget):
         '''
 
         self.host_connection = host_connection
-        self._listen_widget_updates()
+        if self.host_connection:
+            self._listen_widget_updates()
 
         schema_fragment_order = schema_fragment.get('order', [])
 
@@ -118,12 +119,13 @@ class WidgetFactory(QtWidgets.QWidget):
         if not widget_fn:
             widget_fn = self.schema_title_mapping.get(
                 schema_fragment.get('title'))
+
         if not widget_fn:
             widget_fn = self.schema_type_mapping.get(
                 schema_fragment.get('type'), json.UnsupportedSchema)
 
         return widget_fn(name, schema_fragment, fragment_data,
-                         previous_object_data, self, context, parent)
+                         previous_object_data, self, parent)
 
     def fetch_plugin_widget(self, plugin_data, plugin_type, extra_options=None):
         '''Returns a widget from the given *plugin_data*, *plugin_type* with

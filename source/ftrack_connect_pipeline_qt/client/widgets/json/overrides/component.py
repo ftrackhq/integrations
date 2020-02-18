@@ -13,13 +13,13 @@ class ComponentsArray(BaseJsonWidget):
 
     def __init__(
             self, name, schema_fragment, fragment_data,
-            previous_object_data, widget_factory, context, parent=None
+            previous_object_data, widget_factory, parent=None
     ):
         '''Initialise ComponentsArray with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
         super(ComponentsArray, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
-            widget_factory, context, parent=parent
+            widget_factory, parent=parent
         )
 
     def build(self):
@@ -35,7 +35,10 @@ class ComponentsArray(BaseJsonWidget):
                 widget_layout = QtWidgets.QVBoxLayout()
                 obj = self.widget_factory.create_widget(
                     name, self.schema_fragment['items'], data,
-                    self.previous_object_data)
+                    self.previous_object_data,
+                    self.widget_factory.host_connection
+
+                )
                 widget_layout.addWidget(obj)
                 new_tab_widget.setLayout(widget_layout)
                 self.tab_widget.addTab(new_tab_widget, name)

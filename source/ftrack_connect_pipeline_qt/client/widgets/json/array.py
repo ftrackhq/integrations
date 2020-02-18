@@ -11,13 +11,13 @@ class JsonArray(BaseJsonWidget):
 
     def __init__(
             self, name, schema_fragment, fragment_data,
-            previous_object_data, widget_factory, context, parent=None
+            previous_object_data, widget_factory, parent=None
     ):
         '''Initialise JsonArray with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
         super(JsonArray, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
-            widget_factory, context, parent=parent
+            widget_factory, parent=parent
         )
 
     def build(self):
@@ -34,7 +34,8 @@ class JsonArray(BaseJsonWidget):
                     name = data
                 obj = self.widget_factory.create_widget(
                     name, self.schema_fragment['items'], data,
-                    self.previous_object_data
+                    self.previous_object_data,
+                    self.widget_factory.host_connection
                 )
                 self.innerLayout.addWidget(obj)
                 self.count += 1

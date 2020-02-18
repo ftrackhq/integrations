@@ -13,13 +13,13 @@ class HiddenObject(JsonObject):
     '''
     def __init__(
             self, name, schema_fragment, fragment_data,
-            previous_object_data, widget_factory, context, parent=None
+            previous_object_data, widget_factory, parent=None
     ):
         '''Initialise HiddenObject with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
         super(HiddenObject, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
-            widget_factory, context, parent=parent
+            widget_factory, parent=parent
         )
         self.setVisible(False)
 
@@ -30,13 +30,13 @@ class HiddenString(JsonString):
     '''
     def __init__(
             self, name, schema_fragment, fragment_data,
-            previous_object_data, widget_factory, context, parent=None
+            previous_object_data, widget_factory, parent=None
     ):
         '''Initialise HiddenString with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
         super(HiddenString, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
-            widget_factory, context, parent=parent
+            widget_factory, parent=parent
         )
         self.setVisible(False)
 

@@ -10,13 +10,13 @@ class JsonObject(BaseJsonWidget):
 
     def __init__(
             self, name, schema_fragment, fragment_data,
-            previous_object_data, widget_factory, context, parent=None
+            previous_object_data, widget_factory, parent=None
     ):
         '''Initialise JsonObject with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
         super(JsonObject, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
-            widget_factory, context, parent=parent
+            widget_factory, parent=parent
         )
 
     def build(self):
@@ -53,7 +53,9 @@ class JsonObject(BaseJsonWidget):
                     if self.fragment_data:
                         new_fragment_data = self.fragment_data.get(k)
                     widget = self.widget_factory.create_widget(
-                        k, v,new_fragment_data, self.fragment_data)
+                        k, v, new_fragment_data, self.fragment_data,
+                        self.widget_factory.host_connection
+                    )
                     self.innerLayout.addWidget(widget)
                     self.properties_widgets[k] = widget
         layout.addLayout(self.innerLayout)

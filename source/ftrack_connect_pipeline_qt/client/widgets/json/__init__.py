@@ -11,7 +11,7 @@ class BaseJsonWidget(QtWidgets.QWidget):
     '''
     def __init__(
             self, name, schema_fragment, fragment_data, previous_object_data,
-            widget_factory, context, parent=None
+            widget_factory, parent=None
     ):
         '''Initialise BaseJsonWidget with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*
@@ -34,7 +34,6 @@ class BaseJsonWidget(QtWidgets.QWidget):
 
         '''
         super(BaseJsonWidget, self).__init__(parent=parent)
-        self.context = context
         # setup default vars
         self.widget_factory = widget_factory
         self.schema_fragment = schema_fragment
