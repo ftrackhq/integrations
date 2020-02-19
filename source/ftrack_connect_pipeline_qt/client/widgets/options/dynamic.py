@@ -12,7 +12,7 @@ class DynamicWidget(BaseOptionsWidget):
 
     def __init__(
             self, parent=None, session=None, data=None, name=None,
-            description=None, options=None
+            description=None, options=None, context=None
     ):
         '''initialise DynamicWidget with *parent*, *session*, *data*, *name*,
         *description*, *options*
@@ -26,7 +26,7 @@ class DynamicWidget(BaseOptionsWidget):
         }
         super(DynamicWidget, self).__init__(
             parent=parent, session=session,data=data, name=name,
-            description=description, options=options
+            description=description, options=options, context=context
         )
 
     def _register_widget(self, name, widget):

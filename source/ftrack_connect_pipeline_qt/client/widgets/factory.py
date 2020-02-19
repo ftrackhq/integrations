@@ -188,9 +188,6 @@ class WidgetFactory(QtWidgets.QWidget):
 
         plugin_options = plugin_data.get('options', {})
         plugin_options.update(extra_options)
-        plugin_options.update(self.context)
-
-        print 'fetcing with options:', self.context,  plugin_options
 
         name = plugin_data.get('name', 'no name provided')
         description = plugin_data.get('description', 'No description provided')
@@ -211,8 +208,11 @@ class WidgetFactory(QtWidgets.QWidget):
                         'options': plugin_options,
                         'name': name,
                         'description': description,
+                        'context': self.context
                     }
                 }
+
+                self.logger.info('fetching widget with data: {}'.format(data))
 
                 event = ftrack_api.event.base.Event(
                     topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
