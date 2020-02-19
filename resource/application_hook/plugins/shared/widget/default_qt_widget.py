@@ -8,7 +8,7 @@ from ftrack_connect_pipeline_qt.client.widgets.options import (
 from ftrack_connect_pipeline_qt.plugin import BasePluginWidget
 
 
-class ContextWidget(BasePluginWidget):
+class DefaultWidget(BasePluginWidget):
     plugin_name = 'default.widget'
     plugin_type = '*'
 
@@ -21,5 +21,5 @@ class ContextWidget(BasePluginWidget):
 
 
 def register(api_object, **kw):
-    plugin = ContextWidget(api_object)
+    plugin = DefaultWidget(api_object)
     plugin.register()
