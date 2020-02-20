@@ -5,7 +5,7 @@ import os
 import logging
 import re
 from ftrack_connect_pipeline_maya import usage, host as maya_host
-from ftrack_connect_pipeline import event
+from ftrack_connect_pipeline_qt import event
 from ftrack_connect_pipeline import constants
 
 import maya.cmds as mc
@@ -39,7 +39,7 @@ def initialise():
     logger.info('Setting up the menu')
     session = ftrack_api.Session(auto_connect_event_hub=False)
 
-    event_manager = event.EventManager(
+    event_manager = event.QEventManager(
         session=session, mode=constants.LOCAL_EVENT_MODE
     )
 
