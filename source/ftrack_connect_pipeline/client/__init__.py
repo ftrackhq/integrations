@@ -181,7 +181,7 @@ class Client(object):
         self._packages = {}
         self._current = {}
 
-        self._context = utils.get_current_context()
+        self._context = {}
         self._host_list = []
         self._connected = False
 
