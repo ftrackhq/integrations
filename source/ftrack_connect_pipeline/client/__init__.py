@@ -5,6 +5,7 @@ import time
 import logging
 import copy
 import ftrack_api
+from ftrack_connect_pipeline import utils
 from ftrack_connect_pipeline import constants
 
 
@@ -161,7 +162,7 @@ class Client(object):
 
     @property
     def context(self):
-        return self._context
+        return self._context_id
 
     @property
     def hosts(self):
@@ -180,7 +181,7 @@ class Client(object):
         self._packages = {}
         self._current = {}
 
-        self._context = {}
+        self._context_id = utils.get_current_context()
         self._host_list = []
         self._connected = False
 
