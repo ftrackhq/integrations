@@ -212,8 +212,6 @@ class WidgetFactory(QtWidgets.QWidget):
                     }
                 }
 
-                self.logger.info('fetching widget with data: {}'.format(data))
-
                 event = ftrack_api.event.base.Event(
                     topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
                     data=data
