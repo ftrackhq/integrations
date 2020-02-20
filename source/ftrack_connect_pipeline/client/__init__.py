@@ -5,7 +5,6 @@ import time
 import logging
 import copy
 import ftrack_api
-from ftrack_connect_pipeline import utils
 from ftrack_connect_pipeline import constants
 
 
