@@ -31,21 +31,25 @@ class EventManager(object):
     def mode(self):
         return self._mode
 
-    def __init__(self, session, mode=constants.LOCAL_EVENT_MODE, deamon=True):
+    def _connect(self):
+        # If is not already connected, connect to event hub.
+        while not self.connected:
+            self.logger.debug('connecting to event hub')
+            self.session.event_hub.connect()
+
+    def _wait(self):
+        self._event_hub_thread = _EventHubThread()
+        self._event_hub_thread.start(self.session)
+
+    def __init__(self, session, mode=constants.LOCAL_EVENT_MODE):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
         self._mode = mode
         self._session = session
 
-        # If is not already connected, connect to event hub.
-        while not self.session.event_hub.connected:
-            self.logger.debug('connecting to event hub')
-            self.session.event_hub.connect()
-
-        self._event_hub_thread = _EventHubThread()
-        self._event_hub_thread.daemon = deamon
-        self._event_hub_thread.start(self.session)
+        self._connect()
+        self._wait()
 
         self.logger.debug('Initialising {}'.format(self))
 
@@ -55,7 +59,7 @@ class EventManager(object):
         mode = mode or self.mode
         if mode is constants.LOCAL_EVENT_MODE:
 
-            result = self._session.event_hub.publish(
+            result = self.session.event_hub.publish(
                 event,
                 synchronous=True,
             )
