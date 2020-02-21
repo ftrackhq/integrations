@@ -93,11 +93,12 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
         ][0]
 
+        self.context = host_connection.context
+
         context = {
             'context_id': self.context,
             'asset_type': asset_type
         }
-
 
         self.schema = schema
         self.definition = definition
