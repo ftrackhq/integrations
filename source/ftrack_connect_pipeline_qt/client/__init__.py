@@ -93,6 +93,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
         ][0]
 
+        # set current context to host context
         self.context = host_connection.context
 
         context = {
