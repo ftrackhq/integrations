@@ -12,6 +12,10 @@ from ftrack_connect_pipeline import constants
 class HostConnection(object):
 
     @property
+    def context(self):
+        return self._raw_host_data['context_id']
+
+    @property
     def session(self):
         '''Return session'''
         return self._event_manager.session
@@ -163,6 +167,10 @@ class Client(object):
     @property
     def context(self):
         return self._context_id
+
+    @context.setter
+    def context(self, context_id):
+        self._context_id = context_id
 
     @property
     def hosts(self):
