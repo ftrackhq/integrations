@@ -5,11 +5,15 @@ import time
 import logging
 import copy
 import ftrack_api
-
+from ftrack_connect_pipeline import utils
 from ftrack_connect_pipeline import constants
 
 
 class HostConnection(object):
+
+    @property
+    def context(self):
+        return self._raw_host_data['context_id']
 
     @property
     def session(self):
@@ -161,6 +165,14 @@ class Client(object):
         return self._connected
 
     @property
+    def context(self):
+        return self._context_id
+
+    @context.setter
+    def context(self, context_id):
+        self._context_id = context_id
+
+    @property
     def hosts(self):
         '''Return the current list of hosts'''
         return self._host_list
@@ -177,7 +189,7 @@ class Client(object):
         self._packages = {}
         self._current = {}
 
-
+        self._context_id = utils.get_current_context()
         self._host_list = []
         self._connected = False
 
