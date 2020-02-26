@@ -47,7 +47,7 @@ class PublishContextWidget(BaseOptionsWidget):
             description=description, options=options
         )
 
-        self.asset_selector.set_context(context)
+        self.asset_selector.set_context(self.context)
 
     def build(self):
         '''build function widgets.'''
