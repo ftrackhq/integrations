@@ -18,7 +18,9 @@ if __name__ == '__main__':
         app = QtWidgets.QApplication(sys.argv)
 
     import ftrack_api
-    from ftrack_connect_pipeline import constants, event, host
+    from ftrack_connect_pipeline import constants, host
+    from ftrack_connect_pipeline_qt import event
+
     from ftrack_connect_pipeline_qt.client.publish import QtPublisherClient
 
 
@@ -26,7 +28,7 @@ if __name__ == '__main__':
 
         def __init__(self, parent=None):
             session = ftrack_api.Session(auto_connect_event_hub=False)
-            event_manager = event.EventManager(
+            event_manager = event.QEventManager(
                 session=session, mode=constants.LOCAL_EVENT_MODE
             )
             self.current_host = host.Host(event_manager)
