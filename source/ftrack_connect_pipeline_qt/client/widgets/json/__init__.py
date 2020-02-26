@@ -34,7 +34,6 @@ class BaseJsonWidget(QtWidgets.QWidget):
 
         '''
         super(BaseJsonWidget, self).__init__(parent=parent)
-
         # setup default vars
         self.widget_factory = widget_factory
         self.schema_fragment = schema_fragment

@@ -19,6 +19,10 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         return '{} {}'.format(self.__class__.__name__, self.name)
 
     @property
+    def context(self):
+        return self._context
+
+    @property
     def session(self):
         '''return current session object.'''
         return self._session
@@ -60,7 +64,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
     def __init__(
             self, parent=None, session=None, data=None, name=None,
-            description=None, options=None
+            description=None, options=None, context=None
     ):
         '''initialise widget with *parent*, *session*, *data*, *name*,
         *description*, *options*
@@ -84,6 +88,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self._name = name
         self._description = description
         self._options = options
+        self._context = context or {}
 
         # Build widget
         self.pre_build()

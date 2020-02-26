@@ -50,10 +50,6 @@ class WidgetFactory(QtWidgets.QWidget):
         '''Return registered plugin's widgets.'''
         return self._widgets_ref
 
-    def set_host_definitions(self, host_definitions):
-        '''Sets the given definitions to self.host_definitions'''
-        self.host_definitions = host_definitions
-
     def __init__(self, event_manager, ui):
         '''Initialise WidgetFactory with *event_manager*, *ui*
 
@@ -73,10 +69,17 @@ class WidgetFactory(QtWidgets.QWidget):
         self._event_manager = event_manager
         self.ui = ui
         self._widgets_ref = {}
+        self.context = {}
+
+    def set_context(self, context):
+        self.context = context
+
+    def set_host_connection(self, host_connection):
+        self.host_connection = host_connection
 
     def create_widget(
             self, name, schema_fragment, fragment_data=None,
-            previous_object_data=None, host_connection=None, parent=None):
+            previous_object_data=None, parent=None):
         '''
         Create the appropriate widget for a given schema element with *name*,
         *schema_fragment*, *fragment_data*, *previous_object_data*,
@@ -100,9 +103,7 @@ class WidgetFactory(QtWidgets.QWidget):
 
         '''
 
-        if host_connection:
-            self.host_connection = host_connection
-            self._listen_widget_updates()
+        self._listen_widget_updates()
 
         schema_fragment_order = schema_fragment.get('order', [])
 
@@ -123,6 +124,7 @@ class WidgetFactory(QtWidgets.QWidget):
         if not widget_fn:
             widget_fn = self.schema_title_mapping.get(
                 schema_fragment.get('title'))
+
         if not widget_fn:
             widget_fn = self.schema_type_mapping.get(
                 schema_fragment.get('type'), json.UnsupportedSchema)
@@ -183,13 +185,15 @@ class WidgetFactory(QtWidgets.QWidget):
         '''Retrieve the widget event with the given *plugin_data*, *plugin_type*
         and *plugin_name* with the optional *extra_options*.'''
         extra_options = extra_options or {}
+
         plugin_options = plugin_data.get('options', {})
         plugin_options.update(extra_options)
+
         name = plugin_data.get('name', 'no name provided')
         description = plugin_data.get('description', 'No description provided')
 
         result = None
-        for host_definition in reversed(self.host_definitions):
+        for host_definition in reversed(self.host_connection.host_definitions):
             for _ui in reversed(self.ui):
 
                 data = {
@@ -204,6 +208,7 @@ class WidgetFactory(QtWidgets.QWidget):
                         'options': plugin_options,
                         'name': name,
                         'description': description,
+                        'context': self.context
                     }
                 }
 

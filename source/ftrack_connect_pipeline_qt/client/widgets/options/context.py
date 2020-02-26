@@ -13,21 +13,41 @@ from ftrack_connect_pipeline.utils import get_current_context
 class PublishContextWidget(BaseOptionsWidget):
     '''Main class to represent a context widget on a publish process'''
 
+    @property
+    def context(self):
+        return self._current_context
+
+    @property
+    def asset_type(self):
+        return self._asset_type
+
     def __init__(
             self, parent=None, session=None, data=None, name=None,
-            description=None, options=None
+            description=None, options=None, context=None
     ):
         '''initialise PublishContextWidget with *parent*, *session*, *data*,
         *name*, *description*, *options*
         '''
-        env_context = get_current_context()
-        self.context = session.get('Context', options.get('context_id', env_context))
-        self.asset_type = options.get('asset_type')
+
+        context_id = context.get(
+            'context_id', options.get('context_id')
+        )
+
+        asset_type = context.get(
+            'asset_type', options.get('asset_type')
+        )
+        self._asset_type = session.query(
+            'AssetType where short is "{}"'.format(asset_type)
+        ).one()
+
+        self._current_context = session.get('Context', context_id)
+
         super(PublishContextWidget, self).__init__(
             parent=parent, session=session, data=data, name=name,
             description=description, options=options
         )
-        self.asset_selector.set_context(self.context)
+
+        self.asset_selector.set_context(context)
 
     def build(self):
         '''build function widgets.'''

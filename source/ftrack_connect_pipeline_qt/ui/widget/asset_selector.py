@@ -39,18 +39,14 @@ class AssetSelector(QtWidgets.QWidget):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-
+        self.logger.info('init asset selector with : {}'.format(asset_type))
         main_layout = QtWidgets.QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
 
         self.setLayout(main_layout)
         self.session = session
 
-        self.asset_type = self.session.query(
-            'AssetType where short is "{}"'.format(asset_type)
-        ).one()
-
-        self.asset_combobox = AssetComboBox(self.session, self.asset_type)
+        self.asset_combobox = AssetComboBox(self.session, asset_type)
         self.layout().addWidget(self.asset_combobox)
         self.asset_combobox.currentIndexChanged.connect(
             self._current_asset_changed

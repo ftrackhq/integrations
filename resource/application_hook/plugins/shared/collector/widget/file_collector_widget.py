@@ -10,7 +10,7 @@ class FileCollectorWidget(BaseOptionsWidget):
     '''Main class to represent a context widget on a publish process'''
 
     def __init__(
-            self, parent=None, session=None, data=None, name=None,
+            self, parent=None, context=None, session=None, data=None, name=None,
             description=None, options=None
     ):
         '''initialise FileCollectorWidget with *parent*, *session*, *data*,
@@ -69,8 +69,9 @@ class FileCollectorWidget(BaseOptionsWidget):
 class CollectorWidget(plugin.CollectorWidget):
     plugin_name = 'file_collector.widget'
 
-    def run(self, data=None, name=None, description=None, options=None):
+    def run(self, context=None, data=None, name=None, description=None, options=None):
         return FileCollectorWidget(
+            context=context,
             session=self.session, data=data, name=name,
             description=description, options=options
         )

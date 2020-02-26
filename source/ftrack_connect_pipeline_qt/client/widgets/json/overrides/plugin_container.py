@@ -12,7 +12,7 @@ class PluginContainerObject(JsonObject):
     '''
     def __init__(
             self, name, schema_fragment, fragment_data,
-            previous_object_data, widget_factory, parent=None
+            previous_object_data, widget_factory, context, parent=None
     ):
         '''Initialise PluginContainerObject with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
@@ -46,6 +46,7 @@ class PluginContainerObject(JsonObject):
                     if self.fragment_data:
                         new_fragment_data = self.fragment_data.get(k)
                     widget = self.widget_factory.create_widget(
-                        k, v, new_fragment_data, self.fragment_data)
+                        k, v, new_fragment_data, self.fragment_data
+                    )
                     self.layout().addWidget(widget)
                     self.properties_widgets[k] = widget

@@ -9,8 +9,9 @@ from ftrack_connect_pipeline_qt.client.widgets.options import (
 class ContextWidget(plugin.ContextWidget):
     plugin_name = 'context.publish'
 
-    def run(self, data=None, name=None, description=None, options=None):
+    def run(self, context=None, data=None, name=None, description=None, options=None):
         return context_widget.PublishContextWidget(
+            context=context,
             session=self.session, data=data, name=name,
             description=description, options=options
         )

@@ -53,7 +53,8 @@ class JsonObject(BaseJsonWidget):
                     if self.fragment_data:
                         new_fragment_data = self.fragment_data.get(k)
                     widget = self.widget_factory.create_widget(
-                        k, v,new_fragment_data, self.fragment_data)
+                        k, v, new_fragment_data, self.fragment_data
+                    )
                     self.innerLayout.addWidget(widget)
                     self.properties_widgets[k] = widget
         layout.addLayout(self.innerLayout)
