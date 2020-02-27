@@ -3,8 +3,6 @@
 
 from Qt import QtWidgets, QtCore
 
-from ftrack_connect_pipeline_qt.utils import asynchronous
-
 
 class EntityPath(QtWidgets.QLineEdit):
     '''Entity path widget.'''
@@ -16,7 +14,6 @@ class EntityPath(QtWidgets.QLineEdit):
         self.setReadOnly(True)
         self.path_ready.connect(self.on_path_ready)
 
-    @asynchronous
     def setEntity(self, entity):
         '''Set the *entity* for this widget.'''
         if not entity:
