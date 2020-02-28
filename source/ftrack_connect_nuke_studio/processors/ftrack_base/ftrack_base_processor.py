@@ -874,10 +874,14 @@ class FtrackProcessor(FtrackBase):
         ''' Generate thumbnail *component* for *render_task*. '''
         source = render_task._clip
 
-        start, end = render_task.outputRange(clampToSource=False)
+        start = source.sourceIn()
+        end = source.sourceOut()
+
         mid_frame = int(((end - start) / 2 ) + start)
 
-        self.logger.info('setting poster frame to {} for {}'.format(mid_frame, source))
+        self.logger.info(
+            'setting poster frame to {} for {}'.format(mid_frame, source)
+        )
 
         thumbnail_qimage = source.thumbnail(mid_frame)
         thumbnail_file = tempfile.NamedTemporaryFile(
