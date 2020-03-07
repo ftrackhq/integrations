@@ -243,7 +243,7 @@ class ApplicationStore(ftrack_connect.application.ApplicationStore):
 
             applications.extend(self._searchFilesystem(
                 expression=prefix + [
-                    r'Adobe Illustrator ((?:CC )?\d+)', r'Adobe Illustrator ((?:CC )?\d+)\.app'
+                    r'Adobe Illustrator ((?:CC )?\d+)', r'Adobe Illustrator ?((?:CC )?\d+)?\.app'
                 ],
                 label='Illustrator',
                 variant='CC {version}',
