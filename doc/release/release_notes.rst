@@ -8,6 +8,14 @@ Release Notes
 *************
 
 
+.. release:: Upcoming
+
+    .. change:: fix
+        :tags: Internal
+
+        Thumbnail generation breaks when exporting just nuke scripts.
+
+
 .. release:: 2.2.5
     :date: 2020-03-12
 
