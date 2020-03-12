@@ -8,7 +8,8 @@ Release Notes
 *************
 
 
-.. release:: Upcoming
+.. release:: 2.2.5
+    :date: 2020-03-12
 
     .. change:: fix
         :tags: Internal
