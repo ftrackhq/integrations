@@ -23,23 +23,16 @@ event_manager = event.EventManager(
 
 # init host
 host.Host(event_manager)
-
+CONTEXT_ID = None
 
 def ready_callback(event):
-    task = event['host_connection'].session.query(
+    global CONTEXT_ID
+    host_connection = event[0]
+    task = host_connection.session.query(
         'select name from Task where project.name is "pipelinetest"'
     ).first()
-    schema = task['project']['project_schema']
-    task_status = schema.get_statuses('Task')[0]
-    publisher = event['definition']
-    publisher['contexts']['plugins'][0]['options']['context_id'] = task['id']
-    publisher['contexts']['plugins'][0]['options']['asset_name'] = 'PipelineAsset'
-    publisher['contexts']['plugins'][0]['options']['asset_type'] = 'geo'
-    publisher['contexts']['plugins'][0]['options']['comment'] = 'A new hope'
-    publisher['contexts']['plugins'][0]['options']['status_id'] = task_status['id']
-    publisher['components'][0]['stages'][0]['plugins'][0]['options'][
-        'path'] = "/Users/lluisftrack/Desktop/file_to_publish.txt"
-    return publisher
+    os.environ['FTRACK_CONTEXTID'] = task['id']
+    CONTEXT_ID = task['id']
 
 
 from ftrack_connect_pipeline_qt import client
@@ -47,6 +40,7 @@ from ftrack_connect_pipeline_qt import client
 client_connection = client.QtClient(event_manager)
 client_connection.on_ready(ready_callback, time_out=30)
 
+client_connection.context = CONTEXT_ID
 
 client_connection.show()
 sys.exit(app.exec_())
