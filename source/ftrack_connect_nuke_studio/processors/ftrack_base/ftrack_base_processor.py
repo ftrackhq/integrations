@@ -872,7 +872,7 @@ class FtrackProcessor(FtrackBase):
 
     def publish_thumbnail(self, component, render_task):
         ''' Generate thumbnail *component* for *render_task*. '''
-        source = render_task._clip
+        source = render_task._item
 
         start = source.sourceIn()
         end = source.sourceOut()
