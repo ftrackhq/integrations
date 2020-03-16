@@ -136,19 +136,28 @@ class WidgetFactory(QtWidgets.QWidget):
         '''Returns a widget from the given *plugin_data*, *plugin_type* with
         the optional *extra_options*.'''
 
-        plugin_name = plugin_data.get('widget')
+        widget_name = plugin_data.get('widget')
+        plugin_name = plugin_data.get('plugin')
         plugin_type = plugin_type
+
+        self.logger.info('Fetching widget : {} for plugin {}'.format(
+            widget_name, plugin_name
+        ))
+
         data = self._fetch_plugin_widget(
-            plugin_data, plugin_type, plugin_name, extra_options=extra_options
+            plugin_data, plugin_type, widget_name, extra_options=extra_options
         )
         if not data:
-            plugin_name = 'default.widget'
+            widget_name = 'default.widget'
+            self.logger.info(
+                'Widget not found, falling back on: {}'.format(widget_name)
+            )
 
             if not plugin_data.get('widget'):
-                plugin_data['widget'] = plugin_name
+                plugin_data['widget'] = widget_name
 
             data = self._fetch_plugin_widget(
-                plugin_data, plugin_type, plugin_name,
+                plugin_data, plugin_type, widget_name,
                 extra_options=extra_options
             )
         data = data[0]
@@ -163,7 +172,7 @@ class WidgetFactory(QtWidgets.QWidget):
                 'plugin: {}\n'
                 'plugin_type: {}\n'
                 'plugin_name: {}'.format(
-                    message, plugin_data, plugin_type, plugin_name)
+                    message, plugin_data, plugin_type, widget_name)
             )
 
         if result and not isinstance(result, BaseOptionsWidget):
