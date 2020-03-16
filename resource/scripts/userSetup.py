@@ -5,36 +5,45 @@ import os
 import logging
 import re
 from ftrack_connect_pipeline_maya import usage, host as maya_host
-from ftrack_connect_pipeline import event, host
-from ftrack_connect_pipeline.session import get_shared_session
-from ftrack_connect_pipeline_maya import constants
+from ftrack_connect_pipeline import event
+from ftrack_connect_pipeline import constants
 
 import maya.cmds as mc
 import maya.mel as mm
+
+import ftrack_api
 
 logger = logging.getLogger('ftrack_connect_pipeline_maya.scripts.userSetup')
 
 created_dialogs = dict()
 
 
-def _open_dialog(dialog_class, hostid):
+def _open_dialog(dialog_class, event_manager):
     '''Open *dialog_class* and create if not already existing.'''
     dialog_name = dialog_class
 
     if dialog_name not in created_dialogs:
         ftrack_dialog = dialog_class
         created_dialogs[dialog_name] = ftrack_dialog(
-            hostid
+            event_manager
         )
 
     created_dialogs[dialog_name].show()
 
 
 def initialise():
-    # TODO : later we need to bring back here all the maya initialiations from ftrack-connect-maya
+    # TODO : later we need to bring back here all the maya initialiations
+    #  from ftrack-connect-maya
     # such as frame start / end etc....
-    session = get_shared_session()
-    hostid = host.initialise(session, constants.HOST, constants.UI)
+
+    logger.info('Setting up the menu')
+    session = ftrack_api.Session(auto_connect_event_hub=False)
+
+    event_manager = event.EventManager(
+        session=session, mode=constants.LOCAL_EVENT_MODE
+    )
+
+    maya_host.MayaHost(event_manager)
 
     usage.send_event(
         'USED-FTRACK-CONNECT-PIPELINE-MAYA'
@@ -46,21 +55,14 @@ def initialise():
     from ftrack_connect_pipeline_maya.client import publish
 
     # Enable loader and publisher only if is set to run local (default)
-    remote_set = os.environ.get(
-        'FTRACK_PIPELINE_REMOTE_EVENTS', False
-    )
     dialogs = []
 
-    if not remote_set:
-        dialogs.append(
-            (load.QtPipelineMayaLoaderWidget, 'Loader')
-        )
-        dialogs.append(
-            (publish.QtPipelineMayaPublishWidget, 'Publisher')
-        )
-
-    else:
-        maya_host.notify_connected_client(session, hostid)
+    dialogs.append(
+        (load.MayaLoaderClient, 'Loader')
+    )
+    dialogs.append(
+        (publish.MayaPublisherClient, 'Publisher')
+    )
 
     ftrack_menu = maya_host.get_ftrack_menu()
     # Register and hook the dialog in ftrack menu
@@ -75,7 +77,7 @@ def initialise():
             parent=ftrack_menu,
             label=label,
             command=(
-                lambda x, dialog_class=dialog_class: _open_dialog(dialog_class, hostid)
+                lambda x, dialog_class=dialog_class: _open_dialog(dialog_class, event_manager)
             )
         )
 

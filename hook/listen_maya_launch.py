@@ -80,6 +80,7 @@ def register(session):
         return
 
     session.event_hub.subscribe(
-        'topic=ftrack.connect.application.launch and data.application.identifier=maya*',
+        'topic=ftrack.connect.application.launch and '
+        'data.application.identifier=maya*',
         on_application_launch
     )

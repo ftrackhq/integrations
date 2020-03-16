@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import tempfile
+import glob
 
 import maya.cmds as cmd
 import maya
@@ -16,8 +17,20 @@ class OutputMayaReviewablePlugin(plugin.OutputMayaPlugin):
         component_name = options['component_name']
         camera_name = options.get('camera_name', 'persp')
 
-        panel = cmd.getPanel(wf=True)
-        previous_camera = cmd.modelPanel(panel, q=True, camera=True)
+        current_panel = cmd.getPanel(wf=True)
+        panel_type = cmd.getPanel(to=current_panel)  # scriptedPanel
+        if panel_type != 'modelPanel':
+            visible_panels = cmd.getPanel(vis=True)
+            for _panel in visible_panels:
+                if cmd.getPanel(to=_panel) == 'modelPanel':
+                    current_panel = _panel
+                    break
+                else:
+                    current_panel = None
+        previous_camera = 'presp'
+        if current_panel:
+            previous_camera = cmd.modelPanel(current_panel, q=True, camera=True)
+
 
         cmd.lookThru(camera_name)
 
@@ -30,12 +43,10 @@ class OutputMayaReviewablePlugin(plugin.OutputMayaPlugin):
         prev_selection = cmd.ls(sl=True)
         cmd.select(cl=True)
 
-        filename = tempfile.NamedTemporaryFile(
-            suffix='.mov'
-        ).name
+        filename = tempfile.NamedTemporaryFile().name
 
         cmd.playblast(
-            format='qt',
+            format='movie',
             sequenceTime=0,
             clearCache=1,
             viewer=0,
@@ -45,7 +56,6 @@ class OutputMayaReviewablePlugin(plugin.OutputMayaPlugin):
             filename=filename,
             fp=4,
             percent=100,
-            compression="png",
             quality=70,
             w=res_w,
             h=res_h
@@ -56,7 +66,12 @@ class OutputMayaReviewablePlugin(plugin.OutputMayaPlugin):
 
         cmd.lookThru(previous_camera)
 
-        return {component_name: filename}
+        temp_files = glob.glob(filename + ".*")
+        #TODO:
+        # find a better way to find the extension of the playblast file.
+        full_path = temp_files[0]
+
+        return {component_name: full_path}
 
 
 def register(api_object, **kw):

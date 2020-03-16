@@ -1,10 +1,14 @@
+
+
 import functools
 import logging
+from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline_qt import constants as qt_constants
+from ftrack_connect_pipeline_maya import constants as maya_constants
+from ftrack_connect_pipeline.host import Host
 
 import maya.cmds as mc
 import maya.mel as mm
-
-from ftrack_connect_pipeline import constants
 
 logger = logging.getLogger(
     __name__
@@ -60,4 +64,5 @@ def notify_connected_client(session, hostid):
     )
 
 
-
+class MayaHost(Host):
+    host = [qt_constants.HOST, maya_constants.HOST]

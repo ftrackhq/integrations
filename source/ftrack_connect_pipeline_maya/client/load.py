@@ -1,17 +1,21 @@
-from ftrack_connect_pipeline.client.load import QtPipelineLoaderWidget
-from ftrack_connect_pipeline_maya.constants import HOST, UI
+from ftrack_connect_pipeline_qt.client.load import QtLoaderClient
+import ftrack_connect_pipeline_maya.constants as maya_constants
 
 from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 
 
-class QtPipelineMayaLoaderWidget(MayaQWidgetDockableMixin, QtPipelineLoaderWidget):
+class MayaLoaderClient(MayaQWidgetDockableMixin, QtLoaderClient):
+    ui = maya_constants.UI
+
     '''Dockable maya load widget'''
-    def __init__(self, hostid, parent=None):
-        super(QtPipelineMayaLoaderWidget, self).__init__(host=HOST, ui=UI, hostid=hostid, parent=parent)
-        self.setWindowTitle('Maya Pipeline Loader{}'.format(hostid))
+    def __init__(self, event_manager, parent=None):
+        super(MayaLoaderClient, self).__init__(
+            event_manager=event_manager, parent=parent
+        )
+        self.setWindowTitle('Maya Pipeline Loader')
 
     def show(self):
-        super(QtPipelineMayaLoaderWidget, self).show(
+        super(MayaLoaderClient, self).show(
             dockable=True, floating=False, area='right',
             width=200, height=300, x=300, y=600
     )
