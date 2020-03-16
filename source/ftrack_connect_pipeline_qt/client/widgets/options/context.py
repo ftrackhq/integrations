@@ -13,10 +13,6 @@ from ftrack_connect_pipeline.utils import get_current_context
 class PublishContextWidget(BaseOptionsWidget):
     '''Main class to represent a context widget on a publish process'''
 
-    # @property
-    # def context(self):
-    #     return self._current_context
-
     @property
     def asset_type(self):
         return self._asset_type

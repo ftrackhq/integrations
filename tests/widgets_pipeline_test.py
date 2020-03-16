@@ -23,24 +23,12 @@ event_manager = event.EventManager(
 
 # init host
 host.Host(event_manager)
-CONTEXT_ID = None
-
-def ready_callback(event):
-    global CONTEXT_ID
-    host_connection = event[0]
-    task = host_connection.session.query(
-        'select name from Task where project.name is "pipelinetest"'
-    ).first()
-    os.environ['FTRACK_CONTEXTID'] = task['id']
-    CONTEXT_ID = task['id']
-
 
 from ftrack_connect_pipeline_qt import client
 
 client_connection = client.QtClient(event_manager)
-client_connection.on_ready(ready_callback, time_out=30)
 
-client_connection.context = CONTEXT_ID
+client_connection.context = "690afd58-06d0-11ea-bbbb-ee594985c7e2"
 
 client_connection.show()
 sys.exit(app.exec_())
