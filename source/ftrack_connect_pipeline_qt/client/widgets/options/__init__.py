@@ -90,6 +90,19 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self._options = options
         self._context = context or {}
 
+        context_id = context.get(
+            'context_id', options.get('context_id')
+        )
+
+        asset_type = context.get(
+            'asset_type', options.get('asset_type')
+        )
+        self._asset_type = session.query(
+            'AssetType where short is "{}"'.format(asset_type)
+        ).one()
+
+        self._context = session.get('Context', context_id)
+
         # Build widget
         self.pre_build()
         self.build()

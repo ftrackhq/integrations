@@ -14,10 +14,6 @@ class PublishContextWidget(BaseOptionsWidget):
     '''Main class to represent a context widget on a publish process'''
 
     @property
-    def context(self):
-        return self._current_context
-
-    @property
     def asset_type(self):
         return self._asset_type
 
@@ -29,25 +25,11 @@ class PublishContextWidget(BaseOptionsWidget):
         *name*, *description*, *options*
         '''
 
-        context_id = context.get(
-            'context_id', options.get('context_id')
-        )
-
-        asset_type = context.get(
-            'asset_type', options.get('asset_type')
-        )
-        self._asset_type = session.query(
-            'AssetType where short is "{}"'.format(asset_type)
-        ).one()
-
-        self._current_context = session.get('Context', context_id)
-
         super(PublishContextWidget, self).__init__(
             parent=parent, session=session, data=data, name=name,
-            description=description, options=options
+            description=description, options=options, context=context
         )
-
-        self.asset_selector.set_context(context)
+        self.asset_selector.set_context(self.context)
 
     def build(self):
         '''build function widgets.'''
