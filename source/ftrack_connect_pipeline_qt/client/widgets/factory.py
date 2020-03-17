@@ -102,7 +102,6 @@ class WidgetFactory(QtWidgets.QWidget):
         *parent* widget to parent the current widget (optional).
 
         '''
-
         self._listen_widget_updates()
 
         schema_fragment_order = schema_fragment.get('order', [])
@@ -136,8 +135,8 @@ class WidgetFactory(QtWidgets.QWidget):
         '''Returns a widget from the given *plugin_data*, *plugin_type* with
         the optional *extra_options*.'''
 
-        widget_name = plugin_data.get('widget')
         plugin_name = plugin_data.get('plugin')
+        widget_name = plugin_data.get('widget', plugin_name)
         plugin_type = plugin_type
 
         self.logger.info('Fetching widget : {} for plugin {}'.format(
