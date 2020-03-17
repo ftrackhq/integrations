@@ -18,7 +18,7 @@ class PluginContainerObject(JsonObject):
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
         super(PluginContainerObject, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
-            widget_factory, parent=parent
+            widget_factory,context, parent=parent
         )
 
     def build(self):
