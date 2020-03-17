@@ -232,7 +232,7 @@ class WidgetFactory(QtWidgets.QWidget):
                 )
 
                 if result:
-                    break
+                    return result
 
         return result
 
