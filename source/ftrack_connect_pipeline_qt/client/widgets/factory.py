@@ -136,7 +136,12 @@ class WidgetFactory(QtWidgets.QWidget):
         the optional *extra_options*.'''
 
         plugin_name = plugin_data.get('plugin')
-        widget_name = plugin_data.get('widget', plugin_name)
+        widget_name = plugin_data.get('widget')
+
+        if not widget_name:
+            widget_name = plugin_name
+            plugin_data['widget'] = widget_name
+
         plugin_type = plugin_type
 
         self.logger.info('Fetching widget : {} for plugin {}'.format(
