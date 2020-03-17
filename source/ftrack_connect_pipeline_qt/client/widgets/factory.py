@@ -234,8 +234,6 @@ class WidgetFactory(QtWidgets.QWidget):
                 if result:
                     return result
 
-        return result
-
     def _update_widget(self, event):
         '''*event* callback to update widget with the current status/value'''
         result = event['data']['pipeline']['result']
