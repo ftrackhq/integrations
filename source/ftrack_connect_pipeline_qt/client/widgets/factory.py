@@ -70,12 +70,14 @@ class WidgetFactory(QtWidgets.QWidget):
         self.ui = ui
         self._widgets_ref = {}
         self.context = {}
+        self.host_connection = None
 
     def set_context(self, context):
         self.context = context
 
     def set_host_connection(self, host_connection):
         self.host_connection = host_connection
+        self._listen_widget_updates()
 
     def create_widget(
             self, name, schema_fragment, fragment_data=None,
@@ -102,7 +104,6 @@ class WidgetFactory(QtWidgets.QWidget):
         *parent* widget to parent the current widget (optional).
 
         '''
-        self._listen_widget_updates()
 
         schema_fragment_order = schema_fragment.get('order', [])
 
@@ -250,14 +251,19 @@ class WidgetFactory(QtWidgets.QWidget):
             self.logger.warning('Widget ref :{} not found ! '.format(widget_ref))
             return
 
-        self.logger.debug('updating widget: {} with {}'.format(widget, result))
-
-        widget.set_status(status, message)
+        if status:
+            self.logger.debug(
+                'updating widget: {} with {}, {}'.format(
+                    widget, status, message
+                )
+            )
+            widget.set_status(status, message)
 
     def _listen_widget_updates(self):
         '''Subscribe to the PIPELINE_CLIENT_NOTIFICATION topic to call the
         _update_widget function when the host returns and answer through the
         same topic'''
+
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.hostid={}'.format(
                 core_constants.PIPELINE_CLIENT_NOTIFICATION,
