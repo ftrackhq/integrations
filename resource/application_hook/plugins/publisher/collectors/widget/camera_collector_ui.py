@@ -18,7 +18,8 @@ class CameraCollectorWidget(BaseOptionsWidget):
         description=None, options=None, context=None
     ):
 
-        self.maya_cameras = mcd.ls(type='camera')
+        # list all perspective camera
+        self.maya_cameras = mcd.listCameras(p=True)
 
         super(CameraCollectorWidget, self).__init__(
             parent=parent,
