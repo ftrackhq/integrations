@@ -396,9 +396,25 @@ class FtrackProcessor(FtrackBase):
                 )
             )
 
-            component = parent.create_component('/', {
-                'name': component_name
-            }, location=None)
+            # check component name
+            resolved_file_name = task.resolvePath(
+                task._preset.properties()['ftrack']['component_pattern']
+            )
+
+            component_type = 'FileComponent'
+
+            # TODO: Find better way to identify sequences.
+            if '#' in resolved_file_name or '%' in resolved_file_name:
+                component_type = 'SequenceComponent'
+
+            component = self.session.create(
+                component_type,
+                {
+                    'name': component_name,
+                    'version': parent,
+                    'version_id': parent['id']
+                }
+            )
 
         return component
 
