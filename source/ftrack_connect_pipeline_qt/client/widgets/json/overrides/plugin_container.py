@@ -12,7 +12,7 @@ class PluginContainerObject(JsonObject):
     '''
     def __init__(
             self, name, schema_fragment, fragment_data,
-            previous_object_data, widget_factory, context, parent=None
+            previous_object_data, widget_factory, parent=None
     ):
         '''Initialise PluginContainerObject with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
