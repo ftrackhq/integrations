@@ -27,10 +27,10 @@ class OutputMayaReviewablePlugin(plugin.OutputMayaPlugin):
                     break
                 else:
                     current_panel = None
-        previous_camera = 'presp'
+
+        previous_camera = 'persp'
         if current_panel:
             previous_camera = cmd.modelPanel(current_panel, q=True, camera=True)
-
 
         cmd.lookThru(camera_name)
 
