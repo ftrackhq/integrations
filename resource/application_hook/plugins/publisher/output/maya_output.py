@@ -20,12 +20,12 @@ class OutputMayaPlugin(plugin.OutputMayaPlugin):
         return {
             'op': 'v=0',
             'typ': self.filetype,
-            'constructionHistory' : options.get('history', False),
-            'channels' : options.get('channels', False),
-            'preserveReferences' : options.get('preserve_reference', False),
-            'shader' : options.get('shaders', False),
-            'constraints' : options.get('constraints', False),
-            'expressions' : options.get('expressions', False),
+            'constructionHistory' : bool(options.get('history', False)),
+            'channels' : bool(options.get('channels', False)),
+            'preserveReferences' : bool(options.get('preserve_reference', False)),
+            'shader' : bool(options.get('shaders', False)),
+            'constraints' : bool(options.get('constraints', False)),
+            'expressions' : bool(options.get('expressions', False)),
             'exportSelected': True,
             'exportAll':False,
             'force': True
@@ -38,9 +38,14 @@ class OutputMayaPlugin(plugin.OutputMayaPlugin):
             suffix=self.extension
         ).name
 
-        self.logger.debug('Calling extractor options: data {}'.format(data))
-
         options = self.extract_options(options)
+
+        self.logger.debug(
+            'Calling output options: data {}. options {}'.format(
+                data, options
+            )
+        )
+
         cmd.select(data, r=True)
         cmd.file(
             new_file_path,
