@@ -12,7 +12,7 @@ from ftrack_connect_pipeline_maya import plugin
 
 
 
-class OutputMayaAlembicPlugin(plugin.OutputMayaPlugin):
+class OutputMayaFbxPlugin(plugin.OutputMayaPlugin):
 
     plugin_name = 'fbx'
 
@@ -104,19 +104,19 @@ class OutputMayaAlembicPlugin(plugin.OutputMayaPlugin):
         mel.eval('FBXExportLights -v {}'.format(int(export_lights)))
 
         # fbx export command
-        fbx_export_cmd = 'FBXExport -f "{}"'.format(new_file_path)
+        fbx_export_cmd = 'FBXExport -s -f "{}"'.format(new_file_path)
 
-        if iAObj.options.get('fbxExportMode') == 'Selection':
-            fbx_export_cmd += ' -s'
+
 
         mel.eval(fbx_export_cmd)
 
+        selectednodes = cmd.ls(sl=True, long=True)
         if selectednodes:
-            mc.select(selectednodes)
+            cmd.select(selectednodes)
 
         return {component_name: new_file_path}
 
 
 def register(api_object, **kw):
-    ma_plugin = OutputMayaAlembicPlugin(api_object)
+    ma_plugin = OutputMayaFbxPlugin(api_object)
     ma_plugin.register()

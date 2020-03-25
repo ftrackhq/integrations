@@ -50,13 +50,7 @@ class CameraCollectorWidget(BaseOptionsWidget):
 
 class CameraCollectorPluginWidget(plugin.CollectorMayaWidget):
     plugin_name = 'camera'
-
-    def run(self, context=None, data=None, name=None, description=None, options=None):
-        return CameraCollectorWidget(
-            context=context,
-            session=self.session, data=data, name=name,
-            description=description, options=options
-        )
+    widget = CameraCollectorWidget
 
 
 def register(api_object, **kw):
