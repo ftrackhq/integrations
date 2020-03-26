@@ -11,11 +11,12 @@ class CollectFromRegexMayaPlugin(plugin.CollectorMayaPlugin):
     plugin_name = 'from_regex'
 
     def run(self, context=None, data=None, options=None):
-        expr = repr(options['expression'])
+        expr = options['expression']
         dag_objs = cmd.ls(ap=True, assemblies=True, dag=True)
-        matched_objs = None
+        matched_objs = []
         for obj in dag_objs:
-            matched_objs = re.findall(expr, obj)
+            matched_obj = re.findall(expr, obj)
+            matched_objs += matched_obj
         if matched_objs:
             cmd.select(matched_objs, r=True)
         else:

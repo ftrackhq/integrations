@@ -110,6 +110,7 @@ class OutputMayaFbxPlugin(plugin.OutputMayaPlugin):
 
         mel.eval(fbx_export_cmd)
 
+        cmd.select(data, r=True)
         selectednodes = cmd.ls(sl=True, long=True)
         if selectednodes:
             cmd.select(selectednodes)

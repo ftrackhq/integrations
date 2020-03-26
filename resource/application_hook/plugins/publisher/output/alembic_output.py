@@ -44,8 +44,9 @@ class OutputMayaAlembicPlugin(plugin.OutputMayaPlugin):
             )
         )
 
+        cmd.select(data, r=True)
         selectednodes = cmd.ls(sl=True, long=True)
-        nodes = cmd.ls(type='transform', long=True)
+        nodes = cmd.ls(selectednodes, type='transform', long=True)
 
         objCommand = ''
         for n in nodes:
