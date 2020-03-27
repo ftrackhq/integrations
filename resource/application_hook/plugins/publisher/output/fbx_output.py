@@ -104,9 +104,7 @@ class OutputMayaFbxPlugin(plugin.OutputMayaPlugin):
         mel.eval('FBXExportLights -v {}'.format(int(export_lights)))
 
         # fbx export command
-        fbx_export_cmd = 'FBXExport -s -f "{}"'.format(new_file_path)
-
-        mel.eval(fbx_export_cmd)
+        mel.eval('FBXExport -s -f "{}"'.format(new_file_path.replace("\\", "\\\\")))
 
         cmd.select(data, r=True)
         selectednodes = cmd.ls(sl=True, long=True)
