@@ -68,13 +68,7 @@ class FileCollectorWidget(BaseOptionsWidget):
 
 class CollectorWidget(plugin.CollectorWidget):
     plugin_name = 'file_collector.widget'
-
-    def run(self, context=None, data=None, name=None, description=None, options=None):
-        return FileCollectorWidget(
-            context=context,
-            session=self.session, data=data, name=name,
-            description=description, options=options
-        )
+    widget = FileCollectorWidget
 
 
 def register(api_object, **kw):

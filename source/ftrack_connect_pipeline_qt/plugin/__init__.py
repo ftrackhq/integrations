@@ -11,6 +11,7 @@ class BasePluginWidget(plugin.BasePlugin):
     type = 'widget'
     return_type = BaseOptionsWidget
     ui = constants.UI
+    widget = None
 
     def _base_topic(self, topic):
         '''Ensures that we pass all the needed information to the topic
@@ -44,6 +45,15 @@ class BasePluginWidget(plugin.BasePlugin):
         )
         return topic
 
+    def run(
+            self, context=None, data=None, name=None, description=None,
+            options=None
+    ):
+        return self.widget(
+            context=context,
+            session=self.session, data=data, name=name,
+            description=description, options=options
+        )
 
 
 from ftrack_connect_pipeline_qt.plugin.collector import *
