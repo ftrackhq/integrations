@@ -33,12 +33,10 @@ class FtrackPublishPlugin(plugin.FinaliserPlugin):
     @asynchronous
     def create_thumbnail(self, asset_version, component_name, component_path):
         asset_version.create_thumbnail(component_path)
-        os.remove(component_path)
 
     @asynchronous
     def create_reviewable(self, asset_version, component_name, component_path):
         asset_version.encode_media(component_path)
-        os.remove(component_path)
 
     def run(self, context=None, data=None, options=None):
         output = self.output
