@@ -38,7 +38,7 @@ class OutputMayaFbxPlugin(plugin.OutputMayaPlugin):
 
     def run(self, context=None, data=None, options=None):
         # ensure to load the alembic plugin
-        cmd.loadPlugin('AbcExport.so', qt=1)
+        cmd.loadPlugin('fbxmaya.so', qt=1)
 
         component_name = options['component_name']
         new_file_path = tempfile.NamedTemporaryFile(
@@ -105,8 +105,6 @@ class OutputMayaFbxPlugin(plugin.OutputMayaPlugin):
 
         # fbx export command
         fbx_export_cmd = 'FBXExport -s -f "{}"'.format(new_file_path)
-
-
 
         mel.eval(fbx_export_cmd)
 
