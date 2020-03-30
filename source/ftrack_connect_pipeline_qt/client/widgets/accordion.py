@@ -1,5 +1,5 @@
 import logging
-from qtpy import QtWidgets, QtCore, QtGui
+from Qt import QtWidgets, QtCore, QtGui
 from ftrack_connect_pipeline import constants
 
 
