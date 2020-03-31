@@ -16,6 +16,8 @@ COMPONENTS = 'components'
 COLLECTOR = 'collector'
 VALIDATOR = 'validator'
 OUTPUT = 'output'
+IMPORTER = 'importer'
+POST_IMPORT = 'post_import'
 
 # External events.
 PIPELINE_REGISTER_TOPIC = '{}.register'.format(_BASE_)

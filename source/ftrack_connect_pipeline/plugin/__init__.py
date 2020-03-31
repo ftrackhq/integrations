@@ -333,3 +333,5 @@ from ftrack_connect_pipeline.plugin.context import *
 from ftrack_connect_pipeline.plugin.finaliser import *
 from ftrack_connect_pipeline.plugin.output import *
 from ftrack_connect_pipeline.plugin.validator import *
+from ftrack_connect_pipeline.plugin.importer import *
+from ftrack_connect_pipeline.plugin.post_import import *

@@ -130,6 +130,7 @@ class BaseEngine(object):
                     'plugin {}\n stage: {} \n status: {} \n result: {}'.format(
                         plugin['plugin'], stage_name, status, result)
                 )
+
             statuses.append(bool_status)
             results.update(result)
 

@@ -4,15 +4,13 @@
 from ftrack_connect_pipeline import plugin
 
 
-class EnvContextPlugin(plugin.ContextPlugin):
-    plugin_name = 'context.load'
+class ValidatorLoaderTest(plugin.ValidatorPlugin):
+    plugin_name = 'validatorTest'
 
     def run(self, context=None, data=None, options=None):
-        output = self.output
-        output.update(options)
-        return output
+        return True
 
 
 def register(api_object, **kw):
-    plugin = EnvContextPlugin(api_object)
+    plugin = ValidatorLoaderTest(api_object)
     plugin.register()
