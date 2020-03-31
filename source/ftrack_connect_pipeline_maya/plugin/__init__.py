@@ -28,3 +28,5 @@ from ftrack_connect_pipeline_maya.plugin.context import *
 from ftrack_connect_pipeline_maya.plugin.finaliser import *
 from ftrack_connect_pipeline_maya.plugin.output import *
 from ftrack_connect_pipeline_maya.plugin.validator import *
+from ftrack_connect_pipeline_maya.plugin.importer import *
+from ftrack_connect_pipeline_maya.plugin.post_import import *
