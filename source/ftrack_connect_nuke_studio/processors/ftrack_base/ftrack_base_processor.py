@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2018 ftrack
 
+import re
 import os
 import time
 import tempfile
@@ -402,9 +403,11 @@ class FtrackProcessor(FtrackBase):
             )
 
             component_type = 'FileComponent'
+            seq_finder = re.compile('(?<=\.)((%+\d+d)|(#+)|(%d)|(\d+))(?=\.)')
 
+            is_sequence = seq_finder.match(resolved_file_name)
             # TODO: Find better way to identify sequences.
-            if '#' in resolved_file_name or '%' in resolved_file_name:
+            if is_sequence:
                 component_type = 'SequenceComponent'
 
             component = self.session.create(
@@ -849,9 +852,9 @@ class FtrackProcessor(FtrackBase):
             if start_handle and attr_name == 'handles':
                 attributes['handles'] = str(start_handle)
 
-        if '#' in publish_path:
-            # todo: Improve this logic
-            publish_path = '{0} [{1}-{2}]'.format(publish_path, start, end)
+        # if '#' in publish_path:
+        #     # todo: Improve this logic
+        #     publish_path = '{0} [{1}-{2}]'.format(publish_path, start, end)
 
         self.session.create(
             'ComponentLocation', {
