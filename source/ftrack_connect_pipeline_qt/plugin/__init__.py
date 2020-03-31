@@ -61,3 +61,5 @@ from ftrack_connect_pipeline_qt.plugin.context import *
 from ftrack_connect_pipeline_qt.plugin.finaliser import *
 from ftrack_connect_pipeline_qt.plugin.output import *
 from ftrack_connect_pipeline_qt.plugin.validator import *
+from ftrack_connect_pipeline_qt.plugin.importer import *
+from ftrack_connect_pipeline_qt.plugin.post_import import *

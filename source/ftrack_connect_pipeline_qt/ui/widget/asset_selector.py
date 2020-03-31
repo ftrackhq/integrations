@@ -32,7 +32,7 @@ class AssetComboBox(QtWidgets.QComboBox):
 
 class AssetSelector(QtWidgets.QWidget):
 
-    asset_changed = QtCore.Signal(object)
+    asset_changed = QtCore.Signal(object, object)
 
     def __init__(self, session, asset_type, parent=None):
         super(AssetSelector, self).__init__(parent=parent)
@@ -55,7 +55,9 @@ class AssetSelector(QtWidgets.QWidget):
 
     def _current_asset_changed(self, index):
         asset_name = self.asset_combobox.currentText()
-        self.asset_changed.emit(asset_name)
+        current_idx = self.asset_combobox.currentIndex()
+        asset_id = self.asset_combobox.itemData(current_idx)
+        self.asset_changed.emit(asset_name, asset_id)
 
     def set_context(self, context):
         self.logger.info('setting context to :{}'.format(context))
