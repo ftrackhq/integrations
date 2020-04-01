@@ -20,8 +20,6 @@ class CollectFromContextPlugin(plugin.CollectorPlugin):
         for component in asset_version['components']:
             if component['name'] in component_list:
                 component_path = location.get_filesystem_path(component)
-                print "component_path --> {}".format(component_path)
-                print "os.path.splitext(component_path) --> {}".format(os.path.splitext(component_path))
                 if accepted_formats and os.path.splitext(component_path)[
                                                 -1] not in accepted_formats:
                     self.logger.warning(
@@ -31,7 +29,6 @@ class CollectFromContextPlugin(plugin.CollectorPlugin):
                     continue
                 component_paths.append(component_path)
 
-        print "component_paths ---> {}".format(component_paths)
         return component_paths
 
 

@@ -261,10 +261,12 @@ class BaseEngine(object):
             components_result.append(component_result)
 
         finaliser_plugins = data[constants.FINALISERS]
-
         finaliser_data = {}
         for item in components_result:
-            for output in item.get(constants.OUTPUT):
+            last_component = constants.OUTPUT
+            if constants.POST_IMPORT in item.keys():
+                last_component = constants.POST_IMPORT
+            for output in item.get(last_component):
                 if not output:
                     continue
 

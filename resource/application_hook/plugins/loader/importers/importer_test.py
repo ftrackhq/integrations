@@ -8,8 +8,6 @@ class ImporterLoaderTest(plugin.ImporterPlugin):
     plugin_name = 'importerTest'
 
     def run(self, context=None, data=None, options=None):
-        print "data ---> {}".format(data)
-        print "options ---> {}".format(options)
         return {}
 
 
