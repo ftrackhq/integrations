@@ -9,8 +9,8 @@ import ftrack_api
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
-from ftrack_connect_pipeline_qt.client.widgets import json
-from ftrack_connect_pipeline_qt.client.widgets.json.overrides import component,\
+from ftrack_connect_pipeline_qt.client.widgets import schema as schema_widget
+from ftrack_connect_pipeline_qt.client.widgets.schema.overrides import component,\
     hidden, plugin_container
 
 from Qt import QtCore, QtWidgets
@@ -25,12 +25,12 @@ class WidgetFactory(QtWidgets.QWidget):
     ui = None
 
     schema_type_mapping = {
-        'object': json.JsonObject,
-        'string': json.JsonString,
-        'integer': json.JsonInteger,
-        'array': json.JsonArray,
-        'number': json.JsonNumber,
-        'boolean': json.JsonBoolean
+        'object': schema_widget.JsonObject,
+        'string': schema_widget.JsonString,
+        'integer': schema_widget.JsonInteger,
+        'array': schema_widget.JsonArray,
+        'number': schema_widget.JsonNumber,
+        'boolean': schema_widget.JsonBoolean
     }
     schema_name_mapping = {
         'components': component.ComponentsArray,
@@ -127,7 +127,7 @@ class WidgetFactory(QtWidgets.QWidget):
 
         if not widget_fn:
             widget_fn = self.schema_type_mapping.get(
-                schema_fragment.get('type'), json.UnsupportedSchema)
+                schema_fragment.get('type'), schema_widget.UnsupportedSchema)
 
         return widget_fn(name, schema_fragment, fragment_data,
                          previous_object_data, self, parent)
