@@ -236,6 +236,7 @@ class BasePlugin(object):
         '''
 
         plugin_settings = event['data']['settings']
+        self.logger.debug('plugin_settings : {}', plugin_settings)
         start_time = time.time()
         try:
             result = self.run(**plugin_settings)

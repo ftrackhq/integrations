@@ -27,7 +27,7 @@ class BaseEngine(object):
         '''Return the current host type.'''
         return self._host
 
-    def __init__(self, event_manager, host,  hostid, asset_type):
+    def __init__(self, event_manager, host, hostid, asset_type):
         '''Initialise BaseEngine with *event_manager*, *host*, *hostid* and
         *asset_type*'''
         super(BaseEngine, self).__init__()
