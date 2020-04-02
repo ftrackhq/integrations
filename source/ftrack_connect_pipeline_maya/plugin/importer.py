@@ -7,13 +7,95 @@ from ftrack_connect_pipeline_maya.plugin import (
     BaseMayaPlugin, BaseMayaPluginWidget
 )
 
+import maya.cmds as cmd
+
 
 class ImporterMayaPlugin(plugin.ImporterPlugin, BaseMayaPlugin):
     ''' Class representing a Collector Plugin
 
     .. note::
 
-        _required_output a List '''
+        _required_output a List
+    '''
+
+    def _run(self, event):
+        self.old_data = set(cmd.ls())
+        context = event['data']['settings']['context']
+        data = event['data']['settings']['data']
+
+        super_result = super(ImporterMayaPlugin, self)._run(event)
+
+        self.new_data = set(cmd.ls())
+
+        asset_info = {}
+
+        asset_info['asset_name'] = context.get('asset_name', 'No name found')
+        asset_info['version_number'] = context.get('version_number', '0')
+        asset_info['context_id'] = context.get('context_id', '')
+        asset_info['asset_type'] = context.get('asset_type', '')
+        asset_info['asset_id'] = context.get('asset_id', '')
+        asset_info['version_id'] = context.get('version_id', '')
+
+        asset_version = self.session.get('AssetVersion', asset_info['version_id'])
+
+        location = self.session.pick_location()
+        for component in asset_version['components']:
+            component_path = location.get_filesystem_path(component)
+            if component_path in data:
+                asset_info['component_name'] = component['name']
+                asset_info['component_id'] = component['id']
+                asset_info['component_path'] = component_path
+
+        if asset_info:
+            self.linkToFtrackNode(asset_info)
+
+        return super_result
+
+    def linkToFtrackNode(self, asset_info):
+        diff = self.new_data.difference(self.old_data)
+        if not diff:
+            self.logger.debug('No differences found in the scene')
+            return
+
+        ftrack_node_name = asset_info['asset_name'] + "_ftrackdata"
+        count = 0
+        while 1:
+            if cmd.objExists(ftrack_node_name):
+                ftrack_node_name = ftrack_node_name + str(count)
+                count = count + 1
+            else:
+                break
+
+        ftrack_node = cmd.createNode("ftrackAssetNode", name=ftrack_node_name)
+        cmd.setAttr(
+            ftrack_node + ".assetVersion", int(asset_info['version_number'])
+        )
+        cmd.setAttr(
+            ftrack_node + ".assetId", asset_info['asset_id'], type="string"
+        )
+        cmd.setAttr(
+            ftrack_node + ".assetPath", asset_info['component_path'], type="string"
+        )
+        cmd.setAttr(
+            ftrack_node + ".assetTake", asset_info['component_name'], type="string"
+        )
+        cmd.setAttr(
+            ftrack_node + ".assetType", asset_info['asset_type'], type="string"
+        )
+        cmd.setAttr(
+            ftrack_node + ".assetComponentId", asset_info['component_id'],
+            type="string"
+        )
+
+        for item in diff:
+            if cmd.lockNode(item, q=True)[0]:
+                cmd.lockNode(item, l=False)
+
+            if not cmd.attributeQuery('ftrack', n=item, exists=True):
+                cmd.addAttr(item, ln="ftrack", at="message")
+
+            if not cmd.listConnections(item + ".ftrack"):
+                cmd.connectAttr(ftrack_node + ".assetLink", item + ".ftrack")
 
 
 class ImporterMayaWidget(pluginWidget.ImporterWidget, BaseMayaPluginWidget):
@@ -21,5 +103,6 @@ class ImporterMayaWidget(pluginWidget.ImporterWidget, BaseMayaPluginWidget):
 
     .. note::
 
-        _required_output a List '''
+        _required_output a List
+    '''
 

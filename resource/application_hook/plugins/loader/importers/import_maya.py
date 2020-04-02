@@ -10,12 +10,14 @@ class ImportMayaPlugin(plugin.ImporterMayaPlugin):
     plugin_name = 'import_maya'
 
     def run(self, context=None, data=None, options=None):
+        #Add options import, open, reference
         results = {}
         paths_to_import = data
         for component_path in paths_to_import:
             self.logger.debug('Importing path {}'.format(component_path))
             import_result = cmd.file(component_path, i=True)
             results[component_path] = import_result
+
         return results
 
 
