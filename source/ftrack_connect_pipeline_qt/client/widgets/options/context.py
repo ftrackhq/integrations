@@ -184,6 +184,7 @@ class LoadContextWidget(BaseOptionsWidget):
         '''Updates the option dicctionary with provided *asset_name* when
         asset_changed of asset_selector event is triggered'''
         self.set_option_result(asset_name, key='asset_name')
+        self.set_option_result(asset_id, key='asset_id')
         self.version_selector.set_context(self.context)
         self.version_selector.set_asset_id(asset_id)
 
