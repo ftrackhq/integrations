@@ -11,7 +11,7 @@ class AbcMayaImportPlugin(plugin.ImporterMayaPlugin):
 
     def run(self, context=None, data=None, options=None):
         # ensure to load the alembic plugin
-        cmd.loadPlugin('AbcExport.so', qt=1)
+        cmd.loadPlugin('AbcImport.so', qt=1)
 
         results = {}
         paths_to_import = data
@@ -20,7 +20,6 @@ class AbcMayaImportPlugin(plugin.ImporterMayaPlugin):
             import_result = cmd.AbcImport(component_path)
             results[component_path] = import_result
 
-        print "results --> {}".format(results)
         return results
 
 

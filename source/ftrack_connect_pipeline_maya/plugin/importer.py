@@ -22,9 +22,7 @@ class ImporterMayaPlugin(plugin.ImporterPlugin, BaseMayaPlugin):
         self.old_data = set(cmd.ls())
         context = event['data']['settings']['context']
         data = event['data']['settings']['data']
-
         super_result = super(ImporterMayaPlugin, self)._run(event)
-
         self.new_data = set(cmd.ls())
 
         asset_info = {}
@@ -39,7 +37,10 @@ class ImporterMayaPlugin(plugin.ImporterPlugin, BaseMayaPlugin):
         asset_version = self.session.get('AssetVersion', asset_info['version_id'])
 
         location = self.session.pick_location()
+
         for component in asset_version['components']:
+            if location.get_component_availability(component) == 0.0:
+                continue
             component_path = location.get_filesystem_path(component)
             if component_path in data:
                 asset_info['component_name'] = component['name']
