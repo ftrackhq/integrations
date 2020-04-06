@@ -171,10 +171,6 @@ class BaseEngine(object):
                         context=context_data
                     )
 
-                    # Merge list of lists.
-                    if result and isinstance(result, list):
-                        result = result[0]
-
                     bool_status = constants.status_bool_mapping[status]
                     stage_status.append(bool_status)
                     if result and isinstance(result, list):
