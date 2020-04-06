@@ -177,7 +177,10 @@ class BaseEngine(object):
 
                     bool_status = constants.status_bool_mapping[status]
                     stage_status.append(bool_status)
-                    stages_result.append(result)
+                    if result and isinstance(result, list):
+                        stages_result.extend(result)
+                    else:
+                        stages_result.append(result)
                     if not bool_status:
                         self.logger.error(
                             'An error occurred during the execution of the '
