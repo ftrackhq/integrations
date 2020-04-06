@@ -401,33 +401,24 @@ class FtrackProcessor(FtrackBase):
         )).first()
 
         if not component:
-            self.logger.info(
-                'Creating component for : {} with name {}'.format(
-                    task, component_name
-                )
+            is_sequence = re.search(
+                '(?<=\.)((%+\d+d)|(#+)|(%d)|(\d+))(?=\.)', name
             )
-
-            # check component name
-            resolved_file_name = task.resolvePath(
-                task._preset.properties()['ftrack']['component_pattern']
-            )
-
-            component_type = 'FileComponent'
-            seq_finder = re.compile('(?<=\.)((%+\d+d)|(#+)|(%d)|(\d+))(?=\.)')
-
-            is_sequence = seq_finder.match(resolved_file_name)
-            # TODO: Find better way to identify sequences.
             if is_sequence:
-                component_type = 'SequenceComponent'
+                start = task._clip.sourceIn()
+                end = task._clip.sourceOut()
 
-            component = self.session.create(
-                component_type,
+                name = '{} [{}-{}]'.format(name, start, end)
+
+            component = parent.create_component(
+                name,
                 {
-                    'name': component_name,
-                    'version': parent,
-                    'version_id': parent['id']
-                }
+                    'name': component_name
+                },
+                location=None
             )
+
+            self.logger.info('Component {} created with name {}'.format(component, name))
 
         return component
 
