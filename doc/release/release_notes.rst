@@ -11,14 +11,15 @@ Release Notes
 .. release:: Upcoming
 
 
-    .. change:: changed
+    .. change:: fix
+        :tags: Internal
 
+        Sequences rendered with Nuke Studio cannot be imported in nuke.
 
     .. change:: fix
         :tags: Internal
 
         ImageSequences are rendered as FileComponent.
-
 
     .. change:: fix
         :tags: Internal
