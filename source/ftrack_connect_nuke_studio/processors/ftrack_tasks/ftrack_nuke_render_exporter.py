@@ -95,7 +95,7 @@ class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
         properties.setdefault('ftrack', {})
 
         # add placeholders for default ftrack defaults
-        self.properties()['ftrack']['component_pattern'] = '.%{filepadding}d.{ext}'
+        self.properties()['ftrack']['component_pattern'] = '.{filepadding}.{ext}'
         self.properties()['ftrack']['component_name'] = 'Plate'
         self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__)
 
