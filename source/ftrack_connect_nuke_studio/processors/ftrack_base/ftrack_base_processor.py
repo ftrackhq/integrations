@@ -125,6 +125,8 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
         '''Trigger creation of missing assets.'''
         sender = self.sender()
         asset_type = sender.text()
+        self.logger.info('creating missing asset type')
+
         self._session.ensure(
             'AssetType',
             {
@@ -246,7 +248,7 @@ class FtrackProcessor(FtrackBase):
         asset_type = task._preset.properties()['ftrack']['asset_type_name']
         try:
             result = self.session.query(
-                'AssetType where name is "{0}"'.format(asset_type)
+                'AssetType where short is "{0}"'.format(asset_type)
             ).first()
         except Exception as error:
             raise FtrackProcessorError(error)
@@ -1195,7 +1197,7 @@ class FtrackProcessorUI(FtrackBase):
             'AssetType'
         ).all()
 
-        asset_type_names = [asset_type['name'] for asset_type in asset_types]
+        asset_type_names = [asset_type['short'] for asset_type in asset_types]
         key, value, label = 'asset_type_name', asset_type_names, 'Asset type'
         tooltip = 'Asset type to be created.'
 
