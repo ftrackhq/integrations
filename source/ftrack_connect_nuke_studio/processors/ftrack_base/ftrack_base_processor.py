@@ -9,7 +9,6 @@ import logging
 import foundry.ui
 import uuid
 import hiero.core
-
 from Qt import QtWidgets, QtCore, QtGui
 
 
@@ -28,6 +27,7 @@ from ftrack_connect_nuke_studio.processors.ftrack_base import (
 from ftrack_connect_nuke_studio.ui.widget.template import Template
 import ftrack_connect_nuke_studio.template as template_manager
 import ftrack_connect_nuke_studio.exception
+
 
 
 class FtrackSettingsValidator(QtWidgets.QDialog):
@@ -125,12 +125,11 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
         '''Trigger creation of missing assets.'''
         sender = self.sender()
         asset_type = sender.text()
-        self.logger.info('creating missing asset type')
 
         self._session.ensure(
             'AssetType',
             {
-                'short': asset_type.lower(),
+                'short': asset_type.lower().replace(' ', '_'),
                 'name': asset_type
             }
         )
@@ -261,7 +260,15 @@ class FtrackProcessor(FtrackBase):
                 composed_name, parent, task, version
             )
         )
+        if not composed_name:
+            raise Exception(
+                'Error with composed_name provided: {}!'.format(
+                    composed_name
+                )
+            )
+
         splitted_name = composed_name.split('|')
+
         parsed_names = []
 
         for raw_name in splitted_name:
@@ -1029,7 +1036,7 @@ class FtrackProcessor(FtrackBase):
                     asset_type_name = preset.properties()['ftrack']['asset_type_name']
 
                     ftrack_asset_type = self.session.query(
-                        'AssetType where short is "{0}"'.format(asset_type_name)
+                        'AssetType where name is "{0}"'.format(asset_type_name)
                     ).first()
 
                     if not ftrack_asset_type and asset_type_name not in missing_assets_type:
@@ -1197,7 +1204,7 @@ class FtrackProcessorUI(FtrackBase):
             'AssetType'
         ).all()
 
-        asset_type_names = [asset_type['short'] for asset_type in asset_types]
+        asset_type_names = [asset_type['name'] for asset_type in asset_types]
         key, value, label = 'asset_type_name', asset_type_names, 'Asset type'
         tooltip = 'Asset type to be created.'
 
