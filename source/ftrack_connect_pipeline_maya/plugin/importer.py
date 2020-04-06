@@ -58,7 +58,7 @@ class ImporterMayaPlugin(plugin.ImporterPlugin, BaseMayaPlugin):
             self.logger.debug('No differences found in the scene')
             return
 
-        ftrack_node_name = asset_info['asset_name'] + "_ftrackdata"
+        ftrack_node_name = '{}_ftrackdata'.format(asset_info['asset_name'])
         count = 0
         while 1:
             if cmd.objExists(ftrack_node_name):
@@ -69,22 +69,28 @@ class ImporterMayaPlugin(plugin.ImporterPlugin, BaseMayaPlugin):
 
         ftrack_node = cmd.createNode("ftrackAssetNode", name=ftrack_node_name)
         cmd.setAttr(
-            ftrack_node + ".assetVersion", int(asset_info['version_number'])
+            '{}.assetVersion'.format(ftrack_node),
+            int(asset_info['version_number'])
         )
         cmd.setAttr(
-            ftrack_node + ".assetId", asset_info['asset_id'], type="string"
+            '{}.assetId'.format(ftrack_node),
+            asset_info['asset_id'], type="string"
         )
         cmd.setAttr(
-            ftrack_node + ".assetPath", asset_info['component_path'], type="string"
+            '{}.assetPath'.format(ftrack_node),
+            asset_info['component_path'], type="string"
         )
         cmd.setAttr(
-            ftrack_node + ".assetTake", asset_info['component_name'], type="string"
+            '{}.assetTake'.format(ftrack_node),
+            asset_info['component_name'], type="string"
         )
         cmd.setAttr(
-            ftrack_node + ".assetType", asset_info['asset_type'], type="string"
+            '{}.assetType'.format(ftrack_node),
+            asset_info['asset_type'], type="string"
         )
         cmd.setAttr(
-            ftrack_node + ".assetComponentId", asset_info['component_id'],
+            '{}.assetComponentId'.format(ftrack_node),
+            asset_info['component_id'],
             type="string"
         )
 
@@ -95,8 +101,11 @@ class ImporterMayaPlugin(plugin.ImporterPlugin, BaseMayaPlugin):
             if not cmd.attributeQuery('ftrack', n=item, exists=True):
                 cmd.addAttr(item, ln="ftrack", at="message")
 
-            if not cmd.listConnections(item + ".ftrack"):
-                cmd.connectAttr(ftrack_node + ".assetLink", item + ".ftrack")
+            if not cmd.listConnections('{}.ftrack'.format(item)):
+                cmd.connectAttr(
+                    '{}.assetLink'.format(ftrack_node),
+                    '{}.ftrack'.format(item)
+                )
 
 
 class ImporterMayaWidget(pluginWidget.ImporterWidget, BaseMayaPluginWidget):

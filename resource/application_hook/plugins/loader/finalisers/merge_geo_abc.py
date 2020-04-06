@@ -1,6 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
+import re
+
 import maya.cmds as cmd
 
 from ftrack_connect_pipeline_maya import plugin
@@ -12,7 +14,7 @@ class MergeGeoAbcMayaPlugin(plugin.FinaliserMayaPlugin):
     def run(self, context=None, data=None, options=None):
         result = {}
         asset_name = context.get('asset_name', '')
-        ftrack_node_name = asset_name + "_ftrackdata"
+        ftrack_node_name = '{}_ftrackdata'.format(asset_name)
         ftrack_nodes = cmd.ls(ftrack_node_name, type='ftrackAssetNode')
         alembic_nodes = cmd.ls(type='AlembicNode')
 
@@ -26,9 +28,13 @@ class MergeGeoAbcMayaPlugin(plugin.FinaliserMayaPlugin):
                 alembic_node, et=True, type='transform'
             )[0]
             for maya_obj in maya_objects:
-                if maya_obj.endsWith(alembic_maya_obj):
-                    cmd.connectAttr(alembic_node + '.transOp',
-                                     maya_obj + '.translate')
+                if re.match(r"{}\d+".format(maya_obj[0:-1]), alembic_maya_obj):
+                    cmd.connectAttr('{}.transOp[0]'.format(alembic_node),
+                                    '{}.translateX'.format(maya_obj))
+                    cmd.connectAttr('{}.transOp[1]'.format(alembic_node),
+                                    '{}.translateY'.format(maya_obj))
+                    cmd.connectAttr('{}.transOp[2]'.format(alembic_node),
+                                    '{}.translateZ'.format(maya_obj))
                     result[maya_obj] = alembic_node
                     cmd.delete(alembic_maya_obj)
 
