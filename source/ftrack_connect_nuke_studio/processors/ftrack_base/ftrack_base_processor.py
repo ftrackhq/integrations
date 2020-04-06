@@ -27,6 +27,7 @@ from ftrack_connect_nuke_studio.processors.ftrack_base import (
 from ftrack_connect_nuke_studio.ui.widget.template import Template
 import ftrack_connect_nuke_studio.template as template_manager
 import ftrack_connect_nuke_studio.exception
+from ftrack_connect_nuke_studio.config import report_exception
 
 
 
@@ -247,7 +248,7 @@ class FtrackProcessor(FtrackBase):
         asset_type = task._preset.properties()['ftrack']['asset_type_name']
         try:
             result = self.session.query(
-                'AssetType where short is "{0}"'.format(asset_type)
+                'AssetType where name is "{0}"'.format(asset_type)
             ).first()
         except Exception as error:
             raise FtrackProcessorError(error)
@@ -476,6 +477,7 @@ class FtrackProcessor(FtrackBase):
 
         self.session.commit()
 
+    @report_exception
     def create_project_structure(self, export_items):
         '''Create project structure on ftrack server given *export_items*.
 
