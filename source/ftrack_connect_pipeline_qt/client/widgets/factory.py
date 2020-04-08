@@ -79,6 +79,9 @@ class WidgetFactory(QtWidgets.QWidget):
         self.host_connection = host_connection
         self._listen_widget_updates()
 
+    def set_definition_type(self, definition_type):
+        self.definition_type = definition_type
+
     def create_widget(
             self, name, schema_fragment, fragment_data=None,
             previous_object_data=None, parent=None):
@@ -143,7 +146,7 @@ class WidgetFactory(QtWidgets.QWidget):
             widget_name = plugin_name
             plugin_data['widget'] = widget_name
 
-        plugin_type = plugin_type
+        plugin_type = '{}.{}'.format(self.definition_type, plugin_type)
 
         self.logger.info('Fetching widget : {} for plugin {}'.format(
             widget_name, plugin_name

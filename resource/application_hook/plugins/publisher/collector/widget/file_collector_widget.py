@@ -17,7 +17,7 @@ class FileCollectorWidget(BaseOptionsWidget):
         *name*, *description*, *options*
         '''
         super(FileCollectorWidget, self).__init__(
-            parent=parent, session=session, data=data, name=name,
+            parent=parent, context=context, session=session, data=data, name=name,
             description=description, options=options
         )
 
@@ -66,7 +66,7 @@ class FileCollectorWidget(BaseOptionsWidget):
         self.set_option_result(path, key='path')
 
 
-class CollectorWidget(plugin.CollectorWidget):
+class CollectorWidget(plugin.PublisherCollectorWidget):
     plugin_name = 'file_collector.widget'
     widget = FileCollectorWidget
 

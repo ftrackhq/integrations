@@ -15,9 +15,14 @@ class AssetComboBox(QtWidgets.QComboBox):
 
         self.session = session
         self.asset_type = asset_type
-        self.context_changed.connect(self._on_context_changed)
+
         validator = QtGui.QRegExpValidator(self.valid_asset_name)
         self.setValidator(validator)
+
+        self.post_build()
+
+    def post_build(self):
+        self.context_changed.connect(self._on_context_changed)
 
     def _on_context_changed(self, context):
         self.clear()
@@ -40,14 +45,25 @@ class AssetSelector(QtWidgets.QWidget):
             __name__ + '.' + self.__class__.__name__
         )
         self.logger.info('init asset selector with : {}'.format(asset_type))
+
+        self.session = session
+        self.asset_type = asset_type
+
+        self.pre_build()
+        self.build()
+        self.post_build()
+
+    def pre_build(self):
         main_layout = QtWidgets.QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
 
         self.setLayout(main_layout)
-        self.session = session
 
-        self.asset_combobox = AssetComboBox(self.session, asset_type)
+    def build(self):
+        self.asset_combobox = AssetComboBox(self.session, self.asset_type)
         self.layout().addWidget(self.asset_combobox)
+
+    def post_build(self):
         self.asset_combobox.currentIndexChanged.connect(
             self._current_asset_changed
         )

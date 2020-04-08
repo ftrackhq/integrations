@@ -2,16 +2,16 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline_qt.plugin import BasePluginWidget
+from ftrack_connect_pipeline_qt.plugin import base
 
 
-class ContextWidget(BasePluginWidget):
+class PublisherContextWidget(base.BaseContextWidget):
     ''' Class representing a Context Widget
     .. note::
 
         _required_output is a dictionary containing the 'context_id',
         'asset_name', 'comment' and 'status_id' of the current asset
     '''
-    plugin_type = constants.PLUGIN_CONTEXT_TYPE
+    plugin_type = constants.PLUGIN_PUBLISHER_CONTEXT_TYPE
 
 

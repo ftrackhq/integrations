@@ -8,7 +8,7 @@ from ftrack_connect_pipeline_qt.client.widgets.options import (
 )
 
 
-class ContextWidget(plugin.ContextWidget):
+class ContextWidget(plugin.LoaderContextWidget):
     plugin_name = 'context.load'
     widget = context_widget.LoadContextWidget
 

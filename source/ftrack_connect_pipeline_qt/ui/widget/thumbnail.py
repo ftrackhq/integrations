@@ -25,16 +25,19 @@ class Base(QtWidgets.QLabel):
             __name__ + '.' + self.__class__.__name__
         )
 
+        self._worker = None
+        self.__loadingReference = None
+
+        self.pre_build()
+
+    def pre_build(self):
         self.thumbnailCache = {}
         self.setFrameStyle(QtWidgets.QFrame.StyledPanel)
         self.setAlignment(QtCore.Qt.AlignCenter)
 
         self.placholderThumbnail = (
-            self.session._server_url + '/img/thumbnail2.png'
+                self.session._server_url + '/img/thumbnail2.png'
         )
-
-        self._worker = None
-        self.__loadingReference = None
 
     def load(self, reference):
         '''Load thumbnail from *reference* and display it.'''

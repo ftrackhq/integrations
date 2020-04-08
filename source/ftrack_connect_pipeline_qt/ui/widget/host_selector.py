@@ -7,6 +7,7 @@ class HostSelector(QtWidgets.QWidget):
     definition_changed = QtCore.Signal(object, object, object)
     host_connection = None
     schemas = None
+    definition_filter = None
 
     @property
     def selected_host_connection(self):
@@ -66,6 +67,9 @@ class HostSelector(QtWidgets.QWidget):
 
         for schema in self.schemas:
             schema_title = schema.get('title').lower()
+            if self.definition_filter:
+                if schema_title != self.definition_filter:
+                    continue
             items = self.host_connection.definitions.get(schema_title)
 
             for item in items:
@@ -98,4 +102,7 @@ class HostSelector(QtWidgets.QWidget):
     def add_hosts(self, hosts):
         for host in hosts:
             self.host_combobox.addItem(host.id, host)
+
+    def set_definition_filter(self, filter):
+        self.definition_filter = filter
 

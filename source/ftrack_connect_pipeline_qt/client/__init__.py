@@ -46,6 +46,8 @@ class QtClient(client.Client, QtWidgets.QWidget):
         # current_hosts = copy.deepcopy(self.hosts)
         super(QtClient, self)._host_discovered(event)
         self.host_selector.add_hosts(self.hosts)
+        if self.definition_filter:
+            self.host_selector.set_definition_filter(self.definition_filter)
 
     def pre_build(self):
         '''Prepare general layout.'''
@@ -106,6 +108,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
         self.widget_factory.set_context(context)
         self.widget_factory.set_host_connection(self.host_connection)
+        self.widget_factory.set_definition_type(self.definition['type'])
 
         self._current_def = self.widget_factory.create_widget(
             definition['name'],

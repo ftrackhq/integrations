@@ -15,6 +15,10 @@ class VersionComboBox(QtWidgets.QComboBox):
         self.asset_id = asset_id
         self.session = session
         self.context = None
+
+        self.post_build()
+
+    def post_build(self):
         self.context_changed.connect(self._on_context_changed)
         self.asset_changed.connect(self._on_asset_changed)
 
@@ -43,18 +47,30 @@ class VersionSelector(QtWidgets.QWidget):
             __name__ + '.' + self.__class__.__name__
         )
         self.logger.info('init version selector with : {}'.format(asset_id))
+
+        self.session = session
+        self.asset_id = asset_id
+
+        self.pre_build()
+        self.build()
+        self.post_build()
+
+    def pre_build(self):
         main_layout = QtWidgets.QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
 
         self.setLayout(main_layout)
-        self.session = session
 
-        self.version_combobox = VersionComboBox(self.session, asset_id)
+    def build(self):
+        self.version_combobox = VersionComboBox(self.session, self.asset_id)
         self.layout().addWidget(self.version_combobox)
+
+    def post_build(self):
         self.version_combobox.currentIndexChanged.connect(
             self._current_version_changed
         )
-        self.version_combobox.editTextChanged.connect(self._current_version_changed)
+        self.version_combobox.editTextChanged.connect(
+            self._current_version_changed)
 
     def _current_version_changed(self, index):
         version_num = self.version_combobox.currentText()
