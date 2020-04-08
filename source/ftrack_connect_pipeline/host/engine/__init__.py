@@ -17,6 +17,8 @@ def getEngine(baseClass, engineType):
 
 class BaseEngine(object):
 
+    engine_type='base'
+
     @property
     def hostid(self):
         '''Return the current hostid.'''
@@ -118,9 +120,10 @@ class BaseEngine(object):
         results = {}
 
         stage_name = context_stage['name']
+        pluginType = "{}.{}".format(self.engine_type, stage_name)
         for plugin in context_stage['plugins']:
             status, result = self._run_plugin(
-                plugin, stage_name,
+                plugin, pluginType,
                 options=plugin['options']
             )
             bool_status = constants.status_bool_mapping[status]
@@ -156,6 +159,8 @@ class BaseEngine(object):
                 if not plugins:
                     continue
 
+                pluginType = "{}.{}".format(self.engine_type, stage_name)
+
                 collected_data = results.get(constants.COLLECTOR, [])
                 stages_result = []
                 stage_status = []
@@ -165,7 +170,7 @@ class BaseEngine(object):
                     plugin_options = plugin['options']
                     plugin_options['component_name'] = component_name
                     status, result = self._run_plugin(
-                        plugin, stage_name,
+                        plugin, pluginType,
                         data=collected_data,
                         options=plugin_options,
                         context=context_data
@@ -207,9 +212,10 @@ class BaseEngine(object):
         results = []
 
         stage_name = finaliser_stage['name']
+        pluginType = "{}.{}".format(self.engine_type, stage_name)
         for plugin in finaliser_stage['plugins']:
             status, result = self._run_plugin(
-                plugin, stage_name,
+                plugin, pluginType,
                 data=finaliser_data,
                 options=plugin['options'],
                 context=context_data

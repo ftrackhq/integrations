@@ -3,8 +3,7 @@
 
 from ftrack_connect_pipeline import plugin
 
-
-class PostImportLoaderTest(plugin.PostImportPlugin):
+class PostImportLoaderTest(plugin.LoaderPostImportPlugin):
     plugin_name = 'postImportTest'
 
     def run(self, context=None, data=None, options=None):

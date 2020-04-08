@@ -1,8 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.plugin import BasePlugin, BasePluginValidation
+from ftrack_connect_pipeline.constants import plugin
 
 
 class PostImportPluginValidation(BasePluginValidation):
@@ -28,13 +28,13 @@ class PostImportPluginValidation(BasePluginValidation):
         )
 
 
-class PostImportPlugin(BasePlugin):
+class BasePostImportPlugin(BasePlugin):
     ''' Class representing an Output Plugin
     .. note::
 
         _required_output a Dictionary '''
     return_type = dict
-    plugin_type = constants.PLUGIN_POST_IMPORT_TYPE
+    plugin_type = plugin._PLUGIN_POST_IMPORT_TYPE
     _required_output = {}
 
     def __init__(self, session):
@@ -43,7 +43,7 @@ class PostImportPlugin(BasePlugin):
         *session* should be the :class:`ftrack_api.session.Session` instance
         to use for communication with the server.
         '''
-        super(PostImportPlugin, self).__init__(session)
+        super(BasePostImportPlugin, self).__init__(session)
         self.validator = PostImportPluginValidation(
             self.plugin_name, self._required_output, self.return_type,
             self.return_value

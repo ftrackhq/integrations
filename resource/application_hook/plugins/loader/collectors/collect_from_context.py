@@ -4,8 +4,7 @@
 import os
 from ftrack_connect_pipeline import plugin
 
-
-class CollectFromContextPlugin(plugin.CollectorPlugin):
+class CollectFromContextPlugin(plugin.LoaderCollectorPlugin):
     plugin_name = 'collect_from_context'
 
     def run(self, context=None, data=None, options=None):

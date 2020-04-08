@@ -147,6 +147,7 @@ class Client(object):
     '''
 
     ui = [constants.UI]
+    definition_filter = None
 
     def __repr__(self):
         return '<Client:{0}>'.format(self.ui)

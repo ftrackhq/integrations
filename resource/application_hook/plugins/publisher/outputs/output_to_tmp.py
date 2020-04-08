@@ -5,8 +5,7 @@ import shutil
 import tempfile
 from ftrack_connect_pipeline import plugin
 
-
-class TmpOutputPlugin(plugin.OutputPlugin):
+class TmpOutputPlugin(plugin.PublisherOutputPlugin):
     plugin_name = 'to_tmp'
 
     def run(self, context=None, data=None, options=None):

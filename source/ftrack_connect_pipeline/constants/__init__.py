@@ -36,8 +36,8 @@ PIPELINE_DISCOVER_HOST = '{}.host.discover'.format(_BASE_)
 PIPELINE_CONNECT_CLIENT = '{}.client.connect'.format(_BASE_)
 
 # Avoid circular dependencies.
-from ftrack_connect_pipeline.constants.plugin import *
-from ftrack_connect_pipeline.constants.load import *
+from ftrack_connect_pipeline.constants.plugin.load import *
+from ftrack_connect_pipeline.constants.plugin.publish import *
 from ftrack_connect_pipeline.constants.environments import *
 from ftrack_connect_pipeline.constants.event import *
 from ftrack_connect_pipeline.constants.status import *

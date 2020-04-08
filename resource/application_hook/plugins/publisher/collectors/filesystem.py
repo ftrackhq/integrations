@@ -1,11 +1,9 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-import os
 from ftrack_connect_pipeline import plugin
 
-
-class FilesystemCollectPlugin(plugin.CollectorPlugin):
+class FilesystemCollectPlugin(plugin.PublisherCollectorPlugin):
     plugin_name = 'filesystem'
 
     def run(self, context=None, data=None, options=None):

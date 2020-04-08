@@ -1,11 +1,11 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.plugin import BasePlugin, BasePluginValidation
+from ftrack_connect_pipeline.constants import plugin
 
 
-class ImporterPluginValidation(BasePluginValidation):
+class OutputPluginValidation(BasePluginValidation):
     '''Output Plugin Validation class'''
 
     def __init__(self, plugin_name, required_output, return_type, return_value):
@@ -23,18 +23,18 @@ class ImporterPluginValidation(BasePluginValidation):
         *return_value* return value of the current plugin stored at the
         plugin base class
         '''
-        super(ImporterPluginValidation, self).__init__(
+        super(OutputPluginValidation, self).__init__(
             plugin_name, required_output, return_type, return_value
         )
 
 
-class ImporterPlugin(BasePlugin):
+class BaseOutputPlugin(BasePlugin):
     ''' Class representing an Output Plugin
     .. note::
 
         _required_output a Dictionary '''
     return_type = dict
-    plugin_type = constants.PLUGIN_IMPORTER_TYPE
+    plugin_type = plugin._PLUGIN_OUTPUT_TYPE
     _required_output = {}
 
     def __init__(self, session):
@@ -43,8 +43,8 @@ class ImporterPlugin(BasePlugin):
         *session* should be the :class:`ftrack_api.session.Session` instance
         to use for communication with the server.
         '''
-        super(ImporterPlugin, self).__init__(session)
-        self.validator = ImporterPluginValidation(
+        super(BaseOutputPlugin, self).__init__(session)
+        self.validator = OutputPluginValidation(
             self.plugin_name, self._required_output, self.return_type,
             self.return_value
         )

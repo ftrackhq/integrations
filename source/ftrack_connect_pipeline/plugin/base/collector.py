@@ -1,15 +1,14 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.plugin import BasePlugin, BasePluginValidation
+from ftrack_connect_pipeline.constants import plugin
 
-
-class ContextPluginValidation(BasePluginValidation):
-    '''Context Plugin Validation class'''
+class CollectorPluginValidation(BasePluginValidation):
+    '''Collector Plugin Validation class'''
 
     def __init__(self, plugin_name, required_output, return_type, return_value):
-        '''Initialise ContextPluginValidation with *plugin_name*,
+        '''Initialise CollectorPluginValidation with *plugin_name*,
         *required_output*, *return_type*, *return_value*.
 
         *plugin_name* current plugin name stored at the plugin base class
@@ -23,33 +22,48 @@ class ContextPluginValidation(BasePluginValidation):
         *return_value* return value of the current plugin stored at the
         plugin base class
         '''
-        super(ContextPluginValidation, self).__init__(
-            plugin_name, required_output, return_type, return_value
-        )
+        super(CollectorPluginValidation, self).__init__(
+            plugin_name, required_output, return_type, return_value)
+    def validate_required_output(self, result):
+        '''Ensures that *result* contains the expected required_output defined
+        for the current plugin.
 
-class ContextPlugin(BasePlugin):
-    ''' Class representing a Context Plugin
+        *result* output value of the plugin execution
+
+        Return tuple (bool,str)
+        '''
+        validator_result = (True, "")
+
+        for output_value in self.required_output:
+            if output_value not in result:
+                message = '{} require {} result option'.format(
+                    self.plugin_name, output_value
+                )
+                validator_result = (False, message)
+
+        return validator_result
+
+
+class BaseCollectorPlugin(BasePlugin):
+    ''' Class representing a Collector Plugin
+
     .. note::
 
-        _required_output is a dictionary containing the 'context_id',
-        'asset_name', 'comment' and 'status_id' of the current asset
-    '''
-    return_type = dict
-    plugin_type = constants.PLUGIN_CONTEXT_TYPE
-    _required_output = {'context_id': None, 'asset_name': None,
-                        'comment': None, 'status_id': None}
+        _required_output a List '''
+    return_type = list
+    plugin_type = plugin._PLUGIN_COLLECTOR_TYPE
+    _required_output = []
 
     def __init__(self, session):
-        '''Initialise ContextPlugin with *session*
+        '''Initialise CollectorPlugin with *session*
 
         *session* should be the :class:`ftrack_api.session.Session` instance
         to use for communication with the server.
         '''
-        super(ContextPlugin, self).__init__(session)
-        self.validator = ContextPluginValidation(
+        super(BaseCollectorPlugin, self).__init__(session)
+        self.validator = CollectorPluginValidation(
             self.plugin_name, self._required_output, self.return_type,
-            self.return_value
-        )
+            self.return_value)
 
     def run(self, context=None, data=None, options=None):
         '''Run the current plugin with , *context* , *data* and *options*.
@@ -57,13 +71,11 @@ class ContextPlugin(BasePlugin):
         *context* provides a mapping with the asset_name, context_id,
         asset_type, comment and status_id of the asset that we are working on.
 
-        *data* a list of data coming from previous collector or empty list.
-        Not used, should be Empty
+        *data* a list of data coming from previous collector or empty list
 
         *options* a dictionary of options passed from outside.
 
-        Returns self.output a Dictionary with the asset_name, context_id,
-        asset_type, comment and status_id of the asset that we are working on.
+        Returns self.output List of paths of collected objects.
 
         .. note::
 
@@ -71,5 +83,6 @@ class ContextPlugin(BasePlugin):
             don't override self.output as it contains the _required_output
 
         '''
+
 
         raise NotImplementedError('Missing run method.')

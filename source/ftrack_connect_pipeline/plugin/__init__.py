@@ -137,7 +137,6 @@ class BasePlugin(object):
         self.logger = logging.getLogger(
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
-
         self._session = session
         self.validator = BasePluginValidation(
             self.plugin_name, self._required_output, self.return_type,
@@ -328,11 +327,12 @@ class BasePlugin(object):
         raise NotImplementedError('Missing run method.')
 
 
+# from ftrack_connect_pipeline.plugin.collector import *
+# from ftrack_connect_pipeline.plugin.context import *
+# from ftrack_connect_pipeline.plugin.finaliser import *
+# from ftrack_connect_pipeline.plugin.output import *
+# from ftrack_connect_pipeline.plugin.validator import *
+# from ftrack_connect_pipeline.plugin.importer import *
+# from ftrack_connect_pipeline.plugin.post_import import *
 from ftrack_connect_pipeline.plugin.load import *
-from ftrack_connect_pipeline.plugin.collector import *
-from ftrack_connect_pipeline.plugin.context import *
-from ftrack_connect_pipeline.plugin.finaliser import *
-from ftrack_connect_pipeline.plugin.output import *
-from ftrack_connect_pipeline.plugin.validator import *
-from ftrack_connect_pipeline.plugin.importer import *
-from ftrack_connect_pipeline.plugin.post_import import *
+from ftrack_connect_pipeline.plugin.publish import *

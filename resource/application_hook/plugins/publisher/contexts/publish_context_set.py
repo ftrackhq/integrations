@@ -1,11 +1,9 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-import os
 from ftrack_connect_pipeline import plugin
 
-
-class EnvContextPlugin(plugin.ContextPlugin):
+class EnvContextPlugin(plugin.PublisherContextPlugin):
     plugin_name = 'context.publish'
 
     def run(self, context=None, data=None, options=None):
