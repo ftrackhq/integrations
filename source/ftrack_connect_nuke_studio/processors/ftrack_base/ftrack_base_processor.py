@@ -854,10 +854,6 @@ class FtrackProcessor(FtrackBase):
             if start_handle and attr_name == 'handles':
                 attributes['handles'] = str(start_handle)
 
-        # if '#' in publish_path:
-        #     # todo: Improve this logic
-        #     publish_path = '{0} [{1}-{2}]'.format(publish_path, start, end)
-
         self.session.create(
             'ComponentLocation', {
                 'location_id': self.ftrack_location['id'],
