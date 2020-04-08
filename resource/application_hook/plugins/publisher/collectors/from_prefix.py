@@ -4,9 +4,10 @@
 import maya.cmds as cmd
 
 from ftrack_connect_pipeline_maya import plugin
+from ftrack_connect_pipeline import constants
 
 
-class CollectFromPrefixMayaPlugin(plugin.CollectorMayaPlugin):
+class CollectFromPrefixMayaPlugin(plugin.PublisherCollectorMayaPlugin):
     plugin_name = 'from_prefix'
 
     def run(self, context=None, data=None, options=None):

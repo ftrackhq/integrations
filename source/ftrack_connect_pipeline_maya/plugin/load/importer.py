@@ -10,7 +10,7 @@ from ftrack_connect_pipeline_maya.plugin import (
 import maya.cmds as cmd
 
 
-class ImporterMayaPlugin(plugin.ImporterPlugin, BaseMayaPlugin):
+class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
     ''' Class representing a Collector Plugin
 
     .. note::
@@ -22,7 +22,7 @@ class ImporterMayaPlugin(plugin.ImporterPlugin, BaseMayaPlugin):
         self.old_data = set(cmd.ls())
         context = event['data']['settings']['context']
         data = event['data']['settings']['data']
-        super_result = super(ImporterMayaPlugin, self)._run(event)
+        super_result = super(LoaderImporterMayaPlugin, self)._run(event)
         self.new_data = set(cmd.ls())
 
         asset_info = {}
@@ -108,7 +108,7 @@ class ImporterMayaPlugin(plugin.ImporterPlugin, BaseMayaPlugin):
                 )
 
 
-class ImporterMayaWidget(pluginWidget.ImporterWidget, BaseMayaPluginWidget):
+class ImporterMayaWidget(pluginWidget.LoaderImporterWidget, BaseMayaPluginWidget):
     ''' Class representing a Collector Widget
 
     .. note::

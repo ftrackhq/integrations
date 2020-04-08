@@ -7,10 +7,11 @@ import maya.cmds as cmd
 import maya
 
 from ftrack_connect_pipeline_maya import plugin
+from ftrack_connect_pipeline import constants
 
 
 
-class OutputMayaAlembicPlugin(plugin.OutputMayaPlugin):
+class OutputMayaAlembicPlugin(plugin.PublisherOutputMayaPlugin):
 
     plugin_name = 'alembic'
 
@@ -18,8 +19,8 @@ class OutputMayaAlembicPlugin(plugin.OutputMayaPlugin):
 
         return {
             'alembicAnimation' : bool(options.get('alembicAnimation', False)),
-            'frameStart': int(options.get('frameStart', 0)),
-            'frameEnd': int(options.get('frameEnd', 0)),
+            'frameStart': float(options.get('frameStart', 0.0)),
+            'frameEnd': float(options.get('frameEnd', 0.0)),
             'alembicUvwrite': bool(options.get('alembicUvwrite', True)),
             'alembicWorldspace': bool(options.get('alembicWorldspace', False)),
             'alembicWritevisibility': bool(options.get('alembicWritevisibility', False)),

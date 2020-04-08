@@ -7,10 +7,11 @@ import maya.cmds as cmd
 import maya
 
 from ftrack_connect_pipeline_maya import plugin
+from ftrack_connect_pipeline import constants
 
 
 
-class OutputMayaPlugin(plugin.OutputMayaPlugin):
+class OutputMayaPlugin(plugin.PublisherOutputMayaPlugin):
 
     extension = None
     filetype = None

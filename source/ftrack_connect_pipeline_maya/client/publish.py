@@ -8,6 +8,7 @@ from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 
 class MayaPublisherClient(MayaQWidgetDockableMixin, QtPublisherClient):
     ui = [constants.UI, qt_constants.UI, maya_constants.UI]
+    definition_filter = 'publisher'
 
     '''Dockable maya load widget'''
     def __init__(self, event_manager, parent=None):

@@ -4,9 +4,10 @@
 import maya.cmds as cmd
 
 from ftrack_connect_pipeline_maya import plugin
+from ftrack_connect_pipeline import constants
 
 
-class AbcMayaImportPlugin(plugin.ImporterMayaPlugin):
+class AbcMayaImportPlugin(plugin.LoaderImporterMayaPlugin):
     plugin_name = 'abc_maya_import'
 
     def run(self, context=None, data=None, options=None):

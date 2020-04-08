@@ -5,8 +5,10 @@ from ftrack_connect_pipeline_maya import plugin
 
 import maya.cmds as mc
 
+from ftrack_connect_pipeline import constants
 
-class CheckGeoNamesValidatorPlugin(plugin.ValidatorMayaPlugin):
+
+class CheckGeoNamesValidatorPlugin(plugin.PublisherValidatorMayaPlugin):
     plugin_name = 'name_validator'
 
     def run(self, context=None, data=None, options=None):

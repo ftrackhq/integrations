@@ -8,9 +8,9 @@ import maya.cmds as cmd
 import maya
 
 from ftrack_connect_pipeline_maya import plugin
+from ftrack_connect_pipeline import constants
 
-
-class OutputMayaReviewablePlugin(plugin.OutputMayaPlugin):
+class OutputMayaReviewablePlugin(plugin.PublisherOutputMayaPlugin):
     plugin_name = 'reviewable'
 
     def run(self, context=None, data=None, options=None):

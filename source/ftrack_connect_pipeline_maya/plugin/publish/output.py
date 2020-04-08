@@ -8,15 +8,19 @@ from ftrack_connect_pipeline_maya.plugin import (
 )
 
 
-class OutputMayaPlugin(plugin.OutputPlugin, BaseMayaPlugin):
+class PublisherOutputMayaPlugin(plugin.PublisherOutputPlugin, BaseMayaPlugin):
     ''' Class representing an Output Plugin
     .. note::
 
-        _required_output a Dictionary '''
+        _required_output a Dictionary
+    '''
 
 
-class OutputMayaWidget(pluginWidget.OutputWidget, BaseMayaPluginWidget):
+class PublisherOutputMayaWidget(
+    pluginWidget.PublisherOutputWidget, BaseMayaPluginWidget
+):
     ''' Class representing an Output Widget
         .. note::
 
-            _required_output a Dictionary '''
+            _required_output a Dictionary
+    '''

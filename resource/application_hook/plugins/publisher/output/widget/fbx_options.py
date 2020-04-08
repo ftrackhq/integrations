@@ -66,7 +66,7 @@ class FbxOptionsWidget(DynamicWidget):
             widget.stateChanged.connect(update_fn)
 
 
-class FbxOptionsPluginWidget(plugin.OutputMayaWidget):
+class FbxOptionsPluginWidget(plugin.PublisherOutputMayaWidget):
     plugin_name = 'fbx_options'
     widget = FbxOptionsWidget
 
