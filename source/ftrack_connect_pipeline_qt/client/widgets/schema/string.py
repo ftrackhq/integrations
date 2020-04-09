@@ -28,7 +28,7 @@ class JsonString(BaseJsonWidget):
 
         self.label.setToolTip(self.description)
 
-        if "default" in self.schema_fragment:
+        if 'default' in self.schema_fragment:
             self.edit.setText(self.schema_fragment['default'])
 
         if self.fragment_data:

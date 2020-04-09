@@ -25,7 +25,7 @@ class ComponentsArray(BaseJsonWidget):
     def build(self):
         self.tab_widget = QtWidgets.QTabWidget()
 
-        if "items" in self.schema_fragment and self.fragment_data:
+        if 'items' in self.schema_fragment and self.fragment_data:
             for data in self.fragment_data:
                 if type(data) == dict:
                     name = data.get('name')
@@ -50,6 +50,6 @@ class ComponentsArray(BaseJsonWidget):
             tab_widget = self.tab_widget.widget(idx)
             for i in range(0, tab_widget.layout().count()):
                 widget = tab_widget.layout().itemAt(i).widget()
-                if "to_json_object" in dir(widget):
+                if 'to_json_object' in dir(widget):
                     out.append(widget.to_json_object())
         return out

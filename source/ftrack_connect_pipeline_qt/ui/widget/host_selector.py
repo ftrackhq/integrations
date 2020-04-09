@@ -52,12 +52,12 @@ class HostSelector(QtWidgets.QWidget):
         self.host_connection = self.host_combobox.itemData(index)
 
         if not self.host_connection:
-            self.logger.warning("No data for selected host")
+            self.logger.warning('No data for selected host')
             return
 
         self.schemas = [
             schema for schema in self.host_connection.definitions['schema']
-            if schema.get('title').lower() != "package"
+            if schema.get('title').lower() != 'package'
         ]
 
         self._populate_definitions()
@@ -83,7 +83,7 @@ class HostSelector(QtWidgets.QWidget):
         self.definition = self.definition_combobox.itemData(index)
 
         if not self.definition:
-            self.logger.warning("No data for selected definition")
+            self.logger.warning('No data for selected definition')
             return
 
         for schema in self.schemas:

@@ -26,7 +26,7 @@ class JsonArray(BaseJsonWidget):
 
         self.innerLayout = QtWidgets.QVBoxLayout()
 
-        if "items" in self.schema_fragment and self.fragment_data:
+        if 'items' in self.schema_fragment and self.fragment_data:
             for data in self.fragment_data:
                 if type(data) == dict:
                     name = data.get('name')
@@ -46,7 +46,7 @@ class JsonArray(BaseJsonWidget):
         out = []
         for i in range(0, self.innerLayout.count()):
             widget = self.innerLayout.itemAt(i).widget()
-            if "to_json_object" in dir(widget):
+            if 'to_json_object' in dir(widget):
                 out.append(widget.to_json_object())
         return out
 

@@ -113,7 +113,7 @@ class WidgetFactory(QtWidgets.QWidget):
         # sort schema fragment keys by the order defined in the schema order
         # any not found entry will be added last.
 
-        if "properties" in schema_fragment:
+        if 'properties' in schema_fragment:
             schema_fragment_properties = OrderedDict(
                 sorted(
                     schema_fragment['properties'].items(),

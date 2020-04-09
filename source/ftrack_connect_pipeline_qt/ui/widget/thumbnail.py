@@ -122,7 +122,7 @@ class Base(QtWidgets.QLabel):
                 html = response.read()
 
             return html
-        self.logger.warning("There is no url image to download")
+        self.logger.warning('There is no url image to download')
         return None
 
 

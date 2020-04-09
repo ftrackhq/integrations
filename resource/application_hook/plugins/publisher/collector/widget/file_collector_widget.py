@@ -33,7 +33,7 @@ class FileCollectorWidget(BaseOptionsWidget):
 
         label = QtWidgets.QLabel('path')
         self.line_edit = QtWidgets.QLineEdit(current_path)
-        self.browser_button = QtWidgets.QPushButton("Browse")
+        self.browser_button = QtWidgets.QPushButton('Browse')
 
         widget_layout.addWidget(label)
         widget_layout.addWidget(self.line_edit)
