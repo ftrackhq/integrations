@@ -31,12 +31,18 @@ class MergeGeoAbcMayaPlugin(plugin.LoaderFinaliserMayaPlugin):
             )[0]
             for maya_obj in maya_objects:
                 if re.match(r"{}\d+".format(maya_obj[0:-1]), alembic_maya_obj):
-                    cmd.connectAttr('{}.transOp[0]'.format(alembic_node),
-                                    '{}.translateX'.format(maya_obj))
-                    cmd.connectAttr('{}.transOp[1]'.format(alembic_node),
-                                    '{}.translateY'.format(maya_obj))
-                    cmd.connectAttr('{}.transOp[2]'.format(alembic_node),
-                                    '{}.translateZ'.format(maya_obj))
+                    cmd.connectAttr(
+                        r'{}.transOp[0]'.format(alembic_node),
+                        r'{}.translateX'.format(maya_obj)
+                    )
+                    cmd.connectAttr(
+                        r'{}.transOp[1]'.format(alembic_node),
+                        r'{}.translateY'.format(maya_obj)
+                    )
+                    cmd.connectAttr(
+                        r'{}.transOp[2]'.format(alembic_node),
+                        r'{}.translateZ'.format(maya_obj)
+                    )
                     result[maya_obj] = alembic_node
                     cmd.delete(alembic_maya_obj)
 
