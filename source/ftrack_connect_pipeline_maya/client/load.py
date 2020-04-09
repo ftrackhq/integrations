@@ -8,7 +8,6 @@ from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 
 class MayaLoaderClient(MayaQWidgetDockableMixin, QtLoaderClient):
     ui = [constants.UI, qt_constants.UI, maya_constants.UI]
-    definition_filter = 'loader'
 
     '''Dockable maya load widget'''
     def __init__(self, event_manager, parent=None):
