@@ -62,7 +62,7 @@ class Host(object):
             __name__ + '.' + self.__class__.__name__
         )
 
-        self._hostid = '{}-{}'.format(".".join(self.host), uuid.uuid4().hex)
+        self._hostid = '{}-{}'.format('.'.join(self.host), uuid.uuid4().hex)
 
         self.logger.info(
             'initializing {}'.format(self)
@@ -95,8 +95,8 @@ class Host(object):
 
     def get_asset_type_from_packages(self, packages, data_package):
         for package in packages:
-            if package["name"] == data_package:
-                return package["asset_type"]
+            if package['name'] == data_package:
+                return package['asset_type']
 
     def on_register_definition(self, event):
         '''Register definition coming from *event* and store them.'''
@@ -158,7 +158,7 @@ class Host(object):
             topic=constants.PIPELINE_REGISTER_TOPIC,
             data={
                 'pipeline': {
-                    'type': "definition",
+                    'type': 'definition',
                     'host': self.host[-1],
                 }
             }

@@ -51,19 +51,19 @@ class PluginDiscoverValidation(object):
             # context plugins
             if not self.vaildate_contexts_plugins(
                     definition[constants.CONTEXTS],
-                    definition["name"],
+                    definition['name'],
                     schema_type
             ):
                 valid_definition = False
             if not self.validate_components_plugins(
                     definition[constants.COMPONENTS],
-                    definition["name"],
+                    definition['name'],
                     schema_type
             ):
                 valid_definition = False
             if not self.vaildate_finalisers_plugins(
                     definition[constants.FINALISERS],
-                    definition["name"],
+                    definition['name'],
                     schema_type
             ):
                 valid_definition = False
@@ -73,7 +73,7 @@ class PluginDiscoverValidation(object):
                 self.logger.warning(
                     'The definition {} from type {} contains invalid plugins '
                     'and will not be used'.format(
-                        definition["name"], 'publisher'
+                        definition['name'], 'publisher'
                     )
                 )
 
@@ -87,19 +87,19 @@ class PluginDiscoverValidation(object):
             # context plugins
             if not self.vaildate_contexts_plugins(
                     definition[constants.CONTEXTS],
-                    definition["name"],
+                    definition['name'],
                     schema_type
             ):
                 valid_definition = False
             if not self.validate_components_plugins(
                     definition[constants.COMPONENTS],
-                    definition["name"],
+                    definition['name'],
                     schema_type
             ):
                 valid_definition = False
             if not self.vaildate_finalisers_plugins(
                     definition[constants.FINALISERS],
-                    definition["name"],
+                    definition['name'],
                     schema_type
             ):
                 valid_definition = False
@@ -109,7 +109,7 @@ class PluginDiscoverValidation(object):
                 self.logger.warning(
                     'The definition {} from type {} contains invalid plugins '
                     'and will not be used'.format(
-                        definition["name"], 'publisher'
+                        definition['name'], 'publisher'
                     )
                 )
 
@@ -120,7 +120,7 @@ class PluginDiscoverValidation(object):
     ):
         is_valid = True
         stage_name = context_stage['name']
-        plugin_type = "{}.{}".format(schema_type, stage_name)
+        plugin_type = '{}.{}'.format(schema_type, stage_name)
         for context_plugin in context_stage['plugins']:
             if not self._discover_plugin(context_plugin,
                                          plugin_type):
@@ -142,7 +142,7 @@ class PluginDiscoverValidation(object):
         for component in components_list:
             for component_stage in component['stages']:
                 stage_name = component_stage['name']
-                plugin_type = "{}.{}".format(schema_type, stage_name)
+                plugin_type = '{}.{}'.format(schema_type, stage_name)
                 for component_plugin in component_stage['plugins']:
                     if not self._discover_plugin(component_plugin, plugin_type):
                         is_valid = False
@@ -162,7 +162,7 @@ class PluginDiscoverValidation(object):
     ):
         is_valid = True
         stage_name = finaliser_stage['name']
-        plugin_type = "{}.{}".format(schema_type, stage_name)
+        plugin_type = '{}.{}'.format(schema_type, stage_name)
         for publisher_plugin in finaliser_stage['plugins']:
             if not self._discover_plugin(publisher_plugin,
                                          plugin_type):

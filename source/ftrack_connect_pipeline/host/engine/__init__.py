@@ -120,7 +120,7 @@ class BaseEngine(object):
         results = {}
 
         stage_name = context_stage['name']
-        plugin_type = "{}.{}".format(self.engine_type, stage_name)
+        plugin_type = '{}.{}'.format(self.engine_type, stage_name)
         for plugin in context_stage['plugins']:
             status, result = self._run_plugin(
                 plugin, plugin_type,
@@ -159,7 +159,7 @@ class BaseEngine(object):
                 if not plugins:
                     continue
 
-                plugin_type = "{}.{}".format(self.engine_type, stage_name)
+                plugin_type = '{}.{}'.format(self.engine_type, stage_name)
 
                 collected_data = results.get(constants.COLLECTOR, [])
                 stages_result = []
@@ -212,7 +212,7 @@ class BaseEngine(object):
         results = []
 
         stage_name = finaliser_stage['name']
-        plugin_type = "{}.{}".format(self.engine_type, stage_name)
+        plugin_type = '{}.{}'.format(self.engine_type, stage_name)
         for plugin in finaliser_stage['plugins']:
             status, result = self._run_plugin(
                 plugin, plugin_type,
@@ -251,8 +251,8 @@ class BaseEngine(object):
         components_status = []
 
         for component in components:
-            component_name = component["name"]
-            component_stages = component["stages"]
+            component_name = component['name']
+            component_stages = component['stages']
             component_status, component_result = self.run_component(
                 component_name, component_stages, context_result,
                 data['_config']['stage_order']
