@@ -192,7 +192,7 @@ setup(
     install_requires=[
         'appdirs == 1.4.0',
         'lucidity >= 1.5, < 2',
-        'opentimelineio ==0.9',
+        'opentimelineio ==0.11',
         'qt.py >=1.0.0, < 2'
     ],
     tests_require=[
