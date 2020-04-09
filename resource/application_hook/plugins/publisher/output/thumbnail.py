@@ -59,7 +59,7 @@ class OutputMayaThumbnailPlugin(plugin.PublisherOutputMayaPlugin):
         ).name
 
         res = cmd.playblast(
-            format="image",
+            format='image',
             frame=cmd.currentTime(query=True),
             compression='jpg',
             quality=80,

@@ -66,7 +66,7 @@ class OutputMayaReviewablePlugin(plugin.PublisherOutputMayaPlugin):
 
         cmd.lookThru(previous_camera)
 
-        temp_files = glob.glob(filename + ".*")
+        temp_files = glob.glob(filename + '.*')
         #TODO:
         # find a better way to find the extension of the playblast file.
         full_path = temp_files[0]

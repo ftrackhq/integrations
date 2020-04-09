@@ -67,31 +67,31 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
             else:
                 break
 
-        ftrack_node = cmd.createNode("ftrackAssetNode", name=ftrack_node_name)
+        ftrack_node = cmd.createNode('ftrackAssetNode', name=ftrack_node_name)
         cmd.setAttr(
             '{}.assetVersion'.format(ftrack_node),
             int(asset_info['version_number'])
         )
         cmd.setAttr(
             '{}.assetId'.format(ftrack_node),
-            asset_info['asset_id'], type="string"
+            asset_info['asset_id'], type='string'
         )
         cmd.setAttr(
             '{}.assetPath'.format(ftrack_node),
-            asset_info['component_path'], type="string"
+            asset_info['component_path'], type='string'
         )
         cmd.setAttr(
             '{}.assetTake'.format(ftrack_node),
-            asset_info['component_name'], type="string"
+            asset_info['component_name'], type='string'
         )
         cmd.setAttr(
             '{}.assetType'.format(ftrack_node),
-            asset_info['asset_type'], type="string"
+            asset_info['asset_type'], type='string'
         )
         cmd.setAttr(
             '{}.assetComponentId'.format(ftrack_node),
             asset_info['component_id'],
-            type="string"
+            type='string'
         )
 
         for item in diff:
@@ -99,7 +99,7 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
                 cmd.lockNode(item, l=False)
 
             if not cmd.attributeQuery('ftrack', n=item, exists=True):
-                cmd.addAttr(item, ln="ftrack", at="message")
+                cmd.addAttr(item, ln='ftrack', at='message')
 
             if not cmd.listConnections('{}.ftrack'.format(item)):
                 cmd.connectAttr(

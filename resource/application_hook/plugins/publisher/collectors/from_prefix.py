@@ -14,7 +14,7 @@ class CollectFromPrefixMayaPlugin(plugin.PublisherCollectorMayaPlugin):
         cmd.select(cl=True)
         prefix = str(options['prefix'])
         sufix = str(options['sufix'])
-        cmd.select((prefix + "*" + sufix), r=True)
+        cmd.select((prefix + '*' + sufix), r=True)
         selection = cmd.ls(sl=True)
         return selection
 
