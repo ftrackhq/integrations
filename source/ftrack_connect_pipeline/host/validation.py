@@ -120,15 +120,15 @@ class PluginDiscoverValidation(object):
     ):
         is_valid = True
         stage_name = context_stage['name']
-        pluginType = "{}.{}".format(schema_type, stage_name)
+        plugin_type = "{}.{}".format(schema_type, stage_name)
         for context_plugin in context_stage['plugins']:
             if not self._discover_plugin(context_plugin,
-                                         pluginType):
+                                         plugin_type):
                 is_valid = False
                 self.logger.warning(
                     'Could not discover plugin {} of type {} for stage {}'
                     ' in {}'.format(
-                        context_plugin['plugin'], pluginType, stage_name,
+                        context_plugin['plugin'], plugin_type, stage_name,
                         definition_name
                     )
                 )
@@ -142,15 +142,15 @@ class PluginDiscoverValidation(object):
         for component in components_list:
             for component_stage in component['stages']:
                 stage_name = component_stage['name']
-                pluginType = "{}.{}".format(schema_type, stage_name)
+                plugin_type = "{}.{}".format(schema_type, stage_name)
                 for component_plugin in component_stage['plugins']:
-                    if not self._discover_plugin(component_plugin, pluginType):
+                    if not self._discover_plugin(component_plugin, plugin_type):
                         is_valid = False
                         self.logger.warning(
                             'Could not discover plugin {} of type {} for '
                             'stage {} in {}'.format(
                                 component_plugin['plugin'],
-                                pluginType,
+                                plugin_type,
                                 stage_name,
                                 definition_name
                             )
@@ -162,15 +162,15 @@ class PluginDiscoverValidation(object):
     ):
         is_valid = True
         stage_name = finaliser_stage['name']
-        pluginType = "{}.{}".format(schema_type, stage_name)
+        plugin_type = "{}.{}".format(schema_type, stage_name)
         for publisher_plugin in finaliser_stage['plugins']:
             if not self._discover_plugin(publisher_plugin,
-                                         pluginType):
+                                         plugin_type):
                 is_valid = False
                 self.logger.warning(
                     'Could not discover plugin {} of type {} '
                     'for {} in {}'.format(
-                        publisher_plugin['plugin'], pluginType, stage_name,
+                        publisher_plugin['plugin'], plugin_type, stage_name,
                         definition_name
                     )
                 )

@@ -9,7 +9,8 @@ class PublisherValidatorPlugin(base.BaseValidatorPlugin):
 
     .. note::
 
-        _required_output a Boolean '''
+        _required_output a Boolean
+    '''
     return_type = bool
     plugin_type = constants.PLUGIN_PUBLISHER_VALIDATOR_TYPE
     _required_output = False

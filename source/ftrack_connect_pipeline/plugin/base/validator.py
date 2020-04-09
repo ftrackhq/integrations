@@ -67,7 +67,8 @@ class BaseValidatorPlugin(BasePlugin):
 
     .. note::
 
-        _required_output a Boolean '''
+        _required_output a Boolean
+    '''
     return_type = bool
     plugin_type = plugin._PLUGIN_VALIDATOR_TYPE
     _required_output = False

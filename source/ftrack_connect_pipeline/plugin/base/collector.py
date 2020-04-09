@@ -49,7 +49,8 @@ class BaseCollectorPlugin(BasePlugin):
 
     .. note::
 
-        _required_output a List '''
+        _required_output a List
+    '''
     return_type = list
     plugin_type = plugin._PLUGIN_COLLECTOR_TYPE
     _required_output = []

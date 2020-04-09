@@ -9,7 +9,8 @@ class LoaderCollectorPlugin(base.BaseCollectorPlugin):
 
     .. note::
 
-        _required_output a List '''
+        _required_output a List
+    '''
     return_type = list
     plugin_type = constants.PLUGIN_LOADER_COLLECTOR_TYPE
     _required_output = []

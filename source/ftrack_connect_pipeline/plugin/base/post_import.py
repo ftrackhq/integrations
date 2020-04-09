@@ -6,10 +6,10 @@ from ftrack_connect_pipeline.constants import plugin
 
 
 class PostImportPluginValidation(BasePluginValidation):
-    '''Output Plugin Validation class'''
+    '''Post Import Plugin Validation class'''
 
     def __init__(self, plugin_name, required_output, return_type, return_value):
-        '''Initialise OutputPluginValidation with *plugin_name*,
+        '''Initialise PostImportPluginValidation with *plugin_name*,
         *required_output*, *return_type*, *return_value*.
 
         *plugin_name* current plugin name stored at the plugin base class
@@ -29,16 +29,17 @@ class PostImportPluginValidation(BasePluginValidation):
 
 
 class BasePostImportPlugin(BasePlugin):
-    ''' Class representing an Output Plugin
+    ''' Class representing an Post Import Plugin
     .. note::
 
-        _required_output a Dictionary '''
+        _required_output a Dictionary
+    '''
     return_type = dict
     plugin_type = plugin._PLUGIN_POST_IMPORT_TYPE
     _required_output = {}
 
     def __init__(self, session):
-        '''Initialise OutputPlugin with *session*
+        '''Initialise BasePostImportPlugin with *session*
 
         *session* should be the :class:`ftrack_api.session.Session` instance
         to use for communication with the server.

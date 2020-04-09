@@ -9,7 +9,8 @@ class PublisherOutputPlugin(base.BaseOutputPlugin):
     ''' Class representing an Output Plugin
     .. note::
 
-        _required_output a Dictionary '''
+        _required_output a Dictionary
+    '''
     return_type = dict
     plugin_type = constants.PLUGIN_PUBLISHER_OUTPUT_TYPE
     _required_output = {}

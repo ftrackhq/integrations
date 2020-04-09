@@ -32,7 +32,8 @@ class BaseOutputPlugin(BasePlugin):
     ''' Class representing an Output Plugin
     .. note::
 
-        _required_output a Dictionary '''
+        _required_output a Dictionary
+    '''
     return_type = dict
     plugin_type = plugin._PLUGIN_OUTPUT_TYPE
     _required_output = {}

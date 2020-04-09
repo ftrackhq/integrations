@@ -9,7 +9,8 @@ class PublisherCollectorPlugin(base.BaseCollectorPlugin):
 
     .. note::
 
-        _required_output a List '''
+        _required_output a List
+    '''
     return_type = list
     plugin_type = constants.PLUGIN_PUBLISHER_COLLECTOR_TYPE
     _required_output = []
