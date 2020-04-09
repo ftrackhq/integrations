@@ -10,6 +10,17 @@ Release Notes
 
 .. release:: Upcoming
 
+
+    .. change:: fix
+        :tags: Internal
+
+        Sequences rendered with Nuke Studio cannot be imported in nuke.
+
+    .. change:: fix
+        :tags: Internal
+
+        ImageSequences are rendered as FileComponent.
+
     .. change:: fix
         :tags: Internal
 
@@ -28,7 +39,7 @@ Release Notes
 .. release:: 2.2.4
     :date: 2020-01-21
 
-    ..change:: changed
+    .. change:: changed
         :tags: Setup
 
         Pip compatibility for version 19.3.0 or higher

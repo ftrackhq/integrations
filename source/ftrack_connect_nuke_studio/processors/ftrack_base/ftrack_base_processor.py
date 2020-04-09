@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2018 ftrack
 
+import re
 import os
 import time
 import tempfile
@@ -8,7 +9,6 @@ import logging
 import foundry.ui
 import uuid
 import hiero.core
-
 from Qt import QtWidgets, QtCore, QtGui
 
 
@@ -27,6 +27,8 @@ from ftrack_connect_nuke_studio.processors.ftrack_base import (
 from ftrack_connect_nuke_studio.ui.widget.template import Template
 import ftrack_connect_nuke_studio.template as template_manager
 import ftrack_connect_nuke_studio.exception
+from ftrack_connect_nuke_studio.config import report_exception
+
 
 
 class FtrackSettingsValidator(QtWidgets.QDialog):
@@ -124,10 +126,11 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
         '''Trigger creation of missing assets.'''
         sender = self.sender()
         asset_type = sender.text()
+
         self._session.ensure(
             'AssetType',
             {
-                'short': asset_type.lower(),
+                'short': asset_type.lower().replace(' ', '_'),
                 'name': asset_type
             }
         )
@@ -258,7 +261,15 @@ class FtrackProcessor(FtrackBase):
                 composed_name, parent, task, version
             )
         )
+        if not composed_name:
+            raise Exception(
+                'Error with composed_name provided: {}!'.format(
+                    composed_name
+                )
+            )
+
         splitted_name = composed_name.split('|')
+
         parsed_names = []
 
         for raw_name in splitted_name:
@@ -390,15 +401,24 @@ class FtrackProcessor(FtrackBase):
         )).first()
 
         if not component:
-            self.logger.info(
-                'Creating component for : {} with name {}'.format(
-                    task, component_name
-                )
+            is_sequence = re.search(
+                '(?<=\.)((%+\d+d)|(#+)|(%d)|(\d+))(?=\.)', name
+            )
+            if is_sequence:
+                start = task._clip.sourceIn()
+                end = task._clip.sourceOut()
+
+                name = '{} [{}-{}]'.format(name, start, end)
+
+            component = parent.create_component(
+                name,
+                {
+                    'name': component_name
+                },
+                location=None
             )
 
-            component = parent.create_component('/', {
-                'name': component_name
-            }, location=None)
+            self.logger.info('Component {} created with name {}'.format(component, name))
 
         return component
 
@@ -448,6 +468,7 @@ class FtrackProcessor(FtrackBase):
 
         self.session.commit()
 
+    @report_exception
     def create_project_structure(self, export_items):
         '''Create project structure on ftrack server given *export_items*.
 
@@ -833,10 +854,6 @@ class FtrackProcessor(FtrackBase):
             if start_handle and attr_name == 'handles':
                 attributes['handles'] = str(start_handle)
 
-        if '#' in publish_path:
-            # todo: Improve this logic
-            publish_path = '{0} [{1}-{2}]'.format(publish_path, start, end)
-
         self.session.create(
             'ComponentLocation', {
                 'location_id': self.ftrack_location['id'],
@@ -1008,7 +1025,7 @@ class FtrackProcessor(FtrackBase):
                     asset_type_name = preset.properties()['ftrack']['asset_type_name']
 
                     ftrack_asset_type = self.session.query(
-                        'AssetType where short is "{0}"'.format(asset_type_name)
+                        'AssetType where name is "{0}"'.format(asset_type_name)
                     ).first()
 
                     if not ftrack_asset_type and asset_type_name not in missing_assets_type:
