@@ -248,10 +248,15 @@ class WidgetFactory(QtWidgets.QWidget):
         widget_ref = event['data']['pipeline']['widget_ref']
         status = event['data']['pipeline']['status']
         message = event['data']['pipeline']['message']
+        host_id = event['data']['pipeline']['hostid']
 
         widget = self.widgets.get(widget_ref)
         if not widget:
-            self.logger.warning('Widget ref :{} not found ! '.format(widget_ref))
+            self.logger.debug(
+                'Widget ref :{} not found for hostid {} ! '.format(
+                    widget_ref, host_id
+                )
+            )
             return
 
         if status:
