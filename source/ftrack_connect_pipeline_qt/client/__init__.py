@@ -7,6 +7,7 @@ from ftrack_connect_pipeline import client, constants
 from ftrack_connect_pipeline_qt.ui.widget import header, host_selector
 from ftrack_connect_pipeline_qt.client.widgets import factory
 from ftrack_connect_pipeline_qt import constants as qt_constants
+from ftrack_connect.ui import theme
 
 
 class QtClient(client.Client, QtWidgets.QWidget):
@@ -77,6 +78,10 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.widget_factory.widget_status_updated.connect(
             self._on_widget_status_updated
         )
+
+        # apply styles
+        theme.applyTheme(self, 'dark')
+        theme.applyFont()
 
     def _definition_changed(self, host_connection, schema, definition):
         ''' Triggered when definition_changed is called from the host_selector.
