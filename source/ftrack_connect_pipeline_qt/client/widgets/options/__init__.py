@@ -90,11 +90,11 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self._options = options
         self._context = context or {}
 
-        context_id = self._context.get(
+        context_id = self.context.get(
             'context_id', options.get('context_id')
         )
 
-        asset_type = self._context.get(
+        asset_type = self.context.get(
             'asset_type', options.get('asset_type')
         )
         self._asset_type = session.query(
