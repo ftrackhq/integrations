@@ -10,6 +10,7 @@ class QtLoaderClient(QtClient):
     '''
     Base load widget class.
     '''
+    definition_filter = 'loader'
 
     def __init__(self, event_manager, parent=None):
 

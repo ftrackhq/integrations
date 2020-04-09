@@ -8,8 +8,10 @@ from ftrack_connect_pipeline_qt.client import QtClient
 
 class QtPublisherClient(QtClient):
     '''
-    Base load widget class.
+    Base publish widget class.
     '''
+
+    definition_filter = 'publisher'
 
     def __init__(self, event_manager, parent=None):
 

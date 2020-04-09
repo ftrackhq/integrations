@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
 
     class StandalonePublisherClient(QtPublisherClient):
-        definition_filter = 'publisher'
+
         def __init__(self, parent=None):
             session = ftrack_api.Session(auto_connect_event_hub=False)
             event_manager = event.QEventManager(
