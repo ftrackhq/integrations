@@ -4,9 +4,9 @@
 import re
 import os
 import time
+import clique
 import tempfile
 import logging
-import clique
 import foundry.ui
 import uuid
 import hiero.core
@@ -829,11 +829,7 @@ class FtrackProcessor(FtrackBase):
         if is_published:
             return
 
-        source = render_task._item
-
-        start = source.sourceIn()
-        end = source.sourceOut()
-
+        start, end = render_task.outputRange(clampToSource=False)
         start_handle, end_handle = render_task.outputHandles()
 
         fps = None
@@ -841,6 +837,8 @@ class FtrackProcessor(FtrackBase):
             fps = render_task._sequence.framerate().toFloat()
 
         elif render_task._clip:
+            start = render_task._clip.sourceIn()
+            end = render_task._clip.sourceOut()
             fps = render_task._clip.framerate().toFloat()
 
         parent = component['version']['task']['parent']
@@ -868,13 +866,16 @@ class FtrackProcessor(FtrackBase):
         is_container = 'members' in component.keys()
 
         if is_container:
-            collection = clique.parse(
-                '{} [{}-{}]'.format(resource_identifier, start, end)
-            )
-            self.logger.info('Registering collection {}'.format(collection))
+            start = render_task._clip.sourceIn()
+            end = render_task._clip.sourceOut()
+
+            member_path = '{} [{}-{}]'.format(resource_identifier, start, end)
+            self.logger.info('Registering collection {}'.format(member_path))
+
+            members = clique.parse(member_path)
 
             self.ftrack_location._register_components_in_location(
-                component['members'], collection
+                component['members'], members
             )
 
         self.ftrack_location._register_component_in_location(
