@@ -190,6 +190,7 @@ setup(
         'mock >= 1.3, < 2'
     ],
     install_requires=[
+        'clique',
         'appdirs == 1.4.0',
         'lucidity >= 1.5, < 2',
         'opentimelineio ==0.11',
