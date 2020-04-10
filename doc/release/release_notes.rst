@@ -10,6 +10,10 @@ Release Notes
 
 .. release:: Upcoming
 
+    .. change:: change
+        :tags: Internal
+
+        Lock OTIO dependency version to last python only.
 
     .. change:: fix
         :tags: Internal
