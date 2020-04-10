@@ -404,6 +404,7 @@ class FtrackProcessor(FtrackBase):
             is_sequence = re.search(
                 '(?<=\.)((%+\d+d)|(#+)|(%d)|(\d+))(?=\.)', name
             )
+
             if is_sequence:
                 start = task._clip.sourceIn()
                 end = task._clip.sourceOut()
@@ -853,6 +854,14 @@ class FtrackProcessor(FtrackBase):
 
             if start_handle and attr_name == 'handles':
                 attributes['handles'] = str(start_handle)
+
+        # remove accessor prefix from final component
+        publish_path = publish_path.split(
+            self.ftrack_location.accessor.prefix
+        )[-1]
+
+        if publish_path.startswith('/'):
+            publish_path = publish_path[1:]
 
         self.session.create(
             'ComponentLocation', {
