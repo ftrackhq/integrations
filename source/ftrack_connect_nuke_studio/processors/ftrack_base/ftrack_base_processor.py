@@ -856,17 +856,21 @@ class FtrackProcessor(FtrackBase):
                 attributes['handles'] = str(start_handle)
 
         # remove accessor prefix from final component
-        publish_path = publish_path.split(
+        resource_identifier = publish_path.split(
             self.ftrack_location.accessor.prefix
-        )[-1]
+        )[-1][1:]
 
-        self.session.create(
-            'ComponentLocation', {
-                'location_id': self.ftrack_location['id'],
-                'component_id': component['id'],
-                'resource_identifier': publish_path[1:]
-            }
+        is_container = 'members' in component.keys()
+
+        if is_container:
+            self.ftrack_location._register_components_in_location(
+                component['members'], resource_identifier
+            )
+
+        self.ftrack_location._register_component_in_location(
+            component, resource_identifier
         )
+
         self.logger.debug('Publishing : {0}'.format(publish_path))
 
         publish_thumbnail = self._preset.properties()['ftrack'].get(
