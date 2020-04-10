@@ -860,14 +860,11 @@ class FtrackProcessor(FtrackBase):
             self.ftrack_location.accessor.prefix
         )[-1]
 
-        if publish_path.startswith('/'):
-            publish_path = publish_path[1:]
-
         self.session.create(
             'ComponentLocation', {
                 'location_id': self.ftrack_location['id'],
                 'component_id': component['id'],
-                'resource_identifier': publish_path
+                'resource_identifier': publish_path[1:]
             }
         )
         self.logger.debug('Publishing : {0}'.format(publish_path))
