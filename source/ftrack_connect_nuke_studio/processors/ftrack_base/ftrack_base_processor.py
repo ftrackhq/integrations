@@ -408,7 +408,7 @@ class FtrackProcessor(FtrackBase):
                 start = task._clip.sourceIn()
                 end = task._clip.sourceOut()
 
-                name = '{} [{}-{}]'.format(name, start, end)
+                name = '/{} [{}-{}]'.format(name, start, end)
 
             component = parent.create_component(
                 name,
