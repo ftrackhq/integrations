@@ -36,8 +36,7 @@ class BaseContextPlugin(BasePlugin):
     '''
     return_type = dict
     plugin_type = plugin._PLUGIN_CONTEXT_TYPE
-    _required_output = {'context_id': None, 'asset_name': None,
-                        'comment': None, 'status_id': None}
+    _required_output = {}
 
     def __init__(self, session):
         '''Initialise ContextPlugin with *session*
