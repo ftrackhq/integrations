@@ -37,7 +37,9 @@ class WidgetFactory(QtWidgets.QWidget):
         '_config': hidden.HiddenObject,
         'ui': hidden.HiddenString,
         'type': hidden.HiddenString,
-        'name': hidden.HiddenString
+        'name': hidden.HiddenString,
+        'package': hidden.HiddenString,
+        'host': hidden.HiddenString
     }
 
     schema_title_mapping = {

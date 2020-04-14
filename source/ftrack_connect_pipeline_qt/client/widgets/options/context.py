@@ -97,10 +97,13 @@ class PublishContextWidget(BaseOptionsWidget):
 
     def _build_status_selector(self):
         '''Builds the status_selector widget'''
-        self.status_layout = QtWidgets.QHBoxLayout()
+        self.status_layout = QtWidgets.QVBoxLayout()
         self.status_layout.setContentsMargins(0, 0, 0, 0)
 
+        self.asset_status_label = QtWidgets.QLabel("Asset Status")
         self.status_selector = QtWidgets.QComboBox()
+        self.status_selector.setEditable(False)
+        self.status_layout.addWidget(self.asset_status_label)
         self.status_layout.addWidget(self.status_selector)
         self.layout().addLayout(self.status_layout)
         statuses = self._get_statuses()
@@ -214,6 +217,7 @@ class LoadContextWidget(BaseOptionsWidget):
         self.asset_layout.setContentsMargins(0, 0, 0, 0)
 
         self.asset_selector = AssetSelector(self.session, self.asset_type)
+        self.asset_selector.asset_combobox.setEditable(False)
         self.asset_layout.addWidget(self.asset_selector)
         self.layout().addLayout(self.asset_layout)
         current_asset = self.asset_selector.asset_combobox.currentText()

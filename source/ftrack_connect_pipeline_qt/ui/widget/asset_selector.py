@@ -60,7 +60,9 @@ class AssetSelector(QtWidgets.QWidget):
         self.setLayout(main_layout)
 
     def build(self):
+        self.asset_name_label = QtWidgets.QLabel("Asset Name")
         self.asset_combobox = AssetComboBox(self.session, self.asset_type)
+        self.layout().addWidget(self.asset_name_label)
         self.layout().addWidget(self.asset_combobox)
 
     def post_build(self):

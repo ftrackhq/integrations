@@ -62,7 +62,10 @@ class VersionSelector(QtWidgets.QWidget):
         self.setLayout(main_layout)
 
     def build(self):
+        self.asset_varsion_label = QtWidgets.QLabel("Asset Version")
         self.version_combobox = VersionComboBox(self.session, self.asset_id)
+        self.version_combobox.setEditable(False)
+        self.layout().addWidget(self.asset_varsion_label)
         self.layout().addWidget(self.version_combobox)
 
     def post_build(self):
