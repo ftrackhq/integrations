@@ -79,9 +79,9 @@ class QtClient(client.Client, QtWidgets.QWidget):
             self._on_widget_status_updated
         )
 
-        # apply styles
-        theme.applyTheme(self, 'dark')
-        theme.applyFont()
+        # # apply styles
+        # theme.applyTheme(self, 'dark')
+        # theme.applyFont()
 
     def _definition_changed(self, host_connection, schema, definition):
         ''' Triggered when definition_changed is called from the host_selector.

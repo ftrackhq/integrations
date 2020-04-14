@@ -69,6 +69,7 @@ class PublishContextWidget(BaseOptionsWidget):
         '''Updates the option dicctionary with provided *asset_name* when
         asset_changed of asset_selector event is triggered'''
         self.set_option_result(asset_name, key='asset_name')
+        self.set_option_result(asset_id, key='asset_id')
 
     def _build_context_id_selector(self):
         '''Builds the context_selector widget'''
