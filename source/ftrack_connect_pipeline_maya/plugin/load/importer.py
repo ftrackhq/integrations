@@ -48,11 +48,11 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
                 asset_info['component_path'] = component_path
 
         if asset_info:
-            self.linkToFtrackNode(asset_info)
+            self.link_to_ftrack_node(asset_info)
 
         return super_result
 
-    def linkToFtrackNode(self, asset_info):
+    def link_to_ftrack_node(self, asset_info):
         diff = self.new_data.difference(self.old_data)
         if not diff:
             self.logger.debug('No differences found in the scene')
@@ -74,7 +74,7 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
         )
         cmd.setAttr(
             '{}.assetId'.format(ftrack_node),
-            asset_info['asset_id'], type='string'
+            asset_info['version_id'], type='string'
         )
         cmd.setAttr(
             '{}.assetPath'.format(ftrack_node),
