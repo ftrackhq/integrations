@@ -39,7 +39,7 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
         location = self.session.pick_location()
 
         for component in asset_version['components']:
-            if location.get_component_availability(component) == 0.0:
+            if location.get_component_availability(component) < 100.0:
                 continue
             component_path = location.get_filesystem_path(component)
             if component_path in data:
