@@ -4,6 +4,7 @@
 from ftrack_connect_pipeline.plugin import BasePlugin, BasePluginValidation
 from ftrack_connect_pipeline.constants import plugin
 
+
 class CollectorPluginValidation(BasePluginValidation):
     '''Collector Plugin Validation class'''
 
@@ -24,6 +25,7 @@ class CollectorPluginValidation(BasePluginValidation):
         '''
         super(CollectorPluginValidation, self).__init__(
             plugin_name, required_output, return_type, return_value)
+
     def validate_required_output(self, result):
         '''Ensures that *result* contains the expected required_output defined
         for the current plugin.

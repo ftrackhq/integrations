@@ -27,6 +27,7 @@ class FinaliserPluginValidation(BasePluginValidation):
             plugin_name, required_output, return_type, return_value
         )
 
+
 class BaseFinaliserPlugin(BasePlugin):
     ''' Class representing a Finaliser Plugin
 

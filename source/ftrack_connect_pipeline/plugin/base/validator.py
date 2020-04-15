@@ -26,6 +26,7 @@ class ValidatorPluginValidation(BasePluginValidation):
         super(ValidatorPluginValidation, self).__init__(
             plugin_name, required_output, return_type, return_value
         )
+
     def validate_required_output(self, result):
         '''Ensures that *result* contains the expected required_output
         defined for the current plugin.

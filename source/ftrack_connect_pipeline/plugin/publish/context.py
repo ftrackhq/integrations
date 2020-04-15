@@ -4,6 +4,7 @@
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.plugin import base
 
+
 class PublisherContextPlugin(base.BaseContextPlugin):
     ''' Class representing a Context Plugin
     .. note::
