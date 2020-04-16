@@ -10,6 +10,11 @@ Release Notes
 .. release:: 2.3.0
     :date: 2020-04-16
 
+    .. change:: fix
+        :tags: Internal
+
+        Custom start frame are not consistently output in frame sequence.
+
     .. change:: change
         :tags: Internal
 
