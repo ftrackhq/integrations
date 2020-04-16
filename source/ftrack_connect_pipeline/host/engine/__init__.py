@@ -17,6 +17,8 @@ def getEngine(baseClass, engineType):
 
 class BaseEngine(object):
 
+    engine_type='base'
+
     @property
     def hostid(self):
         '''Return the current hostid.'''
@@ -27,7 +29,7 @@ class BaseEngine(object):
         '''Return the current host type.'''
         return self._host
 
-    def __init__(self, event_manager, host,  hostid, asset_type):
+    def __init__(self, event_manager, host, hostid, asset_type):
         '''Initialise BaseEngine with *event_manager*, *host*, *hostid* and
         *asset_type*'''
         super(BaseEngine, self).__init__()
@@ -118,9 +120,10 @@ class BaseEngine(object):
         results = {}
 
         stage_name = context_stage['name']
+        plugin_type = '{}.{}'.format(self.engine_type, stage_name)
         for plugin in context_stage['plugins']:
             status, result = self._run_plugin(
-                plugin, stage_name,
+                plugin, plugin_type,
                 options=plugin['options']
             )
             bool_status = constants.status_bool_mapping[status]
@@ -130,6 +133,7 @@ class BaseEngine(object):
                     'plugin {}\n stage: {} \n status: {} \n result: {}'.format(
                         plugin['plugin'], stage_name, status, result)
                 )
+
             statuses.append(bool_status)
             results.update(result)
 
@@ -155,6 +159,8 @@ class BaseEngine(object):
                 if not plugins:
                     continue
 
+                plugin_type = '{}.{}'.format(self.engine_type, stage_name)
+
                 collected_data = results.get(constants.COLLECTOR, [])
                 stages_result = []
                 stage_status = []
@@ -164,19 +170,18 @@ class BaseEngine(object):
                     plugin_options = plugin['options']
                     plugin_options['component_name'] = component_name
                     status, result = self._run_plugin(
-                        plugin, stage_name,
+                        plugin, plugin_type,
                         data=collected_data,
                         options=plugin_options,
                         context=context_data
                     )
 
-                    # Merge list of lists.
-                    if result and isinstance(result, list):
-                        result = result[0]
-
                     bool_status = constants.status_bool_mapping[status]
                     stage_status.append(bool_status)
-                    stages_result.append(result)
+                    if result and isinstance(result, list):
+                        stages_result.extend(result)
+                    else:
+                        stages_result.append(result)
                     if not bool_status:
                         self.logger.error(
                             'An error occurred during the execution of the '
@@ -207,9 +212,10 @@ class BaseEngine(object):
         results = []
 
         stage_name = finaliser_stage['name']
+        plugin_type = '{}.{}'.format(self.engine_type, stage_name)
         for plugin in finaliser_stage['plugins']:
             status, result = self._run_plugin(
-                plugin, stage_name,
+                plugin, plugin_type,
                 data=finaliser_data,
                 options=plugin['options'],
                 context=context_data
@@ -245,8 +251,8 @@ class BaseEngine(object):
         components_status = []
 
         for component in components:
-            component_name = component["name"]
-            component_stages = component["stages"]
+            component_name = component['name']
+            component_stages = component['stages']
             component_status, component_result = self.run_component(
                 component_name, component_stages, context_result,
                 data['_config']['stage_order']
@@ -260,10 +266,12 @@ class BaseEngine(object):
             components_result.append(component_result)
 
         finaliser_plugins = data[constants.FINALISERS]
-
         finaliser_data = {}
         for item in components_result:
-            for output in item.get(constants.OUTPUT):
+            last_component = constants.OUTPUT
+            if constants.POST_IMPORT in item.keys():
+                last_component = constants.POST_IMPORT
+            for output in item.get(last_component):
                 if not output:
                     continue
 

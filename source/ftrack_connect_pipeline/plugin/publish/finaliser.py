@@ -2,16 +2,34 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import os
-from ftrack_connect_pipeline import plugin
+
+from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline.plugin import base
 
 
-class FtrackPublishPlugin(plugin.FinaliserPlugin):
-    plugin_name = 'result'
+class PublisherFinaliserPlugin(base.BaseFinaliserPlugin):
+    ''' Class representing a Finaliser Plugin
+
+        .. note::
+
+            _required_output is a dictionary containing the 'context_id',
+            'asset_name', 'asset_type', 'comment' and 'status_id' of the
+            current asset
+    '''
+    return_type = dict
+    plugin_type = constants.PLUGIN_PUBLISHER_FINALISER_TYPE
+    _required_output = {}
+    version_dependencies = []
 
     def __init__(self, session):
-        super(FtrackPublishPlugin, self).__init__(session)
+        '''Initialise FinaliserPlugin with *session*
+
+        *session* should be the :class:`ftrack_api.session.Session` instance
+        to use for communication with the server.
+        '''
+        super(PublisherFinaliserPlugin, self).__init__(session)
         self.component_functions = {
-            'thumbnail':  self.create_thumbnail,
+            'thumbnail': self.create_thumbnail,
             'reviewable': self.create_reviewable
         }
 
@@ -37,8 +55,11 @@ class FtrackPublishPlugin(plugin.FinaliserPlugin):
         asset_version.encode_media(component_path)
         os.remove(component_path)
 
-    def run(self, context=None, data=None, options=None):
-        output = self.output
+    def _run(self, event):
+        super_result = super(PublisherFinaliserPlugin, self)._run(event)
+
+        context = event['data']['settings']['context']
+        data = event['data']['settings']['data']
 
         comment = context['comment']
         status_id = context['status_id']
@@ -71,6 +92,10 @@ class FtrackPublishPlugin(plugin.FinaliserPlugin):
             'status': status
         })
 
+        if self.version_dependencies:
+            for dependency in self.version_dependencies:
+                asset_version['uses_versions'].append(dependency)
+
         self.session.commit()
 
         results = {}
@@ -82,16 +107,9 @@ class FtrackPublishPlugin(plugin.FinaliserPlugin):
             publish_component_fn(asset_version, component_name, component_path)
             results[component_name] = True
 
-        output.update(results)
-
         self.session.commit()
 
         self.logger.debug("publishing: {} to {} as {}".format(data, context,
                                                               asset_object))
 
-        return output
-
-
-def register(api_object, **kw):
-    plugin = FtrackPublishPlugin(api_object)
-    plugin.register()
+        return super_result

@@ -3,8 +3,7 @@
 
 from ftrack_connect_pipeline import plugin
 
-
-class NonEmptyValidatorPlugin(plugin.ValidatorPlugin):
+class NonEmptyValidatorPlugin(plugin.PublisherValidatorPlugin):
     plugin_name = 'nonempty'
 
     def run(self, context=None, data=None, options=None):

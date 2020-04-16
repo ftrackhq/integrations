@@ -3,8 +3,7 @@
 
 from ftrack_connect_pipeline import plugin
 
-
-class NumericValidatorPlugin(plugin.ValidatorPlugin):
+class NumericValidatorPlugin(plugin.PublisherValidatorPlugin):
     plugin_name = 'numeric'
 
     def run(self, context=None, data=None, options=None):

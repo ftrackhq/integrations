@@ -1,8 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.plugin import BasePlugin, BasePluginValidation
+from ftrack_connect_pipeline.constants import plugin
 
 
 class ValidatorPluginValidation(BasePluginValidation):
@@ -26,6 +26,7 @@ class ValidatorPluginValidation(BasePluginValidation):
         super(ValidatorPluginValidation, self).__init__(
             plugin_name, required_output, return_type, return_value
         )
+
     def validate_required_output(self, result):
         '''Ensures that *result* contains the expected required_output
         defined for the current plugin.
@@ -62,14 +63,15 @@ class ValidatorPluginValidation(BasePluginValidation):
         return validator_result
 
 
-class ValidatorPlugin(BasePlugin):
+class BaseValidatorPlugin(BasePlugin):
     ''' Class representing a Validator Plugin
 
     .. note::
 
-        _required_output a Boolean '''
+        _required_output a Boolean
+    '''
     return_type = bool
-    plugin_type = constants.PLUGIN_VALIDATOR_TYPE
+    plugin_type = plugin._PLUGIN_VALIDATOR_TYPE
     _required_output = False
 
     def __init__(self, session):
@@ -78,7 +80,7 @@ class ValidatorPlugin(BasePlugin):
         *session* should be the :class:`ftrack_api.session.Session` instance
         to use for communication with the server.
         '''
-        super(ValidatorPlugin, self).__init__(session)
+        super(BaseValidatorPlugin, self).__init__(session)
         self.validator = ValidatorPluginValidation(
             self.plugin_name, self._required_output,
             self.return_type, self.return_value

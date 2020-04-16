@@ -3,15 +3,13 @@
 
 from ftrack_connect_pipeline import plugin
 
-class EnvContextPlugin(plugin.LoaderContextPlugin):
-    plugin_name = 'context.load'
+class FinaliserLoaderTest(plugin.LoaderFinaliserPlugin):
+    plugin_name = 'finaliserTest'
 
     def run(self, context=None, data=None, options=None):
-        output = self.output
-        output.update(options)
-        return output
+        return {}
 
 
 def register(api_object, **kw):
-    plugin = EnvContextPlugin(api_object)
+    plugin = FinaliserLoaderTest(api_object)
     plugin.register()
