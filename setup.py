@@ -62,7 +62,7 @@ class BuildResources(Command):
         self.resource_target_path = RESOURCE_TARGET_PATH
 
     def _replace_imports_(self):
-        '''Replace imports in resource files to QtExt instead of QtCore.
+        '''Replace imports in resource files to Qtpy instead of QtCore.
 
         This allows the resource file to work with many different versions of
         Qt.
@@ -202,6 +202,5 @@ setup(
     cmdclass={
         'build_plugin': BuildPlugin,
         'build_resources': BuildResources
-
     },
 )
