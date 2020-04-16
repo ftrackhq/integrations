@@ -838,7 +838,12 @@ class FtrackProcessor(FtrackBase):
         start, end = self._get_start_end_frame(render_task)
         start_handle, end_handle = render_task.outputHandles()
 
-        fps = render_task._item.framerate().toFloat()
+        fps = None
+        if render_task._sequence:
+            fps = render_task._sequence.framerate().toFloat()
+
+        elif render_task._clip:
+            fps = render_task._clip.framerate().toFloat()
 
         parent = component['version']['task']['parent']
 
