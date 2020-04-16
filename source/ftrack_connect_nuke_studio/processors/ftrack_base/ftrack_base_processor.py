@@ -256,6 +256,7 @@ class FtrackProcessor(FtrackBase):
         return result
 
     def _get_start_end_frame(self, task):
+        '''Return start, end frame from given *task*.'''
         start , end = task.outputRange(clampToSource=False)
         self.logger.debug(
             '{2} :: start frame {0}, end frame {1} '.format(
