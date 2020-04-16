@@ -256,8 +256,12 @@ class FtrackProcessor(FtrackBase):
         return result
 
     def _get_start_end_frame(self, task):
-        start = task._item.sourceIn()
-        end = task._item.sourceOut()
+        start , end = task.outputRange(clampToSource=False)
+        self.logger.debug(
+            '{2} :: start frame {0}, end frame {1} '.format(
+                start, end, task
+            )
+        )
         return start, end
 
     def _create_projct_structure_fragment(self, composed_name, parent, task, version):
