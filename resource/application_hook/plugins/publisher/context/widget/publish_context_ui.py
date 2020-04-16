@@ -6,7 +6,7 @@ from ftrack_connect_pipeline_qt.client.widgets.options import (
     context as context_widget
 )
 
-class ContextWidget(plugin.ContextWidget):
+class ContextWidget(plugin.PublisherContextWidget):
     plugin_name = 'context.publish'
     widget = context_widget.PublishContextWidget
 

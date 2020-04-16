@@ -72,10 +72,10 @@ class BaseJsonWidget(QtWidgets.QWidget):
         return {}
 
 
-from ftrack_connect_pipeline_qt.client.widgets.json.array import JsonArray
-from ftrack_connect_pipeline_qt.client.widgets.json.boolean import JsonBoolean
-from ftrack_connect_pipeline_qt.client.widgets.json.integer import JsonInteger
-from ftrack_connect_pipeline_qt.client.widgets.json.number import JsonNumber
-from ftrack_connect_pipeline_qt.client.widgets.json.object import JsonObject
-from ftrack_connect_pipeline_qt.client.widgets.json.string import JsonString
-from ftrack_connect_pipeline_qt.client.widgets.json.unsupported import UnsupportedSchema
+from ftrack_connect_pipeline_qt.client.widgets.schema.array import JsonArray
+from ftrack_connect_pipeline_qt.client.widgets.schema.boolean import JsonBoolean
+from ftrack_connect_pipeline_qt.client.widgets.schema.integer import JsonInteger
+from ftrack_connect_pipeline_qt.client.widgets.schema.number import JsonNumber
+from ftrack_connect_pipeline_qt.client.widgets.schema.object import JsonObject
+from ftrack_connect_pipeline_qt.client.widgets.schema.string import JsonString
+from ftrack_connect_pipeline_qt.client.widgets.schema.unsupported import UnsupportedSchema

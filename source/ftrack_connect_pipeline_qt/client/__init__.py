@@ -7,6 +7,7 @@ from ftrack_connect_pipeline import client, constants
 from ftrack_connect_pipeline_qt.ui.widget import header, host_selector
 from ftrack_connect_pipeline_qt.client.widgets import factory
 from ftrack_connect_pipeline_qt import constants as qt_constants
+from ftrack_connect.ui import theme
 
 
 class QtClient(client.Client, QtWidgets.QWidget):
@@ -46,6 +47,8 @@ class QtClient(client.Client, QtWidgets.QWidget):
         # current_hosts = copy.deepcopy(self.hosts)
         super(QtClient, self)._host_discovered(event)
         self.host_selector.add_hosts(self.hosts)
+        if self.definition_filter:
+            self.host_selector.set_definition_filter(self.definition_filter)
 
     def pre_build(self):
         '''Prepare general layout.'''
@@ -75,6 +78,10 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.widget_factory.widget_status_updated.connect(
             self._on_widget_status_updated
         )
+
+        # # apply styles
+        # theme.applyTheme(self, 'dark')
+        # theme.applyFont()
 
     def _definition_changed(self, host_connection, schema, definition):
         ''' Triggered when definition_changed is called from the host_selector.
@@ -106,6 +113,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
         self.widget_factory.set_context(context)
         self.widget_factory.set_host_connection(self.host_connection)
+        self.widget_factory.set_definition_type(self.definition['type'])
 
         self._current_def = self.widget_factory.create_widget(
             definition['name'],

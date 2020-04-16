@@ -33,15 +33,15 @@ class EntityBrowser(QtWidgets.QDialog):
 
         self._session = session
 
-        self._construct()
-        self._postConstruction()
+        self.pre_build()
+        self.build()
+        self.post_build()
 
-    def _construct(self):
-        '''Construct widget.'''
+    def pre_build(self):
         self.setLayout(QtWidgets.QVBoxLayout())
-
         self.headerLayout = QtWidgets.QHBoxLayout()
 
+    def build(self):
         self.navigationBar = QtWidgets.QTabBar()
         self.navigationBar.setExpanding(False)
         self.navigationBar.setDrawBase(False)
@@ -105,8 +105,7 @@ class EntityBrowser(QtWidgets.QDialog):
 
         self.layout().addLayout(self.footerLayout)
 
-
-    def _postConstruction(self):
+    def post_build(self):
         '''Perform post-construction operations.'''
         self.setWindowTitle('ftrack browser')
         self.view.sortByColumn(0, QtCore.Qt.AscendingOrder)

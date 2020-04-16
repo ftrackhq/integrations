@@ -3,7 +3,7 @@
 
 
 from Qt import QtCore, QtWidgets
-from ftrack_connect_pipeline_qt.client.widgets.json import JsonObject
+from ftrack_connect_pipeline_qt.client.widgets.schema import JsonObject
 
 
 class PluginContainerObject(JsonObject):
@@ -30,12 +30,12 @@ class PluginContainerObject(JsonObject):
 
         if not self.properties:
             label = QtWidgets.QLabel(
-                "Invalid object description (missing properties)",
+                'Invalid object description (missing properties)',
                 self)
-            label.setStyleSheet("QLabel { color: red; }")
+            label.setStyleSheet('QLabel { color: red; }')
             self.layout().addWidget(label)
         else:
-            if "widget" in self.properties.keys():
+            if 'widget' in self.properties.keys():
                 widget = self.widget_factory.fetch_plugin_widget(
                     self.fragment_data, self.plugin_type
                 )

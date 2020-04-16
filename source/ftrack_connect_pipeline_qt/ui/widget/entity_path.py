@@ -12,6 +12,10 @@ class EntityPath(QtWidgets.QLineEdit):
         '''Instantiate the entity path widget.'''
         super(EntityPath, self).__init__(*args, **kwargs)
         self.setReadOnly(True)
+
+        self.post_build()
+
+    def post_build(self):
         self.path_ready.connect(self.on_path_ready)
 
     def setEntity(self, entity):

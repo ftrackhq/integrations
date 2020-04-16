@@ -7,6 +7,7 @@ class HostSelector(QtWidgets.QWidget):
     definition_changed = QtCore.Signal(object, object, object)
     host_connection = None
     schemas = None
+    definition_filter = None
 
     @property
     def selected_host_connection(self):
@@ -51,12 +52,12 @@ class HostSelector(QtWidgets.QWidget):
         self.host_connection = self.host_combobox.itemData(index)
 
         if not self.host_connection:
-            self.logger.warning("No data for selected host")
+            self.logger.warning('No data for selected host')
             return
 
         self.schemas = [
             schema for schema in self.host_connection.definitions['schema']
-            if schema.get('title').lower() != "package"
+            if schema.get('title').lower() != 'package'
         ]
 
         self._populate_definitions()
@@ -66,6 +67,9 @@ class HostSelector(QtWidgets.QWidget):
 
         for schema in self.schemas:
             schema_title = schema.get('title').lower()
+            if self.definition_filter:
+                if schema_title != self.definition_filter:
+                    continue
             items = self.host_connection.definitions.get(schema_title)
 
             for item in items:
@@ -79,7 +83,7 @@ class HostSelector(QtWidgets.QWidget):
         self.definition = self.definition_combobox.itemData(index)
 
         if not self.definition:
-            self.logger.warning("No data for selected definition")
+            self.logger.warning('No data for selected definition')
             return
 
         for schema in self.schemas:
@@ -98,4 +102,7 @@ class HostSelector(QtWidgets.QWidget):
     def add_hosts(self, hosts):
         for host in hosts:
             self.host_combobox.addItem(host.id, host)
+
+    def set_definition_filter(self, filter):
+        self.definition_filter = filter
 

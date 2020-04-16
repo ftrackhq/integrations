@@ -3,7 +3,7 @@
 
 
 from Qt import QtCore, QtWidgets
-from ftrack_connect_pipeline_qt.client.widgets.json import JsonObject, \
+from ftrack_connect_pipeline_qt.client.widgets.schema import JsonObject, \
     JsonString
 
 

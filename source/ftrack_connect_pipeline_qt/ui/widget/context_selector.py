@@ -20,19 +20,30 @@ class ContextSelector(QtWidgets.QWidget):
         '''
         super(ContextSelector, self).__init__(parent=parent)
         self._entity = currentEntity
-        self.entityBrowser = entityBrowser.EntityBrowser(session)
-        self.entityBrowser.setMinimumWidth(600)
-        self.entityPath = EntityPath()
-        self.entityBrowseButton = QtWidgets.QPushButton('Browse')
+        self.session = session
 
+        self.pre_build()
+        self.build()
+        self.post_build()
+
+        self.setEntity(currentEntity)
+
+    def pre_build(self):
         layout = QtWidgets.QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
-
         self.setLayout(layout)
 
-        layout.addWidget(self.entityPath)
-        layout.addWidget(self.entityBrowseButton)
+    def build(self):
+        self.entityBrowser = entityBrowser.EntityBrowser(self.session)
+        self.entityBrowser.setMinimumWidth(600)
+        self.entityPath = EntityPath()
 
+        self.entityBrowseButton = QtWidgets.QPushButton('Browse')
+
+        self.layout().addWidget(self.entityPath)
+        self.layout().addWidget(self.entityBrowseButton)
+
+    def post_build(self):
         self.entityBrowseButton.clicked.connect(
             self._onEntityBrowseButtonClicked
         )
@@ -40,7 +51,6 @@ class ContextSelector(QtWidgets.QWidget):
         self.entityBrowser.selectionChanged.connect(
             self._onEntityBrowserSelectionChanged
         )
-        self.setEntity(currentEntity)
 
     def reset(self, entity=None):
         '''reset browser to the given *entity* or the default one'''

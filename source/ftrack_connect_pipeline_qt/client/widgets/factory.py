@@ -9,8 +9,8 @@ import ftrack_api
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
-from ftrack_connect_pipeline_qt.client.widgets import json
-from ftrack_connect_pipeline_qt.client.widgets.json.overrides import component,\
+from ftrack_connect_pipeline_qt.client.widgets import schema as schema_widget
+from ftrack_connect_pipeline_qt.client.widgets.schema.overrides import component,\
     hidden, plugin_container
 
 from Qt import QtCore, QtWidgets
@@ -25,19 +25,21 @@ class WidgetFactory(QtWidgets.QWidget):
     ui = None
 
     schema_type_mapping = {
-        'object': json.JsonObject,
-        'string': json.JsonString,
-        'integer': json.JsonInteger,
-        'array': json.JsonArray,
-        'number': json.JsonNumber,
-        'boolean': json.JsonBoolean
+        'object': schema_widget.JsonObject,
+        'string': schema_widget.JsonString,
+        'integer': schema_widget.JsonInteger,
+        'array': schema_widget.JsonArray,
+        'number': schema_widget.JsonNumber,
+        'boolean': schema_widget.JsonBoolean
     }
     schema_name_mapping = {
         'components': component.ComponentsArray,
         '_config': hidden.HiddenObject,
         'ui': hidden.HiddenString,
         'type': hidden.HiddenString,
-        'name': hidden.HiddenString
+        'name': hidden.HiddenString,
+        'package': hidden.HiddenString,
+        'host': hidden.HiddenString
     }
 
     schema_title_mapping = {
@@ -79,6 +81,9 @@ class WidgetFactory(QtWidgets.QWidget):
         self.host_connection = host_connection
         self._listen_widget_updates()
 
+    def set_definition_type(self, definition_type):
+        self.definition_type = definition_type
+
     def create_widget(
             self, name, schema_fragment, fragment_data=None,
             previous_object_data=None, parent=None):
@@ -110,7 +115,7 @@ class WidgetFactory(QtWidgets.QWidget):
         # sort schema fragment keys by the order defined in the schema order
         # any not found entry will be added last.
 
-        if "properties" in schema_fragment:
+        if 'properties' in schema_fragment:
             schema_fragment_properties = OrderedDict(
                 sorted(
                     schema_fragment['properties'].items(),
@@ -127,7 +132,7 @@ class WidgetFactory(QtWidgets.QWidget):
 
         if not widget_fn:
             widget_fn = self.schema_type_mapping.get(
-                schema_fragment.get('type'), json.UnsupportedSchema)
+                schema_fragment.get('type'), schema_widget.UnsupportedSchema)
 
         return widget_fn(name, schema_fragment, fragment_data,
                          previous_object_data, self, parent)
@@ -143,7 +148,7 @@ class WidgetFactory(QtWidgets.QWidget):
             widget_name = plugin_name
             plugin_data['widget'] = widget_name
 
-        plugin_type = plugin_type
+        plugin_type = '{}.{}'.format(self.definition_type, plugin_type)
 
         self.logger.info('Fetching widget : {} for plugin {}'.format(
             widget_name, plugin_name
@@ -245,10 +250,15 @@ class WidgetFactory(QtWidgets.QWidget):
         widget_ref = event['data']['pipeline']['widget_ref']
         status = event['data']['pipeline']['status']
         message = event['data']['pipeline']['message']
+        host_id = event['data']['pipeline']['hostid']
 
         widget = self.widgets.get(widget_ref)
         if not widget:
-            self.logger.warning('Widget ref :{} not found ! '.format(widget_ref))
+            self.logger.debug(
+                'Widget ref :{} not found for hostid {} ! '.format(
+                    widget_ref, host_id
+                )
+            )
             return
 
         if status:

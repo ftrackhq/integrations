@@ -3,7 +3,7 @@
 
 
 from Qt import QtCore, QtWidgets
-from ftrack_connect_pipeline_qt.client.widgets.json import BaseJsonWidget
+from ftrack_connect_pipeline_qt.client.widgets.schema import BaseJsonWidget
 
 
 class UnsupportedSchema(BaseJsonWidget):
@@ -22,11 +22,11 @@ class UnsupportedSchema(BaseJsonWidget):
 
     def build(self):
         label = QtWidgets.QLabel(
-            "(Unsupported schema entry: %s, %s)" % (self.name, self._type)
+            '(Unsupported schema entry: %s, %s)' % (self.name, self._type)
         )
-        self.setStyleSheet("QLabel { font-style: italic; }")
+        self.setStyleSheet('QLabel { font-style: italic; }')
 
         self.layout().addWidget(label)
 
     def to_json_object(self):
-        return "(unsupported)"
+        return '(unsupported)'
