@@ -134,7 +134,7 @@ class LaunchApplicationAction(object):
         '''Return version information.'''
         return dict(
             name='ftrack connect publish pipeline',
-            version="1.0.0"
+            version='1.0.0'
         )
 
 

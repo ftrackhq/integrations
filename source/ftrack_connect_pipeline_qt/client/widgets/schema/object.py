@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 from Qt import QtCore, QtWidgets
-from ftrack_connect_pipeline_qt.client.widgets.json import BaseJsonWidget
+from ftrack_connect_pipeline_qt.client.widgets.schema import BaseJsonWidget
 
 
 class JsonObject(BaseJsonWidget):
@@ -37,12 +37,12 @@ class JsonObject(BaseJsonWidget):
 
         if not self.properties:
             label = QtWidgets.QLabel(
-                "Invalid object description (missing properties)",
+                'Invalid object description (missing properties)',
                 self)
-            label.setStyleSheet("QLabel { color: red; }")
+            label.setStyleSheet('QLabel { color: red; }')
             layout.addWidget(label)
         else:
-            if "widget" in self.properties.keys():
+            if 'widget' in self.properties.keys():
                 widget = self.widget_factory.fetch_plugin_widget(
                     self.fragment_data, self.plugin_type
                 )
@@ -63,7 +63,7 @@ class JsonObject(BaseJsonWidget):
     def to_json_object(self):
         out = {}
 
-        if "widget" in self.properties.keys():
+        if 'widget' in self.properties.keys():
             widget = self.widget_factory.get_registered_widget_plugin(
                 self.fragment_data)
             out = widget.to_json_object()

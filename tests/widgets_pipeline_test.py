@@ -28,7 +28,7 @@ from ftrack_connect_pipeline_qt import client
 
 client_connection = client.QtClient(event_manager)
 
-client_connection.context = "690afd58-06d0-11ea-bbbb-ee594985c7e2"
+client_connection.context = '690afd58-06d0-11ea-bbbb-ee594985c7e2'
 
 client_connection.show()
 sys.exit(app.exec_())
