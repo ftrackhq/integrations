@@ -23,8 +23,5 @@ class BaseMayaPluginWidget(BaseMayaPlugin, pluginWidget.BasePluginWidget):
     ui = maya_constants.UI
 
 
-from ftrack_connect_pipeline_maya.plugin.collector import *
-from ftrack_connect_pipeline_maya.plugin.context import *
-from ftrack_connect_pipeline_maya.plugin.finaliser import *
-from ftrack_connect_pipeline_maya.plugin.output import *
-from ftrack_connect_pipeline_maya.plugin.validator import *
+from ftrack_connect_pipeline_maya.plugin.load import *
+from ftrack_connect_pipeline_maya.plugin.publish import *

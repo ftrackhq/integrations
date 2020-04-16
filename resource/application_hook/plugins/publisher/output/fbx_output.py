@@ -9,10 +9,11 @@ import maya.mel as mel
 import maya
 
 from ftrack_connect_pipeline_maya import plugin
+from ftrack_connect_pipeline import constants
 
 
 
-class OutputMayaFbxPlugin(plugin.OutputMayaPlugin):
+class OutputMayaFbxPlugin(plugin.PublisherOutputMayaPlugin):
 
     plugin_name = 'fbx'
 

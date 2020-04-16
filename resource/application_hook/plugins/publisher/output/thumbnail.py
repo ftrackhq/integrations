@@ -10,9 +10,9 @@ import maya.cmds as cmd
 import maya
 
 from ftrack_connect_pipeline_maya import plugin
+from ftrack_connect_pipeline import constants
 
-
-class OutputMayaThumbnailPlugin(plugin.OutputMayaPlugin):
+class OutputMayaThumbnailPlugin(plugin.PublisherOutputMayaPlugin):
     plugin_name = 'thumbnail'
 
     def run(self, context=None, data=None, options=None):
@@ -59,7 +59,7 @@ class OutputMayaThumbnailPlugin(plugin.OutputMayaPlugin):
         ).name
 
         res = cmd.playblast(
-            format="image",
+            format='image',
             frame=cmd.currentTime(query=True),
             compression='jpg',
             quality=80,

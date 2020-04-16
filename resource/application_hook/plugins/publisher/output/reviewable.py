@@ -8,9 +8,9 @@ import maya.cmds as cmd
 import maya
 
 from ftrack_connect_pipeline_maya import plugin
+from ftrack_connect_pipeline import constants
 
-
-class OutputMayaReviewablePlugin(plugin.OutputMayaPlugin):
+class OutputMayaReviewablePlugin(plugin.PublisherOutputMayaPlugin):
     plugin_name = 'reviewable'
 
     def run(self, context=None, data=None, options=None):
@@ -66,7 +66,7 @@ class OutputMayaReviewablePlugin(plugin.OutputMayaPlugin):
 
         cmd.lookThru(previous_camera)
 
-        temp_files = glob.glob(filename + ".*")
+        temp_files = glob.glob(filename + '.*')
         #TODO:
         # find a better way to find the extension of the playblast file.
         full_path = temp_files[0]

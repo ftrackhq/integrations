@@ -61,7 +61,7 @@ class MayaOptionsWidget(DynamicWidget):
 
 
 
-class MayaOptionsPluginWidget(plugin.OutputMayaWidget):
+class MayaOptionsPluginWidget(plugin.PublisherOutputMayaWidget):
     plugin_name = 'maya_options'
     widget = MayaOptionsWidget
 

@@ -1,11 +1,13 @@
 from ftrack_connect_pipeline_qt.client.load import QtLoaderClient
+import ftrack_connect_pipeline.constants as constants
+import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_maya.constants as maya_constants
 
 from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 
 
 class MayaLoaderClient(MayaQWidgetDockableMixin, QtLoaderClient):
-    ui = maya_constants.UI
+    ui = [constants.UI, qt_constants.UI, maya_constants.UI]
 
     '''Dockable maya load widget'''
     def __init__(self, event_manager, parent=None):

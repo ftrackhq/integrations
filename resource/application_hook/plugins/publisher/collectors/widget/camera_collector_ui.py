@@ -48,7 +48,7 @@ class CameraCollectorWidget(BaseOptionsWidget):
         self.set_option_result(self.maya_cameras[0], key='camera_name')
 
 
-class CameraCollectorPluginWidget(plugin.CollectorMayaWidget):
+class CameraCollectorPluginWidget(plugin.PublisherCollectorMayaWidget):
     plugin_name = 'camera'
     widget = CameraCollectorWidget
 

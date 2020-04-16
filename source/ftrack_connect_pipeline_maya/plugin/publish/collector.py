@@ -9,18 +9,24 @@ from ftrack_connect_pipeline_maya.plugin import (
 )
 
 
-class CollectorMayaPlugin(plugin.CollectorPlugin, BaseMayaPlugin):
+class PublisherCollectorMayaPlugin(
+    plugin.PublisherCollectorPlugin, BaseMayaPlugin
+):
     ''' Class representing a Collector Plugin
 
     .. note::
 
-        _required_output a List '''
+        _required_output a List
+    '''
 
 
-class CollectorMayaWidget(pluginWidget.CollectorWidget, BaseMayaPluginWidget):
+class PublisherCollectorMayaWidget(
+    pluginWidget.PublisherCollectorWidget, BaseMayaPluginWidget
+):
     ''' Class representing a Collector Widget
 
     .. note::
 
-        _required_output a List '''
+        _required_output a List
+    '''
 

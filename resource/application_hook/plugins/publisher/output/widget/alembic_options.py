@@ -96,13 +96,15 @@ class AlembicOptionsWidget(DynamicWidget):
         textChanged of line_edit event is triggered'''
         if value:
             self.frames_widget.show()
+            for option, widget in self.options_le.items():
+                self.set_option_result(widget.text(), key=option)
         else:
             self.frames_widget.hide()
         self.set_option_result(value, key='alembicAnimation')
 
 
 
-class AlembicOptionsPluginWidget(plugin.OutputMayaWidget):
+class AlembicOptionsPluginWidget(plugin.PublisherOutputMayaWidget):
     plugin_name = 'alembic_options'
     widget = AlembicOptionsWidget
 

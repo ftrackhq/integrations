@@ -8,7 +8,7 @@ from ftrack_connect_pipeline_maya.plugin import (
 )
 
 
-class ContextMayaPlugin(plugin.ContextPlugin, BaseMayaPlugin):
+class LoaderContextMayaPlugin(plugin.LoaderContextPlugin, BaseMayaPlugin):
     ''' Class representing a Context Plugin
     .. note::
 
@@ -17,7 +17,9 @@ class ContextMayaPlugin(plugin.ContextPlugin, BaseMayaPlugin):
     '''
 
 
-class ContextMayaWidget(pluginWidget.ContextWidget, BaseMayaPluginWidget):
+class LoaderContextMayaWidget(
+    pluginWidget.LoaderContextWidget, BaseMayaPluginWidget
+):
     ''' Class representing a Context Widget
     .. note::
 

@@ -4,9 +4,10 @@
 import maya.cmds as cmd
 
 from ftrack_connect_pipeline_maya import plugin
+from ftrack_connect_pipeline import constants
 
 
-class CollectCameraMayaPlugin(plugin.CollectorMayaPlugin):
+class CollectCameraMayaPlugin(plugin.PublisherCollectorMayaPlugin):
     plugin_name = 'camera'
 
     def run(self, context=None, data=None, options=None):

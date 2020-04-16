@@ -8,17 +8,23 @@ from ftrack_connect_pipeline_maya.plugin import (
 )
 
 
-class ValidatorMayaPlugin(plugin.ValidatorPlugin, BaseMayaPlugin):
+class PublisherValidatorMayaPlugin(
+    plugin.PublisherValidatorPlugin, BaseMayaPlugin
+):
     ''' Class representing a Validator Plugin
 
     .. note::
 
-        _required_output a Boolean '''
+        _required_output a Boolean
+    '''
 
 
-class ValidatorMayaWidget(pluginWidget.ValidatorWidget, BaseMayaPluginWidget):
+class PublisherValidatorMayaWidget(
+    pluginWidget.PublisherValidatorWidget, BaseMayaPluginWidget
+):
     ''' Class representing a Validator widget
 
     .. note::
 
-        _required_output a Boolean '''
+        _required_output a Boolean
+    '''
