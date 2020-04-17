@@ -1,6 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2020 ftrack
 
+import os
+
 import hiero.core.util
 from hiero.exporters.FnCopyExporter import CopyExporter, CopyPreset
 from hiero.exporters.FnCopyExporterUI import CopyExporterUI
@@ -35,9 +37,16 @@ class FtrackCopyExporter(CopyExporter, FtrackProcessor):
 
         # fix CopyExporter defaults to using data from 'self._paths'
         # instead of the data source used in the 'FtrackProcessor.setup_export_paths_event' callback
-        if self._currentPathIndex < len(self._paths):
-            src_path, _ = self._paths[self._currentPathIndex]
-            self._paths[self._currentPathIndex] = src_path, self._exportPath
+        if self._source.singleFile():
+            if self._currentPathIndex < len(self._paths):
+                src_path, _ = self._paths[self._currentPathIndex]
+                self._paths[self._currentPathIndex] = (src_path, self._exportPath)
+        else:
+            for index, (src_path, _) in enumerate(self._paths):
+                dst_path = os.path.join(
+                    os.path.dirname(self._exportPath), os.path.basename(src_path)
+                )
+                self._paths[index] = (src_path, dst_path)
 
 
 class FtrackCopyExporterPreset(CopyPreset, FtrackProcessorPreset):
@@ -62,7 +71,8 @@ class FtrackCopyExporterPreset(CopyPreset, FtrackProcessorPreset):
         properties.setdefault('ftrack', {})
 
         # add placeholders for default ftrack defaults
-        self.properties()['ftrack']['component_pattern'] = '.mov'
+        # '####' this format can be used in sequence or single file.
+        self.properties()['ftrack']['component_pattern'] = '.####.{ext}'
         self.properties()['ftrack']['component_name'] = 'Plate'
         self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__)
 
@@ -93,6 +103,12 @@ class FtrackCopyExporterPreset(CopyPreset, FtrackProcessorPreset):
             "{sequence}",
             "Name of the sequence being processed",
             lambda keyword, task: task.sequenceName()
+        )
+
+        resolver.addResolver(
+            "{ext}",
+            "Extension of the file to be output",
+            lambda keyword, task: task.fileext()
         )
 
 
