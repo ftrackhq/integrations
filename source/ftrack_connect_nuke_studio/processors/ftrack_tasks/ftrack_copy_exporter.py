@@ -120,6 +120,7 @@ class FtrackCopyExporterUI(CopyExporterUI):
     def __init__(self, preset):
         super(FtrackCopyExporterUI, self).__init__(preset)
         self._displayName = 'Ftrack Copy Exporter'
+        self._taskType = FtrackCopyExporter
 
 
 hiero.core.taskRegistry.registerTask(FtrackCopyExporterPreset, FtrackCopyExporter)
