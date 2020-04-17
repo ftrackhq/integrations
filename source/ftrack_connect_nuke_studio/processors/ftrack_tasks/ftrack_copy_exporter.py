@@ -4,40 +4,47 @@
 import hiero.core.util
 from hiero.exporters.FnCopyExporter import CopyExporter, CopyPreset
 from hiero.exporters.FnCopyExporterUI import CopyExporterUI
+from hiero.exporters.FnShotExporter import ShotTask
 
 from ftrack_connect_nuke_studio.config import report_exception
 from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
-    FtrackProcessorPreset,
-    FtrackProcessor,
-    FtrackProcessorUI
+    FtrackProcessorPreset, FtrackProcessor,
 )
 
 
 class FtrackCopyExporter(CopyExporter, FtrackProcessor):
 
     @report_exception
-    def __init__(self, initDict):
-        '''Initialise task with *initDict*.'''
-        CopyExporter.__init__(self, initDict)
-        FtrackProcessor.__init__(self, initDict)
+    def __init__(self, init_dict):
+        super(FtrackCopyExporter, self).__init__(init_dict)
+        FtrackProcessor.__init__(self, init_dict)
+
+    def _makePath(self):
+        pass
 
     def component_name(self):
         return self.sanitise_for_filesystem(
             self._resolver.resolve(self, self._preset.name())
         )
 
-    def _makePath(self):
-        '''Disable file path creation.'''
-        pass
+    def startTask(self):
+        # CopyExporter parent FrameExporter overrides the 'startTask' method,
+        # and TaskCallbacks registered in FtrackProcesser are not called,
+        # so bypasses the parent class and calls ShotTask 'startTask' method directly.
+        ShotTask.startTask(self)
+
+        # fix CopyExporter defaults to using data from 'self._paths'
+        # instead of the data source used in the 'FtrackProcessor.setup_export_paths_event' callback
+        if self._currentPathIndex < len(self._paths):
+            src_path, _ = self._paths[self._currentPathIndex]
+            self._paths[self._currentPathIndex] = src_path, self._exportPath
 
 
 class FtrackCopyExporterPreset(CopyPreset, FtrackProcessorPreset):
-    '''Shot Task preset.'''
 
     @report_exception
     def __init__(self, name, properties):
-        '''Initialise task with *name* and *properties*.'''
-        CopyPreset.__init__(self, name, properties)
+        super(FtrackCopyExporterPreset, self).__init__(name, properties)
         FtrackProcessorPreset.__init__(self, name, properties)
         self._parentType = FtrackCopyExporter
 
@@ -46,7 +53,6 @@ class FtrackCopyExporterPreset(CopyPreset, FtrackProcessorPreset):
         self.setName(self.name())
 
     def name(self):
-        '''Return task/component name.'''
         return self.properties()['ftrack']['component_name']
 
     def set_ftrack_properties(self, properties):
@@ -56,7 +62,7 @@ class FtrackCopyExporterPreset(CopyPreset, FtrackProcessorPreset):
         properties.setdefault('ftrack', {})
 
         # add placeholders for default ftrack defaults
-        self.properties()['ftrack']['component_pattern'] = '.%4d.{fileext}'
+        self.properties()['ftrack']['component_pattern'] = '.mov'
         self.properties()['ftrack']['component_name'] = 'Plate'
         self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__)
 
@@ -90,17 +96,11 @@ class FtrackCopyExporterPreset(CopyPreset, FtrackProcessorPreset):
         )
 
 
-class FtrackCopyExporterUI(CopyExporterUI, FtrackProcessorUI):
-    '''Shot Task Ui.'''
+class FtrackCopyExporterUI(CopyExporterUI):
 
-    @report_exception
     def __init__(self, preset):
-        '''Initialise task ui with *preset*.'''
-        CopyExporterUI.__init__(self, preset)
-        FtrackProcessorUI.__init__(self, preset)
-
+        super(FtrackCopyExporterUI, self).__init__(preset)
         self._displayName = 'Ftrack Copy Exporter'
-        self._taskType = FtrackCopyExporter
 
 
 hiero.core.taskRegistry.registerTask(FtrackCopyExporterPreset, FtrackCopyExporter)
