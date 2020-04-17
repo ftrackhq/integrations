@@ -30,21 +30,24 @@ class FtrackCopyExporter(CopyExporter, FtrackProcessor):
         )
 
     def startTask(self):
-        # CopyExporter parent FrameExporter overrides the 'startTask' method,
+        # 'CopyExporter' parent 'FrameExporter' overrides the 'startTask' method,
         # and TaskCallbacks registered in FtrackProcesser are not called,
         # so bypasses the parent class and calls ShotTask 'startTask' method directly.
         ShotTask.startTask(self)
 
-        # fix CopyExporter defaults to using data from 'self._paths'
-        # instead of the data source used in the 'FtrackProcessor.setup_export_paths_event' callback
+        # Fix CopyExporter defaults to using data from 'self._paths'
+        # instead of data source used in 'FtrackProcessor.setup_export_paths_event' callback.
         if self._source.singleFile():
             if self._currentPathIndex < len(self._paths):
                 src_path, _ = self._paths[self._currentPathIndex]
                 self._paths[self._currentPathIndex] = (src_path, self._exportPath)
         else:
             for index, (src_path, _) in enumerate(self._paths):
-                dst_path = os.path.join(
-                    os.path.dirname(self._exportPath), os.path.basename(src_path)
+                dst_path = '{root_path}/{name}.{frame}.{ext}'.format(
+                    root_path=os.path.dirname(self._exportPath),
+                    name=self.component_name(),
+                    frame='{}'.format(self.filepadding()) % index,
+                    ext=self.fileext()
                 )
                 self._paths[index] = (src_path, dst_path)
 
@@ -66,11 +69,11 @@ class FtrackCopyExporterPreset(CopyPreset, FtrackProcessorPreset):
 
     def set_ftrack_properties(self, properties):
         '''Set ftrack specific *properties* for task.'''
-        FtrackProcessorPreset.set_ftrack_properties(self, properties)
+        super(FtrackCopyExporterPreset, self).set_ftrack_properties(properties)
         properties = self.properties()
         properties.setdefault('ftrack', {})
 
-        # add placeholders for default ftrack defaults
+        # Add placeholders for default ftrack defaults
         # '####' this format can be used in sequence or single file.
         self.properties()['ftrack']['component_pattern'] = '.####.{ext}'
         self.properties()['ftrack']['component_name'] = 'Plate'
@@ -78,7 +81,7 @@ class FtrackCopyExporterPreset(CopyPreset, FtrackProcessorPreset):
 
     def addUserResolveEntries(self, resolver):
         '''Add ftrack resolve entries to *resolver*.'''
-        FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)
+        super(FtrackCopyExporterPreset, self).addFtrackResolveEntries(resolver)
 
         # Provide common resolver from ShotProcessorPreset
         resolver.addResolver(
