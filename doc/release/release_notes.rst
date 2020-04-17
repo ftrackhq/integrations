@@ -9,6 +9,11 @@ Release Notes
 
 .. release:: Upcoming
 
+    .. change:: new
+        :tags: Export project
+
+        Add 'Ftrack Copy Exporter' for publish file or sequence to ftrack by copying file.
+
     .. change:: fix
         :tags: Internal
 
