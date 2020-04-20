@@ -118,11 +118,16 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self._status_icon.setAlignment(
             QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
         )
+        self._status_icon.setMaximumHeight(10)
 
         layout.addWidget(self._status_icon)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setAlignment(QtCore.Qt.AlignTop)
         self.setLayout(layout)
+        self.setSizePolicy(
+            QtGui.QSizePolicy.Preferred,
+            QtGui.QSizePolicy.Fixed
+        )
 
     def build(self):
         '''build function , mostly used to create the widgets.'''
@@ -133,6 +138,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     def post_build(self):
         '''post build function , mostly used connect widgets events.'''
         self.status_updated.connect(self._set_internal_status)
+        self.setMaximumHeight(self.sizeHint().height())
 
     def to_json_object(self):
         '''Return a formated json with the data from the current widget'''

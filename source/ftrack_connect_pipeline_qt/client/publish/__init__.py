@@ -4,6 +4,7 @@
 
 
 from ftrack_connect_pipeline_qt.client import QtClient
+from ftrack_connect_pipeline_qt.client.widgets.schema.overrides import hidden
 
 
 class QtPublisherClient(QtClient):
@@ -20,3 +21,7 @@ class QtPublisherClient(QtClient):
         )
         self.setWindowTitle('Standalone Pipeline Publisher')
         self.logger.info('start qt publisher')
+
+    def pre_build(self):
+        super(QtPublisherClient, self).pre_build()
+        self.widget_factory.schema_name_mapping['finalisers'] = hidden.HiddenObject

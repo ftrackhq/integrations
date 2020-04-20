@@ -47,13 +47,6 @@ class WidgetFactory(QtWidgets.QWidget):
         'Component': plugin_container.PluginContainerObject
     }
 
-    definition_type_name_mapping = {
-        'publisher': {
-                     'finalisers': hidden.HiddenObject
-        },
-        'loader': {}
-    }
-
     @property
     def widgets(self):
         '''Return registered plugin's widgets.'''
@@ -132,12 +125,7 @@ class WidgetFactory(QtWidgets.QWidget):
             )
             schema_fragment['properties'] = schema_fragment_properties
 
-        widget_fn = self.definition_type_name_mapping.get(
-            self.definition_type
-        ).get(name)
-
-        if not widget_fn:
-            widget_fn = self.schema_name_mapping.get(name)
+        widget_fn = self.schema_name_mapping.get(name)
 
         if not widget_fn:
             widget_fn = self.schema_title_mapping.get(

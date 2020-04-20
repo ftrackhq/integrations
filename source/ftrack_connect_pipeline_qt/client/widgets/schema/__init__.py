@@ -64,7 +64,7 @@ class BaseJsonWidget(QtWidgets.QWidget):
 
     def post_build(self):
         '''post build function , mostly used connect widgets events.'''
-        pass
+        #self.setMaximumHeight(self.sizeHint().height())
 
     def to_json_object(self):
         '''Return a formated json with the data from the current widget'''
