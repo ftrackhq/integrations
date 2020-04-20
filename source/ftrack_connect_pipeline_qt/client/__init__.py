@@ -34,9 +34,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.build()
         self.post_build()
         self.add_hosts(self.discover_hosts())
-        #self.setMinimumSize(500, 500)
-        #self.setSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
-        #self.adjustSize()
+
     def add_hosts(self, hosts):
         for host in hosts:
             if host in self.hosts:
@@ -46,7 +44,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
     def _host_discovered(self, event):
         '''callback, adds new hosts connection from the given *event* to the
         host_selector'''
-        # current_hosts = copy.deepcopy(self.hosts)
         super(QtClient, self)._host_discovered(event)
         self.host_selector.add_hosts(self.hosts)
         if self.definition_filter:
