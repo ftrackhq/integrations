@@ -24,8 +24,6 @@ class ComponentsArray(BaseJsonWidget):
         )
 
     def build(self):
-        #self._accordion = AccordionWidget(title=self._name)
-        #self.tab_widget = QtWidgets.QTabWidget()
 
         if 'items' in self.schema_fragment and self.fragment_data:
             for data in self.fragment_data:
@@ -34,19 +32,13 @@ class ComponentsArray(BaseJsonWidget):
                 else:
                     name = data
                 self._accordion = AccordionWidget(title=name)
-                #new_tab_widget = QtWidgets.QWidget()
-                #widget_layout = QtWidgets.QVBoxLayout()
                 obj = self.widget_factory.create_widget(
                     name, self.schema_fragment['items'], data,
                     self.previous_object_data
                 )
-                #widget_layout.addWidget(obj)
                 self._accordion.add_widget(obj)
-                #new_tab_widget.setLayout(widget_layout)
-                #self.tab_widget.addTab(new_tab_widget, name)
 
                 self.layout().addWidget(self._accordion)
-        #self.layout().addWidget(self.tab_widget)
         self.layout().setContentsMargins(0, 0, 0, 0)
 
     def to_json_object(self):
