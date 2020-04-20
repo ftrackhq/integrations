@@ -15,9 +15,6 @@ class AccordionWidget(QtWidgets.QWidget):
 
         self.pre_build()
         self.build()
-        # self.setMinimumSize(self.sizeHint())
-        # self.setSizePolicy(QtGui.QSizePolicy.Preferred,
-        #                    QtGui.QSizePolicy.MinimumExpanding)
         self.post_build()
 
     def get_option_results(self):
@@ -27,7 +24,7 @@ class AccordionWidget(QtWidgets.QWidget):
         self._title_frame._status.set_status(status, message)
 
     def pre_build(self):
-        self._main_v_layout = QtWidgets.QVBoxLayout()#self)
+        self._main_v_layout = QtWidgets.QVBoxLayout()
         self._main_v_layout.setAlignment(QtCore.Qt.AlignTop)
         self._main_v_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self._main_v_layout)
@@ -53,17 +50,12 @@ class AccordionWidget(QtWidgets.QWidget):
 
         self._content.setLayout(self._content_layout)
         self._content.setVisible(not collapsed)
-        # self._content.setSizePolicy(QtGui.QSizePolicy.Preferred,
-        #                   QtGui.QSizePolicy.MinimumExpanding)
 
         return self._content
 
     def add_widget(self, widget):
         self._content_layout.addWidget(widget)
         self._reference_widget = widget
-        #widget.status_updated.connect(self.set_status)
-        # self._content.setMinimumSize(self._content.sizeHint())
-
 
     def init_collapsable(self):
         self._title_frame.clicked.connect(self.toggle_collapsed)
@@ -92,9 +84,11 @@ class AccordionTitleWidget(QtWidgets.QFrame):
         self._title = None
         self._status = None
 
+        #add checkbox
         self._hlayout.addWidget(self.init_title(title))
-        self._hlayout.addWidget(self.init_status())
+        self._hlayout.addStretch()
         self._hlayout.addWidget(self.init_arrow(collapsed))
+        self._hlayout.addWidget(self.init_status())
 
     def init_status(self):
         self._status = Status()
@@ -139,6 +133,7 @@ class Arrow(QtWidgets.QFrame):
     def __init__(self, parent=None, collapsed=False):
         super(Arrow, self).__init__(parent=parent)
 
+        self.setMinimumSize(24, 24)
         self.setMaximumSize(24, 24)
 
         # horizontal == 0
