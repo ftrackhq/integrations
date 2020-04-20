@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 
-from Qt import QtCore, QtWidgets
+from Qt import QtGui, QtCore, QtWidgets
 
 
 class BaseJsonWidget(QtWidgets.QWidget):
@@ -52,12 +52,15 @@ class BaseJsonWidget(QtWidgets.QWidget):
         self.pre_build()
         self.build()
         self.post_build()
+        #self.resize(self.sizeHint())
+        #self.adjustSize()
 
     def pre_build(self):
         '''pre build function, mostly used setup the widget's layout.'''
         # add default layout
         self.v_layout = QtWidgets.QVBoxLayout()
         self.setLayout(self.v_layout)
+        #self.v_layout.setSizeConstraint(QtGui.QLayout.SetNoConstraint)
 
     def build(self):
         '''build function , mostly used to create the widgets.'''

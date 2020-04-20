@@ -130,6 +130,8 @@ class PublishContextWidget(BaseOptionsWidget):
         '''Builds the comments_container widget'''
         self.comments_container = QtWidgets.QGroupBox('Comment')
 
+        self.comments_container.setMaximumHeight(75)
+
         self.comments_layout = QtWidgets.QHBoxLayout()
 
         self.comments_input = QtWidgets.QTextEdit()

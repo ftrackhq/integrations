@@ -3,10 +3,9 @@
 
 import logging
 
-from Qt import QtCore, QtWidgets
+from Qt import QtGui, QtCore, QtWidgets
 
 from ftrack_connect_pipeline_qt import constants
-from ftrack_connect_pipeline_qt.client.widgets.accordion import AccordionWidget
 
 
 class BaseOptionsWidget(QtWidgets.QWidget):
@@ -50,7 +49,6 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
     def set_option_result(self, value, key):
         '''set the result options of value for the key.'''
-        self.logger.debug('Setting {} as {}'.format(value, key))
         self._options[key] = value
 
     def _set_internal_status(self, data):
@@ -128,9 +126,9 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
     def build(self):
         '''build function , mostly used to create the widgets.'''
-
-        self._accordion = AccordionWidget(title=self._name)
-        self.layout().addWidget(self._accordion)
+        name_label = QtWidgets.QLabel(self.name)
+        name_label.setToolTip(self.description)
+        self.layout().addWidget(name_label)
 
     def post_build(self):
         '''post build function , mostly used connect widgets events.'''

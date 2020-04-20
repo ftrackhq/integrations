@@ -4,6 +4,7 @@
 
 from Qt import QtCore, QtWidgets
 from ftrack_connect_pipeline_qt.client.widgets.schema import BaseJsonWidget
+from ftrack_connect_pipeline_qt.ui.widget.accordion import AccordionWidget
 
 
 class ComponentsArray(BaseJsonWidget):
@@ -23,7 +24,8 @@ class ComponentsArray(BaseJsonWidget):
         )
 
     def build(self):
-        self.tab_widget = QtWidgets.QTabWidget()
+        #self._accordion = AccordionWidget(title=self._name)
+        #self.tab_widget = QtWidgets.QTabWidget()
 
         if 'items' in self.schema_fragment and self.fragment_data:
             for data in self.fragment_data:
@@ -31,17 +33,20 @@ class ComponentsArray(BaseJsonWidget):
                     name = data.get('name')
                 else:
                     name = data
-                new_tab_widget = QtWidgets.QWidget()
-                widget_layout = QtWidgets.QVBoxLayout()
+                self._accordion = AccordionWidget(title=name)
+                #new_tab_widget = QtWidgets.QWidget()
+                #widget_layout = QtWidgets.QVBoxLayout()
                 obj = self.widget_factory.create_widget(
                     name, self.schema_fragment['items'], data,
                     self.previous_object_data
                 )
-                widget_layout.addWidget(obj)
-                new_tab_widget.setLayout(widget_layout)
-                self.tab_widget.addTab(new_tab_widget, name)
+                #widget_layout.addWidget(obj)
+                self._accordion.add_widget(obj)
+                #new_tab_widget.setLayout(widget_layout)
+                #self.tab_widget.addTab(new_tab_widget, name)
 
-        self.layout().addWidget(self.tab_widget)
+                self.layout().addWidget(self._accordion)
+        #self.layout().addWidget(self.tab_widget)
         self.layout().setContentsMargins(0, 0, 0, 0)
 
     def to_json_object(self):

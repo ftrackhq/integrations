@@ -1,6 +1,6 @@
 import logging
 from Qt import QtWidgets, QtCore, QtGui
-from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline_qt import constants
 
 
 class AccordionWidget(QtWidgets.QWidget):
@@ -15,6 +15,9 @@ class AccordionWidget(QtWidgets.QWidget):
 
         self.pre_build()
         self.build()
+        # self.setMinimumSize(self.sizeHint())
+        # self.setSizePolicy(QtGui.QSizePolicy.Preferred,
+        #                    QtGui.QSizePolicy.MinimumExpanding)
         self.post_build()
 
     def get_option_results(self):
@@ -24,47 +27,51 @@ class AccordionWidget(QtWidgets.QWidget):
         self._title_frame._status.set_status(status, message)
 
     def pre_build(self):
-        self._main_v_layout = QtWidgets.QVBoxLayout(self)
+        self._main_v_layout = QtWidgets.QVBoxLayout()#self)
         self._main_v_layout.setAlignment(QtCore.Qt.AlignTop)
         self._main_v_layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(self._main_v_layout)
 
     def build(self):
-        title_widget = self.initTitleFrame(self._title, self._is_collasped)
+        title_widget = self.init_title_frame(self._title, self._is_collasped)
         self._main_v_layout.addWidget(title_widget)
 
-        content_widget = self.initContent(self._is_collasped)
+        content_widget = self.init_content(self._is_collasped)
         self._main_v_layout.addWidget(content_widget)
 
     def post_build(self):
-        self.initCollapsable()
+        self.init_collapsable()
 
-    def initTitleFrame(self, title, collapsed):
+    def init_title_frame(self, title, collapsed):
         self._title_frame = AccordionTitleWidget(
             title=title, collapsed=collapsed)
-
         return self._title_frame
 
-    def initContent(self, collapsed):
+    def init_content(self, collapsed):
         self._content = QtWidgets.QWidget()
         self._content_layout = QtWidgets.QVBoxLayout()
 
         self._content.setLayout(self._content_layout)
         self._content.setVisible(not collapsed)
+        # self._content.setSizePolicy(QtGui.QSizePolicy.Preferred,
+        #                   QtGui.QSizePolicy.MinimumExpanding)
 
         return self._content
 
-    def addWidget(self, widget):
+    def add_widget(self, widget):
         self._content_layout.addWidget(widget)
         self._reference_widget = widget
-        widget.status_updated.connect(self.set_status)
+        #widget.status_updated.connect(self.set_status)
+        # self._content.setMinimumSize(self._content.sizeHint())
 
-    def initCollapsable(self):
-        self._title_frame.clicked.connect(self.toggleCollapsed)
 
-    def toggleCollapsed(self):
+    def init_collapsable(self):
+        self._title_frame.clicked.connect(self.toggle_collapsed)
+
+    def toggle_collapsed(self):
         self._content.setVisible(self._is_collasped)
         self._is_collasped = not self._is_collasped
-        self._title_frame._arrow.setArrow(int(self._is_collasped))
+        self._title_frame._arrow.set_arrow(int(self._is_collasped))
 
 
 class AccordionTitleWidget(QtWidgets.QFrame):
@@ -85,21 +92,21 @@ class AccordionTitleWidget(QtWidgets.QFrame):
         self._title = None
         self._status = None
 
-        self._hlayout.addWidget(self.initTitle(title))
-        self._hlayout.addWidget(self.initStatus())
-        self._hlayout.addWidget(self.initArrow(collapsed))
+        self._hlayout.addWidget(self.init_title(title))
+        self._hlayout.addWidget(self.init_status())
+        self._hlayout.addWidget(self.init_arrow(collapsed))
 
-    def initStatus(self):
+    def init_status(self):
         self._status = Status()
         return self._status
 
-    def initArrow(self, collapsed):
+    def init_arrow(self, collapsed):
         self._arrow = Arrow(collapsed=collapsed)
         self._arrow.setStyleSheet("border:0px")
 
         return self._arrow
 
-    def initTitle(self, title=None):
+    def init_title(self, title=None):
         self._title = QtWidgets.QLabel(title)
         self._title.setMinimumHeight(24)
         self._title.move(QtCore.QPoint(24, 0))
@@ -152,9 +159,9 @@ class Arrow(QtWidgets.QFrame):
         )
         # arrow
         self._arrow = None
-        self.setArrow(int(collapsed))
+        self.set_arrow(int(collapsed))
 
-    def setArrow(self, arrow_dir):
+    def set_arrow(self, arrow_dir):
         if arrow_dir:
             self._arrow = self._arrow_vertical
         else:
