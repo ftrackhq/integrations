@@ -4,7 +4,7 @@
 from Qt import QtCore, QtWidgets, QtGui
 
 from ftrack_connect_pipeline_qt import constants
-from ftrack_connect_pipeline_qt.ui.widget import thumbnail
+from ftrack_connect_pipeline_qt.ui.utility.widget import thumbnail
 
 # Cache of user names.
 NAME_CACHE = dict()

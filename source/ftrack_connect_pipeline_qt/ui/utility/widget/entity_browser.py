@@ -6,7 +6,7 @@
 
 from Qt import QtWidgets, QtCore, QtGui
 
-from ftrack_connect_pipeline_qt.ui.model.entity_tree import EntityTreeModel, EntityTreeProxyModel, ItemFactory
+from ftrack_connect_pipeline_qt.ui.utility.model.entity_tree import EntityTreeModel, EntityTreeProxyModel, ItemFactory
 
 
 class EntityBrowser(QtWidgets.QDialog):

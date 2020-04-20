@@ -5,9 +5,9 @@ import os
 from Qt import QtWidgets, QtCore, QtGui
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 
-from ftrack_connect_pipeline_qt.ui.widget.context_selector import ContextSelector
-from ftrack_connect_pipeline_qt.ui.widget.asset_selector import AssetSelector
-from ftrack_connect_pipeline_qt.ui.widget.version_selector import VersionSelector
+from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import ContextSelector
+from ftrack_connect_pipeline_qt.ui.utility.widget.asset_selector import AssetSelector
+from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import VersionSelector
 
 
 class PublishContextWidget(BaseOptionsWidget):

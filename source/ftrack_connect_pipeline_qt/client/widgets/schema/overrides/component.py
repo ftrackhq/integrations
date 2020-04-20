@@ -4,7 +4,7 @@
 
 from Qt import QtCore, QtWidgets
 from ftrack_connect_pipeline_qt.client.widgets.schema import BaseJsonWidget
-from ftrack_connect_pipeline_qt.ui.widget.accordion import AccordionWidget
+from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import AccordionWidget
 
 
 class ComponentsArray(BaseJsonWidget):

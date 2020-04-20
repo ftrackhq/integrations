@@ -4,7 +4,7 @@
 import copy
 from Qt import QtGui, QtCore, QtWidgets
 from ftrack_connect_pipeline import client, constants
-from ftrack_connect_pipeline_qt.ui.widget import header, host_selector
+from ftrack_connect_pipeline_qt.ui.utility.widget import header, host_selector
 from ftrack_connect_pipeline_qt.client.widgets import factory
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect.ui import theme
