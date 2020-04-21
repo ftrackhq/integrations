@@ -38,10 +38,8 @@ class AccordionWidget(QtWidgets.QWidget):
         self.init_collapsable()
 
     def init_title_frame(self, title, collapsed):
-        # TODO:Checkable has to be connected and only showed in
-        #  case the component is optional task "implement optional component"
         self._title_frame = AccordionTitleWidget(
-            title=title, collapsed=collapsed, checkable=True)
+            title=title, collapsed=collapsed)
         return self._title_frame
 
     def init_content(self, collapsed):
@@ -96,7 +94,6 @@ class AccordionTitleWidget(QtWidgets.QFrame):
     def pre_build(self):
         self.setMinimumHeight(24)
         self.move(QtCore.QPoint(24, 0))
-        # self.setStyleSheet("border:1px solid rgb(41, 41, 41); ")
         self._hlayout = QtWidgets.QHBoxLayout(self)
         self._hlayout.setContentsMargins(0, 0, 0, 0)
 
@@ -120,8 +117,6 @@ class AccordionTitleWidget(QtWidgets.QFrame):
 
     def init_title(self, title=None):
         self._title_label = QtWidgets.QLabel(title)
-        #self._title_label.setMinimumHeight(24)
-        #self._title_label.move(QtCore.QPoint(24, 0))
         self._title_label.setStyleSheet("border:0px")
 
         return self._title_label
