@@ -9,6 +9,11 @@ Release Notes
 
 .. release:: Upcoming
 
+    .. change:: fix
+        :tags: Internal
+
+        Custom start frame are not consistently output in frame sequence.
+
     .. change:: change
         :tags: Internal
 

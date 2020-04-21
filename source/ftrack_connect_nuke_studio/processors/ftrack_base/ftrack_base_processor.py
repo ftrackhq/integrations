@@ -255,6 +255,16 @@ class FtrackProcessor(FtrackBase):
             raise FtrackProcessorError(error)
         return result
 
+    def _get_start_end_frame(self, task):
+        '''Return start, end frame from given *task*.'''
+        start , end = task.outputRange(clampToSource=False)
+        self.logger.debug(
+            '{2} :: start frame {0}, end frame {1} '.format(
+                start, end, task
+            )
+        )
+        return start, end
+
     def _create_projct_structure_fragment(self, composed_name, parent, task, version):
         '''Return ftrack context entity from *composed_name*, *parent*, *task* and *version*.'''
         self.logger.debug(
@@ -407,8 +417,7 @@ class FtrackProcessor(FtrackBase):
             )
 
             if is_sequence:
-                start = task._clip.sourceIn()
-                end = task._clip.sourceOut()
+                start, end = self._get_start_end_frame(task)
 
                 name = '/{} [{}-{}]'.format(name, start, end)
 
@@ -674,7 +683,9 @@ class FtrackProcessor(FtrackBase):
 
         localtime = time.localtime(time.time())
 
-        start, end = task.outputRange(clampToSource=False)
+        start = item.sourceIn()
+        end = item.sourceOut()
+
         start_handle, end_handle = task.outputHandles()
 
         task_id = str(task._preset.properties()['ftrack']['task_id'])
@@ -829,7 +840,7 @@ class FtrackProcessor(FtrackBase):
         if is_published:
             return
 
-        start, end = render_task.outputRange(clampToSource=False)
+        start, end = self._get_start_end_frame(render_task)
         start_handle, end_handle = render_task.outputHandles()
 
         fps = None
@@ -837,8 +848,6 @@ class FtrackProcessor(FtrackBase):
             fps = render_task._sequence.framerate().toFloat()
 
         elif render_task._clip:
-            start = render_task._clip.sourceIn()
-            end = render_task._clip.sourceOut()
             fps = render_task._clip.framerate().toFloat()
 
         parent = component['version']['task']['parent']
@@ -866,9 +875,6 @@ class FtrackProcessor(FtrackBase):
         is_container = 'members' in component.keys()
 
         if is_container:
-            start = render_task._clip.sourceIn()
-            end = render_task._clip.sourceOut()
-
             member_path = '{} [{}-{}]'.format(resource_identifier, start, end)
             self.logger.info('Registering collection {}'.format(member_path))
 
