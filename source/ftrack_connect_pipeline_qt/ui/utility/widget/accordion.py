@@ -38,8 +38,10 @@ class AccordionWidget(QtWidgets.QWidget):
         self.init_collapsable()
 
     def init_title_frame(self, title, collapsed):
+        # TODO:Checkable has to be connected and only showed in
+        #  case the component is optional task "implement optional component"
         self._title_frame = AccordionTitleWidget(
-            title=title, collapsed=collapsed)
+            title=title, collapsed=collapsed, checkable=True)
         return self._title_frame
 
     def init_content(self, collapsed):
@@ -75,25 +77,35 @@ class AccordionWidget(QtWidgets.QWidget):
 class AccordionTitleWidget(QtWidgets.QFrame):
     clicked = QtCore.Signal()
 
-    def __init__(self, parent=None, title="", collapsed=False):
+    def __init__(self, parent=None, title="", collapsed=False, checkable=False):
         super(AccordionTitleWidget, self).__init__(parent=parent)
 
+        self._arrow = None
+        self._title_label = None
+        self._status = None
+        self._checkbox = None
+
+        self.title = title
+        self.initial_collapse = collapsed
+        self.checkable = checkable
+
+
+        self.pre_build()
+        self.build()
+
+    def pre_build(self):
         self.setMinimumHeight(24)
         self.move(QtCore.QPoint(24, 0))
         # self.setStyleSheet("border:1px solid rgb(41, 41, 41); ")
-
         self._hlayout = QtWidgets.QHBoxLayout(self)
         self._hlayout.setContentsMargins(0, 0, 0, 0)
-        self._hlayout.setSpacing(0)
 
-        self._arrow = None
-        self._title = None
-        self._status = None
-
-        #add checkbox
-        self._hlayout.addWidget(self.init_title(title))
+    def build(self):
+        if self.checkable:
+            self._hlayout.addWidget(self.init_checkbox(True))
+        self._hlayout.addWidget(self.init_title(self.title))
         self._hlayout.addStretch()
-        self._hlayout.addWidget(self.init_arrow(collapsed))
+        self._hlayout.addWidget(self.init_arrow(self.initial_collapse))
         self._hlayout.addWidget(self.init_status())
 
     def init_status(self):
@@ -107,12 +119,18 @@ class AccordionTitleWidget(QtWidgets.QFrame):
         return self._arrow
 
     def init_title(self, title=None):
-        self._title = QtWidgets.QLabel(title)
-        self._title.setMinimumHeight(24)
-        self._title.move(QtCore.QPoint(24, 0))
-        self._title.setStyleSheet("border:0px")
+        self._title_label = QtWidgets.QLabel(title)
+        #self._title_label.setMinimumHeight(24)
+        #self._title_label.move(QtCore.QPoint(24, 0))
+        self._title_label.setStyleSheet("border:0px")
 
-        return self._title
+        return self._title_label
+
+    def init_checkbox(self, checked):
+        self._checkbox = QtWidgets.QCheckBox()
+        self._checkbox.setChecked(checked)
+
+        return self._checkbox
 
     def mousePressEvent(self, event):
         self.clicked.emit()
