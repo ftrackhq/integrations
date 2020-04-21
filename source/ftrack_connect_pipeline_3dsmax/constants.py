@@ -1,2 +1,2 @@
 HOST = '3dsmax'
-UI = 'qt'
+UI = '3dsmax'

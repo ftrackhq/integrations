@@ -18,7 +18,6 @@ plugin_base_dir = os.path.normpath(
     )
 )
 
-
 max_script_path = os.path.abspath(os.path.join(
     plugin_base_dir, 'resource', 'scripts'
 ))
