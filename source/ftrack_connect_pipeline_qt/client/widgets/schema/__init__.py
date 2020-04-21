@@ -9,6 +9,7 @@ class BaseJsonWidget(QtWidgets.QWidget):
     '''
     Base class of a widget representation from json schema types
     '''
+    connected_option_widgets = []
     def __init__(
             self, name, schema_fragment, fragment_data, previous_object_data,
             widget_factory, parent=None

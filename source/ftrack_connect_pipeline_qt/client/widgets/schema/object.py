@@ -47,6 +47,7 @@ class JsonObject(BaseJsonWidget):
                     self.fragment_data, self.plugin_type
                 )
                 self.innerLayout.addWidget(widget)
+                self.connected_option_widgets.append(widget)
             else:
                 for k, v in self.properties.items():
                     new_fragment_data = None

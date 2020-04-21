@@ -17,9 +17,6 @@ class AccordionWidget(QtWidgets.QWidget):
         self.build()
         self.post_build()
 
-    def get_option_results(self):
-        return self._reference_widget.get_option_results()
-
     def set_status(self, data):
         status, message = data
         self._title_frame._status.set_status(status, message)
@@ -57,7 +54,7 @@ class AccordionWidget(QtWidgets.QWidget):
     def add_widget(self, widget):
         self._content_layout.addWidget(widget)
         self._reference_widget = widget
-        for inner_widget in widget.connected_widgets:
+        for inner_widget in widget.connected_option_widgets:
             inner_widget.status_updated.connect(self.set_status)
 
     def count_widgets(self):
