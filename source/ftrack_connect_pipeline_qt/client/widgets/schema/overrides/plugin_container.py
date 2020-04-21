@@ -10,6 +10,7 @@ class PluginContainerObject(JsonObject):
     '''
     Override widget representation of an object
     '''
+    connected_widgets = []
     def __init__(
             self, name, schema_fragment, fragment_data,
             previous_object_data, widget_factory, parent=None
@@ -40,6 +41,7 @@ class PluginContainerObject(JsonObject):
                     self.fragment_data, self.plugin_type
                 )
                 self.layout().addWidget(widget)
+                self.connected_widgets.append(widget)
             else:
                 for k, v in self.properties.items():
                     new_fragment_data = None

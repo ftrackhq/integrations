@@ -20,7 +20,8 @@ class AccordionWidget(QtWidgets.QWidget):
     def get_option_results(self):
         return self._reference_widget.get_option_results()
 
-    def set_status(self, status, message):
+    def set_status(self, data):
+        status, message = data
         self._title_frame._status.set_status(status, message)
 
     def pre_build(self):
@@ -56,6 +57,14 @@ class AccordionWidget(QtWidgets.QWidget):
     def add_widget(self, widget):
         self._content_layout.addWidget(widget)
         self._reference_widget = widget
+        for inner_widget in widget.connected_widgets:
+            inner_widget.status_updated.connect(self.set_status)
+
+    def count_widgets(self):
+        return self._content_layout.count()
+
+    def get_witget_at(self, index):
+        return self._content_layout.itemAt(index).widget()
 
     def init_collapsable(self):
         self._title_frame.clicked.connect(self.toggle_collapsed)

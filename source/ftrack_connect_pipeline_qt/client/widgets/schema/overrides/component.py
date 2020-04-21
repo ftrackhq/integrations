@@ -43,10 +43,8 @@ class ComponentsArray(BaseJsonWidget):
 
     def to_json_object(self):
         out = []
-        for idx in range(0, self.tab_widget.count()):
-            tab_widget = self.tab_widget.widget(idx)
-            for i in range(0, tab_widget.layout().count()):
-                widget = tab_widget.layout().itemAt(i).widget()
-                if 'to_json_object' in dir(widget):
-                    out.append(widget.to_json_object())
+        for idx in range(0, self._accordion.count_widgets()):
+            widget = self._accordion.get_witget_at(idx)
+            if 'to_json_object' in dir(widget):
+                out.append(widget.to_json_object())
         return out
