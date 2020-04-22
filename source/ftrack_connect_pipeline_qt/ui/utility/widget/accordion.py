@@ -1,6 +1,11 @@
 import logging
+
+from functools import partial
+
 from Qt import QtWidgets, QtCore, QtGui
 from ftrack_connect_pipeline_qt import constants
+from ftrack_connect_pipeline import constants as pipeline_constants
+from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 
 
 class AccordionWidget(QtWidgets.QWidget):
@@ -12,13 +17,14 @@ class AccordionWidget(QtWidgets.QWidget):
         self._title_frame = None
         self._content, self._content_layout = (None, None)
         self._title = title
+        self._widgets = {}
+        self._inner_widget_status = {}
 
         self.pre_build()
         self.build()
         self.post_build()
 
-    def set_status(self, data):
-        status, message = data
+    def set_status(self, status, message):
         self._title_frame._status.set_status(status, message)
 
     def pre_build(self):
@@ -51,11 +57,43 @@ class AccordionWidget(QtWidgets.QWidget):
 
         return self._content
 
+    def update_inner_status(self, parent_widget, inner_widget, data):
+        status, message = data
+
+        self._inner_widget_status[inner_widget] = status
+
+        if not all(
+                item in self._inner_widget_status.keys()
+                for item in self._widgets[parent_widget]
+        ):
+            if constants.RUNNING_STATUS in self._inner_widget_status.values():
+                self.set_status(constants.RUNNING_STATUS, None)
+            else:
+                self.set_status(constants.ERROR_STATUS, None)
+        else:
+            all_bool_status = [
+                pipeline_constants.status_bool_mapping[status]
+                for status in self._inner_widget_status.values()
+            ]
+            if all(all_bool_status):
+                self.set_status(constants.SUCCESS_STATUS, None)
+            else:
+                if constants.RUNNING_STATUS in self._inner_widget_status.values():
+                    self.set_status(constants.RUNNING_STATUS, None)
+                else:
+                    self.set_status(constants.ERROR_STATUS, None)
+
     def add_widget(self, widget):
         self._content_layout.addWidget(widget)
-        self._reference_widget = widget
-        for inner_widget in widget.connected_option_widgets:
-            inner_widget.status_updated.connect(self.set_status)
+        #self._reference_widget = widget
+        if widget not in self._widgets.keys():
+            self._widgets[widget] = []
+            for inner_widget in widget.connected_option_widgets:
+                if isinstance(inner_widget, BaseOptionsWidget):
+                    self._widgets[widget].append(inner_widget)
+                    inner_widget.status_updated.connect(
+                        partial(self.update_inner_status, widget, inner_widget)
+                    )
 
     def count_widgets(self):
         return self._content_layout.count()
