@@ -125,8 +125,8 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         layout.setAlignment(QtCore.Qt.AlignTop)
         self.setLayout(layout)
         self.setSizePolicy(
-            QtGui.QSizePolicy.Preferred,
-            QtGui.QSizePolicy.Fixed
+            QtWidgets.QSizePolicy.Preferred,
+            QtWidgets.QSizePolicy.Fixed
         )
 
     def build(self):
