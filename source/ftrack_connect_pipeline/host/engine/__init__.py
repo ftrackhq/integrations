@@ -45,6 +45,8 @@ class BaseEngine(object):
 
         self.event_manager = event_manager
 
+
+
     def _run_plugin(self, plugin, plugin_type, options=None, data=None,
                     context=None):
         '''Run *plugin*, *plugin_type*, with given *options*, *data* and

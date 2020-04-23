@@ -191,6 +191,7 @@ class PluginDiscoverValidation(object):
                     'host': host_definition
                 }
             }
+
             event = ftrack_api.event.base.Event(
                 topic=constants.PIPELINE_DISCOVER_PLUGIN_TOPIC,
                 data=data
@@ -201,6 +202,7 @@ class PluginDiscoverValidation(object):
                 synchronous=True
             )
 
+
             if plugin_result:
                 plugin_result = plugin_result[0]
                 self.logger.info(
@@ -208,6 +210,24 @@ class PluginDiscoverValidation(object):
                         plugin_name, host_definition
                     )
                 )
+
+                status_event = {
+                    'plugin_name': plugin_name,
+                    'plugin_type': plugin_type,
+                    'status': constants.DEFAULT_STATUS,
+                    'result': None,
+                    'execution_time': 0,
+                    'message': "Plugin Ready"
+                }
+                event = ftrack_api.event.base.Event(
+                    topic=constants.PIPELINE_DISCOVER_PLUGIN_TOPIC,
+                    data=status_event
+                )
+
+                self.session.event_hub.publish(
+                    event
+                )
+
                 break
             self.logger.info(
                 'plugin {} not found for definition host {}'.format(
