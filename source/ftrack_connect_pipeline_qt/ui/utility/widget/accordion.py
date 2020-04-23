@@ -59,6 +59,8 @@ class AccordionWidget(QtWidgets.QWidget):
 
     def update_inner_status(self, parent_widget, inner_widget, data):
         status, message = data
+        print "parent {}".format(parent_widget)
+        print "updating status of ---> {}".format(inner_widget)
 
         self._inner_widget_status[inner_widget] = status
 
@@ -66,10 +68,13 @@ class AccordionWidget(QtWidgets.QWidget):
                 item in self._inner_widget_status.keys()
                 for item in self._widgets[parent_widget]
         ):
-            if constants.RUNNING_STATUS in self._inner_widget_status.values():
-                self.set_status(constants.RUNNING_STATUS, None)
-            else:
+            if (
+                    constants.ERROR_STATUS or constants.EXCEPTION_STATUS
+                    in self._inner_widget_status.values()
+            ):
                 self.set_status(constants.ERROR_STATUS, None)
+            else:
+                self.set_status(constants.RUNNING_STATUS, None)
         else:
             all_bool_status = [
                 pipeline_constants.status_bool_mapping[status]
@@ -85,15 +90,15 @@ class AccordionWidget(QtWidgets.QWidget):
 
     def add_widget(self, widget):
         self._content_layout.addWidget(widget)
-        #self._reference_widget = widget
-        if widget not in self._widgets.keys():
-            self._widgets[widget] = []
-            for inner_widget in widget.connected_option_widgets:
-                if isinstance(inner_widget, BaseOptionsWidget):
-                    self._widgets[widget].append(inner_widget)
-                    inner_widget.status_updated.connect(
-                        partial(self.update_inner_status, widget, inner_widget)
-                    )
+        self._connect_inner_widgets(widget)
+
+    def _connect_inner_widgets(self, widget):
+        inner_widgets = widget.findChildren(BaseOptionsWidget)
+        self._widgets[widget] = inner_widgets
+        for inner_widget in inner_widgets:
+            inner_widget.status_updated.connect(
+                partial(self.update_inner_status, widget, inner_widget)
+            )
 
     def count_widgets(self):
         return self._content_layout.count()

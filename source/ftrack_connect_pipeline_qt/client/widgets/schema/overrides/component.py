@@ -24,6 +24,7 @@ class ComponentsArray(BaseJsonWidget):
         )
 
     def build(self):
+        self._accordion_widgets = []
 
         if 'items' in self.schema_fragment and self.fragment_data:
             for data in self.fragment_data:
@@ -31,20 +32,22 @@ class ComponentsArray(BaseJsonWidget):
                     name = data.get('name')
                 else:
                     name = data
-                self._accordion = AccordionWidget(title=name)
+                accordion_widget = AccordionWidget(title=name)
                 obj = self.widget_factory.create_widget(
                     name, self.schema_fragment['items'], data,
                     self.previous_object_data
                 )
-                self._accordion.add_widget(obj)
+                accordion_widget.add_widget(obj)
 
-                self.layout().addWidget(self._accordion)
+                self.layout().addWidget(accordion_widget)
+                self._accordion_widgets.append(accordion_widget)
         self.layout().setContentsMargins(0, 0, 0, 0)
 
     def to_json_object(self):
         out = []
-        for idx in range(0, self._accordion.count_widgets()):
-            widget = self._accordion.get_witget_at(idx)
-            if 'to_json_object' in dir(widget):
-                out.append(widget.to_json_object())
+        for accordeon_widget in self._accordion_widgets:
+            for idx in range(0, accordeon_widget.count_widgets()):
+                widget = accordeon_widget.get_witget_at(idx)
+                if 'to_json_object' in dir(widget):
+                    out.append(widget.to_json_object())
         return out

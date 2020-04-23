@@ -23,7 +23,6 @@ class PluginContainerObject(JsonObject):
         )
 
     def build(self):
-
         if self.previous_object_data:
             self.plugin_type = self.previous_object_data.get('name')
 
@@ -41,7 +40,6 @@ class PluginContainerObject(JsonObject):
                     self.fragment_data, self.plugin_type
                 )
                 self.layout().addWidget(widget)
-                self.connected_option_widgets.append(widget)
             else:
                 for k, v in self.properties.items():
                     new_fragment_data = None
