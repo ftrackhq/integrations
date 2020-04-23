@@ -1,4 +1,4 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2018 ftrack
 
-__version__ = '2.2.5'
+__version__ = '2.3.0'
