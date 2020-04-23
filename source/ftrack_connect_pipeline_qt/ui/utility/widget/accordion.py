@@ -59,8 +59,6 @@ class AccordionWidget(QtWidgets.QWidget):
 
     def update_inner_status(self, parent_widget, inner_widget, data):
         status, message = data
-        print "parent {}".format(parent_widget)
-        print "updating status of ---> {}".format(inner_widget)
 
         self._inner_widget_status[inner_widget] = status
 
