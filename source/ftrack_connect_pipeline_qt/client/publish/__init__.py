@@ -22,11 +22,3 @@ class QtPublisherClient(QtClient):
         self.setWindowTitle('Standalone Pipeline Publisher')
         self.logger.info('start qt publisher')
 
-    def pre_build(self):
-        '''
-        .. note::
-            We want to hidde the finalisers on the publisher but not on
-            the loader, so we extend the schema_name_mapping dictionary.
-        '''
-        super(QtPublisherClient, self).pre_build()
-        self.widget_factory.schema_name_mapping['finalisers'] = hidden.HiddenObject
