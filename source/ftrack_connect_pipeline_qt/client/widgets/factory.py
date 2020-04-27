@@ -24,32 +24,6 @@ class WidgetFactory(QtWidgets.QWidget):
     host_definitions = None
     ui = None
 
-    schema_type_mapping = {
-        'object': schema_widget.JsonObject,
-        'string': schema_widget.JsonString,
-        'integer': schema_widget.JsonInteger,
-        'array': schema_widget.JsonArray,
-        'number': schema_widget.JsonNumber,
-        'boolean': schema_widget.JsonBoolean
-    }
-    schema_name_mapping = {
-        'components': component.ComponentsArray,
-        '_config': hidden.HiddenObject,
-        'ui': hidden.HiddenString,
-        'type': hidden.HiddenString,
-        'name': hidden.HiddenString,
-        'package': hidden.HiddenString,
-        'host': hidden.HiddenString
-    }
-
-    schema_title_mapping = {
-        'Plugin': plugin_container.PluginContainerObject,
-        'Component': plugin_container.PluginContainerObject
-    }
-
-    definition_type_name_mapping_publisher = {'finalisers': hidden.HiddenObject}
-    definition_type_name_mapping_loader = {}
-
     @property
     def widgets(self):
         '''Return registered plugin's widgets.'''
@@ -76,6 +50,29 @@ class WidgetFactory(QtWidgets.QWidget):
         self._widgets_ref = {}
         self.context = {}
         self.host_connection = None
+
+        self.schema_type_mapping = {
+            'object': schema_widget.JsonObject,
+            'string': schema_widget.JsonString,
+            'integer': schema_widget.JsonInteger,
+            'array': schema_widget.JsonArray,
+            'number': schema_widget.JsonNumber,
+            'boolean': schema_widget.JsonBoolean
+        }
+        self.schema_name_mapping = {
+            'components': component.ComponentsArray,
+            '_config': hidden.HiddenObject,
+            'ui': hidden.HiddenString,
+            'type': hidden.HiddenString,
+            'name': hidden.HiddenString,
+            'package': hidden.HiddenString,
+            'host': hidden.HiddenString
+        }
+
+        self.schema_title_mapping = {
+            'Plugin': plugin_container.PluginContainerObject,
+            'Component': plugin_container.PluginContainerObject
+        }
 
     def set_context(self, context):
         self.context = context
@@ -128,16 +125,8 @@ class WidgetFactory(QtWidgets.QWidget):
             )
             schema_fragment['properties'] = schema_fragment_properties
 
-        widget_fn = None
 
-        if self.definition_type == 'publisher':
-            widget_fn = self.definition_type_name_mapping_publisher.get(name)
-
-        elif self.definition_type == 'loader':
-            widget_fn = self.definition_type_name_mapping_loader.get(name)
-
-        if not widget_fn:
-            widget_fn = self.schema_name_mapping.get(name)
+        widget_fn = self.schema_name_mapping.get(name)
 
         if not widget_fn:
             widget_fn = self.schema_title_mapping.get(
