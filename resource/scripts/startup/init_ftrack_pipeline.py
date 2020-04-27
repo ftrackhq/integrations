@@ -17,7 +17,7 @@ logger = logging.getLogger('ftrack_connect_pipeline_3dsmax.scripts.userSetup')
 created_dialogs = dict()
 
 
-def open_dialog(dialog_class, event_manager):
+def _open_dialog(dialog_class, event_manager):
     '''Open *dialog_class* and create if not already existing.'''
     dialog_name = dialog_class
 
@@ -74,7 +74,7 @@ def initialise():
 
         dialog_class, label = item
 
-        ftrack_menu_builder.AddItem(
+        ftrack_menu.AddItem(
             # MaxPlus.ActionFactory.Create(
             #     category='ftrack', name=label, fxn=functools.partial(
             #         open_dialog, dialog_class, hostid
@@ -88,7 +88,7 @@ def initialise():
                 )
             )
         )
-    ftrack_menu_builder.Create(MaxPlus.MenuManager.GetMainMenu())
+    ftrack_menu.Create(MaxPlus.MenuManager.GetMainMenu())
 
 
 initialise()

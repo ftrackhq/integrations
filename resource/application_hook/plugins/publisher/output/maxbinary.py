@@ -9,7 +9,7 @@ import pymxs
 from ftrack_connect_pipeline_3dsmax import plugin
 
 
-class OutputMaxBinaryPlugin(plugin.OutputMaxPlugin):
+class OutputMaxBinaryPlugin(plugin.PublisherOutputMaxPlugin):
     plugin_name = 'OutputMaxBinaryPlugin'
 
     def run(self, context=None, data=None, options=None):

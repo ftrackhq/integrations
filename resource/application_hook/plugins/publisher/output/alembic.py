@@ -9,7 +9,7 @@ import pymxs
 from ftrack_connect_pipeline_3dsmax import plugin
 
 
-class OutputMaxAlembicPlugin(plugin.OutputMaxPlugin):
+class OutputMaxAlembicPlugin(plugin.PublisherOutputMaxPlugin):
     plugin_name = 'OutputMaxAlembicPlugin'
 
     def run(self, context=None, data=None, options=None):

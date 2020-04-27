@@ -4,7 +4,7 @@
 from ftrack_connect_pipeline_3dsmax import plugin
 
 
-class CollectViewportMaxPlugin(plugin.CollectorMaxPlugin):
+class CollectViewportMaxPlugin(plugin.PublisherCollectorMaxPlugin):
     plugin_name = 'viewport'
 
     def run(self, context=None, data=None, options=None):

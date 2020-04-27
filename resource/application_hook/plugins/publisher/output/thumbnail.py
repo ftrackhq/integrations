@@ -9,7 +9,7 @@ import MaxPlus
 from ftrack_connect_pipeline_3dsmax import plugin
 
 
-class OutputThumbnailPlugin(plugin.OutputMaxPlugin):
+class OutputThumbnailPlugin(plugin.PublisherOutputMaxPlugin):
     plugin_name = 'thumbnail'
 
     def run(self, context=None, data=None, options=None):

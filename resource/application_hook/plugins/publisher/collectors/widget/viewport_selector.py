@@ -1,17 +1,19 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-from ftrack_connect_pipeline.client.widgets import BaseWidget
+from ftrack_connect_pipeline_3dsmax import plugin
+from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
+
 from Qt import QtWidgets
 
-from ftrack_connect_pipeline_3dsmax import plugin
+import MaxPlus
 
 
-class Viewport3dsMaxWidget(BaseWidget):
+class Viewport3dsMaxWidget(BaseOptionsWidget):
     def __init__(
-            self, session=None, data=None, name=None, description=None, options=None
+            self, parent=None, session=None, data=None, name=None,
+            description=None, options=None, context=None
     ):
-        import MaxPlus
 
         self.viewports = []
 
@@ -24,8 +26,8 @@ class Viewport3dsMaxWidget(BaseWidget):
                 self.viewports.append(entry)
 
         super(Viewport3dsMaxWidget, self).__init__(
-            session=session, data=data, name=name, description=description,
-            options=options
+            parent=parent, session=session, data=data, name=name,
+            description=description, options=options, context=context
         )
 
     def build(self):
@@ -45,16 +47,11 @@ class Viewport3dsMaxWidget(BaseWidget):
         self.set_option_result(self.nodes_cb.currentData(), 'viewport_index')
 
 
-class Viewport3dsMaxPlugin(plugin.CollectorMaxWidget):
+class Viewport3dsMaxPluginWidget(plugin.PublisherCollectorMaxWidget):
     plugin_name = 'viewport'
-
-    def run(self, data=None, name=None, description=None, options=None):
-        return Viewport3dsMaxWidget(
-            session=self.session, data=data, name=name,
-            description=description, options=options
-        )
+    widget = Viewport3dsMaxWidget
 
 
 def register(api_object, **kw):
-    plugin = Viewport3dsMaxPlugin(api_object)
+    plugin = Viewport3dsMaxPluginWidget(api_object)
     plugin.register()

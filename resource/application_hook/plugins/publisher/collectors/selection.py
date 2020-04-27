@@ -6,7 +6,7 @@ import pymxs
 from ftrack_connect_pipeline_3dsmax import plugin
 
 
-class CollectSelectionMaxPlugin(plugin.CollectorMaxPlugin):
+class CollectSelectionMaxPlugin(plugin.PublisherCollectorMaxPlugin):
     plugin_name = 'selection'
 
     def run(self, context=None, data=None, options=None):
