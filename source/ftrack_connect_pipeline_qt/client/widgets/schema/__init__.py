@@ -2,13 +2,14 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 
-from Qt import QtCore, QtWidgets
+from Qt import QtGui, QtCore, QtWidgets
 
 
 class BaseJsonWidget(QtWidgets.QWidget):
     '''
     Base class of a widget representation from json schema types
     '''
+
     def __init__(
             self, name, schema_fragment, fragment_data, previous_object_data,
             widget_factory, parent=None
@@ -55,7 +56,6 @@ class BaseJsonWidget(QtWidgets.QWidget):
 
     def pre_build(self):
         '''pre build function, mostly used setup the widget's layout.'''
-        # add default layout
         self.v_layout = QtWidgets.QVBoxLayout()
         self.setLayout(self.v_layout)
 

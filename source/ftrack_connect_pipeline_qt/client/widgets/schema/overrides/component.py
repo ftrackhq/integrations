@@ -4,6 +4,7 @@
 
 from Qt import QtCore, QtWidgets
 from ftrack_connect_pipeline_qt.client.widgets.schema import BaseJsonWidget
+from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import AccordionWidget
 
 
 class ComponentsArray(BaseJsonWidget):
@@ -23,7 +24,7 @@ class ComponentsArray(BaseJsonWidget):
         )
 
     def build(self):
-        self.tab_widget = QtWidgets.QTabWidget()
+        self._accordion_widgets = []
 
         if 'items' in self.schema_fragment and self.fragment_data:
             for data in self.fragment_data:
@@ -31,25 +32,22 @@ class ComponentsArray(BaseJsonWidget):
                     name = data.get('name')
                 else:
                     name = data
-                new_tab_widget = QtWidgets.QWidget()
-                widget_layout = QtWidgets.QVBoxLayout()
+                accordion_widget = AccordionWidget(title=name)
                 obj = self.widget_factory.create_widget(
                     name, self.schema_fragment['items'], data,
                     self.previous_object_data
                 )
-                widget_layout.addWidget(obj)
-                new_tab_widget.setLayout(widget_layout)
-                self.tab_widget.addTab(new_tab_widget, name)
+                accordion_widget.add_widget(obj)
 
-        self.layout().addWidget(self.tab_widget)
+                self.layout().addWidget(accordion_widget)
+                self._accordion_widgets.append(accordion_widget)
         self.layout().setContentsMargins(0, 0, 0, 0)
 
     def to_json_object(self):
         out = []
-        for idx in range(0, self.tab_widget.count()):
-            tab_widget = self.tab_widget.widget(idx)
-            for i in range(0, tab_widget.layout().count()):
-                widget = tab_widget.layout().itemAt(i).widget()
+        for accordeon_widget in self._accordion_widgets:
+            for idx in range(0, accordeon_widget.count_widgets()):
+                widget = accordeon_widget.get_witget_at(idx)
                 if 'to_json_object' in dir(widget):
                     out.append(widget.to_json_object())
         return out

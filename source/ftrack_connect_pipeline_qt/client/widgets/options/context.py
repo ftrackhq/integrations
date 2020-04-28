@@ -5,9 +5,9 @@ import os
 from Qt import QtWidgets, QtCore, QtGui
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 
-from ftrack_connect_pipeline_qt.ui.widget.context_selector import ContextSelector
-from ftrack_connect_pipeline_qt.ui.widget.asset_selector import AssetSelector
-from ftrack_connect_pipeline_qt.ui.widget.version_selector import VersionSelector
+from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import ContextSelector
+from ftrack_connect_pipeline_qt.ui.utility.widget.asset_selector import AssetSelector
+from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import VersionSelector
 
 
 class PublishContextWidget(BaseOptionsWidget):
@@ -33,7 +33,6 @@ class PublishContextWidget(BaseOptionsWidget):
 
     def build(self):
         '''build function widgets.'''
-        super(PublishContextWidget, self).build()
         self._build_context_id_selector()
         self._build_asset_selector()
         self._build_status_selector()
@@ -75,6 +74,7 @@ class PublishContextWidget(BaseOptionsWidget):
         '''Builds the context_selector widget'''
         self.context_layout = QtWidgets.QHBoxLayout()
         self.context_layout.setContentsMargins(0, 0, 0, 0)
+        self.context_layout.setAlignment(QtCore.Qt.AlignTop)
 
         self.layout().addLayout(self.context_layout)
         self.context_selector = ContextSelector(self.session)
@@ -88,6 +88,7 @@ class PublishContextWidget(BaseOptionsWidget):
         '''Builds the asset_selector widget'''
         self.asset_layout = QtWidgets.QHBoxLayout()
         self.asset_layout.setContentsMargins(0, 0, 0, 0)
+        self.asset_layout.setAlignment(QtCore.Qt.AlignTop)
 
         self.asset_selector = AssetSelector(self.session, self.asset_type)
         self.asset_layout.addWidget(self.asset_selector)
@@ -99,6 +100,7 @@ class PublishContextWidget(BaseOptionsWidget):
         '''Builds the status_selector widget'''
         self.status_layout = QtWidgets.QVBoxLayout()
         self.status_layout.setContentsMargins(0, 0, 0, 0)
+        self.status_layout.setAlignment(QtCore.Qt.AlignTop)
 
         self.asset_status_label = QtWidgets.QLabel("Asset Status")
         self.status_selector = QtWidgets.QComboBox()
@@ -129,6 +131,8 @@ class PublishContextWidget(BaseOptionsWidget):
     def _build_comments_input(self):
         '''Builds the comments_container widget'''
         self.comments_container = QtWidgets.QGroupBox('Comment')
+
+        self.comments_container.setMaximumHeight(150)
 
         self.comments_layout = QtWidgets.QHBoxLayout()
 

@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 
-from Qt import QtCore, QtWidgets
+from Qt import QtGui, QtCore, QtWidgets
 from ftrack_connect_pipeline_qt.client.widgets.schema import JsonObject
 
 
@@ -10,6 +10,7 @@ class PluginContainerObject(JsonObject):
     '''
     Override widget representation of an object
     '''
+
     def __init__(
             self, name, schema_fragment, fragment_data,
             previous_object_data, widget_factory, parent=None
@@ -22,7 +23,6 @@ class PluginContainerObject(JsonObject):
         )
 
     def build(self):
-
         if self.previous_object_data:
             self.plugin_type = self.previous_object_data.get('name')
 

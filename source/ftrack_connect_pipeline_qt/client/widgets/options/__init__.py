@@ -3,7 +3,7 @@
 
 import logging
 
-from Qt import QtCore, QtWidgets
+from Qt import QtGui, QtCore, QtWidgets
 
 from ftrack_connect_pipeline_qt import constants
 
@@ -118,11 +118,16 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self._status_icon.setAlignment(
             QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
         )
+        self._status_icon.setMaximumHeight(10)
 
         layout.addWidget(self._status_icon)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setAlignment(QtCore.Qt.AlignTop)
         self.setLayout(layout)
+        self.setSizePolicy(
+            QtWidgets.QSizePolicy.Preferred,
+            QtWidgets.QSizePolicy.Fixed
+        )
 
     def build(self):
         '''build function , mostly used to create the widgets.'''

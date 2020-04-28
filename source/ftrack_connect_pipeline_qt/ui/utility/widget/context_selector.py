@@ -3,8 +3,8 @@
 
 from Qt import QtWidgets, QtCore
 
-from ftrack_connect_pipeline_qt.ui.widget.entity_path import EntityPath
-import ftrack_connect_pipeline_qt.ui.widget.entity_browser as entityBrowser
+from ftrack_connect_pipeline_qt.ui.utility.widget.entity_path import EntityPath
+import ftrack_connect_pipeline_qt.ui.utility.widget.entity_browser as entityBrowser
 
 
 class ContextSelector(QtWidgets.QWidget):
