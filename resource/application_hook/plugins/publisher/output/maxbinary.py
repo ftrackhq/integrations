@@ -32,7 +32,7 @@ class OutputMaxBinaryPlugin(plugin.PublisherOutputMaxPlugin):
             #     nodes.Append(node)
         self.logger.debug('maxbin 3')
         # MaxPlus.FileManager.SaveNodes(nodes, new_file_path, quiet=True)
-        MaxPlus.FileManager.SaveSelected(temporary_path)
+        MaxPlus.FileManager.SaveSelected(new_file_path)
         return {component_name: new_file_path}
 
 

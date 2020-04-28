@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import logging
+import functools
 
 import ftrack_api
 
@@ -60,21 +61,21 @@ def initialise():
         (publish.MaxPublisherClient, 'Publisher')
     )
 
-    ftrack_menu = max_host.get_ftrack_menu()
+    #ftrack_menu = max_host.get_ftrack_menu()
 
-    # menu_name = 'ftrack_pipeline'
-    # if MaxPlus.MenuManager.MenuExists(menu_name):
-    #     MaxPlus.MenuManager.UnregisterMenu(menu_name)
-    # ftrack_menu_builder = MaxPlus.MenuBuilder(menu_name)
+    menu_name = 'ftrack_pipeline'
+    if MaxPlus.MenuManager.MenuExists(menu_name):
+        MaxPlus.MenuManager.UnregisterMenu(menu_name)
+    ftrack_menu_builder = MaxPlus.MenuBuilder(menu_name)
     # Register and hook the dialog in ftrack menu
     for item in dialogs:
         if item == 'divider':
-            #ftrack_menu_builder.AddSeparator()
+            ftrack_menu_builder.AddSeparator()
             continue
 
         dialog_class, label = item
 
-        ftrack_menu.AddItem(
+        ftrack_menu_builder.AddItem(
             # MaxPlus.ActionFactory.Create(
             #     category='ftrack', name=label, fxn=functools.partial(
             #         open_dialog, dialog_class, hostid
@@ -83,12 +84,10 @@ def initialise():
             MaxPlus.ActionFactory.Create(
                 category='ftrack',
                 name=label,
-                fxn=(
-                    lambda x, dialog_class=dialog_class: _open_dialog(dialog_class, event_manager)
-                )
+                fxn=functools.partial(_open_dialog, dialog_class, event_manager)
             )
         )
-    ftrack_menu.Create(MaxPlus.MenuManager.GetMainMenu())
+    ftrack_menu_builder.Create(MaxPlus.MenuManager.GetMainMenu())
 
 
 initialise()

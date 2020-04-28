@@ -9,7 +9,7 @@ import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_3dsmax.constants as max_constants
 
 
-class MaxLoaderClient(QtWidgets.QDockWidget, QtLoaderClient):
+class MaxLoaderClient(QtLoaderClient):
     ui = [constants.UI, qt_constants.UI, max_constants.UI]
 
     '''Dockable maya load widget'''
@@ -17,11 +17,13 @@ class MaxLoaderClient(QtWidgets.QDockWidget, QtLoaderClient):
         super(MaxLoaderClient, self).__init__(
             event_manager=event_manager, parent=parent
         )
+        self.dock_widget = QtWidgets.QDockWidget(parent=parent)
         self.setWindowTitle('Max Pipeline Loader')
         self.setObjectName('Max Pipeline Publisher')
-        self.setWidget(self.my_widget)
-        parent.addDockWidget(QtCore.Qt.RightDockWidgetArea, self)
-        self.setFloating(True)
+        self.dock_widget.setWidget(self)
+        parent.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.dock_widget)
+        self.dock_widget.setFloating(True)
+        self.dock_widget.show()
 
     def show(self):
         super(MaxLoaderClient, self).show()
