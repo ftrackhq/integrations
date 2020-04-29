@@ -25,5 +25,6 @@ class MaxPublisherClient(QtPublisherClient):
         self.dock_widget.setFloating(True)
 
     def show(self):
-        super(MaxPublisherClient, self).show()
         self.dock_widget.show()
+        super(MaxPublisherClient, self).show()
+

@@ -23,7 +23,8 @@ class MaxLoaderClient(QtLoaderClient):
         self.dock_widget.setWidget(self)
         parent.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.dock_widget)
         self.dock_widget.setFloating(True)
-        self.dock_widget.show()
 
     def show(self):
+        self.dock_widget.show()
         super(MaxLoaderClient, self).show()
+
