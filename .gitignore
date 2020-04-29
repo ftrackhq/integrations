@@ -1,0 +1,41 @@
+# General
+*.py[cod]
+
+# Packages
+*.egg
+*.egg-info
+*.eggs/*
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+__pycache__
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+test-reports/*
+
+# Build files
+/resource/*.css
+
+# Caches
+.sass-cache/
+Thumbs.db
+
+# Development
+.project
+.pydevproject
+.settings
+.idea/
+*.orig

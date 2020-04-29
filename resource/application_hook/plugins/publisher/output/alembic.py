@@ -9,7 +9,7 @@ import pymxs
 from ftrack_connect_pipeline_3dsmax import plugin
 
 
-class OutputMaxAlembicPlugin(plugin.OutputMaxPlugin):
+class OutputMaxAlembicPlugin(plugin.PublisherOutputMaxPlugin):
     plugin_name = 'OutputMaxAlembicPlugin'
 
     def run(self, context=None, data=None, options=None):
@@ -19,7 +19,6 @@ class OutputMaxAlembicPlugin(plugin.OutputMaxPlugin):
         ).name
         self.logger.debug('Calling extractor options: data {}'.format(data))
         self.logger.debug('Writing Alembic file to {}'.format(new_file_path))
-        # return {component_name: new_file_path}
 
         saved_selection = MaxPlus.SelectionManager.GetNodes()
         self.logger.debug('Post SM1')
@@ -34,12 +33,6 @@ class OutputMaxAlembicPlugin(plugin.OutputMaxPlugin):
                 if node:
                     nodes.Append(node)
             MaxPlus.SelectionManager.SelectNodes(nodes)
-
-            # pymxs.runtime.clearSelection()
-            # for node_name in data:
-            #     pymxs.runtime.selectMore(
-            #         pymxs.runtime.getNodeByName(node_name)
-            #     )
             pymxs.runtime.exportFile(
                 new_file_path, pymxs.runtime.Name("noPrompt"), selectedOnly=True
             )

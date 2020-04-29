@@ -3,17 +3,21 @@
 
 from functools import partial
 
-from ftrack_connect_pipeline.client.widgets import BaseWidget
+from ftrack_connect_pipeline_3dsmax import plugin
+from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
+
 from Qt import QtWidgets
 
-from ftrack_connect_pipeline_3dsmax import plugin
+import MaxPlus
 
 
-class Camera3dsMaxWidget(BaseWidget):
+class Camera3dsMaxWidget(BaseOptionsWidget):
     MAX_CAMERA_CLASS_ID = 32
 
-    def __init__(self, session=None, data=None, name=None, description=None, options=None):
-        import MaxPlus
+    def __init__(
+            self, parent=None, session=None, data=None, name=None,
+            description=None, options=None, context=None
+    ):
         self.cameras = []
         root = MaxPlus.Core.GetRootNode()
 
@@ -22,8 +26,8 @@ class Camera3dsMaxWidget(BaseWidget):
                 self.cameras.append(node.name)
 
         super(Camera3dsMaxWidget, self).__init__(
-            session=session, data=data, name=name, description=description,
-            options=options
+            parent=parent, session=session, data=data, name=name,
+            description=description, options=options, context=context
         )
 
     def build(self):
@@ -41,16 +45,10 @@ class Camera3dsMaxWidget(BaseWidget):
             self.nodes_cb.setDisabled(True)
 
 
-class Camera3dsMaxPlugin(plugin.CollectorMaxWidget):
+class Camera3dsMaxPluginWidget(plugin.PublisherCollectorMaxWidget):
     plugin_name = 'camera'
-
-    def run(self, data=None, name=None, description=None, options=None):
-        return Camera3dsMaxWidget(
-            session=self.session, data=data, name=name,
-            description=description, options=options
-        )
-
+    widget = Camera3dsMaxWidget
 
 def register(api_object, **kw):
-    plugin = Camera3dsMaxPlugin(api_object)
+    plugin = Camera3dsMaxPluginWidget(api_object)
     plugin.register()

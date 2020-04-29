@@ -6,7 +6,7 @@ import pymxs
 from ftrack_connect_pipeline_3dsmax import plugin
 
 
-class CollectCameraMaxPlugin(plugin.CollectorMaxPlugin):
+class CollectCameraMaxPlugin(plugin.PublisherCollectorMaxPlugin):
     plugin_name = 'camera'
 
     def run(self, context=None, data=None, options=None):
