@@ -13,7 +13,6 @@ class BaseMaxPlugin(plugin.BasePlugin):
     def _run(self, event):
         super_fn = super(BaseMaxPlugin, self)._run
         result = super_fn(event)
-        #result = maya.utils.executeInMainThreadWithResult(super_fn, event)
         return result
 
 
