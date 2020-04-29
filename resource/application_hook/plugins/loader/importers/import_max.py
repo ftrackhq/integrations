@@ -16,7 +16,6 @@ class ImportMayaPlugin(plugin.LoaderImporterMaxPlugin):
             self.logger.debug('Importing path {}'.format(component_path))
             fm = MaxPlus.FileManager
             import_result =fm.Open(component_path, True, True, True, False)
-            #import_result = fm.Import(component_path)
             results[component_path] = import_result
 
         return results

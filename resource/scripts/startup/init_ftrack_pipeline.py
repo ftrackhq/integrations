@@ -31,9 +31,6 @@ def _open_dialog(dialog_class, event_manager):
     created_dialogs[dialog_name].show()
 
 def initialise():
-    # TODO : later we need to bring back here all the maya initialiations
-    #  from ftrack-connect-maya
-    # such as frame start / end etc....
 
     logger.info('Setting up the menu')
     session = ftrack_api.Session(auto_connect_event_hub=False)
@@ -61,11 +58,11 @@ def initialise():
         (publish.MaxPublisherClient, 'Publisher')
     )
 
-    #ftrack_menu = max_host.get_ftrack_menu()
-
     menu_name = 'ftrack_pipeline'
+
     if MaxPlus.MenuManager.MenuExists(menu_name):
         MaxPlus.MenuManager.UnregisterMenu(menu_name)
+
     ftrack_menu_builder = MaxPlus.MenuBuilder(menu_name)
     # Register and hook the dialog in ftrack menu
     for item in dialogs:
@@ -76,11 +73,6 @@ def initialise():
         dialog_class, label = item
 
         ftrack_menu_builder.AddItem(
-            # MaxPlus.ActionFactory.Create(
-            #     category='ftrack', name=label, fxn=functools.partial(
-            #         open_dialog, dialog_class, hostid
-            #     )
-            # )
             MaxPlus.ActionFactory.Create(
                 category='ftrack',
                 name=label,
