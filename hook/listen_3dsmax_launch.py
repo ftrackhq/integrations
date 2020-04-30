@@ -22,6 +22,10 @@ max_script_path = os.path.abspath(os.path.join(
     plugin_base_dir, 'resource', 'scripts'
 ))
 
+max_connect_plugins_path = os.path.abspath(os.path.join(
+    plugin_base_dir, 'resource', 'plug_ins'
+))
+
 application_hook = os.path.abspath(os.path.join(
     plugin_base_dir, 'resource', 'application_hook'
 ))
@@ -50,6 +54,13 @@ def on_application_launch(event):
     ftrack_connect.application.appendPath(
         max_script_path,
         'PYTHONPATH',
+        event['data']['options']['env']
+    )
+
+    # 3dsmax plugins
+    ftrack_connect.application.appendPath(
+        max_connect_plugins_path,
+        '3DSMAX_PLUG_IN_PATH',
         event['data']['options']['env']
     )
 

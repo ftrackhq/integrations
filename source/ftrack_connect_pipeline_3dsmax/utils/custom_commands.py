@@ -40,9 +40,11 @@ def merge_max_file(file_path):
 def get_current_scene_objects():
     deselect_all()
     select_all()
-    all_obj = save_selection()
+    scene_objects = []
+    for obj in save_selection():
+        scene_objects.append(obj)
     deselect_all()
-    return all_obj
+    return set(scene_objects)
 
 def select_all():
     eval_max_script('select $*')

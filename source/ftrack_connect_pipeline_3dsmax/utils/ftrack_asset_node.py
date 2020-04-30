@@ -80,7 +80,7 @@ class FtrackAssetNode(object):
 
         obj = self.node.Object
         obj.ParameterBlock.assetId.Value = self.version_id
-        obj.ParameterBlock.assetVersion.Value = self.version_number
+        obj.ParameterBlock.assetVersion.Value = int(self.version_number)
         obj.ParameterBlock.assetPath.Value = self.component_path
         obj.ParameterBlock.assetTake.Value = self.component_name
         obj.ParameterBlock.assetType.Value = self.asset_type
