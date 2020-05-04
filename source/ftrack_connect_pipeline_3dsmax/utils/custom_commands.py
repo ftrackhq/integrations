@@ -63,7 +63,7 @@ def restore_selection(saved_selection):
 
 
 def add_node_to_selection(node):
-    '''Add a node to the current selection.'''
+    '''Select Node'''
     MaxPlus.SelectionManager.SelectNode(node, False)
 
 
