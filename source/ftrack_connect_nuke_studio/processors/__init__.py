@@ -32,6 +32,7 @@ def register_processors():
     # this could be moved to a discover function
     shot_name = 'Ftrack Shot Preset'
 
+
     nuke_script_processor = FtrackNukeShotExporterPreset(
         '', {}
     )
@@ -64,12 +65,17 @@ def register_processors():
         '', {}
     )
 
+    copy_processor = FtrackCopyExporterPreset(
+        '', {}
+    )
+
     shot_properties = {
         'exportTemplate': (
             (FTRACK_PROJECT_STRUCTURE, nuke_render_processor),
             (FTRACK_PROJECT_STRUCTURE, nuke_script_processor),
             (FTRACK_PROJECT_STRUCTURE, reviewable_processor),
-            (FTRACK_PROJECT_STRUCTURE, audio_processor)
+            (FTRACK_PROJECT_STRUCTURE, audio_processor),
+            (FTRACK_PROJECT_STRUCTURE, copy_processor)
 
         ),
         'cutLength': True,
