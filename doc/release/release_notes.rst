@@ -7,13 +7,16 @@
 Release Notes
 *************
 
-.. release:: 2.3.0
-    :date: 2020-04-23
+.. release:: Upcoming
 
     .. change:: new
-        :tags: Export project
+        :tags: Exporter
 
-        Add 'Ftrack Copy Exporter' for publish file or sequence to ftrack by copying file.
+        Add 'Ftrack Copy Exporter' for publish file or sequence to ftrack without transcoding.
+
+
+.. release:: 2.3.0
+    :date: 2020-04-23
 
     .. change:: fix
         :tags: Internal
