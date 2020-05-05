@@ -7,7 +7,8 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 2.3.0
+    :date: 2020-04-23
 
     .. change:: new
         :tags: Export project
