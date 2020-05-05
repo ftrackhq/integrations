@@ -3,6 +3,7 @@
 
 import logging
 import copy
+import os
 import hiero.core.util
 from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 
@@ -11,6 +12,7 @@ import tempfile
 from hiero.exporters.FnSubmission import Submission
 from hiero.exporters.FnTranscodeExporter import TranscodeExporter, TranscodePreset
 from hiero.exporters.FnTranscodeExporterUI import TranscodeExporterUI
+from hiero.exporters.FnExternalRender import NukeRenderTask
 from hiero.exporters import FnAudioConstants
 from hiero.exporters import FnAudioHelper
 
@@ -31,14 +33,13 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-
         TranscodeExporter.__init__(self, initDict)
         FtrackProcessor.__init__(self, initDict)
         self.createTranscodeScript()
 
     def setAudioExportSettings(self):
         extension = FnAudioConstants.kCodecs[self._preset.properties()[FnAudioConstants.kCodecKey]]
-        path = tempfile.NamedTemporaryFile(suffix=extension, delete=False).name
+        path = tempfile.NamedTemporaryFile(suffix=extension, delete=False).name.replace('\\', '/')
         self._audioFile = str(path)
 
         FnAudioHelper.setAudioExportSettings(self)
@@ -54,12 +55,12 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
 
     def createTranscodeScript(self):
         '''Create a custom transcode script for this task.'''
-        # This code is taken from TranscodeExporter.__init__
-        # in order to output the nuke file in the right place we need to override this.
 
         # Figure out the script location
-        path = tempfile.NamedTemporaryFile(suffix='.nk', delete=False).name
+        path = tempfile.NamedTemporaryFile(suffix='.nk', delete=False).name.replace('\\', '/')
         self._scriptfile = str(path)
+
+        self.logger.debug('writing script to : {}'.format(self._scriptfile))
 
         self._renderTask = None
         if self._submission is not None:

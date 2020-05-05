@@ -7,6 +7,14 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: fix
+        :tags: Exporter
+
+        Reviewable Task break when including audio.
+
+
 .. release:: 2.3.0
     :date: 2020-04-23
 
