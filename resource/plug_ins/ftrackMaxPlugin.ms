@@ -10,6 +10,7 @@ extends:dummy
     parameters pblock
     (
         assetId type:#string default:""
+        assetVersionId type:#string default:""
         assetVersion type:#integer default:0
         assetPath type:#string default:""
         assetTake type:#string default:""

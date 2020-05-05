@@ -6,7 +6,7 @@ from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_3dsmax.plugin import (
     BaseMaxPlugin, BaseMaxPluginWidget
 )
-from ftrack_connect_pipeline_3dsmax.utils import custom_commands as fcc
+from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
 from ftrack_connect_pipeline_3dsmax.utils import ftrack_asset_node
 
 
@@ -19,7 +19,7 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
     '''
 
     def _run(self, event):
-        self.old_data = fcc.get_current_scene_objects()
+        self.old_data = max_utils.get_current_scene_objects()
         self.logger.debug('Got current objects from scene')
 
         context = event['data']['settings']['context']
@@ -32,7 +32,7 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
         super_result = super(LoaderImporterMaxPlugin, self)._run(event)
         self.logger.debug('Base _run function done.')
 
-        self.new_data = fcc.get_current_scene_objects()
+        self.new_data = max_utils.get_current_scene_objects()
         self.logger.debug(
             'Got all the objects in the scene after import'
         )

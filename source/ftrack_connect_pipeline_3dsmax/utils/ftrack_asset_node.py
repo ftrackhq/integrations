@@ -114,7 +114,8 @@ class FtrackAssetNode(object):
 
         #TODO: update the ftrack_node parameter names to match what they currently are
         obj = self.node.Object
-        obj.ParameterBlock.assetId.Value = self.version_id
+        obj.ParameterBlock.assetId.Value = self.asset_id
+        obj.ParameterBlock.assetVersionId.Value = self.version_id
         obj.ParameterBlock.assetVersion.Value = int(self.version_number)
         obj.ParameterBlock.assetPath.Value = self.component_path
         obj.ParameterBlock.assetTake.Value = self.component_name
@@ -129,15 +130,15 @@ class FtrackAssetNode(object):
                 "Could not freeze object {0}".format(self.node.Name))
         return self.node
 
-    def _get_asset_id_from_helper_node(self, helperNode):
+    def _get_asset_id_from_helper_node(self, helper_node):
         '''
         Find the asset version id added on the given *helperNode*. Then gets
         the asset version object from ftrack and Return the asset id of this
         asset version
         '''
-        assetVersId = helperNode.Object.ParameterBlock.assetId.Value
-        vers = ftrack.AssetVersion(id=assetVersId)
-        return vers.getAsset().getId()
+        asset_version_id = helper_node.Object.ParameterBlock.assetVersionId.Value
+        asset_version = ftrack.AssetVersion(id=asset_version_id)
+        return asset_version.getAsset().getId()
 
     def _cleanup_selection_and_group_under_ftrack_node(self):
         '''
