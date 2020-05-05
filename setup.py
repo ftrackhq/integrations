@@ -5,7 +5,7 @@ import os
 import sys
 import re
 import shutil
-from pkg_resources import parse_version
+from pkg_resources import parse_version, DistributionNotFound, get_distribution
 import pip
 
 if parse_version(pip.__version__) < parse_version('19.3.0'):
@@ -32,14 +32,14 @@ HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
 APPLICATION_HOOK_PATH = os.path.join(RESOURCE_PATH, 'application_hook')
 
 
-# Read version from source.
-with open(os.path.join(
-    SOURCE_PATH, 'ftrack_connect_nuke_studio', '_version.py'
-)) as _version_file:
-    VERSION = re.match(
-        r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
-    ).group(1)
+try:
+    release = get_distribution('ftrack-connect-nuke-studio').version
+    # take major/minor/patch
+    VERSION = '.'.join(release.split('.')[:3])
 
+except DistributionNotFound:
+    # package is not installed
+    VERSION = 'Unknown version'
 
 # ensure result plugin has the version set
 STAGING_PATH = STAGING_PATH.format(VERSION)
@@ -165,6 +165,13 @@ class BuildPlugin(Command):
             STAGING_PATH
         )
 
+version_template = '''
+# :coding: utf-8
+# :copyright: Copyright (c) 2017-2020 ftrack
+
+__version__ = {version!r}
+'''
+
 
 # Call main setup.
 setup(
@@ -185,7 +192,9 @@ setup(
         'sphinx >= 1.2.2, < 2',
         'sphinx_rtd_theme >= 0.1.6, < 2',
         'lowdown >= 0.1.0, < 1',
-        'mock >= 1.3, < 2'
+        'mock >= 1.3, < 2',
+        'setuptools>=30.3.0',
+        'setuptools_scm',
     ],
     install_requires=[
         'clique',
@@ -194,8 +203,10 @@ setup(
         'opentimelineio ==0.11',
         'qt.py >=1.0.0, < 2'
     ],
-    tests_require=[
-    ],
+    use_scm_version={
+        'write_to': 'source/ftrack_connect_nuke_studio/_version.py',
+        'write_to_template': version_template,
+    },
     zip_safe=False,
     cmdclass={
         'build_plugin': BuildPlugin,

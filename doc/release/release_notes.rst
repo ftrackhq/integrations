@@ -7,6 +7,14 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: change
+        :tags: Version
+
+        Replace fixed version with automatic versioning from git repository.
+
+
 .. release:: 2.3.0
     :date: 2020-04-23
 

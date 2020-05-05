@@ -8,6 +8,7 @@ import re
 import sys
 
 import mock
+from pkg_resources import DistributionNotFound, get_distribution
 
 # -- General ------------------------------------------------------------------
 
@@ -34,20 +35,17 @@ copyright = u'2018, ftrack'
 sources = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'source'))
 sys.path.append(sources)
 
-# sys.path.append('/usr/local/Nuke11.2v2/pythonextensions/site-packages')
-# Version
-with open(
-    os.path.join(
-        os.path.dirname(__file__), '..', 'source',
-        'ftrack_connect_nuke_studio', '_version.py'
-    )
-) as _version_file:
-    _version = re.match(
-        r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
-    ).group(1)
+try:
+    release = get_distribution('ftrack-connect-nuke-studio').version
+    # take major/minor/patch
+    VERSION = '.'.join(release.split('.')[:3])
 
-version = _version
-release = _version
+except DistributionNotFound:
+    # package is not installed
+    VERSION = 'Unknown version'
+
+version = VERSION
+release = VERSION
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
