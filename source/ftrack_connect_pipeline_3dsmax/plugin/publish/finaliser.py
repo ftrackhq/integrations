@@ -31,17 +31,17 @@ class PublisherFinaliserMaxPlugin(plugin.PublisherFinaliserPlugin, BaseMaxPlugin
         current_asset_id = context.get('asset_id', '')
 
         self.logger.info('context --> {}'.format(context))
-        self.logger.info('current_version_id --> {}'.format(current_asset_id))
+        self.logger.info('current_asset_id --> {}'.format(current_asset_id))
 
         self.version_dependencies = []
         ftrack_asset_nodes =max_utils.get_ftrack_helpers()
 
         for dependency in ftrack_asset_nodes:
             obj = dependency.Object
-            dependency_asset_version_id = obj.ParameterBlock.assetVersionId.Value
-            dependency_asset_id = obj.ParameterBlock.assetId.Value
+            dependency_asset_version_id = obj.ParameterBlock.asset_version_id.Value
+            dependency_asset_id = obj.ParameterBlock.asset_id.Value
             self.logger.info(
-                'dependency_asset_id --> {}'.format(dependency_asset_version_id))
+                'dependency_asset_id --> {}'.format(dependency_asset_id))
             if dependency_asset_version_id and dependency_asset_id != current_asset_id:
                 dependency_version = self.session.get(
                     'AssetVersion', dependency_asset_version_id

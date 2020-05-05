@@ -85,6 +85,7 @@ def select_only_cameras():
     eval_max_script(cmd)
 
 def get_ftrack_helpers():
+    saved_selection = save_selection()
     cmd = '''
     selected_helpers =  #()
     for obj in rootScene.world.children do (  
@@ -97,7 +98,10 @@ def get_ftrack_helpers():
     select selected_helpers
     '''
     eval_max_script(cmd)
-    return MaxPlus.SelectionManager.GetNodes()
+    helpers = MaxPlus.SelectionManager.GetNodes()
+    deselect_all()
+    restore_selection(saved_selection)
+    return helpers
 
 def create_selection_set(set_name):
     '''Create a new selection set containing the selected nodes.'''

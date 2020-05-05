@@ -59,6 +59,9 @@ class FtrackAssetNode(object):
         # if self.asset_take == '3dsmax':
         #     self.helper_object.ParameterBlock.asset_import_mode.Value = self.asset_import_mode
 
+        #TODO: create the function get ftrack asset node, in case it is already
+        # created so we do not need to create it again, we just need to update it.
+
     def _get_unique_ftrack_asset_node_name(self, asset_name):
         '''
         Return a unique scene name for the given *asset_name*
@@ -112,15 +115,22 @@ class FtrackAssetNode(object):
             self.logger.debug(
                 "Could not unfreeze object {0}".format(self.node.Name))
 
-        #TODO: update the ftrack_node parameter names to match what they currently are
         obj = self.node.Object
-        obj.ParameterBlock.assetId.Value = self.asset_id
-        obj.ParameterBlock.assetVersionId.Value = self.version_id
+        # Setting up the legacy parameters
+        obj.ParameterBlock.assetId.Value = self.version_id
         obj.ParameterBlock.assetVersion.Value = int(self.version_number)
         obj.ParameterBlock.assetPath.Value = self.component_path
         obj.ParameterBlock.assetTake.Value = self.component_name
         obj.ParameterBlock.assetType.Value = self.asset_type
         obj.ParameterBlock.assetComponentId.Value = self.component_id
+        # Setting up new parameters
+        obj.ParameterBlock.asset_id.Value = self.asset_id
+        obj.ParameterBlock.asset_version_id.Value = self.version_id
+        obj.ParameterBlock.version_number.Value = int(self.version_number)
+        obj.ParameterBlock.component_path.Value = self.component_path
+        obj.ParameterBlock.component_name.Value = self.component_name
+        obj.ParameterBlock.asset_type.Value = self.asset_type
+        obj.ParameterBlock.component_id.Value = self.component_id
 
         try:
             cmd = 'freeze ${0}'.format(self.node.Name)
@@ -136,7 +146,7 @@ class FtrackAssetNode(object):
         the asset version object from ftrack and Return the asset id of this
         asset version
         '''
-        asset_version_id = helper_node.Object.ParameterBlock.assetVersionId.Value
+        asset_version_id = helper_node.Object.ParameterBlock.asset_version_id.Value
         asset_version = ftrack.AssetVersion(id=asset_version_id)
         return asset_version.getAsset().getId()
 
