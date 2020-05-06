@@ -30,47 +30,23 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
 
         self.logger.debug('Running the base _run function')
         super_result = super(LoaderImporterMaxPlugin, self)._run(event)
-        self.logger.debug('Base _run function done.')
+
+        #TODO: this has to come from the ui
+        asset_load_mode = 'import' #data.get('asset_load_mode', 'open')
+
+        if asset_load_mode == 'open':
+            return super_result
 
         self.new_data = max_utils.get_current_scene_objects()
         self.logger.debug(
             'Got all the objects in the scene after import'
         )
 
-        self.logger.debug('Building asset_info dictionary')
-        asset_info = {}
-
-        asset_info['asset_name'] = context.get('asset_name', 'No name found')
-        asset_info['version_number'] = context.get('version_number', '0')
-        asset_info['context_id'] = context.get('context_id', '')
-        asset_info['asset_type'] = context.get('asset_type', '')
-        asset_info['asset_id'] = context.get('asset_id', '')
-        asset_info['version_id'] = context.get('version_id', '')
-
-        asset_version = self.session.get(
-            'AssetVersion', asset_info['version_id']
-        )
-
-        location = self.session.pick_location()
-
-        for component in asset_version['components']:
-            if location.get_component_availability(component) < 100.0:
-                continue
-            component_path = location.get_filesystem_path(component)
-            if component_path in data:
-                asset_info['component_name'] = component['name']
-                asset_info['component_id'] = component['id']
-                asset_info['component_path'] = component_path
-
-        if asset_info:
-            self.logger.debug(
-                'asset_info dictionary done : {}'.format(asset_info)
-            )
-            self.link_to_ftrack_node(asset_info)
+        self.link_to_ftrack_node(context, data)
 
         return super_result
 
-    def link_to_ftrack_node(self, asset_info):
+    def link_to_ftrack_node(self, context, data):
         diff = self.new_data.difference(self.old_data)
 
         if not diff:
@@ -82,11 +58,12 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
             ' inport : {}'.format(diff)
         )
 
-        #TODO: asset_import_mode has to come from the ui
+        #TODo: Remove self.session argument as will not be needed when the
+        # FtrackAssetNode class is part of the core pipeline
         ftrack_node_class = ftrack_asset_node.FtrackAssetNode(
-            asset_info, asset_import_mode="import"
+            context, data, self.session
         )
-        ftrack_node = ftrack_node_class.create_node()
+        ftrack_node = ftrack_node_class.init_ftrack_node()
 
         for item in diff:
             ftrack_node_class.connect_to_ftrack_node(item)

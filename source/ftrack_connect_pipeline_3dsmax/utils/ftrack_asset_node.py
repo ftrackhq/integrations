@@ -18,9 +18,7 @@ class FtrackAssetNode(object):
     '''
         Base FtrackAssetNode class.
     '''
-    def __init__(
-            self, asset_info, asset_import_mode=None
-    ):
+    def __init__(self, context, data, session):
         '''
             Initialize FtrackAssetNode with *asset_info*, and optional
             *asset_import_mode*.
@@ -37,17 +35,11 @@ class FtrackAssetNode(object):
         self.nodes = []
         self.node = None
 
-        self.asset_name = asset_info.get('asset_name')
-        self.version_number = asset_info.get('version_number')
-        self.context_id = asset_info.get('context_id')
-        self.asset_type = asset_info.get('asset_type')
-        self.asset_id = asset_info.get('asset_id')
-        self.version_id = asset_info.get('version_id')
-        self.component_name = asset_info.get('component_name')
-        self.component_id = asset_info.get('component_id')
-        self.component_path = asset_info.get('component_path')
+        self.context = context
+        self.data = data
+        self.session = session
 
-        self.asset_import_mode = asset_import_mode
+        self.asset_info = self._get_asset_info()
 
         self.helper_object = MaxPlus.Factory.CreateHelperObject(
             FTRACK_ASSET_HELPER_CLASS_ID
@@ -58,9 +50,98 @@ class FtrackAssetNode(object):
 
         # if self.asset_take == '3dsmax':
         #     self.helper_object.ParameterBlock.asset_import_mode.Value = self.asset_import_mode
+    def _get_asset_info(self):
+        asset_info = {}
 
-        #TODO: create the function get ftrack asset node, in case it is already
-        # created so we do not need to create it again, we just need to update it.
+        asset_info['asset_name'] = self.context.get('asset_name', 'No name found')
+        asset_info['version_number'] = self.context.get('version_number', '0')
+        asset_info['context_id'] = self.context.get('context_id', '')
+        asset_info['asset_type'] = self.context.get('asset_type', '')
+        asset_info['asset_id'] = self.context.get('asset_id', '')
+        asset_info['version_id'] = self.context.get('version_id', '')
+        #asset_info['asset_load_mode'] = self.data.get('asset_load_mode', '')
+
+        asset_version = self.session.get(
+            'AssetVersion', asset_info['version_id']
+        )
+
+        location = self.session.pick_location()
+
+        for component in asset_version['components']:
+            if location.get_component_availability(component) < 100.0:
+                continue
+            component_path = location.get_filesystem_path(component)
+            if component_path in self.data:
+                asset_info['component_name'] = component['name']
+                asset_info['component_id'] = component['id']
+                asset_info['component_path'] = component_path
+
+        if asset_info:
+            self.logger.debug(
+                'asset_info dictionary done : {}'.format(asset_info)
+            )
+        return asset_info
+    def init_ftrack_node(self):
+        '''
+        Return the ftrack node for this class. It checks if there is already a
+        matching ftrack node in the scene, in this case it updates the node if
+        it's not. In case there is no node in the scene this function creates a
+        new one.
+        '''
+        ftrack_node = self.get_ftrack_node_from_scene()
+        if ftrack_node:
+            self.set_ftrack_node(ftrack_node)
+            if not self.is_ftrack_node_sync():
+                self._update_ftrack_asset_node()
+
+        else:
+            self.create_new_node()
+
+        return self.node
+
+    def set_asset_load_mode(self, asset_load_mode):
+        self.asset_info['asset_load_mode'] = asset_load_mode
+
+    def get_ftrack_node_from_scene(self):
+        '''
+        Return the ftrack node of the current asset_version of the scene if
+        exists.
+        '''
+        ftrack_asset_nodes = max_utils.get_ftrack_helpers()
+        for ftrack_node in ftrack_asset_nodes:
+            obj = ftrack_node.Object
+            asset_version_id = obj.ParameterBlock.asset_version_id.Value
+            asset_id = obj.ParameterBlock.asset_id.Value
+            if (
+                    asset_version_id == self.asset_info['version_id'] and
+                    asset_id == self.asset_info['asset_id']
+            ):
+                return ftrack_node
+
+    def set_ftrack_node(self, ftrack_node):
+        '''
+        Sets the given *ftrack_node* as the current self.node of the class
+        '''
+        self.node = ftrack_node
+
+    def is_ftrack_node_sync(self):
+        '''
+        Check if the current parameters of the ftrack node match the parameters
+        of the porperty asset_info.
+
+        ..Note:: Checks only the new parameters not the legacy ones
+
+        '''
+        if not self.node:
+            self.logger.warning("No ftrack node loaded")
+            return None
+
+        obj = self.node.Object
+        for p in obj.ParameterBlock.Parameters:
+            if p.Name in self.asset_info.keys():
+                if p.Value != self.asset_info[p.Name]:
+                    return False
+        return True
 
     def _get_unique_ftrack_asset_node_name(self, asset_name):
         '''
@@ -82,13 +163,15 @@ class FtrackAssetNode(object):
         )
         #ToDo: add the reimport scene function
 
-    def create_node(self):
+    def create_new_node(self):
         '''
         Creates the ftrack_node with a unique name. The ftrack node is type of
         FtrackAssetHelper.
 
         '''
-        name = self._get_unique_ftrack_asset_node_name(self.asset_name)
+        name = self._get_unique_ftrack_asset_node_name(
+            self.asset_info['asset_name']
+        )
         self.node = MaxPlus.Factory.CreateNode(self.helper_object)
         self.node.Name = name
         self.nodes.append(self.node)
@@ -99,7 +182,11 @@ class FtrackAssetNode(object):
                 self.node.Name)
             max_utils.eval_max_script(cmd)
         except:
-            self.logger.debug("Could not freeze object {0}".format(self.asset_name))
+            self.logger.debug(
+                "Could not freeze object {0}".format(
+                    self.asset_info['asset_name']
+                )
+            )
 
         return self._update_ftrack_asset_node()
 
@@ -117,20 +204,22 @@ class FtrackAssetNode(object):
 
         obj = self.node.Object
         # Setting up the legacy parameters
-        obj.ParameterBlock.assetId.Value = self.version_id
-        obj.ParameterBlock.assetVersion.Value = int(self.version_number)
-        obj.ParameterBlock.assetPath.Value = self.component_path
-        obj.ParameterBlock.assetTake.Value = self.component_name
-        obj.ParameterBlock.assetType.Value = self.asset_type
-        obj.ParameterBlock.assetComponentId.Value = self.component_id
+        obj.ParameterBlock.assetId.Value = self.asset_info['version_id']
+        obj.ParameterBlock.assetVersion.Value = int(self.asset_info['version_number'])
+        obj.ParameterBlock.assetPath.Value = self.asset_info['component_path']
+        obj.ParameterBlock.assetTake.Value = self.asset_info['component_name']
+        obj.ParameterBlock.assetType.Value = self.asset_info['asset_type']
+        obj.ParameterBlock.assetComponentId.Value = self.asset_info['component_id']
         # Setting up new parameters
-        obj.ParameterBlock.asset_id.Value = self.asset_id
-        obj.ParameterBlock.asset_version_id.Value = self.version_id
-        obj.ParameterBlock.version_number.Value = int(self.version_number)
-        obj.ParameterBlock.component_path.Value = self.component_path
-        obj.ParameterBlock.component_name.Value = self.component_name
-        obj.ParameterBlock.asset_type.Value = self.asset_type
-        obj.ParameterBlock.component_id.Value = self.component_id
+        obj.ParameterBlock.asset_id.Value = self.asset_info['asset_id']
+        obj.ParameterBlock.asset_version_id.Value = self.asset_info['version_id']
+        obj.ParameterBlock.version_number.Value = int(
+            self.asset_info['version_number']
+        )
+        obj.ParameterBlock.component_path.Value = self.asset_info['component_path']
+        obj.ParameterBlock.component_name.Value = self.asset_info['component_name']
+        obj.ParameterBlock.asset_type.Value = self.asset_info['asset_type']
+        obj.ParameterBlock.component_id.Value = self.asset_info['component_id']
 
         try:
             cmd = 'freeze ${0}'.format(self.node.Name)
@@ -155,7 +244,7 @@ class FtrackAssetNode(object):
         Removes pre existing asset helper objects and parent the selected nodes
         to the current ftrack node.
         '''
-        asset_id = self.version_id
+        asset_id = self.asset_info['version_id']
         root_node = MaxPlus.Core.GetRootNode()
 
         nodes_to_delete = []
