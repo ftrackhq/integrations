@@ -23,6 +23,11 @@ Release Notes
     .. change:: fix
         :tags: Exporter
 
+        Reviewable export audio breaks on earlier Nuke Studio versions.
+
+    .. change:: fix
+        :tags: Exporter
+
         Reviewable Task break when including audio.
 
 
