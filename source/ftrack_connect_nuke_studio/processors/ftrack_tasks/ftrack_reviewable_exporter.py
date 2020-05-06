@@ -12,9 +12,8 @@ import tempfile
 from hiero.exporters.FnSubmission import Submission
 from hiero.exporters.FnTranscodeExporter import TranscodeExporter, TranscodePreset
 from hiero.exporters.FnTranscodeExporterUI import TranscodeExporterUI
-from hiero.exporters.FnExternalRender import NukeRenderTask
-from hiero.exporters import FnAudioConstants
-from hiero.exporters import FnAudioHelper
+from hiero.exporters.FnExportUtil import writeSequenceAudioWithHandles
+
 
 from ftrack_connect_nuke_studio.config import report_exception
 from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
@@ -37,12 +36,35 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
         FtrackProcessor.__init__(self, initDict)
         self.createTranscodeScript()
 
-    def setAudioExportSettings(self):
-        extension = FnAudioConstants.kCodecs[self._preset.properties()[FnAudioConstants.kCodecKey]]
-        path = tempfile.NamedTemporaryFile(suffix=extension, delete=False).name.replace('\\', '/')
-        self._audioFile = str(path)
+    def writeAudio(self):
+        if isinstance(self._item, (hiero.core.Sequence, hiero.core.TrackItem)):
+            if self._sequenceHasAudio(self._sequence):
+                path = tempfile.NamedTemporaryFile(suffix='.wav', delete=False).name.replace('\\', '/')
 
-        FnAudioHelper.setAudioExportSettings(self)
+                self._audioFile = path
+
+                if isinstance(self._item, hiero.core.Sequence):
+                    start, end = self.outputRange()
+                    self._item.writeAudioToFile(self._audioFile, start, end)
+
+                elif isinstance(self._item, hiero.core.TrackItem):
+                    # Write out the audio covering the range of the track item,
+                    # including handles
+                    startHandle, endHandle = self.outputHandles()
+                    writeSequenceAudioWithHandles(self._audioFile,
+                                                  self._sequence,
+                                                  self._item.timelineIn(),
+                                                  self._item.timelineOut(),
+                                                  startHandle,
+                                                  endHandle)
+
+        if isinstance(self._item, hiero.core.Clip):
+            if self._item.mediaSource().hasAudio():
+                self._audioFile = self._root + ".wav"
+
+                # If clip, write out full length
+                self._item.writeAudioToFile(self._audioFile)
+
 
     def component_name(self):
         return self.sanitise_for_filesystem(
