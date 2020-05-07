@@ -26,9 +26,6 @@ from ftrack_connect_nuke_studio.base import FtrackBase
 Base = FtrackBase()
 hiero_version_tuple = Base.hiero_version_tuple
 
-if hiero_version_tuple >=
-from hiero.exporters import FnAudioConstants
-from hiero.exporters import FnAudioHelper
 
 
 class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
@@ -47,14 +44,16 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
         self.createTranscodeScript()
 
     def setAudioExportSettings(self):
-        extension = FnAudioConstants.kCodecs[self._preset.properties()[FnAudioConstants.kCodecKey]]
+        extension = '.wav'
         path = tempfile.NamedTemporaryFile(suffix=extension, delete=False).name.replace('\\', '/')
         self._audioFile = str(path)
-        FnAudioHelper.setAudioExportSettings(self)
+
+        if hiero_version_tuple >= (12, 1, 0):
+            from hiero.exporters import FnAudioHelper
+            FnAudioHelper.setAudioExportSettings(self)
 
     def writeAudio(self):
-        path = tempfile.NamedTemporaryFile(suffix='.wav', delete=False).name.replace('\\', '/')
-        self._audioFile = path
+        self.setAudioExportSettings()
 
         if isinstance(self._item, (hiero.core.Sequence, hiero.core.TrackItem)):
             if self._sequenceHasAudio(self._sequence):
@@ -121,7 +120,6 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
                         self._bitRate
                     )
                 self._item.writeAudioToFile(*audio_export_data)
-
 
     def component_name(self):
         return self.sanitise_for_filesystem(
