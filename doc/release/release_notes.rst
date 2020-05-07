@@ -13,6 +13,11 @@ Release Notes
         :tags: Version
 
         Replace fixed version with automatic versioning from git repository.
+    
+    .. change:: fix
+        :tags: Exporter
+
+        Reviewable Task break when including audio.
 
 
 .. release:: 2.3.0

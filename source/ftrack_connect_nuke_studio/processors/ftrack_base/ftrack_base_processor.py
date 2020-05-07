@@ -834,7 +834,9 @@ class FtrackProcessor(FtrackBase):
         is_published = render_data['published']
 
         if render_task.error():
-            self.logger.warning('An Error occurred while rendering: {0}'.format(publish_path))
+            self.logger.warning('An Error occurred while rendering: {0}: {1}'.format(
+                publish_path, render_task.error())
+            )
             return
 
         if is_published:
