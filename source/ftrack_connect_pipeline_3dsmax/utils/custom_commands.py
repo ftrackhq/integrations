@@ -3,6 +3,40 @@
 
 import MaxPlus
 
+def import_scene_XRef(file_path):
+    '''Import a Max scene file as a Scene XRef asset.'''
+    cmd = '''
+    scn = xrefs.addNewXRefFile @"{0}"
+    scn
+    '''.format(file_path)
+    eval_max_script(cmd)
+
+def re_import_scene_XRef(file_path, parent_helper_node_name):
+    '''Import a Max scene file as a Scene XRef asset and parent it
+    under an existing helper node.'''
+    cmd = '''
+    n = getNodeByName "{0}" exact:true
+    scn = xrefs.addNewXRefFile @"{1}"
+    scn.parent = n
+    '''.format(parent_helper_node_name, file_path)
+    eval_max_script(cmd)
+
+def import_obj_XRefs(file_path):
+    '''Import all the objects in a Max scene file as Object XRefs and parent
+    them under an existing helper node.'''
+    cmd = '''
+    filename = @"{0}"
+    xRefObjs = getMAXFileObjectNames filename
+    newObjs =  xrefs.addnewXrefObject filename xRefObjs dupMtlNameAction: #autoRename
+    select newObjs
+    '''.format(file_path)
+    eval_max_script(cmd)
+
+def open_scene(file_path):
+    '''Open a Max scene file.'''
+    fm = MaxPlus.FileManager
+    return fm.Open(file_path, True, True, True, False)
+
 
 def eval_max_script(cmd):
     '''Evaluate a string using MAXScript.'''
@@ -23,6 +57,21 @@ def get_unique_node_name(node_name):
         i = i + 1
 
     return unique_node_name
+
+def scene_XRef_imported(ftrack_node):
+    '''Check if a Scene XRef exists under the ftrackAssetHelper node.'''
+    cmd = '''
+    result = false
+    numSceneRefs = xrefs.getXRefFileCount()
+    for i = 1 to numSceneRefs do (
+        sceneRef = xrefs.getXrefFile i
+        if sceneRef.parent.Name == "{0}" do (
+            result = true
+        )
+    )
+    result
+    '''.format(ftrack_node.Name)
+    return MaxPlus.Core.EvalMAXScript(cmd).Get()
 
 
 def get_time_range():

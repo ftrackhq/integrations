@@ -24,5 +24,6 @@ extends:dummy
         component_name type:#string default:""
         asset_type type:#string default:""
         component_id type:#string default:""
+        asset_load_mode type:#string default:""
     )
 )
