@@ -14,6 +14,11 @@ Release Notes
 
         Add 'Ftrack Copy Exporter' for publish file or sequence to ftrack without transcoding.
 
+    .. change:: fix
+        :tags: Exporter
+
+        Reviewable Task break when including audio.
+
 
 .. release:: 2.3.0
     :date: 2020-04-23
