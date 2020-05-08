@@ -44,15 +44,24 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
         self.createTranscodeScript()
 
     def setAudioExportSettings(self):
+        '''method to perpare audio settings
+        
+        ''' 
         extension = '.wav'
-        path = tempfile.NamedTemporaryFile(suffix=extension, delete=False).name.replace('\\', '/')
+        path = tempfile.NamedTemporaryFile(
+            suffix=extension, delete=False
+        ).name.replace('\\', '/')
         self._audioFile = str(path)
 
         if hiero_version_tuple >= (12, 1, 0):
+            # this method is from nuke 12.1.0 on, hence we call super only in that case
             from hiero.exporters import FnAudioHelper
             FnAudioHelper.setAudioExportSettings(self)
 
     def writeAudio(self):
+        '''Override write audio method 
+        This override allows to leverage the difference between versions.
+        '''
         self.setAudioExportSettings()
 
         if isinstance(self._item, (hiero.core.Sequence, hiero.core.TrackItem)):
