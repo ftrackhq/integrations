@@ -10,6 +10,12 @@ Release Notes
 .. release:: Upcoming
 
     .. change:: change
+        :tags: Exporter
+
+        ensure shot output path normal when replacing shot name.
+
+
+    .. change:: change
         :tags: Version
 
         Replace fixed version with automatic versioning from git repository.
