@@ -31,6 +31,7 @@ STAGING_PATH = os.path.join(BUILD_PATH, 'ftrack-connect-nuke-studio-{0}')
 HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
 APPLICATION_HOOK_PATH = os.path.join(RESOURCE_PATH, 'application_hook')
 
+
 # Custom commands.
 class BuildResources(Command):
     '''Build additional resources.'''
@@ -110,7 +111,8 @@ class BuildPlugin(Command):
     def run(self):
         '''Run the build step.'''
         import setuptools_scm
-        VERSION = setuptools_scm.get_version()
+        release = setuptools_scm.get_version()
+        VERSION = '.'.join(release.split('.')[:3])
         global STAGING_PATH
         STAGING_PATH = STAGING_PATH.format(VERSION)
 
@@ -147,7 +149,7 @@ class BuildPlugin(Command):
             ]
         )
 
-        result_path = shutil.make_archive(
+        shutil.make_archive(
             os.path.join(
                 BUILD_PATH,
                 'ftrack-connect-nuke-studio-{0}'.format(VERSION)
