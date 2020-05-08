@@ -44,7 +44,10 @@ class FtrackCopyExporter(CopyExporter, FtrackProcessor):
 
     @report_exception
     def doFrame(self, src, dst):
-
+        '''Override per frame function to allow a proper registration 
+            into ftrack.
+        
+        '''
         if not self._source.singleFile():
             dst_path = os.path.dirname(self._exportPath)
             dst_file_tokens = os.path.basename(dst).split('.')[-2:]
