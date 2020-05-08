@@ -12,9 +12,8 @@ import tempfile
 from hiero.exporters.FnSubmission import Submission
 from hiero.exporters.FnTranscodeExporter import TranscodeExporter, TranscodePreset
 from hiero.exporters.FnTranscodeExporterUI import TranscodeExporterUI
-from hiero.exporters.FnExternalRender import NukeRenderTask
-from hiero.exporters import FnAudioConstants
-from hiero.exporters import FnAudioHelper
+from hiero.exporters.FnExportUtil import writeSequenceAudioWithHandles
+
 
 from ftrack_connect_nuke_studio.config import report_exception
 from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
@@ -22,6 +21,11 @@ from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor imp
     FtrackProcessor,
     FtrackProcessorUI
 )
+
+from ftrack_connect_nuke_studio.base import FtrackBase
+Base = FtrackBase()
+hiero_version_tuple = Base.hiero_version_tuple
+
 
 
 class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
@@ -35,14 +39,96 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
         )
         TranscodeExporter.__init__(self, initDict)
         FtrackProcessor.__init__(self, initDict)
+        self.logger.info(hiero_version_tuple)
+
         self.createTranscodeScript()
 
     def setAudioExportSettings(self):
-        extension = FnAudioConstants.kCodecs[self._preset.properties()[FnAudioConstants.kCodecKey]]
-        path = tempfile.NamedTemporaryFile(suffix=extension, delete=False).name.replace('\\', '/')
+        '''method to perpare audio settings
+        
+        ''' 
+        extension = '.wav'
+        path = tempfile.NamedTemporaryFile(
+            suffix=extension, delete=False
+        ).name.replace('\\', '/')
         self._audioFile = str(path)
 
-        FnAudioHelper.setAudioExportSettings(self)
+        if hiero_version_tuple >= (12, 1, 0):
+            # this method is from nuke 12.1.0 on, hence we call super only in that case
+            from hiero.exporters import FnAudioHelper
+            FnAudioHelper.setAudioExportSettings(self)
+
+    def writeAudio(self):
+        '''Override write audio method 
+        This override allows to leverage the difference between versions.
+        '''
+        self.setAudioExportSettings()
+
+        if isinstance(self._item, (hiero.core.Sequence, hiero.core.TrackItem)):
+            if self._sequenceHasAudio(self._sequence):
+
+                if isinstance(self._item, hiero.core.Sequence):
+                    start, end = self.outputRange()
+                    if hiero_version_tuple < (12, 1, 0):
+                        audio_export_data = (
+                            self._audioFile, start, end
+                        )
+                    else:
+                        audio_export_data = (
+                            self._audioFile, start, end,
+                            self._outputChannels,
+                            self._sampleRate,
+                            self._bitDepth,
+                            self._bitRate
+
+                        )
+                    self._item.writeAudioToFile(*audio_export_data)
+
+                elif isinstance(self._item, hiero.core.TrackItem):
+                    startHandle, endHandle = self.outputHandles()
+
+                    if hiero_version_tuple < (12, 1, 0):
+                        audio_export_data = (
+                            self._audioFile,
+                            self._sequence,
+                            self._item.timelineIn(),
+                            self._item.timelineOut(),
+                            startHandle,
+                            endHandle
+                        )
+                    else:
+                        audio_export_data = (
+                            self._audioFile,
+                            self._sequence,
+                            self._item.timelineIn(),
+                            self._item.timelineOut(),
+                            startHandle,
+                            endHandle,
+                            self._outputChannels,
+                            self._sampleRate,
+                            self._bitDepth,
+                            self._bitRate
+                        )
+
+                    writeSequenceAudioWithHandles(*audio_export_data)
+
+        if isinstance(self._item, hiero.core.Clip):
+            if self._item.mediaSource().hasAudio():
+                # If clip, write out full length
+                if hiero_version_tuple < (12, 1, 0):
+                    audio_export_data = (
+                        self._audioFile
+                    )
+
+                else:
+                    audio_export_data = (
+                        self._audioFile,
+                        self._outputChannels,
+                        self._sampleRate,
+                        self._bitDepth,
+                        self._bitRate
+                    )
+                self._item.writeAudioToFile(*audio_export_data)
 
     def component_name(self):
         return self.sanitise_for_filesystem(

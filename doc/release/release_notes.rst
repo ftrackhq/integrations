@@ -14,6 +14,16 @@ Release Notes
 
         Add 'Ftrack Copy Exporter' for publish file or sequence to ftrack without transcoding.
 
+    .. change:: change
+        :tags: Version
+
+        Replace fixed version with automatic versioning from git repository.
+    
+    .. change:: fix
+        :tags: Exporter
+
+        Reviewable export audio breaks on earlier Nuke Studio versions (version < 12.1).
+
     .. change:: fix
         :tags: Exporter
 
