@@ -57,6 +57,11 @@ class EventManager(object):
         '''Emit *event* and provide *callback* function.'''
 
         mode = mode or self.mode
+        self.logger.debug(
+            'Publishing event topic {} in {} mode'.format(
+                event.get('topic'), mode
+            )
+        )
         if mode is constants.LOCAL_EVENT_MODE:
 
             result = self.session.event_hub.publish(
