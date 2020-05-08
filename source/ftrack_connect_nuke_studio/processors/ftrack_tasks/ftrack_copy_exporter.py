@@ -35,7 +35,7 @@ class FtrackCopyExporter(CopyExporter, FtrackProcessor):
 
     def finishTask(self):
         TaskCallbacks.call(TaskCallbacks.onTaskFinish, self)
-        CopyExporter.finishTask()
+        CopyExporter.finishTask(self)
 
     def startTask(self):
         '''Override startTask.'''
