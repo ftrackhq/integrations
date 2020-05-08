@@ -9,6 +9,11 @@ Release Notes
 
 .. release:: Upcoming
 
+    .. change:: change
+        :tags: Version
+
+        Replace fixed version with automatic versioning from git repository.
+    
     .. change:: fix
         :tags: Exporter
 
