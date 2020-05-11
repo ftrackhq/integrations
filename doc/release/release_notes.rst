@@ -9,10 +9,10 @@ Release Notes
 
 .. release:: Upcoming
 
-    .. change:: fix
+    .. change:: fixed
         :tags: Shot Template
 
-        Export use `Full, episode, sequence and shot` Shot Template parse error
+        Export breaks while using full template, not being able to correctly parse episodes.
 
     .. change:: change
         :tags: Version
