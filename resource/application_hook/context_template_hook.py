@@ -38,7 +38,7 @@ class ContextTemplates(object):
                 'Example: EP001_SH010 will be matched as Episode with name '
                 '001 and a Shot named 010.'
             ),
-            'expression': '{_:EP|ep}{Episode:\w+}{_:.+(SH|sh)}{Shot:\w+}'
+            'expression': '{_:(EP|ep)}{Episode:\w+}{_:.+(SH|sh)}{Shot:\w+}'
         },
         {
             'name': 'Basic, sequence and shot',
@@ -56,14 +56,14 @@ class ContextTemplates(object):
                 'Example: SQ001_SH010 will be matched as Sequence with name '
                 '001 and a Shot named 010.'
             ),
-            'expression': '{_:SQ|sq}{Sequence:\d+}{_:.+(SH|sh)}{Shot:\d+}'
+            'expression': '{_:(SQ|sq)}{Sequence:\d+}{_:.+(SH|sh)}{Shot:\d+}'
         },{
             'name': 'Classic, shot only',
             'description': (
                 'Match SH and any subsequent digits. '
                 'Example: vfx_SH001 will match 001.'
             ),
-            'expression': '{_:SH|sh}{Shot:\d+}'
+            'expression': '{_:(SH|sh)}{Shot:\d+}'
         }, {
             'name': 'Full name, shot only',
             'description': (

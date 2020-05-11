@@ -10,9 +10,9 @@ Release Notes
 .. release:: Upcoming
 
     .. change:: fixed
-        :tags: Shot Template
+        :tags: Template parser
 
-        Export breaks while using full template, not being able to correctly parse episodes.
+        Tokens are not always parsed correctly.
 
     .. change:: change
         :tags: Version
