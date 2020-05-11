@@ -6,7 +6,9 @@ from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_3dsmax.plugin import (
     BaseMaxPlugin, BaseMaxPluginWidget
 )
+
 from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
+from ftrack_connect_pipeline_3dsmax.utils import max_alembic_commands as abc_utils
 from ftrack_connect_pipeline_3dsmax.utils import ftrack_asset_node
 from ftrack_connect_pipeline_3dsmax import constants
 
@@ -34,6 +36,14 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
 
         self.logger.debug('Running the base _run function')
         super_result = super(LoaderImporterMaxPlugin, self)._run(event)
+
+        self.logger.debug(
+            'Assigning the processed string alembic import arguments to add to '
+            'ftrack node'
+        )
+        options['alembic_import_args'] = abc_utils.get_str_options(
+            options
+        )
 
         # TODO: Temp. remove this once options is filled
         options['load_mode'] = 'import'

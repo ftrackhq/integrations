@@ -57,12 +57,15 @@ class FtrackAssetNode(object):
         asset_info = {}
 
         asset_info['asset_name'] = self.context.get('asset_name', 'No name found')
-        asset_info['version_number'] = self.context.get('version_number', '0')
+        asset_info['version_number'] = int(self.context.get('version_number', 0))
         asset_info['context_id'] = self.context.get('context_id', '')
         asset_info['asset_type'] = self.context.get('asset_type', '')
         asset_info['asset_id'] = self.context.get('asset_id', '')
         asset_info['version_id'] = self.context.get('version_id', '')
         asset_info['asset_load_mode'] = self.options.get('asset_load_mode', '')
+        asset_info['alembic_import_args'] = self.options.get(
+            'alembic_import_args', ''
+        )
 
         asset_version = self.session.get(
             'AssetVersion', asset_info['version_id']
@@ -108,9 +111,9 @@ class FtrackAssetNode(object):
         '''
         obj = ftrack_node.Object
 
-        if 'asset_version_id' in obj.ParameterBlock.Parameters:
+        if 'version_id' in obj.ParameterBlock.Parameters:
             if (
-                    obj.ParameterBlock.asset_version_id.Value ==
+                    obj.ParameterBlock.version_id.Value ==
                     obj.ParameterBlock.Parameters.assetId.Value
             ):
                 return False
@@ -129,16 +132,16 @@ class FtrackAssetNode(object):
         for ftrack_node in ftrack_asset_nodes:
             obj = ftrack_node.Object
             if self._check_is_legacy_node(ftrack_node):
-                asset_version_id = obj.ParameterBlock.asset_id.Value
+                version_id = obj.ParameterBlock.asset_id.Value
                 if (
-                        asset_version_id == self.asset_info['version_id']
+                        version_id == self.asset_info['version_id']
                 ):
                     return ftrack_node
             else:
-                asset_version_id = obj.ParameterBlock.asset_version_id.Value
+                version_id = obj.ParameterBlock.version_id.Value
                 asset_id = obj.ParameterBlock.asset_id.Value
                 if (
-                        asset_version_id == self.asset_info['version_id'] and
+                        version_id == self.asset_info['version_id'] and
                         asset_id == self.asset_info['asset_id']
                 ):
                     return ftrack_node
@@ -265,9 +268,9 @@ class FtrackAssetNode(object):
         for p in obj.ParameterBlock.Parameters:
             if p.Name in constants.LEGACY_PARAMETERS_MAPPING.keys():
                 new_key = constants.LEGACY_PARAMETERS_MAPPING[p.Name]
-                p.SetValue = self.asset_info[new_key]
+                p.SetValue(self.asset_info[new_key])
             elif p.Name in self.asset_info.keys():
-                p.SetValue = self.asset_info[p.Name]
+                p.SetValue(self.asset_info[p.Name])
 
         try:
             cmd = 'freeze ${0}'.format(self.node.Name)
@@ -283,8 +286,8 @@ class FtrackAssetNode(object):
         the asset version object from ftrack and Return the asset id of this
         asset version
         '''
-        asset_version_id = helper_node.Object.ParameterBlock.asset_version_id.Value
-        asset_version = ftrack.AssetVersion(id=asset_version_id)
+        version_id = helper_node.Object.ParameterBlock.version_id.Value
+        asset_version = ftrack.AssetVersion(id=version_id)
         return asset_version.getAsset().getId()
 
     def _connect_selection(self):
@@ -292,7 +295,7 @@ class FtrackAssetNode(object):
         Removes pre existing asset helper objects and parent the selected nodes
         to the current ftrack node.
         '''
-        asset_id = self.asset_info['version_id']
+        version_id = self.asset_info['version_id']
         root_node = MaxPlus.Core.GetRootNode()
 
         nodes_to_delete = []
@@ -300,8 +303,8 @@ class FtrackAssetNode(object):
         self.logger.debug(u'Removing duplicated asset helper objects')
         for node in MaxPlus.SelectionManager.Nodes:
             if is_ftrack_asset_helper(node) and node.Parent == root_node:
-                helper_asset_id = self._get_asset_id_from_helper_node(node)
-                if helper_asset_id == asset_id:
+                helper_version_id = self._get_asset_id_from_helper_node(node)
+                if helper_version_id == version_id:
                     self.logger.debug(
                         u'Deleting imported helper node {0}'.format(node.Name))
                     nodes_to_delete.append(node)

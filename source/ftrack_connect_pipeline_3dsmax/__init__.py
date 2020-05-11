@@ -3,7 +3,9 @@
 
 from ._version import __version__
 
+import logging
+
 from ftrack_connect_pipeline.configure_logging import configure_logging
-configure_logging('ftrack_connect_pipeline_3dsmax')
+configure_logging('ftrack_connect_pipeline_3dsmax', level=logging.DEBUG)
 
 __all__ = ['__version__']

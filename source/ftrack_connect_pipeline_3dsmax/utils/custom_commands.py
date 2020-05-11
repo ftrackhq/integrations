@@ -32,6 +32,7 @@ def import_obj_XRefs(file_path):
     '''.format(file_path)
     eval_max_script(cmd)
 
+
 def open_scene(file_path):
     '''Open a Max scene file.'''
     fm = MaxPlus.FileManager
