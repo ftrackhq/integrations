@@ -29,7 +29,7 @@ class ContextTemplates(object):
                 'Example: EP001_SQAA_SH010 will be matched as Episode with name '
                 '001 , Sequence named AA and Shot named 010.'
             ),
-            'expression': '{_:EP|ep}{Episode:\w+}{_:.+SQ|sq}{Sequence:\w+}{_:.+(SH|sh)}{Shot:\w+}'
+            'expression': '{_:(EP|ep)}{Episode:\w+}{_:.+(SQ|sq)}{Sequence:\w+}{_:.+(SH|sh)}{Shot:\w+}'
         },
         {
             'name': 'Classic, episode and shot',
