@@ -12,8 +12,7 @@ Release Notes
     .. change:: change
         :tags: Exporter
 
-        ensure shot output path normal when replacing shot name.
-
+        Ensure shot output path normalized when replacing shot name.
 
     .. change:: change
         :tags: Version
