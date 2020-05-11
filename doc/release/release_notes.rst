@@ -12,7 +12,7 @@ Release Notes
     .. change:: fix
         :tags: Shot Template
 
-        fix `Full, episode, sequence and shot` Shot Template parse error
+        Export use `Full, episode, sequence and shot` Shot Template parse error
 
     .. change:: change
         :tags: Version
