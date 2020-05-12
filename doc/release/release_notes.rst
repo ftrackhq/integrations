@@ -9,6 +9,11 @@ Release Notes
 
 .. release:: Upcoming
 
+    .. change:: fixed
+        :tags: Template parser
+
+        Tokens are not always parsed correctly.
+
     .. change:: change
         :tags: Exporter
 
