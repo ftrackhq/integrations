@@ -15,6 +15,11 @@ Release Notes
         Tokens are not always parsed correctly.
 
     .. change:: change
+        :tags: Exporter
+
+        Ensure shot output path normalized when replacing shot name.
+
+    .. change:: change
         :tags: Version
 
         Replace fixed version with automatic versioning from git repository.
