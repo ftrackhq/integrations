@@ -9,7 +9,9 @@ import logging
 
 def is_ftrack_asset_helper(node):
     '''Return True if the node is a Ftrack asset helper node.'''
-    if node.Object.ClassID == constants.FTRACK_ASSET_HELPER_CLASS_ID:
+    if node.Object.ClassID == MaxPlus.Class_ID(
+            constants.FTRACK_ASSET_CLASS_ID[0], constants.FTRACK_ASSET_CLASS_ID[1]
+    ):
         return True
 
     return False
@@ -43,7 +45,10 @@ class FtrackAssetNode(object):
         self.asset_info = self._get_asset_info()
 
         self.helper_object = MaxPlus.Factory.CreateHelperObject(
-            constants.FTRACK_ASSET_HELPER_CLASS_ID
+            MaxPlus.Class_ID(
+                constants.FTRACK_ASSET_CLASS_ID[0],
+                constants.FTRACK_ASSET_CLASS_ID[1]
+            )
         )
         self.logger.debug(
             'helper_object {} has been created'.format(self.helper_object)
