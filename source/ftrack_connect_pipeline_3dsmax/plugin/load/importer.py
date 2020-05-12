@@ -45,7 +45,7 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
             options
         )
 
-        # TODO: Temp. remove this once options is filled
+        # TODO: Temp. remove this once options ticket is in place
         options['load_mode'] = 'import'
         #TODO: this has to come from the ui and has to be set to none in case
         asset_load_mode = options.get('load_mode')
