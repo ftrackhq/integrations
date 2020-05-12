@@ -32,22 +32,20 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
         self.logger.debug('Current data : {}'.format(data))
 
         options = event['data']['settings']['options']
-        self.logger.debug('Current data : {}'.format(data))
+        self.logger.debug('Current options : {}'.format(options))
 
-        self.logger.debug('Running the base _run function')
         super_result = super(LoaderImporterMaxPlugin, self)._run(event)
 
-        self.logger.debug(
-            'Assigning the processed string alembic import arguments to add to '
-            'ftrack node'
-        )
-        options['alembic_import_args'] = abc_utils.get_str_options(
-            options
-        )
+        if options.get('component_name') == 'cache':
+            options['alembic_import_args'] = abc_utils.get_str_options(
+                options
+            )
+        self.logger.debug('Alembic import options added')
 
-        # TODO: Temp. remove this once options ticket is in place
+        # TODO: Temp. remove this once options ticket is in place, this has to
+        #  be assigned from the ui
         options['load_mode'] = 'import'
-        #TODO: this has to come from the ui and has to be set to none in case
+
         asset_load_mode = options.get('load_mode')
 
         if asset_load_mode and asset_load_mode == constants.OPEN_MODE:

@@ -87,6 +87,7 @@ class FtrackAssetNode(object):
                 'asset_info dictionary done : {}'.format(asset_info)
             )
         return asset_info
+
     def init_ftrack_node(self):
         '''
         Return the ftrack node for this class. It checks if there is already a
@@ -118,10 +119,6 @@ class FtrackAssetNode(object):
             ):
                 return False
         return True
-    def update_legacy_to_new_node(self, node):
-        #TODO: in case of possibility that a legacy node doesn't have the new
-        # attributes find a way to create them.
-        pass
 
     def get_ftrack_node_from_scene(self):
         '''
@@ -182,7 +179,6 @@ class FtrackAssetNode(object):
                     synced = True
         return synced
 
-
     def _get_unique_ftrack_node_name(self, asset_name):
         '''
         Return a unique scene name for the given *asset_name*
@@ -242,10 +238,10 @@ class FtrackAssetNode(object):
             cmd = 'freeze ${0} ; setTransformLockFlags ${0} #all'.format(
                 self.node.Name)
             max_utils.eval_max_script(cmd)
-        except:
+        except Exception, e:
             self.logger.debug(
-                "Could not freeze object {0}".format(
-                    self.asset_info['asset_name']
+                "Could not freeze object {0}, Error: {1}".format(
+                    self.asset_info['asset_name'], e
                 )
             )
 
@@ -275,9 +271,12 @@ class FtrackAssetNode(object):
         try:
             cmd = 'freeze ${0}'.format(self.node.Name)
             max_utils.eval_max_script(cmd)
-        except:
+        except Exception, e:
             self.logger.debug(
-                "Could not freeze object {0}".format(self.node.Name))
+                "Could not freeze object {0}, Error: {1}".format(
+                    self.node.Name, e
+                )
+            )
         return self.node
 
     def _get_asset_id_from_helper_node(self, helper_node):

@@ -21,11 +21,8 @@ class OutputMaxBinaryPlugin(plugin.PublisherOutputMaxPlugin):
         self.logger.debug('Writing Max file to {}'.format(new_file_path))
         with pymxs.mxstoken():
             pymxs.runtime.execute('clearSelection()')
-        self.logger.debug('maxbin 1')
         for node_name in data:
-            self.logger.debug('maxbin 2')
             MaxPlus.Core.EvalMAXScript('selectMore ${}'.format(node_name))
-        self.logger.debug('maxbin 3')
         MaxPlus.FileManager.SaveSelected(new_file_path)
         return {component_name: new_file_path}
 

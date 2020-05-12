@@ -35,7 +35,7 @@ class PublisherFinaliserMaxPlugin(plugin.PublisherFinaliserPlugin, BaseMaxPlugin
             obj = dependency.Object
             dependency_asset_version_id = obj.ParameterBlock.asset_version_id.Value
             self.logger.debug(
-                'Adding dependency_asset_version_id --> {}'.format(
+                'Adding dependency_asset_version_id: {}'.format(
                     dependency_asset_version_id
                 )
             )

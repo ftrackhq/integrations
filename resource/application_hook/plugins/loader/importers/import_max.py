@@ -14,17 +14,17 @@ class ImportMayaPlugin(plugin.LoaderImporterMaxPlugin):
         paths_to_import = data
         load_mode = options.get('load_mode', constants.OPEN_MODE)
         results['asset_load_mode'] = load_mode
+        import_modes = {
+            constants.OPEN_MODE: max_utils.open_scene,
+            constants.IMPORT_MODE: max_utils.merge_max_file,
+            constants.SCENE_XREF_MODE: max_utils.import_scene_XRef,
+            constants.OBJECT_XREF_MODE: max_utils.import_obj_XRefs,
+        }
+        import_mode_fn = import_modes.get(load_mode, max_utils.open_scene)
         for component_path in paths_to_import:
             load_result = None
             self.logger.debug('Loading path {}'.format(component_path))
-            if load_mode == constants.OPEN_MODE:
-                load_result = max_utils.open_scene(component_path)
-            elif load_mode == constants.IMPORT_MODE:
-                load_result = max_utils.merge_max_file(component_path)
-            elif load_mode == constants.SCENE_XREF_MODE:
-                load_result = max_utils.import_scene_XRef(component_path)
-            elif load_mode == constants.OBJECT_XREF_MODE:
-                load_result = max_utils.import_obj_XRefs(component_path)
+            import_mode_fn(component_path)
 
             results[component_path] = load_result
 

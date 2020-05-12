@@ -3,6 +3,7 @@
 
 import MaxPlus
 
+
 def import_scene_XRef(file_path):
     '''Import a Max scene file as a Scene XRef asset.'''
     cmd = '''
@@ -10,6 +11,7 @@ def import_scene_XRef(file_path):
     scn
     '''.format(file_path)
     eval_max_script(cmd)
+
 
 def re_import_scene_XRef(file_path, parent_helper_node_name):
     '''Import a Max scene file as a Scene XRef asset and parent it
@@ -20,6 +22,7 @@ def re_import_scene_XRef(file_path, parent_helper_node_name):
     scn.parent = n
     '''.format(parent_helper_node_name, file_path)
     eval_max_script(cmd)
+
 
 def import_obj_XRefs(file_path):
     '''Import all the objects in a Max scene file as Object XRefs and parent
@@ -59,6 +62,7 @@ def get_unique_node_name(node_name):
 
     return unique_node_name
 
+
 def scene_XRef_imported(ftrack_node):
     '''Check if a Scene XRef exists under the ftrackAssetHelper node.'''
     cmd = '''
@@ -75,17 +79,12 @@ def scene_XRef_imported(ftrack_node):
     return MaxPlus.Core.EvalMAXScript(cmd).Get()
 
 
-def get_time_range():
-    start = eval_max_script('animationRange.start')
-    end = eval_max_script('animationRange.end')
-    return (start, end)
-
-
 def merge_max_file(file_path):
     '''Import a Max scene into the current scene.'''
     return eval_max_script(
         'mergemaxfile @"{0}" #autoRenameDups #neverReparent #select'.format(
             file_path))
+
 
 def get_current_scene_objects():
     deselect_all()
@@ -95,6 +94,7 @@ def get_current_scene_objects():
         scene_objects.append(obj)
     deselect_all()
     return set(scene_objects)
+
 
 def select_all():
     eval_max_script('select $*')
@@ -121,19 +121,6 @@ def selection_empty():
     return MaxPlus.SelectionManager.GetNodes().GetCount() == 0
 
 
-def select_only_cameras():
-    cmd = '''
-    selected_cameras = #()
-    for obj in selection do (
-        if SuperClassOf obj == camera do (
-            append selected_cameras obj
-        )
-    )
-    max select none
-    select selected_cameras
-    '''
-    eval_max_script(cmd)
-
 def get_ftrack_helpers():
     saved_selection = save_selection()
     cmd = '''
@@ -152,10 +139,6 @@ def get_ftrack_helpers():
     deselect_all()
     restore_selection(saved_selection)
     return helpers
-
-def create_selection_set(set_name):
-    '''Create a new selection set containing the selected nodes.'''
-    eval_max_script('selectionSets["{0}"] = selection'.format(set_name))
 
 
 def _collect_children_nodes(n, nodes):
@@ -192,3 +175,28 @@ def add_all_children_to_selection(parent_node):
         new_sel.Append(node)
 
     MaxPlus.SelectionManager.SelectNodes(new_sel)
+
+
+def get_time_range():
+    start = eval_max_script('animationRange.start')
+    end = eval_max_script('animationRange.end')
+    return (start, end)
+
+
+def select_only_cameras():
+    cmd = '''
+    selected_cameras = #()
+    for obj in selection do (
+        if SuperClassOf obj == camera do (
+            append selected_cameras obj
+        )
+    )
+    max select none
+    select selected_cameras
+    '''
+    eval_max_script(cmd)
+
+
+def create_selection_set(set_name):
+    '''Create a new selection set containing the selected nodes.'''
+    eval_max_script('selectionSets["{0}"] = selection'.format(set_name))

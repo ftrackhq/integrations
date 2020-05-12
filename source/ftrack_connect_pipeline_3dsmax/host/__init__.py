@@ -4,7 +4,6 @@
 import functools
 import logging
 
-from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_3dsmax import constants as max_constants
 from ftrack_connect_pipeline.host import Host
