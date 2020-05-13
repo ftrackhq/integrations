@@ -9,7 +9,6 @@ Release Notes
 
 .. release:: Upcoming
 
-
     .. change:: new
         :tags: Exporter
 
@@ -93,7 +92,7 @@ Release Notes
 
         Mark ftrack.perforce-location as non compatible.
 
-    .. change:: fix
+    .. change:: fixed
         :tags: Internal
 
         Replace pyqt with qt.py
@@ -101,17 +100,17 @@ Release Notes
 .. release:: 2.2.3
     :date: 2019-10-21
 
-    .. change:: fix
+    .. change:: fixed
         :tags: Internal
 
         Improve render task deduplication logic.
 
-    .. change:: fix
+    .. change:: fixed
         :tags: Internal
 
         Integration fails to start on nuke >= 12.
 
-    .. change:: fix
+    .. change:: fixed
        :tags: Internal
 
         Thumbnail frame is now generated from the mid frame of the exported clip.
