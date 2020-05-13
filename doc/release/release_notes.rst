@@ -9,10 +9,22 @@ Release Notes
 
 .. release:: Upcoming
 
+
     .. change:: new
         :tags: Exporter
 
         Add 'Ftrack Copy Exporter' for publish file or sequence to ftrack without transcoding.
+
+    .. change:: fixed
+        :tags: Template parser
+
+        Tokens are not always parsed correctly.
+
+    .. change:: change
+        :tags: Exporter
+
+        Ensure shot output path normalized when replacing shot name.
+
 
     .. change:: change
         :tags: Version

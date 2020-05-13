@@ -641,12 +641,14 @@ class FtrackProcessor(FtrackBase):
                 self._create_extra_tasks(task_tags, task, parent)
 
                 # Extract ftrack path from structure and accessors.
-                ftrack_shot_path = self.ftrack_location.structure.get_resource_identifier(parent)
+                ftrack_shot_path = os.path.normpath(
+                    self.ftrack_location.structure.get_resource_identifier(parent)
+                )
 
                 # Ftrack sanitize output path, but we
                 # need to retain the original on here
                 # otherwise foo.####.ext becomes foo.____.ext
-                tokens = ftrack_shot_path.split(self.path_separator)
+                tokens = ftrack_shot_path.split(os.path.sep)
 
                 tokens[-1] = resolved_file_name
                 ftrack_shot_path = self.path_separator.join(tokens)
