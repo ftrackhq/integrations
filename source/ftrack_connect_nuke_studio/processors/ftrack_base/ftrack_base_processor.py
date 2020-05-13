@@ -815,6 +815,10 @@ class FtrackProcessor(FtrackBase):
 
     def publish_result_component_event(self, render_task):
         ''' Event spawned when *render_task* frame is rendered. '''
+
+        if not render_task._item:
+            return
+
         try:
             root_item = render_task._item.parentTrack().name()
         except:

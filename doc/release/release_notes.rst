@@ -9,6 +9,12 @@ Release Notes
 
 .. release:: Upcoming
 
+
+    .. change:: new
+        :tags: Exporter
+
+        Add 'Ftrack Copy Exporter' for publish file or sequence to ftrack without transcoding.
+
     .. change:: fixed
         :tags: Template parser
 
@@ -18,6 +24,7 @@ Release Notes
         :tags: Exporter
 
         Ensure shot output path normalized when replacing shot name.
+
 
     .. change:: change
         :tags: Version
