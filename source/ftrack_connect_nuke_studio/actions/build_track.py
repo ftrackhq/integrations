@@ -208,7 +208,6 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         '''return the lower most context leaf for the given set of data'''
         results = []
         for datum in data:
-            self.logger.info('getting leafs from {}'.format(datum))
             project = datum[0]
             first_parent = datum[1]
             query = 'name is "{}" and project.name is "{}"'.format(first_parent, project)
@@ -232,7 +231,6 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             return self._result_data
 
         for taskItem, context in self.parsed_selection.items():
-            self.logger.info('getting components for context {}'.format(context))
 
             context_leafs = self._get_context_leafs([context])
             for context_leaf in context_leafs:
@@ -270,7 +268,6 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         all_component_names = []
 
         context_leafs = self._get_context_leafs(self.parsed_selection.values())
-        self.logger.info('pupulating components for {}'.format(context_leafs))
 
         for context in context_leafs:
             task_query = 'select name from Component where version.asset.parent.id is "{}"'.format(context['id'])
@@ -300,7 +297,6 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         ''' Populate the asset types widget. '''
         all_asset_types_names = []
         context_leafs = self._get_context_leafs(self.parsed_selection.values())
-        self.logger.info('pupulating asset types for {}'.format(context_leafs))
 
         for context in context_leafs:
             task_query = 'select type, type.name, name from Asset where parent.id is "{}"'.format(context['id'])
@@ -318,7 +314,6 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         ''' Populate the tasks widget. '''
         all_tasks=[]
         context_leafs = self._get_context_leafs(self.parsed_selection.values())
-        self.logger.info('pupulating tasks for {}'.format(context_leafs))
 
         for context in context_leafs:
             task_query = 'select name from Task where parent.id is "{}"'.format(context['id'])
