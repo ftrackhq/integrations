@@ -10,6 +10,11 @@ Release Notes
 .. release:: Upcoming
 
     .. change:: fixed
+        :tags: Track build
+
+        Rebuild track from exported episodes does not work.
+
+    .. change:: fixed
         :tags: Template parser
 
         Tokens are not always parsed correctly.
