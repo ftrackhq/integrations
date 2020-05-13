@@ -206,15 +206,19 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
     def _get_context_leafs(self, data):
         '''return the lower most context leaf for the given set of data'''
-        self.logger.info('getting leafs from {}'.format(data[0]))
-        path = data[0]
-        project = path[0]
-        first_parent = path[1]
-        query = 'name is "{}" and project.name is "{}"'.format(first_parent, project)
-        for index, item in enumerate(path[2:]):
-            query = 'name is "{}" and parent[TypedContext] has ({})'.format(item, query)
-        full_query = u'TypedContext where {}'.format(query)
-        return self.session.query(full_query).all()
+        results = []
+        for datum in data:
+            self.logger.info('getting leafs from {}'.format(datum))
+            project = datum[0]
+            first_parent = datum[1]
+            query = 'name is "{}" and project.name is "{}"'.format(first_parent, project)
+            for index, item in enumerate(datum[2:]):
+                query = 'name is "{}" and parent[TypedContext] has ({})'.format(item, query)
+            full_query = u'TypedContext where {}'.format(query)
+
+            results.extend(self.session.query(full_query).all())
+
+        return results
 
     def get_components(self, index=None):
         ''' Return all the found components. '''
