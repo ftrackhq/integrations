@@ -9,6 +9,11 @@ Release Notes
 
 .. release:: Upcoming
 
+    .. change:: change
+        :tags: Exporter
+
+        Ensure shot export path is consistent with the location structure generated.
+
     .. change:: new
         :tags: Exporter
 
