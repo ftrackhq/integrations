@@ -2,6 +2,8 @@ import ftrack
 
 import MaxPlus
 
+from ftrack_connect_pipeline import asset
+from ftrack_connect_pipeline_3dsmax.constants.asset import v1, v2
 from ftrack_connect_pipeline_3dsmax import constants
 import custom_commands as max_utils
 
@@ -16,7 +18,41 @@ def is_ftrack_asset_helper(node):
 
     return False
 
-class FtrackAssetNode(object):
+
+class FtrackAssetInfoV1Max(asset.FtrackAssetInfoV1):
+    def __init__(self, context, data, session, options):
+        super(FtrackAssetInfoV1Max, self).__init__(context, data, session)
+        self[v1.ASSET_LOAD_MODE] = options.get('asset_load_mode', '')
+        self[v1.ALEMBIC_IMPORT_ARGS] = options.get('alembic_import_args', '')
+
+
+class FtrackAssetInfoV2Max(asset.FtrackAssetInfoV2):
+    def __init__(self, context, data, session, options):
+        super(FtrackAssetInfoV2Max, self).__init__(context, data, session)
+        self[v2.ASSET_LOAD_MODE] = options.get('asset_load_mode', '')
+        self[v2.ALEMBIC_IMPORT_ARGS] = options.get('alembic_import_args', '')
+
+class FtrackAssetInfoMax(asset.FtrackAssetInfo):
+    '''
+    Dictionary class containing ftrack asset information from the given context
+    '''
+    def __init__(self, context, data, session):
+        '''
+        Initialize FtrackAssetInfo with the give *context*, *data* and *session*.
+
+        *context* Dicctionary with asset_name, asset_type, asset_id,
+        version_number, version_id, context_id keys and values from the current
+        asset.
+        *data* List of component paths of the current asset.
+        *session* should be the :class:`ftrack_api.session.Session` instance
+        to use for communication with the server.
+        '''
+        super(FtrackAssetInfoMax, self).__init__()
+        self.update(FtrackAssetInfoV1(context, data, session))
+        self.update(FtrackAssetInfoV2(context, data, session))
+
+
+class FtrackAssetNode(asset.FtrackAssetBase):
     '''
         Base FtrackAssetNode class.
     '''
@@ -30,19 +66,12 @@ class FtrackAssetNode(object):
             asset_type, asset_id, version_id, component_name, component_id,
             compoennt_path.
         '''
-        super(FtrackAssetNode, self).__init__()
-
-        self.logger = logging.getLogger(__name__)
+        super(FtrackAssetNode, self).__init__(context, data, session)
 
         self.nodes = []
         self.node = None
 
-        self.context = context
-        self.data = data
         self.options = options
-        self.session = session
-
-        self.asset_info = self._get_asset_info()
 
         self.helper_object = MaxPlus.Factory.CreateHelperObject(
             MaxPlus.Class_ID(
@@ -54,44 +83,11 @@ class FtrackAssetNode(object):
             'helper_object {} has been created'.format(self.helper_object)
         )
 
-    def _get_asset_info(self):
-        '''
-        Set up the diccionary asset info from the current context,
-        options and data
-        '''
-        asset_info = {}
+    def load_asset_info(self):
 
-        asset_info['asset_name'] = self.context.get('asset_name', 'No name found')
-        asset_info['version_number'] = int(self.context.get('version_number', 0))
-        asset_info['context_id'] = self.context.get('context_id', '')
-        asset_info['asset_type'] = self.context.get('asset_type', '')
-        asset_info['asset_id'] = self.context.get('asset_id', '')
-        asset_info['version_id'] = self.context.get('version_id', '')
-        asset_info['asset_load_mode'] = self.options.get('asset_load_mode', '')
-        asset_info['alembic_import_args'] = self.options.get(
-            'alembic_import_args', ''
-        )
-
-        asset_version = self.session.get(
-            'AssetVersion', asset_info['version_id']
-        )
-
-        location = self.session.pick_location()
-
-        for component in asset_version['components']:
-            if location.get_component_availability(component) < 100.0:
-                continue
-            component_path = location.get_filesystem_path(component)
-            if component_path in self.data:
-                asset_info['component_name'] = component['name']
-                asset_info['component_id'] = component['id']
-                asset_info['component_path'] = component_path
-
-        if asset_info:
-            self.logger.debug(
-                'asset_info dictionary done : {}'.format(asset_info)
-            )
-        return asset_info
+    def add_value_to_asset_info(self, key, value):
+        self.asset_info['asset_load_mode'] = options.get('asset_load_mode', '')
+        self.asset_info['alembic_import_args'] = options.get('alembic_import_args', '')
 
     def init_ftrack_node(self):
         '''
