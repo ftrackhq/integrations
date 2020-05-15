@@ -10,4 +10,4 @@ CONTEXT_ID = ''
 COMPONENT_PATH = 'assetPath'
 COMPONENT_NAME = 'assetTake'
 COMPONENT_ID = 'assetComponentId'
-
+ASSET_INFO_OPTIONS = 'assetImportMode'
