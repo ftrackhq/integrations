@@ -7,6 +7,9 @@ from ftrack_connect_pipeline_3dsmax.plugin import (
     BaseMaxPlugin, BaseMaxPluginWidget
 )
 
+from ftrack_connect_pipeline.constants.asset import v2
+from ftrack_connect_pipeline import asset
+from ftrack_connect_pipeline.asset import asset_info
 from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
 from ftrack_connect_pipeline_3dsmax.utils import max_alembic_commands as abc_utils
 from ftrack_connect_pipeline_3dsmax.utils import ftrack_asset_node
@@ -20,6 +23,7 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
 
         _required_output a List
     '''
+    asset_node_type = ftrack_asset_node.FtrackAssetNode
 
     def _run(self, event):
         self.old_data = max_utils.get_current_scene_objects()
@@ -36,11 +40,11 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
 
         super_result = super(LoaderImporterMaxPlugin, self)._run(event)
 
-        if options.get('component_name') == 'cache':
-            options['alembic_import_args'] = abc_utils.get_str_options(
-                options
-            )
-        self.logger.debug('Alembic import options added')
+        # if options.get('component_name') == 'cache':
+        #     options['alembic_import_args'] = abc_utils.get_str_options(
+        #         options
+        #     )
+        # self.logger.debug('Alembic import options added')
 
         # TODO: Temp. remove this once options ticket is in place, this has to
         #  be assigned from the ui
@@ -60,6 +64,7 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
 
         return super_result
 
+
     def link_to_ftrack_node(self, context, data, options):
         diff = self.new_data.difference(self.old_data)
 
@@ -72,11 +77,8 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
             ' inport : {}'.format(diff)
         )
 
-        #TODo: Remove self.session argument as will not be needed when the
-        # FtrackAssetNode class is part of the core pipeline
-        ftrack_node_class = ftrack_asset_node.FtrackAssetNode(
-            context, data, options, self.session
-        )
+        ftrack_node_class = self.get_asset_node(context, data, options)
+
         ftrack_node = ftrack_node_class.init_ftrack_node()
 
         ftrack_node_class.connect_objects_to_ftrack_node(diff)
