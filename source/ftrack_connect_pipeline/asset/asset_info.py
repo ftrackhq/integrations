@@ -3,6 +3,19 @@ from ftrack_connect_pipeline.constants.asset import v2, versions_mapping
 
 
 def generate_asset_info_dict_from_args(context, data, options, session):
+    '''
+    Returns a diccionary constructed from the needed values of the given
+    *context*, *data* and *options*
+
+    *context* Context dictionary of the current asset. Should contain the keys
+    asset_type, asset_name, asset_id, version_number, version_id, context_id.
+    *data* Data of the current operation or plugin. Should contain the
+    component_path from the asset that we are working on.
+    *options* Options of the current widget or operation, should contain the
+    load_mode that we want to/or had apply to the current asset.
+    *session* should be the :class:`ftrack_api.session.Session` instance
+    to use for communication with the server.
+    '''
     arguments_dict = {}
 
     arguments_dict[v2.ASSET_NAME] = context.get(
@@ -38,12 +51,24 @@ def generate_asset_info_dict_from_args(context, data, options, session):
 
 
 class FtrackAssetInfo(dict):
+    '''
+    Base FtrackAssetInfo class.
+    '''
 
     @property
     def is_deprecated(self):
+        '''
+        Returns whether the current class is maded up from a legacy mapping type
+        of the asset_information.
+        '''
         return self._is_deprecated_version
 
     def __init__(self, mapping, **kwargs):
+        '''
+        Initialize the FtrackAssetInfo with the given *mapping*.
+
+        *mapping* Dictionary with the current asset information.
+        '''
 
         self.logger = logging.getLogger(
             '{0}.{1}'.format(__name__, self.__class__.__name__)
