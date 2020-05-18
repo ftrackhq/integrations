@@ -17,21 +17,21 @@ def is_ftrack_asset_helper(node):
 
 class FtrackAssetNode(FtrackAssetBase):
     '''
-        Base FtrackAssetNode class.
+    Base FtrackAssetNode class.
     '''
 
     def is_sync(self):
-        return self._check_ftrack_node_sync()
+        return self._check_node_sync()
 
     def __init__(self, ftrack_asset_info, session):
         '''
-            Initialize FtrackAssetNode with *asset_info*, and optional
-            *asset_import_mode*.
+        Initialize FtrackAssetNode with *ftrack_asset_info*, and *session*.
 
-            *asset_info* Dictionary with the current asset information from
-            ftrack. Needed keys: asset_name, version_number, context_id,
-            asset_type, asset_id, version_id, component_name, component_id,
-            compoennt_path.
+        *ftrack_asset_info* should be the
+        :class:`ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
+        instance.
+        *session* should be the :class:`ftrack_api.session.Session` instance
+        to use for communication with the server.
         '''
         super(FtrackAssetNode, self).__init__(ftrack_asset_info, session)
 
@@ -46,7 +46,7 @@ class FtrackAssetNode(FtrackAssetBase):
         )
 
 
-    def init_ftrack_node(self):
+    def init_node(self):
         '''
         Return the ftrack node for this class. It checks if there is already a
         matching ftrack node in the scene, in this case it updates the node if
@@ -55,9 +55,9 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
         scene_node = self.get_ftrack_node_from_scene()
         if scene_node:
-            self.set_ftrack_node(scene_node)
+            self.set_node(scene_node)
             if not self.is_sync():
-                self._update_ftrack_asset_node()
+                self._update_node()
         else:
             self.create_new_node()
 
@@ -85,18 +85,16 @@ class FtrackAssetNode(FtrackAssetBase):
                 return ftrack_node
 
 
-    def set_ftrack_node(self, ftrack_node):
+    def set_node(self, ftrack_node):
         '''
         Sets the given *ftrack_node* as the current self.node of the class
         '''
         self.node = ftrack_node
 
-    def _check_ftrack_node_sync(self):
+    def _check_node_sync(self):
         '''
-        Check if the current parameters of the ftrack node match the parameters
-        of the porperty asset_info.
-
-        ..Note:: Checks only the new parameters not the legacy ones
+        Check if the current parameters of the ftrack node match the values
+        of the asset_info.
 
         '''
         if not self.node:
@@ -115,9 +113,9 @@ class FtrackAssetNode(FtrackAssetBase):
 
         return synced
 
-    def _get_unique_ftrack_node_name(self):
+    def _get_unique_node_name(self):
         '''
-        Return a unique scene name for the given *asset_name*
+        Return a unique scene name for the current asset_name
         '''
         return max_utils.get_unique_node_name(
             '{}_ftrackdata'.format(
@@ -125,7 +123,7 @@ class FtrackAssetNode(FtrackAssetBase):
             )
         )
 
-    def connect_objects_to_ftrack_node(self, objects):
+    def connect_objects(self, objects):
         '''
         Parent the given *objects* under current ftrack_node
 
@@ -169,7 +167,7 @@ class FtrackAssetNode(FtrackAssetBase):
         FtrackAssetHelper.
 
         '''
-        name = self._get_unique_ftrack_node_name()
+        name = self._get_unique_node_name()
         self.node = MaxPlus.Factory.CreateNode(self.helper_object)
         self.node.Name = name
         self.nodes.append(self.node)
@@ -186,9 +184,9 @@ class FtrackAssetNode(FtrackAssetBase):
                 )
             )
 
-        return self._update_ftrack_asset_node()
+        return self._update_node()
 
-    def _update_ftrack_asset_node(self):
+    def _update_node(self):
         '''Update the parameters of the ftrack node. And Return the ftrack node
         updated
         '''
@@ -216,11 +214,9 @@ class FtrackAssetNode(FtrackAssetBase):
             )
         return self.node
 
-    def _get_asset_id_from_helper_node(self, helper_node):
+    def _get_id_from_helper_node(self, helper_node):
         '''
-        Find the asset version id added on the given *helperNode*. Then gets
-        the asset version object from ftrack and Return the asset id of this
-        asset version
+        Return version id of the given *helperNode*.
         '''
         version_id = helper_node.Object.ParameterBlock.version_id.Value
         return version_id
@@ -238,7 +234,7 @@ class FtrackAssetNode(FtrackAssetBase):
         self.logger.debug(u'Removing duplicated asset helper objects')
         for node in MaxPlus.SelectionManager.Nodes:
             if is_ftrack_asset_helper(node) and node.Parent == root_node:
-                helper_version_id = self._get_asset_id_from_helper_node(node)
+                helper_version_id = self._get_id_from_helper_node(node)
                 if helper_version_id == version_id:
                     self.logger.debug(
                         u'Deleting imported helper node {0}'.format(node.Name))

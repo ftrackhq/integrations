@@ -79,9 +79,9 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
 
         ftrack_node_class = self.get_asset_node(context, data, options)
 
-        ftrack_node = ftrack_node_class.init_ftrack_node()
+        ftrack_node = ftrack_node_class.init_node()
 
-        ftrack_node_class.connect_objects_to_ftrack_node(diff)
+        ftrack_node_class.connect_objects(diff)
 
 
 class ImporterMaxWidget(pluginWidget.LoaderImporterWidget, BaseMaxPluginWidget):
