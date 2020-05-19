@@ -27,7 +27,6 @@ def generate_asset_info_dict_from_args(context, data, options, session):
         context.get('version_number', 0)
     )
     arguments_dict[v2.VERSION_ID] = context.get('version_id', '')
-    arguments_dict[v2.CONTEXT_ID] = context.get('context_id', '')
 
     arguments_dict[v2.ASSET_INFO_OPTIONS] = options.get('load_mode', '')
 
@@ -83,7 +82,7 @@ class FtrackAssetInfo(dict):
                 self.logger.info("Converting deprecated ftrack asset info")
                 new_key = versions_mapping.V1_TO_V2_MAPPING[k]
                 new_mapping[new_key] = v
-            elif k in versions_mapping.V1_TO_V2_MAPPING.values():
+            elif k in v2.KEYS:
                 new_mapping[k] = v
         if not new_mapping:
             raise AttributeError(

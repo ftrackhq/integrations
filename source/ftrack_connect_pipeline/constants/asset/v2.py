@@ -6,8 +6,12 @@ ASSET_NAME = 'asset_name'
 ASSET_TYPE = 'asset_type'
 VERSION_ID = 'version_id'
 VERSION_NUMBER = 'version_number'
-CONTEXT_ID = 'context_id'
-COMPONENT_PATH = 'asset_path'
-COMPONENT_NAME = 'asset_take'
-COMPONENT_ID = 'asset_component_id'
+COMPONENT_PATH = 'component_path'
+COMPONENT_NAME = 'component_name'
+COMPONENT_ID = 'component_id'
 ASSET_INFO_OPTIONS = 'asset_info_options'
+
+KEYS = [
+    ASSET_ID, ASSET_NAME, ASSET_TYPE, VERSION_ID, VERSION_NUMBER,
+    COMPONENT_PATH, COMPONENT_NAME, COMPONENT_ID, ASSET_INFO_OPTIONS
+]

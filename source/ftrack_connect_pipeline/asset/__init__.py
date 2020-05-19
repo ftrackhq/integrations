@@ -28,7 +28,6 @@ class FtrackAssetBase(object):
         *session* should be the :class:`ftrack_api.session.Session` instance
         to use for communication with the server.
         '''
-
         if not isinstance(ftrack_asset_info, FtrackAssetInfo):
             raise TypeError(
                 "ftrack_asset_info argument has to be type of FtrackAssetInfo"
@@ -39,6 +38,7 @@ class FtrackAssetBase(object):
         self.logger = logging.getLogger(__name__)
 
         self._asset_info = ftrack_asset_info
+        self.logger.debug("Asset info assigned: {}".format(self._asset_info))
         self._session = session
 
     # def get_version

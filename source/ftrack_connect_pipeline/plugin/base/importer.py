@@ -81,7 +81,7 @@ class BaseImporterPlugin(BasePlugin):
 
     def get_asset_node(self, context, data, options):
         arguments_dict = asset_info.generate_asset_info_dict_from_args(
-            context, data, options
+            context, data, options, self.session
         )
 
         asset_info_class = asset_info.FtrackAssetInfo(arguments_dict)
