@@ -261,12 +261,7 @@ class FtrackAssetNode(FtrackAssetBase):
 
         self.logger.debug(u'Parenting objects to helper object')
         for node in MaxPlus.SelectionManager.Nodes:
-            if is_ftrack_asset_helper(node) and node.Parent == root_node:
-                helper_version_id = self._get_version_id_from_helper_node(
-                    node)
-                if helper_version_id == version_id:
-                    continue
-            elif node.Parent == root_node:
+            if node.Parent == root_node:
                 node.Parent = self.node
                 self.logger.debug(
                     'node {} added to ftrack node {}'.format(node, self.node)

@@ -48,7 +48,7 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
 
         # TODO: Temp. remove this once options ticket is in place, this has to
         #  be assigned from the ui
-        options['load_mode'] = 'import'
+        options['load_mode'] = 'open'
 
         asset_load_mode = options.get('load_mode')
 
@@ -64,9 +64,22 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
 
         return super_result
 
+    def _get_difference(self, new_data, old_data):
+        '''Returns the objects on on *new_data* that are not on the *old_data*
+
+        ..note:: This function is for 3dmax only as can't compare the sets.
+        '''
+        #Re constructing the list as we can't compare the list coming from max
+        new_old = [x for x in old_data]
+        new_new = [x for x in new_data]
+        diff = []
+        for obj in new_new:
+            if obj not in new_old:
+                diff.append(obj)
+        return diff
 
     def link_to_ftrack_node(self, context, data, options):
-        diff = self.new_data.difference(self.old_data)
+        diff = self._get_difference(self.new_data, self.old_data)
 
         if not diff:
             self.logger.debug('No differences found in the scene')

@@ -33,15 +33,15 @@ class PublisherFinaliserMaxPlugin(plugin.PublisherFinaliserPlugin, BaseMaxPlugin
 
         for dependency in ftrack_asset_nodes:
             obj = dependency.Object
-            dependency_asset_version_id = obj.ParameterBlock.asset_version_id.Value
+            dependency_version_id = obj.ParameterBlock.version_id.Value
             self.logger.debug(
                 'Adding dependency_asset_version_id: {}'.format(
-                    dependency_asset_version_id
+                    dependency_version_id
                 )
             )
-            if dependency_asset_version_id:
+            if dependency_version_id:
                 dependency_version = self.session.get(
-                    'AssetVersion', dependency_asset_version_id
+                    'AssetVersion', dependency_version_id
                 )
                 if dependency_version not in self.version_dependencies:
                     self.version_dependencies.append(dependency_version)
