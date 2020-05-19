@@ -63,6 +63,12 @@ class FtrackAssetNode(FtrackAssetBase):
 
         return self.node
 
+    def _get_parameters_dictionary(self, max_obj):
+        param_dict = {}
+        for p in max_obj.ParameterBlock.Parameters:
+            param_dict[p.Name]=p.Value
+        return param_dict
+
     def get_ftrack_node_from_scene(self):
         '''
         Return the ftrack node of the current asset_version of the scene if
@@ -72,14 +78,14 @@ class FtrackAssetNode(FtrackAssetBase):
         for ftrack_node in ftrack_asset_nodes:
             obj = ftrack_node.Object
 
-            param_dict = obj.ParameterBlock.Parameters.__dict__()
+            param_dict = self._get_parameters_dictionary(obj)
             node_asset_info = FtrackAssetInfo(param_dict)
-            if node_asset_info.is_deprecated():
+            if node_asset_info.is_deprecated:
                 #TODO: do something with the deprecated
                 raise NotImplementedError("Can not read v1 ftrack asset plugin")
             if (
-                    node_asset_info[asset_const.VERSION_ID] ==
-                    self.asset_info[asset_const.VERSION_ID]
+                    node_asset_info[asset_const.COMPONENT_ID] ==
+                    self.asset_info[asset_const.COMPONENT_ID]
             ):
 
                 return ftrack_node
@@ -104,7 +110,7 @@ class FtrackAssetNode(FtrackAssetBase):
         synced = False
         obj = self.node.Object
 
-        param_dict = obj.ParameterBlock.Parameters.__dict__()
+        param_dict = self._get_parameters_dictionary(obj)
         node_asset_info = FtrackAssetInfo(param_dict)
 
         if node_asset_info == self.asset_info:
@@ -214,7 +220,14 @@ class FtrackAssetNode(FtrackAssetBase):
             )
         return self.node
 
-    def _get_id_from_helper_node(self, helper_node):
+    def _get_component_id_from_helper_node(self, helper_node):
+        '''
+        Return component id of the given *helperNode*.
+        '''
+        component_id = helper_node.Object.ParameterBlock.component_id.Value
+        return component_id
+
+    def _get_version_id_from_helper_node(self, helper_node):
         '''
         Return version id of the given *helperNode*.
         '''
@@ -227,6 +240,7 @@ class FtrackAssetNode(FtrackAssetBase):
         to the current ftrack node.
         '''
         version_id = self.asset_info[asset_const.VERSION_ID]
+        component_id = self.asset_info[asset_const.COMPONENT_ID]
         root_node = MaxPlus.Core.GetRootNode()
 
         nodes_to_delete = []
@@ -234,8 +248,8 @@ class FtrackAssetNode(FtrackAssetBase):
         self.logger.debug(u'Removing duplicated asset helper objects')
         for node in MaxPlus.SelectionManager.Nodes:
             if is_ftrack_asset_helper(node) and node.Parent == root_node:
-                helper_version_id = self._get_id_from_helper_node(node)
-                if helper_version_id == version_id:
+                helper_component_id = self._get_component_id_from_helper_node(node)
+                if helper_component_id == component_id:
                     self.logger.debug(
                         u'Deleting imported helper node {0}'.format(node.Name))
                     nodes_to_delete.append(node)
@@ -247,7 +261,12 @@ class FtrackAssetNode(FtrackAssetBase):
 
         self.logger.debug(u'Parenting objects to helper object')
         for node in MaxPlus.SelectionManager.Nodes:
-            if node.Parent == root_node:
+            if is_ftrack_asset_helper(node) and node.Parent == root_node:
+                helper_version_id = self._get_version_id_from_helper_node(
+                    node)
+                if helper_version_id == version_id:
+                    continue
+            elif node.Parent == root_node:
                 node.Parent = self.node
                 self.logger.debug(
                     'node {} added to ftrack node {}'.format(node, self.node)

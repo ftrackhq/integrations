@@ -10,6 +10,7 @@ extends:dummy
 (
     parameters pblock
     (
+        asset_name type:#string default:""
         asset_id type:#string default:""
         version_id type:#string default:""
         version_number type:#integer default:0
@@ -17,7 +18,6 @@ extends:dummy
         component_name type:#string default:""
         asset_type type:#string default:""
         component_id type:#string default:""
-        asset_load_mode type:#string default:""
-        alembic_import_args type:#string default:""
+        asset_info_options type:#string default:""
     )
 )
