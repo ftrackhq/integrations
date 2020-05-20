@@ -171,8 +171,8 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
                 parsed_results = match(trackItem, project_template)
             except ftrack_connect_nuke_studio.exception.TemplateError:
                 continue
-
             results[trackItem] = [ftrack_project['name']] + [result['name'] for result in parsed_results]
+
         return results
 
     def trackName(self):
@@ -204,6 +204,21 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
                 QtWidgets.QMessageBox.Ok
         )
 
+    def _get_context_leafs(self, data):
+        '''return the lower most context leaf for the given set of data'''
+        results = []
+        for datum in data:
+            project = datum[0]
+            first_parent = datum[1]
+            query = 'name is "{}" and project.name is "{}"'.format(first_parent, project)
+            for index, item in enumerate(datum[2:]):
+                query = 'name is "{}" and parent[TypedContext] has ({})'.format(item, query)
+            full_query = u'TypedContext where {}'.format(query)
+
+            results.extend(self.session.query(full_query).all())
+
+        return results
+
     def get_components(self, index=None):
         ''' Return all the found components. '''
         self._result_data = {}
@@ -215,31 +230,31 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         if not all([task_name, asset_type_name, component_name]):
             return self._result_data
 
-        for taskItem, (project, sequence, shot) in self.parsed_selection.items():
+        for taskItem, context in self.parsed_selection.items():
 
-            query = (
-                'Component where name is {} '  # component name 
-                'and version.asset.type.name is "{}" '  # asset type
-                'and version.task.name is "{}" '  # task name
-                'and version.asset.parent.name is "{}" '  # shot
-                'and version.asset.parent.parent.name is "{}" '  # sequence
-                'and version.asset.parent.project.name is "{}"'  # project
-                ''.format(component_name, asset_type_name, task_name, shot, sequence, project)
-            )
+            context_leafs = self._get_context_leafs([context])
+            for context_leaf in context_leafs:
+                query = (
+                    'Component where name is "{}" '  # component name 
+                    'and version.asset.type.name is "{}" '  # asset type
+                    'and version.task.name is "{}" '  # task name
+                    'and version.asset.parent.id is "{}" '  # shot
+                    ''.format(component_name, asset_type_name, task_name,context_leaf['id'])
+                )
 
-            if asset_status != '- ANY -':
-                query += ' and version.status.name is "{}"'.format(asset_status)
+                if asset_status != '- ANY -':
+                    query += ' and version.status.name is "{}"'.format(asset_status)
 
-            all_components = self.session.query(query
-            ).all()
+                all_components = self.session.query(query
+                ).all()
 
-            if not all_components:
-                continue
+                if not all_components:
+                    continue
 
-            sorted_components = sorted(all_components, key=lambda k: int(k['version']['version']))
+                sorted_components = sorted(all_components, key=lambda k: int(k['version']['version']))
 
-            final_component = sorted_components[-1]
-            self._result_data[taskItem] = final_component['id']
+                final_component = sorted_components[-1]
+                self._result_data[taskItem] = final_component['id']
 
         # Update window title with the amount of clips found matching the filters
         new_title = self._window_title + ' - ({} clips found)'.format(len(self._result_data))
@@ -251,13 +266,12 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
     def populate_components(self):
         ''' Populate the components widget. '''
         all_component_names = []
-        for (project, sequence, shot) in self.parsed_selection.values():
-            components = self.session.query(
-                'select name, version.asset.parent.name, version.asset.parent.parent.name from Component '
-                'where version.asset.parent.name is "{}" and version.asset.parent.parent.name is "{}" and version.asset.parent.project.name is "{}"'.format(
-                    shot, sequence, project
-                )
-            ).all()
+
+        context_leafs = self._get_context_leafs(self.parsed_selection.values())
+
+        for context in context_leafs:
+            task_query = 'select name from Component where version.asset.parent.id is "{}"'.format(context['id'])
+            components = self.session.query(task_query).all()
 
             if not components:
                 continue
@@ -282,13 +296,11 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
     def populate_asset_types(self):
         ''' Populate the asset types widget. '''
         all_asset_types_names = []
-        for (project, sequence, shot) in self.parsed_selection.values():
-            assets = self.session.query(
-                'select type, name, parent.name, parent.parent.name from Asset '
-                'where parent.name is "{}" and parent.parent.name is "{}" and parent.project.name is "{}"'.format(
-                    shot, sequence, project
-                )
-            ).all()
+        context_leafs = self._get_context_leafs(self.parsed_selection.values())
+
+        for context in context_leafs:
+            task_query = 'select type, type.name, name from Asset where parent.id is "{}"'.format(context['id'])
+            assets = self.session.query(task_query).all()
 
             if not assets:
                 continue
@@ -301,18 +313,17 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
     def populate_tasks(self):
         ''' Populate the tasks widget. '''
         all_tasks=[]
-        for (project, sequence, shot) in self.parsed_selection.values():
-            tasks = self.session.query(
-                'select name, parent.name, parent.parent.name from Task '
-                'where parent.name is "{}" and parent.parent.name is "{}" and project.name is "{}"'.format(
-                    shot, sequence, project
-                )
-            ).all()
+        context_leafs = self._get_context_leafs(self.parsed_selection.values())
+
+        for context in context_leafs:
+            task_query = 'select name from Task where parent.id is "{}"'.format(context['id'])
+            tasks = self.session.query(task_query).all()
 
             if not tasks:
                 continue
 
             all_tasks.append([task['name'] for task in tasks])
+
         common_tasks = self.common_items(all_tasks)
         for name in sorted(common_tasks):
             self.tasks_combobox.addItem(name)

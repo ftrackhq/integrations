@@ -9,6 +9,11 @@ Release Notes
 
 .. release:: Upcoming
 
+    .. change:: fixed
+        :tags: Track build
+
+        Rebuild track from exported episodes does not work.
+
     .. change:: change
         :tags: Exporter
 
@@ -28,7 +33,6 @@ Release Notes
         :tags: Exporter
 
         Ensure shot output path normalized when replacing shot name.
-
 
     .. change:: change
         :tags: Version
