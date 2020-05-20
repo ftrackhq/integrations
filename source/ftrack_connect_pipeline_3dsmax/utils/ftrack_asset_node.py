@@ -1,7 +1,7 @@
 import MaxPlus
 
 from ftrack_connect_pipeline.asset import FtrackAssetInfo, FtrackAssetBase
-from ftrack_connect_pipeline.constants.asset import v2 as asset_const
+from ftrack_connect_pipeline.constants import asset as asset_const
 from ftrack_connect_pipeline_3dsmax import constants
 import custom_commands as max_utils
 

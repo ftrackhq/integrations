@@ -7,11 +7,7 @@ from ftrack_connect_pipeline_3dsmax.plugin import (
     BaseMaxPlugin, BaseMaxPluginWidget
 )
 
-from ftrack_connect_pipeline.constants.asset import v2
-from ftrack_connect_pipeline import asset
-from ftrack_connect_pipeline.asset import asset_info
 from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
-from ftrack_connect_pipeline_3dsmax.utils import max_alembic_commands as abc_utils
 from ftrack_connect_pipeline_3dsmax.utils import ftrack_asset_node
 from ftrack_connect_pipeline_3dsmax import constants
 
@@ -39,12 +35,6 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
         self.logger.debug('Current options : {}'.format(options))
 
         super_result = super(LoaderImporterMaxPlugin, self)._run(event)
-
-        # if options.get('component_name') == 'cache':
-        #     options['alembic_import_args'] = abc_utils.get_str_options(
-        #         options
-        #     )
-        # self.logger.debug('Alembic import options added')
 
         # TODO: Temp. remove this once options ticket is in place, this has to
         #  be assigned from the ui
