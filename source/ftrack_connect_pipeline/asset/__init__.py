@@ -1,7 +1,7 @@
 # # :coding: utf-8
 # # :copyright: Copyright (c) 2019 ftrack
 #
-from ftrack_connect_pipeline.constants.asset import v1, v2
+
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
 import logging
 

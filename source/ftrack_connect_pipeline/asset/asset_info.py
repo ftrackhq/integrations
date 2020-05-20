@@ -1,5 +1,5 @@
 import logging
-from ftrack_connect_pipeline.constants.asset import v2, versions_mapping
+from ftrack_connect_pipeline.constants import asset as constants
 
 
 def generate_asset_info_dict_from_args(context, data, options, session):
@@ -18,20 +18,20 @@ def generate_asset_info_dict_from_args(context, data, options, session):
     '''
     arguments_dict = {}
 
-    arguments_dict[v2.ASSET_NAME] = context.get(
+    arguments_dict[constants.ASSET_NAME] = context.get(
         'asset_name', 'No name found'
     )
-    arguments_dict[v2.ASSET_TYPE] = context.get('asset_type', '')
-    arguments_dict[v2.ASSET_ID] = context.get('asset_id', '')
-    arguments_dict[v2.VERSION_NUMBER] = int(
+    arguments_dict[constants.ASSET_TYPE] = context.get('asset_type', '')
+    arguments_dict[constants.ASSET_ID] = context.get('asset_id', '')
+    arguments_dict[constants.VERSION_NUMBER] = int(
         context.get('version_number', 0)
     )
-    arguments_dict[v2.VERSION_ID] = context.get('version_id', '')
+    arguments_dict[constants.VERSION_ID] = context.get('version_id', '')
 
-    arguments_dict[v2.ASSET_INFO_OPTIONS] = options.get('load_mode', '')
+    arguments_dict[constants.ASSET_INFO_OPTIONS] = options.get('load_mode', '')
 
     asset_version = session.get(
-        'AssetVersion', arguments_dict[v2.VERSION_ID]
+        'AssetVersion', arguments_dict[constants.VERSION_ID]
     )
 
     location = session.pick_location()
@@ -41,9 +41,9 @@ def generate_asset_info_dict_from_args(context, data, options, session):
             continue
         component_path = location.get_filesystem_path(component)
         if component_path in data:
-            arguments_dict[v2.COMPONENT_NAME] = component['name']
-            arguments_dict[v2.COMPONENT_ID] = component['id']
-            arguments_dict[v2.COMPONENT_PATH] = component_path
+            arguments_dict[constants.COMPONENT_NAME] = component['name']
+            arguments_dict[constants.COMPONENT_ID] = component['id']
+            arguments_dict[constants.COMPONENT_PATH] = component_path
 
     return arguments_dict
 
@@ -77,12 +77,12 @@ class FtrackAssetInfo(dict):
 
         new_mapping = {}
         for k, v in mapping.items():
-            if k in versions_mapping.V1_TO_V2_MAPPING.keys():
+            if k in constants.V1_TO_V2_MAPPING.keys():
                 self._is_deprecated_version = True
                 self.logger.info("Converting deprecated ftrack asset info")
-                new_key = versions_mapping.V1_TO_V2_MAPPING[k]
+                new_key = constants.V1_TO_V2_MAPPING[k]
                 new_mapping[new_key] = v
-            elif k in v2.KEYS:
+            elif k in constants.KEYS:
                 new_mapping[k] = v
         if not new_mapping:
             raise AttributeError(
