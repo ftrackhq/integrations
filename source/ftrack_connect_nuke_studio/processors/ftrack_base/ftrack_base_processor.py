@@ -610,8 +610,6 @@ class FtrackProcessor(FtrackBase):
                     preset.properties()['ftrack']['component_pattern']
                 ).lower()
 
-                resolved_file_name = task.resolvePath(file_name)
-
                 path = task.resolvePath(exportPath)
                 path_id = os.path.dirname(path)
 
@@ -644,14 +642,6 @@ class FtrackProcessor(FtrackBase):
                 ftrack_shot_path = os.path.normpath(
                     self.ftrack_location.structure.get_resource_identifier(parent)
                 )
-
-                # Ftrack sanitize output path, but we
-                # need to retain the original on here
-                # otherwise foo.####.ext becomes foo.____.ext
-                tokens = ftrack_shot_path.split(os.path.sep)
-
-                tokens[-1] = resolved_file_name
-                ftrack_shot_path = self.path_separator.join(tokens)
 
                 ftrack_path = str(os.path.join(
                     self.ftrack_location.accessor.prefix, ftrack_shot_path
@@ -815,6 +805,10 @@ class FtrackProcessor(FtrackBase):
 
     def publish_result_component_event(self, render_task):
         ''' Event spawned when *render_task* frame is rendered. '''
+
+        if not render_task._item:
+            return
+
         try:
             root_item = render_task._item.parentTrack().name()
         except:

@@ -34,19 +34,19 @@ class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
 
     def processTaskPreQueue(self):
         '''Walk Tasks in submission and mark any duplicates.'''
-
         components = {}
+        self.logger.info('processing TaskPreQueue')
         for task in _expandTaskGroup(self._submission):
-            target_task = task._item
+            target_task = task._item.name()
             component_name = task.component_name()
+            components.setdefault(target_task, [])
 
-            if hasattr(task, "resolvedExportPath"):
-                components.setdefault(target_task, [])
-                if component_name not in components[target_task]:
-                    components[target_task].append(component_name)
-                else:
-                    self.logger.info('{} is duplicated component for {}'.format(component_name, target_task.name()))
-                    task.setDuplicate()
+            self.logger.info('components {}'.format(components))
+            if component_name not in components[target_task]:
+                components[target_task].append(component_name)
+            else:
+                self.logger.info('{} is duplicated component for {}'.format(component_name, target_task))
+                task.setDuplicate()
 
 
 class FtrackShotProcessorUI(ShotProcessorUI, FtrackProcessorUI):

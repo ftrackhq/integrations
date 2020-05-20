@@ -11,6 +11,7 @@ from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_shot_processor imp
     FtrackShotProcessorUI
 )
 from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_timeline_processor import FtrackTimelineProcessorPreset
+from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_copy_exporter import FtrackCopyExporterPreset
 from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_nuke_shot_exporter import FtrackNukeShotExporterPreset
 from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_nuke_render_exporter import FtrackNukeRenderExporterPreset
 from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_audio_exporter import FtrackAudioExporterPreset
@@ -30,6 +31,7 @@ def register_processors():
     # Register the base preset for ftrack shot processor.
     # this could be moved to a discover function
     shot_name = 'Ftrack Shot Preset'
+
 
     nuke_script_processor = FtrackNukeShotExporterPreset(
         '', {}
@@ -63,12 +65,17 @@ def register_processors():
         '', {}
     )
 
+    copy_processor = FtrackCopyExporterPreset(
+        '', {}
+    )
+
     shot_properties = {
         'exportTemplate': (
             (FTRACK_PROJECT_STRUCTURE, nuke_render_processor),
             (FTRACK_PROJECT_STRUCTURE, nuke_script_processor),
             (FTRACK_PROJECT_STRUCTURE, reviewable_processor),
-            (FTRACK_PROJECT_STRUCTURE, audio_processor)
+            (FTRACK_PROJECT_STRUCTURE, audio_processor),
+            (FTRACK_PROJECT_STRUCTURE, copy_processor)
 
         ),
         'cutLength': True,
