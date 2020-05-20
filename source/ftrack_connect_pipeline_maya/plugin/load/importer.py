@@ -7,8 +7,9 @@ from ftrack_connect_pipeline_maya.plugin import (
     BaseMayaPlugin, BaseMayaPluginWidget
 )
 
-import maya.cmds as cmd
-
+from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
+from ftrack_connect_pipeline_maya.utils import ftrack_asset_node
+from ftrack_connect_pipeline_maya import constants
 
 class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
     ''' Class representing a Collector Plugin
@@ -17,95 +18,60 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
 
         _required_output a List
     '''
+    asset_node_type = ftrack_asset_node.FtrackAssetNode
+    asset_info_type = ftrack_asset_node.FtrackAssetNode
 
     def _run(self, event):
-        self.old_data = set(cmd.ls())
+
+        self.old_data = maya_utils.get_current_scene_objects()
+        self.logger.debug('Got current objects from scene')
+
         context = event['data']['settings']['context']
+        self.logger.debug('Current context : {}'.format(context))
+
         data = event['data']['settings']['data']
+        self.logger.debug('Current data : {}'.format(data))
+
+        options = event['data']['settings']['options']
+        self.logger.debug('Current options : {}'.format(options))
+
         super_result = super(LoaderImporterMayaPlugin, self)._run(event)
-        self.new_data = set(cmd.ls())
 
-        asset_info = {}
+        # TODO: Temp. remove this once options ticket is in place, this has to
+        #  be assigned from the ui
+        options['load_mode'] = 'open'
 
-        asset_info['asset_name'] = context.get('asset_name', 'No name found')
-        asset_info['version_number'] = context.get('version_number', '0')
-        asset_info['context_id'] = context.get('context_id', '')
-        asset_info['asset_type'] = context.get('asset_type', '')
-        asset_info['asset_id'] = context.get('asset_id', '')
-        asset_info['version_id'] = context.get('version_id', '')
+        asset_load_mode = options.get('load_mode')
 
-        asset_version = self.session.get('AssetVersion', asset_info['version_id'])
+        if asset_load_mode and asset_load_mode == constants.OPEN_MODE:
+            return super_result
 
-        location = self.session.pick_location()
+        self.new_data = maya_utils.get_current_scene_objects()
+        self.logger.debug(
+            'Got all the objects in the scene after import'
+        )
 
-        for component in asset_version['components']:
-            if location.get_component_availability(component) < 100.0:
-                continue
-            component_path = location.get_filesystem_path(component)
-            if component_path in data:
-                asset_info['component_name'] = component['name']
-                asset_info['component_id'] = component['id']
-                asset_info['component_path'] = component_path
-
-        if asset_info:
-            self.link_to_ftrack_node(asset_info)
+        self.link_to_ftrack_node(context, data, options)
 
         return super_result
 
-    def link_to_ftrack_node(self, asset_info):
+    def link_to_ftrack_node(self, context, data, options):
         diff = self.new_data.difference(self.old_data)
         if not diff:
             self.logger.debug('No differences found in the scene')
             return
 
-        ftrack_node_name = '{}_ftrackdata'.format(asset_info['asset_name'])
-        count = 0
-        while 1:
-            if cmd.objExists(ftrack_node_name):
-                ftrack_node_name = ftrack_node_name + str(count)
-                count = count + 1
-            else:
-                break
-
-        ftrack_node = cmd.createNode('ftrackAssetNode', name=ftrack_node_name)
-        cmd.setAttr(
-            '{}.assetVersion'.format(ftrack_node),
-            int(asset_info['version_number'])
-        )
-        cmd.setAttr(
-            '{}.assetId'.format(ftrack_node),
-            asset_info['version_id'], type='string'
-        )
-        cmd.setAttr(
-            '{}.assetPath'.format(ftrack_node),
-            asset_info['component_path'], type='string'
-        )
-        cmd.setAttr(
-            '{}.assetTake'.format(ftrack_node),
-            asset_info['component_name'], type='string'
-        )
-        cmd.setAttr(
-            '{}.assetType'.format(ftrack_node),
-            asset_info['asset_type'], type='string'
-        )
-        cmd.setAttr(
-            '{}.assetComponentId'.format(ftrack_node),
-            asset_info['component_id'],
-            type='string'
+        self.logger.debug(
+            'Checked differences between nodes before and after'
+            ' inport : {}'.format(diff)
         )
 
-        for item in diff:
-            if cmd.lockNode(item, q=True)[0]:
-                cmd.lockNode(item, l=False)
+        ftrack_node_class = self.get_asset_node(context, data, options)
 
-            if not cmd.attributeQuery('ftrack', n=item, exists=True):
-                cmd.addAttr(item, ln='ftrack', at='message')
+        ftrack_node = ftrack_node_class.init_node()
 
-            if not cmd.listConnections('{}.ftrack'.format(item)):
-                cmd.connectAttr(
-                    '{}.assetLink'.format(ftrack_node),
-                    '{}.ftrack'.format(item)
-                )
+        ftrack_node_class.connect_objects(diff)
+
 
 
 class ImporterMayaWidget(pluginWidget.LoaderImporterWidget, BaseMayaPluginWidget):

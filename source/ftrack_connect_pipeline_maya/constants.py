@@ -1,4 +1,10 @@
-from ftrack_connect_pipeline_qt import constants as qt_constants
+# :coding: utf-8
+# :copyright: Copyright (c) 2019 ftrack
 
 HOST = 'maya'
 UI = 'maya'
+
+#Load Modes
+IMPORT_MODE = 'Import'
+REFERENCE_MODE = 'Reference'
+OPEN_MODE = 'Open'
