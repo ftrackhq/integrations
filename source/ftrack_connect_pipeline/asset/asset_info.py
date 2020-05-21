@@ -75,14 +75,19 @@ class FtrackAssetInfo(dict):
 
         self._is_deprecated_version = False
 
+        # TODO: Convertion mapping between v1 and v2 plugin
+        # for k, v in mapping.items():
+        #     if k in constants.V1_TO_V2_MAPPING.keys():
+        #         self._is_deprecated_version = True
+        #         self.logger.info("Converting deprecated ftrack asset info")
+        #         new_key = constants.V1_TO_V2_MAPPING[k]
+        #         new_mapping[new_key] = v
+        #     elif k in constants.KEYS:
+        #         new_mapping[k] = v
+
         new_mapping = {}
         for k, v in mapping.items():
-            if k in constants.V1_TO_V2_MAPPING.keys():
-                self._is_deprecated_version = True
-                self.logger.info("Converting deprecated ftrack asset info")
-                new_key = constants.V1_TO_V2_MAPPING[k]
-                new_mapping[new_key] = v
-            elif k in constants.KEYS:
+            if k in constants.KEYS:
                 new_mapping[k] = v
         if not new_mapping:
             raise AttributeError(
