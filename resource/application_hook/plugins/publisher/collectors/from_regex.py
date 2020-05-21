@@ -5,7 +5,6 @@ import re
 import maya.cmds as cmd
 
 from ftrack_connect_pipeline_maya import plugin
-from ftrack_connect_pipeline import constants
 
 
 class CollectFromRegexMayaPlugin(plugin.PublisherCollectorMayaPlugin):

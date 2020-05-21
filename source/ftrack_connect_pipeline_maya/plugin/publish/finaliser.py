@@ -9,7 +9,7 @@ from ftrack_connect_pipeline_maya.plugin import (
 
 import maya.cmds as cmd
 from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
-from ftrack_connect_pipeline.constants import asset as asset_const
+from ftrack_connect_pipeline_maya.constants import asset as asset_const
 
 
 class PublisherFinaliserMayaPlugin(plugin.PublisherFinaliserPlugin, BaseMayaPlugin):

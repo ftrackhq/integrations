@@ -4,7 +4,6 @@
 import maya.cmds as cmd
 
 from ftrack_connect_pipeline_maya import plugin
-from ftrack_connect_pipeline import constants
 
 
 class CollectFromSetMayaPlugin(plugin.PublisherCollectorMayaPlugin):

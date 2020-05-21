@@ -1,5 +1,5 @@
 from ftrack_connect_pipeline.asset import FtrackAssetInfo, FtrackAssetBase
-from ftrack_connect_pipeline.constants import asset as asset_const
+from ftrack_connect_pipeline_maya.constants import asset as asset_const
 import custom_commands as maya_utils
 
 import maya.cmds as cmd
@@ -46,9 +46,11 @@ class FtrackAssetNode(FtrackAssetBase):
 
     def _get_parameters_dictionary(self, maya_obj):
         param_dict = {}
-        all_attr = cmd.listAttr(maya_obj, c=True, fp=True)
+        all_attr = cmd.listAttr(maya_obj, c=True, se=True)
         for attr in all_attr:
-            attr_value = cmd.getAttr('{}.{}'.fromat(maya_obj, attr))
+            if cmd.attributeQuery(attr, node=maya_obj, msg=True):
+                continue
+            attr_value = cmd.getAttr('{}.{}'.format(maya_obj, attr))
             param_dict[attr] = attr_value
         return param_dict
 
@@ -133,14 +135,14 @@ class FtrackAssetNode(FtrackAssetBase):
 
             if not cmd.listConnections('{}.ftrack'.format(obj)):
                 cmd.connectAttr(
-                    '{}.assetLink'.format(self.node),
+                    '{}.{}'.format(self.node, asset_const.ASSET_LINK),
                     '{}.ftrack'.format(obj)
                 )
 
 
     def get_load_mode_from_node(self, node):
         '''Return the import mode used to import an asset.'''
-        load_mode = cmd.getAttr('{}.{}'.fromat(
+        load_mode = cmd.getAttr('{}.{}'.format(
             node, asset_const.ASSET_INFO_OPTIONS)
         )
         return load_mode
@@ -166,6 +168,9 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
 
         for k, v in self.asset_info.items():
-            cmd.setAttr('{}.{}'.format(self.node, k), v)
+            if k == asset_const.VERSION_NUMBER:
+                cmd.setAttr('{}.{}'.format(self.node, k), v)
+            else:
+                cmd.setAttr('{}.{}'.format(self.node, k), v, type="string")
 
         return self.node

@@ -1,8 +1,5 @@
 
-
-import functools
 import logging
-from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_maya import constants as maya_constants
 from ftrack_connect_pipeline.host import Host
