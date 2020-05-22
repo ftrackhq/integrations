@@ -19,7 +19,6 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
         _required_output a List
     '''
     asset_node_type = ftrack_asset_node.FtrackAssetNode
-    asset_info_type = ftrack_asset_node.FtrackAssetNode
 
     def _run(self, event):
 
