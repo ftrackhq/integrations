@@ -60,7 +60,7 @@ def on_application_launch(event):
     # 3dsmax plugins
     ftrack_connect.application.appendPath(
         max_connect_plugins_path,
-        '3DSMAX_PLUG_IN_PATH',
+        'PYTHONPATH',
         event['data']['options']['env']
     )
 

@@ -1,14 +1,15 @@
 import MaxPlus
 
 from ftrack_connect_pipeline.asset import FtrackAssetInfo, FtrackAssetBase
-from ftrack_connect_pipeline.constants import asset as asset_const
 from ftrack_connect_pipeline_3dsmax import constants
+from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
 import custom_commands as max_utils
 
 def is_ftrack_asset_helper(node):
     '''Return True if the node is a Ftrack asset helper node.'''
     if node.Object.ClassID == MaxPlus.Class_ID(
-            constants.FTRACK_ASSET_CLASS_ID[0], constants.FTRACK_ASSET_CLASS_ID[1]
+            asset_const.FTRACK_ASSET_CLASS_ID[0],
+            asset_const.FTRACK_ASSET_CLASS_ID[1]
     ):
         return True
 
@@ -39,7 +40,7 @@ class FtrackAssetNode(FtrackAssetBase):
         self.node = None
 
         self.helper_object = MaxPlus.Factory.CreateHelperObject(
-            MaxPlus.Class_ID(*constants.FTRACK_ASSET_CLASS_ID)
+            MaxPlus.Class_ID(*asset_const.FTRACK_ASSET_CLASS_ID)
         )
         self.logger.debug(
             'helper_object {} has been created'.format(self.helper_object)
