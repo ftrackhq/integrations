@@ -1,8 +1,8 @@
-# :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
 import pymxs
 from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
+
 
 def register_ftrack_asset_helper():
     pymxs.runtime.execute(
