@@ -7,7 +7,7 @@ import maya.OpenMayaMPx as OpenMayaMPx
 import maya.OpenMayaRender as OpenMayaRender
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
 
-version = '2.0'
+version = asset_const.VERSION
 kPluginNodeTypeName = 'ftrackAssetNode'
 kPluginNodeId = OpenMaya.MTypeId(asset_const.FTRACK_ASSET_CLASS_ID)
 
