@@ -3,6 +3,7 @@
 
 from ftrack_connect_pipeline.plugin import BasePlugin, BasePluginValidation
 from ftrack_connect_pipeline.constants import plugin
+from ftrack_connect_pipeline.asset import asset_info, FtrackAssetBase
 
 
 class ImporterPluginValidation(BasePluginValidation):
@@ -36,6 +37,7 @@ class BaseImporterPlugin(BasePlugin):
     '''
     return_type = dict
     plugin_type = plugin._PLUGIN_IMPORTER_TYPE
+    asset_node_type = FtrackAssetBase
     _required_output = {}
 
     def __init__(self, session):
@@ -75,3 +77,16 @@ class BaseImporterPlugin(BasePlugin):
 
 
         raise NotImplementedError('Missing run method.')
+
+
+    def get_asset_node(self, context, data, options):
+        arguments_dict = asset_info.generate_asset_info_dict_from_args(
+            context, data, options, self.session
+        )
+
+        asset_info_class = asset_info.FtrackAssetInfo(arguments_dict)
+
+        ftrack_node_class = self.asset_node_type(
+            asset_info_class, self.session
+        )
+        return ftrack_node_class
