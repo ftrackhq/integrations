@@ -9,7 +9,7 @@ from ftrack_connect_pipeline_maya.plugin import (
 
 from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
 from ftrack_connect_pipeline_maya.utils import ftrack_asset_node
-from ftrack_connect_pipeline_maya import constants
+from ftrack_connect_pipeline_maya.constants import asset as asset_const
 
 class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
     ''' Class representing a Collector Plugin
@@ -23,7 +23,7 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
     def _run(self, event):
 
         self.old_data = maya_utils.get_current_scene_objects()
-        self.logger.debug('Got current objects from scene')
+        self.logger.debug('Scene objects : {}'.format(len(self.old_data)))
 
         context = event['data']['settings']['context']
         self.logger.debug('Current context : {}'.format(context))
@@ -42,12 +42,12 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
 
         asset_load_mode = options.get('load_mode')
 
-        if asset_load_mode and asset_load_mode == constants.OPEN_MODE:
+        if asset_load_mode and asset_load_mode == asset_const.OPEN_MODE:
             return super_result
 
         self.new_data = maya_utils.get_current_scene_objects()
         self.logger.debug(
-            'Got all the objects in the scene after import'
+            'Scene objects after load : {}'.format(len(self.new_data))
         )
 
         self.link_to_ftrack_node(context, data, options)

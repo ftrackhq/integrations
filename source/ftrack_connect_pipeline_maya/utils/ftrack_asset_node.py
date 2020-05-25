@@ -24,9 +24,6 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
         super(FtrackAssetNode, self).__init__(ftrack_asset_info, session)
 
-        self.nodes = []
-        self.node = None
-
     def init_node(self):
         '''
         Return the ftrack node for this class. It checks if there is already a
@@ -36,7 +33,7 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
         scene_node = self.get_ftrack_node_from_scene()
         if scene_node:
-            self.set_node(scene_node)
+            self._set_node(scene_node)
             if not self.is_sync():
                 self._update_node()
         else:
@@ -65,21 +62,13 @@ class FtrackAssetNode(FtrackAssetBase):
             param_dict = self._get_parameters_dictionary(ftrack_node)
             node_asset_info = FtrackAssetInfo(param_dict)
             if node_asset_info.is_deprecated:
-                #TODO: do something with the deprecated
-                raise NotImplementedError("Can not read v1 ftrack asset plugin")
+                raise DeprecationWarning("Can not read v1 ftrack asset plugin")
             if (
                     node_asset_info[asset_const.COMPONENT_ID] ==
                     self.asset_info[asset_const.COMPONENT_ID]
             ):
 
                 return ftrack_node
-
-
-    def set_node(self, ftrack_node):
-        '''
-        Sets the given *ftrack_node* as the current self.node of the class
-        '''
-        self.node = ftrack_node
 
     def _check_node_sync(self):
         '''
@@ -156,8 +145,8 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
 
         name = self._get_unique_node_name()
-        self.node = cmd.createNode('ftrackAssetNode', name=name)
-        self.nodes.append(self.node)
+        self._node = cmd.createNode('ftrackAssetNode', name=name)
+        self._nodes.append(self.node)
 
         return self._update_node()
 

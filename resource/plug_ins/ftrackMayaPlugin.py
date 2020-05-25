@@ -8,7 +8,7 @@ import maya.OpenMayaRender as OpenMayaRender
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
 
 version = asset_const.VERSION
-kPluginNodeTypeName = 'ftrackAssetNode'
+kPluginNodeTypeName = asset_const.FTRACK_PLUGIN_TYPE
 kPluginNodeId = OpenMaya.MTypeId(asset_const.FTRACK_ASSET_CLASS_ID)
 
 glRenderer = OpenMayaRender.MHardwareRenderer.theRenderer()
@@ -40,12 +40,12 @@ class FtrackAssetNode(OpenMayaMPx.MPxNode):
             OpenMaya.MGlobal.displayError('Compute failed')
 
 
-def node_creator():
+def nodeCreator():
     return OpenMayaMPx.asMPxPtr(FtrackAssetNode())
 
 
 # initializer
-def node_initializer():
+def nodeInitializer():
     n_attr = OpenMaya.MFnNumericAttribute()
     t_attr = OpenMaya.MFnTypedAttribute()
     m_attr = OpenMaya.MFnMessageAttribute()
@@ -120,7 +120,7 @@ def initializePlugin(m_object):
     m_plugin = OpenMayaMPx.MFnPlugin(m_object, 'ftrack', version, 'Any')
     try:
         m_plugin.registerNode(
-            kPluginNodeTypeName, kPluginNodeId, node_creator, node_initializer
+            kPluginNodeTypeName, kPluginNodeId, nodeCreator, nodeInitializer
         )
     except:
         sys.stderr.write('Failed to register node: {0}'.format(
