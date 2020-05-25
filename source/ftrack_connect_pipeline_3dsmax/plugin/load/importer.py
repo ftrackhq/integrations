@@ -60,11 +60,11 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
         ..note:: This function is for 3dmax only as can't compare the sets.
         '''
         #Re constructing the list as we can't compare the list coming from max
-        new_old = [x for x in old_data]
-        new_new = [x for x in new_data]
+        old_data_list = [x for x in old_data]
+        new_data_list = [x for x in new_data]
         diff = []
-        for obj in new_new:
-            if obj not in new_old:
+        for obj in new_data_list:
+            if obj not in old_data_list:
                 diff.append(obj)
         return diff
 

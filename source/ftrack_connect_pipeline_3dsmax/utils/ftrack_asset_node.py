@@ -4,21 +4,19 @@ from ftrack_connect_pipeline.asset import FtrackAssetInfo, FtrackAssetBase
 from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
 import custom_commands as max_utils
 
-def is_ftrack_asset_helper(node):
-    '''Return True if the node is a Ftrack asset helper node.'''
-    if node.Object.ClassID == MaxPlus.Class_ID(
-            asset_const.FTRACK_ASSET_CLASS_ID[0],
-            asset_const.FTRACK_ASSET_CLASS_ID[1]
-    ):
-        return True
-
-    return False
-
 
 class FtrackAssetNode(FtrackAssetBase):
     '''
     Base FtrackAssetNode class.
     '''
+
+    identity = MaxPlus.Class_ID(*asset_const.FTRACK_ASSET_CLASS_ID)
+
+    def is_ftrack_node(self, other):
+        if other.Object.ClassID == self.identity:
+            return True
+
+        return False
 
     def is_sync(self):
         return self._check_node_sync()
@@ -35,11 +33,8 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
         super(FtrackAssetNode, self).__init__(ftrack_asset_info, session)
 
-        self.nodes = []
-        self.node = None
-
         self.helper_object = MaxPlus.Factory.CreateHelperObject(
-            MaxPlus.Class_ID(*asset_const.FTRACK_ASSET_CLASS_ID)
+            self.identity
         )
         self.logger.debug(
             'helper_object {} has been created'.format(self.helper_object)
@@ -55,7 +50,7 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
         scene_node = self.get_ftrack_node_from_scene()
         if scene_node:
-            self.set_node(scene_node)
+            self._set_node(scene_node)
             if not self.is_sync():
                 self._update_node()
         else:
@@ -81,21 +76,13 @@ class FtrackAssetNode(FtrackAssetBase):
             param_dict = self._get_parameters_dictionary(obj)
             node_asset_info = FtrackAssetInfo(param_dict)
             if node_asset_info.is_deprecated:
-                #TODO: do something with the deprecated
-                raise NotImplementedError("Can not read v1 ftrack asset plugin")
+                raise DeprecationWarning("Can not read v1 ftrack asset plugin")
             if (
                     node_asset_info[asset_const.COMPONENT_ID] ==
                     self.asset_info[asset_const.COMPONENT_ID]
             ):
 
                 return ftrack_node
-
-
-    def set_node(self, ftrack_node):
-        '''
-        Sets the given *ftrack_node* as the current self.node of the class
-        '''
-        self.node = ftrack_node
 
     def _check_node_sync(self):
         '''
@@ -157,7 +144,7 @@ class FtrackAssetNode(FtrackAssetBase):
         selection.
         '''
         for node in MaxPlus.SelectionManager.Nodes:
-            if is_ftrack_asset_helper(node) and self.get_load_mode_from_node(
+            if self.is_ftrack_node(node) and self.get_load_mode_from_node(
                     node) == asset_const.SCENE_XREF_MODE:
                 if not max_utils.scene_XRef_imported(node):
                     self.logger.debug(u'Re-importing {0} scene xref.'.format(
@@ -247,7 +234,7 @@ class FtrackAssetNode(FtrackAssetBase):
 
         self.logger.debug(u'Removing duplicated asset helper objects')
         for node in MaxPlus.SelectionManager.Nodes:
-            if is_ftrack_asset_helper(node) and node.Parent == root_node:
+            if self.is_ftrack_node(node) and node.Parent == root_node:
                 helper_component_id = self._get_component_id_from_helper_node(node)
                 if helper_component_id == component_id:
                     self.logger.debug(
