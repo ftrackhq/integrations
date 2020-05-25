@@ -8,7 +8,7 @@ def register_ftrack_asset_helper():
     pymxs.runtime.execute(
         """
         -- Copyright (c) 2016 ftrack
-        plugin Helper FtrackAssetHelper
+        plugin Helper {plugin_name}
         name:"{plugin_name}"
         classID:#{class_id}
         invisible:true
