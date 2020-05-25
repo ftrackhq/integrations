@@ -161,9 +161,9 @@ class FtrackAssetNode(FtrackAssetBase):
 
         '''
         name = self._get_unique_node_name()
-        self.node = MaxPlus.Factory.CreateNode(self.helper_object)
-        self.node.Name = name
-        self.nodes.append(self.node)
+        self._node = MaxPlus.Factory.CreateNode(self.helper_object)
+        self._node.Name = name
+        self._nodes.append(self.node)
 
         # Try to freeze the helper object and lock the transform.
         try:
