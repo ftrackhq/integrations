@@ -23,7 +23,7 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
 
     def _run(self, event):
         self.old_data = max_utils.get_current_scene_objects()
-        self.logger.debug('Got current objects from scene')
+        self.logger.debug('Scene objects: {}'.format(len(self.old_data)))
 
         context = event['data']['settings']['context']
         self.logger.debug('Current context : {}'.format(context))
@@ -47,7 +47,7 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
 
         self.new_data = max_utils.get_current_scene_objects()
         self.logger.debug(
-            'Got all the objects in the scene after import'
+            'Scene objects after load: {}'.format(len(self.new_data))
         )
 
         self.link_to_ftrack_node(context, data, options)
