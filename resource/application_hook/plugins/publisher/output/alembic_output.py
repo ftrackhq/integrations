@@ -7,7 +7,6 @@ import maya.cmds as cmd
 import maya
 
 from ftrack_connect_pipeline_maya import plugin
-from ftrack_connect_pipeline import constants
 
 
 
