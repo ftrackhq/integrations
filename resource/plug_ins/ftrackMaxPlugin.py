@@ -9,7 +9,7 @@ def register_ftrack_asset_helper():
         """
         -- Copyright (c) 2016 ftrack
         plugin Helper FtrackAssetHelper
-        name:"FtrackAssetHelper"
+        name:"{plugin_name}"
         classID:#{class_id}
         invisible:true
         category:"Ftrack"
@@ -30,6 +30,7 @@ def register_ftrack_asset_helper():
             )
         )
         """.format(
+            plugin_name=asset_const.FTRACK_PLUGIN_TYPE,
             class_id=asset_const.FTRACK_ASSET_CLASS_ID,
             version=asset_const.VERSION,
             asset_name=asset_const.ASSET_NAME,

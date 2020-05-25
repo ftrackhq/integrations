@@ -9,7 +9,7 @@ from ftrack_connect_pipeline_3dsmax.plugin import (
 
 from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
 from ftrack_connect_pipeline_3dsmax.utils import ftrack_asset_node
-from ftrack_connect_pipeline_3dsmax import constants
+from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
 
 
 class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
@@ -42,7 +42,7 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
 
         asset_load_mode = options.get('load_mode')
 
-        if asset_load_mode and asset_load_mode == constants.OPEN_MODE:
+        if asset_load_mode and asset_load_mode == asset_const.OPEN_MODE:
             return super_result
 
         self.new_data = max_utils.get_current_scene_objects()

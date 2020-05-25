@@ -1,7 +1,6 @@
 import MaxPlus
 
 from ftrack_connect_pipeline.asset import FtrackAssetInfo, FtrackAssetBase
-from ftrack_connect_pipeline_3dsmax import constants
 from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
 import custom_commands as max_utils
 
@@ -143,7 +142,7 @@ class FtrackAssetNode(FtrackAssetBase):
         self._connect_selection()
         if (
                 self.asset_info[asset_const.ASSET_INFO_OPTIONS] !=
-                constants.SCENE_XREF_MODE
+                asset_const.SCENE_XREF_MODE
         ):
             self.reload_references_from_selection()
 
@@ -159,7 +158,7 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
         for node in MaxPlus.SelectionManager.Nodes:
             if is_ftrack_asset_helper(node) and self.get_load_mode_from_node(
-                    node) == constants.SCENE_XREF_MODE:
+                    node) == asset_const.SCENE_XREF_MODE:
                 if not max_utils.scene_XRef_imported(node):
                     self.logger.debug(u'Re-importing {0} scene xref.'.format(
                         node.Name))
