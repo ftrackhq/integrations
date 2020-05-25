@@ -89,7 +89,7 @@ def merge_max_file(file_path):
 def get_current_scene_objects():
     deselect_all()
     select_all()
-    scene_objects = []
+    scene_objects = [] #This can be converted to a set
     for obj in save_selection():
         scene_objects.append(obj)
     deselect_all()

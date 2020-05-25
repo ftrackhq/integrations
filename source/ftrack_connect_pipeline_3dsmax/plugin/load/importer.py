@@ -8,9 +8,8 @@ from ftrack_connect_pipeline_3dsmax.plugin import (
 )
 
 from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
-from ftrack_connect_pipeline_3dsmax.utils import max_alembic_commands as abc_utils
 from ftrack_connect_pipeline_3dsmax.utils import ftrack_asset_node
-from ftrack_connect_pipeline_3dsmax import constants
+from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
 
 
 class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
@@ -20,10 +19,11 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
 
         _required_output a List
     '''
+    asset_node_type = ftrack_asset_node.FtrackAssetNode
 
     def _run(self, event):
         self.old_data = max_utils.get_current_scene_objects()
-        self.logger.debug('Got current objects from scene')
+        self.logger.debug('Scene objects: {}'.format(len(self.old_data)))
 
         context = event['data']['settings']['context']
         self.logger.debug('Current context : {}'.format(context))
@@ -36,32 +36,40 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
 
         super_result = super(LoaderImporterMaxPlugin, self)._run(event)
 
-        if options.get('component_name') == 'cache':
-            options['alembic_import_args'] = abc_utils.get_str_options(
-                options
-            )
-        self.logger.debug('Alembic import options added')
-
         # TODO: Temp. remove this once options ticket is in place, this has to
         #  be assigned from the ui
-        options['load_mode'] = 'import'
+        options['load_mode'] = 'open'
 
         asset_load_mode = options.get('load_mode')
 
-        if asset_load_mode and asset_load_mode == constants.OPEN_MODE:
+        if asset_load_mode and asset_load_mode == asset_const.OPEN_MODE:
             return super_result
 
         self.new_data = max_utils.get_current_scene_objects()
         self.logger.debug(
-            'Got all the objects in the scene after import'
+            'Scene objects after load: {}'.format(len(self.new_data))
         )
 
         self.link_to_ftrack_node(context, data, options)
 
         return super_result
 
+    def _get_difference(self, new_data, old_data):
+        '''Returns the objects on on *new_data* that are not on the *old_data*
+
+        ..note:: This function is for 3dmax only as can't compare the sets.
+        '''
+        #Re constructing the list as we can't compare the list coming from max
+        old_data_list = [x for x in old_data]
+        new_data_list = [x for x in new_data]
+        diff = []
+        for obj in new_data_list:
+            if obj not in old_data_list:
+                diff.append(obj)
+        return diff
+
     def link_to_ftrack_node(self, context, data, options):
-        diff = self.new_data.difference(self.old_data)
+        diff = self._get_difference(self.new_data, self.old_data)
 
         if not diff:
             self.logger.debug('No differences found in the scene')
@@ -72,14 +80,11 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
             ' inport : {}'.format(diff)
         )
 
-        #TODo: Remove self.session argument as will not be needed when the
-        # FtrackAssetNode class is part of the core pipeline
-        ftrack_node_class = ftrack_asset_node.FtrackAssetNode(
-            context, data, options, self.session
-        )
-        ftrack_node = ftrack_node_class.init_ftrack_node()
+        ftrack_node_class = self.get_asset_node(context, data, options)
 
-        ftrack_node_class.connect_objects_to_ftrack_node(diff)
+        ftrack_node = ftrack_node_class.init_node()
+
+        ftrack_node_class.connect_objects(diff)
 
 
 class ImporterMaxWidget(pluginWidget.LoaderImporterWidget, BaseMaxPluginWidget):
