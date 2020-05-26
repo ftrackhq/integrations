@@ -7,6 +7,14 @@
 Release Notes
 *************
 
+
+.. release:: Upcoming
+
+    ..change:: fixed
+        :tags: Api
+
+        Failed to jump to index error.
+
 .. release:: 4.0
     :data: 2020-01-14
 

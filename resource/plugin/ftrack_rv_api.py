@@ -227,7 +227,7 @@ def loadPlaylist(playlist, index=None, includeFrame=None):
 
     '''
     _setWipeMode(False)
-    startFrame = None
+    startFrame = 1
 
     if not includeFrame == 'false':
         startFrame = rv.extra_commands.sourceFrame(rv.commands.frame(), None)
@@ -286,7 +286,7 @@ def ftrackCompare(data):
 
     '''
     _setWipeMode(False)
-    startFrame = None
+    startFrame = 1
     try:
         startFrame = rv.extra_commands.sourceFrame(rv.commands.frame(), None)
     except Exception:
