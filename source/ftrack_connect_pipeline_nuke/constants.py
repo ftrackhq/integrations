@@ -1,2 +1,0 @@
-HOST = 'nuke'
-UI = 'qt'

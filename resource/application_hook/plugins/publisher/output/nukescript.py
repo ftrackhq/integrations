@@ -7,7 +7,7 @@ import nuke
 from ftrack_connect_pipeline_nuke import plugin
 
 
-class OutputNukeScriptPlugin(plugin.OutputNukePlugin):
+class OutputNukeScriptPlugin(plugin.PublisherOutputNukePlugin):
     plugin_name = 'nukescript'
 
     def run(self, context=None, data=None, options=None):

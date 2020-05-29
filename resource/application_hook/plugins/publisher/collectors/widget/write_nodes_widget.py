@@ -8,19 +8,26 @@ from Qt import QtWidgets
 
 
 from ftrack_connect_pipeline_nuke import plugin
-from ftrack_connect_pipeline_qt.client.widgets import BaseWidget
+from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
+
+import nuke
 
 
+class WriteNodesNukeWidget(BaseOptionsWidget):
 
-class WriteNodesNukeWidget(BaseWidget):
+    def __init__(
+            self, parent=None, session=None, data=None, name=None,
+            description=None, options=None, context=None
+    ):
 
-    def __init__(self, session=None, data=None, name=None, description=None, options=None):
-
-        import nuke
         self.write_nodes = nuke.allNodes('Write')
 
-        super(WriteNodesNukeWidget, self).__init__(session=session, data=data, name=name,
-            description=description, options=options)
+        super(WriteNodesNukeWidget, self).__init__(
+            parent=parent,
+            session=session, data=data, name=name,
+            description=description, options=options,
+            context=context
+        )
 
     def build(self):
         super(WriteNodesNukeWidget, self).build()
@@ -37,16 +44,11 @@ class WriteNodesNukeWidget(BaseWidget):
             self.nodes_cb.setDisabled(True)
 
 
-class WriteNodesWidgetPlugin(plugin.CollectorNukeWidget):
+class WriteNodesPluginWidget(plugin.PublisherCollectorNukeWidget):
     plugin_name = 'write_node'
-
-    def run(self, data=None, name=None, description=None, options=None):
-        return WriteNodesNukeWidget(
-            session=self.session, data=data, name=name,
-            description=description, options=options
-        )
+    widget = WriteNodesNukeWidget
 
 
 def register(api_object, **kw):
-    plugin = WriteNodesWidgetPlugin(api_object)
+    plugin = WriteNodesPluginWidget(api_object)
     plugin.register()

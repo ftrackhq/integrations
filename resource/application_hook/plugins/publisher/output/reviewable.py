@@ -7,7 +7,7 @@ import nuke
 from ftrack_connect_pipeline_nuke import plugin
 
 
-class OutputReviewablePlugin(plugin.OutputNukePlugin):
+class OutputReviewablePlugin(plugin.PublisherOutputNukePlugin):
     plugin_name = 'reviewable'
 
     def run(self, context=None, data=None, options=None):
@@ -18,7 +18,9 @@ class OutputReviewablePlugin(plugin.OutputNukePlugin):
         input_node = write_node.input(0)
 
         # Generate output file name for mov.
-        temp_review_mov = tempfile.NamedTemporaryFile(delete=False, suffix='.mov').name
+        temp_review_mov = tempfile.NamedTemporaryFile(
+            delete=False, suffix='.mov'
+        ).name
 
         first = str(int(nuke.root().knob('first_frame').value()))
         last = str(int(nuke.root().knob('last_frame').value()))

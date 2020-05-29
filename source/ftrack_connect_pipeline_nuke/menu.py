@@ -1,15 +1,14 @@
 from nukescripts import panels
 
-
-def build_menu_widgets(ftrack_menu, hostid):
+def build_menu_widgets(ftrack_menu, event_manager):
 
     def wrap_publisher(*args, **kwargs):
-        from ftrack_connect_pipeline_nuke.client.publish import QtPipelineNukePublisherWidget
-        return QtPipelineNukePublisherWidget(hostid)
+        from ftrack_connect_pipeline_nuke.client.publish import NukePublisherClient
+        return NukePublisherClient(event_manager)
 
     def wrap_loader(*args, **kwargs):
-        from ftrack_connect_pipeline_nuke.client.load import QtPipelineNukeLoaderWidget
-        return QtPipelineNukeLoaderWidget(hostid)
+        from ftrack_connect_pipeline_nuke.client.load import NukeLoaderClient
+        return NukeLoaderClient(event_manager)
 
     globals()['ftrackPublishClass'] = wrap_publisher
     globals()['ftrackLoadClass'] = wrap_loader

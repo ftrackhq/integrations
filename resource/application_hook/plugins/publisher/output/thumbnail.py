@@ -7,7 +7,7 @@ import nuke
 from ftrack_connect_pipeline_nuke import plugin
 
 
-class OutputThumbnailPlugin(plugin.OutputNukePlugin):
+class OutputThumbnailPlugin(plugin.PublisherOutputNukePlugin):
     plugin_name = 'thumbnail'
 
     def run(self, context=None, data=None, options=None):
@@ -26,7 +26,9 @@ class OutputThumbnailPlugin(plugin.OutputNukePlugin):
         new_write_node = nuke.nodes.Write()
         new_write_node.setInput(0, reformat_node)
 
-        file_name = tempfile.NamedTemporaryFile(delete=False, suffix='.png').name
+        file_name = tempfile.NamedTemporaryFile(
+            delete=False, suffix='.png'
+        ).name
 
         new_write_node['file'].setValue(file_name)
         new_write_node['file_type'].setValue('png')
