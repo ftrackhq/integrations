@@ -19,7 +19,7 @@ class AbcNukeImportPlugin(plugin.LoaderImporterNukePlugin):
             import_result = nuke.createNode(
                 'ReadGeo2', 'file {}'.format(component_path)
             )
-            results[component_path] = import_result
+            results[component_path] = import_result.name()
 
         return results
 

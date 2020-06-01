@@ -9,6 +9,10 @@ import traceback
 
 import logging
 
+import nuke
+
+from ftrack_connect_pipeline_nuke.constants import asset as asset_const
+
 logger = logging.getLogger(__name__)
 
 def get_sequence_fist_last_frame(path):
@@ -52,3 +56,23 @@ def sequence_exists(filepath):
         return False
 
     return True
+
+
+def get_unique_scene_name(current_name):
+    res = nuke.toNode(str(current_name))
+    if res:
+        i = 0
+        while res:
+            unique_name = current_name + str(i)
+            res = nuke.toNode(str(current_name))
+            i = i + 1
+        return unique_name
+    else:
+        return current_name
+
+def get_nodes_with_ftrack_tab():
+    dependencies = []
+    for node in nuke.allNodes():
+        if asset_const.FTRACK_PLUGIN_TYPE in node.knobs().keys():
+            dependencies.append(node)
+    return dependencies
