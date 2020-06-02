@@ -18,8 +18,8 @@ created_dialogs = dict()
 
 
 def initialise():
-    # TODO : later we need to bring back here all the nuke initialiations from ftrack-connect-nuke
-    # such as frame start / end etc....
+    # TODO : later we need to bring back here all the nuke initialiations
+    #  from ftrack-connect-nuke such as frame start / end etc....
 
     logger.info('Setting up the menu')
     session = ftrack_api.Session(auto_connect_event_hub=False)

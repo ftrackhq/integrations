@@ -29,5 +29,6 @@ class BaseNukePluginWidget(BaseNukePlugin, pluginWidget.BasePluginWidget):
     type = 'widget'
     ui = nuke_constants.UI
 
+
 from ftrack_connect_pipeline_nuke.plugin.load import *
 from ftrack_connect_pipeline_nuke.plugin.publish import *

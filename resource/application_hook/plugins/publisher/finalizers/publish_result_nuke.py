@@ -4,6 +4,7 @@
 import os
 from ftrack_connect_pipeline_nuke import plugin
 
+
 class FtrackPublishMayaPlugin(plugin.PublisherFinaliserNukePlugin):
     plugin_name = 'result.nuke'
 

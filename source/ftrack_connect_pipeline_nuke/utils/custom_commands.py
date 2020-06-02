@@ -15,24 +15,28 @@ from ftrack_connect_pipeline_nuke.constants import asset as asset_const
 
 logger = logging.getLogger(__name__)
 
+
 def get_sequence_fist_last_frame(path):
+    '''
+    Returns first and last frame from the given *path*
+    '''
     try:
         if '%V' in path:
             path = path.replace('%V', 'left')
-        hashMatch = re.search('#+', path)
-        if hashMatch:
-            path = path[:hashMatch.start(0)] + '*' + path[hashMatch.end(0):]
+        has_match = re.search('#+', path)
+        if has_match:
+            path = path[:has_match.start(0)] + '*' + path[has_match.end(0):]
 
-        nukeFormatMatch = re.search('%\d+d', path)
-        if nukeFormatMatch:
+        nuke_format_match = re.search('%\d+d', path)
+        if nuke_format_match:
             path = (
-                path[:nukeFormatMatch.start(0)] + '*' +
-                path[nukeFormatMatch.end(0):]
+                path[:nuke_format_match.start(0)] + '*' +
+                path[nuke_format_match.end(0):]
             )
 
-        fileExtension = os.path.splitext(path)[1].replace('.', '\.')
+        file_extension = os.path.splitext(path)[1].replace('.', '\.')
         files = sorted(glob.glob(path))
-        regexp = '(\d+)' + fileExtension + ''
+        regexp = '(\d+){} '.format(file_extension)
         first = int(re.findall(regexp, files[0])[0])
         last = int(re.findall(regexp, files[-1])[0])
     except:
@@ -42,23 +46,28 @@ def get_sequence_fist_last_frame(path):
     return first, last
 
 
-def sequence_exists(filepath):
+def sequence_exists(file_path):
     seq = re.compile('(\w+).+(\%\d+d).(\w+)')
-    logger.info('searching for {}'.format(filepath))
+    logger.info('searching for {}'.format(file_path))
 
-    frames = glob.glob(filepath)
-    nfiles = len(frames)
-    logger.info('Sequence frames {}'.format(nfiles))
-    first, last = get_sequence_fist_last_frame(filepath)
+    frames = glob.glob(file_path)
+    n_files = len(frames)
+    logger.info('Sequence frames {}'.format(n_files))
+    first, last = get_sequence_fist_last_frame(file_path)
     total_frames = (last - first) + 1
     logger.info('Sequence lenght {}'.format(total_frames))
-    if nfiles != total_frames:
+    if n_files != total_frames:
         return False
 
     return True
 
 
 def get_unique_scene_name(current_name):
+    '''
+    Returns a unique name from the given *current_name*
+
+    *current_name*: string name of an object.
+    '''
     res = nuke.toNode(str(current_name))
     if res:
         i = 0
@@ -70,7 +79,11 @@ def get_unique_scene_name(current_name):
     else:
         return current_name
 
+
 def get_nodes_with_ftrack_tab():
+    '''
+    Returns all the nuke nodes that contain an ftrack tab.
+    '''
     dependencies = []
     for node in nuke.allNodes():
         if asset_const.FTRACK_PLUGIN_TYPE in node.knobs().keys():

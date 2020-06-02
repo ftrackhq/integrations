@@ -1,6 +1,5 @@
 from ftrack_connect_pipeline.asset import FtrackAssetInfo, FtrackAssetBase
 from ftrack_connect_pipeline_nuke.constants import asset as asset_const
-import custom_commands as nuke_utils
 
 import nuke
 
@@ -22,7 +21,7 @@ class FtrackAssetTab(FtrackAssetBase):
 
     def __init__(self, ftrack_asset_info, session):
         '''
-        Initialize FtrackAssetNode with *ftrack_asset_info*, and *session*.
+        Initialize FtrackAssetTab with *ftrack_asset_info*, and *session*.
 
         *ftrack_asset_info* should be the
         :class:`ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
@@ -39,16 +38,16 @@ class FtrackAssetTab(FtrackAssetBase):
 
     def _set_tab(self, ftrack_tab):
         '''
-        Sets the given *ftrack_node* as the current self.node of the class
+        Sets the given *ftrack_tab* as the current self._tab of the class
         '''
         self._tab = ftrack_tab
 
     def init_tab(self, scene_node):
         '''
-        Return the ftrack node for this class. It checks if there is already a
-        matching ftrack node in the scene, in this case it updates the node if
-        it's not. In case there is no node in the scene this function creates a
-        new one.
+        Return the scene node for this class. It checks if there is already a
+        matching ftrack tab in the scene, and the tab if needed. In case there
+        is no ftrack tab in the scene this function creates a new one on the
+        given *scene_node*.
 
         *scene_node*: Should be the string name of the scene node where you want
         to add the ftrack tab
@@ -64,9 +63,13 @@ class FtrackAssetTab(FtrackAssetBase):
         else:
             self.create_new_tab()
 
-        return self.node
+        return self.scene_node
 
     def _get_parameters_dictionary(self):
+        '''
+        Returns a dicctionary with the matching keys and values of the asset info
+        if the current scene_node have the ftrack tab.
+        '''
         param_dict = {}
         for knob in self.scene_node.allKnobs():
             if knob.name() in asset_const.KEYS:
@@ -75,11 +78,11 @@ class FtrackAssetTab(FtrackAssetBase):
 
     def get_ftrack_tab_from_nuke_obj(self):
         '''
-        Return the ftrack node of the current asset_version of the scene if
-        exists.
+        Return the ftrack tab knob of the current scene node in case the tab
+        exists and the values match the asset info values.
         '''
         for knob in self.scene_node.allKnobs():
-            if 'ftracktab' in knob.name():
+            if asset_const.FTRACK_PLUGIN_TYPE in knob.name():
                 param_dict = self._get_parameters_dictionary()
                 node_asset_info = FtrackAssetInfo(param_dict)
                 if node_asset_info.is_deprecated:
@@ -93,9 +96,8 @@ class FtrackAssetTab(FtrackAssetBase):
 
     def _check_tab_sync(self):
         '''
-        Check if the current parameters of the ftrack node match the values
+        Check if the current parameters of the ftrack tab match the values
         of the asset_info.
-
         '''
         if not self._tab or not self.scene_node:
             self.logger.warning("Ftrack tab doesn't exists")
@@ -107,16 +109,14 @@ class FtrackAssetTab(FtrackAssetBase):
         node_asset_info = FtrackAssetInfo(param_dict)
 
         if node_asset_info == self.asset_info:
-            self.logger.debug("{} is synced".format(self.node))
+            self.logger.debug("{} is synced".format(self.scene_node))
             synced = True
 
         return synced
 
     def create_new_tab(self):
         '''
-        Creates the ftrack_node with a unique name. The ftrack node is type of
-        FtrackAssetHelper.
-
+        Creates an ftrack tab to the current scene_node.
         '''
         self._tab = nuke.Tab_Knob(asset_const.FTRACK_PLUGIN_TYPE, 'ftrack')
         self.scene_node.addKnob(self.tab)
@@ -132,7 +132,8 @@ class FtrackAssetTab(FtrackAssetBase):
         return self._update_tab()
 
     def _update_tab(self):
-        '''Update the parameters of the ftrack node. And Return the ftrack node
+        '''
+        Update the parameters of the ftrack tab. And Return the scene node
         updated
         '''
 

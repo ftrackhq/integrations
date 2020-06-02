@@ -14,6 +14,7 @@ class NodeSelectorNukePlugin(plugin.PublisherCollectorNukePlugin):
         node_name = options['node_name']
         return [node_name]
 
+
 def register(api_object, **kw):
     plugin = NodeSelectorNukePlugin(api_object)
     plugin.register()

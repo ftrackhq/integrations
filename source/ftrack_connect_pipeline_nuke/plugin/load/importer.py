@@ -10,6 +10,7 @@ from ftrack_connect_pipeline_nuke.plugin import (
 from ftrack_connect_pipeline_nuke.utils import ftrack_asset_node
 from ftrack_connect_pipeline_nuke.constants import asset as asset_const
 
+
 class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
     ''' Class representing a Collector Plugin
 
@@ -57,8 +58,6 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
             ftrack_node = ftrack_node_class.init_tab(scene_node)
 
         return super_result
-
-
 
 
 class ImporterNukeWidget(pluginWidget.LoaderImporterWidget, BaseNukePluginWidget):

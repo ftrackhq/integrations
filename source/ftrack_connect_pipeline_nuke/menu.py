@@ -1,5 +1,6 @@
 from nukescripts import panels
 
+
 def build_menu_widgets(ftrack_menu, event_manager):
 
     def wrap_publisher(*args, **kwargs):

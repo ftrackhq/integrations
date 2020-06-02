@@ -14,6 +14,7 @@ class CollectWriteNodeNukePlugin(plugin.PublisherCollectorNukePlugin):
         node_name = options['node_name']
         return [node_name]
 
+
 def register(api_object, **kw):
     plugin = CollectWriteNodeNukePlugin(api_object)
     plugin.register()
