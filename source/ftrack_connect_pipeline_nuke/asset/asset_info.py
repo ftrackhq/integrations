@@ -6,12 +6,12 @@ from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
 
 class FtrackAssetInfoNuke(FtrackAssetInfo):
     '''
-    Base FtrackAssetInfoMaya class.
+    Base FtrackAssetInfoNuke class.
     '''
 
     def __init__(self, mapping, **kwargs):
         '''
-        Initialize the FtrackAssetInfoMaya with the given *mapping*.
+        Initialize the FtrackAssetInfoNuke with the given *mapping*.
 
         *mapping* Dictionary with the current asset information.
 

@@ -89,3 +89,18 @@ def get_nodes_with_ftrack_tab():
         if asset_const.FTRACK_PLUGIN_TYPE in node.knobs().keys():
             dependencies.append(node)
     return dependencies
+
+
+def reference_scene(path):
+    '''
+    Create LiveGroup from the givem *path*
+    '''
+    node = nuke.createNode(
+        'LiveGroup', 'published true file {}'.format(path), inpanel=False
+    )
+    # TODO: activate this in case any problem with the live group. Not sure if
+    #  published should be activated or not, but we have to set it to true on
+    #  creation time to avoid the override message
+    # node["published"].fromScript("0")
+    # node.reload()
+    return node

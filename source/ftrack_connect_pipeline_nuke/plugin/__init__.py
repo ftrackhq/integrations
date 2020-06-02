@@ -1,13 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-# import sys
-# import re
-# import glob
-# import os
-# import traceback
-# from ftrack_connect_pipeline import constants
-
 import nuke
 
 from ftrack_connect_pipeline import plugin
@@ -21,7 +14,12 @@ class BaseNukePlugin(plugin.BasePlugin):
     def _run(self, event):
         super_fn = super(BaseNukePlugin, self)._run
         result = super_fn(event)
-        #result = nuke.executeInMainThreadWithResult(super_fn, event)
+        #TODO: check execute in main thread function, on publish time seems to
+        # be insestable
+        
+        # result = nuke.executeInMainThreadWithResult(
+        #     super_fn, args=(event)
+        # )
         return result
 
 

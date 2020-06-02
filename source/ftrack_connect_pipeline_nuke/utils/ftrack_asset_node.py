@@ -119,6 +119,11 @@ class FtrackAssetTab(FtrackAssetBase):
         Creates an ftrack tab to the current scene_node.
         '''
         self._tab = nuke.Tab_Knob(asset_const.FTRACK_PLUGIN_TYPE, 'ftrack')
+
+        if 'published' in self.scene_node.knobs():
+            if self.scene_node.published():
+                self.scene_node["published"].fromScript("0")
+
         self.scene_node.addKnob(self.tab)
 
         for k in self.asset_info.keys():
@@ -139,6 +144,9 @@ class FtrackAssetTab(FtrackAssetBase):
 
         for k, v in self.asset_info.items():
             self.scene_node.knob(k).setValue(str(v))
+
+        if 'published' in self.scene_node.knobs():
+            self.scene_node.reload()
 
         return self.scene_node
 

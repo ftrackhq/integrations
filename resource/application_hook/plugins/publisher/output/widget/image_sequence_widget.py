@@ -35,7 +35,7 @@ class SequenceWidget(BaseOptionsWidget):
             'start_frame': 1,
             'end_frame': 10,
         }
-        format_options = [
+        self.file_formats = [
             'exr',
             'jpeg',
             'png',
@@ -43,7 +43,7 @@ class SequenceWidget(BaseOptionsWidget):
             'targa',
             'tiff'
         ]
-
+        self.default_file_format = self.options.get('file_format')
 
         self.option_group = QtWidgets.QGroupBox('Image sequence options')
         self.option_group.setToolTip(self.description)
@@ -54,10 +54,9 @@ class SequenceWidget(BaseOptionsWidget):
         img_format_text = QtWidgets.QLabel("Image format")
         self.img_format_cb = QtWidgets.QComboBox()
 
-        self.img_format_cb.addItems(format_options)
+        self.img_format_cb.addItems(self.file_formats)
         img_h_lay.addWidget(img_format_text)
         img_h_lay.addWidget(self.img_format_cb)
-
 
         range_v_lay = QtWidgets.QVBoxLayout()
         range_h_lay = QtWidgets.QHBoxLayout()
@@ -90,6 +89,10 @@ class SequenceWidget(BaseOptionsWidget):
 
         update_fn = partial(self.set_option_result, key='image_format')
         self.img_format_cb.editTextChanged.connect(update_fn)
+        if self.default_file_format:
+            index = self.img_format_cb.findText(self.default_file_format)
+            if index:
+                self.nodes_cb.setCurrentIndex(index)
         self.set_option_result(self.img_format_cb.currentText(), 'image_format')
 
         update_fn = partial(self.set_option_result, key='start_frame')
@@ -102,7 +105,7 @@ class SequenceWidget(BaseOptionsWidget):
 
 
 class ImageSequencePluginWidget(plugin.PublisherOutputNukeWidget):
-    plugin_name = 'image_sequence'
+    plugin_name = 'sequence'
     widget = SequenceWidget
 
 

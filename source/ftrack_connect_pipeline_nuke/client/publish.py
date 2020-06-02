@@ -16,9 +16,3 @@ class NukePublisherClient(QtPublisherClient):
             event_manager=event_manager, parent=parent
         )
         self.setWindowTitle('Nuke Pipeline Publisher')
-
-    # def show(self):
-    #     super(NukePublisherClient, self).show(
-    #         dockable=True, floating=False, area='right',
-    #         width=200, height=300, x=300, y=600
-    # )

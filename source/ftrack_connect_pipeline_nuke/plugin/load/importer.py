@@ -41,13 +41,15 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
 
         super_result = super(LoaderImporterNukePlugin, self)._run(event)
 
-        #TODO: if the path was nk don't do anything for now, we have to discuss it
-        ftrack_node_class = self.get_asset_node(context, data, options)
-        if (
-                ftrack_node_class.asset_info[asset_const.COMPONENT_NAME] ==
-                'nukescript'
-        ):
+        # TODO: this should come from the widget.
+        options['load_mode'] = 'Open'
+
+        asset_load_mode = options.get('load_mode')
+
+        if asset_load_mode and asset_load_mode == asset_const.OPEN_MODE:
             return super_result
+
+        ftrack_node_class = self.get_asset_node(context, data, options)
 
         result = super_result.get('result')
         if result:

@@ -6,6 +6,7 @@ FTRACK_PLUGIN_TYPE = 'ftracktab'
 # Load Modes
 IMPORT_MODE = 'Import'
 OPEN_MODE = 'Open'
+REFERENCE_MODE = 'Reference'
 
 
 from ftrack_connect_pipeline.constants.asset.v2 import *

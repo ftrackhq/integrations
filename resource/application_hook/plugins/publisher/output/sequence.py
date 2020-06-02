@@ -19,18 +19,23 @@ class OutputSequencePlugin(plugin.PublisherOutputNukePlugin):
         # Get the input of the given write node.
         input_node = write_node.input(0)
 
-        img_format = 'exr'
+        default_file_format = str(options.get('file_format'))
+        selected_file_format = str(options.get('image_format'))
+        default_file_format_options = options.get('file_format_options')
 
         # Generate output file name for mov.
         temp_name = next(tempfile._get_candidate_names())
         temp_seq_path = os.path.join(
-            tempfile.mkdtemp(), '{}.%04d.{}'.format(temp_name, img_format)
+            tempfile.mkdtemp(), '{}.%04d.{}'.format(temp_name, selected_file_format)
         )
         sequence_path = temp_seq_path
 
         write_node['file'].setValue(sequence_path)
 
-        write_node['file_type'].setValue(img_format)
+        write_node['file_type'].setValue(selected_file_format)
+        if selected_file_format == default_file_format:
+            for k, v in default_file_format_options.items():
+                write_node[k].setValue(int(v))
 
         first = str(int(write_node['first'].getValue()))
         last = str(int(write_node['last'].getValue()))
@@ -43,7 +48,6 @@ class OutputSequencePlugin(plugin.PublisherOutputNukePlugin):
 
         component_name = options['component_name']
         return {component_name: complete_sequence}
-    #Clicker library
 
 
 def register(api_object, **kw):

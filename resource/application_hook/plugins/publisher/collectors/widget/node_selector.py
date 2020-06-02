@@ -21,10 +21,9 @@ class NodeSelectorWidget(BaseOptionsWidget):
     ):
 
         self.all_nodes = nuke.allNodes()
+        self.last_selected_node = None
         if nuke.selectedNodes():
             self.last_selected_node = nuke.selectedNodes()[0]
-        else:
-            self.last_selected_node = None
 
         super(NodeSelectorWidget, self).__init__(
             parent=parent,
