@@ -24,7 +24,6 @@ class BaseNukePlugin(plugin.BasePlugin):
 
 
 class BaseNukePluginWidget(BaseNukePlugin, pluginWidget.BasePluginWidget):
-    type = 'widget'
     ui = nuke_constants.UI
 
 

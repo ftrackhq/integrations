@@ -1,12 +1,12 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 import os
-
+import clique
 import tempfile
-import nuke
 
 from ftrack_connect_pipeline_nuke import plugin
-from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
+
+import nuke
 
 
 class OutputSequencePlugin(plugin.PublisherOutputNukePlugin):
@@ -24,30 +24,31 @@ class OutputSequencePlugin(plugin.PublisherOutputNukePlugin):
         default_file_format_options = options.get('file_format_options')
 
         # Generate output file name for mov.
-        temp_name = next(tempfile._get_candidate_names())
-        temp_seq_path = os.path.join(
-            tempfile.mkdtemp(), '{}.%04d.{}'.format(temp_name, selected_file_format)
-        )
-        sequence_path = temp_seq_path
+        temp_name = tempfile.NamedTemporaryFile()
 
-        write_node['file'].setValue(sequence_path)
+        first = str(int(write_node['first'].getValue()))
+        last = str(int(write_node['last'].getValue()))
+        digit_len = int(len(last)+1)
+
+        temp_seq_path = '{}.%0{}d.{}'.format(
+            temp_name.name, digit_len, selected_file_format
+        )
+        sequence_path = clique.parse(
+            '{} [{}-{}]'.format(temp_seq_path, first, last)
+        )
+
+        write_node['file'].setValue(temp_seq_path)
 
         write_node['file_type'].setValue(selected_file_format)
         if selected_file_format == default_file_format:
             for k, v in default_file_format_options.items():
                 write_node[k].setValue(int(v))
 
-        first = str(int(write_node['first'].getValue()))
-        last = str(int(write_node['last'].getValue()))
-
         ranges = nuke.FrameRanges('{}-{}'.format(first, last))
         nuke.render(write_node, ranges)
 
-        first, last = nuke_utils.get_sequence_fist_last_frame(sequence_path)
-        complete_sequence = '{} [{}-{}]'.format(sequence_path, first, last)
-
         component_name = options['component_name']
-        return {component_name: complete_sequence}
+        return {component_name: str(sequence_path)}
 
 
 def register(api_object, **kw):

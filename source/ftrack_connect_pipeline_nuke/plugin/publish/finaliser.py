@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 import os
+import clique
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
@@ -45,6 +46,17 @@ class PublisherFinaliserNukePlugin(plugin.PublisherFinaliserPlugin, BaseNukePlug
         data = event['data']['settings']['data']
 
         for component_name, component_path in data.items():
+            self.logger.debug(
+                'removing path {} from component name {}'.format(
+                    component_path, component_name
+                )
+            )
+            if component_name == 'sequence':
+                sequence_path = clique.parse(component_path)
+                seq_paths = list(sequence_path)
+                for path in seq_paths:
+                    os.remove(path)
+                continue
             if os.path.exists(component_path):
                 os.remove(component_path)
 
