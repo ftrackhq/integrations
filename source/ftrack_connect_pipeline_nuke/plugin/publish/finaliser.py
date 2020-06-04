@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 import os
+import re
 import clique
 
 from ftrack_connect_pipeline import plugin
@@ -45,20 +46,20 @@ class PublisherFinaliserNukePlugin(plugin.PublisherFinaliserPlugin, BaseNukePlug
 
         data = event['data']['settings']['data']
 
+        cleanup_files = []
         for component_name, component_path in data.items():
-            self.logger.debug(
-                'removing path {} from component name {}'.format(
-                    component_path, component_name
-                )
-            )
-            if component_name == 'sequence':
+            if re.search(
+                    '(?<=\.)((%+\d+d)|(#+)|(%d)|(\d+))(?=\.)', component_path
+            ):
                 sequence_path = clique.parse(component_path)
                 seq_paths = list(sequence_path)
-                for path in seq_paths:
-                    os.remove(path)
-                continue
-            if os.path.exists(component_path):
-                os.remove(component_path)
+                cleanup_files.extend(seq_paths)
+            else:
+                cleanup_files.append(component_path)
+        for path in cleanup_files:
+            if os.path.exists(path):
+                os.remove(path)
+                self.logger.debug('removing path {} '.format(path))
 
         return super_result
 
