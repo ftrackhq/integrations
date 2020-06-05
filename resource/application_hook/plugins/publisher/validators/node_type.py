@@ -6,7 +6,7 @@ from ftrack_connect_pipeline_nuke import plugin
 import nuke
 
 
-class NoneEmptyValidatorPlugin(plugin.ValidatorNukePlugin):
+class NoneEmptyValidatorPlugin(plugin.PublisherValidatorNukePlugin):
     plugin_name = 'node_type'
 
     def run(self, context=None, data=None, options=None):

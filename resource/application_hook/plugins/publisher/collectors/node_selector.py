@@ -6,13 +6,16 @@ import nuke
 from ftrack_connect_pipeline_nuke import plugin
 
 
-class CollectNukeScenePlugin(plugin.PublisherCollectorNukePlugin):
-    plugin_name = 'nukescene'
+class NodeSelectorNukePlugin(plugin.PublisherCollectorNukePlugin):
+    plugin_name = 'node_selector'
 
     def run(self, context=None, data=None, options=None):
-        return [nuke.root().knob('name').value()]
+
+        node_name = options['node_name']
+        return [node_name]
 
 
 def register(api_object, **kw):
-    plugin = CollectNukeScenePlugin(api_object)
+    plugin = NodeSelectorNukePlugin(api_object)
     plugin.register()
+
