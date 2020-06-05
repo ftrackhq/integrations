@@ -12,7 +12,7 @@ class FileExistsValidatorPlugin(plugin.PublisherValidatorNukePlugin):
         if os.path.exists(scene_path):
             return True
         else:
-            self.logger.debug("Nuke Scene is not saved")
+            self.logger.debug("Nuke Scene file does not exists")
         return False
 
 
