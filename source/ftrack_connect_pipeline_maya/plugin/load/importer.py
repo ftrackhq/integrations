@@ -36,13 +36,13 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
 
         super_result = super(LoaderImporterMayaPlugin, self)._run(event)
 
-        # TODO: Temp. remove this once options ticket is in place, this has to
-        #  be assigned from the ui
-        options['load_mode'] = 'open'
+        # # TODO: Temp. remove this once options ticket is in place, this has to
+        # #  be assigned from the ui
+        # options['load_mode'] = 'open'
 
         asset_load_mode = options.get('load_mode')
 
-        if asset_load_mode and asset_load_mode == asset_const.OPEN_MODE:
+        if not asset_load_mode or asset_load_mode == asset_const.OPEN_MODE:
             return super_result
 
         self.new_data = maya_utils.get_current_scene_objects()
@@ -73,7 +73,7 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
 
 
 
-class ImporterMayaWidget(pluginWidget.LoaderImporterWidget, BaseMayaPluginWidget):
+class LoaderImporterMayaWidget(pluginWidget.LoaderImporterWidget, BaseMayaPluginWidget):
     ''' Class representing a Collector Widget
 
     .. note::
