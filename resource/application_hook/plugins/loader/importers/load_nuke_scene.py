@@ -5,8 +5,6 @@ from ftrack_connect_pipeline_nuke import plugin
 from ftrack_connect_pipeline_nuke.constants import asset as asset_const
 from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
 
-import nuke
-
 
 class ImportNukePlugin(plugin.LoaderImporterNukePlugin):
     plugin_name = 'load_nuke'

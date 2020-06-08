@@ -10,8 +10,6 @@ class AbcNukeImportPlugin(plugin.LoaderImporterNukePlugin):
     plugin_name = 'abc_nuke_import'
 
     def run(self, context=None, data=None, options=None):
-        # ensure to load the alembic plugin
-
         results = {}
         paths_to_import = data
         for component_path in paths_to_import:

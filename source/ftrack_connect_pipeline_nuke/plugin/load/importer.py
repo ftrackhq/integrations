@@ -42,7 +42,7 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
 
         asset_load_mode = options.get('load_mode')
 
-        if not asset_load_mode or asset_load_mode == asset_const.OPEN_MODE:
+        if asset_load_mode == asset_const.OPEN_MODE:
             return super_result
 
         ftrack_node_class = self.get_asset_node(context, data, options)
