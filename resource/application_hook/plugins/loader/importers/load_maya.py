@@ -5,17 +5,12 @@ import os
 
 from ftrack_connect_pipeline_maya import plugin
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
-from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
 
 
 class LoadMayaPlugin(plugin.LoaderImporterMayaPlugin):
     plugin_name = 'load_maya'
 
-    load_modes = {
-        asset_const.OPEN_MODE: maya_utils.open_file,
-        asset_const.IMPORT_MODE: maya_utils.import_file,
-        asset_const.REFERENCE_MODE: maya_utils.reference_file
-    }
+    load_modes = asset_const.LOAD_MODES
 
     def _get_maya_options(self, load_options):
         maya_options = {}

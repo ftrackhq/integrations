@@ -11,11 +11,7 @@ from Qt import QtCore, QtWidgets
 
 
 class LoadMayaWidget(LoadBaseWidget):
-    load_modes = [
-        asset_const.OPEN_MODE,
-        asset_const.IMPORT_MODE,
-        asset_const.REFERENCE_MODE
-    ]
+    load_modes = asset_const.LOAD_MODES.keys()
 
     def __init__(
             self, parent=None, session=None, data=None, name=None,
