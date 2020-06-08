@@ -15,6 +15,8 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
     plugin_type = constants.PLUGIN_LOADER_IMPORTER_TYPE
     _required_output = {}
 
+    load_modes = {}
+
     def __init__(self, session):
         '''Initialise LoaderImporterPlugin with *session*
 
