@@ -37,10 +37,8 @@ class ImportNukePlugin(plugin.LoaderImporterNukePlugin):
 
             load_result = load_mode_fn(component_path, nuke_options)
             if load_mode != asset_const.OPEN_MODE:
-                self.logger.info("setting it with name")
                 results[component_path] = load_result.name()
             else:
-                self.logger.info("setting it with no name")
                 results[component_path] = load_result
 
         return results

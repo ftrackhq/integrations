@@ -10,11 +10,22 @@ from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline_nuke.menu import build_menu_widgets
 
 import ftrack_api
+import nuke
 
 
 logger = logging.getLogger('ftrack_connect_pipeline_nuke.scripts.userSetup')
 
 created_dialogs = dict()
+
+def get_ftrack_menu(menu_name = 'ftrack_pipeline'):
+    '''Get the current ftrack menu, create it if does not exists.'''
+
+    nuke_menu = nuke.menu("Nuke")
+    ftrack_menu = nuke_menu.findItem('ftrack_pipeline')
+    if not ftrack_menu:
+        ftrack_menu = nuke_menu.addMenu(menu_name)
+
+    return ftrack_menu
 
 
 def initialise():
@@ -33,7 +44,7 @@ def initialise():
         'USED-FTRACK-CONNECT-PIPELINE-NUKE'
     )
 
-    ftrack_menu = nuke_host.get_ftrack_menu()
+    ftrack_menu = get_ftrack_menu()
 
     build_menu_widgets(ftrack_menu, event_manager)
 
