@@ -34,6 +34,9 @@ class Camera3dsMaxWidget(BaseOptionsWidget):
         super(Camera3dsMaxWidget, self).build()
         self.nodes_cb = QtWidgets.QComboBox()
         self.layout().addWidget(self.nodes_cb)
+
+    def post_build(self):
+        super(Camera3dsMaxWidget, self).post_build()
         camera_names = self.cameras
         if camera_names:
             self.nodes_cb.addItems(camera_names)

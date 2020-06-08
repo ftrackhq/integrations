@@ -36,13 +36,10 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
 
         super_result = super(LoaderImporterMaxPlugin, self)._run(event)
 
-        # TODO: Temp. remove this once options ticket is in place, this has to
-        #  be assigned from the ui
-        options['load_mode'] = 'open'
-
         asset_load_mode = options.get('load_mode')
 
-        if asset_load_mode and asset_load_mode == asset_const.OPEN_MODE:
+        # TODO: check if not asset_load_mode, because what happend loading the seq for example
+        if not asset_load_mode and asset_load_mode == asset_const.OPEN_MODE:
             return super_result
 
         self.new_data = max_utils.get_current_scene_objects()
@@ -87,7 +84,7 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
         ftrack_node_class.connect_objects(diff)
 
 
-class ImporterMaxWidget(pluginWidget.LoaderImporterWidget, BaseMaxPluginWidget):
+class LoaderImporterMaxWidget(pluginWidget.LoaderImporterWidget, BaseMaxPluginWidget):
     ''' Class representing a Collector Widget
 
     .. note::
