@@ -38,7 +38,6 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
 
         asset_load_mode = options.get('load_mode')
 
-        # TODO: check if not asset_load_mode, because what happend loading the seq for example
         if not asset_load_mode or asset_load_mode == asset_const.OPEN_MODE:
             return super_result
 
