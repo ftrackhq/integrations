@@ -9,12 +9,7 @@ from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
 
 
 class Load3dsMaxWidget(LoadBaseWidget):
-    load_modes = [
-        asset_const.OPEN_MODE,
-        asset_const.IMPORT_MODE,
-        asset_const.SCENE_XREF_MODE,
-        asset_const.OBJECT_XREF_MODE
-    ]
+    load_modes = asset_const.LOAD_MODES.keys()
 
 class Load3dsMaxPluginWidget(plugin.LoaderImporterMaxWidget):
     plugin_name = 'load_max'
