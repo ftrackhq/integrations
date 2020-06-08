@@ -2,13 +2,15 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 from ftrack_connect_pipeline_maya import plugin
-from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
+from ftrack_connect_pipeline_qt.client.widgets.options.load_widget import (
+    LoadBaseWidget
+)
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
 
 from Qt import QtCore, QtWidgets
 
 
-class LoadMayaWidget(BaseOptionsWidget):
+class LoadMayaWidget(LoadBaseWidget):
     load_modes = [
         asset_const.OPEN_MODE,
         asset_const.IMPORT_MODE,
@@ -26,20 +28,6 @@ class LoadMayaWidget(BaseOptionsWidget):
 
     def build(self):
         super(LoadMayaWidget, self).build()
-
-        self.default_mode = self.options.get('load_mode', self.load_modes[0])
-        self.default_options = self.options.get('load_options', {})
-        self.button_group = QtWidgets.QButtonGroup(self)
-        grid_lay = QtWidgets.QGridLayout()
-        col_row = (0, 0)
-        for mode in self.load_modes:
-            r_b = QtWidgets.QRadioButton(mode)
-            self.button_group.addButton(r_b)
-            grid_lay.addWidget(r_b, col_row[0], col_row[1])
-            if col_row[1] < 1:
-                col_row = (col_row[0], col_row[1]+1)
-            else:
-                col_row = (col_row[0]+1, 0)
 
         self.options_gb = QtWidgets.QGroupBox('Options')
         options_lay = QtWidgets.QVBoxLayout()
@@ -74,16 +62,10 @@ class LoadMayaWidget(BaseOptionsWidget):
 
         self.options_gb.setLayout(options_lay)
 
-        self.layout().addLayout(grid_lay)
         self.layout().addWidget(self.options_gb)
-
 
     def post_build(self):
         super(LoadMayaWidget, self).post_build()
-
-        self.button_group.buttonClicked.connect(
-            self._on_load_mode_changed
-        )
 
         self.preserve_ref_cb.stateChanged.connect(self._on_set_preserve_ref)
 
@@ -97,13 +79,8 @@ class LoadMayaWidget(BaseOptionsWidget):
 
         self.custom_name_le.textChanged.connect(self._on_set_custom_namespace)
 
-        self._set_defaults()
-
-    def _set_defaults(self):
-        for button in self.button_group.buttons():
-            if button.text() == self.default_mode:
-                button.setChecked(True)
-                self._on_load_mode_changed(button)
+    def set_defaults(self):
+        super(LoadMayaWidget, self).set_defaults()
 
         self.add_namespace_cb.setChecked(
             self.default_options.get('add_namespace', False)
@@ -132,18 +109,18 @@ class LoadMayaWidget(BaseOptionsWidget):
     def _on_load_mode_changed(self, radio_button):
         '''set the result options of value for the key.'''
         if radio_button.text() == asset_const.OPEN_MODE:
-            self.options_gb.hide()#setDisabled(True)
+            self.options_gb.hide()
         else:
-            self.options_gb.show()#setDisabled(False)
-        self.set_option_result(radio_button.text(), key='load_mode')
+            self.options_gb.show()
+        super(LoadMayaWidget, self)._on_load_mode_changed(radio_button)
 
     def _on_namespace_status_changed(self, value):
         '''Updates the options dictionary with provided *path* when
         textChanged of line_edit event is triggered'''
         if value:
-            self.namespace_options_gb.show()#.setDisabled(False)
+            self.namespace_options_gb.show()
         else:
-            self.namespace_options_gb.hide()#.setDisabled(True)
+            self.namespace_options_gb.hide()
         self._update_load_options('add_namespace', value)
 
     def _on_namespace_option_changed(self, radio_button):
@@ -162,6 +139,7 @@ class LoadMayaWidget(BaseOptionsWidget):
     def _update_load_options(self, k, v):
         self.default_options[k] = v
         self.set_option_result(self.default_options, key='load_options')
+
 
 class LoadMayaPluginWidget(plugin.LoaderImporterMayaWidget):
     plugin_name = 'load_maya'

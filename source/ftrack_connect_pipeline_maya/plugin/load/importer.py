@@ -36,12 +36,9 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
 
         super_result = super(LoaderImporterMayaPlugin, self)._run(event)
 
-        # # TODO: Temp. remove this once options ticket is in place, this has to
-        # #  be assigned from the ui
-        # options['load_mode'] = 'open'
-
         asset_load_mode = options.get('load_mode')
 
+        # TODO: check if not asset_load_mode, because what happend loading the seq for example
         if not asset_load_mode or asset_load_mode == asset_const.OPEN_MODE:
             return super_result
 
