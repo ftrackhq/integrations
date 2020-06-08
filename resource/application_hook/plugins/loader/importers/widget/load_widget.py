@@ -9,11 +9,7 @@ from ftrack_connect_pipeline_nuke.constants import asset as asset_const
 
 
 class LoadNukeWidget(LoadBaseWidget):
-    load_modes = [
-        asset_const.OPEN_MODE,
-        asset_const.IMPORT_MODE,
-        asset_const.REFERENCE_MODE
-    ]
+    load_modes = asset_const.LOAD_MODES.keys()
 
 
 class LoadNukePluginWidget(plugin.LoaderImporterNukeWidget):
