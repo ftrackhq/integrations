@@ -37,16 +37,15 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
         self.logger.debug('Current data : {}'.format(data))
 
         options = event['data']['settings']['options']
-        self.logger.debug('Current options : {}'.format(options))
+        self.logger.info('Current options : {}'.format(options))
 
         super_result = super(LoaderImporterNukePlugin, self)._run(event)
 
-        # TODO: this should come from the widget.
-        options['load_mode'] = 'Open'
-
         asset_load_mode = options.get('load_mode')
+        self.logger.info('asset_load_mode : {}'.format(asset_load_mode))
 
-        if asset_load_mode and asset_load_mode == asset_const.OPEN_MODE:
+        #TODO: check if not asset_load_mode, because what happend loading the seq for example
+        if not asset_load_mode or asset_load_mode == asset_const.OPEN_MODE:
             return super_result
 
         ftrack_node_class = self.get_asset_node(context, data, options)
@@ -62,7 +61,7 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
         return super_result
 
 
-class ImporterNukeWidget(pluginWidget.LoaderImporterWidget, BaseNukePluginWidget):
+class LoaderImporterNukeWidget(pluginWidget.LoaderImporterWidget, BaseNukePluginWidget):
     ''' Class representing a Collector Widget
 
     .. note::

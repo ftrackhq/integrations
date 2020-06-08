@@ -91,7 +91,7 @@ def get_nodes_with_ftrack_tab():
     return dependencies
 
 
-def reference_scene(path):
+def reference_scene(path, options):
     '''
     Create LiveGroup from the givem *path*
     '''
@@ -104,3 +104,17 @@ def reference_scene(path):
     # node["published"].fromScript("0")
     # node.reload()
     return node
+
+def open_scene(path, options):
+    '''
+    Create LiveGroup from the givem *path*
+    '''
+    result = nuke.scriptOpen(path)
+    return result
+
+def import_scene(path, options):
+    '''
+    Create LiveGroup from the givem *path*
+    '''
+    result = nuke.nodePaste(path)
+    return result
