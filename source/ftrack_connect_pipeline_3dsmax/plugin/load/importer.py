@@ -38,8 +38,7 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
 
         asset_load_mode = options.get('load_mode')
 
-        # TODO: check if not asset_load_mode, because what happend loading the seq for example
-        if not asset_load_mode and asset_load_mode == asset_const.OPEN_MODE:
+        if asset_load_mode == asset_const.OPEN_MODE:
             return super_result
 
         self.new_data = max_utils.get_current_scene_objects()
