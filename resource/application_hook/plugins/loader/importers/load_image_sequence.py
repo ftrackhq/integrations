@@ -13,7 +13,6 @@ class ImportNukePlugin(plugin.LoaderImporterNukePlugin):
     plugin_name = 'import_image_sequence'
 
     def run(self, context=None, data=None, options=None):
-        #Add options import, open, reference
         results = {}
         paths_to_import = data
         for component_path in paths_to_import:
