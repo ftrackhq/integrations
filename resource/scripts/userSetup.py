@@ -17,6 +17,27 @@ logger = logging.getLogger('ftrack_connect_pipeline_maya.scripts.userSetup')
 
 created_dialogs = dict()
 
+def get_ftrack_menu(menu_name = 'ftrack_pipeline'):
+    '''Get the current ftrack menu, create it if does not exists.'''
+    gMainWindow = mm.eval('$temp1=$gMainWindow')
+
+    if mc.menu(
+            menu_name,
+            exists=True,
+            parent=gMainWindow,
+            label=menu_name
+    ):
+        menu = menu_name
+
+    else:
+        menu = mc.menu(
+            menu_name,
+            parent=gMainWindow,
+            tearOff=False,
+            label=menu_name
+        )
+
+    return menu
 
 def _open_dialog(dialog_class, event_manager):
     '''Open *dialog_class* and create if not already existing.'''
@@ -64,7 +85,7 @@ def initialise():
         (publish.MayaPublisherClient, 'Publisher')
     )
 
-    ftrack_menu = maya_host.get_ftrack_menu()
+    ftrack_menu = get_ftrack_menu()
     # Register and hook the dialog in ftrack menu
     for item in dialogs:
         if item == 'divider':
