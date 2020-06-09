@@ -34,11 +34,15 @@ class Viewport3dsMaxWidget(BaseOptionsWidget):
         super(Viewport3dsMaxWidget, self).build()
         self.nodes_cb = QtWidgets.QComboBox()
         self.layout().addWidget(self.nodes_cb)
+
+    def post_build(self):
+        super(Viewport3dsMaxWidget, self).post_build()
         if self.viewports:
             for label, index in self.viewports:
                 self.nodes_cb.addItem(label, index)
             self.nodes_cb.currentIndexChanged.connect(self._process_change)
-            self.set_option_result(self.nodes_cb.currentData(), 'viewport_index')
+            self.set_option_result(self.nodes_cb.currentData(),
+                                   'viewport_index')
         else:
             self.nodes_cb.addItem('No Viewport found.')
             self.nodes_cb.setDisabled(True)

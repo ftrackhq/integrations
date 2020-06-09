@@ -4,7 +4,7 @@
 import MaxPlus
 
 
-def import_scene_XRef(file_path):
+def import_scene_XRef(file_path, options=None):
     '''Import a Max scene file as a Scene XRef asset.'''
     cmd = '''
     scn = xrefs.addNewXRefFile @"{0}"
@@ -24,7 +24,7 @@ def re_import_scene_XRef(file_path, parent_helper_node_name):
     eval_max_script(cmd)
 
 
-def import_obj_XRefs(file_path):
+def import_obj_XRefs(file_path, options=None):
     '''Import all the objects in a Max scene file as Object XRefs and parent
     them under an existing helper node.'''
     cmd = '''
@@ -36,7 +36,7 @@ def import_obj_XRefs(file_path):
     eval_max_script(cmd)
 
 
-def open_scene(file_path):
+def open_scene(file_path, options=None):
     '''Open a Max scene file.'''
     fm = MaxPlus.FileManager
     return fm.Open(file_path, True, True, True, False)
@@ -79,7 +79,7 @@ def scene_XRef_imported(ftrack_node):
     return MaxPlus.Core.EvalMAXScript(cmd).Get()
 
 
-def merge_max_file(file_path):
+def merge_max_file(file_path, options=None):
     '''Import a Max scene into the current scene.'''
     return eval_max_script(
         'mergemaxfile @"{0}" #autoRenameDups #neverReparent #select'.format(
@@ -89,7 +89,7 @@ def merge_max_file(file_path):
 def get_current_scene_objects():
     deselect_all()
     select_all()
-    scene_objects = [] #This can be converted to a set
+    scene_objects = []
     for obj in save_selection():
         scene_objects.append(obj)
     deselect_all()
