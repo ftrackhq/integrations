@@ -23,6 +23,9 @@ class LoadBaseWidget(BaseOptionsWidget):
     def build(self):
         super(LoadBaseWidget, self).build()
 
+        if not self.load_modes:
+            raise Exception('No Load Modes defined')
+
         self.default_mode = self.options.get('load_mode', self.load_modes[0])
         self.default_options = self.options.get('load_options', {})
         self.button_group = QtWidgets.QButtonGroup(self)
