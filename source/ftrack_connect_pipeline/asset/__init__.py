@@ -66,5 +66,10 @@ class FtrackAssetBase(object):
         '''
         self._node = ftrack_node
 
-    # def get_version
-    # def set_version
+    def get_available_asset_versions(self):
+        asset = self.session.get('Asset', self.asset_info['asset_id'])
+        return asset['versions']
+
+    def set_asset_version(self, asset_version_id):
+        asset_version = self.session.get('AssetVersion', asset_version_id)
+        self.asset_info.update_asset_version(asset_version)
