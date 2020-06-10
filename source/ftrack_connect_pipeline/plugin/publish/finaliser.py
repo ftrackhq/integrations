@@ -100,7 +100,7 @@ class PublisherFinaliserPlugin(base.BaseFinaliserPlugin):
 
         results = {}
 
-        for component_name, component_path in data.items():
+        for component_name, component_path in list(data.items()):
             publish_component_fn = self.component_functions.get(
                 component_name, self.create_component
             )

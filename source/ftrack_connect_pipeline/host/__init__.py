@@ -107,7 +107,7 @@ class Host(object):
 
         validated_result = self.validate(raw_result)
 
-        for key, value in validated_result.items():
+        for key, value in list(validated_result.items()):
             logger.info('Valid packages : {} : {}'.format(key, len(value)))
 
         self.__registry = validated_result

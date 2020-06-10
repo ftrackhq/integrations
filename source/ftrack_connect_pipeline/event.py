@@ -74,7 +74,7 @@ class EventManager(object):
 
             # Mock async event reply.
             new_event = ftrack_api.event.base.Event(
-                topic=u'ftrack.meta.reply',
+                topic='ftrack.meta.reply',
                 data=result,
                 in_reply_to_event=event['id'],
             )

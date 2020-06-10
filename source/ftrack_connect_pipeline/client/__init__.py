@@ -171,7 +171,7 @@ class Client(object):
 
     @context.setter
     def context(self, context_id):
-        if not isinstance(context_id, basestring):
+        if not isinstance(context_id, str):
             raise ValueError('Context should be in form of a string.')
 
         self._context_id = context_id

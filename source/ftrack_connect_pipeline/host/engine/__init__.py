@@ -269,13 +269,13 @@ class BaseEngine(object):
         finaliser_data = {}
         for item in components_result:
             last_component = constants.OUTPUT
-            if constants.POST_IMPORT in item.keys():
+            if constants.POST_IMPORT in list(item.keys()):
                 last_component = constants.POST_IMPORT
             for output in item.get(last_component):
                 if not output:
                     continue
 
-                for key, value in output.items():
+                for key, value in list(output.items()):
                     finaliser_data[key] = value
 
         finalisers_status, finalisers_result = self.run_finaliser(

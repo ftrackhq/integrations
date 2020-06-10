@@ -86,7 +86,7 @@ class FtrackAssetInfo(dict):
         #         new_mapping[k] = v
 
         new_mapping = {}
-        for k, v in mapping.items():
+        for k, v in list(mapping.items()):
             if k in constants.KEYS:
                 new_mapping[k] = v
         if not new_mapping:
