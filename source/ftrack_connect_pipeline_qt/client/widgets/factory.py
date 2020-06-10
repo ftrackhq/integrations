@@ -118,10 +118,10 @@ class WidgetFactory(QtWidgets.QWidget):
         if 'properties' in schema_fragment:
             schema_fragment_properties = OrderedDict(
                 sorted(
-                    schema_fragment['properties'].items(),
+                    list(schema_fragment['properties'].items()),
                     key=lambda pair: schema_fragment_order.index(pair[0])
                     if pair[0] in schema_fragment_order
-                    else len(schema_fragment['properties'].keys()) - 1)
+                    else len(list(schema_fragment['properties'].keys())) - 1)
             )
             schema_fragment['properties'] = schema_fragment_properties
 

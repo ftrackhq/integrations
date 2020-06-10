@@ -64,12 +64,12 @@ class AccordionWidget(QtWidgets.QWidget):
 
         all_bool_status = [
             pipeline_constants.status_bool_mapping[_status]
-            for _status in self._inner_widget_status.values()
+            for _status in list(self._inner_widget_status.values())
         ]
         if all(all_bool_status):
             self.set_status(constants.SUCCESS_STATUS, None)
         else:
-            if constants.RUNNING_STATUS in self._inner_widget_status.values():
+            if constants.RUNNING_STATUS in list(self._inner_widget_status.values()):
                 self.set_status(constants.RUNNING_STATUS, None)
             else:
                 self.set_status(constants.ERROR_STATUS, None)

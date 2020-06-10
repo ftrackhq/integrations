@@ -3,8 +3,8 @@
 
 import os
 import logging
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 
 from Qt import QtCore, QtGui, QtWidgets
 
@@ -96,7 +96,7 @@ class Base(QtWidgets.QLabel):
         placeholder = self.placholderThumbnail
         try:
             response = opener_callback(url, timeout=timeout)
-        except urllib2.URLError:
+        except urllib.error.URLError:
             response = opener_callback(placeholder)
 
         return response
@@ -113,12 +113,12 @@ class Base(QtWidgets.QLabel):
                 else:
                     httpHandle = 'http'
 
-                proxy = urllib2.ProxyHandler({httpHandle: ftrackProxy})
-                opener = urllib2.build_opener(proxy)
+                proxy = urllib.request.ProxyHandler({httpHandle: ftrackProxy})
+                opener = urllib.request.build_opener(proxy)
                 response = self._safeDownload(url, opener.open)
                 html = response.read()
             else:
-                response = self._safeDownload(url, urllib2.urlopen)
+                response = self._safeDownload(url, urllib.request.urlopen)
                 html = response.read()
 
             return html
@@ -173,7 +173,7 @@ class User(EllipseBase):
         if not component:
             return
 
-        params = urllib.urlencode({
+        params = urllib.parse.urlencode({
             'id': component['id'],
             'username': self.session.api_user,
             'apiKey': self.session.api_key

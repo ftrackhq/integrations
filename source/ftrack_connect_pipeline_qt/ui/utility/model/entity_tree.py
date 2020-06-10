@@ -397,7 +397,7 @@ class EntityTreeModel(QtCore.QAbstractItemModel):
                 app.processEvents()
 
             if worker.error:
-                raise worker.error[1], None, worker.error[2]
+                raise worker.error[1].with_traceback(worker.error[2])
 
             additionalChildren = worker.result
 
@@ -489,7 +489,7 @@ class EntityTreeProxyModel(QtCore.QSortFilterProxyModel):
             return []
 
         matches = sourceModel.match(self.mapToSource(start), *args, **kwargs)
-        return map(self.mapFromSource, matches)
+        return list(map(self.mapFromSource, matches))
 
     def item(self, index):
         '''Return item at *index*.'''
