@@ -8,12 +8,6 @@ from Qt import QtWidgets, QtCore, QtGui
 class AssetManagerModel(QtCore.QAbstractTableModel):
     '''Model representing AssetManager.'''
 
-    #: Signal that a loading operation has started.
-    # loadStarted = QtCore.Signal()
-    #
-    # #: Signal that a loading operation has ended.
-    # loadEnded = QtCore.Signal()
-
     def __init__(self, ftrack_asset_list=None, parent=None):
         '''Initialise with *root* entity and optional *parent*.'''
         super(AssetManagerModel, self).__init__(parent=parent)
@@ -25,13 +19,8 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
 
         *parent* QModelIndex
         '''
-        # if parent.column() > 0:
-        #     return 0
-        #
-        # if parent.isValid():
-        #     item = parent.internalPointer()
-        # else:
-        #     item = self.ftrack_asset
+        if parent.column() > 0:
+            return 0
 
         return len(self.ftrack_asset_list)
 
@@ -40,25 +29,29 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         return len(self.columns)
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
-        if not index.isValid() or not 0 <= index.row() < self.rowCount():
-            return None
-        if not index.isValid() or not 0 <= index.column() < self.columnCount():
-            return None
 
-        column = index.column()
         row = index.row()
-        item = self.ftrack_asset_list[row]
+        column = index.column()
 
+        if not index.isValid():
+            return None
+
+        item = self.ftrack_asset_list[row]
+        data = item.asset_info[self.columns[column]]
         if role == QtCore.Qt.DisplayRole:
-            return item.asset_info[self.columns[column]]
+            # print 'display role', self.columns[column], data
+            return data
+
         elif role == QtCore.Qt.EditRole:
-            print "edit role"
-            return item.asset_info[self.columns[column]]
+            # print 'edit role', self.columns[column], data
+            return data
+
         elif role == QtCore.Qt.BackgroundRole:
             if item.is_latest:
                 return QtGui.QBrush(QtGui.QColor(155, 250, 218, 255))
             else:
                 return QtGui.QBrush(QtGui.QColor(250, 171, 155, 255))
+
         return None
 
     def headerData(self, section, orientation, role):
@@ -71,13 +64,15 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         return None
 
     def setData(self, index, value, role=QtCore.Qt.EditRole):
+        print role
         if role == QtCore.Qt.EditRole:
-            print "set data"
             if value:
                 self.ftrack_asset_list[index.row()].change_version(value)
                 self.dataChanged.emit(index, index)
                 return True
             return False
+        else:
+            return super(AssetManagerModel, self).setData(index, value, role)
 
     def flags(self, index):
         if (index.column() == self.get_version_column_idx()):

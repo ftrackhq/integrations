@@ -51,7 +51,6 @@ class AssetManagerTableView(QtWidgets.QTableView):
             model.get_version_column_idx(), self.version_cb_delegate
         )
 
-
     def post_build(self):
         '''Perform post-construction operations.'''
         pass

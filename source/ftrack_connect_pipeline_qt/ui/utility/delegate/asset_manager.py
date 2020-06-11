@@ -3,6 +3,7 @@
 
 from Qt import QtWidgets, QtCore, QtGui
 
+
 class VersionDelegate(QtWidgets.QItemDelegate):
 
     def __init__(self, parent=None):
@@ -15,20 +16,22 @@ class VersionDelegate(QtWidgets.QItemDelegate):
         combo = QtWidgets.QComboBox(parent)
         for asset_version in versions_collection:
             combo.addItem(str(asset_version['version']), asset_version['id'])
-            #TODO:pass the asset_version(ftrack object) as a role ftrack role
-        combo.currentIndexChanged.connect(self.currentItemChanged)
+
+        combo.installEventFilter(self)
         return combo
 
     def setEditorData(self, editor, index):
-        print "index --> {}".format(index)
-        print "setting editor data"
         editor.blockSignals(True)
+        editor_data = int(index.model().data(index, QtCore.Qt.EditRole))
         editor.setCurrentIndex(
-            int(index.model().data(index, QtCore.Qt.EditRole))
+            editor_data
         )
         editor.blockSignals(False)
 
     def setModelData(self, editor, model, index):
+        if not index.isValid():
+            return False
+
         model.setData(
             index, editor.itemData(editor.currentIndex()), QtCore.Qt.EditRole
         )
