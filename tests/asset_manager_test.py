@@ -24,27 +24,19 @@ event_manager = event.EventManager(
     session=session, mode=constants.LOCAL_EVENT_MODE
 )
 
+versions = session.query(
+    'select asset from AssetVersion where asset_id != None'
+).all()
 
-temp_asset_info ={'asset_id':'123', 'asset_name':'asad', 'asset_type':"vava",
-                  'version_id':"2123", 'version_number':"23"}
-asset_info = FtrackAssetInfo(temp_asset_info)
+asset_versions = versions[:10]
+ftrack_asset_list = []
 
-temp_asset_info_d ={
-    'asset_id':'1a9ad271-6873-4c8c-9567-b2cac15da92e',
-    'asset_name':'nukeTest',
-    'asset_type':"'Image Sequence'",
-    'version_id':"02f21458-10d3-45e6-be78-c7a8e034cc2f",
-    'version_number':"34"
-}
-asset_info_d = FtrackAssetInfo(temp_asset_info_d)
+for version in asset_versions:
+    asset_info = FtrackAssetInfo()
+    qasset_info = QFtrackAsset(asset_info, session)
+    qasset_info.change_version(version['id'])
+    ftrack_asset_list.append(qasset_info)
 
-
-ftrack_asset=QFtrackAsset(asset_info, session)
-ftrack_asset_d=QFtrackAsset(asset_info_d, session)
-
-ftrack_asset_list=[]
-ftrack_asset_list.append(ftrack_asset)
-ftrack_asset_list.append(ftrack_asset_d)
 
 wid = AssetManagerTableView(ftrack_asset_list, session)
 wid.show()
