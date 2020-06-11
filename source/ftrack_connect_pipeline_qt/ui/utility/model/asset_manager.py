@@ -20,7 +20,7 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         self.ftrack_asset_list = ftrack_asset_list
         self.columns = self.ftrack_asset_list[0].asset_info.keys()
 
-    def rowCount(self, parent):
+    def rowCount(self, parent=QtCore.QModelIndex()):
         '''Return number of children *parent* index has.
 
         *parent* QModelIndex
@@ -35,17 +35,23 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
 
         return len(self.ftrack_asset_list)
 
-    def columnCount(self, parent):
+    def columnCount(self, parent=QtCore.QModelIndex()):
         '''Return amount of data *parent* index has.'''
         return len(self.columns)
 
-    def data(self, index, role=QtCore.Qt.DisplayRole):#role):
-        if role != QtCore.Qt.DisplayRole:
+    def data(self, index, role=QtCore.Qt.DisplayRole):
+        if not index.isValid() or not 0 <= index.row() < self.rowCount():
             return None
-            #return QtCore.QVariant()
+        if not index.isValid() or not 0 <= index.column() < self.columnCount():
+            return None
+
         column = index.column()
-        item = index.internalPointer()
-        return self.ftrack_asset_list[index.row()].asset_info[self.columns[index.column()]]
+        row = index.row()
+
+        if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole:
+            return self.ftrack_asset_list[row].asset_info[self.columns[column]]
+
+        return None
 
     def headerData(self, section, orientation, role):
         if orientation == QtCore.Qt.Horizontal:
@@ -58,10 +64,16 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
 
     def setData(self, index, value, role=QtCore.Qt.DisplayRole):
         self.ftrack_asset_list[index.row()].set_asset_version(value)
-
-        #print "setData", index.row(), index.column(), value
+        # if role == QtCore.Qt.EditRole:
+        #     if value:
+        #         self.ftrack_asset_list[index.row()].set_asset_version(value)
+        #         #TODO: activate this signal is the signal to say that the data has changed
+        #         #self.dataChanged.emit(index, index)
+        #         return True
+        #     return False
 
     def flags(self, index):
+        #flag = super(AssetManagerModel, self).flags(index)
         if (index.column() == self.get_version_column_idx()):
             return QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled
         else:
