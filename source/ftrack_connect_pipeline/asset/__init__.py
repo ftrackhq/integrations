@@ -6,19 +6,30 @@ import logging
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
 from ftrack_connect_pipeline.constants import asset as constants
 
+
 class FtrackAssetBase(object):
     '''
         Base FtrackAssetBase class.
     '''
 
     identity = None
+    default_component_name = 'main'
 
     def is_ftrack_node(self, other):
         raise NotImplementedError()
 
     @property
+    def component_name(self):
+        self.asset_info.get(constants.COMPONENT_NAME, self.default_component_name)
+
+    @property
     def asset_versions(self):
-        asset = self.session.get('Asset', self.asset_info['asset_id'])
+        query = 'select versions, versions.components, version.components.name from '
+        'Asset where asset_id is {} and versions.components.name is {}'.format(
+            self.asset_info[constants.ASSET_ID], self.component_name
+        )
+
+        asset = self.session.query(query)
         return asset['versions']
 
     @property
