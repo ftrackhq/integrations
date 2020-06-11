@@ -61,44 +61,33 @@ class FtrackAssetInfo(dict):
         '''
         return self._is_deprecated_version
 
-    def __init__(self, mapping, **kwargs):
+    def _conform_data(self, mapping):
+        new_mapping = {}
+        for k in constants.KEYS:
+            v = mapping.get(k)
+            new_mapping.setdefault(k, v)
+        return new_mapping
+
+    def __init__(self, mapping=None, **kwargs):
         '''
         Initialize the FtrackAssetInfo with the given *mapping*.
 
         *mapping* Dictionary with the current asset information.
         '''
-
         self.logger = logging.getLogger(
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
 
         self._is_deprecated_version = False
-
-        # TODO: Convertion mapping between v1 and v2 plugin
-        # for k, v in mapping.items():
-        #     if k in constants.V1_TO_V2_MAPPING.keys():
-        #         self._is_deprecated_version = True
-        #         self.logger.info("Converting deprecated ftrack asset info")
-        #         new_key = constants.V1_TO_V2_MAPPING[k]
-        #         new_mapping[new_key] = v
-        #     elif k in constants.KEYS:
-        #         new_mapping[k] = v
-
-        new_mapping = {}
-        for k, v in mapping.items():
-            if k in constants.KEYS:
-                new_mapping[k] = v
-        if not new_mapping:
-            raise AttributeError(
-                "Expecting a diccionary with required asset keys"
-            )
-        super(FtrackAssetInfo, self).__init__(new_mapping, **kwargs)
+        mapping = mapping or {}
+        mapping = self._conform_data(mapping)
+        super(FtrackAssetInfo, self).__init__(mapping, **kwargs)
 
     def update_asset_version(self, asset_version):
         session = asset_version.session
 
         asset = asset_version['asset']
-
+        print asset['name']
         self[constants.ASSET_NAME] = asset['name']
         self[constants.ASSET_TYPE] = asset['type']['name']
         self[constants.ASSET_ID] = asset['id']
