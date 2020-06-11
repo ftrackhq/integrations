@@ -38,19 +38,26 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
 
         item = self.ftrack_asset_list[row]
         data = item.asset_info[self.columns[column]]
-        if role == QtCore.Qt.DisplayRole:
-            # print 'display role', self.columns[column], data
+
+        # style versions
+        if role == QtCore.Qt.BackgroundRole and index.column() == self.get_version_column_idx():
+            if item.is_latest:
+                return QtGui.QBrush(QtGui.QColor(155, 250, 218, 200))
+            else:
+                return QtGui.QBrush(QtGui.QColor(250, 171, 155, 200))
+
+        elif role == QtCore.Qt.TextAlignmentRole and index.column() == self.get_version_column_idx():
+            return QtCore.Qt.AlignCenter
+
+        elif role == QtCore.Qt.TextColorRole and index.column() == self.get_version_column_idx():
+            return QtGui.QColor(0, 0, 0, 255)
+
+        # style the rest
+        elif role == QtCore.Qt.DisplayRole:
             return data
 
         elif role == QtCore.Qt.EditRole:
-            # print 'edit role', self.columns[column], data
             return data
-
-        elif role == QtCore.Qt.BackgroundRole:
-            if item.is_latest:
-                return QtGui.QBrush(QtGui.QColor(155, 250, 218, 255))
-            else:
-                return QtGui.QBrush(QtGui.QColor(250, 171, 155, 255))
 
         return None
 
@@ -64,7 +71,6 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         return None
 
     def setData(self, index, value, role=QtCore.Qt.EditRole):
-        print role
         if role == QtCore.Qt.EditRole:
             if value:
                 self.ftrack_asset_list[index.row()].change_version(value)

@@ -29,7 +29,7 @@ event_manager = event.EventManager(
 component_name = 'main'
 versions = session.query(
     'select id, components, components.name, components.id, version, asset , asset.name, asset.type.name from '
-    'AssetVersion where asset_id != None and components.name is "{0}" limit 30'.format(component_name)
+    'AssetVersion where asset_id != None and components.name is "{0}" limit 10'.format(component_name)
 ).all()
 
 ftrack_asset_list = []
