@@ -25,13 +25,13 @@ event_manager = event.EventManager(
 )
 
 versions = session.query(
-    'select asset from AssetVersion where asset_id != None'
+    'select id, components, components.name, components.id, version, asset , asset.name, asset.type.name from '
+    'AssetVersion where asset_id != None limit 10'
 ).all()
 
-asset_versions = versions[:10]
 ftrack_asset_list = []
 
-for version in asset_versions:
+for version in versions:
     asset_info = FtrackAssetInfo()
     qasset_info = QFtrackAsset(asset_info, session)
     qasset_info.change_version(version['id'])
