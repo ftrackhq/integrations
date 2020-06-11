@@ -106,13 +106,24 @@ class FtrackAssetBase(object):
 
         location = self.session.pick_location()
 
+        component_name = self.asset_info[constants.COMPONENT_NAME]
+
+        #TODO: Lorenzo, this should be removed, but our asset_manager_test
+        # shouldn't be initializing the assets with this function, as this
+        # function is ment to change a current asset that is already there so
+        # it contains a component_name, if we initialize our assets with this
+        # function, as there was no component_name before, it will return an
+        # error.
+        if not component_name:
+            component_name = 'main'
+
         for component in asset_version['components']:
-            if location.get_component_availability(component) < 100.0:
-                continue
-            component_path = location.get_filesystem_path(component)
-            if component_path:
-                asset_info_data[constants.COMPONENT_NAME] = component['name']
-                asset_info_data[constants.COMPONENT_ID] = component['id']
-                asset_info_data[constants.COMPONENT_PATH] = component_path
+            if component_name == component['name']:
+                if location.get_component_availability(component) == 100.0:
+                    component_path = location.get_filesystem_path(component)
+                    if component_path:
+                        asset_info_data[constants.COMPONENT_NAME] = component['name']
+                        asset_info_data[constants.COMPONENT_ID] = component['id']
+                        asset_info_data[constants.COMPONENT_PATH] = component_path
 
         self.asset_info.update(asset_info_data)
