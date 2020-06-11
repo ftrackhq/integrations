@@ -25,7 +25,9 @@ class VersionDelegate(QtWidgets.QItemDelegate):
         editor.blockSignals(False)
 
     def setModelData(self, editor, model, index):
-        model.setData(index, editor.itemData(editor.currentIndex()))
+        model.setData(
+            index, editor.itemData(editor.currentIndex()), QtCore.Qt.EditRole
+        )
 
     @QtCore.Slot()
     def currentItemChanged(self):
