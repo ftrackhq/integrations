@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-from ftrack_connect_pipeline.constants import asset as asset_constants
+from ftrack_connect_pipeline_qt.constants import asset as asset_constants
 from Qt import QtWidgets, QtCore, QtGui
 
 
@@ -18,7 +18,7 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         '''Initialise with *root* entity and optional *parent*.'''
         super(AssetManagerModel, self).__init__(parent=parent)
         self.ftrack_asset_list = ftrack_asset_list
-        self.columns = self.ftrack_asset_list[0].asset_info.keys()
+        self.columns = asset_constants.KEYS
 
     def rowCount(self, parent=QtCore.QModelIndex()):
         '''Return number of children *parent* index has.
@@ -53,9 +53,9 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
             return item.asset_info[self.columns[column]]
         if role == QtCore.Qt.BackgroundRole:
             if item.is_latest:
-                return QtGui.QBrush(QtGui.QColor(100, 100, 100, 100))
+                return QtGui.QBrush(QtGui.QColor(21, 255, 0, 255))
             else:
-                return QtGui.QBrush(QtGui.QColor(0, 0, 0, 100))
+                return QtGui.QBrush(QtGui.QColor(255, 106, 0, 255))
         return None
 
     def headerData(self, section, orientation, role):
@@ -67,18 +67,16 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
 
         return None
 
-    def setData(self, index, value, role=QtCore.Qt.DisplayRole):
-        self.ftrack_asset_list[index.row()].change_version(value)
-        # if role == QtCore.Qt.EditRole:
-        #     if value:
-        #         self.ftrack_asset_list[index.row()].set_asset_version(value)
-        #         #TODO: activate this signal is the signal to say that the data has changed
-        #         #self.dataChanged.emit(index, index)
-        #         return True
-        #     return False
+    def setData(self, index, value, role=QtCore.Qt.EditRole):
+        if role == QtCore.Qt.EditRole:
+            if value:
+                self.ftrack_asset_list[index.row()].change_version(value)
+                #TODO: activate this signal is the signal to say that the data has changed
+                #self.dataChanged.emit(index, index)
+                return True
+            return False
 
     def flags(self, index):
-        #flag = super(AssetManagerModel, self).flags(index)
         if (index.column() == self.get_version_column_idx()):
             return QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled
         else:
