@@ -3,7 +3,7 @@
 #
 
 import logging
-from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
+from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo, asset_info_from_ftrack_version
 from ftrack_connect_pipeline.constants import asset as constants
 
 
@@ -25,14 +25,14 @@ class FtrackAssetBase(object):
     @property
     def asset_versions(self):
         query = (
-            'select versions, versions.components, versions.components.name from '
-            'Asset where id is "{}" and versions.components.name is "{}"'
+            'select id, asset, components, components.name, components.id, version, asset , asset.name, asset.type.name from '
+            'AssetVersion where asset.id is "{}" and components.name is "{}"'
+            'order by version ascending'
         ).format(
             self.asset_info[constants.ASSET_ID], self.component_name
         )
-        print query
-        asset = self.session.query(query).one()
-        return asset['versions']
+        versions = self.session.query(query).all()
+        return versions
 
     @property
     def ftrack_version(self):
@@ -96,25 +96,12 @@ class FtrackAssetBase(object):
         self._node = ftrack_node
 
     def change_version(self, asset_version_id):
-        asset_info_data = {}
-        asset_version = self.session.get('AssetVersion', asset_version_id)
-
-        asset = asset_version['asset']
-        asset_info_data[constants.ASSET_NAME] = asset['name']
-        asset_info_data[constants.ASSET_TYPE] = asset['type']['name']
-        asset_info_data[constants.ASSET_ID] = asset['id']
-        asset_info_data[constants.VERSION_NUMBER] = int(asset_version['version'])
-        asset_info_data[constants.VERSION_ID] = asset_version['id']
-
-        location = self.session.pick_location()
-
-        for component in asset_version['components']:
-            if component['name'] == self.component_name:
-                if location.get_component_availability(component) == 100.0:
-                    component_path = location.get_filesystem_path(component)
-                    if component_path:
-                        asset_info_data[constants.COMPONENT_NAME] = component['name']
-                        asset_info_data[constants.COMPONENT_ID] = component['id']
-                        asset_info_data[constants.COMPONENT_PATH] = component_path
-
-        self.asset_info.update(asset_info_data)
+        # asset_version = self.session.get('AssetVersion', asset_version_id)
+        asset_version = self.session.query(
+            'select id, asset, components, components.name, components.id, version, asset , asset.name, asset.type.name from '
+            'AssetVersion where id is "{}"'.format(
+                asset_version_id
+            )
+        ).one()
+        asset_info = asset_info_from_ftrack_version(asset_version, self.component_name)
+        self.asset_info.update(asset_info)
