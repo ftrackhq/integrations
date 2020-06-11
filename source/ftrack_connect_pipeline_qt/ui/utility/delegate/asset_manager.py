@@ -9,7 +9,7 @@ class VersionDelegate(QtWidgets.QItemDelegate):
         super(VersionDelegate, self).__init__(parent=parent)
 
     def createEditor(self, parent, option, index):
-        item = index.model().item(index)
+        item = index.model().ftrack_asset_list[index.row()]
         versions_collection = item.asset_versions
 
         combo = QtWidgets.QComboBox(parent)
@@ -20,8 +20,12 @@ class VersionDelegate(QtWidgets.QItemDelegate):
         return combo
 
     def setEditorData(self, editor, index):
+        print "index --> {}".format(index)
+        print "setting editor data"
         editor.blockSignals(True)
-        editor.setCurrentIndex(int(index.model().data(index)))
+        editor.setCurrentIndex(
+            int(index.model().data(index, QtCore.Qt.EditRole))
+        )
         editor.blockSignals(False)
 
     def setModelData(self, editor, model, index):
@@ -33,15 +37,3 @@ class VersionDelegate(QtWidgets.QItemDelegate):
     def currentItemChanged(self):
         self.commitData.emit(self.sender())
 
-class BackgroundDelegate(QtWidgets.QStyledItemDelegate):
-
-    def __init__(self, parent=None):
-        super(BackgroundDelegate, self).__init__(parent=parent)
-
-    def paint(self, painter, option, index):
-        item_str = index.data(QtCore.Qt.DisplayRole)
-        item_color = index.data(QtCore.Qt.BackgroundRole)
-        print "item color {}".format(item_color)
-        option.backgroundBrush = QtGui.QBrush(item_color)
-        option.text = item_str
-        option.textVisible = True

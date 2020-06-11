@@ -49,13 +49,16 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         row = index.row()
         item = self.ftrack_asset_list[row]
 
-        if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole:
+        if role == QtCore.Qt.DisplayRole:
             return item.asset_info[self.columns[column]]
-        if role == QtCore.Qt.BackgroundRole:
+        elif role == QtCore.Qt.EditRole:
+            print "edit role"
+            return item.asset_info[self.columns[column]]
+        elif role == QtCore.Qt.BackgroundRole:
             if item.is_latest:
-                return QtGui.QBrush(QtGui.QColor(21, 255, 0, 255))
+                return QtGui.QBrush(QtGui.QColor(155, 250, 218, 255))
             else:
-                return QtGui.QBrush(QtGui.QColor(255, 106, 0, 255))
+                return QtGui.QBrush(QtGui.QColor(250, 171, 155, 255))
         return None
 
     def headerData(self, section, orientation, role):
@@ -69,10 +72,10 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
 
     def setData(self, index, value, role=QtCore.Qt.EditRole):
         if role == QtCore.Qt.EditRole:
+            print "set data"
             if value:
                 self.ftrack_asset_list[index.row()].change_version(value)
-                #TODO: activate this signal is the signal to say that the data has changed
-                #self.dataChanged.emit(index, index)
+                self.dataChanged.emit(index, index)
                 return True
             return False
 
@@ -81,11 +84,6 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
             return QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled
         else:
             return QtCore.Qt.ItemIsEnabled
-
-    def item(self, index):
-        '''Return item at *index*.'''
-        # self.data(index)#, role=self.ITEM_ROLE)
-        return self.ftrack_asset_list[index.row()]
 
     def get_version_column_idx(self):
         return self.columns.index(asset_constants.VERSION_NUMBER)

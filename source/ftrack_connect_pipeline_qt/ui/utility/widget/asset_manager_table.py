@@ -5,7 +5,7 @@ from Qt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline_qt.ui.utility.model.asset_manager import AssetManagerModel
 from ftrack_connect_pipeline_qt.ui.utility.delegate.asset_manager import (
-    VersionDelegate, BackgroundDelegate
+    VersionDelegate
 )
 
 
