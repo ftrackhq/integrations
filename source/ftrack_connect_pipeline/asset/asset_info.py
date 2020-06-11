@@ -83,26 +83,3 @@ class FtrackAssetInfo(dict):
         mapping = self._conform_data(mapping)
         super(FtrackAssetInfo, self).__init__(mapping, **kwargs)
 
-    def update_asset_version(self, asset_version):
-        session = asset_version.session
-
-        asset = asset_version['asset']
-        print asset['name']
-        self[constants.ASSET_NAME] = asset['name']
-        self[constants.ASSET_TYPE] = asset['type']['name']
-        self[constants.ASSET_ID] = asset['id']
-        self[constants.VERSION_NUMBER] = int(asset_version['version'])
-        self[constants.VERSION_ID] = asset_version['id']
-
-        location = session.pick_location()
-
-        for component in asset_version['components']:
-            if location.get_component_availability(component) < 100.0:
-                continue
-            component_path = location.get_filesystem_path(component)
-            if component_path:
-                self[constants.COMPONENT_NAME] = component['name']
-                self[constants.COMPONENT_ID] = component['id']
-                self[constants.COMPONENT_PATH] = component_path
-
-        return self

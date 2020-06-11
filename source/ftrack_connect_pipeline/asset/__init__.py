@@ -4,6 +4,7 @@
 
 import logging
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
+from ftrack_connect_pipeline.constants import asset as constants
 
 
 class FtrackAssetBase(object):
@@ -70,6 +71,26 @@ class FtrackAssetBase(object):
         asset = self.session.get('Asset', self.asset_info['asset_id'])
         return asset['versions']
 
-    def set_asset_version(self, asset_version_id):
+    def change_version(self, asset_version_id):
+        asset_info_data = {}
         asset_version = self.session.get('AssetVersion', asset_version_id)
-        self.asset_info.update_asset_version(asset_version)
+
+        asset = asset_version['asset']
+        asset_info_data[constants.ASSET_NAME] = asset['name']
+        asset_info_data[constants.ASSET_TYPE] = asset['type']['name']
+        asset_info_data[constants.ASSET_ID] = asset['id']
+        asset_info_data[constants.VERSION_NUMBER] = int(asset_version['version'])
+        asset_info_data[constants.VERSION_ID] = asset_version['id']
+
+        location = self.session.pick_location()
+
+        for component in asset_version['components']:
+            if location.get_component_availability(component) < 100.0:
+                continue
+            component_path = location.get_filesystem_path(component)
+            if component_path:
+                asset_info_data[constants.COMPONENT_NAME] = component['name']
+                asset_info_data[constants.COMPONENT_ID] = component['id']
+                asset_info_data[constants.COMPONENT_PATH] = component_path
+
+        self.asset_info.update(asset_info_data)
