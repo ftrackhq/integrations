@@ -17,6 +17,11 @@ class FtrackAssetBase(object):
         raise NotImplementedError()
 
     @property
+    def asset_versions(self):
+        asset = self.session.get('Asset', self.asset_info['asset_id'])
+        return asset['versions']
+
+    @property
     def ftrack_version(self):
         asset_version = self.session.get(
             'AssetVersion', self.asset_info[constants.VERSION_ID]
@@ -76,10 +81,6 @@ class FtrackAssetBase(object):
         Sets the given *ftrack_node* as the current self.node of the class
         '''
         self._node = ftrack_node
-
-    def get_available_asset_versions(self):
-        asset = self.session.get('Asset', self.asset_info['asset_id'])
-        return asset['versions']
 
     def change_version(self, asset_version_id):
         asset_info_data = {}
