@@ -4,7 +4,7 @@
 
 import logging
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
-
+from ftrack_connect_pipeline.constants import asset as constants
 
 class FtrackAssetBase(object):
     '''
@@ -15,6 +15,17 @@ class FtrackAssetBase(object):
 
     def is_ftrack_node(self, other):
         raise NotImplementedError()
+
+    @property
+    def ftrack_version(self):
+        asset_version = self.session.get(
+            'AssetVersion', self.asset_info[constants.VERSION_ID]
+        )
+        return asset_version
+
+    @property
+    def is_latest(self):
+        return self.ftrack_version['is_latest_version']
 
     @property
     def asset_info(self):
@@ -73,3 +84,4 @@ class FtrackAssetBase(object):
     def set_asset_version(self, asset_version_id):
         asset_version = self.session.get('AssetVersion', asset_version_id)
         self.asset_info.update_asset_version(asset_version)
+
