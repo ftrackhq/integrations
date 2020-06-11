@@ -48,6 +48,30 @@ def generate_asset_info_dict_from_args(context, data, options, session):
     return arguments_dict
 
 
+def asset_info_from_ftrack_version(ftrack_version, component_name):
+    asset_info_data = {}
+    asset = ftrack_version['asset']
+    asset_info_data[constants.ASSET_NAME] = asset['name']
+    asset_info_data[constants.ASSET_TYPE] = asset['type']['name']
+    asset_info_data[constants.ASSET_ID] = asset['id']
+    asset_info_data[constants.VERSION_NUMBER] = int(ftrack_version['version'])
+    asset_info_data[constants.VERSION_ID] = ftrack_version['id']
+
+    location = ftrack_version.session.pick_location()
+
+    for component in ftrack_version['components']:
+        if component['name'] == component_name:
+            if location.get_component_availability(component) == 100.0:
+                component_path = location.get_filesystem_path(component)
+                if component_path:
+                    asset_info_data[constants.COMPONENT_NAME] = component['name']
+                    asset_info_data[constants.COMPONENT_ID] = component['id']
+                    asset_info_data[constants.COMPONENT_PATH] = component_path
+
+
+    return FtrackAssetInfo(asset_info_data)
+
+
 class FtrackAssetInfo(dict):
     '''
     Base FtrackAssetInfo class.

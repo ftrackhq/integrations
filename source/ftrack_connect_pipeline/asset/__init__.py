@@ -20,16 +20,18 @@ class FtrackAssetBase(object):
 
     @property
     def component_name(self):
-        self.asset_info.get(constants.COMPONENT_NAME, self.default_component_name)
+        return self.asset_info.get(constants.COMPONENT_NAME, self.default_component_name)
 
     @property
     def asset_versions(self):
-        query = 'select versions, versions.components, version.components.name from '
-        'Asset where asset_id is {} and versions.components.name is {}'.format(
+        query = (
+            'select versions, versions.components, versions.components.name from '
+            'Asset where id is "{}" and versions.components.name is "{}"'
+        ).format(
             self.asset_info[constants.ASSET_ID], self.component_name
         )
-
-        asset = self.session.query(query)
+        print query
+        asset = self.session.query(query).one()
         return asset['versions']
 
     @property
@@ -106,19 +108,8 @@ class FtrackAssetBase(object):
 
         location = self.session.pick_location()
 
-        component_name = self.asset_info[constants.COMPONENT_NAME]
-
-        #TODO: Lorenzo, this should be removed, but our asset_manager_test
-        # shouldn't be initializing the assets with this function, as this
-        # function is ment to change a current asset that is already there so
-        # it contains a component_name, if we initialize our assets with this
-        # function, as there was no component_name before, it will return an
-        # error.
-        if not component_name:
-            component_name = 'main'
-
         for component in asset_version['components']:
-            if component_name == component['name']:
+            if component['name'] == self.component_name:
                 if location.get_component_availability(component) == 100.0:
                     component_path = location.get_filesystem_path(component)
                     if component_path:
