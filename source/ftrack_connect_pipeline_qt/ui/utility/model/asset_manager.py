@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 from ftrack_connect_pipeline.constants import asset as asset_constants
-from Qt import QtWidgets, QtCore
+from Qt import QtWidgets, QtCore, QtGui
 
 
 class AssetManagerModel(QtCore.QAbstractTableModel):
@@ -47,10 +47,15 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
 
         column = index.column()
         row = index.row()
+        item = self.ftrack_asset_list[row]
 
         if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole:
-            return self.ftrack_asset_list[row].asset_info[self.columns[column]]
-
+            return item.asset_info[self.columns[column]]
+        if role == QtCore.Qt.BackgroundRole:
+            if item.is_latest:
+                return QtGui.QBrush(QtGui.QColor(100, 100, 100, 100))
+            else:
+                return QtGui.QBrush(QtGui.QColor(0, 0, 0, 100))
         return None
 
     def headerData(self, section, orientation, role):
@@ -63,7 +68,7 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         return None
 
     def setData(self, index, value, role=QtCore.Qt.DisplayRole):
-        self.ftrack_asset_list[index.row()].set_asset_version(value)
+        self.ftrack_asset_list[index.row()].change_version(value)
         # if role == QtCore.Qt.EditRole:
         #     if value:
         #         self.ftrack_asset_list[index.row()].set_asset_version(value)
