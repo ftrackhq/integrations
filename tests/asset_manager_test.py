@@ -3,7 +3,7 @@ from ftrack_connect_pipeline import host, constants, event
 import ftrack_api
 from ftrack_connect_pipeline_qt.ui.utility.widget.asset_manager_table import AssetManagerTableView
 
-from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
+from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo, asset_info_from_ftrack_version
 
 from Qt import QtWidgets
 
@@ -24,17 +24,17 @@ event_manager = event.EventManager(
     session=session, mode=constants.LOCAL_EVENT_MODE
 )
 
+component_name = 'main'
 versions = session.query(
     'select id, components, components.name, components.id, version, asset , asset.name, asset.type.name from '
-    'AssetVersion where asset_id != None limit 10'
+    'AssetVersion where asset_id != None and components.name is "{0}" limit 10'.format(component_name)
 ).all()
 
 ftrack_asset_list = []
 
 for version in versions:
-    asset_info = FtrackAssetInfo()
+    asset_info = asset_info_from_ftrack_version(version, component_name)
     qasset_info = QFtrackAsset(asset_info, session)
-    qasset_info.change_version(version['id'])
     ftrack_asset_list.append(qasset_info)
 
 
