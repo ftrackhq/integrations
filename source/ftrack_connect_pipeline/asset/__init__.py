@@ -27,7 +27,7 @@ class FtrackAssetBase(object):
         query = (
             'select is_latest_version, id, asset, components, components.name, components.id, version, asset , asset.name, asset.type.name from '
             'AssetVersion where asset.id is "{}" and components.name is "{}"'
-            'order by version ascending'
+            'order by version descending'
         ).format(
             self.asset_info[constants.ASSET_ID], self.component_name
         )
