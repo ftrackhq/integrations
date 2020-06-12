@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-from Qt import QtWidgets, QtCore, QtCompat
+from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
 from ftrack_connect_pipeline_qt.ui.utility.model.asset_manager import AssetManagerModel, FilterProxyModel
 from ftrack_connect_pipeline_qt.ui.utility.delegate.asset_manager import (
@@ -67,7 +67,7 @@ class AssetManagerTableView(QtWidgets.QTableView):
 
     def pre_build(self):
         self.setAlternatingRowColors(True)
-        # self.verticalHeader().hide()
+        self.verticalHeader().hide()
 
         self.setSelectionBehavior(
             QtWidgets.QAbstractItemView.SelectRows
@@ -97,3 +97,18 @@ class AssetManagerTableView(QtWidgets.QTableView):
 
     def post_build(self):
         '''Perform post-construction operations.'''
+
+    def contextMenuEvent(self, event):
+        self.menu = QtWidgets.QMenu(self)
+        self.udpate_action = QtWidgets.QAction('Update to latest', self)
+        self.udpate_action.triggered.connect(lambda: self.ctx_update_to_latest(event))
+        self.menu.addAction(self.udpate_action)
+        # add other required actions
+        self.menu.exec_(QtGui.QCursor.pos())
+
+    def ctx_update_to_latest(self, event):
+        rows = self.selectionModel().selectedRows()
+        for row in rows:
+            data = self.model().data(row, self.model().DATA_ROLE)
+            print data.asset_info
+

@@ -8,6 +8,8 @@ from Qt import QtWidgets, QtCore, QtGui
 class AssetManagerModel(QtCore.QAbstractTableModel):
     '''Model representing AssetManager.'''
 
+    DATA_ROLE = QtCore.Qt.UserRole + 1
+
     @property
     def ftrack_asset_list(self):
         return self._ftrack_asset_list
@@ -63,6 +65,9 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         elif role == QtCore.Qt.EditRole:
             return data
 
+        elif role == self.DATA_ROLE:
+            return item
+
         return None
 
     def headerData(self, column, orientation, role):
@@ -70,7 +75,7 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
                 orientation == QtCore.Qt.Horizontal and
                 role == QtCore.Qt.DisplayRole
         ):
-            return self.columns[column].capitalize()
+            return self.columns[column].replace('_', ' ').capitalize()
 
         return None
 
@@ -88,13 +93,15 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         if (index.column() == self.get_version_column_idx()):
             return QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled
         else:
-            return QtCore.Qt.ItemIsEnabled
+            return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
 
     def get_version_column_idx(self):
         return self.columns.index(asset_constants.VERSION_NUMBER)
 
 
 class FilterProxyModel(QtCore.QSortFilterProxyModel):
+
+    DATA_ROLE = AssetManagerModel.DATA_ROLE
 
     @property
     def ftrack_asset_list(self):
