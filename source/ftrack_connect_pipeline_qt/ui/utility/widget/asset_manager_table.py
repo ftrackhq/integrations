@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
+from ftrack_connect_pipeline.constants import asset as asset_constants
 
 from ftrack_connect_pipeline_qt.ui.utility.model.asset_manager import AssetManagerModel, FilterProxyModel
 from ftrack_connect_pipeline_qt.ui.utility.delegate.asset_manager import (
@@ -26,7 +27,7 @@ class AssetManagerWidget(QtWidgets.QWidget):
 
     def build(self):
         filter_layout = QtWidgets.QHBoxLayout()
-        filter_label = QtWidgets.QLabel('Filter:')
+        filter_label = QtWidgets.QLabel('Filter log')
         self.filter_field = QtWidgets.QLineEdit()
         filter_layout.addWidget(filter_label)
         filter_layout.addWidget(self.filter_field)
@@ -110,5 +111,6 @@ class AssetManagerTableView(QtWidgets.QTableView):
         rows = self.selectionModel().selectedRows()
         for row in rows:
             data = self.model().data(row, self.model().DATA_ROLE)
-            print data.asset_info
+            latest_versions = data.asset_versions[0]
+            data.change_version(latest_versions['id'])
 

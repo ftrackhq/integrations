@@ -90,7 +90,7 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
             return super(AssetManagerModel, self).setData(index, value, role)
 
     def flags(self, index):
-        if (index.column() == self.get_version_column_idx()):
+        if index.column() == self.get_version_column_idx():
             return QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled
         else:
             return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
