@@ -27,7 +27,7 @@ class AssetManagerWidget(QtWidgets.QWidget):
 
     def build(self):
         filter_layout = QtWidgets.QHBoxLayout()
-        filter_label = QtWidgets.QLabel('Filter log')
+        filter_label = QtWidgets.QLabel('Filter')
         self.filter_field = QtWidgets.QLineEdit()
         filter_layout.addWidget(filter_label)
         filter_layout.addWidget(self.filter_field)
