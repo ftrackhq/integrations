@@ -25,7 +25,7 @@ class FtrackAssetBase(object):
     @property
     def asset_versions(self):
         query = (
-            'select id, asset, components, components.name, components.id, version, asset , asset.name, asset.type.name from '
+            'select is_latest_version, id, asset, components, components.name, components.id, version, asset , asset.name, asset.type.name from '
             'AssetVersion where asset.id is "{}" and components.name is "{}"'
             'order by version ascending'
         ).format(
@@ -98,3 +98,5 @@ class FtrackAssetBase(object):
         asset_version = self.session.get('AssetVersion', asset_version_id)
         asset_info = asset_info_from_ftrack_version(asset_version, self.component_name)
         self.asset_info.update(asset_info)
+        return asset_info
+
