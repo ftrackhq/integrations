@@ -83,7 +83,6 @@ class FtrackAssetBase(object):
         )
 
         self._asset_info = ftrack_asset_info
-        self.logger.debug("Asset info assigned: {}".format(self._asset_info))
         self._session = session
 
         self._nodes = []
@@ -96,12 +95,6 @@ class FtrackAssetBase(object):
         self._node = ftrack_node
 
     def change_version(self, asset_version_id):
-        # asset_version = self.session.get('AssetVersion', asset_version_id)
-        asset_version = self.session.query(
-            'select id, asset, components, components.name, components.id, version, asset , asset.name, asset.type.name from '
-            'AssetVersion where id is "{}"'.format(
-                asset_version_id
-            )
-        ).one()
+        asset_version = self.session.get('AssetVersion', asset_version_id)
         asset_info = asset_info_from_ftrack_version(asset_version, self.component_name)
         self.asset_info.update(asset_info)
