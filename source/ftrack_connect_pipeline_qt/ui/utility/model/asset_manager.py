@@ -8,10 +8,14 @@ from Qt import QtWidgets, QtCore, QtGui
 class AssetManagerModel(QtCore.QAbstractTableModel):
     '''Model representing AssetManager.'''
 
+    @property
+    def ftrack_asset_list(self):
+        return self._ftrack_asset_list
+
     def __init__(self, ftrack_asset_list=None, parent=None):
         '''Initialise with *root* entity and optional *parent*.'''
         super(AssetManagerModel, self).__init__(parent=parent)
-        self.ftrack_asset_list = ftrack_asset_list
+        self._ftrack_asset_list = ftrack_asset_list
         self.columns = asset_constants.KEYS
 
     def rowCount(self, parent=QtCore.QModelIndex()):
@@ -61,12 +65,12 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
 
         return None
 
-    def headerData(self, section, orientation, role):
-        if orientation == QtCore.Qt.Horizontal:
-            if section < len(self.columns):
-                column = self.columns[section]
-                if role == QtCore.Qt.DisplayRole:
-                    return column
+    def headerData(self, column, orientation, role):
+        if (
+                orientation == QtCore.Qt.Horizontal and
+                role == QtCore.Qt.DisplayRole
+        ):
+            return self.columns[column].capitalize()
 
         return None
 
@@ -88,3 +92,48 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
 
     def get_version_column_idx(self):
         return self.columns.index(asset_constants.VERSION_NUMBER)
+
+
+class FilterProxyModel(QtCore.QSortFilterProxyModel):
+
+    @property
+    def ftrack_asset_list(self):
+        return self.sourceModel().ftrack_asset_list
+
+    def __init__(self, parent=None):
+        '''Initialize the FilterProxyModel'''
+        super(FilterProxyModel, self).__init__(parent=parent)
+
+        self.setDynamicSortFilter(True)
+        self.setFilterCaseSensitivity(QtCore.Qt.CaseInsensitive)
+        self.setFilterKeyColumn(-1)
+
+    def filterAcceptsRowItself(self, source_row, source_parent):
+        '''Provide a way to filter internal values.'''
+        return super(FilterProxyModel, self).filterAcceptsRow(
+            source_row, source_parent
+        )
+
+    def filterAcceptsRow(self, source_row, source_parent):
+        '''Override filterAcceptRow to filter to any entry.'''
+        if self.filterAcceptsRowItself(source_row, source_parent):
+            return True
+
+        parent = source_parent
+        while parent.isValid():
+            if self.filterAcceptsRowItself(parent.row(), parent.parent()):
+                return True
+            parent = parent.parent()
+
+        return False
+
+    def lessThan(self, left, right):
+        '''Allow to sort the model.'''
+        left_data = self.sourceModel().item(left)
+        right_data = self.sourceModel().item(right)
+        print left_data, right_data
+        return left_data.id > right_data.id
+
+    def get_version_column_idx(self):
+        return self.sourceModel().columns.index(asset_constants.VERSION_NUMBER)
+

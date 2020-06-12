@@ -1,22 +1,51 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-from Qt import QtWidgets, QtCore
+from Qt import QtWidgets, QtCore, QtCompat
 
-from ftrack_connect_pipeline_qt.ui.utility.model.asset_manager import AssetManagerModel
+from ftrack_connect_pipeline_qt.ui.utility.model.asset_manager import AssetManagerModel, FilterProxyModel
 from ftrack_connect_pipeline_qt.ui.utility.delegate.asset_manager import (
     VersionDelegate
 )
 
 
+class AssetManagerWidget(QtWidgets.QWidget):
+
+    def __init__(self, ftrack_asset_list, session, parent=None):
+        super(AssetManagerWidget, self).__init__(parent=parent)
+        self.session = session
+        self.ftrack_asset_list = ftrack_asset_list
+
+        self.pre_build()
+        self.build()
+        self.post_build()
+
+    def pre_build(self):
+        main_layout = QtWidgets.QVBoxLayout(self)
+        self.setLayout(main_layout)
+
+    def build(self):
+        filter_layout = QtWidgets.QHBoxLayout()
+        filter_label = QtWidgets.QLabel('Filter:')
+        self.filter_field = QtWidgets.QLineEdit()
+        filter_layout.addWidget(filter_label)
+        filter_layout.addWidget(self.filter_field)
+        self.layout().addLayout(filter_layout)
+
+        self.asset_list = AssetManagerTableView(self.ftrack_asset_list, self.session, parent=self)
+        self.layout().addWidget(self.asset_list)
+
+    def post_build(self):
+        self.filter_field.textChanged.connect(self.on_search)
+
+    def on_search(self):
+        '''Search in the current model.'''
+        value = self.filter_field.text()
+        self.asset_list.model().setFilterWildcard(value)
+
+
 class AssetManagerTableView(QtWidgets.QTableView):
     '''Model representing AssetManager.'''
-
-    #: Signal when location changed.
-    # locationChanged = QtCore.Signal()
-    #
-    # #: Signal when selection changes. Pass new selection.
-    # selectionChanged = QtCore.Signal(object)
 
     def __init__(self, ftrack_asset_list, session, parent=None):
         '''Initialise browser with *root* entity.
@@ -37,20 +66,34 @@ class AssetManagerTableView(QtWidgets.QTableView):
         self.post_build()
 
     def pre_build(self):
-        pass
+        self.setAlternatingRowColors(True)
+        # self.verticalHeader().hide()
+
+        self.setSelectionBehavior(
+            QtWidgets.QAbstractItemView.SelectRows
+        )
+
+        QtCompat.setSectionResizeMode(
+            self.verticalHeader(),
+            QtWidgets.QHeaderView.ResizeToContents
+        )
+
+        self.horizontalHeader().setStretchLastSection(True)
 
     def build(self):
 
-        model = AssetManagerModel(
+        self.asset_model = AssetManagerModel(
             ftrack_asset_list=self.ftrack_asset_list, parent=self
         )
-        self.setModel(model)
+        self.proxy_model = FilterProxyModel(parent=self)
+        self.proxy_model.setSourceModel(self.asset_model)
+
+        self.setModel(self.proxy_model)
         self.version_cb_delegate = VersionDelegate(self)
 
         self.setItemDelegateForColumn(
-            model.get_version_column_idx(), self.version_cb_delegate
+            self.proxy_model.get_version_column_idx(), self.version_cb_delegate
         )
 
     def post_build(self):
         '''Perform post-construction operations.'''
-        pass

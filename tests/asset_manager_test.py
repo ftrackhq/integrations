@@ -19,7 +19,7 @@ event_paths = [
 
 app = QtWidgets.QApplication(sys.argv)
 
-from ftrack_connect_pipeline_qt.ui.utility.widget.asset_manager_table import AssetManagerTableView
+from ftrack_connect_pipeline_qt.ui.utility.widget.asset_manager_table import AssetManagerWidget
 
 session = ftrack_api.Session(auto_connect_event_hub=False)
 event_manager = event.EventManager(
@@ -40,6 +40,6 @@ for version in versions:
     ftrack_asset_list.append(qasset_info)
 
 
-wid = AssetManagerTableView(ftrack_asset_list, session)
+wid = AssetManagerWidget(ftrack_asset_list, session)
 wid.show()
 sys.exit(app.exec_())
