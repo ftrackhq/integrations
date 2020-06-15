@@ -111,6 +111,6 @@ class AssetManagerTableView(QtWidgets.QTableView):
         rows = self.selectionModel().selectedRows()
         for row in rows:
             data = self.model().data(row, self.model().DATA_ROLE)
-            latest_versions = data.asset_versions[0]
+            latest_versions = data.asset_versions[-1]
             data.change_version(latest_versions['id'])
 
