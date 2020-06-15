@@ -19,7 +19,7 @@ event_paths = [
 
 app = QtWidgets.QApplication(sys.argv)
 
-from ftrack_connect_pipeline_qt.ui.utility.widget.asset_manager_table import AssetManagerWidget
+from ftrack_connect_pipeline_qt.ui.asset_manager import AssetManagerWidget
 
 session = ftrack_api.Session(auto_connect_event_hub=False)
 event_manager = event.EventManager(

@@ -2,10 +2,11 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
-from ftrack_connect_pipeline.constants import asset as asset_constants
 
-from ftrack_connect_pipeline_qt.ui.utility.model.asset_manager import AssetManagerModel, FilterProxyModel
-from ftrack_connect_pipeline_qt.ui.utility.delegate.asset_manager import (
+from ftrack_connect_pipeline_qt.ui.asset_manager.model.asset_manager import (
+    AssetManagerModel, FilterProxyModel
+)
+from ftrack_connect_pipeline_qt.ui.asset_manager.delegate.asset_manager import (
     VersionDelegate
 )
 
@@ -112,5 +113,6 @@ class AssetManagerTableView(QtWidgets.QTableView):
         for row in rows:
             data = self.model().data(row, self.model().DATA_ROLE)
             latest_versions = data.asset_versions[-1]
-            data.change_version(latest_versions['id'])
-
+            self.asset_model.setData(
+                row, latest_versions['id'], QtCore.Qt.EditRole
+            )

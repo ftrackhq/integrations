@@ -23,9 +23,7 @@ class VersionDelegate(QtWidgets.QItemDelegate):
     def setEditorData(self, editor, index):
         editor_data = str(index.model().data(index, QtCore.Qt.EditRole))
         idx = editor.findText(editor_data)
-        editor.setCurrentIndex(
-            idx
-        )
+        editor.setCurrentIndex(idx)
 
     def setModelData(self, editor, model, index):
         if not index.isValid():
