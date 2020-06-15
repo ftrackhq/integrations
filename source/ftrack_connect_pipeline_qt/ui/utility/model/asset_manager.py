@@ -46,16 +46,24 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         data = item.asset_info[self.columns[column]]
 
         # style versions
-        if role == QtCore.Qt.BackgroundRole and index.column() == self.get_version_column_idx():
+        if (
+                role == QtCore.Qt.BackgroundRole and
+                index.column() == self.get_version_column_idx()
+        ):
             if item.is_latest:
                 return QtGui.QBrush(QtGui.QColor(155, 250, 218, 200))
             else:
                 return QtGui.QBrush(QtGui.QColor(250, 171, 155, 200))
 
-        elif role == QtCore.Qt.TextAlignmentRole and index.column() == self.get_version_column_idx():
+        elif (
+                role == QtCore.Qt.TextAlignmentRole and
+                index.column() == self.get_version_column_idx()
+        ):
             return QtCore.Qt.AlignCenter
 
-        elif role == QtCore.Qt.TextColorRole and index.column() == self.get_version_column_idx():
+        elif (role == QtCore.Qt.TextColorRole and
+              index.column() == self.get_version_column_idx()
+        ):
             return QtGui.QColor(0, 0, 0, 255)
 
         # style the rest

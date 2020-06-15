@@ -10,33 +10,27 @@ class VersionDelegate(QtWidgets.QItemDelegate):
         super(VersionDelegate, self).__init__(parent=parent)
 
     def createEditor(self, parent, option, index):
-        item = index.model().ftrack_asset_list[index.row()]
+
+        item = index.model().data(index, index.model().DATA_ROLE)
         versions_collection = item.asset_versions
 
         combo = QtWidgets.QComboBox(parent)
         for asset_version in versions_collection:
             combo.addItem(str(asset_version['version']), asset_version['id'])
 
-        combo.installEventFilter(self)
         return combo
 
     def setEditorData(self, editor, index):
-        editor.blockSignals(True)
-        editor_data = int(index.model().data(index, QtCore.Qt.EditRole))
+        editor_data = str(index.model().data(index, QtCore.Qt.EditRole))
+        idx = editor.findText(editor_data)
         editor.setCurrentIndex(
-            editor_data
+            idx
         )
-        editor.blockSignals(False)
 
     def setModelData(self, editor, model, index):
         if not index.isValid():
             return False
-
         model.setData(
             index, editor.itemData(editor.currentIndex()), QtCore.Qt.EditRole
         )
-
-    @QtCore.Slot()
-    def currentItemChanged(self):
-        self.commitData.emit(self.sender())
 
