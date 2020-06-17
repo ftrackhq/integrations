@@ -9,7 +9,7 @@ from ftrack_connect_pipeline_qt.client.widgets.options.dynamic import DynamicWid
 from Qt import QtWidgets
 
 import maya.cmds as mcd
-
+import ftrack_api
 
 class MayaOptionsWidget(DynamicWidget):
 
@@ -67,5 +67,8 @@ class MayaOptionsPluginWidget(plugin.PublisherOutputMayaWidget):
 
 
 def register(api_object, **kw):
+    if not isinstance(api_object, ftrack_api.Session):
+        # Exit to avoid registering this plugin again.
+        return
     plugin = MayaOptionsPluginWidget(api_object)
     plugin.register()

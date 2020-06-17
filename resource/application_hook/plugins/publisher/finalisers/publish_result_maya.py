@@ -3,6 +3,7 @@
 
 import os
 from ftrack_connect_pipeline_maya import plugin
+import ftrack_api
 
 class FtrackPublishMayaPlugin(plugin.PublisherFinaliserMayaPlugin):
     plugin_name = 'result_maya'
@@ -12,5 +13,8 @@ class FtrackPublishMayaPlugin(plugin.PublisherFinaliserMayaPlugin):
 
 
 def register(api_object, **kw):
+    if not isinstance(api_object, ftrack_api.Session):
+        # Exit to avoid registering this plugin again.
+        return
     plugin = FtrackPublishMayaPlugin(api_object)
     plugin.register()

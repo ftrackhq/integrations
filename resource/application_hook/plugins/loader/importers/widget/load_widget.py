@@ -8,6 +8,7 @@ from ftrack_connect_pipeline_qt.client.widgets.options.load_widget import (
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
 
 from Qt import QtCore, QtWidgets
+import ftrack_api
 
 
 class LoadMayaWidget(LoadBaseWidget):
@@ -143,5 +144,8 @@ class LoadMayaPluginWidget(plugin.LoaderImporterMayaWidget):
 
 
 def register(api_object, **kw):
+    if not isinstance(api_object, ftrack_api.Session):
+        # Exit to avoid registering this plugin again.
+        return
     plugin = LoadMayaPluginWidget(api_object)
     plugin.register()

@@ -9,6 +9,7 @@ import maya.mel as mel
 import maya
 
 from ftrack_connect_pipeline_maya import plugin
+import ftrack_api
 
 
 class OutputMayaFbxPlugin(plugin.PublisherOutputMayaPlugin):
@@ -114,5 +115,8 @@ class OutputMayaFbxPlugin(plugin.PublisherOutputMayaPlugin):
 
 
 def register(api_object, **kw):
+    if not isinstance(api_object, ftrack_api.Session):
+        # Exit to avoid registering this plugin again.
+        return
     ma_plugin = OutputMayaFbxPlugin(api_object)
     ma_plugin.register()

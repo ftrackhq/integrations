@@ -1,6 +1,6 @@
 from ftrack_connect_pipeline.asset import FtrackAssetInfo, FtrackAssetBase
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
-import custom_commands as maya_utils
+from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
 
 import maya.cmds as cmd
 

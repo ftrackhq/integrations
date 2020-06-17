@@ -7,6 +7,7 @@ from ftrack_connect_pipeline_maya import plugin
 from ftrack_connect_pipeline_qt.client.widgets.options.dynamic import DynamicWidget
 
 from Qt import QtWidgets
+import ftrack_api
 
 
 class FbxOptionsWidget(DynamicWidget):
@@ -72,5 +73,8 @@ class FbxOptionsPluginWidget(plugin.PublisherOutputMayaWidget):
 
 
 def register(api_object, **kw):
+    if not isinstance(api_object, ftrack_api.Session):
+        # Exit to avoid registering this plugin again.
+        return
     plugin = FbxOptionsPluginWidget(api_object)
     plugin.register()

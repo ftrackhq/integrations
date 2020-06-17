@@ -5,6 +5,7 @@ import os
 
 from ftrack_connect_pipeline_maya import plugin
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
+import ftrack_api
 
 
 class LoadMayaPlugin(plugin.LoaderImporterMayaPlugin):
@@ -48,5 +49,8 @@ class LoadMayaPlugin(plugin.LoaderImporterMayaPlugin):
 
 
 def register(api_object, **kw):
+    if not isinstance(api_object, ftrack_api.Session):
+        # Exit to avoid registering this plugin again.
+        return
     plugin = LoadMayaPlugin(api_object)
     plugin.register()

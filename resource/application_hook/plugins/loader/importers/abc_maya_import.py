@@ -4,6 +4,7 @@
 import maya.cmds as cmd
 
 from ftrack_connect_pipeline_maya import plugin
+import ftrack_api
 
 
 class AbcMayaImportPlugin(plugin.LoaderImporterMayaPlugin):
@@ -24,5 +25,8 @@ class AbcMayaImportPlugin(plugin.LoaderImporterMayaPlugin):
 
 
 def register(api_object, **kw):
+    if not isinstance(api_object, ftrack_api.Session):
+        # Exit to avoid registering this plugin again.
+        return
     plugin = AbcMayaImportPlugin(api_object)
     plugin.register()

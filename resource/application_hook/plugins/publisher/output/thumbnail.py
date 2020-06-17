@@ -10,6 +10,7 @@ import maya.cmds as cmd
 import maya
 
 from ftrack_connect_pipeline_maya import plugin
+import ftrack_api
 
 class OutputMayaThumbnailPlugin(plugin.PublisherOutputMayaPlugin):
     plugin_name = 'thumbnail'
@@ -82,5 +83,8 @@ class OutputMayaThumbnailPlugin(plugin.PublisherOutputMayaPlugin):
 
 
 def register(api_object, **kw):
+    if not isinstance(api_object, ftrack_api.Session):
+        # Exit to avoid registering this plugin again.
+        return
     plugin = OutputMayaThumbnailPlugin(api_object)
     plugin.register()
