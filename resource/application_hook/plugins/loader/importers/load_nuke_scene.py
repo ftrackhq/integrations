@@ -2,13 +2,13 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 from ftrack_connect_pipeline_nuke import plugin
-from ftrack_connect_pipeline_nuke.constants import asset as asset_const
+from ftrack_connect_pipeline_nuke.constants.asset import modes as load_const
 
 
 class ImportNukePlugin(plugin.LoaderImporterNukePlugin):
     plugin_name = 'load_nuke'
 
-    load_modes = asset_const.LOAD_MODES
+    load_modes = load_const.LOAD_MODES
 
     def _get_nuke_options(self, load_options):
         self.logger.debug("No options implemented")
@@ -29,7 +29,7 @@ class ImportNukePlugin(plugin.LoaderImporterNukePlugin):
             self.logger.debug('Loading path {}'.format(component_path))
 
             load_result = load_mode_fn(component_path, nuke_options)
-            if load_mode != asset_const.OPEN_MODE:
+            if load_mode != load_const.OPEN_MODE:
                 results[component_path] = load_result.name()
             else:
                 results[component_path] = load_result

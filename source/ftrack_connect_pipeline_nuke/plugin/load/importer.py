@@ -9,6 +9,7 @@ from ftrack_connect_pipeline_nuke.plugin import (
 
 from ftrack_connect_pipeline_nuke.utils import ftrack_asset_node
 from ftrack_connect_pipeline_nuke.constants import asset as asset_const
+from ftrack_connect_pipeline_nuke.constants.asset import modes as load_const
 
 
 class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
@@ -42,7 +43,7 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
 
         asset_load_mode = options.get('load_mode')
 
-        if asset_load_mode == asset_const.OPEN_MODE:
+        if asset_load_mode == load_const.OPEN_MODE:
             return super_result
 
         ftrack_node_class = self.get_asset_node(context, data, options)
