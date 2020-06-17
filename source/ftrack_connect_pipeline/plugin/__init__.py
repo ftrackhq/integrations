@@ -119,12 +119,12 @@ class BasePlugin(object):
     @property
     def session(self):
         '''Return current session.'''
-        return self._session
+        return self.event_manager.session
 
-    # @property
-    # def event_manager(self):
-    #     '''Return current event_manager.'''
-    #     return self._event_manager
+    @property
+    def event_manager(self):
+        '''Return current event_manager.'''
+        return self._event_manager
 
     def __init__(self, session):
         '''Initialise BasePlugin with *session*.
@@ -143,9 +143,8 @@ class BasePlugin(object):
         self.logger = logging.getLogger(
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
-        self._session = session
         self._event_manager = event.EventManager(
-            session=self.session, mode=constants.LOCAL_EVENT_MODE
+            session=session, mode=constants.LOCAL_EVENT_MODE
         )
         self.validator = BasePluginValidation(
             self.plugin_name, self._required_output, self.return_type,

@@ -10,8 +10,18 @@ import uuid
 logger = logging.getLogger(__name__)
 
 
+class Singleton(type):
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
 class EventManager(object):
     '''Manages the events handling.'''
+
+    __metaclass__ = Singleton
 
     def __repr__(self):
         return '<EventManager:{}:{}>'.format(self.mode, uuid.uuid4().hex)
@@ -26,7 +36,6 @@ class EventManager(object):
     @property
     def connected(self):
         _connected = False
-        self.logger.debug(" on connected")
         try:
             _connected = self.session.event_hub.connected
         except Exception, e:
@@ -39,36 +48,27 @@ class EventManager(object):
 
     def _connect(self):
         # If is not already connected, connect to event hub.
-        self.logger.debug(" on connect")
-        self.logger.debug(" self.connected {}".format(self.connected))
         while not self.connected:
-            self.logger.debug(" on connect while")
-            self.logger.debug('connecting to event hub')
             self.session.event_hub.connect()
-            self.logger.debug(" after event hub connect")
 
     def _wait(self):
-        self.logger.debug('On waiting')
-        self._event_hub_thread = _EventHubThread()
-        self.logger.debug("thread loaded")
-        self._event_hub_thread.start(self.session)
-        self.logger.debug("thread started")
+        if not self._event_hub_thread:
+            self.logger.info('Creating new hub thread for {}'.format(self))
+            self._event_hub_thread = _EventHubThread()
+
+        if not self._event_hub_thread.isAlive():
+            self.logger.info('Starting new hub thread for {}'.format(self))
+            self._event_hub_thread.start(self.session)
 
     def __init__(self, session, mode=constants.LOCAL_EVENT_MODE):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        self.logger.debug("initializing thread")
+        self._event_hub_thread = None
         self._mode = mode
-        self.logger.debug("set mode")
         self._session = session
-        self.logger.debug( "set session --> {}".format(session))
-        self.logger.debug("self.session --> {}".format(self.session))
-
         self._connect()
-        self.logger.debug("connect")
         self._wait()
-        self.logger.debug("wait")
 
         self.logger.debug('Initialising {}'.format(self))
 
@@ -128,8 +128,10 @@ class _EventHubThread(threading.Thread):
     def start(self, session):
         '''Start thread for *_session*.'''
         self._session = session
+        self.logger.info('starting event hub thread')
         super(_EventHubThread, self).start()
 
     def run(self):
         '''Listen for events.'''
+        self.logger.info('hub thread started')
         self._session.event_hub.wait()
