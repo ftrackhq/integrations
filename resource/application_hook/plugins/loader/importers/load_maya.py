@@ -4,13 +4,13 @@
 import os
 
 from ftrack_connect_pipeline_maya import plugin
-from ftrack_connect_pipeline_maya.constants import asset as asset_const
+from ftrack_connect_pipeline_maya.constants.asset import modes as load_const
 
 
 class LoadMayaPlugin(plugin.LoaderImporterMayaPlugin):
     plugin_name = 'load_maya'
 
-    load_modes = asset_const.LOAD_MODES
+    load_modes = load_const.LOAD_MODES
 
     def _get_maya_options(self, load_options):
         maya_options = {}
