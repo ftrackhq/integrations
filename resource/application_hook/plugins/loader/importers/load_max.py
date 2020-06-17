@@ -2,13 +2,13 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 from ftrack_connect_pipeline_3dsmax import plugin
-from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
+from ftrack_connect_pipeline_3dsmax.constants.asset import modes as load_const
 
 
 class LoadMaxPlugin(plugin.LoaderImporterMaxPlugin):
     plugin_name = 'load_max'
 
-    load_modes = asset_const.LOAD_MODES
+    load_modes = load_const.LOAD_MODES
 
     def _get_max_options(self, load_options):
         self.logger.debug("No options implemented")
