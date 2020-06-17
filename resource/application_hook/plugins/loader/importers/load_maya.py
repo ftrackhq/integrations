@@ -5,7 +5,7 @@ import os
 
 from ftrack_connect_pipeline_maya import plugin
 from ftrack_connect_pipeline_maya.constants.asset import modes as load_const
-
+import ftrack_api
 
 class LoadMayaPlugin(plugin.LoaderImporterMayaPlugin):
     plugin_name = 'load_maya'
