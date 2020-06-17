@@ -9,6 +9,7 @@ import traceback
 import copy
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import exception
+from ftrack_connect_pipeline import event
 
 
 class BasePluginValidation(object):
@@ -120,6 +121,11 @@ class BasePlugin(object):
         '''Return current session.'''
         return self._session
 
+    # @property
+    # def event_manager(self):
+    #     '''Return current event_manager.'''
+    #     return self._event_manager
+
     def __init__(self, session):
         '''Initialise BasePlugin with *session*.
 
@@ -138,6 +144,9 @@ class BasePlugin(object):
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
         self._session = session
+        self._event_manager = event.EventManager(
+            session=self.session, mode=constants.LOCAL_EVENT_MODE
+        )
         self.validator = BasePluginValidation(
             self.plugin_name, self._required_output, self.return_type,
             self.return_value
