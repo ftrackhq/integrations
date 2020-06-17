@@ -7,7 +7,8 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 2.4.0
+    :date: 2020-06-17
 
     .. change:: fixed
         :tags: Track build
