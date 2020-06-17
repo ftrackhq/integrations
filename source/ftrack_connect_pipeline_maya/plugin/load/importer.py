@@ -9,7 +9,7 @@ from ftrack_connect_pipeline_maya.plugin import (
 
 from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
 from ftrack_connect_pipeline_maya.utils import ftrack_asset_node
-from ftrack_connect_pipeline_maya.constants import asset as asset_const
+from ftrack_connect_pipeline_maya.constants.asset import modes as load_const
 
 class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
     ''' Class representing a Collector Plugin
@@ -38,7 +38,7 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
 
         asset_load_mode = options.get('load_mode')
 
-        if not asset_load_mode or asset_load_mode == asset_const.OPEN_MODE:
+        if not asset_load_mode or asset_load_mode == load_const.OPEN_MODE:
             return super_result
 
         self.new_data = maya_utils.get_current_scene_objects()

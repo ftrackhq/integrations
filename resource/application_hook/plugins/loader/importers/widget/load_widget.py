@@ -5,14 +5,14 @@ from ftrack_connect_pipeline_maya import plugin
 from ftrack_connect_pipeline_qt.client.widgets.options.load_widget import (
     LoadBaseWidget
 )
-from ftrack_connect_pipeline_maya.constants import asset as asset_const
+from ftrack_connect_pipeline_maya.constants.asset import modes as load_const
 
 from Qt import QtCore, QtWidgets
 import ftrack_api
 
 
 class LoadMayaWidget(LoadBaseWidget):
-    load_modes = asset_const.LOAD_MODES.keys()
+    load_modes = load_const.LOAD_MODES.keys()
 
     def __init__(
             self, parent=None, session=None, data=None, name=None,
@@ -105,7 +105,7 @@ class LoadMayaWidget(LoadBaseWidget):
 
     def _on_load_mode_changed(self, radio_button):
         '''set the result options of value for the key.'''
-        if radio_button.text() == asset_const.OPEN_MODE:
+        if radio_button.text() == load_const.OPEN_MODE:
             self.options_gb.hide()
         else:
             self.options_gb.show()
