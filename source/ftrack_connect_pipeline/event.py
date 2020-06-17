@@ -10,24 +10,40 @@ import uuid
 logger = logging.getLogger(__name__)
 
 
-class Singleton(type):
-    _instances = {}
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
+class _EventHubThread(threading.Thread):
+    '''Listen for events from ftrack's event hub.'''
+
+    def __init__(self):
+        super(_EventHubThread, self).__init__()
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+
+    def start(self, session):
+        '''Start thread for *_session*.'''
+        self._session = session
+        self.logger.info('starting event hub thread for session {}'.format(self._session))
+        super(_EventHubThread, self).start()
+
+    def run(self):
+        '''Listen for events.'''
+        self.logger.info('hub thread started for session {}'.format(self._session))
+        self._session.event_hub.wait()
 
 
 class EventManager(object):
     '''Manages the events handling.'''
-
-    __metaclass__ = Singleton
+    _event_hub_thread = _EventHubThread()
 
     def __repr__(self):
-        return '<EventManager:{}:{}>'.format(self.mode, uuid.uuid4().hex)
+        return '<EventManager:{}:{}>'.format(self.mode, self.id)
 
     def __del__(self):
         self.logger.debug('Closing {}'.format(self))
+
+    @property
+    def id(self):
+        return uuid.uuid4().hex
 
     @property
     def session(self):
@@ -52,10 +68,6 @@ class EventManager(object):
             self.session.event_hub.connect()
 
     def _wait(self):
-        if not self._event_hub_thread:
-            self.logger.info('Creating new hub thread for {}'.format(self))
-            self._event_hub_thread = _EventHubThread()
-
         if not self._event_hub_thread.isAlive():
             self.logger.info('Starting new hub thread for {}'.format(self))
             self._event_hub_thread.start(self.session)
@@ -64,7 +76,6 @@ class EventManager(object):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        self._event_hub_thread = None
         self._mode = mode
         self._session = session
         self._connect()
@@ -114,24 +125,3 @@ class EventManager(object):
             ),
             callback
         )
-
-
-class _EventHubThread(threading.Thread):
-    '''Listen for events from ftrack's event hub.'''
-
-    def __init__(self):
-        super(_EventHubThread, self).__init__()
-        self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
-        )
-
-    def start(self, session):
-        '''Start thread for *_session*.'''
-        self._session = session
-        self.logger.info('starting event hub thread')
-        super(_EventHubThread, self).start()
-
-    def run(self):
-        '''Listen for events.'''
-        self.logger.info('hub thread started')
-        self._session.event_hub.wait()
