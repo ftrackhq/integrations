@@ -4,6 +4,7 @@
 from Qt import QtWidgets, QtCore, QtGui
 from ftrack_connect_pipeline_qt import plugin
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
+import ftrack_api
 
 
 class FileCollectorWidget(BaseOptionsWidget):
@@ -72,5 +73,8 @@ class CollectorWidget(plugin.PublisherCollectorWidget):
 
 
 def register(api_object, **kw):
+    if not isinstance(api_object, ftrack_api.Session):
+        # Exit to avoid registering this plugin again.
+        return
     plugin = CollectorWidget(api_object)
     plugin.register()
