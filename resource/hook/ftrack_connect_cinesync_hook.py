@@ -107,6 +107,10 @@ class CinesyncActionLauncher(BaseAction):
 
         *event* the unmodified original event'''
 
+        applications = self.applicationStore.applications
+        if not applications:
+            return False
+
         selection = self.get_selection(event)
         if not selection:
             self.logger.debug(
@@ -123,7 +127,6 @@ class CinesyncActionLauncher(BaseAction):
             )
             return False
 
-        applications = self.applicationStore.applications
         applications = sorted(
             applications, key=lambda application: application['label']
         )

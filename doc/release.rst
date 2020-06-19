@@ -5,6 +5,11 @@
 Releases
 ########
 
+.. release:: Upcoming
+
+    .. change:: fix
+
+        Fix  discovering cinesync action if application not found.
 
 .. release:: 1.1.2
     :date: 2020-01-28
