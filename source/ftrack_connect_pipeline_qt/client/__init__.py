@@ -4,7 +4,7 @@
 import copy
 from Qt import QtGui, QtCore, QtWidgets
 from ftrack_connect_pipeline import client, constants
-from ftrack_connect_pipeline_qt.ui.utility.widget import header, host_selector
+from ftrack_connect_pipeline_qt.ui.utility.widget import header, definition_selector
 from ftrack_connect_pipeline_qt.client.widgets import factory
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect.ui import theme
@@ -59,7 +59,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.header = header.Header(self.session)
         self.layout().addWidget(self.header)
 
-        self.host_selector = host_selector.HostSelector()
+        self.host_selector = definition_selector.DefinitionSelector()
         self.layout().addWidget(self.host_selector)
 
         self.scroll = QtWidgets.QScrollArea()
