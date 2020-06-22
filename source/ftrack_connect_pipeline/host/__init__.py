@@ -8,6 +8,7 @@ import logging
 from ftrack_connect_pipeline.host import engine
 from ftrack_connect_pipeline.host import validation
 from ftrack_connect_pipeline import constants, utils
+from ftrack_connect_pipeline.constants import asset as asset_const
 
 
 from functools import partial
@@ -69,6 +70,7 @@ class Host(object):
         )
         self._event_manager = event_manager
         self.register()
+        self.listen_asset_manager()
 
     def run(self, event):
         data = event['data']['pipeline']['data']
@@ -90,6 +92,60 @@ class Host(object):
 
         if runnerResult == False:
             self.logger.error("Couldn't publish the data {}".format(data))
+
+        return runnerResult
+
+    # def run_asset_action(self, event):
+    #     data = event['data']['pipeline']
+    #     schema_engine = 'AssetManagerEngine'
+    #     #TODO: the get engine seems to not be working for the loader and publisher
+    #     MyEngine = engine.getEngine(engine.BaseEngine, schema_engine)
+    #     print "MMyEngine --> {}".format(MyEngine)
+    #     engine_runner = MyEngine(
+    #         self._event_manager, self.host, self.hostid
+    #     )
+    #     runnerResult = engine_runner.run(data)
+    #
+    #     if runnerResult == False:
+    #         self.logger.error(
+    #             "Couldn't run the action for the data {}".format(data)
+    #         )
+    #
+    #     return runnerResult
+
+    def _run_discover_assets(self, event):
+        data = event['data']['pipeline']
+        schema_engine = 'AssetManagerEngine'
+        # TODO: the get engine seems to not be working for the loader and publisher
+        MyEngine = engine.getEngine(engine.BaseEngine, schema_engine)
+        print "MMyEngine --> {}".format(MyEngine)
+        engine_runner = MyEngine(
+            self._event_manager, self.host, self.hostid
+        )
+        runnerResult = engine_runner.discover_assets(data)
+
+        if runnerResult == False:
+            self.logger.error(
+                "Couldn't run the action for the data {}".format(data)
+            )
+
+        return runnerResult
+
+    def _run_change_asset_version(self, event):
+        data = event['data']['pipeline']
+        schema_engine = 'AssetManagerEngine'
+        # TODO: the get engine seems to not be working for the loader and publisher
+        MyEngine = engine.getEngine(engine.BaseEngine, schema_engine)
+        print "MMyEngine --> {}".format(MyEngine)
+        engine_runner = MyEngine(
+            self._event_manager, self.host, self.hostid
+        )
+        runnerResult = engine_runner.change_asset_version(data)
+
+        if runnerResult == False:
+            self.logger.error(
+                "Couldn't run the action for the data {}".format(data)
+            )
 
         return runnerResult
 
@@ -167,6 +223,33 @@ class Host(object):
         self._event_manager.publish(
             event,
             self.on_register_definition
+        )
+
+    def listen_asset_manager(self):
+
+        self._event_manager.subscribe(
+            '{} and data.pipeline.host_id={}'.format(
+                constants.PIPELINE_DISCOVER_ASSETS, self.hostid
+            ),
+            self._run_discover_assets
+        )
+        self.logger.info(
+            'subscribe to asset manager version changed  {} ready.'.format(
+                self.hostid
+            )
+        )
+
+
+        self._event_manager.subscribe(
+            '{} and data.pipeline.host_id={}'.format(
+                constants.PIPELINE_ASSET_VERSION_CHANGED, self.hostid
+            ),
+            self._run_change_asset_version
+        )
+        self.logger.info(
+            'subscribe to asset manager version changed  {} ready.'.format(
+                self.hostid
+            )
         )
 
     def reset(self):

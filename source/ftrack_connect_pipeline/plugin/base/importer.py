@@ -87,6 +87,6 @@ class BaseImporterPlugin(BasePlugin):
         asset_info_class = asset_info.FtrackAssetInfo(arguments_dict)
 
         ftrack_node_class = self.asset_node_type(
-            asset_info_class, self.session
+            asset_info_class, self.event_manager
         )
         return ftrack_node_class

@@ -11,6 +11,7 @@ def getEngine(baseClass, engineType):
     '''Return the engine Class *subclass* of the given *baseClass* based on the
     *engineType*'''
     for subclass in baseClass.__subclasses__():
+        print subclass.__name__
         if engineType == subclass.__name__:
             return subclass
 
@@ -289,3 +290,4 @@ class BaseEngine(object):
 
 from ftrack_connect_pipeline.host.engine.publish import *
 from ftrack_connect_pipeline.host.engine.load import *
+from ftrack_connect_pipeline.host.engine.asset_manager import *
