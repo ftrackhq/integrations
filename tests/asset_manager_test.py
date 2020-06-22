@@ -28,18 +28,18 @@ event_manager = event.EventManager(
     session=session, mode=constants.LOCAL_EVENT_MODE
 )
 
-component_name = 'main'
-versions = session.query(
-    'select id, components, components.name, components.id, version, asset , asset.name, asset.type.name from '
-    'AssetVersion where asset_id != None and components.name is "{0}" limit 10'.format(component_name)
-).all()
-
-ftrack_asset_list = []
-
-for version in versions:
-    asset_info = asset_info_from_ftrack_version(version, component_name)
-    qasset_info = QFtrackAsset(asset_info, event_manager)
-    ftrack_asset_list.append(qasset_info)
+# component_name = 'main'
+# versions = session.query(
+#     'select id, components, components.name, components.id, version, asset , asset.name, asset.type.name from '
+#     'AssetVersion where asset_id != None and components.name is "{0}" limit 10'.format(component_name)
+# ).all()
+#
+# ftrack_asset_list = []
+#
+# for version in versions:
+#     asset_info = asset_info_from_ftrack_version(version, component_name)
+#     qasset_info = QFtrackAsset(asset_info, event_manager)
+#     ftrack_asset_list.append(qasset_info)
 
 
 # wid = AssetManagerWidget(ftrack_asset_list, session)

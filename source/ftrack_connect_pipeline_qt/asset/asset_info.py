@@ -20,7 +20,7 @@ class QFtrackAsset(FtrackAssetBase, QtCore.QObject):
         component_id = self.asset_info[asset_constants.COMPONENT_ID]
         return hash(asset_id+version_id+component_id)
 
-    def __init__(self, ftrack_asset_info, event_manager):
+    def __init__(self, event_manager):
         '''
         Initialize FtrackAssetBase with *ftrack_asset_info*, and *session*.
 
@@ -30,10 +30,5 @@ class QFtrackAsset(FtrackAssetBase, QtCore.QObject):
         *session* should be the :class:`ftrack_api.session.Session` instance
         to use for communication with the server.
         '''
-        if not isinstance(ftrack_asset_info, FtrackAssetInfo):
-            raise TypeError(
-                "ftrack_asset_info argument has to be type of FtrackAssetInfo"
-            )
-
-        super(QFtrackAsset, self).__init__(ftrack_asset_info, event_manager)
+        super(QFtrackAsset, self).__init__(event_manager)
 
