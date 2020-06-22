@@ -181,6 +181,11 @@ class Client(object):
         '''Return the current list of hosts'''
         return self._host_list
 
+    # @property
+    # def host_connection(self):
+    #     '''Return the current list of hosts'''
+    #     return self._current_host_connection
+
     def __init__(self, event_manager):
         '''Initialise with *event_manager* , and optional *ui* List
 
@@ -196,6 +201,7 @@ class Client(object):
         self._context_id = utils.get_current_context()
         self._host_list = []
         self._connected = False
+        self._current_host_connection = None
 
         self.__callback = None
         self.logger = logging.getLogger(
@@ -239,6 +245,7 @@ class Client(object):
             self._host_list.append(host_connection)
 
         self._connected = True
+        self._current_host_connection = host_connection
 
     def _discover_hosts(self):
         '''Event to discover new available hosts.'''

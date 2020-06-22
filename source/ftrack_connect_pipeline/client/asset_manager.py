@@ -8,6 +8,7 @@ import ftrack_api
 from ftrack_connect_pipeline import utils
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import client
+from ftrack_connect_pipeline.asset import FtrackAssetBase
 from ftrack_connect_pipeline.constants import asset as asset_const
 
 
@@ -34,12 +35,10 @@ class AssetManagerClient(client.Client):
         self._ftrack_asset_list = []
 
     def discover_assets(self, host_id):
-        #TODO: we want to return the list mainwhile is been fill it
         self._discover_assets(host_id)
 
     def _asset_discovered(self, event):
         '''callback, adds new hosts connection from the given *event*'''
-        print "asset discovered event ---> {}".format(event)
         if not event['data']:
             return
         for ftrack_asset in event['data']:
@@ -64,7 +63,10 @@ class AssetManagerClient(client.Client):
         )
         self._event_manager.publish(event, self._asset_discovered)
 
-    def change_version(self, asset_version_id):
-        pass
-        #TODO: call change version from asset base
-        #change_version( asset_version_id, self.host_connection.id)
+    def change_version(self, ftrack_asset_object, asset_version_id):
+        '''Note: this change_version is to be called using the api'''
+        if not isinstance(ftrack_asset_object, FtrackAssetBase):
+            raise TypeError(
+                "ftrack_asset_info argument has to be type of FtrackAssetInfo"
+            )
+        ftrack_asset_object.change_version(asset_version_id)
