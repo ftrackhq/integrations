@@ -20,8 +20,12 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         self._ftrack_asset_list = []
         self.columns = asset_constants.KEYS
 
-    def add_asset_list(self, ftrack_asset_list):
+    def set_asset_list(self, ftrack_asset_list):
+        self.beginResetModel()
+        #self.clear()
         self._ftrack_asset_list = ftrack_asset_list
+        self.endResetModel()
+
 
     def rowCount(self, parent=QtCore.QModelIndex()):
         '''Return number of children *parent* index has.

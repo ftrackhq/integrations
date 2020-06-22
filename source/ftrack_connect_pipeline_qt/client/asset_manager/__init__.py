@@ -21,6 +21,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
 
         # TODO: remove ftrack_asset_list
         self.asset_manager_widget = AssetManagerWidget(event_manager)
+        self.asset_manager_widget.set_asset_list(self.ftrack_asset_list)
 
         self.pre_build()
         self.build()
@@ -87,8 +88,11 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
         self.host_connection = host_connection
 
         self.asset_manager_widget.set_host_connection(self.host_connection)
-        self.asset_manager_widget.add_asset_list(
-            self.discover_assets(self.host_connection.id)
-        )
-
+        self.discover_assets(self.host_connection.id)
         self.scroll.setWidget(self.asset_manager_widget)
+
+    def _asset_discovered(self, event):
+        '''callback, adds new hosts connection from the given *event*'''
+        AssetManagerClient._asset_discovered(self, event)
+        #super(AssetManagerClient, self)._asset_discovered(event)
+        self.asset_manager_widget.set_asset_list(self.ftrack_asset_list)

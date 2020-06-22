@@ -46,9 +46,9 @@ class AssetManagerWidget(QtWidgets.QWidget):
     def post_build(self):
         self.filter_field.textChanged.connect(self.on_search)
 
-    def add_asset_list(self, ftrack_asset_list):
+    def set_asset_list(self, ftrack_asset_list):
         self.ftrack_asset_list = ftrack_asset_list
-        self.asset_table_view.add_asset_list(self.ftrack_asset_list)
+        self.asset_table_view.set_asset_list(self.ftrack_asset_list)
 
     def on_search(self):
         '''Search in the current model.'''
@@ -153,9 +153,9 @@ class AssetManagerTableView(QtWidgets.QTableView):
         '''Perform post-construction operations.'''
         pass
 
-    def add_asset_list(self, ftrack_asset_list):
+    def set_asset_list(self, ftrack_asset_list):
         self.ftrack_asset_list = ftrack_asset_list
-        self.asset_model.add_asset_list(self.ftrack_asset_list)
+        self.asset_model.set_asset_list(self.ftrack_asset_list)
 
     def contextMenuEvent(self, event):
         self.menu = QtWidgets.QMenu(self)
