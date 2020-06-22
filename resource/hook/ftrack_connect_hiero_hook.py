@@ -53,7 +53,7 @@ class LaunchAction(object):
         entity = selection[0]
         task = self.session.get('Context', entity['entityId'])
 
-        if task.entity_type != 'Project':
+        if not task or task.entity_type != 'Project':
             return False
 
         return True

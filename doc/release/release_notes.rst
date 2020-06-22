@@ -7,6 +7,12 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: fix
+
+        Fix discovering actions on non context entities.
+
 .. release:: 2.4.0
     :date: 2020-06-17
 
