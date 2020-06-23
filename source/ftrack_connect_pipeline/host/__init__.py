@@ -9,6 +9,7 @@ from ftrack_connect_pipeline.host import engine
 from ftrack_connect_pipeline.host import validation
 from ftrack_connect_pipeline import constants, utils
 from ftrack_connect_pipeline.constants import asset as asset_const
+from ftrack_connect_pipeline.host import engine
 
 
 from functools import partial
@@ -32,6 +33,7 @@ def provide_host_information(hostid, definitions, event):
 class Host(object):
 
     host = [constants.HOST]
+    asset_manager_engine = engine.AssetManagerEngine
 
     def __repr__(self):
         return '<Host:{0}>'.format(self.hostid)
@@ -115,9 +117,10 @@ class Host(object):
 
     def _run_discover_assets(self, event):
         data = event['data']['pipeline']
-        schema_engine = 'AssetManagerEngine'
         # TODO: the get engine seems to not be working for the loader and publisher
-        MyEngine = engine.getEngine(engine.BaseEngine, schema_engine)
+        MyEngine = engine.getEngine(
+            engine.BaseEngine, self.asset_manager_engine.__name__
+        )
         print "MMyEngine --> {}".format(MyEngine)
         engine_runner = MyEngine(
             self._event_manager, self.host, self.hostid
@@ -133,9 +136,10 @@ class Host(object):
 
     def _run_change_asset_version(self, event):
         data = event['data']['pipeline']
-        schema_engine = 'AssetManagerEngine'
         # TODO: the get engine seems to not be working for the loader and publisher
-        MyEngine = engine.getEngine(engine.BaseEngine, schema_engine)
+        MyEngine = engine.getEngine(
+            engine.BaseEngine, self.asset_manager_engine.__name__
+        )
         print "MMyEngine --> {}".format(MyEngine)
         engine_runner = MyEngine(
             self._event_manager, self.host, self.hostid

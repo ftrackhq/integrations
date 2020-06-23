@@ -14,6 +14,9 @@ def getEngine(baseClass, engineType):
         print subclass.__name__
         if engineType == subclass.__name__:
             return subclass
+        match = getEngine(subclass, engineType)
+        if match:
+            return match
 
 
 class BaseEngine(object):

@@ -89,6 +89,16 @@ class FtrackAssetBase(object):
         self._nodes = []
         self._node = None
 
+    def init_node(self):
+        '''
+        Return the ftrack node for this class. It checks if there is already a
+        matching ftrack node in the scene, in this case it updates the node if
+        it's not. In case there is no node in the scene this function creates a
+        new one.
+        '''
+        self._set_node(None)
+        return self.node
+
     def set_asset_info(self, ftrack_asset_info):
         if not isinstance(ftrack_asset_info, FtrackAssetInfo):
             raise TypeError(
@@ -160,11 +170,11 @@ class FtrackAssetBase(object):
         #     )
 
 
-    def run_change_version(self, asset_info):
-        # TODO: Not implemented on pipeline, this has to be overriden in maya and do
-        #  the operations to update the scene assets
-        print "in run_change_version"
-        return asset_info
+    # def run_change_version(self, asset_info):
+    #     # TODO: Not implemented on pipeline, this has to be overriden in maya and do
+    #     #  the operations to update the scene assets
+    #     print "in run_change_version"
+    #     return asset_info
 
     def discover_assets(self):
         #TODO: THIS is just for testing remove this later
@@ -179,6 +189,18 @@ class FtrackAssetBase(object):
             )
         ).all()
 
-        return versions
+        component_name = 'main'
+
+        ftrack_asset_info_list = []
+        # ftrack_asset_list = []
+
+        for version in versions:
+            asset_info = asset_info_from_ftrack_version(version, component_name)
+            ftrack_asset_info_list.append(asset_info)
+            # qasset_info = FtrackAssetBase(self.event_manager)
+            # qasset_info.set_asset_info(asset_info)
+            # ftrack_asset_list.append(qasset_info)
+
+        return ftrack_asset_info_list
 
 
