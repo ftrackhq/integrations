@@ -8,7 +8,7 @@ from ftrack_connect_pipeline_maya.plugin import (
 )
 
 from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
-from ftrack_connect_pipeline_maya.utils import ftrack_asset_node
+from ftrack_connect_pipeline_maya.asset import FtrackAssetNode
 from ftrack_connect_pipeline_maya.constants.asset import modes as load_const
 
 class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
@@ -18,7 +18,7 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
 
         _required_output a List
     '''
-    asset_node_type = ftrack_asset_node.FtrackAssetNode
+    asset_node_type = FtrackAssetNode
 
     def _run(self, event):
 

@@ -74,6 +74,7 @@ def initialise():
 
     from ftrack_connect_pipeline_maya.client import load
     from ftrack_connect_pipeline_maya.client import publish
+    from ftrack_connect_pipeline_maya.client import asset_manager
 
     # Enable loader and publisher only if is set to run local (default)
     dialogs = []
@@ -83,6 +84,9 @@ def initialise():
     )
     dialogs.append(
         (publish.MayaPublisherClient, 'Publisher')
+    )
+    dialogs.append(
+        (asset_manager.MayaAssetManagerClient, 'Asset Manager')
     )
 
     ftrack_menu = get_ftrack_menu()
