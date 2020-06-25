@@ -80,9 +80,12 @@ class BaseImporterPlugin(BasePlugin):
 
 
     def get_asset_node(self, context, data, options):
+        print "options --->{}".format(options)
         arguments_dict = asset_info.generate_asset_info_dict_from_args(
             context, data, options, self.session
         )
+        print "arguments_dict ---> {}".format(arguments_dict)
+
 
         asset_info_class = asset_info.FtrackAssetInfo(arguments_dict)
 
