@@ -10,6 +10,7 @@ from ftrack_connect_pipeline_maya.plugin import (
 from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
 from ftrack_connect_pipeline_maya.asset import FtrackAssetNode
 from ftrack_connect_pipeline_maya.constants.asset import modes as load_const
+from ftrack_connect_pipeline_maya.constants import asset as asset_const
 
 class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
     ''' Class representing a Collector Plugin
@@ -36,7 +37,16 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
 
         super_result = super(LoaderImporterMayaPlugin, self)._run(event)
 
-        asset_load_mode = options.get('load_mode')
+        print "options before---> {}".format(options)
+        print "event['data']---> {}".format(event['data'])
+        print "event['data'].type()---> {}".format(event['data'])
+
+        options.setdefault(asset_const.ASSET_INFO_OPTIONS, event['data'])
+        # options[asset_const.ASSET_INFO_OPTIONS] = event['data']
+        print "options after---> {}".format(options)
+
+
+        asset_load_mode = options.get(asset_const.LOAD_MODE)
 
         if not asset_load_mode or asset_load_mode == load_const.OPEN_MODE:
             return super_result

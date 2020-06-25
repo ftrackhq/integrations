@@ -1,12 +1,12 @@
 # # :coding: utf-8
 # # :copyright: Copyright (c) 2019 ftrack
 
-import time
 from ftrack_connect_pipeline.asset import FtrackAssetInfo, FtrackAssetBase
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
 from ftrack_connect_pipeline import constants as core_const
 from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
 
+import ftrack_api
 import maya.cmds as cmd
 
 class FtrackAssetNode(FtrackAssetBase):
@@ -138,7 +138,7 @@ class FtrackAssetNode(FtrackAssetBase):
     def get_load_mode_from_node(self, node):
         '''Return the import mode used to import an asset.'''
         load_mode = cmd.getAttr('{}.{}'.format(
-            node, asset_const.ASSET_INFO_OPTIONS)
+            node, asset_const.LOAD_MODE)
         )
         return load_mode
 
@@ -178,11 +178,68 @@ class FtrackAssetNode(FtrackAssetBase):
     #     return asset_info
 
     def _change_version(self, event):
+        print "event['data'] ---> {} ".format(event)
         asset_info = event['data']
         print "Changing asset info from --> {}".format(self.asset_info)
         print "to --> {}".format(asset_info)
         print "for the node --> {}".format(self.node)
+        asset_info_options = eval(
+            self.asset_info[asset_const.ASSET_INFO_OPTIONS]
+        )
+        asset_context = asset_info_options['settings']['context']
+        asset_data = self.asset_info[asset_const.COMPONENT_PATH]
+        asset_context['asset_id'] = self.asset_info[asset_const.ASSET_ID]
+        asset_context['version_number'] = self.asset_info[asset_const.VERSION_NUMBER]
+        asset_context['asset_name'] = self.asset_info[asset_const.ASSET_NAME]
+        asset_context['asset_type'] = self.asset_info[asset_const.ASSET_TYPE]
+        asset_context['version_id'] = self.asset_info[asset_const.VERSION_ID]
+
+        asset_info_options['settings']['data'] = [asset_data]
+        asset_info_options['settings']['context'] = asset_context
+
+        event = ftrack_api.event.base.Event(
+            topic=core_const.PIPELINE_RUN_PLUGIN_TOPIC,
+            data=asset_info_options
+        )
+        plugin_result_data = self.session.event_hub.publish(
+            event,
+            synchronous=True
+        )
+        print "plugin_result_data  -----> {}".format(plugin_result_data)
+        result_data = plugin_result_data[0]
+
         super(FtrackAssetNode, self)._change_version(event)
+
+
+        '''
+        event
+    from run maya
+    plugin - --> < Event
+    {'topic': 'ftrack.pipeline.run',
+     'source': {'id': 'b2c9ca3cf3bb425e94a3bca27897761a',
+                'user': {'username': 'lluis.casals@ftrack.com'}}, 'target': '',
+     'data': {'pipeline': {'host': 'maya', 'type': 'plugin',
+                           'plugin_name': u'load_maya',
+                           'plugin_type': 'loader.importer'}, 
+              'settings': {
+         'data': [
+             u'/Users/lluisftrack/work/brokenC/ftrack/storageLocation/tp_newframework/char001/torso1/v093/main.mb'],
+         'options': {u'load_mode': u'Import', 'component_name': 'main',
+                     u'load_options': {u'preserve_references': True,
+                                       u'namespace_option': u'file_name',
+                                       u'add_namespace': True}},
+         'context': {'comment': None,
+                     'asset_id': u'f9d9c8dc-edc3-4114-82f2-68c5b346bd6a',
+                     'version_number': u'93', 'asset_name': u'torso1',
+                     'status_id': None,
+                     'context_id': u'690afd58-06d0-11ea-bbbb-ee594985c7e2',
+                     'asset_type': u'geo',
+                     'version_id': u'6c3001fe-b021-435c-8327-8b6bdcd36fd1'}}},
+     'in_reply_to_event': None, 'id': 'cf2cbcb70a394ec79e5132435412072b',
+     'sent': None} >
+        
+        
+        '''
 
     def discover_assets(self):
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
