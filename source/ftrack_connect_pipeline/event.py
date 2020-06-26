@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2020 ftrack
 
 import threading
 
@@ -79,15 +79,14 @@ class EventManager(object):
     def _wait(self):
         for thread in threading.enumerate():
             if thread.getName() == str(hash(self.session)):
-                self.logger.info('Getting existing hub thread {}'.format(self))
                 self._event_hub_thread = thread
                 break
         if not self._event_hub_thread:
-            self.logger.info('Initializing new hub thread {}'.format(self))
+            self.logger.debug('Initializing new hub thread {}'.format(self))
             self._event_hub_thread = _EventHubThread(self.session)
 
         if not self._event_hub_thread.isAlive():
-            self.logger.info('Starting new hub thread for {}'.format(self))
+            self.logger.debug('Starting new hub thread for {}'.format(self))
             self._event_hub_thread.start()
 
     def __init__(self, session, mode=constants.LOCAL_EVENT_MODE):

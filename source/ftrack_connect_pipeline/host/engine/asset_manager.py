@@ -41,30 +41,3 @@ class AssetManagerEngine(BaseEngine):
     def change_asset_version(self, data):
         asset_info = data['data']
         return asset_info
-        # print "asset_info ---> {}".format(asset_info)
-        # qasset_info = FtrackAssetBase(self.event_manager)
-        # # qasset_info.set_asset_info(asset_info)
-        # return self.ftrack_asset_base.run_change_version(asset_info)
-
-        # topic = 'topic={}'.format(
-        #     constants.PIPELINE_RUN_CHANGE_ASSET_VERSION
-        # )
-        #
-        # event = ftrack_api.event.base.Event(
-        #     topic=topic,
-        #     data={
-        #         'pipeline': {
-        #             'host_id': self.hostid,
-        #             'data': data
-        #         }
-        #     }
-        # )
-        # # TODO: someone has to read this event
-        # action_result_data = self.session.event_hub.publish(
-        #     event,
-        #     synchronous=True
-        # )
-        #
-        # # self._notify_client(action, result_data)
-        # return action_result_data
-        # # return result_data['status'], result_data['result']

@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2020 ftrack
 
 import time
 import logging
@@ -180,11 +180,6 @@ class Client(object):
     def hosts(self):
         '''Return the current list of hosts'''
         return self._host_list
-
-    # @property
-    # def host_connection(self):
-    #     '''Return the current list of hosts'''
-    #     return self._current_host_connection
 
     def __init__(self, event_manager):
         '''Initialise with *event_manager* , and optional *ui* List

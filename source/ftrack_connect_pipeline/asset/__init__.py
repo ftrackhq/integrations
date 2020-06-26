@@ -1,6 +1,5 @@
-# # :coding: utf-8
-# # :copyright: Copyright (c) 2019 ftrack
-#
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2020 ftrack
 
 import logging
 import ftrack_api
@@ -100,6 +99,7 @@ class FtrackAssetBase(object):
         return self.node
 
     def set_asset_info(self, ftrack_asset_info):
+        ''' Sets the self._asset_info from the given *ftrack_asset_info*'''
         if not isinstance(ftrack_asset_info, FtrackAssetInfo):
             raise TypeError(
                 "ftrack_asset_info argument has to be type of FtrackAssetInfo"
@@ -113,6 +113,12 @@ class FtrackAssetBase(object):
         self._node = ftrack_node
 
     def change_version(self, asset_version_id, host_id):
+        '''
+        Publish the PIPELINE_ASSET_VERSION_CHANGED event for the given *host_id*
+        with the asset info of the given *asset_version_id*.
+
+        note:: Public function to change the asset version, it's been called from
+        the api or from the asset manager UI '''
         #TODO: Is better to get the asset_info here so we don't have to pass
         # the component name around
         asset_version = self.session.get('AssetVersion', asset_version_id)
@@ -131,19 +137,10 @@ class FtrackAssetBase(object):
         )
         self._event_manager.publish(event, self._change_version)
 
-        # event = ftrack_api.event.base.Event(
-        #     topic=constants.PIPELINE_ASSET_VERSION_CHANGED,
-        #     data={
-        #         'pipeline': {
-        #             'host_id': host_id,
-        #             'data': asset_version_id
-        #         }
-        #     }
-        # )
-        # self._event_manager.publish(event, self._change_version)
-
     def _change_version(self, event):
-        print "_change_version event --> {}".format(event)
+        '''
+        Callback function to change the asset version from the given *event*
+        '''
         asset_info = event['data']
 
         if not asset_info:
@@ -157,27 +154,13 @@ class FtrackAssetBase(object):
 
         return asset_info
 
-        # asset_info = None
-        # try:
-        #     asset_version = self.session.get('AssetVersion', asset_version_id)
-        #     asset_info = asset_info_from_ftrack_version(
-        #         asset_version, self.component_name
-        #     )
-        #     self.asset_info.update(asset_info)
-        # except Exception, e:
-        #     self.logger.error(
-        #         "Can find asset version id: {}".format(asset_version_id)
-        #     )
-
-
-    # def run_change_version(self, asset_info):
-    #     # TODO: Not implemented on pipeline, this has to be overriden in maya and do
-    #     #  the operations to update the scene assets
-    #     print "in run_change_version"
-    #     return asset_info
-
     def discover_assets(self):
-        #TODO: THIS is just for testing remove this later
+        '''
+        Base discover assets function.
+        '''
+        #TODO: THIS is just for testing remove this later, we could add some
+        # arguments to pass to the function and customize the discover in case
+        # we do it from the API. Or maybe it's simply unuseful
         from ftrack_connect_pipeline.asset.asset_info import asset_info_from_ftrack_version
 
         component_name = 'main'
@@ -192,14 +175,10 @@ class FtrackAssetBase(object):
         component_name = 'main'
 
         ftrack_asset_info_list = []
-        # ftrack_asset_list = []
 
         for version in versions:
             asset_info = asset_info_from_ftrack_version(version, component_name)
             ftrack_asset_info_list.append(asset_info)
-            # qasset_info = FtrackAssetBase(self.event_manager)
-            # qasset_info.set_asset_info(asset_info)
-            # ftrack_asset_list.append(qasset_info)
 
         return ftrack_asset_info_list
 

@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2020 ftrack
 
 from ftrack_connect_pipeline.plugin import BasePlugin, BasePluginValidation
 from ftrack_connect_pipeline.constants import plugin
@@ -80,12 +80,9 @@ class BaseImporterPlugin(BasePlugin):
 
 
     def get_asset_node(self, context, data, options):
-        print "options --->{}".format(options)
         arguments_dict = asset_info.generate_asset_info_dict_from_args(
             context, data, options, self.session
         )
-        print "arguments_dict ---> {}".format(arguments_dict)
-
 
         asset_info_class = asset_info.FtrackAssetInfo(arguments_dict)
 

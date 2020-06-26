@@ -17,7 +17,8 @@ def getEngine(baseClass, engineType):
         match = getEngine(subclass, engineType)
         if match:
             return match
-
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2020 ftrack
 
 class BaseEngine(object):
 
