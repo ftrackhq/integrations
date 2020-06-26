@@ -1,9 +1,8 @@
 #! /usr/bin/env python
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2020 ftrack
 
 
-from ftrack_connect_pipeline_qt.client import QtClient
 from ftrack_connect_pipeline.client.asset_manager import AssetManagerClient
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 from ftrack_connect_pipeline_qt.ui.utility.widget import header, host_selector
@@ -57,9 +56,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
         self.scroll.setWidgetResizable(True)
         self.layout().addWidget(self.scroll)
 
-        # self.run_button = QtWidgets.QPushButton('Run')
-        # self.layout().addWidget(self.run_button)
-
     def post_build(self):
         '''Post Build ui method for events connections.'''
         self.host_selector.host_changed.connect(self._host_changed)
@@ -80,7 +76,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
         ''' Triggered when definition_changed is called from the host_selector.
         Generates the widgets interface from the given *host_connection*,
         *schema* and *definition*'''
-        print "------"
         if not host_connection:
             return
 

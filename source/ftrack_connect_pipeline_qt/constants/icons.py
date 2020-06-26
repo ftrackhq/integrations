@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2020 ftrack
 
 from Qt import QtWidgets, QtCore, QtGui
 from ftrack_connect_pipeline.constants.status import (
