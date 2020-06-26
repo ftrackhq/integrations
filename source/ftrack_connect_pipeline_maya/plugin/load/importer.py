@@ -1,6 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
+import json
+
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_maya.plugin import (
@@ -37,14 +39,7 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
 
         super_result = super(LoaderImporterMayaPlugin, self)._run(event)
 
-        print "options before---> {}".format(options)
-        print "event['data']---> {}".format(event['data'])
-        print "event['data'].type()---> {}".format(event['data'])
-
-        options.setdefault(asset_const.ASSET_INFO_OPTIONS, event['data'])
-        # options[asset_const.ASSET_INFO_OPTIONS] = event['data']
-        print "options after---> {}".format(options)
-
+        options[asset_const.ASSET_INFO_OPTIONS] = json.dumps(event['data']).encode('base64')
 
         asset_load_mode = options.get(asset_const.LOAD_MODE)
 

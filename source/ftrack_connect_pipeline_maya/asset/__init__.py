@@ -1,10 +1,13 @@
 # # :coding: utf-8
 # # :copyright: Copyright (c) 2019 ftrack
 
+import json
+
 from ftrack_connect_pipeline.asset import FtrackAssetInfo, FtrackAssetBase
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
 from ftrack_connect_pipeline import constants as core_const
 from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
+from ftrack_connect_pipeline_maya.constants.asset import modes as load_const
 
 import ftrack_api
 import maya.cmds as cmd
@@ -161,87 +164,63 @@ class FtrackAssetNode(FtrackAssetBase):
         '''Update the parameters of the ftrack node. And Return the ftrack node
         updated
         '''
-
         for k, v in self.asset_info.items():
             if k == asset_const.VERSION_NUMBER:
-                cmd.setAttr('{}.{}'.format(self.node, k), v)
+                cmd.setAttr('{}.{}'.format(self.node, k), v, l=True)
             else:
-                cmd.setAttr('{}.{}'.format(self.node, k), v, type="string")
+                cmd.setAttr('{}.{}'.format(self.node, k), v, type="string", l=True)
 
         return self.node
 
-    # def run_change_version(self, asset_info):
-    #     # TODO: Not implemented on pipeline, this has to be overriden in maya and do
-    #     #  the operations to update the scene assets
-    #     print "in run_change_version of maya"
-    #     #loadMode = self.get_load_mode_from_node(node)
-    #     return asset_info
-
     def _change_version(self, event):
-        print "event['data'] ---> {} ".format(event)
+        '''
+        Override function from the main class, remove the current assets of the
+        scene and loads the given version of the asset in the *event*. Then
+        super the base function.
+        '''
         asset_info = event['data']
-        print "Changing asset info from --> {}".format(self.asset_info)
-        print "to --> {}".format(asset_info)
-        print "for the node --> {}".format(self.node)
-        asset_info_options = eval(
-            self.asset_info[asset_const.ASSET_INFO_OPTIONS]
+
+        try:
+            self.logger.debug("Removing current objects")
+            self.remove_current_objects()
+        except Exception, e:
+            self.logger.error("Error removing current objects: {}".format(e))
+
+
+        asset_info_options = json.loads(
+            self.asset_info[asset_const.ASSET_INFO_OPTIONS].decode('base64')
         )
         asset_context = asset_info_options['settings']['context']
-        asset_data = self.asset_info[asset_const.COMPONENT_PATH]
-        asset_context['asset_id'] = self.asset_info[asset_const.ASSET_ID]
-        asset_context['version_number'] = self.asset_info[asset_const.VERSION_NUMBER]
-        asset_context['asset_name'] = self.asset_info[asset_const.ASSET_NAME]
-        asset_context['asset_type'] = self.asset_info[asset_const.ASSET_TYPE]
-        asset_context['version_id'] = self.asset_info[asset_const.VERSION_ID]
+        asset_data = asset_info[asset_const.COMPONENT_PATH]
+        asset_context[asset_const.ASSET_ID] = asset_info[asset_const.ASSET_ID]
+        asset_context[asset_const.VERSION_NUMBER] = asset_info[asset_const.VERSION_NUMBER]
+        asset_context[asset_const.ASSET_NAME] = asset_info[asset_const.ASSET_NAME]
+        asset_context[asset_const.ASSET_TYPE] = asset_info[asset_const.ASSET_TYPE]
+        asset_context[asset_const.VERSION_ID] = asset_info[asset_const.VERSION_ID]
 
         asset_info_options['settings']['data'] = [asset_data]
-        asset_info_options['settings']['context'] = asset_context
+        asset_info_options['settings']['context'].update(asset_context)
 
-        event = ftrack_api.event.base.Event(
+
+        run_event = ftrack_api.event.base.Event(
             topic=core_const.PIPELINE_RUN_PLUGIN_TOPIC,
             data=asset_info_options
         )
         plugin_result_data = self.session.event_hub.publish(
-            event,
+            run_event,
             synchronous=True
         )
-        print "plugin_result_data  -----> {}".format(plugin_result_data)
         result_data = plugin_result_data[0]
+        if not result_data:
+            self.logger.error("Error re-loading asset")
 
         super(FtrackAssetNode, self)._change_version(event)
 
-
-        '''
-        event
-    from run maya
-    plugin - --> < Event
-    {'topic': 'ftrack.pipeline.run',
-     'source': {'id': 'b2c9ca3cf3bb425e94a3bca27897761a',
-                'user': {'username': 'lluis.casals@ftrack.com'}}, 'target': '',
-     'data': {'pipeline': {'host': 'maya', 'type': 'plugin',
-                           'plugin_name': u'load_maya',
-                           'plugin_type': 'loader.importer'}, 
-              'settings': {
-         'data': [
-             u'/Users/lluisftrack/work/brokenC/ftrack/storageLocation/tp_newframework/char001/torso1/v093/main.mb'],
-         'options': {u'load_mode': u'Import', 'component_name': 'main',
-                     u'load_options': {u'preserve_references': True,
-                                       u'namespace_option': u'file_name',
-                                       u'add_namespace': True}},
-         'context': {'comment': None,
-                     'asset_id': u'f9d9c8dc-edc3-4114-82f2-68c5b346bd6a',
-                     'version_number': u'93', 'asset_name': u'torso1',
-                     'status_id': None,
-                     'context_id': u'690afd58-06d0-11ea-bbbb-ee594985c7e2',
-                     'asset_type': u'geo',
-                     'version_id': u'6c3001fe-b021-435c-8327-8b6bdcd36fd1'}}},
-     'in_reply_to_event': None, 'id': 'cf2cbcb70a394ec79e5132435412072b',
-     'sent': None} >
-        
-        
-        '''
-
     def discover_assets(self):
+        '''
+        Returns *asset_info_list* with all the assets loaded in the current
+        scene that has an ftrackAssetNode connected
+        '''
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
 
         asset_info_list = []
@@ -253,23 +232,38 @@ class FtrackAssetNode(FtrackAssetBase):
             asset_info_list.append(node_asset_info)
         return asset_info_list
 
-    # def listen_asset_manager_actions(self):
-    #     self.session.event_hub.subscribe(
-    #         core_const.PIPELINE_RUN_CHANGE_ASSET_VERSION,
-    #         self.change_asset_version
-    #     )
-        #functools.partial(callback, action=session)
-        # subscribe to discover the plugin
-        # self.session.event_hub.subscribe(
-        #     self.retrive_current_assets_action,
-        #     self.get_scene_assets
-        # )
+    def remove_current_objects(self):
+        '''
+        Remove all the imported or referenced objects in the scene
+        '''
+        referenceNode = False
+        for node in cmd.listConnections(
+                '{}.{}'.format(self.node, asset_const.ASSET_LINK)
+        ):
+            if cmd.nodeType(node) == 'reference':
+                referenceNode = maya_utils.getReferenceNode(node)
+                if referenceNode:
+                    break
 
-    # def change_asset_version(self, event):
-    #     print "Change_asset_version!!!"
-    #     asset_info = event['data']
-    #     #Do change version in maya
-    #     return asset_info
-
-
-
+        if referenceNode:
+            self.logger.debug("Removing reference: {}".format(referenceNode))
+            maya_utils.remove_reference_node(referenceNode)
+        else:
+            nodes = cmd.listConnections(
+                '{}.{}'.format(self.node, asset_const.ASSET_LINK)
+            )
+            for node in nodes:
+                try:
+                    self.logger.debug(
+                        "Removing object: {}".format(node)
+                    )
+                    if cmd.objExists(node):
+                        cmd.delete(node)
+                except Exception as error:
+                    self.logger.error(
+                        'Node: {0} could not be deleted, error: {1}'.format(
+                            node, error
+                        )
+                    )
+        if cmd.objExists(self.node):
+            cmd.delete(self.node)

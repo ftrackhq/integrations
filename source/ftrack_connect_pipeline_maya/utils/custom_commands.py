@@ -23,3 +23,30 @@ def import_file(path, options):
 
 def reference_file(path, options):
     return cmd.file(path, r=True, **options)
+
+def remove_reference_node(referenceNode):
+    return cmd.file(rfn=referenceNode, rr=True)
+
+def getReferenceNode(assetLink):
+    '''Return the references nodes for the given *assetLink*'''
+    res = ''
+    try:
+        res = cmd.referenceQuery(assetLink, referenceNode=True)
+    except:
+        children = cmd.listRelatives(assetLink, children=True)
+
+        if children:
+            for child in children:
+                try:
+                    res = cmd.referenceQuery(child, referenceNode=True)
+                    break
+
+                except:
+                    pass
+        else:
+            return None
+    if res == '':
+        print 'Could not find reference node'
+        return None
+    else:
+        return res

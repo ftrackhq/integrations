@@ -14,7 +14,7 @@ class MayaAssetManagerClient(MayaQWidgetDockableMixin, QtAssetManagerClient):
         super(MayaAssetManagerClient, self).__init__(
             event_manager=event_manager, parent=parent
         )
-        self.setWindowTitle('Maya Pipeline Loader')
+        self.setWindowTitle('Maya Pipeline Asset Manager')
 
     def show(self):
         super(MayaAssetManagerClient, self).show(
