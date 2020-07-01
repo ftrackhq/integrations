@@ -129,7 +129,7 @@ class FtrackAssetNode(FtrackAssetBase):
             max_utils.add_node_to_selection(obj)
         self._connect_selection()
         if (
-                self.asset_info[asset_const.ASSET_INFO_OPTIONS] !=
+                self.asset_info[asset_const.LOAD_MODE] !=
                 load_const.SCENE_XREF_MODE
         ):
             self.reload_references_from_selection()
