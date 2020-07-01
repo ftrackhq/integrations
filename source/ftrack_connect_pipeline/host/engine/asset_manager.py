@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2020 ftrack
 
 import copy
 import ftrack_api
@@ -13,7 +13,7 @@ class AssetManagerEngine(BaseEngine):
     engine_type = 'asset_manager'
     ftrack_asset_class = FtrackAssetBase
 
-    def __init__(self, event_manager, host, hostid):
+    def __init__(self, event_manager, host, hostid, asset_type=None):
         '''Initialise AssetManagerEngine with *event_manager*, *host*, *hostid*
         and *asset_type*'''
         super(AssetManagerEngine, self).__init__(
@@ -41,3 +41,15 @@ class AssetManagerEngine(BaseEngine):
     def change_asset_version(self, data):
         asset_info = data['data']
         return asset_info
+
+    def select_asset(self, data):
+        asset_item = data['data']
+        return asset_item
+
+    def clear_selection(self, data):
+        asset_item = data['data']
+        return asset_item
+
+    def remove_asset(self, data):
+        asset_item = data['data']
+        return asset_item

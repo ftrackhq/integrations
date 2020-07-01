@@ -37,11 +37,14 @@ PIPELINE_CONNECT_CLIENT = '{}.client.connect'.format(_BASE_)
 
 #Asset Events
 PIPELINE_DISCOVER_ASSETS = '{}.client.discover_assets'.format(_BASE_)
-PIPELINE_RUN_DISCOVER_ASSETS = '{}.run.discover_assets'.format(_BASE_)
+#PIPELINE_RUN_DISCOVER_ASSETS = '{}.run.discover_assets'.format(_BASE_)
 PIPELINE_ASSET_VERSION_CHANGED = '{}.client.asset_version_changed'.format(_BASE_)
-PIPELINE_RUN_CHANGE_ASSET_VERSION = '{}.run.asset_version_changed'.format(_BASE_)
-#PIPELINE_RUN_ASSET_ACTION = '{}.run_asset_action'.format(_BASE_)
-#PIPELINE_RETRIVE_CURRENT_ASSETS = '{}.client.retrive_current_assets'.format(_BASE_)
+#PIPELINE_RUN_CHANGE_ASSET_VERSION = '{}.run.asset_version_changed'.format(_BASE_)
+PIPELINE_ON_SELECT_ASSET = '{}.client.select_asset'.format(_BASE_)
+#PIPELINE_RUN_SELECT_ASSET = '{}.run.select_asset'.format(_BASE_)
+PIPELINE_ON_REMOVE_ASSET = '{}.client.remove_asset'.format(_BASE_)
+PIPELINE_ON_CLEAR_SELECTION = '{}.client.clear_selection'.format(_BASE_)
+
 
 # Avoid circular dependencies.
 from ftrack_connect_pipeline.constants.plugin.load import *

@@ -13,6 +13,10 @@ class AssetManagerClient(client.Client):
     '''
 
     @property
+    def event_manager(self):
+        return self._event_manager
+
+    @property
     def ftrack_asset_list(self):
         '''Return the current list of hosts'''
         return self._ftrack_asset_list
