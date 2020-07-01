@@ -1,5 +1,5 @@
-# # :coding: utf-8
-# # :copyright: Copyright (c) 2019 ftrack
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2020 ftrack
 
 import json
 
@@ -67,7 +67,6 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
         for ftrack_node in ftrack_asset_nodes:
-
             param_dict = self._get_parameters_dictionary(ftrack_node)
             node_asset_info = FtrackAssetInfo(param_dict)
             if node_asset_info.is_deprecated:
@@ -165,6 +164,7 @@ class FtrackAssetNode(FtrackAssetBase):
         updated
         '''
         for k, v in self.asset_info.items():
+            cmd.setAttr('{}.{}'.format(self.node, k), l=False)
             if k == asset_const.VERSION_NUMBER:
                 cmd.setAttr('{}.{}'.format(self.node, k), v, l=True)
             else:
@@ -190,6 +190,7 @@ class FtrackAssetNode(FtrackAssetBase):
         asset_info_options = json.loads(
             self.asset_info[asset_const.ASSET_INFO_OPTIONS].decode('base64')
         )
+
         asset_context = asset_info_options['settings']['context']
         asset_data = asset_info[asset_const.COMPONENT_PATH]
         asset_context[asset_const.ASSET_ID] = asset_info[asset_const.ASSET_ID]
@@ -200,7 +201,6 @@ class FtrackAssetNode(FtrackAssetBase):
 
         asset_info_options['settings']['data'] = [asset_data]
         asset_info_options['settings']['context'].update(asset_context)
-
 
         run_event = ftrack_api.event.base.Event(
             topic=core_const.PIPELINE_RUN_PLUGIN_TOPIC,
@@ -214,6 +214,12 @@ class FtrackAssetNode(FtrackAssetBase):
         if not result_data:
             self.logger.error("Error re-loading asset")
 
+        event['data'][asset_const.ASSET_INFO_OPTIONS] = json.dumps(
+            asset_info_options
+        ).encode('base64')
+        event['data'][asset_const.LOAD_MODE] = self.asset_info[
+            asset_const.LOAD_MODE
+        ]
         super(FtrackAssetNode, self)._change_version(event)
 
     def discover_assets(self):
@@ -267,3 +273,48 @@ class FtrackAssetNode(FtrackAssetBase):
                     )
         if cmd.objExists(self.node):
             cmd.delete(self.node)
+
+    def _remove_asset(self, event):
+        '''
+        Override function from the main class, remove the current assets of the
+        scene.
+        '''
+        super(FtrackAssetNode, self)._remove_asset(event)
+
+        asset_item = event['data']
+
+        try:
+            self.logger.debug("Removing current objects")
+            self.remove_current_objects()
+        except Exception, e:
+            self.logger.error("Error removing current objects: {}".format(e))
+
+        return asset_item
+
+    def _select_asset(self, event):
+        '''
+        Override function from the main class, select the current assets of the
+        scene.
+        '''
+        super(FtrackAssetNode, self)._select_asset(event)
+        asset_item = event['data']
+
+        nodes = cmd.listConnections(
+            '{}.{}'.format(self.node, asset_const.ASSET_LINK)
+        )
+        for node in nodes:
+            cmd.select(node, add=True)
+
+        return asset_item
+
+    def _clear_selection(self, event):
+        '''
+        Override function from the main class, select the current assets of the
+        scene.
+        '''
+        super(FtrackAssetNode, self)._clear_selection(event)
+        asset_item = event['data']
+
+        cmd.select(cl=True)
+
+        return asset_item
