@@ -7,7 +7,7 @@ from ftrack_connect_pipeline_nuke.plugin import (
     BaseNukePlugin, BaseNukePluginWidget
 )
 
-from ftrack_connect_pipeline_nuke.utils import ftrack_asset_node
+from ftrack_connect_pipeline_nuke.asset import FtrackAssetTab
 from ftrack_connect_pipeline_nuke.constants import asset as asset_const
 from ftrack_connect_pipeline_nuke.constants.asset import modes as load_const
 
@@ -19,7 +19,7 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
 
         _required_output a List
     '''
-    asset_node_type = ftrack_asset_node.FtrackAssetTab
+    asset_node_type = FtrackAssetTab
 
     def _run(self, event):
         '''
