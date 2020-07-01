@@ -14,11 +14,18 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
     def ftrack_asset_list(self):
         return self._ftrack_asset_list
 
-    def __init__(self, ftrack_asset_list=None, parent=None):
+    def __init__(self, parent=None):
         '''Initialise with *root* entity and optional *parent*.'''
         super(AssetManagerModel, self).__init__(parent=parent)
-        self._ftrack_asset_list = ftrack_asset_list
+        self._ftrack_asset_list = []
         self.columns = asset_constants.KEYS
+
+    def set_asset_list(self, ftrack_asset_list):
+        self.beginResetModel()
+        #self.clear()
+        self._ftrack_asset_list = ftrack_asset_list
+        self.endResetModel()
+
 
     def rowCount(self, parent=QtCore.QModelIndex()):
         '''Return number of children *parent* index has.
@@ -34,8 +41,14 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         '''Return amount of data *parent* index has.'''
         return len(self.columns)
 
-    def data(self, index, role=QtCore.Qt.DisplayRole):
+    def removeRows(self, position, rows=1, index=QtCore.QModelIndex()):
+        self.beginRemoveRows(index, position, position + rows - 1)
 
+        self._ftrack_asset_list.pop(position)
+
+        self.endRemoveRows()
+
+    def data(self, index, role=QtCore.Qt.DisplayRole):
         row = index.row()
         column = index.column()
 
@@ -90,7 +103,9 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
     def setData(self, index, value, role=QtCore.Qt.EditRole):
         if role == QtCore.Qt.EditRole:
             if value:
-                self.ftrack_asset_list[index.row()].change_version(value)
+                self.ftrack_asset_list[index.row()].change_version(
+                    value, self.host_connection.id
+                )
                 self.dataChanged.emit(index, index)
                 return True
             return False
@@ -105,6 +120,9 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
 
     def get_version_column_idx(self):
         return self.columns.index(asset_constants.VERSION_NUMBER)
+
+    def set_host_connection(self, host_connection):
+        self.host_connection = host_connection
 
 
 class FilterProxyModel(QtCore.QSortFilterProxyModel):

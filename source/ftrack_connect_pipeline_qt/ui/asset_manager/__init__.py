@@ -3,6 +3,8 @@
 
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
+from ftrack_connect_pipeline import constants as core_const
+
 from ftrack_connect_pipeline_qt.ui.asset_manager.model.asset_manager import (
     AssetManagerModel, FilterProxyModel
 )
@@ -12,11 +14,19 @@ from ftrack_connect_pipeline_qt.ui.asset_manager.delegate.asset_manager import (
 
 
 class AssetManagerWidget(QtWidgets.QWidget):
+    widget_status_updated = QtCore.Signal(object)
 
-    def __init__(self, ftrack_asset_list, session, parent=None):
+    @property
+    def event_manager(self):
+        return self._event_manager
+
+    def __init__(self, event_manager, parent=None):
         super(AssetManagerWidget, self).__init__(parent=parent)
-        self.session = session
-        self.ftrack_asset_list = ftrack_asset_list
+
+        self.session = event_manager.session
+        self._event_manager = event_manager
+
+        self.ftrack_asset_list = []
 
         self.pre_build()
         self.build()
@@ -34,22 +44,70 @@ class AssetManagerWidget(QtWidgets.QWidget):
         filter_layout.addWidget(self.filter_field)
         self.layout().addLayout(filter_layout)
 
-        self.asset_list = AssetManagerTableView(self.ftrack_asset_list, self.session, parent=self)
-        self.layout().addWidget(self.asset_list)
+        self.asset_table_view = AssetManagerTableView(self.session, parent=self)
+        self.layout().addWidget(self.asset_table_view)
 
     def post_build(self):
         self.filter_field.textChanged.connect(self.on_search)
 
+    def set_asset_list(self, ftrack_asset_list):
+        self.ftrack_asset_list = ftrack_asset_list
+        self.asset_table_view.set_asset_list(self.ftrack_asset_list)
+
     def on_search(self):
         '''Search in the current model.'''
         value = self.filter_field.text()
-        self.asset_list.model().setFilterWildcard(value)
+        self.asset_table_view.model().setFilterWildcard(value)
+
+    def set_host_connection(self, host_connection):
+        self.host_connection = host_connection
+        self._listen_widget_updates()
+        self.asset_table_view.set_host_connection(self.host_connection)
+
+    def _update_widget(self, event):
+        '''*event* callback to update widget with the current status/value'''
+        pass
+        # result = event['data']['pipeline']['result']
+        # widget_ref = event['data']['pipeline']['widget_ref']
+        # status = event['data']['pipeline']['status']
+        # message = event['data']['pipeline']['message']
+        # host_id = event['data']['pipeline']['hostid']
+        #
+        # widget = self.widgets.get(widget_ref)
+        # if not widget:
+        #     self.logger.debug(
+        #         'Widget ref :{} not found for hostid {} ! '.format(
+        #             widget_ref, host_id
+        #         )
+        #     )
+        #     return
+        #
+        # if status:
+        #     self.logger.debug(
+        #         'updating widget: {} with {}, {}'.format(
+        #             widget, status, message
+        #         )
+        #     )
+        #     widget.set_status(status, message)
+
+    def _listen_widget_updates(self):
+        '''Subscribe to the PIPELINE_CLIENT_NOTIFICATION topic to call the
+        _update_widget function when the host returns and answer through the
+        same topic'''
+
+        self.session.event_hub.subscribe(
+            'topic={} and data.pipeline.hostid={}'.format(
+                core_const.PIPELINE_CLIENT_NOTIFICATION,
+                self.host_connection.id
+            ),
+            self._update_widget
+        )
 
 
 class AssetManagerTableView(QtWidgets.QTableView):
     '''Model representing AssetManager.'''
 
-    def __init__(self, ftrack_asset_list, session, parent=None):
+    def __init__(self, session, parent=None):
         '''Initialise browser with *root* entity.
 
         Use an empty *root* to start with list of projects.
@@ -59,7 +117,7 @@ class AssetManagerTableView(QtWidgets.QTableView):
         '''
         super(AssetManagerTableView, self).__init__(parent=parent)
 
-        self.ftrack_asset_list = ftrack_asset_list
+        self.ftrack_asset_list = []
 
         self._session = session
 
@@ -84,9 +142,7 @@ class AssetManagerTableView(QtWidgets.QTableView):
 
     def build(self):
 
-        self.asset_model = AssetManagerModel(
-            ftrack_asset_list=self.ftrack_asset_list, parent=self
-        )
+        self.asset_model = AssetManagerModel(parent=self)
         self.proxy_model = FilterProxyModel(parent=self)
         self.proxy_model.setSourceModel(self.asset_model)
 
@@ -99,20 +155,66 @@ class AssetManagerTableView(QtWidgets.QTableView):
 
     def post_build(self):
         '''Perform post-construction operations.'''
+        pass
+
+    def set_asset_list(self, ftrack_asset_list):
+        self.ftrack_asset_list = ftrack_asset_list
+        self.asset_model.set_asset_list(self.ftrack_asset_list)
 
     def contextMenuEvent(self, event):
         self.menu = QtWidgets.QMenu(self)
+
         self.udpate_action = QtWidgets.QAction('Update to latest', self)
-        self.udpate_action.triggered.connect(lambda: self.ctx_update_to_latest(event))
+        self.select_action = QtWidgets.QAction('Select', self)
+        self.remove_action = QtWidgets.QAction('Remove', self)
+
+        self.udpate_action.triggered.connect(
+            lambda: self.ctx_update_to_latest(event)
+        )
+        self.select_action.triggered.connect(
+            lambda: self.ctx_select_action(event)
+        )
+        self.remove_action.triggered.connect(
+            lambda: self.ctx_remove_action(event)
+        )
+
         self.menu.addAction(self.udpate_action)
+        self.menu.addAction(self.select_action)
+        self.menu.addAction(self.remove_action)
+
         # add other required actions
         self.menu.exec_(QtGui.QCursor.pos())
 
     def ctx_update_to_latest(self, event):
-        rows = self.selectionModel().selectedRows()
-        for row in rows:
-            data = self.model().data(row, self.model().DATA_ROLE)
+        index_list = self.selectionModel().selectedRows()
+        for index in index_list:
+            data = self.model().data(index, self.model().DATA_ROLE)
             latest_versions = data.asset_versions[-1]
             self.asset_model.setData(
-                row, latest_versions['id'], QtCore.Qt.EditRole
+                index, latest_versions['id'], QtCore.Qt.EditRole
             )
+
+    def ctx_select_action(self, event):
+        index_list = self.selectionModel().selectedRows()
+        i=0
+        for index in index_list:
+            data = self.model().data(index, self.model().DATA_ROLE)
+            if i==0:
+                data.clear_selection(self.host_connection.id)
+            data.select_asset(self.host_connection.id)
+            i+=1
+
+    def ctx_remove_action(self, event):
+        index_list=[]
+        for model_index in self.selectionModel().selectedRows():
+            index = QtCore.QPersistentModelIndex(model_index)
+            index_list.append(index)
+
+        for index in index_list:
+            data = self.model().data(index, self.model().DATA_ROLE)
+            data.remove_asset(self.host_connection.id)
+            self.model().removeRow(index.row())
+
+    def set_host_connection(self, host_connection):
+        self.host_connection = host_connection
+        self.asset_model.set_host_connection(self.host_connection)

@@ -6,6 +6,7 @@ from ftrack_connect_pipeline_qt import plugin
 from ftrack_connect_pipeline_qt.client.widgets.options import (
     context as context_widget
 )
+import ftrack_api
 
 
 class ContextWidget(plugin.LoaderContextWidget):
@@ -14,5 +15,8 @@ class ContextWidget(plugin.LoaderContextWidget):
 
 
 def register(api_object, **kw):
+    if not isinstance(api_object, ftrack_api.Session):
+        # Exit to avoid registering this plugin again.
+        return
     plugin = ContextWidget(api_object)
     plugin.register()
