@@ -1,0 +1,52 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2020 ftrack
+
+import copy
+import ftrack_api
+
+from ftrack_connect_pipeline.host.engine import BaseEngine
+from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline.asset import FtrackAssetBase, asset_info_from_ftrack_version
+
+
+class AssetManagerEngine(BaseEngine):
+    engine_type = 'asset_manager'
+    ftrack_asset_class = FtrackAssetBase
+
+    def __init__(self, event_manager, host, hostid, asset_type=None):
+        '''Initialise AssetManagerEngine with *event_manager*, *host*, *hostid*
+        and *asset_type*'''
+        super(AssetManagerEngine, self).__init__(
+            event_manager, host, hostid, asset_type=None
+        )
+
+        self.ftrack_asset_base = self.ftrack_asset_class(self.event_manager)
+
+
+    def discover_assets(self, data):
+        ftrack_asset_info_list = self.ftrack_asset_base.discover_assets()
+        ftrack_asset_list = []
+
+        for asset_info in ftrack_asset_info_list:
+            ftrack_asset_class = self.ftrack_asset_class(self.event_manager)
+            ftrack_asset_class.set_asset_info(asset_info)
+            ftrack_asset_class.init_node()
+            ftrack_asset_list.append(ftrack_asset_class)
+
+        return ftrack_asset_list
+
+    def change_asset_version(self, data):
+        asset_info = data['data']
+        return asset_info
+
+    def select_asset(self, data):
+        asset_item = data['data']
+        return asset_item
+
+    def clear_selection(self, data):
+        asset_item = data['data']
+        return asset_item
+
+    def remove_asset(self, data):
+        asset_item = data['data']
+        return asset_item

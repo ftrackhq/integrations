@@ -1,6 +1,9 @@
-from ftrack_connect_pipeline.constants.asset import v1, v2
-#Legacy Parameters Mapping
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2020 ftrack
 
+from ftrack_connect_pipeline.constants.asset import v1, v2
+
+#Legacy Parameters Mapping
 V1_TO_V2_MAPPING = {
     v1.VERSION_ID: v2.VERSION_ID,
     v1.VERSION_NUMBER: v2.VERSION_NUMBER,

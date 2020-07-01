@@ -1,3 +1,6 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2020 ftrack
+
 import copy
 import json
 import python_jsonschema_objects as pjo

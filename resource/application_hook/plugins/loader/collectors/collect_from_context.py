@@ -4,6 +4,8 @@
 import os
 from ftrack_connect_pipeline import plugin
 
+import ftrack_api
+
 class CollectFromContextPlugin(plugin.LoaderCollectorPlugin):
     plugin_name = 'collect_from_context'
 
@@ -35,5 +37,8 @@ class CollectFromContextPlugin(plugin.LoaderCollectorPlugin):
 
 
 def register(api_object, **kw):
+    if not isinstance(api_object, ftrack_api.Session):
+        # Exit to avoid registering this plugin again.
+        return
     plugin = CollectFromContextPlugin(api_object)
     plugin.register()

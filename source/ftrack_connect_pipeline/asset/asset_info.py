@@ -1,3 +1,6 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2020 ftrack
+
 import logging
 from ftrack_connect_pipeline.constants import asset as constants
 
@@ -28,7 +31,11 @@ def generate_asset_info_dict_from_args(context, data, options, session):
     )
     arguments_dict[constants.VERSION_ID] = context.get('version_id', '')
 
-    arguments_dict[constants.ASSET_INFO_OPTIONS] = options.get('load_mode', '')
+    arguments_dict[constants.LOAD_MODE] = options.get('load_mode', '')
+
+    arguments_dict[constants.ASSET_INFO_OPTIONS] = options.get(
+        constants.ASSET_INFO_OPTIONS, ''
+    )
 
     asset_version = session.get(
         'AssetVersion', arguments_dict[constants.VERSION_ID]
@@ -49,6 +56,10 @@ def generate_asset_info_dict_from_args(context, data, options, session):
 
 
 def asset_info_from_ftrack_version(ftrack_version, component_name):
+    '''
+    Return an FtrackAssetInfo object generated from the given *ftrack_version*
+    and the given *component_name*
+    '''
     asset_info_data = {}
     asset = ftrack_version['asset']
     asset_info_data[constants.ASSET_NAME] = asset['name']

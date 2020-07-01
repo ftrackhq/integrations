@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2020 ftrack
 
 from ftrack_connect_pipeline.plugin import BasePlugin, BasePluginValidation
 from ftrack_connect_pipeline.constants import plugin
@@ -86,7 +86,6 @@ class BaseImporterPlugin(BasePlugin):
 
         asset_info_class = asset_info.FtrackAssetInfo(arguments_dict)
 
-        ftrack_node_class = self.asset_node_type(
-            asset_info_class, self.session
-        )
+        ftrack_node_class = self.asset_node_type(self.event_manager)
+        ftrack_node_class.set_asset_info(asset_info_class)
         return ftrack_node_class

@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2020 ftrack
 
 import time
 import logging
@@ -196,6 +196,7 @@ class Client(object):
         self._context_id = utils.get_current_context()
         self._host_list = []
         self._connected = False
+        self._current_host_connection = None
 
         self.__callback = None
         self.logger = logging.getLogger(
@@ -239,6 +240,7 @@ class Client(object):
             self._host_list.append(host_connection)
 
         self._connected = True
+        self._current_host_connection = host_connection
 
     def _discover_hosts(self):
         '''Event to discover new available hosts.'''
