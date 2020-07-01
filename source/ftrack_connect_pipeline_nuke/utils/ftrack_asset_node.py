@@ -43,6 +43,7 @@ class FtrackAssetTab(FtrackAssetBase):
         self._tab = ftrack_tab
 
     def init_tab(self, scene_node):
+        #TODO: we may have to change init_tab for inti node in order to match the other apps
         '''
         Return the scene node for this class. It checks if there is already a
         matching ftrack tab in the scene, and the tab if needed. In case there
