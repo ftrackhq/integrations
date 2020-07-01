@@ -24,9 +24,6 @@ class AssetManagerEngine(BaseEngine):
 
 
     def discover_assets(self, data):
-        #TODO: add ftrackassetbase as a class variable in order to use the
-        # ftrackmayanode in case of maya
-
         ftrack_asset_info_list = self.ftrack_asset_base.discover_assets()
         ftrack_asset_list = []
 
