@@ -72,8 +72,8 @@ class FtrackAssetNode(FtrackAssetBase):
             if node_asset_info.is_deprecated:
                 raise DeprecationWarning("Can not read v1 ftrack asset plugin")
             if (
-                    node_asset_info[asset_const.COMPONENT_ID] ==
-                    self.asset_info[asset_const.COMPONENT_ID]
+                    node_asset_info[asset_const.REFERENCE_NODE] ==
+                    self.asset_info[asset_const.REFERENCE_NODE]
             ):
 
                 return ftrack_node
@@ -167,6 +167,12 @@ class FtrackAssetNode(FtrackAssetBase):
             cmd.setAttr('{}.{}'.format(self.node, k), l=False)
             if k == asset_const.VERSION_NUMBER:
                 cmd.setAttr('{}.{}'.format(self.node, k), v, l=True)
+            elif k == asset_const.REFERENCE_NODE:
+                cmd.setAttr(
+                    '{}.{}'.format(
+                        self.node, k
+                    ), str(self.node), type="string", l=True
+                )
             else:
                 cmd.setAttr('{}.{}'.format(self.node, k), v, type="string", l=True)
 
@@ -220,6 +226,9 @@ class FtrackAssetNode(FtrackAssetBase):
         event['data'][asset_const.LOAD_MODE] = self.asset_info[
             asset_const.LOAD_MODE
         ]
+        event['data'][asset_const.REFERENCE_NODE] = self.asset_info[
+            asset_const.REFERENCE_NODE
+        ]
         super(FtrackAssetNode, self)._change_version(event)
 
     def discover_assets(self):
@@ -228,13 +237,13 @@ class FtrackAssetNode(FtrackAssetBase):
         scene that has an ftrackAssetNode connected
         '''
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
-
+        #new_self = FtrackAssetNode(self.event_manager)
         asset_info_list = []
 
         for ftrack_node in ftrack_asset_nodes:
-
             param_dict = self._get_parameters_dictionary(ftrack_node)
             node_asset_info = FtrackAssetInfo(param_dict)
+            #asset_info_node_dict[ftrack_node] = node_asset_info
             asset_info_list.append(node_asset_info)
         return asset_info_list
 
