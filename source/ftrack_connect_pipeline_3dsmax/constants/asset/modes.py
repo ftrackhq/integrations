@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2020 ftrack
 
 from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
 

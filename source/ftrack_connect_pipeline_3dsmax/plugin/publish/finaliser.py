@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2020 ftrack
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
@@ -7,7 +7,7 @@ from ftrack_connect_pipeline_3dsmax.plugin import (
     BaseMaxPlugin, BaseMaxPluginWidget
 )
 from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
-from ftrack_connect_pipeline_3dsmax.utils import ftrack_asset_node
+
 
 class PublisherFinaliserMaxPlugin(plugin.PublisherFinaliserPlugin, BaseMaxPlugin):
     ''' Class representing a Finaliser Plugin

@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2020 ftrack
 
 from Qt import QtCore, QtWidgets
 
@@ -19,7 +19,7 @@ class MaxLoaderClient(QtLoaderClient):
         )
         self.dock_widget = QtWidgets.QDockWidget(parent=parent)
         self.setWindowTitle('Max Pipeline Loader')
-        self.setObjectName('Max Pipeline Publisher')
+        self.setObjectName('Max Pipeline Loader')
         self.dock_widget.setWidget(self)
         parent.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.dock_widget)
         self.dock_widget.setFloating(True)

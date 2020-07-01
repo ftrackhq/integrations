@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2020 ftrack
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
@@ -8,7 +8,7 @@ from ftrack_connect_pipeline_3dsmax.plugin import (
 )
 
 from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
-from ftrack_connect_pipeline_3dsmax.utils import ftrack_asset_node
+from ftrack_connect_pipeline_3dsmax.asset import FtrackAssetNode
 from ftrack_connect_pipeline_3dsmax.constants.asset import modes as load_const
 
 
@@ -19,7 +19,7 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
 
         _required_output a List
     '''
-    asset_node_type = ftrack_asset_node.FtrackAssetNode
+    asset_node_type = FtrackAssetNode
 
     def _run(self, event):
         self.old_data = max_utils.get_current_scene_objects()
