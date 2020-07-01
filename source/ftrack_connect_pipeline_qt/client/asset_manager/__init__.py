@@ -2,11 +2,13 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
+from functools import partial
 
 from ftrack_connect_pipeline.client.asset_manager import AssetManagerClient
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 from ftrack_connect_pipeline_qt.ui.utility.widget import header, host_selector
 from ftrack_connect_pipeline_qt.ui.asset_manager import AssetManagerWidget
+from ftrack_connect_pipeline_qt import constants as qt_const
 
 class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
     '''
@@ -21,6 +23,8 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
         # TODO: remove ftrack_asset_list
         self.asset_manager_widget = AssetManagerWidget(event_manager)
         self.asset_manager_widget.set_asset_list(self.ftrack_asset_list)
+
+        self.host_connection = None
 
         self.pre_build()
         self.build()
@@ -52,6 +56,13 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
         self.host_selector = host_selector.HostSelector()
         self.layout().addWidget(self.host_selector)
 
+        self.refresh_button = QtWidgets.QPushButton('Refresh')
+        self.refresh_button.setSizePolicy(
+            QtWidgets.QSizePolicy.Fixed,
+            QtWidgets.QSizePolicy.Fixed
+        )
+        self.layout().addWidget(self.refresh_button, alignment=QtCore.Qt.AlignRight)
+
         self.scroll = QtWidgets.QScrollArea()
         self.scroll.setWidgetResizable(True)
         self.layout().addWidget(self.scroll)
@@ -59,6 +70,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
     def post_build(self):
         '''Post Build ui method for events connections.'''
         self.host_selector.host_changed.connect(self._host_changed)
+        self.refresh_button.clicked.connect(partial(self._refresh_ui,None))
 
         self.asset_manager_widget.widget_status_updated.connect(
             self._on_widget_status_updated
@@ -85,9 +97,28 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
         self.asset_manager_widget.set_host_connection(self.host_connection)
         self.discover_assets(self.host_connection.id)
         self.scroll.setWidget(self.asset_manager_widget)
+        self._listen_refresh_request()
 
     def _asset_discovered(self, event):
         '''callback, adds new hosts connection from the given *event*'''
         AssetManagerClient._asset_discovered(self, event)
         #super(AssetManagerClient, self)._asset_discovered(event)
         self.asset_manager_widget.set_asset_list(self.ftrack_asset_list)
+
+    def _listen_refresh_request(self):
+        self.event_manager.subscribe(
+            '{} and data.pipeline.host_id={}'.format(
+                qt_const.PIPELINE_REFRESH_AM, self.host_connection.id
+            ),
+            self._refresh_ui
+        )
+        self.logger.info(
+            'subscribe to asset manager version changed  {} ready.'.format(
+                self.host_connection.id
+            )
+        )
+
+    def _refresh_ui(self, event):
+        if not self.host_connection:
+            return
+        self.discover_assets(self.host_connection.id)

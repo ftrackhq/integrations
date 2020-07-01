@@ -3,7 +3,7 @@
 
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
-from ftrack_connect_pipeline import constants as core_constants
+from ftrack_connect_pipeline import constants as core_const
 
 from ftrack_connect_pipeline_qt.ui.asset_manager.model.asset_manager import (
     AssetManagerModel, FilterProxyModel
@@ -15,6 +15,10 @@ from ftrack_connect_pipeline_qt.ui.asset_manager.delegate.asset_manager import (
 
 class AssetManagerWidget(QtWidgets.QWidget):
     widget_status_updated = QtCore.Signal(object)
+
+    @property
+    def event_manager(self):
+        return self._event_manager
 
     def __init__(self, event_manager, parent=None):
         super(AssetManagerWidget, self).__init__(parent=parent)
@@ -93,7 +97,7 @@ class AssetManagerWidget(QtWidgets.QWidget):
 
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.hostid={}'.format(
-                core_constants.PIPELINE_CLIENT_NOTIFICATION,
+                core_const.PIPELINE_CLIENT_NOTIFICATION,
                 self.host_connection.id
             ),
             self._update_widget
@@ -159,20 +163,57 @@ class AssetManagerTableView(QtWidgets.QTableView):
 
     def contextMenuEvent(self, event):
         self.menu = QtWidgets.QMenu(self)
+
         self.udpate_action = QtWidgets.QAction('Update to latest', self)
-        self.udpate_action.triggered.connect(lambda: self.ctx_update_to_latest(event))
+        self.select_action = QtWidgets.QAction('Select', self)
+        self.remove_action = QtWidgets.QAction('Remove', self)
+
+        self.udpate_action.triggered.connect(
+            lambda: self.ctx_update_to_latest(event)
+        )
+        self.select_action.triggered.connect(
+            lambda: self.ctx_select_action(event)
+        )
+        self.remove_action.triggered.connect(
+            lambda: self.ctx_remove_action(event)
+        )
+
         self.menu.addAction(self.udpate_action)
+        self.menu.addAction(self.select_action)
+        self.menu.addAction(self.remove_action)
+
         # add other required actions
         self.menu.exec_(QtGui.QCursor.pos())
 
     def ctx_update_to_latest(self, event):
-        rows = self.selectionModel().selectedRows()
-        for row in rows:
-            data = self.model().data(row, self.model().DATA_ROLE)
+        index_list = self.selectionModel().selectedRows()
+        for index in index_list:
+            data = self.model().data(index, self.model().DATA_ROLE)
             latest_versions = data.asset_versions[-1]
             self.asset_model.setData(
-                row, latest_versions['id'], QtCore.Qt.EditRole
+                index, latest_versions['id'], QtCore.Qt.EditRole
             )
+
+    def ctx_select_action(self, event):
+        index_list = self.selectionModel().selectedRows()
+        i=0
+        for index in index_list:
+            data = self.model().data(index, self.model().DATA_ROLE)
+            if i==0:
+                data.clear_selection(self.host_connection.id)
+            data.select_asset(self.host_connection.id)
+            i+=1
+
+    def ctx_remove_action(self, event):
+        index_list=[]
+        for model_index in self.selectionModel().selectedRows():
+            index = QtCore.QPersistentModelIndex(model_index)
+            index_list.append(index)
+
+        for index in index_list:
+            data = self.model().data(index, self.model().DATA_ROLE)
+            data.remove_asset(self.host_connection.id)
+            self.model().removeRow(index.row())
 
     def set_host_connection(self, host_connection):
         self.host_connection = host_connection

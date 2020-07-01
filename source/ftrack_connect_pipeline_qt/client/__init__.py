@@ -1,6 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
+import ftrack_api
+
 import copy
 from Qt import QtGui, QtCore, QtWidgets
 from ftrack_connect_pipeline import client, constants

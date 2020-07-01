@@ -41,8 +41,14 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         '''Return amount of data *parent* index has.'''
         return len(self.columns)
 
-    def data(self, index, role=QtCore.Qt.DisplayRole):
+    def removeRows(self, position, rows=1, index=QtCore.QModelIndex()):
+        self.beginRemoveRows(index, position, position + rows - 1)
 
+        self._ftrack_asset_list.pop(position)
+
+        self.endRemoveRows()
+
+    def data(self, index, role=QtCore.Qt.DisplayRole):
         row = index.row()
         column = index.column()
 
