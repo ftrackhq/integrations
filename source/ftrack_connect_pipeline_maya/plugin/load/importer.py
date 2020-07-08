@@ -62,13 +62,13 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
             return
 
         self.logger.debug(
-            'Checked differences between nodes before and after'
+            'Checked differences between ftrack_objects before and after'
             ' inport : {}'.format(diff)
         )
 
         ftrack_node_class = self.get_asset_node(context, data, options)
 
-        ftrack_node = ftrack_node_class.init_node()
+        ftrack_node = ftrack_node_class.init_ftrack_object()
 
         ftrack_node_class.connect_objects(diff)
 

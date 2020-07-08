@@ -107,11 +107,11 @@ def nodeInitializer():
     )
     t_attr.setStorable(True)
     FtrackAssetNode.a_reference_node = t_attr.create(
-        asset_const.REFERENCE_NODE, 'rfn', OpenMaya.MFnData.kString
+        asset_const.REFERENCE_OBJECT, 'rfn', OpenMaya.MFnData.kString
     )
     t_attr.setStorable(True)
 
-    # Add the attributes to the node
+    # Add the attributes to the ftrack_object
     FtrackAssetNode.addAttribute(FtrackAssetNode.a_locked)
     FtrackAssetNode.addAttribute(FtrackAssetNode.a_asset_link)
     FtrackAssetNode.addAttribute(FtrackAssetNode.a_asset_id)
@@ -135,7 +135,7 @@ def initializePlugin(m_object):
             kPluginNodeTypeName, kPluginNodeId, nodeCreator, nodeInitializer
         )
     except:
-        sys.stderr.write('Failed to register node: {0}'.format(
+        sys.stderr.write('Failed to register ftrack_object: {0}'.format(
             kPluginNodeTypeName
         ))
         raise
@@ -146,7 +146,7 @@ def uninitializePlugin(m_object):
     try:
         m_plugin.deregisterNode(kPluginNodeId)
     except:
-        sys.stderr.write('Failed to deregister node: {0}'.format(
+        sys.stderr.write('Failed to deregister ftrack_object: {0}'.format(
             kPluginNodeTypeName
         ))
         raise

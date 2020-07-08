@@ -28,7 +28,7 @@ def remove_reference_node(referenceNode):
     return cmd.file(rfn=referenceNode, rr=True)
 
 def getReferenceNode(assetLink):
-    '''Return the references nodes for the given *assetLink*'''
+    '''Return the references ftrack_objects for the given *assetLink*'''
     res = ''
     try:
         res = cmd.referenceQuery(assetLink, referenceNode=True)
@@ -46,7 +46,7 @@ def getReferenceNode(assetLink):
         else:
             return None
     if res == '':
-        print 'Could not find reference node'
+        print 'Could not find reference ftrack_object'
         return None
     else:
         return res
