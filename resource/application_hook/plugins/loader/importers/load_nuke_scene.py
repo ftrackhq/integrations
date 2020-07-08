@@ -14,7 +14,9 @@ class ImportNukePlugin(plugin.LoaderImporterNukePlugin):
 
     def _get_nuke_options(self, load_options):
         self.logger.debug("No options implemented")
-        return {}
+        nuke_options = {}
+
+        return nuke_options
 
     def run(self, context=None, data=None, options=None):
         load_mode = options.get('load_mode', self.load_modes.keys()[0])

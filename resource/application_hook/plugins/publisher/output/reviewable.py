@@ -16,7 +16,7 @@ class OutputReviewablePlugin(plugin.PublisherOutputNukePlugin):
         node_name = data[0]
         write_node = nuke.toNode(node_name)
 
-        # Get the input of the given write node.
+        # Get the input of the given write ftrack_object.
         input_node = write_node.input(0)
 
         # Generate output file name for mov.

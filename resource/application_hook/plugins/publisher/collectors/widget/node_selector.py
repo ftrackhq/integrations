@@ -42,7 +42,7 @@ class NodeSelectorWidget(BaseOptionsWidget):
         if node_names:
             self.nodes_cb.addItems(node_names)
         else:
-            self.nodes_cb.addItem('No nodes found.')
+            self.nodes_cb.addItem('No ftrack_objects found.')
             self.nodes_cb.setDisabled(True)
 
     def post_build(self):

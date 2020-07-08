@@ -16,16 +16,16 @@ class OutputThumbnailPlugin(plugin.PublisherOutputNukePlugin):
         node_name = data[0]
         write_node = nuke.toNode(node_name)
 
-        # create reformat node
-        reformat_node = nuke.nodes.Reformat()
+        # create reformat ftrack_object
+        reformat_node = nuke.ftrack_objects.Reformat()
         reformat_node['type'].setValue("to box")
         reformat_node['box_width'].setValue(200.0)
 
-        # connect given write node to reformat.
+        # connect given write ftrack_object to reformat.
         reformat_node.setInput(0, write_node)
 
         # create new write for reformat and connect it.
-        new_write_node = nuke.nodes.Write()
+        new_write_node = nuke.ftrack_objects.Write()
         new_write_node.setInput(0, reformat_node)
 
         file_name = tempfile.NamedTemporaryFile(
