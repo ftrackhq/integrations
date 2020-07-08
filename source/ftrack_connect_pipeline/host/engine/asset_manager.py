@@ -30,7 +30,7 @@ class AssetManagerEngine(BaseEngine):
         for asset_info in ftrack_asset_info_list:
             ftrack_asset_class = self.ftrack_asset_class(self.event_manager)
             ftrack_asset_class.set_asset_info(asset_info)
-            ftrack_asset_class.init_node()
+            ftrack_asset_class.init_ftrack_object()
             ftrack_asset_list.append(ftrack_asset_class)
 
         return ftrack_asset_list

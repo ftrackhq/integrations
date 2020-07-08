@@ -16,7 +16,7 @@ class FtrackAssetBase(object):
     identity = None
     default_component_name = 'main'
 
-    def is_ftrack_node(self, other):
+    def is_ftrack_object(self, other):
         raise NotImplementedError()
 
     @property
@@ -59,12 +59,12 @@ class FtrackAssetBase(object):
         return self._event_manager
 
     @property
-    def nodes(self):
-        return self._nodes[:]
+    def ftrack_objects(self):
+        return self._ftrack_objects[:]
 
     @property
-    def node(self):
-        return self._node
+    def ftrack_object(self):
+        return self._ftrack_object
 
     def __init__(self, event_manager):
         '''
@@ -85,18 +85,18 @@ class FtrackAssetBase(object):
         self._asset_info = None#ftrack_asset_info
         self._event_manager = event_manager
 
-        self._nodes = []
-        self._node = None
+        self._ftrack_objects = []
+        self._ftrack_object = None
 
-    def init_node(self):
+    def init_ftrack_object(self):
         '''
-        Return the ftrack node for this class. It checks if there is already a
-        matching ftrack node in the scene, in this case it updates the node if
-        it's not. In case there is no node in the scene this function creates a
+        Return the ftrack ftrack_object for this class. It checks if there is already a
+        matching ftrack ftrack_object in the scene, in this case it updates the ftrack_object if
+        it's not. In case there is no ftrack_object in the scene this function creates a
         new one.
         '''
-        self._set_node(None)
-        return self.node
+        self._set_ftrack_object(None)
+        return self.ftrack_object
 
     def set_asset_info(self, ftrack_asset_info):
         ''' Sets the self._asset_info from the given *ftrack_asset_info*'''
@@ -106,11 +106,12 @@ class FtrackAssetBase(object):
             )
         self._asset_info = ftrack_asset_info
 
-    def _set_node(self, ftrack_node):
+    def _set_ftrack_object(self, ftrack_object):
         '''
-        Sets the given *ftrack_node* as the current self.node of the class
+        Sets the given *ftrack_object* as the current self.ftrack_object of the class
         '''
-        self._node = ftrack_node
+        self.logger.info("_set_ftrack_object")
+        self._ftrack_object = ftrack_object
 
     def change_version(self, asset_version_id, host_id):
         '''
