@@ -56,9 +56,6 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
             return super_result
 
         self.new_data = nuke_utils.get_current_scene_objects()
-        self.logger.debug(
-            'Scene objects after load : {}'.format(len(self.new_data))
-        )
 
         diff = self.new_data.difference(self.old_data)
 
@@ -86,7 +83,6 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
         else:
             ftrack_node_class.set_ftrack_object()
 
-        self.logger.info("comming from importer")
         ftrack_node = ftrack_node_class.init_ftrack_object()
 
         ftrack_node_class.connect_objects(diff)
