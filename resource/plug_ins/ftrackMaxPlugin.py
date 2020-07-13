@@ -28,6 +28,7 @@ def register_ftrack_asset_helper():
                 {component_id} type:#string default:""
                 {load_mode} type:#string default:""
                 {asset_info_options} type:#string default:""
+                {reference_object} type:#string default:""
             )
         )
         """.format(
@@ -44,6 +45,7 @@ def register_ftrack_asset_helper():
             component_id=asset_const.COMPONENT_ID,
             load_mode=asset_const.LOAD_MODE,
             asset_info_options=asset_const.ASSET_INFO_OPTIONS,
+            reference_object=asset_const.REFERENCE_OBJECT,
         )
     )
 

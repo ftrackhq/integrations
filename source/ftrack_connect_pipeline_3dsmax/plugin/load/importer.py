@@ -40,8 +40,8 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
         super_result = super(LoaderImporterMaxPlugin, self)._run(event)
 
         options[asset_const.ASSET_INFO_OPTIONS] = json.dumps(
-            event['data']).encode('base64'
-                                  )
+            event['data']
+        ).encode('base64')
 
         asset_load_mode = options.get(asset_const.LOAD_MODE)
 

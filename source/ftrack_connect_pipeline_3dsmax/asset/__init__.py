@@ -47,13 +47,12 @@ class FtrackAssetNode(FtrackAssetBase):
             'helper_object {} has been created'.format(self.helper_object)
         )
 
-
     def init_ftrack_object(self):
         '''
-        Return the ftrack ftrack_object for this class. It checks if there is already a
-        matching ftrack ftrack_object in the scene, in this case it updates the ftrack_object if
-        it's not. In case there is no ftrack_object in the scene this function creates a
-        new one.
+        Return the ftrack ftrack_object for this class. It checks if there is
+        already a matching ftrack ftrack_object in the scene, in this case it
+        updates the ftrack_object if it's not. In case there is no ftrack_object
+        in the scene this function creates a new one.
         '''
         ftrack_object = self.get_ftrack_object_from_scene()
         if ftrack_object:
@@ -82,6 +81,7 @@ class FtrackAssetNode(FtrackAssetBase):
 
             param_dict = self._get_parameters_dictionary(obj)
             node_asset_info = FtrackAssetInfo(param_dict)
+
             if node_asset_info.is_deprecated:
                 raise DeprecationWarning("Can not read v1 ftrack asset plugin")
             if (
@@ -163,8 +163,8 @@ class FtrackAssetNode(FtrackAssetBase):
 
     def create_new_ftrack_object(self):
         '''
-        Creates the ftrack_node with a unique name. The ftrack ftrack_object is type of
-        FtrackAssetHelper.
+        Creates the ftrack_node with a unique name. The ftrack ftrack_object is
+        type of FtrackAssetHelper.
 
         '''
         name = self._get_unique_ftrack_object_name()
@@ -187,8 +187,8 @@ class FtrackAssetNode(FtrackAssetBase):
         return self._update_ftrack_object()
 
     def _update_ftrack_object(self):
-        '''Update the parameters of the ftrack ftrack_object. And Return the ftrack ftrack_object
-        updated
+        '''Update the parameters of the ftrack ftrack_object. And Return the
+        ftrack ftrack_object updated
         '''
 
         try:
@@ -201,7 +201,10 @@ class FtrackAssetNode(FtrackAssetBase):
         obj = self.ftrack_object.Object
 
         for p in obj.ParameterBlock.Parameters:
-            p.SetValue(self.asset_info[p.Name])
+            if p.Name == asset_const.REFERENCE_OBJECT:
+                p.SetValue(str(self.ftrack_object))
+            else:
+                p.SetValue(self.asset_info[p.Name])
 
         try:
             cmd = 'freeze ${0}'.format(self.ftrack_object.Name)
@@ -258,7 +261,9 @@ class FtrackAssetNode(FtrackAssetBase):
             if node.Parent == root_node:
                 node.Parent = self.ftrack_object
                 self.logger.debug(
-                    'ftrack_object {} added to ftrack ftrack_object {}'.format(node, self.ftrack_object)
+                    'ftrack_object {} added to ftrack ftrack_object {}'.format(
+                        node, self.ftrack_object
+                    )
                 )
 
     def _change_version(self, event):
@@ -323,7 +328,8 @@ class FtrackAssetNode(FtrackAssetBase):
         asset_info_list = []
 
         for ftrack_object in ftrack_asset_nodes:
-            param_dict = self._get_parameters_dictionary(ftrack_object)
+            obj = ftrack_object.Object
+            param_dict = self._get_parameters_dictionary(obj)
             node_asset_info = FtrackAssetInfo(param_dict)
             asset_info_list.append(node_asset_info)
         return asset_info_list
@@ -332,38 +338,8 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
         Remove all the imported or referenced objects in the scene
         '''
-        pass
-        # referenceNode = False
-        # for node in cmd.listConnections(
-        #         '{}.{}'.format(self.ftrack_object, asset_const.ASSET_LINK)
-        # ):
-        #     if cmd.nodeType(node) == 'reference':
-        #         referenceNode = maya_utils.getReferenceNode(node)
-        #         if referenceNode:
-        #             break
-        #
-        # if referenceNode:
-        #     self.logger.debug("Removing reference: {}".format(referenceNode))
-        #     maya_utils.remove_reference_node(referenceNode)
-        # else:
-        #     nodes = cmd.listConnections(
-        #         '{}.{}'.format(self.ftrack_object, asset_const.ASSET_LINK)
-        #     )
-        #     for node in nodes:
-        #         try:
-        #             self.logger.debug(
-        #                 "Removing object: {}".format(node)
-        #             )
-        #             if cmd.objExists(node):
-        #                 cmd.delete(node)
-        #         except Exception as error:
-        #             self.logger.error(
-        #                 'Node: {0} could not be deleted, error: {1}'.format(
-        #                     node, error
-        #                 )
-        #             )
-        # if cmd.objExists(self.ftrack_object):
-        #     cmd.delete(self.ftrack_object)
+        max_utils.delete_all_children(self.ftrack_object)
+        self.ftrack_object.Delete()
 
     def _remove_asset(self, event):
         '''
@@ -388,15 +364,12 @@ class FtrackAssetNode(FtrackAssetBase):
         scene.
         '''
         super(FtrackAssetNode, self)._select_asset(event)
-        # asset_item = event['data']
-        #
-        # nodes = cmd.listConnections(
-        #     '{}.{}'.format(self.ftrack_object, asset_const.ASSET_LINK)
-        # )
-        # for node in nodes:
-        #     cmd.select(node, add=True)
-        #
-        # return asset_item
+        asset_item = event['data']
+
+        max_utils.deselect_all()
+        max_utils.add_all_children_to_selection(self.ftrack_object)
+
+        return asset_item
 
     def _clear_selection(self, event):
         '''
