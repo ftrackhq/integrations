@@ -108,27 +108,8 @@ class Host(object):
 
         return runnerResult
 
-    # def run_asset_action(self, event):
-    #     data = event['data']['pipeline']
-    #     schema_engine = 'AssetManagerEngine'
-    #     #TODO: the get engine seems to not be working for the loader and publisher
-    #     MyEngine = engine.getEngine(engine.BaseEngine, schema_engine)
-    #     print "MMyEngine --> {}".format(MyEngine)
-    #     engine_runner = MyEngine(
-    #         self._event_manager, self.host, self.hostid
-    #     )
-    #     runnerResult = engine_runner.run(data)
-    #
-    #     if runnerResult == False:
-    #         self.logger.error(
-    #             "Couldn't run the action for the data {}".format(data)
-    #         )
-    #
-    #     return runnerResult
-
     def _run_discover_assets(self, event):
         data = event['data']['pipeline']
-        # TODO: the get engine seems to not be working for the loader and publisher
 
         engine_runner = self.get_engine_runner(
             self.asset_manager_engine.__name__
@@ -145,7 +126,6 @@ class Host(object):
 
     def _run_change_asset_version(self, event):
         data = event['data']['pipeline']
-        # TODO: the get engine seems to not be working for the loader and publisher
 
         engine_runner = self.get_engine_runner(
             self.asset_manager_engine.__name__
