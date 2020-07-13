@@ -1,6 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
+import json
+
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_3dsmax.plugin import (
@@ -10,6 +12,7 @@ from ftrack_connect_pipeline_3dsmax.plugin import (
 from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
 from ftrack_connect_pipeline_3dsmax.asset import FtrackAssetNode
 from ftrack_connect_pipeline_3dsmax.constants.asset import modes as load_const
+from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
 
 
 class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
@@ -36,7 +39,11 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
 
         super_result = super(LoaderImporterMaxPlugin, self)._run(event)
 
-        asset_load_mode = options.get('load_mode')
+        options[asset_const.ASSET_INFO_OPTIONS] = json.dumps(
+            event['data']).encode('base64'
+                                  )
+
+        asset_load_mode = options.get(asset_const.LOAD_MODE)
 
         if asset_load_mode == load_const.OPEN_MODE:
             return super_result
@@ -72,13 +79,13 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
             return
 
         self.logger.debug(
-            'Checked differences between nodes before and after'
+            'Checked differences between ftrack_objects before and after'
             ' inport : {}'.format(diff)
         )
 
         ftrack_node_class = self.get_asset_node(context, data, options)
 
-        ftrack_node = ftrack_node_class.init_node()
+        ftrack_node = ftrack_node_class.init_ftrack_object()
 
         ftrack_node_class.connect_objects(diff)
 
