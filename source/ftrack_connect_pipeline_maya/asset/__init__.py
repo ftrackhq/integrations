@@ -2,15 +2,15 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 import json
+import ftrack_api
 
 from ftrack_connect_pipeline.asset import FtrackAssetInfo, FtrackAssetBase
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
 from ftrack_connect_pipeline import constants as core_const
 from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
-from ftrack_connect_pipeline_maya.constants.asset import modes as load_const
 
-import ftrack_api
 import maya.cmds as cmd
+
 
 class FtrackAssetNode(FtrackAssetBase):
     '''
@@ -31,14 +31,13 @@ class FtrackAssetNode(FtrackAssetBase):
         to use for communication with the server.
         '''
         super(FtrackAssetNode, self).__init__(event_manager)
-        # self.listen_asset_manager_actions()
 
     def init_ftrack_object(self):
         '''
-        Return the ftrack ftrack_object for this class. It checks if there is already a
-        matching ftrack ftrack_object in the scene, in this case it updates the ftrack_object if
-        it's not. In case there is no ftrack_object in the scene this function creates a
-        new one.
+        Return the ftrack ftrack_object for this class. It checks if there is
+        already a matching ftrack ftrack_object in the scene, in this case it
+        updates the ftrack_object if it's not. In case there is no ftrack_object
+        in the scene this function creates a new one.
         '''
         ftrack_object = self.get_ftrack_object_from_scene()
         if ftrack_object:
@@ -62,8 +61,8 @@ class FtrackAssetNode(FtrackAssetBase):
 
     def get_ftrack_object_from_scene(self):
         '''
-        Return the ftrack ftrack_object of the current asset_version of the scene if
-        exists.
+        Return the ftrack ftrack_object of the current asset_version of the
+        scene if exists.
         '''
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
         for ftrack_object in ftrack_asset_nodes:
@@ -80,12 +79,13 @@ class FtrackAssetNode(FtrackAssetBase):
 
     def _check_ftrack_object_sync(self):
         '''
-        Check if the current parameters of the ftrack ftrack_object match the values
-        of the asset_info.
-
+        Check if the current parameters of the ftrack ftrack_object match the
+        values of the asset_info.
         '''
         if not self.ftrack_object:
-            self.logger.warning("Can't check if ftrack ftrack_object is not loaded")
+            self.logger.warning(
+                "Can't check if ftrack ftrack_object is not loaded"
+            )
             return False
 
         synced = False
@@ -98,7 +98,6 @@ class FtrackAssetNode(FtrackAssetBase):
             synced = True
 
         return synced
-
 
     def _get_unique_ftrack_object_name(self):
         '''
@@ -115,7 +114,6 @@ class FtrackAssetNode(FtrackAssetBase):
             else:
                 break
         return ftrack_object_name
-
 
     def connect_objects(self, objects):
         '''
@@ -136,7 +134,6 @@ class FtrackAssetNode(FtrackAssetBase):
                     '{}.ftrack'.format(obj)
                 )
 
-
     def get_load_mode_from_ftrack_object(self, obj):
         '''Return the import mode used to import an asset.'''
         load_mode = cmd.getAttr('{}.{}'.format(
@@ -144,11 +141,10 @@ class FtrackAssetNode(FtrackAssetBase):
         )
         return load_mode
 
-
     def create_new_ftrack_object(self):
         '''
-        Creates the ftrack_node with a unique name. The ftrack ftrack_object is type of
-        FtrackAssetHelper.
+        Creates the ftrack_node with a unique name. The ftrack ftrack_object is
+        type of FtrackAssetHelper.
 
         '''
 
@@ -158,10 +154,9 @@ class FtrackAssetNode(FtrackAssetBase):
 
         return self._update_ftrack_object()
 
-
     def _update_ftrack_object(self):
-        '''Update the parameters of the ftrack ftrack_object. And Return the ftrack ftrack_object
-        updated
+        '''Update the parameters of the ftrack ftrack_object. And Return the
+        ftrack ftrack_object updated
         '''
         for k, v in self.asset_info.items():
             cmd.setAttr('{}.{}'.format(self.ftrack_object, k), l=False)
@@ -174,7 +169,9 @@ class FtrackAssetNode(FtrackAssetBase):
                     ), str(self.ftrack_object), type="string", l=True
                 )
             else:
-                cmd.setAttr('{}.{}'.format(self.ftrack_object, k), v, type="string", l=True)
+                cmd.setAttr('{}.{}'.format(
+                    self.ftrack_object, k), v, type="string", l=True
+                )
 
         return self.ftrack_object
 

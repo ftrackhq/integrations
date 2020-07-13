@@ -39,7 +39,9 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
 
         super_result = super(LoaderImporterMayaPlugin, self)._run(event)
 
-        options[asset_const.ASSET_INFO_OPTIONS] = json.dumps(event['data']).encode('base64')
+        options[asset_const.ASSET_INFO_OPTIONS] = json.dumps(
+            event['data']
+        ).encode('base64')
 
         asset_load_mode = options.get(asset_const.LOAD_MODE)
 
