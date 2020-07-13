@@ -21,12 +21,15 @@ class FtrackAssetBase(object):
 
     @property
     def component_name(self):
-        return self.asset_info.get(asset_const.COMPONENT_NAME, self.default_component_name)
+        return self.asset_info.get(
+            asset_const.COMPONENT_NAME, self.default_component_name
+        )
 
     @property
     def asset_versions(self):
         query = (
-            'select is_latest_version, id, asset, components, components.name, components.id, version, asset , asset.name, asset.type.name from '
+            'select is_latest_version, id, asset, components, components.name, '
+            'components.id, version, asset , asset.name, asset.type.name from '
             'AssetVersion where asset.id is "{}" and components.name is "{}"'
             'order by version ascending'
         ).format(
@@ -90,10 +93,10 @@ class FtrackAssetBase(object):
 
     def init_ftrack_object(self):
         '''
-        Return the ftrack ftrack_object for this class. It checks if there is already a
-        matching ftrack ftrack_object in the scene, in this case it updates the ftrack_object if
-        it's not. In case there is no ftrack_object in the scene this function creates a
-        new one.
+        Return the ftrack ftrack_object for this class. It checks if there is
+        already a matching ftrack ftrack_object in the scene, in this case it
+        updates the ftrack_object if it's not. In case there is no ftrack_object
+        in the scene this function creates a new one.
         '''
         self._set_ftrack_object(None)
         return self.ftrack_object
@@ -108,7 +111,8 @@ class FtrackAssetBase(object):
 
     def _set_ftrack_object(self, ftrack_object):
         '''
-        Sets the given *ftrack_object* as the current self.ftrack_object of the class
+        Sets the given *ftrack_object* as the current self.ftrack_object of the
+        class
         '''
         self.logger.info("_set_ftrack_object")
         self._ftrack_object = ftrack_object
