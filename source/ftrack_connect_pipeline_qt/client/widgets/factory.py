@@ -77,6 +77,9 @@ class WidgetFactory(QtWidgets.QWidget):
     def set_context(self, context):
         self.context = context
 
+    def set_package(self, package):
+        self.package = package
+
     def set_host_connection(self, host_connection):
         self.host_connection = host_connection
         self._listen_widget_updates()

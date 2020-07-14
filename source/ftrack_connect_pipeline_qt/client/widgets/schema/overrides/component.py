@@ -32,7 +32,15 @@ class ComponentsArray(BaseJsonWidget):
                     name = data.get('name')
                 else:
                     name = data
-                accordion_widget = AccordionWidget(title=name)
+                optional_component = False
+                for package in self.widget_factory.package['components']:
+                    if package['name'] == name:
+                        optional_component = package['optional']
+                        break
+
+                accordion_widget = AccordionWidget(
+                    title=name, checkable=optional_component
+                )
                 obj = self.widget_factory.create_widget(
                     name, self.schema_fragment['items'], data,
                     self.previous_object_data
@@ -46,6 +54,9 @@ class ComponentsArray(BaseJsonWidget):
     def to_json_object(self):
         out = []
         for accordeon_widget in self._accordion_widgets:
+            if accordeon_widget.checkable:
+                if not accordeon_widget.is_checked():
+                    continue
             for idx in range(0, accordeon_widget.count_widgets()):
                 widget = accordeon_widget.get_witget_at(idx)
                 if 'to_json_object' in dir(widget):
