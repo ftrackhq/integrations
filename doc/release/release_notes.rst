@@ -9,9 +9,15 @@ Release Notes
 
 .. release:: Upcoming
 
-    .. change:: fix
+    .. change:: add
+        :tags: Ui
 
-        Fix discovering actions on non context entities.
+        Startup error related to location setup are now visually reported.
+
+    .. change:: fix
+        :tags: Action
+
+        Discovery does break on non context entities.
 
 .. release:: 2.4.0
     :date: 2020-06-17

@@ -4,6 +4,7 @@
 import os
 import logging
 import hiero
+import nuke
 import datetime
 from ftrack_connect_nuke_studio.base import FtrackBase
 from ftrack_connect_nuke_studio.template import match, get_project_template
@@ -34,12 +35,18 @@ class FtrackBasePreset(FtrackBase):
         super(FtrackBasePreset, self).__init__(name, properties)
         current_location = self.ftrack_location
         if current_location['name'] in self.ingored_locations:
-            raise FtrackProcessorError(
-                '{0} is an invalid location. Please setup'
-                ' a centralised storage scenario or custom location.'.format(
+            message = (
+                '<h2>"{0}" is an invalid location for Nuke Studio to work with.</h2>' 
+                'Please setup a centralised storage scenario or custom location and retry.<br/>'
+                'For more information on storage and location configurations, please see our'
+                '<a href=https://help.ftrack.com/en/articles/1040436-configuring-file-storage> <b>help</b></a>'
+                ''.format(
                     current_location['name']
                 )
             )
+
+            nuke.message(message)
+            raise FtrackProcessorError(message)
 
         self.set_export_root()
         self._timeStamp = datetime.datetime.now()
