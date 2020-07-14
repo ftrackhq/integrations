@@ -3,7 +3,7 @@
 
 import logging
 import ftrack_api
-from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo, asset_info_from_ftrack_version
+from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
 from ftrack_connect_pipeline.constants import asset as asset_const
 from ftrack_connect_pipeline import constants
 
@@ -124,19 +124,18 @@ class FtrackAssetBase(object):
 
         note:: Public function to change the asset version, it's been called from
         the api or from the asset manager UI '''
-        #TODO: Is better to get the asset_info here so we don't have to pass
-        # the component name around
+
         asset_version = self.session.get('AssetVersion', asset_version_id)
-        asset_info = asset_info_from_ftrack_version(
-            asset_version, self.component_name
-        )
+
+        data_to_send = {'asset_version': asset_version,
+                        'component_name': self.component_name}
 
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_ASSET_VERSION_CHANGED,
             data={
                 'pipeline': {
                     'host_id': host_id,
-                    'data': asset_info
+                    'data': data_to_send
                 }
             }
         )
@@ -164,33 +163,12 @@ class FtrackAssetBase(object):
         '''
         Base discover assets function.
         '''
-        #TODO: THIS is just for testing remove this later, we could add some
-        # arguments to pass to the function and customize the discover in case
-        # we do it from the API. Or maybe it's simply unuseful
-        from ftrack_connect_pipeline.asset.asset_info import asset_info_from_ftrack_version
-
-        component_name = 'main'
-        versions = self.session.query(
-            'select id, components, components.name, components.id, version, '
-            'asset , asset.name, asset.type.name from AssetVersion where '
-            'asset_id != None and components.name is "{0}" limit 10'.format(
-                component_name
-            )
-        ).all()
-
-        component_name = 'main'
-
         ftrack_asset_info_list = []
-
-        for version in versions:
-            asset_info = asset_info_from_ftrack_version(version, component_name)
-            ftrack_asset_info_list.append(asset_info)
-
         return ftrack_asset_info_list
 
     def clear_selection(self, host_id):
         event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_ON_SELECT_ASSET,
+            topic=constants.PIPELINE_ON_CLEAR_SELECTION,
             data={
                 'pipeline': {
                     'host_id': host_id,
@@ -201,17 +179,13 @@ class FtrackAssetBase(object):
         self._event_manager.publish(event, self._clear_selection)
 
     def _clear_selection(self, event):
-        # self.logger.error("Not implemented on API")
         asset_item = event['data']
         return asset_item
 
     def select_asset(self, host_id):
         '''
-        Publish the PIPELINE_ASSET_VERSION_CHANGED event for the given *host_id*
-        with the asset info of the given *asset_version_id*.
-
-        note:: Public function to change the asset version, it's been called from
-        the api or from the asset manager UI '''
+        Publish the PIPELINE_ON_SELECT_ASSET event for the given *host_id*
+        '''
 
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_ON_SELECT_ASSET,
@@ -225,17 +199,13 @@ class FtrackAssetBase(object):
         self._event_manager.publish(event, self._select_asset)
 
     def _select_asset(self, event):
-        #self.logger.error("Not implemented on API")
         asset_item = event['data']
         return asset_item
 
     def remove_asset(self, host_id):
         '''
-        Publish the PIPELINE_ASSET_VERSION_CHANGED event for the given *host_id*
-        with the asset info of the given *asset_version_id*.
-
-        note:: Public function to change the asset version, it's been called from
-        the api or from the asset manager UI '''
+        Publish the PIPELINE_ON_REMOVE_ASSET event for the given *host_id*.
+        '''
 
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_ON_REMOVE_ASSET,
@@ -253,9 +223,6 @@ class FtrackAssetBase(object):
         Callback function to change the asset version from the given *event*
         '''
         asset_item = event['data']
-
-        if not asset_item == self:
-            self.logger.error("asset_item is not equal to self")
 
         return asset_item
 

@@ -6,7 +6,8 @@ import ftrack_api
 
 from ftrack_connect_pipeline.host.engine import BaseEngine
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.asset import FtrackAssetBase, asset_info_from_ftrack_version
+from ftrack_connect_pipeline.asset import FtrackAssetBase
+from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
 
 
 class AssetManagerEngine(BaseEngine):
@@ -36,7 +37,12 @@ class AssetManagerEngine(BaseEngine):
         return ftrack_asset_list
 
     def change_asset_version(self, data):
-        asset_info = data['data']
+        #asset_info = data['data']
+        asset_version = data['data']['asset_version']
+        component_name = data['data']['component_name']
+        asset_info = FtrackAssetInfo.from_ftrack_version(
+            asset_version, component_name
+        )
         return asset_info
 
     def select_asset(self, data):
