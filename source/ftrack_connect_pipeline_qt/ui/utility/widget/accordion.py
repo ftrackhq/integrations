@@ -9,7 +9,7 @@ from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 
 
 class AccordionWidget(QtWidgets.QWidget):
-    def __init__(self, parent=None, title=None):
+    def __init__(self, parent=None, title=None, checkable=False):
         super(AccordionWidget, self).__init__(parent=parent)
 
         self._reference_widget = None
@@ -19,6 +19,7 @@ class AccordionWidget(QtWidgets.QWidget):
         self._title = title
         self._widgets = {}
         self._inner_widget_status = {}
+        self.checkable = checkable
 
         self.pre_build()
         self.build()
@@ -44,8 +45,9 @@ class AccordionWidget(QtWidgets.QWidget):
         self.init_collapsable()
 
     def init_title_frame(self, title, collapsed):
+        #TODO: only checkable if the component optional is True
         self._title_frame = AccordionTitleWidget(
-            title=title, collapsed=collapsed)
+            title=title, collapsed=collapsed, checkable=self.checkable)
         return self._title_frame
 
     def init_content(self, collapsed):
@@ -95,6 +97,12 @@ class AccordionWidget(QtWidgets.QWidget):
     def init_collapsable(self):
         self._title_frame.clicked.connect(self.toggle_collapsed)
 
+    def is_checked(self):
+        if self._title_frame.checkable:
+            return self._title_frame.checkbox.isChecked()
+        return True
+
+
     def toggle_collapsed(self):
         self._content.setVisible(self._is_collasped)
         self._is_collasped = not self._is_collasped
@@ -103,6 +111,10 @@ class AccordionWidget(QtWidgets.QWidget):
 
 class AccordionTitleWidget(QtWidgets.QFrame):
     clicked = QtCore.Signal()
+
+    @property
+    def checkbox(self):
+        return self._checkbox
 
     def __init__(self, parent=None, title="", collapsed=False, checkable=False):
         super(AccordionTitleWidget, self).__init__(parent=parent)

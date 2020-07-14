@@ -93,11 +93,12 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.logger.info('connection {}'.format(host_connection))
         self.host_connection = host_connection
 
-        asset_type = [
-            package['asset_type'] for package in self.host_connection.definitions['package']
-            if package['name'] == definition['package']
-
-        ][0]
+        asset_type = []
+        current_package = None
+        for package in self.host_connection.definitions['package']:
+            if package['name'] == definition['package']:
+                asset_type = package['asset_type']
+                current_package = package
 
         # set current context to host context
         self.context = host_connection.context or self.context
@@ -113,6 +114,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.widget_factory.set_context(context)
         self.widget_factory.set_host_connection(self.host_connection)
         self.widget_factory.set_definition_type(self.definition['type'])
+        self.widget_factory.set_package(current_package)
 
         self._current_def = self.widget_factory.create_widget(
             definition['name'],
