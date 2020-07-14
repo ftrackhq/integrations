@@ -93,11 +93,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.logger.info('connection {}'.format(host_connection))
         self.host_connection = host_connection
 
-        # asset_type = [
-        #     package['asset_type'] for package in self.host_connection.definitions['package']
-        #     if package['name'] == definition['package']
-        #
-        # ][0]
         asset_type = []
         current_package = None
         for package in self.host_connection.definitions['package']:
