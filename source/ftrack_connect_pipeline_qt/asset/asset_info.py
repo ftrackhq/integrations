@@ -5,12 +5,12 @@ import logging
 from ftrack_connect_pipeline.constants import asset as asset_constants
 
 from Qt import QtCore
-from ftrack_connect_pipeline.asset import FtrackAssetBase, FtrackAssetInfo
+from ftrack_connect_pipeline.asset import FtrackAssetBase
 
 
 class QFtrackAsset(FtrackAssetBase, QtCore.QObject):
     '''
-    Base FtrackAssetInfo class.
+    Base QFtrackAsset class.
     '''
 
     @property
@@ -22,13 +22,7 @@ class QFtrackAsset(FtrackAssetBase, QtCore.QObject):
 
     def __init__(self, event_manager):
         '''
-        Initialize FtrackAssetBase with *ftrack_asset_info*, and *session*.
-
-        *ftrack_asset_info* should be the
-        :class:`ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
-        instance.
-        *session* should be the :class:`ftrack_api.session.Session` instance
-        to use for communication with the server.
+        Initialize QFtrackAsset with *event_manager*.
         '''
         super(QFtrackAsset, self).__init__(event_manager)
 

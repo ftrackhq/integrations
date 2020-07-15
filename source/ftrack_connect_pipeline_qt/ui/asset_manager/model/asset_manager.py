@@ -61,7 +61,7 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         # style versions
         if (
                 role == QtCore.Qt.BackgroundRole and
-                index.column() == self.get_version_column_idx()
+                index.column() == self.get_version_column_index()
         ):
             if item.is_latest:
                 return QtGui.QBrush(QtGui.QColor(155, 250, 218, 200))
@@ -70,12 +70,12 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
 
         elif (
                 role == QtCore.Qt.TextAlignmentRole and
-                index.column() == self.get_version_column_idx()
+                index.column() == self.get_version_column_index()
         ):
             return QtCore.Qt.AlignCenter
 
         elif (role == QtCore.Qt.TextColorRole and
-              index.column() == self.get_version_column_idx()
+              index.column() == self.get_version_column_index()
         ):
             return QtGui.QColor(0, 0, 0, 255)
 
@@ -113,12 +113,12 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
             return super(AssetManagerModel, self).setData(index, value, role)
 
     def flags(self, index):
-        if index.column() == self.get_version_column_idx():
+        if index.column() == self.get_version_column_index():
             return QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled
         else:
             return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
 
-    def get_version_column_idx(self):
+    def get_version_column_index(self):
         return self.columns.index(asset_constants.VERSION_NUMBER)
 
     def set_host_connection(self, host_connection):
@@ -166,7 +166,4 @@ class FilterProxyModel(QtCore.QSortFilterProxyModel):
         right_data = self.sourceModel().item(right)
         print left_data, right_data
         return left_data.id > right_data.id
-
-    def get_version_column_idx(self):
-        return self.sourceModel().columns.index(asset_constants.VERSION_NUMBER)
 

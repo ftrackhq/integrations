@@ -67,28 +67,6 @@ class AssetManagerWidget(QtWidgets.QWidget):
     def _update_widget(self, event):
         '''*event* callback to update widget with the current status/value'''
         pass
-        # result = event['data']['pipeline']['result']
-        # widget_ref = event['data']['pipeline']['widget_ref']
-        # status = event['data']['pipeline']['status']
-        # message = event['data']['pipeline']['message']
-        # host_id = event['data']['pipeline']['hostid']
-        #
-        # widget = self.widgets.get(widget_ref)
-        # if not widget:
-        #     self.logger.debug(
-        #         'Widget ref :{} not found for hostid {} ! '.format(
-        #             widget_ref, host_id
-        #         )
-        #     )
-        #     return
-        #
-        # if status:
-        #     self.logger.debug(
-        #         'updating widget: {} with {}, {}'.format(
-        #             widget, status, message
-        #         )
-        #     )
-        #     widget.set_status(status, message)
 
     def _listen_widget_updates(self):
         '''Subscribe to the PIPELINE_CLIENT_NOTIFICATION topic to call the
@@ -150,7 +128,7 @@ class AssetManagerTableView(QtWidgets.QTableView):
         self.version_cb_delegate = VersionDelegate(self)
 
         self.setItemDelegateForColumn(
-            self.proxy_model.get_version_column_idx(), self.version_cb_delegate
+            self.asset_model.get_version_column_index(), self.version_cb_delegate
         )
 
     def post_build(self):
