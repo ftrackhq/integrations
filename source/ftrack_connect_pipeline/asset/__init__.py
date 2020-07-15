@@ -169,9 +169,7 @@ class FtrackAssetBase(object):
         except Exception, e:
             self.logger.error("Error removing current objects: {}".format(e))
 
-        asset_info_options = self.asset_info.decode_options(
-            self.asset_info[asset_const.ASSET_INFO_OPTIONS]
-        )
+        asset_info_options = self.asset_info[asset_const.ASSET_INFO_OPTIONS]
 
         asset_context = asset_info_options['settings']['context']
         asset_data = asset_info[asset_const.COMPONENT_PATH]
@@ -196,9 +194,7 @@ class FtrackAssetBase(object):
         if not result_data:
             self.logger.error("Error re-loading asset")
 
-        asset_info[asset_const.ASSET_INFO_OPTIONS] = asset_info.encode_options(
-            asset_info_options
-        )
+        asset_info[asset_const.ASSET_INFO_OPTIONS] = asset_info_options
 
         asset_info[asset_const.LOAD_MODE] = self.asset_info[
             asset_const.LOAD_MODE

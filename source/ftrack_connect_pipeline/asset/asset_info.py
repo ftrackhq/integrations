@@ -92,13 +92,29 @@ class FtrackAssetInfo(dict):
         super(FtrackAssetInfo, self).__init__(mapping, **kwargs)
 
     def encode_options(self, asset_info_options):
-        #TODO: add an override method to set get item and automatically
-        # encode/decode the asset info options when writing or reading
+        '''Encodes the json value from the given *asset_info_opitons
+        to base64'''
         return json.dumps(asset_info_options).encode('base64')
 
     def decode_options(self, asset_info_options):
-        # json.loads(self[asset_const.ASSET_INFO_OPTIONS].decode('base64'))
+        '''Decodes the json value from the given *asset_info_opitons
+        from base64'''
         return json.loads(asset_info_options.decode('base64'))
+
+    def __getitem__(self, k):
+        '''In case of the given *k* is the asset_info_options it will
+        automatically return the decoded json'''
+        value = super(FtrackAssetInfo, self).__getitem__(k)
+        if k == constants.ASSET_INFO_OPTIONS:
+            value = self.decode_options(value)
+        return value
+
+    def __setitem__(self, k, v):
+        '''In case of the given *k* is the asset_info_options it will
+        automatically encode the given json value to base64'''
+        if k == constants.ASSET_INFO_OPTIONS:
+            v = self.encode_options(v)
+        super(FtrackAssetInfo, self).__setitem__(k, v)
 
     @classmethod
     def from_ftrack_version(cls, ftrack_version, component_name):
