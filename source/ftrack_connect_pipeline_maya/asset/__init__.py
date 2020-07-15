@@ -103,9 +103,10 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
         Return a unique scene name for the current asset_name
         '''
-        ftrack_object_name = '{}_ftrackdata'.format(
-            self.asset_info[asset_const.ASSET_NAME]
-        )
+        ftrack_object_name = super(
+            FtrackAssetNode, self
+        )._get_unique_ftrack_object_name()
+
         count = 0
         while 1:
             if cmd.objExists(ftrack_object_name):
@@ -174,59 +175,6 @@ class FtrackAssetNode(FtrackAssetBase):
                 )
 
         return self.ftrack_object
-
-    def _change_version(self, event):
-        '''
-        Override function from the main class, remove the current assets of the
-        scene and loads the given version of the asset in the *event*. Then
-        super the base function.
-        '''
-        asset_info = event['data']
-
-        try:
-            self.logger.debug("Removing current objects")
-            self.remove_current_objects()
-        except Exception, e:
-            self.logger.error("Error removing current objects: {}".format(e))
-
-
-        asset_info_options = json.loads(
-            self.asset_info[asset_const.ASSET_INFO_OPTIONS].decode('base64')
-        )
-
-        asset_context = asset_info_options['settings']['context']
-        asset_data = asset_info[asset_const.COMPONENT_PATH]
-        asset_context[asset_const.ASSET_ID] = asset_info[asset_const.ASSET_ID]
-        asset_context[asset_const.VERSION_NUMBER] = asset_info[asset_const.VERSION_NUMBER]
-        asset_context[asset_const.ASSET_NAME] = asset_info[asset_const.ASSET_NAME]
-        asset_context[asset_const.ASSET_TYPE] = asset_info[asset_const.ASSET_TYPE]
-        asset_context[asset_const.VERSION_ID] = asset_info[asset_const.VERSION_ID]
-
-        asset_info_options['settings']['data'] = [asset_data]
-        asset_info_options['settings']['context'].update(asset_context)
-
-        run_event = ftrack_api.event.base.Event(
-            topic=core_const.PIPELINE_RUN_PLUGIN_TOPIC,
-            data=asset_info_options
-        )
-        plugin_result_data = self.session.event_hub.publish(
-            run_event,
-            synchronous=True
-        )
-        result_data = plugin_result_data[0]
-        if not result_data:
-            self.logger.error("Error re-loading asset")
-
-        event['data'][asset_const.ASSET_INFO_OPTIONS] = json.dumps(
-            asset_info_options
-        ).encode('base64')
-        event['data'][asset_const.LOAD_MODE] = self.asset_info[
-            asset_const.LOAD_MODE
-        ]
-        event['data'][asset_const.REFERENCE_OBJECT] = self.asset_info[
-            asset_const.REFERENCE_OBJECT
-        ]
-        super(FtrackAssetNode, self)._change_version(event)
 
     def discover_assets(self):
         '''
