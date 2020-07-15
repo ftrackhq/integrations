@@ -345,7 +345,6 @@ class FtrackAssetTab(FtrackAssetBase):
         asset_item = event['data']
 
         try:
-            self.logger.debug("Removing current objects")
             self.remove_current_objects()
         except Exception, e:
             self.logger.error("Error removing current objects: {}".format(e))
@@ -358,7 +357,6 @@ class FtrackAssetTab(FtrackAssetBase):
         scene.
         '''
         super(FtrackAssetTab, self)._select_asset(event)
-        asset_item = event['data']
         ftrack_object = nuke.toNode(self.ftrack_object)
 
         parented_nodes = ftrack_object.getNodes()
@@ -375,7 +373,7 @@ class FtrackAssetTab(FtrackAssetBase):
 
         ftrack_object['selected'].setValue(True)
 
-        return asset_item
+        return event['data']
 
     def _clear_selection(self, event):
         '''

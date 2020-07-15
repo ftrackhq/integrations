@@ -98,11 +98,6 @@ def reference_scene(path, options=None):
     node = nuke.createNode(
         'LiveGroup', 'published true file {}'.format(path), inpanel=False
     )
-    # TODO: activate this in case any problem with the live group. Not sure if
-    #  published should be activated or not, but we have to set it to true on
-    #  creation time to avoid the override message
-    # ftrack_object["published"].fromScript("0")
-    # ftrack_object.reload()
     return node
 
 def open_scene(path, options=None):

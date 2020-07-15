@@ -75,9 +75,7 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
         if asset_load_mode == load_const.REFERENCE_MODE:
             if result:
                 scene_node = result.get(
-                            ftrack_node_class.asset_info[
-                                asset_const.COMPONENT_PATH
-                            ]
+                            ftrack_node_class.asset_info[asset_const.COMPONENT_PATH]
                         )
                 ftrack_node_class.set_ftrack_object(ftrack_object=scene_node)
         else:
