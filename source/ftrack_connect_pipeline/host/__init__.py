@@ -173,7 +173,6 @@ class Host(object):
         return runnerResult
 
     def _run_remove_asset(self, event):
-        print "event ---> {}".format(event)
         data = event['data']['pipeline']
 
         engine_runner = self.get_engine_runner(
