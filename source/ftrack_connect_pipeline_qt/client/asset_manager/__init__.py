@@ -20,7 +20,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
         QtWidgets.QWidget.__init__(self, parent=parent)
         AssetManagerClient.__init__(self, event_manager)
 
-        # TODO: remove ftrack_asset_list
         self.asset_manager_widget = AssetManagerWidget(event_manager)
         self.asset_manager_widget.set_asset_list(self.ftrack_asset_list)
 

@@ -1,11 +1,9 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-import logging
-from ftrack_connect_pipeline.constants import asset as asset_constants
-
 from Qt import QtCore
 from ftrack_connect_pipeline.asset import FtrackAssetBase
+from ftrack_connect_pipeline.constants import asset as asset_constants
 
 
 class QFtrackAsset(FtrackAssetBase, QtCore.QObject):
@@ -25,4 +23,5 @@ class QFtrackAsset(FtrackAssetBase, QtCore.QObject):
         Initialize QFtrackAsset with *event_manager*.
         '''
         super(QFtrackAsset, self).__init__(event_manager)
+
 
