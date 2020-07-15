@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 import logging
+import json
 from ftrack_connect_pipeline.constants import asset as constants
 
 
@@ -89,6 +90,15 @@ class FtrackAssetInfo(dict):
         mapping = mapping or {}
         mapping = self._conform_data(mapping)
         super(FtrackAssetInfo, self).__init__(mapping, **kwargs)
+
+    def encode_options(self, asset_info_options):
+        #TODO: add an override method to set get item and automatically
+        # encode/decode the asset info options when writing or reading
+        return json.dumps(asset_info_options).encode('base64')
+
+    def decode_options(self, asset_info_options):
+        # json.loads(self[asset_const.ASSET_INFO_OPTIONS].decode('base64'))
+        return json.loads(asset_info_options.decode('base64'))
 
     @classmethod
     def from_ftrack_version(cls, ftrack_version, component_name):

@@ -85,7 +85,7 @@ class FtrackAssetBase(object):
             __name__ + '.' + self.__class__.__name__
         )
 
-        self._asset_info = None#ftrack_asset_info
+        self._asset_info = None
         self._event_manager = event_manager
 
         self._ftrack_objects = []
@@ -100,6 +100,15 @@ class FtrackAssetBase(object):
         '''
         self._set_ftrack_object(None)
         return self.ftrack_object
+
+    def _get_unique_ftrack_object_name(self):
+        '''
+        Return a unique scene name for the current asset_name
+        '''
+        ftrack_object_name = '{}_ftrackdata'.format(
+            self.asset_info[asset_const.ASSET_NAME]
+        )
+        return ftrack_object_name
 
     def set_asset_info(self, ftrack_asset_info):
         ''' Sets the self._asset_info from the given *ftrack_asset_info*'''
@@ -141,11 +150,62 @@ class FtrackAssetBase(object):
         )
         self._event_manager.publish(event, self._change_version)
 
+    def remove_current_objects(self):
+        '''
+        Remove all the imported or referenced objects in the scene
+        '''
+        raise NotImplementedError
+
     def _change_version(self, event):
         '''
         Callback function to change the asset version from the given *event*
         '''
+
         asset_info = event['data']
+
+        try:
+            self.logger.debug("Removing current objects")
+            self.remove_current_objects()
+        except Exception, e:
+            self.logger.error("Error removing current objects: {}".format(e))
+
+        asset_info_options = self.asset_info.decode_options(
+            self.asset_info[asset_const.ASSET_INFO_OPTIONS]
+        )
+
+        asset_context = asset_info_options['settings']['context']
+        asset_data = asset_info[asset_const.COMPONENT_PATH]
+        asset_context[asset_const.ASSET_ID] = asset_info[asset_const.ASSET_ID]
+        asset_context[asset_const.VERSION_NUMBER] = asset_info[asset_const.VERSION_NUMBER]
+        asset_context[asset_const.ASSET_NAME] = asset_info[asset_const.ASSET_NAME]
+        asset_context[asset_const.ASSET_TYPE] = asset_info[asset_const.ASSET_TYPE]
+        asset_context[asset_const.VERSION_ID] = asset_info[asset_const.VERSION_ID]
+
+        asset_info_options['settings']['data'] = [asset_data]
+        asset_info_options['settings']['context'].update(asset_context)
+
+        run_event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
+            data=asset_info_options
+        )
+        plugin_result_data = self.session.event_hub.publish(
+            run_event,
+            synchronous=True
+        )
+        result_data = plugin_result_data[0]
+        if not result_data:
+            self.logger.error("Error re-loading asset")
+
+        asset_info[asset_const.ASSET_INFO_OPTIONS] = asset_info.encode_options(
+            asset_info_options
+        )
+
+        asset_info[asset_const.LOAD_MODE] = self.asset_info[
+            asset_const.LOAD_MODE
+        ]
+        asset_info[asset_const.REFERENCE_OBJECT] = self.asset_info[
+            asset_const.REFERENCE_OBJECT
+        ]
 
         if not asset_info:
             self.logger.warning("Asset version couldn't change")
