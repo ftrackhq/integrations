@@ -1,12 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-import json
-import ftrack_api
-
 from ftrack_connect_pipeline.asset import FtrackAssetInfo, FtrackAssetBase
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
-from ftrack_connect_pipeline import constants as core_const
 from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
 
 import maya.cmds as cmd
@@ -18,17 +14,15 @@ class FtrackAssetNode(FtrackAssetBase):
     '''
 
     def is_sync(self):
+        '''Returns bool if the current ftrack_object is sync'''
         return self._check_ftrack_object_sync()
 
     def __init__(self, event_manager):
         '''
-        Initialize FtrackAssetNode with *ftrack_asset_info*, and *session*.
+        Initialize FtrackAssetBase with *event_manager*.
 
-        *ftrack_asset_info* should be the
-        :class:`ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
-        instance.
-        *session* should be the :class:`ftrack_api.session.Session` instance
-        to use for communication with the server.
+        *event_manager* instance of
+        :class:`ftrack_connect_pipeline.event.EventManager`
         '''
         super(FtrackAssetNode, self).__init__(event_manager)
 
@@ -41,7 +35,7 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
         ftrack_object = self.get_ftrack_object_from_scene()
         if ftrack_object:
-            self._set_ftrack_object(ftrack_object)
+            self.ftrack_object = ftrack_object
             if not self.is_sync():
                 self._update_ftrack_object()
         else:
@@ -50,6 +44,10 @@ class FtrackAssetNode(FtrackAssetBase):
         return self.ftrack_object
 
     def _get_parameters_dictionary(self, maya_obj):
+        '''
+        Returns a diccionary with the keys and values of the given *maya_obj*
+        parameters
+        '''
         param_dict = {}
         all_attr = cmd.listAttr(maya_obj, c=True, se=True)
         for attr in all_attr:
@@ -61,8 +59,8 @@ class FtrackAssetNode(FtrackAssetBase):
 
     def get_ftrack_object_from_scene(self):
         '''
-        Return the ftrack ftrack_object of the current asset_version of the
-        scene if exists.
+        Return the ftrack_object from the current asset_version if it exists in
+        the scene.
         '''
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
         for ftrack_object in ftrack_asset_nodes:
@@ -79,7 +77,7 @@ class FtrackAssetNode(FtrackAssetBase):
 
     def _check_ftrack_object_sync(self):
         '''
-        Check if the current parameters of the ftrack ftrack_object match the
+        Check if the current parameters of the ftrack_object match the
         values of the asset_info.
         '''
         if not self.ftrack_object:
@@ -101,7 +99,7 @@ class FtrackAssetNode(FtrackAssetBase):
 
     def _get_unique_ftrack_object_name(self):
         '''
-        Return a unique scene name for the current asset_name
+        Return a unique scene name for the current ftrack_object
         '''
         ftrack_object_name = super(
             FtrackAssetNode, self
@@ -144,20 +142,18 @@ class FtrackAssetNode(FtrackAssetBase):
 
     def create_new_ftrack_object(self):
         '''
-        Creates the ftrack_node with a unique name. The ftrack ftrack_object is
-        type of FtrackAssetHelper.
-
+        Creates a ftrack_object with a unique name.
         '''
 
         name = self._get_unique_ftrack_object_name()
-        self._ftrack_object = cmd.createNode('ftrackAssetNode', name=name)
-        self._ftrack_objects.append(self.ftrack_object)
+        self.ftrack_object = cmd.createNode('ftrackAssetNode', name=name)
 
         return self._update_ftrack_object()
 
     def _update_ftrack_object(self):
-        '''Update the parameters of the ftrack ftrack_object. And Return the
-        ftrack ftrack_object updated
+        '''
+        Update the parameters of the ftrack_object. And Return the
+        ftrack_object updated
         '''
         for k, v in self.asset_info.items():
             cmd.setAttr('{}.{}'.format(self.ftrack_object, k), l=False)
@@ -178,8 +174,8 @@ class FtrackAssetNode(FtrackAssetBase):
 
     def discover_assets(self):
         '''
-        Returns *asset_info_list* with all the assets loaded in the current
-        scene that has an ftrackAssetNode connected
+        Returns asset_info_list with all the assets loaded in the current
+        scene that has an ftrack_object connected
         '''
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
         asset_info_list = []
@@ -261,8 +257,8 @@ class FtrackAssetNode(FtrackAssetBase):
 
     def _clear_selection(self, event):
         '''
-        Override function from the main class, select the current assets of the
-        scene.
+        Override function from the main class, clear the current selection
+        of the scene.
         '''
         super(FtrackAssetNode, self)._clear_selection(event)
         asset_item = event['data']

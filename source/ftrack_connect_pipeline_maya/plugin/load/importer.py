@@ -21,7 +21,7 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
 
         _required_output a List
     '''
-    asset_node_type = FtrackAssetNode
+    ftrack_asset_class = FtrackAssetNode
 
     def _run(self, event):
 
@@ -68,11 +68,11 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
             ' inport : {}'.format(diff)
         )
 
-        ftrack_node_class = self.get_asset_node(context, data, options)
+        ftrack_asset_class = self.get_asset_class(context, data, options)
 
-        ftrack_node = ftrack_node_class.init_ftrack_object()
+        ftrack_node = ftrack_asset_class.init_ftrack_object()
 
-        ftrack_node_class.connect_objects(diff)
+        ftrack_asset_class.connect_objects(diff)
 
 
 
