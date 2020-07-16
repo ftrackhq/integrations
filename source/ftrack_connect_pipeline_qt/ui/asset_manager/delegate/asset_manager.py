@@ -12,7 +12,7 @@ class VersionDelegate(QtWidgets.QItemDelegate):
     def createEditor(self, parent, option, index):
 
         item = index.model().data(index, index.model().DATA_ROLE)
-        versions_collection = item.asset_versions
+        versions_collection = item.ftrack_versions
 
         combo = QtWidgets.QComboBox(parent)
         for asset_version in versions_collection:

@@ -167,7 +167,7 @@ class AssetManagerTableView(QtWidgets.QTableView):
         index_list = self.selectionModel().selectedRows()
         for index in index_list:
             data = self.model().data(index, self.model().DATA_ROLE)
-            latest_versions = data.asset_versions[-1]
+            latest_versions = data.ftrack_versions[-1]
             self.asset_model.setData(
                 index, latest_versions['id'], QtCore.Qt.EditRole
             )
