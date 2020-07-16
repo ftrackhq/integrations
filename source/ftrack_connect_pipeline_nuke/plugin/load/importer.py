@@ -22,7 +22,7 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
 
         _required_output a List
     '''
-    asset_node_type = FtrackAssetTab
+    ftrack_asset_class = FtrackAssetTab
 
     def _run(self, event):
         '''
@@ -68,22 +68,20 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
             ' inport : {}'.format(diff)
         )
 
-        ftrack_node_class = self.get_asset_node(context, data, options)
+        ftrack_asset_class = self.get_asset_class(context, data, options)
 
         result = super_result.get('result')
 
         if asset_load_mode == load_const.REFERENCE_MODE:
             if result:
                 scene_node = result.get(
-                            ftrack_node_class.asset_info[asset_const.COMPONENT_PATH]
+                            ftrack_asset_class.asset_info[asset_const.COMPONENT_PATH]
                         )
-                ftrack_node_class.set_ftrack_object(ftrack_object=scene_node)
-        else:
-            ftrack_node_class.set_ftrack_object()
+                ftrack_asset_class.ftrack_object = scene_node
 
-        ftrack_node = ftrack_node_class.init_ftrack_object()
+        ftrack_node = ftrack_asset_class.init_ftrack_object()
 
-        ftrack_node_class.connect_objects(diff)
+        ftrack_asset_class.connect_objects(diff)
 
 
         return super_result

@@ -14,35 +14,33 @@ import nuke
 
 class FtrackAssetTab(FtrackAssetBase):
     '''
-    Base FtrackAssetNode class.
+    Base FtrackAssetTab class.
     '''
 
     def is_sync(self):
+        '''Returns bool if the current ftrack_object is sync'''
         return self._check_ftrack_object_sync()
 
     def __init__(self, event_manager):
         '''
-        Initialize FtrackAssetTab with *ftrack_asset_info*, and *session*.
+        Initialize FtrackAssetBase with *event_manager*.
 
-        *ftrack_asset_info* should be the
-        :class:`ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
-        instance.
-        *session* should be the :class:`ftrack_api.session.Session` instance
-        to use for communication with the server.
+        *event_manager* instance of
+        :class:`ftrack_connect_pipeline.event.EventManager`
         '''
         super(FtrackAssetTab, self).__init__(event_manager)
         self.connected_objects = []
 
     def init_ftrack_object(self):
         '''
-        Return the scene ftrack_object for this class. It checks if there is already a
-        matching ftrack tab in the scene, and the tab if needed. In case there
-        is no ftrack tab in the scene this function creates a new one on the
-        given *scene_node*.
+        Return the ftrack ftrack_object for this class. It checks if there is
+        already a matching ftrack ftrack_object in the scene, in this case it
+        updates the ftrack_object if it's not. In case there is no ftrack_object
+        in the scene this function creates a new one.
         '''
         ftrack_object = self.get_ftrack_object_from_nuke()
         if ftrack_object:
-            self._set_ftrack_object(ftrack_object.knob('name').value())
+            self.ftrack_object = ftrack_object.knob('name').value()
             if not self.is_sync():
                 self._update_ftrack_object()
         else:
@@ -50,25 +48,10 @@ class FtrackAssetTab(FtrackAssetBase):
 
         return self.ftrack_object
 
-    def set_ftrack_object(self, ftrack_object=None):
-        scene_ftrack_object = self.get_ftrack_object_from_nuke()
-        if scene_ftrack_object:
-            ftrack_name = scene_ftrack_object.knob('name').value()
-            self._set_ftrack_object(ftrack_name)
-            return ftrack_name
-        if ftrack_object:
-            self._set_ftrack_object(ftrack_object)
-            return ftrack_object
-
-        ftrack_object = nuke.nodes.BackdropNode()
-        ftrack_object.knob('tile_color').setValue(2386071295)
-        self._set_ftrack_object(ftrack_object.knob('name').value())
-        return ftrack_object
-
     def _get_parameters_dictionary(self, scene_node):
         '''
-        Returns a dicctionary with the matching keys and values of the asset info
-        if the current scene_node have the ftrack tab.
+        Returns a diccionary with the keys and values of the given *scene_node*
+        parameters
         '''
         param_dict = {}
         for knob in scene_node.allKnobs():
@@ -78,8 +61,8 @@ class FtrackAssetTab(FtrackAssetBase):
 
     def get_ftrack_object_from_nuke(self):
         '''
-        Return the ftrack tab knob of the current scene ftrack_object in case the tab
-        exists and the values match the asset info values.
+        Return the ftrack_object from the current asset_version if it exists in
+        the scene.
         '''
         for scene_node in nuke.root().nodes():
             if scene_node.knob(asset_const.FTRACK_PLUGIN_TYPE):
@@ -96,8 +79,8 @@ class FtrackAssetTab(FtrackAssetBase):
 
     def _check_ftrack_object_sync(self):
         '''
-        Check if the current parameters of the ftrack tab match the values
-        of the asset_info.
+        Check if the current parameters of the ftrack_object match the
+        values of the asset_info.
         '''
         if not self.ftrack_object:
             self.logger.warning("Ftrack tab doesn't exists")
@@ -116,7 +99,7 @@ class FtrackAssetTab(FtrackAssetBase):
 
     def _get_unique_ftrack_object_name(self):
         '''
-        Return a unique scene name for the current asset_name
+        Return a unique scene name for the current ftrack_object
         '''
         ftrack_object_name = super(
             FtrackAssetTab, self
@@ -133,7 +116,10 @@ class FtrackAssetTab(FtrackAssetBase):
         return ftrack_object_name
 
     def _node_is_inside(self, node, backdrop_node):
-        """Returns true if node geometry is inside backdropNode otherwise returns false"""
+        '''
+        Returns true if *node* geometry is inside *backdropNode* otherwise
+        returns false
+        '''
 
         top_left_node = [node.xpos(), node.ypos()]
 
@@ -233,10 +219,16 @@ class FtrackAssetTab(FtrackAssetBase):
 
     def create_new_ftrack_object(self):
         '''
-        Creates an ftrack tab to the current scene_node.
+        Creates a ftrack_object with a unique name.
         '''
 
-        ftrack_object = nuke.toNode(self.ftrack_object)
+        if not self.ftrack_object:
+            ftrack_object = nuke.nodes.BackdropNode()
+            ftrack_object.knob('tile_color').setValue(2386071295)
+            self.ftrack_object = ftrack_object.knob('name').value()
+        else:
+            ftrack_object = nuke.toNode(self.ftrack_object)
+
         if (
                 self.asset_info[asset_const.LOAD_MODE] == load_const.IMPORT_MODE
                 or
@@ -245,7 +237,7 @@ class FtrackAssetTab(FtrackAssetBase):
             ftrack_object.knob('name').setValue(
                 self._get_unique_ftrack_object_name()
             )
-            self._ftrack_object = ftrack_object.knob('name').value()
+            self.ftrack_object = ftrack_object.knob('name').value()
 
         _tab = nuke.Tab_Knob(asset_const.FTRACK_PLUGIN_TYPE, 'ftrack')
 
@@ -264,14 +256,12 @@ class FtrackAssetTab(FtrackAssetBase):
 
         self._set_scene_node_color()
 
-        self._ftrack_objects.append(self.ftrack_object)
-
         return self._update_ftrack_object()
 
     def _update_ftrack_object(self):
         '''
-        Update the parameters of the ftrack tab. And Return the scene ftrack_object
-        updated
+        Update the parameters of the ftrack_object. And Return the
+        ftrack_object updated
         '''
 
         ftrack_object = nuke.toNode(self.ftrack_object)
@@ -279,7 +269,7 @@ class FtrackAssetTab(FtrackAssetBase):
         for k, v in self.asset_info.items():
             ftrack_object.knob(k).setValue(str(v))
             if k == asset_const.REFERENCE_OBJECT:
-                ftrack_object.knob(k).setValue(str(ftrack_object))
+                ftrack_object.knob(k).setValue(str(ftrack_object.Class()))
 
         if 'published' in ftrack_object.knobs():
             ftrack_object.reload()
@@ -287,6 +277,9 @@ class FtrackAssetTab(FtrackAssetBase):
         return self.ftrack_object
 
     def _set_scene_node_color(self, latest=True):
+        '''
+        Sets the visual color of the ftrack_object
+        '''
         # Green RGB 20, 161, 74
         # Orange RGB 227, 99, 22
         ftrack_object = nuke.toNode(self.ftrack_object)
@@ -299,8 +292,8 @@ class FtrackAssetTab(FtrackAssetBase):
 
     def discover_assets(self):
         '''
-        Returns *asset_info_list* with all the assets loaded in the current
-        scene that has an ftrackAssetNode connected
+        Returns asset_info_list with all the assets loaded in the current
+        scene that has an ftrack_object connected
         '''
         ftrack_asset_nodes = nuke_utils.get_nodes_with_ftrack_tab()
         asset_info_list = []
@@ -377,8 +370,8 @@ class FtrackAssetTab(FtrackAssetBase):
 
     def _clear_selection(self, event):
         '''
-        Override function from the main class, select the current assets of the
-        scene.
+        Override function from the main class, clear the current selection
+        of the scene.
         '''
         super(FtrackAssetTab, self)._clear_selection(event)
         asset_item = event['data']
