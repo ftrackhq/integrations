@@ -11,7 +11,7 @@ COMPONENT_NAME = 'component_name'
 COMPONENT_ID = 'component_id'
 LOAD_MODE = 'load_mode'
 ASSET_INFO_OPTIONS = 'asset_info_options'
-REFERENCE_OBJECT = 'reference_node'
+REFERENCE_OBJECT = 'reference_object'
 
 VERSION = '2.0'
 

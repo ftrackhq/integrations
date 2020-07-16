@@ -9,24 +9,25 @@ from ftrack_connect_pipeline import constants
 
 
 class FtrackAssetBase(object):
-    '''
-        Base FtrackAssetBase class.
-    '''
+    '''Base FtrackAssetBase class.'''
 
     identity = None
     default_component_name = 'main'
 
     def is_ftrack_object(self, other):
+        ''' Checks if the given object is '''
         raise NotImplementedError()
 
     @property
     def component_name(self):
+        '''Return component name from the current asset info'''
         return self.asset_info.get(
             asset_const.COMPONENT_NAME, self.default_component_name
         )
 
     @property
-    def asset_versions(self):
+    def ftrack_versions(self):
+        '''Returns all the ftrack versions objects of the current asset_id'''
         query = (
             'select is_latest_version, id, asset, components, components.name, '
             'components.id, version, asset , asset.name, asset.type.name from '
@@ -40,6 +41,7 @@ class FtrackAssetBase(object):
 
     @property
     def ftrack_version(self):
+        '''Returns the ftrack version object of the current version_id'''
         asset_version = self.session.get(
             'AssetVersion', self.asset_info[asset_const.VERSION_ID]
         )
@@ -47,10 +49,12 @@ class FtrackAssetBase(object):
 
     @property
     def is_latest(self):
+        '''Returns True if the current version is the latest version'''
         return self.ftrack_version['is_latest_version']
 
     @property
     def asset_info(self):
+        '''Returns instance of FtrackAssetInfo'''
         return self._asset_info
 
     @asset_info.setter
@@ -62,14 +66,17 @@ class FtrackAssetBase(object):
 
     @property
     def session(self):
+        '''Returns ftrack session'''
         return self.event_manager.session
 
     @property
     def event_manager(self):
+        '''Returns event_manager'''
         return self._event_manager
 
     @property
     def ftrack_object(self):
+        '''Returns ftrack object from the DCC app'''
         return self._ftrack_object
 
     @ftrack_object.setter
@@ -78,13 +85,10 @@ class FtrackAssetBase(object):
 
     def __init__(self, event_manager):
         '''
-        Initialize FtrackAssetBase with *ftrack_asset_info*, and *session*.
+        Initialize FtrackAssetBase with *event_manager*.
 
-        *ftrack_asset_info* should be the
-        :class:`ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
-        instance.
-        *session* should be the :class:`ftrack_api.session.Session` instance
-        to use for communication with the server.
+        *event_manager* instance of
+        :class:`ftrack_connect_pipeline.event.EventManager`
         '''
         super(FtrackAssetBase, self).__init__()
 
@@ -95,23 +99,16 @@ class FtrackAssetBase(object):
         self._asset_info = None
         self._event_manager = event_manager
 
-        self._ftrack_object = None
+        self.ftrack_object = None
 
     def init_ftrack_object(self):
-        '''
-        Return the ftrack ftrack_object for this class. It checks if there is
-        already a matching ftrack ftrack_object in the scene, in this case it
-        updates the ftrack_object if it's not. In case there is no ftrack_object
-        in the scene this function creates a new one.
-        '''
+        '''Returns the ftrack ftrack_object for this class.'''
         self.ftrack_object = None
         return self.ftrack_object
 
     def _get_unique_ftrack_object_name(self):
-        '''
-        Return a unique scene name for the current asset_name
-        '''
-        ftrack_object_name = '{}_ftrackdata'.format(
+        '''Return a unique scene name for the current asset_name'''
+        ftrack_object_name = asset_const.FTRACK_OBJECT_NAME.format(
             self.asset_info[asset_const.ASSET_NAME]
         )
         return ftrack_object_name
@@ -119,10 +116,11 @@ class FtrackAssetBase(object):
     def change_version(self, asset_version_id, host_id):
         '''
         Publish the PIPELINE_ASSET_VERSION_CHANGED event for the given *host_id*
-        with the asset info of the given *asset_version_id*.
+        with the asset_version and component_name of the given *asset_version_id*.
 
         note:: Public function to change the asset version, it's been called from
-        the api or from the asset manager UI '''
+        the api or from the asset manager UI
+        '''
 
         asset_version = self.session.get('AssetVersion', asset_version_id)
 
@@ -213,6 +211,10 @@ class FtrackAssetBase(object):
         return ftrack_asset_info_list
 
     def clear_selection(self, host_id):
+        '''
+        Publish the PIPELINE_ON_CLEAR_SELECTION event for the
+        given *host_id
+        '''
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_ON_CLEAR_SELECTION,
             data={
@@ -225,6 +227,9 @@ class FtrackAssetBase(object):
         self._event_manager.publish(event, self._clear_selection)
 
     def _clear_selection(self, event):
+        '''
+        Base function callback to clear the selection from the given *event*
+        '''
         asset_item = event['data']
         return asset_item
 
@@ -245,6 +250,7 @@ class FtrackAssetBase(object):
         self._event_manager.publish(event, self._select_asset)
 
     def _select_asset(self, event):
+        '''Base function callback to select the assets from the given *event*'''
         asset_item = event['data']
         return asset_item
 
@@ -266,9 +272,7 @@ class FtrackAssetBase(object):
 
     def _remove_asset(self, event):
         '''
-        Callback function to change the asset version from the given *event*
+        Callback function to remove the assets from the given *event*
         '''
         asset_item = event['data']
-
         return asset_item
-
