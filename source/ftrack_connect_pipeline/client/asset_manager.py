@@ -29,7 +29,7 @@ class AssetManagerClient(client.Client):
         communicate to the event server.
         '''
         super(AssetManagerClient, self).__init__(event_manager)
-        self._ftrack_asset_list = []
+        self._reset_asset_list()
 
     def discover_assets(self, host_id):
         ''' Discovers the available ftrack assets on the given *host_id*'''
@@ -47,7 +47,7 @@ class AssetManagerClient(client.Client):
 
     def _discover_assets(self, host_id):
         '''Event to discover new available assets in the given *host_id*.'''
-        self._ftrack_asset_list = []
+        self._reset_asset_list()
         asset_type_filter = []
 
         event = ftrack_api.event.base.Event(
@@ -60,6 +60,10 @@ class AssetManagerClient(client.Client):
             }
         )
         self._event_manager.publish(event, self._asset_discovered)
+
+    def _reset_asset_list(self):
+        '''Empty the _ftrack_asset_list'''
+        self._ftrack_asset_list = []
 
     def change_version(self, ftrack_asset_object, asset_version_id):
         '''
