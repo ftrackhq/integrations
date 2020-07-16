@@ -53,6 +53,13 @@ class FtrackAssetBase(object):
     def asset_info(self):
         return self._asset_info
 
+    @asset_info.setter
+    def asset_info(self, value):
+        if not isinstance(value, FtrackAssetInfo):
+            raise ValueError()
+
+        self._asset_info = value
+
     @property
     def session(self):
         return self.event_manager.session
@@ -62,12 +69,12 @@ class FtrackAssetBase(object):
         return self._event_manager
 
     @property
-    def ftrack_objects(self):
-        return self._ftrack_objects[:]
-
-    @property
     def ftrack_object(self):
         return self._ftrack_object
+
+    @ftrack_object.setter
+    def ftrack_object(self, value):
+        self._ftrack_object = value
 
     def __init__(self, event_manager):
         '''
@@ -88,7 +95,6 @@ class FtrackAssetBase(object):
         self._asset_info = None
         self._event_manager = event_manager
 
-        self._ftrack_objects = []
         self._ftrack_object = None
 
     def init_ftrack_object(self):
@@ -98,7 +104,7 @@ class FtrackAssetBase(object):
         updates the ftrack_object if it's not. In case there is no ftrack_object
         in the scene this function creates a new one.
         '''
-        self._set_ftrack_object(None)
+        self.ftrack_object = None
         return self.ftrack_object
 
     def _get_unique_ftrack_object_name(self):
@@ -109,22 +115,6 @@ class FtrackAssetBase(object):
             self.asset_info[asset_const.ASSET_NAME]
         )
         return ftrack_object_name
-
-    def set_asset_info(self, ftrack_asset_info):
-        ''' Sets the self._asset_info from the given *ftrack_asset_info*'''
-        if not isinstance(ftrack_asset_info, FtrackAssetInfo):
-            raise TypeError(
-                "ftrack_asset_info argument has to be type of FtrackAssetInfo"
-            )
-        self._asset_info = ftrack_asset_info
-
-    def _set_ftrack_object(self, ftrack_object):
-        '''
-        Sets the given *ftrack_object* as the current self.ftrack_object of the
-        class
-        '''
-        self.logger.info("_set_ftrack_object")
-        self._ftrack_object = ftrack_object
 
     def change_version(self, asset_version_id, host_id):
         '''
