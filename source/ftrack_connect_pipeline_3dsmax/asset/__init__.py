@@ -1,13 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-import json
 import MaxPlus
-import ftrack_api
 
 from ftrack_connect_pipeline.asset import FtrackAssetInfo, FtrackAssetBase
 from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
-from ftrack_connect_pipeline import constants as core_const
 from ftrack_connect_pipeline_3dsmax.constants.asset import modes as load_const
 import ftrack_connect_pipeline_3dsmax.utils.custom_commands as max_utils
 
@@ -20,23 +17,25 @@ class FtrackAssetNode(FtrackAssetBase):
     identity = MaxPlus.Class_ID(*asset_const.FTRACK_ASSET_CLASS_ID)
 
     def is_ftrack_object(self, other):
+        '''
+        Checks if the given object *other* has the same ClassID as the
+        current identity
+        '''
         if other.Object.ClassID == self.identity:
             return True
 
         return False
 
     def is_sync(self):
+        '''Returns bool if the current ftrack_object is sync'''
         return self._check_ftrack_object_sync()
 
     def __init__(self, event_manager):
         '''
-        Initialize FtrackAssetNode with *ftrack_asset_info*, and *session*.
+        Initialize FtrackAssetNode with *event_manager*.
 
-        *ftrack_asset_info* should be the
-        :class:`ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
-        instance.
-        *session* should be the :class:`ftrack_api.session.Session` instance
-        to use for communication with the server.
+        *event_manager* instance of
+        :class:`ftrack_connect_pipeline.event.EventManager`
         '''
         super(FtrackAssetNode, self).__init__(event_manager)
 
@@ -49,14 +48,14 @@ class FtrackAssetNode(FtrackAssetBase):
 
     def init_ftrack_object(self):
         '''
-        Return the ftrack ftrack_object for this class. It checks if there is
-        already a matching ftrack ftrack_object in the scene, in this case it
+        Return the ftrack_object for this class. It checks if there is
+        already a matching ftrack_object in the scene, in this case, it
         updates the ftrack_object if it's not. In case there is no ftrack_object
         in the scene this function creates a new one.
         '''
         ftrack_object = self.get_ftrack_object_from_scene()
         if ftrack_object:
-            self._set_ftrack_object(ftrack_object)
+            self.ftrack_object = ftrack_object
             if not self.is_sync():
                 self._update_ftrack_object()
         else:
@@ -65,6 +64,10 @@ class FtrackAssetNode(FtrackAssetBase):
         return self.ftrack_object
 
     def _get_parameters_dictionary(self, max_obj):
+        '''
+        Returns a diccionary with the keys and values of the given *max_obj*
+        parameters
+        '''
         param_dict = {}
         for p in max_obj.ParameterBlock.Parameters:
             param_dict[p.Name] = p.Value
@@ -72,8 +75,8 @@ class FtrackAssetNode(FtrackAssetBase):
 
     def get_ftrack_object_from_scene(self):
         '''
-        Return the ftrack ftrack_object of the current asset_version of the scene if
-        exists.
+        Return the ftrack_object from the current asset_version if it exists in
+        the scene.
         '''
         ftrack_asset_nodes = max_utils.get_ftrack_helpers()
         for ftrack_object in ftrack_asset_nodes:
@@ -93,9 +96,8 @@ class FtrackAssetNode(FtrackAssetBase):
 
     def _check_ftrack_object_sync(self):
         '''
-        Check if the current parameters of the ftrack ftrack_object match the values
+        Check if the current parameters of the ftrack_object match the values
         of the asset_info.
-
         '''
         if not self.ftrack_object:
             self.logger.warning("Can't check if ftrack ftrack_object is not loaded")
@@ -115,7 +117,7 @@ class FtrackAssetNode(FtrackAssetBase):
 
     def _get_unique_ftrack_object_name(self):
         '''
-        Return a unique scene name for the current asset_name
+        Return a unique scene name for the current ftrack_object
         '''
         ftrack_object_name = super(
             FtrackAssetNode, self
@@ -125,7 +127,7 @@ class FtrackAssetNode(FtrackAssetBase):
 
     def connect_objects(self, objects):
         '''
-        Parent the given *objects* under current ftrack_node
+        Parent the given *objects* under current ftrack_object
 
         *objects* is List type of INode
         '''
@@ -141,7 +143,7 @@ class FtrackAssetNode(FtrackAssetBase):
             self.reload_references_from_selection()
 
     def get_load_mode_from_ftrack_object(self, node):
-        '''Return the import mode used to import an asset.'''
+        '''Return the load mode used to import an asset.'''
         obj = node.Object
         return obj.ParameterBlock.asset_info_options.Value
 
@@ -163,14 +165,12 @@ class FtrackAssetNode(FtrackAssetBase):
 
     def create_new_ftrack_object(self):
         '''
-        Creates the ftrack_node with a unique name. The ftrack ftrack_object is
+        Creates a ftrack_object with a unique name. The ftrack_object is
         type of FtrackAssetHelper.
-
         '''
         name = self._get_unique_ftrack_object_name()
-        self._ftrack_object = MaxPlus.Factory.CreateNode(self.helper_object)
-        self._ftrack_object.Name = name
-        self._ftrack_objects.append(self.ftrack_object)
+        self.ftrack_object = MaxPlus.Factory.CreateNode(self.helper_object)
+        self.ftrack_object.Name = name
 
         # Try to freeze the helper object and lock the transform.
         try:
@@ -187,8 +187,8 @@ class FtrackAssetNode(FtrackAssetBase):
         return self._update_ftrack_object()
 
     def _update_ftrack_object(self):
-        '''Update the parameters of the ftrack ftrack_object. And Return the
-        ftrack ftrack_object updated
+        '''Update the parameters of the ftrack_object. And Return the
+        ftrack_object updated
         '''
 
         try:
@@ -219,22 +219,22 @@ class FtrackAssetNode(FtrackAssetBase):
 
     def _get_component_id_from_helper_node(self, helper_node):
         '''
-        Return component id of the given *helperNode*.
+        Return component_id of the given *helperNode*.
         '''
         component_id = helper_node.Object.ParameterBlock.component_id.Value
         return component_id
 
     def _get_version_id_from_helper_node(self, helper_node):
         '''
-        Return version id of the given *helperNode*.
+        Return version_id of the given *helperNode*.
         '''
         version_id = helper_node.Object.ParameterBlock.version_id.Value
         return version_id
 
     def _connect_selection(self):
         '''
-        Removes pre existing asset helper objects and parent the selected ftrack_objects
-        to the current ftrack ftrack_object.
+        Removes pre existing asset helper objects and parent the selected
+        nodes to the current ftrack_object.
         '''
         version_id = self.asset_info[asset_const.VERSION_ID]
         component_id = self.asset_info[asset_const.COMPONENT_ID]
@@ -268,8 +268,8 @@ class FtrackAssetNode(FtrackAssetBase):
 
     def discover_assets(self):
         '''
-        Returns *asset_info_list* with all the assets loaded in the current
-        scene that has an ftrackAssetNode connected
+        Returns asset_info_list with all the assets loaded in the current
+        scene that has an ftrack_object connected
         '''
         ftrack_asset_nodes = max_utils.get_ftrack_helpers()
         asset_info_list = []
@@ -320,8 +320,8 @@ class FtrackAssetNode(FtrackAssetBase):
 
     def _clear_selection(self, event):
         '''
-        Override function from the main class, select the current assets of the
-        scene.
+        Override function from the main class, clear the current selection
+        of the scene.
         '''
         super(FtrackAssetNode, self)._clear_selection(event)
         asset_item = event['data']

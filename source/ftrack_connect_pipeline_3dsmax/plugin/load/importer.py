@@ -22,7 +22,7 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
 
         _required_output a List
     '''
-    asset_node_type = FtrackAssetNode
+    ftrack_asset_class = FtrackAssetNode
 
     def _run(self, event):
         self.old_data = max_utils.get_current_scene_objects()
@@ -83,11 +83,11 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
             ' inport : {}'.format(diff)
         )
 
-        ftrack_node_class = self.get_asset_node(context, data, options)
+        ftrack_asset_class = self.get_asset_class(context, data, options)
 
-        ftrack_node = ftrack_node_class.init_ftrack_object()
+        ftrack_node = ftrack_asset_class.init_ftrack_object()
 
-        ftrack_node_class.connect_objects(diff)
+        ftrack_asset_class.connect_objects(diff)
 
 
 class LoaderImporterMaxWidget(pluginWidget.LoaderImporterWidget, BaseMaxPluginWidget):
