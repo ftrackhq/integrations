@@ -1,3 +1,7 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2020 ftrack
+
+
 from ftrack_connect_pipeline_qt.plugin.base.collector import *
 from ftrack_connect_pipeline_qt.plugin.base.context import *
 from ftrack_connect_pipeline_qt.plugin.base.finaliser import *
