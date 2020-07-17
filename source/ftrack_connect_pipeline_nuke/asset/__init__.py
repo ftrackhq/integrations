@@ -17,9 +17,9 @@ class FtrackAssetTab(FtrackAssetBase):
     Base FtrackAssetTab class.
     '''
 
-    def is_sync(self):
+    def is_sync(self, ftrack_object):
         '''Returns bool if the current ftrack_object is sync'''
-        return self._check_ftrack_object_sync()
+        return self._check_ftrack_object_sync(ftrack_object)
 
     def __init__(self, event_manager):
         '''
@@ -39,12 +39,13 @@ class FtrackAssetTab(FtrackAssetBase):
         in the scene this function creates a new one.
         '''
         ftrack_object = self.get_ftrack_object_from_nuke()
+        if not ftrack_object:
+            ftrack_object = self.create_new_ftrack_object()
         if ftrack_object:
-            self.ftrack_object = ftrack_object.knob('name').value()
-            if not self.is_sync():
-                self._update_ftrack_object()
-        else:
-            self.create_new_ftrack_object()
+            if not self.is_sync(ftrack_object):
+                ftrack_object = self._update_ftrack_object(ftrack_object)
+
+        self.ftrack_object = ftrack_object
 
         return self.ftrack_object
 
@@ -75,24 +76,24 @@ class FtrackAssetTab(FtrackAssetBase):
                         node_asset_info[asset_const.REFERENCE_OBJECT] ==
                         self.asset_info[asset_const.REFERENCE_OBJECT]
                 ):
-                    return scene_node
+                    return scene_node.knob('name').value()
 
-    def _check_ftrack_object_sync(self):
+    def _check_ftrack_object_sync(self, ftrack_object):
         '''
         Check if the current parameters of the ftrack_object match the
         values of the asset_info.
         '''
-        if not self.ftrack_object:
+        if not ftrack_object:
             self.logger.warning("Ftrack tab doesn't exists")
             return False
 
         synced = False
-        ftrack_object = nuke.toNode(self.ftrack_object)
+        ftrack_object = nuke.toNode(ftrack_object)
         param_dict = self._get_parameters_dictionary(ftrack_object)
         node_asset_info = FtrackAssetInfo(param_dict)
 
         if node_asset_info == self.asset_info:
-            self.logger.debug("{} is synced".format(self.ftrack_object))
+            self.logger.debug("{} is synced".format(ftrack_object))
             synced = True
 
         return synced
@@ -225,7 +226,7 @@ class FtrackAssetTab(FtrackAssetBase):
         if not self.ftrack_object:
             ftrack_object = nuke.nodes.BackdropNode()
             ftrack_object.knob('tile_color').setValue(2386071295)
-            self.ftrack_object = ftrack_object.knob('name').value()
+            ftrack_object = ftrack_object.knob('name').value()
         else:
             ftrack_object = nuke.toNode(self.ftrack_object)
 
@@ -254,17 +255,17 @@ class FtrackAssetTab(FtrackAssetBase):
         knob = nuke.String_Knob(asset_const.ASSET_LINK)
         ftrack_object.addKnob(knob)
 
-        self._set_scene_node_color()
+        self._set_scene_node_color(ftrack_object.knob('name').value())
 
-        return self._update_ftrack_object()
+        return ftrack_object.knob('name').value()
 
-    def _update_ftrack_object(self):
+    def _update_ftrack_object(self, ftrack_object):
         '''
         Update the parameters of the ftrack_object. And Return the
         ftrack_object updated
         '''
 
-        ftrack_object = nuke.toNode(self.ftrack_object)
+        ftrack_object = nuke.toNode(ftrack_object)
 
         for k, v in self.asset_info.items():
             ftrack_object.knob(k).setValue(str(v))
@@ -274,15 +275,15 @@ class FtrackAssetTab(FtrackAssetBase):
         if 'published' in ftrack_object.knobs():
             ftrack_object.reload()
 
-        return self.ftrack_object
+        return ftrack_object.knob('name').value()
 
-    def _set_scene_node_color(self, latest=True):
+    def _set_scene_node_color(self, ftrack_object, latest=True):
         '''
         Sets the visual color of the ftrack_object
         '''
         # Green RGB 20, 161, 74
         # Orange RGB 227, 99, 22
-        ftrack_object = nuke.toNode(self.ftrack_object)
+        ftrack_object = nuke.toNode(ftrack_object)
         latest_color = int('%02x%02x%02x%02x' % (20, 161, 74, 255), 16)
         old_color = int('%02x%02x%02x%02x' % (227, 99, 22, 255), 16)
         if latest:
@@ -373,8 +374,7 @@ class FtrackAssetTab(FtrackAssetBase):
         Override function from the main class, clear the current selection
         of the scene.
         '''
-        super(FtrackAssetTab, self)._clear_selection(event)
-        asset_item = event['data']
+        asset_item = super(FtrackAssetTab, self)._clear_selection(event)
 
         nuke_utils.cleanSelection()
 
