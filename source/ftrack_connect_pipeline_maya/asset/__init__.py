@@ -13,9 +13,9 @@ class FtrackAssetNode(FtrackAssetBase):
     Base FtrackAssetNode class.
     '''
 
-    def is_sync(self):
+    def is_sync(self, ftrack_object):
         '''Returns bool if the current ftrack_object is sync'''
-        return self._check_ftrack_object_sync()
+        return self._check_ftrack_object_sync(ftrack_object)
 
     def __init__(self, event_manager):
         '''
@@ -34,12 +34,13 @@ class FtrackAssetNode(FtrackAssetBase):
         in the scene this function creates a new one.
         '''
         ftrack_object = self.get_ftrack_object_from_scene()
+        if not ftrack_object:
+            ftrack_object = self.create_new_ftrack_object()
         if ftrack_object:
-            self.ftrack_object = ftrack_object
-            if not self.is_sync():
-                self._update_ftrack_object()
-        else:
-            self.create_new_ftrack_object()
+            if not self.is_sync(ftrack_object):
+                ftrack_object = self._update_ftrack_object(ftrack_object)
+
+        self.ftrack_object = ftrack_object
 
         return self.ftrack_object
 
@@ -75,24 +76,24 @@ class FtrackAssetNode(FtrackAssetBase):
 
                 return ftrack_object
 
-    def _check_ftrack_object_sync(self):
+    def _check_ftrack_object_sync(self, ftrack_object):
         '''
         Check if the current parameters of the ftrack_object match the
         values of the asset_info.
         '''
-        if not self.ftrack_object:
+        if not ftrack_object:
             self.logger.warning(
-                "Can't check if ftrack ftrack_object is not loaded"
+                "Can't check if ftrack_object is not loaded"
             )
             return False
 
         synced = False
 
-        param_dict = self._get_parameters_dictionary(self.ftrack_object)
+        param_dict = self._get_parameters_dictionary(ftrack_object)
         node_asset_info = FtrackAssetInfo(param_dict)
 
         if node_asset_info == self.asset_info:
-            self.logger.debug("{} is synced".format(self.ftrack_object))
+            self.logger.debug("{} is synced".format(ftrack_object))
             synced = True
 
         return synced
@@ -146,31 +147,31 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
 
         name = self._get_unique_ftrack_object_name()
-        self.ftrack_object = cmd.createNode('ftrackAssetNode', name=name)
+        ftrack_object = cmd.createNode('ftrackAssetNode', name=name)
 
-        return self._update_ftrack_object()
+        return ftrack_object
 
-    def _update_ftrack_object(self):
+    def _update_ftrack_object(self, ftrack_object):
         '''
         Update the parameters of the ftrack_object. And Return the
         ftrack_object updated
         '''
         for k, v in self.asset_info.items():
-            cmd.setAttr('{}.{}'.format(self.ftrack_object, k), l=False)
+            cmd.setAttr('{}.{}'.format(ftrack_object, k), l=False)
             if k == asset_const.VERSION_NUMBER:
-                cmd.setAttr('{}.{}'.format(self.ftrack_object, k), v, l=True)
+                cmd.setAttr('{}.{}'.format(ftrack_object, k), v, l=True)
             elif k == asset_const.REFERENCE_OBJECT:
                 cmd.setAttr(
                     '{}.{}'.format(
-                        self.ftrack_object, k
-                    ), str(self.ftrack_object), type="string", l=True
+                        ftrack_object, k
+                    ), str(ftrack_object), type="string", l=True
                 )
             else:
                 cmd.setAttr('{}.{}'.format(
-                    self.ftrack_object, k), v, type="string", l=True
+                    ftrack_object, k), v, type="string", l=True
                 )
 
-        return self.ftrack_object
+        return ftrack_object
 
     def discover_assets(self):
         '''
@@ -260,8 +261,7 @@ class FtrackAssetNode(FtrackAssetBase):
         Override function from the main class, clear the current selection
         of the scene.
         '''
-        super(FtrackAssetNode, self)._clear_selection(event)
-        asset_item = event['data']
+        asset_item = super(FtrackAssetNode, self)._clear_selection(event)
 
         cmd.select(cl=True)
 
