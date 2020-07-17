@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2020 ftrack
 
 from ftrack_connect_pipeline.plugin import BasePlugin, BasePluginValidation
 from ftrack_connect_pipeline.constants import plugin
@@ -37,7 +37,7 @@ class BaseImporterPlugin(BasePlugin):
     '''
     return_type = dict
     plugin_type = plugin._PLUGIN_IMPORTER_TYPE
-    asset_node_type = FtrackAssetBase
+    ftrack_asset_class = FtrackAssetBase
     _required_output = {}
 
     def __init__(self, session):
@@ -75,18 +75,15 @@ class BaseImporterPlugin(BasePlugin):
             Options contains 'component_name' as default option
         '''
 
-
         raise NotImplementedError('Missing run method.')
 
-
-    def get_asset_node(self, context, data, options):
+    def get_asset_class(self, context, data, options):
         arguments_dict = asset_info.generate_asset_info_dict_from_args(
             context, data, options, self.session
         )
 
         asset_info_class = asset_info.FtrackAssetInfo(arguments_dict)
 
-        ftrack_node_class = self.asset_node_type(
-            asset_info_class, self.session
-        )
-        return ftrack_node_class
+        ftrack_asset_class = self.ftrack_asset_class(self.event_manager)
+        ftrack_asset_class.asset_info = asset_info_class
+        return ftrack_asset_class
