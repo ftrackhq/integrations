@@ -1,5 +1,7 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2020 ftrack
+
+import ftrack_api
 
 from ftrack_connect_pipeline_3dsmax import plugin
 from ftrack_connect_pipeline_3dsmax.utils import max_alembic_commands as abc_utils
@@ -22,5 +24,8 @@ class ImportAbcMaxPlugin(plugin.LoaderImporterMaxPlugin):
         return results
 
 def register(api_object, **kw):
+    if not isinstance(api_object, ftrack_api.Session):
+        # Exit to avoid registering this plugin again.
+        return
     plugin = ImportAbcMaxPlugin(api_object)
     plugin.register()

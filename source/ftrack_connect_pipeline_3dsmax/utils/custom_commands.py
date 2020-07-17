@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2016 ftrack
+# :copyright: Copyright (c) 2014-2020 ftrack
 
 import MaxPlus
 
@@ -15,7 +15,7 @@ def import_scene_XRef(file_path, options=None):
 
 def re_import_scene_XRef(file_path, parent_helper_node_name):
     '''Import a Max scene file as a Scene XRef asset and parent it
-    under an existing helper node.'''
+    under an existing helper ftrack_object.'''
     cmd = '''
     n = getNodeByName "{0}" exact:true
     scn = xrefs.addNewXRefFile @"{1}"
@@ -26,7 +26,7 @@ def re_import_scene_XRef(file_path, parent_helper_node_name):
 
 def import_obj_XRefs(file_path, options=None):
     '''Import all the objects in a Max scene file as Object XRefs and parent
-    them under an existing helper node.'''
+    them under an existing helper ftrack_object.'''
     cmd = '''
     filename = @"{0}"
     xRefObjs = getMAXFileObjectNames filename
@@ -64,7 +64,7 @@ def get_unique_node_name(node_name):
 
 
 def scene_XRef_imported(ftrack_node):
-    '''Check if a Scene XRef exists under the ftrackAssetHelper node.'''
+    '''Check if a Scene XRef exists under the ftrackAssetHelper ftrack_object.'''
     cmd = '''
     result = false
     numSceneRefs = xrefs.getXRefFileCount()
@@ -149,7 +149,7 @@ def _collect_children_nodes(n, nodes):
 
 
 def collect_children_nodes(node):
-    '''Return a list of all children of a node.'''
+    '''Return a list of all children of a ftrack_object.'''
     child_nodes = []
     for c in node.Children:
         _collect_children_nodes(c, child_nodes)
@@ -158,7 +158,7 @@ def collect_children_nodes(node):
 
 
 def delete_all_children(node):
-    '''Delete all children nodes of a node.'''
+    '''Delete all children ftrack_objects of a ftrack_object.'''
     all_children = collect_children_nodes(node)
     nodes_to_delete = MaxPlus.INodeTab()
     for node in all_children:
@@ -168,7 +168,7 @@ def delete_all_children(node):
 
 
 def add_all_children_to_selection(parent_node):
-    '''Add all children of a node to the current selection.'''
+    '''Add all children of a ftrack_object to the current selection.'''
     new_sel = MaxPlus.SelectionManager.GetNodes()
     nodes_to_select = collect_children_nodes(parent_node)
     for node in nodes_to_select:
@@ -198,5 +198,5 @@ def select_only_cameras():
 
 
 def create_selection_set(set_name):
-    '''Create a new selection set containing the selected nodes.'''
+    '''Create a new selection set containing the selected ftrack_objects.'''
     eval_max_script('selectionSets["{0}"] = selection'.format(set_name))
