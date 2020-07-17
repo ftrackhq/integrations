@@ -207,8 +207,7 @@ class FtrackAssetBase(object):
         '''
         Base discover assets function.
         '''
-        ftrack_asset_info_list = []
-        return ftrack_asset_info_list
+        raise NotImplementedError
 
     def clear_selection(self, host_id):
         '''
