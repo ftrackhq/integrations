@@ -14,7 +14,7 @@ class FtrackAssetBase(object):
     identity = None
     default_component_name = 'main'
 
-    def is_ftrack_object(self, other):
+    def is_ftrack_object(self, object):
         ''' Checks if the given object is '''
         raise NotImplementedError()
 
