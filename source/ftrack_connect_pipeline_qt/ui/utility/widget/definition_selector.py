@@ -5,9 +5,6 @@ from Qt import QtWidgets, QtCore
 class DefinitionSelector(QtWidgets.QWidget):
     '''DefinitionSelector Base Class'''
     definition_changed = QtCore.Signal(object, object, object)
-    host_connection = None
-    schemas = None
-    definition_filter = None
 
     @property
     def selected_host_connection(self):
@@ -21,6 +18,11 @@ class DefinitionSelector(QtWidgets.QWidget):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+
+        self.host_connection = None
+        self.schemas = None
+        self.definition_filter = None
+
         self.hosts = []
         self.pre_build()
         self.build()

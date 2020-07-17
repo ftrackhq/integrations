@@ -20,10 +20,13 @@ class AssetManagerWidget(QtWidgets.QWidget):
     def event_manager(self):
         return self._event_manager
 
+    @property
+    def session(self):
+        return self.event_manager.session
+
     def __init__(self, event_manager, parent=None):
         super(AssetManagerWidget, self).__init__(parent=parent)
 
-        self.session = event_manager.session
         self._event_manager = event_manager
 
         self.ftrack_asset_list = []
