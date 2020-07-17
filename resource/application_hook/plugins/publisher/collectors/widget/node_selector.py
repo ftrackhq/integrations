@@ -1,6 +1,7 @@
-
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2020 ftrack
+
+import ftrack_api
 
 from functools import partial
 
@@ -41,7 +42,7 @@ class NodeSelectorWidget(BaseOptionsWidget):
         if node_names:
             self.nodes_cb.addItems(node_names)
         else:
-            self.nodes_cb.addItem('No nodes found.')
+            self.nodes_cb.addItem('No ftrack_objects found.')
             self.nodes_cb.setDisabled(True)
 
     def post_build(self):
@@ -62,5 +63,8 @@ class NodeSelectorPluginWidget(plugin.PublisherCollectorNukeWidget):
 
 
 def register(api_object, **kw):
+    if not isinstance(api_object, ftrack_api.Session):
+        # Exit to avoid registering this plugin again.
+        return
     plugin = NodeSelectorPluginWidget(api_object)
     plugin.register()

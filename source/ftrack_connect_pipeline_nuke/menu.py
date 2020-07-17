@@ -11,8 +11,13 @@ def build_menu_widgets(ftrack_menu, event_manager):
         from ftrack_connect_pipeline_nuke.client.load import NukeLoaderClient
         return NukeLoaderClient(event_manager)
 
+    def wrap_asset_manager(*args, **kwargs):
+        from ftrack_connect_pipeline_nuke.client.asset_manager import NukeAssetManagerClient
+        return NukeAssetManagerClient(event_manager)
+
     globals()['ftrackPublishClass'] = wrap_publisher
     globals()['ftrackLoadClass'] = wrap_loader
+    globals()['ftrackAssetManagerClass'] = wrap_asset_manager
 
     panels.registerWidgetAsPanel(
         '{0}.{1}'.format(__name__, 'ftrackPublishClass'),
@@ -26,6 +31,12 @@ def build_menu_widgets(ftrack_menu, event_manager):
         'QtPipelineNukeLoaderWidget'
     )
 
+    panels.registerWidgetAsPanel(
+        '{0}.{1}'.format(__name__, 'ftrackAssetManagerClass'),
+        'Ftrack Pipeline Asset Manager',
+        'QtPipelineNukeAssetManagerWidget'
+    )
+
     ftrack_menu.addCommand(
         'Ftrack Publisher',
         'pane = nuke.getPaneFor("Properties.1");'
@@ -37,6 +48,13 @@ def build_menu_widgets(ftrack_menu, event_manager):
         'Ftrack Loader',
         'pane = nuke.getPaneFor("Properties.1");'
         'panel = nukescripts.restorePanel("QtPipelineNukeLoaderWidget");'
+        'panel.addToPane(pane)'
+    )
+
+    ftrack_menu.addCommand(
+        'Ftrack Asset Manager',
+        'pane = nuke.getPaneFor("Properties.1");'
+        'panel = nukescripts.restorePanel("QtPipelineNukeAssetManagerWidget");'
         'panel.addToPane(pane)'
     )
 

@@ -1,5 +1,7 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2020 ftrack
+
+import ftrack_api
 
 import tempfile
 import nuke
@@ -14,16 +16,16 @@ class OutputThumbnailPlugin(plugin.PublisherOutputNukePlugin):
         node_name = data[0]
         write_node = nuke.toNode(node_name)
 
-        # create reformat node
-        reformat_node = nuke.nodes.Reformat()
+        # create reformat ftrack_object
+        reformat_node = nuke.ftrack_objects.Reformat()
         reformat_node['type'].setValue("to box")
         reformat_node['box_width'].setValue(200.0)
 
-        # connect given write node to reformat.
+        # connect given write ftrack_object to reformat.
         reformat_node.setInput(0, write_node)
 
         # create new write for reformat and connect it.
-        new_write_node = nuke.nodes.Write()
+        new_write_node = nuke.ftrack_objects.Write()
         new_write_node.setInput(0, reformat_node)
 
         file_name = tempfile.NamedTemporaryFile(
@@ -46,5 +48,8 @@ class OutputThumbnailPlugin(plugin.PublisherOutputNukePlugin):
 
 
 def register(api_object, **kw):
+    if not isinstance(api_object, ftrack_api.Session):
+        # Exit to avoid registering this plugin again.
+        return
     plugin = OutputThumbnailPlugin(api_object)
     plugin.register()

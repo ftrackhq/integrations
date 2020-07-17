@@ -10,6 +10,7 @@ import traceback
 import logging
 
 import nuke
+import nukescripts
 
 from ftrack_connect_pipeline_nuke.constants import asset as asset_const
 
@@ -79,10 +80,9 @@ def get_unique_scene_name(current_name):
     else:
         return current_name
 
-
 def get_nodes_with_ftrack_tab():
     '''
-    Returns all the nuke nodes that contain an ftrack tab.
+    Returns all the nuke ftrack_objects that contain an ftrack tab.
     '''
     dependencies = []
     for node in nuke.allNodes():
@@ -98,11 +98,6 @@ def reference_scene(path, options=None):
     node = nuke.createNode(
         'LiveGroup', 'published true file {}'.format(path), inpanel=False
     )
-    # TODO: activate this in case any problem with the live group. Not sure if
-    #  published should be activated or not, but we have to set it to true on
-    #  creation time to avoid the override message
-    # node["published"].fromScript("0")
-    # node.reload()
     return node
 
 def open_scene(path, options=None):
@@ -116,5 +111,18 @@ def import_scene(path, options=None):
     '''
     Import the scene from the given *path*
     '''
-    result = nuke.nodePaste(path)
-    return result
+    return nuke.nodePaste(path)
+
+
+def get_current_scene_objects():
+    return set(nuke.allNodes())
+
+def get_all_write_nodes():
+    write_nodes = []
+    for node in nuke.allNodes('Write'):
+        write_nodes.append(node)
+    return write_nodes
+
+def cleanSelection():
+    for node in nuke.selectedNodes():
+        node['selected'].setValue(False)
