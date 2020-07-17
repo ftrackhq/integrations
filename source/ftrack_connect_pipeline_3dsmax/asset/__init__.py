@@ -16,19 +16,19 @@ class FtrackAssetNode(FtrackAssetBase):
 
     identity = MaxPlus.Class_ID(*asset_const.FTRACK_ASSET_CLASS_ID)
 
-    def is_ftrack_object(self, other):
+    def is_ftrack_object(self, object):
         '''
         Checks if the given object *other* has the same ClassID as the
         current identity
         '''
-        if other.Object.ClassID == self.identity:
+        if object.Object.ClassID == self.identity:
             return True
 
         return False
 
-    def is_sync(self):
+    def is_sync(self, ftrack_object):
         '''Returns bool if the current ftrack_object is sync'''
-        return self._check_ftrack_object_sync()
+        return self._check_ftrack_object_sync(ftrack_object)
 
     def __init__(self, event_manager):
         '''
@@ -54,12 +54,13 @@ class FtrackAssetNode(FtrackAssetBase):
         in the scene this function creates a new one.
         '''
         ftrack_object = self.get_ftrack_object_from_scene()
+        if not ftrack_object:
+            ftrack_object = self.create_new_ftrack_object()
         if ftrack_object:
-            self.ftrack_object = ftrack_object
-            if not self.is_sync():
-                self._update_ftrack_object()
-        else:
-            self.create_new_ftrack_object()
+            if not self.is_sync(ftrack_object):
+                ftrack_object = self._update_ftrack_object(ftrack_object)
+
+        self.ftrack_object = ftrack_object
 
         return self.ftrack_object
 
@@ -94,23 +95,23 @@ class FtrackAssetNode(FtrackAssetBase):
 
                 return ftrack_object
 
-    def _check_ftrack_object_sync(self):
+    def _check_ftrack_object_sync(self, ftrack_object):
         '''
         Check if the current parameters of the ftrack_object match the values
         of the asset_info.
         '''
-        if not self.ftrack_object:
+        if not ftrack_object:
             self.logger.warning("Can't check if ftrack ftrack_object is not loaded")
             return False
 
         synced = False
-        obj = self.ftrack_object.Object
+        obj = ftrack_object.Object
 
         param_dict = self._get_parameters_dictionary(obj)
         node_asset_info = FtrackAssetInfo(param_dict)
 
         if node_asset_info == self.asset_info:
-            self.logger.debug("{} is synced".format(self.ftrack_object))
+            self.logger.debug("{} is synced".format(ftrack_object))
             synced = True
 
         return synced
@@ -169,13 +170,13 @@ class FtrackAssetNode(FtrackAssetBase):
         type of FtrackAssetHelper.
         '''
         name = self._get_unique_ftrack_object_name()
-        self.ftrack_object = MaxPlus.Factory.CreateNode(self.helper_object)
-        self.ftrack_object.Name = name
+        ftrack_object = MaxPlus.Factory.CreateNode(self.helper_object)
+        ftrack_object.Name = name
 
         # Try to freeze the helper object and lock the transform.
         try:
             cmd = 'freeze ${0} ; setTransformLockFlags ${0} #all'.format(
-                self.ftrack_object.Name)
+                ftrack_object.Name)
             max_utils.eval_max_script(cmd)
         except Exception, e:
             self.logger.debug(
@@ -184,38 +185,38 @@ class FtrackAssetNode(FtrackAssetBase):
                 )
             )
 
-        return self._update_ftrack_object()
+        return ftrack_object
 
-    def _update_ftrack_object(self):
+    def _update_ftrack_object(self, ftrack_object):
         '''Update the parameters of the ftrack_object. And Return the
         ftrack_object updated
         '''
 
         try:
-            cmd = 'unfreeze ${0}'.format(self.ftrack_object.Name)
+            cmd = 'unfreeze ${0}'.format(ftrack_object.Name)
             max_utils.eval_max_script(cmd)
         except:
             self.logger.debug(
-                "Could not unfreeze object {0}".format(self.ftrack_object.Name))
+                "Could not unfreeze object {0}".format(ftrack_object.Name))
 
-        obj = self.ftrack_object.Object
+        obj = ftrack_object.Object
 
         for p in obj.ParameterBlock.Parameters:
             if p.Name == asset_const.REFERENCE_OBJECT:
-                p.SetValue(str(self.ftrack_object))
+                p.SetValue(str(ftrack_object))
             else:
                 p.SetValue(self.asset_info[p.Name])
 
         try:
-            cmd = 'freeze ${0}'.format(self.ftrack_object.Name)
+            cmd = 'freeze ${0}'.format(ftrack_object.Name)
             max_utils.eval_max_script(cmd)
         except Exception, e:
             self.logger.debug(
                 "Could not freeze object {0}, Error: {1}".format(
-                    self.ftrack_object.Name, e
+                    ftrack_object.Name, e
                 )
             )
-        return self.ftrack_object
+        return ftrack_object
 
     def _get_component_id_from_helper_node(self, helper_node):
         '''
@@ -323,8 +324,7 @@ class FtrackAssetNode(FtrackAssetBase):
         Override function from the main class, clear the current selection
         of the scene.
         '''
-        super(FtrackAssetNode, self)._clear_selection(event)
-        asset_item = event['data']
+        asset_item = super(FtrackAssetNode, self)._clear_selection(event)
 
         max_utils.deselect_all()
 
