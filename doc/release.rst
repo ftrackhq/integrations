@@ -9,8 +9,7 @@ Releases
 
     .. change:: fixed
 
-        Connect package does not provide product_code when generating msi installer.
-
+        Connect package does not provide a consistent ProductCode when generating msi installer.
 
     .. change:: fixed
 
