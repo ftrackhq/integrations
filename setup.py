@@ -344,15 +344,9 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         # package is upgraded when installing a new version.
         configuration['options']['bdist_msi'] = {
             'upgrade_code': '{e5666af3-56a5-426a-b308-54c2d6ad8704}',
-            'product_code': '{7e6513999b465924d43d35d33dc6a75a}',
             'initial_target_dir': r'[ProgramFilesFolder]\{0}-{1}'.format(
                 'ftrack-connect-package', VERSION
-            )
-        }
-
-
-        # Specify shortucut list for MSI installer
-        configuration['options']['bdist_msi'] = {
+            ),
             'data': {'Shortcut': shortcut_table}
         }
 
