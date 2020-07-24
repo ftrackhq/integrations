@@ -86,7 +86,7 @@ class HostConnection(object):
 
         self.on_client_notification()
 
-    def run(self, data):
+    def run(self, data, engine, callback=None):
         '''Send *data* to the host through the PIPELINE_HOST_RUN topic.'''
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_HOST_RUN,
@@ -94,11 +94,12 @@ class HostConnection(object):
                 'pipeline': {
                     'host_id': self.id,
                     'data': data,
+                    'engine': engine
                 }
             }
         )
         self._event_manager.publish(
-            event
+            event, callback
         )
 
     def _notify_client(self, event):

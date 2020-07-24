@@ -9,4 +9,6 @@ _PLUGIN_VALIDATOR_TYPE = 'validator'
 _PLUGIN_OUTPUT_TYPE = 'output'
 _PLUGIN_IMPORTER_TYPE = 'importer'
 _PLUGIN_POST_IMPORT_TYPE = 'post_import'
-
+_PLUGIN_ACTION_TYPE = 'action'
+_PLUGIN_DISCOVER_TYPE = 'discover'
+_PLUGIN_MENU_ACTION_TYPE = 'menu_action'

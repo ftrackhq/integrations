@@ -11,9 +11,6 @@ logger = logging.getLogger(__name__)
 
 def _validate_and_augment_schema(schema, definition ,type):
     '''Validate all the given definitions with the given schema'''
-    print "schema --> {}".format(schema)
-    print "definition --> {}".format(definition)
-    print "type --> {}".format(type)
     builder = pjo.ObjectBuilder(schema)
     ns = builder.build_classes(standardize_names=False)
     ObjectBuilder = getattr(ns, type.capitalize())

@@ -138,12 +138,6 @@ class FtrackAssetBase(object):
         )
         self._event_manager.publish(event, self._change_version)
 
-    def remove_current_objects(self):
-        '''
-        Remove all the imported or referenced objects in the scene
-        '''
-        raise NotImplementedError
-
     def _change_version(self, event):
         '''
         Callback function to change the asset version from the given *event*
@@ -153,6 +147,7 @@ class FtrackAssetBase(object):
 
         try:
             self.logger.debug("Removing current objects")
+            #Run the plugin remove_objects
             self.remove_current_objects()
         except Exception, e:
             self.logger.error("Error removing current objects: {}".format(e))
@@ -203,75 +198,3 @@ class FtrackAssetBase(object):
 
         return asset_info
 
-    def discover_assets(self):
-        '''
-        Base discover assets function.
-        '''
-        raise NotImplementedError
-
-    def clear_selection(self, host_id):
-        '''
-        Publish the PIPELINE_ON_CLEAR_SELECTION event for the
-        given *host_id
-        '''
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_ON_CLEAR_SELECTION,
-            data={
-                'pipeline': {
-                    'host_id': host_id,
-                    'data': self
-                }
-            }
-        )
-        self._event_manager.publish(event, self._clear_selection)
-
-    def _clear_selection(self, event):
-        '''
-        Base function callback to clear the selection from the given *event*
-        '''
-        asset_item = event['data']
-        return asset_item
-
-    def select_asset(self, host_id):
-        '''
-        Publish the PIPELINE_ON_SELECT_ASSET event for the given *host_id*
-        '''
-
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_ON_SELECT_ASSET,
-            data={
-                'pipeline': {
-                    'host_id': host_id,
-                    'data': self
-                }
-            }
-        )
-        self._event_manager.publish(event, self._select_asset)
-
-    def _select_asset(self, event):
-        '''Base function callback to select the assets from the given *event*'''
-        asset_item = event['data']
-        return asset_item
-
-    def remove_asset(self, host_id):
-        '''
-        Publish the PIPELINE_ON_REMOVE_ASSET event for the given *host_id*.
-        '''
-
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_ON_REMOVE_ASSET,
-            data={
-                'pipeline': {
-                    'host_id': host_id,
-                    'data': self
-                }
-            }
-        )
-        self._event_manager.publish(event, self._remove_asset)
-
-    def _remove_asset(self, event):
-        '''
-        Callback function to remove the assets from the given *event*
-        '''
-        asset_item = event['data']
-        return asset_item

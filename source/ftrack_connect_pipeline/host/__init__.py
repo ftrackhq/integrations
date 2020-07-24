@@ -8,7 +8,7 @@ import logging
 from ftrack_connect_pipeline.host import engine
 from ftrack_connect_pipeline.host import validation
 from ftrack_connect_pipeline import constants, utils
-from ftrack_connect_pipeline.constants import asset as asset_const
+from ftrack_connect_pipeline.constants import plugin as plugin_const
 from ftrack_connect_pipeline.host import engine
 
 
@@ -81,48 +81,45 @@ class Host(object):
         return engine_runner
 
     def run(self, event):
-        #TODO: to know that comes from the asset manager, we can filter by
-        # data[topic] so we will know if it comes from the topic
-        # client.am.discover_assets for example, and that means that we already
-        # have the action to run, so we can do something like
-        # eval("{}.{}".format(engine_runner, event_topic_splited).
-
         data = event['data']['pipeline']['data']
+        engine = event['data']['pipeline']['engine']
 
-        try:
-            validation.validate_schema(self.__registry['schema'], data)
-        except Exception as error:
-            self.logger.error("Can't validate the data {} "
-                              "error: {}".format(data, error))
-            return False
+        if engine == "AssetManagerEngine":
+            engine_runner = self.get_engine_runner(engine)
+        else:
+            try:
+                validation.validate_schema(self.__registry['schema'], data)
+            except Exception as error:
+                self.logger.error("Can't validate the data {} "
+                                  "error: {}".format(data, error))
+                return False
 
-        asset_type = self.get_asset_type_from_packages(
-            self.__registry['package'], data['package'])
-        schema_engine = data['_config']['engine']
+            asset_type = self.get_asset_type_from_packages(
+                self.__registry['package'], data['package'])
+            schema_engine = data['_config']['engine']
 
-        engine_runner = self.get_engine_runner(schema_engine, asset_type)
+            engine_runner = self.get_engine_runner(schema_engine, asset_type)
+
         runnerResult = engine_runner.run(data)
-
         if runnerResult == False:
             self.logger.error("Couldn't publish the data {}".format(data))
 
+        if data.get('plugin_type') != plugin_const._PLUGIN_DISCOVER_TYPE:
+            self._refresh_asset_manager()
+
         return runnerResult
 
-    def _run_discover_assets(self, event):
-        data = event['data']['pipeline']
-
-        engine_runner = self.get_engine_runner(
-            self.asset_manager_engine.__name__
+    def _refresh_asset_manager(self):
+        event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_REFRESH_AM,
+            data={
+                'pipeline': {
+                    'host_id': self.hostid,
+                    'data': {},
+                }
+            }
         )
-
-        runnerResult = engine_runner.discover_assets(data)
-
-        if runnerResult == False:
-            self.logger.error(
-                "Couldn't run the action for the data {}".format(data)
-            )
-
-        return runnerResult
+        self._event_manager.publish(event)
 
     def _run_change_asset_version(self, event):
         data = event['data']['pipeline']
@@ -132,54 +129,6 @@ class Host(object):
         )
 
         runnerResult = engine_runner.change_asset_version(data)
-
-        if runnerResult == False:
-            self.logger.error(
-                "Couldn't run the action for the data {}".format(data)
-            )
-
-        return runnerResult
-
-    def _run_clear_selection(self, event):
-        data = event['data']['pipeline']
-
-        engine_runner = self.get_engine_runner(
-            self.asset_manager_engine.__name__
-        )
-
-        runnerResult = engine_runner.clear_selection(data)
-
-        if runnerResult == False:
-            self.logger.error(
-                "Couldn't run the action for the data {}".format(data)
-            )
-
-        return runnerResult
-
-    def _run_select_asset(self, event):
-        data = event['data']['pipeline']
-
-        engine_runner = self.get_engine_runner(
-            self.asset_manager_engine.__name__
-        )
-
-        runnerResult = engine_runner.select_asset(data)
-
-        if runnerResult == False:
-            self.logger.error(
-                "Couldn't run the action for the data {}".format(data)
-            )
-
-        return runnerResult
-
-    def _run_remove_asset(self, event):
-        data = event['data']['pipeline']
-
-        engine_runner = self.get_engine_runner(
-            self.asset_manager_engine.__name__
-        )
-
-        runnerResult = engine_runner.remove_asset(data)
 
         if runnerResult == False:
             self.logger.error(
@@ -265,61 +214,11 @@ class Host(object):
         )
 
     def listen_asset_manager(self):
-
-        self._event_manager.subscribe(
-            '{} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_DISCOVER_ASSETS, self.hostid
-            ),
-            self._run_discover_assets
-        )
-        self.logger.info(
-            'subscribe to asset manager version changed  {} ready.'.format(
-                self.hostid
-            )
-        )
-
-
         self._event_manager.subscribe(
             '{} and data.pipeline.host_id={}'.format(
                 constants.PIPELINE_ASSET_VERSION_CHANGED, self.hostid
             ),
             self._run_change_asset_version
-        )
-        self.logger.info(
-            'subscribe to asset manager version changed  {} ready.'.format(
-                self.hostid
-            )
-        )
-
-        self._event_manager.subscribe(
-            '{} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_ON_SELECT_ASSET, self.hostid
-            ),
-            self._run_select_asset
-        )
-        self.logger.info(
-            'subscribe to asset manager version changed  {} ready.'.format(
-                self.hostid
-            )
-        )
-
-        self._event_manager.subscribe(
-            '{} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_ON_REMOVE_ASSET, self.hostid
-            ),
-            self._run_remove_asset
-        )
-        self.logger.info(
-            'subscribe to asset manager version changed  {} ready.'.format(
-                self.hostid
-            )
-        )
-
-        self._event_manager.subscribe(
-            '{} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_ON_CLEAR_SELECTION, self.hostid
-            ),
-            self._run_clear_selection
         )
         self.logger.info(
             'subscribe to asset manager version changed  {} ready.'.format(
