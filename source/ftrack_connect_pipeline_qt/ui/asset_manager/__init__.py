@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
+from functools import partial
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
 from ftrack_connect_pipeline import constants as core_const
@@ -24,10 +25,20 @@ class AssetManagerWidget(QtWidgets.QWidget):
     def session(self):
         return self.event_manager.session
 
+    @property
+    def engine(self):
+        '''Returns ftrack object from the DCC app'''
+        return self._engine
+
+    @engine.setter
+    def engine(self, value):
+        self._engine = value
+
     def __init__(self, event_manager, parent=None):
         super(AssetManagerWidget, self).__init__(parent=parent)
 
         self._event_manager = event_manager
+        self._engine = None
 
         self.ftrack_asset_list = []
 
@@ -67,6 +78,10 @@ class AssetManagerWidget(QtWidgets.QWidget):
         self._listen_widget_updates()
         self.asset_table_view.set_host_connection(self.host_connection)
 
+    def set_context_actions(self, actions):
+        self.asset_table_view.engine = self.engine
+        self.asset_table_view.create_actions(actions)
+
     def _update_widget(self, event):
         '''*event* callback to update widget with the current status/value'''
         pass
@@ -88,6 +103,15 @@ class AssetManagerWidget(QtWidgets.QWidget):
 class AssetManagerTableView(QtWidgets.QTableView):
     '''Model representing AssetManager.'''
 
+    @property
+    def engine(self):
+        '''Returns ftrack object from the DCC app'''
+        return self._engine
+
+    @engine.setter
+    def engine(self, value):
+        self._engine = value
+
     def __init__(self, session, parent=None):
         '''Initialise browser with *root* entity.
 
@@ -99,6 +123,8 @@ class AssetManagerTableView(QtWidgets.QTableView):
         super(AssetManagerTableView, self).__init__(parent=parent)
 
         self.ftrack_asset_list = []
+        self.action_widgets = []
+        self._engine = None
 
         self._session = session
 
@@ -142,31 +168,30 @@ class AssetManagerTableView(QtWidgets.QTableView):
         self.ftrack_asset_list = ftrack_asset_list
         self.asset_model.set_asset_list(self.ftrack_asset_list)
 
+    def create_actions(self, actions):
+        self.action_widgets = []
+        for action in actions:
+            action_widget = QtWidgets.QAction(action['name'], self)
+            action_widget.setData(action)
+            self.action_widgets.append(action_widget)
+
     def contextMenuEvent(self, event):
         self.menu = QtWidgets.QMenu(self)
-
-        self.udpate_action = QtWidgets.QAction('Update to latest', self)
-        self.select_action = QtWidgets.QAction('Select', self)
-        self.remove_action = QtWidgets.QAction('Remove', self)
-
-        self.udpate_action.triggered.connect(
-            lambda: self.ctx_update_to_latest(event)
-        )
-        self.select_action.triggered.connect(
-            lambda: self.ctx_select_action(event)
-        )
-        self.remove_action.triggered.connect(
-            lambda: self.ctx_remove_action(event)
-        )
-
-        self.menu.addAction(self.udpate_action)
-        self.menu.addAction(self.select_action)
-        self.menu.addAction(self.remove_action)
+        for action_widget in self.action_widgets:
+            self.menu.addAction(action_widget)
+        self.menu.triggered.connect(self.menu_triggered)
 
         # add other required actions
         self.menu.exec_(QtGui.QCursor.pos())
 
-    def ctx_update_to_latest(self, event):
+    def menu_triggered(self, action):
+        plugin = action.data()
+        ui_callback = plugin['ui_callback']
+        if hasattr(self, ui_callback):
+            callback_fn = getattr(self, ui_callback)
+            callback_fn(plugin)
+
+    def ctx_update_to_latest(self, plugin):
         index_list = self.selectionModel().selectedRows()
         for index in index_list:
             data = self.model().data(index, self.model().DATA_ROLE)
@@ -175,17 +200,20 @@ class AssetManagerTableView(QtWidgets.QTableView):
                 index, latest_versions['id'], QtCore.Qt.EditRole
             )
 
-    def ctx_select_action(self, event):
+    def ctx_select_action(self, plugin):
         index_list = self.selectionModel().selectedRows()
         i=0
         for index in index_list:
             data = self.model().data(index, self.model().DATA_ROLE)
             if i==0:
-                data.clear_selection(self.host_connection.id)
-            data.select_asset(self.host_connection.id)
+                plugin['options'] = {'clear_selection': True}
+            else:
+                plugin['options'] = {'clear_selection': False}
+            plugin['plugin_data'] = data
+            self.host_connection.run(plugin, self.engine)
             i+=1
 
-    def ctx_remove_action(self, event):
+    def ctx_remove_action(self, plugin):
         index_list=[]
         for model_index in self.selectionModel().selectedRows():
             index = QtCore.QPersistentModelIndex(model_index)
@@ -193,8 +221,13 @@ class AssetManagerTableView(QtWidgets.QTableView):
 
         for index in index_list:
             data = self.model().data(index, self.model().DATA_ROLE)
-            data.remove_asset(self.host_connection.id)
-            self.model().removeRow(index.row())
+            plugin['plugin_data'] = data
+            self.host_connection.run(
+                plugin, self.engine, partial(self._remove_callback, index=index)
+            )
+
+    def _remove_callback(self, event, index):
+        self.model().removeRow(index.row())
 
     def set_host_connection(self, host_connection):
         self.host_connection = host_connection

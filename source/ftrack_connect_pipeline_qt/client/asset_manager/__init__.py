@@ -8,7 +8,8 @@ from ftrack_connect_pipeline.client.asset_manager import AssetManagerClient
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 from ftrack_connect_pipeline_qt.ui.utility.widget import header, host_selector
 from ftrack_connect_pipeline_qt.ui.asset_manager import AssetManagerWidget
-from ftrack_connect_pipeline_qt import constants as qt_const
+from ftrack_connect_pipeline import constants as core_const
+
 
 class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
     '''
@@ -94,20 +95,48 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
         self.host_connection = host_connection
 
         self.asset_manager_widget.set_host_connection(self.host_connection)
-        self.discover_assets(self.host_connection.id)
+
+        self.schemas = [
+            schema for schema in self.host_connection.definitions['schema']
+            if schema.get('title').lower() == 'asset_manager'
+        ]
+        #Only one schema available for now, we Don't have a schema selector
+        # on the AM
+        schema = self.schemas[0]
+        schema_title = schema.get('title').lower()
+        definitions = self.host_connection.definitions.get(schema_title)
+        #Only one definition for now, we don't have a definition schema on the
+        # AM
+        self.definition = definitions[0]
+        self.schema_engine = self.definition['_config']['engine']
+
+        self.action_plugins = self.definition['actions']
+        self.menu_action_plugins = self.definition['menu_actions']
+        self.discover_plugins = self.definition['discover']
+
+        self._run_discover_assets(self.discover_plugins[0])
+        self.asset_manager_widget.engine = self.schema_engine
+        self.asset_manager_widget.set_context_actions(self.menu_action_plugins)
+
+        #TODO: discover actions for the context menu
         self.scroll.setWidget(self.asset_manager_widget)
         self._listen_refresh_request()
+
+    def _run_discover_assets(self, plugin):
+        self._reset_asset_list()
+        self.host_connection.run(
+            plugin, self.schema_engine, self._asset_discovered
+        )
 
     def _asset_discovered(self, event):
         '''callback, adds new hosts connection from the given *event*'''
         AssetManagerClient._asset_discovered(self, event)
-        #super(AssetManagerClient, self)._asset_discovered(event)
         self.asset_manager_widget.set_asset_list(self.ftrack_asset_list)
 
     def _listen_refresh_request(self):
         self.event_manager.subscribe(
             '{} and data.pipeline.host_id={}'.format(
-                qt_const.PIPELINE_REFRESH_AM, self.host_connection.id
+                core_const.PIPELINE_REFRESH_AM, self.host_connection.id
             ),
             self._refresh_ui
         )
@@ -120,4 +149,4 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
     def _refresh_ui(self, event):
         if not self.host_connection:
             return
-        self.discover_assets(self.host_connection.id)
+        self._run_discover_assets(self.discover_plugins[0])
