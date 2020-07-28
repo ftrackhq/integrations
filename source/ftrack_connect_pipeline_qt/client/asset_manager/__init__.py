@@ -40,7 +40,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
     def _host_discovered(self, event):
         '''callback, adds new hosts connection from the given *event* to the
         host_selector'''
-        # super(AssetManagerClient, self)._host_discovered(event)
         AssetManagerClient._host_discovered(self, event)
         self.host_selector.add_hosts(self.hosts)
 
@@ -62,7 +61,9 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
             QtWidgets.QSizePolicy.Fixed,
             QtWidgets.QSizePolicy.Fixed
         )
-        self.layout().addWidget(self.refresh_button, alignment=QtCore.Qt.AlignRight)
+        self.layout().addWidget(
+            self.refresh_button, alignment=QtCore.Qt.AlignRight
+        )
 
         self.scroll = QtWidgets.QScrollArea()
         self.scroll.setWidgetResizable(True)
@@ -71,7 +72,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
     def post_build(self):
         '''Post Build ui method for events connections.'''
         self.host_selector.host_changed.connect(self.change_host)
-        self.refresh_button.clicked.connect(partial(self._refresh_ui,None))
+        self.refresh_button.clicked.connect(partial(self._refresh_ui, None))
 
         self.asset_manager_widget.widget_status_updated.connect(
             self._on_widget_status_updated
@@ -90,7 +91,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
         Generates the widgets interface from the given *host_connection*,
         *schema* and *definition*'''
         AssetManagerClient.change_host(self, host_connection)
-        #super(AssetManagerClient, self).change_host(host_connection)
 
         self.asset_manager_widget.set_host_connection(self.host_connection)
 
@@ -100,13 +100,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
 
         self.scroll.setWidget(self.asset_manager_widget)
         self._listen_refresh_request()
-
-    # def _run_discover_assets(self, plugin):
-    #     self._reset_asset_list()
-    #     super(AssetManagerClient, self)._run_discover_assets(plugin)
-    #     # self.host_connection.run(
-    #     #     plugin, self.schema_engine, self._asset_discovered
-    #     # )
 
     def _asset_discovered(self, event):
         '''callback, adds new hosts connection from the given *event*'''

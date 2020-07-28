@@ -33,7 +33,4 @@ class FtrackAssetQt(FtrackAssetBase):
 
         self.asset_info.update(asset_info)
 
-        # if self.ui_event_data:
-        #     self._publish_ui_event(host_id)
-
         return asset_info
