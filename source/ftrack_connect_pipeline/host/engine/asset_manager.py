@@ -17,7 +17,6 @@ class AssetManagerEngine(BaseEngine):
         )
 
     def change_asset_version(self, data):
-        #asset_info = data['data']
         asset_version = data['data']['asset_version']
         component_name = data['data']['component_name']
         asset_info = FtrackAssetInfo.from_ftrack_version(

@@ -266,3 +266,13 @@ class Client(object):
         '''
         self.__callback = callback
         self.discover_hosts(time_out=time_out)
+
+    def change_host(self, host_connection):
+        ''' Triggered when definition_changed is called from the host_selector.
+        Generates the widgets interface from the given *host_connection*,
+        *schema* and *definition*'''
+        if not host_connection:
+            return
+
+        self.logger.info('connection {}'.format(host_connection))
+        self.host_connection = host_connection

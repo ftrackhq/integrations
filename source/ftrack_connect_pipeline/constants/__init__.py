@@ -36,7 +36,7 @@ PIPELINE_DISCOVER_HOST = '{}.host.discover'.format(_BASE_)
 PIPELINE_CONNECT_CLIENT = '{}.client.connect'.format(_BASE_)
 
 #Asset Events
-PIPELINE_ASSET_VERSION_CHANGED = '{}.client.asset_version_changed'.format(_BASE_)
+PIPELINE_CHANGE_VERSION = '{}.client.asset_change_version'.format(_BASE_)
 PIPELINE_REFRESH_AM = '{}.client.refresh_am'.format(_BASE_)
 
 # Avoid circular dependencies.

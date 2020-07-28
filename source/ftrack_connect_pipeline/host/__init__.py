@@ -135,7 +135,8 @@ class Host(object):
                 "Couldn't run the action for the data {}".format(data)
             )
 
-        return runnerResult
+        result = {'result':runnerResult, 'host_id': self.hostid}
+        return result
 
     def get_asset_type_from_packages(self, packages, data_package):
         for package in packages:
@@ -216,7 +217,7 @@ class Host(object):
     def listen_asset_manager(self):
         self._event_manager.subscribe(
             '{} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_ASSET_VERSION_CHANGED, self.hostid
+                constants.PIPELINE_CHANGE_VERSION, self.hostid
             ),
             self._run_change_asset_version
         )

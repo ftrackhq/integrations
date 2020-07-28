@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 import logging
+from functools import partial
 import ftrack_api
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
 from ftrack_connect_pipeline.constants import asset as asset_const
@@ -83,6 +84,15 @@ class FtrackAssetBase(object):
     def ftrack_object(self, value):
         self._ftrack_object = value
 
+    @property
+    def definition(self):
+        '''Returns ftrack object from the DCC app'''
+        return self._definition
+
+    @definition.setter
+    def definition(self, value):
+        self._definition = value
+
     def __init__(self, event_manager):
         '''
         Initialize FtrackAssetBase with *event_manager*.
@@ -99,7 +109,9 @@ class FtrackAssetBase(object):
         self._asset_info = None
         self._event_manager = event_manager
 
-        self.ftrack_object = None
+        self._ftrack_object = None
+        self._definition = None
+        self._ui_event_data = None
 
     def init_ftrack_object(self):
         '''Returns the ftrack ftrack_object for this class.'''
@@ -113,22 +125,45 @@ class FtrackAssetBase(object):
         )
         return ftrack_object_name
 
-    def change_version(self, asset_version_id, host_id):
+    def get_plugin(self, plugin_name):
         '''
-        Publish the PIPELINE_ASSET_VERSION_CHANGED event for the given *host_id*
-        with the asset_version and component_name of the given *asset_version_id*.
-
-        note:: Public function to change the asset version, it's been called from
-        the api or from the asset manager UI
+        Returns the plugin with the given *plugin_name* from the definition
         '''
+        for plugin in self.definition.get('menu_actions'):
+            if str(plugin.get('plugin')) == plugin_name:
+                return plugin
 
+    def change_version(self, asset_version_id, host_connection):
+        '''
+        Called from the client, runs remove_asset plugin if exists on the host,
+        once done call the callback to publish the PIPELINE_ASSET_VERSION_CHANGED
+        event to run the change version on the host.
+        '''
+        schema_engine = self.definition['_config']['engine']
+        if not schema_engine:
+            return self.logger.error("No engine to run the plugin found")
+        remove_plugin = self.get_plugin('remove_asset')
+        if not remove_plugin:
+            return self.logger.error("No remove_asset plugin found")
+
+        remove_plugin['plugin_data'] = self
+
+        host_connection.run(
+            remove_plugin, schema_engine, partial(
+                self._publish_change_version_event,
+                asset_version_id=asset_version_id,
+                host_id=host_connection.id
+            )
+        )
+
+    def _publish_change_version_event(self, event, asset_version_id, host_id):
         asset_version = self.session.get('AssetVersion', asset_version_id)
 
         data_to_send = {'asset_version': asset_version,
                         'component_name': self.component_name}
 
         event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_ASSET_VERSION_CHANGED,
+            topic=constants.PIPELINE_CHANGE_VERSION,
             data={
                 'pipeline': {
                     'host_id': host_id,
@@ -142,15 +177,8 @@ class FtrackAssetBase(object):
         '''
         Callback function to change the asset version from the given *event*
         '''
-
-        asset_info = event['data']
-
-        try:
-            self.logger.debug("Removing current objects")
-            #Run the plugin remove_objects
-            self.remove_current_objects()
-        except Exception, e:
-            self.logger.error("Error removing current objects: {}".format(e))
+        asset_info = event['data']['result']
+        host_id = event['data']['host_id']
 
         asset_info_options = self.asset_info[asset_const.ASSET_INFO_OPTIONS]
 
@@ -196,5 +224,15 @@ class FtrackAssetBase(object):
 
         self.asset_info.update(asset_info)
 
-        return asset_info
+        event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_REFRESH_AM,
+            data={
+                'pipeline': {
+                    'host_id': host_id,
+                    'data': {},
+                }
+            }
+        )
+        self._event_manager.publish(event)
 
+        return asset_info

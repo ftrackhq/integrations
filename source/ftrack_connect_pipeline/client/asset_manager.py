@@ -31,18 +31,49 @@ class AssetManagerClient(client.Client):
         super(AssetManagerClient, self).__init__(event_manager)
         self._reset_asset_list()
 
+    def change_host(self, host_connection):
+        ''' Triggered when definition_changed is called from the host_selector.
+        Generates the widgets interface from the given *host_connection*,
+        *schema* and *definition*'''
+        super(AssetManagerClient, self).change_host(host_connection)
+
+        self.schemas = [
+            schema for schema in self.host_connection.definitions['schema']
+            if schema.get('title').lower() == 'asset_manager'
+        ]
+        #Only one schema available for now, we Don't have a schema selector
+        # on the AM
+        schema = self.schemas[0]
+        schema_title = schema.get('title').lower()
+        definitions = self.host_connection.definitions.get(schema_title)
+        #Only one definition for now, we don't have a definition schema on the
+        # AM
+        self.definition = definitions[0]
+        self.schema_engine = self.definition['_config']['engine']
+
+        self.action_plugins = self.definition['actions']
+        self.menu_action_plugins = self.definition['menu_actions']
+        self.discover_plugins = self.definition['discover']
+
     def _asset_discovered(self, event):
         '''callback, Assets discovered'''
         if not event['data']:
             return
         for ftrack_asset in event['data']:
             if ftrack_asset not in self.ftrack_asset_list:
+                ftrack_asset.definition = self.definition
                 self._ftrack_asset_list.append(ftrack_asset)
         self._connected = True
 
     def _reset_asset_list(self):
         '''Empty the _ftrack_asset_list'''
         self._ftrack_asset_list = []
+
+    def _run_discover_assets(self, plugin):
+        self._reset_asset_list()
+        self.host_connection.run(
+            plugin, self.schema_engine, self._asset_discovered
+        )
 
     def change_version(self, ftrack_asset_object, asset_version_id):
         '''
@@ -55,4 +86,6 @@ class AssetManagerClient(client.Client):
             raise TypeError(
                 "ftrack_asset_info argument has to be type of FtrackAssetInfo"
             )
-        ftrack_asset_object.change_version(asset_version_id)
+        ftrack_asset_object.change_version(
+            asset_version_id, self.host_connection
+        )
