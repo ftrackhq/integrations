@@ -51,7 +51,6 @@ class AssetManagerClient(client.Client):
         self.definition = definitions[0]
         self.schema_engine = self.definition['_config']['engine']
 
-        self.action_plugins = self.definition['actions']
         self.menu_action_plugins = self.definition['menu_actions']
         self.discover_plugins = self.definition['discover']
 
