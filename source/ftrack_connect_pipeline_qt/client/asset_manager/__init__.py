@@ -40,7 +40,8 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
     def _host_discovered(self, event):
         '''callback, adds new hosts connection from the given *event* to the
         host_selector'''
-        super(AssetManagerClient, self)._host_discovered(event)
+        # super(AssetManagerClient, self)._host_discovered(event)
+        AssetManagerClient._host_discovered(self, event)
         self.host_selector.add_hosts(self.hosts)
 
     def pre_build(self):
@@ -69,7 +70,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
 
     def post_build(self):
         '''Post Build ui method for events connections.'''
-        self.host_selector.host_changed.connect(self._host_changed)
+        self.host_selector.host_changed.connect(self.change_host)
         self.refresh_button.clicked.connect(partial(self._refresh_ui,None))
 
         self.asset_manager_widget.widget_status_updated.connect(
@@ -84,49 +85,28 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
         status, message = data
         self.header.setMessage(message, status)
 
-    def _host_changed(self, host_connection):
+    def change_host(self, host_connection):
         ''' Triggered when definition_changed is called from the host_selector.
         Generates the widgets interface from the given *host_connection*,
         *schema* and *definition*'''
-        if not host_connection:
-            return
-
-        self.logger.info('connection {}'.format(host_connection))
-        self.host_connection = host_connection
+        AssetManagerClient.change_host(self, host_connection)
+        #super(AssetManagerClient, self).change_host(host_connection)
 
         self.asset_manager_widget.set_host_connection(self.host_connection)
-
-        self.schemas = [
-            schema for schema in self.host_connection.definitions['schema']
-            if schema.get('title').lower() == 'asset_manager'
-        ]
-        #Only one schema available for now, we Don't have a schema selector
-        # on the AM
-        schema = self.schemas[0]
-        schema_title = schema.get('title').lower()
-        definitions = self.host_connection.definitions.get(schema_title)
-        #Only one definition for now, we don't have a definition schema on the
-        # AM
-        self.definition = definitions[0]
-        self.schema_engine = self.definition['_config']['engine']
-
-        self.action_plugins = self.definition['actions']
-        self.menu_action_plugins = self.definition['menu_actions']
-        self.discover_plugins = self.definition['discover']
 
         self._run_discover_assets(self.discover_plugins[0])
         self.asset_manager_widget.engine = self.schema_engine
         self.asset_manager_widget.set_context_actions(self.menu_action_plugins)
 
-        #TODO: discover actions for the context menu
         self.scroll.setWidget(self.asset_manager_widget)
         self._listen_refresh_request()
 
-    def _run_discover_assets(self, plugin):
-        self._reset_asset_list()
-        self.host_connection.run(
-            plugin, self.schema_engine, self._asset_discovered
-        )
+    # def _run_discover_assets(self, plugin):
+    #     self._reset_asset_list()
+    #     super(AssetManagerClient, self)._run_discover_assets(plugin)
+    #     # self.host_connection.run(
+    #     #     plugin, self.schema_engine, self._asset_discovered
+    #     # )
 
     def _asset_discovered(self, event):
         '''callback, adds new hosts connection from the given *event*'''

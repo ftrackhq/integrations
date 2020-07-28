@@ -104,8 +104,13 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         if role == QtCore.Qt.EditRole:
             if value:
                 self.ftrack_asset_list[index.row()].change_version(
-                    value, self.host_connection.id
+                    value, self.host_connection
                 )
+                #TODO: find a better way, as the data changed here is not
+                # working correctly because the change_version is async so is
+                # emiting a change when still the same version. It seems to be
+                # working because we emit a refresh event on the private
+                # _change_version function
                 self.dataChanged.emit(index, index)
                 return True
             return False

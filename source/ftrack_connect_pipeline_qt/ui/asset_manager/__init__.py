@@ -58,7 +58,9 @@ class AssetManagerWidget(QtWidgets.QWidget):
         filter_layout.addWidget(self.filter_field)
         self.layout().addLayout(filter_layout)
 
-        self.asset_table_view = AssetManagerTableView(self.session, parent=self)
+        self.asset_table_view = AssetManagerTableView(
+            self.event_manager, parent=self
+        )
         self.layout().addWidget(self.asset_table_view)
 
     def post_build(self):
@@ -104,6 +106,10 @@ class AssetManagerTableView(QtWidgets.QTableView):
     '''Model representing AssetManager.'''
 
     @property
+    def event_manager(self):
+        return self._event_manager
+
+    @property
     def engine(self):
         '''Returns ftrack object from the DCC app'''
         return self._engine
@@ -112,7 +118,7 @@ class AssetManagerTableView(QtWidgets.QTableView):
     def engine(self, value):
         self._engine = value
 
-    def __init__(self, session, parent=None):
+    def __init__(self, event_manager, parent=None):
         '''Initialise browser with *root* entity.
 
         Use an empty *root* to start with list of projects.
@@ -126,7 +132,7 @@ class AssetManagerTableView(QtWidgets.QTableView):
         self.action_widgets = []
         self._engine = None
 
-        self._session = session
+        self._event_manager = event_manager
 
         self.pre_build()
         self.build()
@@ -163,6 +169,18 @@ class AssetManagerTableView(QtWidgets.QTableView):
     def post_build(self):
         '''Perform post-construction operations.'''
         pass
+    #     self.version_cb_delegate.version_changed.connect(
+    #         self.on_asset_version_changed
+    #     )
+    #
+    # def on_asset_version_changed(self, index, value):
+    #     ftrack_asset = self.asset_model.ftrack_asset_list[index.row()]
+    #     ftrack_asset.change_version(value, self.host_connection)
+    #
+    #     self.asset_model.setData(
+    #         index, value, QtCore.Qt.EditRole
+    #     )
+
 
     def set_asset_list(self, ftrack_asset_list):
         self.ftrack_asset_list = ftrack_asset_list
@@ -196,6 +214,11 @@ class AssetManagerTableView(QtWidgets.QTableView):
         for index in index_list:
             data = self.model().data(index, self.model().DATA_ROLE)
             latest_versions = data.ftrack_versions[-1]
+            ftrack_asset = self.asset_model.ftrack_asset_list[index.row()]
+            ftrack_asset.change_version(
+                latest_versions['id'], self.host_connection
+            )
+
             self.asset_model.setData(
                 index, latest_versions['id'], QtCore.Qt.EditRole
             )

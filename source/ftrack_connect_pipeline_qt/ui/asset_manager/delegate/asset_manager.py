@@ -5,6 +5,7 @@ from Qt import QtWidgets, QtCore, QtGui
 
 
 class VersionDelegate(QtWidgets.QItemDelegate):
+    # version_changed = QtCore.Signal(object, object)
 
     def __init__(self, parent=None):
         super(VersionDelegate, self).__init__(parent=parent)
@@ -28,6 +29,7 @@ class VersionDelegate(QtWidgets.QItemDelegate):
     def setModelData(self, editor, model, index):
         if not index.isValid():
             return False
+        # self.version_changed.emit(index, editor.itemData(editor.currentIndex()))
         model.setData(
             index, editor.itemData(editor.currentIndex()), QtCore.Qt.EditRole
         )

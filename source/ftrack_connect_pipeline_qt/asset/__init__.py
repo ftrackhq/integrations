@@ -20,7 +20,8 @@ class FtrackAssetQt(FtrackAssetBase):
         super(FtrackAssetQt, self).__init__(event_manager)
 
     def _change_version(self, event):
-        asset_info = event['data']
+        asset_info = event['data']['result']
+        host_id = event['data']['host_id']
 
         if not asset_info:
             self.logger.warning("Asset version couldn't change")
@@ -31,5 +32,8 @@ class FtrackAssetQt(FtrackAssetBase):
             )
 
         self.asset_info.update(asset_info)
+
+        # if self.ui_event_data:
+        #     self._publish_ui_event(host_id)
 
         return asset_info
