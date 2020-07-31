@@ -17,8 +17,10 @@ class SelectAssetMaxPlugin(plugin.AssetManagerMenuActionMaxPlugin):
 
         max_utils.deselect_all()
         #TODO: check if I have to get the object or not needed
-        ftrack_object = ftrack_asset_class.ftrack_object.Object
-        max_utils.add_all_children_to_selection(ftrack_object)
+        #ftrack_object = ftrack_asset_class.ftrack_object.Object
+        max_utils.add_all_children_to_selection(
+            ftrack_asset_class.ftrack_object
+        )
 
         return []
 

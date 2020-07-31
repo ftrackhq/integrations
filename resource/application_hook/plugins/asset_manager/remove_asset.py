@@ -13,9 +13,9 @@ class RemoveAssetMaxPlugin(plugin.AssetManagerMenuActionMaxPlugin):
         ftrack_asset_class = data
 
         # TODO: check if I have to get the object or not needed
-        ftrack_object = ftrack_asset_class.ftrack_object.Object
-        max_utils.delete_all_children(ftrack_object)
-        ftrack_object.Delete()
+        #ftrack_object = ftrack_asset_class.ftrack_object.Object
+        max_utils.delete_all_children(ftrack_asset_class.ftrack_object)
+        ftrack_asset_class.ftrack_object.Delete()
 
         return []
 
