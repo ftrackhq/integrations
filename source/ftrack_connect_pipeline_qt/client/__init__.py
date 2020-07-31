@@ -134,4 +134,12 @@ class QtClient(client.Client, QtWidgets.QWidget):
         '''Function called when click the run button'''
         serialized_data= self._current_def.to_json_object()
         schema_engine = serialized_data['_config']['engine']
-        self.host_connection.run(serialized_data, schema_engine)
+        self.host_connection.run(
+            serialized_data, schema_engine, self._run_callback
+        )
+
+    def _run_callback(self, event):
+        #TODO: if we run each plugin separately we will have to move all the
+        # logic and validations in the client(here) and that may not make sense...
+        print "_run_callback event --> {}".format(event)
+        pass
