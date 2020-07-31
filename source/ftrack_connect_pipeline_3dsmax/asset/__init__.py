@@ -64,7 +64,8 @@ class FtrackAssetNode(FtrackAssetBase):
 
         return self.ftrack_object
 
-    def _get_parameters_dictionary(self, max_obj):
+    @staticmethod
+    def get_parameters_dictionary(max_obj):
         '''
         Returns a diccionary with the keys and values of the given *max_obj*
         parameters
@@ -83,7 +84,7 @@ class FtrackAssetNode(FtrackAssetBase):
         for ftrack_object in ftrack_asset_nodes:
             obj = ftrack_object.Object
 
-            param_dict = self._get_parameters_dictionary(obj)
+            param_dict = self.get_parameters_dictionary(obj)
             node_asset_info = FtrackAssetInfo(param_dict)
 
             if node_asset_info.is_deprecated:
@@ -107,7 +108,7 @@ class FtrackAssetNode(FtrackAssetBase):
         synced = False
         obj = ftrack_object.Object
 
-        param_dict = self._get_parameters_dictionary(obj)
+        param_dict = self.get_parameters_dictionary(obj)
         node_asset_info = FtrackAssetInfo(param_dict)
 
         if node_asset_info == self.asset_info:
@@ -267,65 +268,3 @@ class FtrackAssetNode(FtrackAssetBase):
                     )
                 )
 
-    def discover_assets(self):
-        '''
-        Returns asset_info_list with all the assets loaded in the current
-        scene that has an ftrack_object connected
-        '''
-        ftrack_asset_nodes = max_utils.get_ftrack_helpers()
-        asset_info_list = []
-
-        for ftrack_object in ftrack_asset_nodes:
-            obj = ftrack_object.Object
-            param_dict = self._get_parameters_dictionary(obj)
-            node_asset_info = FtrackAssetInfo(param_dict)
-            asset_info_list.append(node_asset_info)
-        return asset_info_list
-
-    def remove_current_objects(self):
-        '''
-        Remove all the imported or referenced objects in the scene
-        '''
-        max_utils.delete_all_children(self.ftrack_object)
-        self.ftrack_object.Delete()
-
-    def _remove_asset(self, event):
-        '''
-        Override function from the main class, remove the current assets of the
-        scene.
-        '''
-        super(FtrackAssetNode, self)._remove_asset(event)
-
-        asset_item = event['data']
-
-        try:
-            self.logger.debug("Removing current objects")
-            self.remove_current_objects()
-        except Exception, e:
-            self.logger.error("Error removing current objects: {}".format(e))
-
-        return asset_item
-
-    def _select_asset(self, event):
-        '''
-        Override function from the main class, select the current assets of the
-        scene.
-        '''
-        super(FtrackAssetNode, self)._select_asset(event)
-        asset_item = event['data']
-
-        max_utils.deselect_all()
-        max_utils.add_all_children_to_selection(self.ftrack_object)
-
-        return asset_item
-
-    def _clear_selection(self, event):
-        '''
-        Override function from the main class, clear the current selection
-        of the scene.
-        '''
-        asset_item = super(FtrackAssetNode, self)._clear_selection(event)
-
-        max_utils.deselect_all()
-
-        return asset_item

@@ -23,3 +23,4 @@ class BaseMaxPluginWidget(BaseMaxPlugin, pluginWidget.BasePluginWidget):
 
 from ftrack_connect_pipeline_3dsmax.plugin.load import *
 from ftrack_connect_pipeline_3dsmax.plugin.publish import *
+from ftrack_connect_pipeline_3dsmax.plugin.asset_manager import *

@@ -14,20 +14,7 @@ logger = logging.getLogger(__name__)
 
 class MaxHost(Host):
     host = [qt_constants.HOST, max_constants.HOST]
-    asset_manager_engine = MaxAssetManagerEngine
 
     def run(self, event):
-        super(MaxHost, self).run(event)
-        self._refresh_asset_manager()
-
-    def _refresh_asset_manager(self):
-        event = ftrack_api.event.base.Event(
-            topic=qt_constants.PIPELINE_REFRESH_AM,
-            data={
-                'pipeline': {
-                    'host_id': self.hostid,
-                    'data': {},
-                }
-            }
-        )
-        self._event_manager.publish(event)
+        runnerResult = super(MaxHost, self).run(event)
+        return runnerResult
