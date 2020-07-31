@@ -49,7 +49,8 @@ class FtrackAssetTab(FtrackAssetBase):
 
         return self.ftrack_object
 
-    def _get_parameters_dictionary(self, scene_node):
+    @staticmethod
+    def get_parameters_dictionary(self, scene_node):
         '''
         Returns a diccionary with the keys and values of the given *scene_node*
         parameters
@@ -67,7 +68,7 @@ class FtrackAssetTab(FtrackAssetBase):
         '''
         for scene_node in nuke.root().nodes():
             if scene_node.knob(asset_const.FTRACK_PLUGIN_TYPE):
-                param_dict = self._get_parameters_dictionary(scene_node)
+                param_dict = self.get_parameters_dictionary(scene_node)
                 node_asset_info = FtrackAssetInfo(param_dict)
                 if node_asset_info.is_deprecated:
                     raise DeprecationWarning(
@@ -89,7 +90,7 @@ class FtrackAssetTab(FtrackAssetBase):
 
         synced = False
         ftrack_object = nuke.toNode(ftrack_object)
-        param_dict = self._get_parameters_dictionary(ftrack_object)
+        param_dict = self.get_parameters_dictionary(ftrack_object)
         node_asset_info = FtrackAssetInfo(param_dict)
 
         if node_asset_info == self.asset_info:
@@ -290,92 +291,3 @@ class FtrackAssetTab(FtrackAssetBase):
             ftrack_object.knob("note_font_color").setValue(latest_color)
         else:
             ftrack_object.knob("note_font_color").setValue(old_color)
-
-    def discover_assets(self):
-        '''
-        Returns asset_info_list with all the assets loaded in the current
-        scene that has an ftrack_object connected
-        '''
-        ftrack_asset_nodes = nuke_utils.get_nodes_with_ftrack_tab()
-        asset_info_list = []
-
-        for ftrack_object in ftrack_asset_nodes:
-            param_dict = self._get_parameters_dictionary(ftrack_object)
-            node_asset_info = FtrackAssetInfo(param_dict)
-            asset_info_list.append(node_asset_info)
-        return asset_info_list
-
-    def remove_current_objects(self):
-        '''
-        Remove all the imported or referenced objects in the scene
-        '''
-        ftrack_object = nuke.toNode(self.ftrack_object)
-        if not ftrack_object:
-            self.logger.info("There is no ftrack object")
-            return
-
-        if ftrack_object.Class() == 'BackdropNode':
-            parented_nodes = ftrack_object.getNodes()
-            parented_nodes_names = [x.knob('name').value() for x in parented_nodes]
-            nodes_to_delete_str = ftrack_object.knob(
-                asset_const.ASSET_LINK
-            ).value()
-            nodes_to_delete = nodes_to_delete_str.split(";")
-            nodes_to_delete = set(nodes_to_delete + parented_nodes_names)
-            for node_s in nodes_to_delete:
-                node = nuke.toNode(node_s)
-                self.logger.info("removing : {}".format(node.Class()))
-                nuke.delete(node)
-
-        nuke.delete(ftrack_object)
-
-    def _remove_asset(self, event):
-        '''
-        Override function from the main class, remove the current assets of the
-        scene.
-        '''
-        super(FtrackAssetTab, self)._remove_asset(event)
-
-        asset_item = event['data']
-
-        try:
-            self.remove_current_objects()
-        except Exception, e:
-            self.logger.error("Error removing current objects: {}".format(e))
-
-        return asset_item
-
-    def _select_asset(self, event):
-        '''
-        Override function from the main class, select the current assets of the
-        scene.
-        '''
-        super(FtrackAssetTab, self)._select_asset(event)
-        ftrack_object = nuke.toNode(self.ftrack_object)
-
-        parented_nodes = ftrack_object.getNodes()
-        parented_nodes_names = [x.knob('name').value() for x in parented_nodes]
-        nodes_to_select_str = ftrack_object.knob(
-            asset_const.ASSET_LINK
-        ).value()
-        nodes_to_select = nodes_to_select_str.split(";")
-        nodes_to_select = set(nodes_to_select + parented_nodes_names)
-
-        for node_s in nodes_to_select:
-            node = nuke.toNode(node_s)
-            node['selected'].setValue(True)
-
-        ftrack_object['selected'].setValue(True)
-
-        return event['data']
-
-    def _clear_selection(self, event):
-        '''
-        Override function from the main class, clear the current selection
-        of the scene.
-        '''
-        asset_item = super(FtrackAssetTab, self)._clear_selection(event)
-
-        nuke_utils.cleanSelection()
-
-        return asset_item

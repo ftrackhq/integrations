@@ -19,17 +19,5 @@ class NukeHost(Host):
     asset_manager_engine = NukeAssetManagerEngine
 
     def run(self, event):
-        super(NukeHost, self).run(event)
-        self._refresh_asset_manager()
-
-    def _refresh_asset_manager(self):
-        event = ftrack_api.event.base.Event(
-            topic=qt_constants.PIPELINE_REFRESH_AM,
-            data={
-                'pipeline': {
-                    'host_id': self.hostid,
-                    'data': {},
-                }
-            }
-        )
-        self._event_manager.publish(event)
+        runnerResult = super(NukeHost, self).run(event)
+        return runnerResult
