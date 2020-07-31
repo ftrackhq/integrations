@@ -17,6 +17,10 @@ class AssetManagerEngine(BaseEngine):
         )
 
     def change_asset_version(self, data):
+        '''
+        Returns an asset info created from the asset version and component name
+        from the given *data*.
+        '''
         asset_version = data['data']['asset_version']
         component_name = data['data']['component_name']
         asset_info = FtrackAssetInfo.from_ftrack_version(
@@ -25,6 +29,10 @@ class AssetManagerEngine(BaseEngine):
         return asset_info
 
     def run_asset_manager_plugin(self, plugin, plugin_type):
+        '''
+        Runs the given asset manager *plugin* of the given *plugin_type* and
+        returns the status and the result
+        '''
         status, result = self._run_plugin(
             plugin, plugin_type,
             data=plugin.get('plugin_data'),
@@ -41,11 +49,9 @@ class AssetManagerEngine(BaseEngine):
         return bool_status, result
 
     def run(self, data):
-        '''Run packages from the provided data
-        *data* the json schema
-        Raise Exception if any context plugin, component plugin or finaliser
-        plugin returns a False status
-        Returns Bool'''
+        '''
+        Override function run packages from the provided *data*
+        '''
 
         plugin_type = '{}.{}'.format('asset_manager', data['plugin_type'])
 
