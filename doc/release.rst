@@ -7,9 +7,14 @@ Releases
 
 .. release:: Upcoming
 
-    .. change:: fix
+    .. change:: fixed
 
-        Fix  discovering cinesync action if application not found.
+        Connect package does not provide a consistent ProductCode when generating msi installer.
+
+    .. change:: fixed
+
+        Cinesync action error if context is not provided.
+
 
 .. release:: 1.1.2
     :date: 2020-01-28

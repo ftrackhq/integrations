@@ -343,15 +343,10 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         # Specify upgrade code to a random GUID to ensure the MSI
         # package is upgraded when installing a new version.
         configuration['options']['bdist_msi'] = {
-            'upgrade_code': '{e5666af3-56a5-426a-b308-54c2d6ad8704}',
+            'upgrade_code': '{6068BD18-65D1-47FC-BE5E-06AA5189C9CB}',
             'initial_target_dir': r'[ProgramFilesFolder]\{0}-{1}'.format(
                 'ftrack-connect-package', VERSION
-            )
-        }
-
-
-        # Specify shortucut list for MSI installer
-        configuration['options']['bdist_msi'] = {
+            ),
             'data': {'Shortcut': shortcut_table}
         }
 
