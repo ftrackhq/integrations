@@ -33,12 +33,10 @@ class FtrackAssetNode(FtrackAssetBase):
         updates the ftrack_object if it's not. In case there is no ftrack_object
         in the scene this function creates a new one.
         '''
-        ftrack_object = self.get_ftrack_object_from_scene()
-        if not ftrack_object:
-            ftrack_object = self.create_new_ftrack_object()
-        if ftrack_object:
-            if not self.is_sync(ftrack_object):
-                ftrack_object = self._update_ftrack_object(ftrack_object)
+        ftrack_object = self.get_ftrack_object_from_scene() or self.create_new_ftrack_object()
+
+        if not self.is_sync(ftrack_object):
+            ftrack_object = self._update_ftrack_object(ftrack_object)
 
         self.ftrack_object = ftrack_object
 
@@ -63,6 +61,7 @@ class FtrackAssetNode(FtrackAssetBase):
         Return the ftrack_object from the current asset_version if it exists in
         the scene.
         '''
+        result_object = None
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
         for ftrack_object in ftrack_asset_nodes:
             param_dict = self._get_parameters_dictionary(ftrack_object)
@@ -73,8 +72,10 @@ class FtrackAssetNode(FtrackAssetBase):
                     node_asset_info[asset_const.REFERENCE_OBJECT] ==
                     self.asset_info[asset_const.REFERENCE_OBJECT]
             ):
+                result_object = ftrack_object
 
-                return ftrack_object
+        self.logger.debug('Found {} existing node'.format(result_object))
+        return result_object
 
     def _check_ftrack_object_sync(self, ftrack_object):
         '''
@@ -148,7 +149,7 @@ class FtrackAssetNode(FtrackAssetBase):
 
         name = self._get_unique_ftrack_object_name()
         ftrack_object = cmd.createNode('ftrackAssetNode', name=name)
-
+        self.logger.debug('Creating new ftrack object {}'.format(ftrack_object))
         return ftrack_object
 
     def _update_ftrack_object(self, ftrack_object):
