@@ -26,7 +26,6 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         self._ftrack_asset_list = ftrack_asset_list
         self.endResetModel()
 
-
     def rowCount(self, parent=QtCore.QModelIndex()):
         '''Return number of children *parent* index has.
 
@@ -47,6 +46,7 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         self._ftrack_asset_list.pop(position)
 
         self.endRemoveRows()
+        return True
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
         row = index.row()
