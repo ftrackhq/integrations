@@ -45,7 +45,7 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
 
         asset_load_mode = options.get(asset_const.LOAD_MODE)
 
-        if not asset_load_mode or asset_load_mode == load_const.OPEN_MODE:
+        if asset_load_mode == load_const.OPEN_MODE:
             self.logger.warning('{} not created, load mode is {} and not {}'.format(
                 self.ftrack_asset_class, asset_load_mode, load_const.OPEN_MODE))
             return super_result
