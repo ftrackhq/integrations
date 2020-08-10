@@ -229,7 +229,7 @@ class PluginDiscoverValidation(object):
                 )
 
                 break
-            self.logger.info(
+            self.logger.warning(
                 'plugin {} not found for definition host {}'.format(
                     plugin_name, host_definition
                 )
