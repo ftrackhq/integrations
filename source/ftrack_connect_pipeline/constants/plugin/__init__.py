@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 #Generic plugins
-_PLUGIN_FINALISER_TYPE = 'finaliser'
+_PLUGIN_FINALIZER_TYPE = 'finalizer'
 _PLUGIN_CONTEXT_TYPE = 'context'
 _PLUGIN_COLLECTOR_TYPE = 'collector'
 _PLUGIN_VALIDATOR_TYPE = 'validator'

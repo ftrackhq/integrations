@@ -61,8 +61,8 @@ class PluginDiscoverValidation(object):
                     schema_type
             ):
                 valid_definition = False
-            if not self.vaildate_finalisers_plugins(
-                    definition[constants.FINALISERS],
+            if not self.vaildate_finalizers_plugins(
+                    definition[constants.FINALIZERS],
                     definition['name'],
                     schema_type
             ):
@@ -97,8 +97,8 @@ class PluginDiscoverValidation(object):
                     schema_type
             ):
                 valid_definition = False
-            if not self.vaildate_finalisers_plugins(
-                    definition[constants.FINALISERS],
+            if not self.vaildate_finalizers_plugins(
+                    definition[constants.FINALIZERS],
                     definition['name'],
                     schema_type
             ):
@@ -157,13 +157,13 @@ class PluginDiscoverValidation(object):
                         )
         return is_valid
 
-    def vaildate_finalisers_plugins(
-            self, finaliser_stage, definition_name, schema_type
+    def vaildate_finalizers_plugins(
+            self, finalizer_stage, definition_name, schema_type
     ):
         is_valid = True
-        stage_name = finaliser_stage['name']
+        stage_name = finalizer_stage['name']
         plugin_type = '{}.{}'.format(schema_type, stage_name)
-        for publisher_plugin in finaliser_stage['plugins']:
+        for publisher_plugin in finalizer_stage['plugins']:
             if not self._discover_plugin(publisher_plugin,
                                          plugin_type):
                 is_valid = False

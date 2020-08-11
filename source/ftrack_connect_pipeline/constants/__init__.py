@@ -9,7 +9,7 @@ _BASE_ = 'ftrack.pipeline'
 
 # Common stages.
 CONTEXTS = 'contexts'
-FINALISERS = 'finalisers'
+FINALIZERS = 'finalizers'
 COMPONENTS = 'components'
 
 # component stages.

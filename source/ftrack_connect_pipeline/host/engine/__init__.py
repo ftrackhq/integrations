@@ -207,27 +207,27 @@ class BaseEngine(object):
 
         return statuses, results
 
-    def run_finaliser(self, finaliser_stage, finaliser_data, context_data):
-        '''Run finaliser plugins for *finaliser_plugins* with *finaliser_data*
+    def run_finalizer(self, finalizer_stage, finalizer_data, context_data):
+        '''Run finalizer plugins for *finalizer_plugins* with *finalizer_data*
         and *context_data*.
         Raise Exception if any plugin returns a False status
         Returns *statuses* (List) *results* (List)'''
         statuses = []
         results = []
 
-        stage_name = finaliser_stage['name']
+        stage_name = finalizer_stage['name']
         plugin_type = '{}.{}'.format(self.engine_type, stage_name)
-        for plugin in finaliser_stage['plugins']:
+        for plugin in finalizer_stage['plugins']:
             status, result = self._run_plugin(
                 plugin, plugin_type,
-                data=finaliser_data,
+                data=finalizer_data,
                 options=plugin['options'],
                 context=context_data
             )
             bool_status = constants.status_bool_mapping[status]
             if not bool_status:
                 raise Exception(
-                    'An error occurred during the execution of the finaliser '
+                    'An error occurred during the execution of the finalizer '
                     'plugin {}\n stage: {} \n status: {} \n result: {}'.format(
                         plugin['plugin'], stage_name, status, result)
                 )
@@ -239,7 +239,7 @@ class BaseEngine(object):
     def run(self, data):
         '''Run packages from the provided data
         *data* the json schema
-        Raise Exception if any context plugin, component plugin or finaliser
+        Raise Exception if any context plugin, component plugin or finalizer
         plugin returns a False status
         Returns Bool'''
 
@@ -269,8 +269,8 @@ class BaseEngine(object):
             components_status.append(component_status)
             components_result.append(component_result)
 
-        finaliser_plugins = data[constants.FINALISERS]
-        finaliser_data = {}
+        finalizer_plugins = data[constants.FINALIZERS]
+        finalizer_data = {}
         for item in components_result:
             last_component = constants.OUTPUT
             if constants.POST_IMPORT in item.keys():
@@ -280,14 +280,14 @@ class BaseEngine(object):
                     continue
 
                 for key, value in output.items():
-                    finaliser_data[key] = value
+                    finalizer_data[key] = value
 
-        finalisers_status, finalisers_result = self.run_finaliser(
-            finaliser_plugins, finaliser_data, context_result
+        finalizers_status, finalizers_result = self.run_finalizer(
+            finalizer_plugins, finalizer_data, context_result
         )
-        if not all(finalisers_status):
+        if not all(finalizers_status):
             raise Exception('An error occurred during the execution of the '
-                            'finalisers')
+                            'finalizers')
 
         return True
 
