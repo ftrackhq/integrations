@@ -8,8 +8,8 @@ from ftrack_connect_pipeline_3dsmax.plugin import (
 )
 
 
-class LoaderFinaliserMaxPlugin(plugin.LoaderFinaliserPlugin, BaseMaxPlugin):
-    ''' Class representing a Finaliser Plugin
+class LoaderFinalizerMaxPlugin(plugin.LoaderFinalizerPlugin, BaseMaxPlugin):
+    ''' Class representing a Finalizer Plugin
 
         .. note::
 
@@ -19,10 +19,10 @@ class LoaderFinaliserMaxPlugin(plugin.LoaderFinaliserPlugin, BaseMaxPlugin):
     '''
 
 
-class LoaderFinaliserMaxWidget(
-    pluginWidget.LoaderFinaliserWidget, BaseMaxPluginWidget
+class LoaderFinalizerMaxWidget(
+    pluginWidget.LoaderFinalizerWidget, BaseMaxPluginWidget
 ):
-    ''' Class representing a Finaliser Widget
+    ''' Class representing a Finalizer Widget
 
         .. note::
 

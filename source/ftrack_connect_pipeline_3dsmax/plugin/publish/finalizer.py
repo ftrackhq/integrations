@@ -9,8 +9,8 @@ from ftrack_connect_pipeline_3dsmax.plugin import (
 from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
 
 
-class PublisherFinaliserMaxPlugin(plugin.PublisherFinaliserPlugin, BaseMaxPlugin):
-    ''' Class representing a Finaliser Plugin
+class PublisherFinalizerMaxPlugin(plugin.PublisherFinalizerPlugin, BaseMaxPlugin):
+    ''' Class representing a Finalizer Plugin
 
         .. note::
 
@@ -25,7 +25,7 @@ class PublisherFinaliserMaxPlugin(plugin.PublisherFinaliserPlugin, BaseMaxPlugin
             .. note::
 
                We are not committing the changes here to ftrack, as they should be
-               committed in the finaliser plugin itself. This way we avoid
+               committed in the finalizer plugin itself. This way we avoid
                publishing the dependencies if the plugin fails.
         '''
         self.version_dependencies = []
@@ -46,14 +46,14 @@ class PublisherFinaliserMaxPlugin(plugin.PublisherFinaliserPlugin, BaseMaxPlugin
                 if dependency_version not in self.version_dependencies:
                     self.version_dependencies.append(dependency_version)
 
-        super_result = super(PublisherFinaliserMaxPlugin, self)._run(event)
+        super_result = super(PublisherFinalizerMaxPlugin, self)._run(event)
 
         return super_result
 
-class PublisherFinaliserMaxWidget(
-    pluginWidget.PublisherFinaliserWidget, BaseMaxPluginWidget
+class PublisherFinalizerMaxWidget(
+    pluginWidget.PublisherFinalizerWidget, BaseMaxPluginWidget
 ):
-    ''' Class representing a Finaliser Widget
+    ''' Class representing a Finalizer Widget
 
         .. note::
 
