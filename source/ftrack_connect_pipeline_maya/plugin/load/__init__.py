@@ -3,6 +3,6 @@
 
 from ftrack_connect_pipeline_maya.plugin.load.collector import *
 from ftrack_connect_pipeline_maya.plugin.load.context import *
-from ftrack_connect_pipeline_maya.plugin.load.finaliser import *
+from ftrack_connect_pipeline_maya.plugin.load.finalizer import *
 from ftrack_connect_pipeline_maya.plugin.load.importer import *
 from ftrack_connect_pipeline_maya.plugin.load.post_import import *

@@ -5,7 +5,7 @@ import os
 from ftrack_connect_pipeline_maya import plugin
 import ftrack_api
 
-class FtrackPublishMayaPlugin(plugin.PublisherFinaliserMayaPlugin):
+class FtrackPublishMayaPlugin(plugin.PublisherFinalizerMayaPlugin):
     plugin_name = 'result_maya'
 
     def run(self, context=None, data=None, options=None):

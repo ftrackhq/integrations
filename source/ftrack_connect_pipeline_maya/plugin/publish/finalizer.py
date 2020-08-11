@@ -12,8 +12,8 @@ from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
 
 
-class PublisherFinaliserMayaPlugin(plugin.PublisherFinaliserPlugin, BaseMayaPlugin):
-    ''' Class representing a Finaliser Plugin
+class PublisherFinalizerMayaPlugin(plugin.PublisherFinalizerPlugin, BaseMayaPlugin):
+    ''' Class representing a Finalizer Plugin
 
         .. note::
 
@@ -28,7 +28,7 @@ class PublisherFinaliserMayaPlugin(plugin.PublisherFinaliserPlugin, BaseMayaPlug
             .. note::
 
                We are not committing the changes here to ftrack, as they should be
-               committed in the finaliser plugin itself. This way we avoid
+               committed in the finalizer plugin itself. This way we avoid
                publishing the dependencies if the plugin fails.
         '''
         self.version_dependencies = []
@@ -49,14 +49,14 @@ class PublisherFinaliserMayaPlugin(plugin.PublisherFinaliserPlugin, BaseMayaPlug
                 if dependency_version not in self.version_dependencies:
                     self.version_dependencies.append(dependency_version)
 
-        super_result = super(PublisherFinaliserMayaPlugin, self)._run(event)
+        super_result = super(PublisherFinalizerMayaPlugin, self)._run(event)
 
         return super_result
 
-class PublisherFinaliserMayaWidget(
-    pluginWidget.PublisherFinaliserWidget, BaseMayaPluginWidget
+class PublisherFinalizerMayaWidget(
+    pluginWidget.PublisherFinalizerWidget, BaseMayaPluginWidget
 ):
-    ''' Class representing a Finaliser Widget
+    ''' Class representing a Finalizer Widget
 
         .. note::
 

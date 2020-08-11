@@ -9,7 +9,7 @@ from ftrack_connect_pipeline_maya import plugin
 import ftrack_api
 
 
-class MergeGeoAbcMayaPlugin(plugin.LoaderFinaliserMayaPlugin):
+class MergeGeoAbcMayaPlugin(plugin.LoaderFinalizerMayaPlugin):
     plugin_name = 'merge_geo_abc'
 
     def run(self, context=None, data=None, options=None):
