@@ -14,12 +14,13 @@ class CollectFromContextPlugin(plugin.LoaderCollectorPlugin):
         asset_version = self.session.get(
             'AssetVersion', version_id
         )
+
+        component_name = options['component_name']
         accepted_formats = options.get('accepted_formats', [])
-        component_list = options.get('component_list', ['main'])
         location = self.session.pick_location()
         component_paths = []
         for component in asset_version['components']:
-            if component['name'] in component_list:
+            if component['name'] == component_name:
                 component_path = location.get_filesystem_path(component)
                 if (
                         accepted_formats and
