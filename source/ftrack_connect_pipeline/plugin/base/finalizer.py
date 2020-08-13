@@ -5,11 +5,11 @@ from ftrack_connect_pipeline.plugin import BasePlugin, BasePluginValidation
 from ftrack_connect_pipeline.constants import plugin
 
 
-class FinaliserPluginValidation(BasePluginValidation):
-    '''Finaliser Plugin Validation class'''
+class FinalizerPluginValidation(BasePluginValidation):
+    '''Finalizer Plugin Validation class'''
 
     def __init__(self, plugin_name, required_output, return_type, return_value):
-        '''Initialise FinaliserPluginValidation with *plugin_name*,
+        '''Initialise FinalizerPluginValidation with *plugin_name*,
         *required_output*, *return_type*, *return_value*.
 
         *plugin_name* current plugin name stored at the plugin base class
@@ -23,13 +23,13 @@ class FinaliserPluginValidation(BasePluginValidation):
         *return_value* return value of the current plugin stored at the
         plugin base class
         '''
-        super(FinaliserPluginValidation, self).__init__(
+        super(FinalizerPluginValidation, self).__init__(
             plugin_name, required_output, return_type, return_value
         )
 
 
-class BaseFinaliserPlugin(BasePlugin):
-    ''' Class representing a Finaliser Plugin
+class BaseFinalizerPlugin(BasePlugin):
+    ''' Class representing a Finalizer Plugin
 
         .. note::
 
@@ -38,17 +38,17 @@ class BaseFinaliserPlugin(BasePlugin):
             current asset
     '''
     return_type = dict
-    plugin_type = plugin._PLUGIN_FINALISER_TYPE
+    plugin_type = plugin._PLUGIN_FINALIZER_TYPE
     _required_output = {}
 
     def __init__(self, session):
-        '''Initialise FinaliserPlugin with *session*
+        '''Initialise FinalizerPlugin with *session*
 
         *session* should be the :class:`ftrack_api.session.Session` instance
         to use for communication with the server.
         '''
-        super(BaseFinaliserPlugin, self).__init__(session)
-        self.validator = FinaliserPluginValidation(
+        super(BaseFinalizerPlugin, self).__init__(session)
+        self.validator = FinalizerPluginValidation(
             self.plugin_name, self._required_output, self.return_type,
             self.return_value
         )

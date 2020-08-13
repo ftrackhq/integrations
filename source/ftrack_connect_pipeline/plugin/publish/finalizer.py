@@ -7,8 +7,8 @@ from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.plugin import base
 
 
-class PublisherFinaliserPlugin(base.BaseFinaliserPlugin):
-    ''' Class representing a Finaliser Plugin
+class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
+    ''' Class representing a Finalizer Plugin
 
         .. note::
 
@@ -17,17 +17,17 @@ class PublisherFinaliserPlugin(base.BaseFinaliserPlugin):
             current asset
     '''
     return_type = dict
-    plugin_type = constants.PLUGIN_PUBLISHER_FINALISER_TYPE
+    plugin_type = constants.PLUGIN_PUBLISHER_FINALIZER_TYPE
     _required_output = {}
     version_dependencies = []
 
     def __init__(self, session):
-        '''Initialise FinaliserPlugin with *session*
+        '''Initialise FinalizerPlugin with *session*
 
         *session* should be the :class:`ftrack_api.session.Session` instance
         to use for communication with the server.
         '''
-        super(PublisherFinaliserPlugin, self).__init__(session)
+        super(PublisherFinalizerPlugin, self).__init__(session)
         self.component_functions = {
             'thumbnail': self.create_thumbnail,
             'reviewable': self.create_reviewable
@@ -56,7 +56,7 @@ class PublisherFinaliserPlugin(base.BaseFinaliserPlugin):
         os.remove(component_path)
 
     def _run(self, event):
-        super_result = super(PublisherFinaliserPlugin, self)._run(event)
+        super_result = super(PublisherFinalizerPlugin, self)._run(event)
 
         context = event['data']['settings']['context']
         data = event['data']['settings']['data']

@@ -5,8 +5,8 @@ from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.plugin import base
 
 
-class LoaderFinaliserPlugin(base.BaseFinaliserPlugin):
-    ''' Class representing a Finaliser Plugin
+class LoaderFinalizerPlugin(base.BaseFinalizerPlugin):
+    ''' Class representing a Finalizer Plugin
 
         .. note::
 
@@ -15,13 +15,13 @@ class LoaderFinaliserPlugin(base.BaseFinaliserPlugin):
             current asset
     '''
     return_type = dict
-    plugin_type = constants.PLUGIN_LOADER_FINALISER_TYPE
+    plugin_type = constants.PLUGIN_LOADER_FINALIZER_TYPE
     _required_output = {}
 
     def __init__(self, session):
-        '''Initialise FinaliserPlugin with *session*
+        '''Initialise FinalizerPlugin with *session*
 
         *session* should be the :class:`ftrack_api.session.Session` instance
         to use for communication with the server.
         '''
-        super(LoaderFinaliserPlugin, self).__init__(session)
+        super(LoaderFinalizerPlugin, self).__init__(session)
