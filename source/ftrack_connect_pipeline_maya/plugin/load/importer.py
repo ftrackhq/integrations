@@ -45,7 +45,9 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
 
         asset_load_mode = options.get(asset_const.LOAD_MODE)
 
-        if not asset_load_mode or asset_load_mode == load_const.OPEN_MODE:
+        if asset_load_mode == load_const.OPEN_MODE:
+            self.logger.warning('{} not created, load mode is {} and not {}'.format(
+                self.ftrack_asset_class, asset_load_mode, load_const.OPEN_MODE))
             return super_result
 
         self.new_data = maya_utils.get_current_scene_objects()
@@ -71,7 +73,6 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
         ftrack_asset_class = self.get_asset_class(context, data, options)
 
         ftrack_node = ftrack_asset_class.init_ftrack_object()
-
         ftrack_asset_class.connect_objects(diff)
 
 

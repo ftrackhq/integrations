@@ -40,34 +40,34 @@ def on_application_launch(event):
     logger.debug('Adding maya pipeline environments.')
 
     # Add dependencies in pythonpath
-    ftrack_connect.application.appendPath(
+    ftrack_connect.application.prependPath(
         python_dependencies,
         'PYTHONPATH',
         event['data']['options']['env']
     )
 
     # Maya scripts
-    ftrack_connect.application.appendPath(
+    ftrack_connect.application.prependPath(
         maya_script_path,
         'PYTHONPATH',
         event['data']['options']['env']
     )
 
-    ftrack_connect.application.appendPath(
+    ftrack_connect.application.prependPath(
         maya_script_path,
         'MAYA_SCRIPT_PATH',
         event['data']['options']['env']
     )
 
     # Maya plugins
-    ftrack_connect.application.appendPath(
+    ftrack_connect.application.prependPath(
         maya_connect_plugins_path,
         'MAYA_PLUG_IN_PATH',
         event['data']['options']['env']
     )
 
     # Pipeline plugins
-    ftrack_connect.application.appendPath(
+    ftrack_connect.application.prependPath(
         application_hook,
         'FTRACK_EVENT_PLUGIN_PATH',
         event['data']['options']['env']

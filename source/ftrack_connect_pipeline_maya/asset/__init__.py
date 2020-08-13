@@ -33,12 +33,10 @@ class FtrackAssetNode(FtrackAssetBase):
         updates the ftrack_object if it's not. In case there is no ftrack_object
         in the scene this function creates a new one.
         '''
-        ftrack_object = self.get_ftrack_object_from_scene()
-        if not ftrack_object:
-            ftrack_object = self.create_new_ftrack_object()
-        if ftrack_object:
-            if not self.is_sync(ftrack_object):
-                ftrack_object = self._update_ftrack_object(ftrack_object)
+        ftrack_object = self.get_ftrack_object_from_scene() or self.create_new_ftrack_object()
+
+        if not self.is_sync(ftrack_object):
+            ftrack_object = self._update_ftrack_object(ftrack_object)
 
         self.ftrack_object = ftrack_object
 
@@ -64,6 +62,7 @@ class FtrackAssetNode(FtrackAssetBase):
         Return the ftrack_object from the current asset_version if it exists in
         the scene.
         '''
+        result_object = None
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
         for ftrack_object in ftrack_asset_nodes:
             param_dict = self.get_parameters_dictionary(ftrack_object)
@@ -74,8 +73,10 @@ class FtrackAssetNode(FtrackAssetBase):
                     node_asset_info[asset_const.REFERENCE_OBJECT] ==
                     self.asset_info[asset_const.REFERENCE_OBJECT]
             ):
+                result_object = ftrack_object
 
-                return ftrack_object
+        self.logger.debug('Found {} existing node'.format(result_object))
+        return result_object
 
     def _check_ftrack_object_sync(self, ftrack_object):
         '''
@@ -149,7 +150,7 @@ class FtrackAssetNode(FtrackAssetBase):
 
         name = self._get_unique_ftrack_object_name()
         ftrack_object = cmd.createNode('ftrackAssetNode', name=name)
-
+        self.logger.debug('Creating new ftrack object {}'.format(ftrack_object))
         return ftrack_object
 
     def _update_ftrack_object(self, ftrack_object):
@@ -173,87 +174,3 @@ class FtrackAssetNode(FtrackAssetBase):
                 )
 
         return ftrack_object
-
-    # def discover_assets(self):
-    #     '''
-    #     Returns asset_info_list with all the assets loaded in the current
-    #     scene that has an ftrack_object connected
-    #     '''
-    #     ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
-    #     asset_info_list = []
-    #
-    #     for ftrack_object in ftrack_asset_nodes:
-    #         param_dict = self.get_parameters_dictionary(ftrack_object)
-    #         node_asset_info = FtrackAssetInfo(param_dict)
-    #         asset_info_list.append(node_asset_info)
-    #     return asset_info_list
-
-    # def remove_current_objects(self):
-    #     '''
-    #     Remove all the imported or referenced objects in the scene
-    #     '''
-    #     referenceNode = False
-    #     for node in cmd.listConnections(
-    #             '{}.{}'.format(self.ftrack_object, asset_const.ASSET_LINK)
-    #     ):
-    #         if cmd.nodeType(node) == 'reference':
-    #             referenceNode = maya_utils.getReferenceNode(node)
-    #             if referenceNode:
-    #                 break
-    #
-    #     if referenceNode:
-    #         self.logger.debug("Removing reference: {}".format(referenceNode))
-    #         maya_utils.remove_reference_node(referenceNode)
-    #     else:
-    #         nodes = cmd.listConnections(
-    #             '{}.{}'.format(self.ftrack_object, asset_const.ASSET_LINK)
-    #         )
-    #         for node in nodes:
-    #             try:
-    #                 self.logger.debug(
-    #                     "Removing object: {}".format(node)
-    #                 )
-    #                 if cmd.objExists(node):
-    #                     cmd.delete(node)
-    #             except Exception as error:
-    #                 self.logger.error(
-    #                     'Node: {0} could not be deleted, error: {1}'.format(
-    #                         node, error
-    #                     )
-    #                 )
-    #     if cmd.objExists(self.ftrack_object):
-    #         cmd.delete(self.ftrack_object)
-    #
-    # def _remove_asset(self, event):
-    #     '''
-    #     Override function from the main class, remove the current assets of the
-    #     scene.
-    #     '''
-    #     super(FtrackAssetNode, self)._remove_asset(event)
-    #
-    #     asset_item = event['data']
-    #
-    #     try:
-    #         self.logger.debug("Removing current objects")
-    #         self.remove_current_objects()
-    #     except Exception, e:
-    #         self.logger.error("Error removing current objects: {}".format(e))
-    #
-    #     return asset_item
-
-    # def _select_asset(self, event):
-    #     '''
-    #     Override function from the main class, select the current assets of the
-    #     scene.
-    #     '''
-    #     super(FtrackAssetNode, self)._select_asset(event)
-    #     asset_item = event['data']
-    #
-    #     nodes = cmd.listConnections(
-    #         '{}.{}'.format(self.ftrack_object, asset_const.ASSET_LINK)
-    #     )
-    #     for node in nodes:
-    #         cmd.select(node, add=True)
-    #
-    #     return asset_item
-
