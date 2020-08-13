@@ -192,18 +192,18 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
         Remove all the imported or referenced objects in the scene
         '''
-        referenceNode = False
+        reference_node = False
         for node in cmd.listConnections(
                 '{}.{}'.format(self.ftrack_object, asset_const.ASSET_LINK)
         ):
             if cmd.nodeType(node) == 'reference':
-                referenceNode = maya_utils.getReferenceNode(node)
-                if referenceNode:
+                reference_node = maya_utils.getReferenceNode(node)
+                if reference_node:
                     break
 
-        if referenceNode:
-            self.logger.debug("Removing reference: {}".format(referenceNode))
-            maya_utils.remove_reference_node(referenceNode)
+        if reference_node:
+            self.logger.debug("Removing reference: {}".format(reference_node))
+            maya_utils.remove_reference_node(reference_node)
         else:
             nodes = cmd.listConnections(
                 '{}.{}'.format(self.ftrack_object, asset_const.ASSET_LINK)
@@ -229,9 +229,7 @@ class FtrackAssetNode(FtrackAssetBase):
         Override function from the main class, remove the current assets of the
         scene.
         '''
-        super(FtrackAssetNode, self)._remove_asset(event)
-
-        asset_item = event['data']
+        asset_item = super(FtrackAssetNode, self)._remove_asset(event)
 
         try:
             self.logger.debug("Removing current objects")
@@ -246,8 +244,7 @@ class FtrackAssetNode(FtrackAssetBase):
         Override function from the main class, select the current assets of the
         scene.
         '''
-        super(FtrackAssetNode, self)._select_asset(event)
-        asset_item = event['data']
+        asset_item = super(FtrackAssetNode, self)._select_asset(event)
 
         nodes = cmd.listConnections(
             '{}.{}'.format(self.ftrack_object, asset_const.ASSET_LINK)
