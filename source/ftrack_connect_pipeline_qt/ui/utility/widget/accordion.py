@@ -102,7 +102,6 @@ class AccordionWidget(QtWidgets.QWidget):
             return self._title_frame.checkbox.isChecked()
         return True
 
-
     def toggle_collapsed(self):
         self._content.setVisible(self._is_collasped)
         self._is_collasped = not self._is_collasped
