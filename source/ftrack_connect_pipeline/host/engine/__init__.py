@@ -257,6 +257,11 @@ class BaseEngine(object):
         for component in components:
             component_name = component['name']
             component_stages = component['stages']
+            component_enabled = component['enabled']
+            if not component_enabled:
+                self.logger.info('Skipping component {} as it been disabled'.format(component_name))
+                continue
+
             component_status, component_result = self.run_component(
                 component_name, component_stages, context_result,
                 data['_config']['stage_order']
