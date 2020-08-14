@@ -43,7 +43,7 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
             event['data']
         ).encode('base64')
 
-        asset_load_mode = options.get(asset_const.LOAD_MODE)
+        asset_load_mode = options.get(asset_const.LOAD_MODE, 'Not set')
 
         if asset_load_mode == load_const.OPEN_MODE:
             self.logger.warning('{} not created, load mode is {} and not {}'.format(
