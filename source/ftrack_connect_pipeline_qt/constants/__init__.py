@@ -9,7 +9,6 @@ HOST = constants.HOST
 # Base name.
 _BASE_ = 'ftrack.pipeline'
 
-PIPELINE_UPDATE_UI = '{}.QtClient.update'.format(_BASE_)
 PIPELINE_RUN_PLUGIN_TOPIC = '{}.run'.format(_BASE_)
 PIPELINE_REFRESH_AM = '{}.QtClient.refresh_am'.format(_BASE_)
 
