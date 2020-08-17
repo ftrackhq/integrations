@@ -35,7 +35,7 @@ class ComponentsArray(BaseJsonWidget):
                 optional_component = False
                 for package in self.widget_factory.package['components']:
                     if package['name'] == name:
-                        optional_component = package['optional']
+                        optional_component = package.get('optional', False)
                         break
 
                 accordion_widget = AccordionWidget(
@@ -53,12 +53,11 @@ class ComponentsArray(BaseJsonWidget):
 
     def to_json_object(self):
         out = []
-        for accordeon_widget in self._accordion_widgets:
-            if accordeon_widget.checkable:
-                if not accordeon_widget.is_checked():
-                    continue
-            for idx in range(0, accordeon_widget.count_widgets()):
-                widget = accordeon_widget.get_witget_at(idx)
+        for accordion_widget in self._accordion_widgets:
+            for idx in range(0, accordion_widget.count_widgets()):
+                widget = accordion_widget.get_witget_at(idx)
                 if 'to_json_object' in dir(widget):
-                    out.append(widget.to_json_object())
+                    data = widget.to_json_object()
+                    data['enabled'] = accordion_widget.is_checked()
+                    out.append(data)
         return out

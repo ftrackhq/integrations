@@ -65,6 +65,7 @@ class WidgetFactory(QtWidgets.QWidget):
             'ui': hidden.HiddenString,
             'type': hidden.HiddenString,
             'name': hidden.HiddenString,
+            'enabled': hidden.HiddenBoolean,
             'package': hidden.HiddenString,
             'host': hidden.HiddenString
         }
