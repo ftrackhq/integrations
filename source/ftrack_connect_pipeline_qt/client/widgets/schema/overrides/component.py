@@ -35,7 +35,7 @@ class ComponentsArray(BaseJsonWidget):
                 optional_component = False
                 for package in self.widget_factory.package['components']:
                     if package['name'] == name:
-                        optional_component = package.get('optional', False)
+                        optional_component = data.get('optional', False)
                         break
 
                 accordion_widget = AccordionWidget(
