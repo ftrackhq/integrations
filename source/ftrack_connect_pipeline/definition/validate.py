@@ -33,8 +33,8 @@ def validate_schema(data):
                         )
                     except Exception as error:
                         logger.warning(
-                            'definitinon {} does not match any schema. {}'.format(
-                                definition['name'], str(error)
+                            '{} {} does not match any schema. {}'.format(
+                                entry, definition['name'], str(error)
                             )
                         )
                         copy_data[entry].remove(definition)
@@ -92,7 +92,7 @@ def validate_definition_components(data):
     for package in data['package']:
         package_component_names = [
             component['name'] for component in package['components']
-            if not component.get('optional', False)
+            if not component.get('required', True)
         ]
         for entry in ['loader', 'publisher']:
             for definition in data[entry]:
