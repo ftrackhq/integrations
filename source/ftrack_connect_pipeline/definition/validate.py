@@ -92,7 +92,7 @@ def validate_definition_components(data):
     for package in data['package']:
         package_component_names = [
             component['name'] for component in package['components']
-            if not component.get('required', True)
+            if component.get('required', True)
         ]
         for entry in ['loader', 'publisher']:
             for definition in data[entry]:
