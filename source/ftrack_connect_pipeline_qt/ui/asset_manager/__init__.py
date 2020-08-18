@@ -237,10 +237,12 @@ class AssetManagerTableView(QtWidgets.QTableView):
         i=0
         for index in index_list:
             data = self.model().data(index, self.model().DATA_ROLE)
+            # Clear the selection before select the first asset in the loop,
+            # then append the others to the selection.
             if i==0:
-                plugin['options'] = {'clear_selection': True}
+                plugin['options']['clear_selection'] = True
             else:
-                plugin['options'] = {'clear_selection': False}
+                plugin['options']['clear_selection'] = False
             plugin['plugin_data'] = data
             self.host_connection.run(plugin, self.engine)
             i+=1
