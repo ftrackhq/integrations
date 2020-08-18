@@ -4,7 +4,8 @@
 from functools import partial
 
 from ftrack_connect_pipeline_maya import plugin
-from ftrack_connect_pipeline_qt.client.widgets.options.dynamic import DynamicWidget
+from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
+
 
 from Qt import QtWidgets
 
@@ -12,13 +13,43 @@ import maya.cmds as cmd
 import ftrack_api
 
 
-class AlembicOptionsWidget(DynamicWidget):
+class AlembicOptionsWidget(BaseOptionsWidget):
+
+    @property
+    def frames_option(self):
+        '''Return current frames_option'''
+        _frames_option = {
+            'frameStart': str(
+                self.options.get(
+                    'frameStart', cmd.playbackOptions(q=True, ast=True)
+                )
+            ),
+            'frameEnd': str(
+                self.options.get(
+                    'frameEnd', cmd.playbackOptions(q=True, aet=True)
+                )
+            ),
+            'alembicEval': str(self.options.get('alembicEval', '1.0'))
+        }
+        return _frames_option
+
+    @property
+    def bool_options(self):
+        '''Return current bool_options'''
+        _bool_options = {
+            'alembicAnimation': self.options.get('alembicAnimation', False),
+            'alembicUvwrite': self.options.get('alembicUvwrite', True),
+            'alembicWorldspace': self.options.get('alembicWorldspace', False),
+            'alembicWritevisibility': self.options.get(
+                'alembicWritevisibility', False
+            )
+        }
+        return _bool_options
 
     def __init__(
         self, parent=None, session=None, data=None, name=None,
         description=None, options=None, context=None
     ):
-
         self.options_cb = {}
         self.options_le = {}
 
@@ -31,18 +62,6 @@ class AlembicOptionsWidget(DynamicWidget):
     def build(self):
         '''build function , mostly used to create the widgets.'''
         super(AlembicOptionsWidget, self).build()
-        frames_option = {
-            'frameStart': str(cmd.playbackOptions(q=True, ast=True)),
-            'frameEnd': str(cmd.playbackOptions(q=True, aet=True)),
-            'alembicEval': '1.0'
-        }
-
-        bool_options = [
-            'alembicAnimation',
-            'alembicUvwrite',
-            'alembicWorldspace',
-            'alembicWritevisibility'
-        ]
 
         self.option_group = QtWidgets.QGroupBox('Alembic Output Options')
         self.option_group.setToolTip(self.description)
@@ -57,8 +76,9 @@ class AlembicOptionsWidget(DynamicWidget):
         self.option_layout.addLayout(self.animation_layout)
 
         self.layout().addWidget(self.option_group)
-        for option in bool_options:
+        for option, default_value in sorted(self.bool_options.items()):
             option_check = QtWidgets.QCheckBox(option)
+            option_check.setChecked(default_value)
 
             self.options_cb[option] = option_check
 
@@ -68,7 +88,7 @@ class AlembicOptionsWidget(DynamicWidget):
             else:
                 self.option_layout.addWidget(option_check)
 
-        for option, default_value in sorted(frames_option.items(), reverse=True):
+        for option, default_value in sorted(self.frames_option.items(), reverse=True):
             frames_V_layout = QtWidgets.QVBoxLayout()
             option_label = QtWidgets.QLabel(option)
             option_line_edit = QtWidgets.QLineEdit(default_value)
@@ -76,7 +96,8 @@ class AlembicOptionsWidget(DynamicWidget):
             frames_V_layout.addWidget(option_label)
             frames_V_layout.addWidget(option_line_edit)
             self.frames_H_layout.addLayout(frames_V_layout)
-            self.frames_widget.hide()
+            if not self.bool_options['alembicAnimation']:
+                self.frames_widget.hide()
 
     def post_build(self):
         super(AlembicOptionsWidget, self).post_build()
@@ -92,11 +113,16 @@ class AlembicOptionsWidget(DynamicWidget):
             update_fn = partial(self.set_option_result, key=option)
             widget.textChanged.connect(update_fn)
 
+    def _reset_default_animation_options(self):
+        for k, v in self.frames_option.items():
+            self.options_le[k].setText(str(v))
+
     def _on_alembic_animation_changed(self, value):
         '''Updates the options dictionary with provided *path* when
         textChanged of line_edit event is triggered'''
         if value:
             self.frames_widget.show()
+            self._reset_default_animation_options()
             for option, widget in self.options_le.items():
                 self.set_option_result(widget.text(), key=option)
         else:

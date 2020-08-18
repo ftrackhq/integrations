@@ -18,9 +18,13 @@ class OutputMayaAlembicPlugin(plugin.PublisherOutputMayaPlugin):
     def extract_options(self, options):
 
         return {
-            'alembicAnimation' : bool(options.get('alembicAnimation', False)),
-            'frameStart': float(options.get('frameStart', 0.0)),
-            'frameEnd': float(options.get('frameEnd', 0.0)),
+            'alembicAnimation' : bool(options.get('alembicAnimation', True)),
+            'frameStart': float(
+                options.get('frameStart', cmd.playbackOptions(q=True, ast=True))
+            ),
+            'frameEnd': float(
+                options.get('frameEnd', cmd.playbackOptions(q=True, aet=True))
+            ),
             'alembicUvwrite': bool(options.get('alembicUvwrite', True)),
             'alembicWorldspace': bool(options.get('alembicWorldspace', False)),
             'alembicWritevisibility': bool(options.get('alembicWritevisibility', False)),
