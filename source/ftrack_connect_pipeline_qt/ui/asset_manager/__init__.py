@@ -129,7 +129,7 @@ class AssetManagerTableView(QtWidgets.QTableView):
         super(AssetManagerTableView, self).__init__(parent=parent)
 
         self.ftrack_asset_list = []
-        self.action_widgets = []
+        self.action_widgets = {}
         self._engine = None
 
         self._event_manager = event_manager
@@ -187,16 +187,25 @@ class AssetManagerTableView(QtWidgets.QTableView):
         self.asset_model.set_asset_list(self.ftrack_asset_list)
 
     def create_actions(self, actions):
-        self.action_widgets = []
-        for action in actions:
-            action_widget = QtWidgets.QAction(action['name'], self)
-            action_widget.setData(action)
-            self.action_widgets.append(action_widget)
+        self.action_widgets = {}
+        for action_type, actions in actions.items():
+            if action_type not in self.action_widgets.keys():
+                self.action_widgets[action_type] = []
+            for action in actions:
+                action_widget = QtWidgets.QAction(action['name'], self)
+                action_widget.setData(action)
+                self.action_widgets[action_type].append(action_widget)
 
     def contextMenuEvent(self, event):
         self.menu = QtWidgets.QMenu(self)
-        for action_widget in self.action_widgets:
-            self.menu.addAction(action_widget)
+        self.action_type_menu = {}
+        for action_type, action_widgets in self.action_widgets.items():
+            if action_type not in self.action_type_menu.keys():
+                type_menu = QtWidgets.QMenu(action_type, self)
+                self.menu.addMenu(type_menu)
+                self.action_type_menu[action_type] = type_menu
+            for action_widget in action_widgets:
+                self.action_type_menu[action_type].addAction(action_widget)
         self.menu.triggered.connect(self.menu_triggered)
 
         # add other required actions
@@ -209,7 +218,7 @@ class AssetManagerTableView(QtWidgets.QTableView):
             callback_fn = getattr(self, ui_callback)
             callback_fn(plugin)
 
-    def ctx_update_to_latest(self, plugin):
+    def ctx_update(self, plugin):
         index_list = self.selectionModel().selectedRows()
         for index in index_list:
             data = self.model().data(index, self.model().DATA_ROLE)
@@ -223,7 +232,7 @@ class AssetManagerTableView(QtWidgets.QTableView):
                 index, latest_versions['id'], QtCore.Qt.EditRole
             )
 
-    def ctx_select_action(self, plugin):
+    def ctx_select(self, plugin):
         index_list = self.selectionModel().selectedRows()
         i=0
         for index in index_list:
@@ -236,7 +245,7 @@ class AssetManagerTableView(QtWidgets.QTableView):
             self.host_connection.run(plugin, self.engine)
             i+=1
 
-    def ctx_remove_action(self, plugin):
+    def ctx_remove(self, plugin):
         index_list=[]
         for model_index in self.selectionModel().selectedRows():
             index = QtCore.QPersistentModelIndex(model_index)
