@@ -129,9 +129,10 @@ class FtrackAssetBase(object):
         '''
         Returns the plugin with the given *plugin_name* from the definition
         '''
-        for plugin in self.definition.get('menu_actions'):
-            if str(plugin.get('plugin')) == plugin_name:
-                return plugin
+        for actions_type, plugins in self.definition.get('actions').items():
+            for plugin in plugins:
+                if str(plugin.get('plugin')) == plugin_name:
+                    return plugin
 
     def change_version(self, asset_version_id, host_connection):
         '''
