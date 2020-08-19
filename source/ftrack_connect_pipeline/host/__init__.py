@@ -104,9 +104,6 @@ class Host(object):
         if runnerResult == False:
             self.logger.error("Couldn't publish the data {}".format(data))
 
-        if data.get('plugin_type') != plugin_const._PLUGIN_DISCOVER_TYPE:
-            self._refresh_asset_manager()
-
         return runnerResult
 
     def _refresh_asset_manager(self):
@@ -136,6 +133,7 @@ class Host(object):
             )
 
         result = {'result':runnerResult, 'host_id': self.hostid}
+
         return result
 
     def get_asset_type_from_packages(self, packages, data_package):

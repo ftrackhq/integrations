@@ -99,6 +99,8 @@ class FtrackAssetInfo(dict):
     def decode_options(self, asset_info_options):
         '''Decodes the json value from the given *asset_info_opitons
         from base64'''
+        if not asset_info_options:
+            self.logger.error("asset_info_options is empty")
         return json.loads(asset_info_options.decode('base64'))
 
     def __getitem__(self, k):
@@ -106,7 +108,8 @@ class FtrackAssetInfo(dict):
         automatically return the decoded json'''
         value = super(FtrackAssetInfo, self).__getitem__(k)
         if k == constants.ASSET_INFO_OPTIONS:
-            value = self.decode_options(value)
+            if value:
+                value = self.decode_options(value)
         return value
 
     def __setitem__(self, k, v):

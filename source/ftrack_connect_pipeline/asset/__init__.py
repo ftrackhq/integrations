@@ -183,57 +183,48 @@ class FtrackAssetBase(object):
 
         asset_info_options = self.asset_info[asset_const.ASSET_INFO_OPTIONS]
 
-        asset_context = asset_info_options['settings']['context']
-        asset_data = asset_info[asset_const.COMPONENT_PATH]
-        asset_context[asset_const.ASSET_ID] = asset_info[asset_const.ASSET_ID]
-        asset_context[asset_const.VERSION_NUMBER] = asset_info[asset_const.VERSION_NUMBER]
-        asset_context[asset_const.ASSET_NAME] = asset_info[asset_const.ASSET_NAME]
-        asset_context[asset_const.ASSET_TYPE] = asset_info[asset_const.ASSET_TYPE]
-        asset_context[asset_const.VERSION_ID] = asset_info[asset_const.VERSION_ID]
+        if asset_info_options:
 
-        asset_info_options['settings']['data'] = [asset_data]
-        asset_info_options['settings']['context'].update(asset_context)
+            asset_context = asset_info_options['settings']['context']
+            asset_data = asset_info[asset_const.COMPONENT_PATH]
+            asset_context[asset_const.ASSET_ID] = asset_info[asset_const.ASSET_ID]
+            asset_context[asset_const.VERSION_NUMBER] = asset_info[asset_const.VERSION_NUMBER]
+            asset_context[asset_const.ASSET_NAME] = asset_info[asset_const.ASSET_NAME]
+            asset_context[asset_const.ASSET_TYPE] = asset_info[asset_const.ASSET_TYPE]
+            asset_context[asset_const.VERSION_ID] = asset_info[asset_const.VERSION_ID]
 
-        run_event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
-            data=asset_info_options
-        )
-        plugin_result_data = self.session.event_hub.publish(
-            run_event,
-            synchronous=True
-        )
-        result_data = plugin_result_data[0]
-        if not result_data:
-            self.logger.error("Error re-loading asset")
+            asset_info_options['settings']['data'] = [asset_data]
+            asset_info_options['settings']['context'].update(asset_context)
 
-        asset_info[asset_const.ASSET_INFO_OPTIONS] = asset_info_options
-
-        asset_info[asset_const.LOAD_MODE] = self.asset_info[
-            asset_const.LOAD_MODE
-        ]
-        asset_info[asset_const.REFERENCE_OBJECT] = self.asset_info[
-            asset_const.REFERENCE_OBJECT
-        ]
-
-        if not asset_info:
-            self.logger.warning("Asset version couldn't change")
-            return
-        if not isinstance(asset_info, FtrackAssetInfo):
-            raise TypeError(
-                "return type of change version has to be type of FtrackAssetInfo"
+            run_event = ftrack_api.event.base.Event(
+                topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
+                data=asset_info_options
             )
+            plugin_result_data = self.session.event_hub.publish(
+                run_event,
+                synchronous=True
+            )
+            result_data = plugin_result_data[0]
+            if not result_data:
+                self.logger.error("Error re-loading asset")
+
+            asset_info[asset_const.ASSET_INFO_OPTIONS] = asset_info_options
+
+            asset_info[asset_const.LOAD_MODE] = self.asset_info[
+                asset_const.LOAD_MODE
+            ]
+            asset_info[asset_const.REFERENCE_OBJECT] = self.asset_info[
+                asset_const.REFERENCE_OBJECT
+            ]
+
+            if not asset_info:
+                self.logger.warning("Asset version couldn't change")
+                return
+            if not isinstance(asset_info, FtrackAssetInfo):
+                raise TypeError(
+                    "return type of change version has to be type of FtrackAssetInfo"
+                )
 
         self.asset_info.update(asset_info)
-
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_REFRESH_AM,
-            data={
-                'pipeline': {
-                    'host_id': host_id,
-                    'data': {},
-                }
-            }
-        )
-        self._event_manager.publish(event)
 
         return asset_info
