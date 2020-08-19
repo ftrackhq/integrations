@@ -5,18 +5,15 @@ import uuid
 import ftrack_api
 import logging
 
-from ftrack_connect_pipeline.host import engine
+from ftrack_connect_pipeline.host import engine as host_engine
 from ftrack_connect_pipeline.host import validation
 from ftrack_connect_pipeline import constants, utils
 from ftrack_connect_pipeline.constants import plugin as plugin_const
-from ftrack_connect_pipeline.host import engine
-
 
 from functools import partial
 
 
 logger = logging.getLogger(__name__)
-
 
 def provide_host_information(hostid, definitions, event):
     '''return the current hostid'''
@@ -33,7 +30,7 @@ def provide_host_information(hostid, definitions, event):
 class Host(object):
 
     host = [constants.HOST]
-    asset_manager_engine = engine.AssetManagerEngine
+    asset_manager_engine = host_engine.AssetManagerEngine
 
     def __repr__(self):
         return '<Host:{0}>'.format(self.hostid)
@@ -74,37 +71,30 @@ class Host(object):
         self.register()
         self.listen_asset_manager()
 
-    def get_engine_runner(self, schema_engine, asset_type=None):
-        MyEngine = engine.getEngine(engine.BaseEngine, schema_engine)
-        engine_runner = MyEngine(self._event_manager, self.host, self.hostid,
-                                 asset_type)
-        return engine_runner
-
     def run(self, event):
         data = event['data']['pipeline']['data']
-        engine = event['data']['pipeline']['engine']
+        engine_name = event['data']['pipeline']['engine']
+        package = data.get('package')
+        asset_type = None
 
-        if engine == "AssetManagerEngine":
-            engine_runner = self.get_engine_runner(engine)
-        else:
+        if package:
+            # we are in Load/Publish land....
+            asset_type = self.get_asset_type_from_packages(
+                self.__registry['package'], package
+            )
             try:
                 validation.validate_schema(self.__registry['schema'], data)
             except Exception as error:
                 self.logger.error("Can't validate the data {} "
                                   "error: {}".format(data, error))
-                return False
 
-            asset_type = self.get_asset_type_from_packages(
-                self.__registry['package'], data['package'])
-            schema_engine = data['_config']['engine']
+        EngineRunnerCls = getattr(host_engine, engine_name)
 
-            engine_runner = self.get_engine_runner(schema_engine, asset_type)
+        engine_runner = EngineRunnerCls(self._event_manager, self.host, self.hostid, asset_type)
 
-        runnerResult = engine_runner.run(data)
-        if runnerResult == False:
-            self.logger.error("Couldn't publish the data {}".format(data))
+        runner_result = engine_runner.run(data)
 
-        return runnerResult
+        return runner_result
 
     def _refresh_asset_manager(self):
         event = ftrack_api.event.base.Event(
@@ -121,18 +111,21 @@ class Host(object):
     def _run_change_asset_version(self, event):
         data = event['data']['pipeline']
 
-        engine_runner = self.get_engine_runner(
-            self.asset_manager_engine.__name__
+        EngineRunnerCls = getattr(
+            host_engine, self.asset_manager_engine.__name__
         )
 
-        runnerResult = engine_runner.change_asset_version(data)
+        engine_runner = EngineRunnerCls(self._event_manager, self.host,
+                                        self.hostid)
 
-        if runnerResult == False:
+        runner_result = engine_runner.change_asset_version(data)
+
+        if runner_result == False:
             self.logger.error(
                 "Couldn't run the action for the data {}".format(data)
             )
 
-        result = {'result':runnerResult, 'host_id': self.hostid}
+        result = {'result':runner_result, 'host_id': self.hostid}
 
         return result
 
