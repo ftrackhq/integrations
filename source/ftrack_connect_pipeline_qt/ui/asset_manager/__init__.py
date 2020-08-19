@@ -118,6 +118,10 @@ class AssetManagerTableView(QtWidgets.QTableView):
     def engine(self, value):
         self._engine = value
 
+    @property
+    def session(self):
+        return self.event_manager.session
+
     def __init__(self, event_manager, parent=None):
         '''Initialise browser with *root* entity.
 
@@ -181,7 +185,6 @@ class AssetManagerTableView(QtWidgets.QTableView):
     #         index, value, QtCore.Qt.EditRole
     #     )
 
-
     def set_asset_list(self, ftrack_asset_list):
         self.ftrack_asset_list = ftrack_asset_list
         self.asset_model.set_asset_list(self.ftrack_asset_list)
@@ -222,15 +225,22 @@ class AssetManagerTableView(QtWidgets.QTableView):
         index_list = self.selectionModel().selectedRows()
         for index in index_list:
             data = self.model().data(index, self.model().DATA_ROLE)
-            latest_versions = data.ftrack_versions[-1]
-            ftrack_asset = self.asset_model.ftrack_asset_list[index.row()]
-            ftrack_asset.change_version(
-                latest_versions['id'], self.host_connection
+
+            plugin['plugin_data'] = data
+            self.host_connection.run(
+                plugin, self.engine, partial(self._update_callback, index=index)
             )
 
-            self.asset_model.setData(
-                index, latest_versions['id'], QtCore.Qt.EditRole
-            )
+    def _update_callback(self, event, index):
+        data = event['data']
+        if len(data) <= 0:
+            self.logger.warning("Id not found to update version")
+            return
+        new_id = data[0]
+
+        self.asset_model.setData(
+            index, new_id, QtCore.Qt.EditRole
+        )
 
     def ctx_select(self, plugin):
         index_list = self.selectionModel().selectedRows()
