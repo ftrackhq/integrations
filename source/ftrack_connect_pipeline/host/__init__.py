@@ -71,6 +71,12 @@ class Host(object):
         self.register()
         self.listen_asset_manager()
 
+    def get_engine_runner(self, schema_engine, asset_type=None):
+        MyEngine = host_engine.getEngine(host_engine.BaseEngine, schema_engine)
+        engine_runner = MyEngine(self._event_manager, self.host, self.hostid,
+                                 asset_type)
+        return engine_runner
+
     def run(self, event):
         data = event['data']['pipeline']['data']
         engine_name = event['data']['pipeline']['engine']
@@ -88,11 +94,14 @@ class Host(object):
                 self.logger.error("Can't validate the data {} "
                                   "error: {}".format(data, error))
 
-        EngineRunnerCls = getattr(host_engine, engine_name)
-
-        engine_runner = EngineRunnerCls(self._event_manager, self.host, self.hostid, asset_type)
+        engine_runner = self.get_engine_runner(engine_name, asset_type)
+        # EngineRunnerCls = getattr(host_engine, engine_name)
+        #
+        # engine_runner = EngineRunnerCls(self._event_manager, self.host, self.hostid, asset_type)
 
         runner_result = engine_runner.run(data)
+        if runner_result == False:
+            self.logger.error("Couldn't publish the data {}".format(data))
 
         return runner_result
 
@@ -111,12 +120,9 @@ class Host(object):
     def _run_change_asset_version(self, event):
         data = event['data']['pipeline']
 
-        EngineRunnerCls = getattr(
-            host_engine, self.asset_manager_engine.__name__
+        engine_runner = self.get_engine_runner(
+            self.asset_manager_engine.__name__
         )
-
-        engine_runner = EngineRunnerCls(self._event_manager, self.host,
-                                        self.hostid)
 
         runner_result = engine_runner.change_asset_version(data)
 
