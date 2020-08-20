@@ -94,8 +94,8 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
 
         self.asset_manager_widget.set_host_connection(self.host_connection)
 
-        self._run_discover_assets(self.discover_plugins[0])
-        self.asset_manager_widget.engine = self.schema_engine
+        self._run_discover_assets()#self.discover_plugins[0])
+        self.asset_manager_widget.engine_type = self.engine_type
         self.asset_manager_widget.set_context_actions(self.menu_action_plugins)
 
         self.scroll.setWidget(self.asset_manager_widget)
@@ -122,4 +122,4 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
     def _refresh_ui(self, event):
         if not self.host_connection:
             return
-        self._run_discover_assets(self.discover_plugins[0])
+        self._run_discover_assets()#self.discover_plugins[0])

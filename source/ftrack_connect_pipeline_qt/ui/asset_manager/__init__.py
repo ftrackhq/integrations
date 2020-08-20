@@ -26,19 +26,19 @@ class AssetManagerWidget(QtWidgets.QWidget):
         return self.event_manager.session
 
     @property
-    def engine(self):
+    def engine_type(self):
         '''Returns ftrack object from the DCC app'''
-        return self._engine
+        return self._engine_type
 
-    @engine.setter
-    def engine(self, value):
-        self._engine = value
+    @engine_type.setter
+    def engine_type(self, value):
+        self._engine_type = value
 
     def __init__(self, event_manager, parent=None):
         super(AssetManagerWidget, self).__init__(parent=parent)
 
         self._event_manager = event_manager
-        self._engine = None
+        self._engine_type = None
 
         self.ftrack_asset_list = []
 
@@ -81,7 +81,7 @@ class AssetManagerWidget(QtWidgets.QWidget):
         self.asset_table_view.set_host_connection(self.host_connection)
 
     def set_context_actions(self, actions):
-        self.asset_table_view.engine = self.engine
+        self.asset_table_view.engine_type = self.engine_type
         self.asset_table_view.create_actions(actions)
 
     def _update_widget(self, event):
@@ -110,13 +110,13 @@ class AssetManagerTableView(QtWidgets.QTableView):
         return self._event_manager
 
     @property
-    def engine(self):
+    def engine_type(self):
         '''Returns ftrack object from the DCC app'''
-        return self._engine
+        return self._engine_type
 
-    @engine.setter
-    def engine(self, value):
-        self._engine = value
+    @engine_type.setter
+    def engine_type(self, value):
+        self._engine_type = value
 
     @property
     def session(self):
@@ -134,7 +134,7 @@ class AssetManagerTableView(QtWidgets.QTableView):
 
         self.ftrack_asset_list = []
         self.action_widgets = {}
-        self._engine = None
+        self._engine_type = None
 
         self._event_manager = event_manager
 
@@ -228,7 +228,7 @@ class AssetManagerTableView(QtWidgets.QTableView):
 
             plugin['plugin_data'] = data
             self.host_connection.run(
-                plugin, self.engine, partial(self._update_callback, index=index)
+                plugin, self.engine_type, partial(self._update_callback, index=index)
             )
 
     def _update_callback(self, event, index):
@@ -254,7 +254,7 @@ class AssetManagerTableView(QtWidgets.QTableView):
             else:
                 plugin['options']['clear_selection'] = False
             plugin['plugin_data'] = data
-            self.host_connection.run(plugin, self.engine)
+            self.host_connection.run(plugin, self.engine_type)
             i+=1
 
     def ctx_remove(self, plugin):
@@ -267,7 +267,7 @@ class AssetManagerTableView(QtWidgets.QTableView):
             data = self.model().data(index, self.model().DATA_ROLE)
             plugin['plugin_data'] = data
             self.host_connection.run(
-                plugin, self.engine, partial(self._remove_callback, index=index)
+                plugin, self.engine_type, partial(self._remove_callback, index=index)
             )
 
     def _remove_callback(self, event, index):

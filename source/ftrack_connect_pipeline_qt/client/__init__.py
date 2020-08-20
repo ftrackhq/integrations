@@ -133,9 +133,9 @@ class QtClient(client.Client, QtWidgets.QWidget):
     def _on_run(self):
         '''Function called when click the run button'''
         serialized_data= self._current_def.to_json_object()
-        schema_engine = serialized_data['_config']['engine']
+        engine_type = serialized_data['_config']['engine_type']
         self.host_connection.run(
-            serialized_data, schema_engine, self._run_callback
+            serialized_data, engine_type, self._run_callback
         )
 
     def _run_callback(self, event):
