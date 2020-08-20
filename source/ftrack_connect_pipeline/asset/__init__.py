@@ -140,7 +140,7 @@ class FtrackAssetBase(object):
         once done call the callback to publish the PIPELINE_ASSET_VERSION_CHANGED
         event to run the change version on the host.
         '''
-        schema_engine = self.definition['_config']['engine']
+        engine_type = self.definition['_config']['engine_type']
         if not schema_engine:
             return self.logger.error("No engine to run the plugin found")
         remove_plugin = self.get_plugin('remove_asset')
@@ -150,7 +150,7 @@ class FtrackAssetBase(object):
         remove_plugin['plugin_data'] = self
 
         host_connection.run(
-            remove_plugin, schema_engine, partial(
+            remove_plugin, engine_type, partial(
                 self._publish_change_version_event,
                 asset_version_id=asset_version_id,
                 host_id=host_connection.id

@@ -30,6 +30,11 @@ def provide_host_information(hostid, definitions, event):
 class Host(object):
 
     host = [constants.HOST]
+    engines = {
+        'asset_manager': host_engine.AssetManagerEngine,
+        'loader': host_engine.LoaderEngine,
+        'publisher': host_engine.PublisherEngine,
+    }
     asset_manager_engine = host_engine.AssetManagerEngine
 
     def __repr__(self):
@@ -71,15 +76,16 @@ class Host(object):
         self.register()
         self.listen_asset_manager()
 
-    def get_engine_runner(self, schema_engine, asset_type=None):
-        MyEngine = host_engine.getEngine(host_engine.BaseEngine, schema_engine)
-        engine_runner = MyEngine(self._event_manager, self.host, self.hostid,
-                                 asset_type)
-        return engine_runner
+    # def get_engine_runner(self, engine_type, asset_type=None):
+    #     schema_engine = 'asset_manager'
+    #     MyEngine = host_engine.getEngine(host_engine.BaseEngine, schema_engine)
+    #     engine_runner = MyEngine(self._event_manager, self.host, self.hostid,
+    #                              asset_type)
+    #     return engine_runner
 
     def run(self, event):
         data = event['data']['pipeline']['data']
-        engine_name = event['data']['pipeline']['engine']
+        engine_type = event['data']['pipeline']['engine_type']
         package = data.get('package')
         asset_type = None
 
@@ -94,7 +100,10 @@ class Host(object):
                 self.logger.error("Can't validate the data {} "
                                   "error: {}".format(data, error))
 
-        engine_runner = self.get_engine_runner(engine_name, asset_type)
+        Engine = self.engines.get(engine_type)
+        engine_runner = Engine(self._event_manager, self.host, self.hostid,
+                                 asset_type)
+        # engine_runner = self.get_engine_runner(engine_type, asset_type)
         # EngineRunnerCls = getattr(host_engine, engine_name)
         #
         # engine_runner = EngineRunnerCls(self._event_manager, self.host, self.hostid, asset_type)

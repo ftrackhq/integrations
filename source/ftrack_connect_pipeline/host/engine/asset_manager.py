@@ -48,19 +48,66 @@ class AssetManagerEngine(BaseEngine):
             )
         return bool_status, result
 
+    def discover_assets(self, plugin, assets):
+        component_name = 'main'
+        versions = self.session.query(
+            'select id, components, components.name, components.id, version, '
+            'asset , asset.name, asset.type.name from AssetVersion where '
+            'asset_id != None and components.name is "{0}" limit 10'.format(
+                component_name
+            )
+        ).all()
+
+        component_name = 'main'
+
+        ftrack_asset_info_list = []
+
+        for version in versions:
+            asset_info = FtrackAssetInfo.from_ftrack_version(
+                version, component_name
+            )
+            ftrack_asset_info_list.append(asset_info)
+
+        # ftrack_asset_list = []
+        #
+        # for asset_info in ftrack_asset_info_list:
+        #     ftrack_asset_class = FtrackAssetBase(self.event_manager)
+        #     ftrack_asset_class.asset_info = asset_info
+        #     ftrack_asset_class.init_ftrack_object()
+        #     ftrack_asset_list.append(ftrack_asset_class)
+
+        return ftrack_asset_info_list
+
+
     def run(self, data):
         '''
         Override function run packages from the provided *data*
         '''
+        method = data.get('method')
+        plugin = data.get('plugin')
+        assets = data.get('assets')
 
-        plugin_type = '{}.{}'.format('asset_manager', data['plugin_type'])
+        result = None
 
-        status, result = self.run_asset_manager_plugin(
-            data, plugin_type
-        )
-        if not status:
-            raise Exception(
-                'An error occurred during the execution of the plugin: {} '
-                '\n type: {}'.format(data['plugin'],plugin_type)
+        if hasattr(self, method):
+            callback_fn = getattr(self, method)
+            status, result = callback_fn(plugin, assets)
+            if not status:
+                raise Exception(
+                    'An error occurred during the execution of '
+                    'the method: {}'.format(method)
+                )
+
+        elif plugin:
+            plugin_type = '{}.{}'.format('asset_manager', data['plugin_type'])
+
+            status, result = self.run_asset_manager_plugin(
+                data, plugin_type
             )
+
+            if not status:
+                raise Exception(
+                    'An error occurred during the execution of the plugin: {} '
+                    '\n type: {}'.format(plugin, plugin_type)
+                )
         return result

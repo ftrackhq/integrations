@@ -94,7 +94,7 @@ class HostConnection(object):
                 'pipeline': {
                     'host_id': self.id,
                     'data': data,
-                    'engine': engine
+                    'engine_type': engine
                 }
             }
         )

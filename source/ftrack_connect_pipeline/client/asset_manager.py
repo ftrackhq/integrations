@@ -47,10 +47,10 @@ class AssetManagerClient(client.Client):
         #Only one definition for now, we don't have a definition schema on the
         # AM
         self.definition = definitions[0]
-        self.schema_engine = self.definition['_config']['engine']
+        self.engine_type = self.definition['_config']['engine_type']
 
         self.menu_action_plugins = self.definition['actions']
-        self.discover_plugins = self.definition['discover']
+        #self.discover_plugins = self.definition['discover']
 
     def _asset_discovered(self, event):
         '''callback, Assets discovered'''
@@ -66,10 +66,13 @@ class AssetManagerClient(client.Client):
         '''Empty the _ftrack_asset_list'''
         self._ftrack_asset_list = []
 
-    def _run_discover_assets(self, plugin):
+    def _run_discover_assets(self):
         self._reset_asset_list()
+        data = {'method': 'discover_assets',
+                'plugin': None,
+                'assets': None}
         self.host_connection.run(
-            plugin, self.schema_engine, self._asset_discovered
+            data, self.engine_type, self._asset_discovered
         )
 
     def change_version(self, ftrack_asset_object, asset_version_id):
