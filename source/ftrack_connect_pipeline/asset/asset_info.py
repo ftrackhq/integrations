@@ -3,6 +3,7 @@
 
 import logging
 import json
+import ftrack_api
 from ftrack_connect_pipeline.constants import asset as constants
 
 
@@ -37,10 +38,14 @@ def generate_asset_info_dict_from_args(context, data, options, session):
     arguments_dict[constants.ASSET_INFO_OPTIONS] = options.get(
         constants.ASSET_INFO_OPTIONS, ''
     )
+    # TODO: check how to add is latest on this function
+    # arguments_dict[constants.IS_LATEST_VERSION] = ftrack_version[
+    #     'is_latest_version']
 
     asset_version = session.get(
         'AssetVersion', arguments_dict[constants.VERSION_ID]
     )
+
 
     location = session.pick_location()
 
@@ -62,6 +67,19 @@ class FtrackAssetInfo(dict):
     '''
 
     @property
+    def session(self):
+        '''Returns instance of FtrackAssetInfo'''
+        return self._session
+
+    # @session.setter
+    # def session(self, value):
+    #     if not isinstance(value, ftrack_api.Session):
+    #         raise ValueError()
+    #
+    #     self._session = value
+    #     self['session'] = value
+
+    @property
     def is_deprecated(self):
         '''
         Returns whether the current class is maded up from a legacy mapping type
@@ -73,7 +91,12 @@ class FtrackAssetInfo(dict):
         new_mapping = {}
         for k in constants.KEYS:
             v = mapping.get(k)
+            if v == unicode(None):
+                v = None
             new_mapping.setdefault(k, v)
+            if k == constants.SESSION:
+                if v:
+                    self._session = v
         return new_mapping
 
     def __init__(self, mapping=None, **kwargs):
@@ -85,7 +108,7 @@ class FtrackAssetInfo(dict):
         self.logger = logging.getLogger(
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
-
+        self._session = None
         self._is_deprecated_version = False
         mapping = mapping or {}
         mapping = self._conform_data(mapping)
@@ -110,6 +133,13 @@ class FtrackAssetInfo(dict):
         if k == constants.ASSET_INFO_OPTIONS:
             if value:
                 value = self.decode_options(value)
+        if k == constants.VERSIONS:
+            # if not value:
+            #     print "in not value of getitem"
+            value = self._get_ftrack_versions()
+        if k == constants.SESSION:
+            if self.session:
+                value = self.session
         return value
 
     def __setitem__(self, k, v):
@@ -117,7 +147,44 @@ class FtrackAssetInfo(dict):
         automatically encode the given json value to base64'''
         if k == constants.ASSET_INFO_OPTIONS:
             v = self.encode_options(v)
+        if k == constants.SESSION:
+            if not isinstance(v, ftrack_api.Session):
+                raise ValueError()
+            self._session = v
         super(FtrackAssetInfo, self).__setitem__(k, v)
+
+    def get(self, k, default=None):
+        value = super(FtrackAssetInfo, self).get(k, default)
+        if k == constants.VERSIONS:
+            # if not value:
+            #     print "in not value"
+            new_value = self._get_ftrack_versions()
+            # Make sure that in case is returning None, set the default value
+            if new_value:
+                value = new_value
+        return value
+
+    def setdefault(self, k, default=None):
+        if k == constants.SESSION:
+            if not isinstance(default, ftrack_api.Session):
+                raise ValueError()
+            self._session = default
+        super(FtrackAssetInfo, self).setdefault(k, default)
+
+    def _get_ftrack_versions(self):
+        if not self.session:
+            raise AttributeError('asset_info.session has to be set before query '
+                                 'versions')
+        query = (
+            'select is_latest_version, id, asset, components, components.name, '
+            'components.id, version, asset , asset.name, asset.type.name from '
+            'AssetVersion where asset.id is "{}" and components.name is "{}"'
+            'order by version ascending'
+        ).format(
+            self[constants.ASSET_ID], self[constants.COMPONENT_NAME]
+        )
+        versions = self.session.query(query).all()
+        return versions
 
     @classmethod
     def from_ftrack_version(cls, ftrack_version, component_name):
@@ -127,12 +194,15 @@ class FtrackAssetInfo(dict):
         '''
         asset_info_data = {}
         asset = ftrack_version['asset']
+
         asset_info_data[constants.ASSET_NAME] = asset['name']
         asset_info_data[constants.ASSET_TYPE] = asset['type']['name']
         asset_info_data[constants.ASSET_ID] = asset['id']
         asset_info_data[constants.VERSION_NUMBER] = int(
             ftrack_version['version'])
         asset_info_data[constants.VERSION_ID] = ftrack_version['id']
+        asset_info_data[constants.IS_LATEST_VERSION] = ftrack_version['is_latest_version']
+        print "asset_info_data[constants.IS_LATEST_VERSION] --> {}".format(asset_info_data[constants.IS_LATEST_VERSION])
 
         location = ftrack_version.session.pick_location()
 

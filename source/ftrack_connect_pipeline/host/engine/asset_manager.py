@@ -3,10 +3,13 @@
 
 from ftrack_connect_pipeline.host.engine import BaseEngine
 from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline.constants import asset as asset_const
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
+from ftrack_connect_pipeline.asset import FtrackAssetBase
 
 
 class AssetManagerEngine(BaseEngine):
+    ftrack_asset_class = FtrackAssetBase
     engine_type = 'asset_manager'
 
     def __init__(self, event_manager, host, hostid, asset_type=None):
@@ -15,18 +18,6 @@ class AssetManagerEngine(BaseEngine):
         super(AssetManagerEngine, self).__init__(
             event_manager, host, hostid, asset_type=None
         )
-
-    def change_asset_version(self, data):
-        '''
-        Returns an asset info created from the asset version and component name
-        from the given *data*.
-        '''
-        asset_version = data['data']['asset_version']
-        component_name = data['data']['component_name']
-        asset_info = FtrackAssetInfo.from_ftrack_version(
-            asset_version, component_name
-        )
-        return asset_info
 
     def run_asset_manager_plugin(self, plugin, plugin_type):
         '''
@@ -48,7 +39,8 @@ class AssetManagerEngine(BaseEngine):
             )
         return bool_status, result
 
-    def discover_assets(self, plugin, assets):
+    def discover_assets(self, plugin, assets, args):
+        status = constants.UNKNOWN_STATUS
         component_name = 'main'
         versions = self.session.query(
             'select id, components, components.name, components.id, version, '
@@ -76,7 +68,40 @@ class AssetManagerEngine(BaseEngine):
         #     ftrack_asset_class.init_ftrack_object()
         #     ftrack_asset_list.append(ftrack_asset_class)
 
-        return ftrack_asset_info_list
+        if not ftrack_asset_info_list:
+            status = constants.ERROR_STATUS
+        else:
+            status = constants.SUCCESS_STATUS
+        result = ftrack_asset_info_list
+
+        return status, result
+
+    def remove_asset(self, ftrack_asset_object):
+        return True
+
+    def change_version(self, plugin, assets, args):
+        status = constants.UNKNOWN_STATUS
+        asset_info = assets[0]
+        new_version_id = args[0]
+
+        #for asset_info in assets:
+        ftrack_asset_class = self.ftrack_asset_class(self.event_manager)
+        ftrack_asset_class.asset_info = asset_info
+        ftrack_asset_class.init_ftrack_object()
+
+        # first run remove
+        self.remove_asset(ftrack_asset_class)
+
+        new_asset_info = ftrack_asset_class.change_version(new_version_id)
+
+
+        if not new_asset_info:
+            status = constants.ERROR_STATUS
+        else:
+            status = constants.SUCCESS_STATUS
+        result = new_asset_info
+
+        return status, result
 
 
     def run(self, data):
@@ -86,12 +111,13 @@ class AssetManagerEngine(BaseEngine):
         method = data.get('method')
         plugin = data.get('plugin')
         assets = data.get('assets')
+        args = data.get('args')
 
         result = None
 
         if hasattr(self, method):
             callback_fn = getattr(self, method)
-            status, result = callback_fn(plugin, assets)
+            status, result = callback_fn(plugin, assets, args)
             if not status:
                 raise Exception(
                     'An error occurred during the execution of '

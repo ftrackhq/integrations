@@ -134,64 +134,30 @@ class FtrackAssetBase(object):
                 if str(plugin.get('plugin')) == plugin_name:
                     return plugin
 
-    def change_version(self, asset_version_id, host_connection):
-        '''
-        Called from the client, runs remove_asset plugin if exists on the host,
-        once done call the callback to publish the PIPELINE_ASSET_VERSION_CHANGED
-        event to run the change version on the host.
-        '''
-        engine_type = self.definition['_config']['engine_type']
-        if not schema_engine:
-            return self.logger.error("No engine to run the plugin found")
-        remove_plugin = self.get_plugin('remove_asset')
-        if not remove_plugin:
-            return self.logger.error("No remove_asset plugin found")
-
-        remove_plugin['plugin_data'] = self
-
-        host_connection.run(
-            remove_plugin, engine_type, partial(
-                self._publish_change_version_event,
-                asset_version_id=asset_version_id,
-                host_id=host_connection.id
-            )
-        )
-
-    def _publish_change_version_event(self, event, asset_version_id, host_id):
-        asset_version = self.session.get('AssetVersion', asset_version_id)
-
-        data_to_send = {'asset_version': asset_version,
-                        'component_name': self.component_name}
-
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_CHANGE_VERSION,
-            data={
-                'pipeline': {
-                    'host_id': host_id,
-                    'data': data_to_send
-                }
-            }
-        )
-        self._event_manager.publish(event, self._change_version)
-
-    def _change_version(self, event):
+    def change_version(self, new_version_id):
         '''
         Callback function to change the asset version from the given *event*
         '''
-        asset_info = event['data']['result']
-        host_id = event['data']['host_id']
+
+        asset_version = self.session.get('AssetVersion', new_version_id)
+
+        new_asset_info = FtrackAssetInfo.from_ftrack_version(
+            asset_version, self.component_name
+        )
+        if self.asset_info.session:
+            new_asset_info['session'] = self.asset_info.session
 
         asset_info_options = self.asset_info[asset_const.ASSET_INFO_OPTIONS]
 
         if asset_info_options:
 
             asset_context = asset_info_options['settings']['context']
-            asset_data = asset_info[asset_const.COMPONENT_PATH]
-            asset_context[asset_const.ASSET_ID] = asset_info[asset_const.ASSET_ID]
-            asset_context[asset_const.VERSION_NUMBER] = asset_info[asset_const.VERSION_NUMBER]
-            asset_context[asset_const.ASSET_NAME] = asset_info[asset_const.ASSET_NAME]
-            asset_context[asset_const.ASSET_TYPE] = asset_info[asset_const.ASSET_TYPE]
-            asset_context[asset_const.VERSION_ID] = asset_info[asset_const.VERSION_ID]
+            asset_data = new_asset_info[asset_const.COMPONENT_PATH]
+            asset_context[asset_const.ASSET_ID] = new_asset_info[asset_const.ASSET_ID]
+            asset_context[asset_const.VERSION_NUMBER] = new_asset_info[asset_const.VERSION_NUMBER]
+            asset_context[asset_const.ASSET_NAME] = new_asset_info[asset_const.ASSET_NAME]
+            asset_context[asset_const.ASSET_TYPE] = new_asset_info[asset_const.ASSET_TYPE]
+            asset_context[asset_const.VERSION_ID] = new_asset_info[asset_const.VERSION_ID]
 
             asset_info_options['settings']['data'] = [asset_data]
             asset_info_options['settings']['context'].update(asset_context)
@@ -208,23 +174,24 @@ class FtrackAssetBase(object):
             if not result_data:
                 self.logger.error("Error re-loading asset")
 
-            asset_info[asset_const.ASSET_INFO_OPTIONS] = asset_info_options
+            new_asset_info[asset_const.ASSET_INFO_OPTIONS] = asset_info_options
 
-            asset_info[asset_const.LOAD_MODE] = self.asset_info[
+            new_asset_info[asset_const.LOAD_MODE] = self.asset_info[
                 asset_const.LOAD_MODE
             ]
-            asset_info[asset_const.REFERENCE_OBJECT] = self.asset_info[
+            new_asset_info[asset_const.REFERENCE_OBJECT] = self.asset_info[
                 asset_const.REFERENCE_OBJECT
             ]
 
-            if not asset_info:
+            if not new_asset_info:
                 self.logger.warning("Asset version couldn't change")
                 return
-            if not isinstance(asset_info, FtrackAssetInfo):
+            if not isinstance(new_asset_info, FtrackAssetInfo):
                 raise TypeError(
                     "return type of change version has to be type of FtrackAssetInfo"
                 )
 
-        self.asset_info.update(asset_info)
+        self.asset_info.update(new_asset_info)
 
-        return asset_info
+        return new_asset_info
+
