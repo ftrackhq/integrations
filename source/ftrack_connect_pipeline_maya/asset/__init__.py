@@ -168,6 +168,15 @@ class FtrackAssetNode(FtrackAssetBase):
                         ftrack_object, k
                     ), str(ftrack_object), type="string", l=True
                 )
+            elif k == asset_const.VERSIONS or k == asset_const.SESSION:
+                cmd.setAttr('{}.{}'.format(
+                    ftrack_object, k), str(v), type="string", l=True
+                )
+            elif k == asset_const.IS_LATEST_VERSION:
+                cmd.setAttr('{}.{}'.format(
+                    ftrack_object, k), bool(v), l=True
+                )
+
             else:
                 cmd.setAttr('{}.{}'.format(
                     ftrack_object, k), v, type="string", l=True

@@ -31,6 +31,9 @@ class FtrackAssetNode(OpenMayaMPx.MPxNode):
     a_load_mode = OpenMaya.MObject()
     a_asset_info_options = OpenMaya.MObject()
     a_reference_node = OpenMaya.MObject()
+    a_is_latest_version = OpenMaya.MObject()
+    a_versions = OpenMaya.MObject()
+    a_session = OpenMaya.MObject()
 
     def __init__(self):
         OpenMayaMPx.MPxNode.__init__(self)
@@ -51,6 +54,7 @@ def nodeInitializer():
     n_attr = OpenMaya.MFnNumericAttribute()
     t_attr = OpenMaya.MFnTypedAttribute()
     m_attr = OpenMaya.MFnMessageAttribute()
+    booleanAttr = OpenMaya.MFnNumericAttribute()
 
     # boolean attr
     FtrackAssetNode.a_locked = n_attr.create(
@@ -110,6 +114,21 @@ def nodeInitializer():
         asset_const.REFERENCE_OBJECT, 'rfn', OpenMaya.MFnData.kString
     )
     t_attr.setStorable(True)
+    FtrackAssetNode.a_is_latest_version = booleanAttr.create(
+        asset_const.IS_LATEST_VERSION, 'ilv', OpenMaya.MFnNumericData.kBoolean,
+        False
+    )
+    t_attr.setStorable(True)
+    FtrackAssetNode.a_versions = t_attr.create(
+        asset_const.VERSIONS, 'vs', OpenMaya.MFnData.kString
+    )
+    t_attr.setHidden(True)
+    t_attr.setStorable(True)
+    FtrackAssetNode.a_session = t_attr.create(
+        asset_const.SESSION, 's', OpenMaya.MFnData.kString
+    )
+    t_attr.setHidden(True)
+    t_attr.setStorable(True)
 
     # Add the attributes to the ftrack_object
     FtrackAssetNode.addAttribute(FtrackAssetNode.a_locked)
@@ -125,6 +144,9 @@ def nodeInitializer():
     FtrackAssetNode.addAttribute(FtrackAssetNode.a_load_mode)
     FtrackAssetNode.addAttribute(FtrackAssetNode.a_asset_info_options)
     FtrackAssetNode.addAttribute(FtrackAssetNode.a_reference_node)
+    FtrackAssetNode.addAttribute(FtrackAssetNode.a_is_latest_version)
+    FtrackAssetNode.addAttribute(FtrackAssetNode.a_versions)
+    FtrackAssetNode.addAttribute(FtrackAssetNode.a_session)
 
 
 def initializePlugin(m_object):
