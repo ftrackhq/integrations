@@ -56,14 +56,14 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
             return None
 
         item = self.ftrack_asset_list[row]
-        data = item.asset_info[self.columns[column]]
+        data = item[self.columns[column]]
 
         # style versions
         if (
                 role == QtCore.Qt.BackgroundRole and
                 index.column() == self.get_version_column_index()
         ):
-            if item.is_latest:
+            if item.get(asset_constants.IS_LATEST_VERSION):#.is_latest:
                 return QtGui.QBrush(QtGui.QColor(155, 250, 218, 200))
             else:
                 return QtGui.QBrush(QtGui.QColor(250, 171, 155, 200))
@@ -103,9 +103,10 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
     def setData(self, index, value, role=QtCore.Qt.EditRole):
         if role == QtCore.Qt.EditRole:
             if value:
-                self.ftrack_asset_list[index.row()].change_version(
-                    value, self.host_connection
-                )
+                print "setting data value ---> {}".format(value)
+                # self.ftrack_asset_list[index.row()].change_version(
+                #     value, self.host_connection
+                # )
 
                 self.dataChanged.emit(index, index)
                 return True

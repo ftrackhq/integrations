@@ -16,6 +16,7 @@ from ftrack_connect_pipeline_qt.ui.asset_manager.delegate.asset_manager import (
 
 class AssetManagerWidget(QtWidgets.QWidget):
     widget_status_updated = QtCore.Signal(object)
+    change_asset_version = QtCore.Signal(object, object)
 
     @property
     def event_manager(self):
@@ -65,6 +66,14 @@ class AssetManagerWidget(QtWidgets.QWidget):
 
     def post_build(self):
         self.filter_field.textChanged.connect(self.on_search)
+        self.asset_table_view.version_cb_delegate.change_version.connect(
+            self.on_asset_change_version
+        )
+    def on_asset_change_version(self, index, value):
+        asset_info = self.asset_table_view.asset_model.ftrack_asset_list[
+            index.row()
+        ]
+        self.change_asset_version.emit(asset_info, value)
 
     def set_asset_list(self, ftrack_asset_list):
         self.ftrack_asset_list = ftrack_asset_list
@@ -173,17 +182,18 @@ class AssetManagerTableView(QtWidgets.QTableView):
     def post_build(self):
         '''Perform post-construction operations.'''
         pass
-    #     self.version_cb_delegate.version_changed.connect(
-    #         self.on_asset_version_changed
-    #     )
+        # self.version_cb_delegate.change_version.connect(
+        #     self.on_asset_change_version
+        # )
     #
-    # def on_asset_version_changed(self, index, value):
-    #     ftrack_asset = self.asset_model.ftrack_asset_list[index.row()]
-    #     ftrack_asset.change_version(value, self.host_connection)
+    # def on_asset_change_version(self, index, value):
+    #     ftrack_asset_info = self.asset_model.ftrack_asset_list[index.row()]
+    #     self.change_asset_version.emit(ftrack_asset_info, value)
+    #     # ftrack_asset_info.change_version(value, self.host_connection)
     #
-    #     self.asset_model.setData(
-    #         index, value, QtCore.Qt.EditRole
-    #     )
+    #     # self.asset_model.setData(
+    #     #     index, value, QtCore.Qt.EditRole
+    #     # )
 
     def set_asset_list(self, ftrack_asset_list):
         self.ftrack_asset_list = ftrack_asset_list

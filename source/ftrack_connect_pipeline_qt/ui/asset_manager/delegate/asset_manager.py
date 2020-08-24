@@ -2,18 +2,28 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 from Qt import QtWidgets, QtCore, QtGui
-
+from ftrack_connect_pipeline.asset import asset_info
 
 class VersionDelegate(QtWidgets.QItemDelegate):
-    # version_changed = QtCore.Signal(object, object)
+    change_version = QtCore.Signal(object, object)
 
     def __init__(self, parent=None):
         super(VersionDelegate, self).__init__(parent=parent)
 
     def createEditor(self, parent, option, index):
 
-        item = index.model().data(index, index.model().DATA_ROLE)
-        versions_collection = item.ftrack_versions
+        #Have to initialize the ftrack info again as when quering from the
+        # model even if the DATA_ROLE has the FtrackAssetInfo dictionary,
+        # it returns a generic diccionary.
+        item = asset_info.FtrackAssetInfo(index.model().data(index, index.model().DATA_ROLE))
+
+        #TODO: we have two options: I have added the versions key on the
+        # asset_info that if a session is provided it returns you the versions.
+        # The other option is call the client to get the ftrack_asset_versions
+        # and this publish an event to the host which will run the engine
+        # function to query the versions
+
+        versions_collection = item['versions']
 
         combo = QtWidgets.QComboBox(parent)
         for asset_version in versions_collection:
@@ -29,8 +39,11 @@ class VersionDelegate(QtWidgets.QItemDelegate):
     def setModelData(self, editor, model, index):
         if not index.isValid():
             return False
-        # self.version_changed.emit(index, editor.itemData(editor.currentIndex()))
-        model.setData(
-            index, editor.itemData(editor.currentIndex()), QtCore.Qt.EditRole
-        )
+        self.change_version.emit(index, editor.itemData(editor.currentIndex()))
+        #TODO: if the model doesn't get updated, we should  call the model.set
+        # data after changing the version, so the client can tell the widget to
+        # set the data after the change_version_callback is called.
+        # model.setData(
+        #     index, editor.itemData(editor.currentIndex()), QtCore.Qt.EditRole
+        # )
 
