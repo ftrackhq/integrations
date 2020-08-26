@@ -2,7 +2,6 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 import logging
-from functools import partial
 import ftrack_api
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
 from ftrack_connect_pipeline.constants import asset as asset_const
@@ -87,15 +86,6 @@ class FtrackAssetBase(object):
     def ftrack_object(self, value):
         self._ftrack_object = value
 
-    @property
-    def definition(self):
-        '''Returns ftrack object from the DCC app'''
-        return self._definition
-
-    @definition.setter
-    def definition(self, value):
-        self._definition = value
-
     def __init__(self, event_manager):
         '''
         Initialize FtrackAssetBase with *event_manager*.
@@ -113,7 +103,6 @@ class FtrackAssetBase(object):
         self._event_manager = event_manager
 
         self._ftrack_object = None
-        self._definition = None
         self._ui_event_data = None
 
     def init_ftrack_object(self):
@@ -127,15 +116,6 @@ class FtrackAssetBase(object):
             self.asset_info[asset_const.ASSET_NAME]
         )
         return ftrack_object_name
-
-    def get_plugin(self, plugin_name):
-        '''
-        Returns the plugin with the given *plugin_name* from the definition
-        '''
-        for actions_type, plugins in self.definition.get('actions').items():
-            for plugin in plugins:
-                if str(plugin.get('plugin')) == plugin_name:
-                    return plugin
 
     def change_version(self, new_version_id):
         '''

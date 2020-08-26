@@ -2,8 +2,6 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 from ftrack_connect_pipeline import client
-from ftrack_connect_pipeline.asset import FtrackAssetBase
-from ftrack_connect_pipeline.asset import FtrackAssetInfo
 from ftrack_connect_pipeline.constants import asset as asset_const
 
 
@@ -31,22 +29,6 @@ class AssetManagerClient(client.Client):
         super(AssetManagerClient, self).__init__(event_manager)
         self._reset_asset_list()
 
-    # TODO: remove this as now the asset_info has the key versions to get the
-    #  versions
-    # def get_asset_versions(self, asset_info):
-    #     data = {'method': 'get_asset_versions',
-    #             'plugin': None,
-    #             'assets': [asset_info]}
-    #     self.host_connection.run(
-    #         data, self.engine_type, self._asset_versions_callback
-    #     )
-    # def _asset_versions_callback(self, event):
-    #     if not event['data']:
-    #         return
-    #     for asset_info in event['data']:
-    #         print "asset_info"
-
-
     def change_host(self, host_connection):
         ''' Triggered when definition_changed is called from the host_selector.
         Generates the widgets interface from the given *host_connection*,
@@ -68,7 +50,6 @@ class AssetManagerClient(client.Client):
         self.engine_type = self.definition['_config']['engine_type']
 
         self.menu_action_plugins = self.definition['actions']
-        #self.discover_plugins = self.definition['discover']
 
     def _reset_asset_list(self):
         '''Empty the _ftrack_asset_list'''
@@ -78,10 +59,10 @@ class AssetManagerClient(client.Client):
         self._reset_asset_list()
         data = {'method': 'discover_assets'}
         self.host_connection.run(
-            data, self.engine_type, self._asset_discovered
+            data, self.engine_type, self._asset_discovered_callback
         )
 
-    def _asset_discovered(self, event):
+    def _asset_discovered_callback(self, event):
         '''callback, Assets discovered'''
         if not event['data']:
             return
@@ -115,9 +96,6 @@ class AssetManagerClient(client.Client):
 
         Note:: this change_version is to be called using the api
         '''
-        # TODO: if the model doesn't get updated, we should  call the model.set
-        #  data after changing the version, so the client can tell the widget to
-        #  set the data after the change_version_callback is called.
         if not event['data']:
             return
         data = event['data']
@@ -175,9 +153,6 @@ class AssetManagerClient(client.Client):
         )
 
     def _update_assets_callback(self, event):
-        self.logger.debug(
-            "Update assets callback received, event: {}".format(event)
-        )
         if not event['data']:
             return
         data = event['data']

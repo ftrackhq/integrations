@@ -16,7 +16,7 @@ class AssetManagerEngine(BaseEngine):
         '''Initialise AssetManagerEngine with *event_manager*, *host*, *hostid*
         and *asset_type*'''
         super(AssetManagerEngine, self).__init__(
-            event_manager, host, hostid, asset_type=None
+            event_manager, host, hostid, asset_type=asset_type
         )
 
     def run_asset_manager_plugin(self, plugin, plugin_type):
@@ -65,14 +65,6 @@ class AssetManagerEngine(BaseEngine):
                 version, component_name
             )
             ftrack_asset_info_list.append(asset_info)
-
-        # ftrack_asset_list = []
-        #
-        # for asset_info in ftrack_asset_info_list:
-        #     ftrack_asset_class = FtrackAssetBase(self.event_manager)
-        #     ftrack_asset_class.asset_info = asset_info
-        #     ftrack_asset_class.init_ftrack_object()
-        #     ftrack_asset_list.append(ftrack_asset_class)
 
         if not ftrack_asset_info_list:
             status = constants.ERROR_STATUS
@@ -151,7 +143,7 @@ class AssetManagerEngine(BaseEngine):
         # result = True
         # status = constants.SUCCESS_STATUS
         # return status, result
-        raise NotImplementedError()
+        raise NotImplementedError("Can't select on standalone mode")
 
     def update_assets(self, assets, options=None, plugin=None):
         status = None

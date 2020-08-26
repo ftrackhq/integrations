@@ -29,10 +29,6 @@ PIPELINE_HOST_RUN = '{}.host.run'.format(_BASE_)
 PIPELINE_CLIENT_NOTIFICATION = '{}.client.notification'.format(_BASE_)
 PIPELINE_DISCOVER_HOST = '{}.host.discover'.format(_BASE_)
 
-#Asset Events
-PIPELINE_CHANGE_VERSION = '{}.client.asset_change_version'.format(_BASE_)
-PIPELINE_REFRESH_AM = '{}.client.refresh_am'.format(_BASE_)
-
 # Avoid circular dependencies.
 from ftrack_connect_pipeline.constants.plugin.load import *
 from ftrack_connect_pipeline.constants.plugin.publish import *

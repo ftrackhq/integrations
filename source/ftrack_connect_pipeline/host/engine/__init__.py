@@ -46,8 +46,9 @@ class BaseEngine(object):
 
         self.event_manager = event_manager
 
-    def _run_plugin(self, plugin, plugin_type, options=None, data=None,
-                    context=None):
+    def _run_plugin(
+            self, plugin, plugin_type, options=None, data=None, context=None
+    ):
         '''Run *plugin*, *plugin_type*, with given *options*, *data* and
         *context* and notify client with the status before and after execute
         the plugin'''
@@ -93,7 +94,7 @@ class BaseEngine(object):
                 break
 
         self._notify_client(plugin, result_data)
-        print "_notify_client --> {}".format(plugin, result_data)
+        self.logger.debug("_notify_client: {}".format(plugin, result_data))
         return result_data['status'], result_data['result']
 
     def _notify_client(self, plugin, result_data):
@@ -292,7 +293,6 @@ class BaseEngine(object):
             raise Exception('An error occurred during the execution of the '
                             'finalizers')
 
-        print "engine result --> {}".format(True)
         return True
 
 from ftrack_connect_pipeline.host.engine.publish import *

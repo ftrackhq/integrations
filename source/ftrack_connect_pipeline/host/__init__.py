@@ -8,7 +8,6 @@ import logging
 from ftrack_connect_pipeline.host import engine as host_engine
 from ftrack_connect_pipeline.host import validation
 from ftrack_connect_pipeline import constants, utils
-from ftrack_connect_pipeline.constants import plugin as plugin_const
 
 from functools import partial
 
@@ -35,7 +34,6 @@ class Host(object):
         'loader': host_engine.LoaderEngine,
         'publisher': host_engine.PublisherEngine,
     }
-    asset_manager_engine = host_engine.AssetManagerEngine
 
     def __repr__(self):
         return '<Host:{0}>'.format(self.hostid)
@@ -74,14 +72,6 @@ class Host(object):
         )
         self._event_manager = event_manager
         self.register()
-        self.listen_asset_manager()
-
-    # def get_engine_runner(self, engine_type, asset_type=None):
-    #     schema_engine = 'asset_manager'
-    #     MyEngine = host_engine.getEngine(host_engine.BaseEngine, schema_engine)
-    #     engine_runner = MyEngine(self._event_manager, self.host, self.hostid,
-    #                              asset_type)
-    #     return engine_runner
 
     def run(self, event):
         data = event['data']['pipeline']['data']
@@ -101,48 +91,15 @@ class Host(object):
                                   "error: {}".format(data, error))
 
         Engine = self.engines.get(engine_type)
-        engine_runner = Engine(self._event_manager, self.host, self.hostid,
-                                 asset_type)
-        # engine_runner = self.get_engine_runner(engine_type, asset_type)
-        # EngineRunnerCls = getattr(host_engine, engine_name)
-        #
-        # engine_runner = EngineRunnerCls(self._event_manager, self.host, self.hostid, asset_type)
+        engine_runner = Engine(
+            self._event_manager, self.host, self.hostid, asset_type
+        )
 
         runner_result = engine_runner.run(data)
         if runner_result == False:
             self.logger.error("Couldn't publish the data {}".format(data))
 
         return runner_result
-
-    def _refresh_asset_manager(self):
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_REFRESH_AM,
-            data={
-                'pipeline': {
-                    'host_id': self.hostid,
-                    'data': {},
-                }
-            }
-        )
-        self._event_manager.publish(event)
-
-    def _run_change_asset_version(self, event):
-        data = event['data']['pipeline']
-
-        engine_runner = self.get_engine_runner(
-            self.asset_manager_engine.__name__
-        )
-
-        runner_result = engine_runner.change_asset_version(data)
-
-        if runner_result == False:
-            self.logger.error(
-                "Couldn't run the action for the data {}".format(data)
-            )
-
-        result = {'result':runner_result, 'host_id': self.hostid}
-
-        return result
 
     def get_asset_type_from_packages(self, packages, data_package):
         for package in packages:
@@ -218,19 +175,6 @@ class Host(object):
         self._event_manager.publish(
             event,
             self.on_register_definition
-        )
-
-    def listen_asset_manager(self):
-        self._event_manager.subscribe(
-            '{} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_CHANGE_VERSION, self.hostid
-            ),
-            self._run_change_asset_version
-        )
-        self.logger.info(
-            'subscribe to asset manager version changed  {} ready.'.format(
-                self.hostid
-            )
         )
 
     def reset(self):

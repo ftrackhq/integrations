@@ -3,6 +3,7 @@
 
 from ftrack_connect_pipeline.constants import _BASE_
 
+#TODO: Looks like this is not been used so it can be deleted
 
 # Publish stages.
 LOADER_SCHEMA = 'Loader'

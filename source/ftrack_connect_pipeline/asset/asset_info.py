@@ -40,10 +40,6 @@ def generate_asset_info_dict_from_args(context, data, options, session):
         constants.ASSET_INFO_OPTIONS, ''
     )
 
-
-    # arguments_dict[constants.ASSET_INFO_ID] = hash(
-    #     arguments_dict[constants.VERSION_ID]
-    # )
     arguments_dict[constants.ASSET_INFO_ID] = uuid.uuid4()
 
     asset_version = session.get(
@@ -77,14 +73,6 @@ class FtrackAssetInfo(dict):
     def session(self):
         '''Returns instance of FtrackAssetInfo'''
         return self._session
-
-    # @session.setter
-    # def session(self, value):
-    #     if not isinstance(value, ftrack_api.Session):
-    #         raise ValueError()
-    #
-    #     self._session = value
-    #     self['session'] = value
 
     @property
     def is_deprecated(self):
@@ -141,8 +129,6 @@ class FtrackAssetInfo(dict):
             if value:
                 value = self.decode_options(value)
         if k == constants.VERSIONS:
-            # if not value:
-            #     print "in not value of getitem"
             value = self._get_ftrack_versions()
         if k == constants.SESSION:
             if self.session:
@@ -210,9 +196,6 @@ class FtrackAssetInfo(dict):
 
         location = ftrack_version.session.pick_location()
 
-        # asset_info_data[constants.ASSET_INFO_ID] = hash(
-        #     asset_info_data[constants.VERSION_ID]
-        # )
         asset_info_data[constants.ASSET_INFO_ID] = uuid.uuid4()
 
         for component in ftrack_version['components']:
