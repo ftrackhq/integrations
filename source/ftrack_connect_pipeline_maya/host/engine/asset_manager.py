@@ -22,7 +22,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             event_manager, host, hostid, asset_type=asset_type
         )
 
-    def discover_assets(self, plugin, assets, args):
+    def discover_assets(self, assets, options=None, plugin=None):
         status = constants.UNKNOWN_STATUS
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
         ftrack_asset_info_list = []
@@ -34,15 +34,6 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             node_asset_info = FtrackAssetInfo(param_dict)
             ftrack_asset_info_list.append(node_asset_info)
 
-        # ftrack_asset_list = []
-        #
-        # for asset_info in ftrack_asset_info_list:
-        #     ftrack_asset_class = FtrackAssetNode(self.event_manager)
-        #     ftrack_asset_class.asset_info = asset_info
-        #     ftrack_asset_class.init_ftrack_object()
-        #     ftrack_asset_list.append(ftrack_asset_class)
-
-        #return ftrack_asset_info_list
         if not ftrack_asset_info_list:
             status = constants.ERROR_STATUS
         else:
@@ -51,7 +42,10 @@ class MayaAssetManagerEngine(AssetManagerEngine):
 
         return status, result
 
-    def remove_asset(self, ftrack_asset_object):
+    def remove_asset(self, asset_info, options=None, plugin=None):
+        status = constants.UNKNOWN_STATUS
+        result = []
+        ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
 
         referenceNode = False
         for node in cmd.listConnections(
@@ -79,6 +73,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                         "Removing object: {}".format(node)
                     )
                     if cmd.objExists(node):
+                        result.append(str(node))
                         cmd.delete(node)
                 except Exception as error:
                     self.logger.error(
@@ -87,6 +82,31 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                         )
                     )
         if cmd.objExists(ftrack_asset_object.ftrack_object):
+            result.append(str(ftrack_asset_object.ftrack_object))
             cmd.delete(ftrack_asset_object.ftrack_object)
 
-        return True
+        status = constants.SUCCESS_STATUS
+
+        return status, result
+
+    def select_asset(self, asset_info, options=None, plugin=None):
+        status = constants.UNKNOWN_STATUS
+        result = []
+
+        ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
+
+        if options.get('clear_selection'):
+            cmd.select(cl=True)
+
+        nodes = cmd.listConnections(
+            '{}.{}'.format(
+                ftrack_asset_object.ftrack_object, asset_const.ASSET_LINK
+            )
+        )
+        for node in nodes:
+            cmd.select(node, add=True)
+            result.append(str(node))
+
+        status = constants.SUCCESS_STATUS
+
+        return status, result
