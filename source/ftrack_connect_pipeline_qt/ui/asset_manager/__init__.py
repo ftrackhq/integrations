@@ -5,6 +5,7 @@ from functools import partial
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
 from ftrack_connect_pipeline import constants as core_const
+from ftrack_connect_pipeline.constants import asset as asset_const
 
 from ftrack_connect_pipeline_qt.ui.asset_manager.model.asset_manager import (
     AssetManagerModel, FilterProxyModel
@@ -17,6 +18,9 @@ from ftrack_connect_pipeline_qt.ui.asset_manager.delegate.asset_manager import (
 class AssetManagerWidget(QtWidgets.QWidget):
     widget_status_updated = QtCore.Signal(object)
     change_asset_version = QtCore.Signal(object, object)
+    select_assets = QtCore.Signal(object)
+    remove_assets = QtCore.Signal(object)
+    update_assets = QtCore.Signal(object, object)
 
     @property
     def event_manager(self):
@@ -69,11 +73,31 @@ class AssetManagerWidget(QtWidgets.QWidget):
         self.asset_table_view.version_cb_delegate.change_version.connect(
             self.on_asset_change_version
         )
+        self.asset_table_view.select_assets.connect(
+            self.on_select_assets
+        )
+        self.asset_table_view.remove_assets.connect(
+            self.on_remove_assets
+        )
+        self.asset_table_view.update_assets.connect(
+            self.on_update_assets
+        )
+
     def on_asset_change_version(self, index, value):
-        asset_info = self.asset_table_view.asset_model.ftrack_asset_list[
+        _asset_info = self.asset_table_view.asset_model.ftrack_asset_list[
             index.row()
         ]
+        #Doing copy to avoid update automatically
+        asset_info = _asset_info.copy()
         self.change_asset_version.emit(asset_info, value)
+    def on_select_assets(self, assets):
+        self.select_assets.emit(assets)
+
+    def on_remove_assets(self, assets):
+        self.remove_assets.emit(assets)
+
+    def on_update_assets(self, assets, plugin):
+        self.update_assets.emit(assets, plugin)
 
     def set_asset_list(self, ftrack_asset_list):
         self.ftrack_asset_list = ftrack_asset_list
@@ -113,6 +137,9 @@ class AssetManagerWidget(QtWidgets.QWidget):
 
 class AssetManagerTableView(QtWidgets.QTableView):
     '''Model representing AssetManager.'''
+    select_assets = QtCore.Signal(object)
+    remove_assets = QtCore.Signal(object)
+    update_assets = QtCore.Signal(object, object)
 
     @property
     def event_manager(self):
@@ -169,6 +196,7 @@ class AssetManagerTableView(QtWidgets.QTableView):
     def build(self):
 
         self.asset_model = AssetManagerModel(parent=self)
+        self.proxy_model = FilterProxyModel(parent=self)
         self.proxy_model = FilterProxyModel(parent=self)
         self.proxy_model.setSourceModel(self.asset_model)
 
@@ -232,56 +260,75 @@ class AssetManagerTableView(QtWidgets.QTableView):
             callback_fn(plugin)
 
     def ctx_update(self, plugin):
+        asset_info_list = []
         index_list = self.selectionModel().selectedRows()
         for index in index_list:
             data = self.model().data(index, self.model().DATA_ROLE)
+            asset_info_list.append(data)
 
-            plugin['plugin_data'] = data
-            self.host_connection.run(
-                plugin, self.engine_type, partial(self._update_callback, index=index)
-            )
+        self.update_assets.emit(asset_info_list, plugin)
 
-    def _update_callback(self, event, index):
-        data = event['data']
-        if len(data) <= 0:
-            self.logger.warning("Id not found to update version")
-            return
-        new_id = data[0]
+        # print "plugin ---> {}".format(plugin)
+        # index_list = self.selectionModel().selectedRows()
+        # for index in index_list:
+        #     data = self.model().data(index, self.model().DATA_ROLE)
+        #
+        #     plugin['plugin_data'] = data
+        #     self.host_connection.run(
+        #         plugin, self.engine_type, partial(self._update_callback, index=index)
+        #     )
 
-        self.asset_model.setData(
-            index, new_id, QtCore.Qt.EditRole
-        )
+    # def _update_callback(self, event, index):
+    #     data = event['data']
+    #     if len(data) <= 0:
+    #         self.logger.warning("Id not found to update version")
+    #         return
+    #     new_id = data[0]
+    #
+    #     self.asset_model.setData(
+    #         index, new_id, QtCore.Qt.EditRole
+    #     )
 
     def ctx_select(self, plugin):
+        asset_info_list = []
         index_list = self.selectionModel().selectedRows()
-        i=0
+        #i=0
         for index in index_list:
             data = self.model().data(index, self.model().DATA_ROLE)
+            asset_info_list.append(data)
+
+        self.select_assets.emit(asset_info_list)
             # Clear the selection before select the first asset in the loop,
             # then append the others to the selection.
-            if i==0:
-                plugin['options']['clear_selection'] = True
-            else:
-                plugin['options']['clear_selection'] = False
-            plugin['plugin_data'] = data
-            self.host_connection.run(plugin, self.engine_type)
-            i+=1
-
+    #         if i==0:
+    #             plugin['options']['clear_selection'] = True
+    #         else:
+    #             plugin['options']['clear_selection'] = False
+    #         plugin['plugin_data'] = data
+    #         self.host_connection.run(plugin, self.engine_type)
+    #         i+=1
+    #
     def ctx_remove(self, plugin):
+        asset_info_list = []
         index_list=[]
+
         for model_index in self.selectionModel().selectedRows():
             index = QtCore.QPersistentModelIndex(model_index)
             index_list.append(index)
 
         for index in index_list:
             data = self.model().data(index, self.model().DATA_ROLE)
-            plugin['plugin_data'] = data
-            self.host_connection.run(
-                plugin, self.engine_type, partial(self._remove_callback, index=index)
-            )
+            asset_info_list.append(data)
+        self.remove_assets.emit(asset_info_list)
+        #TODO: Maybe a callback event to call _remove_callback in order to
+        # remove the objects from the asset_manager or we can directy call the
+        # refresh
+            # self.host_connection.run(
+            #     plugin, self.engine_type, partial(self._remove_callback, index=index)
+            # )
 
-    def _remove_callback(self, event, index):
-        self.model().removeRow(index.row())
+    # def _remove_callback(self, event, index):
+    #     self.model().removeRow(index.row())
 
     def set_host_connection(self, host_connection):
         self.host_connection = host_connection
