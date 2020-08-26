@@ -39,7 +39,13 @@ class AssetManagerEngine(BaseEngine):
             )
         return bool_status, result
 
-    def discover_assets(self, plugin, assets, args):
+    def get_ftrack_asset_object(self, asset_info):
+        ftrack_asset_class = self.ftrack_asset_class(self.event_manager)
+        ftrack_asset_class.asset_info = asset_info
+        ftrack_asset_class.init_ftrack_object()
+        return ftrack_asset_class
+
+    def discover_assets(self, assets, options=None, plugin=None):
         status = constants.UNKNOWN_STATUS
         component_name = 'main'
         versions = self.session.query(
@@ -76,64 +82,219 @@ class AssetManagerEngine(BaseEngine):
 
         return status, result
 
-    def remove_asset(self, ftrack_asset_object):
-        return True
+    def remove_assets(self, assets, options=None, plugin=None):
+        status = None
+        result = None
+        statuses = {}
+        results = {}
 
-    def change_version(self, plugin, assets, args):
+        for asset_info in assets:
+            try:
+                status, result = self.remove_asset(asset_info, options, plugin)
+            except Exception, e:
+                status = constants.ERROR_STATUS
+                self.logger.error(
+                    "Error removing asset with version id {} \n error: {} "
+                    "\n asset_info: {}".format(
+                        asset_info[asset_const.VERSION_ID],
+                        e,
+                        asset_info
+                    )
+                )
+
+            bool_status = constants.status_bool_mapping[status]
+            statuses[asset_info[asset_const.ASSET_INFO_ID]] = bool_status
+            results[asset_info[asset_const.ASSET_INFO_ID]] = result
+
+        return statuses, results
+
+    def remove_asset(self, asset_info, options=None, plugin=None):
+        result = True
+        status = constants.SUCCESS_STATUS
+        return status, result
+        #raise NotImplementedError()
+
+    def select_assets(self, assets, options=None, plugin=None):
+        status = None
+        result = None
+        statuses = {}
+        results = {}
+
+        i=0
+        for asset_info in assets:
+            if i==0:
+                options['clear_selection'] = True
+            else:
+                options['clear_selection'] = False
+            try:
+                status, result = self.select_asset(asset_info, options, plugin)
+            except Exception, e:
+                status = constants.ERROR_STATUS
+                self.logger.error(
+                    "Error selecting asset with version id {} \n error: {} "
+                    "\n asset_info: {}".format(
+                        asset_info[asset_const.VERSION_ID],
+                        e,
+                        asset_info
+                    )
+                )
+
+            bool_status = constants.status_bool_mapping[status]
+            statuses[asset_info[asset_const.ASSET_INFO_ID]] = bool_status
+            results[asset_info[asset_const.ASSET_INFO_ID]] = result
+
+            i+=1
+
+        return statuses, results
+
+    def select_asset(self, asset_info, options=None, plugin=None):
+        # result = True
+        # status = constants.SUCCESS_STATUS
+        # return status, result
+        raise NotImplementedError()
+
+    def update_assets(self, assets, options=None, plugin=None):
+        status = None
+        result = None
+        statuses = {}
+        results = {}
+
+        for asset_info in assets:
+            try:
+                status, result = self.update_asset(asset_info, options, plugin)
+            except Exception, e:
+                status = constants.ERROR_STATUS
+                self.logger.error(
+                    "Error updating asset with version id {} \n error: {} "
+                    "\n asset_info: {}".format(
+                        asset_info[asset_const.VERSION_ID],
+                        e,
+                        asset_info
+                    )
+                )
+            bool_status = constants.status_bool_mapping[status]
+            statuses[asset_info[asset_const.ASSET_INFO_ID]] = bool_status
+            results[asset_info[asset_const.ASSET_INFO_ID]] = result
+
+        return statuses, results
+
+    def update_asset(self, asset_info, options=None, plugin=None):
         status = constants.UNKNOWN_STATUS
-        asset_info = assets[0]
-        new_version_id = args[0]
+        result = []
 
-        #for asset_info in assets:
-        ftrack_asset_class = self.ftrack_asset_class(self.event_manager)
-        ftrack_asset_class.asset_info = asset_info
-        ftrack_asset_class.init_ftrack_object()
+        if not options:
+            options={}
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['plugin_type'])
 
+            plugin['plugin_data'] = asset_info
+
+            status, result = self.run_asset_manager_plugin(
+                plugin, plugin_type
+            )
+            if not status:
+                self.logger.debug(
+                    "Error executing the plugin: {}".format(plugin)
+                )
+                return status, result
+
+            if result:
+                options['new_version_id'] = result[0]
+
+                status, result = self.change_version(asset_info, options)
+
+        return status, result
+
+    def change_version(self, asset_info, options, plugin=None):
+        status = None
+        result = {}
+
+        new_version_id = options['new_version_id']
+
+        ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
+
+        remove_result = None
+        remove_status = None
         # first run remove
-        self.remove_asset(ftrack_asset_class)
+        try:
+            remove_status, remove_result = self.remove_asset(
+                asset_info=asset_info, options=None, plugin=None
+            )
+        except Exception, e:
+            remove_status = constants.ERROR_STATUS
+            self.logger.error(
+                "Error removing asset with version id {} \n error: {} "
+                "\n asset_info: {}".format(
+                    asset_info[asset_const.VERSION_ID],
+                    e,
+                    asset_info
+                )
+            )
+        bool_status = constants.status_bool_mapping[remove_status]
+        if not bool_status:
+            return remove_status, remove_result
 
-        new_asset_info = ftrack_asset_class.change_version(new_version_id)
-
+        try:
+            new_asset_info = ftrack_asset_object.change_version(new_version_id)
+        except Exception, e:
+            status = constants.ERROR_STATUS
+            self.logger.error(
+                "Error changing version of asset with version id {} \n "
+                "error: {} \n asset_info: {}".format(
+                    asset_info[asset_const.VERSION_ID],
+                    e,
+                    asset_info
+                )
+            )
+            return status, result
 
         if not new_asset_info:
             status = constants.ERROR_STATUS
         else:
             status = constants.SUCCESS_STATUS
-        result = new_asset_info
+
+        result[asset_info[asset_const.ASSET_INFO_ID]] = new_asset_info
 
         return status, result
-
 
     def run(self, data):
         '''
         Override function run packages from the provided *data*
         '''
         method = data.get('method')
-        plugin = data.get('plugin')
-        assets = data.get('assets')
-        args = data.get('args')
+        plugin = data.get('plugin', None)
+        assets = data.get('assets', None)
+        options = data.get('options', {})
 
         result = None
 
         if hasattr(self, method):
             callback_fn = getattr(self, method)
-            status, result = callback_fn(plugin, assets, args)
-            if not status:
-                raise Exception(
-                    'An error occurred during the execution of '
-                    'the method: {}'.format(method)
-                )
+            status, result = callback_fn(assets, options, plugin)
+            if isinstance(status, dict):
+                if not all(status.values()):
+                    raise Exception(
+                        'An error occurred during the execution of '
+                        'the method: {}'.format(method)
+                    )
+            else:
+                bool_status = constants.status_bool_mapping[status]
+                if not bool_status:
+                    raise Exception(
+                        'An error occurred during the execution of '
+                        'the method: {}'.format(method)
+                    )
 
         elif plugin:
-            plugin_type = '{}.{}'.format('asset_manager', data['plugin_type'])
+            plugin_type = '{}.{}'.format('asset_manager', plugin['plugin_type'])
 
             status, result = self.run_asset_manager_plugin(
-                data, plugin_type
+                plugin, plugin_type
             )
 
             if not status:
                 raise Exception(
                     'An error occurred during the execution of the plugin: {} '
-                    '\n type: {}'.format(plugin, plugin_type)
+                    '\n type: {}'.format(plugin['plugin'], plugin_type)
                 )
         return result

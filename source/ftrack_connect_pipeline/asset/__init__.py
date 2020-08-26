@@ -61,7 +61,10 @@ class FtrackAssetBase(object):
     @asset_info.setter
     def asset_info(self, value):
         if not isinstance(value, FtrackAssetInfo):
-            raise ValueError()
+            try:
+                value = FtrackAssetInfo(value)
+            except Exception:
+                raise ValueError()
 
         self._asset_info = value
 

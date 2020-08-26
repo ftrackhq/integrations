@@ -3,6 +3,7 @@
 
 import logging
 import json
+import uuid
 import ftrack_api
 from ftrack_connect_pipeline.constants import asset as constants
 
@@ -38,13 +39,19 @@ def generate_asset_info_dict_from_args(context, data, options, session):
     arguments_dict[constants.ASSET_INFO_OPTIONS] = options.get(
         constants.ASSET_INFO_OPTIONS, ''
     )
-    # TODO: check how to add is latest on this function
-    # arguments_dict[constants.IS_LATEST_VERSION] = ftrack_version[
-    #     'is_latest_version']
+
+
+    # arguments_dict[constants.ASSET_INFO_ID] = hash(
+    #     arguments_dict[constants.VERSION_ID]
+    # )
+    arguments_dict[constants.ASSET_INFO_ID] = uuid.uuid4()
 
     asset_version = session.get(
         'AssetVersion', arguments_dict[constants.VERSION_ID]
     )
+
+    arguments_dict[constants.IS_LATEST_VERSION] = asset_version[
+        'is_latest_version']
 
 
     location = session.pick_location()
@@ -156,8 +163,6 @@ class FtrackAssetInfo(dict):
     def get(self, k, default=None):
         value = super(FtrackAssetInfo, self).get(k, default)
         if k == constants.VERSIONS:
-            # if not value:
-            #     print "in not value"
             new_value = self._get_ftrack_versions()
             # Make sure that in case is returning None, set the default value
             if new_value:
@@ -202,9 +207,13 @@ class FtrackAssetInfo(dict):
             ftrack_version['version'])
         asset_info_data[constants.VERSION_ID] = ftrack_version['id']
         asset_info_data[constants.IS_LATEST_VERSION] = ftrack_version['is_latest_version']
-        print "asset_info_data[constants.IS_LATEST_VERSION] --> {}".format(asset_info_data[constants.IS_LATEST_VERSION])
 
         location = ftrack_version.session.pick_location()
+
+        # asset_info_data[constants.ASSET_INFO_ID] = hash(
+        #     asset_info_data[constants.VERSION_ID]
+        # )
+        asset_info_data[constants.ASSET_INFO_ID] = uuid.uuid4()
 
         for component in ftrack_version['components']:
             if component['name'] == component_name:

@@ -3,6 +3,7 @@
 
 from ftrack_connect_pipeline import client
 from ftrack_connect_pipeline.asset import FtrackAssetBase
+from ftrack_connect_pipeline.asset import FtrackAssetInfo
 from ftrack_connect_pipeline.constants import asset as asset_const
 
 
@@ -75,9 +76,7 @@ class AssetManagerClient(client.Client):
 
     def run_discover_assets(self):
         self._reset_asset_list()
-        data = {'method': 'discover_assets',
-                'plugin': None,
-                'assets': None}
+        data = {'method': 'discover_assets'}
         self.host_connection.run(
             data, self.engine_type, self._asset_discovered
         )
@@ -103,8 +102,9 @@ class AssetManagerClient(client.Client):
 
         data = {'method': 'change_version',
                 'plugin': None,
-                'assets': [asset_info],
-                'args': [new_version_id]}
+                'assets': asset_info,
+                'options': {'new_version_id': new_version_id}
+                }
         self.host_connection.run(
             data, self.engine_type, self._change_version_callback
         )
@@ -120,4 +120,75 @@ class AssetManagerClient(client.Client):
         #  set the data after the change_version_callback is called.
         if not event['data']:
             return
-        ftrack_asset_info = event['data']
+        data = event['data']
+        for k, v in data.items():
+            old_info_id = k
+            index = None
+            i = 0
+            for asset_info in self.ftrack_asset_list:
+                if asset_info[asset_const.ASSET_INFO_ID] == old_info_id:
+                    index = i
+                    break
+                i += 1
+            if index != None:
+                self.ftrack_asset_list[index] = v
+
+    def select_assets(self, asset_info_list):
+        data = {'method': 'select_assets',
+                'plugin': None,
+                'assets': asset_info_list
+                }
+        self.host_connection.run(data, self.engine_type)
+
+    def remove_assets(self, asset_info_list):
+        data = {'method': 'remove_assets',
+                'plugin': None,
+                'assets': asset_info_list
+                }
+        self.host_connection.run(
+            data, self.engine_type, self._remove_assets_callback
+        )
+
+    def _remove_assets_callback(self, event):
+        if not event['data']:
+            return
+        data = event['data']
+        for k, v in data.items():
+            old_info_id = k
+            index = None
+            i = 0
+            for asset_info in self.ftrack_asset_list:
+                if asset_info[asset_const.ASSET_INFO_ID] == old_info_id:
+                    index = i
+                    break
+                i += 1
+            if index != None:
+                self.ftrack_asset_list.pop(index)
+
+    def update_assets(self, asset_info_list, plugin):
+        data = {'method': 'update_assets',
+                'plugin': plugin,
+                'assets': asset_info_list
+                }
+        self.host_connection.run(
+            data, self.engine_type, self._update_assets_callback
+        )
+
+    def _update_assets_callback(self, event):
+        self.logger.debug(
+            "Update assets callback received, event: {}".format(event)
+        )
+        if not event['data']:
+            return
+        data = event['data']
+        for k, v in data.items():
+            old_info_id = k
+            index = None
+            i=0
+            for asset_info in self.ftrack_asset_list:
+                if asset_info[asset_const.ASSET_INFO_ID] == old_info_id:
+                    index = i
+                    break
+                i+=1
+            if index != None:
+                self.ftrack_asset_list[index] = v.get(v.keys()[0])

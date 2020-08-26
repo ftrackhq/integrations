@@ -12,7 +12,15 @@ class UpdateLatestPlugin(plugin.AssetManagerMenuActionPlugin):
     plugin_name = 'update_latest'
 
     def run(self, context=None, data=None, options=None):
-        latest_version = data.ftrack_versions[-1]
+        asset_info = FtrackAssetInfo(data)
+
+        # ftrack_asset_object = self.ftrack_asset_class(self.event_manager)
+        # ftrack_asset_object.asset_info = asset_info
+        # ftrack_asset_object.init_ftrack_object()
+        #
+        # ftrack_asset_object
+
+        latest_version = asset_info['versions'][-1]
         return [latest_version['id']]
 
 
