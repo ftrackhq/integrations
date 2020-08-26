@@ -3,22 +3,24 @@
 
 import ftrack_api
 from ftrack_connect_pipeline import plugin
-from ftrack_connect_pipeline.asset import FtrackAssetBase
-from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
 
 
-
-class SelectAssetPlugin(plugin.AssetManagerMenuActionPlugin):
-    plugin_name = 'select_asset'
+class DiscoverAssetsPlugin(plugin.AssetManagerDiscoverPlugin):
+    plugin_name = 'filter_assets'
 
     def run(self, context=None, data=None, options=None):
-        ftrack_asset_class = data
-        return []
+
+        filter = {
+            'asset_name': 'torso',
+            'asset_type':'geo'
+        }
+
+        return filter
 
 
 def register(api_object, **kw):
     if not isinstance(api_object, ftrack_api.Session):
         # Exit to avoid registering this plugin again.
         return
-    plugin = SelectAssetPlugin(api_object)
+    plugin = DiscoverAssetsPlugin(api_object)
     plugin.register()

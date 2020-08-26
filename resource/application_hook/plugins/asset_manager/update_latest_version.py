@@ -3,24 +3,16 @@
 
 import ftrack_api
 from ftrack_connect_pipeline import plugin
-from ftrack_connect_pipeline.asset import FtrackAssetBase
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
 
 
-
-class UpdateLatestPlugin(plugin.AssetManagerMenuActionPlugin):
+class UpdateLatestPlugin(plugin.AssetManagerActionPlugin):
     plugin_name = 'update_latest'
 
     def run(self, context=None, data=None, options=None):
         asset_info = FtrackAssetInfo(data)
-
-        # ftrack_asset_object = self.ftrack_asset_class(self.event_manager)
-        # ftrack_asset_object.asset_info = asset_info
-        # ftrack_asset_object.init_ftrack_object()
-        #
-        # ftrack_asset_object
-
         latest_version = asset_info['versions'][-1]
+
         return [latest_version['id']]
 
 

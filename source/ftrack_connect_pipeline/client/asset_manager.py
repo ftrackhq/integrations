@@ -49,15 +49,17 @@ class AssetManagerClient(client.Client):
         self.definition = definitions[0]
         self.engine_type = self.definition['_config']['engine_type']
 
-        self.menu_action_plugins = self.definition['actions']
+        self.menu_action_plugins = self.definition.get('actions')
+        self.discover_plugins = self.definition.get('discover')
 
     def _reset_asset_list(self):
         '''Empty the _ftrack_asset_list'''
         self._ftrack_asset_list = []
 
-    def run_discover_assets(self):
+    def run_discover_assets(self, plugin=None):
         self._reset_asset_list()
-        data = {'method': 'discover_assets'}
+        data = {'method': 'discover_assets',
+                'plugin': plugin}
         self.host_connection.run(
             data, self.engine_type, self._asset_discovered_callback
         )
