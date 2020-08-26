@@ -8,7 +8,6 @@ from ftrack_connect_pipeline.client.asset_manager import AssetManagerClient
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 from ftrack_connect_pipeline_qt.ui.utility.widget import header, host_selector
 from ftrack_connect_pipeline_qt.ui.asset_manager import AssetManagerWidget
-from ftrack_connect_pipeline import constants as core_const
 
 
 class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
@@ -154,27 +153,13 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
         self.asset_manager_widget.set_context_actions(self.menu_action_plugins)
 
         self.scroll.setWidget(self.asset_manager_widget)
-        self._listen_refresh_request()
 
-    def _asset_discovered(self, event):
+    def _asset_discovered_callback(self, event):
         '''callback, adds new hosts connection from the given *event*'''
-        AssetManagerClient._asset_discovered(self, event)
+        AssetManagerClient._asset_discovered_callback(self, event)
         self.asset_manager_widget.set_asset_list(self.ftrack_asset_list)
 
-    def _listen_refresh_request(self):
-        self.event_manager.subscribe(
-            '{} and data.pipeline.host_id={}'.format(
-                core_const.PIPELINE_REFRESH_AM, self.host_connection.id
-            ),
-            self._refresh_ui
-        )
-        self.logger.info(
-            'subscribe to asset manager version changed  {} ready.'.format(
-                self.host_connection.id
-            )
-        )
-
-    def _refresh_ui(self, event):
+    def _refresh_ui(self):
         if not self.host_connection:
             return
         self.run_discover_assets()

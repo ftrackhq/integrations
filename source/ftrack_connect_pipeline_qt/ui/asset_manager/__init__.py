@@ -210,18 +210,6 @@ class AssetManagerTableView(QtWidgets.QTableView):
     def post_build(self):
         '''Perform post-construction operations.'''
         pass
-        # self.version_cb_delegate.change_version.connect(
-        #     self.on_asset_change_version
-        # )
-    #
-    # def on_asset_change_version(self, index, value):
-    #     ftrack_asset_info = self.asset_model.ftrack_asset_list[index.row()]
-    #     self.change_asset_version.emit(ftrack_asset_info, value)
-    #     # ftrack_asset_info.change_version(value, self.host_connection)
-    #
-    #     # self.asset_model.setData(
-    #     #     index, value, QtCore.Qt.EditRole
-    #     # )
 
     def set_asset_list(self, ftrack_asset_list):
         self.ftrack_asset_list = ftrack_asset_list
@@ -229,6 +217,21 @@ class AssetManagerTableView(QtWidgets.QTableView):
 
     def create_actions(self, actions):
         self.action_widgets = {}
+
+        default_actions = {
+            'select': [{
+                'ui_callback': 'ctx_select',
+                'name': 'select_asset'
+            }],
+            'remove': [{
+                'ui_callback': 'ctx_remove',
+                'name': 'remove_asset'
+            }]
+        }
+        for def_action_type, def_action in default_actions.items():
+            if def_action_type in actions.keys():
+                actions[def_action_type].extend(def_action)
+
         for action_type, actions in actions.items():
             if action_type not in self.action_widgets.keys():
                 self.action_widgets[action_type] = []
@@ -268,49 +271,18 @@ class AssetManagerTableView(QtWidgets.QTableView):
 
         self.update_assets.emit(asset_info_list, plugin)
 
-        # print "plugin ---> {}".format(plugin)
-        # index_list = self.selectionModel().selectedRows()
-        # for index in index_list:
-        #     data = self.model().data(index, self.model().DATA_ROLE)
-        #
-        #     plugin['plugin_data'] = data
-        #     self.host_connection.run(
-        #         plugin, self.engine_type, partial(self._update_callback, index=index)
-        #     )
-
-    # def _update_callback(self, event, index):
-    #     data = event['data']
-    #     if len(data) <= 0:
-    #         self.logger.warning("Id not found to update version")
-    #         return
-    #     new_id = data[0]
-    #
-    #     self.asset_model.setData(
-    #         index, new_id, QtCore.Qt.EditRole
-    #     )
-
     def ctx_select(self, plugin):
         asset_info_list = []
         index_list = self.selectionModel().selectedRows()
-        #i=0
         for index in index_list:
             data = self.model().data(index, self.model().DATA_ROLE)
             asset_info_list.append(data)
 
         self.select_assets.emit(asset_info_list)
-            # Clear the selection before select the first asset in the loop,
-            # then append the others to the selection.
-    #         if i==0:
-    #             plugin['options']['clear_selection'] = True
-    #         else:
-    #             plugin['options']['clear_selection'] = False
-    #         plugin['plugin_data'] = data
-    #         self.host_connection.run(plugin, self.engine_type)
-    #         i+=1
-    #
+
     def ctx_remove(self, plugin):
         asset_info_list = []
-        index_list=[]
+        index_list = []
 
         for model_index in self.selectionModel().selectedRows():
             index = QtCore.QPersistentModelIndex(model_index)
@@ -320,15 +292,6 @@ class AssetManagerTableView(QtWidgets.QTableView):
             data = self.model().data(index, self.model().DATA_ROLE)
             asset_info_list.append(data)
         self.remove_assets.emit(asset_info_list)
-        #TODO: Maybe a callback event to call _remove_callback in order to
-        # remove the objects from the asset_manager or we can directy call the
-        # refresh
-            # self.host_connection.run(
-            #     plugin, self.engine_type, partial(self._remove_callback, index=index)
-            # )
-
-    # def _remove_callback(self, event, index):
-    #     self.model().removeRow(index.row())
 
     def set_host_connection(self, host_connection):
         self.host_connection = host_connection
