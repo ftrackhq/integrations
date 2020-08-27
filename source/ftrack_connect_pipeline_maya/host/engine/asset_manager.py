@@ -68,7 +68,20 @@ class MayaAssetManagerEngine(AssetManagerEngine):
 
         if referenceNode:
             self.logger.debug("Removing reference: {}".format(referenceNode))
-            maya_utils.remove_reference_node(referenceNode)
+            try:
+                maya_utils.remove_reference_node(referenceNode)
+                result.append(str(referenceNode))
+                status = constants.SUCCESS_STATUS
+            except Exception as error:
+                self.logger.error(
+                    'Could not remove the reference node {}, error: {}'.format(
+                        str(referenceNode), error)
+                )
+                status = constants.ERROR_STATUS
+
+            bool_status = constants.status_bool_mapping[status]
+            if not bool_status:
+                return status, result
         else:
             nodes = cmd.listConnections(
                 '{}.{}'.format(
@@ -76,24 +89,40 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                 )
             )
             for node in nodes:
+                self.logger.debug(
+                    "Removing object: {}".format(node)
+                )
                 try:
-                    self.logger.debug(
-                        "Removing object: {}".format(node)
-                    )
                     if cmd.objExists(node):
-                        result.append(str(node))
                         cmd.delete(node)
+                        result.append(str(node))
+                        status = constants.SUCCESS_STATUS
                 except Exception as error:
                     self.logger.error(
                         'Node: {0} could not be deleted, error: {1}'.format(
                             node, error
                         )
                     )
-        if cmd.objExists(ftrack_asset_object.ftrack_object):
-            result.append(str(ftrack_asset_object.ftrack_object))
-            cmd.delete(ftrack_asset_object.ftrack_object)
+                    status = constants.ERROR_STATUS
 
-        status = constants.SUCCESS_STATUS
+                bool_status = constants.status_bool_mapping[status]
+                if not bool_status:
+                    return status, result
+
+        if cmd.objExists(ftrack_asset_object.ftrack_object):
+            try:
+                cmd.delete(ftrack_asset_object.ftrack_object)
+                result.append(str(ftrack_asset_object.ftrack_object))
+                status = constants.SUCCESS_STATUS
+            except Exception as error:
+                self.logger.error(
+                    'Could not delete the ftrack_object, error: {}'.format(error)
+                )
+                status = constants.ERROR_STATUS
+
+            bool_status = constants.status_bool_mapping[status]
+            if not bool_status:
+                return status, result
 
         return status, result
 
@@ -118,9 +147,19 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             )
         )
         for node in nodes:
-            cmd.select(node, add=True)
-            result.append(str(node))
+            try:
+                cmd.select(node, add=True)
+                result.append(str(node))
+                status = constants.SUCCESS_STATUS
+            except Exception as error:
+                self.logger.error(
+                    'Could not select the node {}, error: {}'.format(
+                        str(node), error)
+                )
+                status = constants.ERROR_STATUS
 
-        status = constants.SUCCESS_STATUS
+            bool_status = constants.status_bool_mapping[status]
+            if not bool_status:
+                return status, result
 
         return status, result

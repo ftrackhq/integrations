@@ -19,8 +19,8 @@ class MayaHost(Host):
     #Define the Maya engines to be run during the run function
     engines = {
         'asset_manager': host_engine.MayaAssetManagerEngine,
-        'loader': host_engine.LoaderEngine,
-        'publisher': host_engine.PublisherEngine,
+        'loader': host_engine.MayaLoaderEngine,
+        'publisher': host_engine.MayaPublisherEngine,
     }
 
     def __init__(self, event_manager):
