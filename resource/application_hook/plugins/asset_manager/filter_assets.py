@@ -9,7 +9,7 @@ class DiscoverAssetsPlugin(plugin.AssetManagerDiscoverPlugin):
     plugin_name = 'filter_assets'
 
     def run(self, context=None, data=None, options=None):
-
+        #TODO: this is just an example
         filter = {
             'asset_name': 'torso',
             'asset_type':'geo'

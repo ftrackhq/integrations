@@ -12,15 +12,16 @@ class AssetManagerClient(client.Client):
 
     @property
     def event_manager(self):
+        '''Returns event_manager'''
         return self._event_manager
 
     @property
     def ftrack_asset_list(self):
-        '''Return the current list of hosts'''
+        '''Return the current list of asset_info'''
         return self._ftrack_asset_list
 
     def __init__(self, event_manager):
-        '''Initialise with *event_manager*
+        '''Initialise AssetManagerClient with *event_manager*
 
         *event_manager* should be the
         :class:`ftrack_connect_pipeline.event.EventManager`instance to
@@ -30,9 +31,7 @@ class AssetManagerClient(client.Client):
         self._reset_asset_list()
 
     def change_host(self, host_connection):
-        ''' Triggered when definition_changed is called from the host_selector.
-        Generates the widgets interface from the given *host_connection*,
-        *schema* and *definition*'''
+        ''' Sets the given *host_connection* as the current host connection '''
         super(AssetManagerClient, self).change_host(host_connection)
 
         self.schemas = [
@@ -56,7 +55,10 @@ class AssetManagerClient(client.Client):
         '''Empty the _ftrack_asset_list'''
         self._ftrack_asset_list = []
 
-    def run_discover_assets(self, plugin=None):
+    def discover_assets(self, plugin=None):
+        '''
+        Discover assets on the scene
+        '''
         self._reset_asset_list()
         data = {'method': 'discover_assets',
                 'plugin': plugin}
@@ -76,11 +78,8 @@ class AssetManagerClient(client.Client):
 
     def change_version(self, asset_info, new_version_id):
         '''
-        Change the current version of the given *ftrack_asset_object* to the
-        given *asset_version_id*
-
-        Note:: this change_version is to be called using the api
-
+        Change the current version of the given *asset_info* to the
+        given *new_version_id*
         '''
 
         data = {'method': 'change_version',
@@ -93,10 +92,7 @@ class AssetManagerClient(client.Client):
         )
     def _change_version_callback(self, event):
         '''
-        Change the current version of the given *ftrack_asset_object* to the
-        given *asset_version_id*
-
-        Note:: this change_version is to be called using the api
+        Change version callback, updates the current ftrack_asset_list
         '''
         if not event['data']:
             return
@@ -114,6 +110,9 @@ class AssetManagerClient(client.Client):
                 self.ftrack_asset_list[index] = v
 
     def select_assets(self, asset_info_list):
+        '''
+        Select the assets of the given *asset_info_list*
+        '''
         data = {'method': 'select_assets',
                 'plugin': None,
                 'assets': asset_info_list
@@ -121,6 +120,9 @@ class AssetManagerClient(client.Client):
         self.host_connection.run(data, self.engine_type)
 
     def remove_assets(self, asset_info_list):
+        '''
+        Remove the assets of the given *asset_info_list*
+        '''
         data = {'method': 'remove_assets',
                 'plugin': None,
                 'assets': asset_info_list
@@ -130,6 +132,9 @@ class AssetManagerClient(client.Client):
         )
 
     def _remove_assets_callback(self, event):
+        '''
+        remove_assets callback, updates the current ftrack_asset_list
+        '''
         if not event['data']:
             return
         data = event['data']
@@ -146,6 +151,10 @@ class AssetManagerClient(client.Client):
                 self.ftrack_asset_list.pop(index)
 
     def update_assets(self, asset_info_list, plugin):
+        '''
+        Updates the assets from the given *asset_info_list* using the given
+        *plugin*
+        '''
         data = {'method': 'update_assets',
                 'plugin': plugin,
                 'assets': asset_info_list
@@ -155,6 +164,9 @@ class AssetManagerClient(client.Client):
         )
 
     def _update_assets_callback(self, event):
+        '''
+        update_assets callback. it updates the current ftrack_asset_list
+        '''
         if not event['data']:
             return
         data = event['data']

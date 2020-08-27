@@ -9,6 +9,9 @@ from ftrack_connect_pipeline.asset import FtrackAssetBase
 
 
 class AssetManagerEngine(BaseEngine):
+    '''
+    Base AssetManagerEngine class.
+    '''
     ftrack_asset_class = FtrackAssetBase
     engine_type = 'asset_manager'
 
@@ -40,12 +43,19 @@ class AssetManagerEngine(BaseEngine):
         return bool_status, result
 
     def get_ftrack_asset_object(self, asset_info):
+        '''
+        Returns the initialized ftrack_asset_class for the given *asset_info*
+        '''
         ftrack_asset_class = self.ftrack_asset_class(self.event_manager)
         ftrack_asset_class.asset_info = asset_info
         ftrack_asset_class.init_ftrack_object()
         return ftrack_asset_class
 
-    def discover_assets(self, assets, options=None, plugin=None):
+    def discover_assets(self, assets=None, options=None, plugin=None):
+        '''
+        Discover 10 assets from Ftrack with component name main.
+        Returns status and result
+        '''
         status = constants.UNKNOWN_STATUS
         component_name = 'main'
         versions = self.session.query(
@@ -75,6 +85,10 @@ class AssetManagerEngine(BaseEngine):
         return status, result
 
     def remove_assets(self, assets, options=None, plugin=None):
+        '''
+        Removes the given *assets*.
+        Returns status and result
+        '''
         status = None
         result = None
         statuses = {}
@@ -101,12 +115,20 @@ class AssetManagerEngine(BaseEngine):
         return statuses, results
 
     def remove_asset(self, asset_info, options=None, plugin=None):
+        '''
+        Removes the given *asset_info*.
+        Returns status and result
+        '''
         result = True
         status = constants.SUCCESS_STATUS
         return status, result
         #raise NotImplementedError()
 
     def select_assets(self, assets, options=None, plugin=None):
+        '''
+        Selects the given *assets*.
+        Returns status and result
+        '''
         status = None
         result = None
         statuses = {}
@@ -140,12 +162,19 @@ class AssetManagerEngine(BaseEngine):
         return statuses, results
 
     def select_asset(self, asset_info, options=None, plugin=None):
+        '''
+        Not Implemented.
+        '''
         # result = True
         # status = constants.SUCCESS_STATUS
         # return status, result
         raise NotImplementedError("Can't select on standalone mode")
 
     def update_assets(self, assets, options=None, plugin=None):
+        '''
+        Updates the given *assets* using the criteria of the given *plugin*
+        Returns status and result
+        '''
         status = None
         result = None
         statuses = {}
@@ -171,6 +200,10 @@ class AssetManagerEngine(BaseEngine):
         return statuses, results
 
     def update_asset(self, asset_info, options=None, plugin=None):
+        '''
+        Updates the given *asset_info* using the criteria of the given *plugin*
+        Returns status and result
+        '''
         status = constants.UNKNOWN_STATUS
         result = []
 
@@ -198,6 +231,11 @@ class AssetManagerEngine(BaseEngine):
         return status, result
 
     def change_version(self, asset_info, options, plugin=None):
+        '''
+        Changes the version of the given *asset_info* to the given
+        new_version_id in the *options* dictionary.
+        Returns status and result
+        '''
         status = None
         result = {}
 
@@ -251,7 +289,8 @@ class AssetManagerEngine(BaseEngine):
 
     def run(self, data):
         '''
-        Override function run packages from the provided *data*
+        Override function run methods and plugins from the provided *data*
+        Return result
         '''
         method = data.get('method')
         plugin = data.get('plugin', None)

@@ -71,7 +71,7 @@ class FtrackAssetInfo(dict):
 
     @property
     def session(self):
-        '''Returns instance of FtrackAssetInfo'''
+        '''Returns ftrack session'''
         return self._session
 
     @property
@@ -83,6 +83,8 @@ class FtrackAssetInfo(dict):
         return self._is_deprecated_version
 
     def _conform_data(self, mapping):
+        '''Creates the FtrackAssetInfo object from the given dictionary on the
+        *mapping* argument'''
         new_mapping = {}
         for k in constants.KEYS:
             v = mapping.get(k)
@@ -122,8 +124,14 @@ class FtrackAssetInfo(dict):
         return json.loads(asset_info_options.decode('base64'))
 
     def __getitem__(self, k):
-        '''In case of the given *k* is the asset_info_options it will
-        automatically return the decoded json'''
+        '''
+        Get the value from the given *k*
+
+        Note:: In case of the given *k* is the asset_info_options it will
+        automatically return the decoded json. Also if the given *k* is versions
+        it will automatically download the current asset_versions from ftrack
+        '''
+
         value = super(FtrackAssetInfo, self).__getitem__(k)
         if k == constants.ASSET_INFO_OPTIONS:
             if value:
@@ -136,8 +144,13 @@ class FtrackAssetInfo(dict):
         return value
 
     def __setitem__(self, k, v):
-        '''In case of the given *k* is the asset_info_options it will
-        automatically encode the given json value to base64'''
+        '''
+        Sets the given *v* into the given *k*
+
+        Note:: In case of the given *k* is the asset_info_options it will
+        automatically encode the given json value to base64
+        '''
+
         if k == constants.ASSET_INFO_OPTIONS:
             v = self.encode_options(v)
         if k == constants.SESSION:
@@ -147,6 +160,10 @@ class FtrackAssetInfo(dict):
         super(FtrackAssetInfo, self).__setitem__(k, v)
 
     def get(self, k, default=None):
+        '''
+        If exists, returns the value of the given *k* otherwise returns
+        *default*
+        '''
         value = super(FtrackAssetInfo, self).get(k, default)
         if k == constants.VERSIONS:
             new_value = self._get_ftrack_versions()
@@ -156,6 +173,9 @@ class FtrackAssetInfo(dict):
         return value
 
     def setdefault(self, k, default=None):
+        '''
+        Sets the *default* value for the given *k*
+        '''
         if k == constants.SESSION:
             if not isinstance(default, ftrack_api.Session):
                 raise ValueError()
@@ -163,6 +183,10 @@ class FtrackAssetInfo(dict):
         super(FtrackAssetInfo, self).setdefault(k, default)
 
     def _get_ftrack_versions(self):
+        '''
+        Return all the versions of the current asset_id
+        Raises AttributeError if session is not set.
+        '''
         if not self.session:
             raise AttributeError('asset_info.session has to be set before query '
                                  'versions')
@@ -180,8 +204,8 @@ class FtrackAssetInfo(dict):
     @classmethod
     def from_ftrack_version(cls, ftrack_version, component_name):
         '''
-        Return an FtrackAssetInfo object generated from the given *ftrack_version*
-        and the given *component_name*
+        Return an FtrackAssetInfo object generated from the given
+        *ftrack_version* and the given *component_name*
         '''
         asset_info_data = {}
         asset = ftrack_version['asset']

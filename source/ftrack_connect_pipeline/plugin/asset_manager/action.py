@@ -6,11 +6,8 @@ from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.plugin import base
 
 class AssetManagerActionPlugin(base.BaseActionPlugin):
-    ''' Class representing a Collector Plugin
-
-    .. note::
-
-        _required_output a List
+    '''
+    Class representing a Asset Manager Action Plugin
     '''
     return_type = list
     plugin_type = constants.PLUGIN_AM_ACTION_TYPE
@@ -18,7 +15,7 @@ class AssetManagerActionPlugin(base.BaseActionPlugin):
     ftrack_asset_class = FtrackAssetBase
 
     def __init__(self, session):
-        '''Initialise CollectorPlugin with *session*
+        '''Initialise AssetManagerActionPlugin with *session*
 
         *session* should be the :class:`ftrack_api.session.Session` instance
         to use for communication with the server.

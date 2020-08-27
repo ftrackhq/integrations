@@ -15,7 +15,7 @@ class FtrackAssetBase(object):
     default_component_name = 'main'
 
     def is_ftrack_object(self, object):
-        ''' Checks if the given object is '''
+        ''' Not implemented '''
         raise NotImplementedError()
 
     @property
@@ -54,11 +54,12 @@ class FtrackAssetBase(object):
 
     @property
     def asset_info(self):
-        '''Returns instance of FtrackAssetInfo'''
+        '''Returns the current instance of FtrackAssetInfo'''
         return self._asset_info
 
     @asset_info.setter
     def asset_info(self, value):
+        '''Sets the asset_info, *value* should be instance of FtrackAssetInfo'''
         if not isinstance(value, FtrackAssetInfo):
             try:
                 value = FtrackAssetInfo(value)
@@ -79,11 +80,12 @@ class FtrackAssetBase(object):
 
     @property
     def ftrack_object(self):
-        '''Returns ftrack object from the DCC app'''
+        '''Returns the ftrack object'''
         return self._ftrack_object
 
     @ftrack_object.setter
     def ftrack_object(self, value):
+        '''Sets the ftrack object'''
         self._ftrack_object = value
 
     def __init__(self, event_manager):
@@ -103,10 +105,9 @@ class FtrackAssetBase(object):
         self._event_manager = event_manager
 
         self._ftrack_object = None
-        self._ui_event_data = None
 
     def init_ftrack_object(self):
-        '''Returns the ftrack ftrack_object for this class.'''
+        '''Set and Return the ftrack_object for this class.'''
         self.ftrack_object = None
         return self.ftrack_object
 
@@ -119,7 +120,8 @@ class FtrackAssetBase(object):
 
     def change_version(self, new_version_id):
         '''
-        Callback function to change the asset version from the given *event*
+        Updates the current asset_info with the asset_info returned from the
+        given *new_version_id*.
         '''
 
         asset_version = self.session.get('AssetVersion', new_version_id)

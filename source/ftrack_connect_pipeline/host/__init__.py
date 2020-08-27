@@ -74,6 +74,9 @@ class Host(object):
         self.register()
 
     def run(self, event):
+        '''
+        Run the *event* data in to the corresponding engine.
+        '''
         data = event['data']['pipeline']['data']
         engine_type = event['data']['pipeline']['engine_type']
         package = data.get('package')
@@ -102,6 +105,9 @@ class Host(object):
         return runner_result
 
     def get_asset_type_from_packages(self, packages, data_package):
+        '''
+        Return the asset_type from the given *packages* and *data_packages*
+        '''
         for package in packages:
             if package['name'] == data_package:
                 return package['asset_type']

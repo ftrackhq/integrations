@@ -6,11 +6,8 @@ from ftrack_connect_pipeline.plugin import base
 from ftrack_connect_pipeline.asset import FtrackAssetBase
 
 class AssetManagerDiscoverPlugin(base.BaseDiscoverPlugin):
-    ''' Class representing a Collector Plugin
-
-    .. note::
-
-        _required_output a List
+    '''
+    Class representing a Asset Manager Discover Plugin
     '''
     return_type = list
     plugin_type = constants.PLUGIN_AM_DISCOVER_TYPE
@@ -18,7 +15,7 @@ class AssetManagerDiscoverPlugin(base.BaseDiscoverPlugin):
     ftrack_asset_class = FtrackAssetBase
 
     def __init__(self, session):
-        '''Initialise CollectorPlugin with *session*
+        '''Initialise AssetManagerDiscoverPlugin with *session*
 
         *session* should be the :class:`ftrack_api.session.Session` instance
         to use for communication with the server.
