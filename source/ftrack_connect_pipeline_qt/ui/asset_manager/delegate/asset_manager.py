@@ -11,8 +11,9 @@ class VersionDelegate(QtWidgets.QItemDelegate):
         super(VersionDelegate, self).__init__(parent=parent)
 
     def createEditor(self, parent, option, index):
+        '''Creates the ComboBox'''
 
-        #Have to initialize the ftrack info again as when quering from the
+        # Initialize the ftrack info again as when quering from the
         # model even if the DATA_ROLE has the FtrackAssetInfo dictionary,
         # it returns a generic diccionary.
         item = asset_info.FtrackAssetInfo(index.model().data(index, index.model().DATA_ROLE))
@@ -32,17 +33,18 @@ class VersionDelegate(QtWidgets.QItemDelegate):
         return combo
 
     def setEditorData(self, editor, index):
+        '''Sets the given *data* into the given *editor*'''
         editor_data = str(index.model().data(index, QtCore.Qt.EditRole))
         idx = editor.findText(editor_data)
         editor.setCurrentIndex(idx)
 
     def setModelData(self, editor, model, index):
+        '''
+        Emits the signal change_version when a new version is been selected
+        '''
         if not index.isValid():
             return False
         self.change_version.emit(index, editor.itemData(editor.currentIndex()))
-        #TODO: if the model doesn't get updated, we should  call the model.set
-        # data after changing the version, so the client can tell the widget to
-        # set the data after the change_version_callback is called.
         # model.setData(
         #     index, editor.itemData(editor.currentIndex()), QtCore.Qt.EditRole
         # )
