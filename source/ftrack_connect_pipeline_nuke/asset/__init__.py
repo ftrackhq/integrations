@@ -23,7 +23,7 @@ class FtrackAssetTab(FtrackAssetBase):
 
     def __init__(self, event_manager):
         '''
-        Initialize FtrackAssetBase with *event_manager*.
+        Initialize FtrackAssetTab with *event_manager*.
 
         *event_manager* instance of
         :class:`ftrack_connect_pipeline.event.EventManager`
@@ -50,7 +50,7 @@ class FtrackAssetTab(FtrackAssetBase):
         return self.ftrack_object
 
     @staticmethod
-    def get_parameters_dictionary(self, scene_node):
+    def get_parameters_dictionary(scene_node):
         '''
         Returns a diccionary with the keys and values of the given *scene_node*
         parameters
@@ -227,9 +227,9 @@ class FtrackAssetTab(FtrackAssetBase):
         if not self.ftrack_object:
             ftrack_object = nuke.nodes.BackdropNode()
             ftrack_object.knob('tile_color').setValue(2386071295)
-            ftrack_object = ftrack_object.knob('name').value()
-        else:
-            ftrack_object = nuke.toNode(self.ftrack_object)
+            self.ftrack_object = ftrack_object.knob('name').value()
+
+        ftrack_object = nuke.toNode(self.ftrack_object)
 
         if (
                 self.asset_info[asset_const.LOAD_MODE] == load_const.IMPORT_MODE

@@ -9,10 +9,7 @@ from ftrack_connect_pipeline_nuke.asset import FtrackAssetTab
 class AssetManagerActionNukePlugin(
     plugin.AssetManagerActionPlugin, BaseNukePlugin
 ):
-    ''' Class representing a Collector Plugin
-
-    .. note::
-
-        _required_output a List
+    '''
+    Class representing a Asset Manager Action Nuke Plugin
     '''
     ftrack_asset_class = FtrackAssetTab
