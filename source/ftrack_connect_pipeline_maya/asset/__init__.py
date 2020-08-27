@@ -19,7 +19,7 @@ class FtrackAssetNode(FtrackAssetBase):
 
     def __init__(self, event_manager):
         '''
-        Initialize FtrackAssetBase with *event_manager*.
+        Initialize FtrackAssetNode with *event_manager*.
 
         *event_manager* instance of
         :class:`ftrack_connect_pipeline.event.EventManager`
@@ -29,7 +29,7 @@ class FtrackAssetNode(FtrackAssetBase):
     def init_ftrack_object(self):
         '''
         Return the ftrack ftrack_object for this class. It checks if there is
-        already a matching ftrack ftrack_object in the scene, in this case it
+        already a matching ftrack_object in the scene, in this case it
         updates the ftrack_object if it's not. In case there is no ftrack_object
         in the scene this function creates a new one.
         '''
@@ -120,8 +120,6 @@ class FtrackAssetNode(FtrackAssetBase):
     def connect_objects(self, objects):
         '''
         Parent the given *objects* under current ftrack_object
-
-        *objects* is List type of INode
         '''
         for obj in objects:
             if cmd.lockNode(obj, q=True)[0]:
@@ -137,7 +135,7 @@ class FtrackAssetNode(FtrackAssetBase):
                 )
 
     def get_load_mode_from_ftrack_object(self, obj):
-        '''Return the import mode used to import an asset.'''
+        '''Return the load mode used to import the given *obj*.'''
         load_mode = cmd.getAttr('{}.{}'.format(
             obj, asset_const.LOAD_MODE)
         )

@@ -22,7 +22,11 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             event_manager, host, hostid, asset_type=asset_type
         )
 
-    def discover_assets(self, assets, options=None, plugin=None):
+    def discover_assets(self, assets=None, options=None, plugin=None):
+        '''
+        Discover all the assets in the scene:
+        Returns status and result
+        '''
         status = constants.UNKNOWN_STATUS
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
         ftrack_asset_info_list = []
@@ -43,6 +47,10 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         return status, result
 
     def remove_asset(self, asset_info, options=None, plugin=None):
+        '''
+        Removes the given *asset_info* from the scene.
+        Returns status and result
+        '''
         status = constants.UNKNOWN_STATUS
         result = []
         ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
@@ -90,6 +98,12 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         return status, result
 
     def select_asset(self, asset_info, options=None, plugin=None):
+        '''
+        Selects the given *asset_info* from the scene.
+        *options* can contain clear_selection to clear the selection before
+        select the given *asset_info*.
+        Returns status and result
+        '''
         status = constants.UNKNOWN_STATUS
         result = []
 

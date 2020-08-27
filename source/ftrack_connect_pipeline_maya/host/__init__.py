@@ -12,7 +12,11 @@ logger = logging.getLogger(
 )
 
 class MayaHost(Host):
+    '''
+    MayaHost class.
+    '''
     host = [qt_constants.HOST, maya_constants.HOST]
+    #Define the Maya engines to be run during the run function
     engines = {
         'asset_manager': host_engine.MayaAssetManagerEngine,
         'loader': host_engine.LoaderEngine,
@@ -20,6 +24,12 @@ class MayaHost(Host):
     }
 
     def __init__(self, event_manager):
+        '''
+        Initialize MayaHost with *event_manager*.
+
+        *event_manager* instance of
+        :class:`ftrack_connect_pipeline.event.EventManager`
+        '''
         super(MayaHost, self).__init__(event_manager)
 
     def run(self, event):

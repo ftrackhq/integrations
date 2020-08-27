@@ -9,10 +9,7 @@ from ftrack_connect_pipeline_maya.asset import FtrackAssetNode
 class AssetManagerActionMayaPlugin(
     plugin.AssetManagerActionPlugin, BaseMayaPlugin
 ):
-    ''' Class representing a Collector Plugin
-
-    .. note::
-
-        _required_output a List
+    '''
+    Class representing a Asset Manager Action Maya Plugin
     '''
     ftrack_asset_class = FtrackAssetNode
