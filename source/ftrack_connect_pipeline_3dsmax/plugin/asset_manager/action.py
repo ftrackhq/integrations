@@ -9,10 +9,7 @@ from ftrack_connect_pipeline_3dsmax.asset import FtrackAssetNode
 class AssetManagerActionMaxPlugin(
     plugin.AssetManagerActionPlugin, BaseMaxPlugin
 ):
-    ''' Class representing a Collector Plugin
-
-    .. note::
-
-        _required_output a List
+    '''
+    Class representing a Asset Manager Action Max Plugin
     '''
     ftrack_asset_class = FtrackAssetNode

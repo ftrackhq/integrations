@@ -7,13 +7,28 @@ import ftrack_api
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_3dsmax import constants as max_constants
 from ftrack_connect_pipeline.host import Host
-from ftrack_connect_pipeline_3dsmax.host.engine.asset_manager import MaxAssetManagerEngine
+from ftrack_connect_pipeline_3dsmax.host import engine as host_engine
 
 logger = logging.getLogger(__name__)
 
 
 class MaxHost(Host):
     host = [qt_constants.HOST, max_constants.HOST]
+    # Define the Maya engines to be run during the run function
+    engines = {
+        'asset_manager': host_engine.MaxAssetManagerEngine,
+        'loader': host_engine.MaxLoaderEngine,
+        'publisher': host_engine.MaxPublisherEngine,
+    }
+
+    def __init__(self, event_manager):
+        '''
+        Initialize MayaHost with *event_manager*.
+
+        *event_manager* instance of
+        :class:`ftrack_connect_pipeline.event.EventManager`
+        '''
+        super(MaxHost, self).__init__(event_manager)
 
     def run(self, event):
         runnerResult = super(MaxHost, self).run(event)
