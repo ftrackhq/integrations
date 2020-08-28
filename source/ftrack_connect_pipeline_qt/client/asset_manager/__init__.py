@@ -177,7 +177,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
         AssetManagerClient._asset_discovered_callback(self, event)
         self.asset_manager_widget.set_asset_list(self.ftrack_asset_list)
 
-    def _refresh_ui(self):
+    def _refresh_ui(self, event):
         '''
         Refreshes the ui running the discover_assets()
         '''
