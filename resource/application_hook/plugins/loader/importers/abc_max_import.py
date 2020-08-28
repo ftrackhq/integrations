@@ -13,13 +13,13 @@ class ImportAbcMaxPlugin(plugin.LoaderImporterMaxPlugin):
     def run(self, context=None, data=None, options=None):
         results = {}
         paths_to_import = data
-        for component_path in paths_to_import:
-            result = None
-            try:
-                result = abc_utils.import_abc(component_path, options)
-            except RuntimeError, e:
-                self.logger.error(str(e))
-            results[component_path] = result
+        # for component_path in paths_to_import:
+        #     result = None
+        #     try:
+        #         result = abc_utils.import_abc(component_path, options)
+        #     except RuntimeError, e:
+        #         self.logger.error(str(e))
+        #     results[component_path] = result
 
         return results
 

@@ -165,7 +165,7 @@ def delete_all_children(node):
         nodes_to_delete.Append(node)
 
     node.DeleteNodes(nodes_to_delete)
-    return nodes_to_delete
+    return all_children
 
 
 def add_all_children_to_selection(parent_node):

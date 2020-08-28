@@ -3,6 +3,6 @@
 
 from ftrack_connect_pipeline_3dsmax.plugin.publish.collector import *
 from ftrack_connect_pipeline_3dsmax.plugin.publish.context import *
-from ftrack_connect_pipeline_3dsmax.plugin.publish.finaliser import *
+from ftrack_connect_pipeline_3dsmax.plugin.publish.finalizer import *
 from ftrack_connect_pipeline_3dsmax.plugin.publish.output import *
 from ftrack_connect_pipeline_3dsmax.plugin.publish.validator import *

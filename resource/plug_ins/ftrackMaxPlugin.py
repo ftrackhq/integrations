@@ -29,7 +29,7 @@ def register_ftrack_asset_helper():
                 {load_mode} type:#string default:""
                 {asset_info_options} type:#string default:""
                 {reference_object} type:#string default:""
-                {is_latest_version} type:#bool default:False
+                {is_latest_version} type:#boolean default:False
                 {versions} type:#string default:""
                 {session} type:#string default:""
                 {asset_info_id} type:#string default:""

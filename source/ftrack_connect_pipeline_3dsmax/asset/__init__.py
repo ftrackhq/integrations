@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 import MaxPlus
-
+import json
 from ftrack_connect_pipeline.asset import FtrackAssetInfo, FtrackAssetBase
 from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
 from ftrack_connect_pipeline_3dsmax.constants.asset import modes as load_const
@@ -192,7 +192,7 @@ class FtrackAssetNode(FtrackAssetBase):
         '''Update the parameters of the ftrack_object. And Return the
         ftrack_object updated
         '''
-
+        print "updating ftrack object"
         try:
             cmd = 'unfreeze ${0}'.format(ftrack_object.Name)
             max_utils.eval_max_script(cmd)
@@ -202,11 +202,26 @@ class FtrackAssetNode(FtrackAssetBase):
 
         obj = ftrack_object.Object
 
+        print "self.asset_info ---> {}".format(self.asset_info)
+
         for p in obj.ParameterBlock.Parameters:
+            print "on the update p.Name: {} , p.Value: {}".format(p.Name, p.Value)
             if p.Name == asset_const.REFERENCE_OBJECT:
                 p.SetValue(str(ftrack_object))
+            elif p.Name == asset_const.VERSIONS:
+                continue
+            elif p.Name == asset_const.IS_LATEST_VERSION:
+                p.SetValue(bool(self.asset_info[p.Name]))
+            elif p.Name == asset_const.SESSION:
+                p.SetValue(str(self.asset_info[p.Name]))
+            elif p.Name == asset_const.ASSET_INFO_OPTIONS:
+                decoded_value = self.asset_info[p.Name]
+                p.SetValue(str(
+                    json.dumps(decoded_value).encode('base64')))
             else:
                 p.SetValue(self.asset_info[p.Name])
+            print "after on the update p.Name: {} , p.Value: {}".format(p.Name,
+                                                                  p.Value)
 
         try:
             cmd = 'freeze ${0}'.format(ftrack_object.Name)
