@@ -18,14 +18,7 @@ class VersionDelegate(QtWidgets.QItemDelegate):
         # it returns a generic diccionary.
         item = asset_info.FtrackAssetInfo(index.model().data(index, index.model().DATA_ROLE))
 
-        #TODO: we have two options: I have added the versions key on the
-        # asset_info that if a session is provided it returns you the versions.
-        # The other option is call the client to get the ftrack_asset_versions
-        # and this publish an event to the host which will run the engine
-        # function to query the versions
-
         versions_collection = item['versions']
-
         combo = QtWidgets.QComboBox(parent)
         for asset_version in versions_collection:
             combo.addItem(str(asset_version['version']), asset_version['id'])
