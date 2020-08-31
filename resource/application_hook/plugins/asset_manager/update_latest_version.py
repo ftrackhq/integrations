@@ -4,6 +4,7 @@
 import ftrack_api
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
+from ftrack_connect_pipeline.constants import asset as constants
 
 
 class UpdateLatestPlugin(plugin.AssetManagerActionPlugin):
@@ -11,7 +12,18 @@ class UpdateLatestPlugin(plugin.AssetManagerActionPlugin):
 
     def run(self, context=None, data=None, options=None):
         asset_info = FtrackAssetInfo(data)
-        latest_version = asset_info['versions'][-1]
+
+        query = (
+            'select is_latest_version, id, asset, components, components.name, '
+            'components.id, version, asset , asset.name, asset.type.name from '
+            'AssetVersion where asset.id is "{}" and components.name is "{}"'
+            'order by version ascending'
+        ).format(
+            asset_info[constants.ASSET_ID], asset_info[constants.COMPONENT_NAME]
+        )
+        versions = self.session.query(query).all()
+
+        latest_version = versions[-1]
 
         return [latest_version['id']]
 
