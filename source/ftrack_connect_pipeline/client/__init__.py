@@ -7,6 +7,7 @@ import copy
 import ftrack_api
 from ftrack_connect_pipeline import utils
 from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline.log.log_item import LogItem
 
 
 class HostConnection(object):
@@ -110,8 +111,9 @@ class HostConnection(object):
         widget_ref = event['data']['pipeline']['widget_ref']
         message = event['data']['pipeline']['message']
 
+        self.__logs.append(LogItem(event['data']['pipeline']))
+
         if constants.status_bool_mapping[status]:
-            self.__logs.append(event['data']['pipeline'])
 
             self.logger.debug(
                 'plugin_name: {} \n status: {} \n result: {} \n '
@@ -198,6 +200,7 @@ class Client(object):
         self._host_list = []
         self._connected = False
         self._current_host_connection = None
+        self.host_connection = None
 
         self.__callback = None
         self.logger = logging.getLogger(

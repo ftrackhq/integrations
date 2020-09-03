@@ -1,6 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
+import time
+
+import ftrack_api
+
 from ftrack_connect_pipeline.host.engine import BaseEngine
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.constants import asset as asset_const
@@ -56,6 +60,8 @@ class AssetManagerEngine(BaseEngine):
         Discover 10 assets from Ftrack with component name main.
         Returns status and result
         '''
+        start_time = time.time()
+
         status = constants.UNKNOWN_STATUS
         component_name = 'main'
         versions = self.session.query(
@@ -81,6 +87,20 @@ class AssetManagerEngine(BaseEngine):
         else:
             status = constants.SUCCESS_STATUS
         result = ftrack_asset_info_list
+
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        result_data = {
+            'plugin_name': 'discover_assets',
+            'plugin_type': 'action',
+            'status': status,
+            'result': result,
+            'execution_time': total_time,
+            'message': None
+        }
+
+        self._notify_client(plugin, result_data)
 
         return status, result
 
@@ -119,8 +139,21 @@ class AssetManagerEngine(BaseEngine):
         Removes the given *asset_info*.
         Returns status and result
         '''
+
         result = True
         status = constants.SUCCESS_STATUS
+
+        result_data = {
+            'plugin_name': 'remove_asset',
+            'plugin_type': 'action',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': None
+        }
+
+        self._notify_client(plugin, result_data)
+
         return status, result
         #raise NotImplementedError()
 
@@ -204,8 +237,19 @@ class AssetManagerEngine(BaseEngine):
         Updates the given *asset_info* using the criteria of the given *plugin*
         Returns status and result
         '''
+        start_time = time.time()
         status = constants.UNKNOWN_STATUS
         result = []
+        message = None
+
+        result_data = {
+            'plugin_name': 'update_asset',
+            'plugin_type': 'action',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': message
+        }
 
         if not options:
             options={}
@@ -218,15 +262,34 @@ class AssetManagerEngine(BaseEngine):
                 plugin, plugin_type
             )
             if not status:
-                self.logger.debug(
-                    "Error executing the plugin: {}".format(plugin)
-                )
+                message = "Error executing the plugin: {}".format(plugin)
+                self.logger.error(message)
+
+                end_time = time.time()
+                total_time = end_time - start_time
+
+                result_data['status'] = status
+                result_data['result'] = result
+                result_data['execution_time'] = total_time
+                result_data['message'] = message
+
+                self._notify_client(plugin, result_data)
+
                 return status, result
 
             if result:
                 options['new_version_id'] = result[0]
 
                 status, result = self.change_version(asset_info, options)
+
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        result_data['status'] = status
+        result_data['result'] = result
+        result_data['execution_time'] = total_time
+
+        self._notify_client(plugin, result_data)
 
         return status, result
 
@@ -236,8 +299,19 @@ class AssetManagerEngine(BaseEngine):
         new_version_id in the *options* dictionary.
         Returns status and result
         '''
-        status = None
+        start_time = time.time()
+        status = constants.UNKNOWN_STATUS
         result = {}
+        message = None
+
+        result_data = {
+            'plugin_name': 'change_version',
+            'plugin_type': 'action',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': message
+        }
 
         new_version_id = options['new_version_id']
 
@@ -252,7 +326,7 @@ class AssetManagerEngine(BaseEngine):
             )
         except Exception, e:
             remove_status = constants.ERROR_STATUS
-            self.logger.error(
+            message = str(
                 "Error removing asset with version id {} \n error: {} "
                 "\n asset_info: {}".format(
                     asset_info[asset_const.VERSION_ID],
@@ -260,15 +334,27 @@ class AssetManagerEngine(BaseEngine):
                     asset_info
                 )
             )
+            self.logger.error(message)
+
         bool_status = constants.status_bool_mapping[remove_status]
         if not bool_status:
+            end_time = time.time()
+            total_time = end_time - start_time
+
+            result_data['status'] = status
+            result_data['result'] = result
+            result_data['execution_time'] = total_time
+            result_data['message'] = message
+
+            self._notify_client(plugin, result_data)
+
             return remove_status, remove_result
 
         try:
             new_asset_info = ftrack_asset_object.change_version(new_version_id)
         except Exception, e:
             status = constants.ERROR_STATUS
-            self.logger.error(
+            message = str(
                 "Error changing version of asset with version id {} \n "
                 "error: {} \n asset_info: {}".format(
                     asset_info[asset_const.VERSION_ID],
@@ -276,6 +362,17 @@ class AssetManagerEngine(BaseEngine):
                     asset_info
                 )
             )
+            self.logger.error(message)
+
+            end_time = time.time()
+            total_time = end_time - start_time
+
+            result_data['status'] = status
+            result_data['result'] = result
+            result_data['execution_time'] = total_time
+            result_data['message'] = message
+
+            self._notify_client(plugin, result_data)
             return status, result
 
         if not new_asset_info:
@@ -284,6 +381,15 @@ class AssetManagerEngine(BaseEngine):
             status = constants.SUCCESS_STATUS
 
         result[asset_info[asset_const.ASSET_INFO_ID]] = new_asset_info
+
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        result_data['status'] = status
+        result_data['result'] = result
+        result_data['execution_time'] = total_time
+
+        self._notify_client(plugin, result_data)
 
         return status, result
 
@@ -328,4 +434,5 @@ class AssetManagerEngine(BaseEngine):
                     'An error occurred during the execution of the plugin: {} '
                     '\n type: {}'.format(plugin['plugin'], plugin_type)
                 )
+
         return result
