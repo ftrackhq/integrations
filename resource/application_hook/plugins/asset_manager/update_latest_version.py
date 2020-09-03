@@ -17,13 +17,11 @@ class UpdateLatestPlugin(plugin.AssetManagerActionPlugin):
             'select is_latest_version, id, asset, components, components.name, '
             'components.id, version, asset , asset.name, asset.type.name from '
             'AssetVersion where asset.id is "{}" and components.name is "{}"'
-            'order by version ascending'
+            'and is_latest_version is "True"'
         ).format(
             asset_info[constants.ASSET_ID], asset_info[constants.COMPONENT_NAME]
         )
-        versions = self.session.query(query).all()
-
-        latest_version = versions[-1]
+        latest_version = self.session.query(query).one()
 
         return [latest_version['id']]
 
