@@ -231,7 +231,6 @@ class AssetManagerTableView(QtWidgets.QTableView):
         '''Build widgets and parent them.'''
         self.asset_model = AssetManagerModel(parent=self)
         self.proxy_model = FilterProxyModel(parent=self)
-        self.proxy_model = FilterProxyModel(parent=self)
         self.proxy_model.setSourceModel(self.asset_model)
 
         self.setModel(self.proxy_model)
