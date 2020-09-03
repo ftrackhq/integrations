@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
+import time
 import maya.cmds as cmd
 
 from ftrack_connect_pipeline import constants
@@ -27,7 +28,20 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         Discover all the assets in the scene:
         Returns status and result
         '''
+        start_time = time.time()
         status = constants.UNKNOWN_STATUS
+        result = []
+        message = None
+
+        result_data = {
+            'plugin_name': 'discover_assets',
+            'plugin_type': 'action',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': message
+        }
+
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
         ftrack_asset_info_list = []
 
@@ -44,6 +58,15 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             status = constants.SUCCESS_STATUS
         result = ftrack_asset_info_list
 
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        result_data['status'] = status
+        result_data['result'] = result
+        result_data['execution_time'] = total_time
+
+        self._notify_client(plugin, result_data)
+
         return status, result
 
     def remove_asset(self, asset_info, options=None, plugin=None):
@@ -51,8 +74,20 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         Removes the given *asset_info* from the scene.
         Returns status and result
         '''
+        start_time = time.time()
         status = constants.UNKNOWN_STATUS
         result = []
+        message = None
+
+        result_data = {
+            'plugin_name': 'remove_asset',
+            'plugin_type': 'action',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': message
+        }
+
         ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
 
         referenceNode = False
@@ -73,14 +108,24 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                 result.append(str(referenceNode))
                 status = constants.SUCCESS_STATUS
             except Exception as error:
-                self.logger.error(
+                message = str(
                     'Could not remove the reference node {}, error: {}'.format(
                         str(referenceNode), error)
                 )
+                self.logger.error(message)
                 status = constants.ERROR_STATUS
 
             bool_status = constants.status_bool_mapping[status]
             if not bool_status:
+                end_time = time.time()
+                total_time = end_time - start_time
+
+                result_data['status'] = status
+                result_data['result'] = result
+                result_data['execution_time'] = total_time
+                result_data['message'] = message
+
+                self._notify_client(plugin, result_data)
                 return status, result
         else:
             nodes = cmd.listConnections(
@@ -98,15 +143,25 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                         result.append(str(node))
                         status = constants.SUCCESS_STATUS
                 except Exception as error:
-                    self.logger.error(
+                    message = str(
                         'Node: {0} could not be deleted, error: {1}'.format(
                             node, error
                         )
                     )
+                    self.logger.error(message)
                     status = constants.ERROR_STATUS
 
                 bool_status = constants.status_bool_mapping[status]
                 if not bool_status:
+                    end_time = time.time()
+                    total_time = end_time - start_time
+
+                    result_data['status'] = status
+                    result_data['result'] = result
+                    result_data['execution_time'] = total_time
+                    result_data['message'] = message
+
+                    self._notify_client(plugin, result_data)
                     return status, result
 
         if cmd.objExists(ftrack_asset_object.ftrack_object):
@@ -115,14 +170,34 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                 result.append(str(ftrack_asset_object.ftrack_object))
                 status = constants.SUCCESS_STATUS
             except Exception as error:
-                self.logger.error(
+                message = str(
                     'Could not delete the ftrack_object, error: {}'.format(error)
                 )
+                self.logger.error(message)
                 status = constants.ERROR_STATUS
 
             bool_status = constants.status_bool_mapping[status]
             if not bool_status:
+                end_time = time.time()
+                total_time = end_time - start_time
+
+                result_data['status'] = status
+                result_data['result'] = result
+                result_data['execution_time'] = total_time
+                result_data['message'] = message
+
+                self._notify_client(plugin, result_data)
+
                 return status, result
+
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        result_data['status'] = status
+        result_data['result'] = result
+        result_data['execution_time'] = total_time
+
+        self._notify_client(plugin, result_data)
 
         return status, result
 
@@ -133,8 +208,19 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         select the given *asset_info*.
         Returns status and result
         '''
+        start_time = time.time()
         status = constants.UNKNOWN_STATUS
         result = []
+        message = None
+
+        result_data = {
+            'plugin_name': 'select_asset',
+            'plugin_type': 'action',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': message
+        }
 
         ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
 
@@ -161,5 +247,14 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             bool_status = constants.status_bool_mapping[status]
             if not bool_status:
                 return status, result
+
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        result_data['status'] = status
+        result_data['result'] = result
+        result_data['execution_time'] = total_time
+
+        self._notify_client(plugin, result_data)
 
         return status, result
