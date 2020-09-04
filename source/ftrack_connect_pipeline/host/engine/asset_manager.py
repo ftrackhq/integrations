@@ -198,10 +198,22 @@ class AssetManagerEngine(BaseEngine):
         '''
         Not Implemented.
         '''
-        # result = True
-        # status = constants.SUCCESS_STATUS
-        # return status, result
-        raise NotImplementedError("Can't select on standalone mode")
+        result = False
+        message = "Can't select on standalone mode"
+        status = constants.ERROR_STATUS
+
+        result_data = {
+            'plugin_name': 'select',
+            'plugin_type': 'action',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': message
+        }
+
+        self._notify_client(plugin, result_data)
+
+        raise NotImplementedError(message)
 
     def update_assets(self, assets, options=None, plugin=None):
         '''
