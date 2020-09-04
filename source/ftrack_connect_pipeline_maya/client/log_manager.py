@@ -17,7 +17,7 @@ class MayaLogManagerClient(MayaQWidgetDockableMixin, QtLogManagerClient):
         super(MayaLogManagerClient, self).__init__(
             event_manager=event_manager, parent=parent
         )
-        self.setWindowTitle('Maya Pipeline Asset Manager')
+        self.setWindowTitle('Maya Pipeline Log Manager')
 
     def show(self):
         super(MayaLogManagerClient, self).show(

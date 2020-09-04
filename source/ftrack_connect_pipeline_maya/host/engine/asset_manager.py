@@ -238,14 +238,24 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                 result.append(str(node))
                 status = constants.SUCCESS_STATUS
             except Exception as error:
-                self.logger.error(
+                message = str(
                     'Could not select the node {}, error: {}'.format(
                         str(node), error)
                 )
+                self.logger.error(message)
                 status = constants.ERROR_STATUS
 
             bool_status = constants.status_bool_mapping[status]
             if not bool_status:
+                end_time = time.time()
+                total_time = end_time - start_time
+
+                result_data['status'] = status
+                result_data['result'] = result
+                result_data['execution_time'] = total_time
+                result_data['message'] = message
+
+                self._notify_client(plugin, result_data)
                 return status, result
 
         end_time = time.time()
