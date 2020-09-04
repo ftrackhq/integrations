@@ -15,9 +15,14 @@ def build_menu_widgets(ftrack_menu, event_manager):
         from ftrack_connect_pipeline_nuke.client.asset_manager import NukeAssetManagerClient
         return NukeAssetManagerClient(event_manager)
 
+    def wrap_log_manager(*args, **kwargs):
+        from ftrack_connect_pipeline_nuke.client.log_manager import NukeLogManagerClient
+        return NukeLogManagerClient(event_manager)
+
     globals()['ftrackPublishClass'] = wrap_publisher
     globals()['ftrackLoadClass'] = wrap_loader
     globals()['ftrackAssetManagerClass'] = wrap_asset_manager
+    globals()['ftrackLogManagerClass'] = wrap_log_manager
 
     panels.registerWidgetAsPanel(
         '{0}.{1}'.format(__name__, 'ftrackPublishClass'),
@@ -35,6 +40,12 @@ def build_menu_widgets(ftrack_menu, event_manager):
         '{0}.{1}'.format(__name__, 'ftrackAssetManagerClass'),
         'Ftrack Pipeline Asset Manager',
         'QtPipelineNukeAssetManagerWidget'
+    )
+
+    panels.registerWidgetAsPanel(
+        '{0}.{1}'.format(__name__, 'ftrackLogManagerClass'),
+        'Ftrack Pipeline Log Manager',
+        'QtPipelineNukeLogManagerWidget'
     )
 
     ftrack_menu.addCommand(
@@ -55,6 +66,13 @@ def build_menu_widgets(ftrack_menu, event_manager):
         'Ftrack Asset Manager',
         'pane = nuke.getPaneFor("Properties.1");'
         'panel = nukescripts.restorePanel("QtPipelineNukeAssetManagerWidget");'
+        'panel.addToPane(pane)'
+    )
+
+    ftrack_menu.addCommand(
+        'Ftrack Log Manager',
+        'pane = nuke.getPaneFor("Properties.1");'
+        'panel = nukescripts.restorePanel("QtPipelineNukeLogManagerWidget");'
         'panel.addToPane(pane)'
     )
 
