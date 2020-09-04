@@ -92,13 +92,15 @@ class QtLogManagerClient(LogManagerClient, QtWidgets.QWidget):
             self._on_logging_button_clicked
         )
 
+    def _add_log_item(self, log_item):
+        LogManagerClient._add_log_item(self, log_item)
+        self.log_manager_widget.set_log_items(self.logs)
+
     def change_host(self, host_connection):
         '''
         Triggered host is selected in the host_selector.
         '''
         LogManagerClient.change_host(self, host_connection)
-
-        self.log_manager_widget.set_log_items(self.log_list)
 
         self.scroll.setWidget(self.log_manager_widget)
 
@@ -145,4 +147,4 @@ class QtLogManagerClient(LogManagerClient, QtWidgets.QWidget):
         '''
         if not self.host_connection:
             return
-        self.log_manager_widget.set_log_items(self.log_list)
+        self.log_manager_widget.set_log_items(self.logs)
