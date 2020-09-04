@@ -90,9 +90,9 @@ class FtrackAssetInfo(dict):
             if v == unicode(None):
                 v = None
             new_mapping.setdefault(k, v)
-            if k == constants.SESSION:
-                if v:
-                    self._session = v
+            if k == constants.SESSION and isinstance(v, ftrack_api.Session):
+                self._session = v
+
         return new_mapping
 
     def __init__(self, mapping=None, **kwargs):
