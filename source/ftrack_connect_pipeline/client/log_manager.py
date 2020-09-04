@@ -15,12 +15,6 @@ class LogManagerClient(client.Client):
         '''Returns event_manager'''
         return self._event_manager
 
-    @property
-    def log_list(self):
-        '''Return the current list of asset_info'''
-        if self.host_connection:
-            return self.host_connection.logs
-
     def __init__(self, event_manager):
         '''Initialise AssetManagerClient with *event_manager*
 
@@ -29,9 +23,3 @@ class LogManagerClient(client.Client):
         communicate to the event server.
         '''
         super(LogManagerClient, self).__init__(event_manager)
-    #     self._reset_log_list()
-    #
-    # def _reset_log_list(self):
-    #     '''Empty the _ftrack_asset_list'''
-    #     self._log_list = []
-
