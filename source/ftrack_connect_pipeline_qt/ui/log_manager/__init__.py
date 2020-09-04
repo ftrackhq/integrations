@@ -55,6 +55,7 @@ class LogManagerWidget(QtWidgets.QWidget):
 
     def post_build(self):
         self.filter_field.textChanged.connect(self.on_search)
+        self.log_table_view.doubleClicked.connect(self.show_detail_widget)
 
     def on_search(self):
         '''Search in the current model.'''
@@ -66,6 +67,18 @@ class LogManagerWidget(QtWidgets.QWidget):
         Sets the ftrack_asset_list with the given *ftrack_asset_list*
         '''
         self.log_table_view.set_log_items(log_items)
+
+    def show_detail_widget(self, index):
+        self.dockWidget = LogManagerDetailWidget(self.event_manager, self)
+
+        data = self.log_table_view.model().data(
+            index, self.log_table_view.model().DATA_ROLE
+        )
+
+        self.dockWidget.set_data(data)
+        self.dockWidget.setFloating(True)
+
+        self.layout().addWidget(self.dockWidget)
 
 
 class LogDialogTableView(QtWidgets.QTableView):
@@ -105,10 +118,10 @@ class LogDialogTableView(QtWidgets.QTableView):
             QtWidgets.QAbstractItemView.SelectRows
         )
 
-        QtCompat.setSectionResizeMode(
-            self.verticalHeader(),
-            QtWidgets.QHeaderView.ResizeToContents
-        )
+        # QtCompat.setSectionResizeMode(
+        #     self.verticalHeader(),
+        #     QtWidgets.QHeaderView.ResizeToContents
+        # )
 
         self.horizontalHeader().setStretchLastSection(True)
 
@@ -121,7 +134,6 @@ class LogDialogTableView(QtWidgets.QTableView):
 
         self.setModel(self.proxy_model)
 
-
     def post_build(self):
         '''Perform post-construction operations.'''
         pass
@@ -131,3 +143,67 @@ class LogDialogTableView(QtWidgets.QTableView):
         Sets the ftrack_asset_list with the given *ftrack_asset_list*
         '''
         self.log_model.set_log_items(log_items)
+
+
+class LogManagerDetailWidget(QtWidgets.QDockWidget):
+
+    template = """
+    <div> <b>Status: </b>{status} </div> 
+    <div> <b>Hostid: </b>{hostid} </div> 
+    <div> <b>Widget_ref: </b>{widget_ref} </div> 
+    <div> <b>Execution_time: </b>{execution_time} </div> 
+    <div> <b>Plugin_name: </b>{plugin_name} </div> 
+    <div> <b>Plugin_type: </b>{plugin_type} </div>
+    <p> <b>Result: </b>{result} </p>
+    <p> <b>Message: </b>{message} </p>
+    """
+
+    @property
+    def event_manager(self):
+        '''Returns event_manager'''
+        return self._event_manager
+
+    @property
+    def session(self):
+        '''Returns Session'''
+        return self.event_manager.session
+
+    @property
+    def results(self):
+        '''Returns Session'''
+        return self._results
+
+    def __init__(self, event_manager, parent=None):
+        super(LogManagerDetailWidget, self).__init__(parent=parent)
+
+        self._event_manager = event_manager
+        self._results = []
+
+        self.pre_build()
+        self.build()
+        self.post_build()
+
+    def pre_build(self):
+        pass
+
+    def build(self):
+        self.textEdit = QtWidgets.QTextEdit()
+        self.textEdit.setReadOnly(True)
+
+        self.setWidget(self.textEdit)
+
+    def post_build(self):
+        pass
+
+    def set_data(self, data):
+        formated_text = self.template.format(
+            status=data.status,
+            hostid=data.hostid,
+            widget_ref=data.widget_ref,
+            execution_time=data.execution_time,
+            plugin_name=data.plugin_name,
+            plugin_type=data.plugin_type,
+            result=data.result,
+            message=data.message
+        )
+        self.textEdit.setText(formated_text)

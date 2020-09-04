@@ -5,43 +5,9 @@ from QtExt import QtCore, QtGui, QtWidgets
 from ftrack_connect_pipeline import constants
 
 
-class FilterProxyModel(QtCore.QSortFilterProxyModel):
-
-    def __init__(self, parent=None):
-        '''Initialize the FilterProxyModel'''
-        super(FilterProxyModel, self).__init__(parent=parent)
-
-        self.setDynamicSortFilter(True)
-        self.setFilterCaseSensitivity(QtCore.Qt.CaseInsensitive)
-        self.setFilterKeyColumn(-1)
-
-    def filterAcceptsRowItself(self, source_row, source_parent):
-        '''Provide a way to filter internal values.'''
-        return super(FilterProxyModel, self).filterAcceptsRow(
-            source_row, source_parent
-        )
-
-    def filterAcceptsRow(self, source_row, source_parent):
-        '''Override filterAcceptRow to filter to any entry.'''
-        if self.filterAcceptsRowItself(source_row, source_parent):
-            return True
-
-        parent = source_parent
-        while parent.isValid():
-            if self.filterAcceptsRowItself(parent.row(), parent.parent()):
-                return True
-            parent = parent.parent()
-
-        return False
-
-    def lessThan(self, left, right):
-        '''Allow to sort the model.'''
-        left_data = self.sourceModel().item(left)
-        right_data = self.sourceModel().item(right)
-        return left_data.id > right_data.id
-
-
 class LogTableModel(QtCore.QAbstractTableModel):
+
+    DATA_ROLE = QtCore.Qt.UserRole + 1
 
     @property
     def log_items(self):
@@ -51,13 +17,9 @@ class LogTableModel(QtCore.QAbstractTableModel):
         '''Initialize model model with *items*.'''
 
         super(LogTableModel, self).__init__(parent)
-        # self._headers = [
-        #     'status', 'time', 'duration', 'name', 'method', 'record'
-        # ]
 
         self._headers = [
-            'status', 'widget_ref', 'hostid', 'execution_time', 'plugin_name',
-            'result', 'message', 'plugin_type'
+            'status', 'execution_time', 'plugin_name', 'plugin_type'
         ]
 
         self._data = []
@@ -110,7 +72,10 @@ class LogTableModel(QtCore.QAbstractTableModel):
 
         # style the rest
         elif role == QtCore.Qt.DisplayRole:
-            return getattr(item, column_name )
+            return getattr(item, column_name)
+
+        elif role == self.DATA_ROLE:
+            return item
 
         return None
 
@@ -122,3 +87,41 @@ class LogTableModel(QtCore.QAbstractTableModel):
         ):
             return self._headers[col].capitalize()
         return None
+
+
+class FilterProxyModel(QtCore.QSortFilterProxyModel):
+
+    DATA_ROLE = LogTableModel.DATA_ROLE
+
+    def __init__(self, parent=None):
+        '''Initialize the FilterProxyModel'''
+        super(FilterProxyModel, self).__init__(parent=parent)
+
+        self.setDynamicSortFilter(True)
+        self.setFilterCaseSensitivity(QtCore.Qt.CaseInsensitive)
+        self.setFilterKeyColumn(-1)
+
+    def filterAcceptsRowItself(self, source_row, source_parent):
+        '''Provide a way to filter internal values.'''
+        return super(FilterProxyModel, self).filterAcceptsRow(
+            source_row, source_parent
+        )
+
+    def filterAcceptsRow(self, source_row, source_parent):
+        '''Override filterAcceptRow to filter to any entry.'''
+        if self.filterAcceptsRowItself(source_row, source_parent):
+            return True
+
+        parent = source_parent
+        while parent.isValid():
+            if self.filterAcceptsRowItself(parent.row(), parent.parent()):
+                return True
+            parent = parent.parent()
+
+        return False
+
+    def lessThan(self, left, right):
+        '''Allow to sort the model.'''
+        left_data = self.sourceModel().item(left)
+        right_data = self.sourceModel().item(right)
+        return left_data.id > right_data.id
