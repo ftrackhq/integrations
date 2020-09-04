@@ -14,10 +14,6 @@ class FtrackAssetBase(object):
     identity = None
     default_component_name = 'main'
 
-    def is_ftrack_object(self, object):
-        ''' Not implemented '''
-        raise NotImplementedError()
-
     @property
     def component_name(self):
         '''Return component name from the current asset info'''
@@ -151,10 +147,12 @@ class FtrackAssetBase(object):
                 topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
                 data=asset_info_options
             )
+
             plugin_result_data = self.session.event_hub.publish(
                 run_event,
                 synchronous=True
             )
+
             result_data = plugin_result_data[0]
             if not result_data:
                 self.logger.error("Error re-loading asset")
