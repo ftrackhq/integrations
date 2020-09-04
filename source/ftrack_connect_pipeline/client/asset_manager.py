@@ -128,7 +128,7 @@ class AssetManagerClient(client.Client):
             data, self.engine_type, self._update_assets_callback
         )
 
-    def _find_asset_by_id(self, id):
+    def _find_asset_info_by_id(self, id):
         asset_info = next((sub for sub in self.ftrack_asset_list if sub[asset_const.ASSET_INFO_ID] == id), None)
         if not asset_info:
             self.logger.warning('No asset info found for id {}'.format(id))
@@ -142,7 +142,7 @@ class AssetManagerClient(client.Client):
             return
         data = event['data']
         for key, value in data.items():
-            asset_info = self._find_asset_by_id(key)
+            asset_info = self._find_asset_info_by_id(key)
             index = self.ftrack_asset_list.index(asset_info)
             if index is None:
                 continue
@@ -158,7 +158,7 @@ class AssetManagerClient(client.Client):
         data = event['data']
 
         for key, value in data.items():
-            asset_info = self._find_asset_by_id(key)
+            asset_info = self._find_asset_info_by_id(key)
             index = self.ftrack_asset_list.index(asset_info)
             if index is None:
                 continue
@@ -173,7 +173,7 @@ class AssetManagerClient(client.Client):
             return
         data = event['data']
         for key, value in data.items():
-            asset_info = self._find_asset_by_id(key)
+            asset_info = self._find_asset_info_by_id(key)
             index = self.ftrack_asset_list.index(asset_info)
             if index is None:
                 continue
