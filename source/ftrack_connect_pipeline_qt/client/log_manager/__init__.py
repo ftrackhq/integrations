@@ -7,7 +7,7 @@ import os, sys, subprocess
 
 from Qt import QtGui, QtCore, QtWidgets
 from ftrack_connect_pipeline import client, constants
-from ftrack_connect_pipeline import configure_logging
+from ftrack_connect_pipeline.configure_logging import get_log_directory
 from ftrack_connect_pipeline.client.log_manager import LogManagerClient
 from ftrack_connect_pipeline_qt.ui.log_manager import LogManagerWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget import header, host_selector
@@ -30,7 +30,6 @@ class QtLogManagerClient(LogManagerClient, QtWidgets.QWidget):
         LogManagerClient.__init__(self, event_manager)
 
         self.log_manager_widget = LogManagerWidget(event_manager)
-        self.log_manager_widget.set_log_items(self.log_list)
 
         self.host_connection = None
 
@@ -105,10 +104,10 @@ class QtLogManagerClient(LogManagerClient, QtWidgets.QWidget):
 
     def _on_logging_button_clicked(self):
         '''Handle logging button clicked.'''
-        directory = configure_logging.get_log_directory()
+        directory = get_log_directory()
         self.open_directory(directory)
 
-    def open_directory(path):
+    def open_directory(self, path):
         '''Open a filesystem directory from *path* in the OS file browser.
 
         If *path* is a file, the parent directory will be opened. Depending on OS
