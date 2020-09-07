@@ -15,7 +15,7 @@ class VersionDelegate(QtWidgets.QItemDelegate):
 
         # Initialize the ftrack info again as when quering from the
         # model even if the DATA_ROLE has the FtrackAssetInfo dictionary,
-        # it returns a generic diccionary.
+        # it returns a generic dictionary.
         item = asset_info.FtrackAssetInfo(index.model().data(index, index.model().DATA_ROLE))
 
         versions_collection = item['versions']
