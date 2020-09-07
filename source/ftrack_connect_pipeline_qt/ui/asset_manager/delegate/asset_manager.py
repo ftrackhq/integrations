@@ -38,7 +38,4 @@ class VersionDelegate(QtWidgets.QItemDelegate):
         if not index.isValid():
             return False
         self.change_version.emit(index, editor.itemData(editor.currentIndex()))
-        # model.setData(
-        #     index, editor.itemData(editor.currentIndex()), QtCore.Qt.EditRole
-        # )
 
