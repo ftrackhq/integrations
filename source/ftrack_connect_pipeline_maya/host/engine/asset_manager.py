@@ -55,27 +55,27 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         result = []
         ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
 
-        referenceNode = False
+        reference_node = False
         for node in cmd.listConnections(
-                '{}.{}'.format(
-                    ftrack_asset_object.ftrack_object, asset_const.ASSET_LINK
-                )
+            '{}.{}'.format(
+                ftrack_asset_object.ftrack_object, asset_const.ASSET_LINK
+            )
         ):
             if cmd.nodeType(node) == 'reference':
-                referenceNode = maya_utils.getReferenceNode(node)
-                if referenceNode:
+                reference_node = maya_utils.getReferenceNode(node)
+                if reference_node:
                     break
 
-        if referenceNode:
-            self.logger.debug("Removing reference: {}".format(referenceNode))
+        if reference_node:
+            self.logger.debug("Removing reference: {}".format(reference_node))
             try:
-                maya_utils.remove_reference_node(referenceNode)
-                result.append(str(referenceNode))
+                maya_utils.remove_reference_node(reference_node)
+                result.append(str(reference_node))
                 status = constants.SUCCESS_STATUS
             except Exception as error:
                 self.logger.error(
                     'Could not remove the reference node {}, error: {}'.format(
-                        str(referenceNode), error)
+                        str(reference_node), error)
                 )
                 status = constants.ERROR_STATUS
 
