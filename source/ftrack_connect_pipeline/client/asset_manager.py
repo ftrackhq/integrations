@@ -9,6 +9,7 @@ class AssetManagerClient(client.Client):
     '''
     Base client class.
     '''
+    definition_filter = 'asset_manager'
 
     @property
     def event_manager(self):
@@ -36,8 +37,9 @@ class AssetManagerClient(client.Client):
 
         self.schemas = [
             schema for schema in self.host_connection.definitions['schema']
-            if schema.get('title').lower() == 'asset_manager'
+            if schema.get('title').lower() == self.definition_filter
         ]
+
         #Only one schema available for now, we Don't have a schema selector
         # on the AM
         schema = self.schemas[0]
@@ -90,24 +92,6 @@ class AssetManagerClient(client.Client):
         self.host_connection.run(
             data, self.engine_type, self._change_version_callback
         )
-    def _change_version_callback(self, event):
-        '''
-        Change version callback, updates the current ftrack_asset_list
-        '''
-        if not event['data']:
-            return
-        data = event['data']
-        for k, v in data.items():
-            old_info_id = k
-            index = None
-            i = 0
-            for asset_info in self.ftrack_asset_list:
-                if asset_info[asset_const.ASSET_INFO_ID] == old_info_id:
-                    index = i
-                    break
-                i += 1
-            if index != None:
-                self.ftrack_asset_list[index] = v
 
     def select_assets(self, asset_info_list):
         '''
@@ -131,25 +115,6 @@ class AssetManagerClient(client.Client):
             data, self.engine_type, self._remove_assets_callback
         )
 
-    def _remove_assets_callback(self, event):
-        '''
-        remove_assets callback, updates the current ftrack_asset_list
-        '''
-        if not event['data']:
-            return
-        data = event['data']
-        for k, v in data.items():
-            old_info_id = k
-            index = None
-            i = 0
-            for asset_info in self.ftrack_asset_list:
-                if asset_info[asset_const.ASSET_INFO_ID] == old_info_id:
-                    index = i
-                    break
-                i += 1
-            if index != None:
-                self.ftrack_asset_list.pop(index)
-
     def update_assets(self, asset_info_list, plugin):
         '''
         Updates the assets from the given *asset_info_list* using the given
@@ -163,6 +128,43 @@ class AssetManagerClient(client.Client):
             data, self.engine_type, self._update_assets_callback
         )
 
+    def _find_asset_info_by_id(self, id):
+        asset_info = next((sub for sub in self.ftrack_asset_list if sub[asset_const.ASSET_INFO_ID] == id), None)
+        if not asset_info:
+            self.logger.warning('No asset info found for id {}'.format(id))
+        return asset_info
+
+    def _change_version_callback(self, event):
+        '''
+        Change version callback, updates the current ftrack_asset_list
+        '''
+        if not event['data']:
+            return
+        data = event['data']
+        for key, value in data.items():
+            asset_info = self._find_asset_info_by_id(key)
+            index = self.ftrack_asset_list.index(asset_info)
+            if index is None:
+                continue
+            self.logger.info('Removing id {} with index {}'.format(key, index))
+            self.ftrack_asset_list[index] = value
+
+    def _remove_assets_callback(self, event):
+        '''
+        remove_assets callback, updates the current ftrack_asset_list
+        '''
+        if not event['data']:
+            return
+        data = event['data']
+
+        for key, value in data.items():
+            asset_info = self._find_asset_info_by_id(key)
+            index = self.ftrack_asset_list.index(asset_info)
+            if index is None:
+                continue
+            self.logger.info('Removing id {} with index {}'.format(key, index))
+            self.ftrack_asset_list.pop(index)
+
     def _update_assets_callback(self, event):
         '''
         update_assets callback. it updates the current ftrack_asset_list
@@ -170,14 +172,10 @@ class AssetManagerClient(client.Client):
         if not event['data']:
             return
         data = event['data']
-        for k, v in data.items():
-            old_info_id = k
-            index = None
-            i=0
-            for asset_info in self.ftrack_asset_list:
-                if asset_info[asset_const.ASSET_INFO_ID] == old_info_id:
-                    index = i
-                    break
-                i+=1
-            if index != None:
-                self.ftrack_asset_list[index] = v.get(v.keys()[0])
+        for key, value in data.items():
+            asset_info = self._find_asset_info_by_id(key)
+            index = self.ftrack_asset_list.index(asset_info)
+            if index is None:
+                continue
+            self.logger.info('Updating id {} with index {}'.format(key, index))
+            self.ftrack_asset_list[index] = value.get(value.keys()[0])

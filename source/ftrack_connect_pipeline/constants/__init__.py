@@ -36,4 +36,3 @@ from ftrack_connect_pipeline.constants.plugin.asset_manager import *
 from ftrack_connect_pipeline.constants.environments import *
 from ftrack_connect_pipeline.constants.event import *
 from ftrack_connect_pipeline.constants.status import *
-from ftrack_connect_pipeline.constants.schema import *

@@ -46,8 +46,7 @@ def generate_asset_info_dict_from_args(context, data, options, session):
         'AssetVersion', arguments_dict[constants.VERSION_ID]
     )
 
-    arguments_dict[constants.IS_LATEST_VERSION] = asset_version[
-        'is_latest_version']
+    arguments_dict[constants.IS_LATEST_VERSION] = asset_version[constants.IS_LATEST_VERSION]
 
 
     location = session.pick_location()
@@ -91,9 +90,9 @@ class FtrackAssetInfo(dict):
             if v == unicode(None):
                 v = None
             new_mapping.setdefault(k, v)
-            if k == constants.SESSION:
-                if v:
-                    self._session = v
+            if k == constants.SESSION and isinstance(v, ftrack_api.Session):
+                self._session = v
+
         return new_mapping
 
     def __init__(self, mapping=None, **kwargs):
@@ -216,7 +215,9 @@ class FtrackAssetInfo(dict):
         asset_info_data[constants.VERSION_NUMBER] = int(
             ftrack_version['version'])
         asset_info_data[constants.VERSION_ID] = ftrack_version['id']
-        asset_info_data[constants.IS_LATEST_VERSION] = ftrack_version['is_latest_version']
+        asset_info_data[constants.IS_LATEST_VERSION] = ftrack_version[
+            constants.IS_LATEST_VERSION
+        ]
 
         location = ftrack_version.session.pick_location()
 
@@ -227,11 +228,17 @@ class FtrackAssetInfo(dict):
                 if location.get_component_availability(component) == 100.0:
                     component_path = location.get_filesystem_path(component)
                     if component_path:
+
                         asset_info_data[constants.COMPONENT_NAME] = component[
-                            'name']
+                            'name'
+                        ]
+
                         asset_info_data[constants.COMPONENT_ID] = component[
-                            'id']
+                            'id'
+                        ]
+
                         asset_info_data[
-                            constants.COMPONENT_PATH] = component_path
+                            constants.COMPONENT_PATH
+                        ] = component_path
 
         return cls(asset_info_data)
