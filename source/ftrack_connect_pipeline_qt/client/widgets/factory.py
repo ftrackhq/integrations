@@ -238,7 +238,7 @@ class WidgetFactory(QtWidgets.QWidget):
                 }
 
                 event = ftrack_api.event.base.Event(
-                    topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
+                    topic=core_constants.PIPELINE_RUN_PLUGIN_TOPIC,
                     data=data
                 )
 

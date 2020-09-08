@@ -21,6 +21,10 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         self.columns = asset_constants.KEYS
 
     def set_asset_list(self, ftrack_asset_list):
+        '''
+        Reset the model and sets the ftrack_asset_list with the given
+        *ftrack_asset_list*
+        '''
         self.beginResetModel()
         #self.clear()
         self._ftrack_asset_list = ftrack_asset_list
@@ -41,6 +45,9 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         return len(self.columns)
 
     def removeRows(self, position, rows=1, index=QtCore.QModelIndex()):
+        '''
+        Removes the row in the given *position*
+        '''
         self.beginRemoveRows(index, position, position + rows - 1)
 
         self._ftrack_asset_list.pop(position)
@@ -49,6 +56,9 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         return True
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
+        '''
+        Returns the data from the given *index*
+        '''
         row = index.row()
         column = index.column()
 
@@ -56,14 +66,14 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
             return None
 
         item = self.ftrack_asset_list[row]
-        data = item.asset_info[self.columns[column]]
+        data = item[self.columns[column]]
 
         # style versions
         if (
                 role == QtCore.Qt.BackgroundRole and
                 index.column() == self.get_version_column_index()
         ):
-            if item.is_latest:
+            if item.get(asset_constants.IS_LATEST_VERSION):#.is_latest:
                 return QtGui.QBrush(QtGui.QColor(155, 250, 218, 200))
             else:
                 return QtGui.QBrush(QtGui.QColor(250, 171, 155, 200))
@@ -101,11 +111,11 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         return None
 
     def setData(self, index, value, role=QtCore.Qt.EditRole):
+        '''
+        Sets the givn *value* to the given *index*
+        '''
         if role == QtCore.Qt.EditRole:
             if value:
-                self.ftrack_asset_list[index.row()].change_version(
-                    value, self.host_connection.id
-                )
                 self.dataChanged.emit(index, index)
                 return True
             return False
@@ -119,9 +129,11 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
             return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
 
     def get_version_column_index(self):
+        '''Returns the column index of the version_number column'''
         return self.columns.index(asset_constants.VERSION_NUMBER)
 
     def set_host_connection(self, host_connection):
+        '''Sets the host connection'''
         self.host_connection = host_connection
 
 

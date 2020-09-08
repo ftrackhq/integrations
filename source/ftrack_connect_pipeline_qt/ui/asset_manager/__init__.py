@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
+from functools import partial
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
 from ftrack_connect_pipeline import constants as core_const
@@ -15,19 +16,43 @@ from ftrack_connect_pipeline_qt.ui.asset_manager.delegate.asset_manager import (
 
 class AssetManagerWidget(QtWidgets.QWidget):
     widget_status_updated = QtCore.Signal(object)
+    change_asset_version = QtCore.Signal(object, object)
+    select_assets = QtCore.Signal(object)
+    remove_assets = QtCore.Signal(object)
+    update_assets = QtCore.Signal(object, object)
 
     @property
     def event_manager(self):
+        '''Returns event_manager'''
         return self._event_manager
 
     @property
     def session(self):
+        '''Returns Session'''
         return self.event_manager.session
 
+    @property
+    def engine_type(self):
+        '''Returns engine_type'''
+        '''Returns ftrack object from the DCC app'''
+        return self._engine_type
+
+    @engine_type.setter
+    def engine_type(self, value):
+        '''Sets the engine_type with the given *value*'''
+        self._engine_type = value
+
     def __init__(self, event_manager, parent=None):
+        '''Initialise AssetManagerWidget with *event_manager*
+
+        *event_manager* should be the
+        :class:`ftrack_connect_pipeline.event.EventManager`instance to
+        communicate to the event server.
+        '''
         super(AssetManagerWidget, self).__init__(parent=parent)
 
         self._event_manager = event_manager
+        self._engine_type = None
 
         self.ftrack_asset_list = []
 
@@ -36,10 +61,12 @@ class AssetManagerWidget(QtWidgets.QWidget):
         self.post_build()
 
     def pre_build(self):
+        '''Prepare general layout.'''
         main_layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(main_layout)
 
     def build(self):
+        '''Build widgets and parent them.'''
         filter_layout = QtWidgets.QHBoxLayout()
         filter_label = QtWidgets.QLabel('Filter')
         self.filter_field = QtWidgets.QLineEdit()
@@ -47,13 +74,61 @@ class AssetManagerWidget(QtWidgets.QWidget):
         filter_layout.addWidget(self.filter_field)
         self.layout().addLayout(filter_layout)
 
-        self.asset_table_view = AssetManagerTableView(self.session, parent=self)
+        self.asset_table_view = AssetManagerTableView(
+            self.event_manager, parent=self
+        )
         self.layout().addWidget(self.asset_table_view)
 
     def post_build(self):
+        '''Post Build ui method for events connections.'''
         self.filter_field.textChanged.connect(self.on_search)
+        self.asset_table_view.version_cb_delegate.change_version.connect(
+            self.on_asset_change_version
+        )
+        self.asset_table_view.select_assets.connect(
+            self.on_select_assets
+        )
+        self.asset_table_view.remove_assets.connect(
+            self.on_remove_assets
+        )
+        self.asset_table_view.update_assets.connect(
+            self.on_update_assets
+        )
+
+    def on_asset_change_version(self, index, value):
+        '''
+        Triggered when a version of the asset has changed on the
+        version_cb_delegate.
+        '''
+        _asset_info = self.asset_table_view.asset_model.ftrack_asset_list[
+            index.row()
+        ]
+        # Copy to avoid update automatically
+        asset_info = _asset_info.copy()
+        self.change_asset_version.emit(asset_info, value)
+
+    def on_select_assets(self, assets):
+        '''
+        Triggered when select action is clicked on the asset_table_view.
+        '''
+        self.select_assets.emit(assets)
+
+    def on_remove_assets(self, assets):
+        '''
+        Triggered when remove action is clicked on the asset_table_view.
+        '''
+        self.remove_assets.emit(assets)
+
+    def on_update_assets(self, assets, plugin):
+        '''
+        Triggered when update action is clicked on the asset_table_view.
+        '''
+        self.update_assets.emit(assets, plugin)
 
     def set_asset_list(self, ftrack_asset_list):
+        '''
+        Sets the ftrack_asset_list with the given *ftrack_asset_list*
+        '''
         self.ftrack_asset_list = ftrack_asset_list
         self.asset_table_view.set_asset_list(self.ftrack_asset_list)
 
@@ -63,9 +138,16 @@ class AssetManagerWidget(QtWidgets.QWidget):
         self.asset_table_view.model().setFilterWildcard(value)
 
     def set_host_connection(self, host_connection):
+        '''Sets The given *host_connection*.'''
         self.host_connection = host_connection
         self._listen_widget_updates()
         self.asset_table_view.set_host_connection(self.host_connection)
+
+    def set_context_actions(self, actions):
+        '''Set the engine_type into the asset_table_view and calls the
+        create_action function of the same class with the given *actions*'''
+        self.asset_table_view.engine_type = self.engine_type
+        self.asset_table_view.create_actions(actions)
 
     def _update_widget(self, event):
         '''*event* callback to update widget with the current status/value'''
@@ -87,26 +169,51 @@ class AssetManagerWidget(QtWidgets.QWidget):
 
 class AssetManagerTableView(QtWidgets.QTableView):
     '''Model representing AssetManager.'''
+    select_assets = QtCore.Signal(object)
+    remove_assets = QtCore.Signal(object)
+    update_assets = QtCore.Signal(object, object)
 
-    def __init__(self, session, parent=None):
-        '''Initialise browser with *root* entity.
+    @property
+    def event_manager(self):
+        '''Returns event_manager'''
+        return self._event_manager
 
-        Use an empty *root* to start with list of projects.
+    @property
+    def engine_type(self):
+        '''Returns engine_type'''
+        return self._engine_type
 
-        *parent* is the optional owner of this UI element.
+    @engine_type.setter
+    def engine_type(self, value):
+        '''Sets the engine_type with the given *value*'''
+        self._engine_type = value
 
+    @property
+    def session(self):
+        '''Returns Session'''
+        return self.event_manager.session
+
+    def __init__(self, event_manager, parent=None):
+        '''Initialise AssetManagerTableView with *event_manager*
+
+        *event_manager* should be the
+        :class:`ftrack_connect_pipeline.event.EventManager`instance to
+        communicate to the event server.
         '''
         super(AssetManagerTableView, self).__init__(parent=parent)
 
         self.ftrack_asset_list = []
+        self.action_widgets = {}
+        self._engine_type = None
 
-        self._session = session
+        self._event_manager = event_manager
 
         self.pre_build()
         self.build()
         self.post_build()
 
     def pre_build(self):
+        '''Prepare general layout.'''
         self.setAlternatingRowColors(True)
         self.verticalHeader().hide()
 
@@ -122,7 +229,7 @@ class AssetManagerTableView(QtWidgets.QTableView):
         self.horizontalHeader().setStretchLastSection(True)
 
     def build(self):
-
+        '''Build widgets and parent them.'''
         self.asset_model = AssetManagerModel(parent=self)
         self.proxy_model = FilterProxyModel(parent=self)
         self.proxy_model.setSourceModel(self.asset_model)
@@ -139,63 +246,113 @@ class AssetManagerTableView(QtWidgets.QTableView):
         pass
 
     def set_asset_list(self, ftrack_asset_list):
+        '''
+        Sets the ftrack_asset_list with the given *ftrack_asset_list*
+        '''
         self.ftrack_asset_list = ftrack_asset_list
         self.asset_model.set_asset_list(self.ftrack_asset_list)
 
+    def create_actions(self, actions):
+        '''
+        Creates all the actions for the context menu.
+        '''
+        self.action_widgets = {}
+
+        default_actions = {
+            'select': [{
+                'ui_callback': 'ctx_select',
+                'name': 'select_asset'
+            }],
+            'remove': [{
+                'ui_callback': 'ctx_remove',
+                'name': 'remove_asset'
+            }]
+        }
+        for def_action_type, def_action in default_actions.items():
+            if def_action_type in actions.keys():
+                actions[def_action_type].extend(def_action)
+
+        for action_type, actions in actions.items():
+            if action_type not in self.action_widgets.keys():
+                self.action_widgets[action_type] = []
+            for action in actions:
+                action_widget = QtWidgets.QAction(action['name'], self)
+                action_widget.setData(action)
+                self.action_widgets[action_type].append(action_widget)
+
     def contextMenuEvent(self, event):
+        '''
+        Executes the context menu
+        '''
         self.menu = QtWidgets.QMenu(self)
-
-        self.udpate_action = QtWidgets.QAction('Update to latest', self)
-        self.select_action = QtWidgets.QAction('Select', self)
-        self.remove_action = QtWidgets.QAction('Remove', self)
-
-        self.udpate_action.triggered.connect(
-            lambda: self.ctx_update_to_latest(event)
-        )
-        self.select_action.triggered.connect(
-            lambda: self.ctx_select_action(event)
-        )
-        self.remove_action.triggered.connect(
-            lambda: self.ctx_remove_action(event)
-        )
-
-        self.menu.addAction(self.udpate_action)
-        self.menu.addAction(self.select_action)
-        self.menu.addAction(self.remove_action)
+        self.action_type_menu = {}
+        for action_type, action_widgets in self.action_widgets.items():
+            if action_type not in self.action_type_menu.keys():
+                type_menu = QtWidgets.QMenu(action_type, self)
+                self.menu.addMenu(type_menu)
+                self.action_type_menu[action_type] = type_menu
+            for action_widget in action_widgets:
+                self.action_type_menu[action_type].addAction(action_widget)
+        self.menu.triggered.connect(self.menu_triggered)
 
         # add other required actions
         self.menu.exec_(QtGui.QCursor.pos())
 
-    def ctx_update_to_latest(self, event):
+    def menu_triggered(self, action):
+        '''
+        Find and call the clicked function on the menu
+        '''
+        plugin = action.data()
+        ui_callback = plugin['ui_callback']
+        if hasattr(self, ui_callback):
+            callback_fn = getattr(self, ui_callback)
+            callback_fn(plugin)
+
+    def ctx_update(self, plugin):
+        '''
+        Triggered when update action menu been clicked.
+        Emits update_asset signal.
+        Uses the given *plugin* to update the selected assets
+        '''
+        asset_info_list = []
         index_list = self.selectionModel().selectedRows()
         for index in index_list:
             data = self.model().data(index, self.model().DATA_ROLE)
-            latest_versions = data.ftrack_versions[-1]
-            self.asset_model.setData(
-                index, latest_versions['id'], QtCore.Qt.EditRole
-            )
+            asset_info_list.append(data)
 
-    def ctx_select_action(self, event):
+        self.update_assets.emit(asset_info_list, plugin)
+
+    def ctx_select(self, plugin):
+        '''
+        Triggered when select action menu been clicked.
+        Emits select_asset signal.
+        '''
+        asset_info_list = []
         index_list = self.selectionModel().selectedRows()
-        i=0
         for index in index_list:
             data = self.model().data(index, self.model().DATA_ROLE)
-            if i==0:
-                data.clear_selection(self.host_connection.id)
-            data.select_asset(self.host_connection.id)
-            i+=1
+            asset_info_list.append(data)
 
-    def ctx_remove_action(self, event):
-        index_list=[]
+        self.select_assets.emit(asset_info_list)
+
+    def ctx_remove(self, plugin):
+        '''
+        Triggered when remove action menu been clicked.
+        Emits remove_asset signal.
+        '''
+        asset_info_list = []
+        index_list = []
+
         for model_index in self.selectionModel().selectedRows():
             index = QtCore.QPersistentModelIndex(model_index)
             index_list.append(index)
 
         for index in index_list:
             data = self.model().data(index, self.model().DATA_ROLE)
-            data.remove_asset(self.host_connection.id)
-            self.model().removeRow(index.row())
+            asset_info_list.append(data)
+        self.remove_assets.emit(asset_info_list)
 
     def set_host_connection(self, host_connection):
+        '''Sets the host connection'''
         self.host_connection = host_connection
         self.asset_model.set_host_connection(self.host_connection)
