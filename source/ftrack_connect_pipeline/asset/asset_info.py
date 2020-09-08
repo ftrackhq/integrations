@@ -87,6 +87,8 @@ class FtrackAssetInfo(dict):
         new_mapping = {}
         for k in constants.KEYS:
             v = mapping.get(k)
+            # Sometimes the value None is interpreted as unicode (in maya
+            # mostly) we are converting to a type None
             if v == unicode(None):
                 v = None
             new_mapping.setdefault(k, v)
