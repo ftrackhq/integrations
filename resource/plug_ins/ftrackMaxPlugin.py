@@ -29,6 +29,10 @@ def register_ftrack_asset_helper():
                 {load_mode} type:#string default:""
                 {asset_info_options} type:#string default:""
                 {reference_object} type:#string default:""
+                {is_latest_version} type:#boolean default:False
+                {versions} type:#string default:""
+                {session} type:#string default:""
+                {asset_info_id} type:#string default:""
             )
         )
         """.format(
@@ -46,6 +50,10 @@ def register_ftrack_asset_helper():
             load_mode=asset_const.LOAD_MODE,
             asset_info_options=asset_const.ASSET_INFO_OPTIONS,
             reference_object=asset_const.REFERENCE_OBJECT,
+            is_latest_version=asset_const.IS_LATEST_VERSION,
+            versions=asset_const.VERSIONS,
+            session=asset_const.SESSION,
+            asset_info_id=asset_const.ASSET_INFO_ID
         )
     )
 

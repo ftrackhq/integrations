@@ -165,6 +165,7 @@ def delete_all_children(node):
         nodes_to_delete.Append(node)
 
     node.DeleteNodes(nodes_to_delete)
+    return all_children
 
 
 def add_all_children_to_selection(parent_node):
@@ -175,6 +176,8 @@ def add_all_children_to_selection(parent_node):
         new_sel.Append(node)
 
     MaxPlus.SelectionManager.SelectNodes(new_sel)
+
+    return nodes_to_select
 
 
 def get_time_range():
