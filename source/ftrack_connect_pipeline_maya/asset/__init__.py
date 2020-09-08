@@ -19,7 +19,7 @@ class FtrackAssetNode(FtrackAssetBase):
 
     def __init__(self, event_manager):
         '''
-        Initialize FtrackAssetBase with *event_manager*.
+        Initialize FtrackAssetNode with *event_manager*.
 
         *event_manager* instance of
         :class:`ftrack_connect_pipeline.event.EventManager`
@@ -29,7 +29,7 @@ class FtrackAssetNode(FtrackAssetBase):
     def init_ftrack_object(self):
         '''
         Return the ftrack ftrack_object for this class. It checks if there is
-        already a matching ftrack ftrack_object in the scene, in this case it
+        already a matching ftrack_object in the scene, in this case it
         updates the ftrack_object if it's not. In case there is no ftrack_object
         in the scene this function creates a new one.
         '''
@@ -42,7 +42,8 @@ class FtrackAssetNode(FtrackAssetBase):
 
         return self.ftrack_object
 
-    def _get_parameters_dictionary(self, maya_obj):
+    @staticmethod
+    def get_parameters_dictionary(maya_obj):
         '''
         Returns a diccionary with the keys and values of the given *maya_obj*
         parameters
@@ -64,7 +65,7 @@ class FtrackAssetNode(FtrackAssetBase):
         result_object = None
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
         for ftrack_object in ftrack_asset_nodes:
-            param_dict = self._get_parameters_dictionary(ftrack_object)
+            param_dict = self.get_parameters_dictionary(ftrack_object)
             node_asset_info = FtrackAssetInfo(param_dict)
             if node_asset_info.is_deprecated:
                 raise DeprecationWarning("Can not read v1 ftrack asset plugin")
@@ -90,7 +91,7 @@ class FtrackAssetNode(FtrackAssetBase):
 
         synced = False
 
-        param_dict = self._get_parameters_dictionary(ftrack_object)
+        param_dict = self.get_parameters_dictionary(ftrack_object)
         node_asset_info = FtrackAssetInfo(param_dict)
 
         if node_asset_info == self.asset_info:
@@ -119,8 +120,6 @@ class FtrackAssetNode(FtrackAssetBase):
     def connect_objects(self, objects):
         '''
         Parent the given *objects* under current ftrack_object
-
-        *objects* is List type of INode
         '''
         for obj in objects:
             if cmd.lockNode(obj, q=True)[0]:
@@ -136,7 +135,7 @@ class FtrackAssetNode(FtrackAssetBase):
                 )
 
     def get_load_mode_from_ftrack_object(self, obj):
-        '''Return the import mode used to import an asset.'''
+        '''Return the load mode used to import the given *obj*.'''
         load_mode = cmd.getAttr('{}.{}'.format(
             obj, asset_const.LOAD_MODE)
         )
@@ -167,100 +166,18 @@ class FtrackAssetNode(FtrackAssetBase):
                         ftrack_object, k
                     ), str(ftrack_object), type="string", l=True
                 )
+            elif k == asset_const.VERSIONS or k == asset_const.SESSION:
+                cmd.setAttr('{}.{}'.format(
+                    ftrack_object, k), str(v), type="string", l=True
+                )
+            elif k == asset_const.IS_LATEST_VERSION:
+                cmd.setAttr('{}.{}'.format(
+                    ftrack_object, k), bool(v), l=True
+                )
+
             else:
                 cmd.setAttr('{}.{}'.format(
                     ftrack_object, k), v, type="string", l=True
                 )
 
         return ftrack_object
-
-    def discover_assets(self):
-        '''
-        Returns asset_info_list with all the assets loaded in the current
-        scene that has an ftrack_object connected
-        '''
-        ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
-        asset_info_list = []
-
-        for ftrack_object in ftrack_asset_nodes:
-            param_dict = self._get_parameters_dictionary(ftrack_object)
-            node_asset_info = FtrackAssetInfo(param_dict)
-            asset_info_list.append(node_asset_info)
-        return asset_info_list
-
-    def remove_current_objects(self):
-        '''
-        Remove all the imported or referenced objects in the scene
-        '''
-        reference_node = False
-        for node in cmd.listConnections(
-                '{}.{}'.format(self.ftrack_object, asset_const.ASSET_LINK)
-        ):
-            if cmd.nodeType(node) == 'reference':
-                reference_node = maya_utils.getReferenceNode(node)
-                if reference_node:
-                    break
-
-        if reference_node:
-            self.logger.debug("Removing reference: {}".format(reference_node))
-            maya_utils.remove_reference_node(reference_node)
-        else:
-            nodes = cmd.listConnections(
-                '{}.{}'.format(self.ftrack_object, asset_const.ASSET_LINK)
-            )
-            for node in nodes:
-                try:
-                    self.logger.debug(
-                        "Removing object: {}".format(node)
-                    )
-                    if cmd.objExists(node):
-                        cmd.delete(node)
-                except Exception as error:
-                    self.logger.error(
-                        'Node: {0} could not be deleted, error: {1}'.format(
-                            node, error
-                        )
-                    )
-        if cmd.objExists(self.ftrack_object):
-            cmd.delete(self.ftrack_object)
-
-    def _remove_asset(self, event):
-        '''
-        Override function from the main class, remove the current assets of the
-        scene.
-        '''
-        asset_item = super(FtrackAssetNode, self)._remove_asset(event)
-
-        try:
-            self.logger.debug("Removing current objects")
-            self.remove_current_objects()
-        except Exception, e:
-            self.logger.error("Error removing current objects: {}".format(e))
-
-        return asset_item
-
-    def _select_asset(self, event):
-        '''
-        Override function from the main class, select the current assets of the
-        scene.
-        '''
-        asset_item = super(FtrackAssetNode, self)._select_asset(event)
-
-        nodes = cmd.listConnections(
-            '{}.{}'.format(self.ftrack_object, asset_const.ASSET_LINK)
-        )
-        for node in nodes:
-            cmd.select(node, add=True)
-
-        return asset_item
-
-    def _clear_selection(self, event):
-        '''
-        Override function from the main class, clear the current selection
-        of the scene.
-        '''
-        asset_item = super(FtrackAssetNode, self)._clear_selection(event)
-
-        cmd.select(cl=True)
-
-        return asset_item
