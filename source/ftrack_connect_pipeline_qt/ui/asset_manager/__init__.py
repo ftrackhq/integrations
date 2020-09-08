@@ -106,6 +106,7 @@ class AssetManagerWidget(QtWidgets.QWidget):
         # Copy to avoid update automatically
         asset_info = _asset_info.copy()
         self.change_asset_version.emit(asset_info, value)
+
     def on_select_assets(self, assets):
         '''
         Triggered when select action is clicked on the asset_table_view.
