@@ -4,10 +4,10 @@
 import logging
 import ftrack_api
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.host.engine import BaseEngine
+from ftrack_connect_pipeline.host.engine.base_load_publish import BaseLoaderPublisherEngine
 
 
-class LoaderEngine(BaseEngine):
+class LoaderEngine(BaseLoaderPublisherEngine):
     engine_type = 'loader'
 
     def __init__(self, event_manager, host, hostid, asset_type):

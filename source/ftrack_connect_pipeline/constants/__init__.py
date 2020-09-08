@@ -29,18 +29,10 @@ PIPELINE_HOST_RUN = '{}.host.run'.format(_BASE_)
 PIPELINE_CLIENT_NOTIFICATION = '{}.client.notification'.format(_BASE_)
 PIPELINE_DISCOVER_HOST = '{}.host.discover'.format(_BASE_)
 
-#Asset Events
-PIPELINE_DISCOVER_ASSETS = '{}.client.discover_assets'.format(_BASE_)
-PIPELINE_ASSET_VERSION_CHANGED = '{}.client.asset_version_changed'.format(_BASE_)
-PIPELINE_ON_SELECT_ASSET = '{}.client.select_asset'.format(_BASE_)
-PIPELINE_ON_REMOVE_ASSET = '{}.client.remove_asset'.format(_BASE_)
-PIPELINE_ON_CLEAR_SELECTION = '{}.client.clear_selection'.format(_BASE_)
-
-
 # Avoid circular dependencies.
 from ftrack_connect_pipeline.constants.plugin.load import *
 from ftrack_connect_pipeline.constants.plugin.publish import *
+from ftrack_connect_pipeline.constants.plugin.asset_manager import *
 from ftrack_connect_pipeline.constants.environments import *
 from ftrack_connect_pipeline.constants.event import *
 from ftrack_connect_pipeline.constants.status import *
-from ftrack_connect_pipeline.constants.schema import *

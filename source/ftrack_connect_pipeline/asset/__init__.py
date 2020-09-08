@@ -14,10 +14,6 @@ class FtrackAssetBase(object):
     identity = None
     default_component_name = 'main'
 
-    def is_ftrack_object(self, object):
-        ''' Checks if the given object is '''
-        raise NotImplementedError()
-
     @property
     def component_name(self):
         '''Return component name from the current asset info'''
@@ -54,13 +50,17 @@ class FtrackAssetBase(object):
 
     @property
     def asset_info(self):
-        '''Returns instance of FtrackAssetInfo'''
+        '''Returns the current instance of FtrackAssetInfo'''
         return self._asset_info
 
     @asset_info.setter
     def asset_info(self, value):
+        '''Sets the asset_info, *value* should be instance of FtrackAssetInfo'''
         if not isinstance(value, FtrackAssetInfo):
-            raise ValueError()
+            try:
+                value = FtrackAssetInfo(value)
+            except Exception:
+                raise ValueError()
 
         self._asset_info = value
 
@@ -76,11 +76,12 @@ class FtrackAssetBase(object):
 
     @property
     def ftrack_object(self):
-        '''Returns ftrack object from the DCC app'''
+        '''Returns the ftrack object'''
         return self._ftrack_object
 
     @ftrack_object.setter
     def ftrack_object(self, value):
+        '''Sets the ftrack object'''
         self._ftrack_object = value
 
     def __init__(self, event_manager):
@@ -99,10 +100,10 @@ class FtrackAssetBase(object):
         self._asset_info = None
         self._event_manager = event_manager
 
-        self.ftrack_object = None
+        self._ftrack_object = None
 
     def init_ftrack_object(self):
-        '''Returns the ftrack ftrack_object for this class.'''
+        '''Set and Return the ftrack_object for this class.'''
         self.ftrack_object = None
         return self.ftrack_object
 
@@ -113,165 +114,67 @@ class FtrackAssetBase(object):
         )
         return ftrack_object_name
 
-    def change_version(self, asset_version_id, host_id):
+    def change_version(self, new_version_id):
         '''
-        Publish the PIPELINE_ASSET_VERSION_CHANGED event for the given *host_id*
-        with the asset_version and component_name of the given *asset_version_id*.
-
-        note:: Public function to change the asset version, it's been called from
-        the api or from the asset manager UI
+        Updates the current asset_info with the asset_info returned from the
+        given *new_version_id*.
         '''
 
-        asset_version = self.session.get('AssetVersion', asset_version_id)
+        asset_version = self.session.get('AssetVersion', new_version_id)
 
-        data_to_send = {'asset_version': asset_version,
-                        'component_name': self.component_name}
-
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_ASSET_VERSION_CHANGED,
-            data={
-                'pipeline': {
-                    'host_id': host_id,
-                    'data': data_to_send
-                }
-            }
+        new_asset_info = FtrackAssetInfo.from_ftrack_version(
+            asset_version, self.component_name
         )
-        self._event_manager.publish(event, self._change_version)
-
-    def remove_current_objects(self):
-        '''
-        Remove all the imported or referenced objects in the scene
-        '''
-        raise NotImplementedError
-
-    def _change_version(self, event):
-        '''
-        Callback function to change the asset version from the given *event*
-        '''
-
-        asset_info = event['data']
-
-        try:
-            self.logger.debug("Removing current objects")
-            self.remove_current_objects()
-        except Exception, e:
-            self.logger.error("Error removing current objects: {}".format(e))
+        if self.asset_info.session:
+            new_asset_info['session'] = self.asset_info.session
 
         asset_info_options = self.asset_info[asset_const.ASSET_INFO_OPTIONS]
 
-        asset_context = asset_info_options['settings']['context']
-        asset_data = asset_info[asset_const.COMPONENT_PATH]
-        asset_context[asset_const.ASSET_ID] = asset_info[asset_const.ASSET_ID]
-        asset_context[asset_const.VERSION_NUMBER] = asset_info[asset_const.VERSION_NUMBER]
-        asset_context[asset_const.ASSET_NAME] = asset_info[asset_const.ASSET_NAME]
-        asset_context[asset_const.ASSET_TYPE] = asset_info[asset_const.ASSET_TYPE]
-        asset_context[asset_const.VERSION_ID] = asset_info[asset_const.VERSION_ID]
+        if asset_info_options:
 
-        asset_info_options['settings']['data'] = [asset_data]
-        asset_info_options['settings']['context'].update(asset_context)
+            asset_context = asset_info_options['settings']['context']
+            asset_data = new_asset_info[asset_const.COMPONENT_PATH]
+            asset_context[asset_const.ASSET_ID] = new_asset_info[asset_const.ASSET_ID]
+            asset_context[asset_const.VERSION_NUMBER] = new_asset_info[asset_const.VERSION_NUMBER]
+            asset_context[asset_const.ASSET_NAME] = new_asset_info[asset_const.ASSET_NAME]
+            asset_context[asset_const.ASSET_TYPE] = new_asset_info[asset_const.ASSET_TYPE]
+            asset_context[asset_const.VERSION_ID] = new_asset_info[asset_const.VERSION_ID]
 
-        run_event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
-            data=asset_info_options
-        )
-        plugin_result_data = self.session.event_hub.publish(
-            run_event,
-            synchronous=True
-        )
-        result_data = plugin_result_data[0]
-        if not result_data:
-            self.logger.error("Error re-loading asset")
+            asset_info_options['settings']['data'] = [asset_data]
+            asset_info_options['settings']['context'].update(asset_context)
 
-        asset_info[asset_const.ASSET_INFO_OPTIONS] = asset_info_options
-
-        asset_info[asset_const.LOAD_MODE] = self.asset_info[
-            asset_const.LOAD_MODE
-        ]
-        asset_info[asset_const.REFERENCE_OBJECT] = self.asset_info[
-            asset_const.REFERENCE_OBJECT
-        ]
-
-        if not asset_info:
-            self.logger.warning("Asset version couldn't change")
-            return
-        if not isinstance(asset_info, FtrackAssetInfo):
-            raise TypeError(
-                "return type of change version has to be type of FtrackAssetInfo"
+            run_event = ftrack_api.event.base.Event(
+                topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
+                data=asset_info_options
             )
 
-        self.asset_info.update(asset_info)
+            plugin_result_data = self.session.event_hub.publish(
+                run_event,
+                synchronous=True
+            )
 
-        return asset_info
+            result_data = plugin_result_data[0]
+            if not result_data:
+                self.logger.error("Error re-loading asset")
 
-    def discover_assets(self):
-        '''
-        Base discover assets function.
-        '''
-        raise NotImplementedError
+            new_asset_info[asset_const.ASSET_INFO_OPTIONS] = asset_info_options
 
-    def clear_selection(self, host_id):
-        '''
-        Publish the PIPELINE_ON_CLEAR_SELECTION event for the
-        given *host_id
-        '''
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_ON_CLEAR_SELECTION,
-            data={
-                'pipeline': {
-                    'host_id': host_id,
-                    'data': self
-                }
-            }
-        )
-        self._event_manager.publish(event, self._clear_selection)
+            new_asset_info[asset_const.LOAD_MODE] = self.asset_info[
+                asset_const.LOAD_MODE
+            ]
+            new_asset_info[asset_const.REFERENCE_OBJECT] = self.asset_info[
+                asset_const.REFERENCE_OBJECT
+            ]
 
-    def _clear_selection(self, event):
-        '''
-        Base function callback to clear the selection from the given *event*
-        '''
-        asset_item = event['data']
-        return asset_item
+            if not new_asset_info:
+                self.logger.warning("Asset version couldn't change")
+                return
+            if not isinstance(new_asset_info, FtrackAssetInfo):
+                raise TypeError(
+                    "return type of change version has to be type of FtrackAssetInfo"
+                )
 
-    def select_asset(self, host_id):
-        '''
-        Publish the PIPELINE_ON_SELECT_ASSET event for the given *host_id*
-        '''
+        self.asset_info.update(new_asset_info)
 
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_ON_SELECT_ASSET,
-            data={
-                'pipeline': {
-                    'host_id': host_id,
-                    'data': self
-                }
-            }
-        )
-        self._event_manager.publish(event, self._select_asset)
+        return new_asset_info
 
-    def _select_asset(self, event):
-        '''Base function callback to select the assets from the given *event*'''
-        asset_item = event['data']
-        return asset_item
-
-    def remove_asset(self, host_id):
-        '''
-        Publish the PIPELINE_ON_REMOVE_ASSET event for the given *host_id*.
-        '''
-
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_ON_REMOVE_ASSET,
-            data={
-                'pipeline': {
-                    'host_id': host_id,
-                    'data': self
-                }
-            }
-        )
-        self._event_manager.publish(event, self._remove_asset)
-
-    def _remove_asset(self, event):
-        '''
-        Callback function to remove the assets from the given *event*
-        '''
-        asset_item = event['data']
-        return asset_item

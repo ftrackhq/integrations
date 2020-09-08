@@ -91,7 +91,7 @@ class BasePlugin(object):
     ''' Class representing a Plugin '''
     plugin_type = None
     plugin_name = None
-    type = 'plugin'#None
+    type = 'plugin'
     host = constants.HOST
 
     return_type = None
@@ -169,7 +169,6 @@ class BasePlugin(object):
             self.plugin_type,
             self.plugin_name,
         ]
-
         if not all(required):
             raise exception.PluginError('Some required fields are missing')
 
@@ -241,7 +240,6 @@ class BasePlugin(object):
             PIPELINE_RUN_PLUGIN_TOPIC
 
         '''
-
         plugin_settings = event['data']['settings']
         self.logger.debug('plugin_settings : {}'.format(plugin_settings))
         start_time = time.time()
@@ -334,5 +332,7 @@ class BasePlugin(object):
         '''
         raise NotImplementedError('Missing run method.')
 
+
 from ftrack_connect_pipeline.plugin.load import *
 from ftrack_connect_pipeline.plugin.publish import *
+from ftrack_connect_pipeline.plugin.asset_manager import *

@@ -23,7 +23,7 @@ def validate_schema(data):
     copy_data = copy.deepcopy(data)
     # validate schema
     for schema in data['schema']:
-        for entry in ['loader', 'publisher', 'package']:
+        for entry in ['loader', 'publisher', 'package', 'asset_manager']:
             if schema['title'].lower() == entry:
                 for definition in data[entry]:
                     augumented_valid_data = None

@@ -5,18 +5,14 @@ import uuid
 import ftrack_api
 import logging
 
-from ftrack_connect_pipeline.host import engine
+from ftrack_connect_pipeline.host import engine as host_engine
 from ftrack_connect_pipeline.host import validation
 from ftrack_connect_pipeline import constants, utils
-from ftrack_connect_pipeline.constants import asset as asset_const
-from ftrack_connect_pipeline.host import engine
-
 
 from functools import partial
 
 
 logger = logging.getLogger(__name__)
-
 
 def provide_host_information(hostid, definitions, event):
     '''return the current hostid'''
@@ -33,7 +29,11 @@ def provide_host_information(hostid, definitions, event):
 class Host(object):
 
     host = [constants.HOST]
-    asset_manager_engine = engine.AssetManagerEngine
+    engines = {
+        'asset_manager': host_engine.AssetManagerEngine,
+        'loader': host_engine.LoaderEngine,
+        'publisher': host_engine.PublisherEngine,
+    }
 
     def __repr__(self):
         return '<Host:{0}>'.format(self.hostid)
@@ -72,123 +72,42 @@ class Host(object):
         )
         self._event_manager = event_manager
         self.register()
-        self.listen_asset_manager()
-
-    def get_engine_runner(self, schema_engine, asset_type=None):
-        MyEngine = engine.getEngine(engine.BaseEngine, schema_engine)
-        engine_runner = MyEngine(self._event_manager, self.host, self.hostid,
-                                 asset_type)
-        return engine_runner
 
     def run(self, event):
-        #TODO: to know that comes from the asset manager, we can filter by
-        # data[topic] so we will know if it comes from the topic
-        # client.am.discover_assets for example, and that means that we already
-        # have the action to run, so we can do something like
-        # eval("{}.{}".format(engine_runner, event_topic_splited).
-
+        '''
+        Run the *event* data in to the corresponding engine.
+        '''
         data = event['data']['pipeline']['data']
+        engine_type = event['data']['pipeline']['engine_type']
+        package = data.get('package')
+        asset_type = None
 
-        try:
-            validation.validate_schema(self.__registry['schema'], data)
-        except Exception as error:
-            self.logger.error("Can't validate the data {} "
-                              "error: {}".format(data, error))
-            return False
+        if package:
+            # we are in Load/Publish land....
+            asset_type = self.get_asset_type_from_packages(
+                self.__registry['package'], package
+            )
+            try:
+                validation.validate_schema(self.__registry['schema'], data)
+            except Exception as error:
+                self.logger.error("Can't validate the data {} "
+                                  "error: {}".format(data, error))
 
-        asset_type = self.get_asset_type_from_packages(
-            self.__registry['package'], data['package'])
-        schema_engine = data['_config']['engine']
+        Engine = self.engines.get(engine_type)
+        engine_runner = Engine(
+            self._event_manager, self.host, self.hostid, asset_type
+        )
 
-        engine_runner = self.get_engine_runner(schema_engine, asset_type)
-        runnerResult = engine_runner.run(data)
-
-        if runnerResult == False:
+        runner_result = engine_runner.run(data)
+        if runner_result == False:
             self.logger.error("Couldn't publish the data {}".format(data))
 
-        return runnerResult
-
-    def _run_discover_assets(self, event):
-        data = event['data']['pipeline']
-
-        engine_runner = self.get_engine_runner(
-            self.asset_manager_engine.__name__
-        )
-
-        runnerResult = engine_runner.discover_assets(data)
-
-        if runnerResult == False:
-            self.logger.error(
-                "Couldn't run the action for the data {}".format(data)
-            )
-
-        return runnerResult
-
-    def _run_change_asset_version(self, event):
-        data = event['data']['pipeline']
-
-        engine_runner = self.get_engine_runner(
-            self.asset_manager_engine.__name__
-        )
-
-        runnerResult = engine_runner.change_asset_version(data)
-
-        if runnerResult == False:
-            self.logger.error(
-                "Couldn't run the action for the data {}".format(data)
-            )
-
-        return runnerResult
-
-    def _run_clear_selection(self, event):
-        data = event['data']['pipeline']
-
-        engine_runner = self.get_engine_runner(
-            self.asset_manager_engine.__name__
-        )
-
-        runnerResult = engine_runner.clear_selection(data)
-
-        if runnerResult == False:
-            self.logger.error(
-                "Couldn't run the action for the data {}".format(data)
-            )
-
-        return runnerResult
-
-    def _run_select_asset(self, event):
-        data = event['data']['pipeline']
-
-        engine_runner = self.get_engine_runner(
-            self.asset_manager_engine.__name__
-        )
-
-        runnerResult = engine_runner.select_asset(data)
-
-        if runnerResult == False:
-            self.logger.error(
-                "Couldn't run the action for the data {}".format(data)
-            )
-
-        return runnerResult
-
-    def _run_remove_asset(self, event):
-        data = event['data']['pipeline']
-
-        engine_runner = self.get_engine_runner(
-            self.asset_manager_engine.__name__
-        )
-
-        runnerResult = engine_runner.remove_asset(data)
-
-        if runnerResult == False:
-            self.logger.error(
-                "Couldn't run the action for the data {}".format(data)
-            )
-
-        return runnerResult
+        return runner_result
 
     def get_asset_type_from_packages(self, packages, data_package):
+        '''
+        Return the asset_type from the given *packages* and *data_packages*
+        '''
         for package in packages:
             if package['name'] == data_package:
                 return package['asset_type']
@@ -262,69 +181,6 @@ class Host(object):
         self._event_manager.publish(
             event,
             self.on_register_definition
-        )
-
-    def listen_asset_manager(self):
-
-        self._event_manager.subscribe(
-            '{} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_DISCOVER_ASSETS, self.hostid
-            ),
-            self._run_discover_assets
-        )
-        self.logger.info(
-            'subscribe to asset manager version changed  {} ready.'.format(
-                self.hostid
-            )
-        )
-
-
-        self._event_manager.subscribe(
-            '{} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_ASSET_VERSION_CHANGED, self.hostid
-            ),
-            self._run_change_asset_version
-        )
-        self.logger.info(
-            'subscribe to asset manager version changed  {} ready.'.format(
-                self.hostid
-            )
-        )
-
-        self._event_manager.subscribe(
-            '{} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_ON_SELECT_ASSET, self.hostid
-            ),
-            self._run_select_asset
-        )
-        self.logger.info(
-            'subscribe to asset manager version changed  {} ready.'.format(
-                self.hostid
-            )
-        )
-
-        self._event_manager.subscribe(
-            '{} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_ON_REMOVE_ASSET, self.hostid
-            ),
-            self._run_remove_asset
-        )
-        self.logger.info(
-            'subscribe to asset manager version changed  {} ready.'.format(
-                self.hostid
-            )
-        )
-
-        self._event_manager.subscribe(
-            '{} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_ON_CLEAR_SELECTION, self.hostid
-            ),
-            self._run_clear_selection
-        )
-        self.logger.info(
-            'subscribe to asset manager version changed  {} ready.'.format(
-                self.hostid
-            )
         )
 
     def reset(self):
