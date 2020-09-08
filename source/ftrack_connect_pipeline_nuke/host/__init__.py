@@ -6,7 +6,7 @@ import ftrack_api
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_nuke import constants as nuke_constants
 from ftrack_connect_pipeline.host import Host
-from ftrack_connect_pipeline_nuke.host.engine.asset_manager import NukeAssetManagerEngine
+from ftrack_connect_pipeline_nuke.host import engine as host_engine
 
 
 logger = logging.getLogger(
@@ -16,20 +16,22 @@ logger = logging.getLogger(
 
 class NukeHost(Host):
     host = [qt_constants.HOST, nuke_constants.HOST]
-    asset_manager_engine = NukeAssetManagerEngine
+    # Define the Nuke engines to be run during the run function
+    engines = {
+        'asset_manager': host_engine.NukeAssetManagerEngine,
+        'loader': host_engine.NukeLoaderEngine,
+        'publisher': host_engine.NukePublisherEngine,
+    }
+
+    def __init__(self, event_manager):
+        '''
+        Initialize NukeHost with *event_manager*.
+
+        *event_manager* instance of
+        :class:`ftrack_connect_pipeline.event.EventManager`
+        '''
+        super(NukeHost, self).__init__(event_manager)
 
     def run(self, event):
-        super(NukeHost, self).run(event)
-        self._refresh_asset_manager()
-
-    def _refresh_asset_manager(self):
-        event = ftrack_api.event.base.Event(
-            topic=qt_constants.PIPELINE_REFRESH_AM,
-            data={
-                'pipeline': {
-                    'host_id': self.hostid,
-                    'data': {},
-                }
-            }
-        )
-        self._event_manager.publish(event)
+        runnerResult = super(NukeHost, self).run(event)
+        return runnerResult
