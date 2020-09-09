@@ -16,13 +16,6 @@ class LogItem(object):
         self.message = log_result.get('message')
         self.plugin_type = log_result.get('plugin_type')
 
-    # @property
-    # def id(self):
-    #     '''Return a unique identifier of the log entry.'''
-    #     return '{0}.{1}.{2}'.format(
-    #         self._name, self._method, self.time
-    #     )
-
     @property
     def execution_time(self):
         '''Return the duration of the log entry.'''
