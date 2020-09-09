@@ -118,11 +118,6 @@ class LogDialogTableView(QtWidgets.QTableView):
             QtWidgets.QAbstractItemView.SelectRows
         )
 
-        # QtCompat.setSectionResizeMode(
-        #     self.verticalHeader(),
-        #     QtWidgets.QHeaderView.ResizeToContents
-        # )
-
         self.horizontalHeader().setStretchLastSection(True)
 
     def build(self):
@@ -151,7 +146,7 @@ class LogManagerDetailWidget(QtWidgets.QDockWidget):
     <div> <b>Status: </b>{status} </div> 
     <div> <b>Hostid: </b>{hostid} </div> 
     <div> <b>Widget_ref: </b>{widget_ref} </div> 
-    <div> <b>Execution_time: </b>{execution_time} </div> 
+    <div> <b>Execution_time: </b>{execution_time} sec.</div> 
     <div> <b>Plugin_name: </b>{plugin_name} </div> 
     <div> <b>Plugin_type: </b>{plugin_type} </div>
     <p> <b>Result: </b>{result} </p>

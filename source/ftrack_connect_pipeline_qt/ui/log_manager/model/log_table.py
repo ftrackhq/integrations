@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2016 ftrack
+# :copyright: Copyright (c) 2014-2020 ftrack
 
 from QtExt import QtCore, QtGui, QtWidgets
 from ftrack_connect_pipeline import constants
@@ -30,7 +30,6 @@ class LogTableModel(QtCore.QAbstractTableModel):
         *ftrack_asset_list*
         '''
         self.beginResetModel()
-        #self.clear()
         self._data = log_items
         self.endResetModel()
 
