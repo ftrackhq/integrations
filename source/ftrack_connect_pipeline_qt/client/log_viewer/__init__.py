@@ -8,16 +8,16 @@ import os, sys, subprocess
 from Qt import QtGui, QtCore, QtWidgets
 from ftrack_connect_pipeline import client, constants
 from ftrack_connect_pipeline.configure_logging import get_log_directory
-from ftrack_connect_pipeline.client.log_manager import LogManagerClient
-from ftrack_connect_pipeline_qt.ui.log_manager import LogManagerWidget
+from ftrack_connect_pipeline.client.log_viewer import LogViewerClient
+from ftrack_connect_pipeline_qt.ui.log_viewer import LogViewerWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget import header, host_selector
 
 
-class QtLogManagerClient(LogManagerClient, QtWidgets.QWidget):
+class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
     '''
     QtAssetManagerClient class.
     '''
-    definition_filter = 'log_manager'
+    definition_filter = 'log_viewer'
 
     def __init__(self, event_manager, parent=None):
         '''Initialise QtAssetManagerClient with *event_manager*
@@ -27,9 +27,9 @@ class QtLogManagerClient(LogManagerClient, QtWidgets.QWidget):
         communicate to the event server.
         '''
         QtWidgets.QWidget.__init__(self, parent=parent)
-        LogManagerClient.__init__(self, event_manager)
+        LogViewerClient.__init__(self, event_manager)
 
-        self.log_manager_widget = LogManagerWidget(event_manager)
+        self.log_viewer_widget = LogViewerWidget(event_manager)
 
         self.host_connection = None
 
@@ -50,7 +50,7 @@ class QtLogManagerClient(LogManagerClient, QtWidgets.QWidget):
     def _host_discovered(self, event):
         '''callback, adds new hosts connection from the given *event* to the
         host_selector'''
-        LogManagerClient._host_discovered(self, event)
+        LogViewerClient._host_discovered(self, event)
         self.host_selector.add_hosts(self.hosts)
 
     def pre_build(self):
@@ -93,16 +93,16 @@ class QtLogManagerClient(LogManagerClient, QtWidgets.QWidget):
         )
 
     def _add_log_item(self, log_item):
-        LogManagerClient._add_log_item(self, log_item)
-        self.log_manager_widget.set_log_items(self.logs)
+        LogViewerClient._add_log_item(self, log_item)
+        self.log_viewer_widget.set_log_items(self.logs)
 
     def change_host(self, host_connection):
         '''
         Triggered host is selected in the host_selector.
         '''
-        LogManagerClient.change_host(self, host_connection)
+        LogViewerClient.change_host(self, host_connection)
 
-        self.scroll.setWidget(self.log_manager_widget)
+        self.scroll.setWidget(self.log_viewer_widget)
 
     def _on_logging_button_clicked(self):
         '''Handle logging button clicked.'''
@@ -147,4 +147,4 @@ class QtLogManagerClient(LogManagerClient, QtWidgets.QWidget):
         '''
         if not self.host_connection:
             return
-        self.log_manager_widget.set_log_items(self.logs)
+        self.log_viewer_widget.set_log_items(self.logs)

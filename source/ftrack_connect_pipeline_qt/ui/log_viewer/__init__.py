@@ -4,12 +4,12 @@
 import os, sys, subprocess
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
-from ftrack_connect_pipeline_qt.ui.log_manager.model.log_table import (
+from ftrack_connect_pipeline_qt.ui.log_viewer.model.log_table import (
     LogTableModel, FilterProxyModel
 )
 
 
-class LogManagerWidget(QtWidgets.QWidget):
+class LogViewerWidget(QtWidgets.QWidget):
 
     @property
     def event_manager(self):
@@ -27,7 +27,7 @@ class LogManagerWidget(QtWidgets.QWidget):
         return self._results
 
     def __init__(self, event_manager, parent=None):
-        super(LogManagerWidget, self).__init__(parent=parent)
+        super(LogViewerWidget, self).__init__(parent=parent)
 
         self._event_manager = event_manager
         self._results = []
@@ -69,7 +69,7 @@ class LogManagerWidget(QtWidgets.QWidget):
         self.log_table_view.set_log_items(log_items)
 
     def show_detail_widget(self, index):
-        self.dockWidget = LogManagerDetailWidget(self.event_manager, self)
+        self.dockWidget = LogViewerDetailWidget(self.event_manager, self)
 
         data = self.log_table_view.model().data(
             index, self.log_table_view.model().DATA_ROLE
@@ -140,7 +140,7 @@ class LogDialogTableView(QtWidgets.QTableView):
         self.log_model.set_log_items(log_items)
 
 
-class LogManagerDetailWidget(QtWidgets.QDockWidget):
+class LogViewerDetailWidget(QtWidgets.QDockWidget):
 
     template = """
     <div> <b>Status: </b>{status} </div> 
@@ -169,7 +169,7 @@ class LogManagerDetailWidget(QtWidgets.QDockWidget):
         return self._results
 
     def __init__(self, event_manager, parent=None):
-        super(LogManagerDetailWidget, self).__init__(parent=parent)
+        super(LogViewerDetailWidget, self).__init__(parent=parent)
 
         self._event_manager = event_manager
         self._results = []

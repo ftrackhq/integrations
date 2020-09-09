@@ -20,10 +20,10 @@ event_manager = event.EventManager(
 host.Host(event_manager)
 
 from ftrack_connect_pipeline_qt.client import asset_manager
-from ftrack_connect_pipeline_qt.client import log_manager
+from ftrack_connect_pipeline_qt.client import log_viewer
 
 client_connection = asset_manager.QtAssetManagerClient(event_manager)
-log_connection = log_manager.QtLogManagerClient(event_manager)
+log_connection = log_viewer.QtLogViewerClient(event_manager)
 
 client_connection.context = '690afd58-06d0-11ea-bbbb-ee594985c7e2'
 log_connection.context = '690afd58-06d0-11ea-bbbb-ee594985c7e2'

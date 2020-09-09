@@ -21,10 +21,10 @@ if __name__ == '__main__':
     from ftrack_connect_pipeline import constants, host
     from ftrack_connect_pipeline_qt import event
 
-    from ftrack_connect_pipeline_qt.client.log_manager import QtLogManagerClient
+    from ftrack_connect_pipeline_qt.client.log_viewer import QtLogViewerClient
 
 
-    class StandaloneLoggerManagerClient(QtLogManagerClient):
+    class StandaloneLoggerManagerClient(QtLogViewerClient):
 
         def __init__(self, parent=None):
             session = ftrack_api.Session(auto_connect_event_hub=False)
