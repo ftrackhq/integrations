@@ -5,7 +5,7 @@ from ftrack_connect_pipeline import client
 from ftrack_connect_pipeline.constants import asset as asset_const
 
 
-class LogManagerClient(client.Client):
+class LogViewerClient(client.Client):
     '''
     Base client class.
     '''
@@ -22,4 +22,4 @@ class LogManagerClient(client.Client):
         :class:`ftrack_connect_pipeline.event.EventManager`instance to
         communicate to the event server.
         '''
-        super(LogManagerClient, self).__init__(event_manager)
+        super(LogViewerClient, self).__init__(event_manager)
