@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
+import time
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.host.engine import AssetManagerEngine
 from ftrack_connect_pipeline_3dsmax.asset import FtrackAssetNode
@@ -25,7 +26,19 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         Discover all the assets in the scene:
         Returns status and result
         '''
+        start_time = time.time()
         status = constants.UNKNOWN_STATUS
+        result = []
+        message = None
+
+        result_data = {
+            'plugin_name': 'discover_assets',
+            'plugin_type': 'action',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': message
+        }
 
         ftrack_asset_nodes = max_utils.get_ftrack_helpers()
         ftrack_asset_info_list = []
@@ -44,6 +57,15 @@ class MaxAssetManagerEngine(AssetManagerEngine):
             status = constants.SUCCESS_STATUS
         result = ftrack_asset_info_list
 
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        result_data['status'] = status
+        result_data['result'] = result
+        result_data['execution_time'] = total_time
+
+        self._notify_client(plugin, result_data)
+
         return status, result
 
     def remove_asset(self, asset_info, options=None, plugin=None):
@@ -51,8 +73,19 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         Removes the given *asset_info* from the scene.
         Returns status and result
         '''
+        start_time = time.time()
         status = constants.UNKNOWN_STATUS
         result = []
+        message = None
+
+        result_data = {
+            'plugin_name': 'remove_asset',
+            'plugin_type': 'action',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': message
+        }
 
         deleted_nodes = []
 
@@ -64,28 +97,56 @@ class MaxAssetManagerEngine(AssetManagerEngine):
             deleted_nodes = max_utils.delete_all_children(ftrack_asset_object.ftrack_object)
             status = constants.SUCCESS_STATUS
         except Exception as error:
-            self.logger.error('Could not delete nodes, error: {}'.format(error))
+            message = 'Could not delete nodes, error: {}'.format(error)
+            self.logger.error(message)
             status = constants.ERROR_STATUS
 
         bool_status = constants.status_bool_mapping[status]
         if not bool_status:
+            end_time = time.time()
+            total_time = end_time - start_time
+
+            result_data['status'] = status
+            result_data['result'] = result
+            result_data['execution_time'] = total_time
+            result_data['message'] = message
+
+            self._notify_client(plugin, result_data)
             return status, result
 
         try:
             ftrack_asset_object.ftrack_object.Delete()
             status = constants.SUCCESS_STATUS
         except Exception as error:
-            self.logger.error(
+            message = str(
                 'Could not delete the ftrack_object, error: {}'.format(error)
             )
+            self.logger.error(message)
             status = constants.ERROR_STATUS
 
         bool_status = constants.status_bool_mapping[status]
         if not bool_status:
+            end_time = time.time()
+            total_time = end_time - start_time
+
+            result_data['status'] = status
+            result_data['result'] = result
+            result_data['execution_time'] = total_time
+            result_data['message'] = message
+
+            self._notify_client(plugin, result_data)
             return status, result
         deleted_nodes.append(ftrack_asset_object.ftrack_object)
         result = deleted_nodes
 
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        result_data['status'] = status
+        result_data['result'] = result
+        result_data['execution_time'] = total_time
+
+        self._notify_client(plugin, result_data)
         return status, result
 
     def select_asset(self, asset_info, options=None, plugin=None):
@@ -95,8 +156,19 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         select the given *asset_info*.
         Returns status and result
         '''
+        start_time = time.time()
         status = constants.UNKNOWN_STATUS
         result = []
+        message = None
+
+        result_data = {
+            'plugin_name': 'select_asset',
+            'plugin_type': 'action',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': message
+        }
 
         selected_nodes=[]
 
@@ -114,15 +186,33 @@ class MaxAssetManagerEngine(AssetManagerEngine):
             )
             status = constants.SUCCESS_STATUS
         except Exception as error:
-            self.logger.error(
+            message = str(
                 'Could not delete the ftrack_object, error: {}'.format(error)
             )
+            self.logger.error(message)
             status = constants.ERROR_STATUS
 
         bool_status = constants.status_bool_mapping[status]
         if not bool_status:
+            end_time = time.time()
+            total_time = end_time - start_time
+
+            result_data['status'] = status
+            result_data['result'] = result
+            result_data['execution_time'] = total_time
+            result_data['message'] = message
+
+            self._notify_client(plugin, result_data)
             return status, result
 
         result = selected_nodes
 
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        result_data['status'] = status
+        result_data['result'] = result
+        result_data['execution_time'] = total_time
+
+        self._notify_client(plugin, result_data)
         return status, result

@@ -48,6 +48,7 @@ def initialise():
     from ftrack_connect_pipeline_3dsmax.client import load
     from ftrack_connect_pipeline_3dsmax.client import publish
     from ftrack_connect_pipeline_3dsmax.client import asset_manager
+    from ftrack_connect_pipeline_3dsmax.client import log_viewer
 
     # Enable loader and publisher only if is set to run local (default)
     dialogs = []
@@ -60,6 +61,9 @@ def initialise():
     )
     dialogs.append(
         (asset_manager.MaxAssetManagerClient, 'AssetManager')
+    )
+    dialogs.append(
+        (log_viewer.MaxLogViewerClient, 'LogViewer')
     )
 
     menu_name = 'ftrack_pipeline'
