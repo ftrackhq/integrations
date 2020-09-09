@@ -103,7 +103,10 @@ class BaseEngine(object):
         *plugin*, *status* and *message*'''
 
         result_data['hostid'] = self.hostid
-        result_data['widget_ref'] = plugin.get('widget_ref')
+        if plugin:
+            result_data['widget_ref'] = plugin.get('widget_ref')
+        else:
+            result_data['widget_ref'] = None
 
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_CLIENT_NOTIFICATION,
