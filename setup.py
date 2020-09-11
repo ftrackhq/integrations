@@ -139,7 +139,7 @@ setup(
         'jsonschema==2.6.0',
         'appdirs',
         'qt.py >=1.0.0, < 2',
-        'python_jsonschema_objects',
+        'python_jsonschema_objects <= 0.3.12',
         'jsonref'
     ],
     tests_require=[
