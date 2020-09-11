@@ -44,6 +44,18 @@ def on_discover_pipeline(event):
         event['data']['options']['env']
     )
 
+    # Discover plugins from definitions
+    definitions_plugin_hook = event['data']['options']['env'].get(
+        'FTRACK_DEFINITION_PLUGIN_PATH'
+    )
+    plugin_hook = os.path.join(definitions_plugin_hook, 'qt')
+    # Add plugins to events path.
+    ftrack_connect.application.appendPath(
+        plugin_hook,
+        'FTRACK_EVENT_PLUGIN_PATH',
+        event['data']['options']['env']
+    )
+
 
 def register(session):
     '''Subscribe to application launch events on *registry*.'''
@@ -53,5 +65,5 @@ def register(session):
     logger.info('discovering :{}'.format('ftrack.pipeline.discover'))
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch',
-        on_discover_pipeline
+        on_discover_pipeline, priority=30
     )
