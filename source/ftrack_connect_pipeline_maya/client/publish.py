@@ -18,7 +18,7 @@ class MayaPublisherClient(MayaQWidgetDockableMixin, QtPublisherClient):
             event_manager=event_manager, parent=parent
         )
         self.setWindowTitle('Maya Pipeline Publisher')
-        print self
+        print(self)
 
     def show(self):
         super(MayaPublisherClient, self).show(

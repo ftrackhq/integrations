@@ -156,7 +156,7 @@ class FtrackAssetNode(FtrackAssetBase):
         Update the parameters of the ftrack_object. And Return the
         ftrack_object updated
         '''
-        for k, v in self.asset_info.items():
+        for k, v in list(self.asset_info.items()):
             cmd.setAttr('{}.{}'.format(ftrack_object, k), l=False)
             if k == asset_const.VERSION_NUMBER:
                 cmd.setAttr('{}.{}'.format(ftrack_object, k), v, l=True)

@@ -46,7 +46,7 @@ def getReferenceNode(assetLink):
         else:
             return None
     if res == '':
-        print 'Could not find reference ftrack_object'
+        print('Could not find reference ftrack_object')
         return None
     else:
         return res
