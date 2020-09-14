@@ -268,12 +268,12 @@ class AssetManagerTableView(QtWidgets.QTableView):
                 'name': 'remove_asset'
             }]
         }
-        for def_action_type, def_action in default_actions.items():
-            if def_action_type in actions.keys():
+        for def_action_type, def_action in list(default_actions.items()):
+            if def_action_type in list(actions.keys()):
                 actions[def_action_type].extend(def_action)
 
-        for action_type, actions in actions.items():
-            if action_type not in self.action_widgets.keys():
+        for action_type, actions in list(actions.items()):
+            if action_type not in list(self.action_widgets.keys()):
                 self.action_widgets[action_type] = []
             for action in actions:
                 action_widget = QtWidgets.QAction(action['name'], self)
@@ -286,8 +286,8 @@ class AssetManagerTableView(QtWidgets.QTableView):
         '''
         self.menu = QtWidgets.QMenu(self)
         self.action_type_menu = {}
-        for action_type, action_widgets in self.action_widgets.items():
-            if action_type not in self.action_type_menu.keys():
+        for action_type, action_widgets in list(self.action_widgets.items()):
+            if action_type not in list(self.action_type_menu.keys()):
                 type_menu = QtWidgets.QMenu(action_type, self)
                 self.menu.addMenu(type_menu)
                 self.action_type_menu[action_type] = type_menu

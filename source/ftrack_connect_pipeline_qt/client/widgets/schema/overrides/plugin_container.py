@@ -35,13 +35,13 @@ class PluginContainerObject(JsonObject):
             label.setStyleSheet('QLabel { color: red; }')
             self.layout().addWidget(label)
         else:
-            if 'widget' in self.properties.keys():
+            if 'widget' in list(self.properties.keys()):
                 widget = self.widget_factory.fetch_plugin_widget(
                     self.fragment_data, self.plugin_type
                 )
                 self.layout().addWidget(widget)
             else:
-                for k, v in self.properties.items():
+                for k, v in list(self.properties.items()):
                     new_fragment_data = None
                     if self.fragment_data:
                         new_fragment_data = self.fragment_data.get(k)

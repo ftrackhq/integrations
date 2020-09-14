@@ -141,5 +141,5 @@ class QtClient(client.Client, QtWidgets.QWidget):
     def _run_callback(self, event):
         #TODO: if we run each plugin separately we will have to move all the
         # logic and validations in the client(here) and that may not make sense...
-        print "_run_callback event --> {}".format(event)
+        print("_run_callback event --> {}".format(event))
         pass

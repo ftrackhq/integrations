@@ -144,6 +144,6 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         out = {}
         out['name'] = self.name
         out['options']={}
-        for key, value in self.options.items():
+        for key, value in list(self.options.items()):
             out['options'][key] = value
         return out
