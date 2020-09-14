@@ -102,7 +102,7 @@ class BuildPlugin(setuptools.Command):
             ), int('777', 8)
         )
 
-        result_path = shutil.make_archive(
+        shutil.make_archive(
             os.path.join(
                 BUILD_PATH,
                 'ftrack-connect-pipeline-qt-{0}'.format(VERSION)
@@ -111,7 +111,6 @@ class BuildPlugin(setuptools.Command):
             STAGING_PATH
         )
 
-        print 'Result: ' + result_path
 
 
 # Custom commands.
