@@ -25,10 +25,6 @@ nuke_script_path = os.path.join(
     plugin_base_dir, 'resource', 'scripts'
 )
 
-application_hook = os.path.join(
-    plugin_base_dir, 'resource', 'application_hook'
-)
-
 python_dependencies = os.path.join(
     plugin_base_dir, 'dependencies'
 )
@@ -59,9 +55,13 @@ def on_application_launch(event):
         event['data']['options']['env']
     )
 
-    # Pipeline plugins
+    definitions_plugin_hook = event['data']['options']['env'].get(
+        'FTRACK_DEFINITION_PLUGIN_PATH'
+    )
+    plugin_hook = os.path.join(definitions_plugin_hook, 'nuke')
+    # Add base plugins to events path.
     ftrack_connect.application.appendPath(
-        application_hook,
+        plugin_hook,
         'FTRACK_EVENT_PLUGIN_PATH',
         event['data']['options']['env']
     )
@@ -75,5 +75,5 @@ def register(session):
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch and '
         'data.application.identifier=nuke*',
-        on_application_launch
+        on_application_launch, priority=40
     )
