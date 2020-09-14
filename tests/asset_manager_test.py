@@ -6,7 +6,10 @@ from Qt import QtWidgets
 
 import sys
 
-os.environ['FTRACK_EVENT_PLUGIN_PATH'] = '/Users/lluisftrack/work/brokenC/ftrack/repos/ftrack-connect-pipeline-definition/resource/application_hook:/Users/lluisftrack/work/brokenC/ftrack/repos/ftrack-connect-pipeline/resource/application_hook:/Users/lluisftrack/work/brokenC/ftrack/repos/ftrack-connect-pipeline-qt/resource/application_hook'
+os.environ['FTRACK_EVENT_PLUGIN_PATH'] ='/Users/lluisftrack/work/brokenC/ftrack/repos/ftrack-connect-pipeline-definition/resource/plugins/python:' \
+                                         '/Users/lluisftrack/work/brokenC/ftrack/repos/ftrack-connect-pipeline-definition/resource/plugins/qt:' \
+                                        '/Users/lluisftrack/work/brokenC/ftrack/repos/ftrack-connect-pipeline-definition/resource/application_hook:'
+
 print os.environ['FTRACK_EVENT_PLUGIN_PATH']
 
 app = QtWidgets.QApplication(sys.argv)
@@ -27,6 +30,7 @@ log_connection = log_viewer.QtLogViewerClient(event_manager)
 
 client_connection.context = '690afd58-06d0-11ea-bbbb-ee594985c7e2'
 log_connection.context = '690afd58-06d0-11ea-bbbb-ee594985c7e2'
+
 
 client_connection.show()
 log_connection.show()
