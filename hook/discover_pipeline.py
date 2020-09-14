@@ -18,10 +18,6 @@ plugin_base_dir = os.path.normpath(
     )
 )
 
-application_hook = os.path.join(
-    plugin_base_dir, 'resource', 'application_hook'
-)
-
 python_dependencies = os.path.join(
     plugin_base_dir, 'dependencies'
 )
@@ -37,14 +33,7 @@ def on_discover_pipeline(event):
         event['data']['options']['env']
     )
 
-    # Add base plugins to events path.
-    ftrack_connect.application.appendPath(
-        application_hook,
-        'FTRACK_EVENT_PLUGIN_PATH',
-        event['data']['options']['env']
-    )
-
-    # Discover plugins from definitions
+    # Discovered plugins from definitions
     definitions_plugin_hook = event['data']['options']['env'].get(
         'FTRACK_DEFINITION_PLUGIN_PATH'
     )
