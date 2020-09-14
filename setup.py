@@ -87,7 +87,7 @@ class BuildPlugin(setuptools.Command):
             ]
         )
 
-        result_path = shutil.make_archive(
+        shutil.make_archive(
             os.path.join(
                 BUILD_PATH,
                 'ftrack-connect-pipeline-{0}'.format(VERSION)
@@ -95,8 +95,6 @@ class BuildPlugin(setuptools.Command):
             'zip',
             STAGING_PATH
         )
-
-        print 'Result: ' + result_path
 
 
 # Custom commands.
