@@ -26,10 +26,6 @@ max_connect_plugins_path = os.path.abspath(os.path.join(
     plugin_base_dir, 'resource', 'plug_ins'
 ))
 
-application_hook = os.path.abspath(os.path.join(
-    plugin_base_dir, 'resource', 'application_hook'
-))
-
 python_dependencies = os.path.abspath(os.path.join(
     plugin_base_dir, 'dependencies'
 ))
@@ -70,29 +66,24 @@ def on_application_launch(event):
         event['data']['options']['env']
     )
 
-    paths = event['data']['options']['env']['PATH']
-    new_paths = ';'.join(
-        [
-            path
-            for path in paths.split(';')
-            if 'Perforce' not in path
-        ]
-    )
-    event['data']['options']['env']['PATH'] = new_paths
-
-    # Pipeline plugins
-    ftrack_connect.application.appendPath(
-        application_hook,
-        'FTRACK_EVENT_PLUGIN_PATH',
-        event['data']['options']['env']
-    )
-
     # extract executable
     command = [event['data']['command'][0]]
 
     # replace startup script
     command.extend(['-U', 'MAXScript', max_startup_script])
     event['data']['command'] = command
+
+    #Discover plugins from definitions
+    definitions_plugin_hook = event['data']['options']['env'].get(
+        'FTRACK_DEFINITION_PLUGIN_PATH'
+    )
+    plugin_hook = os.path.join(definitions_plugin_hook, '3dsmax')
+    # Add plugins to events path.
+    ftrack_connect.application.appendPath(
+        plugin_hook,
+        'FTRACK_EVENT_PLUGIN_PATH',
+        event['data']['options']['env']
+    )
 
 
 def register(session):
@@ -103,5 +94,5 @@ def register(session):
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch'
         ' and data.application.identifier=3ds_max*',
-        on_application_launch
+        on_application_launch, priority=40
     )
