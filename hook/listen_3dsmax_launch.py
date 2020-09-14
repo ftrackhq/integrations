@@ -26,10 +26,6 @@ max_connect_plugins_path = os.path.abspath(os.path.join(
     plugin_base_dir, 'resource', 'plug_ins'
 ))
 
-application_hook = os.path.abspath(os.path.join(
-    plugin_base_dir, 'resource', 'application_hook'
-))
-
 python_dependencies = os.path.abspath(os.path.join(
     plugin_base_dir, 'dependencies'
 ))
@@ -67,23 +63,6 @@ def on_application_launch(event):
     ftrack_connect.application.appendPath(
         max_startup_folder,
         'PATH',
-        event['data']['options']['env']
-    )
-
-    paths = event['data']['options']['env']['PATH']
-    new_paths = ';'.join(
-        [
-            path
-            for path in paths.split(';')
-            if 'Perforce' not in path
-        ]
-    )
-    event['data']['options']['env']['PATH'] = new_paths
-
-    # Pipeline plugins
-    ftrack_connect.application.appendPath(
-        application_hook,
-        'FTRACK_EVENT_PLUGIN_PATH',
         event['data']['options']['env']
     )
 
