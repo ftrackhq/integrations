@@ -7,7 +7,8 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 2.4.1
+    :date: 2020-09-15
 
     .. change:: add
         :tags: Ui
