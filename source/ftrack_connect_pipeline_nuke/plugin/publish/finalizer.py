@@ -28,6 +28,8 @@ class PublisherFinalizerNukePlugin(plugin.PublisherFinalizerPlugin, BaseNukePlug
         ftrack_asset_nodes = nuke_utils.get_nodes_with_ftrack_tab()
 
         for dependency in ftrack_asset_nodes:
+            # avoid read and write nodes containing the old ftrack tab
+            # without information
             if not dependency.knob(asset_const.VERSION_ID):
                 break
             dependency_version_id = dependency.knob(

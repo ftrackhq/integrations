@@ -69,6 +69,10 @@ class FtrackAssetTab(FtrackAssetBase):
         for scene_node in nuke.root().nodes():
             if scene_node.knob(asset_const.FTRACK_PLUGIN_TYPE):
                 param_dict = self.get_parameters_dictionary(scene_node)
+                # avoid read and write nodes containing the old ftrack tab
+                # without information
+                if not param_dict:
+                    continue
                 node_asset_info = FtrackAssetInfo(param_dict)
                 if node_asset_info.is_deprecated:
                     raise DeprecationWarning(
