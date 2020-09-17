@@ -48,6 +48,10 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             param_dict = FtrackAssetTab.get_parameters_dictionary(
                 ftrack_object
             )
+            # avoid read and write nodes containing the old ftrack tab
+            # without information
+            if not param_dict:
+                continue
             node_asset_info = FtrackAssetInfo(param_dict)
             ftrack_asset_info_list.append(node_asset_info)
 
