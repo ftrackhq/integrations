@@ -170,18 +170,24 @@ class FtrackAssetTab(FtrackAssetBase):
             ';'.join(self.connected_objects)
         )
         selected_nodes = nuke.selectedNodes()
+
+        #TODO: move unwanted nodes out from the backdrop node
+        # all_nodes = nuke.allNodes()
+        # scene_nodes = list(set(all_nodes) - set(selected_nodes))
+        # scene_nodes.remove(ftrack_object)
+        #
+        # for node in scene_nodes:
+        #     if self._node_is_inside(node, ftrack_object):
+        #         new_pos = ftrack_object.xpos() + (
+        #                 node.xpos() - ftrack_object.xpos()
+        #         ) * 2
+        #         node['xpos'].setValue(new_pos)
+
         # Calculate bounds for the backdrop node.
         bd_X = min([node.xpos() for node in selected_nodes])
         bd_Y = min([node.ypos() for node in selected_nodes])
         bd_W = max([node.xpos() + 80 for node in selected_nodes]) - bd_X
         bd_H = max([node.ypos() + 20 for node in selected_nodes]) - bd_Y
-
-        # bd_W = max(
-        #     [node.xpos() + node.screenWidth() for node in selected_nodes]
-        # ) - bd_X
-        # bd_H = max(
-        #     [node.ypos() + node.screenHeight() for node in selected_nodes]
-        # ) - bd_Y
 
         z_order = 0
         selected_backdrop_nodes = nuke.selectedNodes("BackdropNode")
@@ -213,6 +219,7 @@ class FtrackAssetTab(FtrackAssetBase):
         ftrack_object['bdwidth'].setValue(bd_W)
         ftrack_object['ypos'].setValue(bd_Y)
         ftrack_object['bdheight'].setValue(bd_H)
+        ftrack_object['z_order'].setValue(z_order)
 
         if ftrack_object.getNodes() != selected_nodes:
             self.logger.info("There are nodes that shouldn't be on the backdrop")
@@ -229,7 +236,8 @@ class FtrackAssetTab(FtrackAssetBase):
         '''
 
         if not self.ftrack_object:
-            ftrack_object = nuke.nodes.BackdropNode()
+            z_order = 0
+            ftrack_object = nuke.nodes.BackdropNode(z_order=z_order)
             ftrack_object.knob('tile_color').setValue(2386071295)
             self.ftrack_object = ftrack_object.knob('name').value()
 
