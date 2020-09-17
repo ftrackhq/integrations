@@ -28,6 +28,8 @@ class PublisherFinalizerNukePlugin(plugin.PublisherFinalizerPlugin, BaseNukePlug
         ftrack_asset_nodes = nuke_utils.get_nodes_with_ftrack_tab()
 
         for dependency in ftrack_asset_nodes:
+            if not dependency.knob('version_id'):
+                break
             dependency_version_id = dependency.knob(
                 asset_const.VERSION_ID).getValue()
             self.logger.debug(
