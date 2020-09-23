@@ -37,13 +37,12 @@ class BaseCollectorWidget(BaseOptionsWidget):
         self.list_widget.setSelectionBehavior(
             QtWidgets.QAbstractItemView.SelectRows
         )
-        row = 0
-        for obj in self.collected_objects:
+
+        for row, obj in enumerate(self.collected_objects):
             item = QtWidgets.QListWidgetItem(obj)
             item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
             item.setCheckState(QtCore.Qt.Checked)
             self.list_widget.addItem(item)
-            row += 1
 
         self.layout().addWidget(self.add_button)
         self.layout().addWidget(self.list_widget)
