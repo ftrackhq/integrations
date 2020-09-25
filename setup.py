@@ -127,6 +127,8 @@ setup(
         'lowdown >= 0.1.0, < 2'
     ],
     install_requires=[
+        'ftrack-python-api >= 1, < 2',
+        #'ftrack-python-api >= 1, < 3',
         'jsonschema==2.6.0',
         'appdirs',
         'qt.py >=1.0.0, < 2',

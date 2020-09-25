@@ -44,7 +44,7 @@ def on_discover_pipeline(event):
         'FTRACK_EVENT_PLUGIN_PATH',
         event['data']['options']['env']
     )
-
+    return event['data']['options']
 
 def register(session):
     '''Subscribe to application launch events on *registry*.'''
