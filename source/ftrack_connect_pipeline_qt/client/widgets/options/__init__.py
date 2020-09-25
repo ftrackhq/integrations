@@ -99,7 +99,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         )
         self._asset_type = session.query(
             'AssetType where short is "{}"'.format(asset_type)
-        ).one()
+        ).first()
 
         self._context = session.get('Context', context_id)
 
