@@ -72,7 +72,7 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
 
         result = super_result.get('result')
 
-        if asset_load_mode == load_const.REFERENCE_MODE:
+        if asset_load_mode != load_const.IMPORT_MODE:
             if result:
                 scene_node = result.get(
                             ftrack_asset_class.asset_info[asset_const.COMPONENT_PATH]
