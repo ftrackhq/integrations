@@ -39,24 +39,24 @@ def on_application_launch(session, event):
     # logger.debug('Adding ftrackShotId')
     entity = event['data']['context']['selection'][0]
     task = session.get('Task', entity['entityId'])
-    taskParent = task.get('parent')
+    taskParent = task['parent']
 
     try:
         event['data']['options']['env']['FS'] = str(
-            int(taskParent.getFrameStart())
+            taskParent['custom_attributes'].get('fstart', '1')
         )
     except Exception:
         event['data']['options']['env']['FS'] = '1'
 
     try:
         event['data']['options']['env']['FE'] = str(
-            int(taskParent.getFrameEnd())
+            taskParent['custom_attributes'].get('fend', '1')
         )
     except Exception:
         event['data']['options']['env']['FE'] = '1'
 
-    event['data']['options']['env']['FTRACK_TASKID'] = task.get('id')
-    event['data']['options']['env']['FTRACK_SHOTID'] = task.get('parent_id')
+    event['data']['options']['env']['FTRACK_CONTEXTID'] = task['id']
+
     # Add dependencies in pythonpath
     ftrack_connect.application.prependPath(
         python_dependencies,
@@ -105,8 +105,6 @@ def register(session):
         return
 
     handle_event = partial(on_application_launch, session)
-    # print "handle_event ---> {}".format(handle_event)
-
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch and '
