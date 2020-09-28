@@ -46,6 +46,8 @@ def on_discover_pipeline(event):
         event['data']['options']['env']
     )
 
+    return event['data']['options']
+
 
 def register(session):
     '''Subscribe to application launch events on *registry*.'''
