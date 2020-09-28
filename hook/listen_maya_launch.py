@@ -5,6 +5,7 @@ import os
 import ftrack_api
 import ftrack_connect.application
 import logging
+from functools import partial
 
 logger = logging.getLogger('ftrack_connect_pipeline_maya.listen_maya_launch')
 
@@ -30,11 +31,32 @@ python_dependencies = os.path.join(
 )
 
 
-def on_application_launch(event):
+def on_application_launch(session, event):
     '''Handle application launch and add environment to *event*.'''
 
     logger.debug('Adding maya pipeline environments.')
 
+    # logger.debug('Adding ftrackShotId')
+    entity = event['data']['context']['selection'][0]
+    task = session.get('Task', entity['entityId'])
+    taskParent = task.get('parent')
+
+    try:
+        event['data']['options']['env']['FS'] = str(
+            int(taskParent.getFrameStart())
+        )
+    except Exception:
+        event['data']['options']['env']['FS'] = '1'
+
+    try:
+        event['data']['options']['env']['FE'] = str(
+            int(taskParent.getFrameEnd())
+        )
+    except Exception:
+        event['data']['options']['env']['FE'] = '1'
+
+    event['data']['options']['env']['FTRACK_TASKID'] = task.get('id')
+    event['data']['options']['env']['FTRACK_SHOTID'] = task.get('parent_id')
     # Add dependencies in pythonpath
     ftrack_connect.application.prependPath(
         python_dependencies,
@@ -74,14 +96,20 @@ def on_application_launch(event):
         event['data']['options']['env']
     )
 
+    return event['data']['options']
+
 
 def register(session):
     '''Subscribe to application launch events on *registry*.'''
     if not isinstance(session, ftrack_api.session.Session):
         return
 
+    handle_event = partial(on_application_launch, session)
+    # print "handle_event ---> {}".format(handle_event)
+
+
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch and '
         'data.application.identifier=maya*',
-        on_application_launch, priority=40
+        handle_event, priority=40
     )
