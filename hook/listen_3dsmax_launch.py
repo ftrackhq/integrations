@@ -6,6 +6,7 @@ import os
 
 import ftrack_api
 import ftrack_connect.application
+from functools import partial
 
 logger = logging.getLogger('ftrack_connect_pipeline_3dsmax.listen_3dsmax_launch')
 
@@ -34,10 +35,31 @@ max_startup_folder = os.path.abspath(os.path.join(max_script_path, 'startup'))
 max_startup_script = os.path.join(max_startup_folder, 'initftrack.ms')
 
 
-def on_application_launch(event):
+def on_application_launch(session, event):
     '''Handle application launch and add environment to *event*.'''
 
     logger.debug('Adding 3dsmax pipeline environments.')
+
+    # logger.debug('Adding ftrackShotId')
+    entity = event['data']['context']['selection'][0]
+    task = session.get('Task', entity['entityId'])
+    taskParent = task['parent']
+
+    try:
+        event['data']['options']['env']['FS'] = str(
+            taskParent['custom_attributes'].get('fstart', '1')
+        )
+    except Exception:
+        event['data']['options']['env']['FS'] = '1'
+
+    try:
+        event['data']['options']['env']['FE'] = str(
+            taskParent['custom_attributes'].get('fend', '1')
+        )
+    except Exception:
+        event['data']['options']['env']['FE'] = '1'
+
+    event['data']['options']['env']['FTRACK_CONTEXTID'] = task['id']
 
     # Add dependencies in pythonpath
     ftrack_connect.application.appendPath(
@@ -85,14 +107,17 @@ def on_application_launch(event):
         event['data']['options']['env']
     )
 
+    return event['data']['options']
 
 def register(session):
     '''Subscribe to application launch events on *registry*.'''
     if not isinstance(session, ftrack_api.session.Session):
         return
 
+    handle_event = partial(on_application_launch, session)
+
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch'
         ' and data.application.identifier=3ds_max*',
-        on_application_launch, priority=40
+        handle_event, priority=40
     )
