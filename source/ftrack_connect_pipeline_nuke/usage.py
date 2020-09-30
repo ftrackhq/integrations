@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2017 ftrack
 
 import ftrack_connect_pipeline_nuke
-import ftrack_connect.usage
+import ftrack_application_launcher.usage
 
 import nuke
 import platform
@@ -18,6 +18,6 @@ def send_event(event_name, metadata=None):
             'ftrack_connect_pipeline_nuke_version': ftrack_connect_pipeline_nuke.__version__
         }
 
-    ftrack_connect.usage.send_event(
+    ftrack_application_launcher.usage.send_event(
         event_name, metadata
     )
