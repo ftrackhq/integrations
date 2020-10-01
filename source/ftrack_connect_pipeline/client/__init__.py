@@ -14,7 +14,12 @@ class HostConnection(object):
 
     @property
     def context(self):
-        return self._raw_host_data['context_id']
+        return self._context
+
+    @context.setter
+    def context(self, value):
+        '''Sets the engine_type with the given *value*'''
+        self._context = value
 
     @property
     def session(self):
@@ -63,6 +68,8 @@ class HostConnection(object):
         self._logs = []
         self._event_manager = event_manager
         self._raw_host_data = copy_data
+
+        self.context = self._raw_host_data['context_id']
 
     def run(self, data, engine, callback=None):
         '''Send *data* to the host through the PIPELINE_HOST_RUN topic.'''
