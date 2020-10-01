@@ -60,7 +60,7 @@ class PublishContextWidget(BaseOptionsWidget):
         entityChanged of context_selector event is triggered'''
         self.set_option_result(context['id'], key='context_id')
         self.context = context
-        self.asset_selector.set_context(context)
+        self.asset_selector.set_context(context, self.asset_type)
 
     def _on_asset_changed(self, asset_name, asset_id):
         '''Updates the option dicctionary with provided *asset_name* when
