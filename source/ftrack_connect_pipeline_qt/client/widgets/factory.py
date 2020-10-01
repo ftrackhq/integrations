@@ -20,6 +20,7 @@ class WidgetFactory(QtWidgets.QWidget):
     '''Main class to represent widgets from json schemas'''
 
     widget_status_updated = QtCore.Signal(object)
+    widget_context_updated = QtCore.Signal(object)
 
     host_definitions = None
     ui = None
@@ -200,6 +201,7 @@ class WidgetFactory(QtWidgets.QWidget):
             )
 
         result.status_updated.connect(self._on_widget_status_updated)
+        result.context_changed.connect(self._on_widget_context_changed)
         self.register_widget_plugin(plugin_data, result)
 
         return result
@@ -292,6 +294,14 @@ class WidgetFactory(QtWidgets.QWidget):
         '''Emits signal widget_status_updated when any widget calls the
         status_updated signal'''
         self.widget_status_updated.emit(status)
+
+    def _on_widget_context_changed(self, context_id, asset_type):
+        new_context = {
+            'context_id': context_id,
+            'asset_type': asset_type
+        }
+        self.set_context(new_context)
+        self.widget_context_updated.emit(context_id)
 
     def register_widget_plugin(self, plugin_data, widget):
         '''regiter the *widget* in the given *plugin_data*'''

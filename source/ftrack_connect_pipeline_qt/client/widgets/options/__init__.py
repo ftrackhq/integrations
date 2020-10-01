@@ -13,6 +13,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     Base class of a widget representation for options widgets
     '''
     status_updated = QtCore.Signal(object)
+    context_changed = QtCore.Signal(object, object)
     status_icons = constants.icons.status_icons
 
     def __str__(self):
@@ -21,6 +22,23 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     @property
     def context(self):
         return self._context
+
+    @context.setter
+    def context(self, value):
+        '''Sets the engine_type with the given *value*'''
+        self._context = value
+
+    @property
+    def asset_type(self):
+        '''Returns asset_type'''
+        return self._asset_type
+
+    @asset_type.setter
+    def asset_type(self, value):
+        '''Sets asset type from the given *value*'''
+        self._asset_type = self.session.query(
+            'AssetType where short is "{}"'.format(value)
+        ).first()
 
     @property
     def session(self):
@@ -94,14 +112,11 @@ class BaseOptionsWidget(QtWidgets.QWidget):
             'context_id', options.get('context_id')
         )
 
-        asset_type = self.context.get(
+        self.asset_type = self.context.get(
             'asset_type', options.get('asset_type')
         )
-        self._asset_type = session.query(
-            'AssetType where short is "{}"'.format(asset_type)
-        ).first()
 
-        self._context = session.get('Context', context_id)
+        self.context = session.get('Context', context_id)
 
         # Build widget
         self.pre_build()
