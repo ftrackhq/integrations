@@ -13,9 +13,6 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import Versio
 class PublishContextWidget(BaseOptionsWidget):
     '''Main class to represent a context widget on a publish process'''
 
-    @property
-    def asset_type(self):
-        return self._asset_type
 
     def __init__(
             self, parent=None, session=None, data=None, name=None,
@@ -29,7 +26,7 @@ class PublishContextWidget(BaseOptionsWidget):
             parent=parent, session=session, data=data, name=name,
             description=description, options=options, context=context
         )
-        self.asset_selector.set_context(self.context)
+        self.asset_selector.set_context(self.context, self.asset_type)
 
     def build(self):
         '''build function widgets.'''
@@ -62,6 +59,7 @@ class PublishContextWidget(BaseOptionsWidget):
         '''Updates the option dicctionary with provided *context* when
         entityChanged of context_selector event is triggered'''
         self.set_option_result(context['id'], key='context_id')
+        self.context = context
         self.asset_selector.set_context(context)
 
     def _on_asset_changed(self, asset_name, asset_id):
@@ -90,7 +88,7 @@ class PublishContextWidget(BaseOptionsWidget):
         self.asset_layout.setContentsMargins(0, 0, 0, 0)
         self.asset_layout.setAlignment(QtCore.Qt.AlignTop)
 
-        self.asset_selector = AssetSelector(self.session, self.asset_type)
+        self.asset_selector = AssetSelector(self.session)
         self.asset_layout.addWidget(self.asset_selector)
         self.layout().addLayout(self.asset_layout)
         current_asset = self.asset_selector.asset_combobox.currentText()
@@ -149,9 +147,6 @@ class PublishContextWidget(BaseOptionsWidget):
 class LoadContextWidget(BaseOptionsWidget):
     '''Main class to represent a context widget on a publish process'''
 
-    @property
-    def asset_type(self):
-        return self._asset_type
 
     def __init__(
             self, parent=None, session=None, data=None, name=None,
@@ -165,7 +160,8 @@ class LoadContextWidget(BaseOptionsWidget):
             parent=parent, session=session, data=data, name=name,
             description=description, options=options, context=context
         )
-        self.asset_selector.set_context(self.context)
+
+        self.asset_selector.set_context(self.context, self.asset_type)
 
     def build(self):
         '''build function widgets.'''
@@ -185,8 +181,8 @@ class LoadContextWidget(BaseOptionsWidget):
         '''Updates the option dicctionary with provided *context* when
         entityChanged of context_selector event is triggered'''
         self.set_option_result(context['id'], key='context_id')
-        self.asset_selector.set_context(context)
-        self.version_selector.set_context(context)
+        self.context = context
+        self.asset_selector.set_context(context, self.asset_type)
 
     def _on_asset_changed(self, asset_name, asset_id):
         '''Updates the option dicctionary with provided *asset_name* when
@@ -220,7 +216,7 @@ class LoadContextWidget(BaseOptionsWidget):
         self.asset_layout = QtWidgets.QHBoxLayout()
         self.asset_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.asset_selector = AssetSelector(self.session, self.asset_type)
+        self.asset_selector = AssetSelector(self.session)
         self.asset_selector.asset_combobox.setEditable(False)
         self.asset_layout.addWidget(self.asset_selector)
         self.layout().addLayout(self.asset_layout)
@@ -232,7 +228,7 @@ class LoadContextWidget(BaseOptionsWidget):
         self.version_layout = QtWidgets.QHBoxLayout()
         self.version_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.version_selector = VersionSelector(self.session, None)
+        self.version_selector = VersionSelector(self.session)
         self.version_layout.addWidget(self.version_selector)
         self.layout().addLayout(self.version_layout)
         current_version = self.version_selector.version_combobox.currentText()
