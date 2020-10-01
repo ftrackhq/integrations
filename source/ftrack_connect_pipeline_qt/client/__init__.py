@@ -77,6 +77,10 @@ class QtClient(client.Client, QtWidgets.QWidget):
             self._on_widget_status_updated
         )
 
+        self.widget_factory.widget_context_updated.connect(
+            self._on_widget_context_updated
+        )
+
         # # apply styles
         # theme.applyTheme(self, 'dark')
         # theme.applyFont()
@@ -130,6 +134,10 @@ class QtClient(client.Client, QtWidgets.QWidget):
         status, message = data
         self.header.setMessage(message, status)
 
+    def _on_widget_context_updated(self, context_id):
+        self.context = context_id
+        self.host_connection.context = context_id
+
     def _on_run(self):
         '''Function called when click the run button'''
         serialized_data= self._current_def.to_json_object()
@@ -143,3 +151,4 @@ class QtClient(client.Client, QtWidgets.QWidget):
         # logic and validations in the client(here) and that may not make sense...
         print "_run_callback event --> {}".format(event)
         pass
+

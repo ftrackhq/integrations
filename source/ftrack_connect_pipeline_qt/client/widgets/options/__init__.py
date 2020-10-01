@@ -13,6 +13,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     Base class of a widget representation for options widgets
     '''
     status_updated = QtCore.Signal(object)
+    context_changed = QtCore.Signal(object, object)
     status_icons = constants.icons.status_icons
 
     def __str__(self):
