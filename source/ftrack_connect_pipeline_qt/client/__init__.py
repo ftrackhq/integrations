@@ -71,6 +71,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
     def post_build(self):
         '''Post Build ui method for events connections.'''
         self.host_selector.definition_changed.connect(self._definition_changed)
+        self.host_selector.host_changed.connect(self._host_changed)
         self.run_button.clicked.connect(self._on_run)
 
         self.widget_factory.widget_status_updated.connect(
@@ -84,6 +85,12 @@ class QtClient(client.Client, QtWidgets.QWidget):
         # # apply styles
         # theme.applyTheme(self, 'dark')
         # theme.applyFont()
+
+    def _host_changed(self, host_connection):
+        ''' Triggered when host_changed is called from the host_selector.'''
+
+        if self.scroll.widget():
+            self.scroll.widget().deleteLater()
 
     def _definition_changed(self, host_connection, schema, definition):
         ''' Triggered when definition_changed is called from the host_selector.
