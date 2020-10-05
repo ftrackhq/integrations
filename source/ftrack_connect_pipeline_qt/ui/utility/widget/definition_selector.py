@@ -5,6 +5,7 @@ from Qt import QtWidgets, QtCore
 class DefinitionSelector(QtWidgets.QWidget):
     '''DefinitionSelector Base Class'''
     definition_changed = QtCore.Signal(object, object, object)
+    host_changed = QtCore.Signal(object)
 
     @property
     def selected_host_connection(self):
@@ -52,6 +53,7 @@ class DefinitionSelector(QtWidgets.QWidget):
         '''triggered when chaging host selection to *index*'''
         self.definition_combobox.clear()
         self.host_connection = self.host_combobox.itemData(index)
+        self.host_changed.emit(self.host_connection)
 
         if not self.host_connection:
             self.logger.warning('No data for selected host')
