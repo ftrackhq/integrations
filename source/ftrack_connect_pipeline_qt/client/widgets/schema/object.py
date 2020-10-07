@@ -60,6 +60,18 @@ class JsonObject(BaseJsonWidget):
         layout.addLayout(self.innerLayout)
         self.layout().addWidget(self.groupBox)
 
+    #TODO: think about adding something like this to run all the validators at
+    # once or all the components
+
+    # def pre_run_build(self):
+    #     '''post build function , mostly used connect widgets events.'''
+    #     pre_run_button = QtWidgets.QPushButton("pre_run")
+    #     pre_run_button.clicked.connect(self.on_pre_run)
+    #     self.groupBox.layout().addWidget(pre_run_button)
+    #
+    # def on_pre_run(self):
+    #     self.pre_run_clicked.emit(self.to_json_object())
+
     def to_json_object(self):
         out = {}
 
