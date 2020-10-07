@@ -97,6 +97,7 @@ class BasePlugin(object):
     return_type = None
     return_value = None
     _required_output = {}
+    pre_run_method = 'fetch'
 
     def __repr__(self):
         return '<{}:{}>'.format(self.plugin_type, self.plugin_name)
@@ -115,6 +116,11 @@ class BasePlugin(object):
     def run_topic(self):
         '''Return a formated PIPELINE_RUN_PLUGIN_TOPIC'''
         return self._base_topic(constants.PIPELINE_RUN_PLUGIN_TOPIC)
+
+    @property
+    def pre_run_topic(self):
+        '''Return a formated PIPELINE_RUN_PLUGIN_TOPIC'''
+        return self._base_topic(constants.PIPELINE_PRE_RUN_PLUGIN_TOPIC)
 
     @property
     def session(self):
@@ -205,6 +211,11 @@ class BasePlugin(object):
             self._run
         )
 
+        self.session.event_hub.subscribe(
+            self.pre_run_topic,
+            self._pre_run
+        )
+
         # subscribe to discover the plugin
         self.session.event_hub.subscribe(
             self.discover_topic,
@@ -226,6 +237,105 @@ class BasePlugin(object):
 
         return True
 
+    def _validate_result(self, result):
+        # validate result instance type
+        status = constants.UNKNOWN_STATUS
+        message = None
+        result_type_valid, result_type_valid_message = self.validator.validate_result_type(
+            result)
+        if not result_type_valid:
+            status = constants.ERROR_STATUS
+            message = str(result_type_valid_message)
+            return status, message
+
+        # validate result with output options
+        output_valid, output_valid_message = self.validator.validate_required_output(
+            result)
+        if not output_valid:
+            status = constants.ERROR_STATUS
+            message = str(output_valid_message)
+            return status, message
+
+        # Return value is valid
+        result_value_valid, result_value_valid_message = self.validator.validate_result_value(
+            result)
+        if not result_value_valid:
+            status = constants.ERROR_STATUS
+            message = str(result_value_valid_message)
+            return status, message
+
+        status = constants.SUCCESS_STATUS
+        message = 'Successfully run :{}'.format(self.__class__.__name__)
+        return status, message
+
+    def _pre_run(self, event):
+        '''Run the current plugin with the settings form the *event*.
+
+        *event* provides a dictionary with the plugin schema information.
+
+        Returns a dictionary with the status, result, execution time and
+        message of the execution
+
+        .. note::
+
+            This function is used by the host engine and called by the
+            PIPELINE_RUN_PLUGIN_TOPIC
+
+        '''
+        plugin_settings = event['data']['settings']
+        self.logger.debug('plugin_settings : {}'.format(plugin_settings))
+        start_time = time.time()
+
+        result_data = {
+            'plugin_name': self.plugin_name,
+            'plugin_type': self.plugin_type,
+            'status': constants.UNKNOWN_STATUS,
+            'result': None,
+            'execution_time': 0,
+            'message': None
+        }
+
+        pre_run_fn = getattr(self, self.pre_run_method)
+        if not pre_run_fn:
+            message = 'The pre_run method : {} does not exist for the ' \
+                      'plugin:{}'.format(self.pre_run_method, self.plugin_name)
+            self.logger.debug(message)
+            result_data['status'] = constants.EXCEPTION_STATUS
+            result_data['execution_time'] = 0
+            result_data['message'] = str(message)
+            return result_data
+
+        try:
+            result = pre_run_fn(**plugin_settings)
+
+        except Exception as message:
+            end_time = time.time()
+            total_time = end_time - start_time
+            tb = traceback.format_exc()
+            self.logger.debug(message, exc_info=True)
+            result_data['status'] = constants.EXCEPTION_STATUS
+            result_data['execution_time'] = total_time
+            result_data['message'] = str(tb)
+            return result_data
+
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        result_data['execution_time'] = total_time
+        if self.pre_run_method == 'run':
+            status, message = self._validate_result(result)
+        else:
+            status = constants.SUCCESS_STATUS
+            message = 'Successfully run :{}'.format(self.__class__.__name__)
+        result_data['status'] = status
+        result_data['message'] = message
+
+        bool_status = constants.status_bool_mapping[status]
+        if bool_status:
+            result_data['result'] = result
+
+        return result_data
+
     def _run(self, event):
         '''Run the current plugin with the settings form the *event*.
 
@@ -243,6 +353,16 @@ class BasePlugin(object):
         plugin_settings = event['data']['settings']
         self.logger.debug('plugin_settings : {}'.format(plugin_settings))
         start_time = time.time()
+
+        result_data = {
+            'plugin_name': self.plugin_name,
+            'plugin_type': self.plugin_type,
+            'status': constants.UNKNOWN_STATUS,
+            'result': None,
+            'execution_time': 0,
+            'message': None
+            }
+
         try:
             result = self.run(**plugin_settings)
 
@@ -251,64 +371,23 @@ class BasePlugin(object):
             total_time = end_time - start_time
             tb = traceback.format_exc()
             self.logger.debug(message, exc_info=True)
-            return {
-                'plugin_name': self.plugin_name,
-                'plugin_type': self.plugin_type,
-                'status': constants.EXCEPTION_STATUS,
-                'result': None,
-                'execution_time': total_time,
-                'message': str(tb)
-            }
+            result_data['status'] = constants.EXCEPTION_STATUS
+            result_data['execution_time'] = total_time
+            result_data['message'] = str(tb)
+            return result_data
+
         end_time = time.time()
         total_time = end_time - start_time
+        result_data['execution_time'] = total_time
+        status, message = self._validate_result(result)
+        result_data['status'] = status
+        result_data['message'] = message
 
-        # validate result instance type
-        result_type_valid, result_type_valid_message = self.validator.validate_result_type(
-            result)
-        if not result_type_valid:
-            return {
-                'plugin_name': self.plugin_name,
-                'plugin_type': self.plugin_type,
-                'status': constants.ERROR_STATUS,
-                'result': None,
-                'execution_time': total_time,
-                'message': str(result_type_valid_message)
-            }
+        bool_status = constants.status_bool_mapping[status]
+        if bool_status:
+            result_data['result'] = result
 
-        # validate result with output options
-        output_valid, output_valid_message = self.validator.validate_required_output(
-            result)
-        if not output_valid:
-            return {
-                'plugin_name': self.plugin_name,
-                'plugin_type': self.plugin_type,
-                'status': constants.ERROR_STATUS,
-                'result': None,
-                'execution_time': total_time,
-                'message': str(output_valid_message)
-            }
-
-        # Return value is valid
-        result_value_valid, result_value_valid_message = self.validator.validate_result_value(
-            result)
-        if not result_value_valid:
-            return {
-                'plugin_name': self.plugin_name,
-                'plugin_type': self.plugin_type,
-                'status': constants.ERROR_STATUS,
-                'result': None,
-                'execution_time': total_time,
-                'message': str(result_value_valid_message)
-            }
-
-        return {
-            'plugin_name': self.plugin_name,
-            'plugin_type': self.plugin_type,
-            'status': constants.SUCCESS_STATUS,
-            'result': result,
-            'execution_time': total_time,
-            'message': 'Successfully run :{}'.format(self.__class__.__name__)
-        }
+        return result_data
 
     def run(self, context=None, data=None, options=None):
         '''Run the current plugin with , *context* , *data* and *options*.
@@ -330,6 +409,9 @@ class BasePlugin(object):
             don't override self.output as it contains the _required_output
 
         '''
+        raise NotImplementedError('Missing run method.')
+
+    def fetch(self, context=None, data=None, options=None):
         raise NotImplementedError('Missing run method.')
 
 

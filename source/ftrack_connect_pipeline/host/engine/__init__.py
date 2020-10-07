@@ -47,8 +47,53 @@ class BaseEngine(object):
 
         self.event_manager = event_manager
 
+    def run_event(
+            self, plugin_name, plugin_type, host_definition, data, options,
+            context
+    ):
+        return ftrack_api.event.base.Event(
+                    topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
+                    data={
+                        'pipeline': {
+                            'plugin_name': plugin_name,
+                            'plugin_type': plugin_type,
+                            'type': 'plugin',
+                            'host': host_definition
+                        },
+                        'settings':
+                            {
+                                'data': data,
+                                'options': options,
+                                'context': context
+                            }
+                    }
+                )
+
+    def pre_run_event(
+            self, plugin_name, plugin_type, host_definition, data, options,
+            context
+    ):
+        return ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_PRE_RUN_PLUGIN_TOPIC,
+            data={
+                'pipeline': {
+                    'plugin_name': plugin_name,
+                    'plugin_type': plugin_type,
+                    'type': 'plugin',
+                    'host': host_definition
+                },
+                'settings':
+                    {
+                        'data': data,
+                        'options': options,
+                        'context': context
+                    }
+            }
+        )
+
     def _run_plugin(
-            self, plugin, plugin_type, options=None, data=None, context=None
+            self, plugin, plugin_type, options=None, data=None, context=None,
+            pre_run=False
     ):
         '''Run *plugin*, *plugin_type*, with given *options*, *data* and
         *context* and notify client with the status before and after execute
@@ -69,23 +114,17 @@ class BaseEngine(object):
         result_data['status'] = constants.UNKNOWN_STATUS
 
         for host_definition in reversed(self._host):
-            event = ftrack_api.event.base.Event(
-                topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
-                data={
-                    'pipeline': {
-                        'plugin_name': plugin_name,
-                        'plugin_type': plugin_type,
-                        'type': 'plugin',
-                        'host': host_definition
-                    },
-                    'settings':
-                        {
-                            'data': data,
-                            'options': options,
-                            'context': context
-                        }
-                }
-            )
+            if pre_run:
+                event = self.pre_run_event(
+                    plugin_name, plugin_type, host_definition, data, options,
+                    context
+                )
+            else:
+                event = self.run_event(
+                    plugin_name, plugin_type, host_definition, data, options,
+                    context
+                )
+
             plugin_result_data = self.session.event_hub.publish(
                 event,
                 synchronous=True
@@ -120,7 +159,55 @@ class BaseEngine(object):
         )
 
     def run(self, data):
-        raise NotImplementedError
+        '''
+        Override function run methods and plugins from the provided *data*
+        Return result
+        '''
+
+        method = data.get('method', '')
+        plugin = data.get('plugin', None)
+        assets = data.get('assets', None)
+        options = data.get('options', {})
+        pre_run = data.get('pre_run', False)
+        plugin_type = data.get('plugin_type', None)
+
+        result = None
+
+        if hasattr(self, method):
+            callback_fn = getattr(self, method)
+            status, result = callback_fn(assets, options, plugin)
+            if isinstance(status, dict):
+                if not all(status.values()):
+                    raise Exception(
+                        'An error occurred during the execution of '
+                        'the method: {}'.format(method)
+                    )
+            else:
+                bool_status = constants.status_bool_mapping[status]
+                if not bool_status:
+                    raise Exception(
+                        'An error occurred during the execution of '
+                        'the method: {}'.format(method)
+                    )
+
+        elif plugin:
+            status, result = self._run_plugin(
+                plugin, plugin_type,
+                data=plugin.get('plugin_data'),
+                options=plugin['options'],
+                context=None,
+                pre_run=pre_run
+            )
+
+            bool_status = constants.status_bool_mapping[status]
+            if not bool_status:
+                raise Exception(
+                    'An error occurred during the execution of the plugin {}'
+                    '\n status: {} \n result: {}'.format(
+                        plugin['plugin'], status, result)
+                )
+
+        return result
 
 
 from ftrack_connect_pipeline.host.engine.publish import *

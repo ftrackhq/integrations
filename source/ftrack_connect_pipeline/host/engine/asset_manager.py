@@ -26,26 +26,6 @@ class AssetManagerEngine(BaseEngine):
             event_manager, host, hostid, asset_type=asset_type
         )
 
-    def run_asset_manager_plugin(self, plugin, plugin_type):
-        '''
-        Runs the given asset manager *plugin* of the given *plugin_type* and
-        returns the status and the result
-        '''
-        status, result = self._run_plugin(
-            plugin, plugin_type,
-            data=plugin.get('plugin_data'),
-            options=plugin['options'],
-            context=None
-        )
-        bool_status = constants.status_bool_mapping[status]
-        if not bool_status:
-            raise Exception(
-                'An error occurred during the execution of the Asset Manager '
-                'plugin {}\n status: {} \n result: {}'.format(
-                    plugin['plugin'], status, result)
-            )
-        return bool_status, result
-
     def get_ftrack_asset_object(self, asset_info):
         '''
         Returns the initialized ftrack_asset_class for the given *asset_info*
@@ -270,10 +250,19 @@ class AssetManagerEngine(BaseEngine):
 
             plugin['plugin_data'] = asset_info
 
-            status, result = self.run_asset_manager_plugin(
-                plugin, plugin_type
+            # status, result = self.run_asset_manager_plugin(
+            #     plugin, plugin_type
+            # )
+            # if not status:
+            status, result = self._run_plugin(
+                plugin, plugin_type,
+                data=plugin.get('plugin_data'),
+                options=plugin['options'],
+                context=None,
+                pre_run=False
             )
-            if not status:
+            bool_status = constants.status_bool_mapping[status]
+            if not bool_status:
                 message = "Error executing the plugin: {}".format(plugin)
                 self.logger.error(message)
 
@@ -404,47 +393,3 @@ class AssetManagerEngine(BaseEngine):
         self._notify_client(plugin, result_data)
 
         return status, result
-
-    def run(self, data):
-        '''
-        Override function run methods and plugins from the provided *data*
-        Return result
-        '''
-        method = data.get('method')
-        plugin = data.get('plugin', None)
-        assets = data.get('assets', None)
-        options = data.get('options', {})
-
-        result = None
-
-        if hasattr(self, method):
-            callback_fn = getattr(self, method)
-            status, result = callback_fn(assets, options, plugin)
-            if isinstance(status, dict):
-                if not all(status.values()):
-                    raise Exception(
-                        'An error occurred during the execution of '
-                        'the method: {}'.format(method)
-                    )
-            else:
-                bool_status = constants.status_bool_mapping[status]
-                if not bool_status:
-                    raise Exception(
-                        'An error occurred during the execution of '
-                        'the method: {}'.format(method)
-                    )
-
-        elif plugin:
-            plugin_type = '{}.{}'.format('asset_manager', plugin['plugin_type'])
-
-            status, result = self.run_asset_manager_plugin(
-                plugin, plugin_type
-            )
-
-            if not status:
-                raise Exception(
-                    'An error occurred during the execution of the plugin: {} '
-                    '\n type: {}'.format(plugin['plugin'], plugin_type)
-                )
-
-        return result

@@ -136,7 +136,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
         return statuses, results
 
-    def run(self, data):
+    def run_definition(self, data):
         '''Run packages from the provided data
         *data* the json schema
         Raise Exception if any context plugin, component plugin or finalizer

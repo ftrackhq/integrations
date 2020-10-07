@@ -62,8 +62,12 @@ class AssetManagerClient(client.Client):
         Discover assets on the scene
         '''
         self._reset_asset_list()
+        plugin_type = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['plugin_type'])
         data = {'method': 'discover_assets',
-                'plugin': plugin}
+                'plugin': plugin,
+                'plugin_type': plugin_type}
         self.host_connection.run(
             data, self.engine_type, self._asset_discovered_callback
         )
@@ -87,7 +91,7 @@ class AssetManagerClient(client.Client):
         data = {'method': 'change_version',
                 'plugin': None,
                 'assets': asset_info,
-                'options': {'new_version_id': new_version_id}
+                'options': {'new_version_id': new_version_id},
                 }
         self.host_connection.run(
             data, self.engine_type, self._change_version_callback
@@ -120,9 +124,13 @@ class AssetManagerClient(client.Client):
         Updates the assets from the given *asset_info_list* using the given
         *plugin*
         '''
+        plugin_type = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['plugin_type'])
         data = {'method': 'update_assets',
                 'plugin': plugin,
-                'assets': asset_info_list
+                'assets': asset_info_list,
+                'plugin_type': plugin_type
                 }
         self.host_connection.run(
             data, self.engine_type, self._update_assets_callback

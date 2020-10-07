@@ -80,6 +80,7 @@ class Host(object):
         data = event['data']['pipeline']['data']
         engine_type = event['data']['pipeline']['engine_type']
         package = data.get('package')
+        pre_run = data.get('pre_run')
         asset_type = None
 
         if package:
@@ -98,7 +99,10 @@ class Host(object):
             self._event_manager, self.host, self.hostid, asset_type
         )
 
-        runner_result = engine_runner.run(data)
+        if package:
+            runner_result = engine_runner.run_definition(data)
+        else:
+            runner_result = engine_runner.run(data)
         if runner_result == False:
             self.logger.error("Couldn't publish the data {}".format(data))
 

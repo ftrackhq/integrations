@@ -22,6 +22,7 @@ POST_IMPORT = 'post_import'
 # External events.
 PIPELINE_REGISTER_TOPIC = '{}.register'.format(_BASE_)
 PIPELINE_RUN_PLUGIN_TOPIC = '{}.run'.format(_BASE_)
+PIPELINE_PRE_RUN_PLUGIN_TOPIC = '{}.pre_run'.format(_BASE_)
 
 PIPELINE_DISCOVER_PLUGIN_TOPIC = '{}.discover'.format(_BASE_)
 
