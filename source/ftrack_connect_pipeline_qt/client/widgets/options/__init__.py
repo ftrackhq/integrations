@@ -15,6 +15,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     status_updated = QtCore.Signal(object)
     context_changed = QtCore.Signal(object, object)
     status_icons = constants.icons.status_icons
+    pre_run_clicked = QtCore.Signal(object)
 
     def __str__(self):
         return '{} {}'.format(self.__class__.__name__, self.name)
@@ -122,6 +123,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self.pre_build()
         self.build()
         self.post_build()
+        self.pre_run_build()
 
     def pre_build(self):
         '''pre build function, mostly used setup the widget's layout.'''
@@ -153,6 +155,15 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     def post_build(self):
         '''post build function , mostly used connect widgets events.'''
         self.status_updated.connect(self._set_internal_status)
+
+    def pre_run_build(self):
+        '''post build function , mostly used connect widgets events.'''
+        pre_run_button = QtWidgets.QPushButton("pre_run")
+        pre_run_button.clicked.connect(self.on_pre_run)
+        self.layout().addWidget(pre_run_button)
+
+    def on_pre_run(self):
+        self.pre_run_clicked.emit(self.to_json_object())
 
     def to_json_object(self):
         '''Return a formated json with the data from the current widget'''

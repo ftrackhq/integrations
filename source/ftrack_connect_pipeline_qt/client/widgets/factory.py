@@ -3,6 +3,7 @@
 
 import logging
 from collections import OrderedDict
+from functools import partial
 
 import uuid
 import ftrack_api
@@ -21,6 +22,7 @@ class WidgetFactory(QtWidgets.QWidget):
 
     widget_status_updated = QtCore.Signal(object)
     widget_context_updated = QtCore.Signal(object)
+    widget_pre_run_plugin = QtCore.Signal(object)
 
     host_definitions = None
     ui = None
@@ -204,6 +206,10 @@ class WidgetFactory(QtWidgets.QWidget):
         result.context_changed.connect(self._on_widget_context_changed)
         self.register_widget_plugin(plugin_data, result)
 
+        result.pre_run_clicked.connect(
+            partial(self.on_widget_pre_run_plugin, plugin_data)
+        )
+
         return result
 
     def _fetch_plugin_widget(
@@ -302,6 +308,9 @@ class WidgetFactory(QtWidgets.QWidget):
         }
         self.set_context(new_context)
         self.widget_context_updated.emit(context_id)
+
+    def on_widget_pre_run_plugin(self, plugin_data, widget_options):
+        self.widget_pre_run_plugin.emit(plugin_data)
 
     def register_widget_plugin(self, plugin_data, widget):
         '''regiter the *widget* in the given *plugin_data*'''

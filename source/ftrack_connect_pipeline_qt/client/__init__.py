@@ -6,7 +6,6 @@ from ftrack_connect_pipeline import client, constants
 from ftrack_connect_pipeline_qt.ui.utility.widget import header, definition_selector
 from ftrack_connect_pipeline_qt.client.widgets import factory
 from ftrack_connect_pipeline_qt import constants as qt_constants
-from ftrack_connect.ui import theme
 
 
 class QtClient(client.Client, QtWidgets.QWidget):
@@ -82,6 +81,10 @@ class QtClient(client.Client, QtWidgets.QWidget):
             self._on_widget_context_updated
         )
 
+        self.widget_factory.widget_pre_run_plugin.connect(
+            self._on_widget_pre_run_plugin
+        )
+
         # # apply styles
         # theme.applyTheme(self, 'dark')
         # theme.applyFont()
@@ -144,6 +147,19 @@ class QtClient(client.Client, QtWidgets.QWidget):
     def _on_widget_context_updated(self, context_id):
         self.context = context_id
         self.host_connection.context = context_id
+
+    def _on_widget_pre_run_plugin(self, plugin_data):
+        engine_type = self.definition['_config']['engine_type']
+        #TODO: add this on the schemas
+        plugin_data['plugin_type'] = 'context'
+        plugin_type = '{}.{}'.format(engine_type, plugin_data['plugin_type'])
+        data = {'pre_run': True,
+                'plugin': plugin_data,
+                'plugin_type': plugin_type
+                }
+        self.host_connection.run(
+            data, engine_type, self._run_callback
+        )
 
     def _on_run(self):
         '''Function called when click the run button'''
