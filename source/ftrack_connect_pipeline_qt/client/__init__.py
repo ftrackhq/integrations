@@ -150,8 +150,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
     def _on_widget_pre_run_plugin(self, plugin_data):
         engine_type = self.definition['_config']['engine_type']
-        #TODO: add this on the schemas
-        plugin_data['plugin_type'] = 'context'
         plugin_type = '{}.{}'.format(engine_type, plugin_data['plugin_type'])
         data = {'pre_run': True,
                 'plugin': plugin_data,

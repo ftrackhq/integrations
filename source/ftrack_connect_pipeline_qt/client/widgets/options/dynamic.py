@@ -82,6 +82,7 @@ class DynamicWidget(BaseOptionsWidget):
         widget.addItems(values)
         self._register_widget(key, widget)
         update_fn = partial(self.set_option_result, key=key)
+        # QComboBox().currentTextChanged only works for PySide2
         widget.currentTextChanged.connect(update_fn)
         if len(values) > 0:
             self.set_option_result(values[0], key)

@@ -141,7 +141,18 @@ class WidgetFactory(QtWidgets.QWidget):
 
         if not widget_fn:
             widget_fn = self.schema_type_mapping.get(
-                schema_fragment.get('type'), schema_widget.UnsupportedSchema)
+                schema_fragment.get('type'))
+
+        if not widget_fn:
+            if schema_fragment.get('allOf'):
+                # When the schema contains allOf in the keys, we handele it as
+                # an object type.
+                widget_fn = self.schema_type_mapping.get(
+                    'object', schema_widget.UnsupportedSchema
+                )
+            else:
+                widget_fn = schema_widget.UnsupportedSchema
+
 
         return widget_fn(name, schema_fragment, fragment_data,
                          previous_object_data, self, parent)
