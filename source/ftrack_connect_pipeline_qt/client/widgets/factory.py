@@ -70,7 +70,8 @@ class WidgetFactory(QtWidgets.QWidget):
             'name': hidden.HiddenString,
             'enabled': hidden.HiddenBoolean,
             'package': hidden.HiddenString,
-            'host': hidden.HiddenString
+            'host': hidden.HiddenString,
+            'optional': hidden.HiddenBoolean
         }
 
         self.schema_title_mapping = {

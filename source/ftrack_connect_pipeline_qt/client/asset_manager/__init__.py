@@ -159,6 +159,11 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
         '''
         Triggered host is selected in the host_selector.
         '''
+
+        #TODO: clean ui after changing the host
+        # if self.scroll.widget():
+        #     self.scroll.widget().deleteLater()
+
         AssetManagerClient.change_host(self, host_connection)
 
         self.asset_manager_widget.set_host_connection(self.host_connection)
