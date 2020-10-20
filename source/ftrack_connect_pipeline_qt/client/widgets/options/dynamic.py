@@ -9,8 +9,7 @@ from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 class DynamicWidget(BaseOptionsWidget):
     '''Main class to represent a various type of widget based on each type of
     each element of the options diccionary'''
-    pre_run_text = 'pre_run'
-    enable_pre_run = False
+    enable_run_plugin = False
     def __init__(
             self, parent=None, session=None, data=None, name=None,
             description=None, options=None, context=None

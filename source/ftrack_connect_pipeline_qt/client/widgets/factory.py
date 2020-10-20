@@ -22,7 +22,7 @@ class WidgetFactory(QtWidgets.QWidget):
 
     widget_status_updated = QtCore.Signal(object)
     widget_context_updated = QtCore.Signal(object)
-    widget_pre_run_plugin = QtCore.Signal(object)
+    widget_run_plugin = QtCore.Signal(object, object)
 
     host_definitions = None
     ui = None
@@ -198,6 +198,8 @@ class WidgetFactory(QtWidgets.QWidget):
 
         message = data['message']
         result = data['result']
+        if result:
+            widget = result.get(result.keys()[0])
         status = data['status']
 
         if status == constants.EXCEPTION_STATUS:
@@ -209,23 +211,23 @@ class WidgetFactory(QtWidgets.QWidget):
                     message, plugin_data, plugin_type, widget_name)
             )
 
-        if result and not isinstance(result, BaseOptionsWidget):
+        if result and not isinstance(widget, BaseOptionsWidget):
             raise Exception(
                 'Widget {} should inherit from {}'.format(
-                    result,
+                    widget,
                     BaseOptionsWidget
                 )
             )
 
-        result.status_updated.connect(self._on_widget_status_updated)
-        result.context_changed.connect(self._on_widget_context_changed)
-        self.register_widget_plugin(plugin_data, result)
+        widget.status_updated.connect(self._on_widget_status_updated)
+        widget.context_changed.connect(self._on_widget_context_changed)
+        self.register_widget_plugin(plugin_data, widget)
 
-        result.pre_run_clicked.connect(
-            partial(self.on_widget_pre_run_plugin, plugin_data)
+        widget.run_plugin_clicked.connect(
+            partial(self.on_widget_run_plugin, plugin_data)
         )
 
-        return result
+        return widget
 
     def _fetch_plugin_widget(
             self, plugin_data, plugin_type, plugin_name, extra_options=None
@@ -248,6 +250,7 @@ class WidgetFactory(QtWidgets.QWidget):
                     'pipeline': {
                         'plugin_name': plugin_name,
                         'plugin_type': plugin_type,
+                        'method': 'run',
                         'type': 'widget',
                         'host': host_definition,
                         'ui': _ui
@@ -281,7 +284,6 @@ class WidgetFactory(QtWidgets.QWidget):
         status = event['data']['pipeline']['status']
         message = event['data']['pipeline']['message']
         host_id = event['data']['pipeline']['hostid']
-        pre_run = event['data']['pipeline'].get('pre_run')
 
 
         widget = self.widgets.get(widget_ref)
@@ -300,13 +302,13 @@ class WidgetFactory(QtWidgets.QWidget):
                 )
             )
             widget.set_status(status, message)
-        if pre_run:
+        if result:
             self.logger.debug(
-                'updating widget: {} with pre_run result {}'.format(
+                'updating widget: {} with run result {}'.format(
                     widget, result
                 )
             )
-            widget.set_pre_run_result(result)
+            widget.set_run_result(result)
 
     def _listen_widget_updates(self):
         '''Subscribe to the PIPELINE_CLIENT_NOTIFICATION topic to call the
@@ -334,8 +336,11 @@ class WidgetFactory(QtWidgets.QWidget):
         self.set_context(new_context)
         self.widget_context_updated.emit(context_id)
 
-    def on_widget_pre_run_plugin(self, plugin_data, widget_options):
-        self.widget_pre_run_plugin.emit(plugin_data)
+    def on_widget_run_plugin(self, plugin_data, method, plugin_options):
+        print "plugin_data ---> {}".format(plugin_data)
+        print "method ---> {}".format(method)
+        print "plugin_options ---> {}".format(plugin_options)
+        self.widget_run_plugin.emit(plugin_data, method)
 
     def register_widget_plugin(self, plugin_data, widget):
         '''regiter the *widget* in the given *plugin_data*'''

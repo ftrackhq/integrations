@@ -81,8 +81,8 @@ class QtClient(client.Client, QtWidgets.QWidget):
             self._on_widget_context_updated
         )
 
-        self.widget_factory.widget_pre_run_plugin.connect(
-            self._on_widget_pre_run_plugin
+        self.widget_factory.widget_run_plugin.connect(
+            self._on_run_plugin
         )
 
         # # apply styles
@@ -148,12 +148,17 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.context = context_id
         self.host_connection.context = context_id
 
-    def _on_widget_pre_run_plugin(self, plugin_data):
+    def _on_run_plugin(self, plugin_data, method='run'):
         engine_type = self.definition['_config']['engine_type']
+        # Plugin type is constructed using the engine_type and the plugin_type
+        # (publisher.collector). We have to make sure that plugin_type is in
+        # the data argument passed to the host_connection, because we are only
+        # passing data to the engine. And the engine_type is only available
+        # on the definition.
         plugin_type = '{}.{}'.format(engine_type, plugin_data['plugin_type'])
-        data = {'pre_run': True,
-                'plugin': plugin_data,
-                'plugin_type': plugin_type
+        data = {'plugin': plugin_data,
+                'plugin_type': plugin_type,
+                'method': method
                 }
         self.host_connection.run(
             data, engine_type, self._run_callback
@@ -161,7 +166,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
     def _on_run(self):
         '''Function called when click the run button'''
-        serialized_data= self._current_def.to_json_object()
+        serialized_data = self._current_def.to_json_object()
         engine_type = serialized_data['_config']['engine_type']
         self.host_connection.run(
             serialized_data, engine_type, self._run_callback

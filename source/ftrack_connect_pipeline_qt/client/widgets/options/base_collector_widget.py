@@ -1,14 +1,12 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-import os
+from functools import partial
+
 from Qt import QtWidgets, QtCore, QtGui
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 
 class BaseCollectorWidget(BaseOptionsWidget):
-    pre_run_text = 'fetch'
-    enable_pre_run = True
-    add_object_clicked = QtCore.Signal(object)
 
     @property
     def collected_objects(self):
@@ -18,28 +16,17 @@ class BaseCollectorWidget(BaseOptionsWidget):
         self, parent=None, session=None, data=None, name=None,
         description=None, options=None, context=None
     ):
-        # Collect objects
         self._collected_objects = []
-        # self.collect_objects()
-
         super(BaseCollectorWidget, self).__init__(
             parent=parent, session=session, data=data, name=name,
             description=description, options=options, context=context
         )
 
-    def _set_internal_pre_run_result(self, data):
-        '''set collected_objects with the provided *data*'''
-        self.list_widget.clear()
-        for obj in data:
-            self.add_object(obj)
-
-    # def collect_objects(self):
-    #     raise NotImplementedError()
-
     def build(self):
         '''build function , mostly used to create the widgets.'''
         super(BaseCollectorWidget, self).build()
         self.add_button = QtWidgets.QPushButton("add Object")
+        self.fetch_button = QtWidgets.QPushButton("fetch Objects")
         self.list_widget = QtWidgets.QListWidget()
 
         self.list_widget.setAlternatingRowColors(True)
@@ -47,14 +34,9 @@ class BaseCollectorWidget(BaseOptionsWidget):
             QtWidgets.QAbstractItemView.SelectRows
         )
 
-        for row, obj in enumerate(self.collected_objects):
-            item = QtWidgets.QListWidgetItem(obj)
-            item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
-            item.setCheckState(QtCore.Qt.Checked)
-            self.list_widget.addItem(item)
-
         self.layout().addWidget(self.add_button)
         self.layout().addWidget(self.list_widget)
+        self.layout().addWidget(self.fetch_button)
 
     def contextMenuEvent(self, event):
         '''
@@ -71,14 +53,38 @@ class BaseCollectorWidget(BaseOptionsWidget):
 
     def post_build(self):
         super(BaseCollectorWidget, self).post_build()
-        self.add_button.clicked.connect(self._on_add_objects)
+        # self.add_button.clicked.connect(self._on_add_objects)
         self.list_widget.itemChanged.connect(self._on_item_changed)
+        self.add_button.clicked.connect(
+            partial(self.on_run_plugin, 'add')
+        )
+        self.fetch_button.clicked.connect(
+            partial(self.on_run_plugin, 'fetch')
+        )
 
         self.set_option_result(self.collected_objects, key='collected_objects')
 
-    def _on_add_objects(self, objects):
-        self.add_object_clicked.emit(self.to_json_object())
-        # raise NotImplementedError()
+    def on_fetch_callback(self, result):
+        ''' This function is called by the _set_internal_run_result function of
+                    the BaseOptionsWidget'''
+        self._collected_objects = result
+        self.list_widget.clear()
+        for obj in result:
+            self.add_object(obj)
+
+    def on_add_callback(self, result):
+        ''' This function is called by the _set_internal_run_result function of
+                    the BaseOptionsWidget'''
+        current_objects = self.get_current_objects()
+        for obj in result:
+            if obj in current_objects:
+                continue
+            self.add_object(obj)
+
+    def on_select_callback(self, result):
+        ''' This function is called by the _set_internal_run_result function of
+                    the BaseOptionsWidget'''
+        self.logger.debug("selected objects: {}".format(result))
 
     def add_object(self, obj):
         item = QtWidgets.QListWidgetItem(obj)
@@ -113,5 +119,10 @@ class BaseCollectorWidget(BaseOptionsWidget):
         '''
         Triggered when select action menu been clicked.
         '''
-        selected_items = self.list_widget.selectedItems()
-        return selected_items
+        selected_widget_items = self.list_widget.selectedItems()
+        selected_items = []
+        for item in selected_widget_items:
+            selected_items.append(item.text())
+        self._options['selected_items'] = selected_items
+        self.on_run_plugin('select')
+        #return selected_items
