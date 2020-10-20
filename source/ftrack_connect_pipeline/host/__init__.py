@@ -80,11 +80,12 @@ class Host(object):
         data = event['data']['pipeline']['data']
         engine_type = event['data']['pipeline']['engine_type']
         package = data.get('package')
-        pre_run = data.get('pre_run')
         asset_type = None
 
         if package:
             # we are in Load/Publish land....
+            # We do this check before the load_publish engine, to validate the
+            # schema and because we need the asset type to load the engine.
             asset_type = self.get_asset_type_from_packages(
                 self.__registry['package'], package
             )

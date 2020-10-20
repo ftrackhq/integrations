@@ -49,7 +49,7 @@ class BaseEngine(object):
 
     def run_event(
             self, plugin_name, plugin_type, host_definition, data, options,
-            context
+            context, method
     ):
         return ftrack_api.event.base.Event(
                     topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
@@ -57,6 +57,7 @@ class BaseEngine(object):
                         'pipeline': {
                             'plugin_name': plugin_name,
                             'plugin_type': plugin_type,
+                            'method': method,
                             'type': 'plugin',
                             'host': host_definition
                         },
@@ -69,31 +70,9 @@ class BaseEngine(object):
                     }
                 )
 
-    def pre_run_event(
-            self, plugin_name, plugin_type, host_definition, data, options,
-            context
-    ):
-        return ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_PRE_RUN_PLUGIN_TOPIC,
-            data={
-                'pipeline': {
-                    'plugin_name': plugin_name,
-                    'plugin_type': plugin_type,
-                    'type': 'plugin',
-                    'host': host_definition
-                },
-                'settings':
-                    {
-                        'data': data,
-                        'options': options,
-                        'context': context
-                    }
-            }
-        )
-
     def _run_plugin(
             self, plugin, plugin_type, options=None, data=None, context=None,
-            pre_run=False
+            method='run'
     ):
         '''Run *plugin*, *plugin_type*, with given *options*, *data* and
         *context* and notify client with the status before and after execute
@@ -102,6 +81,7 @@ class BaseEngine(object):
         start_data = {
             'plugin_name': plugin_name,
             'plugin_type': plugin_type,
+            'method': method,
             'status': constants.RUNNING_STATUS,
             'result': None,
             'execution_time': 0,
@@ -114,24 +94,17 @@ class BaseEngine(object):
         result_data['status'] = constants.UNKNOWN_STATUS
 
         for host_definition in reversed(self._host):
-            if pre_run:
-                event = self.pre_run_event(
-                    plugin_name, plugin_type, host_definition, data, options,
-                    context
-                )
-            else:
-                event = self.run_event(
-                    plugin_name, plugin_type, host_definition, data, options,
-                    context
-                )
+            event = self.run_event(
+                plugin_name, plugin_type, host_definition, data, options,
+                context, method
+            )
 
             plugin_result_data = self.session.event_hub.publish(
                 event,
                 synchronous=True
             )
             if plugin_result_data:
-                result_data= plugin_result_data[0]
-                result_data['pre_run'] = pre_run
+                result_data = plugin_result_data[0]
                 break
 
         self._notify_client(plugin, result_data)
@@ -142,7 +115,6 @@ class BaseEngine(object):
         '''Publish an event to notify client with *data*, plugin_name from
         *plugin*, *status* and *message*'''
 
-        print "publishing notify client from engine"
         result_data['hostid'] = self.hostid
         if plugin:
             result_data['widget_ref'] = plugin.get('widget_ref')
@@ -160,45 +132,34 @@ class BaseEngine(object):
             event,
         )
 
+    def run_definition(self, data):
+        '''Run packages from the provided data
+        *data* the json schema
+        Raise Exception if any context plugin, component plugin or finalizer
+        plugin returns a False status
+        Returns Bool'''
+
+        raise(NotImplementedError)
+
     def run(self, data):
         '''
         Override function run methods and plugins from the provided *data*
         Return result
         '''
 
-        method = data.get('method', '')
+        method = data.get('method', 'run')
         plugin = data.get('plugin', None)
-        assets = data.get('assets', None)
-        options = data.get('options', {})
-        pre_run = data.get('pre_run', False)
         plugin_type = data.get('plugin_type', None)
 
         result = None
 
-        if hasattr(self, method):
-            callback_fn = getattr(self, method)
-            status, result = callback_fn(assets, options, plugin)
-            if isinstance(status, dict):
-                if not all(status.values()):
-                    raise Exception(
-                        'An error occurred during the execution of '
-                        'the method: {}'.format(method)
-                    )
-            else:
-                bool_status = constants.status_bool_mapping[status]
-                if not bool_status:
-                    raise Exception(
-                        'An error occurred during the execution of '
-                        'the method: {}'.format(method)
-                    )
-
-        elif plugin:
+        if plugin:
             status, result = self._run_plugin(
                 plugin, plugin_type,
                 data=plugin.get('plugin_data'),
                 options=plugin['options'],
                 context=None,
-                pre_run=pre_run
+                method=method
             )
 
             bool_status = constants.status_bool_mapping[status]

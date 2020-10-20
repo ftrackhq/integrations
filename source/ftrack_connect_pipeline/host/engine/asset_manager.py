@@ -259,7 +259,7 @@ class AssetManagerEngine(BaseEngine):
                 data=plugin.get('plugin_data'),
                 options=plugin['options'],
                 context=None,
-                pre_run=False
+                method='run'
             )
             bool_status = constants.status_bool_mapping[status]
             if not bool_status:
@@ -393,3 +393,53 @@ class AssetManagerEngine(BaseEngine):
         self._notify_client(plugin, result_data)
 
         return status, result
+
+    def run(self, data):
+        '''
+        Override function run methods and plugins from the provided *data*
+        Return result
+        '''
+
+        method = data.get('method', '')
+        plugin = data.get('plugin', None)
+        assets = data.get('assets', None)
+        options = data.get('options', {})
+        plugin_type = data.get('plugin_type', None)
+
+        result = None
+
+        if hasattr(self, method):
+            callback_fn = getattr(self, method)
+            status, result = callback_fn(assets, options, plugin)
+            if isinstance(status, dict):
+                if not all(status.values()):
+                    raise Exception(
+                        'An error occurred during the execution of '
+                        'the method: {}'.format(method)
+                    )
+            else:
+                bool_status = constants.status_bool_mapping[status]
+                if not bool_status:
+                    raise Exception(
+                        'An error occurred during the execution of '
+                        'the method: {}'.format(method)
+                    )
+
+        elif plugin:
+            status, result = self._run_plugin(
+                plugin, plugin_type,
+                data=plugin.get('plugin_data'),
+                options=plugin['options'],
+                context=None,
+                method='run'
+            )
+
+            bool_status = constants.status_bool_mapping[status]
+            if not bool_status:
+                raise Exception(
+                    'An error occurred during the execution of the plugin {}'
+                    '\n status: {} \n result: {}'.format(
+                        plugin['plugin'], status, result)
+                )
+
+        return result

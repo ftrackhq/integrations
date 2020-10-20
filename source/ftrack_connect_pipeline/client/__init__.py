@@ -207,6 +207,36 @@ class Client(object):
             callback=self._host_discovered
         )
 
+    # def _on_run_definition(self, asset_info, new_version_id):
+    #     '''
+    #     Change the current version of the given *asset_info* to the
+    #     given *new_version_id*
+    #     '''
+    #
+    #     data = {'method': 'change_version',
+    #             'plugin': None,
+    #             'assets': asset_info,
+    #             'options': {'new_version_id': new_version_id},
+    #             }
+    #     self.host_connection.run(
+    #         data, self.engine_type, self._change_version_callback
+    #     )
+    #
+    # def _on_run_plugin(self, asset_info, new_version_id):
+    #     '''
+    #     Change the current version of the given *asset_info* to the
+    #     given *new_version_id*
+    #     '''
+    #
+    #     data = {'method': 'change_version',
+    #             'plugin': None,
+    #             'assets': asset_info,
+    #             'options': {'new_version_id': new_version_id},
+    #             }
+    #     self.host_connection.run(
+    #         data, self.engine_type, self._change_version_callback
+    #     )
+
     def on_ready(self, callback, time_out=3):
         '''calls the given *callback* when host is been discovered with the
         optional *time_out*

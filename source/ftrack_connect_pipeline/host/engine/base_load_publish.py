@@ -26,10 +26,13 @@ class BaseLoaderPublisherEngine(BaseEngine):
         stage_name = context_stage['name']
         plugin_type = '{}.{}'.format(self.engine_type, stage_name)
         for plugin in context_stage['plugins']:
-            status, result = self._run_plugin(
+            result = None
+            status, method_result = self._run_plugin(
                 plugin, plugin_type,
                 options=plugin['options']
             )
+            if method_result:
+                result = method_result.get(method_result.keys()[0])
             bool_status = constants.status_bool_mapping[status]
             if not bool_status:
                 raise Exception(
@@ -70,16 +73,17 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 stage_status = []
 
                 for plugin in plugins:
-
+                    result = None
                     plugin_options = plugin['options']
                     plugin_options['component_name'] = component_name
-                    status, result = self._run_plugin(
+                    status, method_result = self._run_plugin(
                         plugin, plugin_type,
                         data=collected_data,
                         options=plugin_options,
                         context=context_data
                     )
-
+                    if method_result:
+                        result = method_result.get(method_result.keys()[0])
                     bool_status = constants.status_bool_mapping[status]
                     stage_status.append(bool_status)
                     if result and isinstance(result, list):
@@ -118,12 +122,15 @@ class BaseLoaderPublisherEngine(BaseEngine):
         stage_name = finalizer_stage['name']
         plugin_type = '{}.{}'.format(self.engine_type, stage_name)
         for plugin in finalizer_stage['plugins']:
-            status, result = self._run_plugin(
+            result = None
+            status, method_result = self._run_plugin(
                 plugin, plugin_type,
                 data=finalizer_data,
                 options=plugin['options'],
                 context=context_data
             )
+            if method_result:
+                result = method_result.get(method_result.keys()[0])
             bool_status = constants.status_bool_mapping[status]
             if not bool_status:
                 raise Exception(
