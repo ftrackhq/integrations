@@ -16,6 +16,9 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     context_changed = QtCore.Signal(object, object)
     status_icons = constants.icons.status_icons
     pre_run_clicked = QtCore.Signal(object)
+    pre_run_updated = QtCore.Signal(object)
+    pre_run_text = 'pre_run'
+    enable_pre_run = False
 
     def __str__(self):
         return '{} {}'.format(self.__class__.__name__, self.name)
@@ -77,9 +80,18 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self._status_icon.setPixmap(icon)
         self._status_icon.setToolTip(str(message))
 
+    def _set_internal_pre_run_result(self, data):
+        '''set the status icon with the provided *data*'''
+        self.debug("Not implemented pre_run_result: {}".format(data))
+        raise NotImplementedError
+
     def set_status(self, status, message):
         '''emit the status_updated signal with the *status* and *message*'''
         self.status_updated.emit((status, message))
+
+    def set_pre_run_result(self, result):
+        '''emit the pre_run_updated signal with the *status* and *message*'''
+        self.pre_run_updated.emit(result)
 
     def __init__(
             self, parent=None, session=None, data=None, name=None,
@@ -155,12 +167,14 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     def post_build(self):
         '''post build function , mostly used connect widgets events.'''
         self.status_updated.connect(self._set_internal_status)
+        self.pre_run_updated.connect(self._set_internal_pre_run_result)
 
     def pre_run_build(self):
         '''post build function , mostly used connect widgets events.'''
-        pre_run_button = QtWidgets.QPushButton("pre_run")
-        pre_run_button.clicked.connect(self.on_pre_run)
-        self.layout().addWidget(pre_run_button)
+        self.pre_run_button = QtWidgets.QPushButton(self.pre_run_text)
+        self.pre_run_button.clicked.connect(self.on_pre_run)
+        self.layout().addWidget(self.pre_run_button)
+        self.pre_run_button.setVisible(self.enable_pre_run)
 
     def on_pre_run(self):
         self.pre_run_clicked.emit(self.to_json_object())

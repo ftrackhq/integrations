@@ -6,6 +6,9 @@ from Qt import QtWidgets, QtCore, QtGui
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 
 class BaseCollectorWidget(BaseOptionsWidget):
+    pre_run_text = 'fetch'
+    enable_pre_run = True
+    add_object_clicked = QtCore.Signal(object)
 
     @property
     def collected_objects(self):
@@ -17,15 +20,21 @@ class BaseCollectorWidget(BaseOptionsWidget):
     ):
         # Collect objects
         self._collected_objects = []
-        self.collect_objects()
+        # self.collect_objects()
 
         super(BaseCollectorWidget, self).__init__(
             parent=parent, session=session, data=data, name=name,
             description=description, options=options, context=context
         )
 
-    def collect_objects(self):
-        raise NotImplementedError()
+    def _set_internal_pre_run_result(self, data):
+        '''set collected_objects with the provided *data*'''
+        self.list_widget.clear()
+        for obj in data:
+            self.add_object(obj)
+
+    # def collect_objects(self):
+    #     raise NotImplementedError()
 
     def build(self):
         '''build function , mostly used to create the widgets.'''
@@ -67,8 +76,9 @@ class BaseCollectorWidget(BaseOptionsWidget):
 
         self.set_option_result(self.collected_objects, key='collected_objects')
 
-    def _on_add_objects(self):
-        raise NotImplementedError()
+    def _on_add_objects(self, objects):
+        self.add_object_clicked.emit(self.to_json_object())
+        # raise NotImplementedError()
 
     def add_object(self, obj):
         item = QtWidgets.QListWidgetItem(obj)

@@ -179,7 +179,10 @@ class WidgetFactory(QtWidgets.QWidget):
             plugin_data, plugin_type, widget_name, extra_options=extra_options
         )
         if not data:
-            widget_name = 'default.widget'
+            if plugin_type == 'publisher.validator':
+                widget_name = 'default.validator.widget'
+            else:
+                widget_name = 'default.widget'
             self.logger.info(
                 'Widget not found, falling back on: {}'.format(widget_name)
             )
@@ -272,11 +275,14 @@ class WidgetFactory(QtWidgets.QWidget):
 
     def _update_widget(self, event):
         '''*event* callback to update widget with the current status/value'''
+        print "event ---> {}".format(event)
         result = event['data']['pipeline']['result']
         widget_ref = event['data']['pipeline']['widget_ref']
         status = event['data']['pipeline']['status']
         message = event['data']['pipeline']['message']
         host_id = event['data']['pipeline']['hostid']
+        pre_run = event['data']['pipeline'].get('pre_run')
+
 
         widget = self.widgets.get(widget_ref)
         if not widget:
@@ -294,6 +300,13 @@ class WidgetFactory(QtWidgets.QWidget):
                 )
             )
             widget.set_status(status, message)
+        if pre_run:
+            self.logger.debug(
+                'updating widget: {} with pre_run result {}'.format(
+                    widget, result
+                )
+            )
+            widget.set_pre_run_result(result)
 
     def _listen_widget_updates(self):
         '''Subscribe to the PIPELINE_CLIENT_NOTIFICATION topic to call the
