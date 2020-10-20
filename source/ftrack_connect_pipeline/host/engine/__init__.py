@@ -131,6 +131,7 @@ class BaseEngine(object):
             )
             if plugin_result_data:
                 result_data= plugin_result_data[0]
+                result_data['pre_run'] = pre_run
                 break
 
         self._notify_client(plugin, result_data)
@@ -141,6 +142,7 @@ class BaseEngine(object):
         '''Publish an event to notify client with *data*, plugin_name from
         *plugin*, *status* and *message*'''
 
+        print "publishing notify client from engine"
         result_data['hostid'] = self.hostid
         if plugin:
             result_data['widget_ref'] = plugin.get('widget_ref')

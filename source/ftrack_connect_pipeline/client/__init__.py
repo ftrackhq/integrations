@@ -273,16 +273,3 @@ class Client(object):
                     plugin_name, message, result
                 )
             )
-
-    # def pre_run_plugin(self, asset_info_list, plugin):
-    #     '''
-    #     Updates the assets from the given *asset_info_list* using the given
-    #     *plugin*
-    #     '''
-    #     data = {'method': 'update_assets',
-    #             'plugin': plugin,
-    #             'assets': asset_info_list
-    #             }
-    #     self.host_connection.run(
-    #         data, self.engine_type, self._update_assets_callback
-    #     )
