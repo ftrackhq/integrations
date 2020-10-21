@@ -15,7 +15,6 @@ class PublisherValidatorPlugin(base.BaseValidatorPlugin):
     return_type = bool
     plugin_type = constants.PLUGIN_PUBLISHER_VALIDATOR_TYPE
     _required_output = False
-    # pre_run_method = 'run'
 
     def __init__(self, session):
         '''Initialise ValidatorPlugin with *session*
