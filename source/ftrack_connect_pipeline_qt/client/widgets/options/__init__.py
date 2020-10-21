@@ -102,8 +102,8 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         '''emit the run_updated signal with the *result*'''
         self.run_result_updated.emit(result)
 
-    def fetch_on_init(self):
-        self.on_run_plugin('fetch')
+    def fetch_on_init(self, method='fetch'):
+        self.on_run_plugin(method)
 
     def __init__(
             self, parent=None, session=None, data=None, name=None,

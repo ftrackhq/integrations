@@ -71,7 +71,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         '''Post Build ui method for events connections.'''
         self.host_selector.definition_changed.connect(self._definition_changed)
         self.host_selector.host_changed.connect(self._host_changed)
-        self.run_button.clicked.connect(self._on_run)
+        self.run_button.clicked.connect(self._on_run_definition)
 
         self.widget_factory.widget_status_updated.connect(
             self._on_widget_status_updated
@@ -149,6 +149,8 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.host_connection.context = context_id
 
     def _on_run_plugin(self, plugin_data, method):
+        '''Function called to run one single plugin *plugin_data* with the
+        plugin information and the *method* to be run has to be passed'''
         engine_type = self.definition['_config']['engine_type']
         # Plugin type is constructed using the engine_type and the plugin_type
         # (publisher.collector). We have to make sure that plugin_type is in
@@ -164,7 +166,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
             data, engine_type, self._run_callback
         )
 
-    def _on_run(self):
+    def _on_run_definition(self):
         '''Function called when click the run button'''
         serialized_data = self._current_def.to_json_object()
         engine_type = serialized_data['_config']['engine_type']
@@ -173,8 +175,5 @@ class QtClient(client.Client, QtWidgets.QWidget):
         )
 
     def _run_callback(self, event):
-        #TODO: if we run each plugin separately we will have to move all the
-        # logic and validations in the client(here) and that may not make sense...
-        print "_run_callback event --> {}".format(event)
-        pass
+        self.logger.debug("_run_callback event: {}".format(event))
 

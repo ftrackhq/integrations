@@ -280,13 +280,11 @@ class WidgetFactory(QtWidgets.QWidget):
 
     def _update_widget(self, event):
         '''*event* callback to update widget with the current status/value'''
-        print "event ---> {}".format(event)
         result = event['data']['pipeline']['result']
         widget_ref = event['data']['pipeline']['widget_ref']
         status = event['data']['pipeline']['status']
         message = event['data']['pipeline']['message']
         host_id = event['data']['pipeline']['hostid']
-
 
         widget = self.widgets.get(widget_ref)
         if not widget:
