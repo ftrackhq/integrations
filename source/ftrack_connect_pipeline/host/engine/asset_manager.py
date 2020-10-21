@@ -249,13 +249,15 @@ class AssetManagerEngine(BaseEngine):
 
             plugin['plugin_data'] = asset_info
 
-            status, result = self._run_plugin(
+            status, method_result = self._run_plugin(
                 plugin, plugin_type,
                 data=plugin.get('plugin_data'),
                 options=plugin['options'],
                 context=None,
                 method='run'
             )
+            if method_result:
+                result = method_result.get(method_result.keys()[0])
             bool_status = constants.status_bool_mapping[status]
             if not bool_status:
                 message = "Error executing the plugin: {}".format(plugin)
@@ -421,14 +423,15 @@ class AssetManagerEngine(BaseEngine):
                     )
 
         elif plugin:
-            status, result = self._run_plugin(
+            status, method_result = self._run_plugin(
                 plugin, plugin_type,
                 data=plugin.get('plugin_data'),
                 options=plugin['options'],
                 context=None,
                 method='run'
             )
-
+            if method_result:
+                result = method_result.get(method_result.keys()[0])
             bool_status = constants.status_bool_mapping[status]
             if not bool_status:
                 raise Exception(

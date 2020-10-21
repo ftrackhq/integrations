@@ -47,8 +47,7 @@ class AssetManagerClient(client.Client):
         definitions = self.host_connection.definitions.get(schema_title)
         #Only one definition for now, we don't have a definition schema on the
         # AM
-        self.definition = definitions[0]
-        self.engine_type = self.definition['_config']['engine_type']
+        self.change_definition(schema, definitions[0])
 
         self.menu_action_plugins = self.definition.get('actions')
         self.discover_plugins = self.definition.get('discover')
