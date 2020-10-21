@@ -31,7 +31,7 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
 
         self.log_viewer_widget = LogViewerWidget(event_manager)
 
-        self.host_connection = None
+        self._host_connection = None
 
         self.pre_build()
         self.build()

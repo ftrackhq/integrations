@@ -29,7 +29,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
         self.asset_manager_widget = AssetManagerWidget(event_manager)
         self.asset_manager_widget.set_asset_list(self.ftrack_asset_list)
 
-        self.host_connection = None
+        self._host_connection = None
 
         self.pre_build()
         self.build()
