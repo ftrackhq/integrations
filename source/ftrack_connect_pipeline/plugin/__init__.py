@@ -322,7 +322,6 @@ class BasePlugin(object):
 
         bool_status = constants.status_bool_mapping[status]
         if bool_status:
-            #result_data['result'] = result
             result_data['result'] = {method: result}
 
         return result_data

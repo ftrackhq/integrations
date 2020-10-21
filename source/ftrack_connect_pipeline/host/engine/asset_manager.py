@@ -135,7 +135,6 @@ class AssetManagerEngine(BaseEngine):
         self._notify_client(plugin, result_data)
 
         return status, result
-        #raise NotImplementedError()
 
     def select_assets(self, assets, options=None, plugin=None):
         '''
@@ -250,10 +249,6 @@ class AssetManagerEngine(BaseEngine):
 
             plugin['plugin_data'] = asset_info
 
-            # status, result = self.run_asset_manager_plugin(
-            #     plugin, plugin_type
-            # )
-            # if not status:
             status, result = self._run_plugin(
                 plugin, plugin_type,
                 data=plugin.get('plugin_data'),
