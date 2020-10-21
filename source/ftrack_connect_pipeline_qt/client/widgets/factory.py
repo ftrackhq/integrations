@@ -226,6 +226,8 @@ class WidgetFactory(QtWidgets.QWidget):
         widget.run_plugin_clicked.connect(
             partial(self.on_widget_run_plugin, plugin_data)
         )
+        if widget.auto_fetch_on_init:
+            widget.fetch_on_init()
 
         return widget
 
@@ -337,9 +339,6 @@ class WidgetFactory(QtWidgets.QWidget):
         self.widget_context_updated.emit(context_id)
 
     def on_widget_run_plugin(self, plugin_data, method, plugin_options):
-        print "plugin_data ---> {}".format(plugin_data)
-        print "method ---> {}".format(method)
-        print "plugin_options ---> {}".format(plugin_options)
         self.widget_run_plugin.emit(plugin_data, method)
 
     def register_widget_plugin(self, plugin_data, widget):

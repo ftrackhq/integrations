@@ -53,7 +53,6 @@ class BaseCollectorWidget(BaseOptionsWidget):
 
     def post_build(self):
         super(BaseCollectorWidget, self).post_build()
-        # self.add_button.clicked.connect(self._on_add_objects)
         self.list_widget.itemChanged.connect(self._on_item_changed)
         self.add_button.clicked.connect(
             partial(self.on_run_plugin, 'add')
@@ -125,4 +124,3 @@ class BaseCollectorWidget(BaseOptionsWidget):
             selected_items.append(item.text())
         self._options['selected_items'] = selected_items
         self.on_run_plugin('select')
-        #return selected_items

@@ -148,7 +148,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.context = context_id
         self.host_connection.context = context_id
 
-    def _on_run_plugin(self, plugin_data, method='run'):
+    def _on_run_plugin(self, plugin_data, method):
         engine_type = self.definition['_config']['engine_type']
         # Plugin type is constructed using the engine_type and the plugin_type
         # (publisher.collector). We have to make sure that plugin_type is in

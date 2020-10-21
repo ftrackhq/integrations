@@ -19,6 +19,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     run_plugin_clicked = QtCore.Signal(object, object)
     run_result_updated = QtCore.Signal(object)
     enable_run_plugin = False
+    auto_fetch_on_init = False
 
     def __str__(self):
         return '{} {}'.format(self.__class__.__name__, self.name)
@@ -100,6 +101,9 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     def set_run_result(self, result):
         '''emit the run_updated signal with the *result*'''
         self.run_result_updated.emit(result)
+
+    def fetch_on_init(self):
+        self.on_run_plugin('fetch')
 
     def __init__(
             self, parent=None, session=None, data=None, name=None,
@@ -188,6 +192,9 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
     def on_run_plugin(self, method='run'):
         self.run_plugin_clicked.emit(method, self.to_json_object())
+
+    def on_run_callback(self, result):
+        self.logger.debug("on_run_callback, result: {}".format(result))
 
     def to_json_object(self):
         '''Return a formated json with the data from the current widget'''
