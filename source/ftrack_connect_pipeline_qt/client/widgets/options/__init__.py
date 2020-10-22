@@ -18,7 +18,12 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     status_icons = constants.icons.status_icons
     run_plugin_clicked = QtCore.Signal(object, object)
     run_result_updated = QtCore.Signal(object)
+
+    # enable_run_plugin True will enable the run button to run the plugin run
+    # function individually.
     enable_run_plugin = False
+    # auto_fetch_on_init True will run the funtion fetch_on_init('fetch')
+    # on plugin initialization
     auto_fetch_on_init = False
 
     def __str__(self):
@@ -99,10 +104,11 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self.status_updated.emit((status, message))
 
     def set_run_result(self, result):
-        '''emit the run_updated signal with the *result*'''
+        '''emit the run_result_updated signal with the *result*'''
         self.run_result_updated.emit(result)
 
     def fetch_on_init(self, method='fetch'):
+        '''Executes the fetch method of the plugin on the initialization time'''
         self.on_run_plugin(method)
 
     def __init__(
@@ -182,7 +188,8 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self.run_result_updated.connect(self._set_internal_run_result)
 
     def run_build(self):
-        '''post build function , mostly used connect widgets events.'''
+        '''Creates a run button to run the plugin individually, enable/disbale
+        it with the class variable self.enable_run_plugin'''
         self.run_plugin_button = QtWidgets.QPushButton('run')
         self.run_plugin_button.clicked.connect(
             partial(self.on_run_plugin, 'run')
@@ -191,9 +198,11 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self.run_plugin_button.setVisible(self.enable_run_plugin)
 
     def on_run_plugin(self, method='run'):
+        '''emit signal with the *method* that has to execute on the plugin'''
         self.run_plugin_clicked.emit(method, self.to_json_object())
 
     def on_run_callback(self, result):
+        '''Callback function for plugin execution'''
         self.logger.debug("on_run_callback, result: {}".format(result))
 
     def to_json_object(self):

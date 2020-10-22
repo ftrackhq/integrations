@@ -180,6 +180,8 @@ class WidgetFactory(QtWidgets.QWidget):
         )
         if not data:
             if plugin_type == 'publisher.validator':
+                # We have a particular default validator for the publisher to be
+                # able to enable test of each validator on publish time.
                 widget_name = 'default.validator.widget'
             else:
                 widget_name = 'default.widget'
@@ -337,6 +339,12 @@ class WidgetFactory(QtWidgets.QWidget):
         self.widget_context_updated.emit(context_id)
 
     def on_widget_run_plugin(self, plugin_data, method, plugin_options):
+        '''
+        Called when a run button (run, fetch or any method button) is clicked
+        on the widget. *plugin_data* is the current plugin definition, *method*
+        is the method that has to be executed in the plugin, *plugin_options* is
+        not used for now but are the current options that the plugin has.
+        '''
         self.widget_run_plugin.emit(plugin_data, method)
 
     def register_widget_plugin(self, plugin_data, widget):

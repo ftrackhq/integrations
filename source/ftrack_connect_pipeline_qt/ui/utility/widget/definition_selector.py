@@ -88,6 +88,7 @@ class DefinitionSelector(QtWidgets.QWidget):
 
         if not self.definition:
             self.logger.warning('No data for selected definition')
+            self.definition_changed.emit(None, None)
             return
 
         for schema in self.schemas:

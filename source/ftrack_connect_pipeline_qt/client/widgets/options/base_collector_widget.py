@@ -64,16 +64,17 @@ class BaseCollectorWidget(BaseOptionsWidget):
         self.set_option_result(self.collected_objects, key='collected_objects')
 
     def on_fetch_callback(self, result):
-        ''' This function is called by the _set_internal_run_result function of
-                    the BaseOptionsWidget'''
+        ''' Callback funtion called by the _set_internal_run_result function of
+        the BaseOptionsWidget
+        '''
         self._collected_objects = result
         self.list_widget.clear()
         for obj in result:
             self.add_object(obj)
 
     def on_add_callback(self, result):
-        ''' This function is called by the _set_internal_run_result function of
-                    the BaseOptionsWidget'''
+        ''' Callback funtion called by the _set_internal_run_result function of
+        the BaseOptionsWidget'''
         current_objects = self.get_current_objects()
         for obj in result:
             if obj in current_objects:
@@ -81,8 +82,8 @@ class BaseCollectorWidget(BaseOptionsWidget):
             self.add_object(obj)
 
     def on_select_callback(self, result):
-        ''' This function is called by the _set_internal_run_result function of
-                    the BaseOptionsWidget'''
+        ''' Callback funtion called by the _set_internal_run_result function of
+        the BaseOptionsWidget'''
         self.logger.debug("selected objects: {}".format(result))
 
     def add_object(self, obj):

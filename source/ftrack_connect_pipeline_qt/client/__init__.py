@@ -14,6 +14,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
     '''
 
     ui = [constants.UI, qt_constants.UI]
+    # Text of the button to run the whole definition
     run_definition_button_text = 'Run'
 
     def __init__(self, event_manager,parent=None):
@@ -97,6 +98,12 @@ class QtClient(client.Client, QtWidgets.QWidget):
         ''' Triggered when definition_changed is called from the host_selector.
         Generates the widgets interface from the given *host_connection*,
         *schema* and *definition*'''
+
+        if self.scroll.widget():
+            self.scroll.widget().deleteLater()
+
+        if not schema and not definition:
+            return
 
         super(QtClient, self).change_definition(schema, definition)
 
