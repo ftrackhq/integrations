@@ -92,8 +92,9 @@ class Host(object):
             try:
                 validation.validate_schema(self.__registry['schema'], data)
             except Exception as error:
-                self.logger.error("Can't validate the data {} "
-                                  "error: {}".format(data, error))
+                self.logger.error(
+                    "Can't validate the data {} error: {}".format(data, error)
+                )
 
         Engine = self.engines.get(engine_type)
         engine_runner = Engine(

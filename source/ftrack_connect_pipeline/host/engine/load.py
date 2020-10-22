@@ -13,8 +13,9 @@ class LoaderEngine(BaseLoaderPublisherEngine):
     def __init__(self, event_manager, host, hostid, asset_type):
         '''Initialise LoaderEngine with *event_manager*, *host*, *hostid* and
         *asset_type*'''
-        super(LoaderEngine, self).__init__(event_manager, host, hostid,
-                                           asset_type)
+        super(LoaderEngine, self).__init__(
+            event_manager, host, hostid, asset_type
+        )
 
 
 

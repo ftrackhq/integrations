@@ -13,8 +13,9 @@ class BaseLoaderPublisherEngine(BaseEngine):
     def __init__(self, event_manager, host, hostid, asset_type):
         '''Initialise LoaderEngine with *event_manager*, *host*, *hostid* and
         *asset_type*'''
-        super(BaseLoaderPublisherEngine, self).__init__(event_manager, host, hostid,
-                                           asset_type)
+        super(BaseLoaderPublisherEngine, self).__init__(
+            event_manager, host, hostid, asset_type
+        )
 
     def run_context(self, context_stage):
         '''Run *context_pligins*.
@@ -46,8 +47,9 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
         return statuses, results
 
-    def run_component(self, component_name, component_stages, context_data,
-                      stages_order):
+    def run_component(
+            self, component_name, component_stages, context_data, stages_order
+    ):
         '''Run component plugins for *component_name*, *component_stages* with
         *context_data* with the
         provided *stages_order*.
@@ -166,7 +168,11 @@ class BaseLoaderPublisherEngine(BaseEngine):
             component_stages = component['stages']
             component_enabled = component['enabled']
             if not component_enabled:
-                self.logger.info('Skipping component {} as it been disabled'.format(component_name))
+                self.logger.info(
+                    'Skipping component {} as it been disabled'.format(
+                        component_name
+                    )
+                )
                 continue
 
             component_status, component_result = self.run_component(

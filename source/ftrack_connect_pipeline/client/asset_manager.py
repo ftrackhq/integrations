@@ -64,9 +64,11 @@ class AssetManagerClient(client.Client):
         plugin_type = None
         if plugin:
             plugin_type = '{}.{}'.format('asset_manager', plugin['plugin_type'])
-        data = {'method': 'discover_assets',
-                'plugin': plugin,
-                'plugin_type': plugin_type}
+        data = {
+            'method': 'discover_assets',
+            'plugin': plugin,
+            'plugin_type': plugin_type
+        }
         self.host_connection.run(
             data, self.engine_type, self._asset_discovered_callback
         )
