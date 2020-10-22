@@ -243,10 +243,11 @@ class Client(object):
         # passing data to the engine. And the engine_type is only available
         # on the definition.
         plugin_type = '{}.{}'.format(engine_type, plugin_data['plugin_type'])
-        data = {'plugin': plugin_data,
-                'plugin_type': plugin_type,
-                'method': method
-                }
+        data = {
+            'plugin': plugin_data,
+            'plugin_type': plugin_type,
+            'method': method
+        }
         self.host_connection.run(
             data, engine_type, self._run_callback
         )
