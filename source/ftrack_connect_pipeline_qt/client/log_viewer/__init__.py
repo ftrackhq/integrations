@@ -100,6 +100,11 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
         '''
         Triggered host is selected in the host_selector.
         '''
+        self._logs = []
+        self.log_viewer_widget.set_log_items(self.logs)
+        if not host_connection:
+            return
+
         LogViewerClient.change_host(self, host_connection)
 
         self.scroll.setWidget(self.log_viewer_widget)
