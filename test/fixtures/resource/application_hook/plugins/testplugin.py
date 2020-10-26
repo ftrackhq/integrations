@@ -33,7 +33,7 @@ class TestOutput(plugin.OutputPlugin):
         return {'test': tmp}
 
 
-class TestFinaliser(plugin.FinaliserPlugin):
+class TestFinalizer(plugin.FinalizerPlugin):
     plugin_name = 'test'
 
     def run(self, context=None, data=None, options=None):
@@ -48,7 +48,7 @@ def register(api_object, **kw):
         TestCollector,
         TestValidator,
         TestOutput,
-        TestFinaliser
+        TestFinalizer
     ]
 
     for plugin in plugins:

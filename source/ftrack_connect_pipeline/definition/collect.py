@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2020 ftrack
 
 import json
 import fnmatch
@@ -18,7 +18,7 @@ def resolve_schemas(data):
 def filter_definitions_by_host(data, host):
     copy_data = copy.deepcopy(data)
     logger.info('filtering definition for host: {}'.format(host))
-    for entry in ['loader', 'publisher']:
+    for entry in ['loader', 'publisher', 'asset_manager']:
         for definition in data[entry]:
             if str(definition.get('host')) != str(host):
                 logger.warning(
@@ -48,11 +48,16 @@ def collect_definitions(lookup_dir):
         os.path.join(lookup_dir, 'publisher')
     )
 
+    asset_managers = _collect_json(
+        os.path.join(lookup_dir, 'asset_manager')
+    )
+
     data = {
         'schema': schemas or [],
         'publisher': publishers or [],
         'loader': loaders or [],
-        'package': packages or []
+        'package': packages or [],
+        'asset_manager': asset_managers or []
     }
 
     return data

@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2020 ftrack
 
 import time
 import logging
@@ -7,39 +7,24 @@ import copy
 import ftrack_api
 from ftrack_connect_pipeline import utils
 from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline.log.log_item import LogItem
 
 
 class HostConnection(object):
 
     @property
     def context(self):
-        return self._raw_host_data['context_id']
+        return self._context
+
+    @context.setter
+    def context(self, value):
+        '''Sets the engine_type with the given *value*'''
+        self._context = value
 
     @property
     def session(self):
         '''Return session'''
         return self._event_manager.session
-
-    @property
-    def state(self):
-        '''
-        Return current state of the host connection.
-        This will always return False, unless the publish has been successful.
-        '''
-        return all(
-            [
-                constants.status_bool_mapping.get(
-                    log['status'], constants.UNKNOWN_STATUS
-                )
-                for log in self.logs or [
-                    {'status': constants.UNKNOWN_STATUS}
-                ]
-            ]
-        )
-
-    @property
-    def logs(self):
-        return self.__logs
 
     @property
     def definitions(self):
@@ -80,13 +65,13 @@ class HostConnection(object):
 
         copy_data = copy.deepcopy(host_data)
 
-        self.__logs = []
+        self._logs = []
         self._event_manager = event_manager
         self._raw_host_data = copy_data
 
-        self.on_client_notification()
+        self.context = self._raw_host_data['context_id']
 
-    def run(self, data):
+    def run(self, data, engine, callback=None):
         '''Send *data* to the host through the PIPELINE_HOST_RUN topic.'''
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_HOST_RUN,
@@ -94,50 +79,12 @@ class HostConnection(object):
                 'pipeline': {
                     'host_id': self.id,
                     'data': data,
+                    'engine_type': engine
                 }
             }
         )
         self._event_manager.publish(
-            event
-        )
-
-    def _notify_client(self, event):
-        '''callback to notify the client with the *event* data'''
-        result = event['data']['pipeline']['result']
-        status = event['data']['pipeline']['status']
-        plugin_name = event['data']['pipeline']['plugin_name']
-        widget_ref = event['data']['pipeline']['widget_ref']
-        message = event['data']['pipeline']['message']
-
-        if constants.status_bool_mapping[status]:
-            self.__logs.append(event['data']['pipeline'])
-
-            self.logger.debug(
-                'plugin_name: {} \n status: {} \n result: {} \n '
-                'message: {}'.format(
-                    plugin_name, status, result, message
-                )
-            )
-
-        if (
-                status == constants.ERROR_STATUS or
-                status == constants.EXCEPTION_STATUS
-        ):
-            raise Exception(
-                'An error occurred during the execution of the '
-                'plugin name {} \n message: {} \n data: {}'.format(
-                    plugin_name, message, result
-                )
-            )
-
-    def on_client_notification(self):
-        '''Subscribe to PIPELINE_CLIENT_NOTIFICATION topic to receive client
-        notifications from the host'''
-        self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.hostid={}'.format(
-                constants.PIPELINE_CLIENT_NOTIFICATION,
-                self._raw_host_data['host_id']),
-            self._notify_client
+            event, callback
         )
 
 
@@ -181,6 +128,10 @@ class Client(object):
         '''Return the current list of hosts'''
         return self._host_list
 
+    @property
+    def logs(self):
+        return self._logs
+
     def __init__(self, event_manager):
         '''Initialise with *event_manager* , and optional *ui* List
 
@@ -196,6 +147,9 @@ class Client(object):
         self._context_id = utils.get_current_context()
         self._host_list = []
         self._connected = False
+        self._current_host_connection = None
+        self.host_connection = None
+        self._logs = []
 
         self.__callback = None
         self.logger = logging.getLogger(
@@ -239,6 +193,7 @@ class Client(object):
             self._host_list.append(host_connection)
 
         self._connected = True
+        self._current_host_connection = host_connection
 
     def _discover_hosts(self):
         '''Event to discover new available hosts.'''
@@ -263,3 +218,58 @@ class Client(object):
         '''
         self.__callback = callback
         self.discover_hosts(time_out=time_out)
+
+    def change_host(self, host_connection):
+        ''' Triggered when definition_changed is called from the host_selector.
+        Generates the widgets interface from the given *host_connection*,
+        *schema* and *definition*'''
+        if not host_connection:
+            return
+
+        self.logger.info('connection {}'.format(host_connection))
+        self.host_connection = host_connection
+        self.on_client_notification()
+
+    def _add_log_item(self, log_item):
+        self._logs.append(log_item)
+
+    def on_client_notification(self):
+        '''Subscribe to PIPELINE_CLIENT_NOTIFICATION topic to receive client
+        notifications from the host'''
+        self.session.event_hub.subscribe(
+            'topic={} and data.pipeline.hostid={}'.format(
+                constants.PIPELINE_CLIENT_NOTIFICATION,
+                self.host_connection.id
+            ),
+            self._notify_client
+        )
+
+    def _notify_client(self, event):
+        '''callback to notify the client with the *event* data'''
+        result = event['data']['pipeline']['result']
+        status = event['data']['pipeline']['status']
+        plugin_name = event['data']['pipeline']['plugin_name']
+        widget_ref = event['data']['pipeline']['widget_ref']
+        message = event['data']['pipeline']['message']
+
+        self._add_log_item(LogItem(event['data']['pipeline']))
+
+        if constants.status_bool_mapping[status]:
+
+            self.logger.debug(
+                'plugin_name: {} \n status: {} \n result: {} \n '
+                'message: {}'.format(
+                    plugin_name, status, result, message
+                )
+            )
+
+        if (
+                status == constants.ERROR_STATUS or
+                status == constants.EXCEPTION_STATUS
+        ):
+            raise Exception(
+                'An error occurred during the execution of the '
+                'plugin name {} \n message: {} \n data: {}'.format(
+                    plugin_name, message, result
+                )
+            )

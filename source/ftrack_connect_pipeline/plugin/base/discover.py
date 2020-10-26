@@ -3,14 +3,13 @@
 
 from ftrack_connect_pipeline.plugin import BasePlugin, BasePluginValidation
 from ftrack_connect_pipeline.constants import plugin
-from ftrack_connect_pipeline.asset import asset_info, FtrackAssetBase
 
 
-class ImporterPluginValidation(BasePluginValidation):
-    '''Importer Plugin Validation class'''
+class DiscoverPluginValidation(BasePluginValidation):
+    '''Collector Plugin Validation class'''
 
     def __init__(self, plugin_name, required_output, return_type, return_value):
-        '''Initialise ImporterPluginValidation with *plugin_name*,
+        '''Initialise CollectorPluginValidation with *plugin_name*,
         *required_output*, *return_type*, *return_value*.
 
         *plugin_name* current plugin name stored at the plugin base class
@@ -24,33 +23,50 @@ class ImporterPluginValidation(BasePluginValidation):
         *return_value* return value of the current plugin stored at the
         plugin base class
         '''
-        super(ImporterPluginValidation, self).__init__(
-            plugin_name, required_output, return_type, return_value
-        )
+        super(DiscoverPluginValidation, self).__init__(
+            plugin_name, required_output, return_type, return_value)
+
+    def validate_required_output(self, result):
+        '''Ensures that *result* contains the expected required_output defined
+        for the current plugin.
+
+        *result* output value of the plugin execution
+
+        Return tuple (bool,str)
+        '''
+        validator_result = (True, "")
+
+        for output_value in self.required_output:
+            if output_value not in result:
+                message = '{} require {} result option'.format(
+                    self.plugin_name, output_value
+                )
+                validator_result = (False, message)
+
+        return validator_result
 
 
-class BaseImporterPlugin(BasePlugin):
-    ''' Class representing an Base Importer Plugin
+class BaseDiscoverPlugin(BasePlugin):
+    ''' Class representing a Collector Plugin
+
     .. note::
 
-        _required_output a Dictionary
+        _required_output a List
     '''
-    return_type = dict
-    plugin_type = plugin._PLUGIN_IMPORTER_TYPE
-    ftrack_asset_class = FtrackAssetBase
-    _required_output = {}
+    return_type = list
+    plugin_type = plugin._PLUGIN_DISCOVER_TYPE
+    _required_output = []
 
     def __init__(self, session):
-        '''Initialise BaseImporterPlugin with *session*
+        '''Initialise CollectorPlugin with *session*
 
         *session* should be the :class:`ftrack_api.session.Session` instance
         to use for communication with the server.
         '''
-        super(BaseImporterPlugin, self).__init__(session)
-        self.validator = ImporterPluginValidation(
+        super(BaseDiscoverPlugin, self).__init__(session)
+        self.validator = DiscoverPluginValidation(
             self.plugin_name, self._required_output, self.return_type,
-            self.return_value
-        )
+            self.return_value)
 
     def run(self, context=None, data=None, options=None):
         '''Run the current plugin with , *context* , *data* and *options*.
@@ -62,28 +78,13 @@ class BaseImporterPlugin(BasePlugin):
 
         *options* a dictionary of options passed from outside.
 
-        Returns self.output Dictionary with the stages and the paths of the
-        collected objects
+        Returns self.output List of paths of collected objects.
 
         .. note::
 
             Use always self.output as a base to return the values,
             don't override self.output as it contains the _required_output
 
-        .. note::
-
-            Options contains 'component_name' as default option
         '''
 
         raise NotImplementedError('Missing run method.')
-
-    def get_asset_class(self, context, data, options):
-        arguments_dict = asset_info.generate_asset_info_dict_from_args(
-            context, data, options, self.session
-        )
-
-        asset_info_class = asset_info.FtrackAssetInfo(arguments_dict)
-
-        ftrack_asset_class = self.ftrack_asset_class(self.event_manager)
-        ftrack_asset_class.asset_info = asset_info_class
-        return ftrack_asset_class

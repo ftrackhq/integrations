@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2020 ftrack
 
 import functools
 import logging
@@ -9,6 +9,7 @@ import traceback
 import copy
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import exception
+from ftrack_connect_pipeline import event
 
 
 class BasePluginValidation(object):
@@ -90,7 +91,7 @@ class BasePlugin(object):
     ''' Class representing a Plugin '''
     plugin_type = None
     plugin_name = None
-    type = 'plugin'#None
+    type = 'plugin'
     host = constants.HOST
 
     return_type = None
@@ -118,7 +119,12 @@ class BasePlugin(object):
     @property
     def session(self):
         '''Return current session.'''
-        return self._session
+        return self.event_manager.session
+
+    @property
+    def event_manager(self):
+        '''Return current event_manager.'''
+        return self._event_manager
 
     def __init__(self, session):
         '''Initialise BasePlugin with *session*.
@@ -137,7 +143,9 @@ class BasePlugin(object):
         self.logger = logging.getLogger(
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
-        self._session = session
+        self._event_manager = event.EventManager(
+            session=session, mode=constants.LOCAL_EVENT_MODE
+        )
         self.validator = BasePluginValidation(
             self.plugin_name, self._required_output, self.return_type,
             self.return_value
@@ -161,7 +169,6 @@ class BasePlugin(object):
             self.plugin_type,
             self.plugin_name,
         ]
-
         if not all(required):
             raise exception.PluginError('Some required fields are missing')
 
@@ -233,7 +240,6 @@ class BasePlugin(object):
             PIPELINE_RUN_PLUGIN_TOPIC
 
         '''
-
         plugin_settings = event['data']['settings']
         self.logger.debug('plugin_settings : {}'.format(plugin_settings))
         start_time = time.time()
@@ -326,5 +332,7 @@ class BasePlugin(object):
         '''
         raise NotImplementedError('Missing run method.')
 
+
 from ftrack_connect_pipeline.plugin.load import *
 from ftrack_connect_pipeline.plugin.publish import *
+from ftrack_connect_pipeline.plugin.asset_manager import *
