@@ -1,10 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-import MaxPlus
-
-import math
-
 from custom_commands import eval_max_script
 
 # Alembic default options

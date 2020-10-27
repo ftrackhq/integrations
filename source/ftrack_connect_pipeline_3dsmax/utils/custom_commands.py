@@ -2,49 +2,37 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 import MaxPlus
+from pymxs import runtime as rt
 
 
 def import_scene_XRef(file_path, options=None):
     '''Import a Max scene file as a Scene XRef asset.'''
-    cmd = '''
-    scn = xrefs.addNewXRefFile @"{0}"
-    scn
-    '''.format(file_path)
-    eval_max_script(cmd)
-
+    scn = rt.xrefs.addNewXRefFile(file_path)
+    return scn
 
 def re_import_scene_XRef(file_path, parent_helper_node_name):
     '''Import a Max scene file as a Scene XRef asset and parent it
     under an existing helper ftrack_object.'''
-    cmd = '''
-    n = getNodeByName "{0}" exact:true
-    scn = xrefs.addNewXRefFile @"{1}"
-    scn.parent = n
-    '''.format(parent_helper_node_name, file_path)
-    eval_max_script(cmd)
+    node = rt.getNodeByName(parent_helper_node_name, exact=True)
+    scn = rt.xrefs.addNewXRefFile(file_path)
+    scn.parent = node
+    return scn
 
 
 def import_obj_XRefs(file_path, options=None):
     '''Import all the objects in a Max scene file as Object XRefs and parent
     them under an existing helper ftrack_object.'''
-    cmd = '''
-    filename = @"{0}"
-    xRefObjs = getMAXFileObjectNames filename
-    newObjs =  xrefs.addnewXrefObject filename xRefObjs dupMtlNameAction: #autoRename
-    select newObjs
-    '''.format(file_path)
-    eval_max_script(cmd)
+    x_ref_objs = rt.getMAXFileObjectNames(file_path)
+    newObjs = rt.xrefs.addNewXRefObject(
+        file_path, x_ref_objs, dupMtlNameAction=rt.name("autoRename")
+    )
+    rt.select(newObjs)
+    return newObjs
 
 
 def open_scene(file_path, options=None):
     '''Open a Max scene file.'''
-    fm = MaxPlus.FileManager
-    return fm.Open(file_path, True, True, True, False)
-
-
-def eval_max_script(cmd):
-    '''Evaluate a string using MAXScript.'''
-    return MaxPlus.Core.EvalMAXScript(cmd)
+    return rt.loadMaxFile(file_path)
 
 
 def get_unique_node_name(node_name):
