@@ -104,7 +104,7 @@ def new_project(request, session):
     project_name = 'pipeline_test_{0}'.format(uuid.uuid1().hex)
     project = session.create('Project', {
         'name': project_name,
-        'full_name': project_name + '_full',
+        'full_name': '{}_full'.format(project_name),
         'project_schema': project_schema
     })
 
@@ -170,7 +170,7 @@ def event_manager(session):
             )
         )
 
-        print dir
+        print (dir)
         # collect definitions
         data = collect_and_validate(
             session, dir, host
