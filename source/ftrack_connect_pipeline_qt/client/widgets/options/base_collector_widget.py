@@ -25,8 +25,7 @@ class BaseCollectorWidget(BaseOptionsWidget):
     def build(self):
         '''build function , mostly used to create the widgets.'''
         super(BaseCollectorWidget, self).build()
-        self.add_button = QtWidgets.QPushButton("add Object")
-        self.fetch_button = QtWidgets.QPushButton("fetch Objects")
+        self.add_button = QtWidgets.QPushButton("Add Selected")
         self.list_widget = QtWidgets.QListWidget()
 
         self.list_widget.setAlternatingRowColors(True)
@@ -36,16 +35,18 @@ class BaseCollectorWidget(BaseOptionsWidget):
 
         self.layout().addWidget(self.add_button)
         self.layout().addWidget(self.list_widget)
-        self.layout().addWidget(self.fetch_button)
 
     def contextMenuEvent(self, event):
         '''
         Executes the context menu
         '''
         self.menu = QtWidgets.QMenu(self)
-        action_widget = QtWidgets.QAction('Select', self)
-        action_widget.setData('ctx_select')
-        self.menu.addAction(action_widget)
+        select_action_widget = QtWidgets.QAction('Select', self)
+        select_action_widget.setData('ctx_select')
+        remove_action_widget = QtWidgets.QAction('Remove', self)
+        remove_action_widget.setData('ctx_remove')
+        self.menu.addAction(select_action_widget)
+        self.menu.addAction(remove_action_widget)
         self.menu.triggered.connect(self.menu_triggered)
 
         # add other required actions
@@ -57,10 +58,6 @@ class BaseCollectorWidget(BaseOptionsWidget):
         self.add_button.clicked.connect(
             partial(self.on_run_plugin, 'add')
         )
-        self.fetch_button.clicked.connect(
-            partial(self.on_run_plugin, 'fetch')
-        )
-
         self.set_option_result(self.collected_objects, key='collected_objects')
 
     def on_fetch_callback(self, result):
@@ -79,6 +76,7 @@ class BaseCollectorWidget(BaseOptionsWidget):
         for obj in result:
             if obj in current_objects:
                 continue
+            self._collected_objects.append(obj)
             self.add_object(obj)
 
     def on_select_callback(self, result):
@@ -88,11 +86,8 @@ class BaseCollectorWidget(BaseOptionsWidget):
 
     def add_object(self, obj):
         item = QtWidgets.QListWidgetItem(obj)
-        item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
-        item.setCheckState(QtCore.Qt.Checked)
         self.list_widget.addItem(item)
         self._options['collected_objects'].append(item.text())
-
     def get_current_objects(self):
         current_objects = []
         for idx in range(0, self.list_widget.count()):
@@ -100,11 +95,8 @@ class BaseCollectorWidget(BaseOptionsWidget):
         return current_objects
 
     def _on_item_changed(self, item):
-        if not item.checkState():
-            self._options['collected_objects'].remove(item.text())
-        else:
-            if item.text() not in self._options['collected_objects']:
-                self._options['collected_objects'].append(item.text())
+        if item.text() not in self._options['collected_objects']:
+            self._options['collected_objects'].append(item.text())
 
     def menu_triggered(self, action):
         '''
@@ -125,3 +117,14 @@ class BaseCollectorWidget(BaseOptionsWidget):
             selected_items.append(item.text())
         self._options['selected_items'] = selected_items
         self.on_run_plugin('select')
+
+    def ctx_remove(self):
+        '''
+        Triggered when select action menu been clicked.
+        '''
+        selected_widget_items = self.list_widget.selectedItems()
+        for item in selected_widget_items:
+            self._options['collected_objects'].remove(item.text())
+            self._collected_objects.remove(item.text())
+            row = self.list_widget.row(item)
+            self.list_widget.takeItem(row)
