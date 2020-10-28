@@ -43,7 +43,7 @@ def get_unique_node_name(node_name):
     node_fmt_string = node_name + '%03d'
     while True:
         unique_node_name = node_fmt_string % i
-        if not MaxPlus.INode.GetINodeByName(unique_node_name):
+        if not rt.getNodeByName(unique_node_name, exact=True):
             return unique_node_name
 
         i = i + 1
@@ -53,25 +53,23 @@ def get_unique_node_name(node_name):
 
 def scene_XRef_imported(ftrack_node):
     '''Check if a Scene XRef exists under the ftrackAssetHelper ftrack_object.'''
-    cmd = '''
-    result = false
-    numSceneRefs = xrefs.getXRefFileCount()
-    for i = 1 to numSceneRefs do (
-        sceneRef = xrefs.getXrefFile i
-        if sceneRef.parent.Name == "{0}" do (
-            result = true
-        )
-    )
-    result
-    '''.format(ftrack_node.Name)
-    return MaxPlus.Core.EvalMAXScript(cmd).Get()
+    result = False
+    num_scene_refs = rt.xrefs.getXRefFileCount()
+    for idx in range(1, num_scene_refs):
+        scene_ref = rt.xrefs.getXrefFile(idx)
+        if scene_ref.parent.Name == ftrack_node.Name:
+            result = True
+    return result
 
 
 def merge_max_file(file_path, options=None):
     '''Import a Max scene into the current scene.'''
-    return eval_max_script(
-        'mergemaxfile @"{0}" #autoRenameDups #neverReparent #select'.format(
-            file_path))
+    return rt.mergemaxfile(
+        file_path,
+        rt.name("autoRenameDups"),
+        rt.name("neverReparent"),
+        rt.name("select")
+    )
 
 
 def get_current_scene_objects():
@@ -85,11 +83,11 @@ def get_current_scene_objects():
 
 
 def select_all():
-    eval_max_script('select $*')
+    return rt.select(rt.objects)
 
 
 def deselect_all():
-    MaxPlus.SelectionManager.ClearNodeSelection()
+    rt.clearSelection()
 
 
 def save_selection():
