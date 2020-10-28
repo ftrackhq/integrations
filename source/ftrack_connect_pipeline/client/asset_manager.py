@@ -47,8 +47,7 @@ class AssetManagerClient(client.Client):
         definitions = self.host_connection.definitions.get(schema_title)
         #Only one definition for now, we don't have a definition schema on the
         # AM
-        self.definition = definitions[0]
-        self.engine_type = self.definition['_config']['engine_type']
+        self.change_definition(schema, definitions[0])
 
         self.menu_action_plugins = self.definition.get('actions')
         self.discover_plugins = self.definition.get('discover')
@@ -62,8 +61,14 @@ class AssetManagerClient(client.Client):
         Discover assets on the scene
         '''
         self._reset_asset_list()
-        data = {'method': 'discover_assets',
-                'plugin': plugin}
+        plugin_type = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['plugin_type'])
+        data = {
+            'method': 'discover_assets',
+            'plugin': plugin,
+            'plugin_type': plugin_type
+        }
         self.host_connection.run(
             data, self.engine_type, self._asset_discovered_callback
         )
@@ -84,11 +89,12 @@ class AssetManagerClient(client.Client):
         given *new_version_id*
         '''
 
-        data = {'method': 'change_version',
-                'plugin': None,
-                'assets': asset_info,
-                'options': {'new_version_id': new_version_id}
-                }
+        data = {
+            'method': 'change_version',
+            'plugin': None,
+            'assets': asset_info,
+            'options': {'new_version_id': new_version_id}
+        }
         self.host_connection.run(
             data, self.engine_type, self._change_version_callback
         )
@@ -97,20 +103,22 @@ class AssetManagerClient(client.Client):
         '''
         Select the assets of the given *asset_info_list*
         '''
-        data = {'method': 'select_assets',
-                'plugin': None,
-                'assets': asset_info_list
-                }
+        data = {
+            'method': 'select_assets',
+            'plugin': None,
+            'assets': asset_info_list
+        }
         self.host_connection.run(data, self.engine_type)
 
     def remove_assets(self, asset_info_list):
         '''
         Remove the assets of the given *asset_info_list*
         '''
-        data = {'method': 'remove_assets',
-                'plugin': None,
-                'assets': asset_info_list
-                }
+        data = {
+            'method': 'remove_assets',
+            'plugin': None,
+            'assets': asset_info_list
+        }
         self.host_connection.run(
             data, self.engine_type, self._remove_assets_callback
         )
@@ -120,10 +128,15 @@ class AssetManagerClient(client.Client):
         Updates the assets from the given *asset_info_list* using the given
         *plugin*
         '''
-        data = {'method': 'update_assets',
-                'plugin': plugin,
-                'assets': asset_info_list
-                }
+        plugin_type = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['plugin_type'])
+        data = {
+            'method': 'update_assets',
+            'plugin': plugin,
+            'assets': asset_info_list,
+            'plugin_type': plugin_type
+        }
         self.host_connection.run(
             data, self.engine_type, self._update_assets_callback
         )

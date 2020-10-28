@@ -13,8 +13,9 @@ class BaseLoaderPublisherEngine(BaseEngine):
     def __init__(self, event_manager, host, hostid, asset_type):
         '''Initialise LoaderEngine with *event_manager*, *host*, *hostid* and
         *asset_type*'''
-        super(BaseLoaderPublisherEngine, self).__init__(event_manager, host, hostid,
-                                           asset_type)
+        super(BaseLoaderPublisherEngine, self).__init__(
+            event_manager, host, hostid, asset_type
+        )
 
     def run_context(self, context_stage):
         '''Run *context_pligins*.
@@ -26,10 +27,13 @@ class BaseLoaderPublisherEngine(BaseEngine):
         stage_name = context_stage['name']
         plugin_type = '{}.{}'.format(self.engine_type, stage_name)
         for plugin in context_stage['plugins']:
-            status, result = self._run_plugin(
+            result = None
+            status, method_result = self._run_plugin(
                 plugin, plugin_type,
                 options=plugin['options']
             )
+            if method_result:
+                result = method_result.get(method_result.keys()[0])
             bool_status = constants.status_bool_mapping[status]
             if not bool_status:
                 raise Exception(
@@ -43,8 +47,9 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
         return statuses, results
 
-    def run_component(self, component_name, component_stages, context_data,
-                      stages_order):
+    def run_component(
+            self, component_name, component_stages, context_data, stages_order
+    ):
         '''Run component plugins for *component_name*, *component_stages* with
         *context_data* with the
         provided *stages_order*.
@@ -70,16 +75,17 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 stage_status = []
 
                 for plugin in plugins:
-
+                    result = None
                     plugin_options = plugin['options']
                     plugin_options['component_name'] = component_name
-                    status, result = self._run_plugin(
+                    status, method_result = self._run_plugin(
                         plugin, plugin_type,
                         data=collected_data,
                         options=plugin_options,
                         context=context_data
                     )
-
+                    if method_result:
+                        result = method_result.get(method_result.keys()[0])
                     bool_status = constants.status_bool_mapping[status]
                     stage_status.append(bool_status)
                     if result and isinstance(result, list):
@@ -118,12 +124,15 @@ class BaseLoaderPublisherEngine(BaseEngine):
         stage_name = finalizer_stage['name']
         plugin_type = '{}.{}'.format(self.engine_type, stage_name)
         for plugin in finalizer_stage['plugins']:
-            status, result = self._run_plugin(
+            result = None
+            status, method_result = self._run_plugin(
                 plugin, plugin_type,
                 data=finalizer_data,
                 options=plugin['options'],
                 context=context_data
             )
+            if method_result:
+                result = method_result.get(method_result.keys()[0])
             bool_status = constants.status_bool_mapping[status]
             if not bool_status:
                 raise Exception(
@@ -136,7 +145,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
         return statuses, results
 
-    def run(self, data):
+    def run_definition(self, data):
         '''Run packages from the provided data
         *data* the json schema
         Raise Exception if any context plugin, component plugin or finalizer
@@ -159,7 +168,11 @@ class BaseLoaderPublisherEngine(BaseEngine):
             component_stages = component['stages']
             component_enabled = component['enabled']
             if not component_enabled:
-                self.logger.info('Skipping component {} as it been disabled'.format(component_name))
+                self.logger.info(
+                    'Skipping component {} as it been disabled'.format(
+                        component_name
+                    )
+                )
                 continue
 
             component_status, component_result = self.run_component(

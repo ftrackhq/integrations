@@ -124,6 +124,26 @@ class Client(object):
         self._context_id = context_id
 
     @property
+    def host_connection(self):
+        '''Return the current _host_connection'''
+        return self._host_connection
+
+    @property
+    def schema(self):
+        '''Return the current _host_connection'''
+        return self._schema
+
+    @property
+    def definition(self):
+        '''Return the current _host_connection'''
+        return self._definition
+
+    @property
+    def engine_type(self):
+        '''Return the current _host_connection'''
+        return self._engine_type
+
+    @property
     def hosts(self):
         '''Return the current list of hosts'''
         return self._host_list
@@ -147,9 +167,11 @@ class Client(object):
         self._context_id = utils.get_current_context()
         self._host_list = []
         self._connected = False
-        self._current_host_connection = None
-        self.host_connection = None
+        self._host_connection = None
         self._logs = []
+        self._schema = None
+        self._definition = None
+        self.current_package = None
 
         self.__callback = None
         self.logger = logging.getLogger(
@@ -193,7 +215,6 @@ class Client(object):
             self._host_list.append(host_connection)
 
         self._connected = True
-        self._current_host_connection = host_connection
 
     def _discover_hosts(self):
         '''Event to discover new available hosts.'''
@@ -206,6 +227,33 @@ class Client(object):
             discover_event,
             callback=self._host_discovered
         )
+
+    def run_definition(self, definition, engine_type):
+        '''Runs the complete given *definition* with the given engine_type.'''
+        self.host_connection.run(
+            definition, engine_type, self._run_callback
+        )
+
+    def run_plugin(self, plugin_data, method, engine_type):
+        '''Function called to run one single plugin *plugin_data* with the
+        plugin information and the *method* to be run has to be passed'''
+        # Plugin type is constructed using the engine_type and the plugin_type
+        # (publisher.collector). We have to make sure that plugin_type is in
+        # the data argument passed to the host_connection, because we are only
+        # passing data to the engine. And the engine_type is only available
+        # on the definition.
+        plugin_type = '{}.{}'.format(engine_type, plugin_data['plugin_type'])
+        data = {
+            'plugin': plugin_data,
+            'plugin_type': plugin_type,
+            'method': method
+        }
+        self.host_connection.run(
+            data, engine_type, self._run_callback
+        )
+
+    def _run_callback(self, event):
+        self.logger.debug("_run_callback event: {}".format(event))
 
     def on_ready(self, callback, time_out=3):
         '''calls the given *callback* when host is been discovered with the
@@ -220,15 +268,52 @@ class Client(object):
         self.discover_hosts(time_out=time_out)
 
     def change_host(self, host_connection):
-        ''' Triggered when definition_changed is called from the host_selector.
-        Generates the widgets interface from the given *host_connection*,
-        *schema* and *definition*'''
+        ''' Triggered when host_changed is called from the host_selector.'''
         if not host_connection:
             return
 
-        self.logger.info('connection {}'.format(host_connection))
-        self.host_connection = host_connection
+        self.logger.info('connection: {}'.format(host_connection))
+        self._host_connection = host_connection
+        # set current context to host
+        self.change_context(self.host_connection.context or self.context)
         self.on_client_notification()
+
+    def change_definition(self, schema, definition):
+        ''' Triggered when definition_changed is called from the host_selector.
+        Generates the widgets interface from the given *host_connection*,
+        *schema* and *definition*'''
+        if not self.host_connection:
+            self.logger.error("please set the host connection first")
+            return
+
+        self.logger.debug('schema: {}'.format(schema))
+        self.logger.debug('definition: {}'.format(definition))
+
+        self._schema = schema
+        self._definition = definition
+
+        self.current_package = self.get_current_package()
+
+        self.change_engine(self.definition['_config']['engine_type'])
+
+    def change_engine(self, engine_type):
+        self._engine_type = engine_type
+
+    def get_current_package(self):
+        if not self.host_connection or not self.definition:
+            self.logger.error(
+                "please set the host connection and the definition first"
+            )
+            return
+
+        for package in self.host_connection.definitions['package']:
+            if package['name'] == self.definition.get('package'):
+                return package
+        return None
+
+    def change_context(self, context_id):
+        self.context = context_id
+        self._host_connection.context = context_id
 
     def _add_log_item(self, log_item):
         self._logs.append(log_item)
