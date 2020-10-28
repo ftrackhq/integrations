@@ -11,6 +11,7 @@ class QtLoaderClient(QtClient):
     Base load widget class.
     '''
     definition_filter = 'loader'
+    run_definition_button_text = 'Load'
 
     def __init__(self, event_manager, parent=None):
 

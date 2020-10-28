@@ -3,6 +3,7 @@
 
 import logging
 from collections import OrderedDict
+from functools import partial
 
 import uuid
 import ftrack_api
@@ -21,6 +22,7 @@ class WidgetFactory(QtWidgets.QWidget):
 
     widget_status_updated = QtCore.Signal(object)
     widget_context_updated = QtCore.Signal(object)
+    widget_run_plugin = QtCore.Signal(object, object)
 
     host_definitions = None
     ui = None
@@ -68,7 +70,8 @@ class WidgetFactory(QtWidgets.QWidget):
             'name': hidden.HiddenString,
             'enabled': hidden.HiddenBoolean,
             'package': hidden.HiddenString,
-            'host': hidden.HiddenString
+            'host': hidden.HiddenString,
+            'optional': hidden.HiddenBoolean
         }
 
         self.schema_title_mapping = {
@@ -139,7 +142,18 @@ class WidgetFactory(QtWidgets.QWidget):
 
         if not widget_fn:
             widget_fn = self.schema_type_mapping.get(
-                schema_fragment.get('type'), schema_widget.UnsupportedSchema)
+                schema_fragment.get('type'))
+
+        if not widget_fn:
+            if schema_fragment.get('allOf'):
+                # When the schema contains allOf in the keys, we handele it as
+                # an object type.
+                widget_fn = self.schema_type_mapping.get(
+                    'object', schema_widget.UnsupportedSchema
+                )
+            else:
+                widget_fn = schema_widget.UnsupportedSchema
+
 
         return widget_fn(name, schema_fragment, fragment_data,
                          previous_object_data, self, parent)
@@ -165,7 +179,12 @@ class WidgetFactory(QtWidgets.QWidget):
             plugin_data, plugin_type, widget_name, extra_options=extra_options
         )
         if not data:
-            widget_name = 'default.widget'
+            if plugin_type == 'publisher.validator':
+                # We have a particular default validator for the publisher to be
+                # able to enable test of each validator on publish time.
+                widget_name = 'default.validator.widget'
+            else:
+                widget_name = 'default.widget'
             self.logger.info(
                 'Widget not found, falling back on: {}'.format(widget_name)
             )
@@ -181,6 +200,8 @@ class WidgetFactory(QtWidgets.QWidget):
 
         message = data['message']
         result = data['result']
+        if result:
+            widget = result.get(result.keys()[0])
         status = data['status']
 
         if status == constants.EXCEPTION_STATUS:
@@ -192,19 +213,25 @@ class WidgetFactory(QtWidgets.QWidget):
                     message, plugin_data, plugin_type, widget_name)
             )
 
-        if result and not isinstance(result, BaseOptionsWidget):
+        if result and not isinstance(widget, BaseOptionsWidget):
             raise Exception(
                 'Widget {} should inherit from {}'.format(
-                    result,
+                    widget,
                     BaseOptionsWidget
                 )
             )
 
-        result.status_updated.connect(self._on_widget_status_updated)
-        result.context_changed.connect(self._on_widget_context_changed)
-        self.register_widget_plugin(plugin_data, result)
+        widget.status_updated.connect(self._on_widget_status_updated)
+        widget.context_changed.connect(self._on_widget_context_changed)
+        self.register_widget_plugin(plugin_data, widget)
 
-        return result
+        widget.run_plugin_clicked.connect(
+            partial(self.on_widget_run_plugin, plugin_data)
+        )
+        if widget.auto_fetch_on_init:
+            widget.fetch_on_init()
+
+        return widget
 
     def _fetch_plugin_widget(
             self, plugin_data, plugin_type, plugin_name, extra_options=None
@@ -227,6 +254,7 @@ class WidgetFactory(QtWidgets.QWidget):
                     'pipeline': {
                         'plugin_name': plugin_name,
                         'plugin_type': plugin_type,
+                        'method': 'run',
                         'type': 'widget',
                         'host': host_definition,
                         'ui': _ui
@@ -276,6 +304,13 @@ class WidgetFactory(QtWidgets.QWidget):
                 )
             )
             widget.set_status(status, message)
+        if result:
+            self.logger.debug(
+                'updating widget: {} with run result {}'.format(
+                    widget, result
+                )
+            )
+            widget.set_run_result(result)
 
     def _listen_widget_updates(self):
         '''Subscribe to the PIPELINE_CLIENT_NOTIFICATION topic to call the
@@ -302,6 +337,15 @@ class WidgetFactory(QtWidgets.QWidget):
         }
         self.set_context(new_context)
         self.widget_context_updated.emit(context_id)
+
+    def on_widget_run_plugin(self, plugin_data, method, plugin_options):
+        '''
+        Called when a run button (run, fetch or any method button) is clicked
+        on the widget. *plugin_data* is the current plugin definition, *method*
+        is the method that has to be executed in the plugin, *plugin_options* is
+        not used for now but are the current options that the plugin has.
+        '''
+        self.widget_run_plugin.emit(plugin_data, method)
 
     def register_widget_plugin(self, plugin_data, widget):
         '''regiter the *widget* in the given *plugin_data*'''

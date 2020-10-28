@@ -4,7 +4,7 @@ from Qt import QtWidgets, QtCore
 
 class DefinitionSelector(QtWidgets.QWidget):
     '''DefinitionSelector Base Class'''
-    definition_changed = QtCore.Signal(object, object, object)
+    definition_changed = QtCore.Signal(object, object)
     host_changed = QtCore.Signal(object)
 
     @property
@@ -88,6 +88,7 @@ class DefinitionSelector(QtWidgets.QWidget):
 
         if not self.definition:
             self.logger.warning('No data for selected definition')
+            self.definition_changed.emit(None, None)
             return
 
         for schema in self.schemas:
@@ -98,10 +99,7 @@ class DefinitionSelector(QtWidgets.QWidget):
                 self.schema = schema
                 break
 
-        self.definition_changed.emit(
-            self.host_connection,
-            self.schema,
-            self.definition)
+        self.definition_changed.emit(self.schema, self.definition)
 
     def add_hosts(self, hosts):
         for host in hosts:
