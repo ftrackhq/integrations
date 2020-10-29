@@ -1,7 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-import MaxPlus
 from pymxs import runtime as rt
 
 
@@ -91,39 +90,28 @@ def deselect_all():
 
 
 def save_selection():
-    return MaxPlus.SelectionManager.GetNodes()
+    return rt.GetCurrentSelection()
 
 
 def restore_selection(saved_selection):
-    MaxPlus.SelectionManager.SelectNodes(saved_selection)
+    rt.clearSelection()
+    rt.select(saved_selection)
 
 
 def add_node_to_selection(node):
     '''Select Node'''
-    MaxPlus.SelectionManager.SelectNode(node, False)
+    rt.selectMore(node)
 
 
 def selection_empty():
-    return MaxPlus.SelectionManager.GetNodes().GetCount() == 0
+    return rt.selection.count == 0
 
 
 def get_ftrack_helpers():
-    saved_selection = save_selection()
-    cmd = '''
-    selected_helpers =  #()
-    for obj in rootScene.world.children do (  
-        cl = SuperClassOf obj 
-        if (cl == Helper) then  ( 
-            append selected_helpers obj
-            )
-    )
-    max select none
-    select selected_helpers
-    '''
-    eval_max_script(cmd)
-    helpers = MaxPlus.SelectionManager.GetNodes()
-    deselect_all()
-    restore_selection(saved_selection)
+    helpers = []
+    for obj in rt.rootScene.world.children:
+        if rt.SuperClassOf(obj) == 'Helper':
+            helpers.append(obj)
     return helpers
 
 
@@ -146,46 +134,36 @@ def collect_children_nodes(node):
 def delete_all_children(node):
     '''Delete all children ftrack_objects of a ftrack_object.'''
     all_children = collect_children_nodes(node)
-    nodes_to_delete = MaxPlus.INodeTab()
     for node in all_children:
-        nodes_to_delete.Append(node)
-
-    node.DeleteNodes(nodes_to_delete)
+        rt.delete(node)
     return all_children
 
 
 def add_all_children_to_selection(parent_node):
     '''Add all children of a ftrack_object to the current selection.'''
-    new_sel = MaxPlus.SelectionManager.GetNodes()
+    current_selection = list(rt.GetCurrentSelection())
     nodes_to_select = collect_children_nodes(parent_node)
     for node in nodes_to_select:
-        new_sel.Append(node)
+        current_selection.append(node)
+    rt.select(current_selection)
 
-    MaxPlus.SelectionManager.SelectNodes(new_sel)
-
-    return nodes_to_select
+    return current_selection
 
 
 def get_time_range():
-    start = eval_max_script('animationRange.start')
-    end = eval_max_script('animationRange.end')
+    start = rt.animationRange.start
+    end = rt.animationRange.end
     return (start, end)
 
 
 def select_only_cameras():
-    cmd = '''
-    selected_cameras = #()
-    for obj in selection do (
-        if SuperClassOf obj == camera do (
-            append selected_cameras obj
-        )
-    )
-    max select none
-    select selected_cameras
-    '''
-    eval_max_script(cmd)
+    selected_cameras = []
+    for obj in rt.selection:
+        if rt.SuperClassOf(obj) == 'camera':
+            selected_cameras.append(obj)
+    return selected_cameras
 
 
 def create_selection_set(set_name):
     '''Create a new selection set containing the selected ftrack_objects.'''
-    eval_max_script('selectionSets["{0}"] = selection'.format(set_name))
+    rt.selectionSets[set_name] = rt.selection
