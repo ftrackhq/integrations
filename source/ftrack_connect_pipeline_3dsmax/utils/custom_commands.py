@@ -36,6 +36,9 @@ def open_scene(file_path, options=None):
 
 def get_unique_node_name(node_name):
     '''Return a unique scene name for the given *nodeName*'''
+    #TODO: check this
+    # $Box01.name = uniqueName "MyRenamedBox"
+    # -->"MyRenamedBox001"
     unique_node_name = None
     # Max starts naming objects from 001.
     i = 1
