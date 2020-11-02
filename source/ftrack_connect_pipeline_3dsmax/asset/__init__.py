@@ -1,20 +1,19 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-import MaxPlus
 import json
 from ftrack_connect_pipeline.asset import FtrackAssetInfo, FtrackAssetBase
 from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
 from ftrack_connect_pipeline_3dsmax.constants.asset import modes as load_const
 import ftrack_connect_pipeline_3dsmax.utils.custom_commands as max_utils
-
+from pymxs import runtime as rt
 
 class FtrackAssetNode(FtrackAssetBase):
     '''
     Base FtrackAssetNode class.
     '''
 
-    identity = MaxPlus.Class_ID(*asset_const.FTRACK_ASSET_CLASS_ID)
+    identity = asset_const.FTRACK_ASSET_CLASS_ID#MaxPlus.Class_ID(*asset_const.FTRACK_ASSET_CLASS_ID)
 
     def is_ftrack_object(self, object):
         '''
@@ -39,9 +38,7 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
         super(FtrackAssetNode, self).__init__(event_manager)
 
-        self.helper_object = MaxPlus.Factory.CreateHelperObject(
-            self.identity
-        )
+        self.helper_object = rt.FtrackAssetHelper()
         self.logger.debug(
             'helper_object {} has been created'.format(self.helper_object)
         )
@@ -154,7 +151,7 @@ class FtrackAssetNode(FtrackAssetBase):
         Reload all the ftrack dependencies that are referenced in the current
         selection.
         '''
-        for node in MaxPlus.SelectionManager.Nodes:
+        for node in rt.GetCurrentSelection():
             if self.is_ftrack_object(node) and self.get_load_mode_from_ftrack_object(
                     node) == load_const.SCENE_XREF_MODE:
                 if not max_utils.scene_XRef_imported(node):
@@ -171,14 +168,13 @@ class FtrackAssetNode(FtrackAssetBase):
         type of FtrackAssetHelper.
         '''
         name = self._get_unique_ftrack_object_name()
-        ftrack_object = MaxPlus.Factory.CreateNode(self.helper_object)
+        ftrack_object = rt.FtrackAssetHelper()
         ftrack_object.Name = name
 
         # Try to freeze the helper object and lock the transform.
         try:
-            cmd = 'freeze ${0} ; setTransformLockFlags ${0} #all'.format(
-                ftrack_object.Name)
-            max_utils.eval_max_script(cmd)
+            rt.freeze(ftrack_object)
+            rt.setTransformLockFlags(ftrack_object, rt.name("all"))
         except Exception, e:
             self.logger.debug(
                 "Could not freeze object {0}, Error: {1}".format(
@@ -194,15 +190,12 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
         print "updating ftrack object"
         try:
-            cmd = 'unfreeze ${0}'.format(ftrack_object.Name)
-            max_utils.eval_max_script(cmd)
+            rt.unfreeze(ftrack_object)
         except:
             self.logger.debug(
                 "Could not unfreeze object {0}".format(ftrack_object.Name))
 
         obj = ftrack_object.Object
-
-        print "self.asset_info ---> {}".format(self.asset_info)
 
         for p in obj.ParameterBlock.Parameters:
             print "on the update p.Name: {} , p.Value: {}".format(p.Name, p.Value)
@@ -224,8 +217,7 @@ class FtrackAssetNode(FtrackAssetBase):
                                                                   p.Value)
 
         try:
-            cmd = 'freeze ${0}'.format(ftrack_object.Name)
-            max_utils.eval_max_script(cmd)
+            rt.freeze(ftrack_object)
         except Exception, e:
             self.logger.debug(
                 "Could not freeze object {0}, Error: {1}".format(
@@ -255,12 +247,12 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
         version_id = self.asset_info[asset_const.VERSION_ID]
         component_id = self.asset_info[asset_const.COMPONENT_ID]
-        root_node = MaxPlus.Core.GetRootNode()
+        root_node = rt.rootScene.world
 
         nodes_to_delete = []
 
         self.logger.debug(u'Removing duplicated asset helper objects')
-        for node in MaxPlus.SelectionManager.Nodes:
+        for node in rt.selection:
             if self.is_ftrack_object(node) and node.Parent == root_node:
                 helper_component_id = self._get_component_id_from_helper_node(node)
                 if helper_component_id == component_id:
@@ -270,11 +262,11 @@ class FtrackAssetNode(FtrackAssetBase):
 
         # Delete helper ftrack_objects that represent the asset we are importing.
         for node in nodes_to_delete:
-            MaxPlus.SelectionManager.DeSelectNode(node)
-            node.Delete()
+            rt.deselect(node)
+            rt.delete(node)
 
         self.logger.debug(u'Parenting objects to helper object')
-        for node in MaxPlus.SelectionManager.Nodes:
+        for node in rt.GetCurrentSelection():
             if node.Parent == root_node:
                 node.Parent = self.ftrack_object
                 self.logger.debug(
