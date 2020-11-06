@@ -73,18 +73,18 @@ import os
 #             event_manager, parent=main_window
 #         )
 #     created_dialogs[dialog_name].show()
+event_manager_storage = {}
+dialog_class_storage = {}
 
 class OpenDialog(object):
-    event_manager_storage = {}
-    dialog_class_storage = {}
 
     def __init__(self):
         super(OpenDialog, self).__init__()
 
     def open_dialog(self, storage_id):
         '''Open *dialog_class* and create if not already existing.'''
-        event_manager = self.event_manager_storage[storage_id]
-        dialog_class = self.dialog_class_storage[storage_id]
+        event_manager = event_manager_storage[storage_id]
+        dialog_class = dialog_class_storage[storage_id]
         dialog_name = dialog_class
 
         if dialog_name not in created_dialogs:

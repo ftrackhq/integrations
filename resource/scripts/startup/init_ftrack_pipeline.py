@@ -14,7 +14,7 @@ from ftrack_connect_pipeline import constants
 
 import MaxPlus
 from pymxs import runtime as rt
-from ftrack_connect_pipeline_3dsmax.menu import OpenDialog
+from ftrack_connect_pipeline_3dsmax import menu as ftrack_menu_module
 import uuid
 
 logger = logging.getLogger('ftrack_connect_pipeline_3dsmax.scripts.userSetup')
@@ -93,37 +93,36 @@ def initialise():
             continue
 
         dialog_class, label = item
-        open_dialog_class = OpenDialog()
-        open_dialog_class.event_manager_storage = {}
-        open_dialog_class.dialog_class_storage = {}
+
         storage_id = str(uuid.uuid4())
-        open_dialog_class.event_manager_storage[storage_id] = event_manager
-        open_dialog_class.dialog_class_storage[storage_id] = dialog_class
+        ftrack_menu_module.event_manager_storage[storage_id] = event_manager
+        ftrack_menu_module.dialog_class_storage[storage_id] = dialog_class
 
         macro_name = label
         category = "ftrack"
         #python_method = menu.open_dialog(dialog_class, event_manager)
         # The createActionItem expects a macro and not an script.
         #TOdO: if isn't working declare the whole code in here...
-        # python_code = "\n".join(
-        #     [
-        #         "from ftrack_connect_pipeline_3dsmax import menu",
-        #         "menu.open_dialog({}, {})".format(
-        #             str_dialog_class, str_event_manager
-        #         )
-        #     ]
-        # )
         python_code = "\n".join(
             [
-                "dialog_class = {}".format(dialog_class),
-                "dialog_name = dialog_class",
-                "if dialog_name not in created_dialogs:",
-                "\t main_window = MaxPlus.GetQMaxMainWindow()",
-                "\t ftrack_dialog = dialog_class",
-                "\t created_dialogs[dialog_name] = ftrack_dialog({}, parent=main_window)".format(event_manager),
-                "created_dialogs[dialog_name].show()"
+                "from ftrack_connect_pipeline_3dsmax.menu import OpenDialog",
+                "open_dialog_class = OpenDialog()",
+                "open_dialog_class.open_dialog('{}')".format(
+                    storage_id
+                )
             ]
         )
+        # python_code = "\n".join(
+        #     [
+        #         "dialog_class = {}".format(dialog_class),
+        #         "dialog_name = dialog_class",
+        #         "if dialog_name not in created_dialogs:",
+        #         "\t main_window = MaxPlus.GetQMaxMainWindow()",
+        #         "\t ftrack_dialog = dialog_class",
+        #         "\t created_dialogs[dialog_name] = ftrack_dialog({}, parent=main_window)".format(event_manager),
+        #         "created_dialogs[dialog_name].show()"
+        #     ]
+        # )
         rt.execute(
             """
             macroScript {macro_name}
@@ -137,7 +136,7 @@ def initialise():
         """.format(
                 macro_name=macro_name,
                 category=category,
-                p_code=open_dialog_class.open_dialog(storage_id)
+                p_code=python_code
             )
         )
 
