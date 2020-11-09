@@ -2,9 +2,6 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import logging
-import functools
-import shiboken2
-from Qt import QtWidgets
 
 import ftrack_api
 
@@ -12,33 +9,11 @@ from ftrack_connect_pipeline_3dsmax import usage, host as max_host
 from ftrack_connect_pipeline_qt import event
 from ftrack_connect_pipeline import constants
 
-import MaxPlus
 from pymxs import runtime as rt
 from ftrack_connect_pipeline_3dsmax import menu as ftrack_menu_module
 import uuid
 
 logger = logging.getLogger('ftrack_connect_pipeline_3dsmax.scripts.userSetup')
-
-# created_dialogs = dict()
-#
-# def _open_dialog(dialog_class, event_manager):
-#     '''Open *dialog_class* and create if not already existing.'''
-#     dialog_name = dialog_class
-#
-#     if dialog_name not in created_dialogs:
-#         # https://help.autodesk.com/view/3DSMAX/2020/ENU/?guid=__developer_creating_python_uis_html
-#         # main_window_qwdgt = QtWidgets.QWidget.find(rt.windows.getMAXHWND())
-#         # main_window = shiboken2.wrapInstance(
-#         #     shiboken2.getCppPointer(main_window_qwdgt)[0],
-#         #     QtWidgets.QMainWindow
-#         # )
-#         # TODO: mantain this to be able to create the dialog on versions < 2020
-#         main_window = MaxPlus.GetQMaxMainWindow()
-#         ftrack_dialog = dialog_class
-#         created_dialogs[dialog_name] = ftrack_dialog(
-#             event_manager, parent=main_window
-#         )
-#     created_dialogs[dialog_name].show()
 
 def initialise():
 
@@ -100,9 +75,8 @@ def initialise():
 
         macro_name = label
         category = "ftrack"
-        #python_method = menu.open_dialog(dialog_class, event_manager)
+
         # The createActionItem expects a macro and not an script.
-        #TOdO: if isn't working declare the whole code in here...
         python_code = "\n".join(
             [
                 "from ftrack_connect_pipeline_3dsmax.menu import OpenDialog",
@@ -112,17 +86,6 @@ def initialise():
                 )
             ]
         )
-        # python_code = "\n".join(
-        #     [
-        #         "dialog_class = {}".format(dialog_class),
-        #         "dialog_name = dialog_class",
-        #         "if dialog_name not in created_dialogs:",
-        #         "\t main_window = MaxPlus.GetQMaxMainWindow()",
-        #         "\t ftrack_dialog = dialog_class",
-        #         "\t created_dialogs[dialog_name] = ftrack_dialog({}, parent=main_window)".format(event_manager),
-        #         "created_dialogs[dialog_name].show()"
-        #     ]
-        # )
         rt.execute(
             """
             macroScript {macro_name}

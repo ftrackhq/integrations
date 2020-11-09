@@ -113,7 +113,7 @@ def selection_empty():
 def get_ftrack_helpers():
     helpers = []
     for obj in rt.rootScene.world.children:
-        if rt.SuperClassOf(obj) == 'Helper':
+        if rt.SuperClassOf(obj) == rt.helper:
             helpers.append(obj)
     return helpers
 

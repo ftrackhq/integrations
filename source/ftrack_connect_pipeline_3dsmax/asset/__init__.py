@@ -20,7 +20,7 @@ class FtrackAssetNode(FtrackAssetBase):
         Checks if the given object *other* has the same ClassID as the
         current identity
         '''
-        if object.Object.ClassID == self.identity:
+        if object.ClassID == self.identity:
             return True
 
         return False
@@ -38,10 +38,10 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
         super(FtrackAssetNode, self).__init__(event_manager)
 
-        self.helper_object = rt.FtrackAssetHelper()
-        self.logger.debug(
-            'helper_object {} has been created'.format(self.helper_object)
-        )
+        # self.helper_object = rt.FtrackAssetHelper()
+        # self.logger.debug(
+        #     'helper_object {} has been created'.format(self.helper_object)
+        # )
 
     def init_ftrack_object(self):
         '''
@@ -68,8 +68,10 @@ class FtrackAssetNode(FtrackAssetBase):
         parameters
         '''
         param_dict = {}
-        for p in max_obj.ParameterBlock.Parameters:
-            param_dict[p.Name] = p.Value
+        for p in rt.getPropNames(max_obj):
+            if str(p) == 'Dummy':
+                continue
+            param_dict[str(p)] = rt.getProperty(max_obj, p)
         return param_dict
 
     def get_ftrack_object_from_scene(self):
@@ -79,7 +81,7 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
         ftrack_asset_nodes = max_utils.get_ftrack_helpers()
         for ftrack_object in ftrack_asset_nodes:
-            obj = ftrack_object.Object
+            obj = ftrack_object
 
             param_dict = self.get_parameters_dictionary(obj)
             node_asset_info = FtrackAssetInfo(param_dict)
@@ -103,7 +105,7 @@ class FtrackAssetNode(FtrackAssetBase):
             return False
 
         synced = False
-        obj = ftrack_object.Object
+        obj = ftrack_object
 
         param_dict = self.get_parameters_dictionary(obj)
         node_asset_info = FtrackAssetInfo(param_dict)
@@ -143,8 +145,8 @@ class FtrackAssetNode(FtrackAssetBase):
 
     def get_load_mode_from_ftrack_object(self, node):
         '''Return the load mode used to import an asset.'''
-        obj = node.Object
-        return obj.ParameterBlock.asset_info_options.Value
+        obj = node
+        return obj.asset_info_options
 
     def reload_references_from_selection(self):
         '''
@@ -158,7 +160,7 @@ class FtrackAssetNode(FtrackAssetBase):
                     self.logger.debug(u'Re-importing {0} scene xref.'.format(
                         node.Name))
                     max_utils.re_import_scene_XRef(
-                        node.Object.ParameterBlock.component_path.Value,
+                        node.component_path,
                         node.Name
                     )
 
@@ -195,26 +197,26 @@ class FtrackAssetNode(FtrackAssetBase):
             self.logger.debug(
                 "Could not unfreeze object {0}".format(ftrack_object.Name))
 
-        obj = ftrack_object.Object
+        obj = ftrack_object
 
-        for p in obj.ParameterBlock.Parameters:
-            print "on the update p.Name: {} , p.Value: {}".format(p.Name, p.Value)
-            if p.Name == asset_const.REFERENCE_OBJECT:
-                p.SetValue(str(ftrack_object))
-            elif p.Name == asset_const.VERSIONS:
+        for p in rt.getPropNames(obj):
+            if str(p) == 'Dummy':
                 continue
-            elif p.Name == asset_const.IS_LATEST_VERSION:
-                p.SetValue(bool(self.asset_info[p.Name]))
-            elif p.Name == asset_const.SESSION:
-                p.SetValue(str(self.asset_info[p.Name]))
-            elif p.Name == asset_const.ASSET_INFO_OPTIONS:
-                decoded_value = self.asset_info[p.Name]
-                p.SetValue(str(
-                    json.dumps(decoded_value).encode('base64')))
+            if str(p) == asset_const.REFERENCE_OBJECT:
+                rt.setProperty(obj, p, str(ftrack_object))
+            elif str(p) == asset_const.VERSIONS:
+                continue
+            elif str(p) == asset_const.IS_LATEST_VERSION:
+                rt.setProperty(obj, p, bool(self.asset_info[str(p)]))
+            elif str(p) == asset_const.SESSION:
+                rt.setProperty(obj, p, str(self.asset_info[str(p)]))
+            elif str(p) == asset_const.ASSET_INFO_OPTIONS:
+                decoded_value = self.asset_info[str(p)]
+                rt.setProperty(
+                    obj, p, str(json.dumps(decoded_value).encode('base64'))
+                )
             else:
-                p.SetValue(self.asset_info[p.Name])
-            print "after on the update p.Name: {} , p.Value: {}".format(p.Name,
-                                                                  p.Value)
+                rt.setProperty(obj, p, self.asset_info[str(p)])
 
         try:
             rt.freeze(ftrack_object)
@@ -230,14 +232,14 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
         Return component_id of the given *helperNode*.
         '''
-        component_id = helper_node.Object.ParameterBlock.component_id.Value
+        component_id = helper_node.component_id
         return component_id
 
     def _get_version_id_from_helper_node(self, helper_node):
         '''
         Return version_id of the given *helperNode*.
         '''
-        version_id = helper_node.Object.ParameterBlock.version_id.Value
+        version_id = helper_node.version_id
         return version_id
 
     def _connect_selection(self):
@@ -267,7 +269,7 @@ class FtrackAssetNode(FtrackAssetBase):
 
         self.logger.debug(u'Parenting objects to helper object')
         for node in rt.GetCurrentSelection():
-            if node.Parent == root_node:
+            if node.Parent == root_node or node.Parent == None:
                 node.Parent = self.ftrack_object
                 self.logger.debug(
                     'ftrack_object {} added to ftrack ftrack_object {}'.format(

@@ -44,7 +44,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         ftrack_asset_info_list = []
 
         for ftrack_object in ftrack_asset_nodes:
-            obj = ftrack_object.Object
+            obj = ftrack_object
             param_dict = FtrackAssetNode.get_parameters_dictionary(
                 obj
             )
