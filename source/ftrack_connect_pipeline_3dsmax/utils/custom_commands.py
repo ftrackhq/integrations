@@ -141,6 +141,10 @@ def delete_all_children(node):
         rt.delete(node)
     return all_children
 
+def delete_node(node):
+    '''Delete all children ftrack_objects of a ftrack_object.'''
+    rt.delete(node)
+
 
 def add_all_children_to_selection(parent_node):
     '''Add all children of a ftrack_object to the current selection.'''

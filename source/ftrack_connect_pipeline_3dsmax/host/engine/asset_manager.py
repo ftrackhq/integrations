@@ -115,7 +115,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
             return status, result
 
         try:
-            ftrack_asset_object.ftrack_object.Delete()
+            max_utils.delete_node(ftrack_asset_object.ftrack_object)
             status = constants.SUCCESS_STATUS
         except Exception as error:
             message = str(
