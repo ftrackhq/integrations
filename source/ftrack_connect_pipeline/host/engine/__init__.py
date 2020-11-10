@@ -47,8 +47,32 @@ class BaseEngine(object):
 
         self.event_manager = event_manager
 
+    def run_event(
+            self, plugin_name, plugin_type, host_definition, data, options,
+            context, method
+    ):
+        return ftrack_api.event.base.Event(
+                    topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
+                    data={
+                        'pipeline': {
+                            'plugin_name': plugin_name,
+                            'plugin_type': plugin_type,
+                            'method': method,
+                            'type': 'plugin',
+                            'host': host_definition
+                        },
+                        'settings':
+                            {
+                                'data': data,
+                                'options': options,
+                                'context': context
+                            }
+                    }
+                )
+
     def _run_plugin(
-            self, plugin, plugin_type, options=None, data=None, context=None
+            self, plugin, plugin_type, options=None, data=None, context=None,
+            method='run'
     ):
         '''Run *plugin*, *plugin_type*, with given *options*, *data* and
         *context* and notify client with the status before and after execute
@@ -57,6 +81,7 @@ class BaseEngine(object):
         start_data = {
             'plugin_name': plugin_name,
             'plugin_type': plugin_type,
+            'method': method,
             'status': constants.RUNNING_STATUS,
             'result': None,
             'execution_time': 0,
@@ -69,29 +94,17 @@ class BaseEngine(object):
         result_data['status'] = constants.UNKNOWN_STATUS
 
         for host_definition in reversed(self._host):
-            event = ftrack_api.event.base.Event(
-                topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
-                data={
-                    'pipeline': {
-                        'plugin_name': plugin_name,
-                        'plugin_type': plugin_type,
-                        'type': 'plugin',
-                        'host': host_definition
-                    },
-                    'settings':
-                        {
-                            'data': data,
-                            'options': options,
-                            'context': context
-                        }
-                }
+            event = self.run_event(
+                plugin_name, plugin_type, host_definition, data, options,
+                context, method
             )
+
             plugin_result_data = self.session.event_hub.publish(
                 event,
                 synchronous=True
             )
             if plugin_result_data:
-                result_data= plugin_result_data[0]
+                result_data = plugin_result_data[0]
                 break
 
         self._notify_client(plugin, result_data)
@@ -119,8 +132,45 @@ class BaseEngine(object):
             event,
         )
 
+    def run_definition(self, data):
+        '''Run packages from the provided data
+        *data* the json schema
+        Raise Exception if any context plugin, component plugin or finalizer
+        plugin returns a False status
+        Returns Bool'''
+
+        raise(NotImplementedError)
+
     def run(self, data):
-        raise NotImplementedError
+        '''
+        Override function run methods and plugins from the provided *data*
+        Return result
+        '''
+
+        method = data.get('method', 'run')
+        plugin = data.get('plugin', None)
+        plugin_type = data.get('plugin_type', None)
+
+        result = None
+
+        if plugin:
+            status, result = self._run_plugin(
+                plugin, plugin_type,
+                data=plugin.get('plugin_data'),
+                options=plugin['options'],
+                context=None,
+                method=method
+            )
+
+            bool_status = constants.status_bool_mapping[status]
+            if not bool_status:
+                raise Exception(
+                    'An error occurred during the execution of the plugin {}'
+                    '\n status: {} \n result: {}'.format(
+                        plugin['plugin'], status, result)
+                )
+
+        return result
 
 
 from ftrack_connect_pipeline.host.engine.publish import *

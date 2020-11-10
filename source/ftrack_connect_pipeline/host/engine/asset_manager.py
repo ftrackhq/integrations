@@ -26,26 +26,6 @@ class AssetManagerEngine(BaseEngine):
             event_manager, host, hostid, asset_type=asset_type
         )
 
-    def run_asset_manager_plugin(self, plugin, plugin_type):
-        '''
-        Runs the given asset manager *plugin* of the given *plugin_type* and
-        returns the status and the result
-        '''
-        status, result = self._run_plugin(
-            plugin, plugin_type,
-            data=plugin.get('plugin_data'),
-            options=plugin['options'],
-            context=None
-        )
-        bool_status = constants.status_bool_mapping[status]
-        if not bool_status:
-            raise Exception(
-                'An error occurred during the execution of the Asset Manager '
-                'plugin {}\n status: {} \n result: {}'.format(
-                    plugin['plugin'], status, result)
-            )
-        return bool_status, result
-
     def get_ftrack_asset_object(self, asset_info):
         '''
         Returns the initialized ftrack_asset_class for the given *asset_info*
@@ -94,6 +74,7 @@ class AssetManagerEngine(BaseEngine):
         result_data = {
             'plugin_name': 'discover_assets',
             'plugin_type': 'action',
+            'method': 'discover_assets',
             'status': status,
             'result': result,
             'execution_time': total_time,
@@ -146,6 +127,7 @@ class AssetManagerEngine(BaseEngine):
         result_data = {
             'plugin_name': 'remove_asset',
             'plugin_type': 'action',
+            'method': 'remove_asset',
             'status': status,
             'result': result,
             'execution_time': 0,
@@ -155,7 +137,6 @@ class AssetManagerEngine(BaseEngine):
         self._notify_client(plugin, result_data)
 
         return status, result
-        #raise NotImplementedError()
 
     def select_assets(self, assets, options=None, plugin=None):
         '''
@@ -205,6 +186,7 @@ class AssetManagerEngine(BaseEngine):
         result_data = {
             'plugin_name': 'select',
             'plugin_type': 'action',
+            'method': 'select_asset',
             'status': status,
             'result': result,
             'execution_time': 0,
@@ -257,6 +239,7 @@ class AssetManagerEngine(BaseEngine):
         result_data = {
             'plugin_name': 'update_asset',
             'plugin_type': 'action',
+            'method': 'update_asset',
             'status': status,
             'result': result,
             'execution_time': 0,
@@ -270,10 +253,17 @@ class AssetManagerEngine(BaseEngine):
 
             plugin['plugin_data'] = asset_info
 
-            status, result = self.run_asset_manager_plugin(
-                plugin, plugin_type
+            status, method_result = self._run_plugin(
+                plugin, plugin_type,
+                data=plugin.get('plugin_data'),
+                options=plugin['options'],
+                context=None,
+                method='run'
             )
-            if not status:
+            if method_result:
+                result = method_result.get(method_result.keys()[0])
+            bool_status = constants.status_bool_mapping[status]
+            if not bool_status:
                 message = "Error executing the plugin: {}".format(plugin)
                 self.logger.error(message)
 
@@ -319,6 +309,7 @@ class AssetManagerEngine(BaseEngine):
         result_data = {
             'plugin_name': 'change_version',
             'plugin_type': 'action',
+            'method': 'change_version',
             'status': status,
             'result': result,
             'execution_time': 0,
@@ -410,10 +401,12 @@ class AssetManagerEngine(BaseEngine):
         Override function run methods and plugins from the provided *data*
         Return result
         '''
-        method = data.get('method')
+
+        method = data.get('method', '')
         plugin = data.get('plugin', None)
         assets = data.get('assets', None)
         options = data.get('options', {})
+        plugin_type = data.get('plugin_type', None)
 
         result = None
 
@@ -435,16 +428,21 @@ class AssetManagerEngine(BaseEngine):
                     )
 
         elif plugin:
-            plugin_type = '{}.{}'.format('asset_manager', plugin['plugin_type'])
-
-            status, result = self.run_asset_manager_plugin(
-                plugin, plugin_type
+            status, method_result = self._run_plugin(
+                plugin, plugin_type,
+                data=plugin.get('plugin_data'),
+                options=plugin['options'],
+                context=None,
+                method='run'
             )
-
-            if not status:
+            if method_result:
+                result = method_result.get(method_result.keys()[0])
+            bool_status = constants.status_bool_mapping[status]
+            if not bool_status:
                 raise Exception(
-                    'An error occurred during the execution of the plugin: {} '
-                    '\n type: {}'.format(plugin['plugin'], plugin_type)
+                    'An error occurred during the execution of the plugin {}'
+                    '\n status: {} \n result: {}'.format(
+                        plugin['plugin'], status, result)
                 )
 
         return result

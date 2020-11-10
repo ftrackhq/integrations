@@ -34,7 +34,9 @@ def generate_asset_info_dict_from_args(context, data, options, session):
     )
     arguments_dict[constants.VERSION_ID] = context.get(constants.VERSION_ID, '')
 
-    arguments_dict[constants.LOAD_MODE] = options.get(constants.LOAD_MODE, 'Not Set')
+    arguments_dict[constants.LOAD_MODE] = options.get(
+        constants.LOAD_MODE, 'Not Set'
+    )
 
     arguments_dict[constants.ASSET_INFO_OPTIONS] = options.get(
         constants.ASSET_INFO_OPTIONS, ''
@@ -46,7 +48,9 @@ def generate_asset_info_dict_from_args(context, data, options, session):
         'AssetVersion', arguments_dict[constants.VERSION_ID]
     )
 
-    arguments_dict[constants.IS_LATEST_VERSION] = asset_version[constants.IS_LATEST_VERSION]
+    arguments_dict[constants.IS_LATEST_VERSION] = asset_version[
+        constants.IS_LATEST_VERSION
+    ]
 
 
     location = session.pick_location()
