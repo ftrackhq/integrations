@@ -56,15 +56,19 @@ class AssetManagerEngine(BaseEngine):
 
         ftrack_asset_info_list = []
 
-        for version in versions:
-            asset_info = FtrackAssetInfo.from_ftrack_version(
-                version, component_name
-            )
-            ftrack_asset_info_list.append(asset_info)
+        if versions:
+            for version in versions:
+                asset_info = FtrackAssetInfo.from_ftrack_version(
+                    version, component_name
+                )
+                ftrack_asset_info_list.append(asset_info)
 
-        if not ftrack_asset_info_list:
-            status = constants.ERROR_STATUS
+            if not ftrack_asset_info_list:
+                status = constants.ERROR_STATUS
+            else:
+                status = constants.SUCCESS_STATUS
         else:
+            self.logger.debug("No assets in the scene")
             status = constants.SUCCESS_STATUS
         result = ftrack_asset_info_list
 
