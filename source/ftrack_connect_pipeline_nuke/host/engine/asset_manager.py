@@ -44,21 +44,26 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         ftrack_asset_nodes = nuke_utils.get_nodes_with_ftrack_tab()
         ftrack_asset_info_list = []
 
-        for ftrack_object in ftrack_asset_nodes:
-            param_dict = FtrackAssetTab.get_parameters_dictionary(
-                ftrack_object
-            )
-            # avoid read and write nodes containing the old ftrack tab
-            # without information
-            if not param_dict:
-                continue
-            node_asset_info = FtrackAssetInfo(param_dict)
-            ftrack_asset_info_list.append(node_asset_info)
+        if ftrack_asset_nodes:
+            for ftrack_object in ftrack_asset_nodes:
+                param_dict = FtrackAssetTab.get_parameters_dictionary(
+                    ftrack_object
+                )
+                # avoid read and write nodes containing the old ftrack tab
+                # without information
+                if not param_dict:
+                    continue
+                node_asset_info = FtrackAssetInfo(param_dict)
+                ftrack_asset_info_list.append(node_asset_info)
 
-        if not ftrack_asset_info_list:
-            status = constants.ERROR_STATUS
+            if not ftrack_asset_info_list:
+                status = constants.ERROR_STATUS
+            else:
+                status = constants.SUCCESS_STATUS
         else:
+            self.logger.debug("No assets in the scene")
             status = constants.SUCCESS_STATUS
+
         result = ftrack_asset_info_list
 
         end_time = time.time()
