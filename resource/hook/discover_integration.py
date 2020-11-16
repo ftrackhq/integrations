@@ -15,10 +15,10 @@ def on_discover_nuke_studio_integration(session, event):
     cwd = os.path.dirname(__file__)
     sources = os.path.abspath(os.path.join(cwd, '..', 'dependencies'))
     ftrack_connect_nuke_studio_path = os.path.join(cwd, '..',  'resource')
-    application_hooks_path = os.path.abspath(os.path.join(cwd, '..', 'application_hook'))
+    application_hooks_path = os.path.join(cwd, '..', 'application_hook')
     sys.path.insert(0,sources)
 
-    import ftrack_connect_nuke_studio
+    from ftrack_connect_nuke_studio import __version__ as integration_version
     
     entity = event['data']['context']['selection'][0]
     project = session.get('Project', entity['entityId'])
@@ -27,12 +27,12 @@ def on_discover_nuke_studio_integration(session, event):
     data = {
         'integration': {
             "name": 'ftrack-connect-nuke-studio',
-            'version': ftrack_connect_nuke_studio.__version__
+            'version': integration_version
         },
         'env': {
             'PYTHONPATH.prepend': sources,
             'FTRACK_EVENT_PLUGIN_PATH': application_hooks_path,
-            'HIERO_PLUGIN_PATH': ftrack_connect_nuke_studio_path,
+            'HIERO_PLUGIN_PATH.set': ftrack_connect_nuke_studio_path,
             'FTRACK_CONTEXTID.set': project['id'],
             'QT_PREFERRED_BINDING.set':  os.pathsep.join(['PySide2', 'PySide']),
         }
@@ -57,6 +57,6 @@ def register(session, **kw):
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch'
-        ' and data.application.identifier=nuke-studio*',
+        ' and (data.application.identifier=nuke-studio* or data.application.identifier=hiero*)',
         handle_event
     )
