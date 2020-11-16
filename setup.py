@@ -8,11 +8,8 @@ import shutil
 from pkg_resources import parse_version, DistributionNotFound, get_distribution
 import pip
 
-if parse_version(pip.__version__) < parse_version('19.3.0'):
-    raise ValueError('Pip should be version 19.3.0 or higher')
-
 import subprocess
-from pip._internal import main as pip_main
+from pip.__main__ import _main as pip_main
 
 from setuptools import setup, find_packages, Command
 
@@ -140,7 +137,7 @@ class BuildPlugin(Command):
             os.path.join(STAGING_PATH, 'application_hook')
         )
 
-        pip_main.main(
+        pip_main(
             [
                 'install',
                 '.',
@@ -204,4 +201,5 @@ setup(
         'build_plugin': BuildPlugin,
         'build_resources': BuildResources
     },
+    python_requires=">=2.7.9, <3"
 )

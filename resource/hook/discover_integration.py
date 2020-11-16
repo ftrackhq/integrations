@@ -57,6 +57,6 @@ def register(session, **kw):
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch'
-        ' and data.application.identifier=nuke_studio*',
+        ' and data.application.identifier=nuke-studio*',
         handle_event
     )
