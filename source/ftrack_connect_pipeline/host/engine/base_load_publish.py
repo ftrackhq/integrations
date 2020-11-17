@@ -28,12 +28,17 @@ class BaseLoaderPublisherEngine(BaseEngine):
         plugin_type = '{}.{}'.format(self.engine_type, stage_name)
         for plugin in context_stage['plugins']:
             result = None
-            status, method_result = self._run_plugin(
-                plugin, plugin_type,
-                options=plugin['options']
-            )
-            if method_result:
-                result = method_result.get(method_result.keys()[0])
+            asset_name = plugin['options'].get('asset_name')
+            if not asset_name:
+                result = "Asset name isn't valid"
+                status = constants.ERROR_STATUS
+            else:
+                status, method_result = self._run_plugin(
+                    plugin, plugin_type,
+                    options=plugin['options']
+                )
+                if method_result:
+                    result = method_result.get(method_result.keys()[0])
             bool_status = constants.status_bool_mapping[status]
             if not bool_status:
                 raise Exception(
