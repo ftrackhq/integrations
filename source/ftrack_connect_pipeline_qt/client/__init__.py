@@ -16,6 +16,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
     ui = [constants.UI, qt_constants.UI]
     # Text of the button to run the whole definition
     run_definition_button_text = 'Run'
+    is_valid_asset_name = False
 
     def __init__(self, event_manager,parent=None):
         '''Initialise with *event_manager* , and optional *ui* List and
@@ -80,6 +81,10 @@ class QtClient(client.Client, QtWidgets.QWidget):
             self._on_widget_context_updated
         )
 
+        self.widget_factory.widget_asset_updated.connect(
+            self._on_widget_asset_updated
+        )
+
         self.widget_factory.widget_run_plugin.connect(
             self._on_run_plugin
         )
@@ -137,6 +142,9 @@ class QtClient(client.Client, QtWidgets.QWidget):
     def _on_widget_context_updated(self, context_id):
         self.change_context(context_id)
 
+    def _on_widget_asset_updated(self, asset_name, asset_id, is_valid):
+        self.is_valid_asset_name = is_valid
+
     def _on_run_plugin(self, plugin_data, method):
         '''Function called to run one single plugin *plugin_data* with the
         plugin information and the *method* to be run has to be passed'''
@@ -144,7 +152,11 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
     def _on_run_definition(self):
         '''Function called when click the run button'''
+
         serialized_data = self._current_def.to_json_object()
+        if not self.is_valid_asset_name:
+            self.logger.error("Can't publish without a valid asset name")
+            return
         engine_type = serialized_data['_config']['engine_type']
         self.run_definition(serialized_data, engine_type)
 

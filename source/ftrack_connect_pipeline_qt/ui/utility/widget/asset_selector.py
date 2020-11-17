@@ -31,7 +31,7 @@ class AssetComboBox(QtWidgets.QComboBox):
 
 class AssetSelector(QtWidgets.QWidget):
 
-    asset_changed = QtCore.Signal(object, object)
+    asset_changed = QtCore.Signal(object, object, object)
 
     def __init__(self, session, parent=None):
         super(AssetSelector, self).__init__(parent=parent)
@@ -65,9 +65,25 @@ class AssetSelector(QtWidgets.QWidget):
 
     def _current_asset_changed(self, index):
         asset_name = self.asset_combobox.currentText()
+        is_valid_bool = True
+        if self.asset_combobox.validator():
+            is_valid = self.asset_combobox.validator().validate(asset_name, 0)
+            if is_valid[0] != QtGui.QValidator.Acceptable:
+                is_valid_bool = False
+                pal = self.asset_combobox.palette()
+                pal.setColor(
+                    QtGui.QPalette.Button,
+                    QtGui.QColor(255, 0, 0)
+                )
+                self.asset_combobox.setPalette(pal)
+            else:
+                is_valid_bool = True
+                self.asset_combobox.setPalette(
+                    self.asset_combobox.style().standardPalette()
+                )
         current_idx = self.asset_combobox.currentIndex()
         asset_id = self.asset_combobox.itemData(current_idx)
-        self.asset_changed.emit(asset_name, asset_id)
+        self.asset_changed.emit(asset_name, asset_id, is_valid_bool)
 
     def set_context(self, context, asset_type):
         self.logger.info('setting context to :{}'.format(context))
