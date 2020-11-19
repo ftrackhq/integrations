@@ -104,6 +104,8 @@ class DefinitionSelector(QtWidgets.QWidget):
     def add_hosts(self, hosts):
         for host in hosts:
             self.host_combobox.addItem(host.name, host)
+        if len(hosts) == 1:
+            self.host_combobox.setCurrentIndex(1)
 
     def set_definition_filter(self, filter):
         self.definition_filter = filter
