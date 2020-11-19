@@ -190,7 +190,8 @@ setup(
         'appdirs == 1.4.0',
         'lucidity >= 1.5, < 2',
         'opentimelineio ==0.11',
-        'qt.py >=1.0.0, < 2'
+        'qt.py >=1.0.0, < 2',
+        'future'
     ],
     use_scm_version={
         'write_to': 'source/ftrack_connect_nuke_studio/_version.py',
