@@ -42,9 +42,10 @@ class QtClient(client.Client, QtWidgets.QWidget):
         '''callback, adds new hosts connection from the given *event* to the
         host_selector'''
         super(QtClient, self)._host_discovered(event)
-        self.host_selector.add_hosts(self.hosts)
         if self.definition_filter:
             self.host_selector.set_definition_filter(self.definition_filter)
+        self.host_selector.add_hosts(self.hosts)
+
 
     def pre_build(self):
         '''Prepare general layout.'''
