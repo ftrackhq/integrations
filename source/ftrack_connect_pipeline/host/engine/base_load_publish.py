@@ -39,6 +39,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 )
                 if method_result:
                     result = method_result.get(method_result.keys()[0])
+
             bool_status = constants.status_bool_mapping[status]
             if not bool_status:
                 raise Exception(
