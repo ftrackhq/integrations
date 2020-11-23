@@ -38,9 +38,12 @@ class FtrackAssetBase(object):
     @property
     def ftrack_version(self):
         '''Returns the ftrack version object of the current version_id'''
-        asset_version = self.session.get(
-            'AssetVersion', self.asset_info[asset_const.VERSION_ID]
-        )
+        asset_version = self.session.query(
+            'select version from AssetVersion where id is "{}"'.format(
+                self.asset_info[asset_const.VERSION_ID]
+            )
+        ).one()
+
         return asset_version
 
     @property
@@ -120,7 +123,9 @@ class FtrackAssetBase(object):
         given *new_version_id*.
         '''
 
-        asset_version = self.session.get('AssetVersion', new_version_id)
+        asset_version = self.session.query(
+            'select version from AssetVersion where id is "{}"'.format(new_version_id)
+        ).one()
 
         new_asset_info = FtrackAssetInfo.from_ftrack_version(
             asset_version, self.component_name

@@ -66,11 +66,17 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
         asset_name = context['asset_name']
         asset_type = context['asset_type']
 
-        status = self.session.get('Status', status_id)
+        status = self.session.query('Status where id is "{}"'.format(status_id)).one()
+        context_object = self.session.query(
+            'select name, parent, parent.name from Context where id is "{}"'.format(
+                context['context_id']
+            )
+        ).one()
 
-        context_object = self.session.get('Context', context['context_id'])
         asset_type_object = self.session.query(
-            'AssetType where short is "{}"'.format(asset_type)).first()
+            'AssetType where short is "{}"'.format(asset_type)
+        ).first()
+
         asset_parent_object = context_object['parent']
 
         asset_object = self.session.query(
