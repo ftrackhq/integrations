@@ -41,7 +41,9 @@ class PublisherFinalizerNukePlugin(plugin.PublisherFinalizerPlugin, BaseNukePlug
             )
             if dependency_version_id:
                 dependency_version = self.session.query(
-                    'AssetVersion where id is "{}"'.format(dependency_version_id)
+                    'select version from AssetVersion where id is "{}"'.format(
+                        dependency_version_id
+                    )
                 ).one()
                 
                 if dependency_version not in self.version_dependencies:
