@@ -8,7 +8,7 @@ from ftrack_connect_pipeline_maya import usage, host as maya_host
 from ftrack_connect_pipeline_qt import event
 from ftrack_connect_pipeline import constants
 
-import maya.cmds as mc
+import maya.cmds as cmds
 import maya.mel as mm
 
 import ftrack_api
@@ -21,7 +21,7 @@ def get_ftrack_menu(menu_name = 'ftrack_pipeline'):
     '''Get the current ftrack menu, create it if does not exists.'''
     gMainWindow = mm.eval('$temp1=$gMainWindow')
 
-    if mc.menu(
+    if cmds.menu(
             menu_name,
             exists=True,
             parent=gMainWindow,
@@ -30,7 +30,7 @@ def get_ftrack_menu(menu_name = 'ftrack_pipeline'):
         menu = menu_name
 
     else:
-        menu = mc.menu(
+        menu = cmds.menu(
             menu_name,
             parent=gMainWindow,
             tearOff=False,
@@ -70,7 +70,7 @@ def initialise():
         'USED-FTRACK-CONNECT-PIPELINE-MAYA'
     )
 
-    mc.loadPlugin('ftrackMayaPlugin.py', quiet=True)
+    cmds.loadPlugin('ftrackMayaPlugin.py', quiet=True)
 
     from ftrack_connect_pipeline_maya.client import load
     from ftrack_connect_pipeline_maya.client import publish
@@ -97,12 +97,12 @@ def initialise():
     # Register and hook the dialog in ftrack menu
     for item in dialogs:
         if item == 'divider':
-            mc.menuItem(divider=True)
+            cmds.menuItem(divider=True)
             continue
 
         dialog_class, label = item
 
-        mc.menuItem(
+        cmds.menuItem(
             parent=ftrack_menu,
             label=label,
             command=(
@@ -113,4 +113,4 @@ def initialise():
 
 
 
-mc.evalDeferred('initialise()', lp=True)
+cmds.evalDeferred('initialise()', lp=True)

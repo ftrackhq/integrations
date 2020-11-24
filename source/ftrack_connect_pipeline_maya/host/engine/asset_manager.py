@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 import time
-import maya.cmds as cmd
+import maya.cmds as cmds
 
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.host.engine import AssetManagerEngine
@@ -91,12 +91,12 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
 
         reference_node = False
-        for node in cmd.listConnections(
+        for node in cmds.listConnections(
             '{}.{}'.format(
                 ftrack_asset_object.ftrack_object, asset_const.ASSET_LINK
             )
         ):
-            if cmd.nodeType(node) == 'reference':
+            if cmds.nodeType(node) == 'reference':
                 reference_node = maya_utils.getReferenceNode(node)
                 if reference_node:
                     break
@@ -128,7 +128,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                 self._notify_client(plugin, result_data)
                 return status, result
         else:
-            nodes = cmd.listConnections(
+            nodes = cmds.listConnections(
                 '{}.{}'.format(
                     ftrack_asset_object.ftrack_object, asset_const.ASSET_LINK
                 )
@@ -138,8 +138,8 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                     "Removing object: {}".format(node)
                 )
                 try:
-                    if cmd.objExists(node):
-                        cmd.delete(node)
+                    if cmds.objExists(node):
+                        cmds.delete(node)
                         result.append(str(node))
                         status = constants.SUCCESS_STATUS
                 except Exception as error:
@@ -164,9 +164,9 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                     self._notify_client(plugin, result_data)
                     return status, result
 
-        if cmd.objExists(ftrack_asset_object.ftrack_object):
+        if cmds.objExists(ftrack_asset_object.ftrack_object):
             try:
-                cmd.delete(ftrack_asset_object.ftrack_object)
+                cmds.delete(ftrack_asset_object.ftrack_object)
                 result.append(str(ftrack_asset_object.ftrack_object))
                 status = constants.SUCCESS_STATUS
             except Exception as error:
@@ -225,16 +225,16 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
 
         if options.get('clear_selection'):
-            cmd.select(cl=True)
+            cmds.select(cl=True)
 
-        nodes = cmd.listConnections(
+        nodes = cmds.listConnections(
             '{}.{}'.format(
                 ftrack_asset_object.ftrack_object, asset_const.ASSET_LINK
             )
         )
         for node in nodes:
             try:
-                cmd.select(node, add=True)
+                cmds.select(node, add=True)
                 result.append(str(node))
                 status = constants.SUCCESS_STATUS
             except Exception as error:
