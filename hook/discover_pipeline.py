@@ -1,10 +1,9 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2016 ftrack
 
-import os, sys
+import os
+import sys
 import ftrack_api
-import ftrack_connect.application
-
 import logging
 
 logger = logging.getLogger('ftrack_connect_pipeline.discover')
