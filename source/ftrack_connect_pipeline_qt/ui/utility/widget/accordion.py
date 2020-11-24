@@ -9,6 +9,10 @@ from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 
 
 class AccordionWidget(QtWidgets.QWidget):
+    @property
+    def title(self):
+        return self._title
+
     def __init__(self, parent=None, title=None, checkable=False):
         super(AccordionWidget, self).__init__(parent=parent)
 
@@ -102,6 +106,10 @@ class AccordionWidget(QtWidgets.QWidget):
             return self._title_frame.checkbox.isChecked()
         return True
 
+    def set_checked(self, checked):
+        if self._title_frame.checkable:
+            return self._title_frame.checkbox.setChecked(checked)
+
     def toggle_collapsed(self):
         self._content.setVisible(self._is_collasped)
         self._is_collasped = not self._is_collasped
@@ -109,6 +117,23 @@ class AccordionWidget(QtWidgets.QWidget):
 
     def enable_content(self, check_enabled):
         self._content.setEnabled(check_enabled)
+
+    def paint_title(self, color):
+        self._title_frame._title_label.setStyleSheet(
+            "color: {}".format(color)
+        )
+
+    def set_unavailable(self):
+        if not self.checkable:
+            self.paint_title("red")
+        self.set_checked(False)
+        self.setEnabled(False)
+
+    def set_default_state(self):
+        if not self.checkable:
+            self._title_frame._title_label.setStyleSheet("")
+        self.set_checked(True)
+        self.setEnabled(True)
 
 
 class AccordionTitleWidget(QtWidgets.QFrame):

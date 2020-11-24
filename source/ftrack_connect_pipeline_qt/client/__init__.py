@@ -92,6 +92,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
     def change_host(self, host_connection):
         ''' Triggered when host_changed is called from the host_selector.'''
         if self.scroll.widget():
+            self.widget_factory.reset_type_widget_plugin()
             self.scroll.widget().deleteLater()
         super(QtClient, self).change_host(host_connection)
 
@@ -101,6 +102,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         *schema* and *definition*'''
 
         if self.scroll.widget():
+            self.widget_factory.reset_type_widget_plugin()
             self.scroll.widget().deleteLater()
 
         if not schema and not definition:

@@ -32,6 +32,11 @@ class WidgetFactory(QtWidgets.QWidget):
         '''Return registered plugin's widgets.'''
         return self._widgets_ref
 
+    @property
+    def type_widgets(self):
+        '''Return registered plugin's widgets.'''
+        return self._type_widgets_ref
+
     def __init__(self, event_manager, ui):
         '''Initialise WidgetFactory with *event_manager*, *ui*
 
@@ -51,6 +56,7 @@ class WidgetFactory(QtWidgets.QWidget):
         self._event_manager = event_manager
         self.ui = ui
         self._widgets_ref = {}
+        self._type_widgets_ref = {}
         self.context = {}
         self.host_connection = None
 
@@ -154,9 +160,14 @@ class WidgetFactory(QtWidgets.QWidget):
             else:
                 widget_fn = schema_widget.UnsupportedSchema
 
-
-        return widget_fn(name, schema_fragment, fragment_data,
-                         previous_object_data, self, parent)
+        type_widget = widget_fn(
+            name, schema_fragment, fragment_data, previous_object_data,
+            self, parent
+        )
+        self.register_type_widget_plugin(type_widget)
+        return type_widget
+        # return widget_fn(name, schema_fragment, fragment_data,
+        #                  previous_object_data, self, parent)
 
     def fetch_plugin_widget(self, plugin_data, plugin_type, extra_options=None):
         '''Returns a widget from the given *plugin_data*, *plugin_type* with
@@ -223,6 +234,7 @@ class WidgetFactory(QtWidgets.QWidget):
 
         widget.status_updated.connect(self._on_widget_status_updated)
         widget.context_changed.connect(self._on_widget_context_changed)
+        widget.asset_version_changed.connect(self._asset_version_changed)
         self.register_widget_plugin(plugin_data, widget)
 
         widget.run_plugin_clicked.connect(
@@ -358,3 +370,31 @@ class WidgetFactory(QtWidgets.QWidget):
     def get_registered_widget_plugin(self, plugin_data):
         '''return the widget registered for the given *plugin_data*.'''
         return self._widgets_ref[plugin_data['widget_ref']]
+
+    def register_type_widget_plugin(self, widget):
+        '''regiter the *widget* in the given *plugin_data*'''
+        uid = uuid.uuid4().hex
+        self._type_widgets_ref[uid] = widget
+
+        return uid
+
+    def reset_type_widget_plugin(self):
+        '''empty _type_widgets_ref diccionary'''
+        self._type_widgets_ref = {}
+
+    def _asset_version_changed(self, version_id):
+        asset_version = self.session.query(
+            'select components '
+            'from AssetVersion where id is {}'.format(version_id)
+        ).first()
+        if not asset_version:
+            return
+        components = asset_version['components']
+        components_names = [component['name'] for component in components]
+        for k, v in self.type_widgets.iteritems():
+            if hasattr(v, 'accordion_widgets'):
+                for widget in v.accordion_widgets:
+                    if widget.title not in components_names:
+                        widget.set_unavailable()
+                    else:
+                        widget.set_default_state()
