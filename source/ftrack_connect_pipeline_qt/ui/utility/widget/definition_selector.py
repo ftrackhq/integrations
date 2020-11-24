@@ -77,11 +77,13 @@ class DefinitionSelector(QtWidgets.QWidget):
             items = self.host_connection.definitions.get(schema_title)
 
             for item in items:
-                self.definition_combobox.addItem(
-                    '{} - {}'.format(
+                text = '{}'.format(item.get('name'))
+                if not self.definition_filter:
+                    text = '{} - {}'.format(
                         schema.get('title'),
                         item.get('name')
-                    ), item)
+                    )
+                self.definition_combobox.addItem(text, item)
 
     def _on_select_definition(self, index):
         self.definition = self.definition_combobox.itemData(index)
