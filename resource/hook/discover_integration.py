@@ -27,14 +27,14 @@ def on_discover_nuke_studio_integration(session, event):
     data = {
         'integration': {
             "name": 'ftrack-connect-nuke-studio',
-            'version': integration_version
-        },
-        'env': {
-            'PYTHONPATH.prepend': sources,
-            'FTRACK_EVENT_PLUGIN_PATH': application_hooks_path,
-            'HIERO_PLUGIN_PATH.set': ftrack_connect_nuke_studio_path,
-            'FTRACK_CONTEXTID.set': project['id'],
-            'QT_PREFERRED_BINDING.set':  os.pathsep.join(['PySide2', 'PySide']),
+            'version': integration_version,
+            'env': {
+                'PYTHONPATH.prepend': sources,
+                'FTRACK_EVENT_PLUGIN_PATH': application_hooks_path,
+                'HIERO_PLUGIN_PATH.set': ftrack_connect_nuke_studio_path,
+                'FTRACK_CONTEXTID.set': project['id'],
+                'QT_PREFERRED_BINDING.set':  os.pathsep.join(['PySide2', 'PySide']),
+            }
         }
     }
 
