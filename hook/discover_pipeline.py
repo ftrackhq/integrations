@@ -41,7 +41,7 @@ def on_discover_pipeline(event):
             'name':'ftrack-connect-pipeline',
             'version': integration_version,
             'env':{
-                'PYTHONPATH':python_dependencies,
+                'PYTHONPATH.prepend':python_dependencies,
                 'FTRACK_EVENT_PLUGIN_PATH': plugin_hook
             }
         }
