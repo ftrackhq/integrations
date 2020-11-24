@@ -84,21 +84,27 @@ class Host(object):
 
         if package:
             # we are in Load/Publish land....
+            # We do this check before the load_publish engine, to validate the
+            # schema and because we need the asset type to load the engine.
             asset_type = self.get_asset_type_from_packages(
                 self.__registry['package'], package
             )
             try:
                 validation.validate_schema(self.__registry['schema'], data)
             except Exception as error:
-                self.logger.error("Can't validate the data {} "
-                                  "error: {}".format(data, error))
+                self.logger.error(
+                    "Can't validate the data {} error: {}".format(data, error)
+                )
 
         Engine = self.engines.get(engine_type)
         engine_runner = Engine(
             self._event_manager, self.host, self.hostid, asset_type
         )
 
-        runner_result = engine_runner.run(data)
+        if package:
+            runner_result = engine_runner.run_definition(data)
+        else:
+            runner_result = engine_runner.run(data)
         if runner_result == False:
             self.logger.error("Couldn't publish the data {}".format(data))
 
