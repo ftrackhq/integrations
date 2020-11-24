@@ -9,7 +9,7 @@ from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 class DynamicWidget(BaseOptionsWidget):
     '''Main class to represent a various type of widget based on each type of
     each element of the options diccionary'''
-
+    enable_run_plugin = False
     def __init__(
             self, parent=None, session=None, data=None, name=None,
             description=None, options=None, context=None
@@ -82,6 +82,7 @@ class DynamicWidget(BaseOptionsWidget):
         widget.addItems(values)
         self._register_widget(key, widget)
         update_fn = partial(self.set_option_result, key=key)
+        # QComboBox().currentTextChanged only works for PySide2
         widget.currentTextChanged.connect(update_fn)
         if len(values) > 0:
             self.set_option_result(values[0], key)

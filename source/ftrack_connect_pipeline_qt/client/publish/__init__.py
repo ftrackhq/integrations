@@ -13,6 +13,7 @@ class QtPublisherClient(QtClient):
     '''
 
     definition_filter = 'publisher'
+    run_definition_button_text = 'Publish'
 
     def __init__(self, event_manager, parent=None):
 

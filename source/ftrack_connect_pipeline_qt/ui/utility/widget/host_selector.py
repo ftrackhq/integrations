@@ -45,7 +45,6 @@ class HostSelector(QtWidgets.QWidget):
 
         if not self.host_connection:
             self.logger.warning('No data for selected host')
-            return
 
         self.host_changed.emit(self.host_connection)
 
