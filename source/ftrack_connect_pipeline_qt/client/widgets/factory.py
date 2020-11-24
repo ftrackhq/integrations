@@ -60,6 +60,8 @@ class WidgetFactory(QtWidgets.QWidget):
         self.context = {}
         self.host_connection = None
 
+        self.components_names = []
+
         self.schema_type_mapping = {
             'object': schema_widget.JsonObject,
             'string': schema_widget.JsonString,
@@ -165,9 +167,8 @@ class WidgetFactory(QtWidgets.QWidget):
             self, parent
         )
         self.register_type_widget_plugin(type_widget)
+
         return type_widget
-        # return widget_fn(name, schema_fragment, fragment_data,
-        #                  previous_object_data, self, parent)
 
     def fetch_plugin_widget(self, plugin_data, plugin_type, extra_options=None):
         '''Returns a widget from the given *plugin_data*, *plugin_type* with
@@ -235,6 +236,8 @@ class WidgetFactory(QtWidgets.QWidget):
         widget.status_updated.connect(self._on_widget_status_updated)
         widget.context_changed.connect(self._on_widget_context_changed)
         widget.asset_version_changed.connect(self._asset_version_changed)
+        widget.emit_initial_state()
+
         self.register_widget_plugin(plugin_data, widget)
 
         widget.run_plugin_clicked.connect(
@@ -382,7 +385,19 @@ class WidgetFactory(QtWidgets.QWidget):
         '''empty _type_widgets_ref diccionary'''
         self._type_widgets_ref = {}
 
+    def check_components(self):
+        if not self.components_names:
+            return
+        for k, v in self.type_widgets.iteritems():
+            if hasattr(v, 'accordion_widgets'):
+                for widget in v.accordion_widgets:
+                    if widget.title not in self.components_names:
+                        widget.set_unavailable()
+                    else:
+                        widget.set_default_state()
+
     def _asset_version_changed(self, version_id):
+        self.version_id = version_id
         asset_version = self.session.query(
             'select components '
             'from AssetVersion where id is {}'.format(version_id)
@@ -390,11 +405,5 @@ class WidgetFactory(QtWidgets.QWidget):
         if not asset_version:
             return
         components = asset_version['components']
-        components_names = [component['name'] for component in components]
-        for k, v in self.type_widgets.iteritems():
-            if hasattr(v, 'accordion_widgets'):
-                for widget in v.accordion_widgets:
-                    if widget.title not in components_names:
-                        widget.set_unavailable()
-                    else:
-                        widget.set_default_state()
+        self.components_names = [component['name'] for component in components]
+        self.check_components()

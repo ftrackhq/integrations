@@ -127,6 +127,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
             schema,
             self.definition
         )
+        self.widget_factory.check_components()
         self.scroll.setWidget(self._current_def)
 
     def _on_widget_status_updated(self, data):
