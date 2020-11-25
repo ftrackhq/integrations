@@ -28,6 +28,17 @@ class AssetComboBox(QtWidgets.QComboBox):
         for asset in assets:
             self.addItem(asset['name'], asset['id'])
 
+    def validate_name(self):
+        asset_name = self.currentText()
+        is_valid = self.validator().validate(asset_name, 0)
+        if is_valid[0] != QtGui.QValidator.Acceptable:
+            is_valid_bool = False
+            self.setStyleSheet("border: 1px solid red;")
+        else:
+            is_valid_bool = True
+            self.setStyleSheet("")
+        return is_valid_bool
+
 
 class AssetSelector(QtWidgets.QWidget):
 
@@ -65,25 +76,10 @@ class AssetSelector(QtWidgets.QWidget):
 
     def _current_asset_changed(self, index):
         asset_name = self.asset_combobox.currentText()
-        is_valid_bool = True
-        if self.asset_combobox.validator():
-            is_valid = self.asset_combobox.validator().validate(asset_name, 0)
-            if is_valid[0] != QtGui.QValidator.Acceptable:
-                is_valid_bool = False
-                pal = self.asset_combobox.palette()
-                pal.setColor(
-                    QtGui.QPalette.Button,
-                    QtGui.QColor(255, 0, 0)
-                )
-                self.asset_combobox.setPalette(pal)
-            else:
-                is_valid_bool = True
-                self.asset_combobox.setPalette(
-                    self.asset_combobox.style().standardPalette()
-                )
+        is_valid_name = self.asset_combobox.validate_name()
         current_idx = self.asset_combobox.currentIndex()
         asset_id = self.asset_combobox.itemData(current_idx)
-        self.asset_changed.emit(asset_name, asset_id, is_valid_bool)
+        self.asset_changed.emit(asset_name, asset_id, is_valid_name)
 
     def set_context(self, context, asset_type):
         self.logger.info('setting context to :{}'.format(context))

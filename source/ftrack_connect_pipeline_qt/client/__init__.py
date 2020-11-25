@@ -16,13 +16,13 @@ class QtClient(client.Client, QtWidgets.QWidget):
     ui = [constants.UI, qt_constants.UI]
     # Text of the button to run the whole definition
     run_definition_button_text = 'Run'
-    is_valid_asset_name = False
 
     def __init__(self, event_manager,parent=None):
         '''Initialise with *event_manager* , and optional *ui* List and
         *parent* widget'''
         QtWidgets.QWidget.__init__(self, parent=parent)
         client.Client.__init__(self, event_manager)
+        self.is_valid_asset_name = False
         self.widget_factory = factory.WidgetFactory(
             event_manager,
             self.ui
