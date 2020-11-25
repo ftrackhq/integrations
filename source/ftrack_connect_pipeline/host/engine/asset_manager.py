@@ -42,7 +42,6 @@ class AssetManagerEngine(BaseEngine):
         '''
         start_time = time.time()
 
-        status = constants.UNKNOWN_STATUS
         component_name = 'main'
         versions = self.session.query(
             'select id, components, components.name, components.id, version, '
@@ -52,20 +51,22 @@ class AssetManagerEngine(BaseEngine):
             )
         ).all()
 
-        component_name = 'main'
-
         ftrack_asset_info_list = []
+        status = constants.SUCCESS_STATUS
 
-        for version in versions:
-            asset_info = FtrackAssetInfo.from_ftrack_version(
-                version, component_name
-            )
-            ftrack_asset_info_list.append(asset_info)
+        if versions:
+            for version in versions:
+                asset_info = FtrackAssetInfo.from_ftrack_version(
+                    version, component_name
+                )
+                ftrack_asset_info_list.append(asset_info)
 
-        if not ftrack_asset_info_list:
-            status = constants.ERROR_STATUS
+            if not ftrack_asset_info_list:
+                status = constants.ERROR_STATUS
+
         else:
-            status = constants.SUCCESS_STATUS
+            self.logger.debug("No assets in the scene")
+
         result = ftrack_asset_info_list
 
         end_time = time.time()
