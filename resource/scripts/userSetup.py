@@ -17,7 +17,7 @@ logger = logging.getLogger('ftrack_connect_pipeline_maya.scripts.userSetup')
 
 created_dialogs = dict()
 
-def get_ftrack_menu(menu_name = 'ftrack_pipeline'):
+def get_ftrack_menu(menu_name = 'ftrack', submenu_name = 'pipeline'):
     '''Get the current ftrack menu, create it if does not exists.'''
     gMainWindow = mm.eval('$temp1=$gMainWindow')
 
@@ -37,7 +37,22 @@ def get_ftrack_menu(menu_name = 'ftrack_pipeline'):
             label=menu_name
         )
 
-    return menu
+    if cmds.menuItem(
+            submenu_name,
+            exists=True,
+            parent=menu,
+            label=submenu_name
+        ):
+            submenu = submenu_name
+    else:
+        submenu = cmds.menuItem(
+            submenu_name,
+            subMenu=True,
+            label=submenu_name,
+            parent=menu
+        )
+
+    return submenu
 
 def _open_dialog(dialog_class, event_manager):
     '''Open *dialog_class* and create if not already existing.'''
