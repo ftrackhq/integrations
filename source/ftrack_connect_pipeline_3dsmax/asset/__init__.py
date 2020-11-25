@@ -1,27 +1,26 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-import MaxPlus
 import json
 from ftrack_connect_pipeline.asset import FtrackAssetInfo, FtrackAssetBase
 from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
 from ftrack_connect_pipeline_3dsmax.constants.asset import modes as load_const
 import ftrack_connect_pipeline_3dsmax.utils.custom_commands as max_utils
-
+from pymxs import runtime as rt
 
 class FtrackAssetNode(FtrackAssetBase):
     '''
     Base FtrackAssetNode class.
     '''
 
-    identity = MaxPlus.Class_ID(*asset_const.FTRACK_ASSET_CLASS_ID)
+    identity = asset_const.FTRACK_ASSET_CLASS_ID#MaxPlus.Class_ID(*asset_const.FTRACK_ASSET_CLASS_ID)
 
     def is_ftrack_object(self, object):
         '''
         Checks if the given object *other* has the same ClassID as the
         current identity
         '''
-        if object.Object.ClassID == self.identity:
+        if object.ClassID == self.identity:
             return True
 
         return False
@@ -39,12 +38,10 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
         super(FtrackAssetNode, self).__init__(event_manager)
 
-        self.helper_object = MaxPlus.Factory.CreateHelperObject(
-            self.identity
-        )
-        self.logger.debug(
-            'helper_object {} has been created'.format(self.helper_object)
-        )
+        # self.helper_object = rt.FtrackAssetHelper()
+        # self.logger.debug(
+        #     'helper_object {} has been created'.format(self.helper_object)
+        # )
 
     def init_ftrack_object(self):
         '''
@@ -71,8 +68,10 @@ class FtrackAssetNode(FtrackAssetBase):
         parameters
         '''
         param_dict = {}
-        for p in max_obj.ParameterBlock.Parameters:
-            param_dict[p.Name] = p.Value
+        for p in rt.getPropNames(max_obj):
+            if str(p) == 'Dummy':
+                continue
+            param_dict[str(p)] = rt.getProperty(max_obj, p)
         return param_dict
 
     def get_ftrack_object_from_scene(self):
@@ -82,7 +81,7 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
         ftrack_asset_nodes = max_utils.get_ftrack_helpers()
         for ftrack_object in ftrack_asset_nodes:
-            obj = ftrack_object.Object
+            obj = ftrack_object
 
             param_dict = self.get_parameters_dictionary(obj)
             node_asset_info = FtrackAssetInfo(param_dict)
@@ -106,7 +105,7 @@ class FtrackAssetNode(FtrackAssetBase):
             return False
 
         synced = False
-        obj = ftrack_object.Object
+        obj = ftrack_object
 
         param_dict = self.get_parameters_dictionary(obj)
         node_asset_info = FtrackAssetInfo(param_dict)
@@ -146,22 +145,22 @@ class FtrackAssetNode(FtrackAssetBase):
 
     def get_load_mode_from_ftrack_object(self, node):
         '''Return the load mode used to import an asset.'''
-        obj = node.Object
-        return obj.ParameterBlock.asset_info_options.Value
+        obj = node
+        return obj.asset_info_options
 
     def reload_references_from_selection(self):
         '''
         Reload all the ftrack dependencies that are referenced in the current
         selection.
         '''
-        for node in MaxPlus.SelectionManager.Nodes:
+        for node in rt.GetCurrentSelection():
             if self.is_ftrack_object(node) and self.get_load_mode_from_ftrack_object(
                     node) == load_const.SCENE_XREF_MODE:
                 if not max_utils.scene_XRef_imported(node):
                     self.logger.debug(u'Re-importing {0} scene xref.'.format(
                         node.Name))
                     max_utils.re_import_scene_XRef(
-                        node.Object.ParameterBlock.component_path.Value,
+                        node.component_path,
                         node.Name
                     )
 
@@ -171,14 +170,13 @@ class FtrackAssetNode(FtrackAssetBase):
         type of FtrackAssetHelper.
         '''
         name = self._get_unique_ftrack_object_name()
-        ftrack_object = MaxPlus.Factory.CreateNode(self.helper_object)
+        ftrack_object = rt.FtrackAssetHelper()
         ftrack_object.Name = name
 
         # Try to freeze the helper object and lock the transform.
         try:
-            cmd = 'freeze ${0} ; setTransformLockFlags ${0} #all'.format(
-                ftrack_object.Name)
-            max_utils.eval_max_script(cmd)
+            rt.freeze(ftrack_object)
+            rt.setTransformLockFlags(ftrack_object, rt.name("all"))
         except Exception, e:
             self.logger.debug(
                 "Could not freeze object {0}, Error: {1}".format(
@@ -194,38 +192,34 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
         print "updating ftrack object"
         try:
-            cmd = 'unfreeze ${0}'.format(ftrack_object.Name)
-            max_utils.eval_max_script(cmd)
+            rt.unfreeze(ftrack_object)
         except:
             self.logger.debug(
                 "Could not unfreeze object {0}".format(ftrack_object.Name))
 
-        obj = ftrack_object.Object
+        obj = ftrack_object
 
-        print "self.asset_info ---> {}".format(self.asset_info)
-
-        for p in obj.ParameterBlock.Parameters:
-            print "on the update p.Name: {} , p.Value: {}".format(p.Name, p.Value)
-            if p.Name == asset_const.REFERENCE_OBJECT:
-                p.SetValue(str(ftrack_object))
-            elif p.Name == asset_const.VERSIONS:
+        for p in rt.getPropNames(obj):
+            if str(p) == 'Dummy':
                 continue
-            elif p.Name == asset_const.IS_LATEST_VERSION:
-                p.SetValue(bool(self.asset_info[p.Name]))
-            elif p.Name == asset_const.SESSION:
-                p.SetValue(str(self.asset_info[p.Name]))
-            elif p.Name == asset_const.ASSET_INFO_OPTIONS:
-                decoded_value = self.asset_info[p.Name]
-                p.SetValue(str(
-                    json.dumps(decoded_value).encode('base64')))
+            if str(p) == asset_const.REFERENCE_OBJECT:
+                rt.setProperty(obj, p, str(ftrack_object))
+            elif str(p) == asset_const.VERSIONS:
+                continue
+            elif str(p) == asset_const.IS_LATEST_VERSION:
+                rt.setProperty(obj, p, bool(self.asset_info[str(p)]))
+            elif str(p) == asset_const.SESSION:
+                rt.setProperty(obj, p, str(self.asset_info[str(p)]))
+            elif str(p) == asset_const.ASSET_INFO_OPTIONS:
+                decoded_value = self.asset_info[str(p)]
+                rt.setProperty(
+                    obj, p, str(json.dumps(decoded_value).encode('base64'))
+                )
             else:
-                p.SetValue(self.asset_info[p.Name])
-            print "after on the update p.Name: {} , p.Value: {}".format(p.Name,
-                                                                  p.Value)
+                rt.setProperty(obj, p, self.asset_info[str(p)])
 
         try:
-            cmd = 'freeze ${0}'.format(ftrack_object.Name)
-            max_utils.eval_max_script(cmd)
+            rt.freeze(ftrack_object)
         except Exception, e:
             self.logger.debug(
                 "Could not freeze object {0}, Error: {1}".format(
@@ -238,14 +232,14 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
         Return component_id of the given *helperNode*.
         '''
-        component_id = helper_node.Object.ParameterBlock.component_id.Value
+        component_id = helper_node.component_id
         return component_id
 
     def _get_version_id_from_helper_node(self, helper_node):
         '''
         Return version_id of the given *helperNode*.
         '''
-        version_id = helper_node.Object.ParameterBlock.version_id.Value
+        version_id = helper_node.version_id
         return version_id
 
     def _connect_selection(self):
@@ -255,12 +249,12 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
         version_id = self.asset_info[asset_const.VERSION_ID]
         component_id = self.asset_info[asset_const.COMPONENT_ID]
-        root_node = MaxPlus.Core.GetRootNode()
+        root_node = rt.rootScene.world
 
         nodes_to_delete = []
 
         self.logger.debug(u'Removing duplicated asset helper objects')
-        for node in MaxPlus.SelectionManager.Nodes:
+        for node in rt.selection:
             if self.is_ftrack_object(node) and node.Parent == root_node:
                 helper_component_id = self._get_component_id_from_helper_node(node)
                 if helper_component_id == component_id:
@@ -270,12 +264,12 @@ class FtrackAssetNode(FtrackAssetBase):
 
         # Delete helper ftrack_objects that represent the asset we are importing.
         for node in nodes_to_delete:
-            MaxPlus.SelectionManager.DeSelectNode(node)
-            node.Delete()
+            rt.deselect(node)
+            rt.delete(node)
 
         self.logger.debug(u'Parenting objects to helper object')
-        for node in MaxPlus.SelectionManager.Nodes:
-            if node.Parent == root_node:
+        for node in rt.GetCurrentSelection():
+            if node.Parent == root_node or node.Parent == None:
                 node.Parent = self.ftrack_object
                 self.logger.debug(
                     'ftrack_object {} added to ftrack ftrack_object {}'.format(
