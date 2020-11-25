@@ -29,14 +29,16 @@ class AssetComboBox(QtWidgets.QComboBox):
             self.addItem(asset['name'], asset['id'])
 
     def validate_name(self):
-        asset_name = self.currentText()
-        is_valid = self.validator().validate(asset_name, 0)
-        if is_valid[0] != QtGui.QValidator.Acceptable:
-            is_valid_bool = False
-            self.setStyleSheet("border: 1px solid red;")
-        else:
-            is_valid_bool = True
-            self.setStyleSheet("")
+        is_valid_bool = True
+        if self.validator():
+            asset_name = self.currentText()
+            is_valid = self.validator().validate(asset_name, 0)
+            if is_valid[0] != QtGui.QValidator.Acceptable:
+                is_valid_bool = False
+                self.setStyleSheet("border: 1px solid red;")
+            else:
+                is_valid_bool = True
+                self.setStyleSheet("")
         return is_valid_bool
 
 
