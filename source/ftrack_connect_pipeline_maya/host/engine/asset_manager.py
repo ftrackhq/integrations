@@ -45,17 +45,22 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
         ftrack_asset_info_list = []
 
-        for ftrack_object in ftrack_asset_nodes:
-            param_dict = FtrackAssetNode.get_parameters_dictionary(
-                ftrack_object
-            )
-            node_asset_info = FtrackAssetInfo(param_dict)
-            ftrack_asset_info_list.append(node_asset_info)
+        if ftrack_asset_nodes:
+            for ftrack_object in ftrack_asset_nodes:
+                param_dict = FtrackAssetNode.get_parameters_dictionary(
+                    ftrack_object
+                )
+                node_asset_info = FtrackAssetInfo(param_dict)
+                ftrack_asset_info_list.append(node_asset_info)
 
-        if not ftrack_asset_info_list:
-            status = constants.ERROR_STATUS
+            if not ftrack_asset_info_list:
+                status = constants.ERROR_STATUS
+            else:
+                status = constants.SUCCESS_STATUS
         else:
+            self.logger.debug("No assets in the scene")
             status = constants.SUCCESS_STATUS
+
         result = ftrack_asset_info_list
 
         end_time = time.time()
