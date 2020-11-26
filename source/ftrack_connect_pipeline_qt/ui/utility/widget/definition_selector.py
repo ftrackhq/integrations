@@ -77,11 +77,13 @@ class DefinitionSelector(QtWidgets.QWidget):
             items = self.host_connection.definitions.get(schema_title)
 
             for item in items:
-                self.definition_combobox.addItem(
-                    '{} - {}'.format(
+                text = '{}'.format(item.get('name'))
+                if not self.definition_filter:
+                    text = '{} - {}'.format(
                         schema.get('title'),
                         item.get('name')
-                    ), item)
+                    )
+                self.definition_combobox.addItem(text, item)
 
     def _on_select_definition(self, index):
         self.definition = self.definition_combobox.itemData(index)
@@ -103,7 +105,9 @@ class DefinitionSelector(QtWidgets.QWidget):
 
     def add_hosts(self, hosts):
         for host in hosts:
-            self.host_combobox.addItem(host.id, host)
+            self.host_combobox.addItem(host.name, host)
+        if len(hosts) == 1:
+            self.host_combobox.setCurrentIndex(1)
 
     def set_definition_filter(self, filter):
         self.definition_filter = filter
