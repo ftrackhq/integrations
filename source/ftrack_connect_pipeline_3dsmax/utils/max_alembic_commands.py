@@ -1,28 +1,24 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-import MaxPlus
-
-import math
-
-from custom_commands import eval_max_script
+from pymxs import runtime as rt
 
 # Alembic default options
 abc_default_import_options = {
     "CoordinateSystem": 3,
-    "ImportToRoot": 'false',
-    "FitTimeRange": 'true',
-    "SetStartTime": 'false',
-    "UVs": 'true',
-    "Normals": 'true',
-    "VertexColors": 'true',
-    "ExtraChannels": 'true',
-    "Velocity": 'true',
-    "MaterialIDs": 'true',
-    "Visibility": 'true',
-    "CustomAttributes": 'true',
-    "ShapeSuffix": 'true',
-    "ObjectAttributes": 'true'
+    "ImportToRoot": False,
+    "FitTimeRange": True,
+    "SetStartTime": False,
+    "UVs": True,
+    "Normals": True,
+    "VertexColors": True,
+    "ExtraChannels": True,
+    "Velocity": True,
+    "MaterialIDs": True,
+    "Visibility": True,
+    "CustomAttributes": True,
+    "ShapeSuffix": True,
+    "ObjectAttributes": True
 }
 
 
@@ -38,22 +34,12 @@ def get_str_options(options):
 
 
 def import_abc(file_path, options):
-    options_args = ''''''
     for key, value in abc_default_import_options.iteritems():
         if key in options.keys():
-            options_args = (
-                    options_args + '''AlembicImport.{0} = {1} \n'''.format(
-                key, options[key])
-            )
+            cmd = 'rt.AlembicImport.{} = {}'.format(key, options[key])
         else:
-            options_args = (
-                    options_args + '''AlembicImport.{0} = {1} \n'''.format(
-                key, value)
-            )
+            cmd = 'rt.AlembicImport.{} = {}'.format(key, value)
+        eval(cmd)
 
-    cmd = '''
-        {0}
-        importFile(@"{1}") #noPrompt using:AlembicImport
-        '''.format(options_args, file_path)
+    rt.importFile(file_path, rt.name("noPrompt"), using="AlembicImport")
 
-    eval_max_script(cmd)

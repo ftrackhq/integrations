@@ -32,8 +32,8 @@ class PublisherFinalizerMaxPlugin(plugin.PublisherFinalizerPlugin, BaseMaxPlugin
         ftrack_asset_nodes =max_utils.get_ftrack_helpers()
 
         for dependency in ftrack_asset_nodes:
-            obj = dependency.Object
-            dependency_version_id = obj.ParameterBlock.version_id.Value
+            obj = dependency
+            dependency_version_id = obj.version_id
             self.logger.debug(
                 'Adding dependency_asset_version_id: {}'.format(
                     dependency_version_id
