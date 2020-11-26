@@ -51,20 +51,22 @@ def initialise():
         (log_viewer.MaxLogViewerClient, 'LogViewer')
     )
 
-    menu_name = 'ftrack_pipeline'
+    menu_name = 'ftrack'
+    submenu_name = 'pipeline'
 
     if rt.menuMan.findMenu(menu_name):
         menu = rt.menuMan.findMenu(menu_name)
         rt.menuMan.unRegisterMenu(menu)
 
-    mainMenuBar = rt.menuMan.getMainMenuBar()
+    main_menu_bar = rt.menuMan.getMainMenuBar()
     ftrack_menu = rt.menuMan.createMenu(menu_name)
+    pipeline_menu = rt.menuMan.createMenu(submenu_name)
 
     # Register and hook the dialog in ftrack menu
     i = 0
     for item in dialogs:
         if item == 'divider':
-            ftrack_menu.addItem(rt.menuMan.createSeparatorItem(), -1)
+            pipeline_menu.addItem(rt.menuMan.createSeparatorItem(), -1)
             continue
 
         dialog_class, label = item
@@ -103,15 +105,22 @@ def initialise():
             )
         )
 
-        ftrack_menu.addItem(
+        pipeline_menu.addItem(
             rt.menuMan.createActionItem(macro_name, category),
             -1
         )
         i += 1
 
-    subMenuItem = rt.menuMan.createSubMenuItem(menu_name, ftrack_menu)
-    subMenuIndex = mainMenuBar.numItems() - 1
-    mainMenuBar.addItem(subMenuItem, subMenuIndex)
+    sub_menu_pipeline_item = rt.menuMan.createSubMenuItem(
+        submenu_name, pipeline_menu
+    )
+    sub_menu_pipeline_index = ftrack_menu.numItems() - 1
+    ftrack_menu.addItem(sub_menu_pipeline_item, sub_menu_pipeline_index)
+
+    sub_menu_ftrack_item = rt.menuMan.createSubMenuItem(menu_name, ftrack_menu)
+    sub_menu_ftrack_index = main_menu_bar.numItems() - 1
+    main_menu_bar.addItem(sub_menu_ftrack_item, sub_menu_ftrack_index)
+
     rt.menuMan.updateMenuBar()
 
 

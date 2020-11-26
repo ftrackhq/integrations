@@ -34,6 +34,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         result_data = {
             'plugin_name': 'discover_assets',
             'plugin_type': 'action',
+            'method': 'discover_assets',
             'status': status,
             'result': result,
             'execution_time': 0,
@@ -85,6 +86,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         result_data = {
             'plugin_name': 'remove_asset',
             'plugin_type': 'action',
+            'method': 'remove_asset',
             'status': status,
             'result': result,
             'execution_time': 0,
@@ -168,6 +170,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         result_data = {
             'plugin_name': 'select_asset',
             'plugin_type': 'action',
+            'method': 'select_asset',
             'status': status,
             'result': result,
             'execution_time': 0,
