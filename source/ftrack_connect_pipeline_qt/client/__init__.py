@@ -43,9 +43,10 @@ class QtClient(client.Client, QtWidgets.QWidget):
         '''callback, adds new hosts connection from the given *event* to the
         host_selector'''
         super(QtClient, self)._host_discovered(event)
-        self.host_selector.add_hosts(self.hosts)
         if self.definition_filter:
             self.host_selector.set_definition_filter(self.definition_filter)
+        self.host_selector.add_hosts(self.hosts)
+
 
     def pre_build(self):
         '''Prepare general layout.'''
@@ -96,6 +97,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
     def change_host(self, host_connection):
         ''' Triggered when host_changed is called from the host_selector.'''
         if self.scroll.widget():
+            self.widget_factory.reset_type_widget_plugin()
             self.scroll.widget().deleteLater()
         super(QtClient, self).change_host(host_connection)
 
@@ -105,6 +107,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         *schema* and *definition*'''
 
         if self.scroll.widget():
+            self.widget_factory.reset_type_widget_plugin()
             self.scroll.widget().deleteLater()
 
         if not schema and not definition:
@@ -129,6 +132,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
             schema,
             self.definition
         )
+        self.widget_factory.check_components()
         self.scroll.setWidget(self._current_def)
 
     def _on_widget_status_updated(self, data):

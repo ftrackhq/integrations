@@ -10,6 +10,19 @@ class BaseJsonWidget(QtWidgets.QWidget):
     Base class of a widget representation from json schema types
     '''
 
+    @property
+    def type(self):
+        return self._type
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        '''Sets asset type from the given *value*'''
+        self._name = value
+
     def __init__(
             self, name, schema_fragment, fragment_data, previous_object_data,
             widget_factory, parent=None

@@ -19,6 +19,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     status_icons = constants.icons.status_icons
     run_plugin_clicked = QtCore.Signal(object, object)
     run_result_updated = QtCore.Signal(object)
+    asset_version_changed = QtCore.Signal(object)
 
     # enable_run_plugin True will enable the run button to run the plugin run
     # function individually.
@@ -214,3 +215,9 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         for key, value in self.options.items():
             out['options'][key] = value
         return out
+
+    def emit_initial_state(self):
+        if self.asset_type:
+            self.context_changed.emit(self.options['context_id'], self.asset_type)
+        if self.options.get('version_id'):
+            self.asset_version_changed.emit(self.options['version_id'])
