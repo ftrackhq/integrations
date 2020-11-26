@@ -1,61 +1,51 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-import MaxPlus
+from pymxs import runtime as rt
 
 
 def import_scene_XRef(file_path, options=None):
     '''Import a Max scene file as a Scene XRef asset.'''
-    cmd = '''
-    scn = xrefs.addNewXRefFile @"{0}"
-    scn
-    '''.format(file_path)
-    eval_max_script(cmd)
-
+    scn = rt.xrefs.addNewXRefFile(file_path)
+    return scn
 
 def re_import_scene_XRef(file_path, parent_helper_node_name):
     '''Import a Max scene file as a Scene XRef asset and parent it
     under an existing helper ftrack_object.'''
-    cmd = '''
-    n = getNodeByName "{0}" exact:true
-    scn = xrefs.addNewXRefFile @"{1}"
-    scn.parent = n
-    '''.format(parent_helper_node_name, file_path)
-    eval_max_script(cmd)
+    node = rt.getNodeByName(parent_helper_node_name, exact=True)
+    scn = rt.xrefs.addNewXRefFile(file_path)
+    scn.parent = node
+    return scn
 
 
 def import_obj_XRefs(file_path, options=None):
     '''Import all the objects in a Max scene file as Object XRefs and parent
     them under an existing helper ftrack_object.'''
-    cmd = '''
-    filename = @"{0}"
-    xRefObjs = getMAXFileObjectNames filename
-    newObjs =  xrefs.addnewXrefObject filename xRefObjs dupMtlNameAction: #autoRename
-    select newObjs
-    '''.format(file_path)
-    eval_max_script(cmd)
+    x_ref_objs = rt.getMAXFileObjectNames(file_path)
+    newObjs = rt.xrefs.addNewXRefObject(
+        file_path, x_ref_objs, dupMtlNameAction=rt.name("autoRename")
+    )
+    rt.select(newObjs)
+    return newObjs
 
 
 def open_scene(file_path, options=None):
     '''Open a Max scene file.'''
-    fm = MaxPlus.FileManager
-    return fm.Open(file_path, True, True, True, False)
-
-
-def eval_max_script(cmd):
-    '''Evaluate a string using MAXScript.'''
-    return MaxPlus.Core.EvalMAXScript(cmd)
+    return rt.loadMaxFile(file_path)
 
 
 def get_unique_node_name(node_name):
     '''Return a unique scene name for the given *nodeName*'''
+    #TODO: check this
+    # $Box01.name = uniqueName "MyRenamedBox"
+    # -->"MyRenamedBox001"
     unique_node_name = None
     # Max starts naming objects from 001.
     i = 1
     node_fmt_string = node_name + '%03d'
     while True:
         unique_node_name = node_fmt_string % i
-        if not MaxPlus.INode.GetINodeByName(unique_node_name):
+        if not rt.getNodeByName(unique_node_name, exact=True):
             return unique_node_name
 
         i = i + 1
@@ -65,25 +55,23 @@ def get_unique_node_name(node_name):
 
 def scene_XRef_imported(ftrack_node):
     '''Check if a Scene XRef exists under the ftrackAssetHelper ftrack_object.'''
-    cmd = '''
-    result = false
-    numSceneRefs = xrefs.getXRefFileCount()
-    for i = 1 to numSceneRefs do (
-        sceneRef = xrefs.getXrefFile i
-        if sceneRef.parent.Name == "{0}" do (
-            result = true
-        )
-    )
-    result
-    '''.format(ftrack_node.Name)
-    return MaxPlus.Core.EvalMAXScript(cmd).Get()
+    result = False
+    num_scene_refs = rt.xrefs.getXRefFileCount()
+    for idx in range(1, num_scene_refs):
+        scene_ref = rt.xrefs.getXrefFile(idx)
+        if scene_ref.parent.Name == ftrack_node.Name:
+            result = True
+    return result
 
 
 def merge_max_file(file_path, options=None):
     '''Import a Max scene into the current scene.'''
-    return eval_max_script(
-        'mergemaxfile @"{0}" #autoRenameDups #neverReparent #select'.format(
-            file_path))
+    return rt.mergemaxfile(
+        file_path,
+        rt.name("autoRenameDups"),
+        rt.name("neverReparent"),
+        rt.name("select")
+    )
 
 
 def get_current_scene_objects():
@@ -97,47 +85,36 @@ def get_current_scene_objects():
 
 
 def select_all():
-    eval_max_script('select $*')
+    return rt.select(rt.objects)
 
 
 def deselect_all():
-    MaxPlus.SelectionManager.ClearNodeSelection()
+    rt.clearSelection()
 
 
 def save_selection():
-    return MaxPlus.SelectionManager.GetNodes()
+    return rt.GetCurrentSelection()
 
 
 def restore_selection(saved_selection):
-    MaxPlus.SelectionManager.SelectNodes(saved_selection)
+    rt.clearSelection()
+    rt.select(saved_selection)
 
 
 def add_node_to_selection(node):
     '''Select Node'''
-    MaxPlus.SelectionManager.SelectNode(node, False)
+    rt.selectMore(node)
 
 
 def selection_empty():
-    return MaxPlus.SelectionManager.GetNodes().GetCount() == 0
+    return rt.selection.count == 0
 
 
 def get_ftrack_helpers():
-    saved_selection = save_selection()
-    cmd = '''
-    selected_helpers =  #()
-    for obj in rootScene.world.children do (  
-        cl = SuperClassOf obj 
-        if (cl == Helper) then  ( 
-            append selected_helpers obj
-            )
-    )
-    max select none
-    select selected_helpers
-    '''
-    eval_max_script(cmd)
-    helpers = MaxPlus.SelectionManager.GetNodes()
-    deselect_all()
-    restore_selection(saved_selection)
+    helpers = []
+    for obj in rt.rootScene.world.children:
+        if rt.SuperClassOf(obj) == rt.helper:
+            helpers.append(obj)
     return helpers
 
 
@@ -160,46 +137,40 @@ def collect_children_nodes(node):
 def delete_all_children(node):
     '''Delete all children ftrack_objects of a ftrack_object.'''
     all_children = collect_children_nodes(node)
-    nodes_to_delete = MaxPlus.INodeTab()
     for node in all_children:
-        nodes_to_delete.Append(node)
-
-    node.DeleteNodes(nodes_to_delete)
+        rt.delete(node)
     return all_children
+
+def delete_node(node):
+    '''Delete all children ftrack_objects of a ftrack_object.'''
+    rt.delete(node)
 
 
 def add_all_children_to_selection(parent_node):
     '''Add all children of a ftrack_object to the current selection.'''
-    new_sel = MaxPlus.SelectionManager.GetNodes()
+    current_selection = list(rt.GetCurrentSelection())
     nodes_to_select = collect_children_nodes(parent_node)
     for node in nodes_to_select:
-        new_sel.Append(node)
+        current_selection.append(node)
+    rt.select(current_selection)
 
-    MaxPlus.SelectionManager.SelectNodes(new_sel)
-
-    return nodes_to_select
+    return current_selection
 
 
 def get_time_range():
-    start = eval_max_script('animationRange.start')
-    end = eval_max_script('animationRange.end')
+    start = rt.animationRange.start
+    end = rt.animationRange.end
     return (start, end)
 
 
 def select_only_cameras():
-    cmd = '''
-    selected_cameras = #()
-    for obj in selection do (
-        if SuperClassOf obj == camera do (
-            append selected_cameras obj
-        )
-    )
-    max select none
-    select selected_cameras
-    '''
-    eval_max_script(cmd)
+    selected_cameras = []
+    for obj in rt.selection:
+        if rt.SuperClassOf(obj) == 'camera':
+            selected_cameras.append(obj)
+    return selected_cameras
 
 
 def create_selection_set(set_name):
     '''Create a new selection set containing the selected ftrack_objects.'''
-    eval_max_script('selectionSets["{0}"] = selection'.format(set_name))
+    rt.selectionSets[set_name] = rt.selection

@@ -44,17 +44,21 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         ftrack_asset_nodes = max_utils.get_ftrack_helpers()
         ftrack_asset_info_list = []
 
-        for ftrack_object in ftrack_asset_nodes:
-            obj = ftrack_object.Object
-            param_dict = FtrackAssetNode.get_parameters_dictionary(
-                obj
-            )
-            node_asset_info = FtrackAssetInfo(param_dict)
-            ftrack_asset_info_list.append(node_asset_info)
+        if ftrack_asset_nodes:
+            for ftrack_object in ftrack_asset_nodes:
+                obj = ftrack_object
+                param_dict = FtrackAssetNode.get_parameters_dictionary(
+                    obj
+                )
+                node_asset_info = FtrackAssetInfo(param_dict)
+                ftrack_asset_info_list.append(node_asset_info)
 
-        if not ftrack_asset_info_list:
-            status = constants.ERROR_STATUS
+            if not ftrack_asset_info_list:
+                status = constants.ERROR_STATUS
+            else:
+                status = constants.SUCCESS_STATUS
         else:
+            self.logger.debug("No assets in the scene")
             status = constants.SUCCESS_STATUS
         result = ftrack_asset_info_list
 
@@ -117,7 +121,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
             return status, result
 
         try:
-            ftrack_asset_object.ftrack_object.Delete()
+            max_utils.delete_node(ftrack_asset_object.ftrack_object)
             status = constants.SUCCESS_STATUS
         except Exception as error:
             message = str(

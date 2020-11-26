@@ -1,6 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
+from Qt import QtCore, QtWidgets
+
 from ftrack_connect_pipeline_qt.client.log_viewer import QtLogViewerClient
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
@@ -16,7 +18,12 @@ class MaxLogViewerClient(QtLogViewerClient):
         super(MaxLogViewerClient, self).__init__(
             event_manager=event_manager, parent=parent
         )
-        self.setWindowTitle('Nuke Pipeline Log Viewer')
+        self.dock_widget = QtWidgets.QDockWidget(parent=parent)
+        self.setWindowTitle('Max Pipeline Log Viewer')
+        self.setObjectName('Max Pipeline Log Viewer')
+        self.dock_widget.setWidget(self)
+        parent.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.dock_widget)
+        self.dock_widget.setFloating(True)
 
     def show(self):
         self.dock_widget.show()
