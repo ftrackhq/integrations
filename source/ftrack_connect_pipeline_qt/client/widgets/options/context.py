@@ -63,11 +63,12 @@ class PublishContextWidget(BaseOptionsWidget):
         self.asset_selector.set_context(context, self.asset_type)
         self.context_changed.emit(context['id'], self.asset_type)
 
-    def _on_asset_changed(self, asset_name, asset_id):
+    def _on_asset_changed(self, asset_name, asset_id, is_valid):
         '''Updates the option dicctionary with provided *asset_name* when
         asset_changed of asset_selector event is triggered'''
         self.set_option_result(asset_name, key='asset_name')
         self.set_option_result(asset_id, key='asset_id')
+        self.asset_changed.emit(asset_name, asset_id, is_valid)
 
     def _build_context_id_selector(self):
         '''Builds the context_selector widget'''
@@ -192,19 +193,21 @@ class LoadContextWidget(BaseOptionsWidget):
         self.asset_selector.set_context(context, self.asset_type)
         self.context_changed.emit(context['id'], self.asset_type)
 
-    def _on_asset_changed(self, asset_name, asset_id):
+    def _on_asset_changed(self, asset_name, asset_id, is_valid):
         '''Updates the option dicctionary with provided *asset_name* when
         asset_changed of asset_selector event is triggered'''
         self.set_option_result(asset_name, key='asset_name')
         self.set_option_result(asset_id, key='asset_id')
         self.version_selector.set_context(self.context)
         self.version_selector.set_asset_id(asset_id)
+        self.asset_changed.emit(asset_name, asset_id, is_valid)
 
     def _on_version_changed(self, version_num, version_id):
         '''Updates the option dicctionary with provided *version_number* when
         version_changed of version_selector event is triggered'''
         self.set_option_result(version_num, key='version_number')
         self.set_option_result(version_id, key='version_id')
+        self.asset_version_changed.emit(version_id)
 
     def _build_context_id_selector(self):
         '''Builds the context_selector widget'''
@@ -228,8 +231,11 @@ class LoadContextWidget(BaseOptionsWidget):
         self.asset_selector.asset_combobox.setEditable(False)
         self.asset_layout.addWidget(self.asset_selector)
         self.layout().addLayout(self.asset_layout)
-        current_asset = self.asset_selector.asset_combobox.currentText()
-        self.set_option_result(current_asset, key='asset_name')
+        asset_name = self.asset_selector.asset_combobox.currentText()
+        current_idx = self.asset_selector.asset_combobox.currentIndex()
+        asset_id = self.asset_selector.asset_combobox.itemData(current_idx)
+        self.set_option_result(asset_name, key='asset_name')
+        self.set_option_result(asset_id, key='asset_id')
 
     def _build_version_selector(self):
         '''Builds the asset_selector widget'''
@@ -239,5 +245,10 @@ class LoadContextWidget(BaseOptionsWidget):
         self.version_selector = VersionSelector(self.session)
         self.version_layout.addWidget(self.version_selector)
         self.layout().addLayout(self.version_layout)
-        current_version = self.version_selector.version_combobox.currentText()
-        self.set_option_result(current_version, key='version_number')
+
+        version_num = self.version_selector.version_combobox.currentText()
+        current_idx = self.version_selector.version_combobox.currentIndex()
+        version_id = self.version_selector.version_combobox.itemData(current_idx)
+        self.set_option_result(version_num, key='version_number')
+        self.set_option_result(version_id, key='version_id')
+        self.asset_version_changed.emit(version_id)

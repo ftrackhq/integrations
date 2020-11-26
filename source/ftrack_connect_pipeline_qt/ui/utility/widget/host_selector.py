@@ -50,6 +50,8 @@ class HostSelector(QtWidgets.QWidget):
 
     def add_hosts(self, hosts):
         for host in hosts:
-            self.host_combobox.addItem(host.id, host)
+            self.host_combobox.addItem(host.name, host)
+        if len(hosts) == 1:
+            self.host_combobox.setCurrentIndex(1)
 
 

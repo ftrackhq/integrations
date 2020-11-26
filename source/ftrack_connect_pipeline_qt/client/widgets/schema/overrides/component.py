@@ -12,6 +12,10 @@ class ComponentsArray(BaseJsonWidget):
     Override widget representation of an array
     '''
 
+    @property
+    def accordion_widgets(self):
+        return self._accordion_widgets
+
     def __init__(
             self, name, schema_fragment, fragment_data,
             previous_object_data, widget_factory, parent=None

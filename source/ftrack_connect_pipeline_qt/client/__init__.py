@@ -22,6 +22,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         *parent* widget'''
         QtWidgets.QWidget.__init__(self, parent=parent)
         client.Client.__init__(self, event_manager)
+        self.is_valid_asset_name = False
         self.widget_factory = factory.WidgetFactory(
             event_manager,
             self.ui
@@ -42,9 +43,10 @@ class QtClient(client.Client, QtWidgets.QWidget):
         '''callback, adds new hosts connection from the given *event* to the
         host_selector'''
         super(QtClient, self)._host_discovered(event)
-        self.host_selector.add_hosts(self.hosts)
         if self.definition_filter:
             self.host_selector.set_definition_filter(self.definition_filter)
+        self.host_selector.add_hosts(self.hosts)
+
 
     def pre_build(self):
         '''Prepare general layout.'''
@@ -80,6 +82,10 @@ class QtClient(client.Client, QtWidgets.QWidget):
             self._on_widget_context_updated
         )
 
+        self.widget_factory.widget_asset_updated.connect(
+            self._on_widget_asset_updated
+        )
+
         self.widget_factory.widget_run_plugin.connect(
             self._on_run_plugin
         )
@@ -91,6 +97,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
     def change_host(self, host_connection):
         ''' Triggered when host_changed is called from the host_selector.'''
         if self.scroll.widget():
+            self.widget_factory.reset_type_widget_plugin()
             self.scroll.widget().deleteLater()
         super(QtClient, self).change_host(host_connection)
 
@@ -100,6 +107,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         *schema* and *definition*'''
 
         if self.scroll.widget():
+            self.widget_factory.reset_type_widget_plugin()
             self.scroll.widget().deleteLater()
 
         if not schema and not definition:
@@ -124,6 +132,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
             schema,
             self.definition
         )
+        self.widget_factory.check_components()
         self.scroll.setWidget(self._current_def)
 
     def _on_widget_status_updated(self, data):
@@ -137,6 +146,9 @@ class QtClient(client.Client, QtWidgets.QWidget):
     def _on_widget_context_updated(self, context_id):
         self.change_context(context_id)
 
+    def _on_widget_asset_updated(self, asset_name, asset_id, is_valid):
+        self.is_valid_asset_name = is_valid
+
     def _on_run_plugin(self, plugin_data, method):
         '''Function called to run one single plugin *plugin_data* with the
         plugin information and the *method* to be run has to be passed'''
@@ -144,7 +156,11 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
     def _on_run_definition(self):
         '''Function called when click the run button'''
+
         serialized_data = self._current_def.to_json_object()
+        if not self.is_valid_asset_name:
+            self.logger.error("Can't publish without a valid asset name")
+            return
         engine_type = serialized_data['_config']['engine_type']
         self.run_definition(serialized_data, engine_type)
 
