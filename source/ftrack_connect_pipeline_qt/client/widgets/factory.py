@@ -22,6 +22,7 @@ class WidgetFactory(QtWidgets.QWidget):
 
     widget_status_updated = QtCore.Signal(object)
     widget_context_updated = QtCore.Signal(object)
+    widget_asset_updated = QtCore.Signal(object, object, object)
     widget_run_plugin = QtCore.Signal(object, object)
 
     host_definitions = None
@@ -235,6 +236,7 @@ class WidgetFactory(QtWidgets.QWidget):
 
         widget.status_updated.connect(self._on_widget_status_updated)
         widget.context_changed.connect(self._on_widget_context_changed)
+        widget.asset_changed.connect(self._on_widget_asset_changed)
         widget.asset_version_changed.connect(self._asset_version_changed)
         widget.emit_initial_state()
 
@@ -352,6 +354,9 @@ class WidgetFactory(QtWidgets.QWidget):
         }
         self.set_context(new_context)
         self.widget_context_updated.emit(context_id)
+
+    def _on_widget_asset_changed(self, asset_name, asset_id, is_valid):
+        self.widget_asset_updated.emit(asset_name, asset_id, is_valid)
 
     def on_widget_run_plugin(self, plugin_data, method, plugin_options):
         '''

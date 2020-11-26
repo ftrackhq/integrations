@@ -15,6 +15,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     '''
     status_updated = QtCore.Signal(object)
     context_changed = QtCore.Signal(object, object)
+    asset_changed = QtCore.Signal(object, object, object)
     status_icons = constants.icons.status_icons
     run_plugin_clicked = QtCore.Signal(object, object)
     run_result_updated = QtCore.Signal(object)
