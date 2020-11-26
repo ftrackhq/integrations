@@ -4,6 +4,7 @@
 import uuid
 import ftrack_api
 import logging
+import socket
 
 from ftrack_connect_pipeline.host import engine as host_engine
 from ftrack_connect_pipeline.host import validation
@@ -14,12 +15,13 @@ from functools import partial
 
 logger = logging.getLogger(__name__)
 
-def provide_host_information(hostid, definitions, event):
+def provide_host_information(hostid, definitions, host_name, event):
     '''return the current hostid'''
     logger.debug('providing host_id: {}'.format(hostid))
     context_id = utils.get_current_context()
     host_dict = {
         'host_id': hostid,
+        'host_name': host_name,
         'context_id': context_id,
         'definition': definitions
     }
@@ -45,6 +47,15 @@ class Host(object):
     def hostid(self):
         '''Return current hostid'''
         return self._hostid
+
+    @property
+    def host_name(self):
+        '''Return current host name'''
+        if not self.hostid:
+            return
+        host = self.hostid.split("-")[0]
+        host_name = '{}-{}'.format(host, socket.gethostname())
+        return host_name
 
     @property
     def session(self):
@@ -135,7 +146,8 @@ class Host(object):
         handle_event = partial(
             provide_host_information,
             self.hostid,
-            validated_result
+            validated_result,
+            self.host_name
         )
 
         self._event_manager.subscribe(
