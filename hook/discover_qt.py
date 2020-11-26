@@ -4,7 +4,6 @@
 import os
 import sys
 import ftrack_api
-import ftrack_connect.application
 
 import logging
 logger = logging.getLogger('ftrack_connect_pipeline_qt.discover')
