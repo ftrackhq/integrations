@@ -5,7 +5,7 @@ from ftrack_connect_pipeline.asset import FtrackAssetInfo, FtrackAssetBase
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
 from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
 
-import maya.cmds as cmd
+import maya.cmds as cmds
 
 
 class FtrackAssetNode(FtrackAssetBase):
@@ -49,11 +49,11 @@ class FtrackAssetNode(FtrackAssetBase):
         parameters
         '''
         param_dict = {}
-        all_attr = cmd.listAttr(maya_obj, c=True, se=True)
+        all_attr = cmds.listAttr(maya_obj, c=True, se=True)
         for attr in all_attr:
-            if cmd.attributeQuery(attr, node=maya_obj, msg=True):
+            if cmds.attributeQuery(attr, node=maya_obj, msg=True):
                 continue
-            attr_value = cmd.getAttr('{}.{}'.format(maya_obj, attr))
+            attr_value = cmds.getAttr('{}.{}'.format(maya_obj, attr))
             param_dict[attr] = attr_value
         return param_dict
 
@@ -110,7 +110,7 @@ class FtrackAssetNode(FtrackAssetBase):
 
         count = 0
         while 1:
-            if cmd.objExists(ftrack_object_name):
+            if cmds.objExists(ftrack_object_name):
                 ftrack_object_name = ftrack_object_name + str(count)
                 count = count + 1
             else:
@@ -122,21 +122,21 @@ class FtrackAssetNode(FtrackAssetBase):
         Parent the given *objects* under current ftrack_object
         '''
         for obj in objects:
-            if cmd.lockNode(obj, q=True)[0]:
-                cmd.lockNode(obj, l=False)
+            if cmds.lockNode(obj, q=True)[0]:
+                cmds.lockNode(obj, l=False)
 
-            if not cmd.attributeQuery('ftrack', n=obj, exists=True):
-                cmd.addAttr(obj, ln='ftrack', at='message')
+            if not cmds.attributeQuery('ftrack', n=obj, exists=True):
+                cmds.addAttr(obj, ln='ftrack', at='message')
 
-            if not cmd.listConnections('{}.ftrack'.format(obj)):
-                cmd.connectAttr(
+            if not cmds.listConnections('{}.ftrack'.format(obj)):
+                cmds.connectAttr(
                     '{}.{}'.format(self.ftrack_object, asset_const.ASSET_LINK),
                     '{}.ftrack'.format(obj)
                 )
 
     def get_load_mode_from_ftrack_object(self, obj):
         '''Return the load mode used to import the given *obj*.'''
-        load_mode = cmd.getAttr('{}.{}'.format(
+        load_mode = cmds.getAttr('{}.{}'.format(
             obj, asset_const.LOAD_MODE)
         )
         return load_mode
@@ -147,7 +147,7 @@ class FtrackAssetNode(FtrackAssetBase):
         '''
 
         name = self._get_unique_ftrack_object_name()
-        ftrack_object = cmd.createNode('ftrackAssetNode', name=name)
+        ftrack_object = cmds.createNode('ftrackAssetNode', name=name)
         self.logger.debug('Creating new ftrack object {}'.format(ftrack_object))
         return ftrack_object
 
@@ -157,26 +157,26 @@ class FtrackAssetNode(FtrackAssetBase):
         ftrack_object updated
         '''
         for k, v in self.asset_info.items():
-            cmd.setAttr('{}.{}'.format(ftrack_object, k), l=False)
+            cmds.setAttr('{}.{}'.format(ftrack_object, k), l=False)
             if k == asset_const.VERSION_NUMBER:
-                cmd.setAttr('{}.{}'.format(ftrack_object, k), v, l=True)
+                cmds.setAttr('{}.{}'.format(ftrack_object, k), v, l=True)
             elif k == asset_const.REFERENCE_OBJECT:
-                cmd.setAttr(
+                cmds.setAttr(
                     '{}.{}'.format(
                         ftrack_object, k
                     ), str(ftrack_object), type="string", l=True
                 )
             elif k == asset_const.VERSIONS or k == asset_const.SESSION:
-                cmd.setAttr('{}.{}'.format(
+                cmds.setAttr('{}.{}'.format(
                     ftrack_object, k), str(v), type="string", l=True
                 )
             elif k == asset_const.IS_LATEST_VERSION:
-                cmd.setAttr('{}.{}'.format(
+                cmds.setAttr('{}.{}'.format(
                     ftrack_object, k), bool(v), l=True
                 )
 
             else:
-                cmd.setAttr('{}.{}'.format(
+                cmds.setAttr('{}.{}'.format(
                     ftrack_object, k), v, type="string", l=True
                 )
 
