@@ -7,7 +7,7 @@ from ftrack_connect_pipeline_maya.plugin import (
     BaseMayaPlugin, BaseMayaPluginWidget
 )
 
-import maya.cmds as cmd
+import maya.cmds as cmds
 from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
 
@@ -34,7 +34,7 @@ class PublisherFinalizerMayaPlugin(plugin.PublisherFinalizerPlugin, BaseMayaPlug
         self.version_dependencies = []
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
         for dependency in ftrack_asset_nodes:
-            dependency_version_id = cmd.getAttr('{}.{}'.format(
+            dependency_version_id = cmds.getAttr('{}.{}'.format(
                 dependency, asset_const.VERSION_ID
             ))
             self.logger.debug(
@@ -43,9 +43,13 @@ class PublisherFinalizerMayaPlugin(plugin.PublisherFinalizerPlugin, BaseMayaPlug
                 )
             )
             if dependency_version_id:
-                dependency_version = self.session.get(
-                    'AssetVersion', dependency_version_id
-                )
+                
+                dependency_version = self.session.query(
+                    'select version from AssetVersion where id is "{}"'.format(
+                        dependency_version_id
+                    )
+                ).one()
+
                 if dependency_version not in self.version_dependencies:
                     self.version_dependencies.append(dependency_version)
 
