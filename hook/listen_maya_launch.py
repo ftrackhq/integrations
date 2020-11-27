@@ -41,11 +41,6 @@ def on_application_launch(session, event):
     entity = event['data']['context']['selection'][0]
     task = session.get('Context', entity['entityId'])
 
-    # # Discover plugins from definitions
-    definitions_plugin_hook = event['data']['options']['env'].get(
-        'FTRACK_DEFINITION_PLUGIN_PATH', 'NOTSET'
-    )
-    plugin_hook = os.path.join(definitions_plugin_hook, 'maya')
 
     from ftrack_connect_pipeline_maya import _version as integration_version
 
@@ -58,7 +53,6 @@ def on_application_launch(session, event):
                 'MAYA_SCRIPT_PATH': maya_script_path,
                 'MAYA_PLUG_IN_PATH.prepend': maya_plugins_path,
                 'FTRACK_CONTEXTID.set': task['id'],
-                'FTRACK_EVENT_PLUGIN_PATH.prependPath': plugin_hook,
                 'FS.set': task['parent']['custom_attributes'].get('fstart', '1.0'),
                 'FE.set': task['parent']['custom_attributes'].get('fend', '100.0')
             }
