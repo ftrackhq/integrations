@@ -25,12 +25,7 @@ def on_discover_pipeline(event):
         plugin_base_dir, 'dependencies'
     )
     sys.path.append(python_dependencies)
-    
-    # Discover plugins from definitions
-    definitions_plugin_hook = event['data']['options']['env'].get(
-        'FTRACK_DEFINITION_PLUGIN_PATH'
-    )
-    plugin_hook = os.path.join(definitions_plugin_hook, 'qt')
+
 
     # discover version
     from ftrack_connect_pipeline_qt import _version as integration_version 
@@ -40,8 +35,7 @@ def on_discover_pipeline(event):
             'name':'ftrack-connect-pipeline-qt',
             'version': integration_version.__version__,
             'env':{
-                'PYTHONPATH.prepend': python_dependencies,
-                'FTRACK_EVENT_PLUGIN_PATH': plugin_hook
+                'PYTHONPATH.prepend': python_dependencies
             }
         }
     }
