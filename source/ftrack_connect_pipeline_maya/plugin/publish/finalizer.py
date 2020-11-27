@@ -43,9 +43,13 @@ class PublisherFinalizerMayaPlugin(plugin.PublisherFinalizerPlugin, BaseMayaPlug
                 )
             )
             if dependency_version_id:
-                dependency_version = self.session.get(
-                    'AssetVersion', dependency_version_id
-                )
+                
+                dependency_version = self.session.query(
+                    'select version from AssetVersion where id is "{}"'.format(
+                        dependency_version_id
+                    )
+                ).one()
+
                 if dependency_version not in self.version_dependencies:
                     self.version_dependencies.append(dependency_version)
 
