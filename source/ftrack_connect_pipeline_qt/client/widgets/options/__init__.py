@@ -149,7 +149,9 @@ class BaseOptionsWidget(QtWidgets.QWidget):
             'asset_type', options.get('asset_type')
         )
 
-        self.context = session.get('Context', context_id)
+        self.context = session.query(
+            'select link, name , parent, parent.name from Context where id is "{}"'.format(context_id)
+        ).one()
 
         # Build widget
         self.pre_build()

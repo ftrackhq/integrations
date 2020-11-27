@@ -123,7 +123,13 @@ class PublishContextWidget(BaseOptionsWidget):
 
     def _get_statuses(self):
         '''Returns the status of the selected assetVersion'''
-        project = self.session.get('Context', self.context['link'][0]['id'])
+        project = self.session.query(
+            'select name , parent, parent.name from Context where id is "{}"'.format(
+                self.context['link'][0]['id']
+            )
+        ).one()
+
+
         schema = project['project_schema']
         statuses = schema.get_statuses('AssetVersion')
         return statuses
