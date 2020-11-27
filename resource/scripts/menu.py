@@ -17,15 +17,18 @@ logger = logging.getLogger('ftrack_connect_pipeline_nuke.scripts.userSetup')
 
 created_dialogs = dict()
 
-def get_ftrack_menu(menu_name = 'ftrack_pipeline'):
+def get_ftrack_menu(menu_name = 'ftrack', submenu_name = 'pipeline'):
     '''Get the current ftrack menu, create it if does not exists.'''
 
     nuke_menu = nuke.menu("Nuke")
-    ftrack_menu = nuke_menu.findItem('ftrack_pipeline')
+    ftrack_menu = nuke_menu.findItem(menu_name)
     if not ftrack_menu:
         ftrack_menu = nuke_menu.addMenu(menu_name)
+    ftrack_sub_menu = ftrack_menu.findItem(submenu_name)
+    if not ftrack_sub_menu:
+        ftrack_sub_menu = ftrack_menu.addMenu(submenu_name)
 
-    return ftrack_menu
+    return ftrack_sub_menu
 
 
 def initialise():
