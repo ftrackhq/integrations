@@ -2,7 +2,6 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import logging
-import functools
 
 import ftrack_api
 
@@ -10,25 +9,11 @@ from ftrack_connect_pipeline_3dsmax import usage, host as max_host
 from ftrack_connect_pipeline_qt import event
 from ftrack_connect_pipeline import constants
 
-import MaxPlus
-
+from pymxs import runtime as rt
+from ftrack_connect_pipeline_3dsmax import menu as ftrack_menu_module
+import uuid
 
 logger = logging.getLogger('ftrack_connect_pipeline_3dsmax.scripts.userSetup')
-
-created_dialogs = dict()
-
-
-def _open_dialog(dialog_class, event_manager):
-    '''Open *dialog_class* and create if not already existing.'''
-    dialog_name = dialog_class
-
-    if dialog_name not in created_dialogs:
-        main_window = MaxPlus.GetQMaxMainWindow()
-        ftrack_dialog = dialog_class
-        created_dialogs[dialog_name] = ftrack_dialog(
-            event_manager, parent=main_window
-        )
-    created_dialogs[dialog_name].show()
 
 def initialise():
 
@@ -38,7 +23,7 @@ def initialise():
     event_manager = event.QEventManager(
         session=session, mode=constants.LOCAL_EVENT_MODE
     )
-
+    
     max_host.MaxHost(event_manager)
 
     usage.send_event(
@@ -66,28 +51,77 @@ def initialise():
         (log_viewer.MaxLogViewerClient, 'LogViewer')
     )
 
-    menu_name = 'ftrack_pipeline'
+    menu_name = 'ftrack'
+    submenu_name = 'pipeline'
 
-    if MaxPlus.MenuManager.MenuExists(menu_name):
-        MaxPlus.MenuManager.UnregisterMenu(menu_name)
+    if rt.menuMan.findMenu(menu_name):
+        menu = rt.menuMan.findMenu(menu_name)
+        rt.menuMan.unRegisterMenu(menu)
 
-    ftrack_menu_builder = MaxPlus.MenuBuilder(menu_name)
+    main_menu_bar = rt.menuMan.getMainMenuBar()
+    ftrack_menu = rt.menuMan.createMenu(menu_name)
+    pipeline_menu = rt.menuMan.createMenu(submenu_name)
+
     # Register and hook the dialog in ftrack menu
+    i = 0
     for item in dialogs:
         if item == 'divider':
-            ftrack_menu_builder.AddSeparator()
+            pipeline_menu.addItem(rt.menuMan.createSeparatorItem(), -1)
             continue
 
         dialog_class, label = item
 
-        ftrack_menu_builder.AddItem(
-            MaxPlus.ActionFactory.Create(
-                category='ftrack',
-                name=label,
-                fxn=functools.partial(_open_dialog, dialog_class, event_manager)
+        storage_id = str(uuid.uuid4())
+        ftrack_menu_module.event_manager_storage[storage_id] = event_manager
+        ftrack_menu_module.dialog_class_storage[storage_id] = dialog_class
+
+        macro_name = label
+        category = "ftrack"
+
+        # The createActionItem expects a macro and not an script.
+        python_code = "\n".join(
+            [
+                "from ftrack_connect_pipeline_3dsmax.menu import OpenDialog",
+                "open_dialog_class = OpenDialog()",
+                "open_dialog_class.open_dialog('{}')".format(
+                    storage_id
+                )
+            ]
+        )
+        rt.execute(
+            """
+            macroScript {macro_name}
+            category: "{category}"
+            (
+                on execute do
+                (
+                    python.execute "{p_code}"
+                )
+            )
+        """.format(
+                macro_name=macro_name,
+                category=category,
+                p_code=python_code
             )
         )
-    ftrack_menu_builder.Create(MaxPlus.MenuManager.GetMainMenu())
+
+        pipeline_menu.addItem(
+            rt.menuMan.createActionItem(macro_name, category),
+            -1
+        )
+        i += 1
+
+    sub_menu_pipeline_item = rt.menuMan.createSubMenuItem(
+        submenu_name, pipeline_menu
+    )
+    sub_menu_pipeline_index = ftrack_menu.numItems() - 1
+    ftrack_menu.addItem(sub_menu_pipeline_item, sub_menu_pipeline_index)
+
+    sub_menu_ftrack_item = rt.menuMan.createSubMenuItem(menu_name, ftrack_menu)
+    sub_menu_ftrack_index = main_menu_bar.numItems() - 1
+    main_menu_bar.addItem(sub_menu_ftrack_item, sub_menu_ftrack_index)
+
+    rt.menuMan.updateMenuBar()
 
 
 initialise()
