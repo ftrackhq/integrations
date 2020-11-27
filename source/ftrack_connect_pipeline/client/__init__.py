@@ -35,6 +35,10 @@ class HostConnection(object):
         return self._raw_host_data['host_id']
 
     @property
+    def name(self):
+        return self._raw_host_data['host_name']
+
+    @property
     def host_definitions(self):
         return self._raw_host_data['host_id'].split("-")[0].split(".")
 
