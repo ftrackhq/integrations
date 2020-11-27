@@ -10,6 +10,11 @@ from ftrack_connect_pipeline_3dsmax import constants as max_constants
 class BaseMaxPlugin(plugin.BasePlugin):
     host = max_constants.HOST
 
+    def __init__(self, session):
+        super(BaseMaxPlugin, self).__init__(session)
+        import pymxs
+        self.pymxs = pymxs
+
     def _run(self, event):
         super_fn = super(BaseMaxPlugin, self)._run
         result = super_fn(event)
