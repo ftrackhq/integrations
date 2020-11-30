@@ -41,14 +41,17 @@ def on_application_launch(session, event):
     entity = event['data']['context']['selection'][0]
     task = session.get('Context', entity['entityId'])
 
-
-    from ftrack_connect_pipeline_maya import _version as integration_version
+    # Discover plugins from definitions
+    definitions_plugin_hook = os.getenv("FTRACK_DEFINITION_PLUGIN_PATH")
+    plugin_hook = os.path.join(definitions_plugin_hook, 'maya')
+    # from ftrack_connect_pipeline_maya import _version as integration_version
 
     data = {
         'integration': {
             "name": 'ftrack-connect-pipeline-maya',
-            'version': integration_version.__version__,
+            'version': '0.0.0',
             'env': {
+                'FTRACK_EVENT_PLUGIN_PATH.prepend': plugin_hook,
                 'PYTHONPATH.prepend': os.path.pathsep.join([python_dependencies, maya_script_path]),
                 'MAYA_SCRIPT_PATH': maya_script_path,
                 'MAYA_PLUG_IN_PATH.prepend': maya_plugins_path,
