@@ -34,8 +34,6 @@ def on_application_launch(session, event):
 
     sys.path.append(python_dependencies)
 
-    # logger.debug('Adding ftrackShotId')
-
     entity = event['data']['context']['selection'][0]
 
     task = session.get('Context', entity['entityId'])
