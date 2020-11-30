@@ -51,7 +51,7 @@ def on_application_launch(session, event):
 
     data = {
         'integration': {
-            "name": 'ftrack-connect-pipeline-maya',
+            "name": 'ftrack-connect-pipeline-nuke',
             'version': '0.0.0',
             'env': {
                 'FTRACK_EVENT_PLUGIN_PATH.prepend': plugin_hook,
