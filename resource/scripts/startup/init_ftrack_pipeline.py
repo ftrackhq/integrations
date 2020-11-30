@@ -5,7 +5,7 @@ import logging
 
 import ftrack_api
 
-from ftrack_connect_pipeline_3dsmax import usage, host as max_host
+from ftrack_connect_pipeline_3dsmax import host as max_host
 from ftrack_connect_pipeline_qt import event
 from ftrack_connect_pipeline import constants
 
@@ -25,10 +25,6 @@ def initialise():
     )
     
     max_host.MaxHost(event_manager)
-
-    usage.send_event(
-        'USED-FTRACK-CONNECT-PIPELINE-3DS-MAX'
-    )
 
     from ftrack_connect_pipeline_3dsmax.client import load
     from ftrack_connect_pipeline_3dsmax.client import publish
