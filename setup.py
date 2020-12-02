@@ -185,12 +185,12 @@ setup(
         'setuptools_scm',
     ],
     install_requires=[
-        'clique',
+        'clique==1.5.0',
         'appdirs == 1.4.0',
         'lucidity >= 1.5, < 2',
         'opentimelineio ==0.11',
         'qt.py >=1.0.0, < 2',
-        'future'
+        'ftrack-python-api'
     ],
     use_scm_version={
         'write_to': 'source/ftrack_connect_nuke_studio/_version.py',

@@ -16,13 +16,12 @@ def on_discover_nuke_studio_integration(session, event):
     sources = os.path.abspath(os.path.join(cwd, '..', 'dependencies'))
     ftrack_connect_nuke_studio_path = os.path.join(cwd, '..',  'resource')
     application_hooks_path = os.path.join(cwd, '..', 'application_hook')
-    sys.path.insert(0,sources)
+    sys.path.append(sources)
 
     from ftrack_connect_nuke_studio import __version__ as integration_version
     
     entity = event['data']['context']['selection'][0]
     project = session.get('Project', entity['entityId'])
-
 
     data = {
         'integration': {
@@ -30,7 +29,7 @@ def on_discover_nuke_studio_integration(session, event):
             'version': integration_version,
             'env': {
                 'PYTHONPATH.prepend': sources,
-                'FTRACK_EVENT_PLUGIN_PATH': application_hooks_path,
+                'FTRACK_EVENT_PLUGIN_PATH.prepend': application_hooks_path,
                 'HIERO_PLUGIN_PATH.set': ftrack_connect_nuke_studio_path,
                 'FTRACK_CONTEXTID.set': project['id'],
                 'QT_PREFERRED_BINDING.set':  os.pathsep.join(['PySide2', 'PySide']),
