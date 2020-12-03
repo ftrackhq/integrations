@@ -10,7 +10,14 @@ logger = logging.getLogger(__name__)
 
 
 def _validate_and_augment_schema(schema, definition ,type):
-    '''Validate all the given definitions with the given schema'''
+    '''
+    Filter the definitions in the given *data* by the given *host*
+
+    *data* : Dictionary of json definitions and schemas generated at
+    :func:`collect_definitions`
+    *host* : Type of definition host to be filtered by.
+    '''
+    #'''Validate all the given definitions with the given schema'''
     builder = pjo.ObjectBuilder(schema)
     ns = builder.build_classes(standardize_names=False)
     ObjectBuilder = getattr(ns, type.capitalize())

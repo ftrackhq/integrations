@@ -12,7 +12,10 @@ class FtrackAssetBase(object):
     '''Base FtrackAssetBase class.'''
 
     identity = None
+    '''Identifier of the base Node or object in the DCC applications '''
+
     default_component_name = 'main'
+    '''Name of the default component common in most of the published assets'''
 
     @property
     def component_name(self):
@@ -23,8 +26,11 @@ class FtrackAssetBase(object):
 
     @property
     def ftrack_versions(self):
-        '''Returns all the ftrack versions objects of the current asset_id in
-        self.asset_info['asset_id']'''
+        '''
+        Returns generator of all
+        :class:`ftrack_api.entity.asset_version.AssetVersion`
+        objects of the current asset_id
+        '''
         query = (
             'select is_latest_version, id, asset, components, components.name, '
             'components.id, version, asset , asset.name, asset.type.name from '
@@ -38,8 +44,8 @@ class FtrackAssetBase(object):
 
     @property
     def ftrack_version(self):
-        '''Returns the ftrack version object of the current version_id in
-        self.asset_info['varsion_id']'''
+        '''Returns the :class:`ftrack_api.entity.asset_version.AssetVersion`
+        object of the current version_id'''
         asset_version = self.session.query(
             'select version from AssetVersion where id is "{}"'.format(
                 self.asset_info[asset_const.VERSION_ID]
@@ -55,12 +61,18 @@ class FtrackAssetBase(object):
 
     @property
     def asset_info(self):
-        '''Returns the current instance of class :class:`ftrack_connect_pipeline.event.EventManager` FtrackAssetInfo'''
+        '''
+        Returns instance of
+        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
+        '''
         return self._asset_info
 
     @asset_info.setter
     def asset_info(self, value):
-        '''Sets the asset_info, *value* should be instance of FtrackAssetInfo'''
+        '''
+        Sets the self.asset_info,
+        *value* :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
+        '''
         if not isinstance(value, FtrackAssetInfo):
             try:
                 value = FtrackAssetInfo(value)
@@ -71,30 +83,33 @@ class FtrackAssetBase(object):
 
     @property
     def session(self):
-        '''Returns ftrack session'''
+        '''
+        Returns instance of :class:`ftrack_api.session.Session`
+        '''
         return self.event_manager.session
 
     @property
     def event_manager(self):
-        '''Returns event_manager'''
+        '''Returns instance of
+        :class:`~ftrack_connect_pipeline.event.EventManager`'''
         return self._event_manager
 
     @property
     def ftrack_object(self):
-        '''Returns the ftrack object'''
+        '''
+        Returns the current ftrack_object
+        '''
         return self._ftrack_object
 
     @ftrack_object.setter
     def ftrack_object(self, value):
-        '''Sets the ftrack object'''
+        '''Sets the current ftrack_object'''
         self._ftrack_object = value
 
     def __init__(self, event_manager):
         '''
-        Initialize FtrackAssetBase with *event_manager*.
-
-        *event_manager* instance of
-        :class:`ftrack_connect_pipeline.event.EventManager`
+        Initialize FtrackAssetBase with instance of
+        :class:`~ftrack_connect_pipeline.event.EventManager`
         '''
         super(FtrackAssetBase, self).__init__()
 
@@ -108,12 +123,14 @@ class FtrackAssetBase(object):
         self._ftrack_object = None
 
     def init_ftrack_object(self):
-        '''Set and Return the ftrack_object for this class.'''
+        '''
+        Sets and Returns the current :py:obj:`ftrack_object` for this class.
+        '''
         self.ftrack_object = None
         return self.ftrack_object
 
     def _get_unique_ftrack_object_name(self):
-        '''Return a unique scene name for the current asset_name'''
+        '''Returns a unique scene name for the current asset_name'''
         ftrack_object_name = asset_const.FTRACK_OBJECT_NAME.format(
             self.asset_info[asset_const.ASSET_NAME]
         )
@@ -123,6 +140,8 @@ class FtrackAssetBase(object):
         '''
         Updates the current asset_info with the asset_info returned from the
         given *new_version_id*.
+
+        *new_version_id* : Should be an AssetVersion id.
         '''
 
         asset_version = self.session.query(

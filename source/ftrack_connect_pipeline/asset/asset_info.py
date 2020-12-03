@@ -13,13 +13,16 @@ def generate_asset_info_dict_from_args(context, data, options, session):
     Returns a diccionary constructed from the needed values of the given
     *context*, *data* and *options*
 
-    *context* Context dictionary of the current asset. Should contain the keys
+    *context* : Context dictionary of the current asset. Should contain the keys
     asset_type, asset_name, asset_id, version_number, version_id, context_id.
-    *data* Data of the current operation or plugin. Should contain the
+
+    *data* : Data of the current operation or plugin. Should contain the
     component_path from the asset that we are working on.
-    *options* Options of the current widget or operation, should contain the
+
+    *options* : Options of the current widget or operation, should contain the
     load_mode that we want to/or had apply to the current asset.
-    *session* should be the :class:`ftrack_api.session.Session` instance
+
+    *session* : should be instance of :class:`ftrack_api.session.Session`
     to use for communication with the server.
     '''
     arguments_dict = {}
@@ -77,20 +80,24 @@ class FtrackAssetInfo(dict):
 
     @property
     def session(self):
-        '''Returns ftrack session'''
+        '''
+        Returns instance of :class:`ftrack_api.session.Session`
+        '''
         return self._session
 
     @property
     def is_deprecated(self):
         '''
-        Returns whether the current class is maded up from a legacy mapping type
+        Returns whether the current class is made up from a legacy mapping type
         of the asset_information.
         '''
         return self._is_deprecated_version
 
     def _conform_data(self, mapping):
-        '''Creates the FtrackAssetInfo object from the given dictionary on the
-        *mapping* argument'''
+        '''
+        Creates the FtrackAssetInfo object from the given dictionary on the
+        *mapping* argument
+        '''
         new_mapping = {}
         for k in constants.KEYS:
             v = mapping.get(k)
@@ -108,7 +115,7 @@ class FtrackAssetInfo(dict):
         '''
         Initialize the FtrackAssetInfo with the given *mapping*.
 
-        *mapping* Dictionary with the current asset information.
+        *mapping* Dictionary with the asset information.
         '''
         self.logger = logging.getLogger(
             '{0}.{1}'.format(__name__, self.__class__.__name__)
@@ -120,13 +127,21 @@ class FtrackAssetInfo(dict):
         super(FtrackAssetInfo, self).__init__(mapping, **kwargs)
 
     def encode_options(self, asset_info_options):
-        '''Encodes the json value from the given *asset_info_opitons*
-        to base64'''
+        '''
+        Encodes the json value from the given *asset_info_opitons*
+        to base64.
+
+        *asset_info_opitons* : Options used to load the asset in the scene.
+        '''
         return json.dumps(asset_info_options).encode('base64')
 
     def decode_options(self, asset_info_options):
-        '''Decodes the json value from the given *asset_info_opitons*
-        from base64'''
+        '''
+        Decodes the json value from the given *asset_info_opitons*
+        from base64.
+
+        *asset_info_opitons* : Options used to load the asset in the scene.
+        '''
         if not asset_info_options:
             self.logger.error("asset_info_options is empty")
         return json.loads(asset_info_options.decode('base64'))
@@ -170,7 +185,11 @@ class FtrackAssetInfo(dict):
     def get(self, k, default=None):
         '''
         If exists, returns the value of the given *k* otherwise returns
-        *default*
+        *default*.
+
+        *k* : Key of the current dictionary.
+
+        *default* : Default value of the given Key.
         '''
         value = super(FtrackAssetInfo, self).get(k, default)
         if k == constants.VERSIONS:
@@ -182,7 +201,11 @@ class FtrackAssetInfo(dict):
 
     def setdefault(self, k, default=None):
         '''
-        Sets the *default* value for the given *k*
+        Sets the *default* value for the given *k*.
+
+        *k* : Key of the current dictionary.
+
+        *default* : Default value of the given Key.
         '''
         if k == constants.SESSION:
             if not isinstance(default, ftrack_api.Session):
@@ -212,8 +235,13 @@ class FtrackAssetInfo(dict):
     @classmethod
     def from_ftrack_version(cls, ftrack_version, component_name):
         '''
-        Return an FtrackAssetInfo object generated from the given
-        *ftrack_version* and the given *component_name*
+        Returns an :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo` object
+        generated from the given *ftrack_version* and the given *component_name*
+
+        *ftrack_version* : :class:`ftrack_api.entity.asset_version.AssetVersion`
+
+        *component_name* : Component name
+
         '''
         asset_info_data = {}
         asset = ftrack_version['asset']
