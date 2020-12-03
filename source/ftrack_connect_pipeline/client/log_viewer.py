@@ -19,7 +19,7 @@ class LogViewerClient(client.Client):
         '''Initialise AssetManagerClient with *event_manager*
 
         *event_manager* should be the
-        :class:`ftrack_connect_pipeline.event.EventManager`instance to
+        :class:ftrack_connect_pipeline.event.EventManager instance to
         communicate to the event server.
         '''
         super(LogViewerClient, self).__init__(event_manager)

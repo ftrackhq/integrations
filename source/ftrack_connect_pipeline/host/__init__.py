@@ -63,10 +63,10 @@ class Host(object):
         return self._event_manager.session
 
     def __init__(self, event_manager):
-        '''Initialise Host Class with *event_manager* and *host*(optional)
+        '''Initialise Host Class with *event_manager* and *host* (optional)
 
         *event_manager* should be the
-        :class:`ftrack_connect_pipeline.event.EventManager`instance to
+        :class:ftrack_connect_pipeline.event.EventManager instance to
         communicate to the event server.
 
         *host* is a list of valid host definitions.(optional)'''

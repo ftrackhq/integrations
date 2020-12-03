@@ -58,7 +58,7 @@ class HostConnection(object):
         '''Initialise with *event_manager* , and *host_data*
 
         *event_manager* should be the
-        :class:`ftrack_connect_pipeline.event.EventManager`instance to
+        :class:ftrack_connect_pipeline.event.EventManager instance to
         communicate to the event server.
 
         *host_data* Diccionary containing the host information.
@@ -160,7 +160,7 @@ class Client(object):
         '''Initialise with *event_manager* , and optional *ui* List
 
         *event_manager* should be the
-        :class:`ftrack_connect_pipeline.event.EventManager`instance to
+        :class:ftrack_connect_pipeline.event.EventManager instance to
         communicate to the event server.
 
         *ui* List of valid ui compatibilities.

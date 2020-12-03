@@ -23,7 +23,8 @@ class FtrackAssetBase(object):
 
     @property
     def ftrack_versions(self):
-        '''Returns all the ftrack versions objects of the current asset_id'''
+        '''Returns all the ftrack versions objects of the current asset_id in
+        self.asset_info['asset_id']'''
         query = (
             'select is_latest_version, id, asset, components, components.name, '
             'components.id, version, asset , asset.name, asset.type.name from '
@@ -37,7 +38,8 @@ class FtrackAssetBase(object):
 
     @property
     def ftrack_version(self):
-        '''Returns the ftrack version object of the current version_id'''
+        '''Returns the ftrack version object of the current version_id in
+        self.asset_info['varsion_id']'''
         asset_version = self.session.query(
             'select version from AssetVersion where id is "{}"'.format(
                 self.asset_info[asset_const.VERSION_ID]
@@ -53,7 +55,7 @@ class FtrackAssetBase(object):
 
     @property
     def asset_info(self):
-        '''Returns the current instance of FtrackAssetInfo'''
+        '''Returns the current instance of class :class:`ftrack_connect_pipeline.event.EventManager` FtrackAssetInfo'''
         return self._asset_info
 
     @asset_info.setter

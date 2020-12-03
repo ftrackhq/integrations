@@ -25,7 +25,7 @@ class AssetManagerClient(client.Client):
         '''Initialise AssetManagerClient with *event_manager*
 
         *event_manager* should be the
-        :class:`ftrack_connect_pipeline.event.EventManager`instance to
+        :class:ftrack_connect_pipeline.event.EventManager instance to
         communicate to the event server.
         '''
         super(AssetManagerClient, self).__init__(event_manager)

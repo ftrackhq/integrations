@@ -120,12 +120,12 @@ class FtrackAssetInfo(dict):
         super(FtrackAssetInfo, self).__init__(mapping, **kwargs)
 
     def encode_options(self, asset_info_options):
-        '''Encodes the json value from the given *asset_info_opitons
+        '''Encodes the json value from the given *asset_info_opitons*
         to base64'''
         return json.dumps(asset_info_options).encode('base64')
 
     def decode_options(self, asset_info_options):
-        '''Decodes the json value from the given *asset_info_opitons
+        '''Decodes the json value from the given *asset_info_opitons*
         from base64'''
         if not asset_info_options:
             self.logger.error("asset_info_options is empty")
