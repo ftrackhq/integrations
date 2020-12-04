@@ -282,7 +282,7 @@ class Client(object):
 
     def run_definition(self, definition, engine_type):
         '''
-        Calls the :meth:`ftrack_connect_pipeline.client.HostConnection.run`
+        Calls the :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
         to run the entire given *definition* with the given *engine_type*.
 
         Callback received at :meth:`_run_callback`
@@ -293,7 +293,7 @@ class Client(object):
 
     def run_plugin(self, plugin_data, method, engine_type):
         '''
-        Calls the :meth:`ftrack_connect_pipeline.client.HostConnection.run`
+        Calls the :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
         to run one single plugin.
 
         Callback received at :meth:`_run_callback`
@@ -318,7 +318,7 @@ class Client(object):
         )
 
     def _run_callback(self, event):
-        '''Callback of the :meth:`ftrack_connect_pipeline.client.run_plugin'''
+        '''Callback of the :meth:`~ftrack_connect_pipeline.client.run_plugin'''
         self.logger.debug("_run_callback event: {}".format(event))
 
     def on_ready(self, callback, time_out=3):
@@ -388,7 +388,7 @@ class Client(object):
     def change_context(self, context_id):
         '''
         Assign the given *context_id* as the current :obj:`context` and to the
-        :attr:`ftrack_connect_pipeline.client.HostConnection.context`
+        :attr:`~ftrack_connect_pipeline.client.HostConnection.context`
         '''
         self.context = context_id
         self._host_connection.context = context_id

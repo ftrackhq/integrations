@@ -16,7 +16,14 @@ from functools import partial
 logger = logging.getLogger(__name__)
 
 def provide_host_information(hostid, definitions, host_name, event):
-    '''return the current hostid'''
+    '''
+    Returns dictionary with host id, host name, context id and definition from
+    the given *host_id*, *definitions* and *host_name*.
+
+    *host_id* : Host id
+    *definitions* : Dictionary with a valid definitions
+    *host_name* : Host name
+    '''
     logger.debug('providing host_id: {}'.format(hostid))
     context_id = utils.get_current_context()
     host_dict = {

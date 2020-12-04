@@ -14,21 +14,40 @@ from ftrack_connect_pipeline.asset import FtrackAssetBase
 
 class AssetManagerEngine(BaseEngine):
     '''
-    Base AssetManagerEngine class.
+    Base Asset Manager Engine class.
     '''
     ftrack_asset_class = FtrackAssetBase
+    '''Define the class to use for the ftrack node to track the loaded assets'''
     engine_type = 'asset_manager'
+    '''Engine type for this engine class'''
 
     def __init__(self, event_manager, host, hostid, asset_type=None):
-        '''Initialise AssetManagerEngine with *event_manager*, *host*, *hostid*
-        and *asset_type*'''
+        '''
+        Initialise HostConnection with instance of
+        :class:`~ftrack_connect_pipeline.event.EventManager` , and *host*,
+        *hostid* and *asset_type*
+
+        *host* : Host type.. (ex: python, maya, nuke....)
+
+        *hostid* : Host id.
+
+        *asset_type* : Default None. If engine is initialized to publish or load, the asset
+        type should be specified.
+        '''
+
         super(AssetManagerEngine, self).__init__(
             event_manager, host, hostid, asset_type=asset_type
         )
 
     def get_ftrack_asset_object(self, asset_info):
         '''
-        Returns the initialized ftrack_asset_class for the given *asset_info*
+        Initializes the :data:`ftrack_asset_class` with the given
+        *asset_info*
+
+        Returns the initialized :data:`ftrack_asset_class` Class.
+
+        *asset_info* : Should be instance of
+        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
         ftrack_asset_class = self.ftrack_asset_class(self.event_manager)
         ftrack_asset_class.asset_info = asset_info
@@ -38,8 +57,11 @@ class AssetManagerEngine(BaseEngine):
     def discover_assets(self, assets=None, options=None, plugin=None):
         '''
         Discover 10 assets from Ftrack with component name main.
-        Returns status and result
+        Returns :const:`~ftrack_connnect_pipeline.constants.status` and
+        :attr:`ftrack_asset_info_list` which is a list of
+        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
+
         start_time = time.time()
 
         component_name = 'main'
@@ -88,8 +110,10 @@ class AssetManagerEngine(BaseEngine):
 
     def remove_assets(self, assets, options=None, plugin=None):
         '''
-        Removes the given *assets*.
-        Returns status and result
+        Returns status dictionary and results dictionary keyed by the id for
+        executing the :meth:`remove_asset` for all the
+        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo` in the given
+        *assets* list.
         '''
         status = None
         result = None
@@ -118,8 +142,11 @@ class AssetManagerEngine(BaseEngine):
 
     def remove_asset(self, asset_info, options=None, plugin=None):
         '''
-        Removes the given *asset_info*.
-        Returns status and result
+        (Not implemented for python standalone mode)
+        Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
+        result of removing the given *asset_info*
+
+        *asset_info* : :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
 
         result = True
@@ -141,8 +168,10 @@ class AssetManagerEngine(BaseEngine):
 
     def select_assets(self, assets, options=None, plugin=None):
         '''
-        Selects the given *assets*.
-        Returns status and result
+        Returns status dictionary and results dictionary keyed by the id for
+        executing the :meth:`select_asset` for all the
+        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo` in the given
+        *assets* list.
         '''
         status = None
         result = None
@@ -178,7 +207,11 @@ class AssetManagerEngine(BaseEngine):
 
     def select_asset(self, asset_info, options=None, plugin=None):
         '''
-        Not Implemented.
+        (Not implemented for python standalone mode)
+        Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
+        result of selecting the given *asset_info*
+
+        *asset_info* : :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
         result = False
         message = "Can't select on standalone mode"
@@ -200,8 +233,11 @@ class AssetManagerEngine(BaseEngine):
 
     def update_assets(self, assets, options=None, plugin=None):
         '''
-        Updates the given *assets* using the criteria of the given *plugin*
-        Returns status and result
+        Returns status dictionary and results dictionary keyed by the id for
+        executing the :meth:`update_asset` using the criteria of the given
+        *plugin* for all the
+        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo` in the given
+        *assets* list.
         '''
         status = None
         result = None
@@ -229,8 +265,15 @@ class AssetManagerEngine(BaseEngine):
 
     def update_asset(self, asset_info, options=None, plugin=None):
         '''
-        Updates the given *asset_info* using the criteria of the given *plugin*
-        Returns status and result
+        Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
+        result of updating the given *asset_info* using the criteria of the
+        given *plugin*
+
+        *asset_info* : :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
+
+        *options* : Options to update the asset.
+
+        *plugin* : Plugin definition, a dictionary with the plugin information.
         '''
         start_time = time.time()
         status = constants.UNKNOWN_STATUS
@@ -298,9 +341,17 @@ class AssetManagerEngine(BaseEngine):
 
     def change_version(self, asset_info, options, plugin=None):
         '''
-        Changes the version of the given *asset_info* to the given
-        new_version_id in the *options* dictionary.
-        Returns status and result
+        Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
+        result of changing the version of the given *asset_info* to the new
+        version id passed in the given *options*
+
+        *asset_info* : :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
+
+        *options* : Options should contain the new_version_id key with the id
+        value
+
+        *plugin* : Default None. Plugin definition, a dictionary with the
+        plugin information.
         '''
         start_time = time.time()
         status = constants.UNKNOWN_STATUS
@@ -399,8 +450,14 @@ class AssetManagerEngine(BaseEngine):
 
     def run(self, data):
         '''
-        Override function run methods and plugins from the provided *data*
-        Return result
+        Override method of :meth:`~ftrack_connect_pipeline.host.engine
+        Executes the method defined in the given *data* method key or in case is
+        not given will execute the :meth:`_run_plugin` with the provided *data*
+        plugin key.
+        Returns the result of the executed method or plugin.
+
+        *data* : pipeline['data'] provided from the client host connection at
+        :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
         '''
 
         method = data.get('method', '')

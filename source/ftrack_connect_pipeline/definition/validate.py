@@ -11,13 +11,9 @@ logger = logging.getLogger(__name__)
 
 def _validate_and_augment_schema(schema, definition ,type):
     '''
-    Filter the definitions in the given *data* by the given *host*
-
-    *data* : Dictionary of json definitions and schemas generated at
-    :func:`collect_definitions`
-    *host* : Type of definition host to be filtered by.
+    Augments the given *definition* ot he given *type* with the
+    given *schema*
     '''
-    #'''Validate all the given definitions with the given schema'''
     builder = pjo.ObjectBuilder(schema)
     ns = builder.build_classes(standardize_names=False)
     ObjectBuilder = getattr(ns, type.capitalize())
@@ -27,6 +23,12 @@ def _validate_and_augment_schema(schema, definition ,type):
 
 
 def validate_schema(data):
+    '''
+    Validates and aguments the definitions and the schemas from the given *data*
+
+    *data* : Dictionary of json definitions and schemas generated at
+    :func:`collect_definitions`
+    '''
     copy_data = copy.deepcopy(data)
     # validate schema
     for schema in data['schema']:
@@ -54,6 +56,14 @@ def validate_schema(data):
 
 
 def validate_asset_types(data, session):
+    '''
+    Validates that the asset types definned on the package definitions in the
+    given *data* are valid asset types on ftrack.
+
+    *data* : Dictionary of json definitions and schemas generated at
+    :func:`collect_definitions`
+    *session* : instance of :class:`ftrack_api.session.Session`
+    '''
     # validate package asset types:
     copy_data = copy.deepcopy(data)
     valid_assets_types = [
@@ -74,6 +84,14 @@ def validate_asset_types(data, session):
 
 
 def validate_package_type(data):
+    '''
+    Validates that the loader and publisher definitions on the given *data*
+    match the asset types on the defined packages from the given *data*.
+
+    *data* : Dictionary of json definitions and schemas generated at
+    :func:`collect_definitions`
+    *session* : instance of :class:`ftrack_api.session.Session`
+    '''
     # validate package
     copy_data = copy.deepcopy(data)
     valid_packages = [str(package['name']) for package in data['package']]
@@ -94,6 +112,13 @@ def validate_package_type(data):
 
 
 def validate_definition_components(data):
+    '''
+    Validates that the loader and publisher definitions on the given *data*
+    match the components defined on the packages from the given *data*.
+
+    *data* : Dictionary of json definitions and schemas generated at
+    :func:`collect_definitions`
+    '''
     copy_data = copy.deepcopy(data)
     # validate package vs definitions components
     for package in data['package']:

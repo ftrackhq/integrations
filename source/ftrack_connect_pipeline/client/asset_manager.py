@@ -109,13 +109,13 @@ class AssetManagerClient(client.Client):
 
     def select_assets(self, asset_info_list):
         '''
-        Calls the :meth:`ftrack_connect_pipeline.client.HostConnection.run`
+        Calls the :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
         to run the method
-        :meth:`ftrack_connect_pipeline.host.engine.AssetManagerEngine.select_assets`
+        :meth:`~ftrack_connect_pipeline.host.engine.AssetManagerEngine.select_assets`
         To select the assets of the given *asset_info_list*
 
         *asset_info_list* : Should a list pf be instances of
-        :class:`ftrack_connect_pipeline.asset.FtrackAssetInfo`
+        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
         data = {
             'method': 'select_assets',
@@ -126,15 +126,15 @@ class AssetManagerClient(client.Client):
 
     def remove_assets(self, asset_info_list):
         '''
-        Calls the :meth:`ftrack_connect_pipeline.client.HostConnection.run`
+        Calls the :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
         to run the method
-        :meth:`ftrack_connect_pipeline.host.engine.AssetManagerEngine.remove_assets`
+        :meth:`~ftrack_connect_pipeline.host.engine.AssetManagerEngine.remove_assets`
         To remove the assets of the given *asset_info_list*.
 
         Callback received at :meth:`_remove_assets_callback`
 
         *asset_info_list* : Should a list pf be instances of
-        :class:`ftrack_connect_pipeline.asset.FtrackAssetInfo`
+        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
 
         data = {
@@ -148,22 +148,18 @@ class AssetManagerClient(client.Client):
 
     def update_assets(self, asset_info_list, plugin):
         '''
-        Calls the :meth:`ftrack_connect_pipeline.client.HostConnection.run`
+        Calls the :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
         to run the method
-        :meth:`ftrack_connect_pipeline.host.engine.AssetManagerEngine.update_assets`
+        :meth:`~ftrack_connect_pipeline.host.engine.AssetManagerEngine.update_assets`
         To update to the last version the assets of the given *asset_info_list*.
 
         Callback received at :meth:`_update_assets_callback`
 
         *asset_info_list* : Should a list pf be instances of
-        :class:`ftrack_connect_pipeline.asset.FtrackAssetInfo`
+        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
 
-        *plugin* : The plugin data of the plugin to run during the update_assets
+        *plugin* : The plugin definition of the plugin to run during the update_assets
         method
-        '''
-        '''
-        Updates the assets from the given *asset_info_list* using the given
-        *plugin*
         '''
         plugin_type = None
         if plugin:
