@@ -32,7 +32,7 @@ def get_log_directory():
     return log_directory
 
 
-def configure_logging(logger_name, level=None, format=None, extra_modules=None):
+def configure_logging(logger_name, level=logging.WARNING, format=None, extra_modules=None):
     '''Configure `loggerName` loggers with console and file handler.
 
     Optionally specify log *level* (default WARNING)
@@ -45,7 +45,6 @@ def configure_logging(logger_name, level=None, format=None, extra_modules=None):
 
     # Provide default values for level and format.
     format = format or '%(levelname)s - %(threadName)s - %(asctime)s - %(name)s - %(message)s'
-    level = getattr(logging, level, logging.INFO)
 
     log_directory = get_log_directory()
     logfile = os.path.join(
@@ -79,6 +78,7 @@ def configure_logging(logger_name, level=None, format=None, extra_modules=None):
                 'stream': 'ext://sys.stdout',
             },
             'file': {
+                'filters': ['filtered'],
                 'class': 'logging.handlers.RotatingFileHandler',
                 'level': 'DEBUG',
                 'formatter': 'file',
@@ -87,8 +87,8 @@ def configure_logging(logger_name, level=None, format=None, extra_modules=None):
                 'maxBytes': 10485760,
                 'backupCount': 5,
             },
-
         },
+        'filters': {'filtered': {'name': logger_name}},
         'formatters': {
             'file': {
                 'format': format
