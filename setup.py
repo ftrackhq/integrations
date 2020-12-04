@@ -13,9 +13,6 @@ import setuptools
 from pkg_resources import parse_version
 import pip
 
-if parse_version(pip.__version__) < parse_version('19.3.0'):
-    raise ValueError('Pip should be version 19.3.0 or higher')
-
 from pip._internal import main as pip_main
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -69,7 +66,7 @@ class BuildPlugin(setuptools.Command):
             os.path.join(STAGING_PATH, 'hook')
         )
 
-        pip_main.main(
+        pip_main(
             [
                 'install',
                 '.',
@@ -86,8 +83,6 @@ class BuildPlugin(setuptools.Command):
             'zip',
             STAGING_PATH
         )
-
-        print 'Result: ' + result_path
 
 
 # Custom commands.
