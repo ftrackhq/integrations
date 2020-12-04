@@ -21,7 +21,9 @@ def provide_host_information(hostid, definitions, host_name, event):
     the given *host_id*, *definitions* and *host_name*.
 
     *host_id* : Host id
+
     *definitions* : Dictionary with a valid definitions
+
     *host_name* : Host name
     '''
     logger.debug('providing host_id: {}'.format(hostid))
@@ -38,11 +40,13 @@ def provide_host_information(hostid, definitions, host_name, event):
 class Host(object):
 
     host = [constants.HOST]
+    '''Compatible Host types for this HOST.'''
     engines = {
         'asset_manager': host_engine.AssetManagerEngine,
         'loader': host_engine.LoaderEngine,
         'publisher': host_engine.PublisherEngine,
     }
+    '''Available engines for this host.'''
 
     def __repr__(self):
         return '<Host:{0}>'.format(self.hostid)
@@ -52,12 +56,12 @@ class Host(object):
 
     @property
     def hostid(self):
-        '''Return current hostid'''
+        '''Returns the current host id.'''
         return self._hostid
 
     @property
     def host_name(self):
-        '''Return current host name'''
+        '''Returns the current host name'''
         if not self.hostid:
             return
         host = self.hostid.split("-")[0]
@@ -66,17 +70,16 @@ class Host(object):
 
     @property
     def session(self):
-        '''Return session'''
+        '''
+        Returns instance of :class:`ftrack_api.session.Session`
+        '''
         return self._event_manager.session
 
     def __init__(self, event_manager):
-        '''Initialise Host Class with *event_manager* and *host* (optional)
-
-        *event_manager* should be the
-        :class:ftrack_connect_pipeline.event.EventManager instance to
-        communicate to the event server.
-
-        *host* is a list of valid host definitions.(optional)'''
+        '''
+        Initialise Host with instance of
+        :class:`~ftrack_connect_pipeline.event.EventManager`
+        '''
         super(Host, self).__init__()
 
         self.logger = logging.getLogger(
@@ -93,7 +96,12 @@ class Host(object):
 
     def run(self, event):
         '''
-        Run the *event* data in to the corresponding engine.
+        Runs the data with the defined engine type of the givent *event*
+
+        Returns result of the engine run.
+
+        *event* : Published from the client host connection at
+        :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
         '''
         data = event['data']['pipeline']['data']
         engine_type = event['data']['pipeline']['engine_type']
@@ -130,14 +138,30 @@ class Host(object):
 
     def get_asset_type_from_packages(self, packages, data_package):
         '''
-        Return the asset_type from the given *packages* and *data_packages*
+        Returns the asset type if the given *data_package* is in the given
+        *packages*
+
+        *packages* : Validatet packages
+
+        *data_package* : package got from the data in the :meth:`run`
         '''
         for package in packages:
             if package['name'] == data_package:
                 return package['asset_type']
 
     def on_register_definition(self, event):
-        '''Register definition coming from *event* and store them.'''
+        '''
+        Callback of the :meth:`register`
+        Validates the given *event* and subscribes to the
+        :class:`ftrack_api.event.base.Event` events with the topics
+        :const:`~ftrack_connnect_pipeline.constants.PIPELINE_DISCOVER_HOST`
+        and :const:`~ftrack_connnect_pipeline.constants.PIPELINE_HOST_RUN`
+
+        *event* : Should be a validated and complete definitions, schema and
+        packages dictionary coming from
+        :func:`ftrack_connect_pipeline_definition.resource.definitions.register.register_definitions`
+        '''
+
         raw_result = event['data']
 
         if not raw_result:
@@ -171,7 +195,14 @@ class Host(object):
         self.logger.info('host {} ready.'.format(self.hostid))
 
     def validate(self, data):
+        '''
+        Validates the given *data* against the correspondant plugin validator.
+        Returns a validated data.
 
+        *data* : Should be a validated and complete definitions, schema and
+        packages dictionary coming from
+        :func:`ftrack_connect_pipeline_definition.resource.definitions.register.register_definitions`
+        '''
         plugin_validator = validation.PluginDiscoverValidation(
             self.session, self.host
         )
@@ -191,7 +222,14 @@ class Host(object):
         return data
 
     def register(self):
-        '''register package'''
+        '''
+        Publishes the :class:`ftrack_api.event.base.Event` with the topic
+        :const:`~ftrack_connnect_pipeline.constants.PIPELINE_REGISTER_TOPIC`
+        with the first host in the list :obj:`host` and type definition as the
+        data.
+
+        Callback of the event points to :meth:`on_register_definition`
+        '''
 
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_REGISTER_TOPIC,
@@ -209,6 +247,10 @@ class Host(object):
         )
 
     def reset(self):
+        '''
+        Empty the variables :obj:`host`, :obj:`hostid` and :obj:`__registry`
+        '''
+        #TODO: this _host doesn't exists shoudl be removed
         self._host = []
         self._hostid = None
         self.__registry = {}
