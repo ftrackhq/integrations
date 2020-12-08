@@ -378,8 +378,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
     includes.extend([
         'atexit',  # Required for PySide
         # 'ftrack_connect.application',
-        'ftrack_api.resource_identifier_transformer.base',
-        'ftrack_api.structure.id',
+        # 'ftrack_api.resource_identifier_transformer.base',
+        # 'ftrack_api.structure.id',
         # 'ftrack_connect_rv',
         # 'ftrack_connect_cinema_4d',
         # 'ftrack_action_handler',
