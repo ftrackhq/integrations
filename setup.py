@@ -65,7 +65,7 @@ with open(os.path.join(
 connect_install_require = 'ftrack-connect == {0}'.format(ftrack_connect_version)
 
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/backlog/connect-2/story.zip'
+    'ftrack-connect @ git+https://bitbucket.org/ftrack/ftrack-connect/get/backlog/connect-2/story.zip'
     '#egg=ftrack-connect-{0}'
 ).format(ftrack_connect_version)
 
@@ -100,7 +100,7 @@ configuration = dict(
     ],
     install_requires=[
         # ftrack_python_legacy_api_install_require,
-        # connect_install_require,
+        connect_install_require,
         # connect_rv_dependency_install_require,
         # connect_cinema_4d_dependency_install_require,
         # connect_ftrack_location_compatibilty_install_require,
@@ -255,7 +255,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
 
     # Different modules are used on different platforms. Make sure to include
     # all found.
-    for dbmodule in ['dbhash', 'gdbm', 'dbm', 'dumbdbm', 'csv', 'sqlite3']:
+    for dbmodule in ['csv', 'sqlite3']:
         try:
             __import__(dbmodule)
         except ImportError:
@@ -315,12 +315,12 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             'data': {'Shortcut': shortcut_table}
         }
 
-        # Seperate ftrack connect versions to separate install directories
-        # it should be possible to pass this as an option with 'initial_target_dir'
-        # but I did not manage to get it to work.
-        sys.argv += ['--initial-target-dir',  r'[ProgramFilesFolder]\{0}-{1}'.format(
-                'ftrack-connect-package', VERSION)
-        ]
+        # # Seperate ftrack connect versions to separate install directories
+        # # it should be possible to pass this as an option with 'initial_target_dir'
+        # # but I did not manage to get it to work.
+        # sys.argv += ['--initial-target-dir',  r'[ProgramFilesFolder]\{0}-{1}'.format(
+        #         'ftrack-connect-package', VERSION)
+        # ]
 
     elif sys.platform == 'darwin':
         executables.append(
@@ -376,23 +376,22 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
     include_files.append((distutils_path, 'distutils'))
 
     includes.extend([
-        'ftrack',
         'atexit',  # Required for PySide
-        'ftrack_connect.application',
+        # 'ftrack_connect.application',
         'ftrack_api.resource_identifier_transformer.base',
         'ftrack_api.structure.id',
-        'ftrack_connect_rv',
-        'ftrack_connect_cinema_4d',
-        'ftrack_action_handler',
-        'ftrack_action_handler.action',
-        'ftrack_location_compatibility',
-        'boto',
-        'PySide.QtSvg',
-        'PySide.QtXml',
-        'packaging',
-        'packaging.version',
-        'packaging.specifiers',
-        'packaging.requirements',
+        # 'ftrack_connect_rv',
+        # 'ftrack_connect_cinema_4d',
+        # 'ftrack_action_handler',
+        # 'ftrack_action_handler.action',
+        # 'ftrack_location_compatibility',
+        # 'boto',
+        # 'PySide.QtSvg',
+        # 'PySide.QtXml',
+        # 'packaging',
+        # 'packaging.version',
+        # 'packaging.specifiers',
+        # 'packaging.requirements',
         'ssl',
         'xml.etree',
         'xml.etree.ElementTree',
@@ -403,8 +402,9 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
     ])
 
     configuration['options']['build_exe'] = {
-        'init_script': os.path.join(RESOURCE_PATH, 'frozen_bootstrap.py'),
+        # 'init_script': os.path.join(RESOURCE_PATH, 'frozen_bootstrap.py'),
         'includes': includes,
+        "include_msvcr": True,
         'excludes': [
             # The following don't actually exist, but are picked up by the
             # dependency walker somehow.
@@ -421,9 +421,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             # Exclude distutils from virtualenv due to entire package with
             # sub-modules not being copied to virtualenv.
             'distutils',
-            
-            # https://www.reddit.com/r/learnpython/comments/4rjkgj/no_file_named_sys_for_module_collectionssys/
-            'collections.abc'
+
         ],
         'include_files': include_files,
         'bin_includes': bin_includes,
