@@ -15,7 +15,7 @@ class MayaHost(Host):
     '''
     MayaHost class.
     '''
-    host = [qt_constants.HOST, maya_constants.HOST]
+    host_types = [qt_constants.HOST_TYPE, maya_constants.HOST_TYPE]
     #Define the Maya engines to be run during the run function
     engines = {
         'asset_manager': host_engine.MayaAssetManagerEngine,
