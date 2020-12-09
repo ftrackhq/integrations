@@ -24,7 +24,7 @@ class DefinitionSelector(QtWidgets.QWidget):
         self.schemas = None
         self.definition_filter = None
 
-        self.hosts = []
+        self.host_connections = []
         self.pre_build()
         self.build()
         self.post_build()
@@ -103,10 +103,10 @@ class DefinitionSelector(QtWidgets.QWidget):
 
         self.definition_changed.emit(self.schema, self.definition)
 
-    def add_hosts(self, hosts):
-        for host in hosts:
-            self.host_combobox.addItem(host.name, host)
-        if len(hosts) == 1:
+    def add_hosts(self, host_connections):
+        for host_connection in host_connections:
+            self.host_combobox.addItem(host_connection.name, host_connection)
+        if len(host_connections) == 1:
             self.host_combobox.setCurrentIndex(1)
 
     def set_definition_filter(self, filter):

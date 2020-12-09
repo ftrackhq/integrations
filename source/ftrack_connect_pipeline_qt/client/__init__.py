@@ -13,7 +13,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
     Base QT client widget class.
     '''
 
-    ui = [constants.UI, qt_constants.UI]
+    ui_types = [constants.UI_TYPE, qt_constants.UI_TYPE]
     # Text of the button to run the whole definition
     run_definition_button_text = 'Run'
 
@@ -25,7 +25,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.is_valid_asset_name = False
         self.widget_factory = factory.WidgetFactory(
             event_manager,
-            self.ui
+            self.ui_types
         )
 
         self.pre_build()
@@ -33,11 +33,11 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.post_build()
         self.add_hosts(self.discover_hosts())
 
-    def add_hosts(self, hosts):
-        for host in hosts:
-            if host in self.hosts:
+    def add_hosts(self, host_connections):
+        for host_connection in host_connections:
+            if host_connection in self.host_connections:
                 continue
-            self._host_list.append(host)
+            self._host_connections.append(host_connection)
 
     def _host_discovered(self, event):
         '''callback, adds new hosts connection from the given *event* to the
@@ -45,7 +45,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         super(QtClient, self)._host_discovered(event)
         if self.definition_filter:
             self.host_selector.set_definition_filter(self.definition_filter)
-        self.host_selector.add_hosts(self.hosts)
+        self.host_selector.add_hosts(self.host_connections)
 
 
     def pre_build(self):
