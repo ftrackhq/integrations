@@ -29,12 +29,6 @@ SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
-# DOWNLOAD_PLUGIN_PATH = os.path.join(
-#     BUILD_PATH, 'plugin-downloads-{0}'.format(
-#         datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S')
-#     )
-# )
-
 
 # Read version from source.
 with open(os.path.join(
@@ -45,28 +39,8 @@ with open(os.path.join(
     ).group(1)
 
 
-# external_connect_plugins = []
-# for plugin in (
-#     'ftrack-connect-maya-publish-{0}.zip'.format(ftrack_connect_maya_publish_version),
-#     'ftrack-connect-nuke-publish-{0}.zip'.format(ftrack_connect_nuke_publish_version),
-#     'ftrack-connect-nuke-studio-{0}.zip'.format(ftrack_connect_nuke_studio_version),
-#     'ftrack-connect-maya-{0}.zip'.format(ftrack_connect_maya_version),
-#     'ftrack-connect-nuke-{0}.zip'.format(ftrack_connect_nuke_version),
-#     'ftrack-connect-3dsmax-{0}.zip'.format(ftrack_connect_3dsmax_version),
-#     'ftrack-connect-hieroplayer-{0}.zip'.format(ftrack_connect_hieroplayer_version),
-#     'ftrack-connect-houdini-{0}.zip'.format(ftrack_connect_houdini_version)
-#
-# ):
-#     external_connect_plugins.append(
-#         (plugin, plugin.replace('.zip', ''))
-#     )
-
-
-connect_install_require = 'ftrack-connect == {0}'.format(ftrack_connect_version)
-
-connect_dependency_link = (
-    'ftrack-connect @ git+https://bitbucket.org/ftrack/ftrack-connect/get/backlog/connect-2/story.zip'
-    '#egg=ftrack-connect-{0}'
+connect_install_require = (
+    'ftrack-connect @ git+https://bitbucket.org/ftrack/ftrack-connect/get/backlog/connect-2/story.zip#egg=ftrack-connect-{0}'
 ).format(ftrack_connect_version)
 
 
@@ -99,90 +73,20 @@ configuration = dict(
         )
     ],
     install_requires=[
-        # ftrack_python_legacy_api_install_require,
         connect_install_require,
-        # connect_rv_dependency_install_require,
-        # connect_cinema_4d_dependency_install_require,
-        # connect_ftrack_location_compatibilty_install_require,
         'boto == 2.28.0'
     ],
-    dependency_links=[
-        connect_dependency_link,
-        ('https://bitbucket.org/ftrack/lowdown/get/0.1.0.zip'
-         '#egg=lowdown-0.1.0'),
-        # connect_rv_dependency_link,
-        # connect_cinema_4d_dependency_link,
-        # connect_ftrack_location_compatibilty_dependency_link
-    ],
-    options={}
+    options={},
+    python_requires=">=3, <4"
 )
 
 
 # Platform specific distributions.
 if sys.platform in ('darwin', 'win32', 'linux2'):
 
-    # Ensure cx_freeze available for import.
-
-    # Distribution(
-    #     dict(
-    #         setup_requires='cx-freeze == 4.3.3.ftrack',
-    #         dependency_links=[
-    #             'https://bitbucket.org/ftrack/cx-freeze/get/ftrack.zip'
-    #             '#egg=cx-freeze-4.3.3.ftrack'
-    #         ]
-    #     )
-    # )
     configuration['setup_requires'].append('cx_freeze')
 
     from cx_Freeze import setup, Executable, build
-
-    # class Build(build):
-    #     '''Custom build to pre-build resources.'''
-    #
-    #     def run(self):
-    #         '''Run build ensuring build_resources called first.'''
-    #         download_url = (
-    #             'https://s3-eu-west-1.amazonaws.com/ftrack-deployment/'
-    #             'ftrack-connect/plugins/'
-    #         )
-    #         import requests
-    #
-    #         #: TODO: Clean up the temporary download folder.
-    #         os.makedirs(DOWNLOAD_PLUGIN_PATH)
-    #
-    #         for plugin, target in external_connect_plugins:
-    #             url = download_url + plugin
-    #             temp_path = os.path.join(DOWNLOAD_PLUGIN_PATH, plugin)
-    #             logging.info(
-    #                 'Downloading url {0} to {1}'.format(
-    #                     url,
-    #                     temp_path
-    #                 )
-    #             )
-    #
-    #             response = requests.get(url)
-    #             response.raise_for_status()
-    #
-    #             if response.status_code != 200:
-    #                 raise ValueError(
-    #                     'Got status code not equal to 200: {0}'.format(
-    #                         response.status_code
-    #                     )
-    #                 )
-    #
-    #             with open(temp_path, 'wb') as package_file:
-    #                 package_file.write(response.content)
-    #
-    #             with zipfile.ZipFile(temp_path, 'r') as myzip:
-    #                 myzip.extractall(
-    #                     os.path.join(DOWNLOAD_PLUGIN_PATH, target)
-    #                 )
-    #
-    #         build.run(self)
-    #
-    # configuration['cmdclass'] = {
-    #     'build': Build
-    # }
 
     # Ensure ftrack-connect is
     # available for import and then discover ftrack-connect and
@@ -191,46 +95,14 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
     Distribution(dict(
         setup_requires=[
             connect_install_require,
-            # connect_rv_dependency_install_require,
-            # connect_cinema_4d_dependency_install_require,
-            # connect_ftrack_location_compatibilty_install_require
-        ],
-        dependency_links=[
-            connect_dependency_link,
-            # connect_rv_dependency_link,
-            # connect_cinema_4d_dependency_link,
-            # connect_ftrack_location_compatibilty_dependency_link
         ]
     ))
-    # connect_resource_hook = pkg_resources.resource_filename(
-    #     pkg_resources.Requirement.parse('ftrack-connect'),
-    #     'ftrack_connect_resource/hook'
-    # )
-    #
-    # ftrack_connect_rv_hook = pkg_resources.resource_filename(
-    #     pkg_resources.Requirement.parse('ftrack-connect-rv'),
-    #     'ftrack_connect_rv_resource/hook'
-    # )
-    #
-    # ftrack_connect_cinema_4d_hook = pkg_resources.resource_filename(
-    #     pkg_resources.Requirement.parse('ftrack-connect-cinema-4d'),
-    #     'ftrack_connect_cinema_4d/hook'
-    # )
-    #
-    # connect_ftrack_location_compatibilty_hook = pkg_resources.resource_filename(
-    #     pkg_resources.Requirement.parse('ftrack-location-compatibility'),
-    #     'ftrack_location_compatibility/hook'
-    # )
 
     # Add requests certificates to resource folder.
     import requests.certs
 
     include_files = [
-        # (connect_resource_hook, 'resource/hook'),
-        # (ftrack_connect_rv_hook, 'resource/hook'),
-        # (ftrack_connect_cinema_4d_hook, 'resource/hook'),
         (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'),
-        # (connect_ftrack_location_compatibilty_hook, 'resource/hook/ftrack_location_compatibility'),
         (requests.certs.where(), 'resource/cacert.pem'),
         (os.path.join(
             SOURCE_PATH, 'ftrack_connect_package', '_version.py'
@@ -238,16 +110,6 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'qt.conf'
     ]
 
-    # for _, plugin_directory in external_connect_plugins:
-    #     plugin_download_path = os.path.join(
-    #         DOWNLOAD_PLUGIN_PATH, plugin_directory
-    #     )
-    #     include_files.append(
-    #         (
-    #             os.path.relpath(plugin_download_path, ROOT_PATH),
-    #             'resource/connect-standard-plugins/' + plugin_directory
-    #         )
-    #     )
 
     executables = []
     bin_includes = []
@@ -315,13 +177,6 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             'data': {'Shortcut': shortcut_table}
         }
 
-        # # Seperate ftrack connect versions to separate install directories
-        # # it should be possible to pass this as an option with 'initial_target_dir'
-        # # but I did not manage to get it to work.
-        # sys.argv += ['--initial-target-dir',  r'[ProgramFilesFolder]\{0}-{1}'.format(
-        #         'ftrack-connect-package', VERSION)
-        # ]
-
     elif sys.platform == 'darwin':
         executables.append(
             Executable(
@@ -377,7 +232,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
 
     includes.extend([
         'atexit',  # Required for PySide
-        # 'ftrack_connect.application',
+        # 'ftrack_connect',
         # 'ftrack_api.resource_identifier_transformer.base',
         # 'ftrack_api.structure.id',
         # 'ftrack_connect_rv',
