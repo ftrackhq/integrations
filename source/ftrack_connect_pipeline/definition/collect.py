@@ -15,15 +15,15 @@ def resolve_schemas(data):
     return data
 
 
-def filter_definitions_by_host(data, host):
+def filter_definitions_by_host(data, host_type):
     copy_data = copy.deepcopy(data)
-    logger.info('filtering definition for host: {}'.format(host))
+    logger.info('filtering definition for host_type: {}'.format(host_type))
     for entry in ['loader', 'publisher', 'asset_manager']:
         for definition in data[entry]:
-            if str(definition.get('host')) != str(host):
+            if str(definition.get('host_type')) != str(host_type):
                 logger.warning(
-                    'Removing definition for host: {}'.format(
-                        definition.get('host')
+                    'Removing definition for host_type: {}'.format(
+                        definition.get('host_type')
                     )
                 )
                 copy_data[entry].remove(definition)
