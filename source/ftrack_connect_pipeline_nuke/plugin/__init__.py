@@ -9,7 +9,7 @@ from ftrack_connect_pipeline_nuke import constants as nuke_constants
 
 
 class BaseNukePlugin(plugin.BasePlugin):
-    host = nuke_constants.HOST
+    host_type = nuke_constants.HOST_TYPE
 
     def _run(self, event):
         super_fn = super(BaseNukePlugin, self)._run
@@ -24,7 +24,7 @@ class BaseNukePlugin(plugin.BasePlugin):
 
 
 class BaseNukePluginWidget(BaseNukePlugin, pluginWidget.BasePluginWidget):
-    ui = nuke_constants.UI
+    ui_type = nuke_constants.UI_TYPE
 
 
 from ftrack_connect_pipeline_nuke.plugin.load import *
