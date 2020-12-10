@@ -44,12 +44,12 @@ def on_application_launch(session, event):
     # Discover plugins from definitions
     definitions_plugin_hook = os.getenv("FTRACK_DEFINITION_PLUGIN_PATH")
     plugin_hook = os.path.join(definitions_plugin_hook, 'maya')
-    from ftrack_connect_pipeline_maya import _version as integration_version
+    # from ftrack_connect_pipeline_maya import _version as integration_version
 
     data = {
         'integration': {
             "name": 'ftrack-connect-pipeline-maya',
-            'version': integration_version,
+            'version': '0.0.0',
             'env': {
                 'FTRACK_EVENT_PLUGIN_PATH.prepend': plugin_hook,
                 'PYTHONPATH.prepend': os.path.pathsep.join([python_dependencies, maya_script_path]),
