@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class MaxHost(Host):
-    host = [qt_constants.HOST, max_constants.HOST]
+    host_types = [qt_constants.HOST_TYPE, max_constants.HOST_TYPE]
     # Define the Maya engines to be run during the run function
     engines = {
         'asset_manager': host_engine.MaxAssetManagerEngine,

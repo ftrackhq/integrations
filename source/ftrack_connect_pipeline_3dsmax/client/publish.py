@@ -10,7 +10,7 @@ import ftrack_connect_pipeline_3dsmax.constants as max_constants
 
 
 class MaxPublisherClient(QtPublisherClient):
-    ui = [constants.UI, qt_constants.UI, max_constants.UI]
+    ui_types = [constants.UI_TYPE, qt_constants.UI_TYPE, max_constants.UI_TYPE]
 
     '''Dockable maya load widget'''
     def __init__(self, event_manager, parent=None):
