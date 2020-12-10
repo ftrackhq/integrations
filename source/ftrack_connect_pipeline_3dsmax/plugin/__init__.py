@@ -9,7 +9,7 @@ from ftrack_connect_pipeline_3dsmax import constants as max_constants
 
 
 class BaseMaxPlugin(plugin.BasePlugin):
-    host = max_constants.HOST
+    host_type = max_constants.HOST_TYPE
 
     def _run(self, event):
         super_fn = super(BaseMaxPlugin, self)._run
@@ -19,7 +19,7 @@ class BaseMaxPlugin(plugin.BasePlugin):
 
 class BaseMaxPluginWidget(BaseMaxPlugin, pluginWidget.BasePluginWidget):
     type = 'widget'
-    ui = max_constants.UI
+    ui_type = max_constants.UI_TYPE
 
 
 from ftrack_connect_pipeline_3dsmax.plugin.load import *
