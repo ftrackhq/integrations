@@ -15,12 +15,12 @@ from functools import partial
 
 logger = logging.getLogger(__name__)
 
-def provide_host_information(hostid, definitions, host_name, event):
+def provide_host_information(host_id, definitions, host_name, event):
     '''return the current hostid'''
-    logger.debug('providing host_id: {}'.format(hostid))
+    logger.debug('providing host_id: {}'.format(host_id))
     context_id = utils.get_current_context()
     host_dict = {
-        'host_id': hostid,
+        'host_id': host_id,
         'host_name': host_name,
         'context_id': context_id,
         'definition': definitions
@@ -30,7 +30,7 @@ def provide_host_information(hostid, definitions, host_name, event):
 
 class Host(object):
 
-    host = [constants.HOST]
+    host_types = [constants.HOST_TYPE]
     engines = {
         'asset_manager': host_engine.AssetManagerEngine,
         'loader': host_engine.LoaderEngine,
@@ -38,23 +38,23 @@ class Host(object):
     }
 
     def __repr__(self):
-        return '<Host:{0}>'.format(self.hostid)
+        return '<Host:{0}>'.format(self.host_id)
 
     def __del__(self):
         self.logger.debug('Closing {}'.format(self))
 
     @property
-    def hostid(self):
+    def host_id(self):
         '''Return current hostid'''
-        return self._hostid
+        return self._host_id
 
     @property
     def host_name(self):
         '''Return current host name'''
-        if not self.hostid:
+        if not self.host_id:
             return
-        host = self.hostid.split("-")[0]
-        host_name = '{}-{}'.format(host, socket.gethostname())
+        host_types = self.host_id.split("-")[0]
+        host_name = '{}-{}'.format(host_types, socket.gethostname())
         return host_name
 
     @property
@@ -76,7 +76,7 @@ class Host(object):
             __name__ + '.' + self.__class__.__name__
         )
 
-        self._hostid = '{}-{}'.format('.'.join(self.host), uuid.uuid4().hex)
+        self._host_id = '{}-{}'.format('.'.join(self.host_types), uuid.uuid4().hex)
 
         self.logger.info(
             'initializing {}'.format(self)
@@ -109,7 +109,7 @@ class Host(object):
 
         Engine = self.engines.get(engine_type)
         engine_runner = Engine(
-            self._event_manager, self.host, self.hostid, asset_type
+            self._event_manager, self.host_types, self.host_id, asset_type
         )
 
         if package:
@@ -145,7 +145,7 @@ class Host(object):
 
         handle_event = partial(
             provide_host_information,
-            self.hostid,
+            self.host_id,
             validated_result,
             self.host_name
         )
@@ -157,16 +157,16 @@ class Host(object):
 
         self._event_manager.subscribe(
             '{} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_HOST_RUN, self.hostid
+                constants.PIPELINE_HOST_RUN, self.host_id
             ),
             self.run
         )
-        self.logger.info('host {} ready.'.format(self.hostid))
+        self.logger.info('host {} ready.'.format(self.host_id))
 
     def validate(self, data):
 
         plugin_validator = validation.PluginDiscoverValidation(
-            self.session, self.host
+            self.session, self.host_types
         )
 
         invalid_publishers_idxs = plugin_validator.validate_publishers_plugins(
@@ -191,7 +191,7 @@ class Host(object):
             data={
                 'pipeline': {
                     'type': 'definition',
-                    'host': self.host[-1],
+                    'host_type': self.host_types[-1],
                 }
             }
         )
@@ -202,8 +202,8 @@ class Host(object):
         )
 
     def reset(self):
-        self._host = []
-        self._hostid = None
+        self._host_type = []
+        self._host_id = None
         self.__registry = {}
 
 
