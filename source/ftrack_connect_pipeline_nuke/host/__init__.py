@@ -15,7 +15,7 @@ logger = logging.getLogger(
 
 
 class NukeHost(Host):
-    host = [qt_constants.HOST, nuke_constants.HOST]
+    host_types = [qt_constants.HOST_TYPE, nuke_constants.HOST_TYPE]
     # Define the Nuke engines to be run during the run function
     engines = {
         'asset_manager': host_engine.NukeAssetManagerEngine,

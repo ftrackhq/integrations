@@ -8,7 +8,7 @@ import ftrack_connect_pipeline_nuke.constants as nuke_constants
 
 
 class NukeAssetManagerClient(QtAssetManagerClient):
-    ui = [constants.UI, qt_constants.UI, nuke_constants.UI]
+    ui_types = [constants.UI_TYPE, qt_constants.UI_TYPE, nuke_constants.UI_TYPE]
 
     '''Dockable maya load widget'''
     def __init__(self, event_manager, parent=None):
