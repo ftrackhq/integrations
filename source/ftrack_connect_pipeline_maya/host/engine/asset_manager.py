@@ -16,11 +16,11 @@ class MayaAssetManagerEngine(AssetManagerEngine):
     ftrack_asset_class = FtrackAssetNode
     engine_type = 'asset_manager'
 
-    def __init__(self, event_manager, host, hostid, asset_type=None):
+    def __init__(self, event_manager, host_types, host_id, asset_type=None):
         '''Initialise AssetManagerEngine with *event_manager*, *host*, *hostid*
         and *asset_type*'''
         super(MayaAssetManagerEngine, self).__init__(
-            event_manager, host, hostid, asset_type=asset_type
+            event_manager, host_types, host_id, asset_type=asset_type
         )
 
     def discover_assets(self, assets=None, options=None, plugin=None):
