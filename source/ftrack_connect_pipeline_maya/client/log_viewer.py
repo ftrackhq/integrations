@@ -10,7 +10,7 @@ from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 
 
 class MayaLogViewerClient(MayaQWidgetDockableMixin, QtLogViewerClient):
-    ui = [constants.UI, qt_constants.UI, maya_constants.UI]
+    ui_types = [constants.UI_TYPE, qt_constants.UI_TYPE, maya_constants.UI_TYPE]
 
     '''Dockable maya load widget'''
     def __init__(self, event_manager, parent=None):
