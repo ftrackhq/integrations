@@ -39,7 +39,7 @@ class HostConnection(object):
         return self._raw_host_data['host_name']
 
     @property
-    def host_definitions(self):
+    def host_types(self):
         return self._raw_host_data['host_id'].split("-")[0].split(".")
 
     def __del__(self):
@@ -97,11 +97,11 @@ class Client(object):
     Base client class.
     '''
 
-    ui = [constants.UI]
+    ui_types = [constants.UI_TYPE]
     definition_filter = None
 
     def __repr__(self):
-        return '<Client:{0}>'.format(self.ui)
+        return '<Client:{0}>'.format(self.ui_types)
 
     def __del__(self):
         self.logger.debug('Closing {}'.format(self))
@@ -148,9 +148,9 @@ class Client(object):
         return self._engine_type
 
     @property
-    def hosts(self):
-        '''Return the current list of hosts'''
-        return self._host_list
+    def host_connections(self):
+        '''Return the current list of host_connections'''
+        return self._host_connections
 
     @property
     def logs(self):
@@ -169,7 +169,7 @@ class Client(object):
         self._current = {}
 
         self._context_id = utils.get_current_context()
-        self._host_list = []
+        self._host_connections = []
         self._connected = False
         self._host_connection = None
         self._logs = []
@@ -185,7 +185,7 @@ class Client(object):
         self.logger.info('Initialising {}'.format(self))
 
     def discover_hosts(self, time_out=3):
-        '''Returns a list of discovered hosts during the optional *time_out*'''
+        '''Returns a list of discovered host_connections during the optional *time_out*'''
         # discovery host loop and timeout.
         start_time = time.time()
         self.logger.info('time out set to {}:'.format(time_out))
@@ -196,7 +196,7 @@ class Client(object):
                 'Terminate with: Ctrl-C'
             )
 
-        while not self.hosts:
+        while not self.host_connections:
             delta_time = time.time() - start_time
 
             if time_out and delta_time >= time_out:
@@ -205,24 +205,24 @@ class Client(object):
 
             self._discover_hosts()
 
-        if self.__callback and self.hosts:
-            self.__callback(self.hosts)
+        if self.__callback and self.host_connections:
+            self.__callback(self.host_connections)
 
-        return self.hosts
+        return self.host_connections
 
     def _host_discovered(self, event):
-        '''callback, adds new hosts connection from the given *event*'''
+        '''callback, adds new host_connections connection from the given *event*'''
         if not event['data']:
             return
         host_connection = HostConnection(self._event_manager, event['data'])
-        if host_connection not in self.hosts:
-            self._host_list.append(host_connection)
+        if host_connection not in self.host_connections:
+            self._host_connections.append(host_connection)
 
         self._connected = True
 
     def _discover_hosts(self):
-        '''Event to discover new available hosts.'''
-        self._host_list = []
+        '''Event to discover new available host_connections.'''
+        self._host_connections = []
         discover_event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_DISCOVER_HOST
         )
@@ -326,7 +326,7 @@ class Client(object):
         '''Subscribe to PIPELINE_CLIENT_NOTIFICATION topic to receive client
         notifications from the host'''
         self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.hostid={}'.format(
+            'topic={} and data.pipeline.host_id={}'.format(
                 constants.PIPELINE_CLIENT_NOTIFICATION,
                 self.host_connection.id
             ),

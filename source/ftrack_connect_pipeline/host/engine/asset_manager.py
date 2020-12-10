@@ -19,11 +19,11 @@ class AssetManagerEngine(BaseEngine):
     ftrack_asset_class = FtrackAssetBase
     engine_type = 'asset_manager'
 
-    def __init__(self, event_manager, host, hostid, asset_type=None):
+    def __init__(self, event_manager, host_types, host_id, asset_type=None):
         '''Initialise AssetManagerEngine with *event_manager*, *host*, *hostid*
         and *asset_type*'''
         super(AssetManagerEngine, self).__init__(
-            event_manager, host, hostid, asset_type=asset_type
+            event_manager, host_types, host_id, asset_type=asset_type
         )
 
     def get_ftrack_asset_object(self, asset_info):
