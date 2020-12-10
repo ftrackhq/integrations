@@ -2,10 +2,14 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 class LogItem(object):
-    '''Represents a Logging Item'''
+    '''Represents a Logging Item Base Class'''
 
     def __init__(self, log_result):
-        '''LogItem initialization'''
+        '''
+        Initialise LogItem with *log_result*
+
+        *log_result*: Dicctionary with log information.
+        '''
 
         self.status = log_result.get('status')
         self.widget_ref = log_result.get('widget_ref')

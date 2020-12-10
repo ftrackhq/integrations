@@ -11,6 +11,13 @@ logger = logging.getLogger(__name__)
 
 
 def get_schema(definition_type, schemas):
+    '''
+    Returns the schema in the given *schemas* for the given *definition_type*
+
+    *definition_type* : Type of the definition. (asset_manager, publisher...)
+
+    *schemas* : List of schemas.
+    '''
     for schema in schemas:
         if definition_type == schema['title'].lower():
             return schema
@@ -18,20 +25,28 @@ def get_schema(definition_type, schemas):
 
 
 def validate_schema(schemas, definition):
+    '''
+    Validates the schema of the given *definition* from the given *schemas*
+    using the _validate_jsonschema function of the jsonschema.validate library.
+
+    *schemas* : List of schemas.
+
+    *definition* : Definition to be validated against the schema.
+    '''
     schema = get_schema(definition['type'], schemas)
     _validate_jsonschema(definition, schema)
 
 
 class PluginDiscoverValidation(object):
-    '''Plugin Discover base class'''
+    '''Plugin discover validation base class'''
 
     def __init__(self, session, host):
-        '''Initialise PluginDiscoverValidation with *session*, *host*.
+        '''
 
-        *session* should be the :class:`ftrack_api.session.Session` instance
-        to use for communication with the server.
+        Initialise PluginDiscoverValidation with instance of
+        :class:`ftrack_api.session.Session` and *host_types*.
 
-        *host* is a list of valid host definitions.
+        *host_types* : List of compatible host types. (maya, python, nuke....)
 
         '''
         super(PluginDiscoverValidation, self).__init__()
@@ -44,6 +59,17 @@ class PluginDiscoverValidation(object):
         self.host = host
 
     def validate_publishers_plugins(self, publishers):
+        '''
+        Validates all the definitions in th given *publishers* definitions
+        calling the :meth:`validate_context_plugins`,
+        :meth:`validate_components_plugins`,
+        :meth:`vaildate_finalizers_plugins`.
+
+        Returns the invalid publisher indices.
+
+        *publishers* : List of publisher definitions.
+
+        '''
         schema_type = 'publisher'
         idxs_to_pop = []
         for definition in publishers:
@@ -80,6 +106,17 @@ class PluginDiscoverValidation(object):
         return idxs_to_pop or None
 
     def validate_loaders_plugins(self, loaders):
+        '''
+        Validates all the definitions in th given *loaders* definitions
+        calling the :meth:`validate_context_plugins`,
+        :meth:`validate_components_plugins`,
+        :meth:`vaildate_finalizers_plugins`.
+
+        Returns the invalid loader indices.
+
+        *loaders* : List of loader definitions.
+
+        '''
         schema_type = 'loader'
         idxs_to_pop = []
         for definition in loaders:
@@ -118,6 +155,18 @@ class PluginDiscoverValidation(object):
     def vaildate_contexts_plugins(
             self, context_stage, definition_name, schema_type
     ):
+        '''
+        Validates plugins in the given *context_stage* running the
+        :meth:`_discover_plugin`
+
+        *context_stage* : Dictionary with the plugins definition of the context
+        stage.
+
+        *definition_name* : Name of the current definition.
+
+        *schema_type* : Schema type of the current definition.
+
+        '''
         is_valid = True
         stage_name = context_stage['name']
         plugin_type = '{}.{}'.format(schema_type, stage_name)
@@ -137,6 +186,18 @@ class PluginDiscoverValidation(object):
     def validate_components_plugins(
             self, components_list, definition_name, schema_type
     ):
+        '''
+        Validates all the plugins in all the stages for the given
+        *components_list* running the :meth:`_discover_plugin`
+
+        *components_list* : Dictionary with the stages and plugins definition
+        of all the components.
+
+        *definition_name* : Name of the current definition.
+
+        *schema_type* : Schema type of the current definition.
+
+        '''
         # components plugins
         is_valid = True
         for component in components_list:
@@ -160,6 +221,18 @@ class PluginDiscoverValidation(object):
     def vaildate_finalizers_plugins(
             self, finalizer_stage, definition_name, schema_type
     ):
+        '''
+        Validates plugins in the given *finalizer_stage* running the
+        :meth:`_discover_plugin`
+
+        *finalizer_stage* : Dictionary with the plugins definition of the
+        finalizer stage.
+
+        *definition_name* : Name of the current definition.
+
+        *schema_type* : Schema type of the current definition.
+
+        '''
         is_valid = True
         stage_name = finalizer_stage['name']
         plugin_type = '{}.{}'.format(schema_type, stage_name)
@@ -177,7 +250,17 @@ class PluginDiscoverValidation(object):
         return is_valid
 
     def _discover_plugin(self, plugin, plugin_type):
-        '''Checks if the *plugin* of type *plugin_type* for the current host
+        '''
+        Publish an event with the topic
+        :py:const:`~ftrack_connect_pipeline.constants.PIPELINE_DISCOVER_PLUGIN_TOPIC`
+        with the given *plugin* name and *plugin_type* as data to check that the
+        pluging can be discovered with no issues.
+
+        Returns the result of the event.
+
+        *plugin* : Plugin definition, a dictionary with the plugin information.
+
+        *plugin_type* : Type of plugin
         '''
         plugin_name = plugin['plugin']
         plugin_result = {}

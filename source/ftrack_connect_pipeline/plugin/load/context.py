@@ -6,21 +6,17 @@ from ftrack_connect_pipeline.plugin import base
 
 
 class LoaderContextPlugin(base.BaseContextPlugin):
-    ''' Class representing a Context Plugin
-    .. note::
-
-        _required_output is a dictionary containing the 'context_id',
-        'asset_name', 'comment' and 'status_id' of the current asset
+    '''
+    Base Loader Context Plugin Class inherits from
+    :class:`~ftrack_connect_pipeline.plugin.base.BaseContextPlugin`
     '''
     return_type = dict
+    '''Required return type'''
     plugin_type = constants.PLUGIN_LOADER_CONTEXT_TYPE
+    '''Type of the plugin'''
     _required_output = {'context_id': None, 'asset_name': None,
                         'comment': None, 'status_id': None}
+    '''Required return output'''
 
     def __init__(self, session):
-        '''Initialise ContextPlugin with *session*
-
-        *session* should be the :class:`ftrack_api.session.Session` instance
-        to use for communication with the server.
-        '''
         super(LoaderContextPlugin, self).__init__(session)
