@@ -18,7 +18,9 @@ def get_log_directory():
     '''
 
     user_data_dir = appdirs.user_data_dir('ftrack-connect', 'ftrack')
-    log_directory = os.path.join(user_data_dir, 'log')
+    log_directory = os.path.join(user_data_dir, 'log').encode('utf8')
+
+
 
     if not os.path.exists(log_directory):
         try:
@@ -32,7 +34,7 @@ def get_log_directory():
     return log_directory
 
 
-def configure_logging(logger_name, level=logging.WARNING, format=None, extra_modules=None):
+def configure_logging(logger_name, level=None, format=None, extra_modules=None):
     '''Configure `loggerName` loggers with console and file handler.
 
     Optionally specify log *level* (default WARNING)
@@ -49,7 +51,7 @@ def configure_logging(logger_name, level=logging.WARNING, format=None, extra_mod
     log_directory = get_log_directory()
     logfile = os.path.join(
         log_directory, '{0}.log'.format(logger_name)
-    )
+    ).encode('utf8')
 
     # Sanitise the variable, checking the type.
     if not isinstance(extra_modules, (list, tuple, type(None))):
@@ -73,12 +75,11 @@ def configure_logging(logger_name, level=logging.WARNING, format=None, extra_mod
         'handlers': {
             'console': {
                 'class': 'logging.StreamHandler',
-                'level': level,
+                'level': logging._levelNames[level],
                 'formatter': 'file',
                 'stream': 'ext://sys.stdout',
             },
             'file': {
-                'filters': ['filtered'],
                 'class': 'logging.handlers.RotatingFileHandler',
                 'level': 'DEBUG',
                 'formatter': 'file',
@@ -88,7 +89,6 @@ def configure_logging(logger_name, level=logging.WARNING, format=None, extra_mod
                 'backupCount': 5,
             },
         },
-        'filters': {'filtered': {'name': logger_name}},
         'formatters': {
             'file': {
                 'format': format
@@ -103,7 +103,7 @@ def configure_logging(logger_name, level=logging.WARNING, format=None, extra_mod
     }
 
     for module in modules:
-        current_level = level
+        current_level = logging._levelNames[level]
         logging_settings['loggers'].setdefault(
             module, {'level': current_level}
         )
