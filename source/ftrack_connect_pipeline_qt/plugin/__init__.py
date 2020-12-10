@@ -10,7 +10,7 @@ from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 class BasePluginWidget(plugin.BasePlugin):
     type = 'widget'
     return_type = BaseOptionsWidget
-    ui = constants.UI
+    ui_type = constants.UI_TYPE
     widget = None
 
     def _base_topic(self, topic):
@@ -25,22 +25,22 @@ class BasePluginWidget(plugin.BasePlugin):
         information is missed.
         '''
         required = [
-            self.host,
+            self.host_type,
             self.type,
             self.plugin_type,
             self.plugin_name,
-            self.ui
+            self.ui_type
         ]
 
         if not all(required):
             raise exception.PluginError('Some required fields are missing')
 
         topic = (
-            'topic={} and data.pipeline.host={} and data.pipeline.ui={} '
+            'topic={} and data.pipeline.host_type={} and data.pipeline.ui_type={} '
             'and data.pipeline.type={} and data.pipeline.plugin_type={} '
             'and data.pipeline.plugin_name={}'
         ).format(
-            topic, self.host, self.ui, self.type,
+            topic, self.host_type, self.ui_type, self.type,
             self.plugin_type, self.plugin_name
         )
         return topic
