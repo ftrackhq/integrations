@@ -2,7 +2,6 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import nuke
-
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_nuke import constants as nuke_constants
