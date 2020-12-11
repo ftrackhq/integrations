@@ -16,8 +16,11 @@ def get_log_directory():
 
     Raise if the directory can not be created.
     '''
+
     user_data_dir = appdirs.user_data_dir('ftrack-connect', 'ftrack')
     log_directory = os.path.join(user_data_dir, 'log').encode('utf8')
+
+
 
     if not os.path.exists(log_directory):
         try:
@@ -86,7 +89,6 @@ def configure_logging(logger_name, level=None, format=None, extra_modules=None):
                 'maxBytes': 10485760,
                 'backupCount': 5,
             },
-
         },
         'formatters': {
             'file': {
