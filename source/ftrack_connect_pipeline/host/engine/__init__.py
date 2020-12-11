@@ -22,24 +22,24 @@ class BaseEngine(object):
     engine_type='base'
 
     @property
-    def hostid(self):
+    def host_id(self):
         '''Return the current hostid.'''
-        return self._hostid
+        return self._host_id
 
     @property
-    def host(self):
+    def host_types(self):
         '''Return the current host type.'''
-        return self._host
+        return self._host_types
 
-    def __init__(self, event_manager, host, hostid, asset_type):
+    def __init__(self, event_manager, host_types, host_id, asset_type):
         '''Initialise BaseEngine with *event_manager*, *host*, *hostid* and
         *asset_type*'''
         super(BaseEngine, self).__init__()
 
         self.asset_type = asset_type
         self.session = event_manager.session
-        self._host = host
-        self._hostid = hostid
+        self._host_types = host_types
+        self._host_id = host_id
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -48,7 +48,7 @@ class BaseEngine(object):
         self.event_manager = event_manager
 
     def run_event(
-            self, plugin_name, plugin_type, host_definition, data, options,
+            self, plugin_name, plugin_type, host_type, data, options,
             context, method
     ):
         return ftrack_api.event.base.Event(
@@ -59,7 +59,7 @@ class BaseEngine(object):
                             'plugin_type': plugin_type,
                             'method': method,
                             'type': 'plugin',
-                            'host': host_definition
+                            'host_type': host_type
                         },
                         'settings':
                             {
@@ -93,9 +93,9 @@ class BaseEngine(object):
         result_data = copy.deepcopy(start_data)
         result_data['status'] = constants.UNKNOWN_STATUS
 
-        for host_definition in reversed(self._host):
+        for host_type in reversed(self._host_types):
             event = self.run_event(
-                plugin_name, plugin_type, host_definition, data, options,
+                plugin_name, plugin_type, host_type, data, options,
                 context, method
             )
 
@@ -115,7 +115,7 @@ class BaseEngine(object):
         '''Publish an event to notify client with *data*, plugin_name from
         *plugin*, *status* and *message*'''
 
-        result_data['hostid'] = self.hostid
+        result_data['host_id'] = self.host_id
         if plugin:
             result_data['widget_ref'] = plugin.get('widget_ref')
         else:
