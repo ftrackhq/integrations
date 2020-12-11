@@ -64,7 +64,6 @@ class BaseCollectorWidget(BaseOptionsWidget):
         ''' Callback funtion called by the _set_internal_run_result function of
         the BaseOptionsWidget
         '''
-        self._collected_objects = result
         self.list_widget.clear()
         for obj in result:
             self.add_object(obj)
@@ -76,7 +75,6 @@ class BaseCollectorWidget(BaseOptionsWidget):
         for obj in result:
             if obj in current_objects:
                 continue
-            self._collected_objects.append(obj)
             self.add_object(obj)
 
     def on_select_callback(self, result):
@@ -87,7 +85,10 @@ class BaseCollectorWidget(BaseOptionsWidget):
     def add_object(self, obj):
         item = QtWidgets.QListWidgetItem(obj)
         self.list_widget.addItem(item)
-        self._options['collected_objects'].append(item.text())
+        if item.text() not in self.collected_objects:
+            self._collected_objects.append(item.text())
+        if item.text() not in self._options['collected_objects']:
+            self._options['collected_objects'].append(item.text())
     def get_current_objects(self):
         current_objects = []
         for idx in range(0, self.list_widget.count()):
