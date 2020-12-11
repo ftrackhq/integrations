@@ -4,7 +4,7 @@
 import os
 import logging
 import re
-from ftrack_connect_pipeline_maya import usage, host as maya_host
+from ftrack_connect_pipeline_maya import host as maya_host
 from ftrack_connect_pipeline_qt import event
 from ftrack_connect_pipeline import constants
 
@@ -80,10 +80,6 @@ def initialise():
     )
 
     maya_host.MayaHost(event_manager)
-
-    usage.send_event(
-        'USED-FTRACK-CONNECT-PIPELINE-MAYA'
-    )
 
     cmds.loadPlugin('ftrackMayaPlugin.py', quiet=True)
 
