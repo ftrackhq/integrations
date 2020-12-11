@@ -94,7 +94,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
                         result = method_result.get(method_result.keys()[0])
                     bool_status = constants.status_bool_mapping[status]
                     stage_status.append(bool_status)
-                    if result and isinstance(result, list):
+                    if isinstance(result, list):
                         stages_result.extend(result)
                     else:
                         stages_result.append(result)
