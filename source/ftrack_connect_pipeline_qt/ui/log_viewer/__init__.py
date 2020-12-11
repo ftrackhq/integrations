@@ -144,7 +144,7 @@ class LogViewerDetailWidget(QtWidgets.QDockWidget):
 
     template = """
     <div> <b>Status: </b>{status} </div> 
-    <div> <b>Hostid: </b>{hostid} </div> 
+    <div> <b>Host_id: </b>{host_id} </div> 
     <div> <b>Widget_ref: </b>{widget_ref} </div> 
     <div> <b>Execution_time: </b>{execution_time} sec.</div> 
     <div> <b>Plugin_name: </b>{plugin_name} </div> 
@@ -193,7 +193,7 @@ class LogViewerDetailWidget(QtWidgets.QDockWidget):
     def set_data(self, data):
         formated_text = self.template.format(
             status=data.status,
-            hostid=data.hostid,
+            host_id=data.host_id,
             widget_ref=data.widget_ref,
             execution_time=data.execution_time,
             plugin_name=data.plugin_name,

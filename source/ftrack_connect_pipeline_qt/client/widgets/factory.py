@@ -25,8 +25,8 @@ class WidgetFactory(QtWidgets.QWidget):
     widget_asset_updated = QtCore.Signal(object, object, object)
     widget_run_plugin = QtCore.Signal(object, object)
 
-    host_definitions = None
-    ui = None
+    host_types = None
+    ui_types = None
 
     @property
     def widgets(self):
@@ -38,7 +38,7 @@ class WidgetFactory(QtWidgets.QWidget):
         '''Return registered plugin's widgets.'''
         return self._type_widgets_ref
 
-    def __init__(self, event_manager, ui):
+    def __init__(self, event_manager, ui_types):
         '''Initialise WidgetFactory with *event_manager*, *ui*
 
         *event_manager* should be the
@@ -55,7 +55,7 @@ class WidgetFactory(QtWidgets.QWidget):
         )
         self.session = event_manager.session
         self._event_manager = event_manager
-        self.ui = ui
+        self.ui_types = ui_types
         self._widgets_ref = {}
         self._type_widgets_ref = {}
         self.context = {}
@@ -74,12 +74,12 @@ class WidgetFactory(QtWidgets.QWidget):
         self.schema_name_mapping = {
             'components': component.ComponentsArray,
             '_config': hidden.HiddenObject,
-            'ui': hidden.HiddenString,
+            'ui_type': hidden.HiddenString,
             'type': hidden.HiddenString,
             'name': hidden.HiddenString,
             'enabled': hidden.HiddenBoolean,
             'package': hidden.HiddenString,
-            'host': hidden.HiddenString,
+            'host_type': hidden.HiddenString,
             'optional': hidden.HiddenBoolean
         }
 
@@ -264,8 +264,8 @@ class WidgetFactory(QtWidgets.QWidget):
         description = plugin_data.get('description', 'No description provided')
 
         result = None
-        for host_definition in reversed(self.host_connection.host_definitions):
-            for _ui in reversed(self.ui):
+        for host_type in reversed(self.host_connection.host_types):
+            for _ui_type in reversed(self.ui_types):
 
                 data = {
                     'pipeline': {
@@ -273,8 +273,8 @@ class WidgetFactory(QtWidgets.QWidget):
                         'plugin_type': plugin_type,
                         'method': 'run',
                         'type': 'widget',
-                        'host': host_definition,
-                        'ui': _ui
+                        'host_type': host_type,
+                        'ui_type': _ui_type
                     },
                     'settings': {
                         'options': plugin_options,
@@ -303,12 +303,12 @@ class WidgetFactory(QtWidgets.QWidget):
         widget_ref = event['data']['pipeline']['widget_ref']
         status = event['data']['pipeline']['status']
         message = event['data']['pipeline']['message']
-        host_id = event['data']['pipeline']['hostid']
+        host_id = event['data']['pipeline']['host_id']
 
         widget = self.widgets.get(widget_ref)
         if not widget:
             self.logger.debug(
-                'Widget ref :{} not found for hostid {} ! '.format(
+                'Widget ref :{} not found for host_id {} ! '.format(
                     widget_ref, host_id
                 )
             )
@@ -335,7 +335,7 @@ class WidgetFactory(QtWidgets.QWidget):
         same topic'''
 
         self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.hostid={}'.format(
+            'topic={} and data.pipeline.host_id={}'.format(
                 core_constants.PIPELINE_CLIENT_NOTIFICATION,
                 self.host_connection.id
             ),
