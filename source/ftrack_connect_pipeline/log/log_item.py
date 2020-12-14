@@ -26,17 +26,3 @@ class LogItem(object):
     def execution_time(self, value):
         '''Set the duration of the log entry.'''
         self._execution_time = value
-
-    def to_json(self):
-        data =  {
-            'status': self.status,
-            'widget_ref': self.widget_ref,
-            'host_id': self.host_id,
-            'execution_time': self.execution_time,
-            'plugin_name': self.plugin_name,
-            'result': self.result,
-            'message': self.message,
-            'plugin_type': self.plugin_type
-        }
-
-        return json.dumps(data)

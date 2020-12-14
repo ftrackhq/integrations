@@ -18,6 +18,7 @@ from ftrack_connect_pipeline.log.log_item import LogItem
 
 class LogDB(object):
     table_name = 'LOGMGR'
+    db_name = 'pipeline_asset_manager.db'
 
     def __del__(self):
         self.connection.close()
@@ -28,27 +29,28 @@ class LogDB(object):
 
     def __init__(self):
         super(LogDB, self).__init__()
+        self.logger = logging.getLogger(
+            '{0}.{1}'.format(__name__, self.__class__.__name__)
+        )
+
         temp_folder = tempfile.gettempdir()
-        destination_db = os.path.join(temp_folder, 'pipeline_asset_manager.db')
+        destination_db = os.path.join(temp_folder, self.db_name)
+        self.logger.debug('Creating db file {}'.format(destination_db))
         self._connection = sqlite3.connect(destination_db)
-        try:
-            self.create_tables()
-        except sqlite3.OperationalError:
-            pass
+        self.create_tables()
     
     def create_tables(self):
         self.connection.execute(
-            '''CREATE TABLE {0} (id INTEGER PRIMARY KEY, data JSON NOT NULL);'''.format(
+            '''CREATE TABLE IF NOT EXISTS {0} (id INTEGER PRIMARY KEY, data JSON NOT NULL);'''.format(
                 self.table_name
             )
         )
 
-    def add_log_item(self, log_item):
+    def add_log_item(self, log_data):
 
-        json_data = log_item.to_json()
         self.connection.execute(
             '''INSERT INTO {0}(data) VALUES (?)'''.format(self.table_name),
-            [json_data]
+            [log_data]
         )
         self.connection.commit()
 
@@ -59,7 +61,10 @@ class LogDB(object):
         ).fetchall()
 
         for return_value in return_values:
-            result.append(json.loads(return_value[0]))
+            raw_log = json.loads(return_value[0])
+            self.logger.info('RAWLOG : {}'.format(raw_log))
+            log_item = LogItem(raw_log)
+            result.append(log_item)
 
         return result
 
@@ -209,6 +214,10 @@ class Client(object):
     def logs(self):
         return self._logs.get_log_items()
 
+    def _add_log_item(self, log_item):
+        self.logger.info('Adding log item ::{} {}'.format(type(log_item), log_item))
+        self._logs.add_log_item(log_item)
+
     def __init__(self, event_manager):
         '''Initialise with *event_manager* , and optional *ui* List
 
@@ -218,6 +227,9 @@ class Client(object):
 
         *ui* List of valid ui compatibilities.
         '''
+        self.logger = logging.getLogger(
+            '{0}.{1}'.format(__name__, self.__class__.__name__)
+        )
         self._packages = {}
         self._current = {}
 
@@ -232,9 +244,7 @@ class Client(object):
         self.current_package = None
 
         self.__callback = None
-        self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
-        )
+
         self._event_manager = event_manager
         self.logger.info('Initialising {}'.format(self))
 
@@ -373,8 +383,6 @@ class Client(object):
         self.context = context_id
         self._host_connection.context = context_id
 
-    def add_log_item(self, log_item):
-        self._logs.add_log_item(log_item)
 
     def on_client_notification(self):
         '''Subscribe to PIPELINE_CLIENT_NOTIFICATION topic to receive client
@@ -392,10 +400,9 @@ class Client(object):
         result = event['data']['pipeline']['result']
         status = event['data']['pipeline']['status']
         plugin_name = event['data']['pipeline']['plugin_name']
-        widget_ref = event['data']['pipeline']['widget_ref']
         message = event['data']['pipeline']['message']
 
-        self.add_log_item(LogItem(event['data']['pipeline']))
+        self._add_log_item(event['data']['pipeline'])
 
         if constants.status_bool_mapping[status]:
 
