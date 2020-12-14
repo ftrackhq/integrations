@@ -18,6 +18,7 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
     QtAssetManagerClient class.
     '''
     definition_filter = 'log_viewer'
+    log_item_added = QtCore.Signal(object)
 
     def __init__(self, event_manager, parent=None):
         '''Initialise QtAssetManagerClient with *event_manager*
@@ -84,6 +85,9 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
 
         self.layout().addWidget(self.open_log_folder_button)
 
+    def update_log_items(self):
+        self.log_viewer_widget.set_log_items(self.logs.get_log_items)
+
     def post_build(self):
         '''Post Build ui method for events connections.'''
         self.host_selector.host_changed.connect(self.change_host)
@@ -91,17 +95,17 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
         self.open_log_folder_button.clicked.connect(
             self._on_logging_button_clicked
         )
+        self.log_item_added.connect(self.update_log_items)
 
     def _add_log_item(self, log_item):
         LogViewerClient._add_log_item(self, log_item)
-        self.log_viewer_widget.set_log_items(self.logs)
+        self.log_item_added.emit(log_item)
 
     def change_host(self, host_connection):
         '''
         Triggered host is selected in the host_selector.
         '''
-        self._logs = []
-        self.log_viewer_widget.set_log_items(self.logs)
+        self.update_log_items()
         if not host_connection:
             return
 
