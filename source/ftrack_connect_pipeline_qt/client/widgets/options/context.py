@@ -68,6 +68,7 @@ class PublishContextWidget(BaseOptionsWidget):
         asset_changed of asset_selector event is triggered'''
         self.set_option_result(asset_name, key='asset_name')
         self.set_option_result(asset_id, key='asset_id')
+        self.set_option_result(is_valid, key='is_valid_name')
         self.asset_changed.emit(asset_name, asset_id, is_valid)
 
     def _build_context_id_selector(self):
@@ -95,6 +96,8 @@ class PublishContextWidget(BaseOptionsWidget):
         self.layout().addLayout(self.asset_layout)
         current_asset = self.asset_selector.asset_combobox.currentText()
         self.set_option_result(current_asset, key='asset_name')
+        is_valid = self.asset_selector.asset_combobox.validate_name()
+        self.set_option_result(is_valid, key='is_valid_name')
 
     def _build_status_selector(self):
         '''Builds the status_selector widget'''
@@ -198,8 +201,10 @@ class LoadContextWidget(BaseOptionsWidget):
         asset_changed of asset_selector event is triggered'''
         self.set_option_result(asset_name, key='asset_name')
         self.set_option_result(asset_id, key='asset_id')
+        self.set_option_result(is_valid, key='is_valid_name')
         self.version_selector.set_context(self.context)
         self.version_selector.set_asset_id(asset_id)
+        print "_on asset _changed ---> {}".format(is_valid)
         self.asset_changed.emit(asset_name, asset_id, is_valid)
 
     def _on_version_changed(self, version_num, version_id):
@@ -234,8 +239,10 @@ class LoadContextWidget(BaseOptionsWidget):
         asset_name = self.asset_selector.asset_combobox.currentText()
         current_idx = self.asset_selector.asset_combobox.currentIndex()
         asset_id = self.asset_selector.asset_combobox.itemData(current_idx)
+        is_valid = self.asset_selector.asset_combobox.validate_name()
         self.set_option_result(asset_name, key='asset_name')
         self.set_option_result(asset_id, key='asset_id')
+        self.set_option_result(is_valid, key='is_valid_name')
 
     def _build_version_selector(self):
         '''Builds the asset_selector widget'''
