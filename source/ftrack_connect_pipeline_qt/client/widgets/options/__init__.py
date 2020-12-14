@@ -223,3 +223,9 @@ class BaseOptionsWidget(QtWidgets.QWidget):
             self.context_changed.emit(self.options['context_id'], self.asset_type)
         if self.options.get('version_id'):
             self.asset_version_changed.emit(self.options['version_id'])
+        if self.options.get('asset_name'):
+            self.asset_changed.emit(
+                self.options['asset_name'],
+                self.options['asset_id'],
+                self.options['is_valid_name']
+            )

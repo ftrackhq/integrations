@@ -156,7 +156,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
     def _on_run_definition(self):
         '''Function called when click the run button'''
-
         serialized_data = self._current_def.to_json_object()
         if not self.is_valid_asset_name:
             self.logger.error("Can't publish without a valid asset name")
