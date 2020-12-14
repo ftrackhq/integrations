@@ -75,7 +75,6 @@ class AssetSelector(QtWidgets.QWidget):
             self._current_asset_changed
         )
         self.asset_combobox.editTextChanged.connect(self._current_asset_changed)
-        # self.asset_combobox.setCurrentIndex(self.asset_combobox.currentIndex())
 
     def _current_asset_changed(self, index):
         asset_name = self.asset_combobox.currentText()
