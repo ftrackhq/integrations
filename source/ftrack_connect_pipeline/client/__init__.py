@@ -5,9 +5,63 @@ import time
 import logging
 import copy
 import ftrack_api
+
+import sqlite3
+import tempfile
+import os
+import json
+
 from ftrack_connect_pipeline import utils
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.log.log_item import LogItem
+
+
+class LogDB(object):
+    table_name = 'LOGMGR'
+
+    def __del__(self):
+        self.connection.close()
+
+    @property
+    def connection(self):
+        return self._connection
+
+    def __init__(self):
+        super(LogDB, self).__init__()
+        temp_folder = tempfile.gettempdir()
+        destination_db = os.path.join(temp_folder, 'pipeline_asset_manager.db')
+        self._connection = sqlite3.connect(destination_db)
+        try:
+            self.create_tables()
+        except sqlite3.OperationalError:
+            pass
+    
+    def create_tables(self):
+        self.connection.execute(
+            '''CREATE TABLE {0} (id INTEGER PRIMARY KEY, data JSON NOT NULL);'''.format(
+                self.table_name
+            )
+        )
+
+    def add_log_item(self, log_item):
+
+        json_data = log_item.to_json()
+        self.connection.execute(
+            '''INSERT INTO {0}(data) VALUES (?)'''.format(self.table_name),
+            [json_data]
+        )
+        self.connection.commit()
+
+    def get_log_items(self):
+        result = []
+        return_values =  self.connection.execute(
+            'select data from {0}'.format(self.table_name)
+        ).fetchall()
+
+        for return_value in return_values:
+            result.append(json.loads(return_value[0]))
+
+        return result
 
 
 class HostConnection(object):
@@ -69,7 +123,6 @@ class HostConnection(object):
 
         copy_data = copy.deepcopy(host_data)
 
-        self._logs = []
         self._event_manager = event_manager
         self._raw_host_data = copy_data
 
@@ -154,7 +207,7 @@ class Client(object):
 
     @property
     def logs(self):
-        return self._logs
+        return self._logs.get_log_items()
 
     def __init__(self, event_manager):
         '''Initialise with *event_manager* , and optional *ui* List
@@ -172,7 +225,8 @@ class Client(object):
         self._host_connections = []
         self._connected = False
         self._host_connection = None
-        self._logs = []
+        self._logs = LogDB()
+
         self._schema = None
         self._definition = None
         self.current_package = None
@@ -319,8 +373,8 @@ class Client(object):
         self.context = context_id
         self._host_connection.context = context_id
 
-    def _add_log_item(self, log_item):
-        self._logs.append(log_item)
+    def add_log_item(self, log_item):
+        self._logs.add_log_item(log_item)
 
     def on_client_notification(self):
         '''Subscribe to PIPELINE_CLIENT_NOTIFICATION topic to receive client
@@ -341,7 +395,7 @@ class Client(object):
         widget_ref = event['data']['pipeline']['widget_ref']
         message = event['data']['pipeline']['message']
 
-        self._add_log_item(LogItem(event['data']['pipeline']))
+        self.add_log_item(LogItem(event['data']['pipeline']))
 
         if constants.status_bool_mapping[status]:
 

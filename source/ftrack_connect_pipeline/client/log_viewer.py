@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
+
 from ftrack_connect_pipeline import client
 from ftrack_connect_pipeline.constants import asset as asset_const
 
