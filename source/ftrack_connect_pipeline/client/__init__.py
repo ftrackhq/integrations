@@ -27,14 +27,16 @@ class LogDB(object):
     def connection(self):
         return self._connection
 
-    def __init__(self):
+    def __init__(self, name='default'):
         super(LogDB, self).__init__()
         self.logger = logging.getLogger(
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
 
         temp_folder = tempfile.gettempdir()
-        destination_db = os.path.join(temp_folder, self.db_name)
+        db_name = '{}_{}'.format(name, self.db_name)
+        destination_db = os.path.join(temp_folder, db_name)
+
         self.logger.debug('Creating db file {}'.format(destination_db))
         self._connection = sqlite3.connect(destination_db)
         self.create_tables()
@@ -50,7 +52,7 @@ class LogDB(object):
 
         self.connection.execute(
             '''INSERT INTO {0}(data) VALUES (?)'''.format(self.table_name),
-            [log_data]
+            [json.dumps(log_data)]
         )
         self.connection.commit()
 
@@ -62,7 +64,6 @@ class LogDB(object):
 
         for return_value in return_values:
             raw_log = json.loads(return_value[0])
-            self.logger.info('RAWLOG : {}'.format(raw_log))
             log_item = LogItem(raw_log)
             result.append(log_item)
 
