@@ -204,7 +204,6 @@ class LoadContextWidget(BaseOptionsWidget):
         self.set_option_result(is_valid, key='is_valid_name')
         self.version_selector.set_context(self.context)
         self.version_selector.set_asset_id(asset_id)
-        print "_on asset _changed ---> {}".format(is_valid)
         self.asset_changed.emit(asset_name, asset_id, is_valid)
 
     def _on_version_changed(self, version_num, version_id):

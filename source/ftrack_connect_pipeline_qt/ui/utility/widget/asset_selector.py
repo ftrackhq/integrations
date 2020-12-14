@@ -78,12 +78,10 @@ class AssetSelector(QtWidgets.QWidget):
         # self.asset_combobox.setCurrentIndex(self.asset_combobox.currentIndex())
 
     def _current_asset_changed(self, index):
-        print "yes in the _current"
         asset_name = self.asset_combobox.currentText()
         is_valid_name = self.asset_combobox.validate_name()
         current_idx = self.asset_combobox.currentIndex()
         asset_id = self.asset_combobox.itemData(current_idx)
-        print "is_valid_name --> {}".format(is_valid_name)
         self.asset_changed.emit(asset_name, asset_id, is_valid_name)
 
     def set_context(self, context, asset_type):

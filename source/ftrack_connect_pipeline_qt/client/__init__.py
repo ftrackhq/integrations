@@ -147,7 +147,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.change_context(context_id)
 
     def _on_widget_asset_updated(self, asset_name, asset_id, is_valid):
-        print "On widget asset updated ---> {}".format(is_valid)
         self.is_valid_asset_name = is_valid
 
     def _on_run_plugin(self, plugin_data, method):
@@ -157,7 +156,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
     def _on_run_definition(self):
         '''Function called when click the run button'''
-        print "on run definition ---> {}".format(self.is_valid_asset_name)
         serialized_data = self._current_def.to_json_object()
         if not self.is_valid_asset_name:
             self.logger.error("Can't publish without a valid asset name")
