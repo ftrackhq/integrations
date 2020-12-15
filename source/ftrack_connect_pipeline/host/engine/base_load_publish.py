@@ -14,7 +14,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
     engine_type = 'loader_publisher'
     '''Engine type for this engine class'''
 
-    def __init__(self, event_manager, host, hostid, asset_type):
+    def __init__(self, event_manager, host_types, host_id, asset_type):
         '''
         Initialise HostConnection with instance of
         :class:`~ftrack_connect_pipeline.event.EventManager` , and *host*,
@@ -27,7 +27,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
         *asset_type* : Asset type should be specified.
         '''
         super(BaseLoaderPublisherEngine, self).__init__(
-            event_manager, host, hostid, asset_type
+            event_manager, host_types, host_id, asset_type
         )
 
     def run_context(self, context_stage):
@@ -122,7 +122,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
                         result = method_result.get(method_result.keys()[0])
                     bool_status = constants.status_bool_mapping[status]
                     stage_status.append(bool_status)
-                    if result and isinstance(result, list):
+                    if isinstance(result, list):
                         stages_result.extend(result)
                     else:
                         stages_result.append(result)

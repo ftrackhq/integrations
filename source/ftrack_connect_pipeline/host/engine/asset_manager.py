@@ -21,7 +21,7 @@ class AssetManagerEngine(BaseEngine):
     engine_type = 'asset_manager'
     '''Engine type for this engine class'''
 
-    def __init__(self, event_manager, host, hostid, asset_type=None):
+    def __init__(self, event_manager, host_types, host_id, asset_type=None):
         '''
         Initialise HostConnection with instance of
         :class:`~ftrack_connect_pipeline.event.EventManager` , and *host*,
@@ -34,9 +34,8 @@ class AssetManagerEngine(BaseEngine):
         *asset_type* : Default None. If engine is initialized to publish or load, the asset
         type should be specified.
         '''
-
         super(AssetManagerEngine, self).__init__(
-            event_manager, host, hostid, asset_type=asset_type
+            event_manager, host_types, host_id, asset_type=asset_type
         )
 
     def get_ftrack_asset_object(self, asset_info):

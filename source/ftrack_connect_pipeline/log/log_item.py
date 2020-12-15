@@ -13,7 +13,7 @@ class LogItem(object):
 
         self.status = log_result.get('status')
         self.widget_ref = log_result.get('widget_ref')
-        self.hostid = log_result.get('hostid')
+        self.host_id = log_result.get('host_id')
         self.execution_time = log_result.get('execution_time')
         self.plugin_name = log_result.get('plugin_name')
         self.result = log_result.get('result')

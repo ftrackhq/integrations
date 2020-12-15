@@ -7,7 +7,7 @@ from ftrack_connect_pipeline.definition import collect, validate
 logger = logging.getLogger(__name__)
 
 
-def collect_and_validate(session, current_dir, host):
+def collect_and_validate(session, current_dir, host_type):
     '''
     Collects and validates the definitions and the schemas of the given *host*
     in the given *current_dir*.
@@ -19,7 +19,7 @@ def collect_and_validate(session, current_dir, host):
     data = collect.collect_definitions(current_dir)
 
     # # filter definitions
-    data = collect.filter_definitions_by_host(data, host)
+    data = collect.filter_definitions_by_host(data, host_type)
     #
     # # validate schemas
     data = validate.validate_schema(data)

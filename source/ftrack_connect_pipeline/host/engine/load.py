@@ -10,9 +10,9 @@ from ftrack_connect_pipeline.host.engine.base_load_publish import BaseLoaderPubl
 class LoaderEngine(BaseLoaderPublisherEngine):
     engine_type = 'loader'
 
-    def __init__(self, event_manager, host, hostid, asset_type):
+    def __init__(self, event_manager, host_types, host_id, asset_type):
         super(LoaderEngine, self).__init__(
-            event_manager, host, hostid, asset_type
+            event_manager, host_types, host_id, asset_type
         )
 
 

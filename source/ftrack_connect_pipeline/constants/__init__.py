@@ -1,8 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-UI = None
-HOST = 'python'
+UI_TYPE = None
+HOST_TYPE = 'python'
 
 # Base name.
 _BASE_ = 'ftrack.pipeline'

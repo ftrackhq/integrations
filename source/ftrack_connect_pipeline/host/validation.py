@@ -40,7 +40,7 @@ def validate_schema(schemas, definition):
 class PluginDiscoverValidation(object):
     '''Plugin discover validation base class'''
 
-    def __init__(self, session, host):
+    def __init__(self, session, host_types):
         '''
 
         Initialise PluginDiscoverValidation with instance of
@@ -56,7 +56,7 @@ class PluginDiscoverValidation(object):
         )
 
         self.session = session
-        self.host = host
+        self.host_types = host_types
 
     def validate_publishers_plugins(self, publishers):
         '''
@@ -265,13 +265,13 @@ class PluginDiscoverValidation(object):
         plugin_name = plugin['plugin']
         plugin_result = {}
 
-        for host_definition in reversed(self.host):
+        for host_type in reversed(self.host_types):
             data = {
                 'pipeline': {
                     'plugin_name': plugin_name,
                     'plugin_type': plugin_type,
                     'type': 'plugin',
-                    'host': host_definition
+                    'host_type': host_type
                 }
             }
 
@@ -290,7 +290,7 @@ class PluginDiscoverValidation(object):
                 plugin_result = plugin_result[0]
                 self.logger.info(
                     'plugin {} found for definition host {}'.format(
-                        plugin_name, host_definition
+                        plugin_name, host_type
                     )
                 )
 
@@ -314,7 +314,7 @@ class PluginDiscoverValidation(object):
                 break
             self.logger.warning(
                 'plugin {} not found for definition host {}'.format(
-                    plugin_name, host_definition
+                    plugin_name, host_type
                 )
             )
 
