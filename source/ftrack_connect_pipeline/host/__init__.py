@@ -225,7 +225,7 @@ class Host(object):
         '''
         Publishes the :class:`ftrack_api.event.base.Event` with the topic
         :const:`~ftrack_connnect_pipeline.constants.PIPELINE_REGISTER_TOPIC`
-        with the first host in the list :obj:`host` and type definition as the
+        with the first host_type in the list :obj:`host_types` and type definition as the
         data.
 
         Callback of the event points to :meth:`on_register_definition`
@@ -248,7 +248,7 @@ class Host(object):
 
     def reset(self):
         '''
-        Empty the variables :obj:`host`, :obj:`hostid` and :obj:`__registry`
+        Empty the variables :obj:`host_type`, :obj:`host_id` and :obj:`__registry`
         '''
         self._host_type = []
         self._host_id = None

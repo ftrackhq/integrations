@@ -18,11 +18,11 @@ class BaseLoaderPublisherEngine(BaseEngine):
         '''
         Initialise HostConnection with instance of
         :class:`~ftrack_connect_pipeline.event.EventManager` , and *host*,
-        *hostid* and *asset_type*
+        *host_id* and *asset_type*
 
         *host* : Host type.. (ex: python, maya, nuke....)
 
-        *hostid* : Host id.
+        *host_id* : Host id.
 
         *asset_type* : Asset type should be specified.
         '''

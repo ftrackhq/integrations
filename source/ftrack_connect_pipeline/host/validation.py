@@ -289,7 +289,7 @@ class PluginDiscoverValidation(object):
             if plugin_result:
                 plugin_result = plugin_result[0]
                 self.logger.info(
-                    'plugin {} found for definition host {}'.format(
+                    'plugin {} found for definition host_type {}'.format(
                         plugin_name, host_type
                     )
                 )
@@ -313,7 +313,7 @@ class PluginDiscoverValidation(object):
 
                 break
             self.logger.warning(
-                'plugin {} not found for definition host {}'.format(
+                'plugin {} not found for definition host_type {}'.format(
                     plugin_name, host_type
                 )
             )
