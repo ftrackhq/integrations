@@ -235,6 +235,12 @@ intersphinx_mapping = {
     'python': ('http://docs.python.org/', None),
     'ftrack': (
         'http://rtd.ftrack.com/docs/ftrack/en/stable/', None
+    ),
+    'pipeline_qt': (
+        'http://rtd.ftrack.com/docs/ftrack/en/stable/', None
+    ),
+    'pipeline_definition': (
+        'http://rtd.ftrack.com/docs/ftrack/en/stable/', None
     )
 }
 

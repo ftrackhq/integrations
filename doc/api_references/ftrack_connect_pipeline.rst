@@ -7,6 +7,7 @@ ftrack\_connect\_pipeline
     :show-inheritance:
 
 .. toctree::
+    :maxdepth: 1
 
     ftrack_connect_pipeline.asset
     ftrack_connect_pipeline.client
