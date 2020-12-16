@@ -12,14 +12,6 @@ ftrack\_connect\_pipeline.constants
     ftrack_connect_pipeline.constants.plugin
 
 
-ftrack\_connect\_pipeline.constants.environments
--------------------------------------------------------
-
-.. automodule:: ftrack_connect_pipeline.constants.environments
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 ftrack\_connect\_pipeline.constants.event
 ------------------------------------------------
 

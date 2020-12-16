@@ -449,7 +449,7 @@ class AssetManagerEngine(BaseEngine):
 
     def run(self, data):
         '''
-        Override method of :meth:`~ftrack_connect_pipeline.host.engine
+        Override method of :meth:`~ftrack_connect_pipeline.host.engine`
         Executes the method defined in the given *data* method key or in case is
         not given will execute the :meth:`_run_plugin` with the provided *data*
         plugin key.
