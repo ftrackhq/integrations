@@ -1,19 +1,18 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 
-import datetime
 import sys
 import os
 import re
-import pkg_resources
 import opcode
 import logging
-import zipfile
 
 # # Package and dependencies versions.
 ftrack_connect_version = '2.0'
 ftrack_action_handler_version = '0.2.1'
+import PySide2
 
+plugins_path = os.path.join(PySide2.__path__[0], "plugins")
 
 # Setup code
 
@@ -21,7 +20,7 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-from setuptools import setup, Distribution, find_packages
+from setuptools import Distribution, find_packages
 
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -70,7 +69,8 @@ configuration = dict(
         'requests >= 2, <3',
         'ftrack_action_handler == {0}'.format(
             ftrack_action_handler_version
-        )
+        ),
+        'cx_freeze'
     ],
     install_requires=[
         connect_install_require,
@@ -107,7 +107,14 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         (os.path.join(
             SOURCE_PATH, 'ftrack_connect_package', '_version.py'
         ), 'resource/ftrack_connect_package_version.py'),
-        'qt.conf'
+        'qt.conf',
+        os.path.join(plugins_path, "platforms")
+    ]
+
+    zip_include_packages = [
+        "PySide2",
+        "shiboken2",
+        "encodings",
     ]
 
 
@@ -230,11 +237,18 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
 
     include_files.append((distutils_path, 'distutils'))
 
+    encodings_path = os.path.join(
+        os.path.dirname(opcode.__file__), 'encodings'
+    )
+
+    include_files.append((encodings_path, 'encodings'))
+
     includes.extend([
         'atexit',  # Required for PySide
-        # 'ftrack_connect',
-        # 'ftrack_api.resource_identifier_transformer.base',
-        # 'ftrack_api.structure.id',
+        'ftrack_connect',
+        'ftrack_api.resource_identifier_transformer.base',
+        'ftrack_api.structure.id',
+        'encodings',
         # 'ftrack_connect_rv',
         # 'ftrack_connect_cinema_4d',
         # 'ftrack_action_handler',
@@ -257,7 +271,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
     ])
 
     configuration['options']['build_exe'] = {
-        # 'init_script': os.path.join(RESOURCE_PATH, 'frozen_bootstrap.py'),
+        # 'initScript': os.path.join(RESOURCE_PATH, 'frozen_bootstrap.py'),
         'includes': includes,
         "include_msvcr": True,
         'excludes': [
@@ -280,13 +294,13 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         ],
         'include_files': include_files,
         'bin_includes': bin_includes,
-        'namespace_packages':['backports']
+        'zip_include_packages': zip_include_packages
     }
 
     configuration['setup_requires'].extend(
         configuration['install_requires']
     )
 
-
+print(configuration)
 # Call main setup.
 setup(**configuration)
