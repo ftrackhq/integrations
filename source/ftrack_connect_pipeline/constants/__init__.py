@@ -37,11 +37,8 @@ POST_IMPORT = 'post_import'
 #: `Definitions Docs <http://packages.python.org/an_example_pypi_project/>`_
 PIPELINE_REGISTER_TOPIC = '{}.register'.format(_BASE_)
 #: Pipeline run plugin topic event. Used to run the plugins. Published in
-#: :meth:`~ftrack_connect_pipeline.asset.FtrackAssetBase.change_version`,
-#: :meth:`~ftrack_connect_pipeline.host.engine.BaseEngine._run_plugin` and
-#: :meth:`ftrack_connect_pipeline_qt.client.widgets.factory.WidgetFactory._fetch_plugin_widget`
-#: in this last case to run the widgets (because they use
-#: :class:`~ftrack_connect_pipeline.plugin.BasePlugin` as Base.
+#: :meth:`~ftrack_connect_pipeline.asset.FtrackAssetBase.change_version` and
+#: :meth:`~ftrack_connect_pipeline.host.engine.BaseEngine._run_plugin`.
 #: Subscribed to run the plugins in
 #: :meth:`~ftrack_connect_pipeline.plugin.BasePlugin.register`
 PIPELINE_RUN_PLUGIN_TOPIC = '{}.run'.format(_BASE_)
@@ -60,8 +57,6 @@ PIPELINE_HOST_RUN = '{}.host.run'.format(_BASE_)
 #: the plugin execution from host to the client.
 #: Published in :meth:`~ftrack_connect_pipeline.host.engine.BaseEngine._notify_client`,
 #: and Subscribed in
-#: :meth:`ftrack_connect_pipeline_qt.client.widgets.factory.WidgetFactory._listen_widget_updates`,
-#: :meth:`ftrack_connect_pipeline_qt.client.widgets.ui.asset_manager.AssetManagerWidget._listen_widget_updates`,
 #: :meth:`~ftrack_connect_pipeline.client.on_client_notification`
 PIPELINE_CLIENT_NOTIFICATION = '{}.client.notification'.format(_BASE_)
 #: Pipeline Discover host topic event. Used to discover available hosts.

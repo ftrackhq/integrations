@@ -10,8 +10,10 @@ ftrack\_connect\_pipeline.asset
 ftrack\_connect\_pipeline.asset.asset\_info
 -------------------------------------------
 
-.. automodule:: ftrack_connect_pipeline.asset.asset_info
-    :members:
+.. autofunction:: ftrack_connect_pipeline.asset.asset_info.generate_asset_info_dict_from_args
+
+.. autoclass:: ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo
+    :members: session, is_deprecated, __init__, encode_options, decode_options, from_ftrack_version
     :undoc-members:
     :show-inheritance:
 

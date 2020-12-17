@@ -216,7 +216,7 @@ epub_exclude_files = ['search.html']
 
 # -- Autodoc ------------------------------------------------------------------
 
-autodoc_default_flags = ['members', 'undoc-members', 'inherited-members']
+autodoc_default_flags = []#['members', 'undoc-members', 'inherited-members']
 autodoc_member_order = 'bysource'
 
 
@@ -233,14 +233,8 @@ def autodoc_skip(app, what, name, obj, skip, options):
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
     'python': ('http://docs.python.org/', None),
-    'ftrack': (
-        'http://rtd.ftrack.com/docs/ftrack/en/stable/', None
-    ),
-    'pipeline_qt': (
-        'http://rtd.ftrack.com/docs/ftrack/en/stable/', None
-    ),
-    'pipeline_definition': (
-        'http://rtd.ftrack.com/docs/ftrack/en/stable/', None
+    'ftrack_api': (
+        'http://ftrack-python-api.rtd.ftrack.com/en/stable/', None
     )
 }
 
