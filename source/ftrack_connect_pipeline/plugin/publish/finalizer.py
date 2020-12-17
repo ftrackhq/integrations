@@ -8,25 +8,20 @@ from ftrack_connect_pipeline.plugin import base
 
 
 class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
-    ''' Class representing a Finalizer Plugin
-
-        .. note::
-
-            _required_output is a dictionary containing the 'context_id',
-            'asset_name', 'asset_type', 'comment' and 'status_id' of the
-            current asset
+    '''
+    Base Publisher Finalizer Plugin Class inherits from
+    :class:`~ftrack_connect_pipeline.plugin.base.BaseFinalizerPlugin`
     '''
     return_type = dict
+    '''Required return type'''
     plugin_type = constants.PLUGIN_PUBLISHER_FINALIZER_TYPE
+    '''Type of the plugin'''
     _required_output = {}
+    '''Required return output'''
     version_dependencies = []
+    '''Ftrack dependencies of the current asset version'''
 
     def __init__(self, session):
-        '''Initialise FinalizerPlugin with *session*
-
-        *session* should be the :class:`ftrack_api.session.Session` instance
-        to use for communication with the server.
-        '''
         super(PublisherFinalizerPlugin, self).__init__(session)
         self.component_functions = {
             'thumbnail': self.create_thumbnail,
@@ -34,6 +29,17 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
         }
 
     def create_component(self, asset_version, component_name, component_path):
+        '''
+        Creates an ftrack component on the given *asset_version* with the given
+        *component_name* pointing to the given *component_path*
+
+        *asset_version* : instance of
+        :class:`ftrack_api.entity.asset_version.AssetVersion`
+
+        *component_name* : Name of the component to be created.
+
+        *component_path* : Linked path of the component data.
+        '''
         self.logger.info(
             'publishing component:{} to from {}'.format(
                 component_name, component_path
@@ -48,14 +54,47 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
         )
 
     def create_thumbnail(self, asset_version, component_name, component_path):
+        '''
+        Creates and uploads an ftrack thumbnail for the given
+        :class:`ftrack_api.entity.asset_version.AssetVersion` from the given
+        *component_path*
+
+        *component_path* : path to the thumbnail.
+        '''
         asset_version.create_thumbnail(component_path)
         os.remove(component_path)
 
     def create_reviewable(self, asset_version, component_name, component_path):
+        '''
+        Encodes the ftrack media for the given
+        :class:`ftrack_api.entity.asset_version.AssetVersion` from the given
+        *component_path*
+
+        *component_path* : path to the image or video.
+        '''
         asset_version.encode_media(component_path)
         os.remove(component_path)
 
     def _run(self, event):
+        '''
+        Overrides the Callback function of the event
+        :const:`~ftrack_connect_pipeline.constants.PIPELINE_RUN_PLUGIN_TOPIC`
+        :meth:`ftrack_connect_pipeline.plugin._run`.
+        Which runs the method passed in the given
+        *event* ['data']['pipeline']['method'].
+
+        Once the base method is called, this function creates a new
+        :class:`ftrack_api.entity.asset_version.AssetVersion` with all the
+        required information as component, reviewable, thumbnail, etc... And
+        commits the ftrack session.
+
+        Returns a diccionary with the result information of the called method.
+
+        *event* : Diccionary returned when the event topic
+        :const:`~ftrack_connect_pipeline.constants.PIPELINE_RUN_PLUGIN_TOPIC` is
+        called.
+
+        '''
         super_result = super(PublisherFinalizerPlugin, self)._run(event)
 
         context = event['data']['settings']['context']

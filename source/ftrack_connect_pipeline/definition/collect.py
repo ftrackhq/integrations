@@ -11,11 +11,24 @@ logger = logging.getLogger(__name__)
 
 
 def resolve_schemas(data):
+    '''
+    Resolves the refs of the schemas in the given *data*
+
+    *data* : Dictionary of json definitions and schemas generated at
+    :func:`collect_definitions`
+    '''
     data['schema'] = [JsonRef.replace_refs(schema) for schema in data['schema']]
     return data
 
 
 def filter_definitions_by_host(data, host_type):
+    '''
+    Filter the definitions in the given *data* by the given *host*
+
+    *data* : Dictionary of json definitions and schemas generated at
+    :func:`collect_definitions`
+    *host* : Type of definition host to be filtered by.
+    '''
     copy_data = copy.deepcopy(data)
     logger.info('filtering definition for host_type: {}'.format(host_type))
     for entry in ['loader', 'publisher', 'asset_manager']:
@@ -32,6 +45,12 @@ def filter_definitions_by_host(data, host_type):
 
 
 def collect_definitions(lookup_dir):
+    '''
+    Collect all the schemas, definitions and packages from the given
+    *lookup_dir*
+
+    *lookup_dir* : Directory path to look for the definitions.
+    '''
     schemas = _collect_json(
         os.path.join(lookup_dir, 'schema')
     )

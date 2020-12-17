@@ -16,19 +16,17 @@ class BasePluginValidation(object):
     '''Plugin Validation base class'''
 
     def __init__(self, plugin_name, required_output, return_type, return_value):
-        '''Initialise PluginValidation with *plugin_name*, *required_output*,
+        '''
+        Initialise PluginValidation with *plugin_name*, *required_output*,
         *return_type*, *return_value*.
 
-        *plugin_name* current plugin name stored at the plugin base class
+        *plugin_name* : current plugin name.
 
-        *required_output* required output of the current plugin stored at
-        _required_output of the plugin base class
+        *required_output* : required output of the current plugin.
 
-        *return_type* return type of the current plugin stored at the plugin
-        base class
+        *return_type* : required return type of the current plugin.
 
-        *return_value* return value of the current plugin stored at the
-        plugin base class
+        *return_value* : Expected return value of the current plugin.
         '''
         super(BasePluginValidation, self).__init__()
         self.plugin_name = plugin_name
@@ -37,10 +35,11 @@ class BasePluginValidation(object):
         self.return_value = return_value
 
     def validate_required_output(self, result):
-        '''Ensures that *result* contains all the expected required_output keys
-        defined for the current plugin.
+        '''
+        Ensures that *result* contains all the expected :obj:`required_output`
+        keys defined for the current plugin.
 
-        *result* output value of the plugin execution
+        *result* : output value of the plugin execution.
 
         Return tuple (bool,str)
         '''
@@ -56,10 +55,11 @@ class BasePluginValidation(object):
         return validator_result
 
     def validate_result_type(self, result):
-        '''Ensures that *result* is instance of the defined return_type of
+        '''
+        Ensures that *result* is instance of the defined :obj:`return_type` of
         the current plugin.
 
-        *result* output value of the plugin execution
+        *result* : output value of the plugin execution.
 
         Return tuple (bool,str)
         '''
@@ -75,10 +75,10 @@ class BasePluginValidation(object):
         return validator_result
 
     def validate_result_value(self, result):
-        '''Ensures that *result* is equal as the defined return_value of
+        '''Ensures that *result* is equal as the defined :obj:`return_value` of
         the current plugin.
 
-        *result* output value of the plugin execution
+        *result* : output value of the plugin execution.
 
         Return tuple (bool,str)
         '''
@@ -88,22 +88,29 @@ class BasePluginValidation(object):
 
 
 class BasePlugin(object):
-    ''' Class representing a Plugin '''
+    ''' Base Class to represent a Plugin '''
     plugin_type = None
+    '''Type of the plugin'''
     plugin_name = None
+    '''Name of the plugin'''
     type = 'plugin'
+    '''Type, default plugin. (action...)'''
     host_type = constants.HOST_TYPE
+    '''Host type of the plugin'''
 
     return_type = None
+    '''Required return type'''
     return_value = None
+    '''Required return Value'''
     _required_output = {}
+    '''Required return output'''
 
     def __repr__(self):
         return '<{}:{}>'.format(self.plugin_type, self.plugin_name)
 
     @property
     def output(self):
-        ''' Returns a copy of required_output '''
+        ''' Returns a copy of :attr:`required_output`'''
         return copy.deepcopy(self._required_output)
 
     @property
@@ -118,26 +125,23 @@ class BasePlugin(object):
 
     @property
     def session(self):
-        '''Return current session.'''
+        '''
+        Returns instance of :class:`ftrack_api.session.Session`
+        '''
         return self.event_manager.session
 
     @property
     def event_manager(self):
-        '''Return current event_manager.'''
+        '''
+        Returns instance of
+        :class:`~ftrack_connect_pipeline.event.EventManager`
+        '''
         return self._event_manager
 
     def __init__(self, session):
-        '''Initialise BasePlugin with *session*.
-
-        *session* should be the :class:`ftrack_api.session.Session` instance
-        to use for communication with the server.
-
-        ..note:
-
-            if host is not defined in the specific plugin, all the plugins has
-            python as default host, that means if a plugin with the default
-            host value is running from max and you are not loading python in
-            the list of host the plugin will not run.
+        '''
+        Initialise BasePlugin with instance of
+        :class:`ftrack_api.session.Session`
         '''
 
         self.logger = logging.getLogger(
@@ -152,12 +156,12 @@ class BasePlugin(object):
         )
 
     def _base_topic(self, topic):
-        '''Ensures that we pass all the needed information to the topic
-        with *topic*.
+        '''
+        Ensures that :attr:`host_type`, :attr:`type`, :attr:`plugin_type`,
+        :attr:`plugin_name` are defined and Returns a formated topic of an event
+        for the given *topic*
 
         *topic* topic base value
-
-        Return formated topic
 
         Raise :exc:`ftrack_connect_pipeline.exception.PluginError` if some
         information is missed.
@@ -183,14 +187,19 @@ class BasePlugin(object):
         return topic
 
     def register(self):
-        '''Called by each plugin to register them self.
+        '''
+        Register function of the plugin to regiter it self.
 
         .. note::
 
-            This function subscribes the plugin to two event topics:
-            PIPELINE_DISCOVER_PLUGIN_TOPIC: Topic to make the plugin
-            discoverable for the host.
-            PIPELINE_RUN_PLUGIN_TOPIC: Topic to execute the plugin
+            This function subscribes the plugin to two
+            :class:`ftrack_api.event.base.Event` topics:
+
+            :const:`~ftrack_connect_pipeline.constants.PIPELINE_DISCOVER_PLUGIN_TOPIC`:
+            Topic to make the plugin discoverable for the host.
+
+            :const:`~ftrack_connect_pipeline.constants.PIPELINE_RUN_PLUGIN_TOPIC`:
+            Topic to execute the plugin
         '''
         if not isinstance(self.session, ftrack_api.Session):
             # Exit to avoid registering this plugin again.
@@ -212,13 +221,11 @@ class BasePlugin(object):
         )
 
     def _discover(self, event):
-        '''Makes sure the plugin is discoverable for the host.
+        '''
+        Callback of
+        :const:`~ftrack_connect_pipeline.constants.PIPELINE_DISCOVER_PLUGIN_TOPIC`
+        Makes sure the plugin is discoverable for the host.
 
-        *event* not used.
-
-        .. note::
-
-            Called by PIPELINE_DISCOVER_PLUGIN_TOPIC
         '''
         if not isinstance(self.session, ftrack_api.Session):
             # Exit to avoid registering this plugin again.
@@ -227,6 +234,14 @@ class BasePlugin(object):
         return True
 
     def _validate_result(self, result):
+        '''
+        Validates the *result* of the :meth:`run` of the plugin using the
+        :obj:`validator` and the :meth:`validator.validate_result_type`,
+        :meth:`validator.validate_required_output`,
+        :meth:`validator.validate_result_value`
+
+        Returns a status and string message
+        '''
         # validate result instance type
         status = constants.UNKNOWN_STATUS
         message = None
@@ -258,17 +273,17 @@ class BasePlugin(object):
         return status, message
 
     def _run(self, event):
-        '''Run the current plugin with the settings form the *event*.
+        '''
+        Callback function of the event
+        :const:`~ftrack_connect_pipeline.constants.PIPELINE_RUN_PLUGIN_TOPIC`
+        Runs the method passed in the given
+        *event* ['data']['pipeline']['method'].
 
-        *event* provides a dictionary with the plugin schema information.
+        Returns a diccionary with the result information of the called method.
 
-        Returns a dictionary with the status, result, execution time and
-        message of the execution
-
-        .. note::
-
-            This function is used by the host engine and called by the
-            PIPELINE_RUN_PLUGIN_TOPIC
+        *event* : Diccionary returned when the event topic
+        :const:`~ftrack_connect_pipeline.constants.PIPELINE_RUN_PLUGIN_TOPIC` is
+        called.
 
         '''
         method = event['data']['pipeline']['method']
@@ -327,7 +342,8 @@ class BasePlugin(object):
         return result_data
 
     def run(self, context=None, data=None, options=None):
-        '''Run the current plugin with , *context* , *data* and *options*.
+        '''
+        Runs the current plugin with , *context* , *data* and *options*.
 
         *context* provides a mapping with the asset_name, context_id, asset_type,
         comment and status_id of the asset that we are working on.
@@ -335,10 +351,6 @@ class BasePlugin(object):
         *data* a list of data coming from previous collector or empty list
 
         *options* a dictionary of options passed from outside.
-
-        Returns self.output dictionary, list or boolean.
-
-        Raise NotImplementedError
 
         .. note::
 
@@ -349,6 +361,24 @@ class BasePlugin(object):
         raise NotImplementedError('Missing run method.')
 
     def fetch(self, context=None, data=None, options=None):
+        '''
+        Runs the current plugin with , *context* , *data* and *options*.
+
+
+        *context* provides a mapping with the asset_name, context_id, asset_type,
+        comment and status_id of the asset that we are working on.
+
+        *data* a list of data coming from previous collector or empty list
+
+        *options* a dictionary of options passed from outside.
+
+        .. note::
+
+            This function is meant to be ran as an alternative of the default run
+            function. Usually to fetch information for the widget or to test the
+            plugin.
+
+        '''
         raise NotImplementedError('Missing run method.')
 
 

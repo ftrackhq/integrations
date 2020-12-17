@@ -7,14 +7,10 @@ from ftrack_connect_pipeline.constants import asset as asset_const
 
 class AssetManagerClient(client.Client):
     '''
-    Base client class.
+    Asset Manager Client Base Class
     '''
     definition_filter = 'asset_manager'
-
-    @property
-    def event_manager(self):
-        '''Returns event_manager'''
-        return self._event_manager
+    '''Use only definitions that matches the definition_filter'''
 
     @property
     def ftrack_asset_list(self):
@@ -22,17 +18,13 @@ class AssetManagerClient(client.Client):
         return self._ftrack_asset_list
 
     def __init__(self, event_manager):
-        '''Initialise AssetManagerClient with *event_manager*
-
-        *event_manager* should be the
-        :class:`ftrack_connect_pipeline.event.EventManager`instance to
-        communicate to the event server.
+        '''Initialise AssetManagerClient with instance of
+        :class:`~ftrack_connect_pipeline.event.EventManager`
         '''
         super(AssetManagerClient, self).__init__(event_manager)
         self._reset_asset_list()
 
     def change_host(self, host_connection):
-        ''' Sets the given *host_connection* as the current host connection '''
         super(AssetManagerClient, self).change_host(host_connection)
 
         self.schemas = [
@@ -53,12 +45,19 @@ class AssetManagerClient(client.Client):
         self.discover_plugins = self.definition.get('discover')
 
     def _reset_asset_list(self):
-        '''Empty the _ftrack_asset_list'''
+        '''Empty the :obj:`ftrack_asset_list`'''
         self._ftrack_asset_list = []
 
     def discover_assets(self, plugin=None):
         '''
-        Discover assets on the scene
+        Calls the :meth:`ftrack_connect_pipeline.client.HostConnection.run`
+        to run the method
+        :meth:`ftrack_connect_pipeline.host.engine.AssetManagerEngine.discover_assets`
+
+        Callback received at :meth:`_asset_discovered_callback`
+
+        *plugin* : Optional plugin to be run in the method.
+        (Not implremented yet)
         '''
         self._reset_asset_list()
         plugin_type = None
@@ -74,7 +73,7 @@ class AssetManagerClient(client.Client):
         )
 
     def _asset_discovered_callback(self, event):
-        '''callback, Assets discovered'''
+        '''Callback of the :meth:`discover_assets`'''
         if not event['data']:
             return
         for ftrack_asset in event['data']:
@@ -85,8 +84,17 @@ class AssetManagerClient(client.Client):
 
     def change_version(self, asset_info, new_version_id):
         '''
-        Change the current version of the given *asset_info* to the
-        given *new_version_id*
+        Calls the :meth:`ftrack_connect_pipeline.client.HostConnection.run`
+        to run the method
+        :meth:`ftrack_connect_pipeline.host.engine.AssetManagerEngine.change_version`
+        To change the version of the given *asset_info*.
+
+        Callback received at :meth:`_change_version_callback`
+
+        *asset_info* : Should be instance of
+        :class:`ftrack_connect_pipeline.asset.FtrackAssetInfo`
+
+        *new_version_id* : Should be an AssetVersion id.
         '''
 
         data = {
@@ -101,7 +109,13 @@ class AssetManagerClient(client.Client):
 
     def select_assets(self, asset_info_list):
         '''
-        Select the assets of the given *asset_info_list*
+        Calls the :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
+        to run the method
+        :meth:`~ftrack_connect_pipeline.host.engine.AssetManagerEngine.select_assets`
+        To select the assets of the given *asset_info_list*
+
+        *asset_info_list* : Should a list pf be instances of
+        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
         data = {
             'method': 'select_assets',
@@ -112,8 +126,17 @@ class AssetManagerClient(client.Client):
 
     def remove_assets(self, asset_info_list):
         '''
-        Remove the assets of the given *asset_info_list*
+        Calls the :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
+        to run the method
+        :meth:`~ftrack_connect_pipeline.host.engine.AssetManagerEngine.remove_assets`
+        To remove the assets of the given *asset_info_list*.
+
+        Callback received at :meth:`_remove_assets_callback`
+
+        *asset_info_list* : Should a list pf be instances of
+        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
+
         data = {
             'method': 'remove_assets',
             'plugin': None,
@@ -125,8 +148,18 @@ class AssetManagerClient(client.Client):
 
     def update_assets(self, asset_info_list, plugin):
         '''
-        Updates the assets from the given *asset_info_list* using the given
-        *plugin*
+        Calls the :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
+        to run the method
+        :meth:`~ftrack_connect_pipeline.host.engine.AssetManagerEngine.update_assets`
+        To update to the last version the assets of the given *asset_info_list*.
+
+        Callback received at :meth:`_update_assets_callback`
+
+        *asset_info_list* : Should a list pf be instances of
+        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
+
+        *plugin* : The plugin definition of the plugin to run during the update_assets
+        method
         '''
         plugin_type = None
         if plugin:
@@ -142,6 +175,13 @@ class AssetManagerClient(client.Client):
         )
 
     def _find_asset_info_by_id(self, id):
+        '''
+        Returns an instance of the
+        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo` if the given
+        *id* matches an
+        :const:`~ftrack_connnect_pipeline.constants.asset.ASSET_INFO_ID`
+        of an object in :obj:`ftrack_asset_list`
+        '''
         asset_info = next((sub for sub in self.ftrack_asset_list if sub[asset_const.ASSET_INFO_ID] == id), None)
         if not asset_info:
             self.logger.warning('No asset info found for id {}'.format(id))
@@ -149,8 +189,10 @@ class AssetManagerClient(client.Client):
 
     def _change_version_callback(self, event):
         '''
-        Change version callback, updates the current ftrack_asset_list
+        Callback of the :meth:`change_version`
+        Updates the current ftrack_asset_list
         '''
+
         if not event['data']:
             return
         data = event['data']
@@ -164,7 +206,8 @@ class AssetManagerClient(client.Client):
 
     def _remove_assets_callback(self, event):
         '''
-        remove_assets callback, updates the current ftrack_asset_list
+        Callback of the :meth:`remove_assets`
+        Updates the current ftrack_asset_list
         '''
         if not event['data']:
             return
@@ -180,7 +223,8 @@ class AssetManagerClient(client.Client):
 
     def _update_assets_callback(self, event):
         '''
-        update_assets callback. it updates the current ftrack_asset_list
+        Callback of the :meth:`update_assets`
+        Updates the current ftrack_asset_list
         '''
         if not event['data']:
             return
