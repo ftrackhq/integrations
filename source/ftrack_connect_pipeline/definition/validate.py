@@ -77,7 +77,7 @@ def validate_package_type(data):
             if str(definition.get('package')) not in valid_packages:
                 logger.warning(
                     '{} {}:{} use unknown package : {} , packages: {}'.format(
-                        entry, definition['host'], definition['name'],
+                        entry, definition['host_type'], definition['name'],
                         definition.get('package'), valid_packages)
                     )
                 # pop definition
@@ -109,7 +109,7 @@ def validate_definition_components(data):
                         logger.warning(
                             '{} {}:{} package {} components'
                             ' are not matching : required component: {}'.format(
-                                entry, definition['host'], definition['name'],
+                                entry, definition['host_type'], definition['name'],
                                 definition['package'], package_component_names)
                         )
                         copy_data[entry].remove(definition)
@@ -139,7 +139,7 @@ def validate_definition_components(data):
                     logger.warning(
                         '{} {}:{} package {} components'
                         ' are not matching : required component: {}'.format(
-                            entry, definition['host'], definition['name'],
+                            entry, definition['host_type'], definition['name'],
                             definition['package'], package_component_names)
                     )
                     copy_data[entry].remove(definition)

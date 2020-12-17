@@ -44,9 +44,12 @@ def generate_asset_info_dict_from_args(context, data, options, session):
 
     arguments_dict[constants.ASSET_INFO_ID] = uuid.uuid4()
 
-    asset_version = session.get(
-        'AssetVersion', arguments_dict[constants.VERSION_ID]
-    )
+    asset_version = session.query(
+        'select version from AssetVersion where id is "{}"'.format(
+            arguments_dict[constants.VERSION_ID]
+        )
+    ).one()
+
 
     arguments_dict[constants.IS_LATEST_VERSION] = asset_version[
         constants.IS_LATEST_VERSION

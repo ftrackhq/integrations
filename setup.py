@@ -10,6 +10,9 @@ from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 import setuptools
 
+from pkg_resources import parse_version
+import pip
+
 from pip.__main__ import _main as pip_main
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -81,7 +84,10 @@ class BuildPlugin(setuptools.Command):
             STAGING_PATH
         )
 
-        print ('Result: ' + result_path)
+
+
+
+
 
 
 # Custom commands.
@@ -121,6 +127,7 @@ setup(
         'lowdown >= 0.1.0, < 2'
     ],
     install_requires=[
+        'ftrack-python-api >= 1, < 3',
         'jsonschema==2.6.0',
         'appdirs',
         'qt.py >=1.0.0, < 2',

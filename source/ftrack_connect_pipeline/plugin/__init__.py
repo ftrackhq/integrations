@@ -92,7 +92,7 @@ class BasePlugin(object):
     plugin_type = None
     plugin_name = None
     type = 'plugin'
-    host = constants.HOST
+    host_type = constants.HOST_TYPE
 
     return_type = None
     return_value = None
@@ -164,7 +164,7 @@ class BasePlugin(object):
         '''
 
         required = [
-            self.host,
+            self.host_type,
             self.type,
             self.plugin_type,
             self.plugin_name,
@@ -173,11 +173,11 @@ class BasePlugin(object):
             raise exception.PluginError('Some required fields are missing')
 
         topic = (
-            'topic={} and data.pipeline.host={} and '
+            'topic={} and data.pipeline.host_type={} and '
             'data.pipeline.type={} and data.pipeline.plugin_type={} and '
             'data.pipeline.plugin_name={}'
         ).format(
-            topic, self.host, self.type, self.plugin_type, self.plugin_name
+            topic, self.host_type, self.type, self.plugin_type, self.plugin_name
         )
 
         return topic

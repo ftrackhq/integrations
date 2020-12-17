@@ -159,7 +159,7 @@ def event_manager(session):
     )
 
     def register_definitions(session, event):
-        host = event['data']['pipeline']['host']
+        host_type = event['data']['pipeline']['host_type']
 
         dir = os.path.abspath(
             os.path.join(
@@ -173,7 +173,7 @@ def event_manager(session):
         print (dir)
         # collect definitions
         data = collect_and_validate(
-            session, dir, host
+            session, dir, host_type
         )
         return data
 

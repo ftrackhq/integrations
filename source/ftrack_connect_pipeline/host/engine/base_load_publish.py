@@ -10,11 +10,11 @@ from ftrack_connect_pipeline.host.engine import BaseEngine
 class BaseLoaderPublisherEngine(BaseEngine):
     engine_type = 'loader_publisher'
 
-    def __init__(self, event_manager, host, hostid, asset_type):
+    def __init__(self, event_manager, host_types, host_id, asset_type):
         '''Initialise LoaderEngine with *event_manager*, *host*, *hostid* and
         *asset_type*'''
         super(BaseLoaderPublisherEngine, self).__init__(
-            event_manager, host, hostid, asset_type
+            event_manager, host_types, host_id, asset_type
         )
 
     def run_context(self, context_stage):
@@ -28,12 +28,18 @@ class BaseLoaderPublisherEngine(BaseEngine):
         plugin_type = '{}.{}'.format(self.engine_type, stage_name)
         for plugin in context_stage['plugins']:
             result = None
-            status, method_result = self._run_plugin(
-                plugin, plugin_type,
-                options=plugin['options']
-            )
-            if method_result:
-                result = method_result.get(method_result.keys()[0])
+            asset_name = plugin['options'].get('asset_name')
+            if not asset_name:
+                result = "Asset name isn't valid"
+                status = constants.ERROR_STATUS
+            else:
+                status, method_result = self._run_plugin(
+                    plugin, plugin_type,
+                    options=plugin['options']
+                )
+                if method_result:
+                    result = method_result.get(method_result.keys()[0])
+
             bool_status = constants.status_bool_mapping[status]
             if not bool_status:
                 raise Exception(
@@ -88,7 +94,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
                         result = method_result.get(method_result.keys()[0])
                     bool_status = constants.status_bool_mapping[status]
                     stage_status.append(bool_status)
-                    if result and isinstance(result, list):
+                    if isinstance(result, list):
                         stages_result.extend(result)
                     else:
                         stages_result.append(result)
