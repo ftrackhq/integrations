@@ -8,6 +8,14 @@ logger = logging.getLogger(__name__)
 
 
 def collect_and_validate(session, current_dir, host_type):
+    '''
+    Collects and validates the definitions and the schemas of the given *host*
+    in the given *current_dir*.
+
+    *session* : instance of :class:`ftrack_api.session.Session`
+    *current_dir* : Directory path to look for the definitions.
+    *host* : Definition host to look for.
+    '''
     data = collect.collect_definitions(current_dir)
 
     # # filter definitions

@@ -6,20 +6,16 @@ from ftrack_connect_pipeline.plugin import base
 
 
 class PublisherValidatorPlugin(base.BaseValidatorPlugin):
-    ''' Class representing a Validator Plugin
-
-    .. note::
-
-        _required_output a Boolean
+    '''
+    Base Publisher Validator Plugin Class inherits from
+    :class:`~ftrack_connect_pipeline.plugin.base.BaseValidatorPlugin`
     '''
     return_type = bool
+    '''Required return type'''
     plugin_type = constants.PLUGIN_PUBLISHER_VALIDATOR_TYPE
+    '''Type of the plugin'''
     _required_output = False
+    '''Required return output'''
 
     def __init__(self, session):
-        '''Initialise ValidatorPlugin with *session*
-
-        *session* should be the :class:`ftrack_api.session.Session` instance
-        to use for communication with the server.
-        '''
         super(PublisherValidatorPlugin, self).__init__(session)

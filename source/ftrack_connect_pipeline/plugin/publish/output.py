@@ -6,20 +6,17 @@ from ftrack_connect_pipeline.plugin import base
 
 
 class PublisherOutputPlugin(base.BaseOutputPlugin):
-    ''' Class representing an Output Plugin
-    .. note::
-
-        _required_output a Dictionary
+    '''
+    Base Publisher Output Plugin Class inherits from
+    :class:`~ftrack_connect_pipeline.plugin.base.BaseOutputPlugin`
     '''
     return_type = dict
+    '''Required return type'''
     plugin_type = constants.PLUGIN_PUBLISHER_OUTPUT_TYPE
+    '''Type of the plugin'''
     _required_output = {}
+    '''Required return output'''
 
     def __init__(self, session):
-        '''Initialise OutputPlugin with *session*
-
-        *session* should be the :class:`ftrack_api.session.Session` instance
-        to use for communication with the server.
-        '''
         super(PublisherOutputPlugin, self).__init__(session)
 

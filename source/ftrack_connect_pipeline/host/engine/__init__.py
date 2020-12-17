@@ -7,8 +7,10 @@ import copy
 
 
 def getEngine(baseClass, engineType):
-    '''Return the engine Class *subclass* of the given *baseClass* based on the
-    *engineType*'''
+    '''
+    Returns the Class or Subclass of the given *baseClass* that matches the
+    name of the given *engineType*
+    '''
     for subclass in baseClass.__subclasses__():
         if engineType == subclass.__name__:
             return subclass
@@ -18,12 +20,16 @@ def getEngine(baseClass, engineType):
 
 
 class BaseEngine(object):
+    '''
+    Base engine class.
+    '''
 
     engine_type='base'
+    '''Engine type for this engine class'''
 
     @property
     def host_id(self):
-        '''Return the current hostid.'''
+        '''Returns the current host id.'''
         return self._host_id
 
     @property
@@ -32,8 +38,16 @@ class BaseEngine(object):
         return self._host_types
 
     def __init__(self, event_manager, host_types, host_id, asset_type):
-        '''Initialise BaseEngine with *event_manager*, *host*, *hostid* and
-        *asset_type*'''
+        '''
+        Initialise HostConnection with instance of
+        :class:`~ftrack_connect_pipeline.event.EventManager` , and *host*,
+        *host_id* and *asset_type*
+
+        *host* : Host type.. (ex: python, maya, nuke....)
+        *host_id* : Host id.
+        *asset_type* : If engine is initialized to publish or load, the asset
+        type should be specified.
+        '''
         super(BaseEngine, self).__init__()
 
         self.asset_type = asset_type
@@ -51,6 +65,28 @@ class BaseEngine(object):
             self, plugin_name, plugin_type, host_type, data, options,
             context, method
     ):
+        '''
+        Returns an :class:`ftrack_api.event.base.Event` with the topic
+        :const:`~ftrack_connnect_pipeline.constants.PIPELINE_RUN_PLUGIN_TOPIC`
+        with the data of the given *plugin_name*, *plugin_type*,
+        *host_definition*, *data*, *options*, *context*, *method*
+
+        *plugin_name* : Name of the plugin.
+
+        *plugin_type* : Type of plugin.
+
+        *host_definition* : Host type.
+
+        *data* : data to pass to the plugin.
+
+        *options* : options to pass to the plugin
+
+        *context* : result of the context plugin containing the context_id,
+        aset_name... Or None
+
+        *method* : Method of the plugin to be executed.
+
+        '''
         return ftrack_api.event.base.Event(
                     topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
                     data={
@@ -74,9 +110,27 @@ class BaseEngine(object):
             self, plugin, plugin_type, options=None, data=None, context=None,
             method='run'
     ):
-        '''Run *plugin*, *plugin_type*, with given *options*, *data* and
-        *context* and notify client with the status before and after execute
-        the plugin'''
+        '''
+        Returns the result of running the plugin with the event returned from
+        :meth:`run_event` using the given *plugin*, *plugin_type*,
+        *options*, *data*, *context*, *method*
+
+        *plugin* : Plugin definition, a dictionary with the plugin information.
+
+        *plugin_type* : Type of plugin.
+
+
+        *options* : options to pass to the plugin
+
+        *data* : data to pass to the plugin.
+
+        *context* : result of the context plugin containing the context_id,
+        aset_name... Or None
+
+        *method* : Method of the plugin to be executed.
+
+        '''
+
         plugin_name = plugin['plugin']
         start_data = {
             'plugin_name': plugin_name,
@@ -112,8 +166,16 @@ class BaseEngine(object):
         return result_data['status'], result_data['result']
 
     def _notify_client(self, plugin, result_data):
-        '''Publish an event to notify client with *data*, plugin_name from
-        *plugin*, *status* and *message*'''
+        '''
+        Publish an :class:`ftrack_api.event.base.Event` with the topic
+        :const:`~ftrack_connnect_pipeline.constants.PIPELINE_CLIENT_NOTIFICATION`
+        to notify the client of the given *plugin* result *result_data*.
+
+        *plugin* : Plugin definition, a dictionary with the plugin information.
+
+        *result_data* : Result of the plugin execution.
+
+        '''
 
         result_data['host_id'] = self.host_id
         if plugin:
@@ -133,18 +195,19 @@ class BaseEngine(object):
         )
 
     def run_definition(self, data):
-        '''Run packages from the provided data
-        *data* the json schema
-        Raise Exception if any context plugin, component plugin or finalizer
-        plugin returns a False status
-        Returns Bool'''
+        '''
+        Returns a :exc:`NotImplementedError`.
+        '''
 
         raise(NotImplementedError)
 
     def run(self, data):
         '''
-        Override function run methods and plugins from the provided *data*
-        Return result
+        Executes the :meth:`_run_plugin` with the provided *data*.
+        Returns the result of the mentioned method.
+
+        *data* : pipeline['data'] provided from the client host connection at
+        :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
         '''
 
         method = data.get('method', 'run')

@@ -6,31 +6,21 @@ from ftrack_connect_pipeline.constants import plugin
 
 
 class ActionPluginValidation(BasePluginValidation):
-    '''Collector Plugin Validation class'''
+    '''
+    Action Plugin Validation class inherits from
+    :class:`~ftrack_connect_pipeline.plugin.BasePluginValidation`
+    '''
 
     def __init__(self, plugin_name, required_output, return_type, return_value):
-        '''Initialise CollectorPluginValidation with *plugin_name*,
-        *required_output*, *return_type*, *return_value*.
-
-        *plugin_name* current plugin name stored at the plugin base class
-
-        *required_output* required output of the current plugin stored at
-        _required_output of the plugin base class
-
-        *return_type* return type of the current plugin stored at the plugin
-        base class
-
-        *return_value* return value of the current plugin stored at the
-        plugin base class
-        '''
         super(ActionPluginValidation, self).__init__(
             plugin_name, required_output, return_type, return_value)
 
     def validate_required_output(self, result):
-        '''Ensures that *result* contains the expected required_output defined
-        for the current plugin.
+        '''
+        Ensures that *result* contains all the expected :obj:`required_output`
+        values defined for the current plugin.
 
-        *result* output value of the plugin execution
+        *result* : output value of the plugin execution.
 
         Return tuple (bool,str)
         '''
@@ -47,44 +37,22 @@ class ActionPluginValidation(BasePluginValidation):
 
 
 class BaseActionPlugin(BasePlugin):
-    ''' Class representing a Collector Plugin
-
-    .. note::
-
-        _required_output a List
+    '''
+    Base Action Plugin Class inherits from
+    :class:`~ftrack_connect_pipeline.plugin.BasePlugin`
     '''
     return_type = list
+    '''Required return type'''
     plugin_type = plugin._PLUGIN_ACTION_TYPE
+    '''Type of the plugin'''
     _required_output = []
+    '''Required return output'''
 
     def __init__(self, session):
-        '''Initialise CollectorPlugin with *session*
-
-        *session* should be the :class:`ftrack_api.session.Session` instance
-        to use for communication with the server.
-        '''
         super(BaseActionPlugin, self).__init__(session)
         self.validator = ActionPluginValidation(
             self.plugin_name, self._required_output, self.return_type,
             self.return_value)
 
     def run(self, context=None, data=None, options=None):
-        '''Run the current plugin with , *context* , *data* and *options*.
-
-        *context* provides a mapping with the asset_name, context_id,
-        asset_type, comment and status_id of the asset that we are working on.
-
-        *data* a list of data coming from previous collector or empty list
-
-        *options* a dictionary of options passed from outside.
-
-        Returns self.output List of paths of collected objects.
-
-        .. note::
-
-            Use always self.output as a base to return the values,
-            don't override self.output as it contains the _required_output
-
-        '''
-
         raise NotImplementedError('Missing run method.')
