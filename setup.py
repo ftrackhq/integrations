@@ -10,9 +10,9 @@ import logging
 # # Package and dependencies versions.
 ftrack_connect_version = '2.0'
 ftrack_action_handler_version = '0.2.1'
-import PySide2
+# import PySide2
 
-plugins_path = os.path.join(PySide2.__path__[0], "plugins")
+# plugins_path = os.path.join(PySide2.__path__[0], "plugins")
 
 # Setup code
 
@@ -20,7 +20,7 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-from setuptools import Distribution, find_packages
+from setuptools import setup, Distribution, find_packages
 
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -39,7 +39,7 @@ with open(os.path.join(
 
 
 connect_install_require = (
-    'ftrack-connect @ git+https://bitbucket.org/ftrack/ftrack-connect/get/backlog/connect-2/story.zip#egg=ftrack-connect-{0}'
+    'git+https://bitbucket.org/ftrack/ftrack-connect.git@backlog/connect-2/story#egg=ftrack-connect-{0}'
 ).format(ftrack_connect_version)
 
 
@@ -73,8 +73,11 @@ configuration = dict(
         'cx_freeze'
     ],
     install_requires=[
-        connect_install_require,
+        'ftrack-connect',
         'boto == 2.28.0'
+    ],
+    dependency_links = [
+        connect_install_require
     ],
     options={},
     python_requires=">=3, <4"
@@ -255,8 +258,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         # 'ftrack_action_handler.action',
         # 'ftrack_location_compatibility',
         # 'boto',
-        # 'PySide.QtSvg',
-        # 'PySide.QtXml',
+        'PySide.QtSvg',
+        'PySide.QtXml',
         # 'packaging',
         # 'packaging.version',
         # 'packaging.specifiers',
@@ -301,6 +304,5 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         configuration['install_requires']
     )
 
-print(configuration)
 # Call main setup.
 setup(**configuration)
