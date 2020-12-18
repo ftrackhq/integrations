@@ -157,6 +157,7 @@ class BaseEngine(object):
                 event,
                 synchronous=True
             )
+
             if plugin_result_data:
                 result_data = plugin_result_data[0]
                 break
