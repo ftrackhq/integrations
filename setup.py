@@ -20,7 +20,7 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-from setuptools import Distribution, find_packages
+from setuptools import Distribution, find_packages, setup
 
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -39,7 +39,7 @@ with open(os.path.join(
 
 
 connect_install_require = (
-    'ftrack-connect @ git+https://bitbucket.org/ftrack/ftrack-connect/get/backlog/connect-2/story.zip#egg=ftrack-connect-{0}'
+    'ftrack-connect  @ git+https://bitbucket.org/ftrack/ftrack-connect.git@backlog/connect-2/story#egg=ftrack-connect'
 ).format(ftrack_connect_version)
 
 
@@ -59,13 +59,13 @@ configuration = dict(
         '': 'source'
     },
     setup_requires=[
-        'sphinx >= 1.2.2, < 2',
-        'sphinx_rtd_theme >= 0.1.6, < 2',
+        # 'sphinx >= 1.2.2, < 2',
+        # 'sphinx_rtd_theme >= 0.1.6, < 2',
         'lowdown >= 0.1.0, < 1',
         # The latest version of the cryptography library does not have a wheel
         # and building it fails.
-        'cryptography == 1.8.2',
-        'pyopenssl<= 17.0.0,<17.0.1',
+        'cryptography',
+        # 'pyopenssl<= 17.0.0,<17.0.1',
         'requests >= 2, <3',
         'ftrack_action_handler == {0}'.format(
             ftrack_action_handler_version
@@ -74,12 +74,13 @@ configuration = dict(
     ],
     install_requires=[
         connect_install_require,
-        'boto == 2.28.0'
     ],
     options={},
     python_requires=">=3, <4"
 )
 
+
+setup(**configuration)
 
 # Platform specific distributions.
 if sys.platform in ('darwin', 'win32', 'linux2'):
@@ -108,7 +109,6 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             SOURCE_PATH, 'ftrack_connect_package', '_version.py'
         ), 'resource/ftrack_connect_package_version.py'),
         'qt.conf',
-        os.path.join(plugins_path, "platforms")
     ]
 
     zip_include_packages = [
@@ -171,6 +171,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
                 base='Win32GUI',
                 targetName='ftrack_connect_package.exe',
                 icon='./logo.ico',
+                init_script=os.path.join(RESOURCE_PATH, 'frozen_bootstrap.py')
             )
         )
 
@@ -184,13 +185,18 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             'data': {'Shortcut': shortcut_table}
         }
 
+
+
+
     elif sys.platform == 'darwin':
         executables.append(
             Executable(
                 script='source/ftrack_connect_package/__main__.py',
                 base=None,
                 targetName='ftrack_connect_package',
-                icon='./logo.icns'
+                icon='./logo.icns',
+                init_script=os.path.join(RESOURCE_PATH, 'frozen_bootstrap.py')
+
             )
         )
 
@@ -213,8 +219,9 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
                 script='source/ftrack_connect_package/__main__.py',
                 base=None,
                 targetName='ftrack_connect_package',
-                icon='./logo.icns'
-            )
+                icon='./logo.icns',
+                init_script = os.path.join(RESOURCE_PATH, 'frozen_bootstrap.py')
+        )
         )
 
         # Force Qt to be included.
@@ -254,7 +261,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         # 'ftrack_action_handler',
         # 'ftrack_action_handler.action',
         # 'ftrack_location_compatibility',
-        # 'boto',
+        # 'PySide2',
+        # 'qt.py',
         # 'PySide.QtSvg',
         # 'PySide.QtXml',
         # 'packaging',
@@ -271,9 +279,13 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
     ])
 
     configuration['options']['build_exe'] = {
-        # 'initScript': os.path.join(RESOURCE_PATH, 'frozen_bootstrap.py'),
         'includes': includes,
-        "include_msvcr": True,
+        "zip_include_packages": [
+            "PySide2",
+            "shiboken2",
+            "encodings",
+        ],
+        # "include_msvcr": True,
         'excludes': [
             # The following don't actually exist, but are picked up by the
             # dependency walker somehow.
