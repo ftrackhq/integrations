@@ -427,7 +427,7 @@ class Client(object):
         plugin_name = event['data']['pipeline']['plugin_name']
         widget_ref = event['data']['pipeline']['widget_ref']
         message = event['data']['pipeline']['message']
-        user_message = event['data']['pipeline'].get('user_message')
+        user_message = event['data']['pipeline'].get('user_message', '')
 
         self._add_log_item(LogItem(event['data']['pipeline']))
 
