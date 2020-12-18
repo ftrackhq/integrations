@@ -151,6 +151,7 @@ class LogViewerDetailWidget(QtWidgets.QDockWidget):
     <div> <b>Plugin_type: </b>{plugin_type} </div>
     <p> <b>Result: </b>{result} </p>
     <p> <b>Message: </b>{message} </p>
+    <p> <b>User Message: </b>{user_message} </p>
     """
 
     @property
@@ -199,6 +200,7 @@ class LogViewerDetailWidget(QtWidgets.QDockWidget):
             plugin_name=data.plugin_name,
             plugin_type=data.plugin_type,
             result=data.result,
-            message=data.message
+            message=data.message,
+            user_message=data.user_message
         )
         self.textEdit.setText(formated_text)
