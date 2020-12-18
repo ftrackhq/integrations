@@ -4,11 +4,11 @@
 import os
 import logging
 import re
-from ftrack_connect_pipeline_maya import usage, host as maya_host
+from ftrack_connect_pipeline_maya import host as maya_host
 from ftrack_connect_pipeline_qt import event
 from ftrack_connect_pipeline import constants
 
-import maya.cmds as mc
+import maya.cmds as cmds
 import maya.mel as mm
 
 import ftrack_api
@@ -17,11 +17,11 @@ logger = logging.getLogger('ftrack_connect_pipeline_maya.scripts.userSetup')
 
 created_dialogs = dict()
 
-def get_ftrack_menu(menu_name = 'ftrack_pipeline'):
+def get_ftrack_menu(menu_name = 'ftrack', submenu_name = 'pipeline'):
     '''Get the current ftrack menu, create it if does not exists.'''
     gMainWindow = mm.eval('$temp1=$gMainWindow')
 
-    if mc.menu(
+    if cmds.menu(
             menu_name,
             exists=True,
             parent=gMainWindow,
@@ -30,14 +30,29 @@ def get_ftrack_menu(menu_name = 'ftrack_pipeline'):
         menu = menu_name
 
     else:
-        menu = mc.menu(
+        menu = cmds.menu(
             menu_name,
             parent=gMainWindow,
             tearOff=False,
             label=menu_name
         )
 
-    return menu
+    if cmds.menuItem(
+            submenu_name,
+            exists=True,
+            parent=menu,
+            label=submenu_name
+        ):
+            submenu = submenu_name
+    else:
+        submenu = cmds.menuItem(
+            submenu_name,
+            subMenu=True,
+            label=submenu_name,
+            parent=menu
+        )
+
+    return submenu
 
 def _open_dialog(dialog_class, event_manager):
     '''Open *dialog_class* and create if not already existing.'''
@@ -66,11 +81,7 @@ def initialise():
 
     maya_host.MayaHost(event_manager)
 
-    usage.send_event(
-        'USED-FTRACK-CONNECT-PIPELINE-MAYA'
-    )
-
-    mc.loadPlugin('ftrackMayaPlugin.py', quiet=True)
+    cmds.loadPlugin('ftrackMayaPlugin.py', quiet=True)
 
     from ftrack_connect_pipeline_maya.client import load
     from ftrack_connect_pipeline_maya.client import publish
@@ -97,12 +108,12 @@ def initialise():
     # Register and hook the dialog in ftrack menu
     for item in dialogs:
         if item == 'divider':
-            mc.menuItem(divider=True)
+            cmds.menuItem(divider=True)
             continue
 
         dialog_class, label = item
 
-        mc.menuItem(
+        cmds.menuItem(
             parent=ftrack_menu,
             label=label,
             command=(
@@ -113,4 +124,4 @@ def initialise():
 
 
 
-mc.evalDeferred('initialise()', lp=True)
+cmds.evalDeferred('initialise()', lp=True)
