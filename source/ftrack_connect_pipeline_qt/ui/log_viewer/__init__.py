@@ -144,13 +144,14 @@ class LogViewerDetailWidget(QtWidgets.QDockWidget):
 
     template = """
     <div> <b>Status: </b>{status} </div> 
-    <div> <b>Hostid: </b>{hostid} </div> 
+    <div> <b>Host_id: </b>{host_id} </div> 
     <div> <b>Widget_ref: </b>{widget_ref} </div> 
     <div> <b>Execution_time: </b>{execution_time} sec.</div> 
     <div> <b>Plugin_name: </b>{plugin_name} </div> 
     <div> <b>Plugin_type: </b>{plugin_type} </div>
     <p> <b>Result: </b>{result} </p>
     <p> <b>Message: </b>{message} </p>
+    <p> <b>User Message: </b>{user_message} </p>
     """
 
     @property
@@ -193,12 +194,13 @@ class LogViewerDetailWidget(QtWidgets.QDockWidget):
     def set_data(self, data):
         formated_text = self.template.format(
             status=data.status,
-            hostid=data.hostid,
+            host_id=data.host_id,
             widget_ref=data.widget_ref,
             execution_time=data.execution_time,
             plugin_name=data.plugin_name,
             plugin_type=data.plugin_type,
             result=data.result,
-            message=data.message
+            message=data.message,
+            user_message=data.user_message
         )
         self.textEdit.setText(formated_text)

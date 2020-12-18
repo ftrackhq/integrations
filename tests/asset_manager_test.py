@@ -8,7 +8,8 @@ import sys
 
 os.environ['FTRACK_EVENT_PLUGIN_PATH'] ='/Users/lluisftrack/work/brokenC/ftrack/repos/ftrack-connect-pipeline-definition/resource/plugins/python:' \
                                          '/Users/lluisftrack/work/brokenC/ftrack/repos/ftrack-connect-pipeline-definition/resource/plugins/qt:' \
-                                        '/Users/lluisftrack/work/brokenC/ftrack/repos/ftrack-connect-pipeline-definition/resource/application_hook:'
+                                        '/Users/lluisftrack/work/brokenC/ftrack/repos/ftrack-connect-pipeline-definition/resource/application_hook: ' \
+                                        '/Users/lluisftrack/work/brokenC/ftrack/repos/ftrack-connect-pipeline-definition/resource/definitions:'
 
 print os.environ['FTRACK_EVENT_PLUGIN_PATH']
 

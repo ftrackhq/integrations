@@ -3,8 +3,8 @@
 from ftrack_connect_pipeline import constants
 
 
-UI = 'qt'
-HOST = constants.HOST
+UI_TYPE = 'qt'
+HOST_TYPE = constants.HOST_TYPE
 
 # Base name.
 _BASE_ = 'ftrack.pipeline'

@@ -9,6 +9,10 @@ from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 
 
 class AccordionWidget(QtWidgets.QWidget):
+    @property
+    def title(self):
+        return self._title
+
     def __init__(self, parent=None, title=None, checkable=False):
         super(AccordionWidget, self).__init__(parent=parent)
 
@@ -45,7 +49,6 @@ class AccordionWidget(QtWidgets.QWidget):
         self.init_collapsable()
 
     def init_title_frame(self, title, collapsed):
-        #TODO: only checkable if the component optional is True
         self._title_frame = AccordionTitleWidget(
             title=title, collapsed=collapsed, checkable=self.checkable)
         return self._title_frame
@@ -96,20 +99,51 @@ class AccordionWidget(QtWidgets.QWidget):
 
     def init_collapsable(self):
         self._title_frame.clicked.connect(self.toggle_collapsed)
+        self._title_frame.checked.connect(self.enable_content)
 
     def is_checked(self):
         if self._title_frame.checkable:
             return self._title_frame.checkbox.isChecked()
         return True
 
+    def set_checked(self, checked):
+        if self._title_frame.checkable:
+            return self._title_frame.checkbox.setChecked(checked)
+
     def toggle_collapsed(self):
         self._content.setVisible(self._is_collasped)
         self._is_collasped = not self._is_collasped
         self._title_frame._arrow.set_arrow(int(self._is_collasped))
 
+    def enable_content(self, check_enabled):
+        self._content.setEnabled(check_enabled)
+
+    def paint_title(self, color):
+        self._title_frame._title_label.setStyleSheet(
+            "color: {}".format(color)
+        )
+
+    def set_unavailable(self):
+        self.setToolTip('This component is not available in Ftrack')
+        if not self.checkable:
+            self.paint_title("red")
+            self.setToolTip(
+                'This component is mandatory and is not available in Ftrack'
+            )
+        self.set_checked(False)
+        self.setEnabled(False)
+
+    def set_default_state(self):
+        self.setToolTip("")
+        if not self.checkable:
+            self._title_frame._title_label.setStyleSheet("")
+        self.set_checked(True)
+        self.setEnabled(True)
+
 
 class AccordionTitleWidget(QtWidgets.QFrame):
     clicked = QtCore.Signal()
+    checked = QtCore.Signal(object)
 
     @property
     def checkbox(self):
@@ -130,6 +164,7 @@ class AccordionTitleWidget(QtWidgets.QFrame):
 
         self.pre_build()
         self.build()
+        self.post_build()
 
     def pre_build(self):
         self.setMinimumHeight(24)
@@ -144,6 +179,10 @@ class AccordionTitleWidget(QtWidgets.QFrame):
         self._hlayout.addStretch()
         self._hlayout.addWidget(self.init_arrow(self.initial_collapse))
         self._hlayout.addWidget(self.init_status())
+
+    def post_build(self):
+        if self.checkbox:
+            self._checkbox.stateChanged.connect(self.enable_content)
 
     def init_status(self):
         self._status = Status()
@@ -170,6 +209,11 @@ class AccordionTitleWidget(QtWidgets.QFrame):
     def mousePressEvent(self, event):
         self.clicked.emit()
         return super(AccordionTitleWidget, self).mousePressEvent(event)
+
+    def enable_content(self, check_enabled):
+        self._title_label.setEnabled(check_enabled)
+        self.checked.emit(check_enabled)
+
 
 
 class Status(QtWidgets.QLabel):

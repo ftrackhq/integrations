@@ -3,6 +3,7 @@
 
 import logging
 from collections import OrderedDict
+from functools import partial
 
 import uuid
 import ftrack_api
@@ -20,16 +21,24 @@ class WidgetFactory(QtWidgets.QWidget):
     '''Main class to represent widgets from json schemas'''
 
     widget_status_updated = QtCore.Signal(object)
+    widget_context_updated = QtCore.Signal(object)
+    widget_asset_updated = QtCore.Signal(object, object, object)
+    widget_run_plugin = QtCore.Signal(object, object)
 
-    host_definitions = None
-    ui = None
+    host_types = None
+    ui_types = None
 
     @property
     def widgets(self):
         '''Return registered plugin's widgets.'''
         return self._widgets_ref
 
-    def __init__(self, event_manager, ui):
+    @property
+    def type_widgets(self):
+        '''Return registered plugin's widgets.'''
+        return self._type_widgets_ref
+
+    def __init__(self, event_manager, ui_types):
         '''Initialise WidgetFactory with *event_manager*, *ui*
 
         *event_manager* should be the
@@ -46,10 +55,13 @@ class WidgetFactory(QtWidgets.QWidget):
         )
         self.session = event_manager.session
         self._event_manager = event_manager
-        self.ui = ui
+        self.ui_types = ui_types
         self._widgets_ref = {}
+        self._type_widgets_ref = {}
         self.context = {}
         self.host_connection = None
+
+        self.components_names = []
 
         self.schema_type_mapping = {
             'object': schema_widget.JsonObject,
@@ -62,12 +74,13 @@ class WidgetFactory(QtWidgets.QWidget):
         self.schema_name_mapping = {
             'components': component.ComponentsArray,
             '_config': hidden.HiddenObject,
-            'ui': hidden.HiddenString,
+            'ui_type': hidden.HiddenString,
             'type': hidden.HiddenString,
             'name': hidden.HiddenString,
             'enabled': hidden.HiddenBoolean,
             'package': hidden.HiddenString,
-            'host': hidden.HiddenString
+            'host_type': hidden.HiddenString,
+            'optional': hidden.HiddenBoolean
         }
 
         self.schema_title_mapping = {
@@ -138,10 +151,25 @@ class WidgetFactory(QtWidgets.QWidget):
 
         if not widget_fn:
             widget_fn = self.schema_type_mapping.get(
-                schema_fragment.get('type'), schema_widget.UnsupportedSchema)
+                schema_fragment.get('type'))
 
-        return widget_fn(name, schema_fragment, fragment_data,
-                         previous_object_data, self, parent)
+        if not widget_fn:
+            if schema_fragment.get('allOf'):
+                # When the schema contains allOf in the keys, we handele it as
+                # an object type.
+                widget_fn = self.schema_type_mapping.get(
+                    'object', schema_widget.UnsupportedSchema
+                )
+            else:
+                widget_fn = schema_widget.UnsupportedSchema
+
+        type_widget = widget_fn(
+            name, schema_fragment, fragment_data, previous_object_data,
+            self, parent
+        )
+        self.register_type_widget_plugin(type_widget)
+
+        return type_widget
 
     def fetch_plugin_widget(self, plugin_data, plugin_type, extra_options=None):
         '''Returns a widget from the given *plugin_data*, *plugin_type* with
@@ -164,7 +192,12 @@ class WidgetFactory(QtWidgets.QWidget):
             plugin_data, plugin_type, widget_name, extra_options=extra_options
         )
         if not data:
-            widget_name = 'default.widget'
+            if plugin_type == 'publisher.validator':
+                # We have a particular default validator for the publisher to be
+                # able to enable test of each validator on publish time.
+                widget_name = 'default.validator.widget'
+            else:
+                widget_name = 'default.widget'
             self.logger.info(
                 'Widget not found, falling back on: {}'.format(widget_name)
             )
@@ -180,6 +213,8 @@ class WidgetFactory(QtWidgets.QWidget):
 
         message = data['message']
         result = data['result']
+        if result:
+            widget = result.get(result.keys()[0])
         status = data['status']
 
         if status == constants.EXCEPTION_STATUS:
@@ -191,18 +226,29 @@ class WidgetFactory(QtWidgets.QWidget):
                     message, plugin_data, plugin_type, widget_name)
             )
 
-        if result and not isinstance(result, BaseOptionsWidget):
+        if result and not isinstance(widget, BaseOptionsWidget):
             raise Exception(
                 'Widget {} should inherit from {}'.format(
-                    result,
+                    widget,
                     BaseOptionsWidget
                 )
             )
 
-        result.status_updated.connect(self._on_widget_status_updated)
-        self.register_widget_plugin(plugin_data, result)
+        widget.status_updated.connect(self._on_widget_status_updated)
+        widget.context_changed.connect(self._on_widget_context_changed)
+        widget.asset_changed.connect(self._on_widget_asset_changed)
+        widget.asset_version_changed.connect(self._asset_version_changed)
+        widget.emit_initial_state()
 
-        return result
+        self.register_widget_plugin(plugin_data, widget)
+
+        widget.run_plugin_clicked.connect(
+            partial(self.on_widget_run_plugin, plugin_data)
+        )
+        if widget.auto_fetch_on_init:
+            widget.fetch_on_init()
+
+        return widget
 
     def _fetch_plugin_widget(
             self, plugin_data, plugin_type, plugin_name, extra_options=None
@@ -218,16 +264,17 @@ class WidgetFactory(QtWidgets.QWidget):
         description = plugin_data.get('description', 'No description provided')
 
         result = None
-        for host_definition in reversed(self.host_connection.host_definitions):
-            for _ui in reversed(self.ui):
+        for host_type in reversed(self.host_connection.host_types):
+            for _ui_type in reversed(self.ui_types):
 
                 data = {
                     'pipeline': {
                         'plugin_name': plugin_name,
                         'plugin_type': plugin_type,
+                        'method': 'run',
                         'type': 'widget',
-                        'host': host_definition,
-                        'ui': _ui
+                        'host_type': host_type,
+                        'ui_type': _ui_type
                     },
                     'settings': {
                         'options': plugin_options,
@@ -256,12 +303,12 @@ class WidgetFactory(QtWidgets.QWidget):
         widget_ref = event['data']['pipeline']['widget_ref']
         status = event['data']['pipeline']['status']
         message = event['data']['pipeline']['message']
-        host_id = event['data']['pipeline']['hostid']
+        host_id = event['data']['pipeline']['host_id']
 
         widget = self.widgets.get(widget_ref)
         if not widget:
             self.logger.debug(
-                'Widget ref :{} not found for hostid {} ! '.format(
+                'Widget ref :{} not found for host_id {} ! '.format(
                     widget_ref, host_id
                 )
             )
@@ -274,6 +321,13 @@ class WidgetFactory(QtWidgets.QWidget):
                 )
             )
             widget.set_status(status, message)
+        if result:
+            self.logger.debug(
+                'updating widget: {} with run result {}'.format(
+                    widget, result
+                )
+            )
+            widget.set_run_result(result)
 
     def _listen_widget_updates(self):
         '''Subscribe to the PIPELINE_CLIENT_NOTIFICATION topic to call the
@@ -281,7 +335,7 @@ class WidgetFactory(QtWidgets.QWidget):
         same topic'''
 
         self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.hostid={}'.format(
+            'topic={} and data.pipeline.host_id={}'.format(
                 core_constants.PIPELINE_CLIENT_NOTIFICATION,
                 self.host_connection.id
             ),
@@ -292,6 +346,26 @@ class WidgetFactory(QtWidgets.QWidget):
         '''Emits signal widget_status_updated when any widget calls the
         status_updated signal'''
         self.widget_status_updated.emit(status)
+
+    def _on_widget_context_changed(self, context_id, asset_type):
+        new_context = {
+            'context_id': context_id,
+            'asset_type': asset_type
+        }
+        self.set_context(new_context)
+        self.widget_context_updated.emit(context_id)
+
+    def _on_widget_asset_changed(self, asset_name, asset_id, is_valid):
+        self.widget_asset_updated.emit(asset_name, asset_id, is_valid)
+
+    def on_widget_run_plugin(self, plugin_data, method, plugin_options):
+        '''
+        Called when a run button (run, fetch or any method button) is clicked
+        on the widget. *plugin_data* is the current plugin definition, *method*
+        is the method that has to be executed in the plugin, *plugin_options* is
+        not used for now but are the current options that the plugin has.
+        '''
+        self.widget_run_plugin.emit(plugin_data, method)
 
     def register_widget_plugin(self, plugin_data, widget):
         '''regiter the *widget* in the given *plugin_data*'''
@@ -304,3 +378,37 @@ class WidgetFactory(QtWidgets.QWidget):
     def get_registered_widget_plugin(self, plugin_data):
         '''return the widget registered for the given *plugin_data*.'''
         return self._widgets_ref[plugin_data['widget_ref']]
+
+    def register_type_widget_plugin(self, widget):
+        '''regiter the *widget* in the given *plugin_data*'''
+        uid = uuid.uuid4().hex
+        self._type_widgets_ref[uid] = widget
+
+        return uid
+
+    def reset_type_widget_plugin(self):
+        '''empty _type_widgets_ref diccionary'''
+        self._type_widgets_ref = {}
+
+    def check_components(self):
+        if not self.components_names:
+            return
+        for k, v in self.type_widgets.iteritems():
+            if hasattr(v, 'accordion_widgets'):
+                for widget in v.accordion_widgets:
+                    if widget.title not in self.components_names:
+                        widget.set_unavailable()
+                    else:
+                        widget.set_default_state()
+
+    def _asset_version_changed(self, version_id):
+        self.version_id = version_id
+        asset_version = self.session.query(
+            'select components '
+            'from AssetVersion where id is {}'.format(version_id)
+        ).first()
+        if not asset_version:
+            return
+        components = asset_version['components']
+        self.components_names = [component['name'] for component in components]
+        self.check_components()

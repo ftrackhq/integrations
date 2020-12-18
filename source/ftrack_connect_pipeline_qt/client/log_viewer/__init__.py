@@ -31,27 +31,27 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
 
         self.log_viewer_widget = LogViewerWidget(event_manager)
 
-        self.host_connection = None
+        self._host_connection = None
 
         self.pre_build()
         self.build()
         self.post_build()
         self.add_hosts(self.discover_hosts())
 
-    def add_hosts(self, hosts):
+    def add_hosts(self, host_connections):
         '''
         Adds the given *hosts*
         '''
-        for host in hosts:
-            if host in self.hosts:
+        for host_connection in host_connections:
+            if host_connection in self.host_connections:
                 continue
-            self._host_list.append(host)
+            self._host_connections.append(host_connection)
 
     def _host_discovered(self, event):
         '''callback, adds new hosts connection from the given *event* to the
         host_selector'''
         LogViewerClient._host_discovered(self, event)
-        self.host_selector.add_hosts(self.hosts)
+        self.host_selector.add_hosts(self.host_connections)
 
     def pre_build(self):
         '''Prepare general layout.'''
@@ -100,6 +100,11 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
         '''
         Triggered host is selected in the host_selector.
         '''
+        self._logs = []
+        self.log_viewer_widget.set_log_items(self.logs)
+        if not host_connection:
+            return
+
         LogViewerClient.change_host(self, host_connection)
 
         self.scroll.setWidget(self.log_viewer_widget)

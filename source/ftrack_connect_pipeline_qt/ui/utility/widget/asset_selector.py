@@ -3,10 +3,9 @@ from Qt import QtWidgets, QtCore, QtGui
 
 
 class AssetComboBox(QtWidgets.QComboBox):
-    context_changed = QtCore.Signal(object)
     valid_asset_name = QtCore.QRegExp('[A-Za-z0-9_]+')
 
-    def __init__(self, session, asset_type, parent=None):
+    def __init__(self, session, parent=None):
         super(AssetComboBox, self).__init__(parent=parent)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -14,40 +13,46 @@ class AssetComboBox(QtWidgets.QComboBox):
         self.setEditable(True)
 
         self.session = session
-        self.asset_type = asset_type
 
         validator = QtGui.QRegExpValidator(self.valid_asset_name)
         self.setValidator(validator)
 
-        self.post_build()
-
-    def post_build(self):
-        self.context_changed.connect(self._on_context_changed)
-
-    def _on_context_changed(self, context):
+    def on_context_changed(self, context, asset_type):
         self.clear()
+
         assets = self.session.query(
             'select name, versions.task.id , type.id '
             'from Asset where versions.task.id is {} and type.id is {}'.format(
-                context['id'], self.asset_type['id'])
+                context['id'], asset_type['id'])
         ).all()
         for asset in assets:
             self.addItem(asset['name'], asset['id'])
 
+    def validate_name(self):
+        is_valid_bool = True
+        if self.validator():
+            asset_name = self.currentText()
+            is_valid = self.validator().validate(asset_name, 0)
+            if is_valid[0] != QtGui.QValidator.Acceptable:
+                is_valid_bool = False
+                self.setStyleSheet("border: 1px solid red;")
+            else:
+                is_valid_bool = True
+                self.setStyleSheet("")
+        return is_valid_bool
+
 
 class AssetSelector(QtWidgets.QWidget):
 
-    asset_changed = QtCore.Signal(object, object)
+    asset_changed = QtCore.Signal(object, object, object)
 
-    def __init__(self, session, asset_type, parent=None):
+    def __init__(self, session, parent=None):
         super(AssetSelector, self).__init__(parent=parent)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        self.logger.info('init asset selector with : {}'.format(asset_type))
 
         self.session = session
-        self.asset_type = asset_type
 
         self.pre_build()
         self.build()
@@ -61,7 +66,7 @@ class AssetSelector(QtWidgets.QWidget):
 
     def build(self):
         self.asset_name_label = QtWidgets.QLabel("Asset Name")
-        self.asset_combobox = AssetComboBox(self.session, self.asset_type)
+        self.asset_combobox = AssetComboBox(self.session)
         self.layout().addWidget(self.asset_name_label)
         self.layout().addWidget(self.asset_combobox)
 
@@ -73,10 +78,11 @@ class AssetSelector(QtWidgets.QWidget):
 
     def _current_asset_changed(self, index):
         asset_name = self.asset_combobox.currentText()
+        is_valid_name = self.asset_combobox.validate_name()
         current_idx = self.asset_combobox.currentIndex()
         asset_id = self.asset_combobox.itemData(current_idx)
-        self.asset_changed.emit(asset_name, asset_id)
+        self.asset_changed.emit(asset_name, asset_id, is_valid_name)
 
-    def set_context(self, context):
+    def set_context(self, context, asset_type):
         self.logger.info('setting context to :{}'.format(context))
-        self.asset_combobox.context_changed.emit(context)
+        self.asset_combobox.on_context_changed(context, asset_type)

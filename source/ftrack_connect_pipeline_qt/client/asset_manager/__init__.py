@@ -29,27 +29,27 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
         self.asset_manager_widget = AssetManagerWidget(event_manager)
         self.asset_manager_widget.set_asset_list(self.ftrack_asset_list)
 
-        self.host_connection = None
+        self._host_connection = None
 
         self.pre_build()
         self.build()
         self.post_build()
         self.add_hosts(self.discover_hosts())
 
-    def add_hosts(self, hosts):
+    def add_hosts(self, host_connections):
         '''
         Adds the given *hosts*
         '''
-        for host in hosts:
-            if host in self.hosts:
+        for host_connection in host_connections:
+            if host_connection in self.host_connections:
                 continue
-            self._host_list.append(host)
+            self._host_connections.append(host_connection)
 
     def _host_discovered(self, event):
         '''callback, adds new hosts connection from the given *event* to the
         host_selector'''
         AssetManagerClient._host_discovered(self, event)
-        self.host_selector.add_hosts(self.hosts)
+        self.host_selector.add_hosts(self.host_connections)
 
     def pre_build(self):
         '''Prepare general layout.'''
@@ -159,6 +159,12 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
         '''
         Triggered host is selected in the host_selector.
         '''
+
+        self._reset_asset_list()
+        self.asset_manager_widget.set_asset_list(self.ftrack_asset_list)
+        if not host_connection:
+            return
+
         AssetManagerClient.change_host(self, host_connection)
 
         self.asset_manager_widget.set_host_connection(self.host_connection)

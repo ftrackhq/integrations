@@ -4,7 +4,8 @@ from Qt import QtWidgets, QtCore
 
 class DefinitionSelector(QtWidgets.QWidget):
     '''DefinitionSelector Base Class'''
-    definition_changed = QtCore.Signal(object, object, object)
+    definition_changed = QtCore.Signal(object, object)
+    host_changed = QtCore.Signal(object)
 
     @property
     def selected_host_connection(self):
@@ -23,7 +24,7 @@ class DefinitionSelector(QtWidgets.QWidget):
         self.schemas = None
         self.definition_filter = None
 
-        self.hosts = []
+        self.host_connections = []
         self.pre_build()
         self.build()
         self.post_build()
@@ -52,6 +53,7 @@ class DefinitionSelector(QtWidgets.QWidget):
         '''triggered when chaging host selection to *index*'''
         self.definition_combobox.clear()
         self.host_connection = self.host_combobox.itemData(index)
+        self.host_changed.emit(self.host_connection)
 
         if not self.host_connection:
             self.logger.warning('No data for selected host')
@@ -75,17 +77,20 @@ class DefinitionSelector(QtWidgets.QWidget):
             items = self.host_connection.definitions.get(schema_title)
 
             for item in items:
-                self.definition_combobox.addItem(
-                    '{} - {}'.format(
+                text = '{}'.format(item.get('name'))
+                if not self.definition_filter:
+                    text = '{} - {}'.format(
                         schema.get('title'),
                         item.get('name')
-                    ), item)
+                    )
+                self.definition_combobox.addItem(text, item)
 
     def _on_select_definition(self, index):
         self.definition = self.definition_combobox.itemData(index)
 
         if not self.definition:
             self.logger.warning('No data for selected definition')
+            self.definition_changed.emit(None, None)
             return
 
         for schema in self.schemas:
@@ -96,14 +101,13 @@ class DefinitionSelector(QtWidgets.QWidget):
                 self.schema = schema
                 break
 
-        self.definition_changed.emit(
-            self.host_connection,
-            self.schema,
-            self.definition)
+        self.definition_changed.emit(self.schema, self.definition)
 
-    def add_hosts(self, hosts):
-        for host in hosts:
-            self.host_combobox.addItem(host.id, host)
+    def add_hosts(self, host_connections):
+        for host_connection in host_connections:
+            self.host_combobox.addItem(host_connection.name, host_connection)
+        if len(host_connections) == 1:
+            self.host_combobox.setCurrentIndex(1)
 
     def set_definition_filter(self, filter):
         self.definition_filter = filter

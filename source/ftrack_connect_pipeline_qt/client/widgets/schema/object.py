@@ -4,6 +4,19 @@
 from Qt import QtCore, QtWidgets
 from ftrack_connect_pipeline_qt.client.widgets.schema import BaseJsonWidget
 
+def merge(source, destination):
+    """
+    Utility function to merge two json objects
+    """
+    for key, value in source.items():
+        if isinstance(value, dict):
+            # get node or create one
+            node = destination.setdefault(key, {})
+            merge(value, node)
+        else:
+            destination[key] = value
+
+    return destination
 
 class JsonObject(BaseJsonWidget):
     '''Widget representation of an object'''
@@ -20,6 +33,20 @@ class JsonObject(BaseJsonWidget):
         )
 
     def build(self):
+        if self.schema_fragment.get('allOf'):
+            # Dealing with allOf objects in the schemas, will create the widget
+            # without any inner widgets or grupboxes, layout....
+            new_schema = self.schema_fragment.get('allOf')[0]
+            for k, v in self.schema_fragment.items():
+                if k != 'allOf':
+                    new_schema[k] = merge(v, new_schema[k])
+            widget = self.widget_factory.create_widget(
+                self.name, new_schema, self.fragment_data,
+                self.previous_object_data
+            )
+            self.layout().addWidget(widget)
+            return
+
         self.groupBox = QtWidgets.QGroupBox(self.name, self._parent)
         layout = QtWidgets.QVBoxLayout()
         self.innerLayout = QtWidgets.QVBoxLayout()
@@ -63,7 +90,22 @@ class JsonObject(BaseJsonWidget):
     def to_json_object(self):
         out = {}
 
-        if 'widget' in list(self.properties.keys()):
+        if self.schema_fragment.get('allOf'):
+            # return the widget information when schema cointains allOf,
+            # the widget doesn't have any inner widgets, so we query the
+            # information from the widget 0 which is the allOf widget, and
+            # augment the widget information with the data_fragment keys and
+            # values to match the schema.
+            widget = self.layout().itemAt(0).widget()
+            if 'to_json_object' in dir(widget):
+                out = widget.to_json_object()
+                for k, v in list(self.fragment_data.items()):
+                    if k not in list(out.keys()):
+                        out[k] = v
+        elif 'widget' in list(self.properties.keys()):
+            # return the widget information when widget is in properties keys,
+            # and augment the widget information with the data_fragment keys and
+            # values to match the schema.
             widget = self.widget_factory.get_registered_widget_plugin(
                 self.fragment_data)
             out = widget.to_json_object()
@@ -71,7 +113,9 @@ class JsonObject(BaseJsonWidget):
                 if k not in list(out.keys()):
                     out[k] = v
         else:
+            # Return the widget information for any other case.
             for k, v in list(self.properties.items()):
                 widget = self.properties_widgets[k]
                 out[k] = widget.to_json_object()
+
         return out

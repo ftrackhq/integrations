@@ -19,7 +19,7 @@ class HostSelector(QtWidgets.QWidget):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        self.hosts = []
+        self.host_connections = []
         self.pre_build()
         self.build()
         self.post_build()
@@ -45,12 +45,13 @@ class HostSelector(QtWidgets.QWidget):
 
         if not self.host_connection:
             self.logger.warning('No data for selected host')
-            return
 
         self.host_changed.emit(self.host_connection)
 
-    def add_hosts(self, hosts):
-        for host in hosts:
-            self.host_combobox.addItem(host.id, host)
+    def add_hosts(self, host_connections):
+        for host_connection in host_connections:
+            self.host_combobox.addItem(host_connection.name, host_connection)
+        if len(host_connections) == 1:
+            self.host_combobox.setCurrentIndex(1)
 
 

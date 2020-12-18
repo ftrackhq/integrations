@@ -32,8 +32,16 @@ class JsonArray(BaseJsonWidget):
                     name = data.get('name')
                 else:
                     name = data
+                # The oneOf implementation for the schemas, oneOf is a list
+                # of refs
+                if self.schema_fragment['items'].get('oneOf'):
+                    schema_fragment = self.schema_fragment['items'].get(
+                        'oneOf'
+                    )[self.count]
+                else:
+                    schema_fragment = self.schema_fragment['items']
                 obj = self.widget_factory.create_widget(
-                    name, self.schema_fragment['items'], data,
+                    name, schema_fragment, data,
                     self.previous_object_data
                 )
                 self.innerLayout.addWidget(obj)

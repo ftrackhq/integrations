@@ -159,7 +159,7 @@ class AssetManagerWidget(QtWidgets.QWidget):
         same topic'''
 
         self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.hostid={}'.format(
+            'topic={} and data.pipeline.host_id={}'.format(
                 core_const.PIPELINE_CLIENT_NOTIFICATION,
                 self.host_connection.id
             ),
