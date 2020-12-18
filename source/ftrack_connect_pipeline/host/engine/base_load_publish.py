@@ -8,19 +8,36 @@ from ftrack_connect_pipeline.host.engine import BaseEngine
 
 
 class BaseLoaderPublisherEngine(BaseEngine):
+    '''
+    Base Loader and Publisher Engine class.
+    '''
     engine_type = 'loader_publisher'
+    '''Engine type for this engine class'''
 
     def __init__(self, event_manager, host_types, host_id, asset_type):
-        '''Initialise LoaderEngine with *event_manager*, *host*, *hostid* and
-        *asset_type*'''
+        '''
+        Initialise HostConnection with instance of
+        :class:`~ftrack_connect_pipeline.event.EventManager` , and *host*,
+        *host_id* and *asset_type*
+
+        *host* : Host type.. (ex: python, maya, nuke....)
+
+        *host_id* : Host id.
+
+        *asset_type* : Asset type should be specified.
+        '''
         super(BaseLoaderPublisherEngine, self).__init__(
             event_manager, host_types, host_id, asset_type
         )
 
     def run_context(self, context_stage):
-        '''Run *context_pligins*.
-        Raise Exception if any plugin returns a False status
-        Returns *statuses* (List) *results* (List)'''
+        '''
+        Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
+        result of executing the plugins of the given *context_stage* with the
+        :meth:`_run_plugin`
+
+        *context_stage* : Context stage of dictionary of a valid definition.
+        '''
         statuses = []
         results = {}
 
@@ -56,11 +73,22 @@ class BaseLoaderPublisherEngine(BaseEngine):
     def run_component(
             self, component_name, component_stages, context_data, stages_order
     ):
-        '''Run component plugins for *component_name*, *component_stages* with
-        *context_data* with the
-        provided *stages_order*.
-        Raise Exception if any plugin returns a False status
-        Returns *statuses* (List) *results* (List)'''
+        '''
+        Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
+        result of executing the plugins with the :meth:`_run_plugin` of the
+        given *component_stages* of the given  *component_name* with the
+        given *stages_order* and the given *context_data*
+
+        *component_name* : Component name where we are working on
+
+        *component_stages* : Stages of the component name. (Collector,
+        validator...)
+
+        *context_data* : Data returned from the execution of the context plugin.
+
+        *stages_order* : Order of the *component_stages* to be executed
+        '''
+
         results = {}
         statuses = {}
 
@@ -120,10 +148,19 @@ class BaseLoaderPublisherEngine(BaseEngine):
         return statuses, results
 
     def run_finalizer(self, finalizer_stage, finalizer_data, context_data):
-        '''Run finalizer plugins for *finalizer_plugins* with *finalizer_data*
-        and *context_data*.
-        Raise Exception if any plugin returns a False status
-        Returns *statuses* (List) *results* (List)'''
+        '''
+        Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
+        result of executing the plugins with the :meth:`_run_plugin` of the
+        given *finalizer_stage* with the given *finalizer_data* and the
+        given *context_data*
+
+        *finalizer_stage* : Finalizer stage Name (finalizer)
+
+        *finalizer_data* : Collected data from the execution of the output stage
+        or post_import stage of the previously executed components.
+
+        *context_data* : Data returned from the execution of the context plugin.
+        '''
         statuses = []
         results = []
 
@@ -152,11 +189,15 @@ class BaseLoaderPublisherEngine(BaseEngine):
         return statuses, results
 
     def run_definition(self, data):
-        '''Run packages from the provided data
-        *data* the json schema
-        Raise Exception if any context plugin, component plugin or finalizer
-        plugin returns a False status
-        Returns Bool'''
+        '''
+        Runs the whole definition from the provided *data*.
+        Call the methods :meth:`run_context` , :meth:`run_components` and
+        :meth:`run_finalizer`. Raises Exceptions if any of this methods fails.
+
+        *data* : pipeline['data'] provided from the client host connection at
+        :meth:`~ftrack_connect_pipeline.client.HostConnection.run` Should be a
+        valid definition.
+        '''
 
         context_plugins = data[constants.CONTEXTS]
         context_status, context_result = self.run_context(context_plugins)
