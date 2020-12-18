@@ -292,6 +292,8 @@ class BasePlugin(object):
         self.logger.debug('plugin_settings : {}'.format(plugin_settings))
         start_time = time.time()
 
+        user_message = None
+
         result_data = {
             'plugin_name': self.plugin_name,
             'plugin_type': self.plugin_type,
@@ -299,7 +301,8 @@ class BasePlugin(object):
             'status': constants.UNKNOWN_STATUS,
             'result': None,
             'execution_time': 0,
-            'message': None
+            'message': None,
+            'user_message': user_message
             }
 
         run_fn = getattr(self, method)
@@ -313,12 +316,15 @@ class BasePlugin(object):
             return result_data
         try:
             result = run_fn(**plugin_settings)
+            if isinstance(result, tuple):
+                user_message = result[1]
+                result = result[0]
 
         except Exception as message:
             end_time = time.time()
             total_time = end_time - start_time
             tb = traceback.format_exc()
-            self.logger.debug(message, exc_info=True)
+            self.logger.warning(message, exc_info=True)
             result_data['status'] = constants.EXCEPTION_STATUS
             result_data['execution_time'] = total_time
             result_data['message'] = str(tb)
@@ -334,6 +340,7 @@ class BasePlugin(object):
             message = 'Successfully run :{}'.format(self.__class__.__name__)
         result_data['status'] = status
         result_data['message'] = message
+        result_data['user_message'] = user_message
 
         bool_status = constants.status_bool_mapping[status]
         if bool_status:

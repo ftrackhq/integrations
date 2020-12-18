@@ -133,7 +133,6 @@ class Host(object):
             runner_result = engine_runner.run(data)
         if runner_result == False:
             self.logger.error("Couldn't publish the data {}".format(data))
-
         return runner_result
 
     def get_asset_type_from_packages(self, packages, data_package):
