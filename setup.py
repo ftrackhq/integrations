@@ -308,9 +308,15 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             'PySide2.QtWidgets',
             'PySide2.QtGui',
             "encodings",
+            'http.server',
+            'urllib.parser',
+            'webbrowser'
         ],
         # "include_msvcr": True,
         'excludes': [
+            "tkinter",
+            "unittest",
+            # "email",
             # The following don't actually exist, but are picked up by the
             # dependency walker somehow.
             # 'boto.compat.sys',
