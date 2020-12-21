@@ -214,7 +214,7 @@ class WidgetFactory(QtWidgets.QWidget):
         message = data['message']
         result = data['result']
         if result:
-            widget = result.get(result.keys()[0])
+            widget = result.get(list(result.keys())[0])
         status = data['status']
 
         if status == constants.EXCEPTION_STATUS:
