@@ -177,7 +177,7 @@ class FtrackAssetNode(FtrackAssetBase):
         try:
             rt.freeze(ftrack_object)
             rt.setTransformLockFlags(ftrack_object, rt.name("all"))
-        except Exception, e:
+        except Exception as e:
             self.logger.debug(
                 "Could not freeze object {0}, Error: {1}".format(
                     self.asset_info['asset_name'], e
@@ -220,7 +220,7 @@ class FtrackAssetNode(FtrackAssetBase):
 
         try:
             rt.freeze(ftrack_object)
-        except Exception, e:
+        except Exception as e:
             self.logger.debug(
                 "Could not freeze object {0}, Error: {1}".format(
                     ftrack_object.Name, e
