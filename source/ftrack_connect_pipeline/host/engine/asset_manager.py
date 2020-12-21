@@ -122,7 +122,7 @@ class AssetManagerEngine(BaseEngine):
         for asset_info in assets:
             try:
                 status, result = self.remove_asset(asset_info, options, plugin)
-            except Exception, e:
+            except Exception as e:
                 status = constants.ERROR_STATUS
                 self.logger.error(
                     "Error removing asset with version id {} \n error: {} "
@@ -185,7 +185,7 @@ class AssetManagerEngine(BaseEngine):
                 options['clear_selection'] = False
             try:
                 status, result = self.select_asset(asset_info, options, plugin)
-            except Exception, e:
+            except Exception as e:
                 status = constants.ERROR_STATUS
                 self.logger.error(
                     "Error selecting asset with version id {} \n error: {} "
@@ -246,7 +246,7 @@ class AssetManagerEngine(BaseEngine):
         for asset_info in assets:
             try:
                 status, result = self.update_asset(asset_info, options, plugin)
-            except Exception, e:
+            except Exception as e:
                 status = constants.ERROR_STATUS
                 self.logger.error(
                     "Error updating asset with version id {} \n error: {} "
@@ -378,7 +378,7 @@ class AssetManagerEngine(BaseEngine):
             remove_status, remove_result = self.remove_asset(
                 asset_info=asset_info, options=None, plugin=None
             )
-        except Exception, e:
+        except Exception as e:
             remove_status = constants.ERROR_STATUS
             message = str(
                 "Error removing asset with version id {} \n error: {} "
@@ -406,7 +406,7 @@ class AssetManagerEngine(BaseEngine):
 
         try:
             new_asset_info = ftrack_asset_object.change_version(new_version_id)
-        except Exception, e:
+        except Exception as e:
             status = constants.ERROR_STATUS
             message = str(
                 "Error changing version of asset with version id {} \n "

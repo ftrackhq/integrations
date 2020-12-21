@@ -63,7 +63,7 @@ class EventManager(object):
         _connected = False
         try:
             _connected = self.session.event_hub.connected
-        except Exception, e:
+        except Exception as e:
             self.logger.error("Error checking event hub connected {}".format(e))
         return _connected
 
