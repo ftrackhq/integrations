@@ -24,7 +24,7 @@ abc_default_import_options = {
 
 def get_str_options(options):
     job_args = []
-    for k, v in abc_default_import_options.iteritems():
+    for k, v in abc_default_import_options.items():
         if k in list(options.keys()):
             job_args.append('{}={}'.format(k, options[k]))
         else:
@@ -34,7 +34,7 @@ def get_str_options(options):
 
 
 def import_abc(file_path, options):
-    for key, value in abc_default_import_options.iteritems():
+    for key, value in abc_default_import_options.items():
         if key in list(options.keys()):
             cmd = 'rt.AlembicImport.{} = {}'.format(key, options[key])
         else:
