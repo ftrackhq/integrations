@@ -2,6 +2,8 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 import json
+import six
+import base64
 from ftrack_connect_pipeline.asset import FtrackAssetInfo, FtrackAssetBase
 from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
 from ftrack_connect_pipeline_3dsmax.constants.asset import modes as load_const
@@ -212,8 +214,14 @@ class FtrackAssetNode(FtrackAssetBase):
                 rt.setProperty(obj, p, str(self.asset_info[str(p)]))
             elif str(p) == asset_const.ASSET_INFO_OPTIONS:
                 decoded_value = self.asset_info[str(p)]
+                json_data = json.dumps(decoded_value)
+                if six.PY2:
+                    encoded_value = base64.b64encode(json_data)
+                else:
+                    input_bytes = json_data.encode('utf8')
+                    encoded_value = base64.b64encode(input_bytes).decode('ascii')
                 rt.setProperty(
-                    obj, p, str(json.dumps(decoded_value).encode('base64'))
+                    obj, p, str(encoded_value)
                 )
             else:
                 rt.setProperty(obj, p, self.asset_info[str(p)])
