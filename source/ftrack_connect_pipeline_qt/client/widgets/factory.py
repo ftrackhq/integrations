@@ -393,7 +393,7 @@ class WidgetFactory(QtWidgets.QWidget):
     def check_components(self):
         if not self.components_names:
             return
-        for k, v in self.type_widgets.iteritems():
+        for k, v in self.type_widgets.items():
             if hasattr(v, 'accordion_widgets'):
                 for widget in v.accordion_widgets:
                     if widget.title not in self.components_names:
