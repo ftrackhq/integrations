@@ -270,11 +270,6 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'ftrack_api.resource_identifier_transformer.base',
         'ftrack_api.structure.id',
         'encodings',
-        # 'ftrack_connect_rv',
-        # 'ftrack_connect_cinema_4d',
-        # 'ftrack_action_handler',
-        # 'ftrack_action_handler.action',
-        # 'ftrack_location_compatibility',
         'PySide2',
         'Qt',
         'shiboken2',
@@ -283,22 +278,20 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'PySide2.QtCore',
         'PySide2.QtWidgets',
         'PySide2.QtGui',
-        # 'packaging',
-        # 'packaging.version',
-        # 'packaging.specifiers',
-        # 'packaging.requirements',
         'ssl',
         'xml.etree',
         'xml.etree.ElementTree',
         'xml.etree.ElementPath',
         'xml.etree.ElementInclude',
-        'xml.dom'
-        
+        'http',
+        'http.server',
+        'webbrowser'
     ])
 
     configuration['options']['build_exe'] = {
         'includes': includes,
         "zip_include_packages": [
+            'ftrack_connect',
             "PySide2",
             "shiboken2",
             "Qt",
@@ -308,7 +301,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             'PySide2.QtWidgets',
             'PySide2.QtGui',
             "encodings",
-            'http.server',
+            'http',
             'urllib.parser',
             'webbrowser'
         ],
