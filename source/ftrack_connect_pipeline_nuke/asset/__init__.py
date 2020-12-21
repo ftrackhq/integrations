@@ -261,7 +261,7 @@ class FtrackAssetTab(FtrackAssetBase):
 
         ftrack_object.addKnob(_tab)
 
-        for k in self.asset_info.keys():
+        for k in list(self.asset_info.keys()):
             knob = nuke.String_Knob(k)
             ftrack_object.addKnob(knob)
 
