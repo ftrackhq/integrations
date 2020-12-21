@@ -5,7 +5,6 @@ import sys
 import os
 import argparse
 import logging
-import PySide2
 
 logger = logging.getLogger(__name__)
 

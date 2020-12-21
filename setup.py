@@ -122,7 +122,10 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             SOURCE_PATH, 'ftrack_connect_package', '_version.py'
         ), 'resource/ftrack_connect_package_version.py'),
         'qt.conf',
-        os.path.join(plugins_path, "platforms")
+        os.path.join(plugins_path, "platforms"),
+        os.path.join(plugins_path, "imageformats"),
+        os.path.join(plugins_path, "iconengines"),
+
     ]
 
     zip_include_packages = [
@@ -277,6 +280,9 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'shiboken2',
         'PySide2.QtSvg',
         'PySide2.QtXml',
+        'PySide2.QtCore',
+        'PySide2.QtWidgets',
+        'PySide2.QtGui',
         # 'packaging',
         # 'packaging.version',
         # 'packaging.specifiers',
@@ -298,17 +304,20 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             "Qt",
             'PySide2.QtSvg',
             'PySide2.QtXml',
+            'PySide2.QtCore',
+            'PySide2.QtWidgets',
+            'PySide2.QtGui',
             "encodings",
         ],
         # "include_msvcr": True,
         'excludes': [
             # The following don't actually exist, but are picked up by the
             # dependency walker somehow.
-            'boto.compat.sys',
-            'boto.compat._sre',
-            'boto.compat.array',
-            'boto.compat._struct',
-            'boto.compat._json',
+            # 'boto.compat.sys',
+            # 'boto.compat._sre',
+            # 'boto.compat.array',
+            # 'boto.compat._struct',
+            # 'boto.compat._json',
 
             # Compiled yaml uses unguarded pkg_resources.resource_filename which
             # won't work in frozen package.
