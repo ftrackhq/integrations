@@ -8,6 +8,33 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+'''
+Fix for missing sys.stderror when building Win32GUI cx_freeze
+see: https://github.com/marcelotduarte/cx_Freeze/issues/60
+'''
+
+try:
+    sys.stdout.write("\n")
+    sys.stdout.flush()
+except Exception:
+    import sys
+    import http.server
+
+    class SysWrapper(object):
+        def __getattribute__(self, item):
+            if item is 'stderr':
+                class DummyStream:
+                    def __init__(self): pass
+
+                    def write(self, *args, **kwargs):
+                        logger.info(args)
+
+                return DummyStream()
+            return getattr(sys, item)
+
+
+    http.server.sys = SysWrapper()
+
 
 def set_environ_default(name, value):
     '''Set environment variable *name* and *value* as default.'''
