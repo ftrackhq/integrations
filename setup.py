@@ -15,6 +15,7 @@ import os
 import re
 import opcode
 import logging
+import pkg_resources
 
 # # Package and dependencies versions.
 
@@ -46,6 +47,12 @@ with open(os.path.join(
     VERSION = re.match(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
+
+
+connect_resource_hook = pkg_resources.resource_filename(
+    pkg_resources.Requirement.parse('ftrack-connect'),
+    'ftrack_connect_resource/hook'
+)
 
 
 connect_install_require = 'ftrack-connect'.format(ftrack_connect_version)
@@ -116,6 +123,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
     import requests.certs
 
     include_files = [
+        (connect_resource_hook, 'resource/hook'),
         (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'),
         (requests.certs.where(), 'resource/cacert.pem'),
         (os.path.join(
@@ -186,6 +194,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             Executable(
                 script='source/ftrack_connect_package/__main__.py',
                 base='Win32GUI',
+                #base=None,
                 targetName='ftrack_connect_package.exe',
                 icon='./logo.ico',
                 # initScript=os.path.join(RESOURCE_PATH, 'frozen_bootstrap.py')
