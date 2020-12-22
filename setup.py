@@ -94,8 +94,6 @@ class BuildPlugin(setuptools.Command):
             STAGING_PATH
         )
 
-        print 'Result: ' + result_path
-
 
 # Custom commands.
 class PyTest(TestCommand):
