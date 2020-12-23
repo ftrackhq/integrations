@@ -9,13 +9,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 '''
-Fix for missing sys.stderror when building Win32GUI cx_freeze
+Fix for missing sys.stderr when building Win32GUI cx_freeze
 see: https://github.com/marcelotduarte/cx_Freeze/issues/60
 '''
 
 try:
-    sys.stdout.write("\n")
-    sys.stdout.flush()
+    sys.stderr.write("\n")
+    sys.stderr.flush()
 except Exception:
     import sys
     import http.server
@@ -58,17 +58,7 @@ set_environ_default(
         )
     )
 )
-#
-#     # Set path to resource script folder if package is frozen.
-#     set_environ_default(
-#         'FTRACK_RESOURCE_SCRIPT_PATH',
-#         os.path.abspath(
-#             os.path.join(
-#                 os.path.dirname(sys.executable), 'resource', 'script'
-#             )
-#         )
-#     )
-#
+
 # Set the path to certificate file in resource folder. This allows requests
 # module to read it outside frozen zip file.
 set_environ_default(
@@ -160,8 +150,7 @@ if __name__ == '__main__':
         parsedArguments.script and
         _validatePythonScript(parsedArguments.script)
     ):
-        execfile(parsedArguments.script)
-
+        exec(open(parsedArguments.script).read())
         raise SystemExit()
 
     raise SystemExit(
