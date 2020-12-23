@@ -309,7 +309,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         'xml.etree.ElementInclude',
         'http',
         'http.server',
-        'webbrowser'
+        'webbrowser',
     ])
 
     configuration['options']['build_exe'] = {
@@ -349,6 +349,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
             # Exclude distutils from virtualenv due to entire package with
             # sub-modules not being copied to virtualenv.
+            # 'distutils',
             # 'distutils',
 
         ],
