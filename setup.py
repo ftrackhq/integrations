@@ -23,7 +23,7 @@ ftrack_connect_version = '2.0'
 ftrack_action_handler_version = '0.2.1'
 import PySide2
 
-plugins_path = os.path.join(PySide2.__path__[0], "plugins")
+pyside_path = os.path.join(PySide2.__path__[0])
 
 # Setup code
 
@@ -31,7 +31,7 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-from setuptools import Distribution, find_packages, setup as main_setup
+from setuptools import Distribution, find_packages, setup as setup
 
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -58,8 +58,7 @@ connect_resource_hook = pkg_resources.resource_filename(
 connect_install_require = 'ftrack-connect'.format(ftrack_connect_version)
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'git+https://bitbucket.org/ftrack/ftrack-connect.git@backlog/connect-2/story'
-    '#egg=ftrack-connect'
+    'git+https://bitbucket.org/ftrack/ftrack-connect.git@backlog/connect-2/story#egg=ftrack-connect'
 ).format(ftrack_connect_version)
 
 
@@ -87,7 +86,10 @@ configuration = dict(
         'ftrack_action_handler == {0}'.format(
             ftrack_action_handler_version
         ),
-        'cx_freeze'
+        'cx_freeze',
+        'pyside2==5.14.1',
+        'wheel',
+        'setuptools'
     ],
     install_requires=[
         connect_install_require
@@ -100,14 +102,14 @@ configuration = dict(
 )
 
 # to run : python setup.py install
-main_setup(**configuration)
+setup(**configuration)
 
 # Platform specific distributions.
-if sys.platform in ('darwin', 'win32', 'linux2'):
+if sys.platform in ('darwin', 'win32', 'linux'):
 
     configuration['setup_requires'].append('cx_freeze')
 
-    from cx_Freeze import setup as cx_setup, Executable, build
+    from cx_Freeze import setup ,Executable, build
 
     # Ensure ftrack-connect is
     # available for import and then discover ftrack-connect and
@@ -129,11 +131,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         (os.path.join(
             SOURCE_PATH, 'ftrack_connect_package', '_version.py'
         ), 'resource/ftrack_connect_package_version.py'),
-        'qt.conf',
-        os.path.join(plugins_path, "platforms"),
-        os.path.join(plugins_path, "imageformats"),
-        os.path.join(plugins_path, "iconengines"),
-
+        'qt.conf'
     ]
 
     zip_include_packages = [
@@ -211,6 +209,14 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             'data': {'Shortcut': shortcut_table}
         }
 
+        include_files.extend(
+            [
+                os.path.join(pyside_path, "plugins", "platforms"),
+                os.path.join(pyside_path, "plugins", "imageformats"),
+                os.path.join(pyside_path, "plugins", "iconengines"),
+            ]
+        )
+
     elif sys.platform == 'darwin':
         executables.append(
             Executable(
@@ -236,7 +242,8 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             'volume_label': 'ftrack-connect-{0}'.format(VERSION)
         }
 
-    elif sys.platform == 'linux2':
+    elif sys.platform == 'linux':
+
         executables.append(
             Executable(
                 script='source/ftrack_connect_package/__main__.py',
@@ -245,6 +252,14 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
                 icon='./logo.icns',
                 # initScript=os.path.join(RESOURCE_PATH, 'frozen_bootstrap.py')
         )
+        )
+
+        include_files.extend(
+            [
+                os.path.join(pyside_path,"Qt", "plugins", "platforms"),
+                os.path.join(pyside_path,"Qt", "plugins", "imageformats"),
+                os.path.join(pyside_path,"Qt", "plugins", "iconengines"),
+            ]
         )
 
         # Force Qt to be included.
@@ -318,6 +333,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'excludes': [
             "tkinter",
             "unittest",
+            "test",
             # "email",
             # The following don't actually exist, but are picked up by the
             # dependency walker somehow.
@@ -333,7 +349,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
 
             # Exclude distutils from virtualenv due to entire package with
             # sub-modules not being copied to virtualenv.
-            'distutils',
+            # 'distutils',
 
         ],
         'include_files': include_files,
@@ -346,4 +362,4 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
     )
 
 # Call main setup.
-cx_setup(**configuration)
+setup(**configuration)
