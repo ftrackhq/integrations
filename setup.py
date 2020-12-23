@@ -102,7 +102,7 @@ configuration = dict(
 )
 
 # to run : python setup.py install
-setup(**configuration)
+# setup(**configuration)
 
 # Platform specific distributions.
 if sys.platform in ('darwin', 'win32', 'linux'):
@@ -134,13 +134,8 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         'qt.conf'
     ]
 
-    zip_include_packages = [
-        "PySide2",
-        "shiboken2",
-        "encodings",
-    ]
 
-
+    zip_include_packages = []
     executables = []
     bin_includes = []
     includes = []
@@ -155,39 +150,40 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         else:
             includes.append(dbmodule)
 
-    # MSI shotcut table list.
-    shortcut_table = [
-        (
-            'DesktopShortcut',
-            'DesktopFolder',
-            'ftrack-connect',
-            'TARGETDIR',
-            '[TARGETDIR]ftrack_connect_package.exe',
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            'TARGETDIR'
-         ),
-        (
-            'ProgramMenuShortcut',
-            'ProgramMenuFolder',
-            'ftrack-connect',
-            'TARGETDIR',
-            '[TARGETDIR]ftrack_connect_package.exe',
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            'TARGETDIR'
-         )
-    ]
-
     if sys.platform == 'win32':
+
+        # MSI shotcut table list.
+        shortcut_table = [
+            (
+                'DesktopShortcut',
+                'DesktopFolder',
+                'ftrack-connect',
+                'TARGETDIR',
+                '[TARGETDIR]ftrack_connect_package.exe',
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                'TARGETDIR'
+            ),
+            (
+                'ProgramMenuShortcut',
+                'ProgramMenuFolder',
+                'ftrack-connect',
+                'TARGETDIR',
+                '[TARGETDIR]ftrack_connect_package.exe',
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                'TARGETDIR'
+            )
+        ]
+
         executables.append(
             Executable(
                 script='source/ftrack_connect_package/__main__.py',
@@ -195,7 +191,6 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 #base=None,
                 targetName='ftrack_connect_package.exe',
                 icon='./logo.ico',
-                # initScript=os.path.join(RESOURCE_PATH, 'frozen_bootstrap.py')
             )
         )
 
@@ -206,7 +201,9 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             'initial_target_dir': r'[ProgramFilesFolder]\{0}-{1}'.format(
                 'ftrack-connect-package', VERSION
             ),
-            'data': {'Shortcut': shortcut_table}
+            'data': {'Shortcut': shortcut_table},
+            'all_users': True,
+            'add_to_path': True
         }
 
         include_files.extend(
@@ -224,8 +221,6 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 base=None,
                 targetName='ftrack_connect_package',
                 icon='./logo.icns',
-                # initScript=os.path.join(RESOURCE_PATH, 'frozen_bootstrap.py')
-
             )
         )
 
@@ -250,7 +245,6 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 base=None,
                 targetName='ftrack_connect_package',
                 icon='./logo.icns',
-                # initScript=os.path.join(RESOURCE_PATH, 'frozen_bootstrap.py')
         )
         )
 
@@ -264,11 +258,12 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
         # Force Qt to be included.
         bin_includes = [
-            'libQtCore.so',
-            'libQtGui.so',
-            'libQtNetwork.so',
-            'libQtSvg.so',
-            'libQtXml.so'
+            'libQt5Core.so',
+            'libQt5Gui.so',
+            'libQt5Network.so',
+            'libQt5Svg.so',
+            'libQt5Xml.so'
+            'libQt5cbQpa.so'
         ]
 
     configuration['executables'] = executables
@@ -329,33 +324,17 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             'urllib.parser',
             'webbrowser'
         ],
-        # "include_msvcr": True,
+        #"include_msvcr": True,
         'excludes': [
             "tkinter",
             "unittest",
             "test",
-            # "email",
-            # The following don't actually exist, but are picked up by the
-            # dependency walker somehow.
-            # 'boto.compat.sys',
-            # 'boto.compat._sre',
-            # 'boto.compat.array',
-            # 'boto.compat._struct',
-            # 'boto.compat._json',
-
-            # Compiled yaml uses unguarded pkg_resources.resource_filename which
-            # won't work in frozen package.
             '_yaml',
 
-            # Exclude distutils from virtualenv due to entire package with
-            # sub-modules not being copied to virtualenv.
-            # 'distutils',
-            # 'distutils',
 
         ],
         'include_files': include_files,
         'bin_includes': bin_includes,
-        'zip_include_packages': zip_include_packages
     }
 
     configuration['setup_requires'].extend(
