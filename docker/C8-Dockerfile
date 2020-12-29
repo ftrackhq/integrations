@@ -6,6 +6,7 @@ FROM inveniosoftware/centos8-python:3.7
 LABEL ftrack AB
 
 CMD dnf install -y git 
+CMD dnf install -y libXi libSM fontconfig libXrender
 
 RUN python -m pip install --upgrade pip
 RUN python -m pip install PySide2 wheel cx_freeze appdirs arrow certifi chardet clique lowdown ftrack-python-api riffle
