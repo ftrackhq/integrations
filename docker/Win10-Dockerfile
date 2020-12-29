@@ -14,7 +14,8 @@ Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\E
 # create build app folder
 RUN mkdir -p /usr/src/app
 
-# update/install base dependencies
+# update/install base dependencies using pip and wheel so can be fully found by cx_freeze
+# this has to run before connect tries to install its (same) dependencies in egg.
 RUN python -m pip install --upgrade pip
 RUN python -m pip install PySide2, wheel, cx_freeze, appdirs, arrow, certifi, chardet, clique, lowdown, ftrack-python-api, riffle
 
