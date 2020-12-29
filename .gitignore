@@ -33,4 +33,5 @@ pip-log.txt
 .vscode/
 
 # exclude built files
-docker/**
+docker/**.tar.gz
+docker/**.msi

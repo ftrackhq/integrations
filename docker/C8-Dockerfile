@@ -1,0 +1,28 @@
+#########################################################################
+# :copyright: Copyright (c) 2020 ftrack
+#
+
+
+FROM inveniosoftware/centos8-python:3.7
+LABEL ftrack AB
+
+CMD dnf install -y git 
+
+RUN python -m pip install --upgrade pip
+RUN python -m pip install PySide2 wheel cx_freeze appdirs arrow certifi chardet clique lowdown ftrack-python-api riffle
+
+RUN mkdir -p /usr/src/app
+
+# install connect
+WORKDIR /usr/src/app
+RUN git clone -b backlog/connect-2/story https://bitbucket.org/ftrack/ftrack-connect.git
+WORKDIR /usr/src/app/ftrack-connect
+RUN python setup.py install
+
+WORKDIR /usr/src/app
+RUN git clone -b backlog/connect-2/cx_freeze_latest https://bitbucket.org/ftrack/ftrack-connect-package.git
+WORKDIR /usr/src/app/ftrack-connect-package
+RUN python setup.py build
+
+WORKDIR /usr/src/app/ftrack-connect-package/build
+RUN tar -czvf ftrack-connect-2-C8.tar.gz exe.linux-x86_64-3.7
