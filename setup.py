@@ -150,6 +150,14 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         else:
             includes.append(dbmodule)
 
+
+    '''
+    -------------------------------------------------------------------------
+    WINDOWS EXE/MSI CONFIGURATION
+    -------------------------------------------------------------------------
+    '''
+
+
     if sys.platform == 'win32':
 
         # MSI shotcut table list.
@@ -202,8 +210,8 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 'ftrack-connect-package', VERSION
             ),
             'data': {'Shortcut': shortcut_table},
-            'all_users': True,
-            'add_to_path': True
+            # 'all_users': True, # Enable these when out of beta of connect 2
+            #'add_to_path': True
         }
 
         include_files.extend(
@@ -213,6 +221,12 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 os.path.join(pyside_path, "plugins", "iconengines"),
             ]
         )
+
+    '''
+    -------------------------------------------------------------------------
+    WINDOWS DMG CONFIGURATION
+    -------------------------------------------------------------------------
+    '''
 
     elif sys.platform == 'darwin':
         executables.append(
@@ -236,6 +250,13 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             'applications_shortcut': True,
             'volume_label': 'ftrack-connect-{0}'.format(VERSION)
         }
+
+
+    '''
+    -------------------------------------------------------------------------
+    WINDOWS LINUX CONFIGURATION
+    -------------------------------------------------------------------------
+    '''
 
     elif sys.platform == 'linux':
 
