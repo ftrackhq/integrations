@@ -18,7 +18,7 @@ Windows
 
 .. code-block::
 
-   docker build -t ftrack/connect-package:**win10** -f Win10-Dockerfile .
+   docker build -t ftrack/connect-package:win10 -f Win10-Dockerfile .
 
 
 Linux C7
@@ -26,7 +26,7 @@ Linux C7
 
 .. code-block::
 
-    docker build -t ftrack/connect-package:**c7** -f C7-Dockerfile .
+    docker build -t ftrack/connect-package:c7 -f C7-Dockerfile .
 
 
 Linux C8
@@ -34,7 +34,7 @@ Linux C8
 
 .. code-block::
 
-    docker build -t ftrack/connect-package:**c8** -f C8-Dockerfile .
+    docker build -t ftrack/connect-package:c8 -f C8-Dockerfile .
 
 
 Run 
@@ -47,7 +47,7 @@ Run
 
 .. code-block::
 
-    docker run ftrack/connect-package:<**TAG**>
+    docker run ftrack/connect-package:<TAG>
 
 
 Extract builds
@@ -66,7 +66,7 @@ Windows
 
 .. code-block::
 
-    docker cp <**CONTAINER ID**>:/usr/src/app/ftrack-connect-package/dist/ftrack-connect-package-2.0-amd64.msi
+    docker cp CONTAINER ID:/usr/src/app/ftrack-connect-package/dist/ftrack-connect-package-2.0-amd64.msi
 
 
 Linux C7
@@ -74,7 +74,7 @@ Linux C7
 
 .. code-block::
 
-    docker cp <**CONTAINER ID**>:/usr/src/app/ftrack-connect-package/build/ftrack-connect-2-C7.tar.gz .
+    docker cp CONTAINER ID:/usr/src/app/ftrack-connect-package/build/ftrack-connect-2-C7.tar.gz .
 
 
 Linux C8
@@ -82,4 +82,4 @@ Linux C8
 
 .. code-block::
 
-    docker cp <**CONTAINER ID**>:/usr/src/app/ftrack-connect-package/build/ftrack-connect-2-C8.tar.gz .
+    docker cp CONTAINER ID:/usr/src/app/ftrack-connect-package/build/ftrack-connect-2-C8.tar.gz .
