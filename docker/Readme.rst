@@ -1,4 +1,4 @@
-# :copyright: Copyright (c) 2018 ftrack
+# :copyright: Copyright (c) 2020 ftrack
 
 Docker for building ftrack-connect-package
 ==========================================
@@ -11,7 +11,7 @@ Build:
 Windows
 .......
 
-.. code::cmd
+.. code::
 
    docker build -t ftrack/connect-package:win10 -f Win10-Dockerfile .
 
@@ -19,7 +19,7 @@ Windows
 Linux C7
 ........
 
-.. code::bash
+.. code::
 
     docker build -t ftrack/connect-package:c7 -f C7-Dockerfile .
 
@@ -27,7 +27,7 @@ Linux C7
 Linux C8
 ........
 
-.. code::bash
+.. code::
 
     docker build -t ftrack/connect-package:c8 -f C8-Dockerfile .
 
@@ -35,7 +35,7 @@ Linux C8
 Run 
 ---
 
-.. code::bash
+.. code::
 
     docker run ftrack/connect-package:<TAG>
 
@@ -50,7 +50,7 @@ and get the latest CONTAINER ID number.
 Windows
 .......
 
-.. code::bash
+.. code::
 
     docker cp <container-id>:/usr/src/app/ftrack-connect-package/dist/ftrack-connect-package-2.0-amd64.msi
 
@@ -58,7 +58,7 @@ Windows
 Linux C7
 ........
 
-.. code::bash
+.. code::
     
     docker cp <container-id>:/usr/src/app/ftrack-connect-package/build/ftrack-connect-2-C7.tar.gz .
 
@@ -66,6 +66,6 @@ Linux C7
 Linux C8
 ........
 
-.. code::bash
+.. code::
 
     docker cp <container-id>:/usr/src/app/ftrack-connect-package/build/ftrack-connect-2-C8.tar.gz .

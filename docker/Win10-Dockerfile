@@ -2,7 +2,6 @@
 # :copyright: Copyright (c) 2020 ftrack
 #
 
-
 FROM winamd64/python:3.7
 LABEL ftrack AB
 

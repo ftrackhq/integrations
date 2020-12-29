@@ -2,7 +2,6 @@
 # :copyright: Copyright (c) 2020 ftrack
 #
 
-
 FROM inveniosoftware/centos8-python:3.7
 LABEL ftrack AB
 
