@@ -1,4 +1,4 @@
-# build with : docker build . -t connect-2
+# build with : docker build -rm	 . -t connect-2 --label connect-package
 # enter container with : docker run -ti connect-2 cmd.exe
 # copy result data with: docker cp connect-2:/usr/src/app/ftrack-connect-package/dist/ftrack-connect-package-2.0-amd64.msi
 

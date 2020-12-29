@@ -151,13 +151,6 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             includes.append(dbmodule)
 
 
-    '''
-    -------------------------------------------------------------------------
-    WINDOWS EXE/MSI CONFIGURATION
-    -------------------------------------------------------------------------
-    '''
-
-
     if sys.platform == 'win32':
 
         # MSI shotcut table list.
@@ -222,12 +215,6 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             ]
         )
 
-    '''
-    -------------------------------------------------------------------------
-    WINDOWS DMG CONFIGURATION
-    -------------------------------------------------------------------------
-    '''
-
     elif sys.platform == 'darwin':
         executables.append(
             Executable(
@@ -250,13 +237,6 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             'applications_shortcut': True,
             'volume_label': 'ftrack-connect-{0}'.format(VERSION)
         }
-
-
-    '''
-    -------------------------------------------------------------------------
-    WINDOWS LINUX CONFIGURATION
-    -------------------------------------------------------------------------
-    '''
 
     elif sys.platform == 'linux':
 
