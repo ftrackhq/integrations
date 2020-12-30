@@ -246,14 +246,14 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 base=None,
                 targetName='ftrack_connect_package',
                 icon='./logo.icns',
-        )
+            )
         )
 
         include_files.extend(
             [
-                os.path.join(pyside_path,"Qt", "plugins", "platforms"),
-                os.path.join(pyside_path,"Qt", "plugins", "imageformats"),
-                os.path.join(pyside_path,"Qt", "plugins", "iconengines"),
+                os.path.join(pyside_path, "Qt", "plugins", "platforms"),
+                os.path.join(pyside_path, "Qt", "plugins", "imageformats"),
+                os.path.join(pyside_path, "Qt", "plugins", "iconengines"),
             ]
         )
 
@@ -263,7 +263,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             'libQt5Gui.so',
             'libQt5Network.so',
             'libQt5Svg.so',
-            'libQt5Xml.so'
+            'libQt5Xml.so',
             'libQt5XcbQpa.so.5'
         ]
 
