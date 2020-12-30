@@ -298,7 +298,6 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         'PySide2.QtCore',
         'PySide2.QtWidgets',
         'PySide2.QtGui',
-        'libshiboken2',
         'ssl',
         'xml.etree',
         'xml.etree.ElementTree',
