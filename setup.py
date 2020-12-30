@@ -254,7 +254,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 os.path.join(pyside_path, "Qt", "plugins", "platforms"),
                 os.path.join(pyside_path, "Qt", "plugins", "imageformats"),
                 os.path.join(pyside_path, "Qt", "plugins", "iconengines"),
-                ('/lib64/libQt5XcbQpa.so.5', 'lib/Qt/lib/libQt5XcbQpa.so.5')
+                ('/lib64/libQt5XcbQpa.so', 'lib/Qt/lib/libQt5XcbQpa.so')
             ]
         )
 
