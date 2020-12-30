@@ -264,7 +264,8 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             'libQt5Network.so',
             'libQt5Svg.so',
             'libQt5Xml.so',
-            'libQt5XcbQpa.so'
+            'libQt5XcbQpa.so',
+            'libshiboken2'
         ]
 
     configuration['executables'] = executables
@@ -292,12 +293,13 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         'encodings',
         'PySide2',
         'Qt',
-        'shiboken2',
+        'PySide2.shiboken2',
         'PySide2.QtSvg',
         'PySide2.QtXml',
         'PySide2.QtCore',
         'PySide2.QtWidgets',
         'PySide2.QtGui',
+        'libshiboken2'
         'ssl',
         'xml.etree',
         'xml.etree.ElementTree',
