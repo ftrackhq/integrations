@@ -264,7 +264,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             'libQt5Network.so',
             'libQt5Svg.so',
             'libQt5Xml.so',
-            'libQt5XcbQpa.so.5'
+            'libQt5XcbQpa.so'
         ]
 
     configuration['executables'] = executables
