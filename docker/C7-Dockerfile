@@ -5,8 +5,11 @@
 FROM inveniosoftware/centos7-python:3.6
 LABEL ftrack AB
 
-CMD dnf install -y git 
-CMD dnf install -y libxcb libXi libSM fontconfig libXrender
+
+RUN yum -y update
+RUN yum -y groupinstall "Development Tools"
+
+CMD yum install -y *libxcb* libXi libSM fontconfig libXrender
 
 RUN python -m pip install --upgrade pip
 RUN python -m pip install PySide2 wheel cx_freeze appdirs arrow certifi chardet clique lowdown ftrack-python-api riffle
