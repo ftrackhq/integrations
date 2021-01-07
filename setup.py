@@ -128,11 +128,13 @@ setup(
     ],
     install_requires=[
         'ftrack-python-api >= 1, < 3',
+        'future >=0.16.0, < 1',
+        'six >= 1, < 2',
         'jsonschema==2.6.0',
         'appdirs',
-        'qt.py >=1.0.0, < 2',
-        'python_jsonschema_objects <= 0.3.12',
-        'jsonref'
+        'python_jsonschema_objects <= 0.3.13',
+        'jsonref',
+        'markdown==3.2.2'
     ],
     tests_require=[
         'mock',
