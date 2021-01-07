@@ -192,7 +192,6 @@ class FtrackAssetNode(FtrackAssetBase):
         '''Update the parameters of the ftrack_object. And Return the
         ftrack_object updated
         '''
-        print "updating ftrack object"
         try:
             rt.unfreeze(ftrack_object)
         except:
