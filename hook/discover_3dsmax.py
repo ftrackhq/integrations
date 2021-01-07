@@ -45,6 +45,8 @@ def on_application_launch(session, event):
     definitions_plugin_hook = os.getenv("FTRACK_DEFINITION_PLUGIN_PATH")
     plugin_hook = os.path.join(definitions_plugin_hook, '3dsmax')
 
+    # This is not needed, but we make sure to remove PySide to not override
+    # the one in 3dmax.
     modules_to_remove = ['PySide', 'PySide2']
     paths_to_remove = ''
     for m in modules_to_remove:
@@ -67,6 +69,7 @@ def on_application_launch(session, event):
                     max_startup_script
                 ]),
                 'PATH.remove': os.path.pathsep.join([paths_to_remove]),
+                'VIRTUAL_ENV.unset': '',
                 'FTRACK_CONTEXTID.set': task['id'],
                 'FS.set': task['parent']['custom_attributes'].get('fstart', '1.0'),
                 'FE.set': task['parent']['custom_attributes'].get('fend', '100.0')
