@@ -134,7 +134,7 @@ setup(
         'appdirs',
         'python_jsonschema_objects <= 0.3.13',
         'jsonref',
-        'markdown==3.2.2'
+        'markdown<=3.2.2'
     ],
     tests_require=[
         'mock',
