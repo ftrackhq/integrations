@@ -132,7 +132,7 @@ setup(
         'six >= 1, < 2',
         'jsonschema==2.6.0',
         'appdirs',
-        'python_jsonschema_objects <= 0.3.13',
+        'python_jsonschema_objects <= 0.3.12',
         'jsonref',
         'markdown<=3.2.2'
     ],
