@@ -1,8 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2018 ftrack
 
-from __future__ import absolute_import
-
 import hiero.core
 from Qt import QtWidgets, QtCore, QtGui
 

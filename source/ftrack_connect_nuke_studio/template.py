@@ -11,7 +11,7 @@ import ftrack_api
 
 import ftrack_connect_nuke_studio.exception
 
-from ftrack_connect.session import get_shared_session
+from ftrack_connect_nuke_studio.session import get_shared_session
 
 session = get_shared_session()
 

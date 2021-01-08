@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 import hiero
 
-from ftrack_connect.session import get_shared_session
+from ftrack_connect_nuke_studio.session import get_shared_session
 
 
 class FtrackBase(object):

@@ -8,11 +8,8 @@ import shutil
 from pkg_resources import parse_version, DistributionNotFound, get_distribution
 import pip
 
-if parse_version(pip.__version__) < parse_version('19.3.0'):
-    raise ValueError('Pip should be version 19.3.0 or higher')
-
 import subprocess
-from pip._internal import main as pip_main
+from pip.__main__ import _main as pip_main
 
 from setuptools import setup, find_packages, Command
 
@@ -140,7 +137,7 @@ class BuildPlugin(Command):
             os.path.join(STAGING_PATH, 'application_hook')
         )
 
-        pip_main.main(
+        pip_main(
             [
                 'install',
                 '.',
@@ -184,16 +181,16 @@ setup(
         'sphinx >= 1.2.2, < 2',
         'sphinx_rtd_theme >= 0.1.6, < 2',
         'lowdown >= 0.1.0, < 1',
-        'mock >= 1.3, < 2',
         'setuptools>=30.3.0',
         'setuptools_scm',
     ],
     install_requires=[
-        'clique',
+        'clique==1.5.0',
         'appdirs == 1.4.0',
         'lucidity >= 1.5, < 2',
         'opentimelineio ==0.11',
-        'qt.py >=1.0.0, < 2'
+        'qt.py >=1.0.0, < 2',
+        'ftrack-python-api'
     ],
     use_scm_version={
         'write_to': 'source/ftrack_connect_nuke_studio/_version.py',
@@ -204,4 +201,5 @@ setup(
         'build_plugin': BuildPlugin,
         'build_resources': BuildResources
     },
+    python_requires=">=2.7.9, <3"
 )
