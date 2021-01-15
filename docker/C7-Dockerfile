@@ -5,14 +5,10 @@
 FROM inveniosoftware/centos7-python:3.6
 LABEL ftrack AB
 
-ENV QT_DEBUG_PLUGINS=1
-ENV QT_GRAPHICSSYSTEM="native"
-ENV QT_X11_NO_MITSHM=1
-
 RUN yum -y update
 RUN yum -y groupinstall "Development Tools"
 
-CMD yum install -y *libxcb* libXi libSM fontconfig libXrender libxkbcommon-x11 qt5*
+CMD yum install -y *libxcb* libXi libSM fontconfig libXrender libxkbcommon-x11 *qt5*
 
 RUN python -m pip install --upgrade pip
 RUN python -m pip install PySide2 wheel cx_freeze appdirs arrow certifi chardet clique lowdown ftrack-python-api riffle
