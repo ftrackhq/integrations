@@ -5,6 +5,9 @@
 FROM inveniosoftware/centos7-python:3.6
 LABEL ftrack AB
 
+ENV QT_DEBUG_PLUGINS=1
+ENV QT_GRAPHICSSYSTEM="native"
+ENV QT_X11_NO_MITSHM=1
 
 RUN yum -y update
 RUN yum -y groupinstall "Development Tools"
