@@ -207,13 +207,13 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             #'add_to_path': True
         }
 
-        include_files.extend(
-            [
-                (os.path.join(pyside_path, "plugins", "platforms"), 'lib/Qt/plugins/platform'),
-                (os.path.join(pyside_path, "plugins", "imageformats"), 'lib/Qt/plugins/imageformats'),
-                (os.path.join(pyside_path, "plugins", "iconengines"), 'lib/Qt/plugins/iconengines')
-            ]
-        )
+        # include_files.extend(
+        #     [
+        #         os.path.join(pyside_path, "plugins", "platforms"),
+        #         os.path.join(pyside_path, "plugins", "imageformats"),
+        #         os.path.join(pyside_path, "plugins", "iconengines"),
+        #     ]
+        # )
 
     elif sys.platform == 'darwin':
         executables.append(
@@ -251,9 +251,9 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
         include_files.extend(
             [
-                (os.path.join(pyside_path, "plugins", "platforms"), 'lib/Qt/plugins/platform'),
-                (os.path.join(pyside_path, "plugins", "imageformats"), 'lib/Qt/plugins/imageformats'),
-                (os.path.join(pyside_path, "plugins", "iconengines"), 'lib/Qt/plugins/iconengines')
+                (os.path.join(pyside_path, "Qt", "plugins", "platforms"), 'lib/Qt/plugins/platforms'),
+                (os.path.join(pyside_path, "Qt", "plugins", "imageformats"), 'lib/Qt/plugins/imageformats'),
+                (os.path.join(pyside_path, "Qt", "plugins", "iconengines"), 'lib/Qt/plugins/iconengines')
             ]
         )
 
