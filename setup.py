@@ -209,9 +209,9 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
         include_files.extend(
             [
-                os.path.join(pyside_path, "plugins", "platforms"),
-                os.path.join(pyside_path, "plugins", "imageformats"),
-                os.path.join(pyside_path, "plugins", "iconengines"),
+                (os.path.join(pyside_path, "plugins", "platforms"), 'lib/Qt/plugins/platform'),
+                (os.path.join(pyside_path, "plugins", "imageformats"), 'lib/Qt/plugins/imageformats'),
+                (os.path.join(pyside_path, "plugins", "iconengines"), 'lib/Qt/plugins/iconengines')
             ]
         )
 
@@ -254,7 +254,6 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 os.path.join(pyside_path, "Qt", "plugins", "platforms"),
                 os.path.join(pyside_path, "Qt", "plugins", "imageformats"),
                 os.path.join(pyside_path, "Qt", "plugins", "iconengines"),
-                ('/lib64/libQt5XcbQpa.so', 'lib/Qt/lib/libQt5XcbQpa.so')
             ]
         )
 
@@ -266,6 +265,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             'libQt5Svg.so',
             'libQt5Xml.so',
             'libQt5XcbQpa.so',
+            'libQt5DBus.so',
             'libshiboken2'
         ]
 

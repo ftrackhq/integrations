@@ -83,3 +83,16 @@ Linux C8
 .. code-block::
 
     docker cp CONTAINER ID:/usr/src/app/ftrack-connect-package/build/ftrack-connect-2-C8.tar.gz .
+
+
+Debug
+-----
+
+
+To inspect the docker run :
+
+.. code-block::
+
+    docker run -ti 2819bea26f71 bash
+
+
