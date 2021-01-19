@@ -150,7 +150,6 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         else:
             includes.append(dbmodule)
 
-
     if sys.platform == 'win32':
 
         # MSI shotcut table list.
@@ -207,13 +206,20 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             #'add_to_path': True
         }
 
-        # include_files.extend(
-        #     [
-        #         os.path.join(pyside_path, "plugins", "platforms"),
-        #         os.path.join(pyside_path, "plugins", "imageformats"),
-        #         os.path.join(pyside_path, "plugins", "iconengines"),
-        #     ]
-        # )
+        include_files.extend(
+            [
+                (os.path.join(pyside_path, "plugins", "platforms"), 'lib/Qt/plugins/platforms'),
+                (os.path.join(pyside_path, "plugins", "imageformats"),'lib/Qt/plugins/imageformats'),
+                (os.path.join(pyside_path, "plugins", "iconengines"),'lib/Qt/plugins/iconengines')
+            ]
+        )
+
+        # Force Qt to be included.
+        bin_includes = [
+            "PySide2",
+            "shiboken2",
+            "encodings"
+        ]
 
     elif sys.platform == 'darwin':
         executables.append(
