@@ -22,8 +22,10 @@ import pkg_resources
 ftrack_connect_version = '2.0'
 ftrack_action_handler_version = '0.2.1'
 import PySide2
+import shiboken2
 
 pyside_path = os.path.join(PySide2.__path__[0])
+shiboken_path = os.path.join(shiboken2.__path__[0])
 
 # Setup code
 
@@ -240,9 +242,27 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         }
 
         configuration['options']['bdist_dmg'] = {
-            'applications_shortcut': True,
+            'applications_shortcut': False,
             'volume_label': 'ftrack-connect-{0}'.format(VERSION)
         }
+        include_files.extend(
+            [
+                os.path.join(pyside_path, "Qt", "plugins", "platforms"),
+                os.path.join(pyside_path, "Qt", "plugins", "imageformats"),
+                os.path.join(pyside_path, "Qt", "plugins", "iconengines"),
+                os.path.join(pyside_path, "Qt", "lib", "QtGui.framework"),
+                os.path.join(pyside_path, "Qt", "lib", "QtCore.framework"),
+                os.path.join(pyside_path, "Qt", "lib", "QtNetwork.framework"),
+                os.path.join(pyside_path, "Qt", "lib", "QtSvg.framework"),
+                os.path.join(pyside_path, "Qt", "lib", "QtXml.framework"),
+                os.path.join(pyside_path, "Qt", "lib", "QtDBus.framework"),
+                os.path.join(pyside_path, "Qt", "lib", "QtWidgets.framework"),
+                os.path.join(pyside_path, "Qt", "lib", "QtQml.framework"),
+                os.path.join(pyside_path, "Qt", "lib", "QtPrintSupport.framework"),
+                (os.path.join(pyside_path, "libpyside2.abi3.5.15.dylib"), 'lib/libpyside2.abi3.5.15.dylib'),
+                (os.path.join(shiboken_path, "libshiboken2.abi3.5.15.dylib"), 'lib/libshiboken2.abi3.5.15.dylib')
+            ]
+        )
 
     elif sys.platform == 'linux':
 
@@ -334,6 +354,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         ],
         #"include_msvcr": True,
         'excludes': [
+            "dbm.gnu",
             "tkinter",
             "unittest",
             "test",
