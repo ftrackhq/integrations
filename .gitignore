@@ -31,6 +31,3 @@ pip-log.txt
 .settings
 .idea/
 .vscode/
-
-# exclude built files
-docker/**

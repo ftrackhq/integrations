@@ -8,6 +8,33 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+'''
+Fix for missing sys.stderr when building Win32GUI cx_freeze
+see: https://github.com/marcelotduarte/cx_Freeze/issues/60
+'''
+
+try:
+    sys.stderr.write("\n")
+    sys.stderr.flush()
+except Exception:
+    import sys
+    import http.server
+
+    class SysWrapper(object):
+        def __getattribute__(self, item):
+            if item is 'stderr':
+                class DummyStream:
+                    def __init__(self): pass
+
+                    def write(self, *args, **kwargs):
+                        logger.info(args)
+
+                return DummyStream()
+            return getattr(sys, item)
+
+
+    http.server.sys = SysWrapper()
+
 
 def set_environ_default(name, value):
     '''Set environment variable *name* and *value* as default.'''
@@ -21,89 +48,67 @@ def set_environ_default(name, value):
     os.environ.setdefault(name, value)
 
 
-if getattr(sys, 'frozen', False):
-    # Hooks use the ftrack event system. Set the FTRACK_EVENT_PLUGIN_PATH
-    # to pick up the default hooks if it has not already been set.
-    set_environ_default(
-        'FTRACK_EVENT_PLUGIN_PATH',
-        os.path.abspath(
-            os.path.join(
-                os.path.dirname(sys.executable), 'resource', 'hook'
-            )
+# Hooks use the ftrack event system. Set the FTRACK_EVENT_PLUGIN_PATH
+# to pick up the default hooks if it has not already been set.
+set_environ_default(
+    'FTRACK_EVENT_PLUGIN_PATH',
+    os.path.abspath(
+        os.path.join(
+            os.path.dirname(sys.executable), 'resource', 'hook'
         )
     )
+)
 
-    # Set path to resource script folder if package is frozen.
-    set_environ_default(
-        'FTRACK_RESOURCE_SCRIPT_PATH',
-        os.path.abspath(
-            os.path.join(
-                os.path.dirname(sys.executable), 'resource', 'script'
-            )
+# Set the path to certificate file in resource folder. This allows requests
+# module to read it outside frozen zip file.
+set_environ_default(
+    'REQUESTS_CA_BUNDLE',
+    os.path.abspath(
+        os.path.join(
+            os.path.dirname(sys.executable), 'resource', 'cacert.pem'
         )
     )
+)
 
-    # Set the path to certificate file in resource folder. This allows requests
-    # module to read it outside frozen zip file.
-    set_environ_default(
-        'REQUESTS_CA_BUNDLE',
-        os.path.abspath(
-            os.path.join(
-                os.path.dirname(sys.executable), 'resource', 'cacert.pem'
-            )
+# Websocket-client ships with its own cacert file, we however default
+# to the one shipped with the requests library.
+set_environ_default(
+    'WEBSOCKET_CLIENT_CA_BUNDLE',
+    os.environ.get('REQUESTS_CA_BUNDLE')
+)
+
+# The httplib in python +2.7.9 requires a cacert file.
+set_environ_default(
+    'SSL_CERT_FILE',
+    os.environ.get('REQUESTS_CA_BUNDLE')
+)
+
+ftrack_connect_plugin_paths = [
+    os.path.abspath(
+        os.path.join(
+            os.path.dirname(sys.executable), 'resource',
+            'connect-standard-plugins'
         )
     )
-
-    # Websocket-client ships with its own cacert file, we however default
-    # to the one shipped with the requests library.
-    set_environ_default(
-        'WEBSOCKET_CLIENT_CA_BUNDLE',
-        os.environ.get('REQUESTS_CA_BUNDLE')
+]
+#
+if 'FTRACK_CONNECT_PLUGIN_PATH' in os.environ:
+    ftrack_connect_plugin_paths.append(
+        os.environ['FTRACK_CONNECT_PLUGIN_PATH']
     )
 
-    # The httplib in python +2.7.9 requires a cacert file.
-    set_environ_default(
-        'SSL_CERT_FILE',
-        os.environ.get('REQUESTS_CA_BUNDLE')
-    )
+os.environ['FTRACK_CONNECT_PLUGIN_PATH'] = os.path.pathsep.join(
+    ftrack_connect_plugin_paths
+)
 
-    # Set the path to the included Nuke studio plugin.
-    set_environ_default(
-        'FTRACK_CONNECT_NUKE_STUDIO_PATH',
-        os.path.abspath(
-            os.path.join(
-                os.path.dirname(sys.executable), 'resource',
-                'ftrack_connect_nuke_studio'
-            )
+set_environ_default(
+    'FTRACK_CONNECT_PACKAGE_RESOURCE_PATH',
+    os.path.abspath(
+        os.path.join(
+            os.path.dirname(sys.executable), 'resource'
         )
     )
-
-    ftrack_connect_plugin_paths = [
-        os.path.abspath(
-            os.path.join(
-                os.path.dirname(sys.executable), 'resource',
-                'connect-standard-plugins'
-            )
-        )
-    ]
-
-    if 'FTRACK_CONNECT_PLUGIN_PATH' in os.environ:
-        ftrack_connect_plugin_paths.append(
-            os.environ['FTRACK_CONNECT_PLUGIN_PATH']
-        )
-
-    os.environ['FTRACK_CONNECT_PLUGIN_PATH'] = os.path.pathsep.join(
-        ftrack_connect_plugin_paths
-    )
-
-    set_environ_default(
-        'FTRACK_CONNECT_PACKAGE_RESOURCE_PATH',
-        os.path.abspath(
-            os.path.join(
-                os.path.dirname(sys.executable), 'resource'
-            )
-        )
-    )
+)
 
 import ftrack_connect.__main__
 
@@ -145,8 +150,7 @@ if __name__ == '__main__':
         parsedArguments.script and
         _validatePythonScript(parsedArguments.script)
     ):
-        execfile(parsedArguments.script)
-
+        exec(open(parsedArguments.script).read())
         raise SystemExit()
 
     raise SystemExit(

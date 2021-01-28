@@ -1,31 +1,31 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 
-import datetime
+'''
+requires :
+pyside2 = 5.14.1
+
+
+'''
+
+
+
 import sys
 import os
 import re
-import pkg_resources
 import opcode
 import logging
-import zipfile
+import pkg_resources
 
-# Package and dependencies versions.
-ftrack_connect_version = '1.1.8'
-ftrack_connect_rv_version = '4.0'
-ftrack_connect_cinema_4d_version = '0.1.5'
-ftrack_location_compatibility_version = '0.3.3'
-ftrack_action_handler_version = '0.1.4'
+# # Package and dependencies versions.
 
-# Embedded plugins.
-ftrack_connect_maya_publish_version = '0.6.3'
-ftrack_connect_nuke_publish_version = '0.6.3'
-ftrack_connect_3dsmax_version = '0.4.3'
-ftrack_connect_hieroplayer_version = '1.3.1'
-ftrack_connect_nuke_version = '1.2.2'
-ftrack_connect_maya_version = '1.2.3'
-ftrack_connect_nuke_studio_version = '2.2.4'
-ftrack_connect_houdini_version = '0.2.3'
+ftrack_connect_version = '2.0'
+ftrack_action_handler_version = '0.2.1'
+import PySide2
+import shiboken2
+
+pyside_path = os.path.join(PySide2.__path__[0])
+shiboken_path = os.path.join(shiboken2.__path__[0])
 
 # Setup code
 
@@ -33,7 +33,7 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-from setuptools import setup, Distribution, find_packages
+from setuptools import Distribution, find_packages, setup as setup
 
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -41,12 +41,6 @@ SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
-DOWNLOAD_PLUGIN_PATH = os.path.join(
-    BUILD_PATH, 'plugin-downloads-{0}'.format(
-        datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S')
-    )
-)
-
 
 # Read version from source.
 with open(os.path.join(
@@ -57,52 +51,17 @@ with open(os.path.join(
     ).group(1)
 
 
-external_connect_plugins = []
-for plugin in (
-    'ftrack-connect-maya-publish-{0}.zip'.format(ftrack_connect_maya_publish_version),
-    'ftrack-connect-nuke-publish-{0}.zip'.format(ftrack_connect_nuke_publish_version),
-    'ftrack-connect-nuke-studio-{0}.zip'.format(ftrack_connect_nuke_studio_version),
-    'ftrack-connect-maya-{0}.zip'.format(ftrack_connect_maya_version),
-    'ftrack-connect-nuke-{0}.zip'.format(ftrack_connect_nuke_version),
-    'ftrack-connect-3dsmax-{0}.zip'.format(ftrack_connect_3dsmax_version),
-    'ftrack-connect-hieroplayer-{0}.zip'.format(ftrack_connect_hieroplayer_version),
-    'ftrack-connect-houdini-{0}.zip'.format(ftrack_connect_houdini_version)
-
-):
-    external_connect_plugins.append(
-        (plugin, plugin.replace('.zip', ''))
-    )
+connect_resource_hook = pkg_resources.resource_filename(
+    pkg_resources.Requirement.parse('ftrack-connect'),
+    'ftrack_connect_resource/hook'
+)
 
 
-connect_install_require = 'ftrack-connect == {0}'.format(ftrack_connect_version)
+connect_install_require = 'ftrack-connect'.format(ftrack_connect_version)
 # TODO: Update when ftrack-connect released.
 connect_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect/get/{0}.zip'
-    '#egg=ftrack-connect-{0}'
+    'git+https://bitbucket.org/ftrack/ftrack-connect.git@backlog/connect-2/story#egg=ftrack-connect'
 ).format(ftrack_connect_version)
-
-connect_rv_dependency_install_require = 'ftrack-connect-rv >=3.4, < 5'
-
-connect_rv_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-rv/get/{0}.zip'
-    '#egg=ftrack-connect-rv-{0}'
-).format(ftrack_connect_rv_version)
-
-connect_cinema_4d_dependency_install_require = 'ftrack-connect-cinema-4d >=0.1, < 1'
-
-connect_cinema_4d_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-connect-cinema-4d/get/{0}.zip'
-    '#egg=ftrack-connect-cinema-4d-{0}'
-).format(ftrack_connect_cinema_4d_version)
-
-ftrack_python_legacy_api_install_require = 'ftrack-python-legacy-api >= 3.6.0, < 4'
-
-connect_ftrack_location_compatibilty_install_require = 'ftrack-location-compatibility >= 0.1, < 1'
-
-connect_ftrack_location_compatibilty_dependency_link = (
-    'https://bitbucket.org/ftrack/ftrack-location-compatibility/get/{0}.zip'
-    '#egg=ftrack-location-compatibility-{0}'
-).format(ftrack_location_compatibility_version)
 
 
 # General configuration.
@@ -121,103 +80,38 @@ configuration = dict(
         '': 'source'
     },
     setup_requires=[
-        'sphinx >= 1.2.2, < 2',
-        'sphinx_rtd_theme >= 0.1.6, < 2',
+        # 'sphinx >= 1.2.2, < 2',
+        # 'sphinx_rtd_theme >= 0.1.6, < 2',
         'lowdown >= 0.1.0, < 1',
-        # The latest version of the cryptography library does not have a wheel
-        # and building it fails.
-        'cryptography == 1.8.2',
-        'pyopenssl<= 17.0.0,<17.0.1',
+        'cryptography',
         'requests >= 2, <3',
         'ftrack_action_handler == {0}'.format(
             ftrack_action_handler_version
-        )
+        ),
+        'cx_freeze',
+        'pyside2==5.14.1',
+        'wheel',
+        'setuptools'
     ],
     install_requires=[
-        ftrack_python_legacy_api_install_require,
-        connect_install_require,
-        connect_rv_dependency_install_require,
-        connect_cinema_4d_dependency_install_require,
-        connect_ftrack_location_compatibilty_install_require,
-        'boto == 2.28.0'
+        connect_install_require
     ],
+    options={},
     dependency_links=[
-        connect_dependency_link,
-        ('https://bitbucket.org/ftrack/lowdown/get/0.1.0.zip'
-         '#egg=lowdown-0.1.0'),
-        connect_rv_dependency_link,
-        connect_cinema_4d_dependency_link,
-        connect_ftrack_location_compatibilty_dependency_link
+        connect_dependency_link
     ],
-    options={}
+    python_requires=">=3, <4"
 )
 
+# to run : python setup.py install
+# setup(**configuration)
 
 # Platform specific distributions.
-if sys.platform in ('darwin', 'win32', 'linux2'):
+if sys.platform in ('darwin', 'win32', 'linux'):
 
-    # Ensure cx_freeze available for import.
-
-    Distribution(
-        dict(
-            setup_requires='cx-freeze == 4.3.3.ftrack',
-            dependency_links=[
-                'https://bitbucket.org/ftrack/cx-freeze/get/ftrack.zip'
-                '#egg=cx-freeze-4.3.3.ftrack'
-            ]
-        )
-    )
     configuration['setup_requires'].append('cx_freeze')
 
-    from cx_Freeze import setup, Executable, build
-
-    class Build(build):
-        '''Custom build to pre-build resources.'''
-
-        def run(self):
-            '''Run build ensuring build_resources called first.'''
-            download_url = (
-                'https://s3-eu-west-1.amazonaws.com/ftrack-deployment/'
-                'ftrack-connect/plugins/'
-            )
-            import requests
-
-            #: TODO: Clean up the temporary download folder.
-            os.makedirs(DOWNLOAD_PLUGIN_PATH)
-
-            for plugin, target in external_connect_plugins:
-                url = download_url + plugin
-                temp_path = os.path.join(DOWNLOAD_PLUGIN_PATH, plugin)
-                logging.info(
-                    'Downloading url {0} to {1}'.format(
-                        url,
-                        temp_path
-                    )
-                )
-
-                response = requests.get(url)
-                response.raise_for_status()
-
-                if response.status_code != 200:
-                    raise ValueError(
-                        'Got status code not equal to 200: {0}'.format(
-                            response.status_code
-                        )
-                    )
-
-                with open(temp_path, 'wb') as package_file:
-                    package_file.write(response.content)
-
-                with zipfile.ZipFile(temp_path, 'r') as myzip:
-                    myzip.extractall(
-                        os.path.join(DOWNLOAD_PLUGIN_PATH, target)
-                    )
-
-            build.run(self)
-
-    configuration['cmdclass'] = {
-        'build': Build
-    }
+    from cx_Freeze import setup ,Executable, build
 
     # Ensure ftrack-connect is
     # available for import and then discover ftrack-connect and
@@ -226,46 +120,15 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
     Distribution(dict(
         setup_requires=[
             connect_install_require,
-            connect_rv_dependency_install_require,
-            connect_cinema_4d_dependency_install_require,
-            connect_ftrack_location_compatibilty_install_require
-        ],
-        dependency_links=[
-            connect_dependency_link,
-            connect_rv_dependency_link,
-            connect_cinema_4d_dependency_link,
-            connect_ftrack_location_compatibilty_dependency_link
         ]
     ))
-    connect_resource_hook = pkg_resources.resource_filename(
-        pkg_resources.Requirement.parse('ftrack-connect'),
-        'ftrack_connect_resource/hook'
-    )
-
-    ftrack_connect_rv_hook = pkg_resources.resource_filename(
-        pkg_resources.Requirement.parse('ftrack-connect-rv'),
-        'ftrack_connect_rv_resource/hook'
-    )
-
-    ftrack_connect_cinema_4d_hook = pkg_resources.resource_filename(
-        pkg_resources.Requirement.parse('ftrack-connect-cinema-4d'),
-        'ftrack_connect_cinema_4d/hook'
-    )
-
-    connect_ftrack_location_compatibilty_hook = pkg_resources.resource_filename(
-        pkg_resources.Requirement.parse('ftrack-location-compatibility'),
-        'ftrack_location_compatibility/hook'
-    )
 
     # Add requests certificates to resource folder.
     import requests.certs
 
     include_files = [
         (connect_resource_hook, 'resource/hook'),
-        (ftrack_connect_rv_hook, 'resource/hook'),
-        (ftrack_connect_cinema_4d_hook, 'resource/hook'),
         (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'),
-        (connect_ftrack_location_compatibilty_hook, 'resource/hook/ftrack_location_compatibility'),
         (requests.certs.where(), 'resource/cacert.pem'),
         (os.path.join(
             SOURCE_PATH, 'ftrack_connect_package', '_version.py'
@@ -273,24 +136,15 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         'qt.conf'
     ]
 
-    for _, plugin_directory in external_connect_plugins:
-        plugin_download_path = os.path.join(
-            DOWNLOAD_PLUGIN_PATH, plugin_directory
-        )
-        include_files.append(
-            (
-                os.path.relpath(plugin_download_path, ROOT_PATH),
-                'resource/connect-standard-plugins/' + plugin_directory
-            )
-        )
 
+    zip_include_packages = []
     executables = []
     bin_includes = []
     includes = []
 
     # Different modules are used on different platforms. Make sure to include
     # all found.
-    for dbmodule in ['dbhash', 'gdbm', 'dbm', 'dumbdbm', 'csv', 'sqlite3']:
+    for dbmodule in ['csv', 'sqlite3']:
         try:
             __import__(dbmodule)
         except ImportError:
@@ -298,43 +152,45 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         else:
             includes.append(dbmodule)
 
-    # MSI shotcut table list.
-    shortcut_table = [
-        (
-            'DesktopShortcut',
-            'DesktopFolder',
-            'ftrack-connect',
-            'TARGETDIR',
-            '[TARGETDIR]ftrack_connect_package.exe',
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            'TARGETDIR'
-         ),
-        (
-            'ProgramMenuShortcut',
-            'ProgramMenuFolder',
-            'ftrack-connect',
-            'TARGETDIR',
-            '[TARGETDIR]ftrack_connect_package.exe',
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            'TARGETDIR'
-         )
-    ]
-
     if sys.platform == 'win32':
+
+        # MSI shotcut table list.
+        shortcut_table = [
+            (
+                'DesktopShortcut',
+                'DesktopFolder',
+                'ftrack-connect',
+                'TARGETDIR',
+                '[TARGETDIR]ftrack_connect_package.exe',
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                'TARGETDIR'
+            ),
+            (
+                'ProgramMenuShortcut',
+                'ProgramMenuFolder',
+                'ftrack-connect',
+                'TARGETDIR',
+                '[TARGETDIR]ftrack_connect_package.exe',
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                'TARGETDIR'
+            )
+        ]
+
         executables.append(
             Executable(
                 script='source/ftrack_connect_package/__main__.py',
                 base='Win32GUI',
+                #base=None,
                 targetName='ftrack_connect_package.exe',
                 icon='./logo.ico',
             )
@@ -347,14 +203,24 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
             'initial_target_dir': r'[ProgramFilesFolder]\{0}-{1}'.format(
                 'ftrack-connect-package', VERSION
             ),
-            'data': {'Shortcut': shortcut_table}
+            'data': {'Shortcut': shortcut_table},
+            # 'all_users': True, # Enable these when out of beta of connect 2
+            #'add_to_path': True
         }
 
-        # Seperate ftrack connect versions to separate install directories
-        # it should be possible to pass this as an option with 'initial_target_dir'
-        # but I did not manage to get it to work.
-        sys.argv += ['--initial-target-dir',  r'[ProgramFilesFolder]\{0}-{1}'.format(
-                'ftrack-connect-package', VERSION)
+        include_files.extend(
+            [
+                (os.path.join(pyside_path, "plugins", "platforms"), 'lib/Qt/plugins/platforms'),
+                (os.path.join(pyside_path, "plugins", "imageformats"),'lib/Qt/plugins/imageformats'),
+                (os.path.join(pyside_path, "plugins", "iconengines"),'lib/Qt/plugins/iconengines')
+            ]
+        )
+
+        # Force Qt to be included.
+        bin_includes = [
+            "PySide2",
+            "shiboken2",
+            "encodings"
         ]
 
     elif sys.platform == 'darwin':
@@ -363,7 +229,7 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
                 script='source/ftrack_connect_package/__main__.py',
                 base=None,
                 targetName='ftrack_connect_package',
-                icon='./logo.icns'
+                icon='./logo.icns',
             )
         )
 
@@ -376,27 +242,57 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
         }
 
         configuration['options']['bdist_dmg'] = {
-            'applications_shortcut': True,
+            'applications_shortcut': False,
             'volume_label': 'ftrack-connect-{0}'.format(VERSION)
         }
+        include_files.extend(
+            [
+                os.path.join(pyside_path, "Qt", "plugins", "platforms"),
+                os.path.join(pyside_path, "Qt", "plugins", "imageformats"),
+                os.path.join(pyside_path, "Qt", "plugins", "iconengines"),
+                os.path.join(pyside_path, "Qt", "lib", "QtGui.framework"),
+                os.path.join(pyside_path, "Qt", "lib", "QtCore.framework"),
+                os.path.join(pyside_path, "Qt", "lib", "QtNetwork.framework"),
+                os.path.join(pyside_path, "Qt", "lib", "QtSvg.framework"),
+                os.path.join(pyside_path, "Qt", "lib", "QtXml.framework"),
+                os.path.join(pyside_path, "Qt", "lib", "QtDBus.framework"),
+                os.path.join(pyside_path, "Qt", "lib", "QtWidgets.framework"),
+                os.path.join(pyside_path, "Qt", "lib", "QtQml.framework"),
+                os.path.join(pyside_path, "Qt", "lib", "QtPrintSupport.framework"),
+                (os.path.join(pyside_path, "libpyside2.abi3.5.15.dylib"), 'lib/libpyside2.abi3.5.15.dylib'),
+                (os.path.join(shiboken_path, "libshiboken2.abi3.5.15.dylib"), 'lib/libshiboken2.abi3.5.15.dylib')
+            ]
+        )
 
-    elif sys.platform == 'linux2':
+    elif sys.platform == 'linux':
+
         executables.append(
             Executable(
                 script='source/ftrack_connect_package/__main__.py',
                 base=None,
                 targetName='ftrack_connect_package',
-                icon='./logo.icns'
+                icon='./logo.icns',
             )
+        )
+
+        include_files.extend(
+            [
+                (os.path.join(pyside_path, "Qt", "plugins", "platforms"), 'lib/Qt/plugins/platforms'),
+                (os.path.join(pyside_path, "Qt", "plugins", "imageformats"), 'lib/Qt/plugins/imageformats'),
+                (os.path.join(pyside_path, "Qt", "plugins", "iconengines"), 'lib/Qt/plugins/iconengines')
+            ]
         )
 
         # Force Qt to be included.
         bin_includes = [
-            'libQtCore.so',
-            'libQtGui.so',
-            'libQtNetwork.so',
-            'libQtSvg.so',
-            'libQtXml.so'
+            'libQt5Core.so',
+            'libQt5Gui.so',
+            'libQt5Network.so',
+            'libQt5Svg.so',
+            'libQt5Xml.so',
+            'libQt5XcbQpa.so',
+            'libQt5DBus.so',
+            'libshiboken2'
         ]
 
     configuration['executables'] = executables
@@ -410,65 +306,69 @@ if sys.platform in ('darwin', 'win32', 'linux2'):
 
     include_files.append((distutils_path, 'distutils'))
 
+    encodings_path = os.path.join(
+        os.path.dirname(opcode.__file__), 'encodings'
+    )
+
+    include_files.append((encodings_path, 'encodings'))
+
     includes.extend([
-        'ftrack',
         'atexit',  # Required for PySide
-        'ftrack_connect.application',
+        'ftrack_connect',
         'ftrack_api.resource_identifier_transformer.base',
         'ftrack_api.structure.id',
-        'ftrack_connect_rv',
-        'ftrack_connect_cinema_4d',
-        'ftrack_action_handler',
-        'ftrack_action_handler.action',
-        'ftrack_location_compatibility',
-        'boto',
-        'PySide.QtSvg',
-        'PySide.QtXml',
-        'packaging',
-        'packaging.version',
-        'packaging.specifiers',
-        'packaging.requirements',
+        'encodings',
+        'PySide2',
+        'Qt',
+        'PySide2.QtSvg',
+        'PySide2.QtXml',
+        'PySide2.QtCore',
+        'PySide2.QtWidgets',
+        'PySide2.QtGui',
         'ssl',
         'xml.etree',
         'xml.etree.ElementTree',
         'xml.etree.ElementPath',
         'xml.etree.ElementInclude',
-        'xml.dom'
-        
+        'http',
+        'http.server',
+        'webbrowser',
     ])
 
     configuration['options']['build_exe'] = {
-        'init_script': os.path.join(RESOURCE_PATH, 'frozen_bootstrap.py'),
         'includes': includes,
+        "zip_include_packages": [
+            'ftrack_connect',
+            "PySide2",
+            "shiboken2",
+            "Qt",
+            'PySide2.QtSvg',
+            'PySide2.QtXml',
+            'PySide2.QtCore',
+            'PySide2.QtWidgets',
+            'PySide2.QtGui',
+            "encodings",
+            'http',
+            'urllib.parser',
+            'webbrowser'
+        ],
+        #"include_msvcr": True,
         'excludes': [
-            # The following don't actually exist, but are picked up by the
-            # dependency walker somehow.
-            'boto.compat.sys',
-            'boto.compat._sre',
-            'boto.compat.array',
-            'boto.compat._struct',
-            'boto.compat._json',
-
-            # Compiled yaml uses unguarded pkg_resources.resource_filename which
-            # won't work in frozen package.
+            "dbm.gnu",
+            "tkinter",
+            "unittest",
+            "test",
             '_yaml',
 
-            # Exclude distutils from virtualenv due to entire package with
-            # sub-modules not being copied to virtualenv.
-            'distutils',
-            
-            # https://www.reddit.com/r/learnpython/comments/4rjkgj/no_file_named_sys_for_module_collectionssys/
-            'collections.abc'
+
         ],
         'include_files': include_files,
         'bin_includes': bin_includes,
-        'namespace_packages':['backports']
     }
 
     configuration['setup_requires'].extend(
         configuration['install_requires']
     )
-
 
 # Call main setup.
 setup(**configuration)
