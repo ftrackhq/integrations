@@ -40,12 +40,22 @@ Windows::
     $ python setup.py bdist_msi
 
 OSX::
+
+    .. note::
+
+        Be sure to have installed: Pip version 19.3, setuptools 36.0.1, jinja2,
+        pyopenssl 17.0.0 and cryptography 1.8.2
+
+    $ export FTRACK_PYTHON_LEGACY_API_PATH="/path/to/repo/ftrack-python-legacy-api"
+
     #note, on latest version of OSX these envs are needed in order to properly build.
-    export CPPFLAGS=-I/usr/local/opt/openssl/include
-    export LDFLAGS=-L/usr/local/opt/openssl/lib
+    $ export CPPFLAGS=-I/usr/local/opt/openssl/include
+    $ export LDFLAGS=-L/usr/local/opt/openssl/lib
 
     $ npm install -g appdmg
     $ python setup.py bdist_mac
+    # In case of codesign follow the documented instructions in codesign_osx.rst
+    # Build a dmg
     $ appdmg resource/appdmg.json build/ftrack-connect-package-X.X.X.dmg
 
 Known Issues

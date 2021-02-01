@@ -15,6 +15,7 @@ import os
 import re
 import opcode
 import logging
+import plistlib
 import pkg_resources
 
 # # Package and dependencies versions.
@@ -50,6 +51,26 @@ with open(os.path.join(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
 
+# Update Info.plist file with version
+INFO_PLIST_FILE = os.path.join(RESOURCE_PATH, 'Info.plist')
+try:
+    pl = plistlib.load(INFO_PLIST_FILE)
+    if 'CFBundleGetInfoString' in pl.keys():
+        pl["CFBundleShortVersionString"] = str(
+            'Ftrack Connect {}, copyright: Copyright (c) 2014-2020 ftrack'.format(
+                VERSION
+            )
+        )
+    if 'CFBundleShortVersionString' in pl.keys():
+        pl["CFBundleShortVersionString"] = str(VERSION)
+
+    plistlib.dump(pl, INFO_PLIST_FILE)
+except Exception as e:
+    logging.warning(
+        'Could not change the version at Info.plist file. \n Error: {}'.format(
+            e
+        )
+    )
 
 connect_resource_hook = pkg_resources.resource_filename(
     pkg_resources.Requirement.parse('ftrack-connect'),
@@ -233,34 +254,57 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             )
         )
 
+        include_frameworks = [
+            os.path.join(pyside_path, "Qt", "lib", "QtGui.framework"),
+            os.path.join(pyside_path, "Qt", "lib", "QtCore.framework"),
+            os.path.join(pyside_path, "Qt", "lib", "QtNetwork.framework"),
+            os.path.join(pyside_path, "Qt", "lib", "QtSvg.framework"),
+            os.path.join(pyside_path, "Qt", "lib", "QtXml.framework"),
+            os.path.join(pyside_path, "Qt", "lib", "QtDBus.framework"),
+            os.path.join(pyside_path, "Qt", "lib", "QtWidgets.framework"),
+            os.path.join(pyside_path, "Qt", "lib", "QtQml.framework"),
+            os.path.join(pyside_path, "Qt", "lib", "QtPrintSupport.framework")
+        ]
+
+        #TODO: probably remove the common include files with this code from the
+        # top file and include it depending on the platform the same with distutil
+        include_resources = [
+            (connect_resource_hook, 'resource/hook'),
+            (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'),
+            (requests.certs.where(), 'resource/cacert.pem'),
+            (os.path.join(
+                SOURCE_PATH, 'ftrack_connect_package', '_version.py'
+            ), 'resource/ftrack_connect_package_version.py'),
+            #'qt.conf',
+            (os.path.join(
+                os.path.dirname(opcode.__file__), 'distutils'
+            ), 'distutils')
+        ]
+
         configuration['options']['bdist_mac'] = {
             'iconfile': './logo.icns',
             'bundle_name': 'ftrack-connect',
             'custom_info_plist': os.path.join(
                 RESOURCE_PATH, 'Info.plist'
-            )
+            ),
+            'include_frameworks': include_frameworks,
+            'include_resources': include_resources
         }
 
         configuration['options']['bdist_dmg'] = {
             'applications_shortcut': False,
             'volume_label': 'ftrack-connect-{0}'.format(VERSION)
         }
+
         include_files.extend(
             [
                 os.path.join(pyside_path, "Qt", "plugins", "platforms"),
                 os.path.join(pyside_path, "Qt", "plugins", "imageformats"),
                 os.path.join(pyside_path, "Qt", "plugins", "iconengines"),
-                os.path.join(pyside_path, "Qt", "lib", "QtGui.framework"),
-                os.path.join(pyside_path, "Qt", "lib", "QtCore.framework"),
-                os.path.join(pyside_path, "Qt", "lib", "QtNetwork.framework"),
-                os.path.join(pyside_path, "Qt", "lib", "QtSvg.framework"),
-                os.path.join(pyside_path, "Qt", "lib", "QtXml.framework"),
-                os.path.join(pyside_path, "Qt", "lib", "QtDBus.framework"),
-                os.path.join(pyside_path, "Qt", "lib", "QtWidgets.framework"),
-                os.path.join(pyside_path, "Qt", "lib", "QtQml.framework"),
-                os.path.join(pyside_path, "Qt", "lib", "QtPrintSupport.framework"),
-                (os.path.join(pyside_path, "libpyside2.abi3.5.15.dylib"), 'lib/libpyside2.abi3.5.15.dylib'),
-                (os.path.join(shiboken_path, "libshiboken2.abi3.5.15.dylib"), 'lib/libshiboken2.abi3.5.15.dylib')
+                os.path.join(pyside_path, "libpyside2.abi3.5.15.dylib"),
+                os.path.join(shiboken_path, "libshiboken2.abi3.5.15.dylib")
+                # (os.path.join(pyside_path, "libpyside2.abi3.5.15.dylib"), 'lib/libpyside2.abi3.5.15.dylib'),
+                # (os.path.join(shiboken_path, "libshiboken2.abi3.5.15.dylib"), 'lib/libshiboken2.abi3.5.15.dylib')
             ]
         )
 
@@ -372,3 +416,8 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
 # Call main setup.
 setup(**configuration)
+
+#TODO: add this somewhere
+# if sys.platform == 'darwin':
+#     shutil.copyfile('resource/entitlements.plist',
+#                     os.path.join(BUILD_PATH, 'entitlements.plist'))
