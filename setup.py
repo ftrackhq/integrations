@@ -43,6 +43,7 @@ RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
 
+
 # Read version from source.
 with open(os.path.join(
     SOURCE_PATH, 'ftrack_connect_package', '_version.py'
@@ -147,14 +148,23 @@ if sys.platform in ('darwin', 'win32', 'linux'):
     # Add requests certificates to resource folder.
     import requests.certs
 
-    include_files = [
+    # opcode is not a virtualenv module, so we can use it to find the stdlib.
+    # This is the same trick used by distutils itself it installs itself into
+    # the virtualenv
+    distutils_path = os.path.join(os.path.dirname(opcode.__file__), 'distutils')
+    encodings_path = os.path.join(os.path.dirname(opcode.__file__), 'encodings')
+    #
+    resources = [
         (connect_resource_hook, 'resource/hook'),
         (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'),
         (requests.certs.where(), 'resource/cacert.pem'),
-        (os.path.join(
-            SOURCE_PATH, 'ftrack_connect_package', '_version.py'
-        ), 'resource/ftrack_connect_package_version.py'),
-        'qt.conf'
+        (
+            os.path.join(SOURCE_PATH, 'ftrack_connect_package', '_version.py'),
+            'resource/ftrack_connect_package_version.py'
+        ),
+        ('qt.conf', 'qt.conf'),
+        (distutils_path, 'distutils'),
+        (encodings_path, 'encodings')
     ]
 
 
@@ -229,13 +239,19 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             #'add_to_path': True
         }
 
-        include_files.extend(
-            [
-                (os.path.join(pyside_path, "plugins", "platforms"), 'lib/Qt/plugins/platforms'),
-                (os.path.join(pyside_path, "plugins", "imageformats"),'lib/Qt/plugins/imageformats'),
-                (os.path.join(pyside_path, "plugins", "iconengines"),'lib/Qt/plugins/iconengines')
-            ]
-        )
+        # Qt plugins paths
+        qt_platforms_path = os.path.join(pyside_path, "plugins", "platforms")
+        qt_imageformats_path = os.path.join(pyside_path, "plugins", "imageformats")
+        qt_iconengines_path = os.path.join(pyside_path, "plugins", "iconengines")
+
+        include_files = [
+            # Include Qt
+            (qt_platforms_path, 'lib/Qt/plugins/platforms'),
+            (qt_imageformats_path, 'lib/Qt/plugins/imageformats'),
+            (qt_iconengines_path, 'lib/Qt/plugins/iconengines'),
+        ]
+        #Extend include_files with resources list
+        include_files.extend(resources)
 
         # Force Qt to be included.
         bin_includes = [
@@ -254,6 +270,8 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             )
         )
 
+        # include_frameworks is an argument of bdist_mac only, all the listed
+        # frameworks will be copied to the Frameworks folder.
         include_frameworks = [
             os.path.join(pyside_path, "Qt", "lib", "QtGui.framework"),
             os.path.join(pyside_path, "Qt", "lib", "QtCore.framework"),
@@ -266,20 +284,13 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             os.path.join(pyside_path, "Qt", "lib", "QtPrintSupport.framework")
         ]
 
-        #TODO: probably remove the common include files with this code from the
-        # top file and include it depending on the platform the same with distutil
-        include_resources = [
-            (connect_resource_hook, 'resource/hook'),
-            (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'),
-            (requests.certs.where(), 'resource/cacert.pem'),
-            (os.path.join(
-                SOURCE_PATH, 'ftrack_connect_package', '_version.py'
-            ), 'resource/ftrack_connect_package_version.py'),
-            #'qt.conf',
-            (os.path.join(
-                os.path.dirname(opcode.__file__), 'distutils'
-            ), 'distutils')
-        ]
+        # include_resources is an argument of bdist_mac only, all the listed
+        # resources will be copied to the Resuorce folder.
+        include_resources = resources.copy()
+        # Remove qt.conf on macOS as it's not working as expected, so QT plugins
+        # and dylib are added on the MacOS folder for now
+        include_resources.remove(('qt.conf', 'qt.conf'))
+        include_resources.remove((requests.certs.where(), 'resource/cacert.pem'))
 
         configuration['options']['bdist_mac'] = {
             'iconfile': './logo.icns',
@@ -288,7 +299,10 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 RESOURCE_PATH, 'Info.plist'
             ),
             'include_frameworks': include_frameworks,
-            'include_resources': include_resources
+            'include_resources': include_resources,
+            'codesign_entitlements': os.path.join(
+                RESOURCE_PATH, 'entitlements.plist'
+            )
         }
 
         configuration['options']['bdist_dmg'] = {
@@ -296,17 +310,16 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             'volume_label': 'ftrack-connect-{0}'.format(VERSION)
         }
 
-        include_files.extend(
-            [
-                os.path.join(pyside_path, "Qt", "plugins", "platforms"),
-                os.path.join(pyside_path, "Qt", "plugins", "imageformats"),
-                os.path.join(pyside_path, "Qt", "plugins", "iconengines"),
-                os.path.join(pyside_path, "libpyside2.abi3.5.15.dylib"),
-                os.path.join(shiboken_path, "libshiboken2.abi3.5.15.dylib")
-                # (os.path.join(pyside_path, "libpyside2.abi3.5.15.dylib"), 'lib/libpyside2.abi3.5.15.dylib'),
-                # (os.path.join(shiboken_path, "libshiboken2.abi3.5.15.dylib"), 'lib/libshiboken2.abi3.5.15.dylib')
-            ]
-        )
+        include_files = [
+            #Include Qt
+            os.path.join(pyside_path, "Qt", "plugins", "platforms"),
+            os.path.join(pyside_path, "Qt", "plugins", "imageformats"),
+            os.path.join(pyside_path, "Qt", "plugins", "iconengines"),
+            #Include PySide and Shiboken libs
+            os.path.join(pyside_path, "libpyside2.abi3.5.15.dylib"),
+            os.path.join(shiboken_path, "libshiboken2.abi3.5.15.dylib"),
+            (requests.certs.where(), 'resource/cacert.pem'),
+        ]
 
     elif sys.platform == 'linux':
 
@@ -319,13 +332,20 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             )
         )
 
-        include_files.extend(
-            [
-                (os.path.join(pyside_path, "Qt", "plugins", "platforms"), 'lib/Qt/plugins/platforms'),
-                (os.path.join(pyside_path, "Qt", "plugins", "imageformats"), 'lib/Qt/plugins/imageformats'),
-                (os.path.join(pyside_path, "Qt", "plugins", "iconengines"), 'lib/Qt/plugins/iconengines')
+        # Qt plugins paths
+        qt_platforms_path = os.path.join(pyside_path, "Qt", "plugins", "platforms")
+        qt_imageformats_path = os.path.join(pyside_path, "Qt", "plugins", "imageformats")
+        qt_iconengines_path = os.path.join(pyside_path, "Qt", "plugins", "iconengines")
+
+        include_files = [
+            # Include Qt
+            (qt_platforms_path, 'lib/Qt/plugins/platforms'),
+            (qt_imageformats_path, 'lib/Qt/plugins/imageformats'),
+            (qt_iconengines_path, 'lib/Qt/plugins/iconengines')
             ]
-        )
+
+        # Extend include_files with resources list
+        include_files.extend(resources)
 
         # Force Qt to be included.
         bin_includes = [
@@ -340,21 +360,6 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         ]
 
     configuration['executables'] = executables
-
-    # opcode is not a virtualenv module, so we can use it to find the stdlib.
-    # This is the same trick used by distutils itself it installs itself into
-    # the virtualenv
-    distutils_path = os.path.join(
-        os.path.dirname(opcode.__file__), 'distutils'
-    )
-
-    include_files.append((distutils_path, 'distutils'))
-
-    encodings_path = os.path.join(
-        os.path.dirname(opcode.__file__), 'encodings'
-    )
-
-    include_files.append((encodings_path, 'encodings'))
 
     includes.extend([
         'atexit',  # Required for PySide
@@ -417,7 +422,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 # Call main setup.
 setup(**configuration)
 
-#TODO: add this somewhere
+# TODO: we may need this if the codesign_entitlements code deosn't work:
 # if sys.platform == 'darwin':
-#     shutil.copyfile('resource/entitlements.plist',
-#                     os.path.join(BUILD_PATH, 'entitlements.plist'))
+#    shutil.copyfile('resource/entitlements.plist',
+#    os.path.join(BUILD_PATH, 'entitlements.plist'))
