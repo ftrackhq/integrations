@@ -17,11 +17,13 @@ import opcode
 import logging
 import plistlib
 import pkg_resources
+import subprocess
 
 # # Package and dependencies versions.
 
 ftrack_connect_version = '2.0'
 ftrack_action_handler_version = '0.2.1'
+bundle_name = 'ftrack-connect'
 import PySide2
 import shiboken2
 
@@ -51,27 +53,6 @@ with open(os.path.join(
     VERSION = re.match(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
-
-# Update Info.plist file with version
-INFO_PLIST_FILE = os.path.join(RESOURCE_PATH, 'Info.plist')
-try:
-    pl = plistlib.load(INFO_PLIST_FILE)
-    if 'CFBundleGetInfoString' in pl.keys():
-        pl["CFBundleShortVersionString"] = str(
-            'Ftrack Connect {}, copyright: Copyright (c) 2014-2020 ftrack'.format(
-                VERSION
-            )
-        )
-    if 'CFBundleShortVersionString' in pl.keys():
-        pl["CFBundleShortVersionString"] = str(VERSION)
-
-    plistlib.dump(pl, INFO_PLIST_FILE)
-except Exception as e:
-    logging.warning(
-        'Could not change the version at Info.plist file. \n Error: {}'.format(
-            e
-        )
-    )
 
 connect_resource_hook = pkg_resources.resource_filename(
     pkg_resources.Requirement.parse('ftrack-connect'),
@@ -172,6 +153,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
     executables = []
     bin_includes = []
     includes = []
+    include_files = []
 
     # Different modules are used on different platforms. Make sure to include
     # all found.
@@ -261,6 +243,28 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         ]
 
     elif sys.platform == 'darwin':
+
+        # Update Info.plist file with version
+        INFO_PLIST_FILE = os.path.join(RESOURCE_PATH, 'Info.plist')
+        try:
+            pl = plistlib.load(INFO_PLIST_FILE)
+            if 'CFBundleGetInfoString' in pl.keys():
+                pl["CFBundleShortVersionString"] = str(
+                    'Ftrack Connect {}, copyright: Copyright (c) 2014-2020 ftrack'.format(
+                        VERSION
+                    )
+                )
+            if 'CFBundleShortVersionString' in pl.keys():
+                pl["CFBundleShortVersionString"] = str(VERSION)
+
+            plistlib.dump(pl, INFO_PLIST_FILE)
+        except Exception as e:
+            logging.warning(
+                'Could not change the version at Info.plist file. \n Error: {}'.format(
+                    e
+                )
+            )
+
         executables.append(
             Executable(
                 script='source/ftrack_connect_package/__main__.py',
@@ -294,15 +298,19 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
         configuration['options']['bdist_mac'] = {
             'iconfile': './logo.icns',
-            'bundle_name': 'ftrack-connect',
+            'bundle_name': bundle_name,
             'custom_info_plist': os.path.join(
                 RESOURCE_PATH, 'Info.plist'
             ),
             'include_frameworks': include_frameworks,
             'include_resources': include_resources,
-            'codesign_entitlements': os.path.join(
-                RESOURCE_PATH, 'entitlements.plist'
-            )
+            # TODO: codesign is not working with PySide2 applications because
+            #  the frameworks has to be fixed and signed.
+            # 'codesign_identity': os.getenv('CODESIGN_IDENTITY'),
+            # 'codesign_deep': True,
+            # 'codesign_entitlements': os.path.join(
+            #     RESOURCE_PATH, 'entitlements.plist'
+            # )
         }
 
         configuration['options']['bdist_dmg'] = {
@@ -419,10 +427,110 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         configuration['install_requires']
     )
 
+def post_setup():
+    if sys.platform == 'darwin':
+        bundle_dir = os.path.join(BUILD_PATH, bundle_name + ".app")
+        frameworks_dir = os.path.join(bundle_dir,  "Contents", "Frameworks")
+        for framework in os.listdir(frameworks_dir):
+            full_path = '{}/{}'.format(frameworks_dir, framework)
+            framework_name = framework.split(".")[0]
+            # Fix PySide2 misplaced resources and .plist file on frameworks.
+            # Instead of having the Resources folder on the root of the framework,
+            # it should be inside the version number folder, and then this has
+            # to create a sym link to the root framework folder.
+            # Check the Qt frameworks structure of the Qt installation of the homebrew.
+            # Related info in:
+            # https://stackoverflow.com/questions/19637131/sign-a-framework-for-osx-10-9
+            bash_move_cmd = 'mv "{}/Resources" "{}/Versions/5/Resources"'.format(
+                full_path,
+                full_path
+            )
+            os.system(bash_move_cmd)
+            # The symlink has to be relative, otherwise will not codesign correctly.
+            # You can test the codesign after codesign the whole application with:
+            # codesign -vvv --deep --strict build/ftrack-connect.app/
+            bash_ln_command = 'cd {}; ln -s "Versions/5/Resources/" "./"'.format(
+                full_path
+            )
+            os.system(bash_ln_command)
+            # Codesign each framework
+            bashCommand = (
+                'codesign --verbose --deep --strict --force --sign "{}" '
+                '"{}/versions/5/{}"'.format(
+                    os.getenv('CODESIGN_IDENTITY'),
+                    full_path,
+                    framework_name
+                    )
+            )
+            os.system(bashCommand)
+
+def codesign(create_dmg=True, notarize=True):
+    # Important to have an APP-specific password generated on https://appleid.apple.com/account/manage
+    # and have it linked on the keychain under ftrack_connect_sign_pass
+    entitlements_path = os.path.join(RESOURCE_PATH, 'entitlements.plist')
+    bundle_path = os.path.join(BUILD_PATH, bundle_name + ".app")
+    codesign_command = (
+        'codesign --verbose --force --options runtime --timestamp --deep --strict '
+        '--entitlements "{}" --sign $CODESIGN_IDENTITY '
+        '{}'.format(entitlements_path, bundle_path)
+    )
+    codesign_result = os.system(codesign_command)
+    if codesign_result != 0:
+        raise(logging.error("Codesign not working please check."))
+    else:
+        logging.info('Application signed')
+    if create_dmg:
+        dmg_name = '{0}-{1}.dmg'.format(bundle_name, VERSION)
+        dmg_path = os.path.join(BUILD_PATH, dmg_name)
+        dmg_command = (
+            'appdmg resource/appdmg.json {}'.format(dmg_path)
+        )
+        dmg_result = os.system(dmg_command)
+        if dmg_result != 0:
+            raise (Exception("dmg creation not working please check."))
+        else:
+            logging.info('{} Created.'.format(dmg_path))
+        if notarize == True:
+            setup_xcode_cmd = 'sudo xcode-select -s /Applications/Xcode.app'
+            setup_result = os.system(setup_xcode_cmd)
+            if setup_result != 0:
+                raise (Exception("Setting up xcode not working please check."))
+            else:
+                logging.info('xcode setup completed')
+            notarize_command = (
+                'xcrun altool --notarize-app --verbose --primary-bundle-id "com.ftrack.connect" '
+                '--username $APPLE_USER_NAME --password "@keychain:ftrack_connect_sign_pass" '
+                '--file {}'.format(dmg_path)
+            )
+            notarize_result = subprocess.check_output(notarize_command, shell=True)
+            notarize_result.decode("utf-8")
+            status, uuid = notarize_result.split('\n')[0:2]
+            uuid_num = uuid.split(' = ')[-1]
+
+            # Show History Notarizations.
+            notarize_history = (
+                'xcrun altool --notarization-history 0 -u $APPLE_USER_NAME '
+                '-p "@keychain:ftrack_connect_sign_pass"'
+            )
+            history_result = os.system(notarize_history)
+
+            logging.info('Notarize upload status: {}'.format(status))
+            logging.info('Request UUID: {}'.format(uuid_num))
+
+            # Query status
+            notarize_query = (
+                'xcrun altool --notarization-info {} -u $APPLE_USER_NAME '
+                '-p "@keychain:ftrack_connect_sign_pass"'.format(uuid_num)
+            )
+            query_result = subprocess.check_output(notarize_query, shell=True)
+            print("query_result ---> {}".format(query_result))
+            # print("once package is approved please staple the ticket to your app and to your dmg running the following command. command here. If notarization is invalid, please check notarization log using ")
+            # 'xcrun altool --notarization-info 51b1da48-a29d-4149-86a4-c51b74de5967 -u $APPLE_USER_NAME -p "@keychain:ftrack_connect_sign_pass"''
+
+
+
 # Call main setup.
 setup(**configuration)
-
-# TODO: we may need this if the codesign_entitlements code deosn't work:
-# if sys.platform == 'darwin':
-#    shutil.copyfile('resource/entitlements.plist',
-#    os.path.join(BUILD_PATH, 'entitlements.plist'))
+post_setup()
+codesign()
+#TODO: get the UUID number. Check the status. add arguments to the setup.py to codesign and notarize
