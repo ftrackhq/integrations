@@ -18,6 +18,7 @@ import logging
 import plistlib
 import pkg_resources
 import subprocess
+import time
 
 # # Package and dependencies versions.
 
@@ -427,20 +428,29 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         configuration['install_requires']
     )
 
-def post_setup():
+def post_setup(codesign_frameworks = True):
+    '''
+    Post setup function.
+
+    For MacOS: Fix PySide2 misplaced resources and .plist file on frameworks.
+    Instead of having the Resources folder on the root of the framework,
+    it should be inside the version number folder, and then this has
+    to create a sym link to the root framework folder.
+    Check the Qt frameworks structure of the Qt installation of the homebrew.
+    Related info in:
+    https://stackoverflow.com/questions/19637131/sign-a-framework-for-osx-10-9
+
+    '''
     if sys.platform == 'darwin':
+        logging.info(
+            " Fixing PySide2 frameworks."
+        )
         bundle_dir = os.path.join(BUILD_PATH, bundle_name + ".app")
         frameworks_dir = os.path.join(bundle_dir,  "Contents", "Frameworks")
         for framework in os.listdir(frameworks_dir):
             full_path = '{}/{}'.format(frameworks_dir, framework)
             framework_name = framework.split(".")[0]
             # Fix PySide2 misplaced resources and .plist file on frameworks.
-            # Instead of having the Resources folder on the root of the framework,
-            # it should be inside the version number folder, and then this has
-            # to create a sym link to the root framework folder.
-            # Check the Qt frameworks structure of the Qt installation of the homebrew.
-            # Related info in:
-            # https://stackoverflow.com/questions/19637131/sign-a-framework-for-osx-10-9
             bash_move_cmd = 'mv "{}/Resources" "{}/Versions/5/Resources"'.format(
                 full_path,
                 full_path
@@ -453,20 +463,48 @@ def post_setup():
                 full_path
             )
             os.system(bash_ln_command)
-            # Codesign each framework
-            bashCommand = (
-                'codesign --verbose --deep --strict --force --sign "{}" '
-                '"{}/versions/5/{}"'.format(
-                    os.getenv('CODESIGN_IDENTITY'),
-                    full_path,
-                    framework_name
+            if codesign_frameworks:
+                logging.info(
+                    " Codesigning framework {}".format(framework_name)
+                )
+                # Codesign each framework
+                bashCommand = (
+                    'codesign --verbose --deep --strict --force --sign "{}" '
+                    '"{}/versions/5/{}"'.format(
+                        os.getenv('CODESIGN_IDENTITY'),
+                        full_path,
+                        framework_name
+                        )
+                )
+                codesign_result = os.system(bashCommand)
+                if codesign_result != 0:
+                    raise (
+                        Exception(
+                            "Codesign of the frameworks not working please nake sure "
+                            "you have the CODESIGN_IDENTITY, APPLE_USER_NAME "
+                            "environment variables and ftrack_connect_sign_pass on "
+                            "the keychain."
+                        )
                     )
+        if not codesign_frameworks:
+            logging.info(
+                " You should codesign the frameworks before codesign the "
+                "application, otherwise it will not be well codesigned."
             )
-            os.system(bashCommand)
 
-def codesign(create_dmg=True, notarize=True):
-    # Important to have an APP-specific password generated on https://appleid.apple.com/account/manage
-    # and have it linked on the keychain under ftrack_connect_sign_pass
+def codesign_osx(create_dmg=True, notarize=True):
+    '''
+    Function to codesign the MacOs Build.
+
+    :note: Important to have an APP-specific password generated on
+    https://appleid.apple.com/account/manage
+    and have it linked on the keychain under ftrack_connect_sign_pass
+    '''
+    #
+    logging.info(
+        " Starting codesign process, this will take some time, "
+        "please don't stop the process."
+    )
     entitlements_path = os.path.join(RESOURCE_PATH, 'entitlements.plist')
     bundle_path = os.path.join(BUILD_PATH, bundle_name + ".app")
     codesign_command = (
@@ -476,9 +514,15 @@ def codesign(create_dmg=True, notarize=True):
     )
     codesign_result = os.system(codesign_command)
     if codesign_result != 0:
-        raise(logging.error("Codesign not working please check."))
+        raise(
+            Exception(
+                "Codesign not working please nake sure you have the "
+                "CODESIGN_IDENTITY, APPLE_USER_NAME environment variables and "
+                "ftrack_connect_sign_pass on the keychain."
+            )
+        )
     else:
-        logging.info('Application signed')
+        logging.info(' Application signed')
     if create_dmg:
         dmg_name = '{0}-{1}.dmg'.format(bundle_name, VERSION)
         dmg_path = os.path.join(BUILD_PATH, dmg_name)
@@ -489,21 +533,23 @@ def codesign(create_dmg=True, notarize=True):
         if dmg_result != 0:
             raise (Exception("dmg creation not working please check."))
         else:
-            logging.info('{} Created.'.format(dmg_path))
+            logging.info(' {} Created.'.format(dmg_path))
         if notarize == True:
+            logging.info(' Setting up xcode, please eter your sudo password')
             setup_xcode_cmd = 'sudo xcode-select -s /Applications/Xcode.app'
             setup_result = os.system(setup_xcode_cmd)
             if setup_result != 0:
                 raise (Exception("Setting up xcode not working please check."))
             else:
-                logging.info('xcode setup completed')
+                logging.info(' xcode setup completed')
+            logging.info(' Starting notarize process')
             notarize_command = (
                 'xcrun altool --notarize-app --verbose --primary-bundle-id "com.ftrack.connect" '
                 '--username $APPLE_USER_NAME --password "@keychain:ftrack_connect_sign_pass" '
                 '--file {}'.format(dmg_path)
             )
             notarize_result = subprocess.check_output(notarize_command, shell=True)
-            notarize_result.decode("utf-8")
+            notarize_result = notarize_result.decode("utf-8")
             status, uuid = notarize_result.split('\n')[0:2]
             uuid_num = uuid.split(' = ')[-1]
 
@@ -514,23 +560,108 @@ def codesign(create_dmg=True, notarize=True):
             )
             history_result = os.system(notarize_history)
 
-            logging.info('Notarize upload status: {}'.format(status))
-            logging.info('Request UUID: {}'.format(uuid_num))
+            logging.info(' Notarize upload status: {}'.format(status))
+            logging.info(' Request UUID: {}'.format(uuid_num))
 
-            # Query status
-            notarize_query = (
-                'xcrun altool --notarization-info {} -u $APPLE_USER_NAME '
-                '-p "@keychain:ftrack_connect_sign_pass"'.format(uuid_num)
-            )
-            query_result = subprocess.check_output(notarize_query, shell=True)
-            print("query_result ---> {}".format(query_result))
-            # print("once package is approved please staple the ticket to your app and to your dmg running the following command. command here. If notarization is invalid, please check notarization log using ")
-            # 'xcrun altool --notarization-info 51b1da48-a29d-4149-86a4-c51b74de5967 -u $APPLE_USER_NAME -p "@keychain:ftrack_connect_sign_pass"''
+            status = "in progress"
+            exit_loop = False
+            while status == "in progress" and exit_loop == False:
+                # Query status
+                notarize_query = (
+                    'xcrun altool --notarization-info {} -u $APPLE_USER_NAME '
+                    '-p "@keychain:ftrack_connect_sign_pass"'.format(uuid_num)
+                )
+                query_result = subprocess.check_output(notarize_query, shell=True)
+                query_result = query_result.decode("utf-8")
+                status = query_result.split("Status: ")[-1].split("\n")[0]
+                if status == 'success':
+                    exit_loop = True
+                    staple_app_cmd = 'xcrun stapler staple {}'.format(bundle_path)
+                    staple_dmg_cmd = 'xcrun stapler staple {}'.format(dmg_path)
+                    os.system(staple_app_cmd)
+                    os.system(staple_dmg_cmd)
+
+                elif status == 'invalid':
+                    exit_loop = True
+                    log_url = query_result.split("LogFileURL: ")[-1].split("\n")[0]
+                    raise (
+                        Exception(
+                            "Notarization failed, please copy the following url "
+                            "and check the log:\n{}".format(log_url)
+                        )
+                    )
+                else:
+                    response = input(
+                        "The status of the current notarization is: {}\n Please "
+                        "type exit if you want to manually wait for notarization "
+                        "process to finish. Or type the minutes you want to wait "
+                        "for automatically check for the notarization process\n "
+                        "example: (exit or 5) : ".format(status)
+                    )
+                    if response == 'exit' or response == 'Exit':
+                        exit_loop = True
+                        logging.info(
+                            ' Please check the status of the notarization using '
+                            'the command:\nxcrun altool --notarization-info {} '
+                            '-u $APPLE_USER_NAME  '
+                            '-p "@keychain:ftrack_connect_sign_pass"'.format(uuid_num)
+                        )
+                        logging.info(
+                            ' Please once notarization is succed use the '
+                            'following command to staple the app and the dmg: \n'
+                            'xcrum stapler staple {} \n'
+                            'xcrun stapler staple {}'.format(bundle_path, dmg_path)
+                        )
+                    else:
+                        try:
+                            sleep_min = float(response)
+                        except Exception as e:
+                            exit_loop = True
+                            raise (
+                                "Could not read the imput minutes, please check "
+                                "the notarize manually and staple the code after. \n"
+                                "Error: {}".format(e)
+                            )
+                        exit_loop = False
+                        time.sleep(sleep_min*60)
 
 
+if sys.platform == 'darwin':
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        prog='setup.py bdist_mac',
+        add_help=True,
+        description=''' Override help for Connect build in MacOs. These are the 
+        accepted arguments for connect build. ''',
+        epilog='Make sure you have the CODESIGN_IDENTITY and APPLE_USER_NAME '
+               'environment variables and the ftrack_connect_sign_pass on the '
+               'keychain before codesign.'
+    )
+    parser.add_argument(
+        '-cf', '--codesign_frameworks',
+        action='store_true',
+        help='Codesign the frameworks on the Frameworks folder on MacOS',
+    )
+    parser.add_argument(
+        '-cs', '--codesign', action='store_true', help='Codesign the .app in MacOS'
+    )
+    parser.add_argument(
+        '-dmg', '--create_dmg', action='store_true',
+        help='Create the dmg file for MacOS'
+    )
+    parser.add_argument(
+        '-not', '--notarize', action='store_true',
+        help='Notarice the dmg application after codesign'
+    )
+    args, unknown = parser.parse_known_args()
+    sys.argv = [sys.argv[0]] + unknown
+    osx_args = args
 
 # Call main setup.
 setup(**configuration)
-post_setup()
-codesign()
-#TODO: get the UUID number. Check the status. add arguments to the setup.py to codesign and notarize
+if sys.platform == 'darwin':
+    if 'osx_args' in locals():
+        post_setup(codesign_frameworks=osx_args.codesign_frameworks)
+        if osx_args.codesign:
+            codesign_osx(create_dmg=osx_args.create_dmg, notarize=osx_args.notarize)
