@@ -204,8 +204,8 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 'ftrack-connect-package', VERSION
             ),
             'data': {'Shortcut': shortcut_table},
-            # 'all_users': True, # Enable these when out of beta of connect 2
-            #'add_to_path': True
+            'all_users': True, # Enable these when out of beta of connect 2
+            'add_to_path': True
         }
 
         include_files.extend(
