@@ -29,9 +29,22 @@ Or download and extract the
 
 Create and activate a virtual environment with python3.7
 
+    * if in windows, please create the virtual env using venv
+
 Install dependencies with::
 
     $ pip install -r <ftrack-connect-package>/requirements.txt
+
+.. note::
+    After installing the requirements.txt please manually install cx_freeze. (This will be included in the requirements when a cx_freeze > 3.4.0 is released):
+
+    * Windows::
+
+        $ pip install cx_freeze
+
+    * OSX::
+
+        $ pip install git+https://github.com/marcelotduarte/cx_Freeze.git
 
 Install ftrack connect::
 

@@ -19,4 +19,3 @@ six==1.15.0
 termcolor==1.1.0
 urllib3==1.26.2
 websocket-client==0.57.0
-git+https://github.com/marcelotduarte/cx_Freeze.git
