@@ -205,7 +205,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 script='source/ftrack_connect_package/__main__.py',
                 base='Win32GUI',
                 #base=None,
-                targetName='ftrack_connect_package.exe',
+                target_name='ftrack_connect_package.exe',
                 icon='./logo.ico',
             )
         )
@@ -248,7 +248,8 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         # Update Info.plist file with version
         INFO_PLIST_FILE = os.path.join(RESOURCE_PATH, 'Info.plist')
         try:
-            pl = plistlib.load(INFO_PLIST_FILE)
+            with open(INFO_PLIST_FILE, "rb") as file:
+                pl = plistlib.load(file)
             if 'CFBundleGetInfoString' in pl.keys():
                 pl["CFBundleShortVersionString"] = str(
                     'Ftrack Connect {}, copyright: Copyright (c) 2014-2020 ftrack'.format(
@@ -257,8 +258,8 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 )
             if 'CFBundleShortVersionString' in pl.keys():
                 pl["CFBundleShortVersionString"] = str(VERSION)
-
-            plistlib.dump(pl, INFO_PLIST_FILE)
+            with open(INFO_PLIST_FILE, "wb") as file:
+                    plistlib.dump(pl, file)
         except Exception as e:
             logging.warning(
                 'Could not change the version at Info.plist file. \n Error: {}'.format(
@@ -270,7 +271,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             Executable(
                 script='source/ftrack_connect_package/__main__.py',
                 base=None,
-                targetName='ftrack_connect_package',
+                target_name='ftrack_connect_package',
                 icon='./logo.icns',
             )
         )
@@ -336,7 +337,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             Executable(
                 script='source/ftrack_connect_package/__main__.py',
                 base=None,
-                targetName='ftrack_connect_package',
+                target_name='ftrack_connect_package',
                 icon='./logo.icns',
             )
         )
@@ -480,7 +481,7 @@ def post_setup(codesign_frameworks = True):
                 if codesign_result != 0:
                     raise (
                         Exception(
-                            "Codesign of the frameworks not working please nake sure "
+                            "Codesign of the frameworks not working please make sure "
                             "you have the CODESIGN_IDENTITY, APPLE_USER_NAME "
                             "environment variables and ftrack_connect_sign_pass on "
                             "the keychain."
