@@ -15,7 +15,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>2.0</string>
 	<key>LSUIElement</key>
-	<string>1</string>
+	<string>0</string>
 	<key>NSHighResolutionCapable</key>
 	<string>True</string>
 	<key>NSPrincipalClass</key>
