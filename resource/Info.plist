@@ -6,9 +6,19 @@
 	<string>English</string>
 	<key>CFBundleExecutable</key>
 	<string>ftrack_connect_package</string>
+	<key>CFBundleGetInfoString</key>
+	<string>Ftrack Connect 2.0.0, copyright: Copyright (c) 2014-2020 ftrack</string>
 	<key>CFBundleIconFile</key>
 	<string>icon.icns</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>2.0</string>
 	<key>LSUIElement</key>
-	<string>1</string>
+	<string>0</string>
+	<key>NSHighResolutionCapable</key>
+	<string>True</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
 </dict>
 </plist>

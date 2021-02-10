@@ -1,3 +1,6 @@
+..
+    :copyright: Copyright (c) 2014-2020 ftrack
+
 ######################
 ftrack connect package
 ######################
@@ -9,7 +12,6 @@ ftrack connect packages.
 Building
 ********
 
-.. highlight:: bash
 
 Clone the public repository::
 
@@ -18,35 +20,86 @@ Clone the public repository::
 Or download and extract the
 `zipball <https://bitbucket.org/ftrack/ftrack-connect-package/get/master.zip>`_
 
-Set the environment variable FTRACK_PYTHON_LEGACY_API_PATH to point to the
-ftrack-connect-legacy-api.
+Clone ftrack connect public repository::
 
-Once you have a copy of the source build locally a standalone executable for the
-platform you are currently on::
+    $ git clone git@bitbucket.org:ftrack/ftrack-connect.git
 
-    $ python setup.py build
+Or download and extract the
+`zipball <https://bitbucket.org/ftrack/ftrack-connect/get/master.zip>`_
 
-Alternatively, build appropriate bundles for target platform:
+Create and activate a virtual environment with python3.7
 
-Windows::
+    * if in windows, please create the virtual env using venv
+
+Install dependencies with::
+
+    $ pip install -r <ftrack-connect-package>/requirements.txt
+
+.. note::
+    After installing the requirements.txt please manually install cx_freeze. (This will be included in the requirements when a cx_freeze > 3.4.0 is released):
+
+    * Windows::
+
+        $ pip install cx_freeze
+
+    * OSX::
+
+        $ pip install git+https://github.com/marcelotduarte/cx_Freeze.git
+
+Install ftrack connect::
+
+    $ cd <ftrack-connect>
+    $ python setup.py install
+
+Build connect package with (specific build package)::
+
+        $ cd <ftrack-connect-package>
+
+
+Windows:
 
     .. note ::
 
         In case of : WindowsError [206] filepath or extension too long
         manually install the first failing dependencies
 
-    $ python -m pip install setuptools==36.0.1
-    $ python -m pip install pyside
-    $ python setup.py bdist_msi
+    ::
 
-OSX::
-    #note, on latest version of OSX these envs are needed in order to properly build.
-    export CPPFLAGS=-I/usr/local/opt/openssl/include
-    export LDFLAGS=-L/usr/local/opt/openssl/lib
+        $ python setup.py bdist_msi
 
-    $ npm install -g appdmg
-    $ python setup.py bdist_mac
-    $ appdmg resource/appdmg.json build/ftrack-connect-package-X.X.X.dmg
+OSX:
+
+    Install appdmg to be able to create the dmg::
+
+        $ npm install -g appdmg
+
+    ..Note::
+        On latest version of OSX these envs are needed in order to properly build::
+
+            $ export CPPFLAGS=-I/usr/local/opt/openssl/include
+            $ export LDFLAGS=-L/usr/local/opt/openssl/lib
+
+
+    * To build without codesign do::
+
+            $ python setup.py bdist_mac
+
+    * To build and codesign do:
+
+        Set your certificate id to CODESIGN_IDENTITY::
+
+            $ export CODESIGN_IDENTITY="<your_certificate_id_here>"
+
+        Set your Apple user name to APPLE_USER_NAME::
+
+            $ export APPLE_USER_NAME="<your_apple_user>"
+
+        Set your APP-specific password generated on https://appleid.apple.com/account/manage to the keychain under the name ftrack_connect_sign_pass.
+
+        Execute the following build command and follow the instructions::
+
+            $ python setup.py bdist_mac --codesign_frameworks --codesign --create_dmg --notarize
+
 
 Known Issues
 ============
@@ -61,15 +114,14 @@ Known Issues
 Dependencies
 ============
 
-* `Python <http://python.org>`_ >= 2.6, < 3
-* `ftrack-connect-legacy-api`
-* `ftrack-connect <https://bitbucket.org/ftrack/ftrack-connect>`_ >= 0.1, < 1
+* `Python <http://python.org>`_ >= 3.7, < 3.8
+* `ftrack-connect <https://bitbucket.org/ftrack/ftrack-connect>`_ >= 2.0, < 3.0
 
 *********************
 Copyright and license
 *********************
 
-Copyright (c) 2014 ftrack
+Copyright (c) 2014-2020 ftrack
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
 this work except in compliance with the License. You may obtain a copy of the
