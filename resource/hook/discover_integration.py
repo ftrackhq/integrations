@@ -54,7 +54,7 @@ def register(session, **kw):
         handle_event
     )
 
-        session.event_hub.subscribe(
+    session.event_hub.subscribe(
         'topic=ftrack.connect.application.discover'
         ' and data.application.identifier=rv*',
         handle_event
