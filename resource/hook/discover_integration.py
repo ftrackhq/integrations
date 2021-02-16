@@ -59,3 +59,9 @@ def register(session, **kw):
         ' and (data.application.identifier=nuke-studio* or data.application.identifier=hiero*)',
         handle_event
     )
+
+    session.event_hub.subscribe(
+        'topic=ftrack.connect.application.discover'
+        ' and (data.application.identifier=nuke-studio* or data.application.identifier=hiero*)',
+        handle_event
+    )
