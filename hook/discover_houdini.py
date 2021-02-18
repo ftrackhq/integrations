@@ -8,9 +8,25 @@ import logging
 
 import ftrack_api
 
-logger = logging.getLogger('ftrack_connect_pipeline_houdini.discover')
+NAME = 'ftrack-connect-pipeline-houdini'
+VERSION = '0.1.0'
+
+logger = logging.getLogger('{}.discover'.format(NAME.replace('-','_')))
+
+def on_discover_integration(event):
+    ''' Report back plugin/integration existance '''
+    logger.info('discovering: {}'.format(NAME))
+    data = {
+        'integration': {
+            'name': NAME,
+            'version': VERSION,
+        }
+    }
+    return data
 
 def on_application_launch(session, event):
+    '''Handle application launch and add environment to *event*.'''
+    logger.info('launching: {}'.format(NAME))
 
     plugin_base_dir = os.path.normpath(
         os.path.join(
@@ -31,7 +47,7 @@ def on_application_launch(session, event):
 
     sys.path.append(python_dependencies)
 
-    from ftrack_connect_pipeline_houdini import _version as integration_version
+    #from ftrack_connect_pipeline_houdini import _version as integration_version
 
     entity = event['data']['context']['selection'][0]
     task = session.get('Context', entity['entityId'])
@@ -41,12 +57,12 @@ def on_application_launch(session, event):
 
     data = {
         'integration': {
-            "name": 'ftrack-connect-pipeline-houdini',
-            'version': integration_version,
+            "name": NAME,
+            'version': VERSION,
             'env': {
                 'FTRACK_EVENT_PLUGIN_PATH.prepend': plugin_hook,
                 'PYTHONPATH.prepend': python_dependencies,
-                'HOUDINI_PATH.prepend': os.path.pathsep.join([houdini_path, '&']),
+                'HOUDINI_PATH.append': os.path.pathsep.join([houdini_path, '&']) if os.environ.get('HOUDINI_PATH','').find('&') == -1 else houdini_path,
                 'FTRACK_CONTEXTID.set': task['id'],
                 'FS.set': task['parent']['custom_attributes'].get('fstart', '1.0'),
                 'FE.set': task['parent']['custom_attributes'].get('fend', '100.0')
@@ -61,13 +77,19 @@ def register(session):
     if not isinstance(session, ftrack_api.session.Session):
         return
 
-    logger.info('discovering :{}'.format('ftrack.pipeline-houdini.discover'))
-    handle_event = functools.partial(
+    logger.info('registering :{}'.format(NAME))
+    session.event_hub.subscribe(
+        'topic=ftrack.connect.application.discover'
+        ' and data.application.identifier=houdini*',
+        on_discover_integration
+    )
+
+    handle_launch_event = functools.partial(
         on_application_launch,
         session
     )
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch'
         ' and data.application.identifier=houdini*',
-        handle_event, priority=40
+        handle_launch_event, priority=40
     )
