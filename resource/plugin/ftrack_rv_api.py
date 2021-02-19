@@ -23,6 +23,7 @@ import rv as rv
 ftrack_connect_rv_logger_name = 'ftrack_connect_rv'
 
 
+
 try:
     import ftrack_logging
     ftrack_logging.configure_logging(ftrack_connect_rv_logger_name)
@@ -31,13 +32,15 @@ except Exception as error:
     logging.error('Failed to Initialize logging.', error)
 
 logger = logging.getLogger(ftrack_connect_rv_logger_name)
-
+logger.info('PY3 Enabled: {}'.format(os.environ.get('RV_PYTHON3', 'NOT SET')))
+logger.info('Interpreter {}'.format(sys.executable))
+logger.info('version {}'.format(sys.version_info))
 # Check whether the plugin is running from within connect or as standalone
-is_standalone = not bool(os.getenv('FTRACK_CONNECT_EVENT'))
+# is_standalone = not bool(os.getenv('FTRACK_CONNECT_EVENT'))
 
 
 # Check for base environment presence.
-required_envs = ['FTRACK_SERVER', 'FTRACK_APIKEY']
+required_envs = ['FTRACK_SERVER', 'FTRACK_API_KEY']
 for env in required_envs:
     if env not in os.environ:
         logger.warning('{0} environment not found!'.format(env))
@@ -56,20 +59,8 @@ dependencies_path = os.path.join(
     'dependencies.zip'
 )
 
-# If we are standalone, rely on the shipped libraries.
-if is_standalone:
-    logger.debug('Runing Rv plugin standalone.')
-    sys.path.insert(0, dependencies_path)
-else:
-    logger.debug('Running Rv integration through connect.')
-
-# Try import ftrack's Legacy API.
-try:
-    import ftrack
-except ImportError:
-    logger.error(
-        'No Ftrack Legacy api module found in PYTHONPATH'
-    )
+logger.info('Adding {} to PATH'.format(dependencies_path))
+sys.path.append(dependencies_path)
 
 
 # Try import ftrack's new API.
@@ -79,14 +70,7 @@ try:
 
 except ImportError as e:
     logger.error(
-        'No Ftrack API module found in PYTHONPATH'
-    )
-
-try:
-    import ftrack_location_compatibility
-except ImportError:
-    logger.error(
-        'No ftrack_location_compatibility module found.'
+        'No Ftrack API module found in {}'.format(dependencies_path)
     )
 
 
@@ -103,13 +87,6 @@ layoutSourceNode = None
 annotation_components = {}
 
 
-# Initialize Legacy API.
-try:
-    ftrack.setup(actions=False)
-except Exception as e:
-    logger.error(e)
-
-
 # Initialize New API and ftrack_location_compatiblity
 try:
     session = ftrack_api.Session(
@@ -120,8 +97,6 @@ try:
     origin_location = session.get('Location', ORIGIN_LOCATION_ID)
     server_location = session.get('Location', SERVER_LOCATION_ID)
 
-    # Initialize ftrack_location_compatiblity.
-    ftrack_location_compatibility.plugin.register_locations(session)
 except Exception as e:
     logger.error(e)
 

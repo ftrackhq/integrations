@@ -15,10 +15,8 @@ from setuptools.command.test import test as TestCommand
 from pkg_resources import parse_version
 import pip
 
-if parse_version(pip.__version__) < parse_version('19.3.0'):
-    raise ValueError('Pip should be version 19.3.0 or higher')
 
-from pip._internal import main as pip_main
+from pip.__main__ import _main as pip_main
 
 FTRACK_LOCATION_COMPATIBILITY = '0.3.3'
 
@@ -64,6 +62,7 @@ with open(os.path.join(
 
 # Update staging path with the plugin version
 STAGING_PATH = STAGING_PATH.format(VERSION)
+
 
 class BuildPlugin(Command):
     '''Build plugin.'''
@@ -170,7 +169,7 @@ class BuildPlugin(Command):
 
         # Clean staging path.
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
-        pip_main.main(
+        pip_main(
             [
                 'install',
                 '.',
@@ -231,13 +230,8 @@ setup(
         'lowdown >= 0.1.0, < 1',
     ],
     install_requires=[
-        'ftrack-python-api >= 1, < 2',
-        'appdirs == 1.4.0',
-        (
-            'ftrack-location-compatibility @ https://bitbucket.org/'
-            'ftrack/ftrack-location-compatibility/get/{0}.zip#egg='
-            'ftrack-location-compatibility-{0}'
-        ).format(FTRACK_LOCATION_COMPATIBILITY)
+        'ftrack-python-api >= 2, < 3',
+        'appdirs == 1.4.0'
     ],
     tests_require=[
         'pytest >= 2.3.5, < 3'
