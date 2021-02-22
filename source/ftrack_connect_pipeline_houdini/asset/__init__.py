@@ -2,7 +2,10 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 import json
+import sys
+
 import ftrack_api
+
 from ftrack_connect_pipeline.asset import FtrackAssetInfo, FtrackAssetBase
 from ftrack_connect_pipeline_houdini.constants import asset as asset_const
 from ftrack_connect_pipeline import constants as core_const
@@ -129,10 +132,12 @@ class FtrackAssetTab(FtrackAssetBase):
         '''
 
         def safeString(string):
-            if not isinstance(string, unicode):
-                string = str(string)
-            if isinstance(string, unicode):
-                return string.encode('utf-8')
+
+            if int(sys.version[0])<3:
+                if not isinstance(string, unicode):
+                    string = str(string)
+                if isinstance(string, unicode):
+                    return string.encode('utf-8')
             return string
 
         for k, v in self.asset_info.items():

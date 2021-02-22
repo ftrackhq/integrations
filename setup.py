@@ -93,7 +93,7 @@ class BuildPlugin(setuptools.Command):
             STAGING_PATH
         )
 
-        print 'Result: ' + result_path
+        print('Result: ' + result_path)
 
 
 # Custom commands.
@@ -127,6 +127,7 @@ setup(
     package_dir={
         '': 'source'
     },
+    python_requires='<3.8',
     setup_requires=[
         'sphinx >= 1.2.2, < 2',
         'sphinx_rtd_theme >= 0.1.6, < 2',

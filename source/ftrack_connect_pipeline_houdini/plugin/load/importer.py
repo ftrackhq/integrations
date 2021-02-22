@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2020 ftrack
 
 import json
+import base64
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
@@ -46,9 +47,10 @@ class LoaderImporterHoudiniPlugin(plugin.LoaderImporterPlugin, BaseHoudiniPlugin
 
             super_result = super(LoaderImporterHoudiniPlugin, self)._run(event)
 
-            options[asset_const.ASSET_INFO_OPTIONS] = json.dumps(
+            options[asset_const.ASSET_INFO_OPTIONS] = base64.b64encode(json.dumps(
                 event['data']
-            ).encode('base64')
+            ).encode('ascii'))
+
 
             asset_load_mode = options.get(asset_const.LOAD_MODE)
 
