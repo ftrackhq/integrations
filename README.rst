@@ -154,9 +154,9 @@ Docker
 
 As part of this repository, 3 Dockerfile are available to sendbox the build of ftrack-connect-package.
 
-* C7-Dockerfile    [centos 7]
-* C8-Dockerfile    [centos 8]
-* Win10-Dockerfile [windows 10]
+* C7.Dockerfile    [centos 7]
+* C8.Dockerfile    [centos 8]
+* Win10.Dockerfile [windows 10]
 
 For further informations, please use the README file contained in the **docker** folder.
 
