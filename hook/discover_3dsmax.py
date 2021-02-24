@@ -93,3 +93,8 @@ def register(session):
         ' and data.application.identifier=3ds-max*',
         handle_event, priority=40
     )
+    session.event_hub.subscribe(
+        'topic=ftrack.connect.application.discover'
+        ' and data.application.identifier=3ds-max*',
+        handle_event, priority=40
+    )
