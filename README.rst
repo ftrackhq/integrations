@@ -24,6 +24,7 @@ Or download and extract the
 `zipball <https://bitbucket.org/ftrack/ftrack-connect/get/master.zip>`_
 
 
+Create and activate a virtual environment with python3.7
 
 .. note::
 
@@ -102,12 +103,12 @@ To codesign
 
 Once the msi is built, run the following commands to codesign it::
 
-    $signtool sign /tr http://timestamp.sectigo.com /td sha256 /fd sha256 /a <path to msi file>
+    $ signtool sign /tr http://timestamp.sectigo.com /td sha256 /fd sha256 /a <path to msi file>
 
 At the end of the process you'll then asked to provide your token password, once done, the package should get codesigned.
 
 
-MaxOs
+MacOs
 -----
 
 Install appdmg to be able to create the dmg::
