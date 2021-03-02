@@ -1,16 +1,12 @@
 ..
-    :copyright: Copyright (c) 2014-2020 ftrack
+    :copyright: Copyright (c) 2014-2021 ftrack
+
 
 ######################
 ftrack connect package
 ######################
 
-Meta package that provides support for building platform specific bundles of
-ftrack connect packages.
-
-********
-Building
-********
+Meta package that provides support for building platform specific bundles of ftrack connect packages.
 
 
 Clone the public repository::
@@ -27,24 +23,24 @@ Clone ftrack connect public repository::
 Or download and extract the
 `zipball <https://bitbucket.org/ftrack/ftrack-connect/get/master.zip>`_
 
+
 Create and activate a virtual environment with python3.7
 
-    * if in windows, please create the virtual env using venv
+.. note::
+
+    If in windows, please create the virtual env using venv.
+
 
 Install dependencies with::
 
     $ pip install -r <ftrack-connect-package>/requirements.txt
 
-.. note::
-    After installing the requirements.txt please manually install cx_freeze. (This will be included in the requirements when a cx_freeze > 3.4.0 is released):
+.. warning::
 
-    * Windows::
-
-        $ pip install cx_freeze
-
-    * OSX::
+    After installing the requirements.txt please manually install cx_freeze from latest master. (This will be included in the requirements when a cx_freeze > `3.7 <https://github.com/marcelotduarte/cx_Freeze/pull/887>`_ is released)::
 
         $ pip install git+https://github.com/marcelotduarte/cx_Freeze.git
+
 
 Install ftrack connect::
 
@@ -56,60 +52,124 @@ Build connect package with (specific build package)::
         $ cd <ftrack-connect-package>
 
 
-Windows:
 
-    .. note ::
+Linux
+-----
 
-        In case of : WindowsError [206] filepath or extension too long
-        manually install the first failing dependencies
+Build tar.gz release with::
 
-    ::
-
-        $ python setup.py bdist_msi
-
-OSX:
-
-    Install appdmg to be able to create the dmg::
-
-        $ npm install -g appdmg
-
-    ..Note::
-        On latest version of OSX these envs are needed in order to properly build::
-
-            $ export CPPFLAGS=-I/usr/local/opt/openssl/include
-            $ export LDFLAGS=-L/usr/local/opt/openssl/lib
+    $ python setup.py build_exe
 
 
-    * To build without codesign do::
 
-            $ python setup.py bdist_mac
+Once build the result will be available in build/exe.linux-x86_64-**<PYTHON VERSION>**
 
-    * To build and codesign do:
+To generate the tar.gz run from the build folder::
 
-        Set your certificate id to CODESIGN_IDENTITY::
+    $ tar -zcvf ftrack-connect-package-<PACKAGE VERSION>-<PLATFORM>.tar.gz exe.linux-x86_64-3.7 --transform 's/exe.linux-x86_64-3.7/ftrack-connect-package/'
 
-            $ export CODESIGN_IDENTITY="<your_certificate_id_here>"
 
-        Set your Apple user name to APPLE_USER_NAME::
+Generate the md5 with::
 
-            $ export APPLE_USER_NAME="<your_apple_user>"
+    $ md5sum ftrack-connect-package-<PACKAGE VERSION>-<PLATFORM>.tar.gz > ftrack-connect-package-<PACKAGE VERSION>-<PLATFORM>.tar.gz.md5
 
-        Set your APP-specific password generated on https://appleid.apple.com/account/manage to the keychain under the name ftrack_connect_sign_pass.
 
-        Execute the following build command and follow the instructions::
+.. note::
 
-            $ python setup.py bdist_mac --codesign_frameworks --codesign --create_dmg --notarize
+    Please remember to set **<PLATFORM>** to either:
+
+    * C7 for Centos 7 compatible releases.
+    * C8 for centos 8 compatible releases.
+
+
+
+Windows
+-------
+
+Build msi release with::
+
+    $ python setup.py bdist_msi
+
+
+.. note::
+
+    Codesign process works only on machine where the key certificate is loaded and available.
+    Codesign also require to have the signtool.exe installed and available.
+
+
+To codesign
+...........
+
+
+Once the msi is built, run the following commands to codesign it::
+
+    $ signtool sign /tr http://timestamp.sectigo.com /td sha256 /fd sha256 /a <path to msi file>
+
+At the end of the process you'll then asked to provide your token password, once done, the package should get codesigned.
+
+
+MacOs
+-----
+
+Install appdmg to be able to create the dmg::
+
+    $ npm install -g appdmg
+
+.. note::
+
+    On latest version of OSX these envs are needed in order to properly build::
+
+        $ export CPPFLAGS=-I/usr/local/opt/openssl/include
+        $ export LDFLAGS=-L/usr/local/opt/openssl/lib
+
+
+To build without codesign
+.........................
+
+Build with::
+
+    $ python setup.py bdist_mac
+
+
+To build and codesign
+.....................
+
+Set your certificate id to **CODESIGN_IDENTITY**::
+
+    $ export CODESIGN_IDENTITY="<your_certificate_id_here>"
+
+Set your Apple user name to **APPLE_USER_NAME**::
+
+    $ export APPLE_USER_NAME="<your_apple_user>"
+
+Set your APP-specific password generated on https://appleid.apple.com/account/manage to the keychain under the name ftrack_connect_sign_pass.
+
+Execute the following build command and follow the instructions::
+
+    $ python setup.py bdist_mac --codesign_frameworks --codesign --create_dmg --notarize
+
+
+
+Docker
+======
+
+As part of this repository, 3 Dockerfile are available to sendbox the build of ftrack-connect-package.
+
+* C7.Dockerfile    [centos 7]
+* C8.Dockerfile    [centos 8]
+* Win10.Dockerfile [windows 10]
+
+For further informations, please use the README file contained in the **docker** folder.
+
+.. note::
+
+    In order to build in docker windows, you need to have a windows 10 Pro activated and configured.
 
 
 Known Issues
 ============
 
-* On Windows, the process will sometimes segfault when building. Running build
-  again will solve the issue.
-
-* Sometimes the build process will fail with an error about a missing
-  'build_data' command. Running build again without changes should solve the
-  issue.
+* None
 
 Dependencies
 ============
