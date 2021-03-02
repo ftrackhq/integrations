@@ -37,10 +37,15 @@ Install dependencies with::
 
 .. warning::
 
-    After installing the requirements.txt please manually install cx_freeze from latest master. (This will be included in the requirements when a cx_freeze > `3.7 <https://github.com/marcelotduarte/cx_Freeze/pull/887>`_ is released)::
+    ( Windows only )
 
-        $ pip install git+https://github.com/marcelotduarte/cx_Freeze.git
+    Visual studio and `c++ build tools <https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019>`_ should be installed before install the requirements.
 
+    Reference: (`link <https://stackoverflow.com/questions/40018405/cannot-open-include-file-io-h-no-such-file-or-directory>`_)
+
+.. note::
+
+    cx_freeze branch installation is temporary until cx_freeze > 6.5 version is released. ( `3.7 <https://github.com/marcelotduarte/cx_Freeze/pull/887>`_ )
 
 Install ftrack connect::
 
