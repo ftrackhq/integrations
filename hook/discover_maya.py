@@ -73,11 +73,13 @@ def register(session):
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch and '
-        'data.application.identifier=maya*',
+        'data.application.identifier=maya*'
+        ' and data.application.version >= 2021',
         handle_event, priority=40
     )
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.discover and '
-        'data.application.identifier=maya*',
+        'data.application.identifier=maya*'
+        ' and data.application.version >= 2021',
         handle_event, priority=40
     )
