@@ -4,7 +4,6 @@
 import os
 import sys
 import ftrack_api
-import ftrack_connect.application
 import logging
 from functools import partial
 
