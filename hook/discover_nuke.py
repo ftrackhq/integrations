@@ -4,7 +4,6 @@
 import os
 import sys
 import ftrack_api
-import ftrack_connect.application
 import logging
 from functools import partial
 
@@ -74,12 +73,14 @@ def register(session):
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch and '
-        'data.application.identifier=nuke*',
+        'data.application.identifier=nuke*'
+        ' and data.application.version >= 13.0',
         handle_event, priority=40
 
     )
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.discover'
-        ' and data.application.identifier=nuke*',
+        ' and data.application.identifier=nuke*'
+        ' and data.application.version >= 13.0',
         handle_event, priority=40
     )

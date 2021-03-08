@@ -2,6 +2,8 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import json
+import six
+import base64
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
@@ -46,9 +48,16 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
 
         super_result = super(LoaderImporterNukePlugin, self)._run(event)
 
-        options[asset_const.ASSET_INFO_OPTIONS] = json.dumps(
-            event['data']
-        ).encode('base64')
+        json_data = json.dumps(event['data'])
+        if six.PY2:
+            options[asset_const.ASSET_INFO_OPTIONS] = base64.b64encode(
+                json_data
+            )
+        else:
+            input_bytes = json_data.encode('utf8')
+            options[asset_const.ASSET_INFO_OPTIONS] = base64.b64encode(
+                input_bytes
+            ).decode('ascii')
 
         asset_load_mode = options.get(asset_const.LOAD_MODE)
 
