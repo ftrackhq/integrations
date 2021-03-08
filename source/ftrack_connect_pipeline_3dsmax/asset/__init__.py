@@ -2,6 +2,8 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 import json
+import six
+import base64
 from ftrack_connect_pipeline.asset import FtrackAssetInfo, FtrackAssetBase
 from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
 from ftrack_connect_pipeline_3dsmax.constants.asset import modes as load_const
@@ -177,7 +179,7 @@ class FtrackAssetNode(FtrackAssetBase):
         try:
             rt.freeze(ftrack_object)
             rt.setTransformLockFlags(ftrack_object, rt.name("all"))
-        except Exception, e:
+        except Exception as e:
             self.logger.debug(
                 "Could not freeze object {0}, Error: {1}".format(
                     self.asset_info['asset_name'], e
@@ -190,7 +192,6 @@ class FtrackAssetNode(FtrackAssetBase):
         '''Update the parameters of the ftrack_object. And Return the
         ftrack_object updated
         '''
-        print "updating ftrack object"
         try:
             rt.unfreeze(ftrack_object)
         except:
@@ -212,15 +213,21 @@ class FtrackAssetNode(FtrackAssetBase):
                 rt.setProperty(obj, p, str(self.asset_info[str(p)]))
             elif str(p) == asset_const.ASSET_INFO_OPTIONS:
                 decoded_value = self.asset_info[str(p)]
+                json_data = json.dumps(decoded_value)
+                if six.PY2:
+                    encoded_value = base64.b64encode(json_data)
+                else:
+                    input_bytes = json_data.encode('utf8')
+                    encoded_value = base64.b64encode(input_bytes).decode('ascii')
                 rt.setProperty(
-                    obj, p, str(json.dumps(decoded_value).encode('base64'))
+                    obj, p, str(encoded_value)
                 )
             else:
                 rt.setProperty(obj, p, self.asset_info[str(p)])
 
         try:
             rt.freeze(ftrack_object)
-        except Exception, e:
+        except Exception as e:
             self.logger.debug(
                 "Could not freeze object {0}, Error: {1}".format(
                     ftrack_object.Name, e
