@@ -38,7 +38,7 @@ def collect_and_validate(session, current_dir, host_type):
     data = collect.resolve_schemas(data)
 
     # log final discovery result
-    for key, value in data.items():
+    for key, value in list(data.items()):
         logger.info('discovered : {} : {}'.format(key, len(value)))
 
 

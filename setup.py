@@ -13,7 +13,7 @@ import setuptools
 from pkg_resources import parse_version
 import pip
 
-from pip._internal import main as pip_main
+from pip.__main__ import _main as pip_main
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
@@ -85,6 +85,11 @@ class BuildPlugin(setuptools.Command):
         )
 
 
+
+
+
+
+
 # Custom commands.
 class PyTest(TestCommand):
     '''Pytest command.'''
@@ -116,6 +121,7 @@ setup(
     package_dir={
         '': 'source'
     },
+    python_requires='<3.8',
     setup_requires=[
         'sphinx >= 1.2.2, < 2',
         'sphinx_rtd_theme >= 0.1.6, < 2',
@@ -123,11 +129,13 @@ setup(
     ],
     install_requires=[
         'ftrack-python-api >= 1, < 3',
+        'future >=0.16.0, < 1',
+        'six >= 1, < 2',
         'jsonschema==2.6.0',
         'appdirs',
-        'qt.py >=1.0.0, < 2',
         'python_jsonschema_objects <= 0.3.12',
-        'jsonref'
+        'jsonref',
+        'markdown<=3.2.2'
     ],
     tests_require=[
         'mock',

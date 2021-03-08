@@ -4,6 +4,8 @@
 import logging
 import json
 import uuid
+import base64
+import six
 import ftrack_api
 from ftrack_connect_pipeline.constants import asset as constants
 
@@ -103,7 +105,7 @@ class FtrackAssetInfo(dict):
             v = mapping.get(k)
             # Sometimes the value None is interpreted as unicode (in maya
             # mostly) we are converting to a type None
-            if v == unicode(None):
+            if v == u'None':
                 v = None
             new_mapping.setdefault(k, v)
             if k == constants.SESSION and isinstance(v, ftrack_api.Session):
@@ -133,7 +135,11 @@ class FtrackAssetInfo(dict):
 
         *asset_info_opitons* : Options used to load the asset in the scene.
         '''
-        return json.dumps(asset_info_options).encode('base64')
+        json_data = json.dumps(asset_info_options)
+        if six.PY2:
+            return base64.b64encode(json_data)
+        input_bytes = json_data.encode('utf8')
+        return base64.b64encode(input_bytes).decode('ascii')
 
     def decode_options(self, asset_info_options):
         '''
@@ -144,7 +150,9 @@ class FtrackAssetInfo(dict):
         '''
         if not asset_info_options:
             self.logger.error("asset_info_options is empty")
-        return json.loads(asset_info_options.decode('base64'))
+        if six.PY2:
+            json.loads(base64.b64decode(asset_info_options))
+        return json.loads(base64.b64decode(asset_info_options).decode('ascii'))
 
     def __getitem__(self, k):
         '''

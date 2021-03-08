@@ -4,6 +4,7 @@
 import logging
 import ftrack_api
 import copy
+from ftrack_connect_pipeline import constants
 
 
 def getEngine(baseClass, engineType):

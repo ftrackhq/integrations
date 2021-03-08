@@ -45,8 +45,8 @@ class BasePluginValidation(object):
         '''
         validator_result = (True, "")
 
-        for output_key in self.required_output.keys():
-            if output_key not in result.keys():
+        for output_key in list(self.required_output.keys()):
+            if output_key not in list(result.keys()):
                 message = '{} require {} result option'.format(
                     self.plugin_name, output_key
                 )

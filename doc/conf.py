@@ -141,7 +141,7 @@ html_copy_source = True
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'ftrack-connect-pipelinedoc'
-
+autodoc_mock_imports = ['jsonschema','jsonref','python_jsonschema_objects']
 
 # -- Options for LaTeX output ------------------------------------------------
 

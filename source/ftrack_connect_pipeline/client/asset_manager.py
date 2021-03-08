@@ -235,4 +235,4 @@ class AssetManagerClient(client.Client):
             if index is None:
                 continue
             self.logger.info('Updating id {} with index {}'.format(key, index))
-            self.ftrack_asset_list[index] = value.get(value.keys()[0])
+            self.ftrack_asset_list[index] = value.get(list(value.keys())[0])

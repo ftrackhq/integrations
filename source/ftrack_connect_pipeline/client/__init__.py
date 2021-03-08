@@ -4,6 +4,7 @@
 import time
 import logging
 import copy
+from six import string_types
 import ftrack_api
 from ftrack_connect_pipeline import utils
 from ftrack_connect_pipeline import constants
@@ -156,7 +157,7 @@ class Client(object):
     @context.setter
     def context(self, context_id):
         ''' Sets the context id. '''
-        if not isinstance(context_id, basestring):
+        if not isinstance(context_id, string_types):
             raise ValueError('Context should be in form of a string.')
 
         self._context_id = context_id

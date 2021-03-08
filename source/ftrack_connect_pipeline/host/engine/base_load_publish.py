@@ -55,7 +55,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
                     options=plugin['options']
                 )
                 if method_result:
-                    result = method_result.get(method_result.keys()[0])
+                    result = method_result.get(list(method_result.keys())[0])
 
             bool_status = constants.status_bool_mapping[status]
             if not bool_status:
@@ -119,7 +119,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
                         context=context_data
                     )
                     if method_result:
-                        result = method_result.get(method_result.keys()[0])
+                        result = method_result.get(list(method_result.keys())[0])
                     bool_status = constants.status_bool_mapping[status]
                     stage_status.append(bool_status)
                     if isinstance(result, list):
@@ -175,7 +175,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 context=context_data
             )
             if method_result:
-                result = method_result.get(method_result.keys()[0])
+                result = method_result.get(list(method_result.keys())[0])
             bool_status = constants.status_bool_mapping[status]
             if not bool_status:
                 raise Exception(
@@ -238,7 +238,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
         finalizer_data = {}
         for item in components_result:
             last_component = constants.OUTPUT
-            if constants.POST_IMPORT in item.keys():
+            if constants.POST_IMPORT in list(item.keys()):
                 last_component = constants.POST_IMPORT
             for output in item.get(last_component):
                 if not output:

@@ -51,8 +51,8 @@ def configure_logging(logger_name, level=None, format=None, extra_modules=None):
 
     log_directory = get_log_directory()
     logfile = os.path.join(
-        log_directory, '{0}.log'.format(logger_name)
-    ).encode('utf8')
+        log_directory, '{0}.log'.format(logger_name).encode('utf8')
+    )
 
     # Sanitise the variable, checking the type.
     if not isinstance(extra_modules, (list, tuple, type(None))):
@@ -76,7 +76,7 @@ def configure_logging(logger_name, level=None, format=None, extra_modules=None):
         'handlers': {
             'console': {
                 'class': 'logging.StreamHandler',
-                'level': logging._levelNames[level],
+                'level': logging.getLevelName(level),
                 'formatter': 'file',
                 'stream': 'ext://sys.stdout',
             },
@@ -104,7 +104,7 @@ def configure_logging(logger_name, level=None, format=None, extra_modules=None):
     }
 
     for module in modules:
-        current_level = logging._levelNames[level]
+        current_level = logging.getLevelName(level)
         logging_settings['loggers'].setdefault(
             module, {'level': current_level}
         )

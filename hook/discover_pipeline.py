@@ -6,12 +6,15 @@ import sys
 import ftrack_api
 import logging
 
-logger = logging.getLogger('ftrack_connect_pipeline.discover')
+NAME = 'ftrack-connect-pipeline'
+VERSION = '0.1.0'
+
+logger = logging.getLogger('{}.hook'.format(NAME.replace('-','_')))
 
 
-
-def on_discover_pipeline(event):
+def on_application_launch(event):
     '''Handle application launch and add environment to *event*.'''
+    logger.info('launching: {}'.format(NAME))
 
     plugin_base_dir = os.path.normpath(
         os.path.join(
@@ -36,7 +39,7 @@ def on_discover_pipeline(event):
     data = {
         'integration': {
             'name':'ftrack-connect-pipeline',
-            'version': '0.0.0',
+            'version': VERSION,
             'env':{
                 'PYTHONPATH.prepend':python_dependencies,
                 'FTRACK_EVENT_PLUGIN_PATH.prepend': plugin_hook,
@@ -50,9 +53,14 @@ def register(session):
     if not isinstance(session, ftrack_api.session.Session):
         return
 
-    logger.info('discovering :{}'.format('ftrack.pipeline.discover'))
+    logger.info('registering: {}'.format(NAME))
+    session.event_hub.subscribe(
+        'topic=ftrack.connect.application.discover '
+        'and data.application.identifier=*',
+        on_application_launch, priority=20
+    )
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch '
         'and data.application.identifier=*',
-        on_discover_pipeline, priority=20
+        on_application_launch, priority=20
     )
