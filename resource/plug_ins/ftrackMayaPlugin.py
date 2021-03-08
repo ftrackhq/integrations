@@ -158,7 +158,7 @@ def nodeInitializer():
 
 
 def initializePlugin(m_object):
-    print 'Loading ftrack plugin - version {0}'.format(version)
+    print ('Loading ftrack plugin - version {0}'.format(version))
     m_plugin = OpenMayaMPx.MFnPlugin(m_object, 'ftrack', version, 'Any')
     try:
         m_plugin.registerNode(
