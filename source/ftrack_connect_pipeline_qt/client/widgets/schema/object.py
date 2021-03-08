@@ -69,13 +69,13 @@ class JsonObject(BaseJsonWidget):
             label.setStyleSheet('QLabel { color: red; }')
             layout.addWidget(label)
         else:
-            if 'widget' in self.properties.keys():
+            if 'widget' in list(self.properties.keys()):
                 widget = self.widget_factory.fetch_plugin_widget(
                     self.fragment_data, self.plugin_type
                 )
                 self.innerLayout.addWidget(widget)
             else:
-                for k, v in self.properties.items():
+                for k, v in list(self.properties.items()):
                     new_fragment_data = None
                     if self.fragment_data:
                         new_fragment_data = self.fragment_data.get(k)
@@ -99,22 +99,22 @@ class JsonObject(BaseJsonWidget):
             widget = self.layout().itemAt(0).widget()
             if 'to_json_object' in dir(widget):
                 out = widget.to_json_object()
-                for k, v in self.fragment_data.items():
-                    if k not in out.keys():
+                for k, v in list(self.fragment_data.items()):
+                    if k not in list(out.keys()):
                         out[k] = v
-        elif 'widget' in self.properties.keys():
+        elif 'widget' in list(self.properties.keys()):
             # return the widget information when widget is in properties keys,
             # and augment the widget information with the data_fragment keys and
             # values to match the schema.
             widget = self.widget_factory.get_registered_widget_plugin(
                 self.fragment_data)
             out = widget.to_json_object()
-            for k, v in self.fragment_data.items():
-                if k not in out.keys():
+            for k, v in list(self.fragment_data.items()):
+                if k not in list(out.keys()):
                     out[k] = v
         else:
             # Return the widget information for any other case.
-            for k, v in self.properties.items():
+            for k, v in list(self.properties.items()):
                 widget = self.properties_widgets[k]
                 out[k] = widget.to_json_object()
 
