@@ -195,6 +195,7 @@ setup(
     use_scm_version={
         'write_to': 'source/ftrack_connect_nuke_studio/_version.py',
         'write_to_template': version_template,
+        'version_scheme': 'post-release'
     },
     zip_safe=False,
     cmdclass={

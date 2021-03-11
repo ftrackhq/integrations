@@ -7,6 +7,15 @@
 Release Notes
 *************
 
+
+.. release::2.5.0-beta-1
+    :date: 2020-09-15
+    
+    .. change:: discovery
+
+        Update hook for application launcher.   
+
+
 .. release:: 2.4.1
     :date: 2020-09-15
 
