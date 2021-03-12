@@ -525,7 +525,7 @@ def codesign_osx(create_dmg=True, notarize=True):
     else:
         logging.info(' Application signed')
     if create_dmg:
-        dmg_name = '{0}-{1}.dmg'.format(bundle_name, VERSION)
+        dmg_name = '{0}-package-{1}.dmg'.format(bundle_name, VERSION)
         dmg_path = os.path.join(BUILD_PATH, dmg_name)
         dmg_command = (
             'appdmg resource/appdmg.json {}'.format(dmg_path)
