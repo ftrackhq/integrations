@@ -147,6 +147,131 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
         return statuses, results
 
+    def run_stage(
+            self, stage_name, plugins, stage_context, stage_options, stage_data,
+            plugins_order=None,
+            step_type=None
+    ):
+        plugin_type = '{}.{}'.format(self.engine_type, stage_name)
+
+        stage_status = True
+        stage_results = []
+
+        for plugin in plugins:
+            result = None
+            plugin_name = plugin['plugin']
+            plugin_options = plugin['options']
+            # So the idea is to have the
+            # plugin_options['component_name'] = step_name coming from the
+            # stage options
+            plugin_options.update(stage_options)
+            #TODO: somehow we have to activate this for components
+            #if step_type == constants.COMPONENTS:
+            #     plugin_options['component_name'] = step_name
+            plugin_status, plugin_result = self._run_plugin(
+                plugin, plugin_type,
+                data=data,#collected_data,
+                options=plugin_options,
+                context=stage_context,
+                method="run"
+            )
+
+            if plugin_result:
+                # TODO: we could add the run_method key to the definitions and
+                # get this default or run methon from there
+                result = plugin_result.get("run")
+            # TODO: this should be aded if its a context
+            # we should be saing if step_type == contexts or parent == contexts
+            if step_type == constants.CONTEXTS:
+                result['asset_type'] = self.asset_type
+            bool_status = constants.status_bool_mapping[plugin_status]
+            if not bool_status:
+                stage_status = False
+
+            plugin_dict = {
+                "name": plugin_name,
+                "result": result,
+                "status": bool_status
+            }
+
+            stage_results.append(plugin_dict)
+        return stage_status, stage_results
+
+
+    def run_step(self, step_name, stages, step_context, step_options, step_data, stages_order, step_type):
+        '''
+        Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
+        result of executing the plugins with the :meth:`_run_plugin` of the
+        given *component_stages* of the given  *component_name* with the
+        given *stages_order* and the given *context_data*
+
+        *component_name* : Component name where we are working on
+
+        *component_stages* : Stages of the component name. (Collector,
+        validator...)
+
+        *context_data* : Data returned from the execution of the context plugin.
+
+        *stages_order* : Order of the *component_stages* to be executed
+        '''
+
+        step_status = True
+        step_results = []
+
+        for stage in stages:
+            for stage_name in stages_order:
+                if stage_name != stage['name']:
+                    continue
+
+                stage_plugins = stage['plugins']
+
+                if not stage_plugins:
+                    continue
+
+                stage_status, stage_result = self.run_stage(
+                    stage_name=stage_name,
+                    plugins=stage_plugins,
+                    stage_context=step_context,
+                    stage_options=step_options,
+                    stage_data=step_data,
+                    plugins_order=None,
+                    step_type=step_type
+                )
+                if not stage_status:
+                    step_status = False
+
+                # if not stage_status:
+                #     raise Exception(
+                #         'An error occurred during the execution of the '
+                #         'stage name {}'.format(stage_name))
+
+                stage_dict = {
+                    "name": stage_name,
+                    "result": stage_result,
+                    "status": stage_status
+                }
+
+                step_results.append(stage_dict)
+        return step_status, step_results
+        # TODO: be carfully we should add the result to a key with the
+        # name of the stage
+        # {
+        #     "name": stage_name,
+        #     stage_name: [
+        #         {
+        #             "name": "plugin1",
+        #             "plugin1": (["the result"], "the message"),
+        #             "status": "true"
+        #         },
+        #         {
+        #             "name": "plugin2",
+        #             "plugin1": (["the result"], "the message"),
+        #             "status": "false"
+        #         }
+        #     ],#stage_result #This should be a list
+        #     status: "false"
+        # }
+
     def run_finalizer(self, finalizer_stage, finalizer_data, context_data):
         '''
         Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
@@ -199,40 +324,244 @@ class BaseLoaderPublisherEngine(BaseEngine):
         valid definition.
         '''
 
-        context_plugins = data[constants.CONTEXTS]
-        context_status, context_result = self.run_context(context_plugins)
-        if not all(context_status):
-            raise Exception('An error occurred during the execution of the '
-                            'context')
-        context_result['asset_type'] = self.asset_type
-
-        components = data[constants.COMPONENTS]
-        components_result = []
-        components_status = []
-
-        for component in components:
-            component_name = component['name']
-            component_stages = component['stages']
-            component_enabled = component['enabled']
-            if not component_enabled:
+        contexts_steps = data[constants.CONTEXTS]
+        contexts_results = []
+        contexts_status = True
+        for context_step in contexts_steps:
+            step_name = context_step['name']
+            step_stages = context_step['stages']
+            step_enabled = context_step['enabled']
+            step_stage_order = context_step['stage_order']
+            if not step_enabled:
                 self.logger.info(
-                    'Skipping component {} as it been disabled'.format(
-                        component_name
+                    'Skipping step {} as it been disabled'.format(
+                        step_name
                     )
                 )
                 continue
-
-            component_status, component_result = self.run_component(
-                component_name, component_stages, context_result,
-                data['_config']['stage_order']
+            step_status, step_result = self.run_step(
+                step_name=step_name,
+                stages=step_stages,
+                step_context=None,
+                step_options=None,
+                step_data=None,
+                stages_order=step_stage_order,
+                step_type = constants.CONTEXTS
             )
 
-            if not all(component_status.values()):
-                raise Exception('An error occurred during the execution of the '
-                                'component name {}'.format(component_name))
+            if not step_status:
+                contexts_status = False
+                # raise Exception('An error occurred during the execution of the '
+                #                             'step name {}'.format(step_name))
 
-            components_status.append(component_status)
-            components_result.append(component_result)
+
+            step_dict = {
+                "name": step_name,
+                "result": step_result,
+                "status": step_status
+            }
+
+            contexts_results.append(step_dict)
+
+        if not contexts_status:
+            raise Exception('An error occurred during the execution of the '
+                            'context')
+
+        # We get the context dictionary from the lates executed plugin of the
+        # latest context stage of the lates context step. In case in the future
+        # we want to use multiple context we will have to create the
+        # corresponding loops of context and components...
+        context_latest_step = contexts_results[-1]
+        context_latest_stage = context_latest_step.get('result')[-1]
+        context_latest_plugin = context_latest_stage.get('result')[-1]
+        context_latest_plugin_result = context_latest_plugin.get('result')[-1]
+        context_data = context_latest_plugin_result
+
+
+        components_steps = data[constants.COMPONENTS]
+        components_result = []
+        components_status = True
+
+        for component_step in components_steps:
+            step_name = component_step['name']
+            step_stages = component_step['stages']
+            step_enabled = component_step['enabled']
+            step_stage_order = component_step['stage_order']
+            if not step_enabled:
+                self.logger.info(
+                    'Skipping step {} as it been disabled'.format(
+                        step_name
+                    )
+                )
+                continue
+            step_status, step_result = self.run_step(
+                step_name=step_name,
+                stages=step_stages,
+                context_data=context_data,
+                stages_order=step_stage_order
+            )
+
+            if not step_status:
+                components_status = False
+                # raise Exception('An error occurred during the execution of the '
+                #                             'step name {}'.format(step_name))
+
+            step_dict = {
+                "name": step_name,
+                "result": step_result,
+                "status": step_status
+            }
+
+            components_result.append(step_dict)
+
+        #TODO: check if we want this exceptions here or we already stoped on the
+        # mandatory ones
+        if not components_status:
+            raise Exception(
+                'An error occurred during the execution of the components'
+            )
+        # Components result should look like this:
+        # components_result = [
+        #     {
+        #         "name":"comp1",
+        #         "result":[
+        #             {
+        #                 "name":"collector",
+        #                 "result":[
+        #                     {
+        #                         "name":"plug1_coolect",
+        #                         "result":[{}]
+        #                     }
+        #                 ]
+        #             },
+        #             {
+        #                 "name":"output",
+        #                 "result":[
+        #                     {
+        #                         "name":"plug1",
+        #                         "result":[{}]
+        #                     }
+        #                 ]
+        #             }
+        #         ]
+        #     },
+        #     {
+        #         "name":"comp2",
+        #         "result":[
+        #             {
+        #                 "name":"collector",
+        #                 "result":[
+        #                     {
+        #                         "name":"plug2_coolect",
+        #                         "result":[{}]
+        #                     }
+        #                 ]
+        #             },
+        #             {
+        #                 "name":"output",
+        #                 "result":[
+        #                     {
+        #                         "name":"plug2",
+        #                         "result":[{}]
+        #                     }
+        #                 ]
+        #             }
+        #         ]
+        #     }
+        # ]
+
+
+        # Filter the components_result list to only containt the outputs result
+        components_output = components_result.copy()
+        for component_step in components_output:
+            i = 0
+            for component_stage in component_step.get("result"):
+                if (
+                        component_stage.get("name") != constants.OUTPUT or
+                        component_stage.get("name") != constants.POST_IMPORT
+                ):
+                    component_step['result'].pop(i)
+                i += 1
+
+        finalizers_steps = data[constants.COMPONENTS]
+        finalizers_result = []
+        finalizers_status = True
+
+        for finalizer_step in finalizers_steps:
+            step_name = finalizer_step['name']
+            step_stages = finalizer_step['stages']
+            step_enabled = finalizer_step['enabled']
+            step_stage_order = finalizer_step['stage_order']
+            if not step_enabled:
+                self.logger.info(
+                    'Skipping step {} as it been disabled'.format(
+                        step_name
+                    )
+                )
+                continue
+            step_status, step_result = self.run_step(
+                step_name=step_name,
+                stages=step_stages,
+                context_data=context_data,
+                stages_order=step_stage_order
+            )
+
+            if not step_status:
+                finalizers_status = False
+
+            step_dict = {
+                "name": step_name,
+                "result": step_result,
+                "status": step_status
+            }
+
+            finalizers_result.append(step_dict)
+
+        # TODO: check if we want this exceptions here or we already stoped on the
+        # mandatory ones
+        if not finalizers_status:
+            raise Exception(
+                'An error occurred during the execution of the components'
+            )
+
+        #TODO: Now we should be pasing the data from context to components to finalizers...
+
+
+
+
+        # context_status, context_result = self.run_context(context_plugins)
+        # if not all(context_status):
+        #     raise Exception('An error occurred during the execution of the '
+        #                     'context')
+        # context_result['asset_type'] = self.asset_type
+        #
+        # components = data[constants.COMPONENTS]
+        # components_result = []
+        # components_status = []
+        #
+        # for component in components:
+        #     component_name = component['name']
+        #     component_stages = component['stages']
+        #     component_enabled = component['enabled']
+        #     if not component_enabled:
+        #         self.logger.info(
+        #             'Skipping component {} as it been disabled'.format(
+        #                 component_name
+        #             )
+        #         )
+        #         continue
+        #
+        #     component_status, component_result = self.run_component(
+        #         component_name, component_stages, context_result,
+        #         data['_config']['stage_order']
+        #     )
+        #
+        #     if not all(component_status.values()):
+        #         raise Exception('An error occurred during the execution of the '
+        #                         'component name {}'.format(component_name))
+        #
+        #     components_status.append(component_status)
+        #     components_result.append(component_result)
 
         finalizer_plugins = data[constants.FINALIZERS]
         finalizer_data = {}
