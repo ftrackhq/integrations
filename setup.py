@@ -326,8 +326,8 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             os.path.join(pyside_path, "Qt", "plugins", "imageformats"),
             os.path.join(pyside_path, "Qt", "plugins", "iconengines"),
             #Include PySide and Shiboken libs
-            os.path.join(pyside_path, "libpyside2.abi3.5.15.dylib"),
-            os.path.join(shiboken_path, "libshiboken2.abi3.5.15.dylib"),
+            os.path.join(pyside_path, "libpyside2.abi3.5.14.dylib"),
+            os.path.join(shiboken_path, "libshiboken2.abi3.5.14.dylib"),
             (requests.certs.where(), 'resource/cacert.pem'),
         ]
 
