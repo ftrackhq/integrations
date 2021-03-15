@@ -147,131 +147,6 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
         return statuses, results
 
-    def run_stage(
-            self, stage_name, plugins, stage_context, stage_options, stage_data,
-            plugins_order=None,
-            step_type=None
-    ):
-        plugin_type = '{}.{}'.format(self.engine_type, stage_name)
-
-        stage_status = True
-        stage_results = []
-
-        for plugin in plugins:
-            result = None
-            plugin_name = plugin['plugin']
-            plugin_options = plugin['options']
-            # So the idea is to have the
-            # plugin_options['component_name'] = step_name coming from the
-            # stage options
-            plugin_options.update(stage_options)
-            #TODO: somehow we have to activate this for components
-            #if step_type == constants.COMPONENTS:
-            #     plugin_options['component_name'] = step_name
-            plugin_status, plugin_result = self._run_plugin(
-                plugin, plugin_type,
-                data=data,#collected_data,
-                options=plugin_options,
-                context=stage_context,
-                method="run"
-            )
-
-            if plugin_result:
-                # TODO: we could add the run_method key to the definitions and
-                # get this default or run methon from there
-                result = plugin_result.get("run")
-            # TODO: this should be aded if its a context
-            # we should be saing if step_type == contexts or parent == contexts
-            if step_type == constants.CONTEXTS:
-                result['asset_type'] = self.asset_type
-            bool_status = constants.status_bool_mapping[plugin_status]
-            if not bool_status:
-                stage_status = False
-
-            plugin_dict = {
-                "name": plugin_name,
-                "result": result,
-                "status": bool_status
-            }
-
-            stage_results.append(plugin_dict)
-        return stage_status, stage_results
-
-
-    def run_step(self, step_name, stages, step_context, step_options, step_data, stages_order, step_type):
-        '''
-        Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
-        result of executing the plugins with the :meth:`_run_plugin` of the
-        given *component_stages* of the given  *component_name* with the
-        given *stages_order* and the given *context_data*
-
-        *component_name* : Component name where we are working on
-
-        *component_stages* : Stages of the component name. (Collector,
-        validator...)
-
-        *context_data* : Data returned from the execution of the context plugin.
-
-        *stages_order* : Order of the *component_stages* to be executed
-        '''
-
-        step_status = True
-        step_results = []
-
-        for stage in stages:
-            for stage_name in stages_order:
-                if stage_name != stage['name']:
-                    continue
-
-                stage_plugins = stage['plugins']
-
-                if not stage_plugins:
-                    continue
-
-                stage_status, stage_result = self.run_stage(
-                    stage_name=stage_name,
-                    plugins=stage_plugins,
-                    stage_context=step_context,
-                    stage_options=step_options,
-                    stage_data=step_data,
-                    plugins_order=None,
-                    step_type=step_type
-                )
-                if not stage_status:
-                    step_status = False
-
-                # if not stage_status:
-                #     raise Exception(
-                #         'An error occurred during the execution of the '
-                #         'stage name {}'.format(stage_name))
-
-                stage_dict = {
-                    "name": stage_name,
-                    "result": stage_result,
-                    "status": stage_status
-                }
-
-                step_results.append(stage_dict)
-        return step_status, step_results
-        # TODO: be carfully we should add the result to a key with the
-        # name of the stage
-        # {
-        #     "name": stage_name,
-        #     stage_name: [
-        #         {
-        #             "name": "plugin1",
-        #             "plugin1": (["the result"], "the message"),
-        #             "status": "true"
-        #         },
-        #         {
-        #             "name": "plugin2",
-        #             "plugin1": (["the result"], "the message"),
-        #             "status": "false"
-        #         }
-        #     ],#stage_result #This should be a list
-        #     status: "false"
-        # }
-
     def run_finalizer(self, finalizer_stage, finalizer_data, context_data):
         '''
         Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
@@ -313,16 +188,175 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
         return statuses, results
 
+    def run_stage(
+            self, stage_name, plugins, stage_context, stage_options, stage_data,
+            plugins_order=None, step_type=None
+    ):
+        #TODO: Check if the step_context description is correct,
+        # is it a list or a dictionary?
+        '''
+        Returns the bool status and the result list dictionary of executing all
+        the plugins in the stage.
+        This function executes all the defined plugins for this stage using
+        the :meth:`_run_plugin`
+
+        *stage_name* : Name of the stage that's executing.
+
+        *plugins* : List of plugins that has to execute.
+
+        *stage_context* : Context list with the dictionary with the context
+        where it has to be executed.
+
+        *stage_options* : Options dictionary to be passed to each plugin.
+
+        *stage_data* : Data list of dictionaries to be passed to each stage.
+
+        *plugins_order* : Order of the stages to be executed.
+
+        *step_type* : Type of the step.
+        '''
+        plugin_type = '{}.{}'.format(self.engine_type, stage_name)
+
+        stage_status = True
+        stage_results = []
+
+        # We don't want to pass the information of the previous plugin, so that
+        # is why we only pass the data of the previous stage.
+        data = stage_data
+
+        for plugin in plugins:
+            result = None
+            plugin_name = plugin['plugin']
+            plugin_options = plugin['options']
+            # We update the plugin_options with the stage_options.
+            # This solves things like: plugin_options['component_name'] = step_name
+            plugin_options.update(stage_options)
+
+            plugin_status, plugin_result = self._run_plugin(
+                plugin, plugin_type,
+                # TODO: to get the collected data, We should modify the base of
+                #  the validator and output/postimport plugin to check in the
+                #  data if there is a collected data and pas it to the data in
+                #  the plugin
+                data=data,#collected_data,
+                options=plugin_options,
+                context=stage_context,
+                method="run"
+            )
+
+            if plugin_result:
+                # TODO: we could add the run_method key to the definitions and
+                #  get this default or run methon from there
+                result = plugin_result.get("run")
+            # TODO: we should be saing if step_type == contexts or
+            #  parent == contexts or try to add this in the base context plugin
+            if step_type == constants.CONTEXTS:
+                result['asset_type'] = self.asset_type
+            bool_status = constants.status_bool_mapping[plugin_status]
+            if not bool_status:
+                stage_status = False
+
+            plugin_dict = {
+                "name": plugin_name,
+                "result": result,
+                "status": bool_status
+            }
+
+            stage_results.append(plugin_dict)
+        return stage_status, stage_results
+
+
+    def run_step(
+            self, step_name, stages, step_context, step_options, step_data,
+            stages_order, step_type
+    ):
+        #TODO: Check if the step_context description is correct,
+        # is it a list or a dictionary?
+        '''
+        Returns the bool status and the result list dictionary of executing all
+        the stages in the step.
+        This function executes all the defined stages for for this step using
+        the :meth:`run_stage` with the given *stage_order*.
+
+        *step_name* : Name of the step that's executing.
+
+        *stages* : List of stages that has to execute.
+
+        *step_context* : Context list with the dictionary with the context
+        where it has to be executed.
+
+        *step_options* : Options dictionary to be passed to each stage.
+
+        *step_data* : Data list of dictionaries to be passed to each stage.
+
+        *stages_order* : Order of the stages to be executed.
+
+        *step_type* : Type of the step.
+        '''
+
+        step_status = True
+        step_results = []
+
+        # data will be, the previous step data, plus the current step dictionary
+        # plus the stage result filled on every loop
+        data = step_data
+        current_step_dict = {
+            "name": step_name,
+            "result": step_results
+        }
+        data.append(current_step_dict)
+
+
+        for stage in stages:
+            for stage_name in stages_order:
+                if stage_name != stage['name']:
+                    continue
+
+                stage_plugins = stage['plugins']
+
+                if not stage_plugins:
+                    continue
+
+                stage_status, stage_result = self.run_stage(
+                    stage_name=stage_name,
+                    plugins=stage_plugins,
+                    stage_context=step_context,
+                    stage_options=step_options,
+                    stage_data=data,
+                    plugins_order=None,
+                    step_type=step_type
+                )
+                if not stage_status:
+                    step_status = False
+
+                # if not stage_status:
+                #     raise Exception(
+                #         'An error occurred during the execution of the '
+                #         'stage name {}'.format(stage_name))
+
+                stage_dict = {
+                    "name": stage_name,
+                    "result": stage_result,
+                    "status": stage_status
+                }
+
+                step_results.append(stage_dict)
+        return step_status, step_results
+
     def run_definition(self, data):
         '''
         Runs the whole definition from the provided *data*.
-        Call the methods :meth:`run_context` , :meth:`run_components` and
-        :meth:`run_finalizer`. Raises Exceptions if any of this methods fails.
+        Call the method :meth:`run_step` for each context, component and
+        finalizer steps.
 
         *data* : pipeline['data'] provided from the client host connection at
         :meth:`~ftrack_connect_pipeline.client.HostConnection.run` Should be a
         valid definition.
         '''
+
+        #TODO: To reduce the amount of code, in a second stage we can try to get
+        # all the type steps and execute all them un a loop just checking then
+        # if they are in context components or finalizers....
 
         contexts_steps = data[constants.CONTEXTS]
         contexts_results = []
@@ -332,6 +366,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
             step_stages = context_step['stages']
             step_enabled = context_step['enabled']
             step_stage_order = context_step['stage_order']
+
             if not step_enabled:
                 self.logger.info(
                     'Skipping step {} as it been disabled'.format(
@@ -339,14 +374,15 @@ class BaseLoaderPublisherEngine(BaseEngine):
                     )
                 )
                 continue
+
             step_status, step_result = self.run_step(
                 step_name=step_name,
                 stages=step_stages,
                 step_context=None,
                 step_options=None,
-                step_data=None,
+                step_data=contexts_results,
                 stages_order=step_stage_order,
-                step_type = constants.CONTEXTS
+                step_type=constants.CONTEXTS
             )
 
             if not step_status:
@@ -367,8 +403,8 @@ class BaseLoaderPublisherEngine(BaseEngine):
             raise Exception('An error occurred during the execution of the '
                             'context')
 
-        # We get the context dictionary from the lates executed plugin of the
-        # latest context stage of the lates context step. In case in the future
+        # We get the context dictionary from the latest executed plugin of the
+        # latest context stage of the latest context step. In case in the future
         # we want to use multiple context we will have to create the
         # corresponding loops of context and components...
         context_latest_step = contexts_results[-1]
@@ -387,6 +423,9 @@ class BaseLoaderPublisherEngine(BaseEngine):
             step_stages = component_step['stages']
             step_enabled = component_step['enabled']
             step_stage_order = component_step['stage_order']
+
+            step_options = {'component_name': step_name}
+
             if not step_enabled:
                 self.logger.info(
                     'Skipping step {} as it been disabled'.format(
@@ -397,8 +436,11 @@ class BaseLoaderPublisherEngine(BaseEngine):
             step_status, step_result = self.run_step(
                 step_name=step_name,
                 stages=step_stages,
-                context_data=context_data,
-                stages_order=step_stage_order
+                step_context=context_data,
+                step_options=step_options,
+                step_data=components_result,
+                stages_order=step_stage_order,
+                step_type=constants.COMPONENTS
             )
 
             if not step_status:
@@ -472,6 +514,9 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
 
         # Filter the components_result list to only containt the outputs result
+
+        # Clean up the components result and leave only the output stages to
+        # pass to the finalizers
         components_output = components_result.copy()
         for component_step in components_output:
             i = 0
@@ -483,8 +528,10 @@ class BaseLoaderPublisherEngine(BaseEngine):
                     component_step['result'].pop(i)
                 i += 1
 
-        finalizers_steps = data[constants.COMPONENTS]
-        finalizers_result = []
+        finalizers_steps = data[constants.FINALIZERS]
+        # Add the components outputs as result of the finalizer to passe them
+        # as data on each step
+        finalizers_result = components_output.copy()
         finalizers_status = True
 
         for finalizer_step in finalizers_steps:
@@ -502,8 +549,11 @@ class BaseLoaderPublisherEngine(BaseEngine):
             step_status, step_result = self.run_step(
                 step_name=step_name,
                 stages=step_stages,
-                context_data=context_data,
-                stages_order=step_stage_order
+                step_context=context_data,
+                step_options=None,
+                step_data=finalizers_result,
+                stages_order=step_stage_order,
+                step_type=constants.FINALIZERS
             )
 
             if not step_status:
@@ -518,71 +568,13 @@ class BaseLoaderPublisherEngine(BaseEngine):
             finalizers_result.append(step_dict)
 
         # TODO: check if we want this exceptions here or we already stoped on the
-        # mandatory ones
+        #  mandatory ones
         if not finalizers_status:
             raise Exception(
                 'An error occurred during the execution of the components'
             )
 
-        #TODO: Now we should be pasing the data from context to components to finalizers...
-
-
-
-
-        # context_status, context_result = self.run_context(context_plugins)
-        # if not all(context_status):
-        #     raise Exception('An error occurred during the execution of the '
-        #                     'context')
-        # context_result['asset_type'] = self.asset_type
-        #
-        # components = data[constants.COMPONENTS]
-        # components_result = []
-        # components_status = []
-        #
-        # for component in components:
-        #     component_name = component['name']
-        #     component_stages = component['stages']
-        #     component_enabled = component['enabled']
-        #     if not component_enabled:
-        #         self.logger.info(
-        #             'Skipping component {} as it been disabled'.format(
-        #                 component_name
-        #             )
-        #         )
-        #         continue
-        #
-        #     component_status, component_result = self.run_component(
-        #         component_name, component_stages, context_result,
-        #         data['_config']['stage_order']
-        #     )
-        #
-        #     if not all(component_status.values()):
-        #         raise Exception('An error occurred during the execution of the '
-        #                         'component name {}'.format(component_name))
-        #
-        #     components_status.append(component_status)
-        #     components_result.append(component_result)
-
-        finalizer_plugins = data[constants.FINALIZERS]
-        finalizer_data = {}
-        for item in components_result:
-            last_component = constants.OUTPUT
-            if constants.POST_IMPORT in list(item.keys()):
-                last_component = constants.POST_IMPORT
-            for output in item.get(last_component):
-                if not output:
-                    continue
-
-                for key, value in output.items():
-                    finalizer_data[key] = value
-
-        finalizers_status, finalizers_result = self.run_finalizer(
-            finalizer_plugins, finalizer_data, context_result
-        )
-        if not all(finalizers_status):
-            raise Exception('An error occurred during the execution of the '
-                            'finalizers')
-
+        #TODO: maybe we could be returning the finalizers_result? or maybe not
+        # needed and just dd it to a log or pas it to the notify client
         return True
-
 
