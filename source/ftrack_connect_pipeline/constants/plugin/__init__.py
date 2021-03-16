@@ -4,6 +4,10 @@
 # Generic plugins
 #: Generic plugin type for Finalizer plugins
 _PLUGIN_FINALIZER_TYPE = 'finalizer'
+#: Generic plugin type for post finalizer plugins
+_PLUGIN_POST_FINALIZER_TYPE = 'post_finalizer'
+#: Generic plugin type for pre finalizer plugins
+_PLUGIN_PRE_FINALIZER_TYPE = 'post_finalizer'
 #: Generic plugin type for context plugins
 _PLUGIN_CONTEXT_TYPE = 'context'
 #: Generic plugin type for collector plugins

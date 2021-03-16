@@ -237,7 +237,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 # TODO: to get the collected data, We should modify the base of
                 #  the validator and output/postimport plugin to check in the
                 #  data if there is a collected data and pas it to the data in
-                #  the plugin
+                #  the plugin Done. Missing test
                 data=data,#collected_data,
                 options=plugin_options,
                 context=stage_context,

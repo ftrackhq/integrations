@@ -138,6 +138,11 @@ class BasePlugin(object):
         '''
         return self._event_manager
 
+    @property
+    def raw_data(self):
+        '''Returns the current context id'''
+        return self._raw_data
+
     def __init__(self, session):
         '''
         Initialise BasePlugin with instance of
@@ -147,6 +152,7 @@ class BasePlugin(object):
         self.logger = logging.getLogger(
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
+        self._raw_data = []
         self._event_manager = event.EventManager(
             session=session, mode=constants.LOCAL_EVENT_MODE
         )
@@ -272,6 +278,28 @@ class BasePlugin(object):
         message = 'Successfully run :{}'.format(self.__class__.__name__)
         return status, message
 
+    def _parse_run_event(self, event):
+        '''
+        Parse the event given on the :meth:`_run`. Returns method name to be
+        executed and plugin_setting to be passed to the method.
+        Also this functions saves the original passed data to the property
+        :obj:`raw_data`.
+
+        Note:: Publisher validator, output and Loader importer and post_import
+        plugin types override this function to modify the data that arrives to
+        the plugin.
+        '''
+        method = event['data']['pipeline']['method']
+        self.logger.debug('method : {}'.format(method))
+        plugin_settings = event['data']['settings']
+        self.logger.debug('plugin_settings : {}'.format(plugin_settings))
+        # Save a copy of the original data as _raw_data to be able to be access
+        # to the original data in case we modify it for a specific plugin. So
+        # the user can allways aces to self.raw_data property.
+        self._raw_data = plugin_settings.get('data')
+        return method, plugin_settings
+
+
     def _run(self, event):
         '''
         Callback function of the event
@@ -286,10 +314,11 @@ class BasePlugin(object):
         called.
 
         '''
-        method = event['data']['pipeline']['method']
-        self.logger.debug('method : {}'.format(method))
-        plugin_settings = event['data']['settings']
-        self.logger.debug('plugin_settings : {}'.format(plugin_settings))
+
+        # Having this in a separate method, we can override the parse depending
+        #  on the plugin type.
+        method, plugin_settings = self._parse_run_event(event)
+
         start_time = time.time()
 
         user_message = None
