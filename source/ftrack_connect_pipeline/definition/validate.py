@@ -46,19 +46,7 @@ def validate_schema(data):
                                 entry, definition['name'], str(error)
                             )
                         )
-                        #TODO: seems that this isn't working because the following error:
-                        #  Traceback (most recent call last):
-                        #   File "/Users/lluisftrack/work/brokenC/ftrack/repos/ftrack-connect-pipeline/build/ftrack-connect-pipeline-1.0.0/dependencies/ftrack_api/event/hub.py", line 745, in _handle
-                        #     response = subscriber.callback(event)
-                        #   File "/Users/lluisftrack/work/brokenC/ftrack/repos/ftrack-connect-pipeline-definition/resource/definitions/register.py", line 19, in register_definitions
-                        #     session, current_dir, host_type
-                        #   File "/Users/lluisftrack/work/brokenC/ftrack/repos/ftrack-connect-pipeline/source/ftrack_connect_pipeline/definition/__init__.py", line 25, in collect_and_validate
-                        #     data = validate.validate_schema(data)
-                        #   File "/Users/lluisftrack/work/brokenC/ftrack/repos/ftrack-connect-pipeline/source/ftrack_connect_pipeline/definition/validate.py", line 49, in validate_schema
-                        #     copy_data[entry].remove(definition)
-                        # ValueError: list.remove(x): x not in list
-
-                        # copy_data[entry].remove(definition)
+                        copy_data[entry].remove(definition)
                         continue
 
                     copy_data[entry].remove(definition)
