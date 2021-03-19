@@ -72,7 +72,7 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
 
         except:
             import traceback
-            print(traceback.format_exc())
+            self.logger.error(traceback.format_exc())
             raise
 
         return status, result
@@ -98,7 +98,7 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
             }
 
             try:
-                obj_path = FtrackAssetTab.get_ftrack_object_from_scene_on_asset_info(asset_info)
+                obj_path = FtrackAssetTab.get_ftrack_object_path_from_scene_on_asset_info(asset_info)
                 if not obj_path:
                     message = "There is no ftrack object in the current scene @ path '{}'".format(obj_path)
                     self.logger.warning(message)
@@ -131,7 +131,7 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
             self._notify_client(plugin, result_data)
         except:
             import traceback
-            print(traceback.format_exc())
+            self.logger.error(traceback.format_exc())
             raise
         return status, result
 
@@ -158,7 +158,7 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
                 'message': message
             }
             try:
-                obj_path = FtrackAssetTab.get_ftrack_object_from_scene_on_asset_info(asset_info)
+                obj_path = FtrackAssetTab.get_ftrack_object_path_from_scene_on_asset_info(asset_info)
                 if not obj_path:
                     message = "There is no ftrack object in the current scene @ path '{}'".format(obj_path)
                     self.logger.warning(message)
@@ -192,7 +192,7 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
 
         except:
             import traceback
-            print(traceback.format_exc())
+            self.logger.error(traceback.format_exc())
             raise
 
         return status, result

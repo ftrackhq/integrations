@@ -33,8 +33,8 @@ class LoaderImporterHoudiniPlugin(plugin.LoaderImporterPlugin, BaseHoudiniPlugin
         '''
 
         try:
-            self.old_data = houdini_utils.get_current_scene_objects()
-            self.logger.info('Scene objects : {}'.format(len(self.old_data)))
+            #self.old_data = houdini_utils.get_current_scene_objects()
+            #self.logger.info('Scene objects : {}'.format(len(self.old_data)))
 
             context = event['data']['settings']['context']
             self.logger.debug('Current context : {}'.format(context))
@@ -43,41 +43,55 @@ class LoaderImporterHoudiniPlugin(plugin.LoaderImporterPlugin, BaseHoudiniPlugin
             self.logger.debug('Current data : {}'.format(data))
 
             options = event['data']['settings']['options']
-
+            self.logger.debug('Current options: {}'.format(options))
 
             super_result = super(LoaderImporterHoudiniPlugin, self)._run(event)
 
-            options[asset_const.ASSET_INFO_OPTIONS] = base64.b64encode(json.dumps(
-                event['data']
-            ).encode('ascii'))
-
+            options[asset_const.ASSET_INFO_OPTIONS] = base64.encodebytes(
+                json.dumps(event['data']).encode('utf-8')
+            ).decode('utf-8')
 
             asset_load_mode = options.get(asset_const.LOAD_MODE)
 
-            if asset_load_mode != load_const.OPEN_MODE:
+            if asset_load_mode != load_const.OPEN_MODE and asset_load_mode != load_const.MERGE_MODE:
 
-                self.new_data = houdini_utils.get_current_scene_objects()
+                result = super_result.get('result',{})
 
-                diff = self.new_data.difference(self.old_data)
+                if isinstance(result, dict):
+                    run = result.get('run')
+                    if isinstance(run, dict):
+                        # Import was successful, store ftrack metadata
+                        ftrack_asset_class = self.get_asset_class(context, data, options)
 
-                if diff:
+                        # Only one component expected
+                        for (path_component, asset_or_assets) in run.items():
+                            # Can arrive as a single or multiple assets
+                            ftrack_asset_class.connect_objects(asset_or_assets if isinstance(asset_or_assets, list) else [asset_or_assets])
 
-                    self.logger.debug(
-                        'Checked differences between ftrack_objects before and after'
-                        ' inport : {}'.format(diff)
-                    )
 
-                    ftrack_asset_class = self.get_asset_class(context, data, options)
+                # The loaded objects is provided with results
+                #self.new_data = houdini_utils.get_current_scene_objects()
 
-                    ftrack_asset_class.connect_objects(diff)
-                else:
-                    self.logger.debug('No differences found in the scene')
+                #diff = self.new_data.difference(self.old_data)
+
+                #if diff:
+
+                #    self.logger.debug(
+                #        'Checked differences between ftrack_objects before and after'
+                #        ' inport : {}'.format(diff)
+                #    )
+
+                #    ftrack_asset_class = self.get_asset_class(context, data, options)
+
+                #    ftrack_asset_class.connect_objects(diff)
+                #else:
+                #    self.logger.debug('No differences found in the scene')
 
             return super_result
 
         except:
             import traceback
-            print(traceback.format_exc())
+            self.logger.error(traceback.format_exc())
             raise
 
 

@@ -6,19 +6,6 @@ import hou, hdefereval
 
 import ftrack_api
 
-# import ftrack
-# import ftrack_connect.config
-# from ftrack_connect.ui.widget.import_asset import FtrackImportAssetDialog
-# from ftrack_connect.ui.widget.asset_manager import FtrackAssetManagerDialog
-#
-# from ftrack_connect_houdini.connector import Connector
-# from ftrack_connect_houdini.ui.info import FtrackHoudiniInfoDialog
-# from ftrack_connect_houdini.ui.publisher import PublishAssetDialog
-# from ftrack_connect_houdini.ui.tasks import FtrackTasksDialog
-#
-# from ftrack_connect_houdini.usage import send_event
-
-
 logger = logging.getLogger('ftrack_connect_pipeline_houdini.houdini_path.python3.7libs.pythonrc')
 logger.setLevel(logging.DEBUG)
 
@@ -38,11 +25,6 @@ def init():
         session=session, mode=constants.LOCAL_EVENT_MODE
     )
 
-    # import hdefereval
-    # def spawn_host():
-    #    houdini_host.HoudiniHost(event_manager)
-    # hdefereval.executeDeferred(spawn_host)
-
     houdini_host.HoudiniHost(event_manager)
 
     def setFrameRangeData():
@@ -60,9 +42,9 @@ def init():
             if 'handles' in shot['custom_attributes']:
                 handles = float(shot['custom_attributes']['handles'])
         except Exception as error:
-            print(error)
+            logger.error(error)
 
-        print('setting timeline to {} {} '.format(start_frame, end_frame))
+        logger.info('setting timeline to {} {} '.format(start_frame, end_frame))
 
         # add handles to start and end frame
         hsf = (start_frame - 1) - handles
@@ -83,7 +65,7 @@ def init():
         setFrameRangeData()
     except Exception as error:
         # Continue execution if this fails
-        print(error)
+        logger.error(error)
 
 
 def writePypanel(panel_id):
@@ -133,7 +115,7 @@ def FtrackPipelineDialogs(panel_id):
                 panel_interface = value
                 break
     except hou.OperationFailed as e:
-        print('Something Wrong with Python Panel: {}'.format(e))
+        logger.error('Something Wrong with Python Panel: {}'.format(e))
 
     main_tab = hou.ui.curDesktop().findPaneTab(ftrack_id)
 

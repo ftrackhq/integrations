@@ -1,17 +1,9 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-import sys
-import re
-import os
-import glob
-import traceback
-
 import logging
 
 import hou
-
-from ftrack_connect_pipeline_houdini.constants import asset as asset_const
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +30,7 @@ def import_scene(path, context=None, options=None):
     node.setSelected(1)
     node.moveToGoodPosition()
 
-    return node.path()
+    return node
 
 def merge_scene(path, context=None, options=None):
     '''

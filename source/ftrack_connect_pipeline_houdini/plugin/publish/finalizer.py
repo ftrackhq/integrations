@@ -2,7 +2,6 @@
 # :copyright: Copyright (c) 2019 ftrack
 import os
 import re
-import clique
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget

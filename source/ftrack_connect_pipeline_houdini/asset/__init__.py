@@ -3,6 +3,7 @@
 
 import json
 import sys
+import six
 
 import ftrack_api
 
@@ -33,21 +34,23 @@ class FtrackAssetTab(FtrackAssetBase):
         '''
         super(FtrackAssetTab, self).__init__(event_manager)
 
-    # def init_ftrack_object(self):
-    #     '''
-    #     Return the ftrack ftrack_object for this class. It checks if there is
-    #     already a matching ftrack ftrack_object in the scene, in this case it
-    #     updates the ftrack_object if it's not. In case there is no ftrack_object
-    #     in the scene this function creates a new one.
-    #     '''
-    #     ftrack_object = self.get_ftrack_object_from_scene() or self.create_new_ftrack_object()
-    #
-    #     if not self.is_sync(ftrack_object):
-    #         ftrack_object = self._update_ftrack_object(ftrack_object)
-    #
-    #     self.ftrack_object = ftrack_object
-    #
-    #     return self.ftrack_object
+    def init_ftrack_object(self):
+        '''
+        Return the ftrack ftrack_object for this class. It checks if there is
+        already a matching ftrack ftrack_object in the scene, in this case it
+        updates the ftrack_object if it's not. In case there is no ftrack_object
+        in the scene this function creates a new one.
+        '''
+        obj_path = self.get_ftrack_object_path_from_scene()
+        if not obj_path:
+            self.logger.warning('My ftrack object has disappeared! (asset info: {})'.format(self.asset_info))
+        else:
+            if not self.is_sync(obj_path):
+                ftrack_object = self._update_ftrack_object(obj_path)
+
+        self.obj_path = obj_path
+
+        return self.obj_path
 
     @staticmethod
     def get_parameters_dictionary(obj):
@@ -63,7 +66,7 @@ class FtrackAssetTab(FtrackAssetBase):
         return param_dict
 
     @staticmethod
-    def get_ftrack_object_from_scene_on_asset_info(asset_info):
+    def get_ftrack_object_path_from_scene_on_asset_info(asset_info):
         ftrack_asset_nodes = houdini_utils.get_ftrack_objects()
         for obj in ftrack_asset_nodes:
             param_dict = FtrackAssetTab.get_parameters_dictionary(obj)
@@ -82,12 +85,12 @@ class FtrackAssetTab(FtrackAssetBase):
                 return obj.path()
         return None
 
-    def get_ftrack_object_from_scene(self):
+    def get_ftrack_object_path_from_scene(self):
         '''
         Return the ftrack object path from the current asset_version if it exists in
         the scene.
         '''
-        return self.get_ftrack_object_from_scene_on_asset_info(self.asset_info)
+        return self.get_ftrack_object_path_from_scene_on_asset_info(self.asset_info)
 
     def _check_ftrack_object_sync(self, obj_path):
         '''
@@ -95,7 +98,7 @@ class FtrackAssetTab(FtrackAssetBase):
         values of the asset_info.
         '''
         if not obj_path:
-            self.logger.warning("Ftrack tab doesn't exists")
+            self.logger.warning("No object provided")
             return False
 
         synced = False
@@ -133,12 +136,11 @@ class FtrackAssetTab(FtrackAssetBase):
 
         def safeString(string):
 
-            if int(sys.version[0])<3:
-                if not isinstance(string, unicode):
-                    string = str(string)
-                if isinstance(string, unicode):
-                    return string.encode('utf-8')
-            return string
+            if six.PY2 and isinstance(string, unicode):
+                return string.encode('utf-8')
+            if isinstance(string, bytes):
+                return string.decode("utf-8")
+            return str(string)
 
         for k, v in self.asset_info.items():
             obj.parm(k).set(safeString(v))
@@ -156,5 +158,6 @@ class FtrackAssetTab(FtrackAssetBase):
         Update the parameters of the ftrack_object. And Return the
         ftrack_object updated
         '''
-
-        pass
+        obj = hou.node(obj_path)
+        self._set_ftab(obj)
+        return obj.path()
