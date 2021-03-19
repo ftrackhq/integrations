@@ -235,26 +235,21 @@ class BaseLoaderPublisherEngine(BaseEngine):
             #TODO: plugin category and plugin type have to be updated to match steps and stages
             category = plugin['type']#plugin['category']
             type = plugin['plugin_type']#plugin['type']
+            default_method = plugin['default_method']
 
             plugin_status, plugin_result = self._run_plugin(
                 plugin, plugin_type,
-                # TODO: to get the collected data, We should modify the base of
-                #  the validator and output/postimport plugin to check in the
-                #  data if there is a collected data and pas it to the data in
-                #  the plugin Done. Missing test
-                data=data,#collected_data,
+                data=data,
                 options=plugin_options,
                 context=stage_context,
-                method="run"
+                method=default_method
             )
 
             if plugin_result:
-                # TODO: we could add the run_method key to the definitions and
-                #  get this default or run methon from there
-                result = plugin_result.get("run")
+                result = plugin_result.get(default_method)
                 # TODO: we should be saing if step_type == contexts or
                 #  parent == contexts or try to add this in the base context plugin
-                if step_type == "context": # Or should be type contexts in plural? think about it and change it in caseconstants.CONTEXTS:
+                if step_type == constants.CONTEXT:
                     result['asset_type'] = self.asset_type
             bool_status = constants.status_bool_mapping[plugin_status]
             if not bool_status:
@@ -493,9 +488,6 @@ class BaseLoaderPublisherEngine(BaseEngine):
             raise Exception(
                 'An error occurred during the execution of the components'
             )
-
-        #TODO: check if we really need to have the result of the outputs
-        # with the component name and check why is not cleaning up correcly all that is not output
 
         components_output = copy.deepcopy(components_result)
         i = 0
