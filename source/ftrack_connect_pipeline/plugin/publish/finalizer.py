@@ -145,13 +145,94 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
 
         results = {}
 
-        for component_name, component_path in list(data.items()):
-            publish_component_fn = self.component_functions.get(
-                component_name, self.create_component
-            )
-            publish_component_fn(asset_version, component_name, component_path)
-            results[component_name] = True
+        # data = [
+        #     {
+        #         'name': 'main',
+        #         'result': [
+        #             {
+        #                 'name': 'output',
+        #                 'result': [
+        #                     {
+        #                         'name': 'passthrough',
+        #                         'result': {
+        #                             'main': ['/Users/lluisftrack/Desktop/Screenshot 2021-02-02 at 16.30.50.png']
+        #                         },
+        #                         'status': True,
+        #                         'category': 'plugin',
+        #                         'type': 'output'
+        #                     }
+        #                 ],
+        #                 'status': True,
+        #                 'category': 'stage',
+        #                 'type': 'output'
+        #             }
+        #         ],
+        #         'status': True,
+        #         'category': 'step',
+        #         'type': 'component'
+        #     },
+        #     {
+        #         'name': 'thumbnail',
+        #         'result': [
+        #             {
+        #                 'name': 'output',
+        #                 'result': [
+        #                     {
+        #                         'name': 'passthrough',
+        #                         'result': {'thumbnail': ['/Users/lluisftrack/Desktop/Screenshot 2021-02-02 at 16.30.50.png']},
+        #                         'status': True,
+        #                         'category': 'plugin',
+        #                         'type': 'output'
+        #                     }
+        #                 ],
+        #                 'status': True,
+        #                 'category': 'stage',
+        #                 'type': 'output'
+        #             }
+        #         ],
+        #         'status': True,
+        #         'category': 'step',
+        #         'type': 'component'
+        #     },
+        #     {
+        #         'name': 'finalizerStep',
+        #         'result': [
+        #             {
+        #                 'name': 'pre_finalizer',
+        #                 'result': [
+        #                     {
+        #                         'name': 'pre_result',
+        #                         'result': {},
+        #                         'status': True,
+        #                         'category': 'plugin',
+        #                         'type': 'pre_finalizer'
+        #                     }
+        #                 ],
+        #                 'status': True,
+        #                 'category': 'stage',
+        #                 'type': 'pre_finalizer'
+        #             }
+        #         ],
+        #         'type': 'finalizer'
+        #     }
+        # ]
 
+        for step in data:
+            if step['type'] == constants.COMPONENT:
+                for stage in step['result']:
+                    for plugin in stage['result']:
+                        for component_name, component_path in list(
+                                plugin['result'].items()
+                        ):
+                            publish_component_fn = self.component_functions.get(
+                                component_name, self.create_component
+                            )
+                            publish_component_fn(
+                                asset_version,
+                                component_name,
+                                component_path
+                            )
+                            results[component_name] = True
         self.session.commit()
 
         self.logger.debug("publishing: {} to {} as {}".format(data, context,

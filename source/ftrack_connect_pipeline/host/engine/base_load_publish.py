@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
+import copy
 import logging
 import ftrack_api
 from ftrack_connect_pipeline import constants
@@ -231,6 +232,9 @@ class BaseLoaderPublisherEngine(BaseEngine):
             # We update the plugin_options with the stage_options.
             # This solves things like: plugin_options['component_name'] = step_name
             plugin_options.update(stage_options)
+            #TODO: plugin category and plugin type have to be updated to match steps and stages
+            category = plugin['type']#plugin['category']
+            type = plugin['plugin_type']#plugin['type']
 
             plugin_status, plugin_result = self._run_plugin(
                 plugin, plugin_type,
@@ -248,10 +252,10 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 # TODO: we could add the run_method key to the definitions and
                 #  get this default or run methon from there
                 result = plugin_result.get("run")
-            # TODO: we should be saing if step_type == contexts or
-            #  parent == contexts or try to add this in the base context plugin
-            if step_type == constants.CONTEXTS:
-                result['asset_type'] = self.asset_type
+                # TODO: we should be saing if step_type == contexts or
+                #  parent == contexts or try to add this in the base context plugin
+                if step_type == "context": # Or should be type contexts in plural? think about it and change it in caseconstants.CONTEXTS:
+                    result['asset_type'] = self.asset_type
             bool_status = constants.status_bool_mapping[plugin_status]
             if not bool_status:
                 stage_status = False
@@ -259,7 +263,9 @@ class BaseLoaderPublisherEngine(BaseEngine):
             plugin_dict = {
                 "name": plugin_name,
                 "result": result,
-                "status": bool_status
+                "status": bool_status,
+                "category": category,
+                "type": type
             }
 
             stage_results.append(plugin_dict)
@@ -302,7 +308,8 @@ class BaseLoaderPublisherEngine(BaseEngine):
         data = step_data
         current_step_dict = {
             "name": step_name,
-            "result": step_results
+            "result": step_results,
+            "type": step_type
         }
         data.append(current_step_dict)
 
@@ -313,6 +320,8 @@ class BaseLoaderPublisherEngine(BaseEngine):
                     continue
 
                 stage_plugins = stage['plugins']
+                category = stage['category']
+                type = stage['type']
 
                 if not stage_plugins:
                     continue
@@ -337,7 +346,9 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 stage_dict = {
                     "name": stage_name,
                     "result": stage_result,
-                    "status": stage_status
+                    "status": stage_status,
+                    "category": category,
+                    "type": type
                 }
 
                 step_results.append(stage_dict)
@@ -353,6 +364,10 @@ class BaseLoaderPublisherEngine(BaseEngine):
         :meth:`~ftrack_connect_pipeline.client.HostConnection.run` Should be a
         valid definition.
         '''
+        # TODO: I'll have to remove the plugin_type key from the plugins in the
+        #  definitions and everywhere else that is used. The new name will be type,
+        #  and the current type=plugin will be category.
+
 
         #TODO: To reduce the amount of code, in a second stage we can try to get
         # all the type steps and execute all them un a loop just checking then
@@ -366,6 +381,8 @@ class BaseLoaderPublisherEngine(BaseEngine):
             step_stages = context_step['stages']
             step_enabled = context_step['enabled']
             step_stage_order = context_step['stage_order']
+            step_category = context_step['category']
+            step_type = context_step['type']
 
             if not step_enabled:
                 self.logger.info(
@@ -375,14 +392,18 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 )
                 continue
 
+            # Avoid passing contexts_results to avoid modifying the data on it
+            #  during the step/stage and plugin execution
+            step_data = copy.deepcopy(contexts_results)
+
             step_status, step_result = self.run_step(
                 step_name=step_name,
                 stages=step_stages,
                 step_context=None,
-                step_options=None,
-                step_data=contexts_results,
+                step_options=[],
+                step_data=step_data,
                 stages_order=step_stage_order,
-                step_type=constants.CONTEXTS
+                step_type=step_type
             )
 
             if not step_status:
@@ -394,7 +415,9 @@ class BaseLoaderPublisherEngine(BaseEngine):
             step_dict = {
                 "name": step_name,
                 "result": step_result,
-                "status": step_status
+                "status": step_status,
+                "category": step_category,
+                "type": step_type
             }
 
             contexts_results.append(step_dict)
@@ -410,7 +433,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
         context_latest_step = contexts_results[-1]
         context_latest_stage = context_latest_step.get('result')[-1]
         context_latest_plugin = context_latest_stage.get('result')[-1]
-        context_latest_plugin_result = context_latest_plugin.get('result')[-1]
+        context_latest_plugin_result = context_latest_plugin.get('result')
         context_data = context_latest_plugin_result
 
 
@@ -423,8 +446,14 @@ class BaseLoaderPublisherEngine(BaseEngine):
             step_stages = component_step['stages']
             step_enabled = component_step['enabled']
             step_stage_order = component_step['stage_order']
+            step_category = component_step['category']
+            step_type = component_step['type']
 
+            #TODO: we could avoid this if we modify the PublisherFinalizerPlugin
+            # line 224 and the finalizers plugin itself to not pass the name of
+            # the component as it's not needed now.
             step_options = {'component_name': step_name}
+            step_data = copy.deepcopy(components_result)
 
             if not step_enabled:
                 self.logger.info(
@@ -438,9 +467,9 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 stages=step_stages,
                 step_context=context_data,
                 step_options=step_options,
-                step_data=components_result,
+                step_data=step_data,
                 stages_order=step_stage_order,
-                step_type=constants.COMPONENTS
+                step_type=step_type
             )
 
             if not step_status:
@@ -451,7 +480,9 @@ class BaseLoaderPublisherEngine(BaseEngine):
             step_dict = {
                 "name": step_name,
                 "result": step_result,
-                "status": step_status
+                "status": step_status,
+                "category": step_category,
+                "type": step_type
             }
 
             components_result.append(step_dict)
@@ -462,76 +493,32 @@ class BaseLoaderPublisherEngine(BaseEngine):
             raise Exception(
                 'An error occurred during the execution of the components'
             )
-        # Components result should look like this:
-        # components_result = [
-        #     {
-        #         "name":"comp1",
-        #         "result":[
-        #             {
-        #                 "name":"collector",
-        #                 "result":[
-        #                     {
-        #                         "name":"plug1_coolect",
-        #                         "result":[{}]
-        #                     }
-        #                 ]
-        #             },
-        #             {
-        #                 "name":"output",
-        #                 "result":[
-        #                     {
-        #                         "name":"plug1",
-        #                         "result":[{}]
-        #                     }
-        #                 ]
-        #             }
-        #         ]
-        #     },
-        #     {
-        #         "name":"comp2",
-        #         "result":[
-        #             {
-        #                 "name":"collector",
-        #                 "result":[
-        #                     {
-        #                         "name":"plug2_coolect",
-        #                         "result":[{}]
-        #                     }
-        #                 ]
-        #             },
-        #             {
-        #                 "name":"output",
-        #                 "result":[
-        #                     {
-        #                         "name":"plug2",
-        #                         "result":[{}]
-        #                     }
-        #                 ]
-        #             }
-        #         ]
-        #     }
-        # ]
 
+        #TODO: check if we really need to have the result of the outputs
+        # with the component name and check why is not cleaning up correcly all that is not output
 
-        # Filter the components_result list to only containt the outputs result
-
-        # Clean up the components result and leave only the output stages to
-        # pass to the finalizers
-        components_output = components_result.copy()
-        for component_step in components_output:
-            i = 0
+        components_output = copy.deepcopy(components_result)
+        i = 0
+        for component_step in components_result:
             for component_stage in component_step.get("result"):
-                if (
-                        component_stage.get("name") != constants.OUTPUT or
-                        component_stage.get("name") != constants.POST_IMPORT
-                ):
-                    component_step['result'].pop(i)
-                i += 1
+                self.logger.debug(
+                    "Checking stage name {} of type {}".format(
+                        component_stage.get("name"), component_stage.get("type")
+                    )
+                )
+                if component_stage.get("type") != constants.OUTPUT:
+                    self.logger.debug(
+                        "Removing stage name {} of type {}".format(
+                            component_stage.get("name"), component_stage.get("type")
+                        )
+                    )
+                    components_output[i]['result'].remove(component_stage)
+            i += 1
 
         finalizers_steps = data[constants.FINALIZERS]
         # Add the components outputs as result of the finalizer to passe them
         # as data on each step
-        finalizers_result = components_output.copy()
+        finalizers_result = copy.deepcopy(components_output)
         finalizers_status = True
 
         for finalizer_step in finalizers_steps:
@@ -539,6 +526,9 @@ class BaseLoaderPublisherEngine(BaseEngine):
             step_stages = finalizer_step['stages']
             step_enabled = finalizer_step['enabled']
             step_stage_order = finalizer_step['stage_order']
+            step_category = finalizer_step['category']
+            step_type = finalizer_step['type']
+
             if not step_enabled:
                 self.logger.info(
                     'Skipping step {} as it been disabled'.format(
@@ -546,14 +536,17 @@ class BaseLoaderPublisherEngine(BaseEngine):
                     )
                 )
                 continue
+
+            step_data = copy.deepcopy(finalizers_result)
+
             step_status, step_result = self.run_step(
                 step_name=step_name,
                 stages=step_stages,
                 step_context=context_data,
-                step_options=None,
-                step_data=finalizers_result,
+                step_options=[],
+                step_data=step_data,
                 stages_order=step_stage_order,
-                step_type=constants.FINALIZERS
+                step_type=step_type
             )
 
             if not step_status:
@@ -562,7 +555,9 @@ class BaseLoaderPublisherEngine(BaseEngine):
             step_dict = {
                 "name": step_name,
                 "result": step_result,
-                "status": step_status
+                "status": step_status,
+                "category": step_category,
+                "type": step_type
             }
 
             finalizers_result.append(step_dict)
