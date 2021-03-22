@@ -172,7 +172,7 @@ class WidgetFactory(QtWidgets.QWidget):
         return type_widget
 
     def fetch_plugin_widget(self, plugin_data, stage_name, extra_options=None):
-        '''Returns a widget from the given *plugin_data*, *plugin_type* with
+        '''Returns a widget from the given *plugin_data*, *stage_name* with
         the optional *extra_options*.'''
 
         plugin_name = plugin_data.get('plugin')

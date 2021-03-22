@@ -30,4 +30,4 @@ class QtPublisherClient(QtClient):
             the loader, so we extend the schema_name_mapping dictionary.
         '''
         super(QtPublisherClient, self).pre_build()
-        self.widget_factory.schema_name_mapping['finalizers'] = hidden.HiddenObject
+        #self.widget_factory.schema_name_mapping['finalizers'] = hidden.HiddenObject
