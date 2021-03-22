@@ -303,12 +303,12 @@ class Client(object):
 
         *method* : method of the plugin to be run
         '''
-        # Plugin type is constructed using the engine_type and the plugin_type
+        # Plugin type is constructed using the engine_type and the type of the plugin.
         # (publisher.collector). We have to make sure that plugin_type is in
         # the data argument passed to the host_connection, because we are only
         # passing data to the engine. And the engine_type is only available
         # on the definition.
-        plugin_type = '{}.{}'.format(engine_type, plugin_data['plugin_type'])
+        plugin_type = '{}.{}'.format(engine_type, plugin_data['type'])
         data = {
             'plugin': plugin_data,
             'plugin_type': plugin_type,

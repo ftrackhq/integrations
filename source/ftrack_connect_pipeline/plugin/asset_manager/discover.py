@@ -12,7 +12,7 @@ class AssetManagerDiscoverPlugin(base.BaseDiscoverPlugin):
     '''
     return_type = list
     '''Type of object that should be returned'''
-    plugin_type = constants.PLUGIN_AM_DISCOVER_TYPE
+    type = constants.PLUGIN_AM_DISCOVER_TYPE
     '''Plugin type of the current plugin'''
     _required_output = []
     '''Expected output that should be returned'''

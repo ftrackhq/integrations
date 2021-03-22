@@ -94,8 +94,8 @@ class AssetManagerEngine(BaseEngine):
         total_time = end_time - start_time
 
         result_data = {
-            'plugin_name': 'discover_assets',
-            'plugin_type': 'action',
+            'plugin_name': None,
+            'plugin_type': None,
             'method': 'discover_assets',
             'status': status,
             'result': result,
@@ -151,9 +151,15 @@ class AssetManagerEngine(BaseEngine):
         result = True
         status = constants.SUCCESS_STATUS
 
+        plugin_type = None
+        plugin_name = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_name = plugin.get('name')
+
         result_data = {
-            'plugin_name': 'remove_asset',
-            'plugin_type': 'action',
+            'plugin_name': plugin_name,
+            'plugin_type': plugin_type,
             'method': 'remove_asset',
             'status': status,
             'result': result,
@@ -216,9 +222,15 @@ class AssetManagerEngine(BaseEngine):
         message = "Can't select on standalone mode"
         status = constants.ERROR_STATUS
 
+        plugin_type = None
+        plugin_name = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_name = plugin.get('name')
+
         result_data = {
-            'plugin_name': 'select',
-            'plugin_type': 'action',
+            'plugin_name': plugin_name,
+            'plugin_type': plugin_type,
             'method': 'select_asset',
             'status': status,
             'result': result,
@@ -279,9 +291,15 @@ class AssetManagerEngine(BaseEngine):
         result = []
         message = None
 
+        plugin_type = None
+        plugin_name = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_name = plugin.get('name')
+
         result_data = {
-            'plugin_name': 'update_asset',
-            'plugin_type': 'action',
+            'plugin_name': plugin_name,
+            'plugin_type': plugin_type,
             'method': 'update_asset',
             'status': status,
             'result': result,
@@ -292,7 +310,6 @@ class AssetManagerEngine(BaseEngine):
         if not options:
             options={}
         if plugin:
-            plugin_type = '{}.{}'.format('asset_manager', plugin['plugin_type'])
 
             plugin['plugin_data'] = asset_info
 
@@ -357,9 +374,15 @@ class AssetManagerEngine(BaseEngine):
         result = {}
         message = None
 
+        plugin_type = None
+        plugin_name = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_name = plugin.get('name')
+
         result_data = {
-            'plugin_name': 'change_version',
-            'plugin_type': 'action',
+            'plugin_name': plugin_name,
+            'plugin_type': plugin_type,
             'method': 'change_version',
             'status': status,
             'result': result,

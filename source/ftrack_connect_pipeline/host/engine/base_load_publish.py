@@ -233,8 +233,8 @@ class BaseLoaderPublisherEngine(BaseEngine):
             # This solves things like: plugin_options['component_name'] = step_name
             plugin_options.update(stage_options)
             #TODO: plugin category and plugin type have to be updated to match steps and stages
-            category = plugin['type']#plugin['category']
-            type = plugin['plugin_type']#plugin['type']
+            category = plugin['category']
+            type = plugin['type']
             default_method = plugin['default_method']
 
             plugin_status, plugin_result = self._run_plugin(
