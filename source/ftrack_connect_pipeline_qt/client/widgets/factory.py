@@ -171,7 +171,7 @@ class WidgetFactory(QtWidgets.QWidget):
 
         return type_widget
 
-    def fetch_plugin_widget(self, plugin_data, plugin_type, extra_options=None):
+    def fetch_plugin_widget(self, plugin_data, stage_name, extra_options=None):
         '''Returns a widget from the given *plugin_data*, *plugin_type* with
         the optional *extra_options*.'''
 
@@ -182,7 +182,7 @@ class WidgetFactory(QtWidgets.QWidget):
             widget_name = plugin_name
             plugin_data['widget'] = widget_name
 
-        plugin_type = '{}.{}'.format(self.definition_type, plugin_type)
+        plugin_type = '{}.{}'.format(self.definition_type, stage_name)
 
         self.logger.info('Fetching widget : {} for plugin {}'.format(
             widget_name, plugin_name

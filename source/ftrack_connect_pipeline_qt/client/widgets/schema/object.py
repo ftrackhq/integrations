@@ -56,7 +56,7 @@ class JsonObject(BaseJsonWidget):
         self.groupBox.layout().setContentsMargins(0, 0, 0, 0)
 
         if self.previous_object_data:
-            self.plugin_type = self.previous_object_data.get('name')
+            self.stage_name = self.previous_object_data.get('name')
 
         self.groupBox.setToolTip(self.description)
 
@@ -71,7 +71,7 @@ class JsonObject(BaseJsonWidget):
         else:
             if 'widget' in list(self.properties.keys()):
                 widget = self.widget_factory.fetch_plugin_widget(
-                    self.fragment_data, self.plugin_type
+                    self.fragment_data, self.stage_name
                 )
                 self.innerLayout.addWidget(widget)
             else:
