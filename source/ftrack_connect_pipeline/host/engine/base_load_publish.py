@@ -229,10 +229,8 @@ class BaseLoaderPublisherEngine(BaseEngine):
             result = None
             plugin_name = plugin['plugin']
             plugin_options = plugin['options']
-            # We update the plugin_options with the stage_options.
-            # This solves things like: plugin_options['component_name'] = step_name
+            # Update the plugin_options with the stage_options.
             plugin_options.update(stage_options)
-            #TODO: plugin category and plugin type have to be updated to match steps and stages
             category = plugin['category']
             type = plugin['type']
             default_method = plugin['default_method']
@@ -247,8 +245,6 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
             if plugin_result:
                 result = plugin_result.get(default_method)
-                # TODO: we should be saing if step_type == contexts or
-                #  parent == contexts or try to add this in the base context plugin
                 if step_type == constants.CONTEXT:
                     result['asset_type'] = self.asset_type
             bool_status = constants.status_bool_mapping[plugin_status]
@@ -359,10 +355,6 @@ class BaseLoaderPublisherEngine(BaseEngine):
         :meth:`~ftrack_connect_pipeline.client.HostConnection.run` Should be a
         valid definition.
         '''
-        # TODO: I'll have to remove the plugin_type key from the plugins in the
-        #  definitions and everywhere else that is used. The new name will be type,
-        #  and the current type=plugin will be category.
-
 
         #TODO: To reduce the amount of code, in a second stage we can try to get
         # all the type steps and execute all them un a loop just checking then
