@@ -38,6 +38,8 @@ class StepArray(BaseJsonWidget):
         groupBox.layout().setContentsMargins(0, 0, 0, 0)
         groupBox.setToolTip(self.description)
 
+        # self.type =
+
         # self.layout().addWidget(label)
         self._accordion_widgets = []
 
@@ -45,6 +47,7 @@ class StepArray(BaseJsonWidget):
             for data in self.fragment_data:
                 if type(data) == dict:
                     name = data.get('name')
+                    self._type = data.get('type')
                 else:
                     name = data
                 optional_component = False

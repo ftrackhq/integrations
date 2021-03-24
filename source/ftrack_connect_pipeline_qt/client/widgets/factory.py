@@ -420,7 +420,7 @@ class WidgetFactory(QtWidgets.QWidget):
         if not self.components_names:
             return
         for k, v in self.type_widgets.items():
-            if hasattr(v, 'accordion_widgets'):
+            if hasattr(v, 'accordion_widgets') and v.type == core_constants.COMPONENT:
                 for widget in v.accordion_widgets:
                     if widget.title not in self.components_names:
                         widget.set_unavailable()
