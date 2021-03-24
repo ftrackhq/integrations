@@ -32,6 +32,16 @@ class JsonObject(BaseJsonWidget):
             widget_factory, parent=parent
         )
 
+    def create_inner_widget(self, name, parent):
+        groupBox = QtWidgets.QGroupBox(name.capitalize(), parent)
+        layout = QtWidgets.QVBoxLayout()
+        layout.setAlignment(QtCore.Qt.AlignTop)
+        groupBox.setLayout(layout)
+        groupBox.setFlat(False)
+        groupBox.layout().setContentsMargins(0, 0, 0, 0)
+        groupBox.setToolTip(self.description)
+        return groupBox
+
     def build(self):
         if self.schema_fragment.get('allOf'):
             # Dealing with allOf objects in the schemas, will create the widget
@@ -47,18 +57,12 @@ class JsonObject(BaseJsonWidget):
             self.layout().addWidget(widget)
             return
 
-        self.groupBox = QtWidgets.QGroupBox(self.name, self._parent)
-        layout = QtWidgets.QVBoxLayout()
+        self.inner_widget = self.create_inner_widget(self.name, self._parent)
         self.innerLayout = QtWidgets.QVBoxLayout()
-        layout.setAlignment(QtCore.Qt.AlignTop)
-        self.groupBox.setLayout(layout)
-        self.groupBox.setFlat(False)
-        self.groupBox.layout().setContentsMargins(0, 0, 0, 0)
 
         if self.previous_object_data:
             self.stage_name = self.previous_object_data.get('name')
 
-        self.groupBox.setToolTip(self.description)
 
         self.properties_widgets = {}
 
@@ -67,7 +71,7 @@ class JsonObject(BaseJsonWidget):
                 'Invalid object description (missing properties)',
                 self)
             label.setStyleSheet('QLabel { color: red; }')
-            layout.addWidget(label)
+            self.inner_widget.layout().addWidget(label)
         else:
             if 'widget' in list(self.properties.keys()):
                 widget = self.widget_factory.fetch_plugin_widget(
@@ -84,8 +88,8 @@ class JsonObject(BaseJsonWidget):
                     )
                     self.innerLayout.addWidget(widget)
                     self.properties_widgets[k] = widget
-        layout.addLayout(self.innerLayout)
-        self.layout().addWidget(self.groupBox)
+        self.inner_widget.layout().addLayout(self.innerLayout)
+        self.layout().addWidget(self.inner_widget)
 
     def to_json_object(self):
         out = {}

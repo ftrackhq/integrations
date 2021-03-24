@@ -11,7 +11,7 @@ from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.client.widgets import schema as schema_widget
-from ftrack_connect_pipeline_qt.client.widgets.schema.overrides import component,\
+from ftrack_connect_pipeline_qt.client.widgets.schema.overrides import step,\
     hidden, plugin_container
 
 from Qt import QtCore, QtWidgets
@@ -72,21 +72,35 @@ class WidgetFactory(QtWidgets.QWidget):
             'boolean': schema_widget.JsonBoolean
         }
         self.schema_name_mapping = {
-            'components': component.ComponentsArray,
+            'components': step.StepArray,
+            'contexts': step.StepArray,
+            'finalizers': step.StepArray,
             '_config': hidden.HiddenObject,
             'ui_type': hidden.HiddenString,
+            'category': hidden.HiddenString,
             'type': hidden.HiddenString,
             'name': hidden.HiddenString,
             'enabled': hidden.HiddenBoolean,
             'package': hidden.HiddenString,
+            'engine_type': hidden.HiddenString,
             'host_type': hidden.HiddenString,
             'optional': hidden.HiddenBoolean
         }
 
         self.schema_title_mapping = {
+            'Publisher': hidden.HiddenObject,
+            'Loader': hidden.HiddenObject,
+            'AssetManager': hidden.HiddenObject,
+            'Step': hidden.HiddenObject,
+            # 'Stage': plugin_container.PluginContainerObject,
             'Plugin': plugin_container.PluginContainerObject,
             'Component': plugin_container.PluginContainerObject
         }
+
+        # self.schema_category_mapping = {
+        #     'step': hidden.HiddenObject,
+        #     'stage': hidden.HiddenObject
+        # }
 
     def set_context(self, context):
         self.context = context
@@ -142,7 +156,6 @@ class WidgetFactory(QtWidgets.QWidget):
             )
             schema_fragment['properties'] = schema_fragment_properties
 
-
         widget_fn = self.schema_name_mapping.get(name)
 
         if not widget_fn:
@@ -150,16 +163,29 @@ class WidgetFactory(QtWidgets.QWidget):
                 schema_fragment.get('title'))
 
         if not widget_fn:
+            if previous_object_data:
+                if previous_object_data.get('category') == 'step':
+                    if (
+                            name in previous_object_data.get('stage_order')
+                            and schema_fragment.get('type') == 'string'
+                    ):
+                        widget_fn = hidden.HiddenString
+
+        if not widget_fn:
             widget_fn = self.schema_type_mapping.get(
                 schema_fragment.get('type'))
 
         if not widget_fn:
             if schema_fragment.get('allOf'):
-                # When the schema contains allOf in the keys, we handele it as
+                # When the schema contains allOf in the keys, we handle it as
                 # an object type.
-                widget_fn = self.schema_type_mapping.get(
-                    'object', schema_widget.UnsupportedSchema
-                )
+                widget_fn = self.schema_title_mapping.get(
+                    schema_fragment.get('allOf')[0].get('title'))
+                if not widget_fn:
+                    widget_fn = self.schema_type_mapping.get(
+                        schema_fragment.get('allOf')[0].get('type'),
+                        schema_widget.UnsupportedSchema
+                    )
             else:
                 widget_fn = schema_widget.UnsupportedSchema
 
