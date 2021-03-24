@@ -38,8 +38,6 @@ class StepArray(BaseJsonWidget):
         groupBox.layout().setContentsMargins(0, 0, 0, 0)
         groupBox.setToolTip(self.description)
 
-        # self.type =
-
         # self.layout().addWidget(label)
         self._accordion_widgets = []
 
