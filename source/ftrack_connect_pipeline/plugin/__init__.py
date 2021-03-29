@@ -143,6 +143,16 @@ class BasePlugin(object):
         '''Returns the current context id'''
         return self._raw_data
 
+    @property
+    def plugin_settings(self):
+        '''Returns the current plugin_settings'''
+        return self._plugin_settings
+
+    @property
+    def method(self):
+        '''Returns the current method'''
+        return self._method
+
     def __init__(self, session):
         '''
         Initialise BasePlugin with instance of
@@ -317,7 +327,7 @@ class BasePlugin(object):
 
         # Having this in a separate method, we can override the parse depending
         #  on the plugin type.
-        method, plugin_settings = self._parse_run_event(event)
+        self._method, self._plugin_settings = self._parse_run_event(event)
 
         start_time = time.time()
 
@@ -326,7 +336,7 @@ class BasePlugin(object):
         result_data = {
             'plugin_name': self.plugin_name,
             'plugin_type': self.plugin_type,
-            'method': method,
+            'method': self.method,
             'status': constants.UNKNOWN_STATUS,
             'result': None,
             'execution_time': 0,
@@ -334,17 +344,17 @@ class BasePlugin(object):
             'user_message': user_message
             }
 
-        run_fn = getattr(self, method)
+        run_fn = getattr(self, self.method)
         if not run_fn:
             message = 'The method : {} does not exist for the ' \
-                      'plugin:{}'.format(method, self.plugin_name)
+                      'plugin:{}'.format(self.method, self.plugin_name)
             self.logger.debug(message)
             result_data['status'] = constants.EXCEPTION_STATUS
             result_data['execution_time'] = 0
             result_data['message'] = str(message)
             return result_data
         try:
-            result = run_fn(**plugin_settings)
+            result = run_fn(**self.plugin_settings)
             if isinstance(result, tuple):
                 user_message = result[1]
                 result = result[0]
@@ -362,7 +372,7 @@ class BasePlugin(object):
         end_time = time.time()
         total_time = end_time - start_time
         result_data['execution_time'] = total_time
-        if method == 'run':
+        if self.method == 'run':
             status, message = self._validate_result(result)
         else:
             status = constants.SUCCESS_STATUS
@@ -373,7 +383,7 @@ class BasePlugin(object):
 
         bool_status = constants.status_bool_mapping[status]
         if bool_status:
-            result_data['result'] = {method: result}
+            result_data['result'] = {self.method: result}
 
         return result_data
 

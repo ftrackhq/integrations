@@ -67,10 +67,15 @@ def generate_asset_info_dict_from_args(context, data, options, session):
         if location.get_component_availability(component) < 100.0:
             continue
         component_path = location.get_filesystem_path(component)
-        if component_path in data:
-            arguments_dict[constants.COMPONENT_NAME] = component['name']
-            arguments_dict[constants.COMPONENT_ID] = component['id']
-            arguments_dict[constants.COMPONENT_PATH] = component_path
+        for collector in data:
+            if component_path in collector['result'][0]:
+                arguments_dict[constants.COMPONENT_NAME] = component['name']
+                arguments_dict[constants.COMPONENT_ID] = component['id']
+                arguments_dict[constants.COMPONENT_PATH] = component_path
+        # if component_path in data:
+        #     arguments_dict[constants.COMPONENT_NAME] = component['name']
+        #     arguments_dict[constants.COMPONENT_ID] = component['id']
+        #     arguments_dict[constants.COMPONENT_PATH] = component_path
 
     return arguments_dict
 
