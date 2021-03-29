@@ -37,11 +37,14 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         #We only want the data of the collector in this stage
         collector_result = []
         component_step = data[-1]
+        if component_step.get('category') == 'plugin':
+            return method, plugin_settings
         for component_stage in component_step.get("result"):
             if (
                     component_stage.get("name") == constants.COLLECTOR
             ):
                 collector_result = component_stage.get("result")
                 break
-        plugin_settings['data'] = collector_result
+        if collector_result:
+            plugin_settings['data'] = collector_result
         return method, plugin_settings
