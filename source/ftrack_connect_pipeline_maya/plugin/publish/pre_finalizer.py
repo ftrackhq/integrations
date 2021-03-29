@@ -22,7 +22,7 @@ class PublisherPreFinalizerMayaPlugin(plugin.PublisherPreFinalizerPlugin, BaseMa
 class PublisherPreFinalizerMayaWidget(
     pluginWidget.PublisherPreFinalizerWidget, BaseMayaPluginWidget
 ):
-    ''' Class representing a Finalizer Widget
+    ''' Class representing a Pre Finalizer Widget
 
         .. note::
 

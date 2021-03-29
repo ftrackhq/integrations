@@ -9,7 +9,7 @@ from ftrack_connect_pipeline_maya.plugin import (
 
 
 class PublisherPostFinalizerMayaPlugin(plugin.PublisherPostFinalizerPlugin, BaseMayaPlugin):
-    ''' Class representing a Finalizer Plugin
+    ''' Class representing a Post Finalizer Plugin
 
         .. note::
 
