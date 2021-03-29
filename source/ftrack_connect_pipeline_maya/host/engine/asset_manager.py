@@ -34,8 +34,9 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         message = None
 
         result_data = {
-            'plugin_name': 'discover_assets',
-            'plugin_type': 'action',
+            'plugin_name': None,
+            'plugin_type': None,
+            'method': 'discover_assets',
             'status': status,
             'result': result,
             'execution_time': 0,
@@ -84,9 +85,16 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         result = []
         message = None
 
+        plugin_type = None
+        plugin_name = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_name = plugin.get('name')
+
         result_data = {
-            'plugin_name': 'remove_asset',
-            'plugin_type': 'action',
+            'plugin_name': plugin_name,
+            'plugin_type': plugin_type,
+            'method': 'remove_asset',
             'status': status,
             'result': result,
             'execution_time': 0,
@@ -218,9 +226,16 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         result = []
         message = None
 
+        plugin_type = None
+        plugin_name = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_name = plugin.get('name')
+
         result_data = {
-            'plugin_name': 'select_asset',
-            'plugin_type': 'action',
+            'plugin_name': plugin_name,
+            'plugin_type': plugin_type,
+            'method': 'select_asset',
             'status': status,
             'result': result,
             'execution_time': 0,
