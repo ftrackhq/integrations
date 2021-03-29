@@ -357,8 +357,8 @@ class BaseLoaderPublisherEngine(BaseEngine):
         '''
 
         #TODO: To reduce the amount of code, in a second stage we can try to get
-        # all the type steps and execute all them un a loop just checking then
-        # if they are in context components or finalizers....
+        # all the type steps and execute all them in a loop just checking then
+        # if they are a type of context components or finalizers....
 
         contexts_steps = data[constants.CONTEXTS]
         contexts_results = []
