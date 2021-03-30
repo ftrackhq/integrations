@@ -72,10 +72,6 @@ def generate_asset_info_dict_from_args(context, data, options, session):
                 arguments_dict[constants.COMPONENT_NAME] = component['name']
                 arguments_dict[constants.COMPONENT_ID] = component['id']
                 arguments_dict[constants.COMPONENT_PATH] = component_path
-        # if component_path in data:
-        #     arguments_dict[constants.COMPONENT_NAME] = component['name']
-        #     arguments_dict[constants.COMPONENT_ID] = component['id']
-        #     arguments_dict[constants.COMPONENT_PATH] = component_path
 
     return arguments_dict
 
