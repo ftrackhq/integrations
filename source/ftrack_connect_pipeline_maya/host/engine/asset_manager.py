@@ -33,9 +33,13 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         result = []
         message = None
 
+        #TODO: we should fix plugin_type in all the assset manager methods,
+        # to be able to run without plugin type if there isn't any plugin and in
+        # case we have a plugin, then run with asset_manager.action plugin type.
+
         result_data = {
             'plugin_name': None,
-            'plugin_type': None,
+            'plugin_type': 'action',
             'method': 'discover_assets',
             'status': status,
             'result': result,
@@ -93,7 +97,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
 
         result_data = {
             'plugin_name': plugin_name,
-            'plugin_type': plugin_type,
+            'plugin_type': 'action',
             'method': 'remove_asset',
             'status': status,
             'result': result,
@@ -234,7 +238,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
 
         result_data = {
             'plugin_name': plugin_name,
-            'plugin_type': plugin_type,
+            'plugin_type': 'action',
             'method': 'select_asset',
             'status': status,
             'result': result,
