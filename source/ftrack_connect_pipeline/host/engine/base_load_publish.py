@@ -35,11 +35,9 @@ class BaseLoaderPublisherEngine(BaseEngine):
             self, stage_name, plugins, stage_context, stage_options, stage_data,
             plugins_order=None, step_type=None
     ):
-        #TODO: Check if the step_context description is correct,
-        # is it a list or a dictionary?
         '''
-        Returns the bool status and the result list dictionary of executing all
-        the plugins in the stage.
+        Returns the bool status and the result list of dictionaries of executing
+        all the plugins in the stage.
         This function executes all the defined plugins for this stage using
         the :meth:`_run_plugin`
 
@@ -47,8 +45,8 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
         *plugins* : List of plugins that has to execute.
 
-        *stage_context* : Context list with the dictionary with the context
-        where it has to be executed.
+        *step_context* : Context dictionary with the result of the context
+        plugin containing the context_id, aset_name... Or None
 
         *stage_options* : Options dictionary to be passed to each plugin.
 
@@ -109,11 +107,9 @@ class BaseLoaderPublisherEngine(BaseEngine):
             self, step_name, stages, step_context, step_options, step_data,
             stages_order, step_type
     ):
-        #TODO: Check if the step_context description is correct,
-        # is it a list or a dictionary?
         '''
-        Returns the bool status and the result list dictionary of executing all
-        the stages in the step.
+        Returns the bool status and the result list of dictionaries of executing
+        all the stages in the step.
         This function executes all the defined stages for for this step using
         the :meth:`run_stage` with the given *stage_order*.
 
@@ -121,8 +117,8 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
         *stages* : List of stages that has to execute.
 
-        *step_context* : Context list with the dictionary with the context
-        where it has to be executed.
+        *step_context* : Context dictionary with the result of the context
+        plugin containing the context_id, aset_name... Or None
 
         *step_options* : Options dictionary to be passed to each stage.
 
@@ -170,11 +166,6 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 )
                 if not stage_status:
                     step_status = False
-
-                # if not stage_status:
-                #     raise Exception(
-                #         'An error occurred during the execution of the '
-                #         'stage name {}'.format(stage_name))
 
                 stage_dict = {
                     "name": stage_name,
