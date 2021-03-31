@@ -298,7 +298,7 @@ class WidgetFactory(QtWidgets.QWidget):
                         'plugin_name': plugin_name,
                         'plugin_type': plugin_type,
                         'method': 'run',
-                        'type': 'widget',
+                        'category': 'plugin.widget',
                         'host_type': host_type,
                         'ui_type': _ui_type
                     },

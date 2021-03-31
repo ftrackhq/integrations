@@ -11,7 +11,6 @@ os.environ['FTRACK_EVENT_PLUGIN_PATH'] ='/Users/lluisftrack/work/brokenC/ftrack/
                                         '/Users/lluisftrack/work/brokenC/ftrack/repos/ftrack-connect-pipeline-definition/resource/application_hook: ' \
                                         '/Users/lluisftrack/work/brokenC/ftrack/repos/ftrack-connect-pipeline-definition/resource/definitions:'
 
-print os.environ['FTRACK_EVENT_PLUGIN_PATH']
 
 app = QtWidgets.QApplication(sys.argv)
 
@@ -27,12 +26,12 @@ from ftrack_connect_pipeline_qt.client import asset_manager
 from ftrack_connect_pipeline_qt.client import log_viewer
 
 client_connection = asset_manager.QtAssetManagerClient(event_manager)
-log_connection = log_viewer.QtLogViewerClient(event_manager)
+#log_connection = log_viewer.QtLogViewerClient(event_manager)
 
 client_connection.context = '690afd58-06d0-11ea-bbbb-ee594985c7e2'
-log_connection.context = '690afd58-06d0-11ea-bbbb-ee594985c7e2'
+#log_connection.context = '690afd58-06d0-11ea-bbbb-ee594985c7e2'
 
 
 client_connection.show()
-log_connection.show()
+#log_connection.show()
 sys.exit(app.exec_())

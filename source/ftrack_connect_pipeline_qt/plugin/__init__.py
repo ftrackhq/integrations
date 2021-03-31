@@ -8,7 +8,7 @@ from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 
 
 class BasePluginWidget(plugin.BasePlugin):
-    type = 'widget'
+    category = 'plugin.widget'
     return_type = BaseOptionsWidget
     ui_type = constants.UI_TYPE
     widget = None
@@ -26,7 +26,7 @@ class BasePluginWidget(plugin.BasePlugin):
         '''
         required = [
             self.host_type,
-            self.type,
+            self.category,
             self.plugin_type,
             self.plugin_name,
             self.ui_type
@@ -37,10 +37,10 @@ class BasePluginWidget(plugin.BasePlugin):
 
         topic = (
             'topic={} and data.pipeline.host_type={} and data.pipeline.ui_type={} '
-            'and data.pipeline.type={} and data.pipeline.plugin_type={} '
+            'and data.pipeline.category={} and data.pipeline.plugin_type={} '
             'and data.pipeline.plugin_name={}'
         ).format(
-            topic, self.host_type, self.ui_type, self.type,
+            topic, self.host_type, self.ui_type, self.category,
             self.plugin_type, self.plugin_name
         )
         return topic
