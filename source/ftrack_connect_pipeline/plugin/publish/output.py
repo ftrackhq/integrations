@@ -10,11 +10,11 @@ class PublisherOutputPlugin(base.BaseOutputPlugin):
     Base Publisher Output Plugin Class inherits from
     :class:`~ftrack_connect_pipeline.plugin.base.BaseOutputPlugin`
     '''
-    return_type = dict
+    return_type = list
     '''Required return type'''
     plugin_type = constants.PLUGIN_PUBLISHER_OUTPUT_TYPE
     '''Type of the plugin'''
-    _required_output = {}
+    _required_output = []
     '''Required return output'''
 
     def __init__(self, session):

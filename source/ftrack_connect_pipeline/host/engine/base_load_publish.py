@@ -269,9 +269,6 @@ class BaseLoaderPublisherEngine(BaseEngine):
             step_category = component_step['category']
             step_type = component_step['type']
 
-            #TODO: we could avoid this if we modify the PublisherFinalizerPlugin
-            # line 224 and the finalizers plugin itself to not pass the name of
-            # the component as it's not needed now.
             step_options = {'component_name': step_name}
             step_data = copy.deepcopy(components_result)
 
