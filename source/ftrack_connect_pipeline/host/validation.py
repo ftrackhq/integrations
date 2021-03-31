@@ -247,7 +247,7 @@ class PluginDiscoverValidation(object):
                 'pipeline': {
                     'plugin_name': plugin_name,
                     'plugin_type': plugin_type,
-                    'type': 'plugin',
+                    'category': 'plugin',
                     'host_type': host_type
                 }
             }

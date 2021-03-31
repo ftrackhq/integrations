@@ -93,7 +93,9 @@ class BasePlugin(object):
     '''Type of the plugin'''
     plugin_name = None
     '''Name of the plugin'''
-    type = 'plugin'
+    type = 'base'
+    '''Name of the plugin'''
+    category = 'plugin'
     '''Type, default plugin. (action...)'''
     host_type = constants.HOST_TYPE
     '''Host type of the plugin'''
@@ -185,7 +187,7 @@ class BasePlugin(object):
 
         required = [
             self.host_type,
-            self.type,
+            self.category,
             self.plugin_type,
             self.plugin_name,
         ]
@@ -194,10 +196,10 @@ class BasePlugin(object):
 
         topic = (
             'topic={} and data.pipeline.host_type={} and '
-            'data.pipeline.type={} and data.pipeline.plugin_type={} and '
+            'data.pipeline.category={} and data.pipeline.plugin_type={} and '
             'data.pipeline.plugin_name={}'
         ).format(
-            topic, self.host_type, self.type, self.plugin_type, self.plugin_name
+            topic, self.host_type, self.category, self.plugin_type, self.plugin_name
         )
 
         return topic

@@ -391,6 +391,8 @@ class Client(object):
         Assign the given *context_id* as the current :obj:`context` and to the
         :attr:`~ftrack_connect_pipeline.client.HostConnection.context`
         '''
+        if not context_id:
+            return
         self.context = context_id
         self._host_connection.context = context_id
 

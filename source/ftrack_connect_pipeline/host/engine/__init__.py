@@ -95,7 +95,7 @@ class BaseEngine(object):
                             'plugin_name': plugin_name,
                             'plugin_type': plugin_type,
                             'method': method,
-                            'type': 'plugin',
+                            'category': 'plugin',
                             'host_type': host_type
                         },
                         'settings':
