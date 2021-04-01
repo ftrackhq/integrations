@@ -92,8 +92,8 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         '''Calls the function on_{method}_callback with values returned
         from *data*, raises not implemented error if the composed name of the
         method from *data* doesn't exists'''
-        method = "on_{}_callback".format(data.keys()[0])
-        result = data.get(data.keys()[0])
+        method = "on_{}_callback".format(list(data.keys())[0])
+        result = data.get(list(data.keys())[0])
         if hasattr(self, method):
             callback_fn = getattr(self, method)
             callback_fn(result)
@@ -214,7 +214,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         out = {}
         out['name'] = self.name
         out['options']={}
-        for key, value in self.options.items():
+        for key, value in list(self.options.items()):
             out['options'][key] = value
         return out
 

@@ -99,7 +99,7 @@ class BuildPlugin(setuptools.Command):
             ), int('777', 8)
         )
 
-        result_path = shutil.make_archive(
+        shutil.make_archive(
             os.path.join(
                 BUILD_PATH,
                 'ftrack-connect-pipeline-qt-{0}'.format(VERSION)
@@ -108,7 +108,6 @@ class BuildPlugin(setuptools.Command):
             STAGING_PATH
         )
 
-        print 'Result: ' + result_path
 
 
 # Custom commands.
@@ -142,6 +141,7 @@ setup(
     package_dir={
         '': 'source'
     },
+    python_requires='<3.8',
     setup_requires=[
         'sphinx >= 1.2.2, < 2',
         'sphinx_rtd_theme >= 0.1.6, < 2',

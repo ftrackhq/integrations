@@ -135,10 +135,10 @@ class WidgetFactory(QtWidgets.QWidget):
         if 'properties' in schema_fragment:
             schema_fragment_properties = OrderedDict(
                 sorted(
-                    schema_fragment['properties'].items(),
+                    list(schema_fragment['properties'].items()),
                     key=lambda pair: schema_fragment_order.index(pair[0])
                     if pair[0] in schema_fragment_order
-                    else len(schema_fragment['properties'].keys()) - 1)
+                    else len(list(schema_fragment['properties'].keys())) - 1)
             )
             schema_fragment['properties'] = schema_fragment_properties
 
@@ -214,7 +214,7 @@ class WidgetFactory(QtWidgets.QWidget):
         message = data['message']
         result = data['result']
         if result:
-            widget = result.get(result.keys()[0])
+            widget = result.get(list(result.keys())[0])
         status = data['status']
 
         if status == constants.EXCEPTION_STATUS:
@@ -393,7 +393,7 @@ class WidgetFactory(QtWidgets.QWidget):
     def check_components(self):
         if not self.components_names:
             return
-        for k, v in self.type_widgets.iteritems():
+        for k, v in self.type_widgets.items():
             if hasattr(v, 'accordion_widgets'):
                 for widget in v.accordion_widgets:
                     if widget.title not in self.components_names:

@@ -176,6 +176,6 @@ class FilterProxyModel(QtCore.QSortFilterProxyModel):
         '''Allow to sort the model.'''
         left_data = self.sourceModel().item(left)
         right_data = self.sourceModel().item(right)
-        print left_data, right_data
+        print((left_data, right_data))
         return left_data.id > right_data.id
 
