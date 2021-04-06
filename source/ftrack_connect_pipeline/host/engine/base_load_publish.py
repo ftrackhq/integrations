@@ -203,220 +203,103 @@ class BaseLoaderPublisherEngine(BaseEngine):
         valid definition.
         '''
 
-        #TODO: To reduce the amount of code, in a second stage we can try to get
-        # all the type steps and execute all them in a loop just checking then
-        # if they are a type of context components or finalizers....
+        context_data = None
+        components_output = []
+        for step_group in constants.STEPS_ORDER:
+            group_steps = data[step_group]
+            group_results = []
 
-        contexts_steps = data[constants.CONTEXTS]
-        contexts_results = []
-        contexts_status = True
-        for context_step in contexts_steps:
-            step_name = context_step['name']
-            step_stages = context_step['stages']
-            step_enabled = context_step['enabled']
-            step_stage_order = context_step['stage_order']
-            step_category = context_step['category']
-            step_type = context_step['type']
+            if step_group == constants.COMPONENTS:
+                group_results = copy.deepcopy(components_output)
 
-            if not step_enabled:
-                self.logger.info(
-                    'Skipping step {} as it been disabled'.format(
-                        step_name
-                    )
-                )
-                continue
+            group_status = True
 
-            # Avoid passing contexts_results to avoid modifying the data on it
-            #  during the step/stage and plugin execution
-            step_data = copy.deepcopy(contexts_results)
+            for step in group_steps:
+                step_name = step['name']
+                step_stages = step['stages']
+                step_enabled = step['enabled']
+                step_stage_order = step['stage_order']
+                step_category = step['category']
+                step_type = step['type']
+                step_options = []
 
-            step_status, step_result = self.run_step(
-                step_name=step_name,
-                stages=step_stages,
-                step_context=None,
-                step_options=[],
-                step_data=step_data,
-                stages_order=step_stage_order,
-                step_type=step_type
-            )
+                if step_group == constants.COMPONENTS:
+                    step_options = {'component_name': step_name}
 
-            if not step_status:
-                contexts_status = False
-                # Log an error if the execution of a step has failed.
-                self.logger.error(
-                    "Execution of the step {} failed.".format(step_name)
-                )
-
-            step_dict = {
-                "name": step_name,
-                "result": step_result,
-                "status": step_status,
-                "category": step_category,
-                "type": step_type
-            }
-
-            contexts_results.append(step_dict)
-            #Stop if context results are false to raise a proper error.
-            if not contexts_status:
-                break
-
-        if not contexts_status:
-            raise Exception(
-                'An error occurred during the execution of the a context and '
-                'can not continue, please, check the plugin logs'
-            )
-
-        # We get the context dictionary from the latest executed plugin of the
-        # latest context stage of the latest context step. In case in the future
-        # we want to use multiple context we will have to create the
-        # corresponding loops of context and components...
-        context_latest_step = contexts_results[-1]
-        context_latest_stage = context_latest_step.get('result')[-1]
-        context_latest_plugin = context_latest_stage.get('result')[-1]
-        context_latest_plugin_result = context_latest_plugin.get('result')
-        context_data = context_latest_plugin_result
-
-
-        components_steps = data[constants.COMPONENTS]
-        components_result = []
-        components_status = True
-
-        for component_step in components_steps:
-            step_name = component_step['name']
-            step_stages = component_step['stages']
-            step_enabled = component_step['enabled']
-            step_stage_order = component_step['stage_order']
-            step_category = component_step['category']
-            step_type = component_step['type']
-
-            step_options = {'component_name': step_name}
-            step_data = copy.deepcopy(components_result)
-
-            if not step_enabled:
-                self.logger.info(
-                    'Skipping step {} as it been disabled'.format(
-                        step_name
-                    )
-                )
-                continue
-            step_status, step_result = self.run_step(
-                step_name=step_name,
-                stages=step_stages,
-                step_context=context_data,
-                step_options=step_options,
-                step_data=step_data,
-                stages_order=step_stage_order,
-                step_type=step_type
-            )
-
-            if not step_status:
-                components_status = False
-                # Log an error if the execution of a step has failed.
-                self.logger.error(
-                    "Execution of the step {} failed.".format(step_name)
-                )
-
-            step_dict = {
-                "name": step_name,
-                "result": step_result,
-                "status": step_status,
-                "category": step_category,
-                "type": step_type
-            }
-
-            components_result.append(step_dict)
-
-            #Stop if components results are false to raise a proper error.
-            if not components_status:
-                break
-
-        if not components_status:
-            raise Exception(
-                'An error occurred during the execution of the a component and '
-                'can not continue, please, check the plugin logs'
-            )
-
-        components_output = copy.deepcopy(components_result)
-        i = 0
-        for component_step in components_result:
-            for component_stage in component_step.get("result"):
-                self.logger.debug(
-                    "Checking stage name {} of type {}".format(
-                        component_stage.get("name"), component_stage.get("type")
-                    )
-                )
-                if component_stage.get("type") != constants.OUTPUT:
-                    self.logger.debug(
-                        "Removing stage name {} of type {}".format(
-                            component_stage.get("name"), component_stage.get("type")
+                if not step_enabled:
+                    self.logger.info(
+                        'Skipping step {} as it been disabled'.format(
+                            step_name
                         )
                     )
-                    components_output[i]['result'].remove(component_stage)
-            i += 1
+                    continue
 
-        finalizers_steps = data[constants.FINALIZERS]
-        # Add the components outputs as result of the finalizer to passe them
-        # as data on each step
-        finalizers_result = copy.deepcopy(components_output)
-        finalizers_status = True
+                # Avoid passing contexts_results to avoid modifying the data on it
+                #  during the step/stage and plugin execution
+                step_data = copy.deepcopy(group_results)
 
-        for finalizer_step in finalizers_steps:
-            step_name = finalizer_step['name']
-            step_stages = finalizer_step['stages']
-            step_enabled = finalizer_step['enabled']
-            step_stage_order = finalizer_step['stage_order']
-            step_category = finalizer_step['category']
-            step_type = finalizer_step['type']
+                step_status, step_result = self.run_step(
+                    step_name=step_name,
+                    stages=step_stages,
+                    step_context=context_data,
+                    step_options=step_options,
+                    step_data=step_data,
+                    stages_order=step_stage_order,
+                    step_type=step_type
+                )
 
-            if not step_enabled:
-                self.logger.info(
-                    'Skipping step {} as it been disabled'.format(
-                        step_name
+                if not step_status:
+                    group_status = False
+                    # Log an error if the execution of a step has failed.
+                    self.logger.error(
+                        "Execution of the step {} failed.".format(step_name)
                     )
-                )
-                continue
 
-            step_data = copy.deepcopy(finalizers_result)
+                step_dict = {
+                    "name": step_name,
+                    "result": step_result,
+                    "status": step_status,
+                    "category": step_category,
+                    "type": step_type
+                }
 
-            step_status, step_result = self.run_step(
-                step_name=step_name,
-                stages=step_stages,
-                step_context=context_data,
-                step_options=[],
-                step_data=step_data,
-                stages_order=step_stage_order,
-                step_type=step_type
-            )
+                group_results.append(step_dict)
+                #Stop if context results are false to raise a proper error.
+                if not group_status:
+                    break
 
-            if not step_status:
-                finalizers_status = False
-                # Log an error if the execution of a step has failed.
-                self.logger.error(
-                    "Execution of the step {} failed.".format(step_name)
+            if not group_status:
+                raise Exception(
+                    'An error occurred during the execution of the a {} and '
+                    'can not continue, please, check the plugin logs'.format(step_group)
                 )
 
-            step_dict = {
-                "name": step_name,
-                "result": step_result,
-                "status": step_status,
-                "category": step_category,
-                "type": step_type
-            }
+            if step_group == constants.CONTEXTS:
+                context_latest_step = group_results[-1]
+                context_latest_stage = context_latest_step.get('result')[-1]
+                context_latest_plugin = context_latest_stage.get('result')[-1]
+                context_latest_plugin_result = context_latest_plugin.get('result')
+                context_data = context_latest_plugin_result
 
-            finalizers_result.append(step_dict)
-
-            #Stop if finalizers results are false to raise a proper error.
-            if not finalizers_status:
-                break
-
-        if not finalizers_status:
-            raise Exception(
-                'An error occurred during the execution of the a finalizer and '
-                'can not continue, please, check the plugin logs'
-            )
-
+            elif step_group == constants.COMPONENTS:
+                components_output = copy.deepcopy(group_results)
+                i = 0
+                for component_step in group_results:
+                    for component_stage in component_step.get("result"):
+                        self.logger.debug(
+                            "Checking stage name {} of type {}".format(
+                                component_stage.get("name"), component_stage.get("type")
+                            )
+                        )
+                        if component_stage.get("type") != constants.OUTPUT:
+                            self.logger.debug(
+                                "Removing stage name {} of type {}".format(
+                                    component_stage.get("name"), component_stage.get("type")
+                                )
+                            )
+                            components_output[i]['result'].remove(component_stage)
+                    i += 1
 
         #TODO: maybe we could be returning the finalizers_result? or maybe not
         # needed and just dd it to a log or pas it to the notify client
         return True
-

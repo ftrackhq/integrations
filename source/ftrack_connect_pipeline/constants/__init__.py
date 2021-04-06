@@ -17,12 +17,14 @@ FINALIZERS = 'finalizers'
 #: Components step group.
 COMPONENTS = 'components'
 
+STEPS_ORDER = [CONTEXTS, COMPONENTS, FINALIZERS]
+
 # Common steps types.
-#: Contexts step group.
+#: Contexts step type.
 CONTEXT = 'context'
-#: Finalizers step group.
+#: Finalizers step type.
 FINALIZER = 'finalizer'
-#: Components step group.
+#: Components step type.
 COMPONENT = 'component'
 
 # Component stages.
