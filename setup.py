@@ -127,6 +127,7 @@ setup(
         '': 'source'
     },
     setup_requires=[
+        'docutils<0.17',
         'sphinx >= 1.2.2, < 2',
         'sphinx_rtd_theme >= 0.1.6, < 2',
         'lowdown >= 0.1.0, < 2'
