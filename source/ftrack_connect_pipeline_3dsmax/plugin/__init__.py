@@ -18,7 +18,7 @@ class BaseMaxPlugin(plugin.BasePlugin):
 
 
 class BaseMaxPluginWidget(BaseMaxPlugin, pluginWidget.BasePluginWidget):
-    type = 'widget'
+    category = 'plugin.widget'
     ui_type = max_constants.UI_TYPE
 
 
