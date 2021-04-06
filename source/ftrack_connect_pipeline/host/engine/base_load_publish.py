@@ -90,6 +90,10 @@ class BaseLoaderPublisherEngine(BaseEngine):
             bool_status = constants.status_bool_mapping[plugin_status]
             if not bool_status:
                 stage_status = False
+                # We log a warning if a plugin on the stage failed.
+                self.logger.warning(
+                    "Execution of the plugin {} failed.".format(plugin_name)
+                )
 
             plugin_dict = {
                 "name": plugin_name,
@@ -166,6 +170,10 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 )
                 if not stage_status:
                     step_status = False
+                    # Log an error if the execution of a stage has failed.
+                    self.logger.error(
+                        "Execution of the stage {} failed.".format(stage_name)
+                    )
 
                 stage_dict = {
                     "name": stage_name,
@@ -176,6 +184,12 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 }
 
                 step_results.append(stage_dict)
+
+                # We stop the loop if the stage failed. To raise an error on
+                # run_definitions
+                if not step_status:
+                    return step_status, step_results
+
         return step_status, step_results
 
     def run_definition(self, data):
@@ -228,9 +242,10 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
             if not step_status:
                 contexts_status = False
-                # raise Exception('An error occurred during the execution of the '
-                #                             'step name {}'.format(step_name))
-
+                # Log an error if the execution of a step has failed.
+                self.logger.error(
+                    "Execution of the step {} failed.".format(step_name)
+                )
 
             step_dict = {
                 "name": step_name,
@@ -241,10 +256,15 @@ class BaseLoaderPublisherEngine(BaseEngine):
             }
 
             contexts_results.append(step_dict)
+            #Stop if context results are false to raise a proper error.
+            if not contexts_status:
+                break
 
         if not contexts_status:
-            raise Exception('An error occurred during the execution of the '
-                            'context')
+            raise Exception(
+                'An error occurred during the execution of the a context and '
+                'can not continue, please, check the plugin logs'
+            )
 
         # We get the context dictionary from the latest executed plugin of the
         # latest context stage of the latest context step. In case in the future
@@ -291,8 +311,10 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
             if not step_status:
                 components_status = False
-                # raise Exception('An error occurred during the execution of the '
-                #                             'step name {}'.format(step_name))
+                # Log an error if the execution of a step has failed.
+                self.logger.error(
+                    "Execution of the step {} failed.".format(step_name)
+                )
 
             step_dict = {
                 "name": step_name,
@@ -304,11 +326,14 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
             components_result.append(step_dict)
 
-        #TODO: check if we want this exceptions here or we already stoped on the
-        # mandatory ones
+            #Stop if components results are false to raise a proper error.
+            if not components_status:
+                break
+
         if not components_status:
             raise Exception(
-                'An error occurred during the execution of the components'
+                'An error occurred during the execution of the a component and '
+                'can not continue, please, check the plugin logs'
             )
 
         components_output = copy.deepcopy(components_result)
@@ -365,6 +390,10 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
             if not step_status:
                 finalizers_status = False
+                # Log an error if the execution of a step has failed.
+                self.logger.error(
+                    "Execution of the step {} failed.".format(step_name)
+                )
 
             step_dict = {
                 "name": step_name,
@@ -376,12 +405,16 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
             finalizers_result.append(step_dict)
 
-        # TODO: check if we want this exceptions here or we already stoped on the
-        #  mandatory ones
+            #Stop if finalizers results are false to raise a proper error.
+            if not finalizers_status:
+                break
+
         if not finalizers_status:
             raise Exception(
-                'An error occurred during the execution of the components'
+                'An error occurred during the execution of the a finalizer and '
+                'can not continue, please, check the plugin logs'
             )
+
 
         #TODO: maybe we could be returning the finalizers_result? or maybe not
         # needed and just dd it to a log or pas it to the notify client
