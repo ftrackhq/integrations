@@ -3,7 +3,12 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 from functools import partial
-import os, sys, subprocess
+import os
+import sys
+import subprocess
+import sqlite3
+import json
+import base64
 
 from Qt import QtGui, QtCore, QtWidgets
 from ftrack_connect_pipeline import client, constants
@@ -11,7 +16,8 @@ from ftrack_connect_pipeline.configure_logging import get_log_directory
 from ftrack_connect_pipeline.client.log_viewer import LogViewerClient
 from ftrack_connect_pipeline_qt.ui.log_viewer import LogViewerWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget import header, host_selector
-
+from ftrack_connect_pipeline.database import get_database_path
+from ftrack_connect_pipeline.log.log_item import LogItem
 
 class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
     '''
@@ -86,7 +92,35 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
         self.layout().addWidget(self.open_log_folder_button)
 
     def update_log_items(self):
-        self.log_viewer_widget.set_log_items(self.logs.get_log_items)
+        ''' Connect to persistent log storage and fetch records. '''
+
+        con = sqlite3.connect(get_database_path())
+        cur = con.cursor()
+
+        log_items = []
+        if not self.host_connection is None:
+            cur.execute(' SELECT status,widget_ref,host_id,execution_time,'
+                'plugin_name,result,message,user_message,plugin_type FROM log WHERE'
+                ' host_id=?;  ', (
+                    self.host_connection.id, 
+            ))
+
+            for t in cur.fetchall():
+                log_items.append(LogItem({
+                    'status':t[0],
+                    'widget_ref':t[1],
+                    'host_id':t[2],
+                    'execution_time':t[3],
+                    'plugin_name':t[4],
+                    'result':json.loads(base64.b64decode(t[5]).decode('utf-8')),
+                    'message':t[6],
+                    'user_message':t[7],
+                    'plugin_type':t[8],
+                }))
+
+        con.close()
+
+        self.log_viewer_widget.set_log_items(log_items)
 
     def post_build(self):
         '''Post Build ui method for events connections.'''
@@ -98,18 +132,19 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
         self.log_item_added.connect(self.update_log_items)
 
     def _add_log_item(self, log_item):
-        LogViewerClient._add_log_item(self, log_item)
+        ''' Override client function, update view. '''
         self.log_item_added.emit(log_item)
 
     def change_host(self, host_connection):
         '''
         Triggered host is selected in the host_selector.
         '''
-        self.update_log_items()
         if not host_connection:
             return
 
         LogViewerClient.change_host(self, host_connection)
+
+        self.update_log_items()
 
         self.scroll.setWidget(self.log_viewer_widget)
 
@@ -152,8 +187,8 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
 
     def _refresh_ui(self, event):
         '''
-        Refreshes the ui running the discover_assets()
+        Refreshes the ui
         '''
         if not self.host_connection:
             return
-        self.log_viewer_widget.set_log_items(self.logs)
+        self.update_log_items()
