@@ -209,7 +209,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
             group_steps = data[step_group]
             group_results = []
 
-            if step_group == constants.COMPONENTS:
+            if step_group == constants.FINALIZERS:
                 group_results = copy.deepcopy(components_output)
 
             group_status = True
