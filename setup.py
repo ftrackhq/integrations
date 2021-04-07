@@ -326,8 +326,8 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             os.path.join(pyside_path, "Qt", "plugins", "imageformats"),
             os.path.join(pyside_path, "Qt", "plugins", "iconengines"),
             #Include PySide and Shiboken libs
-            os.path.join(pyside_path, "libpyside2.abi3.5.15.dylib"),
-            os.path.join(shiboken_path, "libshiboken2.abi3.5.15.dylib"),
+            os.path.join(pyside_path, "libpyside2.abi3.5.14.dylib"),
+            os.path.join(shiboken_path, "libshiboken2.abi3.5.14.dylib"),
             (requests.certs.where(), 'resource/cacert.pem'),
         ]
 
@@ -525,7 +525,7 @@ def codesign_osx(create_dmg=True, notarize=True):
     else:
         logging.info(' Application signed')
     if create_dmg:
-        dmg_name = '{0}-{1}.dmg'.format(bundle_name, VERSION)
+        dmg_name = '{0}-package-{1}.dmg'.format(bundle_name, VERSION)
         dmg_path = os.path.join(BUILD_PATH, dmg_name)
         dmg_command = (
             'appdmg resource/appdmg.json {}'.format(dmg_path)
