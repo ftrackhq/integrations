@@ -6,9 +6,6 @@ from functools import partial
 import os
 import sys
 import subprocess
-import sqlite3
-import json
-import base64
 
 from Qt import QtGui, QtCore, QtWidgets
 from ftrack_connect_pipeline import client, constants
@@ -16,8 +13,6 @@ from ftrack_connect_pipeline.configure_logging import get_log_directory
 from ftrack_connect_pipeline.client.log_viewer import LogViewerClient
 from ftrack_connect_pipeline_qt.ui.log_viewer import LogViewerWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget import header, host_selector
-from ftrack_connect_pipeline.database import get_database_path
-from ftrack_connect_pipeline.log.log_item import LogItem
 
 class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
     '''
@@ -93,34 +88,7 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
 
     def update_log_items(self):
         ''' Connect to persistent log storage and fetch records. '''
-
-        con = sqlite3.connect(get_database_path())
-        cur = con.cursor()
-
-        log_items = []
-        if not self.host_connection is None:
-            cur.execute(' SELECT status,widget_ref,host_id,execution_time,'
-                'plugin_name,result,message,user_message,plugin_type FROM log WHERE'
-                ' host_id=?;  ', (
-                    self.host_connection.id, 
-            ))
-
-            for t in cur.fetchall():
-                log_items.append(LogItem({
-                    'status':t[0],
-                    'widget_ref':t[1],
-                    'host_id':t[2],
-                    'execution_time':t[3],
-                    'plugin_name':t[4],
-                    'result':json.loads(base64.b64decode(t[5]).decode('utf-8')),
-                    'message':t[6],
-                    'user_message':t[7],
-                    'plugin_type':t[8],
-                }))
-
-        con.close()
-
-        self.log_viewer_widget.set_log_items(log_items)
+        self.log_viewer_widget.set_log_items(self.logs)
 
     def post_build(self):
         '''Post Build ui method for events connections.'''
