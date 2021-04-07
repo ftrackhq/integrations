@@ -86,6 +86,31 @@ class BasePluginValidation(object):
 
         return validator_result
 
+    def validate_user_data(self, user_data):
+        '''
+        Ensures that *user_data* is instance of :obj:`dict`. And validates that
+        contains message and data keys.
+
+        Return tuple (bool,str)
+        '''
+        validator_result = (True, "")
+
+        if user_data is not None:
+            if not isinstance(user_data, dict):
+                message = 'user_data value should be of type {} and it\'s ' \
+                          'type of {}'.format(type(dict), type(user_data))
+                validator_result = (False, message)
+            else:
+                if (
+                        'message' not in list(user_data.keys()) or
+                        'data' not in list(user_data.keys())
+                ):
+                    message = 'user_data should contain message and data keys, ' \
+                              'and contains:{}'.format(str(list(user_data.keys())))
+                    validator_result = (False, message)
+
+        return validator_result
+
 
 class BasePlugin(object):
     ''' Base Class to represent a Plugin '''
@@ -290,6 +315,30 @@ class BasePlugin(object):
         message = 'Successfully run :{}'.format(self.__class__.__name__)
         return status, message
 
+    def _validate_user_data(self, user_data):
+        '''
+        Validates the *user_data* which should contain message and data
+        keys passed by the user.
+        :obj:`validator` and the :meth:`validator.validate_user_data`.
+
+        Returns a status and string message
+        '''
+
+        # validate result instance type
+        status = constants.UNKNOWN_STATUS
+        message = None
+        user_data_valid, user_data_message = self.validator.validate_user_data(
+            user_data
+        )
+        if not user_data_valid:
+            status = constants.ERROR_STATUS
+            message = str(user_data_message)
+            return status, message
+
+        status = constants.SUCCESS_STATUS
+        message = 'Successfully run :{}'.format(self.__class__.__name__)
+        return status, message
+
     def _parse_run_event(self, event):
         '''
         Parse the event given on the :meth:`_run`. Returns method name to be
@@ -333,7 +382,7 @@ class BasePlugin(object):
 
         start_time = time.time()
 
-        user_message = None
+        user_data = None
 
         result_data = {
             'plugin_name': self.plugin_name,
@@ -343,7 +392,7 @@ class BasePlugin(object):
             'result': None,
             'execution_time': 0,
             'message': None,
-            'user_message': user_message
+            'user_data': user_data
             }
 
         run_fn = getattr(self, self.method)
@@ -358,7 +407,7 @@ class BasePlugin(object):
         try:
             result = run_fn(**self.plugin_settings)
             if isinstance(result, tuple):
-                user_message = result[1]
+                user_data = result[1]
                 result = result[0]
 
         except Exception as message:
@@ -374,6 +423,16 @@ class BasePlugin(object):
         end_time = time.time()
         total_time = end_time - start_time
         result_data['execution_time'] = total_time
+        # We check that the optional user_data it's a dictionary and contains
+        # message and data keys.
+        if user_data:
+            user_data_status, user_data_message = self._validate_user_data(user_data)
+            user_bool_status = constants.status_bool_mapping[user_data_status]
+            if not user_bool_status:
+                result_data['status'] = constants.EXCEPTION_STATUS
+                result_data['message'] = str(user_data_message)
+                return result_data
+
         if self.method == 'run':
             status, message = self._validate_result(result)
         else:
@@ -381,7 +440,7 @@ class BasePlugin(object):
             message = 'Successfully run :{}'.format(self.__class__.__name__)
         result_data['status'] = status
         result_data['message'] = message
-        result_data['user_message'] = user_message
+        result_data['user_data'] = user_data
 
         bool_status = constants.status_bool_mapping[status]
         if bool_status:
