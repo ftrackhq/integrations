@@ -22,7 +22,7 @@ import time
 
 # # Package and dependencies versions.
 
-ftrack_connect_version = '2.0'
+ftrack_connect_version = '2.0b1'
 ftrack_action_handler_version = '0.2.1'
 bundle_name = 'ftrack-connect'
 import PySide2
@@ -61,13 +61,6 @@ connect_resource_hook = pkg_resources.resource_filename(
 )
 
 
-connect_install_require = 'ftrack-connect'.format(ftrack_connect_version)
-# TODO: Update when ftrack-connect released.
-connect_dependency_link = (
-    'git+https://bitbucket.org/ftrack/ftrack-connect.git@backlog/connect-2/story#egg=ftrack-connect'
-).format(ftrack_connect_version)
-
-
 # General configuration.
 configuration = dict(
     name='ftrack-connect-package',
@@ -96,13 +89,7 @@ configuration = dict(
         'wheel',
         'setuptools'
     ],
-    install_requires=[
-        connect_install_require
-    ],
     options={},
-    dependency_links=[
-        connect_dependency_link
-    ],
     python_requires=">=3, <4"
 )
 
@@ -120,11 +107,11 @@ if sys.platform in ('darwin', 'win32', 'linux'):
     # available for import and then discover ftrack-connect and
     # resources that need to be included outside of
     # the standard zipped bundle.
-    Distribution(dict(
-        setup_requires=[
-            connect_install_require,
-        ]
-    ))
+    # Distribution(dict(
+    #     setup_requires=[
+    #         connect_install_require,
+    #     ]
+    # ))
 
     # Add requests certificates to resource folder.
     import requests.certs
@@ -157,7 +144,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
     # Different modules are used on different platforms. Make sure to include
     # all found.
-    for dbmodule in ['csv', 'sqlite3']:
+    for dbmodule in ['csv', 'sqlite3', 'ftrack_connect']:
         try:
             __import__(dbmodule)
         except ImportError:
@@ -394,6 +381,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
     ])
 
     configuration['options']['build_exe'] = {
+        'packages': ['ftrack_connect'],
         'includes': includes,
         "zip_include_packages": [
             'ftrack_connect',
@@ -410,23 +398,20 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             'urllib.parser',
             'webbrowser'
         ],
-        #"include_msvcr": True,
         'excludes': [
             "dbm.gnu",
             "tkinter",
             "unittest",
             "test",
             '_yaml',
-
-
         ],
         'include_files': include_files,
         'bin_includes': bin_includes,
     }
 
-    configuration['setup_requires'].extend(
-        configuration['install_requires']
-    )
+    # configuration['setup_requires'].extend(
+    #     configuration['install_requires']
+    # )
 
 def post_setup(codesign_frameworks = True):
     '''
