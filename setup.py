@@ -93,7 +93,6 @@ configuration = dict(
             ftrack_action_handler_version
         ),
         'cx_freeze',
-        'pyside2==5.14.1',
         'wheel',
         'setuptools'
     ],
