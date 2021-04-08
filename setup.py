@@ -22,7 +22,7 @@ import time
 
 # # Package and dependencies versions.
 
-ftrack_connect_version = '2.0'
+ftrack_connect_version = '2.0b1'
 ftrack_action_handler_version = '0.2.1'
 bundle_name = 'ftrack-connect'
 import PySide2
@@ -61,13 +61,6 @@ connect_resource_hook = pkg_resources.resource_filename(
 )
 
 
-connect_install_require = 'ftrack-connect'.format(ftrack_connect_version)
-# TODO: Update when ftrack-connect released.
-connect_dependency_link = (
-    'git+https://bitbucket.org/ftrack/ftrack-connect.git@backlog/connect-2/story#egg=ftrack-connect'
-).format(ftrack_connect_version)
-
-
 # General configuration.
 configuration = dict(
     name='ftrack-connect-package',
@@ -96,13 +89,7 @@ configuration = dict(
         'wheel',
         'setuptools'
     ],
-    install_requires=[
-        connect_install_require
-    ],
     options={},
-    dependency_links=[
-        connect_dependency_link
-    ],
     python_requires=">=3, <4"
 )
 
@@ -115,16 +102,6 @@ if sys.platform in ('darwin', 'win32', 'linux'):
     configuration['setup_requires'].append('cx_freeze')
 
     from cx_Freeze import setup ,Executable, build
-
-    # Ensure ftrack-connect is
-    # available for import and then discover ftrack-connect and
-    # resources that need to be included outside of
-    # the standard zipped bundle.
-    Distribution(dict(
-        setup_requires=[
-            connect_install_require,
-        ]
-    ))
 
     # Add requests certificates to resource folder.
     import requests.certs
@@ -148,7 +125,6 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         (encodings_path, 'encodings')
     ]
 
-
     zip_include_packages = []
     executables = []
     bin_includes = []
@@ -157,7 +133,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
     # Different modules are used on different platforms. Make sure to include
     # all found.
-    for dbmodule in ['csv', 'sqlite3']:
+    for dbmodule in ['csv', 'sqlite3', 'ftrack_connect']:
         try:
             __import__(dbmodule)
         except ImportError:
@@ -296,6 +272,18 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         # and dylib are added on the MacOS folder for now
         include_resources.remove(('qt.conf', 'qt.conf'))
         include_resources.remove((requests.certs.where(), 'resource/cacert.pem'))
+        # Remove the hook resource folder from Resources because we need them
+        # in MacOS/resource to be compatible with other systems.
+        # Because we just setup one common path for all systems.
+        # See ftrack_connect_package/__main__.py line 86 and 104.
+        include_resources.remove((connect_resource_hook, 'resource/hook'))
+        include_resources.remove((os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'))
+        include_resources.remove(
+            (
+                os.path.join(SOURCE_PATH, 'ftrack_connect_package', '_version.py'),
+                'resource/ftrack_connect_package_version.py'
+            )
+        )
 
         configuration['options']['bdist_mac'] = {
             'iconfile': './logo.icns',
@@ -305,7 +293,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             ),
             'include_frameworks': include_frameworks,
             'include_resources': include_resources,
-            # TODO: codesign is not working with PySide2 applications because
+            # TODO: codesign arguments is not working with PySide2 applications because
             #  the frameworks has to be fixed and signed.
             # 'codesign_identity': os.getenv('CODESIGN_IDENTITY'),
             # 'codesign_deep': True,
@@ -328,6 +316,13 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             os.path.join(pyside_path, "libpyside2.abi3.5.14.dylib"),
             os.path.join(shiboken_path, "libshiboken2.abi3.5.14.dylib"),
             (requests.certs.where(), 'resource/cacert.pem'),
+            # We are including the hooks folder into the MACOS/resource folder
+            (connect_resource_hook, 'resource/hook'),
+            (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'),
+            (
+                os.path.join(SOURCE_PATH, 'ftrack_connect_package', '_version.py'),
+                'resource/ftrack_connect_package_version.py'
+            )
         ]
 
     elif sys.platform == 'linux':
@@ -394,6 +389,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
     ])
 
     configuration['options']['build_exe'] = {
+        'packages': ['ftrack_connect'],
         'includes': includes,
         "zip_include_packages": [
             'ftrack_connect',
@@ -410,23 +406,16 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             'urllib.parser',
             'webbrowser'
         ],
-        #"include_msvcr": True,
         'excludes': [
             "dbm.gnu",
             "tkinter",
             "unittest",
             "test",
             '_yaml',
-
-
         ],
         'include_files': include_files,
         'bin_includes': bin_includes,
     }
-
-    configuration['setup_requires'].extend(
-        configuration['install_requires']
-    )
 
 def post_setup(codesign_frameworks = True):
     '''
