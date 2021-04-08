@@ -234,8 +234,6 @@ class BaseLoaderPublisherEngine(BaseEngine):
                     )
                     continue
 
-                # Avoid passing contexts_results to avoid modifying the data on it
-                #  during the step/stage and plugin execution
                 step_data = copy.deepcopy(group_results)
 
                 step_status, step_result = self.run_step(
@@ -291,7 +289,11 @@ class BaseLoaderPublisherEngine(BaseEngine):
                                 component_stage.get("name"), component_stage.get("type")
                             )
                         )
-                        if component_stage.get("type") != constants.OUTPUT:
+                        if (
+                                component_stage.get("type") != constants.OUTPUT
+                                and
+                                component_stage.get("type") != constants.POST_IMPORT
+                        ):
                             self.logger.debug(
                                 "Removing stage name {} of type {}".format(
                                     component_stage.get("name"), component_stage.get("type")
