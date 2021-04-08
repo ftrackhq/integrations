@@ -50,6 +50,7 @@ Install dependencies with::
 Install ftrack connect::
 
     $ cd <ftrack-connect>
+    $ pip install -r <ftrack-connect>/requirements.txt
     $ python setup.py install
 
 Build connect package with (specific build package)::
