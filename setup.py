@@ -103,16 +103,6 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
     from cx_Freeze import setup ,Executable, build
 
-    # Ensure ftrack-connect is
-    # available for import and then discover ftrack-connect and
-    # resources that need to be included outside of
-    # the standard zipped bundle.
-    # Distribution(dict(
-    #     setup_requires=[
-    #         connect_install_require,
-    #     ]
-    # ))
-
     # Add requests certificates to resource folder.
     import requests.certs
 
@@ -134,7 +124,6 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         (distutils_path, 'distutils'),
         (encodings_path, 'encodings')
     ]
-
 
     zip_include_packages = []
     executables = []
@@ -427,10 +416,6 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         'include_files': include_files,
         'bin_includes': bin_includes,
     }
-
-    # configuration['setup_requires'].extend(
-    #     configuration['install_requires']
-    # )
 
 def post_setup(codesign_frameworks = True):
     '''
