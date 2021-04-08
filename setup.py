@@ -283,6 +283,18 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         # and dylib are added on the MacOS folder for now
         include_resources.remove(('qt.conf', 'qt.conf'))
         include_resources.remove((requests.certs.where(), 'resource/cacert.pem'))
+        # Remove the hook resource folder from Resources because we need them
+        # in MacOS/resource to be compatible with other systems.
+        # Because we just setup one common path for all systems.
+        # See ftrack_connect_package/__main__.py line 86 and 104.
+        include_resources.remove((connect_resource_hook, 'resource/hook'))
+        include_resources.remove((os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'))
+        include_resources.remove(
+            (
+                os.path.join(SOURCE_PATH, 'ftrack_connect_package', '_version.py'),
+                'resource/ftrack_connect_package_version.py'
+            )
+        )
 
         configuration['options']['bdist_mac'] = {
             'iconfile': './logo.icns',
@@ -292,7 +304,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             ),
             'include_frameworks': include_frameworks,
             'include_resources': include_resources,
-            # TODO: codesign is not working with PySide2 applications because
+            # TODO: codesign arguments is not working with PySide2 applications because
             #  the frameworks has to be fixed and signed.
             # 'codesign_identity': os.getenv('CODESIGN_IDENTITY'),
             # 'codesign_deep': True,
@@ -315,6 +327,13 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             os.path.join(pyside_path, "libpyside2.abi3.5.14.dylib"),
             os.path.join(shiboken_path, "libshiboken2.abi3.5.14.dylib"),
             (requests.certs.where(), 'resource/cacert.pem'),
+            # We are including the hooks folder into the MACOS/resource folder
+            (connect_resource_hook, 'resource/hook'),
+            (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'),
+            (
+                os.path.join(SOURCE_PATH, 'ftrack_connect_package', '_version.py'),
+                'resource/ftrack_connect_package_version.py'
+            )
         ]
 
     elif sys.platform == 'linux':
