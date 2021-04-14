@@ -7,9 +7,7 @@ pyside2 = 5.14.1
 
 
 '''
-
-
-
+import shutil
 import sys
 import os
 import re
@@ -19,11 +17,17 @@ import plistlib
 import pkg_resources
 import subprocess
 import time
+import datetime
+import zipfile
 
 # # Package and dependencies versions.
 
 ftrack_connect_version = '2.0b1'
 ftrack_action_handler_version = '0.2.1'
+
+# Embedded plugins.
+ftrack_application_launcher_version = '1.0.0-beta-1'
+
 bundle_name = 'ftrack-connect'
 import PySide2
 import shiboken2
@@ -45,6 +49,11 @@ SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
+DOWNLOAD_PLUGIN_PATH = os.path.join(
+    BUILD_PATH, 'plugin-downloads-{0}'.format(
+        datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S')
+    )
+)
 
 
 # Read version from source.
@@ -59,6 +68,25 @@ connect_resource_hook = pkg_resources.resource_filename(
     pkg_resources.Requirement.parse('ftrack-connect'),
     'ftrack_connect_resource/hook'
 )
+
+#Add ftrack application launcher on the package
+external_connect_plugins = [
+    {
+        'ftrack-application-launcher':ftrack_application_launcher_version
+    }
+]
+# TODO: Activate this in case Lorenzo prefers to download from Amazon.
+# external_connect_plugins = []
+# for plugin in (
+#         'ftrack-application-launcher-{0}.zip'.format(
+#             ftrack_application_launcher_version
+#         ),
+# ):
+#     external_connect_plugins.append(
+#         (plugin, plugin.replace('.zip', ''))
+#     )
+
+
 
 
 # General configuration.
@@ -103,6 +131,73 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
     from cx_Freeze import setup ,Executable, build
 
+    class Build(build):
+        '''Custom build to pre-build resources.'''
+
+        def run(self):
+            '''Run build ensuring build_resources called first.'''
+            #TODO: Setup the correct path were to download the application
+            # launcher plugin
+            #TODO: activate this in case want to download form amazon
+            # download_url = (
+            #     'https://s3-eu-west-1.amazonaws.com/ftrack-deployment/'
+            #     'ftrack-connect/plugins/'
+            # )
+            download_url = (
+                'https://bitbucket.org/ftrack/'
+            )
+
+            import requests
+
+            os.makedirs(DOWNLOAD_PLUGIN_PATH)
+
+            # TODO: activate this in case from amazon
+            #for plugin, target in external_connect_plugins:
+            for plugin in external_connect_plugins:
+                plugin_version_name = '{}-{}'.format(
+                    list(plugin.keys())[0],
+                    list(plugin.values())[0]
+                )
+                temp_zip_file = '{}.zip'.format(plugin_version_name)
+                url = '{}/{}/get/{}.zip'.format(
+                    download_url,
+                    list(plugin.keys())[0],
+                    list(plugin.values())[0]
+                )
+                temp_path = os.path.join(
+                    DOWNLOAD_PLUGIN_PATH, temp_zip_file
+                )
+                logging.info(
+                    'Downloading url {0} to {1}'.format(
+                        url,
+                        temp_path
+                    )
+                )
+
+                response = requests.get(url)
+                response.raise_for_status()
+
+                if response.status_code != 200:
+                    raise ValueError(
+                        'Got status code not equal to 200: {0}'.format(
+                            response.status_code
+                        )
+                    )
+
+                with open(temp_path, 'wb') as package_file:
+                    package_file.write(response.content)
+
+                with zipfile.ZipFile(temp_path, 'r') as myzip:
+                    myzip.extractall(
+                        os.path.join(DOWNLOAD_PLUGIN_PATH, plugin_version_name)
+                    )
+
+            build.run(self)
+
+    configuration['cmdclass'] = {
+        'build': Build
+    }
+
     # Add requests certificates to resource folder.
     import requests.certs
 
@@ -124,6 +219,35 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         (distutils_path, 'distutils'),
         (encodings_path, 'encodings')
     ]
+
+    # include_connect_plugins
+    include_connect_plugins = []
+    # TODO: activate this if download from amazon
+    # for _, plugin_directory in external_connect_plugins:
+    #     plugin_download_path = os.path.join(
+    #         DOWNLOAD_PLUGIN_PATH, plugin_directory
+    #     )
+    #     include_connect_plugins.append(
+    #         (
+    #             os.path.relpath(plugin_download_path, ROOT_PATH),
+    #             'resource/connect-standard-plugins/' + plugin_directory
+    #         )
+    #     )
+    for plugin in external_connect_plugins:
+        plugin_version_name = '{}-{}'.format(
+            list(plugin.keys())[0],
+            list(plugin.values())[0]
+        )
+        plugin_download_path = os.path.join(
+            DOWNLOAD_PLUGIN_PATH, plugin_version_name
+        )
+        include_connect_plugins.append(
+            (
+                os.path.relpath(plugin_download_path, ROOT_PATH),
+                'resource/connect-standard-plugins/' + plugin_version_name
+            )
+        )
+
 
     zip_include_packages = []
     executables = []
@@ -364,6 +488,8 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         ]
 
     configuration['executables'] = executables
+
+    include_files.extend(include_connect_plugins)
 
     includes.extend([
         'atexit',  # Required for PySide
@@ -647,8 +773,13 @@ if sys.platform == 'darwin':
     sys.argv = [sys.argv[0]] + unknown
     osx_args = args
 
+def clean_download_dir():
+    if os.path.exists(DOWNLOAD_PLUGIN_PATH):
+        shutil.rmtree(DOWNLOAD_PLUGIN_PATH)
+
 # Call main setup.
 setup(**configuration)
+# clean_download_dir()
 if sys.platform == 'darwin':
     if 'osx_args' in locals():
         post_setup(codesign_frameworks=osx_args.codesign_frameworks)
