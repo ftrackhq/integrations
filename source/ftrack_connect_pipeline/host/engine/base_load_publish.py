@@ -83,18 +83,18 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 method=default_method
             )
 
-            if plugin_result:
-                status = plugin_result['status']
-                result = plugin_result['result'].get(default_method)
-                if step_type == constants.CONTEXT:
-                    result['asset_type'] = self.asset_type
-            bool_status = constants.status_bool_mapping[status]
+            bool_status = constants.status_bool_mapping[plugin_result['status']]
             if not bool_status:
                 stage_status = False
+                result = plugin_result['result']
                 # We log a warning if a plugin on the stage failed.
                 self.logger.warning(
                     "Execution of the plugin {} failed.".format(plugin_name)
                 )
+            else:
+                result = plugin_result['result'].get(default_method)
+                if step_type == constants.CONTEXT:
+                    result['asset_type'] = self.asset_type
 
             plugin_dict = {
                 "name": plugin_name,
