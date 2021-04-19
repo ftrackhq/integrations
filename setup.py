@@ -66,6 +66,11 @@ connect_dependency_link = (
 ).format(ftrack_connect_version)
 
 
+connect_resource_hook = pkg_resources.resource_filename(
+    pkg_resources.Requirement.parse('ftrack-connect'),
+    'ftrack_connect_resource/hook'
+)
+
 version_template = '''
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2021 ftrack
