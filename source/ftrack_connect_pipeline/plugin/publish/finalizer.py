@@ -97,6 +97,9 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
         '''
         super_result = super(PublisherFinalizerPlugin, self)._run(event)
 
+        if super_result.get('status') != constants.SUCCESS_STATUS:
+            return super_result
+
         context = event['data']['settings']['context']
         data = event['data']['settings']['data']
 

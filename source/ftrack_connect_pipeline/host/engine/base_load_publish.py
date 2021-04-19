@@ -75,7 +75,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
             type = plugin['type']
             default_method = plugin['default_method']
 
-            plugin_status, plugin_result = self._run_plugin(
+            plugin_result = self._run_plugin(
                 plugin, plugin_type,
                 data=data,
                 options=plugin_options,
@@ -83,24 +83,28 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 method=default_method
             )
 
-            if plugin_result:
-                result = plugin_result.get(default_method)
-                if step_type == constants.CONTEXT:
-                    result['asset_type'] = self.asset_type
-            bool_status = constants.status_bool_mapping[plugin_status]
+            bool_status = constants.status_bool_mapping[plugin_result['status']]
             if not bool_status:
                 stage_status = False
+                result = plugin_result['result']
                 # We log a warning if a plugin on the stage failed.
                 self.logger.warning(
                     "Execution of the plugin {} failed.".format(plugin_name)
                 )
+            else:
+                result = plugin_result['result'].get(default_method)
+                if step_type == constants.CONTEXT:
+                    result['asset_type'] = self.asset_type
 
             plugin_dict = {
                 "name": plugin_name,
                 "result": result,
                 "status": bool_status,
                 "category": category,
-                "type": type
+                "type": type,
+                "plugin_type": plugin_result['plugin_type'],
+                "method": plugin_result['method'],
+                "user_data": plugin_result['user_data']
             }
 
             stage_results.append(plugin_dict)
