@@ -330,6 +330,10 @@ class WidgetFactory(QtWidgets.QWidget):
         status = event['data']['pipeline']['status']
         message = event['data']['pipeline']['message']
         host_id = event['data']['pipeline']['host_id']
+        user_data = event['data']['pipeline'].get('user_data', '')
+        user_message = None
+        if user_data:
+             user_message = user_data.get('message', '')
 
         widget = self.widgets.get(widget_ref)
         if not widget:
@@ -342,11 +346,14 @@ class WidgetFactory(QtWidgets.QWidget):
 
         if status:
             self.logger.debug(
-                'updating widget: {} with {}, {}'.format(
-                    widget, status, message
+                'updating widget: {} Status: {}, Message: {}, User Message: {}'.format(
+                    widget, status, message, user_message
                 )
             )
-            widget.set_status(status, message)
+            if user_message:
+                widget.set_status(status, user_message)#message)
+            else:
+                widget.set_status(status, message)
         if result:
             self.logger.debug(
                 'updating widget: {} with run result {}'.format(
