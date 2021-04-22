@@ -36,16 +36,16 @@ class LoaderImporterHoudiniPlugin(plugin.LoaderImporterPlugin, BaseHoudiniPlugin
             #self.old_data = houdini_utils.get_current_scene_objects()
             #self.logger.info('Scene objects : {}'.format(len(self.old_data)))
 
-            context = event['data']['settings']['context']
+            super_result = super(LoaderImporterHoudiniPlugin, self)._run(event)
+
+            context = self.plugin_settings.get('context')
             self.logger.debug('Current context : {}'.format(context))
 
-            data = event['data']['settings']['data']
+            data = self.plugin_settings.get('data')
             self.logger.debug('Current data : {}'.format(data))
 
-            options = event['data']['settings']['options']
+            options = self.plugin_settings.get('options')
             self.logger.debug('Current options: {}'.format(options))
-
-            super_result = super(LoaderImporterHoudiniPlugin, self)._run(event)
 
             options[asset_const.ASSET_INFO_OPTIONS] = base64.encodebytes(
                 json.dumps(event['data']).encode('utf-8')
@@ -64,9 +64,9 @@ class LoaderImporterHoudiniPlugin(plugin.LoaderImporterPlugin, BaseHoudiniPlugin
                         ftrack_asset_class = self.get_asset_class(context, data, options)
 
                         # Only one component expected
-                        for (path_component, asset_or_assets) in run.items():
+                        for (path_component, obj_path_or_paths) in run.items():
                             # Can arrive as a single or multiple assets
-                            ftrack_asset_class.connect_objects(asset_or_assets if isinstance(asset_or_assets, list) else [asset_or_assets])
+                            ftrack_asset_class.connect_objects(obj_path_or_paths if isinstance(obj_path_or_paths, list) else [obj_path_or_paths])
 
 
                 # The loaded objects is provided with results

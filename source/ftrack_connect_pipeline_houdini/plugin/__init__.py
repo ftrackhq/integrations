@@ -12,7 +12,7 @@ class BaseHoudiniPlugin(plugin.BasePlugin):
 
 
 class BaseHoudiniPluginWidget(BaseHoudiniPlugin, pluginWidget.BasePluginWidget):
-    type = 'widget'
+    category = 'plugin.widget'
     ui_type = houdini_constants.UI_TYPE
 
 

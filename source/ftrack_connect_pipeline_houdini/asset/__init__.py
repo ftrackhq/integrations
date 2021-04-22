@@ -149,7 +149,8 @@ class FtrackAssetTab(FtrackAssetBase):
         '''
         Add asset info to Houdini objects
         '''
-        for obj in objects:
+        for obj_path in objects:
+            obj = hou.node(obj_path) 
             self._add_ftab(obj)
             self._set_ftab(obj)
 
