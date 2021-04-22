@@ -101,14 +101,14 @@ class BasePluginValidation(object):
                           'type of {}'.format(type(dict), type(user_data))
                 validator_result = (False, message)
             else:
-                if (
-                        'message' not in list(user_data.keys()) or
-                        'data' not in list(user_data.keys())
-                ):
-                    message = 'user_data should contain message and data keys, ' \
-                              'and contains:{}'.format(str(list(user_data.keys())))
-                    validator_result = (False, message)
-
+                if not 'message' not in list(user_data.keys()):
+                    user_data['message'] = ''
+                if not 'data' in list(user_data.keys()):
+                    user_data['data'] = {}
+                for key in list(user_data.keys()):
+                    if not key in ['message', 'data']:
+                        validator_result = (False, 'user_data can only contain they keys "message" and/or "data"')
+                        break
         return validator_result
 
 

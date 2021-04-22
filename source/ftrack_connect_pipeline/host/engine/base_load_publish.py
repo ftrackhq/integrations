@@ -104,7 +104,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 "type": type,
                 "plugin_type": plugin_result['plugin_type'],
                 "method": plugin_result['method'],
-                "user_data": plugin_result['user_data']
+                "user_data": plugin_result.get('user_data') or {}
             }
 
             stage_results.append(plugin_dict)
