@@ -109,7 +109,7 @@ configuration = dict(
         ),
         'cx_freeze',
         'wheel',
-        'setuptools>=30.3.0',
+        'setuptools>=45.0.0',
         'setuptools_scm'
     ],
     install_requires=[
