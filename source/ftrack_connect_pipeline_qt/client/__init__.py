@@ -158,8 +158,9 @@ class QtClient(client.Client, QtWidgets.QWidget):
         '''Function called when click the run button'''
         serialized_data = self._current_def.to_json_object()
         if not self.is_valid_asset_name:
-            self.header.setMessage("Can't publish without a valid asset name", 'ERROR_STATUS')
-            self.logger.error("Can't publish without a valid asset name")
+            msg = "Can't publish without a valid asset name"
+            self.header.setMessage(msg, 'ERROR_STATUS')
+            self.logger.error(msg)
             return
         engine_type = serialized_data['_config']['engine_type']
         self.run_definition(serialized_data, engine_type)
