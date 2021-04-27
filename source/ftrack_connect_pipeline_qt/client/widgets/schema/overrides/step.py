@@ -28,8 +28,6 @@ class StepArray(BaseJsonWidget):
         )
 
     def build(self):
-        # label = QtWidgets.QLabel(self.name)
-
         groupBox = QtWidgets.QGroupBox(self.name.capitalize())
         layout = QtWidgets.QVBoxLayout()
         layout.setAlignment(QtCore.Qt.AlignTop)
@@ -38,7 +36,6 @@ class StepArray(BaseJsonWidget):
         groupBox.layout().setContentsMargins(0, 0, 0, 0)
         groupBox.setToolTip(self.description)
 
-        # self.layout().addWidget(label)
         self._accordion_widgets = []
 
         if 'items' in self.schema_fragment and self.fragment_data:
