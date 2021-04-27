@@ -68,13 +68,6 @@ except DistributionNotFound:
 
 
 
-connect_install_require = 'ftrack-connect'.format(ftrack_connect_version)
-# TODO: Update when ftrack-connect released.
-connect_dependency_link = (
-    'git+https://bitbucket.org/ftrack/ftrack-connect.git@backlog/connect-2/story#egg=ftrack-connect'
-).format(ftrack_connect_version)
-
-
 connect_resource_hook = pkg_resources.resource_filename(
     pkg_resources.Requirement.parse('ftrack-connect'),
     'ftrack_connect_resource/hook'
@@ -138,9 +131,6 @@ configuration = dict(
         'wheel',
         'setuptools>=45.0.0',
         'setuptools_scm'
-    ],
-    install_requires=[
-        connect_install_require
     ],
     options={},
     python_requires=">=3, <4"
