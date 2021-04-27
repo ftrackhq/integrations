@@ -17,7 +17,7 @@ class BaseMayaPlugin(plugin.BasePlugin):
 
 
 class BaseMayaPluginWidget(BaseMayaPlugin, pluginWidget.BasePluginWidget):
-    type = 'widget'
+    category = 'plugin.widget'
     ui_type = maya_constants.UI_TYPE
 
 
