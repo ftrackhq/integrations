@@ -24,7 +24,7 @@ class PluginContainerObject(JsonObject):
 
     def build(self):
         if self.previous_object_data:
-            self.plugin_type = self.previous_object_data.get('name')
+            self.stage_name = self.previous_object_data.get('name')
 
         self.properties_widgets = {}
 
@@ -37,7 +37,7 @@ class PluginContainerObject(JsonObject):
         else:
             if 'widget' in list(self.properties.keys()):
                 widget = self.widget_factory.fetch_plugin_widget(
-                    self.fragment_data, self.plugin_type
+                    self.fragment_data, self.stage_name
                 )
                 self.layout().addWidget(widget)
             else:
