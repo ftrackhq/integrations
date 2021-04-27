@@ -92,15 +92,9 @@ class WidgetFactory(QtWidgets.QWidget):
             'Loader': hidden.HiddenObject,
             'AssetManager': hidden.HiddenObject,
             'Step': hidden.HiddenObject,
-            # 'Stage': plugin_container.PluginContainerObject,
             'Plugin': plugin_container.PluginContainerObject,
             'Component': plugin_container.PluginContainerObject
         }
-
-        # self.schema_category_mapping = {
-        #     'step': hidden.HiddenObject,
-        #     'stage': hidden.HiddenObject
-        # }
 
     def set_context(self, context):
         self.context = context
@@ -330,10 +324,8 @@ class WidgetFactory(QtWidgets.QWidget):
         status = event['data']['pipeline']['status']
         message = event['data']['pipeline']['message']
         host_id = event['data']['pipeline']['host_id']
-        user_data = event['data']['pipeline'].get('user_data', '')
-        user_message = None
-        if user_data:
-             user_message = user_data.get('message', '')
+        user_data = event['data']['pipeline'].get('user_data', {})
+        user_message = user_data.get('message')
 
         widget = self.widgets.get(widget_ref)
         if not widget:
@@ -351,7 +343,7 @@ class WidgetFactory(QtWidgets.QWidget):
                 )
             )
             if user_message:
-                widget.set_status(status, user_message)#message)
+                widget.set_status(status, user_message)
             else:
                 widget.set_status(status, message)
         if result:
