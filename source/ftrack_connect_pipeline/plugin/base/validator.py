@@ -63,6 +63,8 @@ class BaseValidatorPlugin(BasePlugin):
     '''Type of the plugin'''
     _required_output = False
     '''Required return output'''
+    return_value = True
+    '''Required return Value'''
 
     def __init__(self, session):
         super(BaseValidatorPlugin, self).__init__(session)
