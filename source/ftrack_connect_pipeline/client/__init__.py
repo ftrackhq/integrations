@@ -303,12 +303,12 @@ class Client(object):
 
         *method* : method of the plugin to be run
         '''
-        # Plugin type is constructed using the engine_type and the plugin_type
+        # Plugin type is constructed using the engine_type and the type of the plugin.
         # (publisher.collector). We have to make sure that plugin_type is in
         # the data argument passed to the host_connection, because we are only
         # passing data to the engine. And the engine_type is only available
         # on the definition.
-        plugin_type = '{}.{}'.format(engine_type, plugin_data['plugin_type'])
+        plugin_type = '{}.{}'.format(engine_type, plugin_data['type'])
         data = {
             'plugin': plugin_data,
             'plugin_type': plugin_type,
@@ -391,6 +391,9 @@ class Client(object):
         Assign the given *context_id* as the current :obj:`context` and to the
         :attr:`~ftrack_connect_pipeline.client.HostConnection.context`
         '''
+        if not context_id:
+            self.logger.debug("No context id provided")
+            return
         self.context = context_id
         self._host_connection.context = context_id
 
@@ -428,7 +431,8 @@ class Client(object):
         plugin_name = event['data']['pipeline']['plugin_name']
         widget_ref = event['data']['pipeline']['widget_ref']
         message = event['data']['pipeline']['message']
-        user_message = event['data']['pipeline'].get('user_message', '')
+        user_data = event['data']['pipeline'].get('user_data') or {}
+        user_message = user_data.get('message')
 
         self._add_log_item(LogItem(event['data']['pipeline']))
 

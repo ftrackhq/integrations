@@ -4,5 +4,7 @@
 from ftrack_connect_pipeline.plugin.publish.collector import *
 from ftrack_connect_pipeline.plugin.publish.context import *
 from ftrack_connect_pipeline.plugin.publish.finalizer import *
+from ftrack_connect_pipeline.plugin.publish.post_finalizer import *
+from ftrack_connect_pipeline.plugin.publish.pre_finalizer import *
 from ftrack_connect_pipeline.plugin.publish.output import *
 from ftrack_connect_pipeline.plugin.publish.validator import *

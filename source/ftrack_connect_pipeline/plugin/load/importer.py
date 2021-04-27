@@ -22,3 +22,29 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
 
     def __init__(self, session):
         super(LoaderImporterPlugin, self).__init__(session)
+
+    def _parse_run_event(self, event):
+        '''
+        Parse the event given on the :meth:`_run`. Returns method name to be
+        executed and plugin_setting to be passed to the method.
+        This is an override that modifies the plugin_setting['data'] to pass
+        only the results of the collector stage of the current step.
+        '''
+        method, plugin_settings = super(
+            LoaderImporterPlugin, self
+        )._parse_run_event(event)
+        data = plugin_settings.get('data')
+        #We only want the data of the collector in this stage
+        collector_result = []
+        component_step = data[-1]
+        if component_step.get('category') == 'plugin':
+            return method, plugin_settings
+        for component_stage in component_step.get("result"):
+            if (
+                    component_stage.get("name") == constants.COLLECTOR
+            ):
+                collector_result = component_stage.get("result")
+                break
+        if collector_result:
+            plugin_settings['data'] = collector_result
+        return method, plugin_settings

@@ -86,6 +86,34 @@ class BasePluginValidation(object):
 
         return validator_result
 
+    def validate_user_data(self, user_data):
+        '''
+        Ensures that *user_data* is instance of :obj:`dict`. And validates that
+        contains message and data keys.
+
+        Return tuple (bool,str)
+        '''
+        validator_result = (True, "")
+
+        if user_data is not None:
+            if not isinstance(user_data, dict):
+                message = 'user_data value should be of type {} and it\'s ' \
+                          'type of {}'.format(type(dict), type(user_data))
+                validator_result = (False, message)
+            else:
+                if not 'message' in list(user_data.keys()):
+                    user_data['message'] = ''
+                if not 'data' in list(user_data.keys()):
+                    user_data['data'] = {}
+                for key in list(user_data.keys()):
+                    if not key in ['message', 'data']:
+                        validator_result = (
+                            False,
+                            'user_data can only contain they keys "message" '
+                            'and/or "data"')
+                        break
+        return validator_result
+
 
 class BasePlugin(object):
     ''' Base Class to represent a Plugin '''
@@ -93,7 +121,9 @@ class BasePlugin(object):
     '''Type of the plugin'''
     plugin_name = None
     '''Name of the plugin'''
-    type = 'plugin'
+    type = 'base'
+    '''Name of the plugin'''
+    category = 'plugin'
     '''Type, default plugin. (action...)'''
     host_type = constants.HOST_TYPE
     '''Host type of the plugin'''
@@ -138,6 +168,21 @@ class BasePlugin(object):
         '''
         return self._event_manager
 
+    @property
+    def raw_data(self):
+        '''Returns the current context id'''
+        return self._raw_data
+
+    @property
+    def plugin_settings(self):
+        '''Returns the current plugin_settings'''
+        return self._plugin_settings
+
+    @property
+    def method(self):
+        '''Returns the current method'''
+        return self._method
+
     def __init__(self, session):
         '''
         Initialise BasePlugin with instance of
@@ -147,6 +192,8 @@ class BasePlugin(object):
         self.logger = logging.getLogger(
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
+        self._raw_data = []
+        self._method = []
         self._event_manager = event.EventManager(
             session=session, mode=constants.LOCAL_EVENT_MODE
         )
@@ -169,7 +216,7 @@ class BasePlugin(object):
 
         required = [
             self.host_type,
-            self.type,
+            self.category,
             self.plugin_type,
             self.plugin_name,
         ]
@@ -178,10 +225,10 @@ class BasePlugin(object):
 
         topic = (
             'topic={} and data.pipeline.host_type={} and '
-            'data.pipeline.type={} and data.pipeline.plugin_type={} and '
+            'data.pipeline.category={} and data.pipeline.plugin_type={} and '
             'data.pipeline.plugin_name={}'
         ).format(
-            topic, self.host_type, self.type, self.plugin_type, self.plugin_name
+            topic, self.host_type, self.category, self.plugin_type, self.plugin_name
         )
 
         return topic
@@ -272,6 +319,52 @@ class BasePlugin(object):
         message = 'Successfully run :{}'.format(self.__class__.__name__)
         return status, message
 
+    def _validate_user_data(self, user_data):
+        '''
+        Validates the *user_data* which should contain message and data
+        keys passed by the user.
+        :obj:`validator` and the :meth:`validator.validate_user_data`.
+
+        Returns a status and string message
+        '''
+
+        # validate result instance type
+        status = constants.UNKNOWN_STATUS
+        message = None
+        user_data_valid, user_data_message = self.validator.validate_user_data(
+            user_data
+        )
+        if not user_data_valid:
+            status = constants.ERROR_STATUS
+            message = str(user_data_message)
+            return status, message
+
+        status = constants.SUCCESS_STATUS
+        message = 'Successfully run :{}'.format(self.__class__.__name__)
+        return status, message
+
+    def _parse_run_event(self, event):
+        '''
+        Parse the event given on the :meth:`_run`. Returns method name to be
+        executed and plugin_setting to be passed to the method.
+        Also this functions saves the original passed data to the property
+        :obj:`raw_data`.
+
+        Note:: Publisher validator, output and Loader importer and post_import
+        plugin types override this function to modify the data that arrives to
+        the plugin.
+        '''
+        method = event['data']['pipeline']['method']
+        self.logger.debug('method : {}'.format(method))
+        plugin_settings = event['data']['settings']
+        self.logger.debug('plugin_settings : {}'.format(plugin_settings))
+        # Save a copy of the original data as _raw_data to be able to be access
+        # to the original data in case we modify it for a specific plugin. So
+        # the user can allways aces to self.raw_data property.
+        self._raw_data = plugin_settings.get('data')
+        return method, plugin_settings
+
+
     def _run(self, event):
         '''
         Callback function of the event
@@ -286,38 +379,39 @@ class BasePlugin(object):
         called.
 
         '''
-        method = event['data']['pipeline']['method']
-        self.logger.debug('method : {}'.format(method))
-        plugin_settings = event['data']['settings']
-        self.logger.debug('plugin_settings : {}'.format(plugin_settings))
+
+        # Having this in a separate method, we can override the parse depending
+        #  on the plugin type.
+        self._method, self._plugin_settings = self._parse_run_event(event)
+
         start_time = time.time()
 
-        user_message = None
+        user_data = {}
 
         result_data = {
             'plugin_name': self.plugin_name,
             'plugin_type': self.plugin_type,
-            'method': method,
+            'method': self.method,
             'status': constants.UNKNOWN_STATUS,
             'result': None,
             'execution_time': 0,
             'message': None,
-            'user_message': user_message
+            'user_data': user_data
             }
 
-        run_fn = getattr(self, method)
+        run_fn = getattr(self, self.method)
         if not run_fn:
             message = 'The method : {} does not exist for the ' \
-                      'plugin:{}'.format(method, self.plugin_name)
+                      'plugin:{}'.format(self.method, self.plugin_name)
             self.logger.debug(message)
             result_data['status'] = constants.EXCEPTION_STATUS
             result_data['execution_time'] = 0
             result_data['message'] = str(message)
             return result_data
         try:
-            result = run_fn(**plugin_settings)
+            result = run_fn(**self.plugin_settings)
             if isinstance(result, tuple):
-                user_message = result[1]
+                user_data = result[1]
                 result = result[0]
 
         except Exception as message:
@@ -333,18 +427,28 @@ class BasePlugin(object):
         end_time = time.time()
         total_time = end_time - start_time
         result_data['execution_time'] = total_time
-        if method == 'run':
+        # We check that the optional user_data it's a dictionary and contains
+        # message and data keys.
+        if user_data:
+            user_data_status, user_data_message = self._validate_user_data(user_data)
+            user_bool_status = constants.status_bool_mapping[user_data_status]
+            if not user_bool_status:
+                result_data['status'] = constants.EXCEPTION_STATUS
+                result_data['message'] = str(user_data_message)
+                return result_data
+
+        if self.method == 'run':
             status, message = self._validate_result(result)
         else:
             status = constants.SUCCESS_STATUS
             message = 'Successfully run :{}'.format(self.__class__.__name__)
         result_data['status'] = status
         result_data['message'] = message
-        result_data['user_message'] = user_message
+        result_data['user_data'] = user_data
 
         bool_status = constants.status_bool_mapping[status]
         if bool_status:
-            result_data['result'] = {method: result}
+            result_data['result'] = {self.method: result}
 
         return result_data
 

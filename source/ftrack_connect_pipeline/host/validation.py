@@ -75,23 +75,41 @@ class PluginDiscoverValidation(object):
         for definition in publishers:
             valid_definition = True
             # context plugins
-            if not self.vaildate_contexts_plugins(
-                    definition[constants.CONTEXTS],
-                    definition['name'],
-                    schema_type
-            ):
+            try:
+                if not self.vaildate_definition_plugins(
+                        definition[constants.CONTEXTS],
+                        definition['name'],
+                        schema_type
+                ):
+                    valid_definition = False
+            except Exception as e:
+                self.logger.error(
+                    'Could not validate publisher contexts steps: {}'.format(e)
+                )
                 valid_definition = False
-            if not self.validate_components_plugins(
-                    definition[constants.COMPONENTS],
-                    definition['name'],
-                    schema_type
-            ):
+            try:
+                if not self.vaildate_definition_plugins(
+                        definition[constants.COMPONENTS],
+                        definition['name'],
+                        schema_type
+                ):
+                    valid_definition = False
+            except Exception as e:
+                self.logger.error(
+                    'Could not validate publisher components steps: {}'.format(e)
+                )
                 valid_definition = False
-            if not self.vaildate_finalizers_plugins(
-                    definition[constants.FINALIZERS],
-                    definition['name'],
-                    schema_type
-            ):
+            try:
+                if not self.vaildate_definition_plugins(
+                        definition[constants.FINALIZERS],
+                        definition['name'],
+                        schema_type
+                ):
+                    valid_definition = False
+            except Exception as e:
+                self.logger.error(
+                    'Could not validate publisher finalizers steps: {}'.format(e)
+                )
                 valid_definition = False
             if not valid_definition:
                 idx = publishers.index(definition)
@@ -122,23 +140,41 @@ class PluginDiscoverValidation(object):
         for definition in loaders:
             valid_definition = True
             # context plugins
-            if not self.vaildate_contexts_plugins(
-                    definition[constants.CONTEXTS],
-                    definition['name'],
-                    schema_type
-            ):
+            try:
+                if not self.vaildate_definition_plugins(
+                        definition[constants.CONTEXTS],
+                        definition['name'],
+                        schema_type
+                ):
+                    valid_definition = False
+            except Exception as e:
+                self.logger.error(
+                    'Could not validate Loader contexts steps: {}'.format(e)
+                )
                 valid_definition = False
-            if not self.validate_components_plugins(
-                    definition[constants.COMPONENTS],
-                    definition['name'],
-                    schema_type
-            ):
+            try:
+                if not self.vaildate_definition_plugins(
+                        definition[constants.COMPONENTS],
+                        definition['name'],
+                        schema_type
+                ):
+                    valid_definition = False
+            except Exception as e:
+                self.logger.error(
+                    'Could not validate Loader components steps: {}'.format(e)
+                )
                 valid_definition = False
-            if not self.vaildate_finalizers_plugins(
-                    definition[constants.FINALIZERS],
-                    definition['name'],
-                    schema_type
-            ):
+            try:
+                if not self.vaildate_definition_plugins(
+                        definition[constants.FINALIZERS],
+                        definition['name'],
+                        schema_type
+                ):
+                    valid_definition = False
+            except Exception as e:
+                self.logger.error(
+                    'Could not validate Loader finalizers steps: {}'.format(e)
+                )
                 valid_definition = False
             if not valid_definition:
                 idx = loaders.index(definition)
@@ -152,101 +188,42 @@ class PluginDiscoverValidation(object):
 
         return idxs_to_pop or None
 
-    def vaildate_contexts_plugins(
-            self, context_stage, definition_name, schema_type
+    def vaildate_definition_plugins(
+            self, steps, definition_name, schema_type
     ):
         '''
-        Validates plugins in the given *context_stage* running the
+        Validates plugins in the given *steps* running the
         :meth:`_discover_plugin`
 
-        *context_stage* : Dictionary with the plugins definition of the context
-        stage.
+        *steps* : List of dictionaries with steps, stages and plugins.
 
         *definition_name* : Name of the current definition.
 
         *schema_type* : Schema type of the current definition.
 
         '''
+
         is_valid = True
-        stage_name = context_stage['name']
-        plugin_type = '{}.{}'.format(schema_type, stage_name)
-        for context_plugin in context_stage['plugins']:
-            if not self._discover_plugin(context_plugin,
-                                         plugin_type):
-                is_valid = False
-                self.logger.warning(
-                    'Could not discover plugin {} of type {} for stage {}'
-                    ' in {}'.format(
-                        context_plugin['plugin'], plugin_type, stage_name,
-                        definition_name
-                    )
-                )
-        return is_valid
-
-    def validate_components_plugins(
-            self, components_list, definition_name, schema_type
-    ):
-        '''
-        Validates all the plugins in all the stages for the given
-        *components_list* running the :meth:`_discover_plugin`
-
-        *components_list* : Dictionary with the stages and plugins definition
-        of all the components.
-
-        *definition_name* : Name of the current definition.
-
-        *schema_type* : Schema type of the current definition.
-
-        '''
-        # components plugins
-        is_valid = True
-        for component in components_list:
-            for component_stage in component['stages']:
-                stage_name = component_stage['name']
+        for step in steps:
+            for stage in step['stages']:
+                stage_name = stage['name']
                 plugin_type = '{}.{}'.format(schema_type, stage_name)
-                for component_plugin in component_stage['plugins']:
-                    if not self._discover_plugin(component_plugin, plugin_type):
+                for plugin in stage['plugins']:
+                    if not self._discover_plugin(
+                            plugin,
+                            plugin_type
+                    ):
                         is_valid = False
                         self.logger.warning(
-                            'Could not discover plugin {} of type {} for '
-                            'stage {} in {}'.format(
-                                component_plugin['plugin'],
+                            'Could not discover plugin {} of type {} for stage {}'
+                            ' of the step {} in {}'.format(
+                                plugin['plugin'],
                                 plugin_type,
                                 stage_name,
+                                step['name'],
                                 definition_name
                             )
                         )
-        return is_valid
-
-    def vaildate_finalizers_plugins(
-            self, finalizer_stage, definition_name, schema_type
-    ):
-        '''
-        Validates plugins in the given *finalizer_stage* running the
-        :meth:`_discover_plugin`
-
-        *finalizer_stage* : Dictionary with the plugins definition of the
-        finalizer stage.
-
-        *definition_name* : Name of the current definition.
-
-        *schema_type* : Schema type of the current definition.
-
-        '''
-        is_valid = True
-        stage_name = finalizer_stage['name']
-        plugin_type = '{}.{}'.format(schema_type, stage_name)
-        for publisher_plugin in finalizer_stage['plugins']:
-            if not self._discover_plugin(publisher_plugin,
-                                         plugin_type):
-                is_valid = False
-                self.logger.warning(
-                    'Could not discover plugin {} of type {} '
-                    'for {} in {}'.format(
-                        publisher_plugin['plugin'], plugin_type, stage_name,
-                        definition_name
-                    )
-                )
         return is_valid
 
     def _discover_plugin(self, plugin, plugin_type):
@@ -270,7 +247,7 @@ class PluginDiscoverValidation(object):
                 'pipeline': {
                     'plugin_name': plugin_name,
                     'plugin_type': plugin_type,
-                    'type': 'plugin',
+                    'category': 'plugin',
                     'host_type': host_type
                 }
             }

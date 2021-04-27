@@ -62,7 +62,7 @@ class AssetManagerClient(client.Client):
         self._reset_asset_list()
         plugin_type = None
         if plugin:
-            plugin_type = '{}.{}'.format('asset_manager', plugin['plugin_type'])
+            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
         data = {
             'method': 'discover_assets',
             'plugin': plugin,
@@ -163,7 +163,7 @@ class AssetManagerClient(client.Client):
         '''
         plugin_type = None
         if plugin:
-            plugin_type = '{}.{}'.format('asset_manager', plugin['plugin_type'])
+            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
         data = {
             'method': 'update_assets',
             'plugin': plugin,
