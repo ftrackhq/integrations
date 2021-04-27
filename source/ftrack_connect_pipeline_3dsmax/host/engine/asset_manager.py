@@ -32,8 +32,8 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         message = None
 
         result_data = {
-            'plugin_name': 'discover_assets',
-            'plugin_type': 'action',
+            'plugin_name': None,
+            'plugin_type': constants.PLUGIN_AM_ACTION_TYPE,
             'method': 'discover_assets',
             'status': status,
             'result': result,
@@ -83,9 +83,15 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         result = []
         message = None
 
+        plugin_type = constants.PLUGIN_AM_ACTION_TYPE
+        plugin_name = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_name = plugin.get('name')
+
         result_data = {
-            'plugin_name': 'remove_asset',
-            'plugin_type': 'action',
+            'plugin_name': plugin_name,
+            'plugin_type': plugin_type,
             'method': 'remove_asset',
             'status': status,
             'result': result,
@@ -167,9 +173,15 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         result = []
         message = None
 
+        plugin_type = constants.PLUGIN_AM_ACTION_TYPE
+        plugin_name = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_name = plugin.get('name')
+
         result_data = {
-            'plugin_name': 'select_asset',
-            'plugin_type': 'action',
+            'plugin_name': plugin_name,
+            'plugin_type': plugin_type,
             'method': 'select_asset',
             'status': status,
             'result': result,
