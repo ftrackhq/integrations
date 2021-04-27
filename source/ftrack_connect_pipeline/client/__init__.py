@@ -392,6 +392,7 @@ class Client(object):
         :attr:`~ftrack_connect_pipeline.client.HostConnection.context`
         '''
         if not context_id:
+            self.logger.debug("No context id provided")
             return
         self.context = context_id
         self._host_connection.context = context_id

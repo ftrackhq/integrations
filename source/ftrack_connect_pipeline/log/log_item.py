@@ -18,10 +18,8 @@ class LogItem(object):
         self.plugin_name = log_result.get('plugin_name')
         self.result = log_result.get('result')
         self.message = log_result.get('message')
-        self.user_message = None
-        user_data = log_result.get('user_data')
-        if user_data:
-            self.user_message = user_data.get('message')
+        user_data = log_result.get('user_data', {})
+        self.user_message = user_data.get('message', 'No message provided')
         self.plugin_type = log_result.get('plugin_type')
 
     @property
