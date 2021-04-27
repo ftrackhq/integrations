@@ -38,15 +38,16 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
         self.old_data = nuke_utils.get_current_scene_objects()
         self.logger.debug('Scene objects : {}'.format(len(self.old_data)))
 
-        context = event['data']['settings']['context']
+        super_result = super(LoaderImporterNukePlugin, self)._run(event)
+
+        context = self.plugin_settings.get('context')
         self.logger.debug('Current context : {}'.format(context))
 
-        data = event['data']['settings']['data']
+        data = self.plugin_settings.get('data')
         self.logger.debug('Current data : {}'.format(data))
 
-        options = event['data']['settings']['options']
-
-        super_result = super(LoaderImporterNukePlugin, self)._run(event)
+        options = self.plugin_settings.get('options')
+        self.logger.debug('Current options : {}'.format(options))
 
         json_data = json.dumps(event['data'])
         if six.PY2:
