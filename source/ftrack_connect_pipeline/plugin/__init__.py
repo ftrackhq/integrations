@@ -193,6 +193,7 @@ class BasePlugin(object):
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
         self._raw_data = []
+        self._method = []
         self._event_manager = event.EventManager(
             session=session, mode=constants.LOCAL_EVENT_MODE
         )

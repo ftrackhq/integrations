@@ -30,15 +30,17 @@ class PublisherOutputPlugin(base.BaseOutputPlugin):
         method, plugin_settings = super(
             PublisherOutputPlugin, self
         )._parse_run_event(event)
-        data = plugin_settings.get('data')
-        #We only want the data of the collector in this stage
-        collector_result = []
-        component_step = data[-1]
-        for component_stage in component_step.get("result"):
-            if (
-                    component_stage.get("name") == constants.COLLECTOR
-            ):
-                collector_result = component_stage.get("result")
-                break
-        plugin_settings['data'] = collector_result
+        if method == 'run':
+            data = plugin_settings.get('data')
+            #We only want the data of the collector in this stage
+            collector_result = []
+            if data:
+                component_step = data[-1]
+                for component_stage in component_step.get("result"):
+                    if (
+                            component_stage.get("name") == constants.COLLECTOR
+                    ):
+                        collector_result = component_stage.get("result")
+                        break
+                plugin_settings['data'] = collector_result
         return method, plugin_settings
