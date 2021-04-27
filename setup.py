@@ -19,7 +19,7 @@ import subprocess
 import time
 import datetime
 import zipfile
-from pkg_resources import get_distribution, DistributionNotFound
+from setuptools_scm import get_version
 
 
 # Embedded plugins.
@@ -60,14 +60,11 @@ AWS_PLUGIN_DOWNLOAD_PATH = 'https://s3-eu-west-1.amazonaws.com/ftrack-deployment
 
 
 # Read version from source.
-try:
-    release = get_distribution('ftrack-connect-package').version
-    # take major/minor/patch
-    VERSION = '.'.join(release.split('.')[:3])
-except DistributionNotFound:
-     # package is not installed
-    VERSION = 'Unknown version'
+release = get_version()
+# take major/minor/patch
+VERSION = '.'.join(release.split('.')[:3])
 
+print('BUILDING VERSION : {}'.format(release))
 
 
 connect_resource_hook = pkg_resources.resource_filename(
@@ -75,13 +72,11 @@ connect_resource_hook = pkg_resources.resource_filename(
     'ftrack_connect_resource/hook'
 )
 
-
 external_connect_plugins = []
 for plugin in embedded_plugins:
     external_connect_plugins.append(
         (plugin, plugin.replace('.zip', ''))
     )
-
 
 version_template = '''
 # :coding: utf-8
@@ -125,6 +120,8 @@ configuration = dict(
     options={},
     python_requires=">=3, <4"
 )
+
+
 
 
 # Platform specific distributions.
@@ -175,6 +172,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
             build.run(self)
 
+
     configuration['cmdclass'] = {
         'build': BuildResources
     }
@@ -212,7 +210,6 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 'resource/connect-standard-plugins/' + plugin_directory
             )
         )
-
 
     zip_include_packages = []
     executables = []
