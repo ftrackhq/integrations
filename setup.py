@@ -19,6 +19,7 @@ import subprocess
 import time
 import datetime
 import zipfile
+from pkg_resources import get_distribution, DistributionNotFound
 
 # # Package and dependencies versions.
 
@@ -57,12 +58,22 @@ DOWNLOAD_PLUGIN_PATH = os.path.join(
 
 
 # Read version from source.
-with open(os.path.join(
-    SOURCE_PATH, 'ftrack_connect_package', '_version.py'
-)) as _version_file:
-    VERSION = re.match(
-        r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
-    ).group(1)
+try:
+    release = get_distribution('ftrack-connect-package').version
+    # take major/minor/patch
+    VERSION = '.'.join(release.split('.')[:3])
+except DistributionNotFound:
+     # package is not installed
+    VERSION = 'Unknown version'
+
+
+
+connect_install_require = 'ftrack-connect'.format(ftrack_connect_version)
+# TODO: Update when ftrack-connect released.
+connect_dependency_link = (
+    'git+https://bitbucket.org/ftrack/ftrack-connect.git@backlog/connect-2/story#egg=ftrack-connect'
+).format(ftrack_connect_version)
+
 
 connect_resource_hook = pkg_resources.resource_filename(
     pkg_resources.Requirement.parse('ftrack-connect'),
@@ -87,12 +98,22 @@ external_connect_plugins = [
 #     )
 
 
+version_template = '''
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2021 ftrack
+
+__version__ = {version!r}
+'''
 
 
 # General configuration.
 configuration = dict(
     name='ftrack-connect-package',
-    version=VERSION,
+    use_scm_version={
+        'write_to': 'source/ftrack_connect_package/_version.py',
+        'write_to_template': version_template,
+        'version_scheme': 'post-release'
+    },
     description='Meta package for ftrack connect.',
     long_description=open(README_PATH).read(),
     keywords='ftrack, connect, package',
@@ -115,7 +136,11 @@ configuration = dict(
         ),
         'cx_freeze',
         'wheel',
-        'setuptools'
+        'setuptools>=45.0.0',
+        'setuptools_scm'
+    ],
+    install_requires=[
+        connect_install_require
     ],
     options={},
     python_requires=">=3, <4"

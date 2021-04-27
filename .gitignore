@@ -31,3 +31,7 @@ pip-log.txt
 .settings
 .idea/
 .vscode/
+
+
+#scm version
+source/ftrack_connect_package/_version.py
