@@ -126,24 +126,22 @@ configuration = dict(
     python_requires=">=3, <4"
 )
 
-# to run : python setup.py install
-# setup(**configuration)
 
 # Platform specific distributions.
 if sys.platform in ('darwin', 'win32', 'linux'):
 
     configuration['setup_requires'].append('cx_freeze')
 
-    from cx_Freeze import setup ,Executable, build
+    from cx_Freeze import setup, Executable, build
 
-    class Build(build):
+    class BuildResources(build):
         '''Custom build to pre-build resources.'''
 
         def run(self):
             '''Run build ensuring build_resources called first.'''
 
             import requests
-
+            print('Creating {}'.format(DOWNLOAD_PLUGIN_PATH))
             os.makedirs(DOWNLOAD_PLUGIN_PATH)
 
             for plugin, target in external_connect_plugins:
@@ -155,6 +153,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                         temp_path
                     )
                 )
+                print('DOWNLOADING FROM  {}'.format(url))
 
                 response = requests.get(url)
                 response.raise_for_status()
@@ -177,7 +176,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             build.run(self)
 
     configuration['cmdclass'] = {
-        'build': Build
+        'build': BuildResources
     }
 
     # Add requests certificates to resource folder.
@@ -509,6 +508,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         'bin_includes': bin_includes,
     }
 
+
 def post_setup(codesign_frameworks = True):
     '''
     Post setup function.
@@ -739,12 +739,14 @@ if sys.platform == 'darwin':
     sys.argv = [sys.argv[0]] + unknown
     osx_args = args
 
+
 def clean_download_dir():
     if os.path.exists(DOWNLOAD_PLUGIN_PATH):
         shutil.rmtree(DOWNLOAD_PLUGIN_PATH)
 
 # Call main setup.
 setup(**configuration)
+
 # clean_download_dir()
 if sys.platform == 'darwin':
     if 'osx_args' in locals():
