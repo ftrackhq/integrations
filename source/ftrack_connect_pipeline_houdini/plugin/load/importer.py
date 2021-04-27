@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2020 ftrack
+# :copyright: Copyright (c) 2014-2021 ftrack
 
 import json
 import base64
@@ -16,7 +16,8 @@ from ftrack_connect_pipeline_houdini.constants.asset import modes as load_const
 from ftrack_connect_pipeline_houdini.utils import custom_commands as houdini_utils
 
 
-class LoaderImporterHoudiniPlugin(plugin.LoaderImporterPlugin, BaseHoudiniPlugin):
+class LoaderImporterHoudiniPlugin(plugin.LoaderImporterPlugin,
+                                  BaseHoudiniPlugin):
     ''' Class representing a Collector Plugin
 
     .. note::
@@ -53,7 +54,8 @@ class LoaderImporterHoudiniPlugin(plugin.LoaderImporterPlugin, BaseHoudiniPlugin
 
             asset_load_mode = options.get(asset_const.LOAD_MODE)
 
-            if asset_load_mode != load_const.OPEN_MODE and asset_load_mode != load_const.MERGE_MODE:
+            if asset_load_mode != load_const.OPEN_MODE and asset_load_mode != \
+                    load_const.MERGE_MODE:
 
                 result = super_result.get('result',{})
 
@@ -61,31 +63,15 @@ class LoaderImporterHoudiniPlugin(plugin.LoaderImporterPlugin, BaseHoudiniPlugin
                     run = result.get('run')
                     if isinstance(run, dict):
                         # Import was successful, store ftrack metadata
-                        ftrack_asset_class = self.get_asset_class(context, data, options)
+                        ftrack_asset_class = self.get_asset_class(context, data,
+                                                                  options)
 
                         # Only one component expected
                         for (path_component, obj_path_or_paths) in run.items():
-                            # Can arrive as a single or multiple assets
-                            ftrack_asset_class.connect_objects(obj_path_or_paths if isinstance(obj_path_or_paths, list) else [obj_path_or_paths])
-
-
-                # The loaded objects is provided with results
-                #self.new_data = houdini_utils.get_current_scene_objects()
-
-                #diff = self.new_data.difference(self.old_data)
-
-                #if diff:
-
-                #    self.logger.debug(
-                #        'Checked differences between ftrack_objects before and after'
-                #        ' inport : {}'.format(diff)
-                #    )
-
-                #    ftrack_asset_class = self.get_asset_class(context, data, options)
-
-                #    ftrack_asset_class.connect_objects(diff)
-                #else:
-                #    self.logger.debug('No differences found in the scene')
+                            # Can arrive as a single or multiple object paths
+                            ftrack_asset_class.connect_objects(obj_path_or_paths
+                            if isinstance(obj_path_or_paths, list) else
+                            [obj_path_or_paths])
 
             return super_result
 
@@ -95,7 +81,8 @@ class LoaderImporterHoudiniPlugin(plugin.LoaderImporterPlugin, BaseHoudiniPlugin
             raise
 
 
-class LoaderImporterHoudiniWidget(pluginWidget.LoaderImporterWidget, BaseHoudiniPluginWidget):
+class LoaderImporterHoudiniWidget(pluginWidget.LoaderImporterWidget,
+                                  BaseHoudiniPluginWidget):
     ''' Class representing a Collector Widget
 
     .. note::

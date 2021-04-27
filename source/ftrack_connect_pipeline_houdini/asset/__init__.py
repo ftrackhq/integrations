@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2021 ftrack
 
 import json
 import sys
@@ -43,7 +43,8 @@ class FtrackAssetTab(FtrackAssetBase):
         '''
         obj_path = self.get_ftrack_object_path_from_scene()
         if not obj_path:
-            self.logger.warning('My ftrack object has disappeared! (asset info: {})'.format(self.asset_info))
+            self.logger.warning('My ftrack object has disappeared! (asset info:'
+                                ' {})'.format(self.asset_info))
         else:
             if not self.is_sync(obj_path):
                 ftrack_object = self._update_ftrack_object(obj_path)
@@ -70,7 +71,7 @@ class FtrackAssetTab(FtrackAssetBase):
         ftrack_asset_nodes = houdini_utils.get_ftrack_objects()
         for obj in ftrack_asset_nodes:
             param_dict = FtrackAssetTab.get_parameters_dictionary(obj)
-            # avoid read and write nodes containing the old ftrack tab
+            # avoid objects nodes containing the old ftrack tab
             # without information
             if not param_dict:
                 continue
@@ -87,10 +88,11 @@ class FtrackAssetTab(FtrackAssetBase):
 
     def get_ftrack_object_path_from_scene(self):
         '''
-        Return the ftrack object path from the current asset_version if it exists in
-        the scene.
+        Return the ftrack object path from the current asset_version if it
+        exists in the scene.
         '''
-        return self.get_ftrack_object_path_from_scene_on_asset_info(self.asset_info)
+        return self.get_ftrack_object_path_from_scene_on_asset_info(
+            self.asset_info)
 
     def _check_ftrack_object_sync(self, obj_path):
         '''

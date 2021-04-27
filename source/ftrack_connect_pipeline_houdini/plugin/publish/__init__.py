@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2021 ftrack
 
 from ftrack_connect_pipeline_houdini.plugin.publish.collector import *
 from ftrack_connect_pipeline_houdini.plugin.publish.context import *

@@ -1,3 +1,6 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2021 ftrack
+
 import os
 import tempfile
 import logging
@@ -6,7 +9,9 @@ import hou, hdefereval
 
 import ftrack_api
 
-logger = logging.getLogger('ftrack_connect_pipeline_houdini.houdini_path.python3.7libs.pythonrc')
+
+logger = logging.getLogger(
+    'ftrack_connect_pipeline_houdini.houdini_path.python2.7libs.pythonrc')
 logger.setLevel(logging.DEBUG)
 
 event_manager = None
@@ -55,7 +60,7 @@ def init():
 
         try:
             if start_frame != end_frame:
-                hou.hscript("tset {0} {1}".format((hsf) / fps, hef / fps))
+                hou.hscript('tset {0} {1}'.format(hsf / fps, hef / fps))
                 hou.playbar.setPlaybackRange(start_frame, end_frame)
         except IndexError:
             pass
@@ -68,7 +73,7 @@ def init():
 
 
 def writePypanel(panel_id):
-    """ Write temporary xml file for pypanel """
+    ''' Write temporary xml file for pypanel '''
     xml = """<?xml version="1.0" encoding="UTF-8"?>
 <pythonPanelDocument>
   <interface name="{0}" label="{0}" icon="MISC_python" help_url="">
@@ -87,7 +92,8 @@ def createInterface():
 
     xml = xml.format(panel_id)
 
-    path = os.path.join(tempfile.gettempdir(), 'ftrack', 'connect', '%s.pypanel' % panel_id)
+    path = os.path.join(tempfile.gettempdir(), 'ftrack', 'connect',
+                        '{}.pypanel'.format(panel_id))
     if os.path.exists(path):
         pass
     else:
@@ -100,7 +106,7 @@ def createInterface():
 
 
 def FtrackPipelineDialogs(panel_id):
-    """ Generate Dialog and create pypanel instance """
+    ''' Generate Dialog and create pypanel instance '''
 
     pan_path = writePypanel(panel_id)
     hou.pypanel.installFile(pan_path)
@@ -124,14 +130,14 @@ def FtrackPipelineDialogs(panel_id):
         panel.setActiveInterface(panel_interface)
     else:
         if panel_interface:
-            hou.hscript("pane -S -m pythonpanel -o -n %s" % ftrack_id)
+            hou.hscript('pane -S -m pythonpanel -o -n {}'.format(ftrack_id))
             panel = hou.ui.curDesktop().findPaneTab(ftrack_id)
             panel.showToolbar(False)
             panel.setActiveInterface(panel_interface)
 
 
 def showPipelineDialog(name):
-    """ Show Dialog """
+    ''' Show Dialog '''
 
     from ftrack_connect_pipeline_houdini.client import load
     from ftrack_connect_pipeline_houdini.client import publish

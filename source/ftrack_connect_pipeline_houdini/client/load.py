@@ -1,5 +1,5 @@
-# # :coding: utf-8
-# # :copyright: Copyright (c) 2020 ftrack
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2021 ftrack
 
 from ftrack_connect_pipeline_qt.client.load import QtLoaderClient
 import ftrack_connect_pipeline.constants as constants

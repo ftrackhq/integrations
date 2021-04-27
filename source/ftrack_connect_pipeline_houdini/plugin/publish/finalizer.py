@@ -1,5 +1,6 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2021 ftrack
+
 import os
 import re
 
@@ -9,10 +10,12 @@ from ftrack_connect_pipeline_houdini.plugin import (
     BaseHoudiniPlugin, BaseHoudiniPluginWidget
 )
 from ftrack_connect_pipeline_houdini.constants import asset as asset_const
-from ftrack_connect_pipeline_houdini.utils import custom_commands as houdini_utils
+from ftrack_connect_pipeline_houdini.utils import custom_commands as \
+    houdini_utils
 
 
-class PublisherFinalizerHoudiniPlugin(plugin.PublisherFinalizerPlugin, BaseHoudiniPlugin):
+class PublisherFinalizerHoudiniPlugin(plugin.PublisherFinalizerPlugin,
+                                      BaseHoudiniPlugin):
     ''' Class representing a Finalizer Plugin
 
         .. note::
