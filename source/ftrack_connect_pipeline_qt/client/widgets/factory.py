@@ -324,7 +324,7 @@ class WidgetFactory(QtWidgets.QWidget):
         status = event['data']['pipeline']['status']
         message = event['data']['pipeline']['message']
         host_id = event['data']['pipeline']['host_id']
-        user_data = event['data']['pipeline'].get('user_data', {})
+        user_data = event['data']['pipeline'].get('user_data') or {}
         user_message = user_data.get('message')
 
         widget = self.widgets.get(widget_ref)
