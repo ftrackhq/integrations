@@ -21,13 +21,14 @@ import datetime
 import zipfile
 from pkg_resources import get_distribution, DistributionNotFound
 
-# # Package and dependencies versions.
-
-ftrack_connect_version = '2.0b1'
-ftrack_action_handler_version = '0.2.1'
 
 # Embedded plugins.
-ftrack_application_launcher_version = '1.0.0-beta-1'
+
+embedded_plugins = [
+   'ftrack-application-launcher-1.0.0-b2.zip'
+]
+
+
 
 bundle_name = 'ftrack-connect'
 import PySide2
@@ -55,6 +56,7 @@ DOWNLOAD_PLUGIN_PATH = os.path.join(
         datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S')
     )
 )
+AWS_PLUGIN_DOWNLOAD_PATH = 'https://s3-eu-west-1.amazonaws.com/ftrack-deployment/ftrack-connect/plugins/'
 
 
 # Read version from source.
@@ -73,22 +75,12 @@ connect_resource_hook = pkg_resources.resource_filename(
     'ftrack_connect_resource/hook'
 )
 
-#Add ftrack application launcher on the package
-external_connect_plugins = [
-    {
-        'ftrack-application-launcher':ftrack_application_launcher_version
-    }
-]
-# TODO: Activate this in case Lorenzo prefers to download from Amazon.
-# external_connect_plugins = []
-# for plugin in (
-#         'ftrack-application-launcher-{0}.zip'.format(
-#             ftrack_application_launcher_version
-#         ),
-# ):
-#     external_connect_plugins.append(
-#         (plugin, plugin.replace('.zip', ''))
-#     )
+
+external_connect_plugins = []
+for plugin in embedded_plugins:
+    external_connect_plugins.append(
+        (plugin, plugin.replace('.zip', ''))
+    )
 
 
 version_template = '''
@@ -124,9 +116,7 @@ configuration = dict(
         'lowdown >= 0.1.0, < 1',
         'cryptography',
         'requests >= 2, <3',
-        'ftrack_action_handler == {0}'.format(
-            ftrack_action_handler_version
-        ),
+        'ftrack_action_handler >= 0.2.1',
         'cx_freeze',
         'wheel',
         'setuptools>=45.0.0',
@@ -151,37 +141,14 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
         def run(self):
             '''Run build ensuring build_resources called first.'''
-            #TODO: Setup the correct path were to download the application
-            # launcher plugin
-            #TODO: activate this in case want to download form amazon
-            # download_url = (
-            #     'https://s3-eu-west-1.amazonaws.com/ftrack-deployment/'
-            #     'ftrack-connect/plugins/'
-            # )
-            download_url = (
-                'https://bitbucket.org/ftrack/'
-            )
 
             import requests
 
             os.makedirs(DOWNLOAD_PLUGIN_PATH)
 
-            # TODO: activate this in case from amazon
-            #for plugin, target in external_connect_plugins:
-            for plugin in external_connect_plugins:
-                plugin_version_name = '{}-{}'.format(
-                    list(plugin.keys())[0],
-                    list(plugin.values())[0]
-                )
-                temp_zip_file = '{}.zip'.format(plugin_version_name)
-                url = '{}/{}/get/{}.zip'.format(
-                    download_url,
-                    list(plugin.keys())[0],
-                    list(plugin.values())[0]
-                )
-                temp_path = os.path.join(
-                    DOWNLOAD_PLUGIN_PATH, temp_zip_file
-                )
+            for plugin, target in external_connect_plugins:
+                url = AWS_PLUGIN_DOWNLOAD_PATH + plugin
+                temp_path = os.path.join(DOWNLOAD_PLUGIN_PATH, plugin)
                 logging.info(
                     'Downloading url {0} to {1}'.format(
                         url,
@@ -204,7 +171,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
                 with zipfile.ZipFile(temp_path, 'r') as myzip:
                     myzip.extractall(
-                        os.path.join(DOWNLOAD_PLUGIN_PATH, plugin_version_name)
+                        os.path.join(DOWNLOAD_PLUGIN_PATH, target)
                     )
 
             build.run(self)
@@ -221,7 +188,8 @@ if sys.platform in ('darwin', 'win32', 'linux'):
     # the virtualenv
     distutils_path = os.path.join(os.path.dirname(opcode.__file__), 'distutils')
     encodings_path = os.path.join(os.path.dirname(opcode.__file__), 'encodings')
-    #
+
+    include_connect_plugins = []
     resources = [
         (connect_resource_hook, 'resource/hook'),
         (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'),
@@ -235,31 +203,14 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         (encodings_path, 'encodings')
     ]
 
-    # include_connect_plugins
-    include_connect_plugins = []
-    # TODO: activate this if download from amazon
-    # for _, plugin_directory in external_connect_plugins:
-    #     plugin_download_path = os.path.join(
-    #         DOWNLOAD_PLUGIN_PATH, plugin_directory
-    #     )
-    #     include_connect_plugins.append(
-    #         (
-    #             os.path.relpath(plugin_download_path, ROOT_PATH),
-    #             'resource/connect-standard-plugins/' + plugin_directory
-    #         )
-    #     )
-    for plugin in external_connect_plugins:
-        plugin_version_name = '{}-{}'.format(
-            list(plugin.keys())[0],
-            list(plugin.values())[0]
-        )
+    for _, plugin_directory in external_connect_plugins:
         plugin_download_path = os.path.join(
-            DOWNLOAD_PLUGIN_PATH, plugin_version_name
+            DOWNLOAD_PLUGIN_PATH, plugin_directory
         )
         include_connect_plugins.append(
             (
                 os.path.relpath(plugin_download_path, ROOT_PATH),
-                'resource/connect-standard-plugins/' + plugin_version_name
+                'resource/connect-standard-plugins/' + plugin_directory
             )
         )
 
