@@ -385,7 +385,7 @@ class BasePlugin(object):
 
         start_time = time.time()
 
-        user_data = None
+        user_data = {}
 
         result_data = {
             'plugin_name': self.plugin_name,
