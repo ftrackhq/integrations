@@ -7,9 +7,7 @@ pyside2 = 5.14.1
 
 
 '''
-
-
-
+import shutil
 import sys
 import os
 import re
@@ -19,12 +17,19 @@ import plistlib
 import pkg_resources
 import subprocess
 import time
-from pkg_resources import get_distribution, DistributionNotFound
+import datetime
+import zipfile
+from setuptools_scm import get_version
 
-# # Package and dependencies versions.
 
-ftrack_connect_version = '2.0b1'
-ftrack_action_handler_version = '0.2.1'
+# Embedded plugins.
+
+embedded_plugins = [
+   'ftrack-application-launcher-1.0.0-b2.zip'
+]
+
+
+
 bundle_name = 'ftrack-connect'
 import PySide2
 import shiboken2
@@ -46,23 +51,37 @@ SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
-
+DOWNLOAD_PLUGIN_PATH = os.path.join(
+    BUILD_PATH, 'plugin-downloads-{0}'.format(
+        datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S')
+    )
+)
+AWS_PLUGIN_DOWNLOAD_PATH = (
+    'https://s3-eu-west-1.amazonaws.com/'
+    'ftrack-deployment/ftrack-connect/plugins/'
+)
 
 # Read version from source.
-try:
-    release = get_distribution('ftrack-connect-package').version
-    # take major/minor/patch
-    VERSION = '.'.join(release.split('.')[:3])
-except DistributionNotFound:
-     # package is not installed
-    VERSION = 'Unknown version'
+release = get_version(
+    version_scheme='post-release'
+)
 
+# take major/minor/patch
+VERSION = '.'.join(release.split('.')[:3])
+
+print('BUILDING VERSION : {}'.format(release))
 
 
 connect_resource_hook = pkg_resources.resource_filename(
     pkg_resources.Requirement.parse('ftrack-connect'),
     'ftrack_connect_resource/hook'
 )
+
+external_connect_plugins = []
+for plugin in embedded_plugins:
+    external_connect_plugins.append(
+        (plugin, plugin.replace('.zip', ''))
+    )
 
 version_template = '''
 # :coding: utf-8
@@ -97,9 +116,7 @@ configuration = dict(
         'lowdown >= 0.1.0, < 1',
         'cryptography',
         'requests >= 2, <3',
-        'ftrack_action_handler == {0}'.format(
-            ftrack_action_handler_version
-        ),
+        'ftrack_action_handler >= 0.2.1',
         'cx_freeze',
         'wheel',
         'setuptools>=45.0.0',
@@ -109,15 +126,59 @@ configuration = dict(
     python_requires=">=3, <4"
 )
 
-# to run : python setup.py install
-# setup(**configuration)
 
 # Platform specific distributions.
 if sys.platform in ('darwin', 'win32', 'linux'):
 
     configuration['setup_requires'].append('cx_freeze')
 
-    from cx_Freeze import setup ,Executable, build
+    from cx_Freeze import setup, Executable, build
+
+    class BuildResources(build):
+        '''Custom build to pre-build resources.'''
+
+        def run(self):
+            '''Run build ensuring build_resources called first.'''
+
+            import requests
+            print('Creating {}'.format(DOWNLOAD_PLUGIN_PATH))
+            os.makedirs(DOWNLOAD_PLUGIN_PATH)
+
+            for plugin, target in external_connect_plugins:
+                url = AWS_PLUGIN_DOWNLOAD_PATH + plugin
+                temp_path = os.path.join(DOWNLOAD_PLUGIN_PATH, plugin)
+                logging.info(
+                    'Downloading url {0} to {1}'.format(
+                        url,
+                        temp_path
+                    )
+                )
+                print('DOWNLOADING FROM  {}'.format(url))
+
+                response = requests.get(url)
+                response.raise_for_status()
+
+                if response.status_code != 200:
+                    raise ValueError(
+                        'Got status code not equal to 200: {0}'.format(
+                            response.status_code
+                        )
+                    )
+
+                with open(temp_path, 'wb') as package_file:
+                    package_file.write(response.content)
+
+                with zipfile.ZipFile(temp_path, 'r') as myzip:
+                    myzip.extractall(
+                        os.path.join(DOWNLOAD_PLUGIN_PATH, target)
+                    )
+
+            build.run(self)
+
+
+    configuration['cmdclass'] = {
+        'build': BuildResources
+    }
 
     # Add requests certificates to resource folder.
     import requests.certs
@@ -127,7 +188,8 @@ if sys.platform in ('darwin', 'win32', 'linux'):
     # the virtualenv
     distutils_path = os.path.join(os.path.dirname(opcode.__file__), 'distutils')
     encodings_path = os.path.join(os.path.dirname(opcode.__file__), 'encodings')
-    #
+
+    include_connect_plugins = []
     resources = [
         (connect_resource_hook, 'resource/hook'),
         (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'),
@@ -140,6 +202,17 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         (distutils_path, 'distutils'),
         (encodings_path, 'encodings')
     ]
+
+    for _, plugin_directory in external_connect_plugins:
+        plugin_download_path = os.path.join(
+            DOWNLOAD_PLUGIN_PATH, plugin_directory
+        )
+        include_connect_plugins.append(
+            (
+                os.path.relpath(plugin_download_path, ROOT_PATH),
+                'resource/connect-standard-plugins/' + plugin_directory
+            )
+        )
 
     zip_include_packages = []
     executables = []
@@ -381,6 +454,8 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
     configuration['executables'] = executables
 
+    include_files.extend(include_connect_plugins)
+
     includes.extend([
         'atexit',  # Required for PySide
         'ftrack_connect',
@@ -432,6 +507,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         'include_files': include_files,
         'bin_includes': bin_includes,
     }
+
 
 def post_setup(codesign_frameworks = True):
     '''
@@ -663,8 +739,15 @@ if sys.platform == 'darwin':
     sys.argv = [sys.argv[0]] + unknown
     osx_args = args
 
+
+def clean_download_dir():
+    if os.path.exists(DOWNLOAD_PLUGIN_PATH):
+        shutil.rmtree(DOWNLOAD_PLUGIN_PATH)
+
 # Call main setup.
 setup(**configuration)
+
+clean_download_dir()
 if sys.platform == 'darwin':
     if 'osx_args' in locals():
         post_setup(codesign_frameworks=osx_args.codesign_frameworks)
