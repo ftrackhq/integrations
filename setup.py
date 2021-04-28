@@ -747,7 +747,7 @@ def clean_download_dir():
 # Call main setup.
 setup(**configuration)
 
-# clean_download_dir()
+clean_download_dir()
 if sys.platform == 'darwin':
     if 'osx_args' in locals():
         post_setup(codesign_frameworks=osx_args.codesign_frameworks)
