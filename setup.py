@@ -62,7 +62,10 @@ AWS_PLUGIN_DOWNLOAD_PATH = (
 )
 
 # Read version from source.
-release = get_version()
+release = get_version(
+    version_scheme='post-release'
+)
+
 # take major/minor/patch
 VERSION = '.'.join(release.split('.')[:3])
 
@@ -122,8 +125,6 @@ configuration = dict(
     options={},
     python_requires=">=3, <4"
 )
-
-
 
 
 # Platform specific distributions.
