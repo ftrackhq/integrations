@@ -56,8 +56,10 @@ DOWNLOAD_PLUGIN_PATH = os.path.join(
         datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S')
     )
 )
-AWS_PLUGIN_DOWNLOAD_PATH = 'https://s3-eu-west-1.amazonaws.com/ftrack-deployment/ftrack-connect/plugins/'
-
+AWS_PLUGIN_DOWNLOAD_PATH = (
+    'https://s3-eu-west-1.amazonaws.com/'
+    'ftrack-deployment/ftrack-connect/plugins/'
+)
 
 # Read version from source.
 release = get_version()

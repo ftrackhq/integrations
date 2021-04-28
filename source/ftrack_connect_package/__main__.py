@@ -48,8 +48,8 @@ def set_environ_default(name, value):
     os.environ.setdefault(name, value)
 
 
-# Hooks use the ftrack event system. Set the FTRACK_EVENT_PLUGIN_PATH
-# to pick up the default hooks if it has not already been set.
+
+
 set_environ_default(
     'FTRACK_EVENT_PLUGIN_PATH',
     os.path.abspath(
@@ -83,6 +83,7 @@ set_environ_default(
     os.environ.get('REQUESTS_CA_BUNDLE')
 )
 
+# handle default connect and event plugin paths
 ftrack_connect_plugin_paths = [
     os.path.abspath(
         os.path.join(
@@ -91,7 +92,7 @@ ftrack_connect_plugin_paths = [
         )
     )
 ]
-#
+
 if 'FTRACK_CONNECT_PLUGIN_PATH' in os.environ:
     ftrack_connect_plugin_paths.append(
         os.environ['FTRACK_CONNECT_PLUGIN_PATH']
@@ -99,6 +100,25 @@ if 'FTRACK_CONNECT_PLUGIN_PATH' in os.environ:
 
 os.environ['FTRACK_CONNECT_PLUGIN_PATH'] = os.path.pathsep.join(
     ftrack_connect_plugin_paths
+)
+
+# handle default event plugin paths
+ftrack_event_plugin_paths = [
+    os.path.abspath(
+            os.path.join(
+                os.path.dirname(sys.executable),
+                'resource', 'hook'
+            )
+        )
+]
+
+if 'FTRACK_EVENT_PLUGIN_PATH' in os.environ:
+    ftrack_event_plugin_paths.append(
+        os.environ['FTRACK_EVENT_PLUGIN_PATH']
+    )
+
+os.environ['FTRACK_EVENT_PLUGIN_PATH'] = os.path.pathsep.join(
+    ftrack_event_plugin_paths
 )
 
 set_environ_default(

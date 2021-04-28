@@ -29,13 +29,13 @@ master_doc = 'index'
 project = u'ftrack connect package'
 copyright = u'2015, ftrack'
 
-
+# Read version from source.
 try:
     release = get_distribution('ftrack-connect-package').version
     # take major/minor/patch
     VERSION = '.'.join(release.split('.')[:3])
 except DistributionNotFound:
-     # package is not installed
+    # package is not installed
     VERSION = 'Unknown version'
 
 version = VERSION
