@@ -27,10 +27,12 @@ Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\E
 WORKDIR /usr/src/app
 RUN git clone -b backlog/connect-2/story https://bitbucket.org/ftrack/ftrack-connect.git
 WORKDIR /usr/src/app/ftrack-connect
+RUN python -m pip install -r requirements.txt
 RUN python setup.py install
 
 # install connect package
 WORKDIR /usr/src/app
 RUN git clone -b backlog/connect-2/cx_freeze_latest https://bitbucket.org/ftrack/ftrack-connect-package.git
 WORKDIR /usr/src/app/ftrack-connect-package
+RUN python -m pip install -r requirements.txt
 RUN python setup.py bdist_msi

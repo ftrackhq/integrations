@@ -11,7 +11,6 @@ RUN yum -y groupinstall "Development Tools"
 RUN yum install -y *libxcb* libXi libSM fontconfig libXrender libxkbcommon-x11 qt5*
 
 RUN python -m pip install --upgrade pip
-RUN python -m pip install PySide2 wheel cx_freeze appdirs arrow certifi chardet clique lowdown ftrack-python-api riffle
 
 RUN mkdir -p /usr/src/app
 
@@ -19,11 +18,13 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 RUN git clone -b backlog/connect-2/story https://bitbucket.org/ftrack/ftrack-connect.git
 WORKDIR /usr/src/app/ftrack-connect
+RUN python -m pip install -r requirements.txt
 RUN python setup.py install
 
 WORKDIR /usr/src/app
 RUN git clone -b backlog/connect-2/cx_freeze_latest https://bitbucket.org/ftrack/ftrack-connect-package.git
 WORKDIR /usr/src/app/ftrack-connect-package
+RUN python3.7 -m pip install -r requirements.txt
 RUN python setup.py build
 
 WORKDIR /usr/src/app/ftrack-connect-package/build
