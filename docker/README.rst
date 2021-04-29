@@ -18,7 +18,7 @@ Windows
 
 .. code-block::
 
-   docker build --rm -t ftrack/connect-package:win10 -f Win10-Dockerfile .
+   docker build --rm -t ftrack/connect-package:win10 -f Win10.Dockerfile .
 
 
 Linux C7
@@ -26,7 +26,7 @@ Linux C7
 
 .. code-block::
 
-    docker build --rm -t ftrack/connect-package:c7 -f C7-Dockerfile .
+    docker build --rm -t ftrack/connect-package:c7 -f C7.Dockerfile .
 
 
 Linux C8
@@ -34,7 +34,7 @@ Linux C8
 
 .. code-block::
 
-    docker build --rm -t ftrack/connect-package:c8 -f C8-Dockerfile .
+    docker build --rm -t ftrack/connect-package:c8 -f C8.Dockerfile .
 
 
 Run 
