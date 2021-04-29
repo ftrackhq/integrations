@@ -299,6 +299,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         ]
         #Extend include_files with resources list
         include_files.extend(resources)
+        include_files.extend(include_connect_plugins)
 
         # Force Qt to be included.
         bin_includes = [
@@ -360,19 +361,9 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         # Remove qt.conf on macOS as it's not working as expected, so QT plugins
         # and dylib are added on the MacOS folder for now
         include_resources.remove(('qt.conf', 'qt.conf'))
-        include_resources.remove((requests.certs.where(), 'resource/cacert.pem'))
-        # Remove the hook resource folder from Resources because we need them
-        # in MacOS/resource to be compatible with other systems.
-        # Because we just setup one common path for all systems.
-        # See ftrack_connect_package/__main__.py line 86 and 104.
-        include_resources.remove((connect_resource_hook, 'resource/hook'))
-        include_resources.remove((os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'))
-        include_resources.remove(
-            (
-                os.path.join(SOURCE_PATH, 'ftrack_connect_package', '_version.py'),
-                'resource/ftrack_connect_package_version.py'
-            )
-        )
+
+        #Extend resources with the connect plugins.
+        include_resources.extend(include_connect_plugins)
 
         configuration['options']['bdist_mac'] = {
             'iconfile': './logo.icns',
@@ -403,15 +394,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             os.path.join(pyside_path, "Qt", "plugins", "iconengines"),
             #Include PySide and Shiboken libs
             os.path.join(pyside_path, "libpyside2.abi3.5.14.dylib"),
-            os.path.join(shiboken_path, "libshiboken2.abi3.5.14.dylib"),
-            (requests.certs.where(), 'resource/cacert.pem'),
-            # We are including the hooks folder into the MACOS/resource folder
-            (connect_resource_hook, 'resource/hook'),
-            (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'),
-            (
-                os.path.join(SOURCE_PATH, 'ftrack_connect_package', '_version.py'),
-                'resource/ftrack_connect_package_version.py'
-            )
+            os.path.join(shiboken_path, "libshiboken2.abi3.5.14.dylib")
         ]
 
     elif sys.platform == 'linux':
@@ -439,6 +422,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
         # Extend include_files with resources list
         include_files.extend(resources)
+        include_files.extend(include_connect_plugins)
 
         # Force Qt to be included.
         bin_includes = [
@@ -454,7 +438,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
     configuration['executables'] = executables
 
-    include_files.extend(include_connect_plugins)
+    # include_files.extend(include_connect_plugins)
 
     includes.extend([
         'atexit',  # Required for PySide

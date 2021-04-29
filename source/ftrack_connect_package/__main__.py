@@ -5,6 +5,7 @@ import sys
 import os
 import argparse
 import logging
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -48,13 +49,25 @@ def set_environ_default(name, value):
     os.environ.setdefault(name, value)
 
 
+resource_path = os.path.abspath(
+    os.path.join(
+        os.path.dirname(sys.executable), 'resource'
+    )
+)
 
+if sys.platform == "darwin":
+    exec_path = Path(os.path.dirname(sys.executable))
+    resource_path = os.path.abspath(
+        os.path.join(
+            str(exec_path.parent), 'Resources', 'resource'
+        )
+    )
 
 set_environ_default(
     'FTRACK_EVENT_PLUGIN_PATH',
     os.path.abspath(
         os.path.join(
-            os.path.dirname(sys.executable), 'resource', 'hook'
+            resource_path, 'hook'
         )
     )
 )
@@ -65,7 +78,7 @@ set_environ_default(
     'REQUESTS_CA_BUNDLE',
     os.path.abspath(
         os.path.join(
-            os.path.dirname(sys.executable), 'resource', 'cacert.pem'
+            resource_path, 'cacert.pem'
         )
     )
 )
@@ -87,7 +100,7 @@ set_environ_default(
 ftrack_connect_plugin_paths = [
     os.path.abspath(
         os.path.join(
-            os.path.dirname(sys.executable), 'resource',
+            resource_path,
             'connect-standard-plugins'
         )
     )
@@ -106,8 +119,7 @@ os.environ['FTRACK_CONNECT_PLUGIN_PATH'] = os.path.pathsep.join(
 ftrack_event_plugin_paths = [
     os.path.abspath(
             os.path.join(
-                os.path.dirname(sys.executable),
-                'resource', 'hook'
+                resource_path, 'hook'
             )
         )
 ]
@@ -123,11 +135,7 @@ os.environ['FTRACK_EVENT_PLUGIN_PATH'] = os.path.pathsep.join(
 
 set_environ_default(
     'FTRACK_CONNECT_PACKAGE_RESOURCE_PATH',
-    os.path.abspath(
-        os.path.join(
-            os.path.dirname(sys.executable), 'resource'
-        )
-    )
+    resource_path
 )
 
 import ftrack_connect.__main__
