@@ -438,8 +438,6 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
     configuration['executables'] = executables
 
-    # include_files.extend(include_connect_plugins)
-
     includes.extend([
         'atexit',  # Required for PySide
         'ftrack_connect',
