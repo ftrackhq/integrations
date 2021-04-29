@@ -22,9 +22,9 @@ RUN python -m pip install -r requirements.txt
 RUN python setup.py install
 
 WORKDIR /usr/src/app
-RUN git clone -b backlog/connect-2/cx_freeze_latest https://bitbucket.org/ftrack/ftrack-connect-package.git
+RUN git clone -b backlog/connect-2/story https://bitbucket.org/ftrack/ftrack-connect-package.git
 WORKDIR /usr/src/app/ftrack-connect-package
-RUN python3.7 -m pip install -r requirements.txt
+RUN python -m pip install -r requirements.txt
 RUN python setup.py build
 
 WORKDIR /usr/src/app/ftrack-connect-package/build
