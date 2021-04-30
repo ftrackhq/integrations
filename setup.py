@@ -25,7 +25,7 @@ from setuptools_scm import get_version
 # Embedded plugins.
 
 embedded_plugins = [
-   'ftrack-application-launcher-1.0.0-b2.zip'
+   'ftrack-application-launcher-1.0.0-b3.zip'
 ]
 
 
