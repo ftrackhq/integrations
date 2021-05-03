@@ -6,6 +6,8 @@ import sys
 import re
 import shutil
 from pkg_resources import parse_version, DistributionNotFound, get_distribution
+from distutils.spawn import find_executable
+
 import pip
 
 import subprocess
@@ -47,50 +49,52 @@ class BuildResources(Command):
         self.resource_target_path = RESOURCE_TARGET_PATH
 
     def _replace_imports_(self):
-        '''Replace imports in resource files to Qtpy instead of QtCore.
+        '''Replace imports in resource files to Qt instead of QtCore.
 
         This allows the resource file to work with many different versions of
         Qt.
 
         '''
-        replace = 'from Qt import QtCore'
-        for line in fileinput.input(self.resource_target_path, inplace=True):
-            if 'import QtCore' in line:
+        replace = r'from Qt import QtCore'
+        for line in fileinput.input(self.resource_target_path, inplace=True, mode='r'):
+            if r'import QtCore' in line:
                 # Calling print will yield a new line in the resource file.
                 sys.stdout.write(line.replace(line, replace))
             else:
-                # Calling print will yield a new line in the resource file.
                 sys.stdout.write(line)
 
     def run(self):
         '''Run build.'''
         try:
-            pyside_rcc_command = 'pyside-rcc'
+            pyside_rcc_command = 'pyside2-rcc'
+            executable = None
+    
+            # Check if the command for pyside*-rcc is in executable paths.
+            if find_executable(pyside_rcc_command):
+                executable = pyside_rcc_command
 
-            # On Windows, pyside-rcc is not automatically available on the
-            # PATH so try to find it manually.
-            if sys.platform == 'win32':
-                import PySide
-                pyside_rcc_command = os.path.join(
-                    os.path.dirname(PySide.__file__),
-                    'pyside-rcc.exe'
-                )
+            if not executable:
+                raise IOError('Not executable found for pyside2-rcc ')
 
-            subprocess.check_call([
-                pyside_rcc_command,
+            # Use the first occurrence if more than one is found.
+            cmd = [
+                executable,
                 '-o',
                 self.resource_target_path,
                 self.resource_source_path
-            ])
-        except (subprocess.CalledProcessError, OSError) as error:
+            ]
+            print('running : {}'.format(cmd))
+            subprocess.check_call(cmd)
+
+        except (subprocess.CalledProcessError, OSError):
             raise RuntimeError(
                 'Error compiling resource.py using pyside-rcc. Possibly '
                 'pyside-rcc could not be found. You might need to manually add '
                 'it to your PATH. See README for more information.'
-                'error : {}'.format(error)
             )
 
         self._replace_imports_()
+
 
 
 class BuildPlugin(Command):
@@ -177,6 +181,8 @@ setup(
         '': 'source'
     },
     setup_requires=[
+        'PySide2 >=5, <6',
+        'Qt.py >=1.0.0, < 2',
         'sphinx >= 1.8.5, < 4',
         'sphinx_rtd_theme >= 0.1.6, < 1',
         'lowdown >= 0.1.0, < 1',
@@ -184,7 +190,8 @@ setup(
         'setuptools_scm'
     ],
     install_requires=[
-        'clique',
+        'clique==1.6.1',
+        'PySide2 >=5, <6',
         'appdirs == 1.4.0',
         'lucidity >= 1.5, < 2',
         'opentimelineio ==0.11',
