@@ -1,17 +1,11 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2021 ftrack
 
-import json
-import sys
 import six
-
-import ftrack_api
 
 from ftrack_connect_pipeline.asset import FtrackAssetInfo, FtrackAssetBase
 from ftrack_connect_pipeline_houdini.constants import asset as asset_const
-from ftrack_connect_pipeline import constants as core_const
 from ftrack_connect_pipeline_houdini.utils import custom_commands as houdini_utils
-from ftrack_connect_pipeline_houdini.constants.asset import modes as load_const
 
 import hou
 
@@ -47,11 +41,11 @@ class FtrackAssetTab(FtrackAssetBase):
                                 ' {})'.format(self.asset_info))
         else:
             if not self.is_sync(obj_path):
-                ftrack_object = self._update_ftrack_object(obj_path)
+                self._update_ftrack_object(obj_path)
 
-        self.obj_path = obj_path
+        self.ftrack_object = obj_path
 
-        return self.obj_path
+        return self.ftrack_object
 
     @staticmethod
     def get_parameters_dictionary(obj):
@@ -66,9 +60,9 @@ class FtrackAssetTab(FtrackAssetBase):
                     param_dict[parm.name()] = parm.eval()
         return param_dict
 
-    @staticmethod
-    def get_ftrack_object_path_from_scene_on_asset_info(asset_info):
+    def get_ftrack_object_path_from_scene_on_asset_info(self, asset_info):
         ftrack_asset_nodes = houdini_utils.get_ftrack_objects()
+        result_path = None
         for obj in ftrack_asset_nodes:
             param_dict = FtrackAssetTab.get_parameters_dictionary(obj)
             # avoid objects nodes containing the old ftrack tab
@@ -83,8 +77,10 @@ class FtrackAssetTab(FtrackAssetBase):
                     node_asset_info[asset_const.REFERENCE_OBJECT] ==
                     asset_info[asset_const.REFERENCE_OBJECT]
             ):
-                return obj.path()
-        return None
+                result_path = obj.path()
+                break
+        self.logger.debug('Found {} existing node'.format(result_path))
+        return result_path
 
     def get_ftrack_object_path_from_scene(self):
         '''
@@ -109,7 +105,7 @@ class FtrackAssetTab(FtrackAssetBase):
         node_asset_info = FtrackAssetInfo(param_dict)
 
         if node_asset_info == self.asset_info:
-            self.logger.debug("{} is synced".format(ftrack_object))
+            self.logger.debug("{} is synced".format(obj))
             synced = True
 
         return synced

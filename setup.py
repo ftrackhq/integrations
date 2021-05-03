@@ -129,12 +129,11 @@ setup(
     },
     python_requires='<3.8',
     setup_requires=[
-        'sphinx >= 1.2.2, < 2',
+        'sphinx >= 1.8.5, < 4',
         'sphinx_rtd_theme >= 0.1.6, < 2',
         'lowdown >= 0.1.0, < 2',
     ],
     install_requires=[
-        'ftrack-python-api',
     ],
     tests_require=[
         'pytest >= 2.3.5, < 3'

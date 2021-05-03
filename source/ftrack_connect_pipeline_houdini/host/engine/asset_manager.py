@@ -8,7 +8,6 @@ from ftrack_connect_pipeline.host.engine import AssetManagerEngine
 from ftrack_connect_pipeline_houdini.asset import FtrackAssetTab
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
 from ftrack_connect_pipeline_houdini.utils import custom_commands as houdini_utils
-from ftrack_connect_pipeline_houdini.constants import asset as asset_const
 
 
 class HoudiniAssetManagerEngine(AssetManagerEngine):
@@ -74,7 +73,6 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
         except:
             import traceback
             self.logger.error(traceback.format_exc())
-            raise
 
         return status, result
 
@@ -106,21 +104,23 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
             }
 
             try:
-                obj_path = FtrackAssetTab.get_ftrack_object_path_from_scene_on_asset_info(asset_info)
-                if not obj_path:
-                    message = "There is no ftrack object in the current scene @ path '{}'".format(obj_path)
+                ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
+                if not ftrack_asset_object:
+                    message = 'There is no such ftrack object in the current ' \
+                              'scene'
                     self.logger.warning(message)
                     status = constants.UNKNOWN_STATUS
                 else:
-                    obj = hou.node(obj_path)
                     try:
-                        str_node = obj_path
+                        obj_path = ftrack_asset_object.ftrack_object
+                        obj = hou.node(obj_path)
                         obj.destroy()
-                        result.append(str_node)
+                        result.append(obj_path)
                         status = constants.SUCCESS_STATUS
                     except Exception as error:
                         message = str(
-                            'Could not delete the ftrack_object, error: {}'.format(error)
+                            'Could not delete the ftrack_object,'
+                            ' error: {}'.format(error)
                         )
                         self.logger.error(message)
                         status = constants.ERROR_STATUS
@@ -141,6 +141,7 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
             import traceback
             self.logger.error(traceback.format_exc())
             raise
+            
         return status, result
 
     def select_asset(self, asset_info, options=None, plugin=None):
@@ -173,17 +174,18 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
                 'message': message
             }
             try:
-                obj_path = FtrackAssetTab.get_ftrack_object_path_from_scene_on_asset_info(asset_info)
-                if not obj_path:
-                    message = "There is no ftrack object in the current scene @ path '{}'".format(obj_path)
+                ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
+                if not ftrack_asset_object:
+                    message = 'There is no such ftrack object in the current ' \
+                              'scene'
                     self.logger.warning(message)
                     status = constants.UNKNOWN_STATUS
                 else:
-                    obj = hou.node(obj_path)
                     try:
-                        str_node = obj_path
+                        obj_path = ftrack_asset_object.ftrack_object
+                        obj = hou.node(obj_path)
                         hou.Node.setSelected(obj, True, clear_all_selected=(options.get('clear_selection') is True))
-                        result.append(str_node)
+                        result.append(obj_path)
                         status = constants.SUCCESS_STATUS
                     except Exception as error:
                         message = str(

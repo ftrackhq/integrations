@@ -13,7 +13,6 @@ from ftrack_connect_pipeline_houdini.plugin import (
 from ftrack_connect_pipeline_houdini.asset import FtrackAssetTab
 from ftrack_connect_pipeline_houdini.constants import asset as asset_const
 from ftrack_connect_pipeline_houdini.constants.asset import modes as load_const
-from ftrack_connect_pipeline_houdini.utils import custom_commands as houdini_utils
 
 
 class LoaderImporterHoudiniPlugin(plugin.LoaderImporterPlugin,
@@ -27,15 +26,9 @@ class LoaderImporterHoudiniPlugin(plugin.LoaderImporterPlugin,
     ftrack_asset_class = FtrackAssetTab
 
     def _run(self, event):
-        '''
 
-        If we import a houdini scene, we don't add any FtrackTab for now.
-
-        '''
-
+        # If we import a houdini scene, we don't add any FtrackTab for now.
         try:
-            #self.old_data = houdini_utils.get_current_scene_objects()
-            #self.logger.info('Scene objects : {}'.format(len(self.old_data)))
 
             super_result = super(LoaderImporterHoudiniPlugin, self)._run(event)
 
@@ -54,10 +47,10 @@ class LoaderImporterHoudiniPlugin(plugin.LoaderImporterPlugin,
 
             asset_load_mode = options.get(asset_const.LOAD_MODE)
 
-            if asset_load_mode != load_const.OPEN_MODE and asset_load_mode != \
-                    load_const.MERGE_MODE:
+            if (asset_load_mode != load_const.OPEN_MODE and
+                    asset_load_mode != load_const.MERGE_MODE):
 
-                result = super_result.get('result',{})
+                result = super_result.get('result', {})
 
                 if isinstance(result, dict):
                     run = result.get('run')
@@ -78,7 +71,6 @@ class LoaderImporterHoudiniPlugin(plugin.LoaderImporterPlugin,
         except:
             import traceback
             self.logger.error(traceback.format_exc())
-            raise
 
 
 class LoaderImporterHoudiniWidget(pluginWidget.LoaderImporterWidget,

@@ -11,7 +11,7 @@ import ftrack_api
 
 
 logger = logging.getLogger(
-    'ftrack_connect_pipeline_houdini.houdini_path.python2.7libs.pythonrc')
+    'ftrack_connect_pipeline_houdini.houdini_path.python3.7libs.pythonrc')
 logger.setLevel(logging.DEBUG)
 
 event_manager = None

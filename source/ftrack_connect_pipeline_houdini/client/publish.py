@@ -15,11 +15,3 @@ class HoudiniPublisherClient(QtPublisherClient):
             event_manager=event_manager, parent=parent
         )
         self.setWindowTitle('Houdini Pipeline Publisher')
-
-    def change_host(self, host_connection):
-        ''' Triggered when host_changed is called from the host_selector.'''
-        super(HoudiniPublisherClient, self).change_host(host_connection)
-
-    def change_definition(self, schema, definition):
-        super(HoudiniPublisherClient, self).change_definition(schema, definition)
-

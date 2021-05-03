@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2021 ftrack
 
 import logging
-import ftrack_api
+
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_houdini import constants as houdini_constants
 from ftrack_connect_pipeline.host import Host
