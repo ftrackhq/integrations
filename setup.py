@@ -29,7 +29,7 @@ STAGING_PATH = os.path.join(BUILD_PATH, 'ftrack-connect-nuke-studio-{0}')
 HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
 APPLICATION_HOOK_PATH = os.path.join(RESOURCE_PATH, 'application_hook')
 
-release = setuptools_scm.get_version()
+release = setuptools_scm.get_version(version_scheme='post-release')
 
 
 # Custom commands.
