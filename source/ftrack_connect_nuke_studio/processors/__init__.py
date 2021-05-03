@@ -19,7 +19,7 @@ from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_edl_exporter impo
 from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_otio_exporter import FtrackOTIOExporterPreset
 from ftrack_connect_nuke_studio.processors.ftrack_tasks.ftrack_reviewable_exporter import FtrackReviewableExporterPreset
 
-from ftrack_base import FTRACK_PROJECT_STRUCTURE
+from .ftrack_base import FTRACK_PROJECT_STRUCTURE
 
 registry = hiero.core.taskRegistry
 
