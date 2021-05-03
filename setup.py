@@ -9,12 +9,11 @@ from pkg_resources import parse_version, DistributionNotFound, get_distribution
 import pip
 
 import subprocess
-from pip.__main__ import _main as pip_main
 
 from setuptools import setup, find_packages, Command
 
 import fileinput
-
+import setuptools_scm
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
@@ -27,6 +26,8 @@ BUILD_PATH = os.path.join(ROOT_PATH, 'build')
 STAGING_PATH = os.path.join(BUILD_PATH, 'ftrack-connect-nuke-studio-{0}')
 HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
 APPLICATION_HOOK_PATH = os.path.join(RESOURCE_PATH, 'application_hook')
+
+release = setuptools_scm.get_version()
 
 
 # Custom commands.
@@ -107,8 +108,6 @@ class BuildPlugin(Command):
 
     def run(self):
         '''Run the build step.'''
-        import setuptools_scm
-        release = setuptools_scm.get_version()
         VERSION = '.'.join(release.split('.')[:3])
         global STAGING_PATH
         STAGING_PATH = STAGING_PATH.format(VERSION)
@@ -137,13 +136,13 @@ class BuildPlugin(Command):
             os.path.join(STAGING_PATH, 'application_hook')
         )
 
-        pip_main(
-            [
-                'install',
-                '.',
-                '--target',
-                os.path.join(STAGING_PATH, 'dependencies')
-            ]
+
+        dependencies_path = os.path.join(STAGING_PATH, 'dependencies')
+
+
+        subprocess.check_call(
+            [sys.executable, '-m', 'pip', 'install','.','--target',
+            dependencies_path]
         )
 
         shutil.make_archive(
@@ -178,14 +177,14 @@ setup(
         '': 'source'
     },
     setup_requires=[
-        'sphinx >= 1.2.2, < 2',
-        'sphinx_rtd_theme >= 0.1.6, < 2',
+        'sphinx >= 1.8.5, < 4',
+        'sphinx_rtd_theme >= 0.1.6, < 1',
         'lowdown >= 0.1.0, < 1',
-        'setuptools>=30.3.0',
-        'setuptools_scm',
+        'setuptools>=45.0.0',
+        'setuptools_scm'
     ],
     install_requires=[
-        'clique==1.5.0',
+        'clique',
         'appdirs == 1.4.0',
         'lucidity >= 1.5, < 2',
         'opentimelineio ==0.11',
@@ -202,5 +201,5 @@ setup(
         'build_plugin': BuildPlugin,
         'build_resources': BuildResources
     },
-    python_requires=">=2.7.9, <3"
+    python_requires=">=3, <4.0"
 )
