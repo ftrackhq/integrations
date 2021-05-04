@@ -26,53 +26,46 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
         Discover all the assets in the scene:
         Returns status and result
         '''
-        try:
-            start_time = time.time()
-            status = constants.UNKNOWN_STATUS
-            result = []
-            message = None
 
-            result_data = {
-                'plugin_name': 'None',
-                'plugin_type': constants.PLUGIN_AM_ACTION_TYPE,
-                'method': 'discover_assets',
-                'status': status,
-                'result': result,
-                'execution_time': 0,
-                'message': message
-            }
+        start_time = time.time()
+        status = constants.UNKNOWN_STATUS
+        result = []
+        message = None
 
-            ftrack_asset_nodes = houdini_utils.get_ftrack_objects()
-            ftrack_asset_info_list = []
+        result_data = {
+            'plugin_name': 'None',
+            'plugin_type': constants.PLUGIN_AM_ACTION_TYPE,
+            'method': 'discover_assets',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': message
+        }
 
-            for obj in ftrack_asset_nodes:
-                param_dict = FtrackAssetTab.get_parameters_dictionary(
-                    obj
-                )
-                # avoid objects containing the old ftrack tab without information
-                if not param_dict:
-                    continue
-                node_asset_info = FtrackAssetInfo(param_dict)
-                ftrack_asset_info_list.append(node_asset_info)
+        ftrack_asset_nodes = houdini_utils.get_ftrack_objects()
+        ftrack_asset_info_list = []
 
-            if not ftrack_asset_info_list:
-                status = constants.ERROR_STATUS
-            else:
-                status = constants.SUCCESS_STATUS
-            result = ftrack_asset_info_list
+        for obj in ftrack_asset_nodes:
+            param_dict = FtrackAssetTab.get_parameters_dictionary(
+                obj
+            )
+            # avoid objects containing the old ftrack tab without information
+            if not param_dict:
+                continue
+            node_asset_info = FtrackAssetInfo(param_dict)
+            ftrack_asset_info_list.append(node_asset_info)
 
-            end_time = time.time()
-            total_time = end_time - start_time
+        status = constants.SUCCESS_STATUS
+        result = ftrack_asset_info_list
 
-            result_data['status'] = status
-            result_data['result'] = result
-            result_data['execution_time'] = total_time
+        end_time = time.time()
+        total_time = end_time - start_time
 
-            self._notify_client(plugin, result_data)
+        result_data['status'] = status
+        result_data['result'] = result
+        result_data['execution_time'] = total_time
 
-        except:
-            import traceback
-            self.logger.error(traceback.format_exc())
+        self._notify_client(plugin, result_data)
 
         return status, result
 
@@ -81,67 +74,63 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
         Removes the given *asset_info* from the scene.
         Returns status and result
         '''
+
+        start_time = time.time()
+        status = constants.UNKNOWN_STATUS
+        result = []
+        message = None
+
+        plugin_type = constants.PLUGIN_AM_ACTION_TYPE
+        plugin_name = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_name = plugin.get('name')
+
+        result_data = {
+            'plugin_name': plugin_name,
+            'plugin_type': plugin_type,
+            'method': 'remove_asset',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': message
+        }
+
         try:
-            start_time = time.time()
-            status = constants.UNKNOWN_STATUS
-            result = []
-            message = None
-
-            plugin_type = constants.PLUGIN_AM_ACTION_TYPE
-            plugin_name = None
-            if plugin:
-                plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
-                plugin_name = plugin.get('name')
-
-            result_data = {
-                'plugin_name': plugin_name,
-                'plugin_type': plugin_type,
-                'method': 'remove_asset',
-                'status': status,
-                'result': result,
-                'execution_time': 0,
-                'message': message
-            }
-
-            try:
-                ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
-                if not ftrack_asset_object:
-                    message = 'There is no such ftrack object in the current ' \
-                              'scene'
-                    self.logger.warning(message)
-                    status = constants.UNKNOWN_STATUS
+            ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
+            if not ftrack_asset_object:
+                message = 'There is no such ftrack object in the current ' \
+                          'scene'
+                self.logger.warning(message)
+                status = constants.UNKNOWN_STATUS
+            else:
+                try:
+                    obj_path = ftrack_asset_object.ftrack_object
+                    obj = hou.node(obj_path)
+                    obj.destroy()
+                    result.append(obj_path)
+                    status = constants.SUCCESS_STATUS
+                except Exception as error:
+                    message = str(
+                        'Could not delete the ftrack_object,'
+                        ' error: {}'.format(error)
+                    )
+                    self.logger.error(message)
+                    status = constants.ERROR_STATUS
                 else:
-                    try:
-                        obj_path = ftrack_asset_object.ftrack_object
-                        obj = hou.node(obj_path)
-                        obj.destroy()
-                        result.append(obj_path)
-                        status = constants.SUCCESS_STATUS
-                    except Exception as error:
-                        message = str(
-                            'Could not delete the ftrack_object,'
-                            ' error: {}'.format(error)
-                        )
-                        self.logger.error(message)
-                        status = constants.ERROR_STATUS
-                    else:
-                        bool_status = constants.status_bool_mapping[status]
-                        if not bool_status:
-                            status = constants.UNKNOWN_STATUS
-            finally:
-                end_time = time.time()
-                total_time = end_time - start_time
+                    bool_status = constants.status_bool_mapping[status]
+                    if not bool_status:
+                        status = constants.UNKNOWN_STATUS
+        finally:
+            end_time = time.time()
+            total_time = end_time - start_time
 
-                result_data['status'] = status
-                result_data['result'] = result
-                result_data['execution_time'] = total_time
+            result_data['status'] = status
+            result_data['result'] = result
+            result_data['execution_time'] = total_time
 
-            self._notify_client(plugin, result_data)
-        except:
-            import traceback
-            self.logger.error(traceback.format_exc())
-            raise
-            
+        self._notify_client(plugin, result_data)
+
         return status, result
 
     def select_asset(self, asset_info, options=None, plugin=None):
@@ -151,65 +140,59 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
         select the given *asset_info*.
         Returns status and result
         '''
+
+        start_time = time.time()
+        status = constants.UNKNOWN_STATUS
+        result = []
+        message = None
+
+        plugin_type = constants.PLUGIN_AM_ACTION_TYPE
+        plugin_name = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_name = plugin.get('name')
+
+        result_data = {
+            'plugin_name': plugin_name,
+            'plugin_type': plugin_type,
+            'method': 'select_asset',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': message
+        }
         try:
-
-            start_time = time.time()
-            status = constants.UNKNOWN_STATUS
-            result = []
-            message = None
-
-            plugin_type = constants.PLUGIN_AM_ACTION_TYPE
-            plugin_name = None
-            if plugin:
-                plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
-                plugin_name = plugin.get('name')
-
-            result_data = {
-                'plugin_name': plugin_name,
-                'plugin_type': plugin_type,
-                'method': 'select_asset',
-                'status': status,
-                'result': result,
-                'execution_time': 0,
-                'message': message
-            }
-            try:
-                ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
-                if not ftrack_asset_object:
-                    message = 'There is no such ftrack object in the current ' \
-                              'scene'
-                    self.logger.warning(message)
-                    status = constants.UNKNOWN_STATUS
+            ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
+            if not ftrack_asset_object:
+                message = 'There is no such ftrack object in the current ' \
+                          'scene'
+                self.logger.warning(message)
+                status = constants.UNKNOWN_STATUS
+            else:
+                try:
+                    obj_path = ftrack_asset_object.ftrack_object
+                    obj = hou.node(obj_path)
+                    hou.Node.setSelected(obj, True, clear_all_selected=(options.get('clear_selection') is True))
+                    result.append(obj_path)
+                    status = constants.SUCCESS_STATUS
+                except Exception as error:
+                    message = str(
+                        'Could not delete the ftrack_object, error: {}'.format(error)
+                    )
+                    self.logger.error(message)
+                    status = constants.ERROR_STATUS
                 else:
-                    try:
-                        obj_path = ftrack_asset_object.ftrack_object
-                        obj = hou.node(obj_path)
-                        hou.Node.setSelected(obj, True, clear_all_selected=(options.get('clear_selection') is True))
-                        result.append(obj_path)
-                        status = constants.SUCCESS_STATUS
-                    except Exception as error:
-                        message = str(
-                            'Could not delete the ftrack_object, error: {}'.format(error)
-                        )
-                        self.logger.error(message)
-                        status = constants.ERROR_STATUS
-                    else:
-                        bool_status = constants.status_bool_mapping[status]
-                        if not bool_status:
-                            status = constants.UNKNOWN_STATUS
-            finally:
-                end_time = time.time()
-                total_time = end_time - start_time
+                    bool_status = constants.status_bool_mapping[status]
+                    if not bool_status:
+                        status = constants.UNKNOWN_STATUS
+        finally:
+            end_time = time.time()
+            total_time = end_time - start_time
 
-                result_data['status'] = status
-                result_data['result'] = result
-                result_data['execution_time'] = total_time
+            result_data['status'] = status
+            result_data['result'] = result
+            result_data['execution_time'] = total_time
 
-            self._notify_client(plugin, result_data)
-
-        except:
-            import traceback
-            self.logger.error(traceback.format_exc())
-            raise
+        self._notify_client(plugin, result_data)
 
         return status, result

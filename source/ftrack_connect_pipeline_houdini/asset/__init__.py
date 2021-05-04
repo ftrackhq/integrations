@@ -60,7 +60,11 @@ class FtrackAssetTab(FtrackAssetBase):
                     param_dict[parm.name()] = parm.eval()
         return param_dict
 
-    def get_ftrack_object_path_from_scene_on_asset_info(self, asset_info):
+    def get_ftrack_object_path_from_scene(self):
+        '''
+        Return the ftrack object path from the current asset_version if it
+        exists in the scene.
+        '''
         ftrack_asset_nodes = houdini_utils.get_ftrack_objects()
         result_path = None
         for obj in ftrack_asset_nodes:
@@ -75,20 +79,12 @@ class FtrackAssetTab(FtrackAssetBase):
                     "Can not read v1 ftrack asset plugin")
             if (
                     node_asset_info[asset_const.REFERENCE_OBJECT] ==
-                    asset_info[asset_const.REFERENCE_OBJECT]
+                    self.asset_info[asset_const.REFERENCE_OBJECT]
             ):
                 result_path = obj.path()
                 break
         self.logger.debug('Found {} existing node'.format(result_path))
         return result_path
-
-    def get_ftrack_object_path_from_scene(self):
-        '''
-        Return the ftrack object path from the current asset_version if it
-        exists in the scene.
-        '''
-        return self.get_ftrack_object_path_from_scene_on_asset_info(
-            self.asset_info)
 
     def _check_ftrack_object_sync(self, obj_path):
         '''
