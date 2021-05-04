@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mainMenu>
+  <menuBar>
+    <subMenu>
+    <insertBefore>help_menu</insertBefore>
+      <label>ftrack</label>
+      <subMenu>
+        <label>Pipeline</label>
+        <scriptItem id="hou_PipelineImportAsset">
+          <label>Loader</label>
+          <scriptCode><![CDATA[__import__('__main__').FtrackPipelineDialogs('ftrack_pipelineLoader_panel')]]></scriptCode>
+        </scriptItem>
+        <scriptItem id="hou_PipelinePublishAsset">
+          <label>Publisher</label>
+          <scriptCode><![CDATA[__import__('__main__').FtrackPipelineDialogs('ftrack_pipelinePublish_panel')]]></scriptCode>
+        </scriptItem>
+        <separatorItem />
+        <scriptItem id="hou_PipelineAssetManager">
+          <label>Asset Manager</label>
+          <scriptCode><![CDATA[__import__('__main__').FtrackPipelineDialogs('ftrack_pipelineAssetManager_panel')]]></scriptCode>
+        </scriptItem>
+        <separatorItem />
+        <scriptItem id="hou_PipelineInfo">
+          <label>Log Viewer</label>
+          <scriptCode><![CDATA[__import__('__main__').FtrackPipelineDialogs('ftrack_pipelineLogViewer_panel')]]></scriptCode>
+        </scriptItem>
+      </subMenu>
+    </subMenu>
+  </menuBar>
+</mainMenu>   
