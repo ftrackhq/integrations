@@ -2,4 +2,4 @@
 # :copyright: Copyright (c) 2014-2021 ftrack
 
 
-__version__ = '0.0.2'
+__version__ = '1.0.0-b2'
