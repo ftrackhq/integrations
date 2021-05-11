@@ -17,8 +17,8 @@ class QtClient(client.Client, QtWidgets.QWidget):
     # Text of the button to run the whole definition
     run_definition_button_text = 'Run'
 
-    def __init__(self, event_manager,parent=None):
-        '''Initialise with *event_manager* , and optional *ui* List and
+    def __init__(self, event_manager, parent=None):
+        '''Initialise with *event_manager* and
         *parent* widget'''
         QtWidgets.QWidget.__init__(self, parent=parent)
         client.Client.__init__(self, event_manager)
@@ -34,14 +34,25 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.add_hosts(self.discover_hosts())
 
     def add_hosts(self, host_connections):
+        '''
+        Adds the given *host_connections*
+
+        *host_connections* : list of
+        :class:`~ftrack_connect_pipeline.client.HostConnection`
+        '''
         for host_connection in host_connections:
             if host_connection in self.host_connections:
                 continue
             self._host_connections.append(host_connection)
 
     def _host_discovered(self, event):
-        '''callback, adds new hosts connection from the given *event* to the
-        host_selector'''
+        '''
+        Callback, add the :class:`~ftrack_connect_pipeline.client.HostConnection`
+        of the new discovered :class:`~ftrack_connect_pipeline.host.HOST` from
+        the given *event*.
+
+        *event*: :class:`ftrack_api.event.base.Event`
+        '''
         super(QtClient, self)._host_discovered(event)
         if self.definition_filter:
             self.host_selector.set_definition_filter(self.definition_filter)
@@ -102,9 +113,10 @@ class QtClient(client.Client, QtWidgets.QWidget):
         super(QtClient, self).change_host(host_connection)
 
     def change_definition(self, schema, definition):
-        ''' Triggered when definition_changed is called from the host_selector.
-        Generates the widgets interface from the given *host_connection*,
-        *schema* and *definition*'''
+        '''
+        Triggered when definition_changed is called from the host_selector.
+        Generates the widgets interface from the given *schema* and *definition*
+        '''
 
         if self.scroll.widget():
             self.widget_factory.reset_type_widget_plugin()

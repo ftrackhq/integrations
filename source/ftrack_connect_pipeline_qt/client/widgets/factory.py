@@ -35,7 +35,7 @@ class WidgetFactory(QtWidgets.QWidget):
 
     @property
     def type_widgets(self):
-        '''Return registered plugin's widgets.'''
+        '''Return registered type widgets.'''
         return self._type_widgets_ref
 
     def __init__(self, event_manager, ui_types):
@@ -45,7 +45,7 @@ class WidgetFactory(QtWidgets.QWidget):
         :class:`ftrack_connect_pipeline.event.EventManager`instance to
         communicate to the event server.
 
-        *ui* List of valid ui compatibilities.
+        *ui_types* List of valid ux libraries.
 
         '''
         super(WidgetFactory, self).__init__()
@@ -97,16 +97,20 @@ class WidgetFactory(QtWidgets.QWidget):
         }
 
     def set_context(self, context):
+        '''Set :obj:`context` with the given *context*'''
         self.context = context
 
     def set_package(self, package):
+        '''Set :obj:`package` with the given *package*'''
         self.package = package
 
     def set_host_connection(self, host_connection):
+        '''Set :obj:`host_connection` with the given *host_connection*'''
         self.host_connection = host_connection
         self._listen_widget_updates()
 
     def set_definition_type(self, definition_type):
+        '''Set :obj:`definition_type` with the given *definition_type*'''
         self.definition_type = definition_type
 
     def create_widget(
@@ -114,24 +118,19 @@ class WidgetFactory(QtWidgets.QWidget):
             previous_object_data=None, parent=None):
         '''
         Create the appropriate widget for a given schema element with *name*,
-        *schema_fragment*, *fragment_data*, *previous_object_data*,
-        *host_connection*, *parent*
+        *schema_fragment*, *fragment_data*, *previous_object_data*, *parent*
 
-        *name* widget name
+        *name* : widget name
 
-        *schema_fragment* fragment of the schema to generate the current widget
+        *schema_fragment* : fragment of the schema to generate the current widget
 
-        *fragment_data* fragment of the data from the definition to fill
+        *fragment_data* : fragment of the data from the definition to fill
         the current widget.
 
-        *previous_object_data* fragment of the data from the previous schema
+        *previous_object_data* : fragment of the data from the previous schema
         fragment
 
-        *host_connection* should be
-        :class:`ftrack_connect_pipeline.client.HostConnection` instance to use
-        to subscribe to the host events.
-
-        *parent* widget to parent the current widget (optional).
+        *parent* : widget to parent the current widget (optional).
 
         '''
 
@@ -192,8 +191,10 @@ class WidgetFactory(QtWidgets.QWidget):
         return type_widget
 
     def fetch_plugin_widget(self, plugin_data, stage_name, extra_options=None):
-        '''Returns a widget from the given *plugin_data*, *stage_name* with
-        the optional *extra_options*.'''
+        '''
+        Setup the settings and return a widget from the given *plugin_data*,
+        *stage_name* with the optional *extra_options*.
+        '''
 
         plugin_name = plugin_data.get('plugin')
         widget_name = plugin_data.get('widget')
@@ -355,9 +356,12 @@ class WidgetFactory(QtWidgets.QWidget):
             widget.set_run_result(result)
 
     def _listen_widget_updates(self):
-        '''Subscribe to the PIPELINE_CLIENT_NOTIFICATION topic to call the
-        _update_widget function when the host returns and answer through the
-        same topic'''
+        '''
+        Subscribe to the
+        :const:`~ftrack_connnect_pipeline.constants.PIPELINE_CLIENT_NOTIFICATION`
+        topic to call the _update_widget function when the host returns and
+        answer through the same topic
+        '''
 
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.host_id={}'.format(
@@ -373,6 +377,7 @@ class WidgetFactory(QtWidgets.QWidget):
         self.widget_status_updated.emit(status)
 
     def _on_widget_context_changed(self, context_id, asset_type):
+        '''Callback funtion called when context has been changed in the widget'''
         new_context = {
             'context_id': context_id,
             'asset_type': asset_type
@@ -381,6 +386,7 @@ class WidgetFactory(QtWidgets.QWidget):
         self.widget_context_updated.emit(context_id)
 
     def _on_widget_asset_changed(self, asset_name, asset_id, is_valid):
+        '''Callback funtion called when asset has been modified on the widget'''
         self.widget_asset_updated.emit(asset_name, asset_id, is_valid)
 
     def on_widget_run_plugin(self, plugin_data, method, plugin_options):
@@ -393,7 +399,7 @@ class WidgetFactory(QtWidgets.QWidget):
         self.widget_run_plugin.emit(plugin_data, method)
 
     def register_widget_plugin(self, plugin_data, widget):
-        '''regiter the *widget* in the given *plugin_data*'''
+        '''register the *widget* in the given *plugin_data*'''
         uid = uuid.uuid4().hex
         self._widgets_ref[uid] = widget
         plugin_data['widget_ref'] = uid
@@ -405,17 +411,18 @@ class WidgetFactory(QtWidgets.QWidget):
         return self._widgets_ref[plugin_data['widget_ref']]
 
     def register_type_widget_plugin(self, widget):
-        '''regiter the *widget* in the given *plugin_data*'''
+        '''regiter the *widget* in the :obj:`type_widgets_ref`'''
         uid = uuid.uuid4().hex
         self._type_widgets_ref[uid] = widget
 
         return uid
 
     def reset_type_widget_plugin(self):
-        '''empty _type_widgets_ref diccionary'''
+        '''empty :obj:`type_widgets_ref`'''
         self._type_widgets_ref = {}
 
     def check_components(self):
+        ''' Set the component as unavailable if it isn't available on the server'''
         if not self.components_names:
             return
         for k, v in self.type_widgets.items():
@@ -427,6 +434,7 @@ class WidgetFactory(QtWidgets.QWidget):
                         widget.set_default_state()
 
     def _asset_version_changed(self, version_id):
+        '''Callbac funtion triggered when a asset version has changed'''
         self.version_id = version_id
         asset_version = self.session.query(
             'select components '

@@ -19,7 +19,7 @@ class PublishContextWidget(BaseOptionsWidget):
             description=None, options=None, context=None
     ):
         '''initialise PublishContextWidget with *parent*, *session*, *data*,
-        *name*, *description*, *options*
+        *name*, *description*, *options* and *context*
         '''
 
         super(PublishContextWidget, self).__init__(

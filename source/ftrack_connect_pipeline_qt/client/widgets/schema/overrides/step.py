@@ -20,7 +20,7 @@ class StepArray(BaseJsonWidget):
             self, name, schema_fragment, fragment_data,
             previous_object_data, widget_factory, parent=None
     ):
-        '''Initialise ComponentsArray with *name*, *schema_fragment*,
+        '''Initialise StepArray with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
         super(StepArray, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,

@@ -15,13 +15,11 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
     QtAssetManagerClient class.
     '''
     definition_filter = 'asset_manager'
+    '''Use only definitions that matches the definition_filter'''
 
     def __init__(self, event_manager, parent=None):
-        '''Initialise QtAssetManagerClient with *event_manager*
-
-        *event_manager* should be the
-        :class:`ftrack_connect_pipeline.event.EventManager`instance to
-        communicate to the event server.
+        '''Initialise AssetManagerClient with instance of
+        :class:`~ftrack_connect_pipeline.event.EventManager`
         '''
         QtWidgets.QWidget.__init__(self, parent=parent)
         AssetManagerClient.__init__(self, event_manager)
@@ -38,7 +36,10 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
 
     def add_hosts(self, host_connections):
         '''
-        Adds the given *hosts*
+        Adds the given *host_connections*
+
+        *host_connections* : list of
+        :class:`~ftrack_connect_pipeline.client.HostConnection`
         '''
         for host_connection in host_connections:
             if host_connection in self.host_connections:
@@ -46,8 +47,13 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
             self._host_connections.append(host_connection)
 
     def _host_discovered(self, event):
-        '''callback, adds new hosts connection from the given *event* to the
-        host_selector'''
+        '''
+        Callback, add the :class:`~ftrack_connect_pipeline.client.HostConnection`
+        of the new discovered :class:`~ftrack_connect_pipeline.host.HOST` from
+        the given *event*.
+
+        *event*: :class:`ftrack_api.event.base.Event`
+        '''
         AssetManagerClient._host_discovered(self, event)
         self.host_selector.add_hosts(self.host_connections)
 

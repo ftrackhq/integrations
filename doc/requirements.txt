@@ -1,0 +1,4 @@
+sphinx
+sphinx_rtd_theme
+lowdown
+git+git://bitbucket.org/ftrack/ftrack-connect-pipeline@backlog/connect-2/story#egg=ftrack-connect-pipeline
