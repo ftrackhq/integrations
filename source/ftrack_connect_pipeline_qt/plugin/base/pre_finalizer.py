@@ -6,4 +6,8 @@ from ftrack_connect_pipeline_qt.plugin import BasePluginWidget
 
 
 class BasePreFinalizerWidget(BasePluginWidget):
+    '''
+    Base Pre Finalizer Widget Class inherits from
+    :class:`~ftrack_connect_pipeline_qt.plugin.BasePluginWidget`
+    '''
     plugin_type = plugin._PLUGIN_PRE_FINALIZER_TYPE

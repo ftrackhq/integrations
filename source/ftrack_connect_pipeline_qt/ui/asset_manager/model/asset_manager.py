@@ -12,17 +12,20 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
 
     @property
     def ftrack_asset_list(self):
+        '''
+        Returns the :obj:`ftrack_asset_list`
+        '''
         return self._ftrack_asset_list
 
     def __init__(self, parent=None):
-        '''Initialise with *root* entity and optional *parent*.'''
+        '''Initialise Model.'''
         super(AssetManagerModel, self).__init__(parent=parent)
         self._ftrack_asset_list = []
         self.columns = asset_constants.KEYS
 
     def set_asset_list(self, ftrack_asset_list):
         '''
-        Reset the model and sets the ftrack_asset_list with the given
+        Reset the model and sets the :obj:`ftrack_asset_list` with the given
         *ftrack_asset_list*
         '''
         self.beginResetModel()
@@ -31,17 +34,14 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         self.endResetModel()
 
     def rowCount(self, parent=QtCore.QModelIndex()):
-        '''Return number of children *parent* index has.
-
-        *parent* QModelIndex
-        '''
+        '''Return the row count for the internal data.'''
         if parent.column() > 0:
             return 0
 
         return len(self.ftrack_asset_list)
 
     def columnCount(self, parent=QtCore.QModelIndex()):
-        '''Return amount of data *parent* index has.'''
+        '''Return the column count for the internal data.'''
         return len(self.columns)
 
     def removeRows(self, position, rows=1, index=QtCore.QModelIndex()):
@@ -56,9 +56,7 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         return True
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
-        '''
-        Returns the data from the given *index*
-        '''
+        '''Return the data provided in the given *index* and with *role*'''
         row = index.row()
         column = index.column()
 
@@ -102,6 +100,7 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         return None
 
     def headerData(self, column, orientation, role):
+        '''Provide header data'''
         if (
                 orientation == QtCore.Qt.Horizontal and
                 role == QtCore.Qt.DisplayRole

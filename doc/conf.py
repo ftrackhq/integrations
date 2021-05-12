@@ -126,7 +126,12 @@ html_copy_source = True
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'ftrack-connect-pipeline-qtdoc'
-autodoc_mock_imports = ['jsonschema','jsonref','python_jsonschema_objects']
+autodoc_mock_imports = [
+    'jsonschema',
+    'jsonref',
+    'python_jsonschema_objects',
+    'ftrack_connect_pipeline'
+]
 
 # -- Options for LaTeX output ------------------------------------------------
 
