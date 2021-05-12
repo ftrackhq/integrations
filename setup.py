@@ -30,7 +30,7 @@ embedded_plugins = [
 
 
 
-bundle_name = 'ftrack-connect'
+bundle_name = 'ftrack Connect'
 import PySide2
 import shiboken2
 
@@ -93,7 +93,7 @@ __version__ = {version!r}
 
 # General configuration.
 configuration = dict(
-    name='ftrack-connect-package',
+    name='ftrack Connect Package',
     use_scm_version={
         'write_to': 'source/ftrack_connect_package/_version.py',
         'write_to_template': version_template,
@@ -237,7 +237,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             (
                 'DesktopShortcut',
                 'DesktopFolder',
-                'ftrack-connect',
+                'ftrack Connect',
                 'TARGETDIR',
                 '[TARGETDIR]ftrack_connect_package.exe',
                 None,
@@ -251,7 +251,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             (
                 'ProgramMenuShortcut',
                 'ProgramMenuFolder',
-                'ftrack-connect',
+                'ftrack Connect',
                 'TARGETDIR',
                 '[TARGETDIR]ftrack_connect_package.exe',
                 None,
@@ -384,7 +384,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
         configuration['options']['bdist_dmg'] = {
             'applications_shortcut': False,
-            'volume_label': 'ftrack-connect-{0}'.format(VERSION)
+            'volume_label': 'ftrack connect {0}'.format(VERSION)
         }
 
         include_files = [
