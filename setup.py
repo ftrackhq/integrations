@@ -268,7 +268,6 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             Executable(
                 script='source/ftrack_connect_package/__main__.py',
                 base='Win32GUI',
-                #base=None,
                 target_name='ftrack_connect_package.exe',
                 icon='./logo.ico',
             )
@@ -282,7 +281,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 'ftrack-connect-package', VERSION
             ),
             'data': {'Shortcut': shortcut_table},
-            'all_users': True, # Enable these when out of beta of connect 2
+            'all_users': True,
             'add_to_path': True
         }
 
@@ -336,7 +335,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             Executable(
                 script='source/ftrack_connect_package/__main__.py',
                 base=None,
-                target_name='ftrack_connect_package',
+                target_name='ftrack Connect Package',
                 icon='./logo.icns',
             )
         )
@@ -384,7 +383,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
         configuration['options']['bdist_dmg'] = {
             'applications_shortcut': False,
-            'volume_label': 'ftrack connect {0}'.format(VERSION)
+            'volume_label': 'ftrack Connect {0}'.format(VERSION)
         }
 
         include_files = [
@@ -403,7 +402,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             Executable(
                 script='source/ftrack_connect_package/__main__.py',
                 base=None,
-                target_name='ftrack_connect_package',
+                target_name='ftrack Connect Package',
                 icon='./logo.icns',
             )
         )
