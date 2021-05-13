@@ -17,7 +17,7 @@ def get_log_directory():
     try:
         import appdirs  # Inline import to avoid RV crashing if not available.
         user_data_dir = appdirs.user_data_dir('ftrack-connect', 'ftrack')
-        log_directory = os.path.join(user_data_dir, 'log')
+        log_directory = os.path.join(user_data_dir, 'log').encode('utf8')
     except Exception:
         log_directory = tempfile.mkdtemp()
 
@@ -47,7 +47,7 @@ def configure_logging(logger_name, level=None, format=None):
     level = level or logging.WARNING
 
     log_directory = get_log_directory()
-    logfile = os.path.join(log_directory, '{0}.log'.format(logger_name))
+    logfile = os.path.join(log_directory, '{0}.log'.format(logger_name).encode('utf8'))
 
     logging_settings = {
         'version': 1,
@@ -55,7 +55,7 @@ def configure_logging(logger_name, level=None, format=None):
         'handlers': {
             'console': {
                 'class': 'logging.StreamHandler',
-                'level': logging._levelNames[level],
+                'level': logging.getLevelName(level),
                 'formatter': 'file',
                 'stream': 'ext://sys.stdout',
             },

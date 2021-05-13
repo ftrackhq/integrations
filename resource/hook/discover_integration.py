@@ -15,18 +15,13 @@ def on_discover_rv_integration(session, event):
 
     from ftrack_connect_rv import __version__ as integration_version
 
-    entity = event['data']['context']['selection'][0]
-    task = session.get('Context', entity['entityId'])
-
     data = {
         'integration': {
-            "name": 'ftrack-connect-rv',
+            'name': 'ftrack-connect-rv',
             'version': integration_version,
             'env': {
                 'PYTHONPATH.prepend': sources,
-                'FTRACK_TASKID.set': task['id'],
-                'FTRACK_SHOTID.set': task['parent']['id'],
-                'RV_PYTHON3.set': "1"
+                'RV_PYTHON3.set': "True"
             }
         }
     }
@@ -44,12 +39,14 @@ def register(session):
     )
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch'
-        ' and data.application.identifier=rv*',
+        ' and data.application.identifier=rv*'
+        ' and data.application.version >= 2021',
         handle_event
     )
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.discover'
-        ' and data.application.identifier=rv*',
+        ' and data.application.identifier=rv*'
+        ' and data.application.version >= 2021',
         handle_event
     )

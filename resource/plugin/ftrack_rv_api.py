@@ -60,7 +60,7 @@ dependencies_path = os.path.join(
 )
 
 logger.info('Adding {} to PATH'.format(dependencies_path))
-sys.path.append(dependencies_path)
+sys.path.insert(0, dependencies_path)
 
 
 # Try import ftrack's new API.
@@ -365,10 +365,11 @@ def _generateURL(params=None, panelName=None):
             except Exception:
                 entityId, entityType = _getEntityFromEnvironment()
 
+            new_entity = session.get(entityType, entityId)
+
             try:
-                url = ftrack.getWebWidgetUrl(
-                    panelName, 'tf', entityId=entityId, entityType=entityType
-                )
+
+                url = session.get_widget_url(panelName, entity=new_entity)
             except Exception as exception:
                 logger.error(str(exception))
 
