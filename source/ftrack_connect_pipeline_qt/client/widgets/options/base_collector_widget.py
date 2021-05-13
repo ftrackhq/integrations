@@ -65,7 +65,7 @@ class BaseCollectorWidget(BaseOptionsWidget):
     def on_fetch_callback(self, result):
         '''
         Callback funtion called by the _set_internal_run_result method of the
-        :class:`~ftrack_connect_pipeline_qt.client.widgets.options.BaseOptionsWidget
+        :class:`~ftrack_connect_pipeline_qt.client.widgets.options.BaseOptionsWidget`
         '''
         self.list_widget.clear()
         for obj in result:
@@ -74,7 +74,7 @@ class BaseCollectorWidget(BaseOptionsWidget):
     def on_add_callback(self, result):
         '''
         Callback funtion called by the _set_internal_run_result method of the
-        :class:`~ftrack_connect_pipeline_qt.client.widgets.options.BaseOptionsWidget
+        :class:`~ftrack_connect_pipeline_qt.client.widgets.options.BaseOptionsWidget`
         '''
         current_objects = self.get_current_objects()
         for obj in result:
@@ -85,7 +85,7 @@ class BaseCollectorWidget(BaseOptionsWidget):
     def on_select_callback(self, result):
         '''
         Callback funtion called by the _set_internal_run_result method of the
-        :class:`~ftrack_connect_pipeline_qt.client.widgets.options.BaseOptionsWidget
+        :class:`~ftrack_connect_pipeline_qt.client.widgets.options.BaseOptionsWidget`
         '''
         self.logger.debug("selected objects: {}".format(result))
 

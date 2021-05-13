@@ -46,7 +46,7 @@ class AssetManagerWidget(QtWidgets.QWidget):
         '''Initialise AssetManagerWidget with *event_manager*
 
         *event_manager* should be the
-        :class:`ftrack_connect_pipeline.event.EventManager`instance to
+        :class:`ftrack_connect_pipeline.event.EventManager` instance to
         communicate to the event server.
         '''
         super(AssetManagerWidget, self).__init__(parent=parent)
@@ -197,7 +197,7 @@ class AssetManagerTableView(QtWidgets.QTableView):
         '''Initialise AssetManagerTableView with *event_manager*
 
         *event_manager* should be the
-        :class:`ftrack_connect_pipeline.event.EventManager`instance to
+        :class:`ftrack_connect_pipeline.event.EventManager` instance to
         communicate to the event server.
         '''
         super(AssetManagerTableView, self).__init__(parent=parent)

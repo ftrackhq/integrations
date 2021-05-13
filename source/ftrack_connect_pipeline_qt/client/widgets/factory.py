@@ -42,7 +42,7 @@ class WidgetFactory(QtWidgets.QWidget):
         '''Initialise WidgetFactory with *event_manager*, *ui*
 
         *event_manager* should be the
-        :class:`ftrack_connect_pipeline.event.EventManager`instance to
+        :class:`ftrack_connect_pipeline.event.EventManager` instance to
         communicate to the event server.
 
         *ui_types* List of valid ux libraries.

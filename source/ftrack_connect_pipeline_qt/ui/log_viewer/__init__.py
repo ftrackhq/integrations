@@ -30,7 +30,7 @@ class LogViewerWidget(QtWidgets.QWidget):
         '''Initialise LogViewerWidget with *event_manager*
 
         *event_manager* should be the
-        :class:`ftrack_connect_pipeline.event.EventManager`instance to
+        :class:`ftrack_connect_pipeline.event.EventManager` instance to
         communicate to the event server.
         '''
         super(LogViewerWidget, self).__init__(parent=parent)
@@ -110,7 +110,7 @@ class LogDialogTableView(QtWidgets.QTableView):
         '''Initialise LogDialogTableView with *event_manager*
 
         *event_manager* should be the
-        :class:`ftrack_connect_pipeline.event.EventManager`instance to
+        :class:`ftrack_connect_pipeline.event.EventManager` instance to
         communicate to the event server.
         '''
         super(LogDialogTableView, self).__init__(parent=parent)

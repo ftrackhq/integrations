@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 from ftrack_connect_pipeline_qt.constants import asset as asset_constants
+from ftrack_connect_pipeline.constants import asset as core_asset_constants
 from Qt import QtWidgets, QtCore, QtGui
 
 
@@ -71,7 +72,7 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
                 role == QtCore.Qt.BackgroundRole and
                 index.column() == self.get_version_column_index()
         ):
-            if item.get(asset_constants.IS_LATEST_VERSION):#.is_latest:
+            if item.get(core_asset_constants.IS_LATEST_VERSION):#.is_latest:
                 return QtGui.QBrush(QtGui.QColor(155, 250, 218, 200))
             else:
                 return QtGui.QBrush(QtGui.QColor(250, 171, 155, 200))
@@ -129,7 +130,7 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
 
     def get_version_column_index(self):
         '''Returns the column index of the version_number column'''
-        return self.columns.index(asset_constants.VERSION_NUMBER)
+        return self.columns.index(core_asset_constants.VERSION_NUMBER)
 
     def set_host_connection(self, host_connection):
         '''Sets the host connection'''
