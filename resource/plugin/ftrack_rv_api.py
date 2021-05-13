@@ -54,15 +54,15 @@ cacert_path = os.path.join(
 os.environ['REQUESTS_CA_BUNDLE'] = cacert_path
 
 # Setup dependencies path.
-dependencies_path = os.path.join(
+dependencies_path = os.path.abspath(os.path.join(
     os.path.dirname(__file__),
     'dependencies.zip'
-)
+))
 
 logger.info('Adding {} to PATH'.format(dependencies_path))
 sys.path.insert(0, dependencies_path)
 
-
+logger.warning(sys.path)
 # Try import ftrack's new API.
 try:
     import ftrack_api
