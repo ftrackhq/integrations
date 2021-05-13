@@ -17,6 +17,8 @@
 import os
 from pkg_resources import get_distribution, DistributionNotFound
 import sys
+from Qt import QtWidgets
+
 # sys.path.insert(0, os.path.abspath('.'))
 
 sys.path.append(
@@ -28,7 +30,7 @@ sys.path.append(
 )
 
 
-
+_app = QtWidgets.QApplication()
 
 # -- Project information -----------------------------------------------------
 
@@ -130,7 +132,8 @@ autodoc_mock_imports = [
     'jsonschema',
     'jsonref',
     'python_jsonschema_objects',
-    'ftrack_connect_pipeline'
+    'ftrack_connect_pipeline',
+    'ftrack_connect_pipeline.constants.asset.v2'
 ]
 
 # -- Options for LaTeX output ------------------------------------------------
