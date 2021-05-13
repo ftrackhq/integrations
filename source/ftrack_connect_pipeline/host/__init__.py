@@ -88,7 +88,7 @@ class Host(object):
 
         self._host_id = '{}-{}'.format('.'.join(self.host_types), uuid.uuid4().hex)
 
-        self.logger.info(
+        self.logger.debug(
             'initializing {}'.format(self)
         )
         self._event_manager = event_manager

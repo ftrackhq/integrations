@@ -265,7 +265,7 @@ class PluginDiscoverValidation(object):
 
             if plugin_result:
                 plugin_result = plugin_result[0]
-                self.logger.info(
+                self.logger.debug(
                     'plugin {} found for definition host_type {}'.format(
                         plugin_name, host_type
                     )

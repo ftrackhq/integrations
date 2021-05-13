@@ -231,7 +231,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
                     step_options = {'component_name': step_name}
 
                 if not step_enabled:
-                    self.logger.info(
+                    self.logger.debug(
                         'Skipping step {} as it been disabled'.format(
                             step_name
                         )
