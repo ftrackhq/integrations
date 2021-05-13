@@ -72,7 +72,7 @@ def initialise():
     #  from ftrack-connect-maya
     # such as frame start / end etc....
 
-    logger.info('Setting up the menu')
+    logger.debug('Setting up the menu')
     session = ftrack_api.Session(auto_connect_event_hub=False)
 
     event_manager = event.QEventManager(
