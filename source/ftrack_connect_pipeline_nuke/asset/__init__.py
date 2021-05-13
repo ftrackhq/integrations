@@ -163,7 +163,7 @@ class FtrackAssetTab(FtrackAssetBase):
         nuke_utils.cleanSelection()
         for node in objects:
             node['selected'].setValue(True)
-            self.logger.info("connecting node: {}".format(node.Class()))
+            self.logger.debug("connecting node: {}".format(node.Class()))
             self.connected_objects.append(node.knob('name').value())
 
         ftrack_object.knob(asset_const.ASSET_LINK).setValue(

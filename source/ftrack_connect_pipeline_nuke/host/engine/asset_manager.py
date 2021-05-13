@@ -109,7 +109,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         ftrack_object = nuke.toNode(ftrack_asset_object.ftrack_object)
         if not ftrack_object:
             message = "There is no ftrack object"
-            self.logger.info(message)
+            self.logger.debug(message)
             status = constants.UNKNOWN_STATUS
 
             end_time = time.time()
