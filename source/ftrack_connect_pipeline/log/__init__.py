@@ -18,15 +18,28 @@ class ResultEncoder(JSONEncoder):
         return str(obj)
 
 class LogDB(object):
-    table_name = 'LOGMGR'
+    '''
+    Log database class
+    '''
     db_name = 'pipeline.db'
+    table_name = 'LOGMGR'
     _connection = None
 
-    def __init__(self, name='default'):
+    def __init__(self, db_name=None, table_name=None):
+        '''
+        Initializes a new persistent local log database having
+        database name *db_name* on disk and *table_name* table name.
+        '''
         super(LogDB, self).__init__()
+
         self.logger = logging.getLogger(
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
+
+        if 0<len(db_name or ''):
+            self.db_name = db_name
+        if 0<len(table_name or ''):
+            self.table_name = table_name
 
         database_path = self.get_database_path()
 
@@ -34,15 +47,19 @@ class LogDB(object):
         cur = self.connection.cursor()
 
         # Check if tables are created
-        cur.execute(''' SELECT count(name) FROM sqlite_master WHERE'''
-            ''' type='table' AND name='{0}' '''.format(self.table_name))
+        cur.execute(
+            ''' SELECT count(name) FROM sqlite_master WHERE'''
+            ''' type='table' AND name='{0}' '''.format(self.table_name)
+        )
 
         if cur.fetchone()[0] == 0:
-            cur.execute('''CREATE TABLE {0} (id INTEGER PRIMARY KEY,'''
+            cur.execute(
+                '''CREATE TABLE {0} (id INTEGER PRIMARY KEY,'''
                 ''' status text,widget_ref text,'''
                 ''' host_id text, execution_time real, plugin_name text,'''
                 ''' result text, message text, user_message text,'''
-                ''' plugin_type text)'''.format(self.table_name))
+                ''' plugin_type text)'''.format(self.table_name)
+            )
             self.connection.commit()
             self.logger.debug('Initialised plugin log persistent storage.')
 
@@ -80,7 +97,10 @@ class LogDB(object):
 
 
     def add_log_item(self, log_item):
-        # Store log record
+        '''
+        Stores a :class:`~ftrack_connect_pipeline.log.log_item.LogItem` in
+        persistent log database.
+        '''
         try:
             cur = self.connection.cursor()
 
@@ -108,16 +128,21 @@ class LogDB(object):
                 ' database {}'.format(e))       
 
     def get_log_items(self, host_id):
+        '''
+        Stores a :class:`~ftrack_connect_pipeline.log.log_item.LogItem` in
+        persistent log database.
+        '''
 
         cur = self.connection.cursor()
 
         log_items = []
         if not host_id is None:
-            cur.execute(''' SELECT status,widget_ref,host_id,execution_time,'''
+            cur.execute(
+                ''' SELECT status,widget_ref,host_id,execution_time,'''
                 '''plugin_name,result,message,user_message,plugin_type FROM'''
                 ''' {0} WHERE host_id=?;  '''.format(self.table_name), (
-                    host_id, 
-            ))
+                    host_id,)
+            )
 
             for t in cur.fetchall():
                 log_items.append(LogItem({

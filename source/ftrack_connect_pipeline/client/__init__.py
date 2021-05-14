@@ -191,7 +191,8 @@ class Client(object):
 
     @property
     def logs(self):
-        return self._logs.get_log_items(self.host_connection.id if not self.host_connection is None else None)
+        return self._logs.get_log_items(self.host_connection.id if
+            not self.host_connection is None else None)
 
     def __init__(self, event_manager):
         '''
