@@ -62,6 +62,7 @@ dependencies_path = os.path.abspath(os.path.join(
 logger.info('Adding {} to PATH'.format(dependencies_path))
 sys.path.insert(0, dependencies_path)
 
+
 # Try import ftrack's new API.
 try:
     import ftrack_api
@@ -290,7 +291,7 @@ def ftrackCompare(data):
                 _ftrackCreateGroup([trackA, trackB], sourceNode, layout)
                 rv.commands.setViewNode(sourceNode)
         except Exception:
-            print traceback.format_exc()
+            print(traceback.format_exc())
     else:
         sourceNode = _getSourceNode('layout')
         _ftrackCreateGroup([trackA], sourceNode, layout)
