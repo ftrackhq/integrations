@@ -86,7 +86,7 @@ layoutSourceNode = None
 annotation_components = {}
 
 
-# Initialize New API and ftrack_location_compatiblity
+# Initialize New API
 try:
     session = ftrack_api.Session(
         auto_connect_event_hub=False
@@ -98,6 +98,7 @@ try:
 
 except Exception as e:
     logger.error(e)
+    raise
 
 
 def _getSourceNode(nodeType='sequence'):
@@ -243,8 +244,8 @@ def validateComponentLocation(componentId, versionId):
                             'type': 'breakItem',
                             'versionId': versionId
                         }
-                    )
-                ),
+                    ).encode("utf-8")
+                ).decode('ascii'),
                 None
             )
         except Exception:
@@ -348,6 +349,29 @@ def getActionURL(params=None):
     return _generateURL(params, 'review_action')
 
 
+def _translateEntityType(entityType):
+    '''Return translated entity type tht can be used with API.'''
+    # Get entity type and make sure it is lower cased. Most places except
+    # the component tab in the Sidebar will use lower case notation.
+    entity_type = entityType.replace('_', '').lower()
+
+    for schema in session.schemas:
+        alias_for = schema.get('alias_for')
+
+        if (
+            alias_for and isinstance(alias_for, str) and
+            alias_for.lower() == entity_type
+        ):
+            return schema['id']
+
+    for schema in session.schemas:
+        if schema['id'].lower() == entity_type:
+                return schema['id']
+
+    raise ValueError(
+        'Unable to translate entity type: {0}.'.format(entity_type)
+    )
+
 def _generateURL(params=None, panelName=None):
     '''Return URL to panel in ftrack based on *params* or *panel*.'''
     url = ''
@@ -368,7 +392,8 @@ def _generateURL(params=None, panelName=None):
                 entityId, entityType = _getEntityFromEnvironment()
 
             logger.info('Entity {} {}'.format(entityType, entityId))
-            new_entity = session.query('{} where id is {}'.format(entityType, entityId)).first()
+            new_entity_type = _translateEntityType(entityType)
+            new_entity = session.query('{} where id is {}'.format(new_entity_type, entityId)).first()
 
             try:
                 url = session.get_widget_url(panelName, entity=new_entity)
