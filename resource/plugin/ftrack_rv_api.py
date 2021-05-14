@@ -62,7 +62,6 @@ dependencies_path = os.path.abspath(os.path.join(
 logger.info('Adding {} to PATH'.format(dependencies_path))
 sys.path.insert(0, dependencies_path)
 
-logger.warning(sys.path)
 # Try import ftrack's new API.
 try:
     import ftrack_api
@@ -305,6 +304,7 @@ def _getEntityFromEnvironment():
     eventEnvironmentVariable = 'FTRACK_CONNECT_EVENT'
 
     eventData = os.environ.get(eventEnvironmentVariable)
+
     if eventData is not None:
         try:
             decodedEventData = json.loads(base64.b64decode(eventData))
@@ -315,7 +315,7 @@ def _getEntityFromEnvironment():
             )
         else:
             selection = decodedEventData.get('selection', [])
-
+            logger.info('selection {}'.format(selection))
             # At present only a single entity which should represent an
             # ftrack List is supported.
             if selection:
@@ -358,6 +358,8 @@ def _generateURL(params=None, panelName=None):
         if params:
             panelName = panelName or params
 
+
+            logger.info('params {}'.format(params))
             try:
                 params = json.loads(params)
                 entityId = params['entityId'][0]
@@ -365,17 +367,17 @@ def _generateURL(params=None, panelName=None):
             except Exception:
                 entityId, entityType = _getEntityFromEnvironment()
 
-            new_entity = session.get(entityType, entityId)
+            logger.info('Entity {} {}'.format(entityType, entityId))
+            new_entity = session.query('{} where id is {}'.format(entityType, entityId)).first()
 
             try:
-
                 url = session.get_widget_url(panelName, entity=new_entity)
             except Exception as exception:
                 logger.error(str(exception))
 
         logger.info('Returning url "{0}"'.format(url))
-    except Exception:
-        logger.exception('Failed to generate URL.')
+    except Exception as error:
+        logger.exception('Failed to generate URL. {}'.format(error))
     return url
 
 
