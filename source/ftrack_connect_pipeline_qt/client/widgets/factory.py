@@ -11,7 +11,7 @@ from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.client.widgets import schema as schema_widget
-from ftrack_connect_pipeline_qt.client.widgets.schema.overrides import component,\
+from ftrack_connect_pipeline_qt.client.widgets.schema.overrides import step,\
     hidden, plugin_container
 
 from Qt import QtCore, QtWidgets
@@ -72,18 +72,26 @@ class WidgetFactory(QtWidgets.QWidget):
             'boolean': schema_widget.JsonBoolean
         }
         self.schema_name_mapping = {
-            'components': component.ComponentsArray,
+            'components': step.StepArray,
+            'contexts': step.StepArray,
+            'finalizers': step.StepArray,
             '_config': hidden.HiddenObject,
             'ui_type': hidden.HiddenString,
+            'category': hidden.HiddenString,
             'type': hidden.HiddenString,
             'name': hidden.HiddenString,
             'enabled': hidden.HiddenBoolean,
             'package': hidden.HiddenString,
+            'engine_type': hidden.HiddenString,
             'host_type': hidden.HiddenString,
             'optional': hidden.HiddenBoolean
         }
 
         self.schema_title_mapping = {
+            'Publisher': hidden.HiddenObject,
+            'Loader': hidden.HiddenObject,
+            'AssetManager': hidden.HiddenObject,
+            'Step': hidden.HiddenObject,
             'Plugin': plugin_container.PluginContainerObject,
             'Component': plugin_container.PluginContainerObject
         }
@@ -142,7 +150,6 @@ class WidgetFactory(QtWidgets.QWidget):
             )
             schema_fragment['properties'] = schema_fragment_properties
 
-
         widget_fn = self.schema_name_mapping.get(name)
 
         if not widget_fn:
@@ -150,16 +157,29 @@ class WidgetFactory(QtWidgets.QWidget):
                 schema_fragment.get('title'))
 
         if not widget_fn:
+            if previous_object_data:
+                if previous_object_data.get('category') == 'step':
+                    if (
+                            name in previous_object_data.get('stage_order')
+                            and schema_fragment.get('type') == 'string'
+                    ):
+                        widget_fn = hidden.HiddenString
+
+        if not widget_fn:
             widget_fn = self.schema_type_mapping.get(
                 schema_fragment.get('type'))
 
         if not widget_fn:
             if schema_fragment.get('allOf'):
-                # When the schema contains allOf in the keys, we handele it as
+                # When the schema contains allOf in the keys, we handle it as
                 # an object type.
-                widget_fn = self.schema_type_mapping.get(
-                    'object', schema_widget.UnsupportedSchema
-                )
+                widget_fn = self.schema_title_mapping.get(
+                    schema_fragment.get('allOf')[0].get('title'))
+                if not widget_fn:
+                    widget_fn = self.schema_type_mapping.get(
+                        schema_fragment.get('allOf')[0].get('type'),
+                        schema_widget.UnsupportedSchema
+                    )
             else:
                 widget_fn = schema_widget.UnsupportedSchema
 
@@ -171,8 +191,8 @@ class WidgetFactory(QtWidgets.QWidget):
 
         return type_widget
 
-    def fetch_plugin_widget(self, plugin_data, plugin_type, extra_options=None):
-        '''Returns a widget from the given *plugin_data*, *plugin_type* with
+    def fetch_plugin_widget(self, plugin_data, stage_name, extra_options=None):
+        '''Returns a widget from the given *plugin_data*, *stage_name* with
         the optional *extra_options*.'''
 
         plugin_name = plugin_data.get('plugin')
@@ -182,7 +202,7 @@ class WidgetFactory(QtWidgets.QWidget):
             widget_name = plugin_name
             plugin_data['widget'] = widget_name
 
-        plugin_type = '{}.{}'.format(self.definition_type, plugin_type)
+        plugin_type = '{}.{}'.format(self.definition_type, stage_name)
 
         self.logger.info('Fetching widget : {} for plugin {}'.format(
             widget_name, plugin_name
@@ -272,7 +292,7 @@ class WidgetFactory(QtWidgets.QWidget):
                         'plugin_name': plugin_name,
                         'plugin_type': plugin_type,
                         'method': 'run',
-                        'type': 'widget',
+                        'category': 'plugin.widget',
                         'host_type': host_type,
                         'ui_type': _ui_type
                     },
@@ -304,6 +324,8 @@ class WidgetFactory(QtWidgets.QWidget):
         status = event['data']['pipeline']['status']
         message = event['data']['pipeline']['message']
         host_id = event['data']['pipeline']['host_id']
+        user_data = event['data']['pipeline'].get('user_data') or {}
+        user_message = user_data.get('message')
 
         widget = self.widgets.get(widget_ref)
         if not widget:
@@ -316,11 +338,14 @@ class WidgetFactory(QtWidgets.QWidget):
 
         if status:
             self.logger.debug(
-                'updating widget: {} with {}, {}'.format(
-                    widget, status, message
+                'updating widget: {} Status: {}, Message: {}, User Message: {}'.format(
+                    widget, status, message, user_message
                 )
             )
-            widget.set_status(status, message)
+            if user_message:
+                widget.set_status(status, user_message)
+            else:
+                widget.set_status(status, message)
         if result:
             self.logger.debug(
                 'updating widget: {} with run result {}'.format(
@@ -394,7 +419,7 @@ class WidgetFactory(QtWidgets.QWidget):
         if not self.components_names:
             return
         for k, v in self.type_widgets.items():
-            if hasattr(v, 'accordion_widgets'):
+            if hasattr(v, 'accordion_widgets') and v.type == core_constants.COMPONENT:
                 for widget in v.accordion_widgets:
                     if widget.title not in self.components_names:
                         widget.set_unavailable()

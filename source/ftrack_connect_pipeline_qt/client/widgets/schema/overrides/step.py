@@ -7,7 +7,7 @@ from ftrack_connect_pipeline_qt.client.widgets.schema import BaseJsonWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import AccordionWidget
 
 
-class ComponentsArray(BaseJsonWidget):
+class StepArray(BaseJsonWidget):
     '''
     Override widget representation of an array
     '''
@@ -22,18 +22,27 @@ class ComponentsArray(BaseJsonWidget):
     ):
         '''Initialise ComponentsArray with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
-        super(ComponentsArray, self).__init__(
+        super(StepArray, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
             widget_factory, parent=parent
         )
 
     def build(self):
+        groupBox = QtWidgets.QGroupBox(self.name.capitalize())
+        layout = QtWidgets.QVBoxLayout()
+        layout.setAlignment(QtCore.Qt.AlignTop)
+        groupBox.setLayout(layout)
+        groupBox.setFlat(False)
+        groupBox.layout().setContentsMargins(0, 0, 0, 0)
+        groupBox.setToolTip(self.description)
+
         self._accordion_widgets = []
 
         if 'items' in self.schema_fragment and self.fragment_data:
             for data in self.fragment_data:
                 if type(data) == dict:
                     name = data.get('name')
+                    self._type = data.get('type')
                 else:
                     name = data
                 optional_component = False
@@ -51,9 +60,11 @@ class ComponentsArray(BaseJsonWidget):
                 )
                 accordion_widget.add_widget(obj)
 
-                self.layout().addWidget(accordion_widget)
+                groupBox.layout().addWidget(accordion_widget)
                 self._accordion_widgets.append(accordion_widget)
         self.layout().setContentsMargins(0, 0, 0, 0)
+
+        self.layout().addWidget(groupBox)
 
     def to_json_object(self):
         out = []
