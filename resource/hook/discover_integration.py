@@ -21,7 +21,7 @@ def on_discover_rv_integration(session, event):
             'version': integration_version,
             'env': {
                 'PYTHONPATH.prepend': sources,
-                'RV_PYTHON3.set': "True"
+                'RV_PYTHON3.prepend': "1"
             }
         }
     }
