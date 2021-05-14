@@ -71,6 +71,7 @@ except ImportError as e:
     logger.error(
         'No Ftrack API module found in {}'.format(dependencies_path)
     )
+    raise
 
 
 # Cache to keep track of filesystem path for components.
