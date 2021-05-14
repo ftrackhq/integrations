@@ -9,13 +9,23 @@ HOST_TYPE = 'python'
 #: Base name for events
 _BASE_ = 'ftrack.pipeline'
 
-# Common stages.
-#: Contexts container stage name.
+# Common steps.
+#: Contexts step group.
 CONTEXTS = 'contexts'
-#: Finalizers container stage name.
+#: Finalizers step group.
 FINALIZERS = 'finalizers'
-#: Components container stage name.
+#: Components step group.
 COMPONENTS = 'components'
+
+STEPS_ORDER = [CONTEXTS, COMPONENTS, FINALIZERS]
+
+# Common steps types.
+#: Contexts step type.
+CONTEXT = 'context'
+#: Finalizers step type.
+FINALIZER = 'finalizer'
+#: Components step type.
+COMPONENT = 'component'
 
 # Component stages.
 #: Collector component stage name.

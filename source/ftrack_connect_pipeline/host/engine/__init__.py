@@ -96,7 +96,7 @@ class BaseEngine(object):
                             'plugin_name': plugin_name,
                             'plugin_type': plugin_type,
                             'method': method,
-                            'type': 'plugin',
+                            'category': 'plugin',
                             'host_type': host_type
                         },
                         'settings':
@@ -166,7 +166,7 @@ class BaseEngine(object):
 
         self._notify_client(plugin, result_data)
         self.logger.debug("_notify_client: {}".format(plugin, result_data))
-        return result_data['status'], result_data['result']
+        return result_data
 
     def _notify_client(self, plugin, result_data):
         '''
@@ -221,15 +221,16 @@ class BaseEngine(object):
         result = None
 
         if plugin:
-            status, result = self._run_plugin(
+            plugin_result = self._run_plugin(
                 plugin, plugin_type,
                 data=plugin.get('plugin_data'),
                 options=plugin['options'],
                 context=None,
                 method=method
             )
-
+            status = plugin_result['status']
             bool_status = constants.status_bool_mapping[status]
+            result = plugin_result
             if not bool_status:
                 raise Exception(
                     'An error occurred during the execution of the plugin {}'

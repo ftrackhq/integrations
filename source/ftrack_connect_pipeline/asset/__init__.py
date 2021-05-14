@@ -166,7 +166,7 @@ class FtrackAssetBase(object):
             asset_context[asset_const.ASSET_TYPE] = new_asset_info[asset_const.ASSET_TYPE]
             asset_context[asset_const.VERSION_ID] = new_asset_info[asset_const.VERSION_ID]
 
-            asset_info_options['settings']['data'] = [asset_data]
+            asset_info_options['settings']['data'][0]['result'] = [asset_data]
             asset_info_options['settings']['context'].update(asset_context)
 
             run_event = ftrack_api.event.base.Event(

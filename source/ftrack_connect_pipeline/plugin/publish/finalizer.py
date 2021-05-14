@@ -97,6 +97,9 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
         '''
         super_result = super(PublisherFinalizerPlugin, self)._run(event)
 
+        if super_result.get('status') != constants.SUCCESS_STATUS:
+            return super_result
+
         context = event['data']['settings']['context']
         data = event['data']['settings']['data']
 
@@ -145,13 +148,21 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
 
         results = {}
 
-        for component_name, component_path in list(data.items()):
-            publish_component_fn = self.component_functions.get(
-                component_name, self.create_component
-            )
-            publish_component_fn(asset_version, component_name, component_path)
-            results[component_name] = True
-
+        for step in data:
+            if step['type'] == constants.COMPONENT:
+                component_name = step['name']
+                for stage in step['result']:
+                    for plugin in stage['result']:
+                        for component_path in plugin['result']:
+                            publish_component_fn = self.component_functions.get(
+                                component_name, self.create_component
+                            )
+                            publish_component_fn(
+                                asset_version,
+                                component_name,
+                                component_path
+                            )
+                            results[component_name] = True
         self.session.commit()
 
         self.logger.debug("publishing: {} to {} as {}".format(data, context,
