@@ -93,7 +93,7 @@ __version__ = {version!r}
 
 # General configuration.
 configuration = dict(
-    name='ftrack Connect Package',
+    name='ftrack Connect',
     use_scm_version={
         'write_to': 'source/ftrack_connect_package/_version.py',
         'write_to_template': version_template,
@@ -239,7 +239,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 'DesktopFolder',
                 'ftrack Connect',
                 'TARGETDIR',
-                '[TARGETDIR]ftrack_connect_package.exe',
+                '[TARGETDIR]ftrack_connect.exe',
                 None,
                 None,
                 None,
@@ -253,7 +253,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 'ProgramMenuFolder',
                 'ftrack Connect',
                 'TARGETDIR',
-                '[TARGETDIR]ftrack_connect_package.exe',
+                '[TARGETDIR]ftrack_connect.exe',
                 None,
                 None,
                 None,
@@ -268,7 +268,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             Executable(
                 script='source/ftrack_connect_package/__main__.py',
                 base='Win32GUI',
-                target_name='ftrack_connect_package.exe',
+                target_name='ftrack_connect.exe',
                 icon='./logo.ico',
             )
         )
@@ -278,7 +278,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         configuration['options']['bdist_msi'] = {
             'upgrade_code': '{6068BD18-65D1-47FC-BE5E-06AA5189C9CB}',
             'initial_target_dir': r'[ProgramFilesFolder]\{0}-{1}'.format(
-                'ftrack-connect-package', VERSION
+                'ftrack-connect', VERSION
             ),
             'data': {'Shortcut': shortcut_table},
             'all_users': True,
@@ -335,7 +335,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             Executable(
                 script='source/ftrack_connect_package/__main__.py',
                 base=None,
-                target_name='ftrack Connect Package',
+                target_name='ftrack Connect',
                 icon='./logo.icns',
             )
         )
@@ -402,7 +402,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             Executable(
                 script='source/ftrack_connect_package/__main__.py',
                 base=None,
-                target_name='ftrack Connect Package',
+                target_name='ftrack Connect',
                 icon='./logo.icns',
             )
         )
@@ -586,7 +586,7 @@ def codesign_osx(create_dmg=True, notarize=True):
     else:
         logging.info(' Application signed')
     if create_dmg:
-        dmg_name = '{0}-package-{1}.dmg'.format(bundle_name, VERSION)
+        dmg_name = '{0}-{1}.dmg'.format(bundle_name, VERSION)
         dmg_path = os.path.join(BUILD_PATH, dmg_name)
         dmg_command = (
             'appdmg resource/appdmg.json {}'.format(dmg_path)
