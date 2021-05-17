@@ -9,6 +9,7 @@ import errno
 import json
 from json import JSONEncoder
 import base64
+import traceback
 
 from ftrack_connect_pipeline.log.log_item import LogItem
 
@@ -21,11 +22,12 @@ class LogDB(object):
     '''
     Log database class
     '''
-    db_name = 'pipeline.db'
+    db_name = 'pipeline-{}.db'
     table_name = 'LOGMGR'
     _connection = None
+    _database_path = None
 
-    def __init__(self, db_name=None, table_name=None):
+    def __init__(self, host_id, db_name=None, table_name=None):
         '''
         Initializes a new persistent local log database having
         database name *db_name* on disk and *table_name* table name.
@@ -41,9 +43,9 @@ class LogDB(object):
         if 0<len(table_name or ''):
             self.table_name = table_name
 
-        database_path = self.get_database_path()
+        self._database_path = self.get_database_path(host_id)
 
-        self._connection = sqlite3.connect(database_path)
+        self._connection = sqlite3.connect(self._database_path)
         cur = self.connection.cursor()
 
         # Check if tables are created
@@ -64,17 +66,27 @@ class LogDB(object):
             self.logger.debug('Initialised plugin log persistent storage.')
 
         # Log out the file output.
-        self.logger.info('Storing persistent log: {0}'.format(database_path))
+        self.logger.info('Storing persistent log: {0}'.format(
+            self._database_path))
 
 
     def __del__(self):
         self.connection.close()
+        if not self._database_path is None:
+            # Delete database from disk
+            self.logger.info('Removing database @ {}'.format(
+                self._database_path))
+            try:
+                os.remove(self._database_path)
+                self._database_path = None
+            except Exception:
+                self.logger.warning(traceback.format_exc())
 
     @property
     def connection(self):
         return self._connection
 
-    def get_database_path(self):
+    def get_database_path(self, host_id):
         '''Get local persistent pipeline database path.
 
         Will create the directory (recursively) if it does not exist.
@@ -93,7 +105,7 @@ class LogDB(object):
                 else:
                     raise
 
-        return os.path.join(user_data_dir, self.db_name)
+        return os.path.join(user_data_dir, self.db_name.format(host_id))
 
 
     def add_log_item(self, log_item):

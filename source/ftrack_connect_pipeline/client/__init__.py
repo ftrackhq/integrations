@@ -4,6 +4,7 @@
 import time
 import logging
 import copy
+import uuid
 from six import string_types
 import ftrack_api
 from ftrack_connect_pipeline import utils
@@ -191,8 +192,15 @@ class Client(object):
 
     @property
     def logs(self):
+        self._init_logs()
         return self._logs.get_log_items(self.host_connection.id if
             not self.host_connection is None else None)
+
+    def _init_logs(self):
+        '''Delayed initialization of logs, when we know host ID. '''
+        if self._logs is None:
+            self._logs = LogDB(self.host_connection.id if
+            not self.host_connection is None else uuid.uuid4().hex)
 
     def __init__(self, event_manager):
         '''
@@ -206,7 +214,7 @@ class Client(object):
         self._host_connections = []
         self._connected = False
         self._host_connection = None
-        self._logs = LogDB()
+        self._logs = None
         self._schema = None
         self._definition = None
         self.current_package = None
@@ -397,6 +405,7 @@ class Client(object):
         self._host_connection.context = context_id
 
     def _add_log_item(self, log_item):
+        self._init_logs()
         self._logs.add_log_item(log_item)
 
     def on_client_notification(self):
