@@ -71,6 +71,7 @@ class LogDB(object):
 
 
     def __del__(self):
+        ''' Release resources (called mostly, not by all DCC apps) '''
         self.connection.close()
         if not self._database_path is None:
             # Delete database from disk
@@ -116,7 +117,8 @@ class LogDB(object):
         try:
             cur = self.connection.cursor()
 
-            cur.execute('''INSERT INTO {0} (status,widget_ref,host_id,'''
+            cur.execute(
+                '''INSERT INTO {0} (status,widget_ref,host_id,'''
                 '''execution_time,plugin_name,result,message,user_message,'''
                 '''plugin_type) VALUES (?,?,?,?,?,?,?,?,?)'''.format(
                     self.table_name), (
