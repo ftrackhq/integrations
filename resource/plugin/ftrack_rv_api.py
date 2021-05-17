@@ -383,9 +383,6 @@ def _generateURL(params=None, panelName=None):
 
         if params:
             panelName = panelName or params
-
-
-            logger.info('params {}'.format(params))
             try:
                 params = json.loads(params)
                 entityId = params['entityId'][0]
@@ -393,7 +390,6 @@ def _generateURL(params=None, panelName=None):
             except Exception:
                 entityId, entityType = _getEntityFromEnvironment()
 
-            logger.info('Entity {} {}'.format(entityType, entityId))
             new_entity_type = _translateEntityType(entityType)
             new_entity = session.query('{} where id is {}'.format(new_entity_type, entityId)).first()
 
