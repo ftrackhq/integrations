@@ -42,8 +42,56 @@ class HostConnection(object):
 
     @property
     def definitions(self):
-        '''Returns the current definitions.'''
-        return self._raw_host_data['definition']
+        '''Returns the current definitions, filtered on discoverable.'''
+
+        context_idents = None
+        if not self._context is None:
+            entity = self.session.query('Task where id={}'.format(
+                self._context)).one()
+            if not entity is None:
+                context_idents = []
+                context_idents.append(entity['context_type'].lower())
+                context_idents.append(entity['name'].lower())
+                if 'type' in entity:
+                    context_idents.append(entity['type']['name'].lower())
+
+        if 0 < len(context_idents or []):
+            result = {}
+            for schema_title in self._raw_host_data['definition'].keys():
+                result[schema_title] = self._filter_definitions(
+                    context_idents,
+                    self._raw_host_data['definition'][schema_title]
+                )
+            return result
+        else:
+            return self._raw_host_data['definition']
+
+    def _filter_definitions(self, context_idents, definitions):
+        ''' Filter definitions on context idents and discoverable. '''
+        result = []
+        for definition in definitions:
+            discoverable = definition.get('discoverable')
+            if 0 < len(discoverable or []):
+                matches = False
+                for d in discoverable:
+                    if d.lower() == "task":
+                        # Always matches
+                        matches = True
+                    else:
+                        for name in context_idents:
+                            if d.lower() == name:
+                                matches = True
+                                break
+                    if matches:
+                        break
+                if not matches:
+                    self.logger.debug(
+                        'Excluding definition {} - context idents {} '
+                        'does not match schema discoverable: {}.'.format(
+                            definition.get('name'), context_idents, discoverable))
+                    continue
+            result.append(definition)
+        return result
 
     @property
     def id(self):
