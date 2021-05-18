@@ -13,7 +13,13 @@ from pymxs import runtime as rt
 from ftrack_connect_pipeline_3dsmax import menu as ftrack_menu_module
 import uuid
 
-logger = logging.getLogger('ftrack_connect_pipeline_3dsmax.scripts.userSetup')
+from ftrack_connect_pipeline.configure_logging import configure_logging
+configure_logging(
+    'ftrack_connect_pipeline_3dsmax',
+    extra_modules=['ftrack_connect_pipeline', 'ftrack_connect_pipeline_qt']
+)
+
+logger = logging.getLogger('ftrack_connect_pipeline_3dsmax')
 
 def initialise():
 
