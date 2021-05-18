@@ -10,6 +10,7 @@ import json
 from json import JSONEncoder
 import base64
 import traceback
+import datetime
 
 from ftrack_connect_pipeline.log.log_item import LogItem
 
@@ -105,6 +106,28 @@ class LogDB(object):
                     pass
                 else:
                     raise
+        else:
+            # Check for and remove expired db:s older than one month
+            grace_s = 30*24*3600
+
+            date_grace = datetime.datetime.now() - datetime.timedelta(
+                seconds=grace_s)
+
+            for filename in os.listdir(user_data_dir):
+                if not filename.lower().endswith('.db'):
+                    continue
+                db_path = os.path.join(user_data_dir, filename)
+                date_modified = datetime.datetime.fromtimestamp(
+                    os.path.getmtime(db_path))
+                if date_modified<=date_grace:
+                    self.logger.info(
+                        'Removing expired local persistent database: '
+                        '{}'.format(filename)
+                    )
+                    try:
+                        os.remove(db_path)
+                    except Exception as e:
+                        self.logger.error(e)
 
         return os.path.join(user_data_dir, self.db_name.format(host_id))
 
