@@ -107,8 +107,8 @@ class LogDB(object):
                 else:
                     raise
         else:
-            # Check for and remove expired db:s older than one month
-            grace_s = 30*24*3600
+            # Check for and remove expired db:s older than one week
+            grace_s = 7*24*3600
 
             date_grace = datetime.datetime.now() - datetime.timedelta(
                 seconds=grace_s)
