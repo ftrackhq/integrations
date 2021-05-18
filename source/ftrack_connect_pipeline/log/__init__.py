@@ -25,6 +25,7 @@ class LogDB(object):
     '''
     db_name = 'pipeline-{}.db'
     table_name = 'LOGMGR'
+    database_expire_grace_s = 7*24*3600
     _connection = None
     _database_path = None
 
@@ -107,11 +108,10 @@ class LogDB(object):
                 else:
                     raise
         else:
-            # Check for and remove expired db:s older than one week
-            grace_s = 7*24*3600
+            # Check for and remove expired db:s older than one week by default
 
             date_grace = datetime.datetime.now() - datetime.timedelta(
-                seconds=grace_s)
+                seconds=self.database_expire_grace_s)
 
             for filename in os.listdir(user_data_dir):
                 if not filename.lower().endswith('.db'):
@@ -160,7 +160,7 @@ class LogDB(object):
             ))
             self.connection.commit()
 
-        except Exception as e:
+        except sqlite3.Error as e:
             self.logger.error('Error storing log message in local persistent'
                 ' database {}'.format(e))       
 
