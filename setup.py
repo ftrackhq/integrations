@@ -30,7 +30,7 @@ embedded_plugins = [
 
 
 
-bundle_name = 'ftrack Connect'
+bundle_name = 'ftrack\ Connect'
 import PySide2
 import shiboken2
 
@@ -278,7 +278,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         configuration['options']['bdist_msi'] = {
             'upgrade_code': '{6068BD18-65D1-47FC-BE5E-06AA5189C9CB}',
             'initial_target_dir': r'[ProgramFilesFolder]\{0}-{1}'.format(
-                'ftrack-connect', VERSION
+                'ftrack Connect', VERSION
             ),
             'data': {'Shortcut': shortcut_table},
             'all_users': True,
@@ -316,7 +316,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 pl = plistlib.load(file)
             if 'CFBundleGetInfoString' in pl.keys():
                 pl["CFBundleShortVersionString"] = str(
-                    'Ftrack Connect {}, copyright: Copyright (c) 2014-2020 ftrack'.format(
+                    'ftrack Connect {}, copyright: Copyright (c) 2014-2020 ftrack'.format(
                         VERSION
                     )
                 )
@@ -335,7 +335,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             Executable(
                 script='source/ftrack_connect_package/__main__.py',
                 base=None,
-                target_name='ftrack Connect',
+                target_name='ftrack\ Connect',
                 icon='./logo.icns',
             )
         )
