@@ -88,7 +88,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 stage_status = False
                 result = plugin_result['result']
                 # We log a warning if a plugin on the stage failed.
-                self.logger.warning(
+                self.logger.error(
                     "Execution of the plugin {} failed.".format(plugin_name)
                 )
             else:

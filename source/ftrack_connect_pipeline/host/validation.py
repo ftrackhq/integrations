@@ -114,7 +114,7 @@ class PluginDiscoverValidation(object):
             if not valid_definition:
                 idx = publishers.index(definition)
                 idxs_to_pop.append(idx)
-                self.logger.warning(
+                self.logger.debug(
                     'The definition {} from type {} contains invalid plugins '
                     'and will not be used'.format(
                         definition['name'], 'publisher'
@@ -179,7 +179,7 @@ class PluginDiscoverValidation(object):
             if not valid_definition:
                 idx = loaders.index(definition)
                 idxs_to_pop.append(idx)
-                self.logger.warning(
+                self.logger.debug(
                     'The definition {} from type {} contains invalid plugins '
                     'and will not be used'.format(
                         definition['name'], 'publisher'
@@ -214,7 +214,7 @@ class PluginDiscoverValidation(object):
                             plugin_type
                     ):
                         is_valid = False
-                        self.logger.warning(
+                        self.logger.debug(
                             'Could not discover plugin {} of type {} for stage {}'
                             ' of the step {} in {}'.format(
                                 plugin['plugin'],
@@ -289,7 +289,7 @@ class PluginDiscoverValidation(object):
                 )
 
                 break
-            self.logger.warning(
+            self.logger.debug(
                 'plugin {} not found for definition host_type {}'.format(
                     plugin_name, host_type
                 )

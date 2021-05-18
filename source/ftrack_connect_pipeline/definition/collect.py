@@ -34,7 +34,7 @@ def filter_definitions_by_host(data, host_type):
     for entry in ['loader', 'publisher', 'asset_manager']:
         for definition in data[entry]:
             if str(definition.get('host_type')) != str(host_type):
-                logger.warning(
+                logger.debug(
                     'Removing definition for host_type: {}'.format(
                         definition.get('host_type')
                     )
@@ -101,7 +101,7 @@ def _collect_json(source_path):
             try:
                 data_store = json.load(_file)
             except Exception as error:
-                logger.warning(
+                logger.error(
                     "{0} could not be registered, reason: {1}".format(
                         _file, str(error)
                     )

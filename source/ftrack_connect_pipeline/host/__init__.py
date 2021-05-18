@@ -169,7 +169,7 @@ class Host(object):
         validated_result = self.validate(raw_result)
 
         for key, value in list(validated_result.items()):
-            logger.info('Valid packages : {} : {}'.format(key, len(value)))
+            logger.warning('Valid packages : {} : {}'.format(key, len(value)))
 
         self.__registry = validated_result
 
@@ -191,7 +191,7 @@ class Host(object):
             ),
             self.run
         )
-        self.logger.info('host {} ready.'.format(self.host_id))
+        self.logger.debug('host {} ready.'.format(self.host_id))
 
     def validate(self, data):
         '''
