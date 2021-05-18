@@ -134,7 +134,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             nodes_to_delete = set(nodes_to_delete + parented_nodes_names)
             for node_s in nodes_to_delete:
                 node = nuke.toNode(node_s)
-                self.logger.info("removing : {}".format(node.Class()))
+                self.logger.debug("removing : {}".format(node.Class()))
                 try:
                     nuke.delete(node)
                     result.append(str(node_s))
