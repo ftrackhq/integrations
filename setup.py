@@ -30,7 +30,7 @@ embedded_plugins = [
 
 
 
-bundle_name = 'ftrack\ Connect'
+bundle_name = 'ftrack Connect'
 import PySide2
 import shiboken2
 
@@ -335,7 +335,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             Executable(
                 script='source/ftrack_connect_package/__main__.py',
                 base=None,
-                target_name='ftrack\ Connect',
+                target_name='ftrack Connect',
                 icon='./logo.icns',
             )
         )
@@ -507,10 +507,11 @@ def post_setup(codesign_frameworks = True):
         logging.info(
             " Fixing PySide2 frameworks."
         )
-        bundle_dir = os.path.join(BUILD_PATH, bundle_name + ".app")
+        bundle_dir = os.path.join(BUILD_PATH, "ftrack Connect.app")
+        print("lluis bundle_dir---> {}".format(bundle_dir))
         frameworks_dir = os.path.join(bundle_dir,  "Contents", "Frameworks")
         for framework in os.listdir(frameworks_dir):
-            full_path = '{}/{}'.format(frameworks_dir, framework)
+            full_path = os.path.join(frameworks_dir, framework).replace(" ", "\\ ")#'{}/{}'.format(frameworks_dir, framework)
             framework_name = framework.split(".")[0]
             # Fix PySide2 misplaced resources and .plist file on frameworks.
             bash_move_cmd = 'mv "{}/Resources" "{}/Versions/5/Resources"'.format(
@@ -569,6 +570,7 @@ def codesign_osx(create_dmg=True, notarize=True):
     )
     entitlements_path = os.path.join(RESOURCE_PATH, 'entitlements.plist')
     bundle_path = os.path.join(BUILD_PATH, bundle_name + ".app")
+    print("lluis bundle_path---> {}".format(bundle_path))
     codesign_command = (
         'codesign --verbose --force --options runtime --timestamp --deep --strict '
         '--entitlements "{}" --sign $CODESIGN_IDENTITY '
@@ -587,6 +589,7 @@ def codesign_osx(create_dmg=True, notarize=True):
         logging.info(' Application signed')
     if create_dmg:
         dmg_name = '{0}-{1}.dmg'.format(bundle_name, VERSION)
+        print("lluis dmg_name---> {}".format(dmg_name))
         dmg_path = os.path.join(BUILD_PATH, dmg_name)
         dmg_command = (
             'appdmg resource/appdmg.json {}'.format(dmg_path)

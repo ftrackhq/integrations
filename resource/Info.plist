@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>ftrack Connect Package</string>
+	<string>ftrack Connect</string>
 	<key>CFBundleGetInfoString</key>
 	<string>ftrack Connect 2.0.0, copyright: Copyright (c) 2014-2020 ftrack</string>
 	<key>CFBundleIconFile</key>
