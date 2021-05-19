@@ -374,6 +374,7 @@ def _translateEntityType(entityType):
         'Unable to translate entity type: {0}.'.format(entity_type)
     )
 
+
 def _generateURL(params=None, panelName=None):
     '''Return URL to panel in ftrack based on *params* or *panel*.'''
     url = ''
@@ -390,9 +391,11 @@ def _generateURL(params=None, panelName=None):
             except Exception:
                 entityId, entityType = _getEntityFromEnvironment()
 
-            new_entity_type = _translateEntityType(entityType)
-            new_entity = session.query('{} where id is {}'.format(new_entity_type, entityId)).first()
-
+            if entityId and entityType:
+                new_entity_type = _translateEntityType(entityType)
+                new_entity = session.get(new_entity_type, entityId)
+            else:
+                new_entity = None
             try:
                 url = session.get_widget_url(panelName, entity=new_entity)
             except Exception as exception:
