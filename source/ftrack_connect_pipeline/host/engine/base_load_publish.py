@@ -45,14 +45,14 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
         *plugins* : List of plugins that has to execute.
 
-        *step_context* : Context dictionary with the result of the context
+        *stage_context* : Context dictionary with the result of the context
         plugin containing the context_id, aset_name... Or None
 
         *stage_options* : Options dictionary to be passed to each plugin.
 
         *stage_data* : Data list of dictionaries to be passed to each stage.
 
-        *plugins_order* : Order of the stages to be executed.
+        *plugins_order* : Order of the plugins to be executed.
 
         *step_type* : Type of the step.
         '''

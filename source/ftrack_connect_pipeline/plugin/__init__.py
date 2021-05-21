@@ -122,9 +122,9 @@ class BasePlugin(object):
     plugin_name = None
     '''Name of the plugin'''
     type = 'base'
-    '''Name of the plugin'''
+    '''Type of the plugin default base. (action, collector...)'''
     category = 'plugin'
-    '''Type, default plugin. (action...)'''
+    '''Category of the plugin (plugin, plugin.widget...)'''
     host_type = constants.HOST_TYPE
     '''Host type of the plugin'''
 
@@ -204,7 +204,7 @@ class BasePlugin(object):
 
     def _base_topic(self, topic):
         '''
-        Ensures that :attr:`host_type`, :attr:`type`, :attr:`plugin_type`,
+        Ensures that :attr:`host_type`, :attr:`category`, :attr:`plugin_type`,
         :attr:`plugin_name` are defined and Returns a formated topic of an event
         for the given *topic*
 
