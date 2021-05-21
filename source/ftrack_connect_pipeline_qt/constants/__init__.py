@@ -2,11 +2,12 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 from ftrack_connect_pipeline import constants
 
-
+#: Default ui type for ftrack_connect_pipeline_qt
 UI_TYPE = 'qt'
+#: Default host type for ftrack_connect_pipeline_qt
 HOST_TYPE = constants.HOST_TYPE
 
-# Base name.
+#: Base name for events
 _BASE_ = 'ftrack.pipeline'
 
 # Avoid circular dependencies.

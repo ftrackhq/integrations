@@ -8,18 +8,23 @@ from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 
 
 class BasePluginWidget(plugin.BasePlugin):
+    ''' Base Class to represent a Widget '''
     category = 'plugin.widget'
+    '''Category of the plugin (plugin, plugin.widget...)'''
     return_type = BaseOptionsWidget
+    '''Required return type'''
     ui_type = constants.UI_TYPE
+    '''Ui tipe of the widget (qt,....)'''
     widget = None
+    '''The current widget'''
 
     def _base_topic(self, topic):
-        '''Ensures that we pass all the needed information to the topic
-        with *topic*.
+        '''
+        Ensures that :attr:`host_type`, :attr:`category`, :attr:`plugin_type`,
+        :attr:`plugin_name` and :attr:`ui_type` are defined and Returns a formated topic of an event
+        for the given *topic*
 
         *topic* topic base value
-
-        Return formated topic
 
         Raise :exc:`ftrack_connect_pipeline.exception.PluginError` if some
         information is missed.

@@ -10,7 +10,7 @@ from ftrack_connect_pipeline_qt.ui.log_viewer.model.log_table import (
 
 
 class LogViewerWidget(QtWidgets.QWidget):
-
+    ''' Main widget of the Log viewer '''
     @property
     def event_manager(self):
         '''Returns event_manager'''
@@ -23,10 +23,16 @@ class LogViewerWidget(QtWidgets.QWidget):
 
     @property
     def results(self):
-        '''Returns Session'''
+        '''Returns results'''
         return self._results
 
     def __init__(self, event_manager, parent=None):
+        '''Initialise LogViewerWidget with *event_manager*
+
+        *event_manager* should be the
+        :class:`ftrack_connect_pipeline.event.EventManager` instance to
+        communicate to the event server.
+        '''
         super(LogViewerWidget, self).__init__(parent=parent)
 
         self._event_manager = event_manager
@@ -37,10 +43,12 @@ class LogViewerWidget(QtWidgets.QWidget):
         self.post_build()
 
     def pre_build(self):
+        '''Prepare general layout.'''
         self._main_v_layout = QtWidgets.QVBoxLayout()
         self.setLayout(self._main_v_layout)
 
     def build(self):
+        '''Build widgets and parent them.'''
         filter_layout = QtWidgets.QHBoxLayout()
         filter_label = QtWidgets.QLabel('Filter Log')
         self.filter_field = QtWidgets.QLineEdit()
@@ -54,6 +62,7 @@ class LogViewerWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.log_table_view)
 
     def post_build(self):
+        '''Post Build ui method for events connections.'''
         self.filter_field.textChanged.connect(self.on_search)
         self.log_table_view.doubleClicked.connect(self.show_detail_widget)
 
@@ -64,11 +73,14 @@ class LogViewerWidget(QtWidgets.QWidget):
 
     def set_log_items(self, log_items):
         '''
-        Sets the ftrack_asset_list with the given *ftrack_asset_list*
+        Sets the :obj:`log_items` with the given *log_items*
         '''
         self.log_table_view.set_log_items(log_items)
 
     def show_detail_widget(self, index):
+        '''
+        Raises a dock widget with the log details.
+        '''
         self.dockWidget = LogViewerDetailWidget(self.event_manager, self)
 
         data = self.log_table_view.model().data(
@@ -82,7 +94,7 @@ class LogViewerWidget(QtWidgets.QWidget):
 
 
 class LogDialogTableView(QtWidgets.QTableView):
-    '''Model representing AssetManager.'''
+    '''Table view representing Log Viewer.'''
 
     @property
     def event_manager(self):
@@ -95,10 +107,10 @@ class LogDialogTableView(QtWidgets.QTableView):
         return self.event_manager.session
 
     def __init__(self, event_manager, parent=None):
-        '''Initialise AssetManagerTableView with *event_manager*
+        '''Initialise LogDialogTableView with *event_manager*
 
         *event_manager* should be the
-        :class:`ftrack_connect_pipeline.event.EventManager`instance to
+        :class:`ftrack_connect_pipeline.event.EventManager` instance to
         communicate to the event server.
         '''
         super(LogDialogTableView, self).__init__(parent=parent)
@@ -135,7 +147,7 @@ class LogDialogTableView(QtWidgets.QTableView):
 
     def set_log_items(self, log_items):
         '''
-        Sets the ftrack_asset_list with the given *ftrack_asset_list*
+        Sets the :obj:`log_items` with the given *log_items*
         '''
         self.log_model.set_log_items(log_items)
 

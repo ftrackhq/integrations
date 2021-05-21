@@ -7,9 +7,11 @@ from Qt import QtWidgets, QtCore, QtGui
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 
 class BaseCollectorWidget(BaseOptionsWidget):
+    ''' Base class to represent a Collector widget '''
 
     @property
     def collected_objects(self):
+        '''Return the collected object by the widget'''
         return self._collected_objects
 
     def __init__(
@@ -61,16 +63,19 @@ class BaseCollectorWidget(BaseOptionsWidget):
         self.set_option_result(self.collected_objects, key='collected_objects')
 
     def on_fetch_callback(self, result):
-        ''' Callback funtion called by the _set_internal_run_result function of
-        the BaseOptionsWidget
+        '''
+        Callback funtion called by the _set_internal_run_result method of the
+        :class:`~ftrack_connect_pipeline_qt.client.widgets.options.BaseOptionsWidget`
         '''
         self.list_widget.clear()
         for obj in result:
             self.add_object(obj)
 
     def on_add_callback(self, result):
-        ''' Callback funtion called by the _set_internal_run_result function of
-        the BaseOptionsWidget'''
+        '''
+        Callback funtion called by the _set_internal_run_result method of the
+        :class:`~ftrack_connect_pipeline_qt.client.widgets.options.BaseOptionsWidget`
+        '''
         current_objects = self.get_current_objects()
         for obj in result:
             if obj in current_objects:
@@ -78,11 +83,14 @@ class BaseCollectorWidget(BaseOptionsWidget):
             self.add_object(obj)
 
     def on_select_callback(self, result):
-        ''' Callback funtion called by the _set_internal_run_result function of
-        the BaseOptionsWidget'''
+        '''
+        Callback funtion called by the _set_internal_run_result method of the
+        :class:`~ftrack_connect_pipeline_qt.client.widgets.options.BaseOptionsWidget`
+        '''
         self.logger.debug("selected objects: {}".format(result))
 
     def add_object(self, obj):
+        '''Add the given *obj* to the widget list'''
         item = QtWidgets.QListWidgetItem(obj)
         self.list_widget.addItem(item)
         if item.text() not in self.collected_objects:
@@ -90,12 +98,17 @@ class BaseCollectorWidget(BaseOptionsWidget):
         if item.text() not in self._options['collected_objects']:
             self._options['collected_objects'].append(item.text())
     def get_current_objects(self):
+        '''Return the objects in the :obj:`list_widget`'''
         current_objects = []
         for idx in range(0, self.list_widget.count()):
             current_objects.append(self.list_widget.item(idx).text())
         return current_objects
 
     def _on_item_changed(self, item):
+        '''
+        Callback function called when :obj:`list_widget` itemchanged signal is
+        triggered
+        '''
         if item.text() not in self._options['collected_objects']:
             self._options['collected_objects'].append(item.text())
 
