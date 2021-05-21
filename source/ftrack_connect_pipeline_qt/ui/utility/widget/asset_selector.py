@@ -84,5 +84,5 @@ class AssetSelector(QtWidgets.QWidget):
         self.asset_changed.emit(asset_name, asset_id, is_valid_name)
 
     def set_context(self, context, asset_type):
-        self.logger.info('setting context to :{}'.format(context))
+        self.logger.debug('setting context to :{}'.format(context))
         self.asset_combobox.on_context_changed(context, asset_type)

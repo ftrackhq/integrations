@@ -19,4 +19,4 @@ class QtLoaderClient(QtClient):
             event_manager, parent=parent
         )
         self.setWindowTitle('Standalone Pipeline Loader')
-        self.logger.info('start qt loader')
+        self.logger.debug('start qt loader')

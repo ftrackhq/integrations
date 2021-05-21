@@ -204,7 +204,7 @@ class WidgetFactory(QtWidgets.QWidget):
 
         plugin_type = '{}.{}'.format(self.definition_type, stage_name)
 
-        self.logger.info('Fetching widget : {} for plugin {}'.format(
+        self.logger.debug('Fetching widget : {} for plugin {}'.format(
             widget_name, plugin_name
         ))
 
@@ -218,7 +218,7 @@ class WidgetFactory(QtWidgets.QWidget):
                 widget_name = 'default.validator.widget'
             else:
                 widget_name = 'default.widget'
-            self.logger.info(
+            self.logger.debug(
                 'Widget not found, falling back on: {}'.format(widget_name)
             )
 
