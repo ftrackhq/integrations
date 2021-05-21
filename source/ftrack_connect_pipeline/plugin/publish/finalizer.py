@@ -40,7 +40,7 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
 
         *component_path* : Linked path of the component data.
         '''
-        self.logger.info(
+        self.logger.debug(
             'publishing component:{} to from {}'.format(
                 component_name, component_path
             )

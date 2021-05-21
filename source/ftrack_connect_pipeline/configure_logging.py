@@ -34,7 +34,10 @@ def get_log_directory():
     return log_directory
 
 
-def configure_logging(logger_name, level=None, format=None, extra_modules=None):
+def configure_logging(
+        logger_name, level=None, format=None, extra_modules=None,
+        extra_handlers=None, propagate=True
+):
     '''Configure `loggerName` loggers with console and file handler.
 
     Optionally specify log *level* (default WARNING)
@@ -44,7 +47,6 @@ def configure_logging(logger_name, level=None, format=None, extra_modules=None):
 
     Optional *extra_modules* to extend the modules to be set to *level*.
     '''
-
     # Provide default values for level and format.
     format = format or '%(levelname)s - %(threadName)s - %(asctime)s - %(name)s - %(message)s'
     level = level or logging.INFO
@@ -67,8 +69,10 @@ def configure_logging(logger_name, level=None, format=None, extra_modules=None):
     extra_modules = extra_modules or []
 
     # Cast to list in case is a tuple.
-    modules = ['ftrack_api', 'FTrackCore', 'urllib3', 'requests']
+    modules = []
     modules.extend(list(extra_modules))
+
+    extra_handlers = extra_handlers or {}
 
     logging_settings = {
         'version': 1,
@@ -88,7 +92,7 @@ def configure_logging(logger_name, level=None, format=None, extra_modules=None):
                 'mode': 'a',
                 'maxBytes': 10485760,
                 'backupCount': 5,
-            },
+            }
         },
         'formatters': {
             'file': {
@@ -97,16 +101,37 @@ def configure_logging(logger_name, level=None, format=None, extra_modules=None):
         },
         'loggers': {
             '': {
-                'level': 'DEBUG',
-                'handlers': ['console', 'file']
+                'level': 'INFO',
+                'handlers': ['console']
+            },
+            'ftrack_api': {
+                'level': 'INFO',
+                'handlers': ['file']
+            },
+            'requests': {
+                'level': 'WARNING',
+                'handlers': ['file']
+            },
+            'urllib3': {
+                'level': 'WARNING',
+                'handlers': ['file']
             }
         }
     }
 
+    logging_settings['handlers'].update(extra_handlers)
+
+    extra_handlers_names = list(extra_handlers.keys())
+    modules_handlers = ['file'] + extra_handlers_names
+
     for module in modules:
         current_level = logging.getLevelName(level)
         logging_settings['loggers'].setdefault(
-            module, {'level': current_level}
+            module, {
+                'level': 'DEBUG',
+                'handlers': modules_handlers,
+                'propagate': propagate
+            }
         )
 
     # Set default logging settings.
@@ -116,4 +141,4 @@ def configure_logging(logger_name, level=None, format=None, extra_modules=None):
     logging.captureWarnings(True)
 
     # Log out the file output.
-    logging.info('Saving log file to: {0}'.format(logfile))
+    logging.warning('Saving log file to: {0}'.format(logfile))
