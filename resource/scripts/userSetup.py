@@ -10,10 +10,28 @@ from ftrack_connect_pipeline import constants
 
 import maya.cmds as cmds
 import maya.mel as mm
+import maya.utils
 
 import ftrack_api
 
-logger = logging.getLogger('ftrack_connect_pipeline_maya.scripts.userSetup')
+from ftrack_connect_pipeline.configure_logging import configure_logging
+extra_handlers = {
+    'maya':{
+            'class': 'maya.utils.MayaGuiLogHandler',
+            'level': 'INFO',
+            'formatter': 'file',
+        }
+}
+configure_logging(
+    'ftrack_connect_pipeline_maya',
+    extra_modules=['ftrack_connect_pipeline', 'ftrack_connect_pipeline_qt'],
+    extra_handlers=extra_handlers,
+    propagate=False
+)
+
+
+logger = logging.getLogger('ftrack_connect_pipeline_maya')
+
 
 created_dialogs = dict()
 

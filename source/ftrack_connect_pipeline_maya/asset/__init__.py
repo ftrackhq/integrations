@@ -84,7 +84,7 @@ class FtrackAssetNode(FtrackAssetBase):
         values of the asset_info.
         '''
         if not ftrack_object:
-            self.logger.warning(
+            self.logger.error(
                 "Can't check if ftrack_object is not loaded"
             )
             return False
