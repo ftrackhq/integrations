@@ -21,7 +21,7 @@ class QtPublisherClient(QtClient):
             event_manager, parent=parent
         )
         self.setWindowTitle('Standalone Pipeline Publisher')
-        self.logger.info('start qt publisher')
+        self.logger.debug('start qt publisher')
 
     def pre_build(self):
         '''

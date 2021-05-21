@@ -69,9 +69,9 @@ class VersionSelector(QtWidgets.QWidget):
         self.version_changed.emit(version_num, version_id)
 
     def set_context(self, context):
-        self.logger.info('setting context to :{}'.format(context))
+        self.logger.debug('setting context to :{}'.format(context))
         self.version_combobox.context_changed(context)
 
     def set_asset_id(self, asset_id):
-        self.logger.info('setting asset_id to :{}'.format(asset_id))
+        self.logger.debug('setting asset_id to :{}'.format(asset_id))
         self.version_combobox.asset_changed(asset_id)
