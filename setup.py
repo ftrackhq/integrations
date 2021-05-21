@@ -335,7 +335,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             Executable(
                 script='source/ftrack_connect_package/__main__.py',
                 base=None,
-                target_name='ftrack Connect',
+                target_name='ftrack_connect',
                 icon='./logo.icns',
             )
         )
