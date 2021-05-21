@@ -418,7 +418,7 @@ class BasePlugin(object):
             end_time = time.time()
             total_time = end_time - start_time
             tb = traceback.format_exc()
-            self.logger.warning(message, exc_info=True)
+            self.logger.error(message, exc_info=True)
             result_data['status'] = constants.EXCEPTION_STATUS
             result_data['execution_time'] = total_time
             result_data['message'] = str(tb)

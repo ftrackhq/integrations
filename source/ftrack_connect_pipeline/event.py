@@ -21,21 +21,21 @@ class _EventHubThread(threading.Thread):
         )
         _name = str(hash(session))
         super(_EventHubThread, self).__init__(name=_name)
-        self.logger.info(
+        self.logger.debug(
             'Name set for the thread: {}'.format(_name)
         )
         self._session = session
 
     def start(self):
         '''Start thread for *_session*.'''
-        self.logger.info(
+        self.logger.debug(
             'starting event hub thread for session {}'.format(self._session)
         )
         super(_EventHubThread, self).start()
 
     def run(self):
         '''Listen for events.'''
-        self.logger.info(
+        self.logger.debug(
             'hub thread started for session {}'.format(self._session)
         )
         self._session.event_hub.wait()

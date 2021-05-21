@@ -201,7 +201,7 @@ class AssetManagerClient(client.Client):
             index = self.ftrack_asset_list.index(asset_info)
             if index is None:
                 continue
-            self.logger.info('Removing id {} with index {}'.format(key, index))
+            self.logger.debug('Removing id {} with index {}'.format(key, index))
             self.ftrack_asset_list[index] = value
 
     def _remove_assets_callback(self, event):
@@ -218,7 +218,7 @@ class AssetManagerClient(client.Client):
             index = self.ftrack_asset_list.index(asset_info)
             if index is None:
                 continue
-            self.logger.info('Removing id {} with index {}'.format(key, index))
+            self.logger.debug('Removing id {} with index {}'.format(key, index))
             self.ftrack_asset_list.pop(index)
 
     def _update_assets_callback(self, event):
@@ -234,5 +234,5 @@ class AssetManagerClient(client.Client):
             index = self.ftrack_asset_list.index(asset_info)
             if index is None:
                 continue
-            self.logger.info('Updating id {} with index {}'.format(key, index))
+            self.logger.debug('Updating id {} with index {}'.format(key, index))
             self.ftrack_asset_list[index] = value.get(list(value.keys())[0])

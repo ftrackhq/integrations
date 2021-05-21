@@ -88,7 +88,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 stage_status = False
                 result = plugin_result['result']
                 # We log a warning if a plugin on the stage failed.
-                self.logger.warning(
+                self.logger.error(
                     "Execution of the plugin {} failed.".format(plugin_name)
                 )
             else:
@@ -231,7 +231,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
                     step_options = {'component_name': step_name}
 
                 if not step_enabled:
-                    self.logger.info(
+                    self.logger.debug(
                         'Skipping step {} as it been disabled'.format(
                             step_name
                         )
