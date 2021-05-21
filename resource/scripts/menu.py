@@ -12,8 +12,13 @@ from ftrack_connect_pipeline_nuke.menu import build_menu_widgets
 import ftrack_api
 import nuke
 
+from ftrack_connect_pipeline.configure_logging import configure_logging
+configure_logging(
+    'ftrack_connect_pipeline_nuke',
+    extra_modules=['ftrack_connect_pipeline', 'ftrack_connect_pipeline_qt']
+)
 
-logger = logging.getLogger('ftrack_connect_pipeline_nuke.scripts.userSetup')
+logger = logging.getLogger('ftrack_connect_pipeline_nuke')
 
 created_dialogs = dict()
 
