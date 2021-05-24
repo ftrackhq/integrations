@@ -29,12 +29,12 @@ try:
     ftrack_logging.configure_logging(ftrack_connect_rv_logger_name)
     # Setup logging.
 except Exception as error:
-    logging.error('Failed to Initialize logging.', error)
+    logging.warning('Failed to Initialize logging.', error)
 
 logger = logging.getLogger(ftrack_connect_rv_logger_name)
-logger.info('PY3 Enabled: {}'.format(os.environ.get('RV_PYTHON3', 'NOT SET')))
-logger.info('Interpreter {}'.format(sys.executable))
-logger.info('version {}'.format(sys.version_info))
+logger.debug('PY3 Enabled: {}'.format(os.environ.get('RV_PYTHON3', 'NOT SET')))
+logger.debug('Interpreter {}'.format(sys.executable))
+logger.debug('version {}'.format(sys.version_info))
 # Check whether the plugin is running from within connect or as standalone
 # is_standalone = not bool(os.getenv('FTRACK_CONNECT_EVENT'))
 
@@ -43,7 +43,7 @@ logger.info('version {}'.format(sys.version_info))
 required_envs = ['FTRACK_SERVER', 'FTRACK_API_KEY']
 for env in required_envs:
     if env not in os.environ:
-        logger.warning('{0} environment not found!'.format(env))
+        logger.error('{0} environment not found!'.format(env))
 
 
 # Setup ssl certificate path.
@@ -59,7 +59,7 @@ dependencies_path = os.path.abspath(os.path.join(
     'dependencies.zip'
 ))
 
-logger.info('Adding {} to PATH'.format(dependencies_path))
+logger.debug('Adding {} to PATH'.format(dependencies_path))
 sys.path.insert(0, dependencies_path)
 
 
