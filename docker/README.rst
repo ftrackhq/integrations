@@ -74,7 +74,7 @@ Linux C7
 
 .. code-block::
 
-    docker cp CONTAINER ID:/usr/src/app/ftrack-connect-package/build/ftrack-connect-2-C7.tar.gz .
+    docker cp CONTAINER ID:"/usr/src/app/ftrack-connect-package/build/ftrack Connect-2.0-C7.tar.gz" .
 
 
 Linux C8
@@ -82,7 +82,7 @@ Linux C8
 
 .. code-block::
 
-    docker cp CONTAINER ID:/usr/src/app/ftrack-connect-package/build/ftrack-connect-2-C8.tar.gz .
+    docker cp CONTAINER ID:"/usr/src/app/ftrack-connect-package/build/ftrack Connect-2.0-C8.tar.gz" .
 
 
 Debug

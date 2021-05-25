@@ -32,4 +32,4 @@ RUN python3.7 -m pip install -r requirements.txt
 RUN python3.7 setup.py build
 
 WORKDIR /usr/src/app/ftrack-connect-package/build
-RUN tar -czvf ftrack-connect-2-C8.tar.gz exe.linux-x86_64-3.7
+RUN tar -czvf ftrack\ Connect-2.0-C8.tar.gz exe.linux-x86_64-3.7
