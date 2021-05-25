@@ -41,6 +41,7 @@ RUN python -m pip install --upgrade pip
 WORKDIR /usr/src/app
 RUN git clone -b backlog/connect-2/story https://bitbucket.org/ftrack/ftrack-connect.git
 WORKDIR /usr/src/app/ftrack-connect
+RUN git fetch 
 RUN python -m pip install -r requirements.txt
 
 # ensure pyside2-rcc and pyside2-uic are available in PATH
@@ -52,5 +53,7 @@ RUN python setup.py install
 WORKDIR /usr/src/app
 RUN git clone -b backlog/connect-2/story https://bitbucket.org/ftrack/ftrack-connect-package.git
 WORKDIR /usr/src/app/ftrack-connect-package
+RUN git fetch 
+
 RUN python -m pip install -r requirements.txt
 RUN python setup.py bdist_msi

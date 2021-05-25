@@ -22,6 +22,7 @@ RUN git fetch
 RUN python3.7 -m pip install -r requirements.txt
 RUN python3.7 setup.py install
 
+# install connect package
 WORKDIR /usr/src/app
 RUN git clone -b backlog/connect-2/story https://bitbucket.org/ftrack/ftrack-connect-package.git
 WORKDIR /usr/src/app/ftrack-connect-package
