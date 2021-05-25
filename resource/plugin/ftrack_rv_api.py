@@ -23,24 +23,27 @@ import rv as rv
 ftrack_connect_rv_logger_name = 'ftrack_connect_rv'
 
 
+
 try:
     import ftrack_logging
     ftrack_logging.configure_logging(ftrack_connect_rv_logger_name)
     # Setup logging.
 except Exception as error:
-    logging.error('Failed to Initialize logging.', error)
+    logging.warning('Failed to Initialize logging.', error)
 
 logger = logging.getLogger(ftrack_connect_rv_logger_name)
-
+logger.debug('PY3 Enabled: {}'.format(os.environ.get('RV_PYTHON3', 'NOT SET')))
+logger.debug('Interpreter {}'.format(sys.executable))
+logger.debug('version {}'.format(sys.version_info))
 # Check whether the plugin is running from within connect or as standalone
-is_standalone = not bool(os.getenv('FTRACK_CONNECT_EVENT'))
+# is_standalone = not bool(os.getenv('FTRACK_CONNECT_EVENT'))
 
 
 # Check for base environment presence.
-required_envs = ['FTRACK_SERVER', 'FTRACK_APIKEY']
+required_envs = ['FTRACK_SERVER', 'FTRACK_API_KEY']
 for env in required_envs:
     if env not in os.environ:
-        logger.warning('{0} environment not found!'.format(env))
+        logger.error('{0} environment not found!'.format(env))
 
 
 # Setup ssl certificate path.
@@ -51,25 +54,13 @@ cacert_path = os.path.join(
 os.environ['REQUESTS_CA_BUNDLE'] = cacert_path
 
 # Setup dependencies path.
-dependencies_path = os.path.join(
+dependencies_path = os.path.abspath(os.path.join(
     os.path.dirname(__file__),
     'dependencies.zip'
-)
+))
 
-# If we are standalone, rely on the shipped libraries.
-if is_standalone:
-    logger.debug('Runing Rv plugin standalone.')
-    sys.path.insert(0, dependencies_path)
-else:
-    logger.debug('Running Rv integration through connect.')
-
-# Try import ftrack's Legacy API.
-try:
-    import ftrack
-except ImportError:
-    logger.error(
-        'No Ftrack Legacy api module found in PYTHONPATH'
-    )
+logger.debug('Adding {} to PATH'.format(dependencies_path))
+sys.path.insert(0, dependencies_path)
 
 
 # Try import ftrack's new API.
@@ -79,15 +70,9 @@ try:
 
 except ImportError as e:
     logger.error(
-        'No Ftrack API module found in PYTHONPATH'
+        'No Ftrack API module found in {}'.format(dependencies_path)
     )
-
-try:
-    import ftrack_location_compatibility
-except ImportError:
-    logger.error(
-        'No ftrack_location_compatibility module found.'
-    )
+    raise
 
 
 # Cache to keep track of filesystem path for components.
@@ -103,14 +88,7 @@ layoutSourceNode = None
 annotation_components = {}
 
 
-# Initialize Legacy API.
-try:
-    ftrack.setup(actions=False)
-except Exception as e:
-    logger.error(e)
-
-
-# Initialize New API and ftrack_location_compatiblity
+# Initialize New API
 try:
     session = ftrack_api.Session(
         auto_connect_event_hub=False
@@ -120,10 +98,9 @@ try:
     origin_location = session.get('Location', ORIGIN_LOCATION_ID)
     server_location = session.get('Location', SERVER_LOCATION_ID)
 
-    # Initialize ftrack_location_compatiblity.
-    ftrack_location_compatibility.plugin.register_locations(session)
 except Exception as e:
     logger.error(e)
+    raise
 
 
 def _getSourceNode(nodeType='sequence'):
@@ -269,8 +246,8 @@ def validateComponentLocation(componentId, versionId):
                             'type': 'breakItem',
                             'versionId': versionId
                         }
-                    )
-                ),
+                    ).encode("utf-8")
+                ).decode('ascii'),
                 None
             )
         except Exception:
@@ -314,7 +291,7 @@ def ftrackCompare(data):
                 _ftrackCreateGroup([trackA, trackB], sourceNode, layout)
                 rv.commands.setViewNode(sourceNode)
         except Exception:
-            print traceback.format_exc()
+            print(traceback.format_exc())
     else:
         sourceNode = _getSourceNode('layout')
         _ftrackCreateGroup([trackA], sourceNode, layout)
@@ -330,6 +307,7 @@ def _getEntityFromEnvironment():
     eventEnvironmentVariable = 'FTRACK_CONNECT_EVENT'
 
     eventData = os.environ.get(eventEnvironmentVariable)
+
     if eventData is not None:
         try:
             decodedEventData = json.loads(base64.b64decode(eventData))
@@ -340,7 +318,7 @@ def _getEntityFromEnvironment():
             )
         else:
             selection = decodedEventData.get('selection', [])
-
+            logger.info('selection {}'.format(selection))
             # At present only a single entity which should represent an
             # ftrack List is supported.
             if selection:
@@ -373,6 +351,30 @@ def getActionURL(params=None):
     return _generateURL(params, 'review_action')
 
 
+def _translateEntityType(entityType):
+    '''Return translated entity type tht can be used with API.'''
+    # Get entity type and make sure it is lower cased. Most places except
+    # the component tab in the Sidebar will use lower case notation.
+    entity_type = entityType.replace('_', '').lower()
+
+    for schema in session.schemas:
+        alias_for = schema.get('alias_for')
+
+        if (
+            alias_for and isinstance(alias_for, str) and
+            alias_for.lower() == entity_type
+        ):
+            return schema['id']
+
+    for schema in session.schemas:
+        if schema['id'].lower() == entity_type:
+                return schema['id']
+
+    raise ValueError(
+        'Unable to translate entity type: {0}.'.format(entity_type)
+    )
+
+
 def _generateURL(params=None, panelName=None):
     '''Return URL to panel in ftrack based on *params* or *panel*.'''
     url = ''
@@ -382,7 +384,6 @@ def _generateURL(params=None, panelName=None):
 
         if params:
             panelName = panelName or params
-
             try:
                 params = json.loads(params)
                 entityId = params['entityId'][0]
@@ -390,16 +391,19 @@ def _generateURL(params=None, panelName=None):
             except Exception:
                 entityId, entityType = _getEntityFromEnvironment()
 
+            if entityId and entityType:
+                new_entity_type = _translateEntityType(entityType)
+                new_entity = session.get(new_entity_type, entityId)
+            else:
+                new_entity = None
             try:
-                url = ftrack.getWebWidgetUrl(
-                    panelName, 'tf', entityId=entityId, entityType=entityType
-                )
+                url = session.get_widget_url(panelName, entity=new_entity)
             except Exception as exception:
                 logger.error(str(exception))
 
         logger.info('Returning url "{0}"'.format(url))
-    except Exception:
-        logger.exception('Failed to generate URL.')
+    except Exception as error:
+        logger.exception('Failed to generate URL. {}'.format(error))
     return url
 
 
