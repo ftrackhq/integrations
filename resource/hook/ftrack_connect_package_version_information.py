@@ -30,7 +30,7 @@ def get_version_information(event):
     '''Return version information for ftrack connect package.'''
     return [
         dict(
-            name='ftrack connect package',
+            name='ftrack Connect - Package',
             version=VERSION,
             core=True
         )

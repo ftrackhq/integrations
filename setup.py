@@ -30,7 +30,7 @@ embedded_plugins = [
 
 
 
-bundle_name = 'ftrack-connect'
+bundle_name = 'ftrack Connect'
 import PySide2
 import shiboken2
 
@@ -93,7 +93,7 @@ __version__ = {version!r}
 
 # General configuration.
 configuration = dict(
-    name='ftrack-connect-package',
+    name='ftrack Connect',
     use_scm_version={
         'write_to': 'source/ftrack_connect_package/_version.py',
         'write_to_template': version_template,
@@ -237,9 +237,9 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             (
                 'DesktopShortcut',
                 'DesktopFolder',
-                'ftrack-connect',
+                'ftrack Connect',
                 'TARGETDIR',
-                '[TARGETDIR]ftrack_connect_package.exe',
+                '[TARGETDIR]ftrack_connect.exe',
                 None,
                 None,
                 None,
@@ -251,9 +251,9 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             (
                 'ProgramMenuShortcut',
                 'ProgramMenuFolder',
-                'ftrack-connect',
+                'ftrack Connect',
                 'TARGETDIR',
-                '[TARGETDIR]ftrack_connect_package.exe',
+                '[TARGETDIR]ftrack_connect.exe',
                 None,
                 None,
                 None,
@@ -268,8 +268,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             Executable(
                 script='source/ftrack_connect_package/__main__.py',
                 base='Win32GUI',
-                #base=None,
-                target_name='ftrack_connect_package.exe',
+                target_name='ftrack_connect.exe',
                 icon='./logo.ico',
             )
         )
@@ -279,10 +278,10 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         configuration['options']['bdist_msi'] = {
             'upgrade_code': '{6068BD18-65D1-47FC-BE5E-06AA5189C9CB}',
             'initial_target_dir': r'[ProgramFilesFolder]\{0}-{1}'.format(
-                'ftrack-connect-package', VERSION
+                'ftrack Connect', VERSION
             ),
             'data': {'Shortcut': shortcut_table},
-            'all_users': True, # Enable these when out of beta of connect 2
+            'all_users': True,
             'add_to_path': True
         }
 
@@ -317,7 +316,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 pl = plistlib.load(file)
             if 'CFBundleGetInfoString' in pl.keys():
                 pl["CFBundleShortVersionString"] = str(
-                    'Ftrack Connect {}, copyright: Copyright (c) 2014-2020 ftrack'.format(
+                    'ftrack Connect {}, copyright: Copyright (c) 2014-2020 ftrack'.format(
                         VERSION
                     )
                 )
@@ -336,7 +335,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             Executable(
                 script='source/ftrack_connect_package/__main__.py',
                 base=None,
-                target_name='ftrack_connect_package',
+                target_name='ftrack_connect',
                 icon='./logo.icns',
             )
         )
@@ -384,7 +383,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
         configuration['options']['bdist_dmg'] = {
             'applications_shortcut': False,
-            'volume_label': 'ftrack-connect-{0}'.format(VERSION)
+            'volume_label': 'ftrack Connect {0}'.format(VERSION)
         }
 
         include_files = [
@@ -403,7 +402,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             Executable(
                 script='source/ftrack_connect_package/__main__.py',
                 base=None,
-                target_name='ftrack_connect_package',
+                target_name='ftrack_connect',
                 icon='./logo.icns',
             )
         )
@@ -522,7 +521,7 @@ def post_setup(codesign_frameworks = True):
             # The symlink has to be relative, otherwise will not codesign correctly.
             # You can test the codesign after codesign the whole application with:
             # codesign -vvv --deep --strict build/ftrack-connect.app/
-            bash_ln_command = 'cd {}; ln -s "Versions/5/Resources/" "./"'.format(
+            bash_ln_command = 'cd "{}"; ln -s "Versions/5/Resources/" "./"'.format(
                 full_path
             )
             os.system(bash_ln_command)
@@ -573,7 +572,7 @@ def codesign_osx(create_dmg=True, notarize=True):
     codesign_command = (
         'codesign --verbose --force --options runtime --timestamp --deep --strict '
         '--entitlements "{}" --sign $CODESIGN_IDENTITY '
-        '{}'.format(entitlements_path, bundle_path)
+        '"{}"'.format(entitlements_path, bundle_path)
     )
     codesign_result = os.system(codesign_command)
     if codesign_result != 0:
@@ -587,10 +586,10 @@ def codesign_osx(create_dmg=True, notarize=True):
     else:
         logging.info(' Application signed')
     if create_dmg:
-        dmg_name = '{0}-package-{1}.dmg'.format(bundle_name, VERSION)
+        dmg_name = '{0}-{1}.dmg'.format(bundle_name, VERSION)
         dmg_path = os.path.join(BUILD_PATH, dmg_name)
         dmg_command = (
-            'appdmg resource/appdmg.json {}'.format(dmg_path)
+            'appdmg resource/appdmg.json "{}"'.format(dmg_path)
         )
         dmg_result = os.system(dmg_command)
         if dmg_result != 0:
@@ -609,7 +608,7 @@ def codesign_osx(create_dmg=True, notarize=True):
             notarize_command = (
                 'xcrun altool --notarize-app --verbose --primary-bundle-id "com.ftrack.connect" '
                 '--username $APPLE_USER_NAME --password "@keychain:ftrack_connect_sign_pass" '
-                '--file {}'.format(dmg_path)
+                '--file "{}"'.format(dmg_path)
             )
             notarize_result = subprocess.check_output(notarize_command, shell=True)
             notarize_result = notarize_result.decode("utf-8")
@@ -639,8 +638,8 @@ def codesign_osx(create_dmg=True, notarize=True):
                 status = query_result.split("Status: ")[-1].split("\n")[0]
                 if status == 'success':
                     exit_loop = True
-                    staple_app_cmd = 'xcrun stapler staple {}'.format(bundle_path)
-                    staple_dmg_cmd = 'xcrun stapler staple {}'.format(dmg_path)
+                    staple_app_cmd = 'xcrun stapler staple "{}"'.format(bundle_path)
+                    staple_dmg_cmd = 'xcrun stapler staple "{}"'.format(dmg_path)
                     os.system(staple_app_cmd)
                     os.system(staple_dmg_cmd)
 
@@ -672,8 +671,8 @@ def codesign_osx(create_dmg=True, notarize=True):
                         logging.info(
                             ' Please once notarization is succed use the '
                             'following command to staple the app and the dmg: \n'
-                            'xcrum stapler staple {} \n'
-                            'xcrun stapler staple {}'.format(bundle_path, dmg_path)
+                            'xcrum stapler staple "{}" \n'
+                            'xcrun stapler staple "{}"'.format(bundle_path, dmg_path)
                         )
                     else:
                         try:
