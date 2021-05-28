@@ -45,14 +45,14 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
         *plugins* : List of plugins that has to execute.
 
-        *step_context* : Context dictionary with the result of the context
+        *stage_context* : Context dictionary with the result of the context
         plugin containing the context_id, aset_name... Or None
 
         *stage_options* : Options dictionary to be passed to each plugin.
 
         *stage_data* : Data list of dictionaries to be passed to each stage.
 
-        *plugins_order* : Order of the stages to be executed.
+        *plugins_order* : Order of the plugins to be executed.
 
         *step_type* : Type of the step.
         '''
@@ -88,7 +88,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 stage_status = False
                 result = plugin_result['result']
                 # We log a warning if a plugin on the stage failed.
-                self.logger.warning(
+                self.logger.error(
                     "Execution of the plugin {} failed.".format(plugin_name)
                 )
             else:
@@ -231,7 +231,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
                     step_options = {'component_name': step_name}
 
                 if not step_enabled:
-                    self.logger.info(
+                    self.logger.debug(
                         'Skipping step {} as it been disabled'.format(
                             step_name
                         )

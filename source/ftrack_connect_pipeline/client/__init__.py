@@ -224,7 +224,7 @@ class Client(object):
             __name__ + '.' + self.__class__.__name__
         )
         self._event_manager = event_manager
-        self.logger.info('Initialising {}'.format(self))
+        self.logger.debug('Initialising {}'.format(self))
 
     def discover_hosts(self, time_out=3):
         '''
@@ -233,7 +233,7 @@ class Client(object):
         '''
         # discovery host loop and timeout.
         start_time = time.time()
-        self.logger.info('time out set to {}:'.format(time_out))
+        self.logger.debug('time out set to {}:'.format(time_out))
         if not time_out:
             self.logger.warning(
                 'Running client with no time out.'
@@ -347,7 +347,7 @@ class Client(object):
         if not host_connection:
             return
 
-        self.logger.info('connection: {}'.format(host_connection))
+        self.logger.debug('connection: {}'.format(host_connection))
         self._host_connection = host_connection
         # set current context to host
         self.change_context(self.host_connection.context or self.context)

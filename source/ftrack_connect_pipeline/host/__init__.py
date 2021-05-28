@@ -89,7 +89,7 @@ class Host(object):
         self._host_id = '{}-{}'.format(
             '.'.join(self.host_types), uuid.uuid4().hex)
 
-        self.logger.info(
+        self.logger.debug(
             'initializing {}'.format(self)
         )
         self._event_manager = event_manager
@@ -170,7 +170,7 @@ class Host(object):
         validated_result = self.validate(raw_result)
 
         for key, value in list(validated_result.items()):
-            logger.info('Valid packages : {} : {}'.format(key, len(value)))
+            logger.warning('Valid packages : {} : {}'.format(key, len(value)))
 
         self.__registry = validated_result
 
@@ -192,7 +192,7 @@ class Host(object):
             ),
             self.run
         )
-        self.logger.info('host {} ready.'.format(self.host_id))
+        self.logger.debug('host {} ready.'.format(self.host_id))
 
     def validate(self, data):
         '''

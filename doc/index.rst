@@ -10,7 +10,7 @@ Welcome to ftrack-connect-pipeline's documentation!
    :maxdepth: 1
    :caption: Contents:
 
-   api_references/modules
+   developing/index
 
 Indices and tables
 ==================

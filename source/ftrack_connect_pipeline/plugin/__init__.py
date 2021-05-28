@@ -122,9 +122,9 @@ class BasePlugin(object):
     plugin_name = None
     '''Name of the plugin'''
     type = 'base'
-    '''Name of the plugin'''
+    '''Type of the plugin default base. (action, collector...)'''
     category = 'plugin'
-    '''Type, default plugin. (action...)'''
+    '''Category of the plugin (plugin, plugin.widget...)'''
     host_type = constants.HOST_TYPE
     '''Host type of the plugin'''
 
@@ -204,7 +204,7 @@ class BasePlugin(object):
 
     def _base_topic(self, topic):
         '''
-        Ensures that :attr:`host_type`, :attr:`type`, :attr:`plugin_type`,
+        Ensures that :attr:`host_type`, :attr:`category`, :attr:`plugin_type`,
         :attr:`plugin_name` are defined and Returns a formated topic of an event
         for the given *topic*
 
@@ -418,7 +418,7 @@ class BasePlugin(object):
             end_time = time.time()
             total_time = end_time - start_time
             tb = traceback.format_exc()
-            self.logger.warning(message, exc_info=True)
+            self.logger.error(message, exc_info=True)
             result_data['status'] = constants.EXCEPTION_STATUS
             result_data['execution_time'] = total_time
             result_data['message'] = str(tb)
