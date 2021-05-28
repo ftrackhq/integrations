@@ -15,6 +15,7 @@ from ftrack_connect_pipeline_qt.ui.asset_manager.delegate.asset_manager import (
 
 
 class AssetManagerWidget(QtWidgets.QWidget):
+    ''' Main widget of the asset manager '''
     widget_status_updated = QtCore.Signal(object)
     change_asset_version = QtCore.Signal(object, object)
     select_assets = QtCore.Signal(object)
@@ -34,7 +35,6 @@ class AssetManagerWidget(QtWidgets.QWidget):
     @property
     def engine_type(self):
         '''Returns engine_type'''
-        '''Returns ftrack object from the DCC app'''
         return self._engine_type
 
     @engine_type.setter
@@ -46,7 +46,7 @@ class AssetManagerWidget(QtWidgets.QWidget):
         '''Initialise AssetManagerWidget with *event_manager*
 
         *event_manager* should be the
-        :class:`ftrack_connect_pipeline.event.EventManager`instance to
+        :class:`ftrack_connect_pipeline.event.EventManager` instance to
         communicate to the event server.
         '''
         super(AssetManagerWidget, self).__init__(parent=parent)
@@ -98,7 +98,7 @@ class AssetManagerWidget(QtWidgets.QWidget):
     def on_asset_change_version(self, index, value):
         '''
         Triggered when a version of the asset has changed on the
-        version_cb_delegate.
+        :obj:`version_cb_delegate`
         '''
         _asset_info = self.asset_table_view.asset_model.ftrack_asset_list[
             index.row()
@@ -127,7 +127,7 @@ class AssetManagerWidget(QtWidgets.QWidget):
 
     def set_asset_list(self, ftrack_asset_list):
         '''
-        Sets the ftrack_asset_list with the given *ftrack_asset_list*
+        Sets the :obj:`ftrack_asset_list` with the given *ftrack_asset_list*
         '''
         self.ftrack_asset_list = ftrack_asset_list
         self.asset_table_view.set_asset_list(self.ftrack_asset_list)
@@ -138,13 +138,13 @@ class AssetManagerWidget(QtWidgets.QWidget):
         self.asset_table_view.model().setFilterWildcard(value)
 
     def set_host_connection(self, host_connection):
-        '''Sets The given *host_connection*.'''
+        '''Sets :obj:`host_connection` with the given *host_connection*.'''
         self.host_connection = host_connection
         self._listen_widget_updates()
         self.asset_table_view.set_host_connection(self.host_connection)
 
     def set_context_actions(self, actions):
-        '''Set the engine_type into the asset_table_view and calls the
+        '''Set the :obj:`engine_type` into the asset_table_view and calls the
         create_action function of the same class with the given *actions*'''
         self.asset_table_view.engine_type = self.engine_type
         self.asset_table_view.create_actions(actions)
@@ -168,7 +168,7 @@ class AssetManagerWidget(QtWidgets.QWidget):
 
 
 class AssetManagerTableView(QtWidgets.QTableView):
-    '''Model representing AssetManager.'''
+    '''Table view representing AssetManager.'''
     select_assets = QtCore.Signal(object)
     remove_assets = QtCore.Signal(object)
     update_assets = QtCore.Signal(object, object)
@@ -197,7 +197,7 @@ class AssetManagerTableView(QtWidgets.QTableView):
         '''Initialise AssetManagerTableView with *event_manager*
 
         *event_manager* should be the
-        :class:`ftrack_connect_pipeline.event.EventManager`instance to
+        :class:`ftrack_connect_pipeline.event.EventManager` instance to
         communicate to the event server.
         '''
         super(AssetManagerTableView, self).__init__(parent=parent)
@@ -247,7 +247,7 @@ class AssetManagerTableView(QtWidgets.QTableView):
 
     def set_asset_list(self, ftrack_asset_list):
         '''
-        Sets the ftrack_asset_list with the given *ftrack_asset_list*
+        Sets the :obj:`ftrack_asset_list` with the given *ftrack_asset_list*
         '''
         self.ftrack_asset_list = ftrack_asset_list
         self.asset_model.set_asset_list(self.ftrack_asset_list)

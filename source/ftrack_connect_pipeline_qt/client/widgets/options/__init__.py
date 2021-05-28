@@ -33,11 +33,12 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
     @property
     def context(self):
+        '''Returns the context'''
         return self._context
 
     @context.setter
     def context(self, value):
-        '''Sets the engine_type with the given *value*'''
+        '''Sets context with the given *value*'''
         self._context = value
 
     @property
@@ -120,10 +121,19 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         '''initialise widget with *parent*, *session*, *data*, *name*,
         *description*, *options*
 
-        *parent* widget to parent the current widget (optional).
+        *parent* : widget to parent the current widget (optional).
 
-        *session* should be the :class:`ftrack_api.session.Session` instance
-        to use for communication with the server.
+        *session* :  instance of :class:`ftrack_api.session.Session`
+
+        *data* : Data diccionary for the current widget
+
+        *name* : Name of the current widget
+
+        *description* : Description for the current widget
+
+        *options* : Options dicctionary for the current widget
+
+        *context* : Context dictionary of the current widget.
 
         '''
         super(BaseOptionsWidget, self).__init__(parent=parent)

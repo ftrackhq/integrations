@@ -14,7 +14,7 @@ class HiddenBoolean(JsonBoolean):
             self, name, schema_fragment, fragment_data,
             previous_object_data, widget_factory, parent=None
     ):
-        '''Initialise HiddenString with *name*, *schema_fragment*,
+        '''Initialise HiddenBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
         super(HiddenBoolean, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,

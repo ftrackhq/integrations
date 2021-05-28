@@ -14,11 +14,14 @@ from ftrack_connect_pipeline.client.log_viewer import LogViewerClient
 from ftrack_connect_pipeline_qt.ui.log_viewer import LogViewerWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget import header, host_selector
 
+
 class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
     '''
-    QtAssetManagerClient class.
+    QtLogViewerClient class.
     '''
-    definition_filter = 'log_viewer'
+    definition_filter = 'log_viewer' 
+    '''Use only definitions that matches the definition_filter'''
+
     log_item_added = QtCore.Signal(object)
 
     def __init__(self, event_manager, parent=None):
@@ -42,7 +45,10 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
 
     def add_hosts(self, host_connections):
         '''
-        Adds the given *hosts*
+        Adds the given *host_connections*
+
+        *host_connections* : list of
+        :class:`~ftrack_connect_pipeline.client.HostConnection`
         '''
         for host_connection in host_connections:
             if host_connection in self.host_connections:
@@ -50,8 +56,13 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
             self._host_connections.append(host_connection)
 
     def _host_discovered(self, event):
-        '''callback, adds new hosts connection from the given *event* to the
-        host_selector'''
+        '''
+        Callback, add the :class:`~ftrack_connect_pipeline.client.HostConnection`
+        of the new discovered :class:`~ftrack_connect_pipeline.host.HOST` from
+        the given *event*.
+
+        *event*: :class:`ftrack_api.event.base.Event`
+        '''
         LogViewerClient._host_discovered(self, event)
         self.host_selector.add_hosts(self.host_connections)
 
@@ -85,13 +96,12 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
             'Open log directory')
 
         self.layout().addWidget(self.open_log_folder_button)
-
     def update_log_items(self):
         ''' Connect to persistent log storage and fetch records. '''
         self.log_viewer_widget.set_log_items(self.logs)
 
     def post_build(self):
-        ''' Post Build ui method for events connections. '''
+        '''Post Build ui method for events connections.'''
         self.host_selector.host_changed.connect(self.change_host)
         self.refresh_button.clicked.connect(partial(self._refresh_ui, None))
         self.open_log_folder_button.clicked.connect(
@@ -107,6 +117,7 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
         '''
         Triggered host is selected in the host_selector.
         '''
+
         if not host_connection:
             return
 
@@ -155,7 +166,8 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
 
     def _refresh_ui(self, event):
         '''
-        Refreshes the ui
+        Refreshes the ui seting the :obj:`logs` items to the
+        :obj:`log_viewer_widget`
         '''
         if not self.host_connection:
             return

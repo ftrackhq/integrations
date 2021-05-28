@@ -7,6 +7,7 @@ from Qt import QtCore, QtWidgets
 
 
 class LoadBaseWidget(BaseOptionsWidget):
+    ''' Base Class to represent a Load Widget'''
     load_modes = []
 
     def __init__(
@@ -50,6 +51,7 @@ class LoadBaseWidget(BaseOptionsWidget):
         )
 
     def set_defaults(self):
+        ''' Set the pre selected default load mode'''
         for button in self.button_group.buttons():
             if button.text() == self.default_mode:
                 button.setChecked(True)

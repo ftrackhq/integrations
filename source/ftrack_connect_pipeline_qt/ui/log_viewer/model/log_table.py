@@ -6,15 +6,19 @@ from ftrack_connect_pipeline import constants
 
 
 class LogTableModel(QtCore.QAbstractTableModel):
+    '''Model representing LogViewer.'''
 
     DATA_ROLE = QtCore.Qt.UserRole + 1
 
     @property
     def log_items(self):
+        '''
+        Returns the :obj:`log_items`
+        '''
         return self._data
 
     def __init__(self, parent):
-        '''Initialize model model with *items*.'''
+        '''Initialize model model'''
 
         super(LogTableModel, self).__init__(parent)
 
@@ -26,8 +30,8 @@ class LogTableModel(QtCore.QAbstractTableModel):
 
     def set_log_items(self, log_items):
         '''
-        Reset the model and sets the ftrack_asset_list with the given
-        *ftrack_asset_list*
+        Reset the model and sets the :obj:`log_items` with the given
+        *log_items*
         '''
         self.beginResetModel()
         self._data = log_items
