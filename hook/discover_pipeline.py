@@ -14,7 +14,7 @@ logger = logging.getLogger('{}.hook'.format(NAME.replace('-','_')))
 
 def on_application_launch(event):
     '''Handle application launch and add environment to *event*.'''
-    logger.info('launching: {}'.format(NAME))
+    logger.debug('launching: {}'.format(NAME))
 
     plugin_base_dir = os.path.normpath(
         os.path.join(
@@ -53,7 +53,7 @@ def register(session):
     if not isinstance(session, ftrack_api.session.Session):
         return
 
-    logger.info('registering: {}'.format(NAME))
+    logger.debug('registering: {}'.format(NAME))
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.discover '
         'and data.application.identifier=*',
