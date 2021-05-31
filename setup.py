@@ -25,7 +25,7 @@ from setuptools_scm import get_version
 # Embedded plugins.
 
 embedded_plugins = [
-   'ftrack-application-launcher-1.0.0-b4.zip'
+   'ftrack-application-launcher-1.0.0-b5.zip'
 ]
 
 
@@ -302,8 +302,12 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
         # Force Qt to be included.
         bin_includes = [
-            "PySide2",
-            "shiboken2",
+            'PySide2.QtSvg',
+            'PySide2.QtXml',
+            'PySide2.QtCore',
+            'PySide2.QtWidgets',
+            'PySide2.QtGui',
+            "shiboken2.shiboken2",
             "encodings"
         ]
 
@@ -444,6 +448,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         'ftrack_api.structure.id',
         'encodings',
         'PySide2',
+        'shiboken2.shiboken2',
         'Qt',
         'PySide2.QtSvg',
         'PySide2.QtXml',
@@ -466,7 +471,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         "zip_include_packages": [
             'ftrack_connect',
             "PySide2",
-            "shiboken2",
+            "shiboken2.shiboken2",
             "Qt",
             'PySide2.QtSvg',
             'PySide2.QtXml',
