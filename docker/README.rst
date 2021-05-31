@@ -8,6 +8,11 @@ For Windows and Linux dockers are available to sanbox the build process.
 Build:
 ------
 
+.. note::
+
+   If you are building on desktop and not on CI it is suggested to add the flag --no-cache to ensure no previous cache is used.
+
+
 Windows
 .......
 
