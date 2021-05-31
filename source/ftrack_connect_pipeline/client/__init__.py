@@ -46,16 +46,17 @@ class HostConnection(object):
         '''Returns the current definitions, filtered on discoverable.'''
         context_identifiers = []
         if self._context:
+            # TODO: put get here and check if it works
             entity = self.session.query(
                 'TypedContext where id is {}'.format(self._context)
             ).first()
             if entity:
                 # Task, Project,...
                 context_identifiers.append(entity.get('context_type').lower())
-                # Name of the task or the project
-                context_identifiers.append(entity.get('name').lower())
                 # Modeling, animation...
                 context_identifiers.append(entity['type'].get('name').lower())
+                # Name of the task or the project
+                context_identifiers.append(entity.get('name').lower())
 
         if context_identifiers:
             result = {}
