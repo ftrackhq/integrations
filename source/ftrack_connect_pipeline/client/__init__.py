@@ -44,54 +44,57 @@ class HostConnection(object):
     @property
     def definitions(self):
         '''Returns the current definitions, filtered on discoverable.'''
-
-        context_idents = None
+        context_identifiers = []
         if self._context:
-            entity = self.session.query('Task where id={}'.format(
-                self._context)).one()
+            entity = self.session.query(
+                'TypedContext where id is {}'.format(self._context)
+            ).first()
             if entity:
-                context_idents = []
-                context_idents.append(entity['context_type'].lower())
-                context_idents.append(entity['name'].lower())
-                if 'type' in entity:
-                    context_idents.append(entity['type']['name'].lower())
+                # Task, Project,...
+                context_identifiers.append(entity.get('context_type').lower())
+                # Name of the task or the project
+                context_identifiers.append(entity.get('name').lower())
+                # Modeling, animation...
+                context_identifiers.append(entity['type'].get('name').lower())
 
-        if context_idents:
+        if context_identifiers:
             result = {}
             for schema_title in self._raw_host_data['definition'].keys():
                 result[schema_title] = self._filter_definitions(
-                    context_idents,
+                    context_identifiers,
                     self._raw_host_data['definition'][schema_title]
                 )
             return result
-        else:
-            return self._raw_host_data['definition']
 
-    def _filter_definitions(self, context_idents, definitions):
+        return self._raw_host_data['definition']
+
+    def _filter_definitions(self, context_identifiers, definitions):
         ''' Filter definitions on context idents and discoverable. '''
         result = []
         for definition in definitions:
+            match = False
             discoverable = definition.get('discoverable')
             if discoverable:
-                matches = False
-                for d in discoverable:
-                    if d.lower() == "task":
-                        # Always matches
-                        matches = True
-                    else:
-                        for name in context_idents:
-                            if d.lower() == name:
-                                matches = True
-                                break
-                    if matches:
+                for discover_name in discoverable:
+                    if discover_name.lower() in context_identifiers:
+                        # Add definition as it matches
+                        result.append(definition)
+                        match = True
                         break
-                if not matches:
-                    self.logger.debug(
-                        'Excluding definition {} - context idents {} '
-                        'does not match schema discoverable: {}.'.format(
-                            definition.get('name'), context_idents, discoverable))
-                    continue
-            result.append(definition)
+            else:
+                # Append if not discoverabe, because that means should be
+                # discovered always as the Asset Manager or the logger
+                result.append(definition)
+                match = True
+
+            if not match:
+                self.logger.debug(
+                    'Excluding definition {} - context identifiers {} '
+                    'does not match schema discoverable: {}.'.format(
+                        definition.get('name'), context_identifiers, discoverable
+                    )
+                )
+
         return result
 
     @property
