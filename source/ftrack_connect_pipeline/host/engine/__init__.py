@@ -4,8 +4,9 @@
 import logging
 import ftrack_api
 import copy
-from ftrack_connect_pipeline import constants
 
+from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline.log.log_item import LogItem
 
 def getEngine(baseClass, engineType):
     '''
@@ -171,7 +172,8 @@ class BaseEngine(object):
         '''
         Publish an :class:`ftrack_api.event.base.Event` with the topic
         :const:`~ftrack_connnect_pipeline.constants.PIPELINE_CLIENT_NOTIFICATION`
-        to notify the client of the given *plugin* result *result_data*.
+        to notify the client of the given *plugin* result *result_data*. 
+        Also store plugin result in persistent database.
 
         *plugin* : Plugin definition, a dictionary with the plugin information.
 
