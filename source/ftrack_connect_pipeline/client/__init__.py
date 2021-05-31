@@ -46,17 +46,17 @@ class HostConnection(object):
         '''Returns the current definitions, filtered on discoverable.'''
 
         context_idents = None
-        if not self._context is None:
+        if self._context:
             entity = self.session.query('Task where id={}'.format(
                 self._context)).one()
-            if not entity is None:
+            if entity:
                 context_idents = []
                 context_idents.append(entity['context_type'].lower())
                 context_idents.append(entity['name'].lower())
                 if 'type' in entity:
                     context_idents.append(entity['type']['name'].lower())
 
-        if 0 < len(context_idents or []):
+        if context_idents:
             result = {}
             for schema_title in self._raw_host_data['definition'].keys():
                 result[schema_title] = self._filter_definitions(
@@ -72,7 +72,7 @@ class HostConnection(object):
         result = []
         for definition in definitions:
             discoverable = definition.get('discoverable')
-            if 0 < len(discoverable or []):
+            if discoverable:
                 matches = False
                 for d in discoverable:
                     if d.lower() == "task":
