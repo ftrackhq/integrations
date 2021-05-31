@@ -4,12 +4,13 @@
 import time
 import logging
 import copy
+import uuid
 from six import string_types
 import ftrack_api
 from ftrack_connect_pipeline import utils
 from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline.log import LogDB
 from ftrack_connect_pipeline.log.log_item import LogItem
-
 
 class HostConnection(object):
     '''
@@ -134,7 +135,6 @@ class HostConnection(object):
 
         copy_data = copy.deepcopy(host_data)
 
-        self._logs = []
         self._event_manager = event_manager
         self._raw_host_data = copy_data
 
@@ -240,8 +240,15 @@ class Client(object):
 
     @property
     def logs(self):
-        '''Returns all the saved logs'''
-        return self._logs
+        self._init_logs()
+        return self._logs.get_log_items(self.host_connection.id if
+            not self.host_connection is None else None)
+
+    def _init_logs(self):
+        '''Delayed initialization of logs, when we know host ID. '''
+        if self._logs is None:
+            self._logs = LogDB(self.host_connection.id if
+            not self.host_connection is None else uuid.uuid4().hex)
 
     def __init__(self, event_manager):
         '''
@@ -255,7 +262,7 @@ class Client(object):
         self._host_connections = []
         self._connected = False
         self._host_connection = None
-        self._logs = []
+        self._logs = None
         self._schema = None
         self._definition = None
         self.current_package = None
@@ -446,10 +453,8 @@ class Client(object):
         self._host_connection.context = context_id
 
     def _add_log_item(self, log_item):
-        '''
-        Append the given *log_item* to the current :obj:`logs` list
-        '''
-        self._logs.append(log_item)
+        self._init_logs()
+        self._logs.add_log_item(log_item)
 
     def on_client_notification(self):
         '''

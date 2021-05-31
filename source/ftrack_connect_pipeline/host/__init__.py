@@ -86,7 +86,8 @@ class Host(object):
             __name__ + '.' + self.__class__.__name__
         )
 
-        self._host_id = '{}-{}'.format('.'.join(self.host_types), uuid.uuid4().hex)
+        self._host_id = '{}-{}'.format(
+            '.'.join(self.host_types), uuid.uuid4().hex)
 
         self.logger.debug(
             'initializing {}'.format(self)
