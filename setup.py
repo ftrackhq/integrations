@@ -444,7 +444,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         'ftrack_api.structure.id',
         'encodings',
         'PySide2',
-        'shiboken2.shiboken2',
+        'shiboken2',
         'Qt',
         'PySide2.QtSvg',
         'PySide2.QtXml',
@@ -467,7 +467,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         "zip_include_packages": [
             'ftrack_connect',
             "PySide2",
-            "shiboken2.shiboken2",
+            "shiboken2",
             "Qt",
             'PySide2.QtSvg',
             'PySide2.QtXml',
