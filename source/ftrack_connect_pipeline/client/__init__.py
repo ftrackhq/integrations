@@ -46,15 +46,14 @@ class HostConnection(object):
         '''Returns the current definitions, filtered on discoverable.'''
         context_identifiers = []
         if self._context:
-            # TODO: put get here and check if it works
-            entity = self.session.query(
-                'TypedContext where id is {}'.format(self._context)
-            ).first()
+            # TODO: change this to query in case Symbol error appears
+            entity = self.session.get('TypedContext', self._context)
             if entity:
                 # Task, Project,...
                 context_identifiers.append(entity.get('context_type').lower())
-                # Modeling, animation...
-                context_identifiers.append(entity['type'].get('name').lower())
+                if 'type' in entity:
+                    # Modeling, animation...
+                    context_identifiers.append(entity['type'].get('name').lower())
                 # Name of the task or the project
                 context_identifiers.append(entity.get('name').lower())
 
@@ -75,18 +74,20 @@ class HostConnection(object):
         for definition in definitions:
             match = False
             discoverable = definition.get('discoverable')
-            if discoverable:
-                for discover_name in discoverable:
-                    if discover_name.lower() in context_identifiers:
-                        # Add definition as it matches
-                        result.append(definition)
-                        match = True
-                        break
-            else:
-                # Append if not discoverabe, because that means should be
+            if not discoverable:
+                # Append if not discoverable, because that means should be
                 # discovered always as the Asset Manager or the logger
                 result.append(definition)
                 match = True
+                continue
+            # This is not in a list comprehension because it needs the break
+            # once found
+            for discover_name in discoverable:
+                if discover_name.lower() in context_identifiers:
+                    # Add definition as it matches
+                    result.append(definition)
+                    match = True
+                    break
 
             if not match:
                 self.logger.debug(
