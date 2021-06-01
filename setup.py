@@ -302,12 +302,8 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
         # Force Qt to be included.
         bin_includes = [
-            'PySide2.QtSvg',
-            'PySide2.QtXml',
-            'PySide2.QtCore',
-            'PySide2.QtWidgets',
-            'PySide2.QtGui',
-            "shiboken2.shiboken2",
+            'PySide2',
+            "shiboken2",
             "encodings"
         ]
 
