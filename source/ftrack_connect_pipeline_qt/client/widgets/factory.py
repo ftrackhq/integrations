@@ -84,7 +84,8 @@ class WidgetFactory(QtWidgets.QWidget):
             'package': hidden.HiddenString,
             'engine_type': hidden.HiddenString,
             'host_type': hidden.HiddenString,
-            'optional': hidden.HiddenBoolean
+            'optional': hidden.HiddenBoolean,
+            'discoverable': hidden.HiddenArray,
         }
 
         self.schema_title_mapping = {
