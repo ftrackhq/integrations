@@ -90,7 +90,7 @@ class HostConnection(object):
         self._event_manager = event_manager
         self._raw_host_data = copy_data
 
-        self.context = self._raw_host_data['context_id']
+        self.context_id = self._raw_host_data['context_id']
 
     def run(self, data, engine, callback=None):
         '''
@@ -150,12 +150,12 @@ class Client(object):
         return self._connected
 
     @property
-    def context(self):
+    def context_id(self):
         '''Returns the context id.'''
         return self._context_id
 
-    @context.setter
-    def context(self, context_id):
+    @context_id.setter
+    def context_id(self, context_id):
         ''' Sets the context id. '''
         if not isinstance(context_id, string_types):
             raise ValueError('Context should be in form of a string.')
@@ -210,7 +210,7 @@ class Client(object):
         self._packages = {}
         self._current = {}
 
-        self._context_id = utils.get_current_context()
+        self._context_id = utils.get_current_context_id()
         self._host_connections = []
         self._connected = False
         self._host_connection = None
@@ -350,7 +350,7 @@ class Client(object):
         self.logger.debug('connection: {}'.format(host_connection))
         self._host_connection = host_connection
         # set current context to host
-        self.change_context(self.host_connection.context or self.context)
+        self.change_context(self.host_connection.context_id or self.context_id)
         self.on_client_notification()
 
     def change_definition(self, schema, definition):
@@ -395,14 +395,15 @@ class Client(object):
 
     def change_context(self, context_id):
         '''
-        Assign the given *context_id* as the current :obj:`context` and to the
-        :attr:`~ftrack_connect_pipeline.client.HostConnection.context`
+        Assign the given *context_id* as the current :obj:`context_id` and to the
+        :attr:`~ftrack_connect_pipeline.client.HostConnection.context_id`
         '''
         if not context_id:
             self.logger.debug("No context id provided")
             return
-        self.context = context_id
-        self._host_connection.context = context_id
+        self.context_id = context_id
+        if self.host_connection:
+            self._host_connection.context_id = context_id
 
     def _add_log_item(self, log_item):
         self._init_logs()

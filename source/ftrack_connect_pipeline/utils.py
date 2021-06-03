@@ -3,7 +3,7 @@
 
 import os
 
-def get_current_context():
+def get_current_context_id():
     '''return an api object representing the current context.'''
     context_id = os.getenv(
         'FTRACK_CONTEXTID',

@@ -10,12 +10,12 @@ import ftrack_api
 from ftrack_connect_pipeline.constants import asset as constants
 
 
-def generate_asset_info_dict_from_args(context, data, options, session):
+def generate_asset_info_dict_from_args(context_data, data, options, session):
     '''
     Returns a diccionary constructed from the needed values of the given
-    *context*, *data* and *options*
+    *context_data*, *data* and *options*
 
-    *context* : Context dictionary of the current asset. Should contain the keys
+    *context_data* : Context dictionary of the current asset. Should contain the keys
     asset_type, asset_name, asset_id, version_number, version_id, context_id.
 
     *data* : Data of the current operation or plugin. Should contain the
@@ -29,15 +29,15 @@ def generate_asset_info_dict_from_args(context, data, options, session):
     '''
     arguments_dict = {}
 
-    arguments_dict[constants.ASSET_NAME] = context.get(
+    arguments_dict[constants.ASSET_NAME] = context_data.get(
         'asset_name', 'No name found'
     )
-    arguments_dict[constants.ASSET_TYPE] = context.get(constants.ASSET_TYPE, '')
-    arguments_dict[constants.ASSET_ID] = context.get(constants.ASSET_ID, '')
+    arguments_dict[constants.ASSET_TYPE] = context_data.get(constants.ASSET_TYPE, '')
+    arguments_dict[constants.ASSET_ID] = context_data.get(constants.ASSET_ID, '')
     arguments_dict[constants.VERSION_NUMBER] = int(
-        context.get(constants.VERSION_NUMBER, 0)
+        context_data.get(constants.VERSION_NUMBER, 0)
     )
-    arguments_dict[constants.VERSION_ID] = context.get(constants.VERSION_ID, '')
+    arguments_dict[constants.VERSION_ID] = context_data.get(constants.VERSION_ID, '')
 
     arguments_dict[constants.LOAD_MODE] = options.get(
         constants.LOAD_MODE, 'Not Set'

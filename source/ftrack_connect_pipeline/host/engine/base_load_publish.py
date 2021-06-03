@@ -79,7 +79,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 plugin, plugin_type,
                 data=data,
                 options=plugin_options,
-                context=stage_context,
+                context_data=stage_context,
                 method=default_method
             )
 

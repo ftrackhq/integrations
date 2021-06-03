@@ -100,18 +100,18 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
         if super_result.get('status') != constants.SUCCESS_STATUS:
             return super_result
 
-        context = event['data']['settings']['context']
+        context_data = event['data']['settings']['context_data']
         data = event['data']['settings']['data']
 
-        comment = context['comment']
-        status_id = context['status_id']
-        asset_name = context['asset_name']
-        asset_type = context['asset_type']
+        comment = context_data['comment']
+        status_id = context_data['status_id']
+        asset_name = context_data['asset_name']
+        asset_type = context_data['asset_type']
 
         status = self.session.query('Status where id is "{}"'.format(status_id)).one()
         context_object = self.session.query(
             'select name, parent, parent.name from Context where id is "{}"'.format(
-                context['context_id']
+                context_data['context_id']
             )
         ).one()
 
@@ -165,7 +165,7 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
                             results[component_name] = True
         self.session.commit()
 
-        self.logger.debug("publishing: {} to {} as {}".format(data, context,
+        self.logger.debug("publishing: {} to {} as {}".format(data, context_data,
                                                               asset_object))
 
         return super_result

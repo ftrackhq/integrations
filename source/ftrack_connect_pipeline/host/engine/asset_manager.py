@@ -317,7 +317,7 @@ class AssetManagerEngine(BaseEngine):
                 plugin, plugin_type,
                 data=plugin.get('plugin_data'),
                 options=plugin['options'],
-                context=None,
+                context_data=None,
                 method=plugin['default_method']
             )
             if plugin_result:
@@ -513,7 +513,7 @@ class AssetManagerEngine(BaseEngine):
                 plugin, plugin_type,
                 data=plugin.get('plugin_data'),
                 options=plugin['options'],
-                context=None,
+                context_data=None,
                 method=plugin['default_method']
             )
             if plugin_result:

@@ -158,16 +158,16 @@ class FtrackAssetBase(object):
 
         if asset_info_options:
 
-            asset_context = asset_info_options['settings']['context']
+            asset_context_data = asset_info_options['settings']['context_data']
             asset_data = new_asset_info[asset_const.COMPONENT_PATH]
-            asset_context[asset_const.ASSET_ID] = new_asset_info[asset_const.ASSET_ID]
-            asset_context[asset_const.VERSION_NUMBER] = new_asset_info[asset_const.VERSION_NUMBER]
-            asset_context[asset_const.ASSET_NAME] = new_asset_info[asset_const.ASSET_NAME]
-            asset_context[asset_const.ASSET_TYPE] = new_asset_info[asset_const.ASSET_TYPE]
-            asset_context[asset_const.VERSION_ID] = new_asset_info[asset_const.VERSION_ID]
+            asset_context_data[asset_const.ASSET_ID] = new_asset_info[asset_const.ASSET_ID]
+            asset_context_data[asset_const.VERSION_NUMBER] = new_asset_info[asset_const.VERSION_NUMBER]
+            asset_context_data[asset_const.ASSET_NAME] = new_asset_info[asset_const.ASSET_NAME]
+            asset_context_data[asset_const.ASSET_TYPE] = new_asset_info[asset_const.ASSET_TYPE]
+            asset_context_data[asset_const.VERSION_ID] = new_asset_info[asset_const.VERSION_ID]
 
             asset_info_options['settings']['data'][0]['result'] = [asset_data]
-            asset_info_options['settings']['context'].update(asset_context)
+            asset_info_options['settings']['context_data'].update(asset_context_data)
 
             run_event = ftrack_api.event.base.Event(
                 topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,

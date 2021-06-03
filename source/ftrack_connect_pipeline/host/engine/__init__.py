@@ -65,13 +65,13 @@ class BaseEngine(object):
 
     def run_event(
             self, plugin_name, plugin_type, host_type, data, options,
-            context, method
+            context_data, method
     ):
         '''
         Returns an :class:`ftrack_api.event.base.Event` with the topic
         :const:`~ftrack_connnect_pipeline.constants.PIPELINE_RUN_PLUGIN_TOPIC`
         with the data of the given *plugin_name*, *plugin_type*,
-        *host_definition*, *data*, *options*, *context*, *method*
+        *host_definition*, *data*, *options*, *context_data*, *method*
 
         *plugin_name* : Name of the plugin.
 
@@ -83,7 +83,7 @@ class BaseEngine(object):
 
         *options* : options to pass to the plugin
 
-        *context* : result of the context plugin containing the context_id,
+        *context_data* : result of the context plugin containing the context_id,
         aset_name... Or None
 
         *method* : Method of the plugin to be executed.
@@ -103,19 +103,19 @@ class BaseEngine(object):
                             {
                                 'data': data,
                                 'options': options,
-                                'context': context
+                                'context_data': context_data
                             }
                     }
                 )
 
     def _run_plugin(
-            self, plugin, plugin_type, options=None, data=None, context=None,
+            self, plugin, plugin_type, options=None, data=None, context_data=None,
             method='run'
     ):
         '''
         Returns the result of running the plugin with the event returned from
         :meth:`run_event` using the given *plugin*, *plugin_type*,
-        *options*, *data*, *context*, *method*
+        *options*, *data*, *context_data*, *method*
 
         *plugin* : Plugin definition, a dictionary with the plugin information.
 
@@ -126,7 +126,7 @@ class BaseEngine(object):
 
         *data* : data to pass to the plugin.
 
-        *context* : result of the context plugin containing the context_id,
+        *context_data* : result of the context plugin containing the context_id,
         aset_name... Or None
 
         *method* : Method of the plugin to be executed.
@@ -152,7 +152,7 @@ class BaseEngine(object):
         for host_type in reversed(self._host_types):
             event = self.run_event(
                 plugin_name, plugin_type, host_type, data, options,
-                context, method
+                context_data, method
             )
 
             plugin_result_data = self.session.event_hub.publish(
@@ -225,7 +225,7 @@ class BaseEngine(object):
                 plugin, plugin_type,
                 data=plugin.get('plugin_data'),
                 options=plugin['options'],
-                context=None,
+                context_data=None,
                 method=method
             )
             status = plugin_result['status']
