@@ -16,12 +16,13 @@ class BaseCollectorWidget(BaseOptionsWidget):
 
     def __init__(
         self, parent=None, session=None, data=None, name=None,
-        description=None, options=None, context=None
+        description=None, options=None, context_id=None, asset_type=None
     ):
         self._collected_objects = []
         super(BaseCollectorWidget, self).__init__(
             parent=parent, session=session, data=data, name=name,
-            description=description, options=options, context=context
+            description=description, options=options, context_id=context_id,
+            asset_type=asset_type
         )
 
     def build(self):

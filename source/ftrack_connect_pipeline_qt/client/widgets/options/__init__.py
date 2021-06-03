@@ -32,14 +32,14 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         return '{} {}'.format(self.__class__.__name__, self.name)
 
     @property
-    def context(self):
-        '''Returns the context'''
-        return self._context
+    def context_entity(self):
+        '''Returns the context_entity'''
+        return self._context_entity
 
-    @context.setter
-    def context(self, value):
-        '''Sets context with the given *value*'''
-        self._context = value
+    @context_entity.setter
+    def context_entity(self, value):
+        '''Sets context_entity with the given *value*'''
+        self._context_entity = value
 
     @property
     def asset_type(self):
@@ -116,7 +116,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
     def __init__(
             self, parent=None, session=None, data=None, name=None,
-            description=None, options=None, context=None
+            description=None, options=None, context_id=None, asset_type=None
     ):
         '''initialise widget with *parent*, *session*, *data*, *name*,
         *description*, *options*
@@ -133,7 +133,9 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
         *options* : Options dicctionary for the current widget
 
-        *context* : Context dictionary of the current widget.
+        *context_id* : Current context_id
+
+        *asset_type* : Current asset_type
 
         '''
         super(BaseOptionsWidget, self).__init__(parent=parent)
@@ -149,17 +151,13 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self._name = name
         self._description = description
         self._options = options
-        self._context = context or {}
+        self._context_entity = None
 
-        context_id = self.context.get(
-            'context_id', options.get('context_id')
-        )
+        context_id = context_id
 
-        self.asset_type = self.context.get(
-            'asset_type', options.get('asset_type')
-        )
+        self.asset_type = asset_type
 
-        self.context = session.query(
+        self.context_entity = session.query(
             'select link, name , parent, parent.name from Context where id is "{}"'.format(context_id)
         ).one()
 
