@@ -10,12 +10,18 @@ import hou, hdefereval
 import ftrack_api
 
 
-logger = logging.getLogger(
-    'ftrack_connect_pipeline_houdini.houdini_path.python2.7libs.pythonrc')
-logger.setLevel(logging.DEBUG)
+from ftrack_connect_pipeline.configure_logging import configure_logging
+
+configure_logging(
+    'ftrack_connect_pipeline_houdini',
+    extra_modules=['ftrack_connect_pipeline', 'ftrack_connect_pipeline_qt'],
+    propagate=False
+)
+
+logger = logging.getLogger('ftrack_connect_pipeline_houdini')
+
 
 event_manager = None
-
 
 def init():
     global event_manager

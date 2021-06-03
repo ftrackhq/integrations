@@ -92,7 +92,7 @@ class FtrackAssetTab(FtrackAssetBase):
         values of the asset_info.
         '''
         if not obj_path:
-            self.logger.warning("No object provided")
+            self.logger.error("No object provided")
             return False
 
         synced = False
