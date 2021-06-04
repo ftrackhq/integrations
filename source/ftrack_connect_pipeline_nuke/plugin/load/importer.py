@@ -40,8 +40,8 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
 
         super_result = super(LoaderImporterNukePlugin, self)._run(event)
 
-        context = self.plugin_settings.get('context')
-        self.logger.debug('Current context : {}'.format(context))
+        context_data = self.plugin_settings.get('context_data')
+        self.logger.debug('Current context : {}'.format(context_data))
 
         data = self.plugin_settings.get('data')
         self.logger.debug('Current data : {}'.format(data))
@@ -78,7 +78,7 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
             ' inport : {}'.format(diff)
         )
 
-        ftrack_asset_class = self.get_asset_class(context, data, options)
+        ftrack_asset_class = self.get_asset_class(context_data, data, options)
 
         result = super_result.get('result')
 
