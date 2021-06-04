@@ -32,8 +32,8 @@ class LoaderImporterHoudiniPlugin(plugin.LoaderImporterPlugin,
 
             super_result = super(LoaderImporterHoudiniPlugin, self)._run(event)
 
-            context = self.plugin_settings.get('context')
-            self.logger.debug('Current context : {}'.format(context))
+            context_data = self.plugin_settings.get('context_data')
+            self.logger.debug('Current context : {}'.format(context_data))
 
             data = self.plugin_settings.get('data')
             self.logger.debug('Current data : {}'.format(data))
@@ -56,7 +56,7 @@ class LoaderImporterHoudiniPlugin(plugin.LoaderImporterPlugin,
                     run = result.get('run')
                     if isinstance(run, dict):
                         # Import was successful, store ftrack metadata
-                        ftrack_asset_class = self.get_asset_class(context, data,
+                        ftrack_asset_class = self.get_asset_class(context_data, data,
                                                                   options)
 
                         # Only one component expected
