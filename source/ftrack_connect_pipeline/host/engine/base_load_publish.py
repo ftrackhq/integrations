@@ -15,20 +15,20 @@ class BaseLoaderPublisherEngine(BaseEngine):
     engine_type = 'loader_publisher'
     '''Engine type for this engine class'''
 
-    def __init__(self, event_manager, host_types, host_id, asset_type):
+    def __init__(self, event_manager, host_types, host_id, asset_type_name):
         '''
         Initialise HostConnection with instance of
         :class:`~ftrack_connect_pipeline.event.EventManager` , and *host*,
-        *host_id* and *asset_type*
+        *host_id* and *asset_type_name*
 
         *host* : Host type.. (ex: python, maya, nuke....)
 
         *host_id* : Host id.
 
-        *asset_type* : Asset type should be specified.
+        *asset_type_name* : Asset type should be specified.
         '''
         super(BaseLoaderPublisherEngine, self).__init__(
-            event_manager, host_types, host_id, asset_type
+            event_manager, host_types, host_id, asset_type_name
         )
 
     def run_stage(
@@ -94,7 +94,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
             else:
                 result = plugin_result['result'].get(default_method)
                 if step_type == constants.CONTEXT:
-                    result['asset_type'] = self.asset_type
+                    result['asset_type_name'] = self.asset_type_name
 
             plugin_dict = {
                 "name": plugin_name,

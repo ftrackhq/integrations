@@ -107,13 +107,13 @@ class Host(object):
         data = event['data']['pipeline']['data']
         engine_type = event['data']['pipeline']['engine_type']
         package = data.get('package')
-        asset_type = None
+        asset_type_name = None
 
         if package:
             # we are in Load/Publish land....
             # We do this check before the load_publish engine, to validate the
             # schema and because we need the asset type to load the engine.
-            asset_type = self.get_asset_type_from_packages(
+            asset_type_name = self.get_asset_type_from_packages(
                 self.__registry['package'], package
             )
             try:
@@ -125,7 +125,7 @@ class Host(object):
 
         Engine = self.engines.get(engine_type)
         engine_runner = Engine(
-            self._event_manager, self.host_types, self.host_id, asset_type
+            self._event_manager, self.host_types, self.host_id, asset_type_name
         )
 
         if package:
@@ -147,7 +147,7 @@ class Host(object):
         '''
         for package in packages:
             if package['name'] == data_package:
-                return package['asset_type']
+                return package['asset_type_name']
 
     def on_register_definition(self, event):
         '''

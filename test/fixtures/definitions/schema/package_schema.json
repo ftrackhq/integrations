@@ -46,7 +46,7 @@
     "name": {
       "type": "string"
     },
-    "asset_type": {
+    "asset_type_name": {
       "type": "string"
     },
     "context": {

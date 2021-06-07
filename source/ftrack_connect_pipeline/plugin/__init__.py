@@ -456,7 +456,7 @@ class BasePlugin(object):
         '''
         Runs the current plugin with , *context_data* , *data* and *options*.
 
-        *context_data* provides a mapping with the asset_name, context_id, asset_type,
+        *context_data* provides a mapping with the asset_name, context_id, asset_type_name,
         comment and status_id of the asset that we are working on.
 
         *data* a list of data coming from previous collector or empty list
@@ -476,7 +476,7 @@ class BasePlugin(object):
         Runs the current plugin with , *context_data* , *data* and *options*.
 
 
-        *context_data* provides a mapping with the asset_name, context_id, asset_type,
+        *context_data* provides a mapping with the asset_name, context_id, asset_type_name,
         comment and status_id of the asset that we are working on.
 
         *data* a list of data coming from previous collector or empty list

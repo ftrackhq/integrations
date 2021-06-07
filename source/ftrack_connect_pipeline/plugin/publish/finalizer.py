@@ -106,7 +106,7 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
         comment = context_data['comment']
         status_id = context_data['status_id']
         asset_name = context_data['asset_name']
-        asset_type = context_data['asset_type']
+        asset_type_name = context_data['asset_type_name']
 
         status = self.session.query('Status where id is "{}"'.format(status_id)).one()
         context_object = self.session.query(
@@ -115,26 +115,26 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
             )
         ).one()
 
-        asset_type_object = self.session.query(
-            'AssetType where short is "{}"'.format(asset_type)
+        asset_type_entity = self.session.query(
+            'AssetType where short is "{}"'.format(asset_type_name)
         ).first()
 
         asset_parent_object = context_object['parent']
 
-        asset_object = self.session.query(
+        asset_entity = self.session.query(
             'Asset where name is "{}" and type.short is "{}" and '
             'parent.id is "{}"'.format(
-                asset_name, asset_type, asset_parent_object['id'])).first()
+                asset_name, asset_type_name, asset_parent_object['id'])).first()
 
-        if not asset_object:
-            asset_object = self.session.create('Asset', {
+        if not asset_entity:
+            asset_entity = self.session.create('Asset', {
                 'name': asset_name,
-                'type': asset_type_object,
+                'type': asset_type_entity,
                 'parent': asset_parent_object
             })
 
         asset_version = self.session.create('AssetVersion', {
-            'asset': asset_object,
+            'asset': asset_entity,
             'task': context_object,
             'comment': comment,
             'status': status
@@ -166,6 +166,6 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
         self.session.commit()
 
         self.logger.debug("publishing: {} to {} as {}".format(data, context_data,
-                                                              asset_object))
+                                                              asset_entity))
 
         return super_result

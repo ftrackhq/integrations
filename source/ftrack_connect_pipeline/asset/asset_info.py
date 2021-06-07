@@ -16,7 +16,7 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
     *context_data*, *data* and *options*
 
     *context_data* : Context dictionary of the current asset. Should contain the keys
-    asset_type, asset_name, asset_id, version_number, version_id, context_id.
+    asset_type_name, asset_name, asset_id, version_number, version_id, context_id.
 
     *data* : Data of the current operation or plugin. Should contain the
     component_path from the asset that we are working on.
@@ -32,7 +32,7 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
     arguments_dict[constants.ASSET_NAME] = context_data.get(
         'asset_name', 'No name found'
     )
-    arguments_dict[constants.ASSET_TYPE] = context_data.get(constants.ASSET_TYPE, '')
+    arguments_dict[constants.ASSET_TYPE_NAME] = context_data.get(constants.ASSET_TYPE_NAME, '')
     arguments_dict[constants.ASSET_ID] = context_data.get(constants.ASSET_ID, '')
     arguments_dict[constants.VERSION_NUMBER] = int(
         context_data.get(constants.VERSION_NUMBER, 0)
@@ -253,11 +253,11 @@ class FtrackAssetInfo(dict):
 
         '''
         asset_info_data = {}
-        asset = ftrack_version['asset']
+        asset_entity = ftrack_version['asset']
 
-        asset_info_data[constants.ASSET_NAME] = asset['name']
-        asset_info_data[constants.ASSET_TYPE] = asset['type']['name']
-        asset_info_data[constants.ASSET_ID] = asset['id']
+        asset_info_data[constants.ASSET_NAME] = asset_entity['name']
+        asset_info_data[constants.ASSET_TYPE_NAME] = asset_entity['type']['name']
+        asset_info_data[constants.ASSET_ID] = asset_entity['id']
         asset_info_data[constants.VERSION_NUMBER] = int(
             ftrack_version['version'])
         asset_info_data[constants.VERSION_ID] = ftrack_version['id']

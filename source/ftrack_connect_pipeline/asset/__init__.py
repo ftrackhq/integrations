@@ -163,7 +163,7 @@ class FtrackAssetBase(object):
             asset_context_data[asset_const.ASSET_ID] = new_asset_info[asset_const.ASSET_ID]
             asset_context_data[asset_const.VERSION_NUMBER] = new_asset_info[asset_const.VERSION_NUMBER]
             asset_context_data[asset_const.ASSET_NAME] = new_asset_info[asset_const.ASSET_NAME]
-            asset_context_data[asset_const.ASSET_TYPE] = new_asset_info[asset_const.ASSET_TYPE]
+            asset_context_data[asset_const.ASSET_TYPE_NAME] = new_asset_info[asset_const.ASSET_TYPE_NAME]
             asset_context_data[asset_const.VERSION_ID] = new_asset_info[asset_const.VERSION_ID]
 
             asset_info_options['settings']['data'][0]['result'] = [asset_data]

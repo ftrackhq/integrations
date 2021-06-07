@@ -39,20 +39,20 @@ class BaseEngine(object):
         '''Return the current host type.'''
         return self._host_types
 
-    def __init__(self, event_manager, host_types, host_id, asset_type):
+    def __init__(self, event_manager, host_types, host_id, asset_type_name):
         '''
         Initialise HostConnection with instance of
         :class:`~ftrack_connect_pipeline.event.EventManager` , and *host*,
-        *host_id* and *asset_type*
+        *host_id* and *asset_type_name*
 
         *host* : Host type.. (ex: python, maya, nuke....)
         *host_id* : Host id.
-        *asset_type* : If engine is initialized to publish or load, the asset
+        *asset_type_name* : If engine is initialized to publish or load, the asset
         type should be specified.
         '''
         super(BaseEngine, self).__init__()
 
-        self.asset_type = asset_type
+        self.asset_type_name = asset_type_name
         self.session = event_manager.session
         self._host_types = host_types
         self._host_id = host_id
