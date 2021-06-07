@@ -15,7 +15,7 @@ class LoaderPostFinalizerHoudiniPlugin(plugin.LoaderPostFinalizerPlugin,
         .. note::
 
             _required_output is a dictionary containing the 'context_id',
-            'asset_name', 'asset_type', 'comment' and 'status_id' of the
+            'asset_name', 'asset_type_name', 'comment' and 'status_id' of the
             current asset
     '''
 
@@ -28,6 +28,6 @@ class LoaderPostFinalizerHoudiniWidget(
         .. note::
 
             _required_output is a dictionary containing the 'context_id',
-            'asset_name', 'asset_type', 'comment' and 'status_id' of the
+            'asset_name', 'asset_type_name', 'comment' and 'status_id' of the
             current asset
     '''
