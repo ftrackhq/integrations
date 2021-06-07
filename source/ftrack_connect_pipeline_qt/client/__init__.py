@@ -72,9 +72,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.header = header.Header(self.session)
         self.layout().addWidget(self.header)
 
-        self.context_selector = ContextSelector(self.session)
-        self.layout().addWidget(self.context_selector)
-
         self.host_selector = definition_selector.DefinitionSelector()
         self.layout().addWidget(self.host_selector)
 
