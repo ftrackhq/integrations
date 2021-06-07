@@ -17,13 +17,13 @@ class AssetComboBox(QtWidgets.QComboBox):
         validator = QtGui.QRegExpValidator(self.valid_asset_name)
         self.setValidator(validator)
 
-    def on_context_changed(self, context_entity, asset_type):
+    def on_context_changed(self, context_entity, asset_type_entity):
         self.clear()
 
         assets = self.session.query(
             'select name, versions.task.id , type.id '
             'from Asset where versions.task.id is {} and type.id is {}'.format(
-                context_entity['id'], asset_type['id'])
+                context_entity['id'], asset_type_entity['id'])
         ).all()
         for asset in assets:
             self.addItem(asset['name'], asset['id'])
@@ -83,6 +83,6 @@ class AssetSelector(QtWidgets.QWidget):
         asset_id = self.asset_combobox.itemData(current_idx)
         self.asset_changed.emit(asset_name, asset_id, is_valid_name)
 
-    def set_context(self, context_entity, asset_type):
+    def set_context(self, context_entity, asset_type_entity):
         self.logger.debug('setting context to :{}'.format(context_entity))
-        self.asset_combobox.on_context_changed(context_entity, asset_type)
+        self.asset_combobox.on_context_changed(context_entity, asset_type_entity)

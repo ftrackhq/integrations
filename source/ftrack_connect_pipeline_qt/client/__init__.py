@@ -141,9 +141,9 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
         super(QtClient, self).change_definition(schema, definition)
 
-        asset_type = self.current_package['asset_type']
+        asset_type_name = self.current_package['asset_type_name']
 
-        self.widget_factory.set_context(self.context_id, asset_type)
+        self.widget_factory.set_context(self.context_id, asset_type_name)
         self.widget_factory.set_host_connection(self.host_connection)
         self.widget_factory.set_definition_type(self.definition['type'])
         self.widget_factory.set_package(self.current_package)

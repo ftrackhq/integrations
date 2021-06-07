@@ -59,7 +59,7 @@ class WidgetFactory(QtWidgets.QWidget):
         self._widgets_ref = {}
         self._type_widgets_ref = {}
         self.context_id = None
-        self.asset_type = None
+        self.asset_type_name = None
         self.host_connection = None
 
         self.components_names = []
@@ -98,11 +98,11 @@ class WidgetFactory(QtWidgets.QWidget):
             'Component': plugin_container.PluginContainerObject
         }
 
-    def set_context(self, context_id, asset_type):
-        '''Set :obj:`context_id` and :obj:`asset_type` with the given
-        *context_id* and *asset_type*'''
+    def set_context(self, context_id, asset_type_name):
+        '''Set :obj:`context_id` and :obj:`asset_type_name` with the given
+        *context_id* and *asset_type_name*'''
         self.context_id = context_id
-        self.asset_type = asset_type
+        self.asset_type_name = asset_type_name
 
     def set_package(self, package):
         '''Set :obj:`package` with the given *package*'''
@@ -306,7 +306,7 @@ class WidgetFactory(QtWidgets.QWidget):
                         'name': name,
                         'description': description,
                         'context_id': self.context_id,
-                        'asset_type': self.asset_type
+                        'asset_type_name': self.asset_type_name
                     }
                 }
 
@@ -381,9 +381,9 @@ class WidgetFactory(QtWidgets.QWidget):
         status_updated signal'''
         self.widget_status_updated.emit(status)
 
-    def _on_widget_context_changed(self, context_id, asset_type):
+    def _on_widget_context_changed(self, context_id, asset_type_name):
         '''Callback funtion called when context has been changed in the widget'''
-        self.set_context(context_id, asset_type)
+        self.set_context(context_id, asset_type_name)
         self.widget_context_updated.emit(context_id)
 
     def _on_widget_asset_changed(self, asset_name, asset_id, is_valid):
