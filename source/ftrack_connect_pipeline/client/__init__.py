@@ -19,14 +19,14 @@ class HostConnection(object):
     '''
 
     @property
-    def context(self):
+    def context_id(self):
         '''Returns the current context id'''
-        return self._context
+        return self._context_id
 
-    @context.setter
-    def context(self, value):
+    @context_id.setter
+    def context_id(self, value):
         '''Sets the current context id with the given *value*'''
-        self._context = value
+        self._context_id = value
 
     @property
     def session(self):
