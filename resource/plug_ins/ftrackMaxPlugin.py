@@ -24,7 +24,7 @@ def register_ftrack_asset_helper():
                 {version_number} type:#integer default:0
                 {component_path} type:#string default:""
                 {component_name} type:#string default:""
-                {asset_type} type:#string default:""
+                {asset_type_name} type:#string default:""
                 {component_id} type:#string default:""
                 {load_mode} type:#string default:""
                 {asset_info_options} type:#string default:""
@@ -45,7 +45,7 @@ def register_ftrack_asset_helper():
             version_number=asset_const.VERSION_NUMBER,
             component_path=asset_const.COMPONENT_PATH,
             component_name=asset_const.COMPONENT_NAME,
-            asset_type=asset_const.ASSET_TYPE,
+            asset_type_name=asset_const.ASSET_TYPE_NAME,
             component_id=asset_const.COMPONENT_ID,
             load_mode=asset_const.LOAD_MODE,
             asset_info_options=asset_const.ASSET_INFO_OPTIONS,
