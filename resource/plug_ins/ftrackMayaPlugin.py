@@ -77,7 +77,7 @@ def nodeInitializer():
     )
     t_attr.setStorable(True)
     FtrackAssetNode.a_asset_type = t_attr.create(
-        asset_const.ASSET_TYPE, 'att', OpenMaya.MFnData.kString
+        asset_const.ASSET_TYPE_NAME, 'att', OpenMaya.MFnData.kString
     )
     t_attr.setStorable(True)
     FtrackAssetNode.a_version_id = t_attr.create(
