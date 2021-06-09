@@ -45,9 +45,9 @@ class HostConnection(object):
     def definitions(self):
         '''Returns the current definitions, filtered on discoverable.'''
         context_identifiers = []
-        if self._context:
+        if self.context_id:
             # TODO: change this to query in case Symbol error appears
-            entity = self.session.get('TypedContext', self._context)
+            entity = self.session.get('TypedContext', self.context_id)
             if entity:
                 # Task, Project,...
                 context_identifiers.append(entity.get('context_type').lower())
