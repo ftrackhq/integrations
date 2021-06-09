@@ -64,7 +64,7 @@ class AssetManagerEngine(BaseEngine):
         start_time = time.time()
 
         component_name = 'main'
-        versions = self.session.query(
+        asset_versions_entities = self.session.query(
             'select id, components, components.name, components.id, version, '
             'asset , asset.name, asset.type.name from AssetVersion where '
             'asset_id != None and components.name is "{0}" limit 10'.format(
@@ -75,9 +75,9 @@ class AssetManagerEngine(BaseEngine):
         ftrack_asset_info_list = []
         status = constants.SUCCESS_STATUS
 
-        if versions:
-            for version in versions:
-                asset_info = FtrackAssetInfo.from_ftrack_version(
+        if asset_versions_entities:
+            for version in asset_versions_entities:
+                asset_info = FtrackAssetInfo.from_version_entity(
                     version, component_name
                 )
                 ftrack_asset_info_list.append(asset_info)

@@ -25,7 +25,7 @@ class FtrackAssetBase(object):
         )
 
     @property
-    def ftrack_versions(self):
+    def asset_versions_entities(self):#ftrack_versions(self):
         '''
         Returns generator of all
         :class:`ftrack_api.entity.asset_version.AssetVersion`
@@ -39,25 +39,25 @@ class FtrackAssetBase(object):
         ).format(
             self.asset_info[asset_const.ASSET_ID], self.component_name
         )
-        versions = self.session.query(query).all()
-        return versions
+        versions_entities = self.session.query(query).all()
+        return versions_entities
 
     @property
-    def ftrack_version(self):
+    def asset_version_entity(self):#ftrack_version(self):
         '''Returns the :class:`ftrack_api.entity.asset_version.AssetVersion`
         object of the current version_id'''
-        asset_version = self.session.query(
+        asset_version_entity = self.session.query(
             'select version from AssetVersion where id is "{}"'.format(
                 self.asset_info[asset_const.VERSION_ID]
             )
         ).one()
 
-        return asset_version
+        return asset_version_entity
 
     @property
     def is_latest(self):
         '''Returns True if the current version is the latest version'''
-        return self.ftrack_version['is_latest_version']
+        return self.asset_version_entity['is_latest_version']
 
     @property
     def asset_info(self):
@@ -144,12 +144,12 @@ class FtrackAssetBase(object):
         *new_version_id* : Should be an AssetVersion id.
         '''
 
-        asset_version = self.session.query(
+        asset_version_entity = self.session.query(
             'select version from AssetVersion where id is "{}"'.format(new_version_id)
         ).one()
 
-        new_asset_info = FtrackAssetInfo.from_ftrack_version(
-            asset_version, self.component_name
+        new_asset_info = FtrackAssetInfo.from_version_entity(
+            asset_version_entity, self.component_name
         )
         if self.asset_info.session:
             new_asset_info['session'] = self.asset_info.session

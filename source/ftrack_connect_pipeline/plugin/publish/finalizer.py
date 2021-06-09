@@ -28,12 +28,12 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
             'reviewable': self.create_reviewable
         }
 
-    def create_component(self, asset_version, component_name, component_path):
+    def create_component(self, asset_version_entity, component_name, component_path):
         '''
-        Creates an ftrack component on the given *asset_version* with the given
+        Creates an ftrack component on the given *asset_version_entity* with the given
         *component_name* pointing to the given *component_path*
 
-        *asset_version* : instance of
+        *asset_version_entity* : instance of
         :class:`ftrack_api.entity.asset_version.AssetVersion`
 
         *component_name* : Name of the component to be created.
@@ -47,13 +47,13 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
         )
         location = self.session.pick_location()
 
-        asset_version.create_component(
+        asset_version_entity.create_component(
             component_path,
             data={'name': component_name},
             location=location
         )
 
-    def create_thumbnail(self, asset_version, component_name, component_path):
+    def create_thumbnail(self, asset_version_entity, component_name, component_path):
         '''
         Creates and uploads an ftrack thumbnail for the given
         :class:`ftrack_api.entity.asset_version.AssetVersion` from the given
@@ -61,10 +61,10 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
 
         *component_path* : path to the thumbnail.
         '''
-        asset_version.create_thumbnail(component_path)
+        asset_version_entity.create_thumbnail(component_path)
         os.remove(component_path)
 
-    def create_reviewable(self, asset_version, component_name, component_path):
+    def create_reviewable(self, asset_version_entity, component_name, component_path):
         '''
         Encodes the ftrack media for the given
         :class:`ftrack_api.entity.asset_version.AssetVersion` from the given
@@ -72,7 +72,7 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
 
         *component_path* : path to the image or video.
         '''
-        asset_version.encode_media(component_path)
+        asset_version_entity.encode_media(component_path)
         os.remove(component_path)
 
     def _run(self, event):
@@ -133,7 +133,7 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
                 'parent': asset_parent_object
             })
 
-        asset_version = self.session.create('AssetVersion', {
+        asset_version_entity = self.session.create('AssetVersion', {
             'asset': asset_entity,
             'task': context_object,
             'comment': comment,
@@ -142,7 +142,7 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
 
         if self.version_dependencies:
             for dependency in self.version_dependencies:
-                asset_version['uses_versions'].append(dependency)
+                asset_version_entity['uses_versions'].append(dependency)
 
         self.session.commit()
 
@@ -158,7 +158,7 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
                                 component_name, self.create_component
                             )
                             publish_component_fn(
-                                asset_version,
+                                asset_version_entity,
                                 component_name,
                                 component_path
                             )
