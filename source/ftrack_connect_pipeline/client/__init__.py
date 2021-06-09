@@ -43,8 +43,61 @@ class HostConnection(object):
 
     @property
     def definitions(self):
-        '''Returns the current definitions.'''
+        '''Returns the current definitions, filtered on discoverable.'''
+        context_identifiers = []
+        if self._context:
+            # TODO: change this to query in case Symbol error appears
+            entity = self.session.get('TypedContext', self._context)
+            if entity:
+                # Task, Project,...
+                context_identifiers.append(entity.get('context_type').lower())
+                if 'type' in entity:
+                    # Modeling, animation...
+                    context_identifiers.append(entity['type'].get('name').lower())
+                # Name of the task or the project
+                context_identifiers.append(entity.get('name').lower())
+
+        if context_identifiers:
+            result = {}
+            for schema_title in self._raw_host_data['definition'].keys():
+                result[schema_title] = self._filter_definitions(
+                    context_identifiers,
+                    self._raw_host_data['definition'][schema_title]
+                )
+            return result
+
         return self._raw_host_data['definition']
+
+    def _filter_definitions(self, context_identifiers, definitions):
+        ''' Filter definitions on context idents and discoverable. '''
+        result = []
+        for definition in definitions:
+            match = False
+            discoverable = definition.get('discoverable')
+            if not discoverable:
+                # Append if not discoverable, because that means should be
+                # discovered always as the Asset Manager or the logger
+                result.append(definition)
+                match = True
+                continue
+            # This is not in a list comprehension because it needs the break
+            # once found
+            for discover_name in discoverable:
+                if discover_name.lower() in context_identifiers:
+                    # Add definition as it matches
+                    result.append(definition)
+                    match = True
+                    break
+
+            if not match:
+                self.logger.debug(
+                    'Excluding definition {} - context identifiers {} '
+                    'does not match schema discoverable: {}.'.format(
+                        definition.get('name'), context_identifiers, discoverable
+                    )
+                )
+
+        return result
 
     @property
     def id(self):
