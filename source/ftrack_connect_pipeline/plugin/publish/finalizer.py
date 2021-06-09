@@ -168,4 +168,11 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
         self.logger.debug("publishing: {} to {} as {}".format(data, context_data,
                                                               asset_entity))
 
+        return_dict = {
+            "asset_version_id": asset_version_entity['id'],
+            "asset_id": asset_entity["id"],
+            "component_names": list(results.keys())
+        }
+        super_result['result'] = {self.method: return_dict}
+
         return super_result
