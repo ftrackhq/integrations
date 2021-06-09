@@ -437,12 +437,12 @@ class WidgetFactory(QtWidgets.QWidget):
     def _asset_version_changed(self, version_id):
         '''Callbac funtion triggered when a asset version has changed'''
         self.version_id = version_id
-        asset_version = self.session.query(
+        asset_version_entity = self.session.query(
             'select components '
             'from AssetVersion where id is {}'.format(version_id)
         ).first()
-        if not asset_version:
+        if not asset_version_entity:
             return
-        components = asset_version['components']
+        components = asset_version_entity['components']
         self.components_names = [component['name'] for component in components]
         self.check_components()
