@@ -49,14 +49,14 @@ def get_sequence_fist_last_frame(path):
 
 def sequence_exists(file_path):
     seq = re.compile('(\w+).+(\%\d+d).(\w+)')
-    logger.info('searching for {}'.format(file_path))
+    logger.debug('searching for {}'.format(file_path))
 
     frames = glob.glob(file_path)
     n_files = len(frames)
-    logger.info('Sequence frames {}'.format(n_files))
+    logger.debug('Sequence frames {}'.format(n_files))
     first, last = get_sequence_fist_last_frame(file_path)
     total_frames = (last - first) + 1
-    logger.info('Sequence lenght {}'.format(total_frames))
+    logger.debug('Sequence lenght {}'.format(total_frames))
     if n_files != total_frames:
         return False
 

@@ -222,11 +222,11 @@ class FtrackAssetTab(FtrackAssetBase):
         ftrack_object['z_order'].setValue(z_order)
 
         if ftrack_object.getNodes() != selected_nodes:
-            self.logger.info("There are nodes that shouldn't be on the backdrop")
-            self.logger.info("in backdrop node: {}".format(
+            self.logger.warning("There are nodes that shouldn't be on the backdrop")
+            self.logger.warning("in backdrop node: {}".format(
                 ftrack_object.getNodes())
             )
-            self.logger.info("in selected nodes: {}".format(selected_nodes))
+            self.logger.warning("in selected nodes: {}".format(selected_nodes))
 
         return self.ftrack_object
 
