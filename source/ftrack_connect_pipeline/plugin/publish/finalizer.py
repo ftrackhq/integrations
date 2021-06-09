@@ -173,6 +173,6 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
             "asset_id": asset_entity["id"],
             "component_names": list(results.keys())
         }
-        super_result['result'] = {self.method: return_dict}
+        super_result['result'][self.method].update(return_dict)
 
         return super_result
