@@ -29,7 +29,7 @@ from ftrack_connect_nuke_studio.ui.widget.template import Template
 import ftrack_connect_nuke_studio.template as template_manager
 import ftrack_connect_nuke_studio.exception
 from ftrack_connect_nuke_studio.config import report_exception
-
+from ftrack_connect_nuke_studio import resource
 
 
 class FtrackSettingsValidator(QtWidgets.QDialog):
@@ -46,7 +46,7 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
             __name__ + '.' + self.__class__.__name__
         )
 
-        ftrack_icon = QtGui.QIcon(':/ftrack/image/default/ftrackLogoLight')
+        ftrack_icon = QtGui.QIcon(QtGui.QPixmap(':/ftrack/image/default/ftrackLogoLight'))
         self.setWindowIcon(ftrack_icon)
 
         layout = QtWidgets.QVBoxLayout()

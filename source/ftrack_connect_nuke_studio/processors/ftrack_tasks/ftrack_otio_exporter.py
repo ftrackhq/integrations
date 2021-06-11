@@ -125,7 +125,7 @@ class FtrackOTIOExporter(EDLExportTask, FtrackProcessor):
                     self.timeline.tracks.append(task._otio_track)
                     self._trackTasks.append(task)
 
-        except Exception, e:
+        except Exception as e:
             self.setError(str(e))
 
     def taskStep(self):
@@ -141,7 +141,7 @@ class FtrackOTIOExporter(EDLExportTask, FtrackProcessor):
 
             self._stepCount += 1
             return self._stepCount < self._stepTotal
-        except Exception, e:
+        except Exception as e:
             self.setError(str(e))
             self.logger.exception(e)
             return False
