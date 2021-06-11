@@ -16,7 +16,7 @@ class PublishContextWidget(BaseOptionsWidget):
 
     def __init__(
             self, parent=None, session=None, data=None, name=None,
-            description=None, options=None, context=None
+            description=None, options=None, context_id=None, asset_type_name=None
     ):
         '''initialise PublishContextWidget with *parent*, *session*, *data*,
         *name*, *description*, *options* and *context*
@@ -24,9 +24,10 @@ class PublishContextWidget(BaseOptionsWidget):
 
         super(PublishContextWidget, self).__init__(
             parent=parent, session=session, data=data, name=name,
-            description=description, options=options, context=context
+            description=description, options=options, context_id=context_id,
+            asset_type_name=asset_type_name
         )
-        self.asset_selector.set_context(self.context, self.asset_type)
+        self.asset_selector.set_context(self.context_entity, self.asset_type_entity)
 
     def build(self):
         '''build function widgets.'''
@@ -55,13 +56,13 @@ class PublishContextWidget(BaseOptionsWidget):
         current_text = self.comments_input.toPlainText()
         self.set_option_result(current_text, key='comment')
 
-    def _on_context_changed(self, context):
-        '''Updates the option dicctionary with provided *context* when
+    def _on_context_changed(self, context_entity):
+        '''Updates the option dicctionary with provided *context_entity* when
         entityChanged of context_selector event is triggered'''
-        self.set_option_result(context['id'], key='context_id')
-        self.context = context
-        self.asset_selector.set_context(context, self.asset_type)
-        self.context_changed.emit(context['id'], self.asset_type)
+        self.set_option_result(context_entity['id'], key='context_id')
+        self.context_entity = context_entity
+        self.asset_selector.set_context(context_entity, self.asset_type_entity)
+        self.context_changed.emit(context_entity['id'], self.asset_type_entity)
 
     def _on_asset_changed(self, asset_name, asset_id, is_valid):
         '''Updates the option dicctionary with provided *asset_name* when
@@ -79,11 +80,11 @@ class PublishContextWidget(BaseOptionsWidget):
 
         self.layout().addLayout(self.context_layout)
         self.context_selector = ContextSelector(self.session)
-        self.context_selector.setEntity(self.context)
+        self.context_selector.setEntity(self.context_entity)
 
         self.context_layout.addWidget(self.context_selector)
-        if self.context:
-            self.set_option_result(self.context['id'], key='context_id')
+        if self.context_entity:
+            self.set_option_result(self.context_entity['id'], key='context_id')
 
     def _build_asset_selector(self):
         '''Builds the asset_selector widget'''
@@ -128,7 +129,7 @@ class PublishContextWidget(BaseOptionsWidget):
         '''Returns the status of the selected assetVersion'''
         project = self.session.query(
             'select name , parent, parent.name from Context where id is "{}"'.format(
-                self.context['link'][0]['id']
+                self.context_entity['link'][0]['id']
             )
         ).one()
 
@@ -161,7 +162,7 @@ class LoadContextWidget(BaseOptionsWidget):
 
     def __init__(
             self, parent=None, session=None, data=None, name=None,
-            description=None, options=None, context=None
+            description=None, options=None, context_id=None, asset_type_name=None
     ):
         '''initialise PublishContextWidget with *parent*, *session*, *data*,
         *name*, *description*, *options*
@@ -169,10 +170,11 @@ class LoadContextWidget(BaseOptionsWidget):
 
         super(LoadContextWidget, self).__init__(
             parent=parent, session=session, data=data, name=name,
-            description=description, options=options, context=context
+            description=description, options=options, context_id=context_id,
+            asset_type_name=asset_type_name
         )
 
-        self.asset_selector.set_context(self.context, self.asset_type)
+        self.asset_selector.set_context(self.context_entity, self.asset_type_entity)
 
     def build(self):
         '''build function widgets.'''
@@ -188,13 +190,13 @@ class LoadContextWidget(BaseOptionsWidget):
         self.asset_selector.asset_changed.connect(self._on_asset_changed)
         self.version_selector.version_changed.connect(self._on_version_changed)
 
-    def _on_context_changed(self, context):
+    def _on_context_changed(self, context_entity):
         '''Updates the option dicctionary with provided *context* when
         entityChanged of context_selector event is triggered'''
-        self.set_option_result(context['id'], key='context_id')
-        self.context = context
-        self.asset_selector.set_context(context, self.asset_type)
-        self.context_changed.emit(context['id'], self.asset_type)
+        self.set_option_result(context_entity['id'], key='context_id')
+        self.context_entity = context_entity
+        self.asset_selector.set_context(context_entity, self.asset_type_entity)
+        self.context_changed.emit(context_entity['id'], self.asset_type_entity)
 
     def _on_asset_changed(self, asset_name, asset_id, is_valid):
         '''Updates the option dicctionary with provided *asset_name* when
@@ -202,7 +204,7 @@ class LoadContextWidget(BaseOptionsWidget):
         self.set_option_result(asset_name, key='asset_name')
         self.set_option_result(asset_id, key='asset_id')
         self.set_option_result(is_valid, key='is_valid_name')
-        self.version_selector.set_context(self.context)
+        self.version_selector.set_context(self.context_entity)
         self.version_selector.set_asset_id(asset_id)
         self.asset_changed.emit(asset_name, asset_id, is_valid)
 
@@ -220,11 +222,11 @@ class LoadContextWidget(BaseOptionsWidget):
 
         self.layout().addLayout(self.context_layout)
         self.context_selector = ContextSelector(self.session)
-        self.context_selector.setEntity(self.context)
+        self.context_selector.setEntity(self.context_entity)
 
         self.context_layout.addWidget(self.context_selector)
-        if self.context:
-            self.set_option_result(self.context['id'], key='context_id')
+        if self.context_entity:
+            self.set_option_result(self.context_entity['id'], key='context_id')
 
     def _build_asset_selector(self):
         '''Builds the asset_selector widget'''

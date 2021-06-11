@@ -6,6 +6,7 @@ from ftrack_connect_pipeline import client, constants
 from ftrack_connect_pipeline_qt.ui.utility.widget import header, definition_selector
 from ftrack_connect_pipeline_qt.client.widgets import factory
 from ftrack_connect_pipeline_qt import constants as qt_constants
+from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import ContextSelector
 
 
 class QtClient(client.Client, QtWidgets.QWidget):
@@ -16,6 +17,8 @@ class QtClient(client.Client, QtWidgets.QWidget):
     ui_types = [constants.UI_TYPE, qt_constants.UI_TYPE]
     # Text of the button to run the whole definition
     run_definition_button_text = 'Run'
+
+    on_context_change = QtCore.Signal(object)
 
     def __init__(self, event_manager, parent=None):
         '''Initialise with *event_manager* and
@@ -105,6 +108,17 @@ class QtClient(client.Client, QtWidgets.QWidget):
         # theme.applyTheme(self, 'dark')
         # theme.applyFont()
 
+    def change_context(self, context_id):
+        '''
+        Assign the given *context_id* as the current :obj:`context_id` and to the
+        :attr:`~ftrack_connect_pipeline.client.HostConnection.context_id` emit
+        on_context_change signal.
+        '''
+        super(QtClient, self).change_context(context_id)
+        #Emit a signal to let other widgets know context has changed
+        self.on_context_change.emit(context_id)
+        # self.context_selector.setEntity(self.context_id)
+
     def change_host(self, host_connection):
         ''' Triggered when host_changed is called from the host_selector.'''
         if self.scroll.widget():
@@ -127,14 +141,9 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
         super(QtClient, self).change_definition(schema, definition)
 
-        asset_type = self.current_package['asset_type']
+        asset_type_name = self.current_package['asset_type_name']
 
-        context = {
-            'context_id': self.context,
-            'asset_type': asset_type
-        }
-
-        self.widget_factory.set_context(context)
+        self.widget_factory.set_context(self.context_id, asset_type_name)
         self.widget_factory.set_host_connection(self.host_connection)
         self.widget_factory.set_definition_type(self.definition['type'])
         self.widget_factory.set_package(self.current_package)

@@ -54,7 +54,7 @@ class AssetManagerWidget(QtWidgets.QWidget):
         self._event_manager = event_manager
         self._engine_type = None
 
-        self.ftrack_asset_list = []
+        self.asset_entities_list = []
 
         self.pre_build()
         self.build()
@@ -100,7 +100,7 @@ class AssetManagerWidget(QtWidgets.QWidget):
         Triggered when a version of the asset has changed on the
         :obj:`version_cb_delegate`
         '''
-        _asset_info = self.asset_table_view.asset_model.ftrack_asset_list[
+        _asset_info = self.asset_table_view.asset_model.asset_entities_list[
             index.row()
         ]
         # Copy to avoid update automatically
@@ -125,12 +125,12 @@ class AssetManagerWidget(QtWidgets.QWidget):
         '''
         self.update_assets.emit(assets, plugin)
 
-    def set_asset_list(self, ftrack_asset_list):
+    def set_asset_list(self, asset_entities_list):
         '''
-        Sets the :obj:`ftrack_asset_list` with the given *ftrack_asset_list*
+        Sets the :obj:`asset_entities_list` with the given *asset_entities_list*
         '''
-        self.ftrack_asset_list = ftrack_asset_list
-        self.asset_table_view.set_asset_list(self.ftrack_asset_list)
+        self.asset_entities_list = asset_entities_list
+        self.asset_table_view.set_asset_list(self.asset_entities_list)
 
     def on_search(self):
         '''Search in the current model.'''
@@ -202,7 +202,7 @@ class AssetManagerTableView(QtWidgets.QTableView):
         '''
         super(AssetManagerTableView, self).__init__(parent=parent)
 
-        self.ftrack_asset_list = []
+        self.asset_entities_list = []
         self.action_widgets = {}
         self._engine_type = None
 
@@ -245,12 +245,12 @@ class AssetManagerTableView(QtWidgets.QTableView):
         '''Perform post-construction operations.'''
         pass
 
-    def set_asset_list(self, ftrack_asset_list):
+    def set_asset_list(self, asset_entities_list):
         '''
-        Sets the :obj:`ftrack_asset_list` with the given *ftrack_asset_list*
+        Sets the :obj:`asset_entities_list` with the given *asset_entities_list*
         '''
-        self.ftrack_asset_list = ftrack_asset_list
-        self.asset_model.set_asset_list(self.ftrack_asset_list)
+        self.asset_entities_list = asset_entities_list
+        self.asset_model.set_asset_list(self.asset_entities_list)
 
     def create_actions(self, actions):
         '''

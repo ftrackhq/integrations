@@ -25,7 +25,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
         AssetManagerClient.__init__(self, event_manager)
 
         self.asset_manager_widget = AssetManagerWidget(event_manager)
-        self.asset_manager_widget.set_asset_list(self.ftrack_asset_list)
+        self.asset_manager_widget.set_asset_list(self.asset_entities_list)
 
         self._host_connection = None
 
@@ -143,10 +143,10 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
     def _remove_assets_callback(self, event):
         '''
         Callback function of the remove_asset. Sets the updated
-        ftrack_asset_list.
+        asset_entities_list.
         '''
         AssetManagerClient._remove_assets_callback(self, event)
-        self.asset_manager_widget.set_asset_list(self.ftrack_asset_list)
+        self.asset_manager_widget.set_asset_list(self.asset_entities_list)
 
     def _on_update_assets(self, asset_info_list, plugin):
         '''
@@ -167,7 +167,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
         '''
 
         self._reset_asset_list()
-        self.asset_manager_widget.set_asset_list(self.ftrack_asset_list)
+        self.asset_manager_widget.set_asset_list(self.asset_entities_list)
         if not host_connection:
             return
 
@@ -184,10 +184,10 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
     def _asset_discovered_callback(self, event):
         '''
         Callback function of the discover_assets. Sets the updated
-        ftrack_asset_list.
+        asset_entities_list.
         '''
         AssetManagerClient._asset_discovered_callback(self, event)
-        self.asset_manager_widget.set_asset_list(self.ftrack_asset_list)
+        self.asset_manager_widget.set_asset_list(self.asset_entities_list)
 
     def _refresh_ui(self, event):
         '''

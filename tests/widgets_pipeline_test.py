@@ -37,10 +37,10 @@ load_client_connection = load.QtLoaderClient(event_manager)
 context_id = '<Add a context id here>'#'690afd58-06d0-11ea-bbbb-ee594985c7e2'
 
 # Set the context
-am_client_connection.context = context_id
-lv_client_connection.context = context_id
-pub_client_connection.context = context_id
-load_client_connection.context = context_id
+am_client_connection.context_id = context_id
+lv_client_connection.context_id = context_id
+pub_client_connection.context_id = context_id
+load_client_connection.context_id = context_id
 
 # Show the ui
 am_client_connection.show()

@@ -12,26 +12,26 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
     DATA_ROLE = QtCore.Qt.UserRole + 1
 
     @property
-    def ftrack_asset_list(self):
+    def asset_entities_list(self):
         '''
-        Returns the :obj:`ftrack_asset_list`
+        Returns the :obj:`asset_entities_list`
         '''
-        return self._ftrack_asset_list
+        return self._asset_entities_list
 
     def __init__(self, parent=None):
         '''Initialise Model.'''
         super(AssetManagerModel, self).__init__(parent=parent)
-        self._ftrack_asset_list = []
+        self._asset_entities_list = []
         self.columns = asset_constants.KEYS
 
-    def set_asset_list(self, ftrack_asset_list):
+    def set_asset_list(self, asset_entities_list):
         '''
-        Reset the model and sets the :obj:`ftrack_asset_list` with the given
-        *ftrack_asset_list*
+        Reset the model and sets the :obj:`asset_entities_list` with the given
+        *asset_entities_list*
         '''
         self.beginResetModel()
         #self.clear()
-        self._ftrack_asset_list = ftrack_asset_list
+        self._asset_entities_list = asset_entities_list
         self.endResetModel()
 
     def rowCount(self, parent=QtCore.QModelIndex()):
@@ -39,7 +39,7 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         if parent.column() > 0:
             return 0
 
-        return len(self.ftrack_asset_list)
+        return len(self.asset_entities_list)
 
     def columnCount(self, parent=QtCore.QModelIndex()):
         '''Return the column count for the internal data.'''
@@ -51,7 +51,7 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         '''
         self.beginRemoveRows(index, position, position + rows - 1)
 
-        self._ftrack_asset_list.pop(position)
+        self._asset_entities_list.pop(position)
 
         self.endRemoveRows()
         return True
@@ -64,7 +64,7 @@ class AssetManagerModel(QtCore.QAbstractTableModel):
         if not index.isValid():
             return None
 
-        item = self.ftrack_asset_list[row]
+        item = self.asset_entities_list[row]
         data = item[self.columns[column]]
 
         # style versions
@@ -142,8 +142,8 @@ class FilterProxyModel(QtCore.QSortFilterProxyModel):
     DATA_ROLE = AssetManagerModel.DATA_ROLE
 
     @property
-    def ftrack_asset_list(self):
-        return self.sourceModel().ftrack_asset_list
+    def asset_entities_list(self):
+        return self.sourceModel().asset_entities_list
 
     def __init__(self, parent=None):
         '''Initialize the FilterProxyModel'''

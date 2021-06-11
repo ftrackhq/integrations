@@ -51,11 +51,11 @@ class BasePluginWidget(plugin.BasePlugin):
         return topic
 
     def run(
-            self, context=None, data=None, name=None, description=None,
-            options=None
+            self, context_id=None, asset_type_name=None, data=None, name=None,
+            description=None, options=None
     ):
         return self.widget(
-            context=context,
+            context_id=context_id, asset_type_name=asset_type_name,
             session=self.session, data=data, name=name,
             description=description, options=options
         )

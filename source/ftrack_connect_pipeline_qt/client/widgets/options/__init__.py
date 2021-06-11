@@ -32,25 +32,25 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         return '{} {}'.format(self.__class__.__name__, self.name)
 
     @property
-    def context(self):
-        '''Returns the context'''
-        return self._context
+    def context_entity(self):
+        '''Returns the context_entity'''
+        return self._context_entity
 
-    @context.setter
-    def context(self, value):
-        '''Sets context with the given *value*'''
-        self._context = value
+    @context_entity.setter
+    def context_entity(self, value):
+        '''Sets context_entity with the given *value*'''
+        self._context_entity = value
 
     @property
-    def asset_type(self):
-        '''Returns asset_type'''
-        return self._asset_type
+    def asset_type_entity(self):
+        '''Returns asset_type entity'''
+        return self._asset_type_entity
 
-    @asset_type.setter
-    def asset_type(self, value):
+    @asset_type_entity.setter
+    def asset_type_entity(self, asset_type_name):
         '''Sets asset type from the given *value*'''
-        self._asset_type = self.session.query(
-            'AssetType where short is "{}"'.format(value)
+        self._asset_type_entity = self.session.query(
+            'AssetType where short is "{}"'.format(asset_type_name)
         ).first()
 
     @property
@@ -116,7 +116,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
     def __init__(
             self, parent=None, session=None, data=None, name=None,
-            description=None, options=None, context=None
+            description=None, options=None, context_id=None, asset_type_name=None
     ):
         '''initialise widget with *parent*, *session*, *data*, *name*,
         *description*, *options*
@@ -133,7 +133,9 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
         *options* : Options dicctionary for the current widget
 
-        *context* : Context dictionary of the current widget.
+        *context_id* : Current context_id
+
+        *asset_type_name* : Current asset_type_name
 
         '''
         super(BaseOptionsWidget, self).__init__(parent=parent)
@@ -149,17 +151,14 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self._name = name
         self._description = description
         self._options = options
-        self._context = context or {}
+        self._context_entity = None
 
-        context_id = self.context.get(
-            'context_id', options.get('context_id')
-        )
+        context_id = context_id
 
-        self.asset_type = self.context.get(
-            'asset_type', options.get('asset_type')
-        )
+        #we set the asset_type entity with the asset_type name
+        self.asset_type_entity = self.set_asset_type_entity(asset_type_name)
 
-        self.context = session.query(
+        self.context_entity = session.query(
             'select link, name , parent, parent.name from Context where id is "{}"'.format(context_id)
         ).one()
 
@@ -201,6 +200,10 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self.status_updated.connect(self._set_internal_status)
         self.run_result_updated.connect(self._set_internal_run_result)
 
+    def set_asset_type_entity(self, asset_type_name):
+        #TODO: move the code from the asset_type_entity setter to here.
+        return asset_type_name
+
     def run_build(self):
         '''Creates a run button to run the plugin individually, enable/disbale
         it with the class variable self.enable_run_plugin'''
@@ -229,8 +232,8 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         return out
 
     def emit_initial_state(self):
-        if self.asset_type:
-            self.context_changed.emit(self.options['context_id'], self.asset_type)
+        if self.asset_type_entity:
+            self.context_changed.emit(self.options['context_id'], self.asset_type_entity)
         if self.options.get('version_id'):
             self.asset_version_changed.emit(self.options['version_id'])
         if self.options.get('asset_name'):

@@ -58,7 +58,8 @@ class WidgetFactory(QtWidgets.QWidget):
         self.ui_types = ui_types
         self._widgets_ref = {}
         self._type_widgets_ref = {}
-        self.context = {}
+        self.context_id = None
+        self.asset_type_name = None
         self.host_connection = None
 
         self.components_names = []
@@ -97,9 +98,11 @@ class WidgetFactory(QtWidgets.QWidget):
             'Component': plugin_container.PluginContainerObject
         }
 
-    def set_context(self, context):
-        '''Set :obj:`context` with the given *context*'''
-        self.context = context
+    def set_context(self, context_id, asset_type_name):
+        '''Set :obj:`context_id` and :obj:`asset_type_name` with the given
+        *context_id* and *asset_type_name*'''
+        self.context_id = context_id
+        self.asset_type_name = asset_type_name
 
     def set_package(self, package):
         '''Set :obj:`package` with the given *package*'''
@@ -302,7 +305,8 @@ class WidgetFactory(QtWidgets.QWidget):
                         'options': plugin_options,
                         'name': name,
                         'description': description,
-                        'context': self.context
+                        'context_id': self.context_id,
+                        'asset_type_name': self.asset_type_name
                     }
                 }
 
@@ -377,13 +381,9 @@ class WidgetFactory(QtWidgets.QWidget):
         status_updated signal'''
         self.widget_status_updated.emit(status)
 
-    def _on_widget_context_changed(self, context_id, asset_type):
+    def _on_widget_context_changed(self, context_id, asset_type_name):
         '''Callback funtion called when context has been changed in the widget'''
-        new_context = {
-            'context_id': context_id,
-            'asset_type': asset_type
-        }
-        self.set_context(new_context)
+        self.set_context(context_id, asset_type_name)
         self.widget_context_updated.emit(context_id)
 
     def _on_widget_asset_changed(self, asset_name, asset_id, is_valid):
@@ -437,12 +437,12 @@ class WidgetFactory(QtWidgets.QWidget):
     def _asset_version_changed(self, version_id):
         '''Callbac funtion triggered when a asset version has changed'''
         self.version_id = version_id
-        asset_version = self.session.query(
+        asset_version_entity = self.session.query(
             'select components '
             'from AssetVersion where id is {}'.format(version_id)
         ).first()
-        if not asset_version:
+        if not asset_version_entity:
             return
-        components = asset_version['components']
+        components = asset_version_entity['components']
         self.components_names = [component['name'] for component in components]
         self.check_components()
