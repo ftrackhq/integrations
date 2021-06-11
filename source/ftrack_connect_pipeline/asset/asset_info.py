@@ -223,7 +223,7 @@ class FtrackAssetInfo(dict):
             self._session = default
         super(FtrackAssetInfo, self).setdefault(k, default)
 
-    def _get_asset_versions_entities(self):#_get_ftrack_versions(self):
+    def _get_asset_versions_entities(self):
         '''
         Return all the versions of the current asset_id
         Raises AttributeError if session is not set.
