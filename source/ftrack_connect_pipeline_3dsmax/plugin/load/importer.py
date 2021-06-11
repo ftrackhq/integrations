@@ -32,8 +32,8 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
 
         super_result = super(LoaderImporterMaxPlugin, self)._run(event)
 
-        context = self.plugin_settings.get('context')
-        self.logger.debug('Current context : {}'.format(context))
+        context_data = self.plugin_settings.get('context_data')
+        self.logger.debug('Current context : {}'.format(context_data))
 
         data = self.plugin_settings.get('data')
         self.logger.debug('Current data : {}'.format(data))
@@ -62,7 +62,7 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
             'Scene objects after load: {}'.format(len(self.new_data))
         )
 
-        self.link_to_ftrack_node(context, data, options)
+        self.link_to_ftrack_node(context_data, data, options)
 
         return super_result
 
@@ -80,7 +80,7 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
                 diff.append(obj)
         return diff
 
-    def link_to_ftrack_node(self, context, data, options):
+    def link_to_ftrack_node(self, context_data, data, options):
         diff = self._get_difference(self.new_data, self.old_data)
 
         if not diff:
@@ -92,7 +92,7 @@ class LoaderImporterMaxPlugin(plugin.LoaderImporterPlugin, BaseMaxPlugin):
             ' inport : {}'.format(diff)
         )
 
-        ftrack_asset_class = self.get_asset_class(context, data, options)
+        ftrack_asset_class = self.get_asset_class(context_data, data, options)
 
         ftrack_node = ftrack_asset_class.init_ftrack_object()
 

@@ -24,13 +24,13 @@ def register_ftrack_asset_helper():
                 {version_number} type:#integer default:0
                 {component_path} type:#string default:""
                 {component_name} type:#string default:""
-                {asset_type} type:#string default:""
+                {asset_type_name} type:#string default:""
                 {component_id} type:#string default:""
                 {load_mode} type:#string default:""
                 {asset_info_options} type:#string default:""
                 {reference_object} type:#string default:""
                 {is_latest_version} type:#boolean default:False
-                {versions} type:#string default:""
+                {asset_versions_entities} type:#string default:""
                 {session} type:#string default:""
                 {asset_info_id} type:#string default:""
             )
@@ -45,13 +45,13 @@ def register_ftrack_asset_helper():
             version_number=asset_const.VERSION_NUMBER,
             component_path=asset_const.COMPONENT_PATH,
             component_name=asset_const.COMPONENT_NAME,
-            asset_type=asset_const.ASSET_TYPE,
+            asset_type_name=asset_const.ASSET_TYPE_NAME,
             component_id=asset_const.COMPONENT_ID,
             load_mode=asset_const.LOAD_MODE,
             asset_info_options=asset_const.ASSET_INFO_OPTIONS,
             reference_object=asset_const.REFERENCE_OBJECT,
             is_latest_version=asset_const.IS_LATEST_VERSION,
-            versions=asset_const.VERSIONS,
+            asset_versions_entities=asset_const.ASSET_VERSIONS_ENTITIES,
             session=asset_const.SESSION,
             asset_info_id=asset_const.ASSET_INFO_ID
         )
