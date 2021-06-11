@@ -17,8 +17,7 @@ from ftrack_connect_pipeline.configure_logging import configure_logging
 
 configure_logging(
     'ftrack_connect_pipeline_houdini',
-    extra_modules=['ftrack_connect_pipeline', 'ftrack_connect_pipeline_qt'],
-    propagate=False
+    extra_modules=['ftrack_connect_pipeline', 'ftrack_connect_pipeline_qt']
 )
 
 logger = logging.getLogger('ftrack_connect_pipeline_houdini')
