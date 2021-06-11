@@ -25,7 +25,7 @@ class FtrackAssetBase(object):
         )
 
     @property
-    def asset_versions_entities(self):#ftrack_versions(self):
+    def asset_versions_entities(self):
         '''
         Returns generator of all
         :class:`ftrack_api.entity.asset_version.AssetVersion`
