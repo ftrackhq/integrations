@@ -1,7 +1,7 @@
 {
     "name": "testPkg",
     "type": "package",
-    "asset_type": "geo",
+    "asset_type_name": "geo",
     "context":[
         "Task"
     ],

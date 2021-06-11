@@ -28,12 +28,12 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
             'reviewable': self.create_reviewable
         }
 
-    def create_component(self, asset_version, component_name, component_path):
+    def create_component(self, asset_version_entity, component_name, component_path):
         '''
-        Creates an ftrack component on the given *asset_version* with the given
+        Creates an ftrack component on the given *asset_version_entity* with the given
         *component_name* pointing to the given *component_path*
 
-        *asset_version* : instance of
+        *asset_version_entity* : instance of
         :class:`ftrack_api.entity.asset_version.AssetVersion`
 
         *component_name* : Name of the component to be created.
@@ -47,13 +47,13 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
         )
         location = self.session.pick_location()
 
-        asset_version.create_component(
+        asset_version_entity.create_component(
             component_path,
             data={'name': component_name},
             location=location
         )
 
-    def create_thumbnail(self, asset_version, component_name, component_path):
+    def create_thumbnail(self, asset_version_entity, component_name, component_path):
         '''
         Creates and uploads an ftrack thumbnail for the given
         :class:`ftrack_api.entity.asset_version.AssetVersion` from the given
@@ -61,10 +61,10 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
 
         *component_path* : path to the thumbnail.
         '''
-        asset_version.create_thumbnail(component_path)
+        asset_version_entity.create_thumbnail(component_path)
         os.remove(component_path)
 
-    def create_reviewable(self, asset_version, component_name, component_path):
+    def create_reviewable(self, asset_version_entity, component_name, component_path):
         '''
         Encodes the ftrack media for the given
         :class:`ftrack_api.entity.asset_version.AssetVersion` from the given
@@ -72,7 +72,7 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
 
         *component_path* : path to the image or video.
         '''
-        asset_version.encode_media(component_path)
+        asset_version_entity.encode_media(component_path)
         os.remove(component_path)
 
     def _run(self, event):
@@ -100,41 +100,41 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
         if super_result.get('status') != constants.SUCCESS_STATUS:
             return super_result
 
-        context = event['data']['settings']['context']
+        context_data = event['data']['settings']['context_data']
         data = event['data']['settings']['data']
 
-        comment = context['comment']
-        status_id = context['status_id']
-        asset_name = context['asset_name']
-        asset_type = context['asset_type']
+        comment = context_data['comment']
+        status_id = context_data['status_id']
+        asset_name = context_data['asset_name']
+        asset_type_name = context_data['asset_type_name']
 
         status = self.session.query('Status where id is "{}"'.format(status_id)).one()
         context_object = self.session.query(
             'select name, parent, parent.name from Context where id is "{}"'.format(
-                context['context_id']
+                context_data['context_id']
             )
         ).one()
 
-        asset_type_object = self.session.query(
-            'AssetType where short is "{}"'.format(asset_type)
+        asset_type_entity = self.session.query(
+            'AssetType where short is "{}"'.format(asset_type_name)
         ).first()
 
         asset_parent_object = context_object['parent']
 
-        asset_object = self.session.query(
+        asset_entity = self.session.query(
             'Asset where name is "{}" and type.short is "{}" and '
             'parent.id is "{}"'.format(
-                asset_name, asset_type, asset_parent_object['id'])).first()
+                asset_name, asset_type_name, asset_parent_object['id'])).first()
 
-        if not asset_object:
-            asset_object = self.session.create('Asset', {
+        if not asset_entity:
+            asset_entity = self.session.create('Asset', {
                 'name': asset_name,
-                'type': asset_type_object,
+                'type': asset_type_entity,
                 'parent': asset_parent_object
             })
 
-        asset_version = self.session.create('AssetVersion', {
-            'asset': asset_object,
+        asset_version_entity = self.session.create('AssetVersion', {
+            'asset': asset_entity,
             'task': context_object,
             'comment': comment,
             'status': status
@@ -142,7 +142,7 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
 
         if self.version_dependencies:
             for dependency in self.version_dependencies:
-                asset_version['uses_versions'].append(dependency)
+                asset_version_entity['uses_versions'].append(dependency)
 
         self.session.commit()
 
@@ -158,14 +158,14 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
                                 component_name, self.create_component
                             )
                             publish_component_fn(
-                                asset_version,
+                                asset_version_entity,
                                 component_name,
                                 component_path
                             )
                             results[component_name] = True
         self.session.commit()
 
-        self.logger.debug("publishing: {} to {} as {}".format(data, context,
-                                                              asset_object))
+        self.logger.debug("publishing: {} to {} as {}".format(data, context_data,
+                                                              asset_entity))
 
         return super_result

@@ -21,21 +21,21 @@ class AssetManagerEngine(BaseEngine):
     engine_type = 'asset_manager'
     '''Engine type for this engine class'''
 
-    def __init__(self, event_manager, host_types, host_id, asset_type=None):
+    def __init__(self, event_manager, host_types, host_id, asset_type_name=None):
         '''
         Initialise HostConnection with instance of
         :class:`~ftrack_connect_pipeline.event.EventManager` , and *host*,
-        *host_id* and *asset_type*
+        *host_id* and *asset_type_name*
 
         *host* : Host type.. (ex: python, maya, nuke....)
 
         *host_id* : Host id.
 
-        *asset_type* : Default None. If engine is initialized to publish or load, the asset
+        *asset_type_name* : Default None. If engine is initialized to publish or load, the asset
         type should be specified.
         '''
         super(AssetManagerEngine, self).__init__(
-            event_manager, host_types, host_id, asset_type=asset_type
+            event_manager, host_types, host_id, asset_type_name=asset_type_name
         )
 
     def get_ftrack_asset_object(self, asset_info):
@@ -64,7 +64,7 @@ class AssetManagerEngine(BaseEngine):
         start_time = time.time()
 
         component_name = 'main'
-        versions = self.session.query(
+        asset_versions_entities = self.session.query(
             'select id, components, components.name, components.id, version, '
             'asset , asset.name, asset.type.name from AssetVersion where '
             'asset_id != None and components.name is "{0}" limit 10'.format(
@@ -75,9 +75,9 @@ class AssetManagerEngine(BaseEngine):
         ftrack_asset_info_list = []
         status = constants.SUCCESS_STATUS
 
-        if versions:
-            for version in versions:
-                asset_info = FtrackAssetInfo.from_ftrack_version(
+        if asset_versions_entities:
+            for version in asset_versions_entities:
+                asset_info = FtrackAssetInfo.from_version_entity(
                     version, component_name
                 )
                 ftrack_asset_info_list.append(asset_info)
@@ -317,7 +317,7 @@ class AssetManagerEngine(BaseEngine):
                 plugin, plugin_type,
                 data=plugin.get('plugin_data'),
                 options=plugin['options'],
-                context=None,
+                context_data=None,
                 method=plugin['default_method']
             )
             if plugin_result:
@@ -513,7 +513,7 @@ class AssetManagerEngine(BaseEngine):
                 plugin, plugin_type,
                 data=plugin.get('plugin_data'),
                 options=plugin['options'],
-                context=None,
+                context_data=None,
                 method=plugin['default_method']
             )
             if plugin_result:

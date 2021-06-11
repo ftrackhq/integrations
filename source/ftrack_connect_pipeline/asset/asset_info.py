@@ -10,13 +10,13 @@ import ftrack_api
 from ftrack_connect_pipeline.constants import asset as constants
 
 
-def generate_asset_info_dict_from_args(context, data, options, session):
+def generate_asset_info_dict_from_args(context_data, data, options, session):
     '''
     Returns a diccionary constructed from the needed values of the given
-    *context*, *data* and *options*
+    *context_data*, *data* and *options*
 
-    *context* : Context dictionary of the current asset. Should contain the keys
-    asset_type, asset_name, asset_id, version_number, version_id, context_id.
+    *context_data* : Context dictionary of the current asset. Should contain the keys
+    asset_type_name, asset_name, asset_id, version_number, version_id, context_id.
 
     *data* : Data of the current operation or plugin. Should contain the
     component_path from the asset that we are working on.
@@ -29,15 +29,15 @@ def generate_asset_info_dict_from_args(context, data, options, session):
     '''
     arguments_dict = {}
 
-    arguments_dict[constants.ASSET_NAME] = context.get(
+    arguments_dict[constants.ASSET_NAME] = context_data.get(
         'asset_name', 'No name found'
     )
-    arguments_dict[constants.ASSET_TYPE] = context.get(constants.ASSET_TYPE, '')
-    arguments_dict[constants.ASSET_ID] = context.get(constants.ASSET_ID, '')
+    arguments_dict[constants.ASSET_TYPE_NAME] = context_data.get(constants.ASSET_TYPE_NAME, '')
+    arguments_dict[constants.ASSET_ID] = context_data.get(constants.ASSET_ID, '')
     arguments_dict[constants.VERSION_NUMBER] = int(
-        context.get(constants.VERSION_NUMBER, 0)
+        context_data.get(constants.VERSION_NUMBER, 0)
     )
-    arguments_dict[constants.VERSION_ID] = context.get(constants.VERSION_ID, '')
+    arguments_dict[constants.VERSION_ID] = context_data.get(constants.VERSION_ID, '')
 
     arguments_dict[constants.LOAD_MODE] = options.get(
         constants.LOAD_MODE, 'Not Set'
@@ -49,21 +49,21 @@ def generate_asset_info_dict_from_args(context, data, options, session):
 
     arguments_dict[constants.ASSET_INFO_ID] = uuid.uuid4()
 
-    asset_version = session.query(
+    asset_version_entity = session.query(
         'select version from AssetVersion where id is "{}"'.format(
             arguments_dict[constants.VERSION_ID]
         )
     ).one()
 
 
-    arguments_dict[constants.IS_LATEST_VERSION] = asset_version[
+    arguments_dict[constants.IS_LATEST_VERSION] = asset_version_entity[
         constants.IS_LATEST_VERSION
     ]
 
 
     location = session.pick_location()
 
-    for component in asset_version['components']:
+    for component in asset_version_entity['components']:
         if location.get_component_availability(component) < 100.0:
             continue
         component_path = location.get_filesystem_path(component)
@@ -160,16 +160,17 @@ class FtrackAssetInfo(dict):
         Get the value from the given *k*
 
         Note:: In case of the given *k* is the asset_info_options it will
-        automatically return the decoded json. Also if the given *k* is versions
-        it will automatically download the current asset_versions from ftrack
+        automatically return the decoded json. Also if the given *k* is asset_versions_entities
+        it will automatically download the current asset_versions entities from
+        ftrack
         '''
 
         value = super(FtrackAssetInfo, self).__getitem__(k)
         if k == constants.ASSET_INFO_OPTIONS:
             if value:
                 value = self.decode_options(value)
-        if k == constants.VERSIONS:
-            value = self._get_ftrack_versions()
+        if k == constants.ASSET_VERSIONS_ENTITIES:
+            value = self._get_asset_versions_entities()
         if k == constants.SESSION:
             if self.session:
                 value = self.session
@@ -201,8 +202,8 @@ class FtrackAssetInfo(dict):
         *default* : Default value of the given Key.
         '''
         value = super(FtrackAssetInfo, self).get(k, default)
-        if k == constants.VERSIONS:
-            new_value = self._get_ftrack_versions()
+        if k == constants.ASSET_VERSIONS_ENTITIES:
+            new_value = self._get_asset_versions_entities()
             # Make sure that in case is returning None, set the default value
             if new_value:
                 value = new_value
@@ -222,7 +223,7 @@ class FtrackAssetInfo(dict):
             self._session = default
         super(FtrackAssetInfo, self).setdefault(k, default)
 
-    def _get_ftrack_versions(self):
+    def _get_asset_versions_entities(self):
         '''
         Return all the versions of the current asset_id
         Raises AttributeError if session is not set.
@@ -242,7 +243,7 @@ class FtrackAssetInfo(dict):
         return versions
 
     @classmethod
-    def from_ftrack_version(cls, ftrack_version, component_name):
+    def from_version_entity(cls, version_entity, component_name):
         '''
         Returns an :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo` object
         generated from the given *ftrack_version* and the given *component_name*
@@ -253,23 +254,23 @@ class FtrackAssetInfo(dict):
 
         '''
         asset_info_data = {}
-        asset = ftrack_version['asset']
+        asset_entity = version_entity['asset']
 
-        asset_info_data[constants.ASSET_NAME] = asset['name']
-        asset_info_data[constants.ASSET_TYPE] = asset['type']['name']
-        asset_info_data[constants.ASSET_ID] = asset['id']
+        asset_info_data[constants.ASSET_NAME] = asset_entity['name']
+        asset_info_data[constants.ASSET_TYPE_NAME] = asset_entity['type']['name']
+        asset_info_data[constants.ASSET_ID] = asset_entity['id']
         asset_info_data[constants.VERSION_NUMBER] = int(
-            ftrack_version['version'])
-        asset_info_data[constants.VERSION_ID] = ftrack_version['id']
-        asset_info_data[constants.IS_LATEST_VERSION] = ftrack_version[
+            version_entity['version'])
+        asset_info_data[constants.VERSION_ID] = version_entity['id']
+        asset_info_data[constants.IS_LATEST_VERSION] = version_entity[
             constants.IS_LATEST_VERSION
         ]
 
-        location = ftrack_version.session.pick_location()
+        location = version_entity.session.pick_location()
 
         asset_info_data[constants.ASSET_INFO_ID] = uuid.uuid4()
 
-        for component in ftrack_version['components']:
+        for component in version_entity['components']:
             if component['name'] == component_name:
                 if location.get_component_availability(component) == 100.0:
                     component_path = location.get_filesystem_path(component)

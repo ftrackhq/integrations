@@ -39,19 +39,19 @@ class BaseImporterPlugin(BasePlugin):
             self.return_value
         )
 
-    def run(self, context=None, data=None, options=None):
+    def run(self, context_data=None, data=None, options=None):
         raise NotImplementedError('Missing run method.')
 
-    def get_asset_class(self, context, data, options):
+    def get_asset_class(self, context_data, data, options):
         '''
         Returns the :data:`ftrack_asset_class` initialized with
         :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
         created by the
         :meth:`~ftrack_connect_pipeline.asset.asset_info.generate_asset_info_dict_from_args`
-        method using the given *context*, *data*, and *options*.
+        method using the given *context_data*, *data*, and *options*.
         '''
         arguments_dict = asset_info.generate_asset_info_dict_from_args(
-            context, data, options, self.session
+            context_data, data, options, self.session
         )
 
         asset_info_class = asset_info.FtrackAssetInfo(arguments_dict)
