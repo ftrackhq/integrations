@@ -7,8 +7,11 @@ import logging
 
 import hou, hdefereval
 
-import ftrack_api
+from ftrack_connect_pipeline_qt import event
+from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline_houdini import host as houdini_host
 
+import ftrack_api
 
 from ftrack_connect_pipeline.configure_logging import configure_logging
 
@@ -27,10 +30,6 @@ def init():
     global event_manager
 
     session = ftrack_api.Session(auto_connect_event_hub=False)
-
-    from ftrack_connect_pipeline_houdini import host as houdini_host
-    from ftrack_connect_pipeline_qt import event
-    from ftrack_connect_pipeline import constants
 
     event_manager = event.QEventManager(
         session=session, mode=constants.LOCAL_EVENT_MODE
