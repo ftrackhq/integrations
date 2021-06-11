@@ -14,11 +14,11 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
     ftrack_asset_class = FtrackAssetTab
     engine_type = 'asset_manager'
 
-    def __init__(self, event_manager, host_types, host_id, asset_type=None):
+    def __init__(self, event_manager, host_types, host_id, asset_type_name=None):
         '''Initialise AssetManagerEngine with *event_manager*, *host*, *hostid*
-        and *asset_type*'''
+        and *asset_type_name*'''
         super(HoudiniAssetManagerEngine, self).__init__(
-            event_manager, host_types, host_id, asset_type=asset_type
+            event_manager, host_types, host_id, asset_type_name=asset_type_name
         )
 
     def discover_assets(self, assets=None, options=None, plugin=None):
