@@ -4,11 +4,10 @@
 import os
 import sys
 import ftrack_api
-
+import functools
 import logging
 
 NAME = 'ftrack-connect-pipeline-qt'
-VERSION = '0.1.0'
 
 logger = logging.getLogger('{}.hook'.format(NAME.replace('-','_')))
 
