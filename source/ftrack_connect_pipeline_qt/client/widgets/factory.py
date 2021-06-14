@@ -260,7 +260,6 @@ class WidgetFactory(QtWidgets.QWidget):
             )
 
         widget.status_updated.connect(self._on_widget_status_updated)
-        # widget.context_changed.connect(self._on_widget_context_changed)
         widget.asset_changed.connect(self._on_widget_asset_changed)
         widget.asset_version_changed.connect(self._asset_version_changed)
         widget.emit_initial_state()
@@ -380,11 +379,6 @@ class WidgetFactory(QtWidgets.QWidget):
         '''Emits signal widget_status_updated when any widget calls the
         status_updated signal'''
         self.widget_status_updated.emit(status)
-
-    # def _on_widget_context_changed(self, context_id, asset_type_name):
-    #     '''Callback funtion called when context has been changed in the widget'''
-    #     self.set_context(context_id, asset_type_name)
-    #     self.widget_context_updated.emit(context_id)
 
     def _on_widget_asset_changed(self, asset_name, asset_id, is_valid):
         '''Callback funtion called when asset has been modified on the widget'''

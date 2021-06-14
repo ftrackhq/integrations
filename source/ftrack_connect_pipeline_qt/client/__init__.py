@@ -88,9 +88,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.layout().addWidget(self.header)
 
         self.context_selector = ContextSelector(self.session)
-        if self.context_id:
-            print("Yes we have the context id here")
-        # self.context_selector.setEntity(self.context_entity)
+
         self.layout().addWidget(self.context_selector)
 
         self.host_selector = definition_selector.DefinitionSelector()
@@ -114,10 +112,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
             self._on_widget_status_updated
         )
 
-        # self.widget_factory.widget_context_updated.connect(
-        #     self._on_widget_context_updated
-        # )
-
         self.widget_factory.widget_asset_updated.connect(
             self._on_widget_asset_updated
         )
@@ -135,7 +129,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
         entityChanged of context_selector event is triggered'''
         self.context_entity = context_entity
         self.change_context(context_entity['id'])
-        #self.change_host(self.host_connection)
         self.host_selector.change_host_index(0)
 
     def change_context(self, context_id):
@@ -194,9 +187,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
         '''
         status, message = data
         self.header.setMessage(message, status)
-
-    # def _on_widget_context_updated(self, context_id):
-    #     self.change_context(context_id)
 
     def _on_widget_asset_updated(self, asset_name, asset_id, is_valid):
         self.is_valid_asset_name = is_valid
