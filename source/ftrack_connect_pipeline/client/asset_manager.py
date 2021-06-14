@@ -13,9 +13,9 @@ class AssetManagerClient(client.Client):
     '''Use only definitions that matches the definition_filter'''
 
     @property
-    def ftrack_asset_list(self):
+    def asset_entities_list(self):
         '''Return the current list of asset_info'''
-        return self._ftrack_asset_list
+        return self._asset_entities_list
 
     def __init__(self, event_manager):
         '''Initialise AssetManagerClient with instance of
@@ -45,8 +45,8 @@ class AssetManagerClient(client.Client):
         self.discover_plugins = self.definition.get('discover')
 
     def _reset_asset_list(self):
-        '''Empty the :obj:`ftrack_asset_list`'''
-        self._ftrack_asset_list = []
+        '''Empty the :obj:`asset_entities_list`'''
+        self._asset_entities_list= []
 
     def discover_assets(self, plugin=None):
         '''
@@ -77,9 +77,9 @@ class AssetManagerClient(client.Client):
         if not event['data']:
             return
         for ftrack_asset in event['data']:
-            if ftrack_asset not in self.ftrack_asset_list:
+            if ftrack_asset not in self.asset_entities_list:
                 ftrack_asset['session'] = self.session
-                self._ftrack_asset_list.append(ftrack_asset)
+                self._asset_entities_list.append(ftrack_asset)
         self._connected = True
 
     def change_version(self, asset_info, new_version_id):
@@ -180,9 +180,9 @@ class AssetManagerClient(client.Client):
         :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo` if the given
         *id* matches an
         :const:`~ftrack_connnect_pipeline.constants.asset.ASSET_INFO_ID`
-        of an object in :obj:`ftrack_asset_list`
+        of an object in :obj:`asset_entities_list`
         '''
-        asset_info = next((sub for sub in self.ftrack_asset_list if sub[asset_const.ASSET_INFO_ID] == id), None)
+        asset_info = next((sub for sub in self.asset_entities_list if sub[asset_const.ASSET_INFO_ID] == id), None)
         if not asset_info:
             self.logger.warning('No asset info found for id {}'.format(id))
         return asset_info
@@ -190,7 +190,7 @@ class AssetManagerClient(client.Client):
     def _change_version_callback(self, event):
         '''
         Callback of the :meth:`change_version`
-        Updates the current ftrack_asset_list
+        Updates the current asset_entities_list
         '''
 
         if not event['data']:
@@ -198,16 +198,16 @@ class AssetManagerClient(client.Client):
         data = event['data']
         for key, value in data.items():
             asset_info = self._find_asset_info_by_id(key)
-            index = self.ftrack_asset_list.index(asset_info)
+            index = self.asset_entities_list.index(asset_info)
             if index is None:
                 continue
             self.logger.debug('Removing id {} with index {}'.format(key, index))
-            self.ftrack_asset_list[index] = value
+            self.asset_entities_list[index] = value
 
     def _remove_assets_callback(self, event):
         '''
         Callback of the :meth:`remove_assets`
-        Updates the current ftrack_asset_list
+        Updates the current asset_entities_list
         '''
         if not event['data']:
             return
@@ -215,24 +215,24 @@ class AssetManagerClient(client.Client):
 
         for key, value in data.items():
             asset_info = self._find_asset_info_by_id(key)
-            index = self.ftrack_asset_list.index(asset_info)
+            index = self.asset_entities_list.index(asset_info)
             if index is None:
                 continue
             self.logger.debug('Removing id {} with index {}'.format(key, index))
-            self.ftrack_asset_list.pop(index)
+            self.asset_entities_list.pop(index)
 
     def _update_assets_callback(self, event):
         '''
         Callback of the :meth:`update_assets`
-        Updates the current ftrack_asset_list
+        Updates the current asset_entities_list
         '''
         if not event['data']:
             return
         data = event['data']
         for key, value in data.items():
             asset_info = self._find_asset_info_by_id(key)
-            index = self.ftrack_asset_list.index(asset_info)
+            index = self.asset_entities_list.index(asset_info)
             if index is None:
                 continue
             self.logger.debug('Updating id {} with index {}'.format(key, index))
-            self.ftrack_asset_list[index] = value.get(list(value.keys())[0])
+            self.asset_entities_list[index] = value.get(list(value.keys())[0])
