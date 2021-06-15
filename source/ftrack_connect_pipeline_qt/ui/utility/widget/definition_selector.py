@@ -49,6 +49,9 @@ class DefinitionSelector(QtWidgets.QWidget):
             self._on_select_definition
         )
 
+    def change_host_index(self, index):
+        self.host_combobox.setCurrentIndex(index)
+
     def _on_change_host(self, index):
         '''triggered when chaging host selection to *index*'''
         self.definition_combobox.clear()

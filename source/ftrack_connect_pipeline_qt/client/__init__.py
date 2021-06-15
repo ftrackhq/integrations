@@ -20,6 +20,16 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
     on_context_change = QtCore.Signal(object)
 
+    @property
+    def context_entity(self):
+        '''Returns the context_entity'''
+        return self._context_entity
+
+    @context_entity.setter
+    def context_entity(self, value):
+        '''Sets context_entity with the given *value*'''
+        self._context_entity = value
+
     def __init__(self, event_manager, parent=None):
         '''Initialise with *event_manager* and
         *parent* widget'''
@@ -34,6 +44,11 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.pre_build()
         self.build()
         self.post_build()
+        if self.context_id:
+            context_entity = self.session.query(
+                'select link, name , parent, parent.name from Context where id is "{}"'.format(self.context_id)
+            ).one()
+            self.context_selector.setEntity(context_entity)
         self.add_hosts(self.discover_hosts())
 
     def add_hosts(self, host_connections):
@@ -72,6 +87,10 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.header = header.Header(self.session)
         self.layout().addWidget(self.header)
 
+        self.context_selector = ContextSelector(self.session)
+
+        self.layout().addWidget(self.context_selector)
+
         self.host_selector = definition_selector.DefinitionSelector()
         self.layout().addWidget(self.host_selector)
 
@@ -84,16 +103,13 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
     def post_build(self):
         '''Post Build ui method for events connections.'''
+        self.context_selector.entityChanged.connect(self._on_context_selector_context_changed)
         self.host_selector.host_changed.connect(self.change_host)
         self.host_selector.definition_changed.connect(self.change_definition)
         self.run_button.clicked.connect(self._on_run_definition)
 
         self.widget_factory.widget_status_updated.connect(
             self._on_widget_status_updated
-        )
-
-        self.widget_factory.widget_context_updated.connect(
-            self._on_widget_context_updated
         )
 
         self.widget_factory.widget_asset_updated.connect(
@@ -108,6 +124,13 @@ class QtClient(client.Client, QtWidgets.QWidget):
         # theme.applyTheme(self, 'dark')
         # theme.applyFont()
 
+    def _on_context_selector_context_changed(self, context_entity):
+        '''Updates the option dicctionary with provided *context* when
+        entityChanged of context_selector event is triggered'''
+        self.context_entity = context_entity
+        self.change_context(context_entity['id'])
+        self.host_selector.change_host_index(0)
+
     def change_context(self, context_id):
         '''
         Assign the given *context_id* as the current :obj:`context_id` and to the
@@ -115,15 +138,16 @@ class QtClient(client.Client, QtWidgets.QWidget):
         on_context_change signal.
         '''
         super(QtClient, self).change_context(context_id)
-        #Emit a signal to let other widgets know context has changed
         self.on_context_change.emit(context_id)
-        # self.context_selector.setEntity(self.context_id)
 
-    def change_host(self, host_connection):
-        ''' Triggered when host_changed is called from the host_selector.'''
+    def _clear_host_widget(self):
         if self.scroll.widget():
             self.widget_factory.reset_type_widget_plugin()
             self.scroll.widget().deleteLater()
+
+    def change_host(self, host_connection):
+        ''' Triggered when host_changed is called from the host_selector.'''
+        self._clear_host_widget()
         super(QtClient, self).change_host(host_connection)
 
     def change_definition(self, schema, definition):
@@ -163,9 +187,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
         '''
         status, message = data
         self.header.setMessage(message, status)
-
-    def _on_widget_context_updated(self, context_id):
-        self.change_context(context_id)
 
     def _on_widget_asset_updated(self, asset_name, asset_id, is_valid):
         self.is_valid_asset_name = is_valid

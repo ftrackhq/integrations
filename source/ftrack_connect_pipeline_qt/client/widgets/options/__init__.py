@@ -14,7 +14,6 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     Base class of a widget representation for options widgets
     '''
     status_updated = QtCore.Signal(object)
-    context_changed = QtCore.Signal(object, object)
     asset_changed = QtCore.Signal(object, object, object)
     status_icons = constants.icons.status_icons
     run_plugin_clicked = QtCore.Signal(object, object)
@@ -232,8 +231,6 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         return out
 
     def emit_initial_state(self):
-        if self.asset_type_entity:
-            self.context_changed.emit(self.options['context_id'], self.asset_type_entity)
         if self.options.get('version_id'):
             self.asset_version_changed.emit(self.options['version_id'])
         if self.options.get('asset_name'):
