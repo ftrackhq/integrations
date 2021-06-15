@@ -75,6 +75,8 @@ class BaseJsonWidget(QtWidgets.QWidget):
         '''pre build function, mostly used setup the widget's layout.'''
         self.v_layout = QtWidgets.QVBoxLayout()
         self.setLayout(self.v_layout)
+        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().setSpacing(5)
 
     def build(self):
         '''build function , mostly used to create the widgets.'''
