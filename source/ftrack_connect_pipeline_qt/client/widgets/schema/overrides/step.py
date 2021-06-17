@@ -58,6 +58,8 @@ class StepArray(BaseJsonWidget):
                     name, self.schema_fragment['items'], data,
                     self.previous_object_data
                 )
+                obj.layout().setContentsMargins(0, 0, 0, 0)
+                obj.layout().setSpacing(0)
                 accordion_widget.add_widget(obj)
 
                 groupBox.layout().addWidget(accordion_widget)

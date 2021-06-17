@@ -60,6 +60,9 @@ class AccordionWidget(QtWidgets.QWidget):
         self._content.setLayout(self._content_layout)
         self._content.setVisible(not collapsed)
 
+        self._content_layout.setContentsMargins(0, 0, 0, 0)
+        self._content_layout.setSpacing(0)
+
         return self._content
 
     def update_inner_status(self, inner_widget, data):
