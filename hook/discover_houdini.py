@@ -40,7 +40,7 @@ def on_discover_pipeline_houdini(session, event):
 
 
 def on_launch_pipeline_houdini(session, event):
-    pipeline_houdini_base_data = on_discover_pipeline_houdini(sessoin, event)
+    pipeline_houdini_base_data = on_discover_pipeline_houdini(session, event)
 
     houdini_path = os.path.join(plugin_base_dir, 'resource', 'houdini_path')
 
