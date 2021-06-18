@@ -5,6 +5,7 @@ import os
 import sys
 import ftrack_api
 import logging
+import functools
 
 NAME = 'ftrack-connect-pipeline'
 VERSION = '0.1.0'
@@ -58,10 +59,7 @@ def on_launch_pipeline(session, event):
 def register(session): 
     '''Subscribe to application launch events on *registry*.'''
     if not isinstance(session, ftrack_api.session.Session):
-        return
-
-    logger.debug('registering: {}'.format(NAME))
-    
+        return    
     
     handle_discovery_event = functools.partial(
         on_discover_pipeline,
