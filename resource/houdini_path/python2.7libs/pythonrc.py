@@ -7,24 +7,27 @@ import logging
 
 import hou, hdefereval
 
+from ftrack_connect_pipeline_qt import event
+from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline_houdini import host as houdini_host
+
 import ftrack_api
 
+from ftrack_connect_pipeline.configure_logging import configure_logging
 
-logger = logging.getLogger(
-    'ftrack_connect_pipeline_houdini.houdini_path.python2.7libs.pythonrc')
-logger.setLevel(logging.DEBUG)
+configure_logging(
+    'ftrack_connect_pipeline_houdini',
+    extra_modules=['ftrack_connect_pipeline', 'ftrack_connect_pipeline_qt']
+)
+
+logger = logging.getLogger('ftrack_connect_pipeline_houdini')
 
 event_manager = None
-
 
 def init():
     global event_manager
 
     session = ftrack_api.Session(auto_connect_event_hub=False)
-
-    from ftrack_connect_pipeline_houdini import host as houdini_host
-    from ftrack_connect_pipeline_qt import event
-    from ftrack_connect_pipeline import constants
 
     event_manager = event.QEventManager(
         session=session, mode=constants.LOCAL_EVENT_MODE
