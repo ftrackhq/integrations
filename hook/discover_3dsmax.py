@@ -43,7 +43,7 @@ def on_application_launch(session, event):
 
     # Discover plugins from definitions
     definitions_plugin_hook = os.getenv("FTRACK_DEFINITION_PLUGIN_PATH")
-    plugin_hook = os.path.join(definitions_plugin_hook, '3dsmax')
+    plugin_hook = os.path.join(definitions_plugin_hook, '3dsmax', 'python')
 
     # This is not needed, but we make sure to remove PySide to not override
     # the one in 3dmax.
