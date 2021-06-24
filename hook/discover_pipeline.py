@@ -47,7 +47,7 @@ def on_launch_pipeline(session, event):
     pipeline_base_data = on_discover_pipeline(session, event)
 
     definitions_plugin_hook = os.getenv("FTRACK_DEFINITION_PLUGIN_PATH")
-    plugin_hook = os.path.join(definitions_plugin_hook, 'python')
+    plugin_hook = os.path.join(definitions_plugin_hook, 'common', 'python')
 
     pipeline_base_data['integration']['env'] = {
         'PYTHONPATH.prepend':python_dependencies,
