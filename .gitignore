@@ -33,3 +33,6 @@ Thumbs.db
 .settings
 .idea/
 build/**
+
+#SCM
+source/ftrack_connect_rv/_version.py
