@@ -7,39 +7,49 @@ import sys
 import imp
 
 import ftrack_api
-from functools import partial
+import functools
 
 logger = logging.getLogger('ftrack_connect_pipeline_3dsmax.listen_3dsmax_launch')
 
-def on_application_launch(session, event):
 
-    plugin_base_dir = os.path.normpath(
-        os.path.join(
-            os.path.abspath(
-                os.path.dirname(__file__)
-            ),
-            '..'
-        )
+plugin_base_dir = os.path.normpath(
+    os.path.join(
+        os.path.abspath(
+            os.path.dirname(__file__)
+        ),
+        '..'
     )
+)
 
-    max_script_path = os.path.abspath(os.path.join(
-        plugin_base_dir, 'resource', 'scripts'
-    ))
+python_dependencies = os.path.abspath(os.path.join(
+    plugin_base_dir, 'dependencies'
+))
 
-    max_connect_plugins_path = os.path.abspath(os.path.join(
-        plugin_base_dir, 'resource', 'plug_ins'
-    ))
+sys.path.append(python_dependencies)
 
+
+
+def on_discover_3dsmax_pipeline(session, event):
+
+    from ftrack_connect_pipeline_3dsmax import __version__ as integration_version
+
+    data = {
+        'integration': {
+            "name": 'ftrack-connect-pipeline-3dsmax',
+            'version': integration_version
+
+        }
+    }
+    return data
+
+
+def on_launch_3dsmax_pipeline(session, event):
+    pipeline_max_base_data = on_discover_3dsmax_pipeline(session, event)
+
+    max_script_path = os.path.abspath(os.path.join(plugin_base_dir, 'resource', 'scripts'))
+    max_connect_plugins_path = os.path.abspath(os.path.join(plugin_base_dir, 'resource', 'plug_ins'))
     max_startup_folder = os.path.abspath(os.path.join(max_script_path, 'startup'))
     max_startup_script = os.path.join(max_startup_folder, 'initftrack.ms')
-    python_dependencies = os.path.abspath(os.path.join(
-        plugin_base_dir, 'dependencies'
-    ))
-    sys.path.append(python_dependencies)
-
-    # logger.debug('Adding ftrackShotId')
-    entity = event['data']['context']['selection'][0]
-    task = session.get('Context', entity['entityId'])
 
     # Discover plugins from definitions
     definitions_plugin_hook = os.getenv("FTRACK_DEFINITION_PLUGIN_PATH")
@@ -57,46 +67,50 @@ def on_application_launch(session, event):
             pass
 
 
-    data = {
-        'integration': {
-            "name": 'ftrack-connect-pipeline-3dsmax',
-            'version': '0.0.0',
-            'env': {
-                '3DSMAX_PLUG_IN_PATH.set': max_connect_plugins_path,
-                'FTRACK_EVENT_PLUGIN_PATH.prepend': plugin_hook,
-                'PYTHONPATH.prepend': os.path.pathsep.join([
-                    python_dependencies,
-                    max_startup_script
-                ]),
-                'PATH.remove': os.path.pathsep.join([paths_to_remove]),
-                'VIRTUAL_ENV.unset': '',
-                'FTRACK_CONTEXTID.set': task['id'],
-                'FS.set': task['parent']['custom_attributes'].get('fstart', '1.0'),
-                'FE.set': task['parent']['custom_attributes'].get('fend', '100.0')
-            },
-            'launch_arguments':['-U', 'MAXScript', max_startup_script]
-        }
+    pipeline_max_base_data['integration']['env']  = {
+        '3DSMAX_PLUG_IN_PATH.set': max_connect_plugins_path,
+        'FTRACK_EVENT_PLUGIN_PATH.prepend': plugin_hook,
+        'PYTHONPATH.prepend': os.path.pathsep.join([python_dependencies,max_startup_script]),
+        'PATH.remove': os.path.pathsep.join([paths_to_remove])
     }
+    pipeline_max_base_data['integration']['launch_arguments'] = ['-U', 'MAXScript', max_startup_script]
 
+    selection = event['data'].get('context', {}).get('selection', [])
 
-    return data
+    if selection:
+        task = session.get('Context', selection[0]['entityId'])
+        pipeline_max_base_data['integration']['env']['FTRACK_CONTEXTID.set'] =  task['id']
+        pipeline_max_base_data['integration']['env']['FS.set'] = task['parent']['custom_attributes'].get('fstart', '1.0')
+        pipeline_max_base_data['integration']['env']['FE.set'] = task['parent']['custom_attributes'].get('fend', '100.0')
+        pipeline_max_base_data['integration']['env']['FPS.set'] = task['parent']['custom_attributes'].get('fps', '24.0')
+        
+    return pipeline_max_base_data
+
 
 def register(session):
     '''Subscribe to application launch events on *registry*.'''
     if not isinstance(session, ftrack_api.session.Session):
         return
 
-    handle_event = partial(on_application_launch, session)
-
-    session.event_hub.subscribe(
-        'topic=ftrack.connect.application.launch'
-        ' and data.application.identifier=3ds-max*'
-        ' and data.application.version >= 2020',
-        handle_event, priority=40
+    handle_discovery_event = functools.partial(
+        on_discover_3dsmax_pipeline,
+        session
     )
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.discover'
         ' and data.application.identifier=3ds-max*'
         ' and data.application.version >= 2020',
-        handle_event, priority=40
+        handle_discovery_event, priority=40
     )
+
+    handle_launch_event = functools.partial(
+        on_launch_3dsmax_pipeline,
+        session
+    )  
+    session.event_hub.subscribe(
+        'topic=ftrack.connect.application.launch'
+        ' and data.application.identifier=3ds-max*'
+        ' and data.application.version >= 2020',
+        handle_launch_event, priority=40
+    )
+
