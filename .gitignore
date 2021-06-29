@@ -6,6 +6,8 @@
 # Node artifact files
 node_modules/
 dist/
+.eggs/
+build/
 
 # Compiled Java class files
 *.class
@@ -48,3 +50,5 @@ Thumbs.db
 *.mov
 *.wmv
 
+# SCM
+source/ftrack_connect_pipeline_houdini/_version.py
