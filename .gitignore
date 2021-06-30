@@ -39,3 +39,6 @@ Thumbs.db
 .settings
 .idea/
 *.orig
+
+#SCM
+source/ftrack_connect_pipeline_3dsmax/_version.py
