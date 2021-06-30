@@ -4,16 +4,14 @@
 
 import os
 import re
+import sys
+import subprocess
 import shutil
 
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 import setuptools
 
-from pkg_resources import parse_version
-import pip
-
-from pip._internal import main as pip_main
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
@@ -32,18 +30,6 @@ BUILD_PATH = os.path.join(
 )
 
 
-# Read version from source.
-with open(os.path.join(
-    SOURCE_PATH, 'ftrack_connect_pipeline_houdini', '_version.py')
-) as _version_file:
-    VERSION = re.match(
-        r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
-    ).group(1)
-
-STAGING_PATH = os.path.join(
-    BUILD_PATH, 'ftrack-connect-pipeline-houdini-{}'.format(VERSION)
-)
-
 
 class BuildPlugin(setuptools.Command):
     '''Build plugin.'''
@@ -60,6 +46,15 @@ class BuildPlugin(setuptools.Command):
 
     def run(self):
         '''Run the build step.'''
+        import setuptools_scm
+        release = setuptools_scm.get_version(version_scheme='post-release')
+        VERSION = '.'.join(release.split('.')[:3])
+        global STAGING_PATH
+        STAGING_PATH = os.path.join(
+            BUILD_PATH, 'ftrack-connect-pipeline-houdini-{}'.format(VERSION)
+        )
+
+        '''Run the build step.'''
         # Clean staging path
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
 
@@ -75,11 +70,9 @@ class BuildPlugin(setuptools.Command):
             os.path.join(STAGING_PATH, 'hook')
         )
 
-        pip_main(
+        subprocess.check_call(
             [
-                'install',
-                '.',
-                '--target',
+                sys.executable, '-m', 'pip', 'install','.','--target',
                 os.path.join(STAGING_PATH, 'dependencies')
             ]
         )
@@ -111,11 +104,16 @@ class PyTest(TestCommand):
         errno = pytest.main(self.test_args)
         raise SystemExit(errno)
 
+version_template = '''
+# :coding: utf-8
+# :copyright: Copyright (c) 2017-2020 ftrack
+
+__version__ = {version!r}
+'''
 
 # Configuration.
 setup(
     name='ftrack-connect-pipeline-houdini',
-    version=VERSION,
     description='A dialog to publish package from houdini to ftrack',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
@@ -127,11 +125,18 @@ setup(
     package_dir={
         '': 'source'
     },
+    use_scm_version={
+        'write_to': 'source/ftrack_connect_pipeline_houdini/_version.py',
+        'write_to_template': version_template,
+        'version_scheme': 'post-release'
+    },
     python_requires='<3.8',
     setup_requires=[
         'sphinx >= 1.8.5, < 4',
         'sphinx_rtd_theme >= 0.1.6, < 2',
         'lowdown >= 0.1.0, < 2',
+        'setuptools>=45.0.0',
+        'setuptools_scm'
     ],
     install_requires=[
     ],
