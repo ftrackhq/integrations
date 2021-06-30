@@ -74,7 +74,7 @@ def register(session):
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.discover'
-        ' and data.application.identifier=nuke*'
+        ' and data.application.identifier=nuke_*'
         ' and data.application.version >= 13.0',
         handle_discovery_event, priority=40
     )
@@ -86,7 +86,7 @@ def register(session):
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch and '
-        'data.application.identifier=nuke*'
+        'data.application.identifier=nuke_*'
         ' and data.application.version >= 13.0',
         handle_launch_event, priority=40
     )
