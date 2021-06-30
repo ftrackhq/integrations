@@ -7,7 +7,6 @@ import re
 import sys
 import subprocess
 import shutil
-import setuptools_scm
 
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
@@ -31,14 +30,6 @@ BUILD_PATH = os.path.join(
 )
 
 
-release = setuptools_scm.get_version(version_scheme='post-release')
-VERSION = '.'.join(release.split('.')[:3])
-
-STAGING_PATH = os.path.join(
-    BUILD_PATH, 'ftrack-connect-pipeline-maya-{}'.format(VERSION)
-)
-
-
 class BuildPlugin(setuptools.Command):
     '''Build plugin.'''
 
@@ -53,6 +44,15 @@ class BuildPlugin(setuptools.Command):
         pass
 
     def run(self):
+        '''Run the build step.'''
+        import setuptools_scm
+        release = setuptools_scm.get_version(version_scheme='post-release')
+        VERSION = '.'.join(release.split('.')[:3])
+        global STAGING_PATH
+        STAGING_PATH = os.path.join(
+            BUILD_PATH, 'ftrack-connect-pipeline-maya-{}'.format(VERSION)
+        )
+
         '''Run the build step.'''
         # Clean staging path
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
