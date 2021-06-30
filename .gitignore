@@ -37,4 +37,5 @@ Thumbs.db
 .pydevproject
 .settings
 .idea/
-source/ftrack_connect_pipeline/ui/resource.py
+# SCM
+source/ftrack_connect_pipeline_maya/_version.py
