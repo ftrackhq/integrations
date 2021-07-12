@@ -464,6 +464,8 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         'PySide2.QtCore',
         'PySide2.QtWidgets',
         'PySide2.QtGui',
+        'ftrack_action_handler',
+        'ftrack_action_handler.action',
         'ssl',
         'xml.etree',
         'xml.etree.ElementTree',
