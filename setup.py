@@ -132,7 +132,7 @@ setup(
         'sphinx_rtd_theme >= 0.1.6, < 2',
         'lowdown >= 0.1.0, < 2',
         'clique',
-        'setuptools>=45.0.0',
+        'setuptools>=44.0.0',
         'setuptools_scm'
     ],
     tests_require=[
