@@ -4,3 +4,4 @@ requests >= 2, <3
 setuptools>=45.0.0
 setuptools_scm
 wheel
+ftrack-action-handler
