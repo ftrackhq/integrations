@@ -10,6 +10,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import Contex
 from ftrack_connect_pipeline_qt.ui import resource
 from ftrack_connect_pipeline_qt.ui import theme
 
+
 class QtClient(client.Client, QtWidgets.QWidget):
     '''
     Base QT client widget class.
