@@ -7,7 +7,8 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import header, definition_sele
 from ftrack_connect_pipeline_qt.client.widgets import factory
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import ContextSelector
-from ftrack_connect_pipeline.ui import resource
+from ftrack_connect_pipeline_qt.ui import resource
+from ftrack_connect_pipeline_qt.ui import theme
 
 class QtClient(client.Client, QtWidgets.QWidget):
     '''
@@ -35,6 +36,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         *parent* widget'''
         QtWidgets.QWidget.__init__(self, parent=parent)
         client.Client.__init__(self, event_manager)
+        self.setTheme('dark')
 
         self.is_valid_asset_name = False
         self.widget_factory = factory.WidgetFactory(
@@ -77,10 +79,12 @@ class QtClient(client.Client, QtWidgets.QWidget):
             self.host_selector.set_definition_filter(self.definition_filter)
         self.host_selector.add_hosts(self.host_connections)
 
+    def setTheme(self, selected_theme):
+        theme.applyFont()
+        theme.applyTheme(self, selected_theme, 'cleanlooks')
 
     def pre_build(self):
         '''Prepare general layout.'''
-        self.setTheme('light')
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
