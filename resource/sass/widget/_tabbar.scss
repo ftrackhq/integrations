@@ -1,0 +1,31 @@
+/** Tab bar. */
+
+QTabWidget::pane {
+    border-top: 2px solid $gray-lighter;
+    background: $white-almost;
+}
+
+QTabWidget::tab-bar {
+    background: $white;
+}
+
+QTabBar {
+    background: $white;
+}
+
+QTabBar::tab {
+    background: $white;
+    min-width: 60px;
+    padding: 8px 10px;
+    color: $gray;
+    border-bottom: 2px solid $white;
+
+}
+
+QTabBar#application-tab-bar::tab:selected {
+    background-position: bottom center;
+    background-repeat: none;
+    color: $text-color;
+    border-bottom: 2px solid $brand-primary;
+
+}

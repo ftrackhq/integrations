@@ -7,7 +7,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import header, definition_sele
 from ftrack_connect_pipeline_qt.client.widgets import factory
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import ContextSelector
-
+from ftrack_connect_pipeline.ui import resource
 
 class QtClient(client.Client, QtWidgets.QWidget):
     '''
