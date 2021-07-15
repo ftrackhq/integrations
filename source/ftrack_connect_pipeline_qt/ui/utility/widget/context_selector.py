@@ -1,10 +1,12 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015 ftrack
 
+
 from Qt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline_qt.ui.utility.widget.entity_path import EntityPath
 import ftrack_connect_pipeline_qt.ui.utility.widget.entity_browser as entityBrowser
+from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import Task
 
 
 class ContextSelector(QtWidgets.QWidget):
@@ -18,6 +20,7 @@ class ContextSelector(QtWidgets.QWidget):
         '''Initialise ContextSelector widget with the *currentEntity* and
         *parent* widget.
         '''
+
         super(ContextSelector, self).__init__(parent=parent)
         self._entity = currentEntity
         self.session = session
@@ -34,20 +37,28 @@ class ContextSelector(QtWidgets.QWidget):
         self.setLayout(layout)
 
     def build(self):
+        self.thumbnailWidget = Task(self.session)
+        self.thumbnailWidget.setMinimumWidth(150)
+
         self.entityBrowser = entityBrowser.EntityBrowser(self.session)
         self.entityBrowser.setMinimumWidth(600)
         self.entityPath = EntityPath()
 
-        self.entityBrowseButton = QtWidgets.QPushButton('Browse')
+        self.entityBrowseButton = QtWidgets.QPushButton('Change')
 
+        self.layout().addWidget(self.thumbnailWidget)
         self.layout().addWidget(self.entityPath)
         self.layout().addWidget(self.entityBrowseButton)
+
+    def set_thumbnmail(self, entity):
+        self.thumbnailWidget.load(entity['id'])
 
     def post_build(self):
         self.entityBrowseButton.clicked.connect(
             self._onEntityBrowseButtonClicked
         )
         self.entityChanged.connect(self.entityPath.setEntity)
+        self.entityChanged.connect(self.set_thumbnmail)
         self.entityBrowser.selectionChanged.connect(
             self._onEntityBrowserSelectionChanged
         )
@@ -97,3 +108,13 @@ class ContextSelector(QtWidgets.QWidget):
         self.entityBrowser.acceptButton.setDisabled(True)
         if len(selection) == 1:
             self.entityBrowser.acceptButton.setDisabled(False)
+
+
+if __name__ == '__main__':
+    import sys
+    import ftrack_api
+    session = ftrack_api.Session()
+    app = QtWidgets.QApplication(sys.argv)
+    c = ContextSelector(session)
+    c.show()
+    sys.exit(app.exec_())

@@ -36,7 +36,7 @@ class Base(QtWidgets.QLabel):
         self.setAlignment(QtCore.Qt.AlignCenter)
 
         self.placholderThumbnail = (
-                self.session._server_url + '/img/thumbnail2.png'
+            self.session.server_url + '/img/thumbnail2.png'
         )
 
     def load(self, reference):
@@ -155,6 +155,38 @@ class EllipseBase(Base):
                 self.width(), self.height()
             )
         )
+
+
+class Task(Base):
+
+    # def pre_build(self):
+    #     super(Task, self).pre_build()
+
+    def _download(self, reference):
+        '''Return thumbnail from *reference*.'''
+        thumbnail = self.session.query(
+            'select thumbnail from Task where id is "{}"'.format(
+                reference
+            )
+        ).first()['thumbnail']
+        url = self.get_thumbnail_url(thumbnail)
+        url = url or self.placholderThumbnail
+        return super(Task, self)._download(url)
+
+    def get_thumbnail_url(self, component):
+        if not component:
+            return
+
+        params = urllib.parse.urlencode({
+            'id': component['id'],
+            'username': self.session.api_user,
+            'apiKey': self.session.api_key
+        })
+
+        result_url = '{base_url}/component/thumbnail?{params}'.format(
+            base_url=self.session._server_url, params=params
+        )
+        return result_url
 
 
 class User(EllipseBase):
