@@ -35,6 +35,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         *parent* widget'''
         QtWidgets.QWidget.__init__(self, parent=parent)
         client.Client.__init__(self, event_manager)
+
         self.is_valid_asset_name = False
         self.widget_factory = factory.WidgetFactory(
             event_manager,
@@ -79,6 +80,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
     def pre_build(self):
         '''Prepare general layout.'''
+        self.setTheme('light')
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
