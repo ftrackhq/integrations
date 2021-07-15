@@ -37,7 +37,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         *parent* widget'''
         QtWidgets.QWidget.__init__(self, parent=parent)
         client.Client.__init__(self, event_manager)
-        self.setTheme('dark')
+        self.setTheme('light')
 
         self.is_valid_asset_name = False
         self.widget_factory = factory.WidgetFactory(
@@ -82,7 +82,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
     def setTheme(self, selected_theme):
         theme.applyFont()
-        theme.applyTheme(self, selected_theme, 'cleanlooks')
+        theme.applyTheme(self, selected_theme, 'plastique')
 
     def pre_build(self):
         '''Prepare general layout.'''
