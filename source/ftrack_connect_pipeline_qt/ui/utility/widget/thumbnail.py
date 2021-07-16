@@ -157,21 +157,14 @@ class EllipseBase(Base):
         )
 
 
-class Task(Base):
-
-    # def pre_build(self):
-    #     super(Task, self).pre_build()
+class Context(Base):
 
     def _download(self, reference):
         '''Return thumbnail from *reference*.'''
-        thumbnail = self.session.query(
-            'select thumbnail from Task where id is "{}"'.format(
-                reference
-            )
-        ).first()['thumbnail']
+        thumbnail = self.session.get('Context', reference)['thumbnail']
         url = self.get_thumbnail_url(thumbnail)
         url = url or self.placholderThumbnail
-        return super(Task, self)._download(url)
+        return super(Context, self)._download(url)
 
     def get_thumbnail_url(self, component):
         if not component:
@@ -187,6 +180,17 @@ class Task(Base):
             base_url=self.session._server_url, params=params
         )
         return result_url
+
+
+class AssetVersion(Context):
+    def _download(self, reference):
+        '''Return thumbnail from *reference*.'''
+        thumbnail = self.session.query(
+            'select thumbnail from AssetVersion where id is "{}"'.format(reference)
+        )['thumbnail']
+        url = self.get_thumbnail_url(thumbnail)
+        url = url or self.placholderThumbnail
+        return super(Context, self)._download(url)
 
 
 class User(EllipseBase):

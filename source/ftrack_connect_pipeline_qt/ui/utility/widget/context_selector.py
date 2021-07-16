@@ -6,7 +6,7 @@ from Qt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline_qt.ui.utility.widget.entity_path import EntityPath
 import ftrack_connect_pipeline_qt.ui.utility.widget.entity_browser as entityBrowser
-from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import Task
+from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import Context
 
 
 class ContextSelector(QtWidgets.QWidget):
@@ -37,7 +37,7 @@ class ContextSelector(QtWidgets.QWidget):
         self.setLayout(layout)
 
     def build(self):
-        self.thumbnailWidget = Task(self.session)
+        self.thumbnailWidget = Context(self.session)
         self.thumbnailWidget.setMinimumWidth(150)
 
 
