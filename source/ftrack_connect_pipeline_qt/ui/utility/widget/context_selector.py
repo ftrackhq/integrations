@@ -40,9 +40,12 @@ class ContextSelector(QtWidgets.QWidget):
         self.thumbnailWidget = Task(self.session)
         self.thumbnailWidget.setMinimumWidth(150)
 
+
         self.entityBrowser = entityBrowser.EntityBrowser(self.session)
         self.entityBrowser.setMinimumWidth(600)
+
         self.entityPath = EntityPath()
+        self.entityPath.setMaximumHeight(100)
 
         self.entityBrowseButton = QtWidgets.QPushButton('Change')
 

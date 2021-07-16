@@ -1,19 +1,34 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
-
+import os
 from Qt import QtWidgets, QtCore
 
 
-class EntityPath(QtWidgets.QTextEdit):
+class EntityPath(QtWidgets.QWidget):
     '''Entity path widget.'''
     path_ready = QtCore.Signal(object)
 
     def __init__(self, *args, **kwargs):
         '''Instantiate the entity path widget.'''
         super(EntityPath, self).__init__(*args, **kwargs)
-        self.setReadOnly(True)
-
+        self.setLayout(QtWidgets.QVBoxLayout())
+        # self.setReadOnly(True)
+        self.build()
         self.post_build()
+
+    def build(self):
+        self.type_field = QtWidgets.QLabel()
+        # self.type_field.setName('context_type')
+
+        self.name_field = QtWidgets.QLabel()
+        # self.name_field.setName('context_name')
+
+        self.path_field = QtWidgets.QLabel()
+        # self.name_field.setName('context_path')
+
+        self.layout().addWidget(self.type_field)
+        self.layout().addWidget(self.name_field)
+        self.layout().addWidget(self.path_field)
 
     def post_build(self):
         self.path_ready.connect(self.on_path_ready)
@@ -34,25 +49,10 @@ class EntityPath(QtWidgets.QTextEdit):
 
         self.path_ready.emit(parents)
 
-    def _set_html(self, data):
-        table = """
-            <table width="100%">
-            <tr><th colspan="2">Info</th></tr>
-            {}
-            </table>
-        """
-        lines = []
-        for datum in data:
-
-            line = "<tr><td>{0}</td><td>{1}</td ></tr>".format(datum.entity_type, datum['name'])
-            lines.append(line)
-
-        result = table.format(''.join(lines))
-        print(result)
-        return result
-
     def on_path_ready(self, parents):
         '''Set current path to *names*.'''
 
-        html = self._set_html(parents)
-        self.setHtml(html)
+        self.type_field.setText(parents[-1]['type']['name'])
+        self.name_field.setText(parents[-1]['name'])
+        self.path_field.setText(os.sep.join([p['name'] for p in parents[:-1]]))
+
