@@ -8,7 +8,7 @@ from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import ContextSelector
 from ftrack_connect_pipeline_qt.ui.utility.widget.asset_selector import AssetSelector
 from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import VersionSelector
-
+from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import AssetVersion as AssetVersionThumbnail
 
 class PublishContextWidget(BaseOptionsWidget):
     '''Main class to represent a context widget on a publish process'''
@@ -153,11 +153,25 @@ class LoadContextWidget(BaseOptionsWidget):
 
         self.asset_selector.set_context(self.context_entity, self.asset_type_entity)
 
+    def pre_build(self):
+        super(LoadContextWidget, self).pre_build()
+        layout = QtWidgets.QHBoxLayout()
+        self.setLayout(layout)
+
     def build(self):
         '''build function widgets.'''
         super(LoadContextWidget, self).build()
         if self.context_entity:
             self.set_option_result(self.context_entity['id'], key='context_id')
+
+        self.thumbnail_widget = AssetVersionThumbnail(self.session)
+        self.thumbnail_widget.setMinimumWidth(150)
+        self.thumbnail_widget.setMinimumHeight(150)
+        self.layout().addWidget(self.thumbnail_widget)
+
+        self.selector_layout = QtWidgets.QVBoxLayout()
+        self.layout().addLayout(self.selector_layout)
+
         self._build_asset_selector()
         self._build_version_selector()
 
@@ -183,16 +197,15 @@ class LoadContextWidget(BaseOptionsWidget):
         self.set_option_result(version_num, key='version_number')
         self.set_option_result(version_id, key='version_id')
         self.asset_version_changed.emit(version_id)
+        print('Thumb for {}'.format(version_id))
+        self.thumbnail_widget.load(version_id)
 
     def _build_asset_selector(self):
         '''Builds the asset_selector widget'''
-        self.asset_layout = QtWidgets.QHBoxLayout()
-        self.asset_layout.setContentsMargins(0, 0, 0, 0)
-
         self.asset_selector = AssetSelector(self.session)
         self.asset_selector.asset_combobox.setEditable(False)
-        self.asset_layout.addWidget(self.asset_selector)
-        self.layout().addLayout(self.asset_layout)
+        self.selector_layout.addWidget(self.asset_selector)
+
         asset_name = self.asset_selector.asset_combobox.currentText()
         current_idx = self.asset_selector.asset_combobox.currentIndex()
         asset_id = self.asset_selector.asset_combobox.itemData(current_idx)
@@ -203,12 +216,8 @@ class LoadContextWidget(BaseOptionsWidget):
 
     def _build_version_selector(self):
         '''Builds the asset_selector widget'''
-        self.version_layout = QtWidgets.QHBoxLayout()
-        self.version_layout.setContentsMargins(0, 0, 0, 0)
-
         self.version_selector = VersionSelector(self.session)
-        self.version_layout.addWidget(self.version_selector)
-        self.layout().addLayout(self.version_layout)
+        self.selector_layout.addWidget(self.version_selector)
 
         version_num = self.version_selector.version_combobox.currentText()
         current_idx = self.version_selector.version_combobox.currentIndex()

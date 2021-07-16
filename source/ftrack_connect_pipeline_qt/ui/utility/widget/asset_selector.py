@@ -61,8 +61,8 @@ class AssetSelector(QtWidgets.QWidget):
     def pre_build(self):
         main_layout = QtWidgets.QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
-
         self.setLayout(main_layout)
+
 
     def build(self):
         self.asset_name_label = QtWidgets.QLabel("Asset Name")

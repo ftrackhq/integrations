@@ -184,13 +184,14 @@ class Context(Base):
 
 class AssetVersion(Context):
     def _download(self, reference):
+        print('SOMETHINGNNNNN')
         '''Return thumbnail from *reference*.'''
         thumbnail = self.session.query(
-            'select thumbnail from AssetVersion where id is "{}"'.format(reference)
+            'AssetVersion where id is "{}"'.format(reference)
         )['thumbnail']
         url = self.get_thumbnail_url(thumbnail)
         url = url or self.placholderThumbnail
-        return super(Context, self)._download(url)
+        return super(AssetVersion, self)._download(url)
 
 
 class User(EllipseBase):

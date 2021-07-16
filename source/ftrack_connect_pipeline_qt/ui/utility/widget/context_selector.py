@@ -40,7 +40,6 @@ class ContextSelector(QtWidgets.QWidget):
         self.thumbnailWidget = Context(self.session)
         self.thumbnailWidget.setMinimumWidth(150)
 
-
         self.entityBrowser = entityBrowser.EntityBrowser(self.session)
         self.entityBrowser.setMinimumWidth(600)
 
