@@ -8,6 +8,7 @@ from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.asset_selector import AssetSelector
 from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import VersionSelector
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import AssetVersion as AssetVersionThumbnail
+from ftrack_connect_pipeline_qt.ui.utility.widget.entity_info import VersionInfo
 
 
 class PublishContextWidget(BaseOptionsWidget):
@@ -164,13 +165,13 @@ class LoadContextWidget(BaseOptionsWidget):
             self.set_option_result(self.context_entity['id'], key='context_id')
 
         self.selector_layout = QtWidgets.QVBoxLayout()
-        self.main_layout.addLayout(self.selector_layout)
 
         self._build_thumbnail()
         self._build_info_widget()
 
         self._build_asset_selector()
         self._build_version_selector()
+        self.main_layout.addLayout(self.selector_layout)
 
     def post_build(self):
         '''hook events'''
@@ -198,17 +199,11 @@ class LoadContextWidget(BaseOptionsWidget):
         self.set_option_result(version_id, key='version_id')
         self.asset_version_changed.emit(version_id)
         self.thumbnail_widget.load(version_id)
+        self.info_version.setEntity(version_id)
 
     def _build_info_widget(self):
-        self.info_layout = QtWidgets.QVBoxLayout()
-
-        self.user_field = QtWidgets.QLabel('Something')
-        self.date_field = QtWidgets.QLabel('Somethingelse')
-
-        self.info_layout.addWidget(self.user_field)
-        self.info_layout.addWidget(self.date_field)
-
-        self.main_layout.addLayout(self.info_layout)
+        self.info_version = VersionInfo(session=self.session)
+        self.main_layout.addWidget(self.info_version)
 
     def _build_thumbnail(self):
         self.thumbnail_widget = AssetVersionThumbnail(self.session)
@@ -217,7 +212,7 @@ class LoadContextWidget(BaseOptionsWidget):
         self.thumbnail_widget.setMaximumWidth(150)
         self.thumbnail_widget.setMaximumHeight(150)
 
-        self.selector_layout.addWidget(self.thumbnail_widget)
+        self.main_layout.addWidget(self.thumbnail_widget)
 
     def _build_asset_selector(self):
         '''Builds the asset_selector widget'''

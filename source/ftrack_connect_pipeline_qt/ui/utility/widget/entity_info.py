@@ -53,21 +53,21 @@ class EntityInfo(QtWidgets.QWidget):
 
 class VersionInfo(QtWidgets.QWidget):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, session=None, parent=None):
         '''Instantiate the entity path widget.'''
-        super(EntityInfo, self).__init__(*args, **kwargs)
+        super(VersionInfo, self).__init__(parent=parent)
+        self.session=session
         self.setLayout(QtWidgets.QVBoxLayout())
         self.build()
-        self.post_build()
 
     def build(self):
-        self.type_field = QtWidgets.QLabel()
-        self.name_field = QtWidgets.QLabel()
-        self.path_field = QtWidgets.QLabel()
+        self.date_field = QtWidgets.QLabel()
+        self.user_field = QtWidgets.QLabel()
 
-        self.layout().addWidget(self.type_field)
-        self.layout().addWidget(self.name_field)
-        self.layout().addWidget(self.path_field)
+        self.layout().addWidget(self.date_field)
+        self.layout().addWidget(self.user_field)
 
-    def setEntity(self, version):
-        self.type_field.setText(version['date'])
+    def setEntity(self, version_id):
+        version = self.session.get('AssetVersion', version_id)
+        self.date_field.setText(str(version['date']))
+        self.date_field.setText(str(version['user'].get('username', 'No User Set')))
