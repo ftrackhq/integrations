@@ -37,8 +37,11 @@ class ContextSelector(QtWidgets.QWidget):
         self.setLayout(layout)
 
     def build(self):
-        self.thumbnailWidget = Context(self.session)
-        self.thumbnailWidget.setMinimumWidth(150)
+        self.thumbnail_widget = Context(self.session)
+        self.thumbnail_widget.setMinimumWidth(50)
+        self.thumbnail_widget.setMinimumHeight(50)
+        self.thumbnail_widget.setMaximumWidth(150)
+        self.thumbnail_widget.setMaximumHeight(150)
 
         self.entityBrowser = entityBrowser.EntityBrowser(self.session)
         self.entityBrowser.setMinimumWidth(600)
@@ -48,12 +51,12 @@ class ContextSelector(QtWidgets.QWidget):
 
         self.entityBrowseButton = QtWidgets.QPushButton('Change')
 
-        self.layout().addWidget(self.thumbnailWidget)
+        self.layout().addWidget(self.thumbnail_widget)
         self.layout().addWidget(self.entityPath)
         self.layout().addWidget(self.entityBrowseButton)
 
     def set_thumbnmail(self, entity):
-        self.thumbnailWidget.load(entity['id'])
+        self.thumbnail_widget.load(entity['id'])
 
     def post_build(self):
         self.entityBrowseButton.clicked.connect(
@@ -110,13 +113,3 @@ class ContextSelector(QtWidgets.QWidget):
         self.entityBrowser.acceptButton.setDisabled(True)
         if len(selection) == 1:
             self.entityBrowser.acceptButton.setDisabled(False)
-
-
-if __name__ == '__main__':
-    import sys
-    import ftrack_api
-    session = ftrack_api.Session()
-    app = QtWidgets.QApplication(sys.argv)
-    c = ContextSelector(session)
-    c.show()
-    sys.exit(app.exec_())

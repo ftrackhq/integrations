@@ -5,18 +5,17 @@ import os
 from Qt import QtWidgets, QtCore, QtGui
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 
-from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import ContextSelector
 from ftrack_connect_pipeline_qt.ui.utility.widget.asset_selector import AssetSelector
 from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import VersionSelector
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import AssetVersion as AssetVersionThumbnail
 
+
 class PublishContextWidget(BaseOptionsWidget):
     '''Main class to represent a context widget on a publish process'''
 
-
     def __init__(
-            self, parent=None, session=None, data=None, name=None,
-            description=None, options=None, context_id=None, asset_type_name=None
+        self, parent=None, session=None, data=None, name=None,
+        description=None, options=None, context_id=None, asset_type_name=None
     ):
         '''initialise PublishContextWidget with *parent*, *session*, *data*,
         *name*, *description*, *options* and *context*
@@ -136,10 +135,9 @@ class PublishContextWidget(BaseOptionsWidget):
 class LoadContextWidget(BaseOptionsWidget):
     '''Main class to represent a context widget on a publish process'''
 
-
     def __init__(
-            self, parent=None, session=None, data=None, name=None,
-            description=None, options=None, context_id=None, asset_type_name=None
+        self, parent=None, session=None, data=None, name=None,
+        description=None, options=None, context_id=None, asset_type_name=None
     ):
         '''initialise PublishContextWidget with *parent*, *session*, *data*,
         *name*, *description*, *options*
@@ -155,22 +153,26 @@ class LoadContextWidget(BaseOptionsWidget):
 
     def pre_build(self):
         super(LoadContextWidget, self).pre_build()
-        layout = QtWidgets.QHBoxLayout()
-        self.setLayout(layout)
+        self.main_layout = QtWidgets.QHBoxLayout()
+        self.layout().addLayout(self.main_layout)
 
     def build(self):
         '''build function widgets.'''
         super(LoadContextWidget, self).build()
+        print(self.layout())
         if self.context_entity:
             self.set_option_result(self.context_entity['id'], key='context_id')
 
         self.thumbnail_widget = AssetVersionThumbnail(self.session)
-        self.thumbnail_widget.setMinimumWidth(150)
-        self.thumbnail_widget.setMinimumHeight(150)
-        self.layout().addWidget(self.thumbnail_widget)
+        self.thumbnail_widget.setMinimumWidth(50)
+        self.thumbnail_widget.setMinimumHeight(50)
+        self.thumbnail_widget.setMaximumWidth(150)
+        self.thumbnail_widget.setMaximumHeight(150)
+
+        self.main_layout.addWidget(self.thumbnail_widget)
 
         self.selector_layout = QtWidgets.QVBoxLayout()
-        self.layout().addLayout(self.selector_layout)
+        self.main_layout.addLayout(self.selector_layout)
 
         self._build_asset_selector()
         self._build_version_selector()
@@ -197,7 +199,7 @@ class LoadContextWidget(BaseOptionsWidget):
         self.set_option_result(version_num, key='version_number')
         self.set_option_result(version_id, key='version_id')
         self.asset_version_changed.emit(version_id)
-        print('Thumb for {}'.format(version_id))
+        print('Thumb for {}--> {}'.format(version_id, version_num))
         self.thumbnail_widget.load(version_id)
 
     def _build_asset_selector(self):
@@ -225,3 +227,4 @@ class LoadContextWidget(BaseOptionsWidget):
         self.set_option_result(version_num, key='version_number')
         self.set_option_result(version_id, key='version_id')
         self.asset_version_changed.emit(version_id)
+
