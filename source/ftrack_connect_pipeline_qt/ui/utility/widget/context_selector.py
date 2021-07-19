@@ -4,7 +4,7 @@
 
 from Qt import QtWidgets, QtCore
 
-from ftrack_connect_pipeline_qt.ui.utility.widget.entity_path import EntityPath
+from ftrack_connect_pipeline_qt.ui.utility.widget.entity_info import EntityInfo
 import ftrack_connect_pipeline_qt.ui.utility.widget.entity_browser as entityBrowser
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import Context
 
@@ -43,16 +43,17 @@ class ContextSelector(QtWidgets.QWidget):
         self.thumbnail_widget.setMaximumWidth(150)
         self.thumbnail_widget.setMaximumHeight(150)
 
+
         self.entityBrowser = entityBrowser.EntityBrowser(self.session)
         self.entityBrowser.setMinimumWidth(600)
 
-        self.entityPath = EntityPath()
-        self.entityPath.setMaximumHeight(100)
+        self.entity_info = EntityInfo()
+        self.entity_info.setMaximumHeight(100)
 
         self.entityBrowseButton = QtWidgets.QPushButton('Change')
 
         self.layout().addWidget(self.thumbnail_widget)
-        self.layout().addWidget(self.entityPath)
+        self.layout().addWidget(self.entity_info)
         self.layout().addWidget(self.entityBrowseButton)
 
     def set_thumbnmail(self, entity):
@@ -62,7 +63,7 @@ class ContextSelector(QtWidgets.QWidget):
         self.entityBrowseButton.clicked.connect(
             self._onEntityBrowseButtonClicked
         )
-        self.entityChanged.connect(self.entityPath.setEntity)
+        self.entityChanged.connect(self.entity_info.setEntity)
         self.entityChanged.connect(self.set_thumbnmail)
         self.entityBrowser.selectionChanged.connect(
             self._onEntityBrowserSelectionChanged
@@ -71,7 +72,7 @@ class ContextSelector(QtWidgets.QWidget):
     def reset(self, entity=None):
         '''reset browser to the given *entity* or the default one'''
         currentEntity = entity or self._entity
-        self.entityPath.setEntity(currentEntity)
+        self.entity_info.setEntity(currentEntity)
         self.setEntity(currentEntity)
 
     def setEntity(self, entity):

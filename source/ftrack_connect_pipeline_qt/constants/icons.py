@@ -3,9 +3,11 @@
 
 import Qt
 from Qt import QtWidgets, QtCore, QtGui
+
 from ftrack_connect_pipeline.constants.status import (
     UNKNOWN_STATUS, DEFAULT_STATUS, ERROR_STATUS, WARNING_STATUS, EXCEPTION_STATUS, RUNNING_STATUS, SUCCESS_STATUS
 )
+
 
 #: UNKNOWN
 _unknown_icon = QtWidgets.QApplication.style().standardIcon(

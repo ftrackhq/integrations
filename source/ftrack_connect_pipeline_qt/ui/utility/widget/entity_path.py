@@ -1,34 +1,19 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
-import os
+
 from Qt import QtWidgets, QtCore
 
 
-class EntityPath(QtWidgets.QWidget):
+class EntityPath(QtWidgets.QLineEdit):
     '''Entity path widget.'''
     path_ready = QtCore.Signal(object)
 
     def __init__(self, *args, **kwargs):
         '''Instantiate the entity path widget.'''
         super(EntityPath, self).__init__(*args, **kwargs)
-        self.setLayout(QtWidgets.QVBoxLayout())
-        # self.setReadOnly(True)
-        self.build()
+        self.setReadOnly(True)
+
         self.post_build()
-
-    def build(self):
-        self.type_field = QtWidgets.QLabel()
-        # self.type_field.setName('context_type')
-
-        self.name_field = QtWidgets.QLabel()
-        # self.name_field.setName('context_name')
-
-        self.path_field = QtWidgets.QLabel()
-        # self.name_field.setName('context_path')
-
-        self.layout().addWidget(self.type_field)
-        self.layout().addWidget(self.name_field)
-        self.layout().addWidget(self.path_field)
 
     def post_build(self):
         self.path_ready.connect(self.on_path_ready)
@@ -39,20 +24,17 @@ class EntityPath(QtWidgets.QWidget):
             return
 
         parent = entity['parent']
-        parents = [entity]
+        parents = [entity['name']]
 
         while parent is not None:
-            parents.append(parent)
+            parents.append(parent['name'])
             parent = parent['parent']
 
         parents.reverse()
 
-        self.path_ready.emit(parents)
+        full_path = ' / '.join(parents)
+        self.path_ready.emit(full_path)
 
-    def on_path_ready(self, parents):
+    def on_path_ready(self, full_path):
         '''Set current path to *names*.'''
-
-        self.type_field.setText(parents[-1]['type']['name'])
-        self.name_field.setText(parents[-1]['name'])
-        self.path_field.setText(os.sep.join([p['name'] for p in parents[:-1]]))
-
+        self.setText(full_path)

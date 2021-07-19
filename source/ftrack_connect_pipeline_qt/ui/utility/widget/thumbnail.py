@@ -7,7 +7,6 @@ import urllib.request, urllib.parse, urllib.error
 import urllib.request, urllib.error, urllib.parse
 
 from Qt import QtCore, QtGui, QtWidgets
-
 from ftrack_connect_pipeline_qt.utils import Worker
 
 # Cache of thumbnail images.
@@ -185,8 +184,7 @@ class Context(Base):
 class AssetVersion(Base):
     def _download(self, reference):
         '''Return thumbnail from *reference*.'''
-        thumbnail = self.session.get('AssetVersion', reference)['thumbnail']
-        url = self.get_thumbnail_url(thumbnail)
+        url = self.session.get('AssetVersion', reference)['thumbnail_url']['url']
         url = url or self.placholderThumbnail
         return super(AssetVersion, self)._download(url)
 
