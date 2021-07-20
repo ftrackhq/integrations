@@ -79,7 +79,7 @@ class StepArray(BaseJsonWidget):
                     out.append(data)
         return out
 
-class StepArray_context(BaseJsonWidget):
+class StepArrayContext(BaseJsonWidget):
     '''
     Override widget representation of an array
     '''
@@ -90,7 +90,7 @@ class StepArray_context(BaseJsonWidget):
     ):
         '''Initialise StepArray with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
-        super(StepArray_context, self).__init__(
+        super(StepArrayContext, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
             widget_factory, parent=parent
         )

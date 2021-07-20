@@ -74,7 +74,7 @@ class WidgetFactory(QtWidgets.QWidget):
         }
         self.schema_name_mapping = {
             'components': step.StepArray,
-            'contexts': step.StepArray_context,
+            'contexts': step.StepArrayContext,
             'finalizers': step.StepArray,
             '_config': hidden.HiddenObject,
             'ui_type': hidden.HiddenString,
