@@ -4,9 +4,7 @@
 from ftrack_connect_pipeline_qt.client.widgets.schema import (
     JsonObject, JsonString, JsonBoolean, JsonArray
 )
-from ftrack_connect_pipeline_qt.client.widgets.schema.overrides.step import (
-    StepArray
-)
+
 from Qt import QtCore, QtWidgets
 
 
