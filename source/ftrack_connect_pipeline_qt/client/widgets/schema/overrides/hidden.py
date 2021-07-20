@@ -101,21 +101,3 @@ class HiddenArray(JsonArray):
             widget_factory, parent=parent
         )
         self.setVisible(False)
-
-class StepArrayHidden(StepArray):
-    '''
-    Override widget representation of an array
-    '''
-
-
-    def __init__(
-            self, name, schema_fragment, fragment_data,
-            previous_object_data, widget_factory, parent=None
-    ):
-        '''Initialise StepArray with *name*, *schema_fragment*,
-        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
-        super(StepArray, self).__init__(
-            name, schema_fragment, fragment_data, previous_object_data,
-            widget_factory, parent=parent
-        )
-        self.setVisible(False)
