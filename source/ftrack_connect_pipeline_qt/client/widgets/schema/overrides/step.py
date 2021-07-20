@@ -78,3 +78,44 @@ class StepArray(BaseJsonWidget):
                     data['enabled'] = accordion_widget.is_checked()
                     out.append(data)
         return out
+
+class StepArray_context(BaseJsonWidget):
+    '''
+    Override widget representation of an array
+    '''
+
+    def __init__(
+            self, name, schema_fragment, fragment_data,
+            previous_object_data, widget_factory, parent=None
+    ):
+        '''Initialise StepArray with *name*, *schema_fragment*,
+        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
+        super(StepArray_context, self).__init__(
+            name, schema_fragment, fragment_data, previous_object_data,
+            widget_factory, parent=parent
+        )
+
+    def build(self):
+        if 'items' in self.schema_fragment and self.fragment_data:
+            for data in self.fragment_data:
+                if type(data) == dict:
+                    name = data.get('name')
+                    self._type = data.get('type')
+                else:
+                    name = data
+                widget = self.widget_factory.create_widget(
+                    name, self.schema_fragment['items'], data,
+                    self.previous_object_data
+                )
+                widget.layout().setContentsMargins(0, 0, 0, 0)
+                widget.layout().setSpacing(0)
+                self.layout().addWidget(widget)
+        self.layout().setContentsMargins(0, 0, 0, 0)
+
+    def to_json_object(self):
+        out = []
+        for i in range(0, self.layout().count()):
+            widget = self.layout().itemAt(i).widget()
+            if 'to_json_object' in dir(widget):
+                out.append(widget.to_json_object())
+        return out

@@ -155,7 +155,6 @@ class LoadContextWidget(BaseOptionsWidget):
 
     def build(self):
         '''build function widgets.'''
-        super(LoadContextWidget, self).build()
         if self.context_entity:
             self.set_option_result(self.context_entity['id'], key='context_id')
         self._build_asset_selector()

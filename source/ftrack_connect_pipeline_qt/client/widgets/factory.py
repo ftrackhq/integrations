@@ -74,7 +74,7 @@ class WidgetFactory(QtWidgets.QWidget):
         }
         self.schema_name_mapping = {
             'components': step.StepArray,
-            'contexts': step.StepArray,
+            'contexts': step.StepArray_context,
             'finalizers': step.StepArray,
             '_config': hidden.HiddenObject,
             'ui_type': hidden.HiddenString,
@@ -86,7 +86,7 @@ class WidgetFactory(QtWidgets.QWidget):
             'engine_type': hidden.HiddenString,
             'host_type': hidden.HiddenString,
             'optional': hidden.HiddenBoolean,
-            'discoverable': hidden.HiddenArray,
+            'discoverable': hidden.HiddenArray
         }
 
         self.schema_title_mapping = {

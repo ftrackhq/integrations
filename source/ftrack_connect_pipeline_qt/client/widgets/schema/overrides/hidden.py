@@ -1,7 +1,12 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-from ftrack_connect_pipeline_qt.client.widgets.schema import (JsonObject, JsonString, JsonBoolean, JsonArray)
+from ftrack_connect_pipeline_qt.client.widgets.schema import (
+    JsonObject, JsonString, JsonBoolean, JsonArray
+)
+from ftrack_connect_pipeline_qt.client.widgets.schema.overrides.step import (
+    StepArray
+)
 from Qt import QtCore, QtWidgets
 
 
@@ -92,6 +97,24 @@ class HiddenArray(JsonArray):
         '''Initialise HiddenArray with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
         super(HiddenArray, self).__init__(
+            name, schema_fragment, fragment_data, previous_object_data,
+            widget_factory, parent=parent
+        )
+        self.setVisible(False)
+
+class StepArrayHidden(StepArray):
+    '''
+    Override widget representation of an array
+    '''
+
+
+    def __init__(
+            self, name, schema_fragment, fragment_data,
+            previous_object_data, widget_factory, parent=None
+    ):
+        '''Initialise StepArray with *name*, *schema_fragment*,
+        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
+        super(StepArray, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
             widget_factory, parent=parent
         )
