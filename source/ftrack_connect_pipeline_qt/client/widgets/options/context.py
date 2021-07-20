@@ -162,10 +162,10 @@ class LoadContextWidget(BaseOptionsWidget):
         self._build_info_widget()
 
         self.selector_layout = QtWidgets.QVBoxLayout()
-        self.main_layout.addLayout(self.selector_layout, QtCore.Qt.AlignRight | QtCore.Qt.AlignTop)
-
+        # self.main_layout.addLayout(self.selector_layout, QtCore.Qt.AlignRight | QtCore.Qt.AlignTop)
         self._build_asset_selector()
         self._build_version_selector()
+        self.main_layout.addLayout(self.selector_layout)
 
     def post_build(self):
         '''hook events'''
