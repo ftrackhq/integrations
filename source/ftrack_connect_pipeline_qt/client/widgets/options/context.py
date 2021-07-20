@@ -155,19 +155,17 @@ class LoadContextWidget(BaseOptionsWidget):
 
     def build(self):
         '''build function widgets.'''
-        super(LoadContextWidget, self).build()
-        print(self.layout())
         if self.context_entity:
             self.set_option_result(self.context_entity['id'], key='context_id')
-
-        self.selector_layout = QtWidgets.QVBoxLayout()
 
         self._build_thumbnail()
         self._build_info_widget()
 
+        self.selector_layout = QtWidgets.QVBoxLayout()
+        self.main_layout.addLayout(self.selector_layout, QtCore.Qt.AlignRight | QtCore.Qt.AlignTop)
+
         self._build_asset_selector()
         self._build_version_selector()
-        self.main_layout.addLayout(self.selector_layout)
 
     def post_build(self):
         '''hook events'''

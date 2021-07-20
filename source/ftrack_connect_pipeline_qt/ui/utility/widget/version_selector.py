@@ -43,7 +43,7 @@ class VersionSelector(QtWidgets.QWidget):
         self.post_build()
 
     def pre_build(self):
-        main_layout = QtWidgets.QVBoxLayout()
+        main_layout = QtWidgets.QHBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
 
         self.setLayout(main_layout)
