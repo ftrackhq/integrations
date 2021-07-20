@@ -131,8 +131,11 @@ class QtClient(client.Client, QtWidgets.QWidget):
         entityChanged of context_selector event is triggered'''
         self.context_entity = context_entity
         self.change_context(context_entity['id'])
-        if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
-            self.host_selector.change_host_index(1)
+        if len(self.host_selector.host_connections) > 0:
+            if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
+                self.host_selector.change_host_index(1)
+        else:
+            self.host_selector.change_host_index(0)
 
     def change_context(self, context_id):
         '''
