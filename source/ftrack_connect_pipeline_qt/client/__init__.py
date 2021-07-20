@@ -119,6 +119,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.widget_factory.widget_run_plugin.connect(
             self._on_run_plugin
         )
+        self.host_selector.host_combobox.hide()
 
         # # apply styles
         # theme.applyTheme(self, 'dark')
@@ -129,7 +130,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         entityChanged of context_selector event is triggered'''
         self.context_entity = context_entity
         self.change_context(context_entity['id'])
-        self.host_selector.change_host_index(0)
+        self.host_selector.change_host_index(1)
 
     def change_context(self, context_id):
         '''
