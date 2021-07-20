@@ -59,7 +59,7 @@ class DefinitionSelector(QtWidgets.QWidget):
         self.host_changed.emit(self.host_connection)
 
         if not self.host_connection:
-            self.logger.warning('No data for selected host')
+            self.logger.debug('No data for selected host')
             return
 
         self.schemas = [
@@ -92,7 +92,7 @@ class DefinitionSelector(QtWidgets.QWidget):
         self.definition = self.definition_combobox.itemData(index)
 
         if not self.definition:
-            self.logger.warning('No data for selected definition')
+            self.logger.debug('No data for selected definition')
             self.definition_changed.emit(None, None)
             return
 
