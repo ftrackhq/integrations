@@ -23,6 +23,7 @@ class EntityInfo(QtWidgets.QWidget):
         self.layout().addWidget(self.type_field)
         self.layout().addWidget(self.name_field)
         self.layout().addWidget(self.path_field)
+        self.layout().addStretch()
 
     def post_build(self):
         self.path_ready.connect(self.on_path_ready)
@@ -59,15 +60,20 @@ class VersionInfo(QtWidgets.QWidget):
         self.session=session
         self.setLayout(QtWidgets.QVBoxLayout())
         self.build()
+        self.layout().addStretch()
 
     def build(self):
         self.date_field = QtWidgets.QLabel()
         self.user_field = QtWidgets.QLabel()
+        self.description_field = QtWidgets.QLabel()
 
         self.layout().addWidget(self.date_field)
         self.layout().addWidget(self.user_field)
+        self.layout().addWidget(self.description_field)
 
     def setEntity(self, version_id):
         version = self.session.get('AssetVersion', version_id)
-        self.date_field.setText(str(version['date']))
-        self.date_field.setText(str(version['user'].get('username', 'No User Set')))
+        self.date_field.setText('Date : {}'.format(str(version['date'].humanize())))
+        self.user_field.setText('User : {}'.format(str(version['user'].get('username', 'No User set'))))
+        self.description_field.setText('Comment : {}'.format(str(version.get('comment') or 'No Comment set')))
+
