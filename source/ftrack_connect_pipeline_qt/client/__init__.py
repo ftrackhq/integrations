@@ -44,12 +44,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.pre_build()
         self.build()
         self.post_build()
-        if self.context_id:
-            context_entity = self.session.query(
-                'select link, name , parent, parent.name from Context where id is "{}"'.format(self.context_id)
-            ).one()
-            self.context_selector.setEntity(context_entity)
-        self.add_hosts(self.discover_hosts())
+
 
     def add_hosts(self, host_connections):
         '''
@@ -76,10 +71,10 @@ class QtClient(client.Client, QtWidgets.QWidget):
             self.host_selector.set_definition_filter(self.definition_filter)
         self.host_selector.add_hosts(self.host_connections)
 
-
     def pre_build(self):
         '''Prepare general layout.'''
         layout = QtWidgets.QVBoxLayout()
+        layout.setAlignment(QtCore.Qt.AlignTop)
         self.setLayout(layout)
 
     def build(self):
@@ -89,7 +84,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
         self.context_selector = ContextSelector(self.session)
 
-        self.layout().addWidget(self.context_selector)
+        self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
 
         self.host_selector = definition_selector.DefinitionSelector()
         self.layout().addWidget(self.host_selector)
@@ -122,9 +117,13 @@ class QtClient(client.Client, QtWidgets.QWidget):
         if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
             self.host_selector.host_combobox.hide()
 
-        # # apply styles
-        # theme.applyTheme(self, 'dark')
-        # theme.applyFont()
+        if self.context_id:
+            context_entity = self.session.query(
+                'select link, name , parent, parent.name from Context where id is "{}"'.format(self.context_id)
+            ).one()
+            self.context_selector.setEntity(context_entity)
+
+        self.add_hosts(self.discover_hosts())
 
     def _on_context_selector_context_changed(self, context_entity):
         '''Updates the option dicctionary with provided *context* when

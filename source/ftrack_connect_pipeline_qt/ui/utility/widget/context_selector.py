@@ -43,7 +43,6 @@ class ContextSelector(QtWidgets.QWidget):
         self.thumbnail_widget.setMaximumWidth(150)
         self.thumbnail_widget.setMaximumHeight(150)
 
-
         self.entityBrowser = entityBrowser.EntityBrowser(self.session)
         self.entityBrowser.setMinimumWidth(600)
 
@@ -68,6 +67,7 @@ class ContextSelector(QtWidgets.QWidget):
         self.entityBrowser.selectionChanged.connect(
             self._onEntityBrowserSelectionChanged
         )
+        self.setMaximumHeight(150)
 
     def reset(self, entity=None):
         '''reset browser to the given *entity* or the default one'''

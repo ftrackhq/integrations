@@ -36,7 +36,7 @@ pub_client_connection = publish.QtPublisherClient(event_manager)
 
 # Set the context
 context_entity = session.query(
-    'Task"'
+    'Task'
 ).first()
 
 pub_client_connection.context_selector.setEntity(context_entity)
