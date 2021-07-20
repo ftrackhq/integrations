@@ -92,13 +92,9 @@ class PublishContextWidget(BaseOptionsWidget):
         self.layout().addLayout(self.status_layout)
         statuses = self._get_statuses()
         for index, status in enumerate(statuses):
-            self.status_selector.addItem(status['name'], status['id'])
-            status_color = status['color']
-            self.status_selector.setItemData(
-                index,
-                QtGui.QColor(status_color),
-                QtCore.Qt.BackgroundColorRole
-            )
+            pixmap_status = QtGui.QPixmap(13, 13)
+            pixmap_status.fill(QtGui.QColor(status['color']))
+            self.status_selector.addItem(pixmap_status, status['name'], status['id'])
 
         if statuses:
             self.set_option_result(statuses[0]['id'], key='status_id')
