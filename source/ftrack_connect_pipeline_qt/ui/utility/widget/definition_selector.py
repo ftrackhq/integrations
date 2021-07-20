@@ -109,6 +109,7 @@ class DefinitionSelector(QtWidgets.QWidget):
     def add_hosts(self, host_connections):
         for host_connection in host_connections:
             self.host_combobox.addItem(host_connection.name, host_connection)
+            self.host_connections.append(host_connection)
         if len(host_connections) == 1 and host_connections[0].context_id != None:
             self.host_combobox.setCurrentIndex(1)
 
