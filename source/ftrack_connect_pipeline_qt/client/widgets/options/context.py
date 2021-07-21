@@ -80,7 +80,7 @@ class PublishContextWidget(BaseOptionsWidget):
 
     def _build_status_selector(self):
         '''Builds the status_selector widget'''
-        self.status_layout = QtWidgets.QVBoxLayout()
+        self.status_layout = QtWidgets.QHBoxLayout()
         self.status_layout.setContentsMargins(0, 0, 0, 0)
         self.status_layout.setAlignment(QtCore.Qt.AlignTop)
 
