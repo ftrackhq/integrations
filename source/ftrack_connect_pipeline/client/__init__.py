@@ -415,8 +415,8 @@ class Client(object):
             self.logger.error("please set the host connection first")
             return
 
-        self.logger.debug('schema: {}'.format(schema))
-        self.logger.debug('definition: {}'.format(definition))
+        # self.logger.debug('schema: {}'.format(schema))
+        # self.logger.debug('definition: {}'.format(definition))
 
         self._schema = schema
         self._definition = definition

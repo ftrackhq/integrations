@@ -82,11 +82,11 @@ class EventManager(object):
                 self._event_hub_thread = thread
                 break
         if not self._event_hub_thread:
-            self.logger.debug('Initializing new hub thread {}'.format(self))
+            # self.logger.debug('Initializing new hub thread {}'.format(self))
             self._event_hub_thread = _EventHubThread(self.session)
 
         if not self._event_hub_thread.isAlive():
-            self.logger.debug('Starting new hub thread for {}'.format(self))
+            # self.logger.debug('Starting new hub thread for {}'.format(self))
             self._event_hub_thread.start()
 
     def __init__(self, session, mode=constants.LOCAL_EVENT_MODE):
@@ -99,17 +99,17 @@ class EventManager(object):
         self._connect()
         self._wait()
 
-        self.logger.debug('Initialising {}'.format(self))
+        # self.logger.debug('Initialising {}'.format(self))
 
     def publish(self, event, callback=None, mode=None):
         '''Emit *event* and provide *callback* function.'''
 
         mode = mode or self.mode
-        self.logger.debug(
-            'Publishing event topic {} in {} mode'.format(
-                event.get('topic'), mode
-            )
-        )
+        # self.logger.debug(
+        #     'Publishing event topic {} in {} mode'.format(
+        #         event.get('topic'), mode
+        #     )
+        # )
         if mode is constants.LOCAL_EVENT_MODE:
 
             result = self.session.event_hub.publish(
