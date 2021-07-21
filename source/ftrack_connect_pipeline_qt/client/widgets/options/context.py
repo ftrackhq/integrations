@@ -160,12 +160,7 @@ class LoadContextWidget(BaseOptionsWidget):
 
         self._build_thumbnail()
         self._build_info_widget()
-
-        self.selector_layout = QtWidgets.QVBoxLayout()
-        # self.main_layout.addLayout(self.selector_layout, QtCore.Qt.AlignRight | QtCore.Qt.AlignTop)
-        self._build_asset_selector()
-        self._build_version_selector()
-        self.main_layout.addLayout(self.selector_layout)
+        self._build_asset_version_selector()
 
     def post_build(self):
         '''hook events'''
@@ -208,11 +203,21 @@ class LoadContextWidget(BaseOptionsWidget):
 
         self.main_layout.addWidget(self.thumbnail_widget)
 
-    def _build_asset_selector(self):
+    def _build_asset_version_selector(self):
+        widget = QtWidgets.QWidget()
+        layout = QtWidgets.QVBoxLayout()
+        widget.setLayout(layout)
+
+        self._build_asset_selector(layout)
+        self._build_version_selector(layout)
+        self.main_layout.addWidget(widget)
+        layout.addStretch()
+
+    def _build_asset_selector(self, layout):
         '''Builds the asset_selector widget'''
         self.asset_selector = AssetSelector(self.session)
         self.asset_selector.asset_combobox.setEditable(False)
-        self.selector_layout.addWidget(self.asset_selector)
+        layout.addWidget(self.asset_selector)
 
         asset_name = self.asset_selector.asset_combobox.currentText()
         current_idx = self.asset_selector.asset_combobox.currentIndex()
@@ -222,10 +227,10 @@ class LoadContextWidget(BaseOptionsWidget):
         self.set_option_result(asset_id, key='asset_id')
         self.set_option_result(is_valid, key='is_valid_name')
 
-    def _build_version_selector(self):
+    def _build_version_selector(self, layout):
         '''Builds the asset_selector widget'''
         self.version_selector = VersionSelector(self.session)
-        self.selector_layout.addWidget(self.version_selector)
+        layout.addWidget(self.version_selector)
 
         version_num = self.version_selector.version_combobox.currentText()
         current_idx = self.version_selector.version_combobox.currentIndex()
