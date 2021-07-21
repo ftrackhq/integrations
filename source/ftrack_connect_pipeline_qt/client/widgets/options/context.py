@@ -196,11 +196,7 @@ class LoadContextWidget(BaseOptionsWidget):
 
     def _build_thumbnail(self):
         self.thumbnail_widget = AssetVersionThumbnail(self.session)
-        self.thumbnail_widget.setMinimumWidth(50)
-        self.thumbnail_widget.setMinimumHeight(50)
-        self.thumbnail_widget.setMaximumWidth(150)
-        self.thumbnail_widget.setMaximumHeight(150)
-
+        self.thumbnail_widget.setFixedHeight(100)
         self.main_layout.addWidget(self.thumbnail_widget)
 
     def _build_asset_version_selector(self):
