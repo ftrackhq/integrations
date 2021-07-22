@@ -67,7 +67,7 @@ def validate_asset_types(data, session):
     # validate package asset types:
     copy_data = copy.deepcopy(data)
     valid_assets_types = [
-        type['short'] for type in session.query('AssetType').all()
+        type['short'] for type in session.query('select short from AssetType').all()
     ]
 
     for package in data['package']:
