@@ -11,8 +11,9 @@ from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.client.widgets import schema as schema_widget
-from ftrack_connect_pipeline_qt.client.widgets.schema.overrides import step,\
-    hidden, plugin_container
+from ftrack_connect_pipeline_qt.client.widgets.schema.overrides import (
+    step, hidden, plugin_container, stage
+)
 
 from Qt import QtCore, QtWidgets
 
@@ -73,9 +74,9 @@ class WidgetFactory(QtWidgets.QWidget):
             'boolean': schema_widget.JsonBoolean
         }
         self.schema_name_mapping = {
-            'components': step.StepArray,
+            'components': step.StepTabArray,
             'contexts': step.StepArrayContext,
-            'finalizers': step.StepArray,
+            'finalizers': step.StepTabArray,
             '_config': hidden.HiddenObject,
             'ui_type': hidden.HiddenString,
             'category': hidden.HiddenString,
@@ -87,6 +88,7 @@ class WidgetFactory(QtWidgets.QWidget):
             'host_type': hidden.HiddenString,
             'optional': hidden.HiddenBoolean,
             'discoverable': hidden.HiddenArray
+            # 'stages': stage.AccordionStageArray
         }
 
         self.schema_title_mapping = {
@@ -153,7 +155,15 @@ class WidgetFactory(QtWidgets.QWidget):
             )
             schema_fragment['properties'] = schema_fragment_properties
 
+
         widget_fn = self.schema_name_mapping.get(name)
+        # We can remove this if we filter them on the plugin itself
+        # (AccordionStageArray) But this is one more generic approach.
+        if (
+                name == 'stages' and previous_object_data.get('type')
+                not in ['component', 'finalizer']
+        ):
+            widget_fn = None
 
         if not widget_fn:
             widget_fn = self.schema_title_mapping.get(

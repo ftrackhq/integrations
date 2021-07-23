@@ -6,8 +6,72 @@ from Qt import QtCore, QtWidgets
 from ftrack_connect_pipeline_qt.client.widgets.schema import BaseJsonWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import AccordionWidget
 
+class StepTabArray(BaseJsonWidget):
+    '''
+    Override widget representation of an array
+    '''
 
-class StepArray(BaseJsonWidget):
+    def __init__(
+            self, name, schema_fragment, fragment_data,
+            previous_object_data, widget_factory, parent=None
+    ):
+        '''Initialise StepArray with *name*, *schema_fragment*,
+        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
+        super(StepTabArray, self).__init__(
+            name, schema_fragment, fragment_data, previous_object_data,
+            widget_factory, parent=parent
+        )
+
+    def build(self):
+        groupBox = QtWidgets.QGroupBox(self.name.capitalize())
+        layout = QtWidgets.QVBoxLayout()
+        layout.setAlignment(QtCore.Qt.AlignTop)
+        groupBox.setLayout(layout)
+        groupBox.setFlat(False)
+        groupBox.layout().setContentsMargins(0, 0, 0, 0)
+        groupBox.setToolTip(self.description)
+
+        if 'items' in self.schema_fragment and self.fragment_data:
+            self.tab_widget = QtWidgets.QTabWidget()
+            for data in self.fragment_data:
+                if type(data) == dict:
+                    name = data.get('name')
+                    self._type = data.get('type')
+                else:
+                    name = data
+                # TODO: If it's optional show an unchequed checkbox on the tab.
+                optional_component = False
+                for package in self.widget_factory.package['components']:
+                    if package['name'] == name:
+                        optional_component = data.get('optional', False)
+                        break
+
+                obj = self.widget_factory.create_widget(
+                    name, self.schema_fragment['items'], data,
+                    self.previous_object_data
+                )
+                obj.layout().setContentsMargins(0, 0, 0, 0)
+                obj.layout().setSpacing(0)
+                self.tab_widget.addTab(obj, name)
+            groupBox.layout().addWidget(self.tab_widget)
+        self.layout().setContentsMargins(0, 0, 0, 0)
+
+        self.layout().addWidget(groupBox)
+
+    def to_json_object(self):
+        out = []
+        for idx in range(0, self.tab_widget.count()):
+            widget = self.tab_widget.widget(idx)
+            if 'to_json_object' in dir(widget):
+                data = widget.to_json_object()
+                data['enabled'] = True
+                # TODO: enable and modify once the optional component is ready
+                # data['enabled'] = tab_widget.is_checked()
+                out.append(data)
+        return out
+
+
+class StepAccordionArray(BaseJsonWidget):
     '''
     Override widget representation of an array
     '''
@@ -22,7 +86,7 @@ class StepArray(BaseJsonWidget):
     ):
         '''Initialise StepArray with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
-        super(StepArray, self).__init__(
+        super(StepAccordionArray, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
             widget_factory, parent=parent
         )
