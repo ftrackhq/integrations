@@ -85,11 +85,14 @@ class PluginContainerAccordionObject(JsonObject):
                 widget = self.widget_factory.fetch_plugin_widget(
                     self.fragment_data, self.stage_name
                 )
-                accordion_widget = AccordionWidget(
-                    title=self.name, checkable=False
-                )
-                accordion_widget.add_widget(widget)
-                self.layout().addWidget(accordion_widget)
+                if self.fragment_data.get('type') == "context":
+                    self.layout().addWidget(widget)
+                else:
+                    accordion_widget = AccordionWidget(
+                        title=self.name, checkable=False
+                    )
+                    accordion_widget.add_widget(widget)
+                    self.layout().addWidget(accordion_widget)
             else:
                 for k, v in list(self.properties.items()):
                     new_fragment_data = None
@@ -104,19 +107,7 @@ class PluginContainerAccordionObject(JsonObject):
     def to_json_object(self):
         out = {}
 
-        if self.schema_fragment.get('allOf'):
-            # return the widget information when schema cointains allOf,
-            # the widget doesn't have any inner widgets, so we query the
-            # information from the widget 0 which is the allOf widget, and
-            # augment the widget information with the data_fragment keys and
-            # values to match the schema.
-            widget = self.layout().itemAt(0).widget()
-            if 'to_json_object' in dir(widget):
-                out = widget.to_json_object()
-                for k, v in list(self.fragment_data.items()):
-                    if k not in list(out.keys()):
-                        out[k] = v
-        elif 'widget' in list(self.properties.keys()):
+        if 'widget' in list(self.properties.keys()):
             # return the widget information when widget is in properties keys,
             # and augment the widget information with the data_fragment keys and
             # values to match the schema.
@@ -124,12 +115,12 @@ class PluginContainerAccordionObject(JsonObject):
                 self.fragment_data)
             if widget.__class__.__name__ == 'AccordionWidget':
                 for idx in range(0, widget.count_widgets()):
-                    widget = widget.get_witget_at(idx)
-                    if 'to_json_object' in dir(widget):
-                        data = widget.to_json_object()
-                        data['enabled'] = widget.is_checked()
+                    in_widget = widget.get_witget_at(idx)
+                    if 'to_json_object' in dir(in_widget):
+                        out = in_widget.to_json_object()
+                        out['enabled'] = widget.is_checked()
                         for k, v in list(self.fragment_data.items()):
-                            if k not in list(data.keys()):
+                            if k not in list(out.keys()):
                                 out[k] = v
             else:
                 out = widget.to_json_object()
