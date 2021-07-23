@@ -96,7 +96,7 @@ class WidgetFactory(QtWidgets.QWidget):
             'Loader': hidden.HiddenObject,
             'AssetManager': hidden.HiddenObject,
             'Step': hidden.HiddenObject,
-            'Plugin': plugin_container.PluginContainerObject,
+            'Plugin': plugin_container.PluginContainerAccordionObject,
             'Component': plugin_container.PluginContainerObject
         }
 
