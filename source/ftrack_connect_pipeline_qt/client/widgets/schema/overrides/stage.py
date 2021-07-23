@@ -69,12 +69,10 @@ class AccordionStageArray(BaseJsonWidget):
         for i in range(0, self.innerLayout.count()):
             widget = self.innerLayout.itemAt(i).widget()
             if widget.__class__.__name__ == 'AccordionWidget':
-                for idx in range(0, widget.count_widgets()):
-                    in_widget = widget.get_witget_at(idx)
-                    if 'to_json_object' in dir(in_widget):
-                        data = in_widget.to_json_object()
-                        data['enabled'] = widget.is_checked()
-                        out.append(data)
+                # for idx in range(0, widget.count_widgets()):
+                in_widget = widget.get_witget_at(0)
+                if 'to_json_object' in dir(in_widget):
+                    out.append(in_widget.to_json_object())
             elif 'to_json_object' in dir(widget):
                 out.append(widget.to_json_object())
         return out

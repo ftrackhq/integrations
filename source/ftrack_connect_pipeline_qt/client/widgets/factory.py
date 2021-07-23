@@ -87,7 +87,7 @@ class WidgetFactory(QtWidgets.QWidget):
             'engine_type': hidden.HiddenString,
             'host_type': hidden.HiddenString,
             'optional': hidden.HiddenBoolean,
-            'discoverable': hidden.HiddenArray
+            'discoverable': hidden.HiddenArray,
             # 'stages': stage.AccordionStageArray
         }
 
@@ -96,7 +96,7 @@ class WidgetFactory(QtWidgets.QWidget):
             'Loader': hidden.HiddenObject,
             'AssetManager': hidden.HiddenObject,
             'Step': hidden.HiddenObject,
-            'Plugin': plugin_container.PluginContainerAccordionObject,
+            'Plugin': plugin_container.PluginContainerObject,
             'Component': plugin_container.PluginContainerObject
         }
 
@@ -159,11 +159,11 @@ class WidgetFactory(QtWidgets.QWidget):
         widget_fn = self.schema_name_mapping.get(name)
         # We can remove this if we filter them on the plugin itself
         # (AccordionStageArray) But this is one more generic approach.
-        if (
-                name == 'stages' and previous_object_data.get('type')
-                not in ['component', 'finalizer']
-        ):
-            widget_fn = None
+        # if (
+        #         name == 'stages' and previous_object_data.get('type')
+        #         not in ['component']
+        # ):
+        #     widget_fn = None
 
         if not widget_fn:
             widget_fn = self.schema_title_mapping.get(
