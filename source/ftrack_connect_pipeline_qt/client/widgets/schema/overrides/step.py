@@ -1,10 +1,14 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
+from functools import partial
 
-from Qt import QtCore, QtWidgets
+from Qt import QtCore, QtWidgets, QtGui
+from ftrack_connect_pipeline_qt import constants
+from ftrack_connect_pipeline import constants as pipeline_constants
 from ftrack_connect_pipeline_qt.client.widgets.schema import BaseJsonWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import AccordionWidget
+from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 
 class StepTabArray(BaseJsonWidget):
     '''
@@ -17,10 +21,15 @@ class StepTabArray(BaseJsonWidget):
     ):
         '''Initialise StepArray with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
+
+        self.status_icons = constants.icons.status_icons
+        self._inner_widget_status = {}
+
         super(StepTabArray, self).__init__(
             name, schema_fragment, fragment_data, previous_object_data,
             widget_factory, parent=parent
         )
+
 
     def build(self):
         groupBox = QtWidgets.QGroupBox(self.name.capitalize())
@@ -33,6 +42,7 @@ class StepTabArray(BaseJsonWidget):
 
         if 'items' in self.schema_fragment and self.fragment_data:
             self.tab_widget = QtWidgets.QTabWidget()
+            i=1
             for data in self.fragment_data:
                 if type(data) == dict:
                     name = data.get('name')
@@ -52,11 +62,46 @@ class StepTabArray(BaseJsonWidget):
                 )
                 obj.layout().setContentsMargins(0, 0, 0, 0)
                 obj.layout().setSpacing(0)
-                self.tab_widget.addTab(obj, name)
+
+
+                icon = self.status_icons[constants.DEFAULT_STATUS]
+                tab_widget = self.tab_widget.addTab(obj, QtGui.QIcon(icon), name)
+
+                inner_widgets = obj.findChildren(BaseOptionsWidget)
+                for inner_widget in inner_widgets:
+                    inner_widget.status_updated.connect(
+                        partial(self.update_inner_status, inner_widget, tab_widget)
+                    )
+
+                #TODO: Try to add a checkbox on the tab to make it optional
+                checkbox = QtWidgets.QCheckBox()
+                self.tab_widget.tabBar().setTabButton(self.tab_widget.tabBar().count(), QtWidgets.QTabBar.LeftSide, checkbox)
+                i+=1
+
             groupBox.layout().addWidget(self.tab_widget)
         self.layout().setContentsMargins(0, 0, 0, 0)
 
         self.layout().addWidget(groupBox)
+
+    def update_inner_status(self, inner_widget, tab_widget, data):
+        status, message = data
+
+        self._inner_widget_status[inner_widget] = status
+
+        all_bool_status = [
+            pipeline_constants.status_bool_mapping[_status]
+            for _status in list(self._inner_widget_status.values())
+        ]
+        if all(all_bool_status):
+            icon = self.status_icons[constants.SUCCESS_STATUS]
+            self.tab_widget.setTabIcon(tab_widget, QtGui.QIcon(icon))
+        else:
+            if constants.RUNNING_STATUS in list(self._inner_widget_status.values()):
+                icon = self.status_icons[constants.RUNNING_STATUS]
+                self.tab_widget.setTabIcon(tab_widget, QtGui.QIcon(icon))
+            else:
+                icon = self.status_icons[constants.ERROR_STATUS]
+                self.tab_widget.setTabIcon(tab_widget, QtGui.QIcon(icon))
 
     def to_json_object(self):
         out = []

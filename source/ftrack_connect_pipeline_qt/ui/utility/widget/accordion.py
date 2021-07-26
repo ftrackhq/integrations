@@ -87,6 +87,12 @@ class AccordionWidget(QtWidgets.QWidget):
         self._connect_inner_widgets(widget)
 
     def _connect_inner_widgets(self, widget):
+        if issubclass(widget.__class__, BaseOptionsWidget):
+            self._widgets[widget] = widget
+            widget.status_updated.connect(
+                partial(self.update_inner_status, widget)
+            )
+            return
         inner_widgets = widget.findChildren(BaseOptionsWidget)
         self._widgets[widget] = inner_widgets
         for inner_widget in inner_widgets:

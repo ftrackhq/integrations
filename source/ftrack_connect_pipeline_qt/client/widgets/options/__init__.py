@@ -113,6 +113,12 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         '''Executes the fetch method of the plugin on the initialization time'''
         self.on_run_plugin(method)
 
+    def toggle_status(self, show=False):
+        self._status_icon.setVisible(show)
+
+    def toggle_name(self, show=False):
+        self.name_label.setVisible(show)
+
     def __init__(
             self, parent=None, session=None, data=None, name=None,
             description=None, options=None, context_id=None, asset_type_name=None
@@ -152,6 +158,9 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self._options = options
         self._context_entity = None
 
+        self._status_icon = None
+        self.name_label = None
+
         context_id = context_id
 
         #we set the asset_type entity with the asset_type name
@@ -190,9 +199,9 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
     def build(self):
         '''build function , mostly used to create the widgets.'''
-        name_label = QtWidgets.QLabel(self.name)
-        name_label.setToolTip(self.description)
-        self.layout().addWidget(name_label)
+        self.name_label = QtWidgets.QLabel(self.name)
+        self.name_label.setToolTip(self.description)
+        self.layout().addWidget(self.name_label)
 
     def post_build(self):
         '''post build function , mostly used connect widgets events.'''
