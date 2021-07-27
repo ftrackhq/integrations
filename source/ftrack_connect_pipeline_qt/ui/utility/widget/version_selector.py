@@ -20,7 +20,7 @@ class VersionComboBox(QtWidgets.QComboBox):
     def asset_changed(self, asset_id):
         self.clear()
         versions = self.session.query(
-            'select version '
+            'select version, id '
             'from AssetVersion where task.id is {} and asset_id is {} order by'
             ' version descending'.format(self.context_entity['id'], asset_id)).all()
         for version in versions:

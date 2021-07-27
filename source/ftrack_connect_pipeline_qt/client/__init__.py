@@ -129,19 +129,20 @@ class QtClient(client.Client, QtWidgets.QWidget):
     def _on_context_selector_context_changed(self, context_entity):
         '''Updates the option dicctionary with provided *context* when
         entityChanged of context_selector event is triggered'''
-        self.logger.info('Changing Context.....')
         self.context_entity = context_entity
         self.change_context(context_entity['id'])
 
+        # keep reference of the latest selected definition
         index = self.host_selector.get_current_definition_index()
 
         if len(self.host_selector.host_connections) > 0:
             if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
                 self.host_selector.change_host_index(1)
-                self.host_selector.set_current_definition_index(index)
+
         else:
             self.host_selector.change_host_index(0)
 
+        self.host_selector.set_current_definition_index(index)
 
     def change_context(self, context_id):
         '''
