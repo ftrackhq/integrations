@@ -8,6 +8,9 @@ def merge(source, destination):
     """
     Utility function to merge two json objects
     """
+    if not isinstance(source, dict):
+        return destination
+
     for key, value in source.items():
         if isinstance(value, dict):
             # get node or create one
@@ -62,7 +65,6 @@ class JsonObject(BaseJsonWidget):
 
         if self.previous_object_data:
             self.stage_name = self.previous_object_data.get('name')
-
 
         self.properties_widgets = {}
 
