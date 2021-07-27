@@ -88,6 +88,7 @@ class PluginContainerAccordionObject(JsonObject):
                 if self.fragment_data.get('type') == "context":
                     self.layout().addWidget(widget)
                 else:
+                    #TODO: hidde accordion in case the widget is empty
                     widget.toggle_status(show=False)
                     widget.toggle_name(show=False)
                     accordion_widget = AccordionWidget(

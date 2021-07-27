@@ -82,11 +82,17 @@ class StepTabArray(BaseJsonWidget):
 
                 if optional_component:
                     checkbox = QtWidgets.QCheckBox()
+                    checkbox.setChecked(True)
                     self.checkBoxList.append(checkbox)
                     self.tab_widget.tabBar().setTabButton(
-                        self.tab_widget.tabBar().count()-1,
+                        tab_idx,
                         QtWidgets.QTabBar.RightSide,
                         checkbox
+                    )
+                    checkbox.stateChanged.connect(
+                        lambda check_state: self._toggle_tab_state(
+                            tab_idx, check_state
+                        )
                     )
                 # self.tab_widget.setTabPosition(QtWidgets.QTabWidget.West)
 
@@ -94,6 +100,12 @@ class StepTabArray(BaseJsonWidget):
         self.layout().setContentsMargins(0, 0, 0, 0)
 
         self.layout().addWidget(groupBox)
+
+    def _toggle_tab_state(self, tab_idx, check_state):
+        if check_state == 0:
+            self.tab_widget.setTabEnabled(tab_idx, False)
+            return
+        self.tab_widget.setTabEnabled(tab_idx, True)
 
     def update_inner_status(self, inner_widget, tab_idx, data):
         status, message = data
@@ -121,9 +133,7 @@ class StepTabArray(BaseJsonWidget):
             widget = self.tab_widget.widget(idx)
             if 'to_json_object' in dir(widget):
                 data = widget.to_json_object()
-                data['enabled'] = True
-                # TODO: enable and modify once the optional component is ready
-                # data['enabled'] = tab_widget.is_checked()
+                data['enabled'] = self.tab_widget.isTabEnabled(idx)
                 out.append(data)
         return out
 
