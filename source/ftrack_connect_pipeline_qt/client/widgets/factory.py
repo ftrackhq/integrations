@@ -276,7 +276,7 @@ class WidgetFactory(QtWidgets.QWidget):
         return widget
 
     def _fetch_plugin_widget(
-            self, plugin_data, plugin_type, plugin_name, etra_options=None
+            self, plugin_data, plugin_type, plugin_name, extra_options=None
     ):
         '''Retrieve the widget event with the given *plugin_data*, *plugin_type*
         and *plugin_name* with the optional *extra_options*.'''
