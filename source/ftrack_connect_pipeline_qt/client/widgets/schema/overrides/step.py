@@ -30,6 +30,9 @@ class StepTabArray(BaseJsonWidget):
             widget_factory, parent=parent
         )
 
+    @property
+    def tabs_names(self):
+        return self._tabs_names
 
     def build(self):
         groupBox = QtWidgets.QGroupBox(self.name.capitalize())
@@ -40,16 +43,18 @@ class StepTabArray(BaseJsonWidget):
         groupBox.layout().setContentsMargins(0, 0, 0, 0)
         groupBox.setToolTip(self.description)
 
+        self._tabs_names = {}
+
         if 'items' in self.schema_fragment and self.fragment_data:
             self.tab_widget = QtWidgets.QTabWidget()
-            i=1
+            self.checkBoxList = []
             for data in self.fragment_data:
                 if type(data) == dict:
                     name = data.get('name')
                     self._type = data.get('type')
                 else:
                     name = data
-                # TODO: If it's optional show an unchequed checkbox on the tab.
+
                 optional_component = False
                 for package in self.widget_factory.package['components']:
                     if package['name'] == name:
@@ -65,25 +70,32 @@ class StepTabArray(BaseJsonWidget):
 
 
                 icon = self.status_icons[constants.DEFAULT_STATUS]
-                tab_widget = self.tab_widget.addTab(obj, QtGui.QIcon(icon), name)
+                tab_idx = self.tab_widget.addTab(obj, QtGui.QIcon(icon), name)
+
+                self._tabs_names[name] = tab_idx
 
                 inner_widgets = obj.findChildren(BaseOptionsWidget)
                 for inner_widget in inner_widgets:
                     inner_widget.status_updated.connect(
-                        partial(self.update_inner_status, inner_widget, tab_widget)
+                        partial(self.update_inner_status, inner_widget, tab_idx)
                     )
 
-                #TODO: Try to add a checkbox on the tab to make it optional
-                checkbox = QtWidgets.QCheckBox()
-                self.tab_widget.tabBar().setTabButton(self.tab_widget.tabBar().count(), QtWidgets.QTabBar.LeftSide, checkbox)
-                i+=1
+                if optional_component:
+                    checkbox = QtWidgets.QCheckBox()
+                    self.checkBoxList.append(checkbox)
+                    self.tab_widget.tabBar().setTabButton(
+                        self.tab_widget.tabBar().count()-1,
+                        QtWidgets.QTabBar.RightSide,
+                        checkbox
+                    )
+                # self.tab_widget.setTabPosition(QtWidgets.QTabWidget.West)
 
             groupBox.layout().addWidget(self.tab_widget)
         self.layout().setContentsMargins(0, 0, 0, 0)
 
         self.layout().addWidget(groupBox)
 
-    def update_inner_status(self, inner_widget, tab_widget, data):
+    def update_inner_status(self, inner_widget, tab_idx, data):
         status, message = data
 
         self._inner_widget_status[inner_widget] = status
@@ -94,14 +106,14 @@ class StepTabArray(BaseJsonWidget):
         ]
         if all(all_bool_status):
             icon = self.status_icons[constants.SUCCESS_STATUS]
-            self.tab_widget.setTabIcon(tab_widget, QtGui.QIcon(icon))
+            self.tab_widget.setTabIcon(tab_idx, QtGui.QIcon(icon))
         else:
             if constants.RUNNING_STATUS in list(self._inner_widget_status.values()):
                 icon = self.status_icons[constants.RUNNING_STATUS]
-                self.tab_widget.setTabIcon(tab_widget, QtGui.QIcon(icon))
+                self.tab_widget.setTabIcon(tab_idx, QtGui.QIcon(icon))
             else:
                 icon = self.status_icons[constants.ERROR_STATUS]
-                self.tab_widget.setTabIcon(tab_widget, QtGui.QIcon(icon))
+                self.tab_widget.setTabIcon(tab_idx, QtGui.QIcon(icon))
 
     def to_json_object(self):
         out = []

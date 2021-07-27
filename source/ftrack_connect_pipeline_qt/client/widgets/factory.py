@@ -438,6 +438,12 @@ class WidgetFactory(QtWidgets.QWidget):
                         widget.set_unavailable()
                     else:
                         widget.set_default_state()
+            elif hasattr(v, 'tabs_names') and v.type == core_constants.COMPONENT:
+                for name in list(v.tabs_names.keys()):
+                    if name not in self.components_names:
+                        v.tab_widget.setTabEnabled(v.tabs_names[name], False)
+                    else:
+                        v.tab_widget.setTabEnabled(v.tabs_names[name], True)
 
     def _asset_version_changed(self, version_id):
         '''Callbac funtion triggered when a asset version has changed'''
