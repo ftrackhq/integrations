@@ -7,6 +7,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import header, definition_sele
 from ftrack_connect_pipeline_qt.client.widgets import factory
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import ContextSelector
+import time
 
 
 class QtClient(client.Client, QtWidgets.QWidget):
@@ -18,7 +19,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
     # Text of the button to run the whole definition
     run_definition_button_text = 'Run'
 
-    on_context_change = QtCore.Signal(object)
+    context_changed = QtCore.Signal(object)
 
     @property
     def context_entity(self):
@@ -44,7 +45,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.pre_build()
         self.build()
         self.post_build()
-
 
     def add_hosts(self, host_connections):
         '''
@@ -114,8 +114,11 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.widget_factory.widget_run_plugin.connect(
             self._on_run_plugin
         )
-        if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
-            self.host_selector.host_combobox.hide()
+
+        # self.context_changed.connect(self._update_context)
+
+        # if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
+        #     self.host_selector.host_combobox.hide()
 
         if self.context_id:
             context_entity = self.session.query(
@@ -125,16 +128,30 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
         self.add_hosts(self.discover_hosts())
 
+    # def _update_context(self, data):
+    #     self.logger.info('Changing Context')
+    #     if not self.host_connection:
+    #         return
+    #
+    #     schema = [
+    #         schema for schema in self.host_connection.definitions['schema']
+    #         if schema.get('title').lower() == self.definition_filter
+    #     ][0]
+    #
+    #     schema_title = schema.get('title').lower()
+    #     definitions = self.host_connection.definitions.get(schema_title)
+    #     self.change_definition(schema, definitions[0])
+
     def _on_context_selector_context_changed(self, context_entity):
         '''Updates the option dicctionary with provided *context* when
         entityChanged of context_selector event is triggered'''
         self.context_entity = context_entity
         self.change_context(context_entity['id'])
-        if len(self.host_selector.host_connections) > 0:
-            if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
-                self.host_selector.change_host_index(1)
-        else:
-            self.host_selector.change_host_index(0)
+        # if len(self.host_selector.host_connections) > 0:
+        #     if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
+        #         self.host_selector.change_host_index(1)
+        # else:
+        self.host_selector.change_host_index(0)
 
     def change_context(self, context_id):
         '''
@@ -143,7 +160,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         on_context_change signal.
         '''
         super(QtClient, self).change_context(context_id)
-        self.on_context_change.emit(context_id)
+        self.context_changed.emit(context_id)
 
     def _clear_host_widget(self):
         if self.scroll.widget():
@@ -177,11 +194,14 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.widget_factory.set_definition_type(self.definition['type'])
         self.widget_factory.set_package(self.current_package)
 
+        start = time.time()
+
         self._current_def = self.widget_factory.create_widget(
             definition['name'],
             schema,
             self.definition
         )
+        self.logger.info('UI Built in {}s'.format(time.time()-start))
         self.widget_factory.check_components()
         self.scroll.setWidget(self._current_def)
 

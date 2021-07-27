@@ -49,7 +49,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     def asset_type_entity(self, asset_type_name):
         '''Sets asset type from the given *value*'''
         self._asset_type_entity = self.session.query(
-            'AssetType where short is "{}"'.format(asset_type_name)
+            'select name, short from AssetType where short is "{}"'.format(asset_type_name)
         ).first()
 
     @property

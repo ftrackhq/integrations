@@ -28,6 +28,41 @@ class WidgetFactory(QtWidgets.QWidget):
     host_types = None
     ui_types = None
 
+    schema_type_mapping = {
+        'object': schema_widget.JsonObject,
+        'string': schema_widget.JsonString,
+        'integer': schema_widget.JsonInteger,
+        'array': schema_widget.JsonArray,
+        'number': schema_widget.JsonNumber,
+        'boolean': schema_widget.JsonBoolean
+    }
+    schema_name_mapping = {
+        'components': step.StepArray,
+        'contexts': step.StepArrayContext,
+        'finalizers': step.StepArray,
+        '_config': hidden.HiddenObject,
+        'ui_type': hidden.HiddenString,
+        'category': hidden.HiddenString,
+        'type': hidden.HiddenString,
+        'name': hidden.HiddenString,
+        'enabled': hidden.HiddenBoolean,
+        'package': hidden.HiddenString,
+        'engine_type': hidden.HiddenString,
+        'host_type': hidden.HiddenString,
+        'optional': hidden.HiddenBoolean,
+        'discoverable': hidden.HiddenArray
+    }
+
+    schema_title_mapping = {
+        'Publisher': hidden.HiddenObject,
+        'Loader': hidden.HiddenObject,
+        'AssetManager': hidden.HiddenObject,
+        'Step': hidden.HiddenObject,
+        'Plugin': plugin_container.PluginContainerObject,
+        'Component': plugin_container.PluginContainerObject
+    }
+
+
     @property
     def widgets(self):
         '''Return registered plugin's widgets.'''
@@ -63,40 +98,6 @@ class WidgetFactory(QtWidgets.QWidget):
         self.host_connection = None
 
         self.components_names = []
-
-        self.schema_type_mapping = {
-            'object': schema_widget.JsonObject,
-            'string': schema_widget.JsonString,
-            'integer': schema_widget.JsonInteger,
-            'array': schema_widget.JsonArray,
-            'number': schema_widget.JsonNumber,
-            'boolean': schema_widget.JsonBoolean
-        }
-        self.schema_name_mapping = {
-            'components': step.StepArray,
-            'contexts': step.StepArrayContext,
-            'finalizers': step.StepArray,
-            '_config': hidden.HiddenObject,
-            'ui_type': hidden.HiddenString,
-            'category': hidden.HiddenString,
-            'type': hidden.HiddenString,
-            'name': hidden.HiddenString,
-            'enabled': hidden.HiddenBoolean,
-            'package': hidden.HiddenString,
-            'engine_type': hidden.HiddenString,
-            'host_type': hidden.HiddenString,
-            'optional': hidden.HiddenBoolean,
-            'discoverable': hidden.HiddenArray
-        }
-
-        self.schema_title_mapping = {
-            'Publisher': hidden.HiddenObject,
-            'Loader': hidden.HiddenObject,
-            'AssetManager': hidden.HiddenObject,
-            'Step': hidden.HiddenObject,
-            'Plugin': plugin_container.PluginContainerObject,
-            'Component': plugin_container.PluginContainerObject
-        }
 
     def set_context(self, context_id, asset_type_name):
         '''Set :obj:`context_id` and :obj:`asset_type_name` with the given
@@ -432,7 +433,7 @@ class WidgetFactory(QtWidgets.QWidget):
         '''Callbac funtion triggered when a asset version has changed'''
         self.version_id = version_id
         asset_version_entity = self.session.query(
-            'select components '
+            'select components, components.name '
             'from AssetVersion where id is {}'.format(version_id)
         ).first()
         if not asset_version_entity:
