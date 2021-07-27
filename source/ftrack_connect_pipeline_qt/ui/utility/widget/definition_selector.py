@@ -116,3 +116,11 @@ class DefinitionSelector(QtWidgets.QWidget):
     def set_definition_filter(self, filter):
         self.definition_filter = filter
 
+    def get_current_definition_index(self):
+        return self.definition_combobox.currentIndex()
+
+    def set_current_definition_index(self, index):
+        self.definition_combobox.setCurrentIndex(index)
+        self._on_select_definition(index)
+
+

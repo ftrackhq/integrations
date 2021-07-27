@@ -115,10 +115,8 @@ class QtClient(client.Client, QtWidgets.QWidget):
             self._on_run_plugin
         )
 
-        # self.context_changed.connect(self._update_context)
-
-        # if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
-        #     self.host_selector.host_combobox.hide()
+        if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
+            self.host_selector.host_combobox.hide()
 
         if self.context_id:
             context_entity = self.session.query(
@@ -128,30 +126,22 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
         self.add_hosts(self.discover_hosts())
 
-    # def _update_context(self, data):
-    #     self.logger.info('Changing Context')
-    #     if not self.host_connection:
-    #         return
-    #
-    #     schema = [
-    #         schema for schema in self.host_connection.definitions['schema']
-    #         if schema.get('title').lower() == self.definition_filter
-    #     ][0]
-    #
-    #     schema_title = schema.get('title').lower()
-    #     definitions = self.host_connection.definitions.get(schema_title)
-    #     self.change_definition(schema, definitions[0])
-
     def _on_context_selector_context_changed(self, context_entity):
         '''Updates the option dicctionary with provided *context* when
         entityChanged of context_selector event is triggered'''
+        self.logger.info('Changing Context.....')
         self.context_entity = context_entity
         self.change_context(context_entity['id'])
-        # if len(self.host_selector.host_connections) > 0:
-        #     if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
-        #         self.host_selector.change_host_index(1)
-        # else:
-        self.host_selector.change_host_index(0)
+
+        index = self.host_selector.get_current_definition_index()
+
+        if len(self.host_selector.host_connections) > 0:
+            if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
+                self.host_selector.change_host_index(1)
+                self.host_selector.set_current_definition_index(index)
+        else:
+            self.host_selector.change_host_index(0)
+
 
     def change_context(self, context_id):
         '''
@@ -160,7 +150,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
         on_context_change signal.
         '''
         super(QtClient, self).change_context(context_id)
-        self.context_changed.emit(context_id)
 
     def _clear_host_widget(self):
         if self.scroll.widget():
