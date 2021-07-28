@@ -196,6 +196,7 @@ class LoadContextWidget(BaseOptionsWidget):
 
     def _build_thumbnail(self):
         self.thumbnail_widget = AssetVersionThumbnail(self.session)
+        self.thumbnail_widget.setScaledContents(True)
         self.thumbnail_widget.setMaximumHeight(100)
         self.thumbnail_widget.setMaximumWidth(200)
 

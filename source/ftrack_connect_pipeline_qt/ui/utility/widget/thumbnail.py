@@ -180,6 +180,15 @@ class Context(Base):
         )
         return result_url
 
+    def _scaleAndSetPixmap(self, pixmap):
+        '''Scale and set *pixmap*.'''
+        scaledPixmap = pixmap.scaled(
+            self.size(),
+            QtCore.Qt.KeepAspectRatio,
+            QtCore.Qt.SmoothTransformation
+        )
+        self.setPixmap(scaledPixmap)
+
 
 class AssetVersion(Base):
     def _download(self, reference):
@@ -204,6 +213,14 @@ class AssetVersion(Base):
         print(result_url)
         return result_url
 
+    def _scaleAndSetPixmap(self, pixmap):
+        '''Scale and set *pixmap*.'''
+        scaledPixmap = pixmap.scaled(
+            self.size(),
+            QtCore.Qt.KeepAspectRatio,
+            QtCore.Qt.SmoothTransformation
+        )
+        self.setPixmap(scaledPixmap)
 
 class User(EllipseBase):
 
