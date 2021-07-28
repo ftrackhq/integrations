@@ -90,10 +90,9 @@ class StepTabArray(BaseJsonWidget):
                         checkbox
                     )
                     checkbox.stateChanged.connect(
-                        lambda check_state: self._toggle_tab_state(
-                            tab_idx, check_state
-                        )
+                        partial(self._toggle_tab_state, tab_idx)
                     )
+                # TODO: activate this in case we want the tabs on the side.
                 # self.tab_widget.setTabPosition(QtWidgets.QTabWidget.West)
 
             groupBox.layout().addWidget(self.tab_widget)
