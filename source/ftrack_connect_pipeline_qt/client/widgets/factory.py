@@ -76,7 +76,9 @@ class WidgetFactory(QtWidgets.QWidget):
         self.schema_name_mapping = {
             'components': step.StepTabArray,
             'contexts': step.StepArrayContext,
-            'finalizers': step.StepTabArray,
+            # TODO: Use this one to show finalizers.
+            # 'finalizers': step.StepTabArray,
+            'finalizers': hidden.HiddenArray,
             '_config': hidden.HiddenObject,
             'ui_type': hidden.HiddenString,
             'category': hidden.HiddenString,
