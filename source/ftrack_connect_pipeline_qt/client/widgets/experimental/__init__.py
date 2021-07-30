@@ -95,6 +95,15 @@ class BaseUIWidget(object):
         '''post build function , mostly used connect widgets events.'''
         pass
 
+    def parent_widget(self, widget):
+        if self.widget:
+            if hasattr(widget, 'widget'):
+                self.widget.layout().addWidget(widget.widget)
+            else:
+                self.widget.layout().addWidget(widget)
+        else:
+            self.logger.error("Please create a widget before parent")
+
     def to_json_object(self):
         '''Return a formated json with the data from the current widget'''
         return {}
