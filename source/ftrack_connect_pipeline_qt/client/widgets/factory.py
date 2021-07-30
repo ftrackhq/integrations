@@ -14,6 +14,12 @@ from ftrack_connect_pipeline_qt.client.widgets import schema as schema_widget
 from ftrack_connect_pipeline_qt.client.widgets.schema.overrides import (
     step, hidden, plugin_container, stage
 )
+from ftrack_connect_pipeline_qt.client.widgets.experimental import default as default_widgets
+from ftrack_connect_pipeline_qt.client.widgets.experimental import overrides as override_widgets
+
+from ftrack_connect_pipeline_qt.client.widgets.options import (
+    new_dynamic
+)
 
 from Qt import QtCore, QtWidgets
 
@@ -102,6 +108,23 @@ class WidgetFactory(QtWidgets.QWidget):
             'Component': plugin_container.PluginContainerObject
         }
 
+        self.overrides = {
+            'main_widget': default_widgets.DefaultMainWidget,
+            'contexts': {
+                'step_container': default_widgets.DefaultStepContainerWidget,
+                'step_widget': None,
+                'stage_widget': 'default',
+                'plugin_widget': 'default',
+            },
+            'components': {
+                'step_container': 'default',
+                'step_widget': 'default',
+                'step_widget.main': 'override',
+                'stage_widget': 'default',
+                'plugin_widget': 'default',
+            }
+        }
+
     def set_context(self, context_id, asset_type_name):
         '''Set :obj:`context_id` and :obj:`asset_type_name` with the given
         *context_id* and *asset_type_name*'''
@@ -121,7 +144,116 @@ class WidgetFactory(QtWidgets.QWidget):
         '''Set :obj:`definition_type` with the given *definition_type*'''
         self.definition_type = definition_type
 
+    def create_main_widget(self):
+        # Check for overrides of the main widget, otherwise call the default one
+        # TODO: move this to a separated file
+        return self.overrides.get('main_widget')(None, None).widget
+
+    def create_context_widget(self, fragment_data):
+        group_box = QtWidgets.QGroupBox('components')
+        main_layout = QtWidgets.QVBoxLayout()
+        group_box.setLayout(main_layout)
+        # step_container = self.overrides.get('contexts').get('step_container')
+
+        for context_step in fragment_data['contexts']:
+            step_widget = self.overrides.get('contexts').get('step_widget')
+            # Create widget for the step
+            # print(context_step)
+            for context_stage in context_step['stages']:
+                # create widget for the stages
+                # print(context_stage)
+                stage_main_widget = QtWidgets.QWidget()
+                stage_layout = QtWidgets.QVBoxLayout()
+                stage_main_widget.setLayout(stage_layout)
+                for stage_plugin in context_stage['plugins']:
+                    # create widget for the plugins
+                    # print(stage_plugin)
+                    if 'widget' in list(stage_plugin.keys()):
+                        plugin_widget = self.fetch_plugin_widget(
+                            stage_plugin, context_stage['name']
+                        )
+                    else:
+                        plugin_widget = self.generate_dynamic_widget(stage_plugin)
+                    stage_layout.addWidget(plugin_widget)
+                main_layout.addWidget(stage_main_widget)
+                # if step_widget:
+                #     step_widget.widget().parent_widget(stage_widget)
+                # elif step_container:
+                #     step_container.widget().parent_widget(stage_widget)
+        # return step_container
+        return group_box
+
+    def create_components_widget(self, fragment_data):
+        group_box = QtWidgets.QGroupBox('components')
+        main_layout = QtWidgets.QVBoxLayout()
+        group_box.setLayout(main_layout)
+
+        tab_widget = QtWidgets.QTabWidget()
+        for step in fragment_data['components']:
+            # print(component_step)
+            # Create widget for the step
+
+            step_name = step.get('name')
+            step_optional = step.get('optional')
+            step_widget = QtWidgets.QWidget()
+            step_layout = QtWidgets.QVBoxLayout()
+            step_widget.setLayout(step_layout)
+
+            for stage in step['stages']:
+                # create widget for the stages
+                # print(stage)
+                stage_widget = QtWidgets.QGroupBox(stage.get('name'))
+                stage_layout = QtWidgets.QVBoxLayout()
+                stage_widget.setLayout(stage_layout)
+
+                for plugin in stage['plugins']:
+                    # create widget for the plugins
+                    # print(plugin)
+                    if 'widget' in list(plugin.keys()):
+                        plugin_widget = self.fetch_plugin_widget(
+                            plugin, stage['name']
+                        )
+                    else:
+                        plugin_widget = self.generate_dynamic_widget(plugin)
+                    stage_layout.addWidget(plugin_widget)
+                step_layout.addWidget(stage_widget)
+
+            tab_widget.addTab(step_widget, step_name)
+        main_layout.addWidget(tab_widget)
+        return group_box
+
     def create_widget(
+            self, name, schema_fragment, fragment_data=None,
+            previous_object_data=None, parent=None
+    ):
+
+        main_widget = self.create_main_widget()
+        context_widget = self.create_context_widget(fragment_data)#fragment_data['contexts']
+        components_widget = self.create_components_widget(fragment_data)
+        # self.create_finalizer_widget()
+
+        main_widget.layout().addWidget(context_widget)
+        main_widget.layout().addWidget(components_widget)
+
+        return main_widget
+
+    def generate_dynamic_widget(self, widget_data):
+        name = widget_data.get('name')
+        options = widget_data.get('options')
+        widget = new_dynamic.DynamicWidget(name=name, options=options, session=self.session, context_id=self.context_id)
+        # widget.show()
+        return widget
+
+    def stage_tab_widget(self, tab_widget, widget_data):
+        name = widget_data.get('name')
+        options = widget_data.get('options')
+        tab_widget.addTab(name)
+        widget = new_dynamic.DynamicWidget(name=name, options=options, session=self.session, context_id=self.context_id)
+        # widget.show()
+        return widget
+
+
+    def create_widget_old(
             self, name, schema_fragment, fragment_data=None,
             previous_object_data=None, parent=None):
         '''
