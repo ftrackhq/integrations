@@ -11,6 +11,7 @@ class DefaultStepContainerWidget(BaseUIWidget):
     def __init__(self, name, fragment_data, parent=None):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
+
         super(DefaultStepContainerWidget, self).__init__(
             name, fragment_data, parent=parent
         )

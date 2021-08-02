@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 import logging
+import uuid
 from Qt import QtGui, QtCore, QtWidgets
 
 # TODO: Not sure to inherit from object or widget, is now object to avoid
@@ -10,10 +11,6 @@ class BaseUIWidget(object):
     '''
     Base class of a widget representation from json schema types
     '''
-
-    @property
-    def type(self):
-        return self._type
 
     @property
     def name(self):
@@ -25,8 +22,8 @@ class BaseUIWidget(object):
         self._name = value
 
     @property
-    def id(self):
-        return self._id
+    def widget_id(self):
+        return self._widget_id
 
     @property
     def widget(self):
@@ -62,18 +59,17 @@ class BaseUIWidget(object):
         )
 
         # self.widget_factory = widget_factory
-        # self.schema_fragment = schema_fragment
         self.fragment_data = fragment_data
         self._parent = parent
 
-        # checks
-        # self.properties_order = self.schema_fragment.get('order', [])
         self.name = name
-        # self.description = self.schema_fragment.get('description')
-        # self.properties = self.schema_fragment.get('properties', {})
-        # self._type = self.schema_fragment.get('type')
-        # self.required_keys = self.schema_fragment.get('required', [])
+        self.description = None
+        if self.fragment_data:
+            self.description = self.fragment_data.get(
+                'description', 'No description provided'
+            )
         self._widget = None
+        self._widget_id = uuid.uuid4().hex
 
         self.pre_build()
         self.build()
@@ -82,10 +78,6 @@ class BaseUIWidget(object):
     def pre_build(self):
         '''pre build function, mostly used setup the widget's layout.'''
         pass
-        # self.v_layout = QtWidgets.QVBoxLayout()
-        # self.setLayout(self.v_layout)
-        # self.layout().setContentsMargins(0, 0, 0, 0)
-        # self.layout().setSpacing(5)
 
     def build(self):
         '''build function , mostly used to create the widgets.'''
@@ -93,7 +85,10 @@ class BaseUIWidget(object):
 
     def post_build(self):
         '''post build function , mostly used connect widgets events.'''
-        pass
+        if self.widget:
+            self.widget.layout().setContentsMargins(0, 0, 0, 0)
+            self.widget.layout().setSpacing(5)
+            self.widget.setToolTip(self.description)
 
     def parent_widget(self, widget):
         if self.widget:

@@ -14,12 +14,9 @@ from ftrack_connect_pipeline_qt.client.widgets import schema as schema_widget
 from ftrack_connect_pipeline_qt.client.widgets.schema.overrides import (
     step, hidden, plugin_container, stage
 )
-from ftrack_connect_pipeline_qt.client.widgets.experimental import default as default_widgets
-from ftrack_connect_pipeline_qt.client.widgets.experimental import overrides as override_widgets
-
-from ftrack_connect_pipeline_qt.client.widgets.options import (
-    new_dynamic
-)
+# from ftrack_connect_pipeline_qt.client.widgets.experimental import default as default_widgets
+# from ftrack_connect_pipeline_qt.client.widgets.experimental import overrides as override_widgets
+from ftrack_connect_pipeline_qt.ui.client_ui_overrides import UI_OVERRIDES
 
 from Qt import QtCore, QtWidgets
 
@@ -108,22 +105,32 @@ class WidgetFactory(QtWidgets.QWidget):
             'Component': plugin_container.PluginContainerObject
         }
 
-        self.overrides = {
-            'main_widget': default_widgets.DefaultMainWidget,
-            'contexts': {
-                'step_container': default_widgets.DefaultStepContainerWidget,
-                'step_widget': None,
-                'stage_widget': default_widgets.DefaultStageWidget,
-                # 'plugin_widget': 'default',
-            },
-            'components': {
-                'step_container': override_widgets.TabStepContainerWidget,
-                'step_widget': default_widgets.DefaultStepWidget,
-                # 'step_widget.main': 'override', #This should be working to override specific steps
-                'stage_widget': override_widgets.GroupBoxStageWidget,
-                # 'plugin_widget': 'default',
-            }
-        }
+        # self.overrides = {
+        #     'main_widget': default_widgets.DefaultMainWidget,
+        #     'contexts': {
+        #         'step_container': default_widgets.DefaultStepContainerWidget,
+        #         'step_widget': None,
+        #         'stage_widget': default_widgets.DefaultStageWidget,
+        #         'plugin_container': None
+        #     },
+        #     'components': {
+        #         'step_container': override_widgets.TabStepContainerWidget,
+        #         'step_widget': default_widgets.DefaultStepWidget,
+        #         'stage_widget': override_widgets.GroupBoxStageWidget,
+        #         # Example to override specific stage widget
+        #         # 'stage_widget.collector': default_widgets.DefaultStageWidget,
+        #         'plugin_container': override_widgets.AccordionPluginContainerWidget,
+        #         # Example to override specific plugin container
+        #         # 'plugin_container.collect from given path': default_widgets.DefaultPluginContainerWidget,
+        #     },
+        #     'finalizers': {
+        #         'show': False,
+        #         'step_container': override_widgets.TabStepContainerWidget,
+        #         'step_widget': default_widgets.DefaultStepWidget,
+        #         'stage_widget': override_widgets.GroupBoxStageWidget,
+        #         'plugin_container': override_widgets.AccordionPluginContainerWidget,
+        #     }
+        # }
 
     def set_context(self, context_id, asset_type_name):
         '''Set :obj:`context_id` and :obj:`asset_type_name` with the given
@@ -147,113 +154,94 @@ class WidgetFactory(QtWidgets.QWidget):
     def create_main_widget(self):
         # Check for overrides of the main widget, otherwise call the default one
         # TODO: move this to a separated file
-        return self.overrides.get('main_widget')(None, None).widget
+        return UI_OVERRIDES.get('main_widget')(None, None)
+
+    def get_override(self, type_name, widget_type, name, data):
+        obj_override = UI_OVERRIDES.get(
+            type_name
+        ).get('{}.{}'.format(widget_type, name))
+        if not obj_override:
+            obj_override = UI_OVERRIDES.get(
+                type_name
+            ).get(widget_type)
+        if obj_override:
+            return obj_override(name, data)
+        return obj_override
 
     def create_typed_widget(self, fragment_data, type_name):
-        step_container = self.overrides.get(type_name).get('step_container')(type_name, fragment_data)
+        step_container_obj = self.get_override(
+            type_name, 'step_container', type_name, fragment_data
+        )
 
         for step in fragment_data[type_name]:
+            # Create widget for the step
+            # print(step)
             step_name = step.get('name')
             step_optional = step.get('optional')
-            step_widget = None
-            step_override = self.overrides.get(type_name).get('step_widget.{}'.format(step_name))
-            if not step_override:
-                step_override = self.overrides.get(type_name).get('step_widget')
-            if step_override:
-                step_widget = step_override(step_name, step)
-            # Create widget for the step
-            # print(context_step)
+
+            step_obj = self.get_override(
+                type_name, 'step_widget', step_name, step
+            )
+
             for stage in step['stages']:
                 # create widget for the stages
-                # print(context_stage)
+                # print(stage)
                 stage_name = stage.get('name')
-                stage_widget = self.overrides.get(type_name).get('stage_widget')(stage_name, stage)
+                stage_obj = self.get_override(
+                    type_name, 'stage_widget', stage_name, stage
+                )
                 for plugin in stage['plugins']:
                     # create widget for the plugins
-                    # print(stage_plugin)
-                    if 'widget' in list(plugin.keys()):
-                        plugin_widget = self.fetch_plugin_widget(
-                            plugin, stage['name']
-                        )
+                    # print(plugin)
+                    plugin_name = plugin.get('name')
+                    plugin_container_obj = self.get_override(
+                        type_name, 'plugin_container', plugin_name, plugin
+                    )
+                    plugin_widget = self.fetch_plugin_widget(
+                        plugin, stage['name']
+                    )
+                    if plugin_container_obj:
+                        plugin_widget.toggle_status(show=False)
+                        plugin_widget.toggle_name(show=False)
+                        plugin_container_obj.parent_widget(plugin_widget)
+                        stage_obj.parent_widget(plugin_container_obj)
                     else:
-                        plugin_widget = self.generate_dynamic_widget(plugin)
-                    stage_widget.parent_widget(plugin_widget)
-                if step_widget:
-                    step_widget.parent_widget(stage_widget)
-                elif step_container:
-                    step_container.parent_widget(stage_widget)
-            if step_container and step_widget:
-                step_container.parent_widget(step_widget)
-        return step_container
-
-    # def create_components_widget(self, fragment_data):
-    #     group_box = QtWidgets.QGroupBox('components')
-    #     main_layout = QtWidgets.QVBoxLayout()
-    #     group_box.setLayout(main_layout)
-    #
-    #     tab_widget = QtWidgets.QTabWidget()
-    #     for step in fragment_data['components']:
-    #         # print(component_step)
-    #         # Create widget for the step
-    #
-    #         step_name = step.get('name')
-    #         step_optional = step.get('optional')
-    #         step_widget = QtWidgets.QWidget()
-    #         step_layout = QtWidgets.QVBoxLayout()
-    #         step_widget.setLayout(step_layout)
-    #
-    #         for stage in step['stages']:
-    #             # create widget for the stages
-    #             # print(stage)
-    #             stage_widget = QtWidgets.QGroupBox(stage.get('name'))
-    #             stage_layout = QtWidgets.QVBoxLayout()
-    #             stage_widget.setLayout(stage_layout)
-    #
-    #             for plugin in stage['plugins']:
-    #                 # create widget for the plugins
-    #                 # print(plugin)
-    #                 if 'widget' in list(plugin.keys()):
-    #                     plugin_widget = self.fetch_plugin_widget(
-    #                         plugin, stage['name']
-    #                     )
-    #                 else:
-    #                     plugin_widget = self.generate_dynamic_widget(plugin)
-    #                 stage_layout.addWidget(plugin_widget)
-    #             step_layout.addWidget(stage_widget)
-    #
-    #         tab_widget.addTab(step_widget, step_name)
-    #     main_layout.addWidget(tab_widget)
-    #     return group_box
+                        stage_obj.parent_widget(plugin_widget)
+                if step_obj:
+                    step_obj.parent_widget(stage_obj)
+                elif step_container_obj:
+                    step_container_obj.parent_widget(stage_obj)
+            if step_container_obj and step_obj:
+                step_container_obj.parent_widget(step_obj)
+        return step_container_obj
 
     def create_widget(
             self, name, schema_fragment, fragment_data=None,
             previous_object_data=None, parent=None
     ):
 
-        main_widget = self.create_main_widget()
-        context_widget = self.create_typed_widget(fragment_data, type_name='contexts')#fragment_data['contexts']
-        components_widget = self.create_typed_widget(fragment_data, type_name='components')#self.create_components_widget(fragment_data)
-        # self.create_finalizer_widget()
+        main_obj = self.create_main_widget()
 
-        main_widget.layout().addWidget(context_widget.widget)
-        main_widget.layout().addWidget(components_widget.widget)
+        context_obj = self.create_typed_widget(
+            fragment_data, type_name='contexts'
+        )
 
-        return main_widget
+        components_obj = self.create_typed_widget(
+            fragment_data, type_name='components'
+        )
 
-    def generate_dynamic_widget(self, widget_data):
-        name = widget_data.get('name')
-        options = widget_data.get('options')
-        widget = new_dynamic.DynamicWidget(name=name, options=options, session=self.session, context_id=self.context_id)
-        # widget.show()
-        return widget
+        finalizers_obj = None
+        if UI_OVERRIDES.get('finalizers').get('show', True):
+            finalizers_obj = self.create_typed_widget(
+                fragment_data, type_name='finalizers'
+            )
 
-    def stage_tab_widget(self, tab_widget, widget_data):
-        name = widget_data.get('name')
-        options = widget_data.get('options')
-        tab_widget.addTab(name)
-        widget = new_dynamic.DynamicWidget(name=name, options=options, session=self.session, context_id=self.context_id)
-        # widget.show()
-        return widget
+        main_obj.widget.layout().addWidget(context_obj.widget)
+        main_obj.widget.layout().addWidget(components_obj.widget)
+        if finalizers_obj:
+            main_obj.widget.layout().addWidget(finalizers_obj.widget)
+
+        return main_obj.widget
 
 
     def create_widget_old(

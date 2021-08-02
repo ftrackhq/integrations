@@ -11,9 +11,15 @@ class DefaultStepWidget(BaseUIWidget):
     def __init__(self, name, fragment_data, parent=None):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
+
+        self.step_optional = False
+
         super(DefaultStepWidget, self).__init__(
             name, fragment_data, parent=parent
         )
+
+    def pre_build(self):
+        self.step_optional = self.fragment_data.get('optional')
 
     def build(self):
         self._widget = QtWidgets.QWidget()

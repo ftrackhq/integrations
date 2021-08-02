@@ -1,32 +1,31 @@
-from ftrack_connect_pipeline_qt import constants
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2020 ftrack
+
+import logging
 from ftrack_connect_pipeline_qt.client.widgets.experimental import BaseUIWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import AccordionWidget
+from Qt import QtGui, QtCore, QtWidgets
 
-class AccordionStepWidget(BaseUIWidget):
+
+class AccordionPluginContainerWidget(BaseUIWidget):
     '''Widget representation of a boolean'''
     def __init__(self, name, fragment_data, parent=None):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
-
-        self.step_optional = False
-
-        super(AccordionStepWidget, self).__init__(
+        super(AccordionPluginContainerWidget, self).__init__(
             name, fragment_data, parent=parent
         )
 
-    def pre_build(self):
-        self.step_optional = self.fragment_data.get('optional')
-
     def build(self):
         self._widget = AccordionWidget(
-            title=self.name, checkable=self.step_optional
+            title=self.name, checkable=False
         )
 
-    def parent_widget(self, step_widget):
+    def parent_widget(self, widget):
         if self.widget:
-            if hasattr(step_widget, 'widget'):
-                self.widget.add_widget(step_widget.widget)
+            if hasattr(widget, 'widget'):
+                self.widget.add_widget(widget.widget)
             else:
-                self.widget.add_widget(step_widget)
+                self.widget.add_widget(widget)
         else:
             self.logger.error("Please create a widget before parent")
