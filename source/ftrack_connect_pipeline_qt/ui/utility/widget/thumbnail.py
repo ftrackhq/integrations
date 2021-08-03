@@ -182,12 +182,12 @@ class Context(Base):
 
     def _scaleAndSetPixmap(self, pixmap):
         '''Scale and set *pixmap*.'''
-        scaledPixmap = pixmap.scaled(
+        scaled_pixmap = pixmap.scaled(
             self.size(),
             QtCore.Qt.KeepAspectRatio,
             QtCore.Qt.SmoothTransformation
         )
-        self.setPixmap(scaledPixmap)
+        self.setPixmap(scaled_pixmap)
 
 
 class AssetVersion(Base):
@@ -210,17 +210,16 @@ class AssetVersion(Base):
         result_url = '{base_url}/component/thumbnail?{params}'.format(
             base_url=self.session._server_url, params=params
         )
-        print(result_url)
         return result_url
 
     def _scaleAndSetPixmap(self, pixmap):
         '''Scale and set *pixmap*.'''
-        scaledPixmap = pixmap.scaled(
+        scaled_pixmap = pixmap.scaled(
             self.size(),
             QtCore.Qt.KeepAspectRatio,
             QtCore.Qt.SmoothTransformation
         )
-        self.setPixmap(scaledPixmap)
+        self.setPixmap(scaled_pixmap)
 
 class User(EllipseBase):
 
