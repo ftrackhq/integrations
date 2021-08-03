@@ -10,12 +10,6 @@ import ftrack_api
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
-from ftrack_connect_pipeline_qt.client.widgets import schema as schema_widget
-from ftrack_connect_pipeline_qt.client.widgets.schema.overrides import (
-    step, hidden, plugin_container, stage
-)
-# from ftrack_connect_pipeline_qt.client.widgets.experimental import default as default_widgets
-# from ftrack_connect_pipeline_qt.client.widgets.experimental import overrides as override_widgets
 from ftrack_connect_pipeline_qt.ui.client_ui_overrides import UI_OVERRIDES
 
 from Qt import QtCore, QtWidgets
@@ -67,70 +61,6 @@ class WidgetFactory(QtWidgets.QWidget):
         self.host_connection = None
 
         self.components_names = []
-
-        self.schema_type_mapping = {
-            'object': schema_widget.JsonObject,
-            'string': schema_widget.JsonString,
-            'integer': schema_widget.JsonInteger,
-            'array': schema_widget.JsonArray,
-            'number': schema_widget.JsonNumber,
-            'boolean': schema_widget.JsonBoolean
-        }
-        self.schema_name_mapping = {
-            'components': step.StepTabArray,
-            'contexts': step.StepArrayContext,
-            # TODO: Use this one to show finalizers.
-            # 'finalizers': step.StepTabArray,
-            'finalizers': hidden.HiddenArray,
-            '_config': hidden.HiddenObject,
-            'ui_type': hidden.HiddenString,
-            'category': hidden.HiddenString,
-            'type': hidden.HiddenString,
-            'name': hidden.HiddenString,
-            'enabled': hidden.HiddenBoolean,
-            'package': hidden.HiddenString,
-            'engine_type': hidden.HiddenString,
-            'host_type': hidden.HiddenString,
-            'optional': hidden.HiddenBoolean,
-            'discoverable': hidden.HiddenArray,
-            # 'stages': stage.AccordionStageArray
-        }
-
-        self.schema_title_mapping = {
-            'Publisher': hidden.HiddenObject,
-            'Loader': hidden.HiddenObject,
-            'AssetManager': hidden.HiddenObject,
-            'Step': hidden.HiddenObject,
-            'Plugin': plugin_container.PluginContainerAccordionObject,
-            'Component': plugin_container.PluginContainerObject
-        }
-
-        # self.overrides = {
-        #     'main_widget': default_widgets.DefaultMainWidget,
-        #     'contexts': {
-        #         'step_container': default_widgets.DefaultStepContainerWidget,
-        #         'step_widget': None,
-        #         'stage_widget': default_widgets.DefaultStageWidget,
-        #         'plugin_container': None
-        #     },
-        #     'components': {
-        #         'step_container': override_widgets.TabStepContainerWidget,
-        #         'step_widget': default_widgets.DefaultStepWidget,
-        #         'stage_widget': override_widgets.GroupBoxStageWidget,
-        #         # Example to override specific stage widget
-        #         # 'stage_widget.collector': default_widgets.DefaultStageWidget,
-        #         'plugin_container': override_widgets.AccordionPluginContainerWidget,
-        #         # Example to override specific plugin container
-        #         # 'plugin_container.collect from given path': default_widgets.DefaultPluginContainerWidget,
-        #     },
-        #     'finalizers': {
-        #         'show': False,
-        #         'step_container': override_widgets.TabStepContainerWidget,
-        #         'step_widget': default_widgets.DefaultStepWidget,
-        #         'stage_widget': override_widgets.GroupBoxStageWidget,
-        #         'plugin_container': override_widgets.AccordionPluginContainerWidget,
-        #     }
-        # }
 
     def set_context(self, context_id, asset_type_name):
         '''Set :obj:`context_id` and :obj:`asset_type_name` with the given
@@ -242,85 +172,6 @@ class WidgetFactory(QtWidgets.QWidget):
             main_obj.widget.layout().addWidget(finalizers_obj.widget)
 
         return main_obj.widget
-
-
-    def create_widget_old(
-            self, name, schema_fragment, fragment_data=None,
-            previous_object_data=None, parent=None):
-        '''
-        Create the appropriate widget for a given schema element with *name*,
-        *schema_fragment*, *fragment_data*, *previous_object_data*, *parent*
-
-        *name* : widget name
-
-        *schema_fragment* : fragment of the schema to generate the current widget
-
-        *fragment_data* : fragment of the data from the definition to fill
-        the current widget.
-
-        *previous_object_data* : fragment of the data from the previous schema
-        fragment
-
-        *parent* : widget to parent the current widget (optional).
-
-        '''
-
-        schema_fragment_order = schema_fragment.get('order', [])
-
-        # sort schema fragment keys by the order defined in the schema order
-        # any not found entry will be added last.
-
-        if 'properties' in schema_fragment:
-            schema_fragment_properties = OrderedDict(
-                sorted(
-                    list(schema_fragment['properties'].items()),
-                    key=lambda pair: schema_fragment_order.index(pair[0])
-                    if pair[0] in schema_fragment_order
-                    else len(list(schema_fragment['properties'].keys())) - 1)
-            )
-            schema_fragment['properties'] = schema_fragment_properties
-
-
-        widget_fn = self.schema_name_mapping.get(name)
-
-        if not widget_fn:
-            widget_fn = self.schema_title_mapping.get(
-                schema_fragment.get('title'))
-
-        if not widget_fn:
-            if previous_object_data:
-                if previous_object_data.get('category') == 'step':
-                    if (
-                            name in previous_object_data.get('stage_order')
-                            and schema_fragment.get('type') == 'string'
-                    ):
-                        widget_fn = hidden.HiddenString
-
-        if not widget_fn:
-            widget_fn = self.schema_type_mapping.get(
-                schema_fragment.get('type'))
-
-        if not widget_fn:
-            if schema_fragment.get('allOf'):
-                # When the schema contains allOf in the keys, we handle it as
-                # an object type.
-                widget_fn = self.schema_title_mapping.get(
-                    schema_fragment.get('allOf')[0].get('title'))
-                if not widget_fn:
-                    widget_fn = self.schema_type_mapping.get(
-                        schema_fragment.get('allOf')[0].get('type'),
-                        schema_widget.UnsupportedSchema
-                    )
-            else:
-                widget_fn = schema_widget.UnsupportedSchema
-
-        type_widget = widget_fn(
-            name, schema_fragment, fragment_data, previous_object_data,
-            self, parent
-        )
-        self.register_type_widget_plugin(type_widget)
-
-        return type_widget
 
     def fetch_plugin_widget(self, plugin_data, stage_name, extra_options=None):
         '''
