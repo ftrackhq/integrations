@@ -46,8 +46,7 @@ class EntityInfo(QtWidgets.QWidget):
 
     def on_path_ready(self, parents):
         '''Set current path to *names*.'''
-
-        self.type_field.setText(parents[-1]['type']['name'])
+        self.type_field.setText(parents[-1].get('type', {}).get('name', 'Project'))
         self.name_field.setText(parents[-1]['name'])
         self.path_field.setText(os.sep.join([p['name'] for p in parents[:-1]]))
 
