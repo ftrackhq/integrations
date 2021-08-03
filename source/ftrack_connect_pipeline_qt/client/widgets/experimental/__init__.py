@@ -29,6 +29,13 @@ class BaseUIWidget(object):
     def widget(self):
         return self._widget
 
+    @property
+    def is_enabled(self):
+        return self._is_enabled
+    @property
+    def is_optional(self):
+        return self._is_optional
+
     def __init__(
             self, name, fragment_data, parent=None
     ):
@@ -70,6 +77,8 @@ class BaseUIWidget(object):
             )
         self._widget = None
         self._widget_id = uuid.uuid4().hex
+        self._is_optional = False
+        self._is_enabled = True
 
         self.pre_build()
         self.build()
@@ -98,6 +107,9 @@ class BaseUIWidget(object):
                 self.widget.layout().addWidget(widget)
         else:
             self.logger.error("Please create a widget before parent")
+
+    def set_enabled(self, enabled):
+        self._is_enabled = enabled
 
     def to_json_object(self):
         '''Return a formated json with the data from the current widget'''

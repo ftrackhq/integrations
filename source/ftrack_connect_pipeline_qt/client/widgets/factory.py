@@ -1,6 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
-
+import copy
 import logging
 from collections import OrderedDict
 from functools import partial
@@ -55,10 +55,14 @@ class WidgetFactory(QtWidgets.QWidget):
         self._event_manager = event_manager
         self.ui_types = ui_types
         self._widgets_ref = {}
+        self._step_objs_ref = {}
+        self._stage_objs_ref = {}
         self._type_widgets_ref = {}
         self.context_id = None
         self.asset_type_name = None
         self.host_connection = None
+        self.original_definition = None
+        self.working_definition = None
 
         self.components_names = []
 
@@ -81,11 +85,6 @@ class WidgetFactory(QtWidgets.QWidget):
         '''Set :obj:`definition_type` with the given *definition_type*'''
         self.definition_type = definition_type
 
-    def create_main_widget(self):
-        # Check for overrides of the main widget, otherwise call the default one
-        # TODO: move this to a separated file
-        return UI_OVERRIDES.get('main_widget')(None, None)
-
     def get_override(self, type_name, widget_type, name, data):
         obj_override = UI_OVERRIDES.get(
             type_name
@@ -98,6 +97,10 @@ class WidgetFactory(QtWidgets.QWidget):
             return obj_override(name, data)
         return obj_override
 
+    def create_main_widget(self):
+        # Check for overrides of the main widget, otherwise call the default one
+        return UI_OVERRIDES.get('main_widget')(None, None)
+
     def create_typed_widget(self, fragment_data, type_name):
         step_container_obj = self.get_override(
             type_name, 'step_container', type_name, fragment_data
@@ -107,12 +110,11 @@ class WidgetFactory(QtWidgets.QWidget):
             # Create widget for the step
             # print(step)
             step_name = step.get('name')
-            step_optional = step.get('optional')
-
             step_obj = self.get_override(
                 type_name, 'step_widget', step_name, step
             )
-
+            if step_obj:
+                self.register_object(step, step_obj, "step")
             for stage in step['stages']:
                 # create widget for the stages
                 # print(stage)
@@ -120,6 +122,8 @@ class WidgetFactory(QtWidgets.QWidget):
                 stage_obj = self.get_override(
                     type_name, 'stage_widget', stage_name, stage
                 )
+                if step_obj:
+                    self.register_object(stage, stage_obj, "stage")
                 for plugin in stage['plugins']:
                     # create widget for the plugins
                     # print(plugin)
@@ -145,25 +149,24 @@ class WidgetFactory(QtWidgets.QWidget):
                 step_container_obj.parent_widget(step_obj)
         return step_container_obj
 
-    def create_widget(
-            self, name, schema_fragment, fragment_data=None,
-            previous_object_data=None, parent=None
-    ):
+    def build_definition_ui(self, name, definition=None):
+        self.original_definition = copy.deepcopy(definition)
+        self.working_definition = definition
 
         main_obj = self.create_main_widget()
 
         context_obj = self.create_typed_widget(
-            fragment_data, type_name='contexts'
+            definition, type_name='contexts'
         )
 
         components_obj = self.create_typed_widget(
-            fragment_data, type_name='components'
+            definition, type_name='components'
         )
 
         finalizers_obj = None
         if UI_OVERRIDES.get('finalizers').get('show', True):
             finalizers_obj = self.create_typed_widget(
-                fragment_data, type_name='finalizers'
+                definition, type_name='finalizers'
             )
 
         main_obj.widget.layout().addWidget(context_obj.widget)
@@ -172,6 +175,25 @@ class WidgetFactory(QtWidgets.QWidget):
             main_obj.widget.layout().addWidget(finalizers_obj.widget)
 
         return main_obj.widget
+
+    def to_json_object(self):
+        out = self.working_definition
+        for type_name in ['contexts', 'components', 'finalizers']:
+            for step in out[type_name]:
+                step_obj = self.get_registered_object(step, 'step')
+                for stage in step['stages']:
+                    stage_obj = self.get_registered_object(stage, 'stage')
+                    for plugin in stage['plugins']:
+                        plugin_widget = self.get_registered_widget_plugin(plugin)
+                        if plugin_widget:
+                            plugin.update(plugin_widget.to_json_object())
+                    if stage_obj:
+                        stage.update(stage_obj.to_json_object())
+                if step_obj:
+                    step.update(step_obj.to_json_object())
+
+        return out
+
 
     def fetch_plugin_widget(self, plugin_data, stage_name, extra_options=None):
         '''
@@ -380,16 +402,27 @@ class WidgetFactory(QtWidgets.QWidget):
 
         return uid
 
+    def register_object(self, data, obj, type):
+        if type == 'stage':
+            self._stage_objs_ref[obj.widget_id] = obj
+        if type == 'step':
+            self._step_objs_ref[obj.widget_id] = obj
+        data['widget_ref'] = obj.widget_id
+        return obj.widget_id
+
     def get_registered_widget_plugin(self, plugin_data):
         '''return the widget registered for the given *plugin_data*.'''
-        return self._widgets_ref[plugin_data['widget_ref']]
+        if plugin_data.get('widget_ref'):
+            return self._widgets_ref[plugin_data['widget_ref']]
 
-    def register_type_widget_plugin(self, widget):
-        '''regiter the *widget* in the :obj:`type_widgets_ref`'''
-        uid = uuid.uuid4().hex
-        self._type_widgets_ref[uid] = widget
+    def get_registered_object(self, data, type):
+        '''return the widget registered for the given *plugin_data*.'''
+        if data.get('widget_ref'):
+            if type == 'stage':
+                return self._stage_objs_ref[data['widget_ref']]
+            if type == 'step':
+                return self._step_objs_ref[data['widget_ref']]
 
-        return uid
 
     def reset_type_widget_plugin(self):
         '''empty :obj:`type_widgets_ref`'''

@@ -52,8 +52,8 @@ class TabStepContainerWidget(DefaultStepContainerWidget):
                 )
 
             # Add checkbox for the optional components
-            if hasattr(step_widget, 'step_optional'):
-                if step_widget.step_optional:
+            if hasattr(step_widget, 'is_optional'):
+                if step_widget.is_optional:
                     checkbox = QtWidgets.QCheckBox()
                     checkbox.setChecked(True)
                     self.checkBoxList.append(checkbox)
@@ -63,16 +63,18 @@ class TabStepContainerWidget(DefaultStepContainerWidget):
                         checkbox
                     )
                     checkbox.stateChanged.connect(
-                        partial(self._toggle_tab_state, tab_idx)
+                        partial(self._toggle_tab_state, tab_idx, step_widget)
                     )
         else:
             self.logger.error("Please create a widget before parent")
 
-    def _toggle_tab_state(self, tab_idx, check_state):
+    def _toggle_tab_state(self, tab_idx, step_widget, check_state):
         if check_state == 0:
             self.tab_widget.setTabEnabled(tab_idx, False)
+            step_widget.set_enabled(False)
             return
         self.tab_widget.setTabEnabled(tab_idx, True)
+        step_widget.set_enabled(True)
 
     def update_inner_status(self, inner_widget, tab_idx, data):
         status, message = data
@@ -93,3 +95,4 @@ class TabStepContainerWidget(DefaultStepContainerWidget):
             else:
                 icon = self.status_icons[constants.ERROR_STATUS]
                 self.tab_widget.setTabIcon(tab_idx, QtGui.QIcon(icon))
+
