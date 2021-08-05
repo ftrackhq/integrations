@@ -115,7 +115,7 @@ class WidgetFactory(QtWidgets.QWidget):
                 type_name, '{}_widget'.format(step_category), step_name, step
             )
             if step_obj:
-                self.register_object(step, step_obj, "step")
+                self.register_object(step, step_obj, step_category)
             for stage in step['stages']:
                 # create widget for the stages
                 # print(stage)
@@ -124,8 +124,8 @@ class WidgetFactory(QtWidgets.QWidget):
                 stage_obj = self.get_override(
                     type_name, '{}_widget'.format(stage_category), stage_name, stage
                 )
-                if step_obj:
-                    self.register_object(stage, stage_obj, "stage")
+                if stage_obj:
+                    self.register_object(stage, stage_obj, stage_category)
                 for plugin in stage['plugins']:
                     # create widget for the plugins
                     # print(plugin)
