@@ -11,10 +11,10 @@ class VersionComboBox(QtWidgets.QComboBox):
         )
         self.setEditable(True)
         self.session = session
-        self.context_entity = None
+        self.context_id = None
 
-    def context_changed(self, context_entity):
-        self.context_entity = context_entity
+    def context_changed(self, context_id):
+        self.context_id = context_id
         self.clear()
 
     def asset_changed(self, asset_id):
@@ -22,7 +22,7 @@ class VersionComboBox(QtWidgets.QComboBox):
         versions = self.session.query(
             'select version '
             'from AssetVersion where task.id is {} and asset_id is {} order by'
-            ' version descending'.format(self.context_entity['id'], asset_id)).all()
+            ' version descending'.format(self.context_id, asset_id)).all()
         for version in versions:
             self.addItem(str(version['version']), version['id'])
 
@@ -68,9 +68,9 @@ class VersionSelector(QtWidgets.QWidget):
         version_id = self.version_combobox.itemData(current_idx)
         self.version_changed.emit(version_num, version_id)
 
-    def set_context(self, context_entity):
-        self.logger.debug('setting context to :{}'.format(context_entity))
-        self.version_combobox.context_changed(context_entity)
+    def set_context(self, context_id):
+        self.logger.debug('setting context to :{}'.format(context_id))
+        self.version_combobox.context_changed(context_id)
 
     def set_asset_id(self, asset_id):
         self.logger.debug('setting asset_id to :{}'.format(asset_id))

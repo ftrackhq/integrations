@@ -8,7 +8,6 @@ from ftrack_connect_pipeline_qt.client.widgets import factory
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import ContextSelector
 
-
 class QtClient(client.Client, QtWidgets.QWidget):
     '''
     Base QT client widget class.
@@ -19,16 +18,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
     run_definition_button_text = 'Run'
 
     on_context_change = QtCore.Signal(object)
-
-    @property
-    def context_entity(self):
-        '''Returns the context_entity'''
-        return self._context_entity
-
-    @context_entity.setter
-    def context_entity(self, value):
-        '''Sets context_entity with the given *value*'''
-        self._context_entity = value
 
     def __init__(self, event_manager, parent=None):
         '''Initialise with *event_manager* and
@@ -45,10 +34,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.build()
         self.post_build()
         if self.context_id:
-            context_entity = self.session.query(
-                'select link, name , parent, parent.name from Context where id is "{}"'.format(self.context_id)
-            ).one()
-            self.context_selector.setEntity(context_entity)
+            self.context_selector.set_context_id(self.context_id)
         self.add_hosts(self.discover_hosts())
 
     def add_hosts(self, host_connections):
@@ -129,8 +115,8 @@ class QtClient(client.Client, QtWidgets.QWidget):
     def _on_context_selector_context_changed(self, context_entity):
         '''Updates the option dicctionary with provided *context* when
         entityChanged of context_selector event is triggered'''
-        self.context_entity = context_entity
-        self.change_context(context_entity['id'])
+        self.context_id = context_entity['id']
+        self.change_context(self.context_id)
         if len(self.host_selector.host_connections) > 0:
             if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
                 self.host_selector.change_host_index(1)
@@ -177,7 +163,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.widget_factory.set_host_connection(self.host_connection)
         self.widget_factory.set_definition_type(self.definition['type'])
         self.widget_factory.set_package(self.current_package)
-
         self.definition_widget = self.widget_factory.build_definition_ui(
             definition['name'],
             self.definition

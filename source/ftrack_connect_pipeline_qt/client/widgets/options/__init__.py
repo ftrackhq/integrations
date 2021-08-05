@@ -1,6 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
-
+import time
 import logging
 from functools import partial
 
@@ -31,26 +31,14 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         return '{} {}'.format(self.__class__.__name__, self.name)
 
     @property
-    def context_entity(self):
-        '''Returns the context_entity'''
-        return self._context_entity
-
-    @context_entity.setter
-    def context_entity(self, value):
-        '''Sets context_entity with the given *value*'''
-        self._context_entity = value
+    def context_id(self):
+        '''Returns the context_id'''
+        return self._context_id
 
     @property
-    def asset_type_entity(self):
+    def asset_type_name(self):
         '''Returns asset_type entity'''
-        return self._asset_type_entity
-
-    @asset_type_entity.setter
-    def asset_type_entity(self, asset_type_name):
-        '''Sets asset type from the given *value*'''
-        self._asset_type_entity = self.session.query(
-            'AssetType where short is "{}"'.format(asset_type_name)
-        ).first()
+        return self._asset_type_name
 
     @property
     def session(self):
@@ -156,20 +144,13 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self._name = name
         self._description = description
         self._options = options
-        self._context_entity = None
 
         self._status_icon = None
         self.name_label = None
 
-        context_id = context_id
+        self._context_id = context_id
 
-        #we set the asset_type entity with the asset_type name
-        self.asset_type_entity = self.set_asset_type_entity(asset_type_name)
-
-        self.context_entity = session.query(
-            'select link, name , parent, parent.name from Context where id is "{}"'.format(context_id)
-        ).one()
-
+        self._asset_type_name = asset_type_name
         # Build widget
         self.pre_build()
         self.build()
@@ -209,7 +190,6 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self.run_result_updated.connect(self._set_internal_run_result)
 
     def set_asset_type_entity(self, asset_type_name):
-        #TODO: move the code from the asset_type_entity setter to here.
         return asset_type_name
 
     def run_build(self):

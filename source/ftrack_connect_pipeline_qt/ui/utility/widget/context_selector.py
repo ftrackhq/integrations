@@ -5,6 +5,7 @@ from Qt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline_qt.ui.utility.widget.entity_path import EntityPath
 import ftrack_connect_pipeline_qt.ui.utility.widget.entity_browser as entityBrowser
+from ftrack_connect_pipeline_qt.utils import BaseThread
 
 
 class ContextSelector(QtWidgets.QWidget):
@@ -13,19 +14,24 @@ class ContextSelector(QtWidgets.QWidget):
     @property
     def entity(self):
         return self._entity
+    @property
+    def context_id(self):
+        return self._context_id
 
-    def __init__(self, session, currentEntity=None, parent=None):
+    def __init__(self, session, current_context_id=None, currentEntity=None, parent=None):
         '''Initialise ContextSelector widget with the *currentEntity* and
         *parent* widget.
         '''
         super(ContextSelector, self).__init__(parent=parent)
         self._entity = currentEntity
+        self._context_id = current_context_id
         self.session = session
 
         self.pre_build()
         self.build()
         self.post_build()
 
+        self.set_context_id(self._context_id)
         self.setEntity(currentEntity)
 
     def pre_build(self):
@@ -64,6 +70,22 @@ class ContextSelector(QtWidgets.QWidget):
             return
         self._entity = entity
         self.entityChanged.emit(entity)
+
+    def find_context_entity(self, context_id):
+        context_entity = self.session.query(
+            'select link, name , parent, parent.name from Context where id is "{}"'.format(context_id)
+        ).one()
+        return context_entity
+
+    def set_context_id(self, context_id):
+        if context_id:
+            thread = BaseThread(
+                name='context entity thread',
+                target=self.find_context_entity,
+                callback=self.setEntity,
+                target_args=[context_id]
+            )
+            thread.start()
 
     def _onEntityBrowseButtonClicked(self):
         '''Handle entity browse button clicked.'''

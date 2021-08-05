@@ -14,8 +14,6 @@ from ftrack_connect_pipeline_qt.ui.client_ui_overrides import UI_OVERRIDES
 
 from Qt import QtCore, QtWidgets
 
-import time
-
 
 class WidgetFactory(QtWidgets.QWidget):
     '''Main class to represent widgets from json schemas'''
@@ -152,57 +150,29 @@ class WidgetFactory(QtWidgets.QWidget):
         return step_container_obj
 
     def build_definition_ui(self, name, definition=None):
-        st_time = time.time()
         self.original_definition = copy.deepcopy(definition)
-        end_pt_time = time.time()
-        partial_time = end_pt_time - st_time
-        print("partial time deep copy ---> {}".format(partial_time))
         self.working_definition = definition
 
-        part_st_time = time.time()
         main_obj = self.create_main_widget()
-        end_pt_time = time.time()
-        partial_time = end_pt_time - part_st_time
-        print("partial time create main widget ---> {}".format(partial_time))
 
-        part_st_time = time.time()
         context_obj = self.create_typed_widget(
             definition, type_name='contexts'
         )
-        end_pt_time = time.time()
-        partial_time = end_pt_time - part_st_time
-        print("partial time create contexts ---> {}".format(partial_time))
 
-        part_st_time = time.time()
         components_obj = self.create_typed_widget(
             definition, type_name='components'
         )
-        end_pt_time = time.time()
-        partial_time = end_pt_time - part_st_time
-        print("partial time create components ---> {}".format(partial_time))
 
-        part_st_time = time.time()
         finalizers_obj = None
         if UI_OVERRIDES.get('finalizers').get('show', True):
             finalizers_obj = self.create_typed_widget(
                 definition, type_name='finalizers'
             )
-        end_pt_time = time.time()
-        partial_time = end_pt_time - part_st_time
-        print("partial time create finalizers ---> {}".format(partial_time))
 
-        part_st_time = time.time()
         main_obj.widget.layout().addWidget(context_obj.widget)
         main_obj.widget.layout().addWidget(components_obj.widget)
         if finalizers_obj:
             main_obj.widget.layout().addWidget(finalizers_obj.widget)
-        end_pt_time = time.time()
-        partial_time = end_pt_time - part_st_time
-        print("partial time paenting in build_def ---> {}".format(partial_time))
-
-        end_time = time.time()
-        total_time = end_time - st_time
-        print("total time ---> {}".format(total_time))
 
         return main_obj.widget
 

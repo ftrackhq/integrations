@@ -1,5 +1,6 @@
 import logging
 from Qt import QtWidgets, QtCore, QtGui
+from ftrack_connect_pipeline_qt.utils import BaseThread
 
 
 class AssetComboBox(QtWidgets.QComboBox):
@@ -17,16 +18,31 @@ class AssetComboBox(QtWidgets.QComboBox):
         validator = QtGui.QRegExpValidator(self.valid_asset_name)
         self.setValidator(validator)
 
-    def on_context_changed(self, context_entity, asset_type_entity):
-        self.clear()
-
+    def query_assets_from_context(self, context_id, asset_type_name):
+        asset_type_entity = self.session.query(
+                    'select name from AssetType where short is "{}"'.format(asset_type_name)
+                ).first()
         assets = self.session.query(
             'select name, versions.task.id , type.id '
             'from Asset where versions.task.id is {} and type.id is {}'.format(
-                context_entity['id'], asset_type_entity['id'])
+                context_id, asset_type_entity['id'])
         ).all()
+        return assets
+
+    def add_assets_to_ui(self, assets):
         for asset in assets:
             self.addItem(asset['name'], asset['id'])
+
+    def on_context_changed(self, context_id, asset_type_name):
+        self.clear()
+
+        thread = BaseThread(
+            name='get_assets_thread',
+            target=self.query_assets_from_context,
+            callback=self.add_assets_to_ui,
+            target_args=(context_id, asset_type_name)
+        )
+        thread.start()
 
     def validate_name(self):
         is_valid_bool = True
@@ -83,6 +99,6 @@ class AssetSelector(QtWidgets.QWidget):
         asset_id = self.asset_combobox.itemData(current_idx)
         self.asset_changed.emit(asset_name, asset_id, is_valid_name)
 
-    def set_context(self, context_entity, asset_type_entity):
-        self.logger.debug('setting context to :{}'.format(context_entity))
-        self.asset_combobox.on_context_changed(context_entity, asset_type_entity)
+    def set_context(self, context_id, asset_type_name):
+        self.logger.debug('setting context to :{}'.format(context_id))
+        self.asset_combobox.on_context_changed(context_id, asset_type_name)

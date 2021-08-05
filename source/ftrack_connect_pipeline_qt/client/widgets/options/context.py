@@ -8,6 +8,8 @@ from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import ContextSelector
 from ftrack_connect_pipeline_qt.ui.utility.widget.asset_selector import AssetSelector
 from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import VersionSelector
+from ftrack_connect_pipeline_qt.utils import BaseThread
+
 
 
 class PublishContextWidget(BaseOptionsWidget):
@@ -21,18 +23,17 @@ class PublishContextWidget(BaseOptionsWidget):
         '''initialise PublishContextWidget with *parent*, *session*, *data*,
         *name*, *description*, *options* and *context*
         '''
-
         super(PublishContextWidget, self).__init__(
             parent=parent, session=session, data=data, name=name,
             description=description, options=options, context_id=context_id,
             asset_type_name=asset_type_name
         )
-        self.asset_selector.set_context(self.context_entity, self.asset_type_entity)
+        self.asset_selector.set_context(context_id, asset_type_name)
 
     def build(self):
         '''build function widgets.'''
-        if self.context_entity:
-            self.set_option_result(self.context_entity['id'], key='context_id')
+        if self.context_id:
+            self.set_option_result(self.context_id, key='context_id')
         self._build_asset_selector()
         self._build_status_selector()
         self._build_comments_input()
@@ -90,7 +91,16 @@ class PublishContextWidget(BaseOptionsWidget):
         self.status_layout.addWidget(self.asset_status_label)
         self.status_layout.addWidget(self.status_selector)
         self.layout().addLayout(self.status_layout)
-        statuses = self._get_statuses()
+
+        thread = BaseThread(
+            name='get_status_thread',
+            target=self._get_statuses,
+            callback=self.set_statuses,
+            target_args=()
+        )
+        thread.start()
+
+    def set_statuses(self, statuses):
         for index, status in enumerate(statuses):
             self.status_selector.addItem(status['name'], status['id'])
             status_color = status['color']
@@ -105,9 +115,13 @@ class PublishContextWidget(BaseOptionsWidget):
 
     def _get_statuses(self):
         '''Returns the status of the selected assetVersion'''
+        context_entity = self.session.query(
+                'select link, name , parent, parent.name from Context where id is "{}"'.format(self.context_id)
+            ).one()
+
         project = self.session.query(
             'select name , parent, parent.name from Context where id is "{}"'.format(
-                self.context_entity['link'][0]['id']
+                context_entity['link'][0]['id']
             )
         ).one()
 
@@ -151,12 +165,12 @@ class LoadContextWidget(BaseOptionsWidget):
             asset_type_name=asset_type_name
         )
 
-        self.asset_selector.set_context(self.context_entity, self.asset_type_entity)
+        self.asset_selector.set_context(context_id, asset_type_name)
 
     def build(self):
         '''build function widgets.'''
-        if self.context_entity:
-            self.set_option_result(self.context_entity['id'], key='context_id')
+        if self.context_id:
+            self.set_option_result(self.context_id, key='context_id')
         self._build_asset_selector()
         self._build_version_selector()
 
@@ -172,7 +186,7 @@ class LoadContextWidget(BaseOptionsWidget):
         self.set_option_result(asset_name, key='asset_name')
         self.set_option_result(asset_id, key='asset_id')
         self.set_option_result(is_valid, key='is_valid_name')
-        self.version_selector.set_context(self.context_entity)
+        self.version_selector.set_context(self.context_id)
         self.version_selector.set_asset_id(asset_id)
         self.asset_changed.emit(asset_name, asset_id, is_valid)
 
