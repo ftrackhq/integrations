@@ -101,35 +101,38 @@ class WidgetFactory(QtWidgets.QWidget):
         # Check for overrides of the main widget, otherwise call the default one
         return UI_OVERRIDES.get('main_widget')(None, None)
 
-    def create_typed_widget(self, fragment_data, type_name):
+    def create_typed_widget(self, definition, type_name):
         step_container_obj = self.get_override(
-            type_name, 'step_container', type_name, fragment_data
+            type_name, 'step_container', type_name, definition
         )
 
-        for step in fragment_data[type_name]:
+        for step in definition[type_name]:
             # Create widget for the step
             # print(step)
+            step_category = step['category']
             step_name = step.get('name')
             step_obj = self.get_override(
-                type_name, 'step_widget', step_name, step
+                type_name, '{}_widget'.format(step_category), step_name, step
             )
             if step_obj:
                 self.register_object(step, step_obj, "step")
             for stage in step['stages']:
                 # create widget for the stages
                 # print(stage)
+                stage_category = stage['category']
                 stage_name = stage.get('name')
                 stage_obj = self.get_override(
-                    type_name, 'stage_widget', stage_name, stage
+                    type_name, '{}_widget'.format(stage_category), stage_name, stage
                 )
                 if step_obj:
                     self.register_object(stage, stage_obj, "stage")
                 for plugin in stage['plugins']:
                     # create widget for the plugins
                     # print(plugin)
+                    plugin_category = plugin['category']
                     plugin_name = plugin.get('name')
                     plugin_container_obj = self.get_override(
-                        type_name, 'plugin_container', plugin_name, plugin
+                        type_name, '{}_container'.format(plugin_category), plugin_name, plugin
                     )
                     plugin_widget = self.fetch_plugin_widget(
                         plugin, stage['name']
@@ -156,17 +159,17 @@ class WidgetFactory(QtWidgets.QWidget):
         main_obj = self.create_main_widget()
 
         context_obj = self.create_typed_widget(
-            definition, type_name='contexts'
+            definition, type_name=core_constants.CONTEXTS
         )
 
         components_obj = self.create_typed_widget(
-            definition, type_name='components'
+            definition, type_name=core_constants.COMPONENTS
         )
 
         finalizers_obj = None
-        if UI_OVERRIDES.get('finalizers').get('show', True):
+        if UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True):
             finalizers_obj = self.create_typed_widget(
-                definition, type_name='finalizers'
+                definition, type_name=core_constants.FINALIZERS
             )
 
         main_obj.widget.layout().addWidget(context_obj.widget)
@@ -178,11 +181,12 @@ class WidgetFactory(QtWidgets.QWidget):
 
     def to_json_object(self):
         out = self.working_definition
-        for type_name in ['contexts', 'components', 'finalizers']:
+        types = [core_constants.CONTEXTS,core_constants.COMPONENTS, core_constants.FINALIZERS]
+        for type_name in types:
             for step in out[type_name]:
-                step_obj = self.get_registered_object(step, 'step')
+                step_obj = self.get_registered_object(step, step['category'])
                 for stage in step['stages']:
-                    stage_obj = self.get_registered_object(stage, 'stage')
+                    stage_obj = self.get_registered_object(stage, stage['category'])
                     for plugin in stage['plugins']:
                         plugin_widget = self.get_registered_widget_plugin(plugin)
                         if plugin_widget:
@@ -415,12 +419,12 @@ class WidgetFactory(QtWidgets.QWidget):
         if plugin_data.get('widget_ref'):
             return self._widgets_ref[plugin_data['widget_ref']]
 
-    def get_registered_object(self, data, type):
+    def get_registered_object(self, data, category):
         '''return the widget registered for the given *plugin_data*.'''
         if data.get('widget_ref'):
-            if type == 'stage':
+            if category == 'stage':
                 return self._stage_objs_ref[data['widget_ref']]
-            if type == 'step':
+            if category == 'step':
                 return self._step_objs_ref[data['widget_ref']]
 
 
