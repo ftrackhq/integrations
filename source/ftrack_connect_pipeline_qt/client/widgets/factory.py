@@ -101,7 +101,65 @@ class WidgetFactory(QtWidgets.QWidget):
         # Check for overrides of the main widget, otherwise call the default one
         return UI_OVERRIDES.get('main_widget')(None, None)
 
+    # TODO: Choose between this or create typed widget
+    #  My opinion: I prefere create_typed_widget it's easier to modify
+    def recursive_typed_widget(self, definition, parent_type, type_list, parent=None):
+        for definition_obj in definition[type_list[0]]:
+            category = definition_obj['category']
+            name = definition_obj.get('name')
+
+            if category == 'plugin':
+                plugin_container_obj = self.get_override(
+                    parent_type, '{}_container'.format(category), name, definition_obj
+                )
+                plugin_widget = self.fetch_plugin_widget(
+                    definition_obj, parent.name
+                )
+
+                obj = plugin_widget
+
+                if plugin_container_obj:
+                    plugin_widget.toggle_status(show=False)
+                    plugin_widget.toggle_name(show=False)
+                    plugin_container_obj.parent_widget(plugin_widget)
+                    obj = plugin_container_obj
+
+            else:
+                obj = self.get_override(
+                    parent_type, '{}_widget'.format(category), name, definition_obj
+                )
+                if obj:
+                    self.register_object(definition_obj, obj, category)
+                else:
+                    obj = parent
+
+            if len(type_list) > 1:
+                self.recursive_typed_widget(
+                    definition_obj,
+                    parent_type,
+                    type_list[1:],
+                    obj
+                )
+            if parent:
+                parent.parent_widget(obj)
+    # TODO: Choose between this or create typed widget
+    #  My opinion: I prefere create_typed_widget it's easier to modify
+    def create_typed_widget_recursive(self, definition, type_name):
+
+        step_container_obj = self.get_override(
+            type_name, 'step_container', type_name, definition
+        )
+
+        self.recursive_typed_widget(
+            definition,
+            type_name,
+            [type_name, 'stages','plugins'],
+            step_container_obj
+        )
+        return step_container_obj
+
     def create_typed_widget(self, definition, type_name):
+
         step_container_obj = self.get_override(
             type_name, 'step_container', type_name, definition
         )
