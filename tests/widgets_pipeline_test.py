@@ -10,9 +10,11 @@ import sys
 # in standalone mode
 
 # Set the minimum required Environment variables.
-os.environ['FTRACK_EVENT_PLUGIN_PATH'] ='<YOUR-PATH-TO>/ftrack-connect-pipeline-definition/resource/plugins:' \
-                                        '<YOUR-PATH-TO>/ftrack-connect-pipeline-definition/resource/application_hook: ' \
-                                        '<YOUR-PATH-TO>/ftrack-connect-pipeline-definition/resource/definitions:'
+os.environ['FTRACK_EVENT_PLUGIN_PATH'] = os.pathsep.join([
+    '<PATH-TO-PIPELINE-DEFINITION>\\resource\\plugins\\qt',
+    '<PATH-TO-PIPELINE-DEFINITION>\\resource\\plugins\\common',
+    '<PATH-TO-PIPELINE-DEFINITION>\\resource\\definitions',
+])
 
 
 # Init QApplication

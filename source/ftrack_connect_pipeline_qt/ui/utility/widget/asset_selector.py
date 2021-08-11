@@ -23,7 +23,7 @@ class AssetComboBox(QtWidgets.QComboBox):
                     'select name from AssetType where short is "{}"'.format(asset_type_name)
                 ).first()
         assets = self.session.query(
-            'select name, versions.task.id , type.id '
+            'select name, versions.task.id , type.id, id '
             'from Asset where versions.task.id is {} and type.id is {}'.format(
                 context_id, asset_type_entity['id'])
         ).all()
@@ -75,9 +75,8 @@ class AssetSelector(QtWidgets.QWidget):
         self.post_build()
 
     def pre_build(self):
-        main_layout = QtWidgets.QVBoxLayout()
+        main_layout = QtWidgets.QHBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
-
         self.setLayout(main_layout)
 
     def build(self):

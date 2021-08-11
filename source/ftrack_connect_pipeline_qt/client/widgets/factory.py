@@ -492,6 +492,7 @@ class WidgetFactory(QtWidgets.QWidget):
         '''empty :obj:`type_widgets_ref`'''
         self._type_widgets_ref = {}
 
+    # TODO: Review this method, not sure is working since the refactor
     def check_components(self):
         ''' Set the component as unavailable if it isn't available on the server'''
         if not self.components_names:
@@ -514,7 +515,7 @@ class WidgetFactory(QtWidgets.QWidget):
         '''Callbac funtion triggered when a asset version has changed'''
         self.version_id = version_id
         asset_version_entity = self.session.query(
-            'select components '
+            'select components, components.name '
             'from AssetVersion where id is {}'.format(version_id)
         ).first()
         if not asset_version_entity:

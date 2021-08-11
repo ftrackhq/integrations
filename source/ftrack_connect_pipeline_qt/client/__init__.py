@@ -8,6 +8,7 @@ from ftrack_connect_pipeline_qt.client.widgets import factory
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import ContextSelector
 
+
 class QtClient(client.Client, QtWidgets.QWidget):
     '''
     Base QT client widget class.
@@ -17,7 +18,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
     # Text of the button to run the whole definition
     run_definition_button_text = 'Run'
 
-    on_context_change = QtCore.Signal(object)
+    context_changed = QtCore.Signal(object)
 
     def __init__(self, event_manager, parent=None):
         '''Initialise with *event_manager* and
@@ -62,10 +63,10 @@ class QtClient(client.Client, QtWidgets.QWidget):
             self.host_selector.set_definition_filter(self.definition_filter)
         self.host_selector.add_hosts(self.host_connections)
 
-
     def pre_build(self):
         '''Prepare general layout.'''
         layout = QtWidgets.QVBoxLayout()
+        layout.setAlignment(QtCore.Qt.AlignTop)
         self.setLayout(layout)
 
     def build(self):
@@ -75,7 +76,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
         self.context_selector = ContextSelector(self.session)
 
-        self.layout().addWidget(self.context_selector)
+        self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
 
         self.host_selector = definition_selector.DefinitionSelector()
         self.layout().addWidget(self.host_selector)
@@ -117,11 +118,17 @@ class QtClient(client.Client, QtWidgets.QWidget):
         entityChanged of context_selector event is triggered'''
         self.context_id = context_entity['id']
         self.change_context(self.context_id)
+
+        # keep reference of the latest selected definition
+        index = self.host_selector.get_current_definition_index()
+
         if len(self.host_selector.host_connections) > 0:
             if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
                 self.host_selector.change_host_index(1)
         else:
             self.host_selector.change_host_index(0)
+
+        self.host_selector.set_current_definition_index(index)
 
     def change_context(self, context_id):
         '''
@@ -130,7 +137,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         on_context_change signal.
         '''
         super(QtClient, self).change_context(context_id)
-        self.on_context_change.emit(context_id)
+        self.context_changed.emit(context_id)
 
     def _clear_host_widget(self):
         if self.scroll.widget():

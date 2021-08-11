@@ -1,6 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
-import time
+
 import logging
 from functools import partial
 
@@ -37,7 +37,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
     @property
     def asset_type_name(self):
-        '''Returns asset_type entity'''
+        '''Returns asset_type name'''
         return self._asset_type_name
 
     @property
