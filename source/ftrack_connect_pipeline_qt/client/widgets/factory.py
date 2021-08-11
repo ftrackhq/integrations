@@ -102,7 +102,8 @@ class WidgetFactory(QtWidgets.QWidget):
         return UI_OVERRIDES.get('main_widget')(None, None)
 
     # TODO: Choose between this or create typed widget
-    #  My opinion: I prefere create_typed_widget it's easier to modify
+    #  In case to choose this recursive method, make sure that is 100% working
+    #  and is all parenting as it should without errors, also, make sure it's working with multiple plugins
     def recursive_typed_widget(self, definition, parent_type, type_list, parent=None):
         for definition_obj in definition[type_list[0]]:
             category = definition_obj['category']
@@ -143,7 +144,8 @@ class WidgetFactory(QtWidgets.QWidget):
             if parent:
                 parent.parent_widget(obj)
     # TODO: Choose between this or create typed widget
-    #  My opinion: I prefere create_typed_widget it's easier to modify
+    #  In case to choose this recursive method, make sure that is 100% working
+    #  and is all parenting as it should without errors, also, make sure it's working with multiple plugins
     def create_typed_widget_recursive(self, definition, type_name):
 
         step_container_obj = self.get_override(
