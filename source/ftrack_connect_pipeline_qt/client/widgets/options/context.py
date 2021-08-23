@@ -68,27 +68,25 @@ class PublishContextWidget(BaseOptionsWidget):
 
     def _build_asset_selector(self):
         '''Builds the asset_selector widget'''
-        self.asset_layout = QtWidgets.QHBoxLayout()
+        self.asset_layout = QtWidgets.QVBoxLayout()
         self.asset_layout.setContentsMargins(0, 0, 0, 0)
         self.asset_layout.setAlignment(QtCore.Qt.AlignTop)
 
         self.asset_selector = AssetSelector(self.session)
         self.asset_layout.addWidget(self.asset_selector)
         self.layout().addLayout(self.asset_layout)
-        current_asset = self.asset_selector.asset_combobox.currentText()
-        self.set_option_result(current_asset, key='asset_name')
-        is_valid = self.asset_selector.asset_combobox.validate_name()
-        self.set_option_result(is_valid, key='is_valid_name')
 
     def _build_status_selector(self):
         '''Builds the status_selector widget'''
-        self.status_layout = QtWidgets.QHBoxLayout()
+        self.status_layout = QtWidgets.QVBoxLayout()
         self.status_layout.setContentsMargins(0, 0, 0, 0)
         self.status_layout.setAlignment(QtCore.Qt.AlignTop)
 
-        self.asset_status_label = QtWidgets.QLabel("Asset Status")
+        self.asset_status_label = QtWidgets.QLabel("Status")
+
         self.status_selector = QtWidgets.QComboBox()
         self.status_selector.setEditable(False)
+
         self.status_layout.addWidget(self.asset_status_label)
         self.status_layout.addWidget(self.status_selector)
         self.layout().addLayout(self.status_layout)
@@ -128,18 +126,22 @@ class PublishContextWidget(BaseOptionsWidget):
 
     def _build_comments_input(self):
         '''Builds the comments_container widget'''
-        self.comments_container = QtWidgets.QGroupBox('Comment')
+        self.coments_layout = QtWidgets.QVBoxLayout()
+        self.coments_layout.setContentsMargins(0, 0, 0, 0)
+        self.coments_layout.setAlignment(QtCore.Qt.AlignTop)
 
-        self.comments_container.setMaximumHeight(150)
+        self.asset_status_label = QtWidgets.QLabel("Comment")
 
-        self.comments_layout = QtWidgets.QHBoxLayout()
 
-        self.comments_input = QtWidgets.QTextEdit()
-        self.comments_layout.addWidget(self.comments_input)
-        self.comments_container.setLayout(self.comments_layout)
+        comment_label = QtWidgets.QLabel('Comment')
+        self.comments_input = QtWidgets.QLineEdit()
+        self.comments_input.setPlaceholderText("Type a comment...")
 
-        self.layout().addWidget(self.comments_container)
-        current_text = self.comments_input.toPlainText()
+        self.coments_layout.addWidget(comment_label)
+        self.coments_layout.addWidget(self.comments_input)
+        self.layout().addLayout(self.coments_layout)
+
+        current_text = self.comments_input.text()
         if current_text:
             self.set_option_result(current_text, key='comment')
 
@@ -232,16 +234,7 @@ class LoadContextWidget(BaseOptionsWidget):
     def _build_asset_selector(self, layout):
         '''Builds the asset_selector widget'''
         self.asset_selector = AssetSelector(self.session)
-        self.asset_selector.asset_combobox.setEditable(False)
         layout.addWidget(self.asset_selector)
-
-        asset_name = self.asset_selector.asset_combobox.currentText()
-        current_idx = self.asset_selector.asset_combobox.currentIndex()
-        asset_id = self.asset_selector.asset_combobox.itemData(current_idx)
-        is_valid = self.asset_selector.asset_combobox.validate_name()
-        self.set_option_result(asset_name, key='asset_name')
-        self.set_option_result(asset_id, key='asset_id')
-        self.set_option_result(is_valid, key='is_valid_name')
 
     def _build_version_selector(self, layout):
         '''Builds the asset_selector widget'''

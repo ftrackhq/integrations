@@ -44,6 +44,10 @@ _default_icon = QtWidgets.QApplication.style().standardIcon(
     QtWidgets.QStyle.SP_MediaPause
 ).pixmap(QtCore.QSize(16, 16))
 
+_radio_button = QtWidgets.QApplication.style().PrimitiveElement(
+    QtWidgets.QStyle.PE_IndicatorRadioButton
+)
+
 status_icons = {
     UNKNOWN_STATUS: _unknown_icon,
     DEFAULT_STATUS: _default_icon,

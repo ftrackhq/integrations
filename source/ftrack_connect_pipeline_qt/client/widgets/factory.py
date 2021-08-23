@@ -327,7 +327,7 @@ class WidgetFactory(QtWidgets.QWidget):
         widget.status_updated.connect(self._on_widget_status_updated)
         widget.asset_changed.connect(self._on_widget_asset_changed)
         widget.asset_version_changed.connect(self._asset_version_changed)
-        widget.emit_initial_state()
+        # widget.emit_initial_state()
 
         self.register_widget_plugin(plugin_data, widget)
 

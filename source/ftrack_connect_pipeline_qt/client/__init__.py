@@ -128,7 +128,8 @@ class QtClient(client.Client, QtWidgets.QWidget):
         else:
             self.host_selector.change_host_index(0)
 
-        self.host_selector.set_current_definition_index(index)
+        if index != -1:
+            self.host_selector.set_current_definition_index(index)
 
     def change_context(self, context_id):
         '''

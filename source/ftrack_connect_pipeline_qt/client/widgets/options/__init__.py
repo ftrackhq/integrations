@@ -219,12 +219,12 @@ class BaseOptionsWidget(QtWidgets.QWidget):
             out['options'][key] = value
         return out
 
-    def emit_initial_state(self):
-        if self.options.get('version_id'):
-            self.asset_version_changed.emit(self.options['version_id'])
-        if self.options.get('asset_name'):
-            self.asset_changed.emit(
-                self.options['asset_name'],
-                self.options['asset_id'],
-                self.options['is_valid_name']
-            )
+    # def emit_initial_state(self):
+    #     if self.options.get('version_id'):
+    #         self.asset_version_changed.emit(self.options['version_id'])
+    #     if self.options.get('asset_name'):
+    #         self.asset_changed.emit(
+    #             self.options['asset_name'],
+    #             self.options['asset_id'],
+    #             self.options['is_valid_name']
+    #         )
