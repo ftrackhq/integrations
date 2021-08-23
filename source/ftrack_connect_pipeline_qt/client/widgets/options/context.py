@@ -233,7 +233,7 @@ class LoadContextWidget(BaseOptionsWidget):
 
     def _build_asset_selector(self, layout):
         '''Builds the asset_selector widget'''
-        self.asset_selector = AssetSelector(self.session)
+        self.asset_selector = AssetSelector(self.session, is_loader=True)
         layout.addWidget(self.asset_selector)
 
     def _build_version_selector(self, layout):

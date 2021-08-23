@@ -66,12 +66,13 @@ class AssetSelector(QtWidgets.QWidget):
     asset_changed = QtCore.Signal(object, object, object)
     valid_asset_name = QtCore.QRegExp('[A-Za-z0-9_]+')
 
-    def __init__(self, session, parent=None):
+    def __init__(self, session, is_loader=False, parent=None):
         super(AssetSelector, self).__init__(parent=parent)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
 
+        self.is_loader = is_loader
         self.session = session
 
         self.pre_build()
@@ -86,21 +87,25 @@ class AssetSelector(QtWidgets.QWidget):
     def build(self):
         self.validator = QtGui.QRegExpValidator(self.valid_asset_name)
 
-        button_group = QtWidgets.QButtonGroup()
-
         main_label = QtWidgets.QLabel("Asset")
 
         self.asset_combobox = AssetComboBox(self.session)
+        self.asset_combobox.setValidator(self.validator)
+
+        if self.is_loader:
+            self.layout().addWidget(main_label)
+            self.layout().addWidget(self.asset_combobox)
+            return
 
         version_up_rb = RadioWidgetButton(label="Version Up", widget=self.asset_combobox)
 
         self.new_asset_name = QtWidgets.QLineEdit()
         self.new_asset_name.setPlaceholderText("Asset Name...")
-
-        self.asset_combobox.setValidator(self.validator)
         self.new_asset_name.setValidator(self.validator)
 
         new_asset_rb = RadioWidgetButton(label="Create new asset", widget=self.new_asset_name)
+
+        button_group = QtWidgets.QButtonGroup()
 
         button_group.addButton(version_up_rb)
         button_group.addButton(new_asset_rb)
@@ -116,7 +121,8 @@ class AssetSelector(QtWidgets.QWidget):
             self._current_asset_changed
         )
         self.asset_combobox.assets_query_done.connect(self._pre_select_asset)
-        self.new_asset_name.textChanged.connect(self._new_assset_changed)
+        if not self.is_loader:
+            self.new_asset_name.textChanged.connect(self._new_assset_changed)
 
     def _pre_select_asset(self):
         if self.asset_combobox.count() > 0:
