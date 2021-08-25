@@ -55,7 +55,7 @@ class PublishContextWidget(BaseOptionsWidget):
     def _on_comment_updated(self):
         '''Updates the option dicctionary with current text when
         textChanged of comments_input event is triggered'''
-        current_text = self.comments_input.toPlainText()
+        current_text = self.comments_input.text()
         self.set_option_result(current_text, key='comment')
 
     def _on_asset_changed(self, asset_name, asset_id, is_valid):

@@ -74,6 +74,9 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.header = header.Header(self.session)
         self.layout().addWidget(self.header)
 
+
+        self.layout().addWidget(self.widget_factory.progress_widget.widget)
+
         self.context_selector = ContextSelector(self.session)
 
         self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)

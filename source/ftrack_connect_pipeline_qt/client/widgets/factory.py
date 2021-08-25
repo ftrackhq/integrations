@@ -66,6 +66,8 @@ class WidgetFactory(QtWidgets.QWidget):
 
         self.components_names = []
 
+        self.progress_widget = self.create_progress_widget()
+
     def set_context(self, context_id, asset_type_name):
         '''Set :obj:`context_id` and :obj:`asset_type_name` with the given
         *context_id* and *asset_type_name*'''
@@ -96,6 +98,10 @@ class WidgetFactory(QtWidgets.QWidget):
         if obj_override:
             return obj_override(name, data)
         return obj_override
+
+    def create_progress_widget(self):
+        # Check for overrides of the main widget, otherwise call the default one
+        return UI_OVERRIDES.get('progress_widget')(None, None)
 
     def create_main_widget(self):
         # Check for overrides of the main widget, otherwise call the default one
@@ -161,7 +167,6 @@ class WidgetFactory(QtWidgets.QWidget):
         return step_container_obj
 
     def create_typed_widget(self, definition, type_name):
-
         step_container_obj = self.get_override(
             type_name, 'step_container', type_name, definition
         )
@@ -171,6 +176,7 @@ class WidgetFactory(QtWidgets.QWidget):
             # print(step)
             step_category = step['category']
             step_name = step.get('name')
+            self.progress_widget.add_component(type_name, step_name)
             step_obj = self.get_override(
                 type_name, '{}_widget'.format(step_category), step_name, step
             )
@@ -180,15 +186,18 @@ class WidgetFactory(QtWidgets.QWidget):
                 # create widget for the stages
                 # print(stage)
                 stage_category = stage['category']
+                stage_type = stage['type']
                 stage_name = stage.get('name')
                 stage_obj = self.get_override(
                     type_name, '{}_widget'.format(stage_category), stage_name, stage
                 )
                 if stage_obj:
                     self.register_object(stage, stage_obj, stage_category)
+
                 for plugin in stage['plugins']:
                     # create widget for the plugins
                     # print(plugin)
+                    plugin_type = plugin['type']
                     plugin_category = plugin['category']
                     plugin_name = plugin.get('name')
                     plugin_container_obj = self.get_override(
@@ -204,7 +213,9 @@ class WidgetFactory(QtWidgets.QWidget):
                         stage_obj.parent_widget(plugin_container_obj)
                     else:
                         stage_obj.parent_widget(plugin_widget)
-                if step_obj:
+                if stage_type == 'validator' and hasattr(step_obj, "parent_validator"):
+                    step_obj.parent_validator(stage_obj)
+                elif step_obj:
                     step_obj.parent_widget(stage_obj)
                 elif step_container_obj:
                     step_container_obj.parent_widget(stage_obj)
@@ -387,10 +398,36 @@ class WidgetFactory(QtWidgets.QWidget):
                 if result:
                     return result
 
+    def _update_progress_widget(self, event):
+        step_type = event['data']['pipeline']['step_type']
+        step_name = event['data']['pipeline']['step_name']
+        stage_name = event['data']['pipeline']['stage_name']
+        total_plugins = event['data']['pipeline']['total_plugins']
+        current_plugin_index = event['data']['pipeline']['current_plugin_index']
+        status = event['data']['pipeline']['status']
+        results = event['data']['pipeline']['results']
+
+        component = "{}.{}".format(step_type, step_name)
+
+        if status == constants.RUNNING_STATUS:
+            status_message = "Running Stage {}... ({}/{})".format(
+                stage_name, current_plugin_index, total_plugins
+            )
+            self.progress_widget.update_component_status(component, status_message)
+        elif status == constants.ERROR_STATUS:
+            status_message = "Failed"
+            self.progress_widget.update_component_status(component, status_message)
+            # TODO: ADD RESULTS!
+            # self.progress_widget.add_results(results)
+        elif status == constants.SUCCESS_STATUS:
+            status_message = "Completed"
+            self.progress_widget.update_component_status(component, status_message)
+
     def _update_widget(self, event):
         '''*event* callback to update widget with the current status/value'''
         result = event['data']['pipeline']['result']
         widget_ref = event['data']['pipeline']['widget_ref']
+        plugin_type = event['data']['pipeline']['plugin_type']
         status = event['data']['pipeline']['status']
         message = event['data']['pipeline']['message']
         host_id = event['data']['pipeline']['host_id']
@@ -416,6 +453,7 @@ class WidgetFactory(QtWidgets.QWidget):
                 widget.set_status(status, user_message)
             else:
                 widget.set_status(status, message)
+
         if result:
             self.logger.debug(
                 'updating widget: {} with run result {}'.format(
@@ -438,6 +476,14 @@ class WidgetFactory(QtWidgets.QWidget):
                 self.host_connection.id
             ),
             self._update_widget
+        )
+
+        self.session.event_hub.subscribe(
+            'topic={} and data.pipeline.host_id={}'.format(
+                core_constants.PIPELINE_CLIENT_PROGRESS_NOTIFICATION,
+                self.host_connection.id
+            ),
+            self._update_progress_widget
         )
 
     def _on_widget_status_updated(self, status):

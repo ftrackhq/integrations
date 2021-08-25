@@ -108,6 +108,9 @@ class BaseUIWidget(object):
         else:
             self.logger.error("Please create a widget before parent")
 
+    def parent_validator(self, step_widget):
+        raise NotImplementedError
+
     def set_enabled(self, enabled):
         self._is_enabled = enabled
 
