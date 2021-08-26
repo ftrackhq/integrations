@@ -75,7 +75,8 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.layout().addWidget(self.header)
 
 
-        self.layout().addWidget(self.widget_factory.progress_widget.widget)
+        self.header.id_container_layout.insertWidget(1, self.widget_factory.progress_widget.widget)
+        # self.layout().addWidget(self.widget_factory.progress_widget.widget)
 
         self.context_selector = ContextSelector(self.session)
 

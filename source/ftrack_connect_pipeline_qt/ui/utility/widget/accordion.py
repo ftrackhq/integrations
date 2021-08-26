@@ -251,6 +251,20 @@ class ExtraButton(QtWidgets.QPushButton):
     def __init__(self, title, parent=None):
         super(ExtraButton, self).__init__(parent=parent)
         self.name = title
+
+        self.setMinimumSize(30, 30)
+        self.setMaximumSize(30, 30)
+        self.setContentsMargins(0, 0, 0, 0)
+
+        self.setText(self.name)
+        self.setStyleSheet("""
+            QPushButton {
+                font: 14px;
+                text-align: center;
+            }
+            """)
+        self.setFlat(True)
+
         self.build()
         self.post_build()
 

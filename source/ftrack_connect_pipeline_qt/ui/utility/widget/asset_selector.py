@@ -97,24 +97,34 @@ class AssetSelector(QtWidgets.QWidget):
             self.layout().addWidget(self.asset_combobox)
             return
 
-        version_up_rb = RadioWidgetButton(label="Version Up", widget=self.asset_combobox)
+        self.asset_combobox.setStyleSheet(
+            "border: none;"
+            "background-color: transparent;"
+        )
+
+        self.version_up_rb = RadioWidgetButton(label="Version Up", widget=self.asset_combobox)
 
         self.new_asset_name = QtWidgets.QLineEdit()
         self.new_asset_name.setPlaceholderText("Asset Name...")
         self.new_asset_name.setValidator(self.validator)
+        self.new_asset_name.setStyleSheet(
+            "border: none;"
+            "background-color: transparent;"
+        )
 
-        new_asset_rb = RadioWidgetButton(label="Create new asset", widget=self.new_asset_name)
+        self.new_asset_rb = RadioWidgetButton(label="Create new asset", widget=self.new_asset_name)
 
         button_group = QtWidgets.QButtonGroup()
 
-        button_group.addButton(version_up_rb)
-        button_group.addButton(new_asset_rb)
+        button_group.addButton(self.version_up_rb)
+        button_group.addButton(self.new_asset_rb)
 
         self.layout().addWidget(main_label)
-        self.layout().addWidget(version_up_rb)
-        self.layout().addWidget(new_asset_rb)
+        self.layout().addWidget(self.version_up_rb)
+        self.layout().addWidget(self.new_asset_rb)
 
-        version_up_rb.setChecked(True)
+        self.version_up_rb.setChecked(True)
+        self.new_asset_rb.toggle_state()
 
     def post_build(self):
         self.asset_combobox.currentIndexChanged.connect(
@@ -123,6 +133,12 @@ class AssetSelector(QtWidgets.QWidget):
         self.asset_combobox.assets_query_done.connect(self._pre_select_asset)
         if not self.is_loader:
             self.new_asset_name.textChanged.connect(self._new_assset_changed)
+            self.version_up_rb.clicked.connect(self.toggle_rb_state)
+            self.new_asset_rb.clicked.connect(self.toggle_rb_state)
+
+    def toggle_rb_state(self):
+        self.version_up_rb.toggle_state()
+        self.new_asset_rb.toggle_state()
 
     def _pre_select_asset(self):
         if self.asset_combobox.count() > 0:

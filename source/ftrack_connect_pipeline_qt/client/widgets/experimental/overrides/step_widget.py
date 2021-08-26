@@ -36,7 +36,7 @@ class AccordionStepWidget(BaseUIWidget):
         idx=2
         if self.is_optional:
             idx=3
-        self._validators_widget = self._widget.add_extra_button("validators", idx)
+        self._validators_widget = self._widget.add_extra_button("V", idx)
 
     def parent_validator(self, step_widget):
         if self.validators_widget:

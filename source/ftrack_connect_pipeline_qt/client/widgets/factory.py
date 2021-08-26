@@ -175,8 +175,9 @@ class WidgetFactory(QtWidgets.QWidget):
             # Create widget for the step
             # print(step)
             step_category = step['category']
+            step_type = step['type']
             step_name = step.get('name')
-            self.progress_widget.add_component(type_name, step_name)
+            self.progress_widget.add_component(step_type, step_name)
             step_obj = self.get_override(
                 type_name, '{}_widget'.format(step_category), step_name, step
             )
@@ -407,21 +408,23 @@ class WidgetFactory(QtWidgets.QWidget):
         status = event['data']['pipeline']['status']
         results = event['data']['pipeline']['results']
 
-        component = "{}.{}".format(step_type, step_name)
-
         if status == constants.RUNNING_STATUS:
             status_message = "Running Stage {}... ({}/{})".format(
                 stage_name, current_plugin_index, total_plugins
             )
-            self.progress_widget.update_component_status(component, status_message)
+            self.progress_widget.update_component_status(
+                step_type, step_name, status, status_message, results
+            )
         elif status == constants.ERROR_STATUS:
             status_message = "Failed"
-            self.progress_widget.update_component_status(component, status_message)
-            # TODO: ADD RESULTS!
-            # self.progress_widget.add_results(results)
+            self.progress_widget.update_component_status(
+                step_type, step_name, status, status_message, results
+            )
         elif status == constants.SUCCESS_STATUS:
             status_message = "Completed"
-            self.progress_widget.update_component_status(component, status_message)
+            self.progress_widget.update_component_status(
+                step_type, step_name, status, status_message, results
+            )
 
     def _update_widget(self, event):
         '''*event* callback to update widget with the current status/value'''

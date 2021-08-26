@@ -136,6 +136,10 @@ class PublishContextWidget(BaseOptionsWidget):
         comment_label = QtWidgets.QLabel('Comment')
         self.comments_input = QtWidgets.QLineEdit()
         self.comments_input.setPlaceholderText("Type a comment...")
+        self.comments_input.setStyleSheet(
+            "border: none;"
+            "background-color: transparent;"
+        )
 
         self.coments_layout.addWidget(comment_label)
         self.coments_layout.addWidget(self.comments_input)

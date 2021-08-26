@@ -17,7 +17,7 @@ UI_OVERRIDES = {
         'stage_widget': default_widgets.DefaultStageWidget,
         # Example to override specific stage widget
         # 'stage_widget.collector': default_widgets.DefaultStageWidget,
-        'plugin_container': None, # override_widgets.AccordionPluginContainerWidget,
+        'plugin_container': default_widgets.DefaultPluginContainerWidget, # override_widgets.AccordionPluginContainerWidget,
         # Example to override specific plugin container
         # 'plugin_container.collect from given path': default_widgets.DefaultPluginContainerWidget,
     },

@@ -36,7 +36,7 @@ class Header(QtWidgets.QFrame):
         self.id_container = QtWidgets.QWidget(self)
         self.id_container_layout = QtWidgets.QHBoxLayout()
         self.id_container_layout.setContentsMargins(0, 0, 0, 0)
-        self.id_container_layout.setSpacing(0)
+        # self.id_container_layout.setSpacing(0)
         self.id_container_layout.setAlignment(
             QtCore.Qt.AlignTop
         )
@@ -53,7 +53,7 @@ class Header(QtWidgets.QFrame):
         self.user = User(self.session, self)
 
         self.id_container_layout.addWidget(self.logo)
-        self.id_container_layout.addItem(spacer)
+        # self.id_container_layout.addItem(spacer)
         self.id_container_layout.addWidget(self.user)
 
         # Message
@@ -104,14 +104,17 @@ class Logo(QtWidgets.QLabel):
         )
         self.setLayout(self.main_layout)
     def build(self):
-        logoPixmap = QtGui.QPixmap(':ftrack/image/default/ftrackLogoLabel')
-        self.setPixmap(
-            logoPixmap.scaled(
-                self.size(),
-                QtCore.Qt.KeepAspectRatio,
-                QtCore.Qt.SmoothTransformation
-            )
-        )
+        #TODO: fix this logo not working
+        logoPixmap = None#QtGui.QPixmap(':ftrack/image/default/ftrackLogoLabel')
+        # self.setPixmap(
+        #     logoPixmap.scaled(
+        #         self.size(),
+        #         QtCore.Qt.KeepAspectRatio,
+        #         QtCore.Qt.SmoothTransformation
+        #     )
+        # )
+        if not logoPixmap:
+            self.setText("FTRACKLOGO")
 
 
 class User(QtWidgets.QWidget):
@@ -138,12 +141,12 @@ class User(QtWidgets.QWidget):
 
     def build(self):
         username = self.session.api_user
-        self.label = QtWidgets.QLabel(self)
+        # self.label = QtWidgets.QLabel(self)
         self.image = thumbnail.User(self.session, parent=self)
         self.image.setFixedSize(35, 35)
 
-        self.main_layout.addWidget(self.label)
         self.main_layout.addWidget(self.image)
+        # self.main_layout.addWidget(self.label)
 
         self.image.load(username)
 
@@ -158,7 +161,7 @@ class User(QtWidgets.QWidget):
                 user['first_name'], user['last_name']
             ).title()
 
-        self.label.setText(NAME_CACHE[username])
+        # self.label.setText(NAME_CACHE[username])
 
 
 
