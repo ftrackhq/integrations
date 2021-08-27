@@ -18,6 +18,8 @@ UI_OVERRIDES = {
         # Example to override specific stage widget
         # 'stage_widget.collector': default_widgets.DefaultStageWidget,
         'plugin_container': default_widgets.DefaultPluginContainerWidget, # override_widgets.AccordionPluginContainerWidget,
+        # We are saying that all the plugins of type validator will not have a plugin container
+        'plugin_container.validator': None,
         # Example to override specific plugin container
         # 'plugin_container.collect from given path': default_widgets.DefaultPluginContainerWidget,
     },

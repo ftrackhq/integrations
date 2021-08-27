@@ -90,12 +90,16 @@ class WidgetFactory(QtWidgets.QWidget):
     def get_override(self, type_name, widget_type, name, data):
         obj_override = UI_OVERRIDES.get(
             type_name
-        ).get('{}.{}'.format(widget_type, name))
-        if not obj_override:
+        ).get('{}.{}'.format(widget_type, name), "Not Set")
+        if obj_override == "Not Set":
+            obj_override = UI_OVERRIDES.get(
+                type_name
+            ).get('{}.{}'.format(widget_type, data['type']), "Not Set")
+        if obj_override == "Not Set":
             obj_override = UI_OVERRIDES.get(
                 type_name
             ).get(widget_type)
-        if obj_override:
+        if obj_override and obj_override != "Not Set":
             return obj_override(name, data)
         return obj_override
 
@@ -202,7 +206,9 @@ class WidgetFactory(QtWidgets.QWidget):
                     plugin_category = plugin['category']
                     plugin_name = plugin.get('name')
                     plugin_container_obj = self.get_override(
-                        type_name, '{}_container'.format(plugin_category), plugin_name, plugin
+                        type_name, '{}_container'.format(plugin_category),
+                        plugin_name,
+                        plugin
                     )
                     plugin_widget = self.fetch_plugin_widget(
                         plugin, stage['name']
