@@ -69,6 +69,12 @@ PIPELINE_HOST_RUN = '{}.host.run'.format(_BASE_)
 #: and Subscribed in
 #: :meth:`~ftrack_connect_pipeline.client.on_client_notification`
 PIPELINE_CLIENT_NOTIFICATION = '{}.client.notification'.format(_BASE_)
+#: Pipeline client progress notification topic event. Used to communicate the result of
+#: the steps execution from host to the client.
+#: Published in :meth:`~ftrack_connect_pipeline.host.engine.BaseLoaderPublisherEngine._notify_progress_client`,
+#: and Subscribed in
+#: :meth:`~ftrack_connect_pipeline.client.on_client_progress_notification`
+PIPELINE_CLIENT_PROGRESS_NOTIFICATION = '{}.client.progress.notification'.format(_BASE_)
 #: Pipeline Discover host topic event. Used to discover available hosts.
 #: Published in :meth:`~ftrack_connect_pipeline.client._discover_hosts`,
 #: and Subscribed in

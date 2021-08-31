@@ -33,7 +33,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
     def run_stage(
             self, stage_name, plugins, stage_context, stage_options, stage_data,
-            plugins_order=None, step_type=None
+            plugins_order=None, step_type=None, step_name=None
     ):
         '''
         Returns the bool status and the result list of dictionaries of executing
@@ -65,7 +65,17 @@ class BaseLoaderPublisherEngine(BaseEngine):
         # is why we only pass the data of the previous stage.
         data = stage_data
 
+        i=1
         for plugin in plugins:
+            # TODO: we want something like this:
+            #  Running stage_name (plural "collectors")
+            #  Next signal Running "Validators" (1/4) i/len(plugins)
+            #  Next signal Running "outputs" (1/4)
+            self._notify_progress_client(
+                step_type, step_name, stage_name, len(plugins), i,
+                constants.RUNNING_STATUS, None
+            )
+
             result = None
             plugin_name = plugin['plugin']
             plugin_options = plugin['options']
@@ -108,6 +118,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
             }
 
             stage_results.append(plugin_dict)
+            i+=1
         return stage_status, stage_results
 
 
@@ -170,7 +181,8 @@ class BaseLoaderPublisherEngine(BaseEngine):
                     stage_options=step_options,
                     stage_data=data,
                     plugins_order=None,
-                    step_type=step_type
+                    step_type=step_type,
+                    step_name=step_name
                 )
                 if not stage_status:
                     step_status = False
@@ -192,9 +204,60 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 # We stop the loop if the stage failed. To raise an error on
                 # run_definitions
                 if not step_status:
+                    # TODO: we want something like this:
+                    #  Failed
+                    #  Send step_results
+                    self._notify_progress_client(
+                        step_type, step_name, stage_name, None, None,
+                        constants.ERROR_STATUS, step_results
+                    )
+                    # self._notify_progress_client(step_type, stage_name, total_plugins, current_plugin_index, status, results)
                     return step_status, step_results
-
+        # TODO: we want something like this:
+        #  Completed
+        self._notify_progress_client(
+            step_type, step_name, None, None, None,
+            constants.SUCCESS_STATUS, step_results
+        )
         return step_status, step_results
+
+    def _notify_progress_client(
+            self, step_type, step_name, stage_name, total_plugins, current_plugin_index,
+            status, results
+    ):
+        '''
+        Publish an :class:`ftrack_api.event.base.Event` with the topic
+        :const:`~ftrack_connnect_pipeline.constants.PIPELINE_CLIENT_NOTIFICATION`
+        to notify the client of the given *plugin* result *result_data*.
+        Also store plugin result in persistent database.
+
+        *plugin* : Plugin definition, a dictionary with the plugin information.
+
+        *result_data* : Result of the plugin execution.
+
+        '''
+
+        data = {
+            'host_id': self.host_id,
+            'step_type': step_type,
+            'step_name': step_name,
+            'stage_name': stage_name,
+            'total_plugins': total_plugins,
+            'current_plugin_index': current_plugin_index,
+            'status': status,
+            'results': results
+        }
+
+        event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_CLIENT_PROGRESS_NOTIFICATION,
+            data={
+                'pipeline': data
+            }
+        )
+
+        self.event_manager.publish(
+            event,
+        )
 
     def run_definition(self, data):
         '''

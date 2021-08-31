@@ -129,7 +129,7 @@ setup(
         'setuptools_scm'
     ],
     install_requires=[
-        'ftrack-python-api >= 1, < 3',
+        'ftrack-python-api >= 1, < 3',# == 2.0RC1
         'future >=0.16.0, < 1',
         'six >= 1, < 2',
         'jsonschema==2.6.0',
