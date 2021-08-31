@@ -279,8 +279,8 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
         executables.append(
             Executable(
-                script='source/ftrack_connect_package/__main__.py',
-                base='Win32GUI',
+                script='source/ftrack_connect_package/__main__.pyw',
+                # base='Win32GUI',
                 target_name='ftrack_connect.exe',
                 icon='./logo.ico',
             )
@@ -346,7 +346,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
         executables.append(
             Executable(
-                script='source/ftrack_connect_package/__main__.py',
+                script='source/ftrack_connect_package/__main__.pyw',
                 base=None,
                 target_name='ftrack_connect',
                 icon='./logo.icns',
@@ -413,7 +413,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
         executables.append(
             Executable(
-                script='source/ftrack_connect_package/__main__.py',
+                script='source/ftrack_connect_package/__main__.pyw',
                 base=None,
                 target_name='ftrack_connect',
                 icon='./logo.icns',
