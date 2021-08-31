@@ -9,56 +9,6 @@ import argparse
 logger = logging.getLogger(__name__)
 
 
-# class DummyStream:
-#     ''' DummyStream behaves like a stream but logs out write calls. '''
-#     def __init__(self): pass
-#     def write(self,*args, **kwargs): logger.info(args)
-#     def read(self,*args, **kwargs): pass
-#     def flush(self): pass
-#     def close(self): pass
-
-# # '''
-# # Fix for missing sys.stderr when building Win32GUI cx_freeze
-# # see: https://github.com/marcelotduarte/cx_Freeze/issues/60
-# # '''
-# try:
-#     import sys
-#     import argparse
-#     sys.stderr.write("\n")
-#     sys.stderr.flush()
-# except Exception:
-#     import sys
-#     import http.server
-#     import argparse
-#     class SysWrapper(object):
-#         def __getattribute__(self, item):
-#             if item in ['stderr', 'stdout']:
-#                 return DummyStream()
-#             return getattr(sys, item)
-
-#     http.server.sys = SysWrapper()
-#     argparse._sys = SysWrapper()
-    
-
-
-# '''
-# https://stackoverflow.com/questions/2883205/how-can-i-freeze-a-dual-mode-gui-and-console-application-using-cx-freeze
-# '''
-# try:
-#     sys.stdout.write("\n")
-#     sys.stdout.flush()
-# except Exception:
-#     logger.info('Patching stdout with {}'.format(DummyStream))
-#     # and now redirect all default streams to this DummyStream:
-#     sys.stdout = DummyStream()
-#     sys.stderr = DummyStream()
-#     # sys.stdin = DummyStream()
-#     # sys.__stdout__ = DummyStream()
-#     # sys.__stderr__ = DummyStream()
-#     # sys.__stdin__ = DummyStream()
-
-
-
 def set_environ_default(name, value):
     '''Set environment variable *name* and *value* as default.'''
     if name in os.environ:
