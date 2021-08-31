@@ -82,11 +82,24 @@ class AccordionWidget(QtWidgets.QWidget):
             else:
                 self.set_status(constants.ERROR_STATUS, None)
 
+    def add_extra_button(self, title, idx):
+        extra_button = self._title_frame.add_extra_button(title, idx)
+        return extra_button
+
+    def get_extra_button_by_title(self, title):
+        return self._title_frame.extra_buttons.get(title)
+
     def add_widget(self, widget):
         self._content_layout.addWidget(widget)
         self._connect_inner_widgets(widget)
 
     def _connect_inner_widgets(self, widget):
+        if issubclass(widget.__class__, BaseOptionsWidget):
+            self._widgets[widget] = widget
+            widget.status_updated.connect(
+                partial(self.update_inner_status, widget)
+            )
+            return
         inner_widgets = widget.findChildren(BaseOptionsWidget)
         self._widgets[widget] = inner_widgets
         for inner_widget in inner_widgets:
@@ -152,6 +165,10 @@ class AccordionTitleWidget(QtWidgets.QFrame):
     def checkbox(self):
         return self._checkbox
 
+    @property
+    def extra_buttons(self):
+        return self._extra_buttons
+
     def __init__(self, parent=None, title="", collapsed=False, checkable=False):
         super(AccordionTitleWidget, self).__init__(parent=parent)
 
@@ -159,6 +176,7 @@ class AccordionTitleWidget(QtWidgets.QFrame):
         self._title_label = None
         self._status = None
         self._checkbox = None
+        self._extra_buttons ={}
 
         self.title = title
         self.initial_collapse = collapsed
@@ -186,6 +204,16 @@ class AccordionTitleWidget(QtWidgets.QFrame):
     def post_build(self):
         if self.checkbox:
             self._checkbox.stateChanged.connect(self.enable_content)
+
+    def add_extra_button(self, title, idx):
+        extra_button = self.init_extraButton(title)
+        self._hlayout.insertWidget(idx, extra_button)
+        return extra_button
+
+    def init_extraButton(self, title):
+        extra_button = ExtraButton(title)
+        self._extra_buttons[title] = extra_button
+        return extra_button
 
     def init_status(self):
         self._status = Status()
@@ -218,6 +246,41 @@ class AccordionTitleWidget(QtWidgets.QFrame):
         self.checked.emit(check_enabled)
 
 
+class ExtraButton(QtWidgets.QPushButton):
+
+    def __init__(self, title, parent=None):
+        super(ExtraButton, self).__init__(parent=parent)
+        self.name = title
+
+        self.setMinimumSize(30, 30)
+        self.setMaximumSize(30, 30)
+        self.setContentsMargins(0, 0, 0, 0)
+
+        self.setText(self.name)
+        self.setStyleSheet("""
+            QPushButton {
+                font: 14px;
+                text-align: center;
+            }
+            """)
+        self.setFlat(True)
+
+        self.build()
+        self.post_build()
+
+    def build(self):
+        self.main_widget = QtWidgets.QWidget()
+        layout = QtWidgets.QVBoxLayout()
+        self.main_widget.setLayout(layout)
+
+    def post_build(self):
+        self.clicked.connect(self.on_click_callback)
+
+    def on_click_callback(self):
+        self.main_widget.show()
+
+    def add_widget(self, widget):
+        self.main_widget.layout().addWidget(widget)
 
 class Status(QtWidgets.QLabel):
     status_icons = constants.icons.status_icons

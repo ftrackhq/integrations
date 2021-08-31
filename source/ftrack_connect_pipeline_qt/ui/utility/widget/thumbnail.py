@@ -7,7 +7,6 @@ import urllib.request, urllib.parse, urllib.error
 import urllib.request, urllib.error, urllib.parse
 
 from Qt import QtCore, QtGui, QtWidgets
-
 from ftrack_connect_pipeline_qt.utils import Worker
 
 # Cache of thumbnail images.
@@ -36,7 +35,7 @@ class Base(QtWidgets.QLabel):
         self.setAlignment(QtCore.Qt.AlignCenter)
 
         self.placholderThumbnail = (
-                self.session._server_url + '/img/thumbnail2.png'
+            self.session.server_url + '/img/thumbnail2.png'
         )
 
     def load(self, reference):
@@ -156,6 +155,71 @@ class EllipseBase(Base):
             )
         )
 
+
+class Context(Base):
+
+    def _download(self, reference):
+        '''Return thumbnail from *reference*.'''
+        thumbnail = self.session.get('Context', reference)['thumbnail']
+        url = self.get_thumbnail_url(thumbnail)
+        url = url or self.placholderThumbnail
+        return super(Context, self)._download(url)
+
+    def get_thumbnail_url(self, component):
+        if not component:
+            return
+
+        params = urllib.parse.urlencode({
+            'id': component['id'],
+            'username': self.session.api_user,
+            'apiKey': self.session.api_key
+        })
+
+        result_url = '{base_url}/component/thumbnail?{params}'.format(
+            base_url=self.session._server_url, params=params
+        )
+        return result_url
+
+    def _scaleAndSetPixmap(self, pixmap):
+        '''Scale and set *pixmap*.'''
+        scaled_pixmap = pixmap.scaled(
+            self.size(),
+            QtCore.Qt.KeepAspectRatio,
+            QtCore.Qt.SmoothTransformation
+        )
+        self.setPixmap(scaled_pixmap)
+
+
+class AssetVersion(Base):
+    def _download(self, reference):
+        '''Return thumbnail from *reference*.'''
+        url = self.session.get('AssetVersion', reference)['thumbnail_url']['url']
+        url = url or self.placholderThumbnail
+        return super(AssetVersion, self)._download(url)
+
+    def get_thumbnail_url(self, component):
+        if not component:
+            return
+
+        params = urllib.parse.urlencode({
+            'id': component['id'],
+            'username': self.session.api_user,
+            'apiKey': self.session.api_key
+        })
+
+        result_url = '{base_url}/component/thumbnail?{params}'.format(
+            base_url=self.session._server_url, params=params
+        )
+        return result_url
+
+    def _scaleAndSetPixmap(self, pixmap):
+        '''Scale and set *pixmap*.'''
+        scaled_pixmap = pixmap.scaled(
+            self.size(),
+            QtCore.Qt.KeepAspectRatio,
+            QtCore.Qt.SmoothTransformation
+        )
+        self.setPixmap(scaled_pixmap)
 
 class User(EllipseBase):
 

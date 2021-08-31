@@ -10,9 +10,11 @@ import sys
 # in standalone mode
 
 # Set the minimum required Environment variables.
-os.environ['FTRACK_EVENT_PLUGIN_PATH'] ='<YOUR-PATH-TO>/ftrack-connect-pipeline-definition/resource/plugins:' \
-                                        '<YOUR-PATH-TO>/ftrack-connect-pipeline-definition/resource/application_hook: ' \
-                                        '<YOUR-PATH-TO>/ftrack-connect-pipeline-definition/resource/definitions:'
+os.environ['FTRACK_EVENT_PLUGIN_PATH'] = os.pathsep.join([
+    '<PATH-TO-PIPELINE-DEFINITION>\\resource\\plugins\\qt',
+    '<PATH-TO-PIPELINE-DEFINITION>\\resource\\plugins\\common',
+    '<PATH-TO-PIPELINE-DEFINITION>\\resource\\definitions',
+])
 
 
 # Init QApplication
@@ -36,12 +38,9 @@ pub_client_connection = publish.QtPublisherClient(event_manager)
 
 # Set the context
 context_id = '<Add a context id here>'#'690afd58-06d0-11ea-bbbb-ee594985c7e2'
-context_entity = session.query(
-    'select link, name , parent, parent.name from Context where id is "{}"'.format(context_id)
-).one()
 
-pub_client_connection.context_selector.setEntity(context_entity)
-# load_client_connection.context_selector.setEntity(context_entity)
+pub_client_connection.context_selector.set_context_id(context_id)
+# load_client_connection.context_selector.set_context_id(context_id)
 # am_client_connection.context_id(context_id)
 # lv_client_connection.context_id(context_id)
 

@@ -3,9 +3,11 @@
 
 import Qt
 from Qt import QtWidgets, QtCore, QtGui
+
 from ftrack_connect_pipeline.constants.status import (
     UNKNOWN_STATUS, DEFAULT_STATUS, ERROR_STATUS, WARNING_STATUS, EXCEPTION_STATUS, RUNNING_STATUS, SUCCESS_STATUS
 )
+
 
 #: UNKNOWN
 _unknown_icon = QtWidgets.QApplication.style().standardIcon(
@@ -41,6 +43,10 @@ _warning_icon = QtWidgets.QApplication.style().standardIcon(
 _default_icon = QtWidgets.QApplication.style().standardIcon(
     QtWidgets.QStyle.SP_MediaPause
 ).pixmap(QtCore.QSize(16, 16))
+
+_radio_button = QtWidgets.QApplication.style().PrimitiveElement(
+    QtWidgets.QStyle.PE_IndicatorRadioButton
+)
 
 status_icons = {
     UNKNOWN_STATUS: _unknown_icon,

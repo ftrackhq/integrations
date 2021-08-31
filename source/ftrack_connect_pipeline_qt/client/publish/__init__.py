@@ -4,7 +4,6 @@
 
 
 from ftrack_connect_pipeline_qt.client import QtClient
-from ftrack_connect_pipeline_qt.client.widgets.schema.overrides import hidden
 
 
 class QtPublisherClient(QtClient):
