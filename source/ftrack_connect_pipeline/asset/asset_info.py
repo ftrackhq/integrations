@@ -47,7 +47,7 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
         constants.ASSET_INFO_OPTIONS, ''
     )
 
-    arguments_dict[constants.ASSET_INFO_ID] = uuid.uuid4()
+    arguments_dict[constants.ASSET_INFO_ID] = uuid.uuid4().hex
 
     asset_version_entity = session.query(
         'select version from AssetVersion where id is "{}"'.format(
@@ -268,7 +268,7 @@ class FtrackAssetInfo(dict):
 
         location = version_entity.session.pick_location()
 
-        asset_info_data[constants.ASSET_INFO_ID] = uuid.uuid4()
+        asset_info_data[constants.ASSET_INFO_ID] = uuid.uuid4().hex
 
         for component in version_entity['components']:
             if component['name'] == component_name:
