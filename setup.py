@@ -474,6 +474,11 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         'http',
         'http.server',
         'webbrowser',
+        'html',
+        'html.parser',
+        'cgi',
+        'concurrent',
+        'concurrent.futures'
     ])
 
     configuration['options']['build_exe'] = {
