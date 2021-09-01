@@ -45,7 +45,7 @@ class ValidatorPluginValidation(BasePluginValidation):
 
         if result is not True:
             message = 'Return value of {} is not {}'.format(
-                self.__class__.__name__, self.return_value
+                self.plugin_name, self.return_value
             )
             validator_result = (False, message)
 

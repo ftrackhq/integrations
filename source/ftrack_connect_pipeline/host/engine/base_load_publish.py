@@ -72,8 +72,13 @@ class BaseLoaderPublisherEngine(BaseEngine):
             #  Next signal Running "Validators" (1/4) i/len(plugins)
             #  Next signal Running "outputs" (1/4)
             self._notify_progress_client(
-                step_type, step_name, stage_name, len(plugins), i,
-                constants.RUNNING_STATUS, None
+                step_type=step_type,
+                step_name=step_name,
+                stage_name=stage_name,
+                total_plugins=len(plugins),
+                current_plugin_index=i,
+                status=constants.RUNNING_STATUS,
+                results=None
             )
 
             result = None
@@ -114,7 +119,10 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 "type": type,
                 "plugin_type": plugin_result['plugin_type'],
                 "method": plugin_result['method'],
-                "user_data": plugin_result.get('user_data') or {}
+                "user_data": plugin_result.get('user_data') or {},
+                "message":plugin_result['message'],
+                "widget_ref":plugin_result['widget_ref'],
+                "host_id":plugin_result['host_id']
             }
 
             stage_results.append(plugin_dict)
@@ -211,7 +219,6 @@ class BaseLoaderPublisherEngine(BaseEngine):
                         step_type, step_name, stage_name, None, None,
                         constants.ERROR_STATUS, step_results
                     )
-                    # self._notify_progress_client(step_type, stage_name, total_plugins, current_plugin_index, status, results)
                     return step_status, step_results
         # TODO: we want something like this:
         #  Completed
@@ -222,8 +229,8 @@ class BaseLoaderPublisherEngine(BaseEngine):
         return step_status, step_results
 
     def _notify_progress_client(
-            self, step_type, step_name, stage_name, total_plugins, current_plugin_index,
-            status, results
+            self, step_type, step_name, stage_name, total_plugins,
+            current_plugin_index, status, results
     ):
         '''
         Publish an :class:`ftrack_api.event.base.Event` with the topic
