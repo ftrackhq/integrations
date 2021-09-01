@@ -111,6 +111,9 @@ class BaseUIWidget(object):
     def parent_validator(self, step_widget):
         raise NotImplementedError
 
+    def parent_output(self, step_widget):
+        raise NotImplementedError
+
     def set_enabled(self, enabled):
         self._is_enabled = enabled
 
