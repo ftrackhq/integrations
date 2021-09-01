@@ -23,6 +23,7 @@ class DefinitionSelector(QtWidgets.QWidget):
         self.host_connection = None
         self.schemas = None
         self.definition_filter = None
+        self.definitions = []
 
         self.host_connections = []
         self.pre_build()
@@ -71,13 +72,14 @@ class DefinitionSelector(QtWidgets.QWidget):
 
     def _populate_definitions(self):
         self.definition_combobox.addItem('- Select Definition -')
-
+        self.definitions=[]
         for schema in self.schemas:
             schema_title = schema.get('title').lower()
             if self.definition_filter:
                 if schema_title != self.definition_filter:
                     continue
             items = self.host_connection.definitions.get(schema_title)
+            self.definitions=items
 
             for item in items:
                 text = '{}'.format(item.get('name'))
@@ -87,6 +89,12 @@ class DefinitionSelector(QtWidgets.QWidget):
                         item.get('name')
                     )
                 self.definition_combobox.addItem(text, item)
+
+        if len(self.definitions) == 1:
+            self.definition_combobox.setCurrentIndex(1)
+            self.definition_combobox.hide()
+        else:
+            self.definition_combobox.show()
 
     def _on_select_definition(self, index):
         self.definition = self.definition_combobox.itemData(index)
