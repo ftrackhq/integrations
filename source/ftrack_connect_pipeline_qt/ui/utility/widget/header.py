@@ -56,31 +56,8 @@ class Header(QtWidgets.QFrame):
         # self.id_container_layout.addItem(spacer)
         self.id_container_layout.addWidget(self.user)
 
-        # # Message
-        # self.message_container = QtWidgets.QWidget(self)
-        # self.message_container.hide()
-        # self.message_container_layout = QtWidgets.QHBoxLayout()
-        # self.message_container_layout.setContentsMargins(0, 0, 0, 0)
-        # self.message_container_layout.setSpacing(0)
-        # self.message_container.setLayout(self.message_container_layout)
-        #
-        # self.message_box = MessageBox(self)
-        # self.message_container_layout.addWidget(self.message_box)
-
         # Add (Logo & User ID) & Message
         self.main_layout.addWidget(self.id_container)
-        # self.main_layout.addWidget(self.message_container)
-
-
-    # def setMessage(self, message, level='info'):
-    #     '''Set *message* with severity *level*.'''
-    #     self.message_container.show()
-    #     self.message_box.setMessage(message, level)
-    #
-    # def dismissMessage(self):
-    #     '''Dismiss message.'''
-    #     self.message_container.hide()
-    #     self.message_box.dismissMessage()
 
 
 class Logo(QtWidgets.QLabel):
