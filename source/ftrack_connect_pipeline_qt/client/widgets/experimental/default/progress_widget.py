@@ -65,7 +65,21 @@ class ComponentButton(QtWidgets.QPushButton):
 
     def update_error_message(self, results):
         self.error_widget.show()
-        self.error_widget.setToolTip(str(results))
+        message = None
+        logged_errors = []
+        if results:
+            for stage_result in results:
+                if stage_result.get('status') == False:
+                    for plugin_result in stage_result.get('result'):
+                        plug_error = 'Plugin {} failed with message: {}'.format(
+                            plugin_result.get('name'),
+                            plugin_result.get('message')
+                        )
+                        logged_errors.append(plug_error)
+        if logged_errors:
+            message = "\n".join(logged_errors)
+
+        self.error_widget.setToolTip(str(message))
 
     def show_log(self):
         # TODO: we can show the status and the error message here
