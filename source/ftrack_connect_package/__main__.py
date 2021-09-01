@@ -9,6 +9,14 @@ import argparse
 logger = logging.getLogger(__name__)
 
 
+class DummyStream:
+    ''' dummyStream behaves like a stream but does nothing. '''
+    def __init__(self): pass
+    def write(self, data): logger.info(data)
+    def read(self, data): pass
+    def flush(self): pass
+    def close(self): pass
+
 '''
 Fix for missing sys.stderr when building Win32GUI cx_freeze
 see: https://github.com/marcelotduarte/cx_Freeze/issues/60
@@ -24,17 +32,19 @@ except Exception:
     class SysWrapper(object):
         def __getattribute__(self, item):
             if item is 'stderr':
-                class DummyStream:
-                    def __init__(self): pass
-
-                    def write(self, *args, **kwargs):
-                        logger.info(args)
-
                 return DummyStream()
             return getattr(sys, item)
 
 
     http.server.sys = SysWrapper()
+
+    # and now redirect all default streams to this dummyStream:
+    sys.stdout = DummyStream()
+    sys.stderr = DummyStream()
+    sys.stdin = DummyStream()
+    sys.__stdout__ = DummyStream()
+    sys.__stderr__ = DummyStream()
+    sys.__stdin__ = DummyStream()
 
 
 def set_environ_default(name, value):
