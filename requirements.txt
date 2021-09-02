@@ -1,4 +1,4 @@
-cx-Freeze @ git+https://github.com/marcelotduarte/cx_Freeze.git@deddc399248e43f078a1ddb5ed2268cfad500303
+cx-Freeze=6.8b3
 cryptography
 requests >= 2, <3
 setuptools>=45.0.0
