@@ -1,3 +1,4 @@
+from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.client.widgets.client_ui import BaseUIWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import AccordionWidget
@@ -41,8 +42,12 @@ class AccordionStepWidget(BaseUIWidget):
         idx=2
         if self.is_optional:
             idx=3
-        self._validators_widget = self._widget.add_extra_button("V", idx)
-        self._outputs_widget = self._widget.add_extra_button("O", idx)
+
+        if core_constants.VALIDATOR in self.fragment_data.get('stage_order'):
+            self._validators_widget = self._widget.add_extra_button("V", idx)
+
+        if core_constants.OUTPUT in self.fragment_data.get('stage_order'):
+            self._outputs_widget = self._widget.add_extra_button("O", idx)
 
     def parent_validator(self, step_widget):
         if self.validators_widget:

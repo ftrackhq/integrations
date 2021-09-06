@@ -144,11 +144,6 @@ class ProgressWidget(BaseUIWidget):
         self._widget = MainButtonWidget()
         main_layout = QtWidgets.QVBoxLayout()
         self.widget.setLayout(main_layout)
-        # self.widget.setSizePolicy(
-        #     QtWidgets.QSizePolicy.Preferred,
-        #     QtWidgets.QSizePolicy.Fixed
-        # )
-        # self.widget.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
         self.content_widget = QtWidgets.QWidget()
         inner_widget = QtWidgets.QVBoxLayout()
