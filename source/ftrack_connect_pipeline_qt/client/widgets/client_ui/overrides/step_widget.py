@@ -1,5 +1,5 @@
 from ftrack_connect_pipeline_qt import constants
-from ftrack_connect_pipeline_qt.client.widgets.experimental import BaseUIWidget
+from ftrack_connect_pipeline_qt.client.widgets.client_ui import BaseUIWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import AccordionWidget
 
 class AccordionStepWidget(BaseUIWidget):

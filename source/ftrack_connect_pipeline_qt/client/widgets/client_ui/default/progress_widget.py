@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 import logging
-from ftrack_connect_pipeline_qt.client.widgets.experimental import BaseUIWidget
+from ftrack_connect_pipeline_qt.client.widgets.client_ui import BaseUIWidget
 from ftrack_connect_pipeline_qt import constants
 
 from Qt import QtWidgets, QtCore, QtGui
