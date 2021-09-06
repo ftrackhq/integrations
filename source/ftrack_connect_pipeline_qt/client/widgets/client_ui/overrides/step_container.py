@@ -6,7 +6,7 @@ from functools import partial
 from ftrack_connect_pipeline import constants as pipeline_constants
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
-from ftrack_connect_pipeline_qt.client.widgets.experimental.default.step_container import DefaultStepContainerWidget
+from ftrack_connect_pipeline_qt.client.widgets.client_ui.default.step_container import DefaultStepContainerWidget
 from Qt import QtGui, QtCore, QtWidgets
 
 

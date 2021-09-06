@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 import logging
-from ftrack_connect_pipeline_qt.client.widgets.experimental import BaseUIWidget
+from ftrack_connect_pipeline_qt.client.widgets.client_ui import BaseUIWidget
 from ftrack_connect_pipeline_qt import constants
 
 from Qt import QtWidgets, QtCore, QtGui
@@ -65,7 +65,21 @@ class ComponentButton(QtWidgets.QPushButton):
 
     def update_error_message(self, results):
         self.error_widget.show()
-        self.error_widget.setToolTip(str(results))
+        message = None
+        logged_errors = []
+        if results:
+            for stage_result in results:
+                if stage_result.get('status') == False:
+                    for plugin_result in stage_result.get('result'):
+                        plug_error = 'Plugin {} failed with message: {}'.format(
+                            plugin_result.get('name'),
+                            plugin_result.get('message')
+                        )
+                        logged_errors.append(plug_error)
+        if logged_errors:
+            message = "\n".join(logged_errors)
+
+        self.error_widget.setToolTip(str(message))
 
     def show_log(self):
         # TODO: we can show the status and the error message here
@@ -130,11 +144,6 @@ class ProgressWidget(BaseUIWidget):
         self._widget = MainButtonWidget()
         main_layout = QtWidgets.QVBoxLayout()
         self.widget.setLayout(main_layout)
-        # self.widget.setSizePolicy(
-        #     QtWidgets.QSizePolicy.Preferred,
-        #     QtWidgets.QSizePolicy.Fixed
-        # )
-        # self.widget.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
         self.content_widget = QtWidgets.QWidget()
         inner_widget = QtWidgets.QVBoxLayout()

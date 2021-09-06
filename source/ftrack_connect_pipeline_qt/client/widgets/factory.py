@@ -220,8 +220,16 @@ class WidgetFactory(QtWidgets.QWidget):
                         stage_obj.parent_widget(plugin_container_obj)
                     else:
                         stage_obj.parent_widget(plugin_widget)
-                if stage_type == 'validator' and hasattr(step_obj, "parent_validator"):
+                if (
+                        stage_type == core_constants.VALIDATOR and
+                        hasattr(step_obj, "parent_validator")
+                ):
                     step_obj.parent_validator(stage_obj)
+                elif (
+                        stage_type == core_constants.OUTPUT and
+                        hasattr(step_obj, "parent_output")
+                ):
+                    step_obj.parent_output(stage_obj)
                 elif step_obj:
                     step_obj.parent_widget(stage_obj)
                 elif step_container_obj:
