@@ -11,13 +11,19 @@ class RadioWidgetButton(QtWidgets.QPushButton):
         self.setAutoExclusive(True)
         self.setContentsMargins(20, 0, 0, 20)
 
+        self.text_label = label
+        self.inner_widget = widget
+
+        self.pre_build()
+        self.build()
+
+    def pre_build(self):
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
-        self.text_widget = QtWidgets.QLabel(label)
+    def build(self):
+        self.text_widget = QtWidgets.QLabel(self.text_label)
         self.text_widget.setMinimumHeight(20)
-
-        self.inner_widget = widget
 
         self.inner_widget.setMinimumHeight(20)
         self.layout().setSpacing(25)
