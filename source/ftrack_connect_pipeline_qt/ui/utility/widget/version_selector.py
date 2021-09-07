@@ -1,30 +1,74 @@
 import logging
 from Qt import QtWidgets, QtCore, QtGui
+from ftrack_connect_pipeline_qt.utils import BaseThread
 
 
 class VersionComboBox(QtWidgets.QComboBox):
+    versions_query_done = QtCore.Signal()
 
     def __init__(self, session, parent=None):
         super(VersionComboBox, self).__init__(parent=parent)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        self.setEditable(True)
+
+        self.setStyleSheet(
+            "border: none;"
+            "background-color: transparent;"
+        )
+
+        self.setEditable(False)
         self.session = session
         self.context_id = None
 
-    def context_changed(self, context_id):
+        self.asset_entity = None
+
+    def set_asset_entity(self, asset_entity):
+        self.asset_entity = asset_entity
+        self.clear()
+        self._add_version(self.asset_entity['latest_version'])
+
+    def showPopup(self):
+        self.clear()
+        versions = self.query_versions(self.context_id, self.asset_entity['id'])
+        self.add_versions(versions)
+        self.setCurrentIndex(0)
+        # self.query_asset_versions_async()
+        super(VersionComboBox, self).showPopup()
+
+    def set_context_id(self, context_id):
         self.context_id = context_id
         self.clear()
 
-    def asset_changed(self, asset_id):
-        self.clear()
+    def query_versions(self, context_id, asset_id):
         versions = self.session.query(
             'select version, id '
             'from AssetVersion where task.id is {} and asset_id is {} order by'
-            ' version descending'.format(self.context_id, asset_id)).all()
+            ' version descending'.format(context_id, asset_id)).all()
+        return versions
+
+    # We will not use this one for now
+    def query_asset_versions_async(self):
+        self.clear()
+
+        thread = BaseThread(
+            name='get_asset_versions_thread',
+            target=self.query_versions,
+            callback=self.add_versions,
+            target_args=(self.context_id, self.asset_entity['id'])
+        )
+        thread.start()
+
+    def _add_version(self, version):
+        self.addItem(
+            str("Version {}".format(version['version'])),
+            version['id']
+        )
+
+    def add_versions(self, versions):
         for version in versions:
-            self.addItem(str(version['version']), version['id'])
+            self._add_version(version)
+        self.versions_query_done.emit()
 
 
 class VersionSelector(QtWidgets.QWidget):
@@ -63,15 +107,17 @@ class VersionSelector(QtWidgets.QWidget):
             self._current_version_changed)
 
     def _current_version_changed(self, index):
-        version_num = self.version_combobox.currentText()
+        if index == -1:
+            return
+        version_num = self.version_combobox.currentText().split("Version ")[1]
         current_idx = self.version_combobox.currentIndex()
         version_id = self.version_combobox.itemData(current_idx)
         self.version_changed.emit(version_num, version_id)
 
-    def set_context(self, context_id):
+    def set_context_id(self, context_id):
         self.logger.debug('setting context to :{}'.format(context_id))
-        self.version_combobox.context_changed(context_id)
+        self.version_combobox.set_context_id(context_id)
 
-    def set_asset_id(self, asset_id):
-        self.logger.debug('setting asset_id to :{}'.format(asset_id))
-        self.version_combobox.asset_changed(asset_id)
+    def set_asset_entity(self, asset_entity):
+        self.logger.debug('setting asset_id to :{}'.format(asset_entity))
+        self.version_combobox.set_asset_entity(asset_entity)
