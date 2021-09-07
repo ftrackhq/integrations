@@ -7,7 +7,7 @@
 Release Notes
 *************
 
-.. release::2.5.0
+.. release:: 2.5.0
     :date: 2021-09-06
     
     .. change:: discovery
