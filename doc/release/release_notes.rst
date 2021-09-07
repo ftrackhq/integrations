@@ -11,19 +11,23 @@ Release Notes
     :date: 2021-09-06
     
     .. change:: change
-        :tags: discovery
+        :tags: Discovery
+
         Update hook for application launcher.
     
     .. change:: change
-        :tags: discovery
+        :tags: Discovery
+
         Limit discovery to Nuke 13.+.
 
     .. change:: change
-        :tags: setup
+        :tags: Setup
+
         Limit to python 3+ version.
 
     .. change:: change
-        :tags: api
+        :tags: Api
+        
         Update to python3 and pyside2.
 
 .. release:: 2.4.1

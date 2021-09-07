@@ -92,7 +92,7 @@ def autodoc_skip(app, what, name, obj, skip, options):
 for module in ['ftrack','ftrack_api',
     'QtExt', 'ftrack_connect', 'ui.widget.html_combobox','ftrack_connect_nuke_studio.resource',
     'ftrack_connect.session', 'lucidity', 'lucidity.error','ftrack_connect.ui','ftrack_connect.ui.widget','ftrack_connect.ui.widget.html_combobox',
-    'ftrack_connect','ui.widget.html_combobox', 'libpyside2-python2.7.so.2.0', 'hiero', 'hiero.core', 'hiero.ui',
+    'ftrack_connect','ui.widget.html_combobox', 'libpyside2-python2.7.so.2.0', 'hiero', 'hiero.core', 'hiero.core.FnProcessor', 'hiero.ui',
     'hiero.exporters', 'exporters.FnShotProcessor', 'hiero.exporters.FnShotProcessor', 'hiero.exporters.FnShotProcessorUI','hiero.core.FnExporterBase',
     'foundry', 'foundry.ui', 'hiero.ui.FnTaskUIFormLayout', 'hiero.ui.FnUIProperty', 'hiero.core.VersionScanner', 'hiero.exporters.FnTimelineProcessor',
     'hiero.exporters.FnTimelineProcessorUI','hiero.core.events','nuke','hiero.core.util', 'hiero.exporters.FnNukeShotExporter', 'hiero.exporters.FnNukeShotExporterUI',
