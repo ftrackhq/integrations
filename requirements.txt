@@ -1,4 +1,4 @@
-cx-Freeze==6.8b3
+cx-Freeze==6.8
 cryptography
 requests >= 2, <3
 setuptools>=45.0.0
