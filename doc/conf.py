@@ -27,21 +27,20 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'ftrack-connect-rv'
-copyright = u'2015, ftrack'
+copyright = u'2021, ftrack'
 
 # Version
-with open(
-    os.path.join(
-        os.path.dirname(__file__), '..', 'source',
-        'ftrack_connect_rv', '_version.py'
-    )
-) as _version_file:
-    _version = re.match(
-        r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
-    ).group(1)
+try:
+    release = get_distribution('ftrack-connect-rv').version
+    # take major/minor/patch
+    VERSION = '.'.join(release.split('.')[:2])
 
-version = _version
-release = _version
+except DistributionNotFound:
+    # package is not installed
+    VERSION = 'Unknown version'
+
+version = VERSION
+release = VERSION
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
