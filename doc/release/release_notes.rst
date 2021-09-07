@@ -8,12 +8,26 @@ Release Notes
 *************
 
 
-.. release:: Upcoming
+.. release:: 5.0
+    :data: 2021-09-07
 
+    ..change:: changed
+
+        Port to python 3 and PySide2.
+
+    ..change:: changed
+
+        Refactor to support RV 20XX
+
+    ..change:: changed
+       
+    
     ..change:: fixed
         :tags: Api
 
         Failed to jump to index error.
+
+
 
 .. release:: 4.0
     :data: 2020-01-14
