@@ -7,14 +7,20 @@
 Release Notes
 *************
 
-
-.. release::2.5.0-beta-1
-    :date: 2020-09-15
+.. release::2.5.0
+    :date: 2021-09-06
     
     .. change:: discovery
+        Update hook for application launcher.
+    
+    .. change:: discovery
+        Limit discovery to Nuke 13.+.
 
-        Update hook for application launcher.   
+    .. change:: setup
+        Limit to python 3+ version.
 
+    .. change:: api
+        Update to python3 and pyside2.
 
 .. release:: 2.4.1
     :date: 2020-09-15

@@ -160,7 +160,7 @@ class BuildPlugin(Command):
 
 version_template = '''
 # :coding: utf-8
-# :copyright: Copyright (c) 2017-2020 ftrack
+# :copyright: Copyright (c) 2017-2021 ftrack
 
 __version__ = {version!r}
 '''
