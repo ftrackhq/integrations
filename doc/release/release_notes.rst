@@ -9,7 +9,7 @@ Release Notes
 
 
 .. release:: 5.0
-    :data: 2021-09-07
+    :date: 2021-09-07
 
     ..change:: changed
 
@@ -30,7 +30,7 @@ Release Notes
 
 
 .. release:: 4.0
-    :data: 2020-01-14
+    :date: 2020-01-14
 
     ..change:: changed
 
