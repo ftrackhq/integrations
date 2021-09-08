@@ -8,6 +8,7 @@ from functools import partial
 import uuid
 import ftrack_api
 from ftrack_connect_pipeline_qt import constants
+from ftrack_connect_pipeline_qt.utils import BaseThread
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.client_ui_overrides import UI_OVERRIDES
@@ -22,6 +23,7 @@ class WidgetFactory(QtWidgets.QWidget):
     widget_context_updated = QtCore.Signal(object)
     widget_asset_updated = QtCore.Signal(object, object, object)
     widget_run_plugin = QtCore.Signal(object, object)
+    on_query_asset_version_done = QtCore.Signal()
 
     host_types = None
     ui_types = None
@@ -67,6 +69,8 @@ class WidgetFactory(QtWidgets.QWidget):
         self.components_names = []
 
         self.progress_widget = self.create_progress_widget()
+
+        self.on_query_asset_version_done.connect(self.check_components)
 
     def set_context(self, context_id, asset_type_name):
         '''Set :obj:`context_id` and :obj:`asset_type_name` with the given
@@ -574,15 +578,29 @@ class WidgetFactory(QtWidgets.QWidget):
                     else:
                         v.tab_widget.setTabEnabled(v.tabs_names[name], True)
 
-    def _asset_version_changed(self, version_id):
-        '''Callbac funtion triggered when a asset version has changed'''
-        self.version_id = version_id
+    def query_asset_version_from_version_id(self, version_id):
         asset_version_entity = self.session.query(
             'select components, components.name '
             'from AssetVersion where id is {}'.format(version_id)
         ).first()
+        return asset_version_entity
+
+    def _query_asset_version_callback(self, asset_version_entity):
         if not asset_version_entity:
             return
         components = asset_version_entity['components']
         self.components_names = [component['name'] for component in components]
-        self.check_components()
+        self.on_query_asset_version_done.emit()
+
+
+    def _asset_version_changed(self, version_id):
+        '''Callbac funtion triggered when a asset version has changed'''
+        self.version_id = version_id
+
+        thread = BaseThread(
+            name='get_asset_version_entity_thread',
+            target=self.query_asset_version_from_version_id,
+            callback=self._query_asset_version_callback,
+            target_args=(version_id)
+        )
+        thread.start()

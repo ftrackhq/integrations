@@ -196,6 +196,7 @@ class LoadContextWidget(BaseOptionsWidget):
         self.set_option_result(version_num, key='version_number')
         self.set_option_result(asset_version_id, key='version_id')
         self.asset_changed.emit(asset_name, asset_entity['id'], True)
+        self.asset_version_changed.emit(asset_version_id)
 
     def _build_asset_grid_selector(self):
         label = QtWidgets.QLabel("Choose which asset and version to load")
