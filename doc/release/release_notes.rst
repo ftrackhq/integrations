@@ -24,6 +24,10 @@ Release Notes
 
         Failed to jump to index error.
 
+.. warning::
+
+    From this version the support for ftrack-connect 1.X is dropped, and
+    only ftrack-conenct 2.0 will be supported up to the integration EOL.
 
 
 .. release:: 4.0
