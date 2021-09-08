@@ -30,6 +30,13 @@ Release Notes
         
         Update to python3 and pyside2.
 
+
+.. warning::
+
+    From this version the support for ftrack-connect 1.X is dropped, and
+    only ftrack-conenct 2.0 will be supported up to the integration EOL.
+
+
 .. release:: 2.4.1
     :date: 2020-09-15
 
