@@ -9,6 +9,10 @@ from Qt import QtGui, QtCore, QtWidgets
 class DefaultStepWidget(BaseUIWidget):
     '''Widget representation of a boolean'''
 
+    @property
+    def is_enabled(self):
+        return self.check_box.isChecked()
+
 
     def __init__(self, name, fragment_data, parent=None):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
@@ -24,7 +28,13 @@ class DefaultStepWidget(BaseUIWidget):
     def build(self):
         self._widget = QtWidgets.QWidget()
         main_layout = QtWidgets.QVBoxLayout()
-        self._widget.setLayout(main_layout)
+        self.widget.setLayout(main_layout)
+
+        self.check_box = QtWidgets.QCheckBox(self.name)
+        self.widget.layout().addWidget(self.check_box)
+        if not self.is_optional:
+            self.check_box.setChecked(True)
+            self.check_box.setEnabled(False)
 
     def to_json_object(self):
         '''Return a formated json with the data from the current widget'''

@@ -2,7 +2,6 @@ import logging
 from functools import partial
 from Qt import QtWidgets, QtCore, QtGui
 from ftrack_connect_pipeline_qt.utils import BaseThread
-from ftrack_connect_pipeline_qt.ui.utility.widget.radio_widget_button import RadioWidgetButton
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import AssetVersion as AssetVersionThumbnail
 from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import VersionComboBox
 import time

@@ -91,7 +91,7 @@ class WidgetFactory(QtWidgets.QWidget):
         '''Set :obj:`definition_type` with the given *definition_type*'''
         self.definition_type = definition_type
 
-    def get_override(self, type_name, widget_type, name, data):
+    def get_override(self, type_name, widget_type, name, data, definition_type):
         obj_override = UI_OVERRIDES.get(
             type_name
         ).get('{}.{}'.format(widget_type, name), "Not Set")
@@ -99,6 +99,10 @@ class WidgetFactory(QtWidgets.QWidget):
             obj_override = UI_OVERRIDES.get(
                 type_name
             ).get('{}.{}'.format(widget_type, data['type']), "Not Set")
+        if obj_override == "Not Set":
+            obj_override = UI_OVERRIDES.get(
+                type_name
+            ).get('{}.{}'.format(widget_type, definition_type), "Not Set")
         if obj_override == "Not Set":
             obj_override = UI_OVERRIDES.get(
                 type_name
@@ -175,8 +179,9 @@ class WidgetFactory(QtWidgets.QWidget):
         return step_container_obj
 
     def create_typed_widget(self, definition, type_name):
+        definition_type = definition.get('type')
         step_container_obj = self.get_override(
-            type_name, 'step_container', type_name, definition
+            type_name, 'step_container', type_name, definition, definition_type
         )
 
         for step in definition[type_name]:
@@ -187,7 +192,8 @@ class WidgetFactory(QtWidgets.QWidget):
             step_name = step.get('name')
             self.progress_widget.add_component(step_type, step_name)
             step_obj = self.get_override(
-                type_name, '{}_widget'.format(step_category), step_name, step
+                type_name, '{}_widget'.format(step_category), step_name, step,
+                definition_type
             )
             if step_obj:
                 self.register_object(step, step_obj, step_category)
@@ -198,7 +204,8 @@ class WidgetFactory(QtWidgets.QWidget):
                 stage_type = stage['type']
                 stage_name = stage.get('name')
                 stage_obj = self.get_override(
-                    type_name, '{}_widget'.format(stage_category), stage_name, stage
+                    type_name, '{}_widget'.format(stage_category), stage_name,
+                    stage, definition_type
                 )
                 if stage_obj:
                     self.register_object(stage, stage_obj, stage_category)
@@ -212,7 +219,8 @@ class WidgetFactory(QtWidgets.QWidget):
                     plugin_container_obj = self.get_override(
                         type_name, '{}_container'.format(plugin_category),
                         plugin_name,
-                        plugin
+                        plugin,
+                        definition_type
                     )
                     plugin_widget = self.fetch_plugin_widget(
                         plugin, stage['name']
@@ -234,6 +242,11 @@ class WidgetFactory(QtWidgets.QWidget):
                         hasattr(step_obj, "parent_output")
                 ):
                     step_obj.parent_output(stage_obj)
+                elif (
+                        definition_type == "loader" and
+                        hasattr(step_obj, "parent_options")
+                ):
+                    step_obj.parent_options(stage_obj)
                 elif step_obj:
                     step_obj.parent_widget(stage_obj)
                 elif step_container_obj:
@@ -601,6 +614,6 @@ class WidgetFactory(QtWidgets.QWidget):
             name='get_asset_version_entity_thread',
             target=self.query_asset_version_from_version_id,
             callback=self._query_asset_version_callback,
-            target_args=(version_id)
+            target_args=[version_id]
         )
         thread.start()

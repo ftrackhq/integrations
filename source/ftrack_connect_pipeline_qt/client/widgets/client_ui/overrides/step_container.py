@@ -6,8 +6,51 @@ from functools import partial
 from ftrack_connect_pipeline import constants as pipeline_constants
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
+from ftrack_connect_pipeline_qt.client.widgets.client_ui import BaseUIWidget
 from ftrack_connect_pipeline_qt.client.widgets.client_ui.default.step_container import DefaultStepContainerWidget
+from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import AccordionWidget
 from Qt import QtGui, QtCore, QtWidgets
+
+
+class GroupBoxStepContainerWidget(BaseUIWidget):
+    '''Widget representation of a boolean'''
+    def __init__(self, name, fragment_data, parent=None):
+        '''Initialise JsonBoolean with *name*, *schema_fragment*,
+        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
+
+        super(GroupBoxStepContainerWidget, self).__init__(
+            name, fragment_data, parent=parent
+        )
+
+    def build(self):
+        self._widget = QtWidgets.QGroupBox(self.name)
+        main_layout = QtWidgets.QVBoxLayout()
+        self.widget.setLayout(main_layout)
+
+class AccordionStepContainerWidget(BaseUIWidget):
+    '''Widget representation of a boolean'''
+
+    def __init__(self, name, fragment_data, parent=None):
+        '''Initialise JsonBoolean with *name*, *schema_fragment*,
+        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
+
+        super(AccordionStepContainerWidget, self).__init__(
+            name, fragment_data, parent=parent
+        )
+
+    def build(self):
+        self._widget = AccordionWidget(
+            title="0 coomponents selected", checkable=False
+        )
+
+    def parent_widget(self, step_widget):
+        if self.widget:
+            if hasattr(step_widget, 'widget'):
+                self.widget.add_widget(step_widget.widget)
+            else:
+                self.widget.add_widget(step_widget)
+        else:
+            self.logger.error("Please create a widget before parent")
 
 
 class TabStepContainerWidget(DefaultStepContainerWidget):

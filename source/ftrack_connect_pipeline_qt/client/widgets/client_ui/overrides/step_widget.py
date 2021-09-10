@@ -2,6 +2,22 @@ from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.client.widgets.client_ui import BaseUIWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import AccordionWidget
+from ftrack_connect_pipeline_qt.client.widgets.client_ui.default.step_widget import DefaultStepWidget
+from Qt import QtGui, QtCore, QtWidgets
+
+
+def recursive_get_load_mode_container(widget):
+    if not widget.layout():
+        return
+    print("----> {}".format(widget.accessibleName()))
+    for idx in range(0, widget.layout().count()):
+        inner_item = widget.layout().itemAt(idx)
+        if inner_item and inner_item.widget():
+            if hasattr(inner_item.widget(), 'load_mode_layout'):
+                return inner_item.widget()
+            else:
+                recursive_get_load_mode_container(inner_item.widget())
+    return
 
 class AccordionStepWidget(BaseUIWidget):
     '''Widget representation of a boolean'''
@@ -81,3 +97,78 @@ class AccordionStepWidget(BaseUIWidget):
         out = {}
         out['enabled'] = self.is_enabled
         return out
+
+
+class OptionsStepWidget(DefaultStepWidget):
+    '''Widget representation of a boolean'''
+
+    @property
+    def options_widget(self):
+        return self._options_widget
+
+    def __init__(self, name, fragment_data, parent=None):
+        '''Initialise JsonBoolean with *name*, *schema_fragment*,
+        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
+
+        self._options_widget = None
+
+        super(OptionsStepWidget, self).__init__(
+            name, fragment_data, parent=parent
+        )
+
+    def build(self):
+        super(OptionsStepWidget, self).build()
+        self.show_options_button = QtWidgets.QPushButton("Show options")
+
+        self._options_widget = QtWidgets.QWidget()
+        layout = QtWidgets.QVBoxLayout()
+        self.options_widget.setLayout(layout)
+
+        self.widget.layout().addWidget(self.show_options_button )
+        self.widget.layout().addWidget(self.options_widget)
+        self.options_widget.hide()
+
+    def post_build(self):
+        self.show_options_button.clicked.connect(self.toggle_options)
+
+    def toggle_options(self):
+        if self.options_widget.isVisible():
+            self.options_widget.hide()
+            self.show_options_button.setText("Show options")
+        else:
+            self.options_widget.show()
+            self.show_options_button.setText("Hide options")
+
+    def parent_options(self, stage_widget):
+        if self.options_widget:
+            load_mode_cointainer = None
+            if hasattr(stage_widget, 'widget'):
+                self.options_widget.layout().addWidget(stage_widget.widget)
+                load_mode_cointainer = recursive_get_load_mode_container(stage_widget.widget)
+            else:
+                self.options_widget.layout().addWidget(stage_widget)
+                load_mode_cointainer = recursive_get_load_mode_container(stage_widget.widget)
+            if load_mode_cointainer:
+                mode_layout = load_mode_cointainer.load_mode_layout
+                load_mode_cointainer.layout().removeItem(mode_layout)
+                self.parent_layout(mode_layout)
+
+        else:
+            self.logger.error("Please create a options_widget before parent")
+
+    def parent_widget(self, widget):
+        if self.widget:
+            options_idx = self.widget.layout().indexOf(self.show_options_button)
+            if hasattr(widget, 'widget'):
+                self.widget.layout().insertWidget((options_idx), widget.widget)
+            else:
+                self.widget.layout().insertWidget((options_idx), widget)
+        else:
+            self.logger.error("Please create a widget before parent")
+
+    def parent_layout(self, layout):
+        if self.widget:
+            options_idx = self.widget.layout().indexOf(self.show_options_button)
+            self.widget.layout().insertLayout((options_idx), layout)
+        else:
+            self.logger.error("Please create a widget before parent")

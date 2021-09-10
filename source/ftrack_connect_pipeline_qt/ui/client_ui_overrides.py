@@ -13,7 +13,9 @@ UI_OVERRIDES = {
     },
     core_constants.COMPONENTS: {
         'step_container': default_widgets.DefaultStepContainerWidget,
+        'step_container.loader': override_widgets.AccordionStepContainerWidget,
         'step_widget': override_widgets.AccordionStepWidget,
+        'step_widget.loader': override_widgets.OptionsStepWidget,
         'stage_widget': default_widgets.DefaultStageWidget,
         # Example to override specific stage widget
         # 'stage_widget.collector': default_widgets.DefaultStageWidget,
