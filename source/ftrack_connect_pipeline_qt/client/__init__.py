@@ -177,7 +177,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
             definition['name'],
             self.definition
         )
-        # self.widget_factory.check_components()
         self.scroll.setWidget(self.definition_widget)
 
 

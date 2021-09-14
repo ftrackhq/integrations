@@ -19,4 +19,3 @@ class DefaultPluginContainerWidget(BaseUIWidget):
         self._widget = QtWidgets.QWidget()
         main_layout = QtWidgets.QVBoxLayout()
         self.widget.setLayout(main_layout)
-        self.widget.setAccessibleName("Plugin_container")
