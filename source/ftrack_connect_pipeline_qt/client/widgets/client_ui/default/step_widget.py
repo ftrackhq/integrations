@@ -36,6 +36,21 @@ class DefaultStepWidget(BaseUIWidget):
             self.check_box.setChecked(True)
             self.check_box.setEnabled(False)
 
+    def post_build(self):
+        super(DefaultStepWidget, self).post_build()
+
+    def set_unavailable(self):
+        self.check_box.setChecked(False)
+        self.widget.setEnabled(False)
+
+    def set_available(self):
+        self.check_box.setChecked(True)
+        self.widget.setEnabled(True)
+        if not self.is_optional:
+            self.check_box.setEnabled(False)
+        else:
+            self.check_box.setEnabled(True)
+
     def to_json_object(self):
         '''Return a formated json with the data from the current widget'''
         out = {}

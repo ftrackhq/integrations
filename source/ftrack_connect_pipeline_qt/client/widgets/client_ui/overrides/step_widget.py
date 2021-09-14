@@ -9,15 +9,17 @@ from Qt import QtGui, QtCore, QtWidgets
 def recursive_get_load_mode_container(widget):
     if not widget.layout():
         return
-    print("----> {}".format(widget.accessibleName()))
+    load_mode_widget = None
     for idx in range(0, widget.layout().count()):
         inner_item = widget.layout().itemAt(idx)
         if inner_item and inner_item.widget():
             if hasattr(inner_item.widget(), 'load_mode_layout'):
                 return inner_item.widget()
             else:
-                recursive_get_load_mode_container(inner_item.widget())
-    return
+                load_mode_widget = recursive_get_load_mode_container(inner_item.widget())
+                if load_mode_widget:
+                    return load_mode_widget
+    return load_mode_widget
 
 class AccordionStepWidget(BaseUIWidget):
     '''Widget representation of a boolean'''

@@ -65,6 +65,7 @@ class WidgetFactory(QtWidgets.QWidget):
         self.host_connection = None
         self.original_definition = None
         self.working_definition = None
+        self.components_obj = None
 
         self.components_names = []
 
@@ -118,65 +119,6 @@ class WidgetFactory(QtWidgets.QWidget):
     def create_main_widget(self):
         # Check for overrides of the main widget, otherwise call the default one
         return UI_OVERRIDES.get('main_widget')(None, None)
-
-    # TODO: Choose between this or create typed widget
-    #  In case to choose this recursive method, make sure that is 100% working
-    #  and is all parenting as it should without errors, also, make sure it's working with multiple plugins
-    def recursive_typed_widget(self, definition, parent_type, type_list, parent=None):
-        for definition_obj in definition[type_list[0]]:
-            category = definition_obj['category']
-            name = definition_obj.get('name')
-
-            if category == 'plugin':
-                plugin_container_obj = self.get_override(
-                    parent_type, '{}_container'.format(category), name, definition_obj
-                )
-                plugin_widget = self.fetch_plugin_widget(
-                    definition_obj, parent.name
-                )
-
-                obj = plugin_widget
-
-                if plugin_container_obj:
-                    plugin_widget.toggle_status(show=False)
-                    plugin_widget.toggle_name(show=False)
-                    plugin_container_obj.parent_widget(plugin_widget)
-                    obj = plugin_container_obj
-
-            else:
-                obj = self.get_override(
-                    parent_type, '{}_widget'.format(category), name, definition_obj
-                )
-                if obj:
-                    self.register_object(definition_obj, obj, category)
-                else:
-                    obj = parent
-
-            if len(type_list) > 1:
-                self.recursive_typed_widget(
-                    definition_obj,
-                    parent_type,
-                    type_list[1:],
-                    obj
-                )
-            if parent:
-                parent.parent_widget(obj)
-    # TODO: Choose between this or create typed widget
-    #  In case to choose this recursive method, make sure that is 100% working
-    #  and is all parenting as it should without errors, also, make sure it's working with multiple plugins
-    def create_typed_widget_recursive(self, definition, type_name):
-
-        step_container_obj = self.get_override(
-            type_name, 'step_container', type_name, definition
-        )
-
-        self.recursive_typed_widget(
-            definition,
-            type_name,
-            [type_name, 'stages','plugins'],
-            step_container_obj
-        )
-        return step_container_obj
 
     def create_typed_widget(self, definition, type_name):
         definition_type = definition.get('type')
@@ -265,7 +207,7 @@ class WidgetFactory(QtWidgets.QWidget):
             definition, type_name=core_constants.CONTEXTS
         )
 
-        components_obj = self.create_typed_widget(
+        self.components_obj = self.create_typed_widget(
             definition, type_name=core_constants.COMPONENTS
         )
 
@@ -276,9 +218,11 @@ class WidgetFactory(QtWidgets.QWidget):
             )
 
         main_obj.widget.layout().addWidget(context_obj.widget)
-        main_obj.widget.layout().addWidget(components_obj.widget)
+        main_obj.widget.layout().addWidget(self.components_obj.widget)
         if finalizers_obj:
             main_obj.widget.layout().addWidget(finalizers_obj.widget)
+
+        self.post_build_definition()
 
         return main_obj.widget
 
@@ -301,6 +245,30 @@ class WidgetFactory(QtWidgets.QWidget):
 
         return out
 
+    def post_build_definition(self):
+        self.check_components()
+        self.update_selected_components(True)
+        for step in self.working_definition[core_constants.COMPONENTS]:
+            step_obj = self.get_registered_object(step, step['category'])
+            if hasattr(step_obj, 'check_box'):
+                step_obj.check_box.stateChanged.connect(
+                    self.update_selected_components
+                )
+
+    def update_selected_components(self, state):
+        enabled_components=0
+        total_components=0
+        for step in self.working_definition[core_constants.COMPONENTS]:
+            step_obj = self.get_registered_object(step, step['category'])
+            if hasattr(step_obj, 'is_enabled'):
+                enabled = step_obj.is_enabled
+                if enabled:
+                    enabled_components += 1
+                total_components += 1
+        if hasattr(self.components_obj, 'update_selected_components'):
+            self.components_obj.update_selected_components(
+                enabled_components, total_components
+            )
 
     def fetch_plugin_widget(self, plugin_data, stage_name, extra_options=None):
         '''
@@ -567,29 +535,30 @@ class WidgetFactory(QtWidgets.QWidget):
             if category == 'step':
                 return self._step_objs_ref[data['widget_ref']]
 
-
     def reset_type_widget_plugin(self):
         '''empty :obj:`type_widgets_ref`'''
         self._type_widgets_ref = {}
 
-    # TODO: Review this method, not sure is working since the refactor
     def check_components(self):
         ''' Set the component as unavailable if it isn't available on the server'''
         if not self.components_names:
             return
-        for k, v in self.type_widgets.items():
-            if hasattr(v, 'accordion_widgets') and v.type == core_constants.COMPONENT:
-                for widget in v.accordion_widgets:
-                    if widget.title not in self.components_names:
-                        widget.set_unavailable()
-                    else:
-                        widget.set_default_state()
-            elif hasattr(v, 'tabs_names') and v.type == core_constants.COMPONENT:
-                for name in list(v.tabs_names.keys()):
-                    if name not in self.components_names:
-                        v.tab_widget.setTabEnabled(v.tabs_names[name], False)
-                    else:
-                        v.tab_widget.setTabEnabled(v.tabs_names[name], True)
+        for step in self.working_definition[core_constants.COMPONENTS]:
+            step_obj = self.get_registered_object(step, step['category'])
+            if (
+                    not hasattr(step_obj, 'set_unavailable') or
+                    not hasattr(step_obj, 'set_available')
+            ):
+                self.logger.error(
+                    "set_unavailable or set_available method not available "
+                    "in the {}".format(step_obj.name)
+                )
+                continue
+
+            if step_obj.name not in self.components_names:
+                step_obj.set_unavailable()
+            else:
+                step_obj.set_available()
 
     def query_asset_version_from_version_id(self, version_id):
         asset_version_entity = self.session.query(
