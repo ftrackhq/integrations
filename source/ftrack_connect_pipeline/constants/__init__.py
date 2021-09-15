@@ -39,6 +39,12 @@ IMPORTER = 'importer'
 #: Post_import component stage name.
 POST_IMPORT = 'post_import'
 
+# Common definition types.
+#: Loader definition.
+LOADER = 'loader'
+#: Publisher definition.
+PUBLISHER = 'publisher'
+
 
 # External events.
 #: Pipeline register topic event. Published by the
