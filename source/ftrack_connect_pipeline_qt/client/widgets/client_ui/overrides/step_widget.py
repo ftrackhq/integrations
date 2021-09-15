@@ -3,6 +3,7 @@ from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.client.widgets.client_ui import BaseUIWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import AccordionWidget
 from ftrack_connect_pipeline_qt.client.widgets.client_ui.default.step_widget import DefaultStepWidget
+from ftrack_connect_pipeline_qt.client.widgets.options.load_widget import LoadBaseWidget
 from Qt import QtGui, QtCore, QtWidgets
 
 
@@ -13,7 +14,7 @@ def recursive_get_load_mode_container(widget):
     for idx in range(0, widget.layout().count()):
         inner_item = widget.layout().itemAt(idx)
         if inner_item and inner_item.widget():
-            if hasattr(inner_item.widget(), 'load_mode_layout'):
+            if isinstance(inner_item.widget(), LoadBaseWidget):
                 return inner_item.widget()
             else:
                 load_mode_widget = recursive_get_load_mode_container(inner_item.widget())
@@ -69,7 +70,7 @@ class AccordionStepWidget(BaseUIWidget):
 
     def parent_validator(self, step_widget):
         if self.validators_widget:
-            if hasattr(step_widget, 'widget'):
+            if isinstance(step_widget, BaseUIWidget):
                 self.validators_widget.add_widget(step_widget.widget)
             else:
                 self.validators_widget.add_widget(step_widget)
@@ -78,7 +79,7 @@ class AccordionStepWidget(BaseUIWidget):
 
     def parent_output(self, step_widget):
         if self.outputs_widget:
-            if hasattr(step_widget, 'widget'):
+            if isinstance(step_widget, BaseUIWidget):
                 self.outputs_widget.add_widget(step_widget.widget)
             else:
                 self.outputs_widget.add_widget(step_widget)
@@ -87,7 +88,7 @@ class AccordionStepWidget(BaseUIWidget):
 
     def parent_widget(self, step_widget):
         if self.widget:
-            if hasattr(step_widget, 'widget'):
+            if isinstance(step_widget, BaseUIWidget):
                 self.widget.add_widget(step_widget.widget)
             else:
                 self.widget.add_widget(step_widget)
@@ -144,7 +145,7 @@ class OptionsStepWidget(DefaultStepWidget):
     def parent_options(self, stage_widget):
         if self.options_widget:
             load_mode_cointainer = None
-            if hasattr(stage_widget, 'widget'):
+            if isinstance(stage_widget, BaseUIWidget):
                 self.options_widget.layout().addWidget(stage_widget.widget)
                 load_mode_cointainer = recursive_get_load_mode_container(stage_widget.widget)
             else:
@@ -161,7 +162,7 @@ class OptionsStepWidget(DefaultStepWidget):
     def parent_widget(self, widget):
         if self.widget:
             options_idx = self.widget.layout().indexOf(self.show_options_button)
-            if hasattr(widget, 'widget'):
+            if isinstance(widget, BaseUIWidget):
                 self.widget.layout().insertWidget((options_idx), widget.widget)
             else:
                 self.widget.layout().insertWidget((options_idx), widget)

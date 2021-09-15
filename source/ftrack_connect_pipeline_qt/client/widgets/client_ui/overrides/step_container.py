@@ -50,7 +50,7 @@ class AccordionStepContainerWidget(BaseUIWidget):
 
     def parent_widget(self, step_widget):
         if self.widget:
-            if hasattr(step_widget, 'widget'):
+            if isinstance(step_widget, BaseUIWidget):
                 self.widget.add_widget(step_widget.widget)
             else:
                 self.widget.add_widget(step_widget)
@@ -82,7 +82,7 @@ class TabStepContainerWidget(DefaultStepContainerWidget):
             tab_idx = 0
             widget = None
             icon = self.status_icons[constants.DEFAULT_STATUS]
-            if hasattr(step_widget, 'widget'):
+            if isinstance(step_widget, BaseUIWidget):
                 tab_idx = self.tab_widget.addTab(
                     step_widget.widget, QtGui.QIcon(icon), step_widget.name
                 )
@@ -100,7 +100,7 @@ class TabStepContainerWidget(DefaultStepContainerWidget):
                 )
 
             # Add checkbox for the optional components
-            if hasattr(step_widget, 'is_optional'):
+            if isinstance(step_widget, BaseUIWidget):
                 if step_widget.is_optional:
                     checkbox = QtWidgets.QCheckBox()
                     checkbox.setChecked(True)

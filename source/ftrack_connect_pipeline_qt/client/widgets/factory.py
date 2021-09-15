@@ -11,6 +11,9 @@ from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.utils import BaseThread
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
+from ftrack_connect_pipeline_qt.client.widgets.client_ui import BaseUIWidget
+from ftrack_connect_pipeline_qt.client.widgets.client_ui import default as default_widgets
+from ftrack_connect_pipeline_qt.client.widgets.client_ui import overrides as override_widgets
 from ftrack_connect_pipeline_qt.ui.client_ui_overrides import UI_OVERRIDES
 
 from Qt import QtCore, QtWidgets
@@ -174,21 +177,17 @@ class WidgetFactory(QtWidgets.QWidget):
                         stage_obj.parent_widget(plugin_container_obj)
                     else:
                         stage_obj.parent_widget(plugin_widget)
-                if (
-                        stage_type == core_constants.VALIDATOR and
-                        hasattr(step_obj, "parent_validator")
-                ):
-                    step_obj.parent_validator(stage_obj)
+                if isinstance(step_obj, override_widgets.AccordionStepWidget):
+                    if stage_type == core_constants.VALIDATOR:
+                        step_obj.parent_validator(stage_obj)
+                    if stage_type == core_constants.OUTPUT:
+                        step_obj.parent_output(stage_obj)
+
                 elif (
-                        stage_type == core_constants.OUTPUT and
-                        hasattr(step_obj, "parent_output")
+                        isinstance(step_obj, override_widgets.OptionsStepWidget) and
+                        definition_type == "loader"
                 ):
-                    step_obj.parent_output(stage_obj)
-                elif (
-                        definition_type == "loader" and
-                        hasattr(step_obj, "parent_options")
-                ):
-                    step_obj.parent_options(stage_obj)
+                        step_obj.parent_options(stage_obj)
                 elif step_obj:
                     step_obj.parent_widget(stage_obj)
                 elif step_container_obj:
@@ -250,7 +249,7 @@ class WidgetFactory(QtWidgets.QWidget):
         self.update_selected_components(True)
         for step in self.working_definition[core_constants.COMPONENTS]:
             step_obj = self.get_registered_object(step, step['category'])
-            if hasattr(step_obj, 'check_box'):
+            if isinstance(step_obj, default_widgets.DefaultStepWidget):
                 step_obj.check_box.stateChanged.connect(
                     self.update_selected_components
                 )
@@ -260,12 +259,17 @@ class WidgetFactory(QtWidgets.QWidget):
         total_components=0
         for step in self.working_definition[core_constants.COMPONENTS]:
             step_obj = self.get_registered_object(step, step['category'])
-            if hasattr(step_obj, 'is_enabled'):
+            try:
                 enabled = step_obj.is_enabled
                 if enabled:
                     enabled_components += 1
-                total_components += 1
-        if hasattr(self.components_obj, 'update_selected_components'):
+            except AttributeError:
+                self.logger.error(
+                    "{} doesn't contain the property is_enabled. Please make "
+                    "sure it inherites from BaseUIWidget".format(step_obj)
+                )
+            total_components += 1
+        if isinstance(self.components_obj, override_widgets.AccordionStepContainerWidget):
             self.components_obj.update_selected_components(
                 enabled_components, total_components
             )
@@ -545,20 +549,20 @@ class WidgetFactory(QtWidgets.QWidget):
             return
         for step in self.working_definition[core_constants.COMPONENTS]:
             step_obj = self.get_registered_object(step, step['category'])
-            if (
-                    not hasattr(step_obj, 'set_unavailable') or
-                    not hasattr(step_obj, 'set_available')
-            ):
-                self.logger.error(
-                    "set_unavailable or set_available method not available "
-                    "in the {}".format(step_obj.name)
-                )
-                continue
-
             if step_obj.name not in self.components_names:
-                step_obj.set_unavailable()
+                try:
+                    step_obj.set_unavailable()
+                except AttributeError:
+                    self.logger.error(
+                        "{} doesn't have set_unavailable method ".format(step_obj.name)
+                    )
             else:
-                step_obj.set_available()
+                try:
+                    step_obj.set_available()
+                except AttributeError:
+                    self.logger.error(
+                        "{} doesn't have set_available method ".format(step_obj.name)
+                    )
 
     def query_asset_version_from_version_id(self, version_id):
         asset_version_entity = self.session.query(
