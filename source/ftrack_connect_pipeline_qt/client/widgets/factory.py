@@ -7,11 +7,11 @@ from functools import partial
 
 import uuid
 import ftrack_api
+
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.utils import BaseThread
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
-from ftrack_connect_pipeline_qt.client.widgets.client_ui import BaseUIWidget
 from ftrack_connect_pipeline_qt.client.widgets.client_ui import default as default_widgets
 from ftrack_connect_pipeline_qt.client.widgets.client_ui import overrides as override_widgets
 from ftrack_connect_pipeline_qt.ui.client_ui_overrides import UI_OVERRIDES
@@ -98,20 +98,20 @@ class WidgetFactory(QtWidgets.QWidget):
     def get_override(self, type_name, widget_type, name, data, definition_type):
         obj_override = UI_OVERRIDES.get(
             type_name
-        ).get('{}.{}'.format(widget_type, name), "Not Set")
-        if obj_override == "Not Set":
+        ).get('{}.{}'.format(widget_type, name), constants.NOT_SET)
+        if obj_override == constants.NOT_SET:
             obj_override = UI_OVERRIDES.get(
                 type_name
-            ).get('{}.{}'.format(widget_type, data['type']), "Not Set")
-        if obj_override == "Not Set":
+            ).get('{}.{}'.format(widget_type, data['type']), constants.NOT_SET)
+        if obj_override == constants.NOT_SET:
             obj_override = UI_OVERRIDES.get(
                 type_name
-            ).get('{}.{}'.format(widget_type, definition_type), "Not Set")
-        if obj_override == "Not Set":
+            ).get('{}.{}'.format(widget_type, definition_type), constants.NOT_SET)
+        if obj_override == constants.NOT_SET:
             obj_override = UI_OVERRIDES.get(
                 type_name
             ).get(widget_type)
-        if obj_override and obj_override != "Not Set":
+        if obj_override and obj_override != constants.NOT_SET:
             return obj_override(name, data)
         return obj_override
 
@@ -185,7 +185,7 @@ class WidgetFactory(QtWidgets.QWidget):
 
                 elif (
                         isinstance(step_obj, override_widgets.OptionsStepWidget) and
-                        definition_type == "loader"
+                        definition_type == core_constants.LOADER
                 ):
                         step_obj.parent_options(stage_obj)
                 elif step_obj:

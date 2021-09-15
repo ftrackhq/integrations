@@ -7,6 +7,9 @@ UI_TYPE = 'qt'
 #: Default host type for ftrack_connect_pipeline_qt
 HOST_TYPE = constants.HOST_TYPE
 
+#: UI Not set value for UI overrides
+NOT_SET = 'not_set'
+
 #: Base name for events
 _BASE_ = 'ftrack.pipeline'
 
