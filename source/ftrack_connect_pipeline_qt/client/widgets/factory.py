@@ -12,6 +12,7 @@ from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.utils import BaseThread
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
+from ftrack_connect_pipeline_qt.client.widgets.client_ui import BaseUIWidget
 from ftrack_connect_pipeline_qt.client.widgets.client_ui import default as default_widgets
 from ftrack_connect_pipeline_qt.client.widgets.client_ui import overrides as override_widgets
 from ftrack_connect_pipeline_qt.ui.client_ui_overrides import UI_OVERRIDES
@@ -259,14 +260,13 @@ class WidgetFactory(QtWidgets.QWidget):
         total_components=0
         for step in self.working_definition[core_constants.COMPONENTS]:
             step_obj = self.get_registered_object(step, step['category'])
-            try:
+            if isinstance(step_obj, BaseUIWidget):
                 enabled = step_obj.is_enabled
                 if enabled:
                     enabled_components += 1
-            except AttributeError:
+            else:
                 self.logger.error(
-                    "{} doesn't contain the property is_enabled. Please make "
-                    "sure it inherites from BaseUIWidget".format(step_obj)
+                    "{} isn't instance of BaseUIWidget".format(step_obj)
                 )
             total_components += 1
         if isinstance(self.components_obj, override_widgets.AccordionStepContainerWidget):
@@ -549,20 +549,16 @@ class WidgetFactory(QtWidgets.QWidget):
             return
         for step in self.working_definition[core_constants.COMPONENTS]:
             step_obj = self.get_registered_object(step, step['category'])
+            if not isinstance(step_obj, default_widgets.DefaultStepWidget):
+                self.logger.error(
+                    "{} should be instance of DefaultStepWidget ".format(step_obj.name)
+                )
+                continue
+
             if step_obj.name not in self.components_names:
-                try:
-                    step_obj.set_unavailable()
-                except AttributeError:
-                    self.logger.error(
-                        "{} doesn't have set_unavailable method ".format(step_obj.name)
-                    )
+                step_obj.set_unavailable()
             else:
-                try:
-                    step_obj.set_available()
-                except AttributeError:
-                    self.logger.error(
-                        "{} doesn't have set_available method ".format(step_obj.name)
-                    )
+                step_obj.set_available()
 
     def query_asset_version_from_version_id(self, version_id):
         asset_version_entity = self.session.query(

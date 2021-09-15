@@ -8,7 +8,7 @@ UI_TYPE = 'qt'
 HOST_TYPE = constants.HOST_TYPE
 
 #: UI Not set value for UI overrides
-NOT_SET = 'not_set'
+NOT_SET = 'widget_not_set'
 
 #: Base name for events
 _BASE_ = 'ftrack.pipeline'

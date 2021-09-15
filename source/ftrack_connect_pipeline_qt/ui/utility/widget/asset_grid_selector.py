@@ -68,6 +68,7 @@ class AssetGridSelector(QtWidgets.QWidget):
     assets_query_done = QtCore.Signal(object)
 
     asset_changed = QtCore.Signal(object, object, object, object)
+    max_column = 3
 
     def __init__(self, session, parent=None):
         super(AssetGridSelector, self).__init__(parent=parent)
@@ -135,7 +136,6 @@ class AssetGridSelector(QtWidgets.QWidget):
         self.assets_query_done.emit(assets)
 
     def add_item(self, assets):
-        st_time = time.time()
         row = 0
         column = 0
         for asset in assets:
@@ -148,11 +148,11 @@ class AssetGridSelector(QtWidgets.QWidget):
                 self._pre_select_asset(asset_item)
 
             self.layout().addWidget(asset_item, row, column)
-            if column >= 2:
+            if column == self.max_column-1:
                 row += 1
                 column = 0
             else:
-                column += 1
+                column +=1
 
     def _on_asset_changed(self, asset_item):
         self.current_asset_entity = asset_item.asset
