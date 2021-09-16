@@ -101,7 +101,7 @@ class BaseUIWidget(object):
 
     def parent_widget(self, widget):
         if self.widget:
-            if hasattr(widget, 'widget'):
+            if isinstance(widget, BaseUIWidget):
                 self.widget.layout().addWidget(widget.widget)
             else:
                 self.widget.layout().addWidget(widget)

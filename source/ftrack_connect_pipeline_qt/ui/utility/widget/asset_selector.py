@@ -13,12 +13,8 @@ class AssetComboBox(QtWidgets.QComboBox):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        # self.setEditable(True)
 
         self.session = session
-
-        # validator = QtGui.QRegExpValidator(self.valid_asset_name)
-        # self.setValidator(validator)
 
     def query_assets_from_context(self, context_id, asset_type_name):
         asset_type_entity = self.session.query(
@@ -32,8 +28,8 @@ class AssetComboBox(QtWidgets.QComboBox):
         return assets
 
     def add_assets_to_ui(self, assets):
-        for asset in assets:
-            self.addItem(asset['name'], asset['id'])
+        for asset_entity in assets:
+            self.addItem(asset_entity['name'], asset_entity)
         self.assets_query_done.emit()
 
     def on_context_changed(self, context_id, asset_type_name):
@@ -46,19 +42,6 @@ class AssetComboBox(QtWidgets.QComboBox):
             target_args=(context_id, asset_type_name)
         )
         thread.start()
-
-    # def validate_name(self):
-    #     is_valid_bool = True
-    #     if self.validator():
-    #         asset_name = self.currentText()
-    #         is_valid = self.validator().validate(asset_name, 0)
-    #         if is_valid[0] != QtGui.QValidator.Acceptable:
-    #             is_valid_bool = False
-    #             self.setStyleSheet("border: 1px solid red;")
-    #         else:
-    #             is_valid_bool = True
-    #             self.setStyleSheet("")
-    #     return is_valid_bool
 
 
 class AssetSelector(QtWidgets.QWidget):
@@ -148,8 +131,8 @@ class AssetSelector(QtWidgets.QWidget):
         asset_name = self.asset_combobox.currentText()
         is_valid_name = self.validate_name(asset_name)
         current_idx = self.asset_combobox.currentIndex()
-        asset_id = self.asset_combobox.itemData(current_idx)
-        self.asset_changed.emit(asset_name, asset_id, is_valid_name)
+        asset_entity = self.asset_combobox.itemData(current_idx)
+        self.asset_changed.emit(asset_name, asset_entity, is_valid_name)
 
     def _new_assset_changed(self):
         asset_name = self.new_asset_name.text()

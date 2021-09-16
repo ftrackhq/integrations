@@ -6,8 +6,56 @@ from functools import partial
 from ftrack_connect_pipeline import constants as pipeline_constants
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
+from ftrack_connect_pipeline_qt.client.widgets.client_ui import BaseUIWidget
 from ftrack_connect_pipeline_qt.client.widgets.client_ui.default.step_container import DefaultStepContainerWidget
+from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import AccordionWidget
 from Qt import QtGui, QtCore, QtWidgets
+
+
+class GroupBoxStepContainerWidget(BaseUIWidget):
+    '''Widget representation of a boolean'''
+    def __init__(self, name, fragment_data, parent=None):
+        '''Initialise JsonBoolean with *name*, *schema_fragment*,
+        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
+
+        super(GroupBoxStepContainerWidget, self).__init__(
+            name, fragment_data, parent=parent
+        )
+
+    def build(self):
+        self._widget = QtWidgets.QGroupBox(self.name)
+        main_layout = QtWidgets.QVBoxLayout()
+        self.widget.setLayout(main_layout)
+
+class AccordionStepContainerWidget(BaseUIWidget):
+    '''Widget representation of a boolean'''
+
+    def __init__(self, name, fragment_data, parent=None):
+        '''Initialise JsonBoolean with *name*, *schema_fragment*,
+        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
+
+        super(AccordionStepContainerWidget, self).__init__(
+            name, fragment_data, parent=parent
+        )
+
+    def build(self):
+        self._widget = AccordionWidget(
+            title="0 components selected", checkable=False
+        )
+
+    def update_selected_components(self, enabled, total):
+        self._widget._title_frame._title_label.setText(
+            "{} of {} components selected".format(enabled, total)
+        )
+
+    def parent_widget(self, step_widget):
+        if self.widget:
+            if isinstance(step_widget, BaseUIWidget):
+                self.widget.add_widget(step_widget.widget)
+            else:
+                self.widget.add_widget(step_widget)
+        else:
+            self.logger.error("Please create a widget before parent")
 
 
 class TabStepContainerWidget(DefaultStepContainerWidget):
@@ -34,7 +82,7 @@ class TabStepContainerWidget(DefaultStepContainerWidget):
             tab_idx = 0
             widget = None
             icon = self.status_icons[constants.DEFAULT_STATUS]
-            if hasattr(step_widget, 'widget'):
+            if isinstance(step_widget, BaseUIWidget):
                 tab_idx = self.tab_widget.addTab(
                     step_widget.widget, QtGui.QIcon(icon), step_widget.name
                 )
@@ -52,7 +100,7 @@ class TabStepContainerWidget(DefaultStepContainerWidget):
                 )
 
             # Add checkbox for the optional components
-            if hasattr(step_widget, 'is_optional'):
+            if isinstance(step_widget, BaseUIWidget):
                 if step_widget.is_optional:
                     checkbox = QtWidgets.QCheckBox()
                     checkbox.setChecked(True)

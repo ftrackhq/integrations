@@ -17,6 +17,6 @@ class DefaultStepContainerWidget(BaseUIWidget):
         )
 
     def build(self):
-        self._widget = QtWidgets.QGroupBox(self.name)
+        self._widget = QtWidgets.QWidget()
         main_layout = QtWidgets.QVBoxLayout()
-        self._widget.setLayout(main_layout)
+        self.widget.setLayout(main_layout)

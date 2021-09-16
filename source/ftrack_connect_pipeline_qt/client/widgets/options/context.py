@@ -9,6 +9,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.asset_selector import AssetSel
 from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import VersionSelector
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import AssetVersion as AssetVersionThumbnail
 from ftrack_connect_pipeline_qt.ui.utility.widget.entity_info import VersionInfo
+from ftrack_connect_pipeline_qt.ui.utility.widget.asset_grid_selector import AssetGridSelector
 from ftrack_connect_pipeline_qt.utils import BaseThread
 
 
@@ -58,13 +59,13 @@ class PublishContextWidget(BaseOptionsWidget):
         current_text = self.comments_input.text()
         self.set_option_result(current_text, key='comment')
 
-    def _on_asset_changed(self, asset_name, asset_id, is_valid):
+    def _on_asset_changed(self, asset_name, asset_entity, is_valid):
         '''Updates the option dicctionary with provided *asset_name* when
         asset_changed of asset_selector event is triggered'''
         self.set_option_result(asset_name, key='asset_name')
-        self.set_option_result(asset_id, key='asset_id')
+        self.set_option_result(asset_entity['id'], key='asset_id')
         self.set_option_result(is_valid, key='is_valid_name')
-        self.asset_changed.emit(asset_name, asset_id, is_valid)
+        self.asset_changed.emit(asset_name, asset_entity['id'], is_valid)
 
     def _build_asset_selector(self):
         '''Builds the asset_selector widget'''
@@ -167,11 +168,11 @@ class LoadContextWidget(BaseOptionsWidget):
             asset_type_name=asset_type_name
         )
 
-        self.asset_selector.set_context(context_id, asset_type_name)
+        self.asset_grid_selector.set_context(context_id, asset_type_name)
 
     def pre_build(self):
         super(LoadContextWidget, self).pre_build()
-        self.main_layout = QtWidgets.QHBoxLayout()
+        self.main_layout = QtWidgets.QVBoxLayout()
         self.layout().addLayout(self.main_layout)
 
     def build(self):
@@ -179,76 +180,28 @@ class LoadContextWidget(BaseOptionsWidget):
         if self.context_id:
             self.set_option_result(self.context_id, key='context_id')
 
-        self._build_thumbnail()
-        self._build_info_widget()
-        self._build_asset_version_selector()
-        # self._build_asset_selector()
-        # self._build_version_selector()
+        self._build_asset_grid_selector()
 
     def post_build(self):
         '''hook events'''
         super(LoadContextWidget, self).post_build()
-        self.asset_selector.asset_changed.connect(self._on_asset_changed)
-        self.version_selector.version_changed.connect(self._on_version_changed)
+        # self.asset_grid_selector.assets_query_done.connect(self._pre_select_asset)
+        self.asset_grid_selector.asset_changed.connect(self._on_asset_changed)
 
-    def _on_asset_changed(self, asset_name, asset_id, is_valid):
+    def _on_asset_changed(self, asset_name, asset_entity, asset_version_id, version_num):
         '''Updates the option dicctionary with provided *asset_name* when
         asset_changed of asset_selector event is triggered'''
         self.set_option_result(asset_name, key='asset_name')
-        self.set_option_result(asset_id, key='asset_id')
-        self.set_option_result(is_valid, key='is_valid_name')
-        self.version_selector.set_context(self.context_id)
-        self.version_selector.set_asset_id(asset_id)
-        self.asset_changed.emit(asset_name, asset_id, is_valid)
-
-    def _on_version_changed(self, version_num, version_id):
-        if not version_id:
-            return
-
-        '''Updates the option dicctionary with provided *version_number* when
-        version_changed of version_selector event is triggered'''
+        self.set_option_result(asset_entity['id'], key='asset_id')
         self.set_option_result(version_num, key='version_number')
-        self.set_option_result(version_id, key='version_id')
-        self.asset_version_changed.emit(version_id)
-        self.thumbnail_widget.load(version_id)
-        self.info_version.setEntity(version_id)
+        self.set_option_result(asset_version_id, key='version_id')
+        self.asset_changed.emit(asset_name, asset_entity['id'], True)
+        self.asset_version_changed.emit(asset_version_id)
 
-    def _build_info_widget(self):
-        self.info_version = VersionInfo(session=self.session)
-        self.main_layout.addWidget(self.info_version)
+    def _build_asset_grid_selector(self):
+        label = QtWidgets.QLabel("Choose which asset and version to load")
+        self.asset_grid_selector = AssetGridSelector(self.session)
 
-    def _build_thumbnail(self):
-        self.thumbnail_widget = AssetVersionThumbnail(self.session)
-        self.thumbnail_widget.setScaledContents(True)
-        self.thumbnail_widget.setMaximumHeight(100)
-        self.thumbnail_widget.setMaximumWidth(200)
-
-        self.main_layout.addWidget(self.thumbnail_widget)
-
-    def _build_asset_version_selector(self):
-        widget = QtWidgets.QWidget()
-        layout = QtWidgets.QVBoxLayout()
-        widget.setLayout(layout)
-
-        self._build_asset_selector(layout)
-        self._build_version_selector(layout)
-        self.main_layout.addWidget(widget)
-        layout.addStretch()
-
-    def _build_asset_selector(self, layout):
-        '''Builds the asset_selector widget'''
-        self.asset_selector = AssetSelector(self.session, is_loader=True)
-        layout.addWidget(self.asset_selector)
-
-    def _build_version_selector(self, layout):
-        '''Builds the asset_selector widget'''
-        self.version_selector = VersionSelector(self.session)
-        layout.addWidget(self.version_selector)
-
-        version_num = self.version_selector.version_combobox.currentText()
-        current_idx = self.version_selector.version_combobox.currentIndex()
-        version_id = self.version_selector.version_combobox.itemData(current_idx)
-        self.set_option_result(version_num, key='version_number')
-        self.set_option_result(version_id, key='version_id')
-        self.asset_version_changed.emit(version_id)
+        self.main_layout.addWidget(label)
+        self.main_layout.addWidget(self.asset_grid_selector)
 
