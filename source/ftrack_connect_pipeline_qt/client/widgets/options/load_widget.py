@@ -9,6 +9,7 @@ from Qt import QtCore, QtWidgets
 class LoadBaseWidget(BaseOptionsWidget):
     ''' Base Class to represent a Load Widget'''
     load_modes = []
+    max_column=3
 
     def __init__(
             self, parent=None, session=None, data=None, name=None,
@@ -38,10 +39,10 @@ class LoadBaseWidget(BaseOptionsWidget):
             p_b.setAutoExclusive(True)
             self.button_group.addButton(p_b)
             self.load_mode_layout.addWidget(p_b, row_col[0], row_col[1])
-            if row_col[1] < 2:
-                row_col = (row_col[0], row_col[1]+1)
-            else:
+            if row_col[1] == self.max_column-1:
                 row_col = (row_col[0]+1, 0)
+            else:
+                row_col = (row_col[0], row_col[1]+1)
 
         self.layout().addLayout(self.load_mode_layout)
 
