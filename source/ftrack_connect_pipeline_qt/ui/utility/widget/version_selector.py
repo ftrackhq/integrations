@@ -33,7 +33,6 @@ class VersionComboBox(QtWidgets.QComboBox):
         versions = self.query_versions(self.context_id, self.asset_entity['id'])
         self.add_versions(versions)
         self.setCurrentIndex(0)
-        # self.query_asset_versions_async()
         super(VersionComboBox, self).showPopup()
 
     def set_context_id(self, context_id):
@@ -46,18 +45,6 @@ class VersionComboBox(QtWidgets.QComboBox):
             'from AssetVersion where task.id is {} and asset_id is {} order by'
             ' version descending'.format(context_id, asset_id)).all()
         return versions
-
-    # We will not use this one for now
-    def query_asset_versions_async(self):
-        self.clear()
-
-        thread = BaseThread(
-            name='get_asset_versions_thread',
-            target=self.query_versions,
-            callback=self.add_versions,
-            target_args=(self.context_id, self.asset_entity['id'])
-        )
-        thread.start()
 
     def _add_version(self, version):
         self.addItem(
