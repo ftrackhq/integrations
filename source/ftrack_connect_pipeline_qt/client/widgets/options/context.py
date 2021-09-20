@@ -63,9 +63,12 @@ class PublishContextWidget(BaseOptionsWidget):
         '''Updates the option dicctionary with provided *asset_name* when
         asset_changed of asset_selector event is triggered'''
         self.set_option_result(asset_name, key='asset_name')
-        self.set_option_result(asset_entity['id'], key='asset_id')
         self.set_option_result(is_valid, key='is_valid_name')
-        self.asset_changed.emit(asset_name, asset_entity['id'], is_valid)
+        if asset_entity:
+            self.set_option_result(asset_entity['id'], key='asset_id')
+            self.asset_changed.emit(asset_name, asset_entity['id'], is_valid)
+        else:
+            self.asset_changed.emit(asset_name, None, is_valid)
 
     def _build_asset_selector(self):
         '''Builds the asset_selector widget'''
