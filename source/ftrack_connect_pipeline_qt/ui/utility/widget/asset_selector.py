@@ -164,10 +164,10 @@ class AssetSelector(QtWidgets.QWidget):
 
 
     def _current_asset_changed(self, index):
-        asset_name = self.asset_combobox.currentText().split(" (")[0]
-        is_valid_name = self.validate_name(asset_name)
         current_idx = self.asset_combobox.currentIndex()
         asset_entity = self.asset_combobox.itemData(current_idx)
+        asset_name = asset_entity['name']
+        is_valid_name = self.validate_name(asset_name)
         self.asset_changed.emit(asset_name, asset_entity, is_valid_name)
 
     def _new_assset_changed(self):
