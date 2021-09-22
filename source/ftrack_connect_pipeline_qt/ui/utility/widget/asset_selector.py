@@ -17,6 +17,10 @@ class AssetComboBox(QtWidgets.QComboBox):
         )
 
         self.session = session
+        self.setMinimumWidth(200)
+        self.setSizePolicy(
+            QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding
+        )
 
     def query_assets_from_context(self, context_id, asset_type_name):
         asset_type_entity = self.session.query(
@@ -105,6 +109,9 @@ class AssetSelector(QtWidgets.QWidget):
             "border: none;"
             "background-color: transparent;"
         )
+        self.new_asset_name.setSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum
+        )
 
         new_name_container = QtWidgets.QWidget()
         new_name_container.setContentsMargins(0, 0, 0, 0)
@@ -116,6 +123,7 @@ class AssetSelector(QtWidgets.QWidget):
 
         new_name_container.layout().addWidget(self.new_asset_name)
         new_name_container.layout().addWidget(version_label)
+        new_name_container.layout().addStretch()
 
         self.new_asset_rb = RadioVarticalWidgetButton(label="As a new asset", widget=new_name_container)
 

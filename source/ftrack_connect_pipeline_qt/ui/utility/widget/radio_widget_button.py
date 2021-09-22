@@ -77,11 +77,11 @@ class RadioHorizontalWidgetButton(QtWidgets.QPushButton):
         self.text_widget = QtWidgets.QLabel(self.text_label)
         self.text_widget.setMinimumHeight(20)
         self.text_widget.setMaximumWidth(75)
-
         self.inner_widget.setMinimumHeight(20)
         self.layout().setSpacing(25)
         self.layout().addWidget(self.text_widget)
         self.layout().addWidget(self.inner_widget)
+        self.layout().addStretch()
 
     def toggle_state(self):
         if self.isChecked():
