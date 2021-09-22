@@ -82,7 +82,7 @@ class PublishContextWidget(BaseOptionsWidget):
 
     def _build_status_selector(self):
         '''Builds the status_selector widget'''
-        self.status_layout = QtWidgets.QVBoxLayout()
+        self.status_layout = QtWidgets.QHBoxLayout()
         self.status_layout.setContentsMargins(0, 0, 0, 0)
         self.status_layout.setAlignment(QtCore.Qt.AlignTop)
 
@@ -93,6 +93,7 @@ class PublishContextWidget(BaseOptionsWidget):
 
         self.status_layout.addWidget(self.asset_status_label)
         self.status_layout.addWidget(self.status_selector)
+        self.status_layout.addStretch()
         self.layout().addLayout(self.status_layout)
 
         thread = BaseThread(
@@ -134,12 +135,9 @@ class PublishContextWidget(BaseOptionsWidget):
         self.coments_layout.setContentsMargins(0, 0, 0, 0)
         self.coments_layout.setAlignment(QtCore.Qt.AlignTop)
 
-        self.asset_status_label = QtWidgets.QLabel("Comment")
-
-
-        comment_label = QtWidgets.QLabel('Comment')
+        comment_label = QtWidgets.QLabel('Description')
         self.comments_input = QtWidgets.QLineEdit()
-        self.comments_input.setPlaceholderText("Type a comment...")
+        self.comments_input.setPlaceholderText("Type a description...")
         self.comments_input.setStyleSheet(
             "border: none;"
             "background-color: transparent;"
