@@ -181,15 +181,18 @@ class WidgetFactory(QtWidgets.QWidget):
                 if isinstance(step_obj, override_widgets.AccordionStepWidget):
                     if stage_type == core_constants.VALIDATOR:
                         step_obj.parent_validator(stage_obj)
+                        continue
                     if stage_type == core_constants.OUTPUT:
                         step_obj.parent_output(stage_obj)
+                        continue
 
                 elif (
                         isinstance(step_obj, override_widgets.OptionsStepWidget) and
                         definition_type == core_constants.LOADER
                 ):
                         step_obj.parent_options(stage_obj)
-                elif step_obj:
+                        continue
+                if step_obj:
                     step_obj.parent_widget(stage_obj)
                 elif step_container_obj:
                     step_container_obj.parent_widget(stage_obj)
