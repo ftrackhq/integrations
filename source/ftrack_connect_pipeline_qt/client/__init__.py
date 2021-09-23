@@ -84,7 +84,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
         self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
 
-        self.host_selector = definition_selector.DefinitionSelector()
+        self.host_selector = definition_selector.DefinitionSelectorButtons()
         self.layout().addWidget(self.host_selector)
 
         self.scroll = QtWidgets.QScrollArea()

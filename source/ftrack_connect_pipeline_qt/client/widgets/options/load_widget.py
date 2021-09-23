@@ -29,6 +29,8 @@ class LoadBaseWidget(BaseOptionsWidget):
         if not self.load_modes:
             raise Exception('No Load Modes defined')
 
+        self.load_text_label = QtWidgets.QLabel("Choose how to load file(s):")
+
         self.default_mode = self.options.get('load_mode', self.load_modes[0])
         self.default_options = self.options.get('load_options', {})
         self.button_group = QtWidgets.QButtonGroup(self)
@@ -37,6 +39,7 @@ class LoadBaseWidget(BaseOptionsWidget):
         for mode in self.load_modes:
             p_b = QtWidgets.QPushButton(mode)
             p_b.setAutoExclusive(True)
+            p_b.setCheckable(True)
             self.button_group.addButton(p_b)
             self.load_mode_layout.addWidget(p_b, row_col[0], row_col[1])
             if row_col[1] == self.max_column-1:
@@ -44,6 +47,7 @@ class LoadBaseWidget(BaseOptionsWidget):
             else:
                 row_col = (row_col[0], row_col[1]+1)
 
+        self.layout().addWidget(self.load_text_label)
         self.layout().addLayout(self.load_mode_layout)
 
     def post_build(self):

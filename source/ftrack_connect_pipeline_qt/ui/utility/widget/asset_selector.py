@@ -82,13 +82,13 @@ class AssetSelector(QtWidgets.QWidget):
     def build(self):
         self.validator = QtGui.QRegExpValidator(self.valid_asset_name)
 
-        main_label = QtWidgets.QLabel("Choose how to publish this new version")
+        self.main_label = QtWidgets.QLabel("Choose how to publish this new version")
 
         self.asset_combobox = AssetComboBox(self.session)
         self.asset_combobox.setValidator(self.validator)
 
         if self.is_loader:
-            self.layout().addWidget(main_label)
+            self.layout().addWidget(self.main_label)
             self.layout().addWidget(self.asset_combobox)
             return
 
@@ -132,7 +132,7 @@ class AssetSelector(QtWidgets.QWidget):
         button_group.addButton(self.version_up_rb)
         button_group.addButton(self.new_asset_rb)
 
-        self.layout().addWidget(main_label)
+        self.layout().addWidget(self.main_label)
         self.layout().addWidget(self.version_up_rb)
         self.layout().addWidget(self.new_asset_rb)
 
@@ -163,9 +163,11 @@ class AssetSelector(QtWidgets.QWidget):
         if self.asset_combobox.count() > 0:
             self.asset_combobox.setCurrentIndex(0)
             self.new_asset_rb.text_widget.setText("As a new asset")
+            self.main_label.show()
             self.version_up_rb.show()
         if self.asset_combobox.count() <=0:
             self.version_up_rb.hide()
+            self.main_label.hide()
             self.new_asset_rb.text_widget.setText("Name")
             self.new_asset_rb.click()
 
