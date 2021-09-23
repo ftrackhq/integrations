@@ -8,7 +8,7 @@ LABEL ftrack AB
 RUN yum -y update
 RUN yum -y groupinstall "Development Tools"
 
-RUN yum install -y *libxcb* libXi libSM fontconfig libXrender libxkbcommon-x11 qt5*
+RUN yum install -y *libxcb* libXi libSM fontconfig libXrender libxkbcommon-x11 qt5* patchelf
 
 RUN python -m pip install --upgrade pip
 

@@ -71,7 +71,7 @@ Windows
 
 .. code-block::
 
-    docker cp CONTAINER ID:"/usr/src/app/ftrack-connect-package/dist/ftrack Connect-2.0-amd64.msi" .
+    docker cp CONTAINER ID:"/usr/src/app/ftrack-connect-package/dist/ftrack Connect-2.0-win64.msi" .
 
 
 Linux C7
