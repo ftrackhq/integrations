@@ -201,6 +201,7 @@ class WidgetFactory(QtWidgets.QWidget):
         return step_container_obj
 
     def build_definition_ui(self, name, definition=None):
+        self.progress_widget.clear_components()
         self.original_definition = copy.deepcopy(definition)
         self.working_definition = definition
 

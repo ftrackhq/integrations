@@ -168,6 +168,11 @@ class ProgressWidget(BaseUIWidget):
             self.content_widget.layout().addWidget(step_title)
         self.content_widget.layout().addWidget(component_button)
 
+    def clear_components(self):
+        for i in reversed(range(self.content_widget.layout().count())):
+            self.content_widget.layout().itemAt(i).widget().deleteLater()
+        self.step_types = []
+
     def update_component_status(
             self, step_type, step_name, status, status_message, results
     ):
