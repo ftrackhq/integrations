@@ -51,7 +51,7 @@ class RadioVarticalWidgetButton(QtWidgets.QPushButton):
         opt = QtWidgets.QStyleOptionButton()
         self.initStyleOption(opt)
 
-        style.drawPrimitive(QtWidgets.QStyle.PE_IndicatorRadioButton, opt)
+        style.drawControl(QtWidgets.QStyle.CE_RadioButton, opt)
 
 class RadioHorizontalWidgetButton(QtWidgets.QPushButton):
 
@@ -104,4 +104,4 @@ class RadioHorizontalWidgetButton(QtWidgets.QPushButton):
         opt = QtWidgets.QStyleOptionButton()
         self.initStyleOption(opt)
 
-        style.drawPrimitive(QtWidgets.QStyle.PE_IndicatorRadioButton, opt)
+        style.drawControl(QtWidgets.QStyle.CE_RadioButton, opt)
