@@ -4,6 +4,7 @@
 import logging
 from ftrack_connect_pipeline_qt.client.widgets.client_ui import BaseUIWidget
 from ftrack_connect_pipeline_qt import constants
+from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
 
 from Qt import QtWidgets, QtCore, QtGui
 
@@ -140,22 +141,26 @@ class ProgressWidget(BaseUIWidget):
         )
         self.step_types = []
 
+
     def build(self):
         self._widget = MainButtonWidget()
         main_layout = QtWidgets.QVBoxLayout()
         self.widget.setLayout(main_layout)
 
         self.content_widget = QtWidgets.QWidget()
+
+        self.overlay_container = overlay.Overlay(self.content_widget)
         inner_widget = QtWidgets.QVBoxLayout()
         self.content_widget.setLayout(inner_widget)
-        self.content_widget.hide()
+        self.overlay_container.setVisible(False)
 
     def post_build(self):
         '''post build function , mostly used connect widgets events.'''
         self._widget.clicked.connect(self._show_widget)
 
     def _show_widget(self):
-        self.content_widget.show()
+        self.overlay_container.setParent(self.widget.window())
+        self.overlay_container.setVisible(True)
 
     def add_component(self, step_type, step_name):
         id_name = "{}.{}".format(step_type, step_name)
