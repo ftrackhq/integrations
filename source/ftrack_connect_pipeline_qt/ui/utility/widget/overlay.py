@@ -4,14 +4,11 @@
 from Qt import QtGui, QtCore, QtWidgets
 
 class Overlay(QtWidgets.QWidget):
-    '''Display a transparent overlay over another widget.
+    '''
+    Display a semi-transparent overlay over another widget.
 
-    Customise the background colour using stylesheets. The widget has an object
-    name of "overlay".
-
-    While the overlay is active, the target widget and its children will not
+    While the overlay is active, the main parent window and its children will not
     receive interaction events from the user (e.g. focus).
-
     '''
 
     def __init__(self, widget, parent=None):
