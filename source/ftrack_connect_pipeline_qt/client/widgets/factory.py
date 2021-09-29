@@ -215,16 +215,15 @@ class WidgetFactory(QtWidgets.QWidget):
             definition, type_name=core_constants.COMPONENTS
         )
 
-        finalizers_obj = None
-        if UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True):
-            finalizers_obj = self.create_typed_widget(
-                definition, type_name=core_constants.FINALIZERS
-            )
+        finalizers_obj = self.create_typed_widget(
+            definition, type_name=core_constants.FINALIZERS
+        )
 
         main_obj.widget.layout().addWidget(context_obj.widget)
         main_obj.widget.layout().addWidget(self.components_obj.widget)
-        if finalizers_obj:
-            main_obj.widget.layout().addWidget(finalizers_obj.widget)
+        main_obj.widget.layout().addWidget(finalizers_obj.widget)
+        if not UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True):
+            finalizers_obj.widget.hide()
 
         self.post_build_definition()
 
