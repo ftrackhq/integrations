@@ -141,7 +141,6 @@ class ProgressWidget(BaseUIWidget):
         )
         self.step_types = []
 
-
     def build(self):
         self._widget = MainButtonWidget()
         main_layout = QtWidgets.QVBoxLayout()

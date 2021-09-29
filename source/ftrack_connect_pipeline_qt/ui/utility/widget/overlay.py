@@ -28,7 +28,6 @@ class Overlay(QtWidgets.QWidget):
             "background-color: rgba(0, 0, 0, 0);"
         )
         self.close_btn.setFixedSize(30, 30)
-        # self.close_btn.setFixedHeight(100)
         self.close_btn.clicked.connect(self.close)
 
         self.fill_color = QtGui.QColor(30, 30, 30, 120)
