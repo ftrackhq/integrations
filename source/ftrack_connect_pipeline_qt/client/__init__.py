@@ -197,6 +197,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
             self.logger.error(msg)
             return
         engine_type = serialized_data['_config']['engine_type']
+        self.widget_factory.progress_widget.show_widget()
         self.run_definition(serialized_data, engine_type)
 
 

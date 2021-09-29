@@ -155,9 +155,9 @@ class ProgressWidget(BaseUIWidget):
 
     def post_build(self):
         '''post build function , mostly used connect widgets events.'''
-        self._widget.clicked.connect(self._show_widget)
+        self._widget.clicked.connect(self.show_widget)
 
-    def _show_widget(self):
+    def show_widget(self):
         self.overlay_container.setParent(self.widget.window())
         self.overlay_container.setVisible(True)
 
