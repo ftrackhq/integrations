@@ -6,6 +6,7 @@ from Qt import QtWidgets, QtCore, QtGui
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline import constants as pipeline_constants
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
+from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
 
 
 class AccordionWidget(QtWidgets.QWidget):
@@ -272,12 +273,16 @@ class ExtraButton(QtWidgets.QPushButton):
         self.main_widget = QtWidgets.QWidget()
         layout = QtWidgets.QVBoxLayout()
         self.main_widget.setLayout(layout)
+        self.main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
+        self.overlay_container = overlay.Overlay(self.main_widget)
+        self.overlay_container.setVisible(False)
 
     def post_build(self):
         self.clicked.connect(self.on_click_callback)
 
     def on_click_callback(self):
-        self.main_widget.show()
+        self.overlay_container.setParent(self.window())
+        self.overlay_container.setVisible(True)
 
     def add_widget(self, widget):
         self.main_widget.layout().addWidget(widget)
