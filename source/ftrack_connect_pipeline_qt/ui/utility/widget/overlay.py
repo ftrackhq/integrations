@@ -39,26 +39,26 @@ class Overlay(QtWidgets.QWidget):
     def paintEvent(self, event):
         super(Overlay, self).paintEvent(event)
         # get current window size
-        s = self.size()
-        qp = QtGui.QPainter()
-        qp.begin(self)
-        qp.setRenderHint(QtGui.QPainter.Antialiasing, True)
-        qp.setPen(self.pen_color)
-        qp.setBrush(self.fill_color)
-        qp.drawRect(0, 0, s.width(), s.height())
-        qp.end()
+        size = self.size()
+        painter = QtGui.QPainter()
+        painter.begin(self)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
+        painter.setPen(self.pen_color)
+        painter.setBrush(self.fill_color)
+        painter.drawRect(0, 0, size.width(), size.height())
+        painter.end()
 
     def resizeEvent(self, event):
         super(Overlay, self).resizeEvent(event)
-        s = self.size()
-        popup_width = s.width() - (s.width() * 0.2)
-        popup_height = s.height() - (s.height() * 0.2)
-        ow = int(s.width()/2-popup_width/2)
-        oh = int(s.height()/2-popup_height/2)
-        self.widget.resize(popup_width, popup_height)
-        self.widget.move(ow, oh)
+        size = self.size()
+        widget_width = size.width() - (size.width() * 0.2)
+        widget_height = size.height() - (size.height() * 0.2)
+        origin_w = int(size.width()/2-widget_width/2)
+        origin_h = int(size.height()/2-widget_height/2)
+        self.widget.resize(widget_width, widget_height)
+        self.widget.move(origin_w, origin_h)
         # Move the close button to the desired position
-        self.close_btn.move(ow, oh)
+        self.close_btn.move(origin_w, origin_h)
 
     def setVisible(self, visible):
         '''Set whether *visible* or not.'''
