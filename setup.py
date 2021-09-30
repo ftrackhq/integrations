@@ -31,7 +31,7 @@ embedded_plugins = [
     'ftrack-application-launcher-1.0.0.zip',
     'ftrack-connect-nuke-studio-2.5.0.zip',
     'ftrack-connect-rv-5.0.zip',
-    'ftrack-connect-cinema-4d-0.2.0.zip'
+    'ftrack-connect-cinema-4d-0.2.1.zip'
 
     #legacy integrations ported 
     # 'ftrack-connect-nuke-1.4.0.zip',
