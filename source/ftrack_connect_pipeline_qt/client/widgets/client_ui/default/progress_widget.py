@@ -26,7 +26,6 @@ class ComponentButton(QtWidgets.QPushButton):
     def build(self):
         self.setMinimumHeight(100)  # Set minimum otherwise it will collapse the container
         self.setMinimumWidth(200)
-        # self.setMinimumSize(self.minimumSizeHint())
         # self.setCheckable(True)
         # self.setAutoExclusive(True)
         self.setContentsMargins(20, 20, 20, 20)
