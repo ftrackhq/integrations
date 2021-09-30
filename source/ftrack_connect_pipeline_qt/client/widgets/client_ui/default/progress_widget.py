@@ -18,12 +18,15 @@ class ComponentButton(QtWidgets.QPushButton):
         self.component_name = component_name
         self.status = status
 
+        self.logged_errors = []
+
         self.build()
         self.post_build()
 
     def build(self):
         self.setMinimumHeight(100)  # Set minimum otherwise it will collapse the container
         self.setMinimumWidth(200)
+        # self.setMinimumSize(self.minimumSizeHint())
         # self.setCheckable(True)
         # self.setAutoExclusive(True)
         self.setContentsMargins(20, 20, 20, 20)
@@ -49,6 +52,15 @@ class ComponentButton(QtWidgets.QPushButton):
         self.error_widget.setPixmap(icon)
         self.error_widget.hide()
 
+        self.log_widget = QtWidgets.QWidget()
+        self.log_widget.setLayout(QtWidgets.QVBoxLayout())
+        self.log_widget.layout().addSpacing(30)
+
+        self.log_text_edit = QtWidgets.QTextEdit()
+        self.log_widget.layout().addWidget(self.log_text_edit)
+        self.overlay_container = overlay.Overlay(self.log_widget)
+        self.overlay_container.setVisible(False)
+
     def post_build(self):
         self.clicked.connect(self.show_log)
 
@@ -67,7 +79,7 @@ class ComponentButton(QtWidgets.QPushButton):
     def update_error_message(self, results):
         self.error_widget.show()
         message = None
-        logged_errors = []
+        self.logged_errors = []
         if results:
             for stage_result in results:
                 if stage_result.get('status') == False:
@@ -76,15 +88,22 @@ class ComponentButton(QtWidgets.QPushButton):
                             plugin_result.get('name'),
                             plugin_result.get('message')
                         )
-                        logged_errors.append(plug_error)
-        if logged_errors:
-            message = "\n".join(logged_errors)
+                        self.logged_errors.append(plug_error)
+        if self.logged_errors:
+            message = "\n".join(self.logged_errors)
 
         self.error_widget.setToolTip(str(message))
 
     def show_log(self):
-        # TODO: we can show the status and the error message here
-        pass
+        self.overlay_container.setParent(self.parent())
+        if self.logged_errors:
+            message = "\n".join(self.logged_errors)
+            self.log_text_edit.setText(message)
+        else:
+            self.log_text_edit.setText("No errors fund")
+        self.overlay_container.setVisible(True)
+        self.overlay_container.resize(self.parent().size())
+
 
 
 class MainButtonWidget(QtWidgets.QPushButton):
@@ -146,11 +165,17 @@ class ProgressWidget(BaseUIWidget):
         main_layout = QtWidgets.QVBoxLayout()
         self.widget.setLayout(main_layout)
 
-        self.content_widget = QtWidgets.QWidget()
+        self.scroll = QtWidgets.QScrollArea()
+        self.scroll.setWidgetResizable(True)
 
-        self.overlay_container = overlay.Overlay(self.content_widget)
+        self.content_widget = QtWidgets.QWidget()
         inner_widget = QtWidgets.QVBoxLayout()
         self.content_widget.setLayout(inner_widget)
+        self.content_widget.layout().addSpacing(30)
+
+        self.scroll.setWidget(self.content_widget)
+
+        self.overlay_container = overlay.Overlay(self.scroll)
         self.overlay_container.setVisible(False)
 
     def post_build(self):
@@ -174,7 +199,8 @@ class ProgressWidget(BaseUIWidget):
 
     def clear_components(self):
         for i in reversed(range(self.content_widget.layout().count())):
-            self.content_widget.layout().itemAt(i).widget().deleteLater()
+            if self.content_widget.layout().itemAt(i).widget():
+                self.content_widget.layout().itemAt(i).widget().deleteLater()
         self.step_types = []
 
     def update_component_status(
