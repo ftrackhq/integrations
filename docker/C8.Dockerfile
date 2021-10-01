@@ -8,7 +8,7 @@ LABEL ftrack AB
 RUN dnf -y update
 RUN dnf -y groupinstall "Development Tools"
 
-RUN dnf install -y *libxcb* libXi libSM fontconfig libXrender libxkbcommon-x11 qt5* --skip-broken
+RUN dnf install -y *libxcb* libXi libSM fontconfig libXrender libxkbcommon-x11 qt5* patchelf --skip-broken
 
 RUN python3.7 -m pip install --upgrade pip
 
