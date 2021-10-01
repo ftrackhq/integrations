@@ -432,44 +432,42 @@ class WidgetFactory(QtWidgets.QWidget):
                 step_type, step_name, status, status_message, results
             )
 
-    def _update_widget(self, event):
+    def update_widget(self, log_item):
         '''*event* callback to update widget with the current status/value'''
-        result = event['data']['pipeline']['result']
-        widget_ref = event['data']['pipeline']['widget_ref']
-        plugin_type = event['data']['pipeline']['plugin_type']
-        status = event['data']['pipeline']['status']
-        message = event['data']['pipeline']['message']
-        host_id = event['data']['pipeline']['host_id']
-        user_data = event['data']['pipeline'].get('user_data') or {}
-        user_message = user_data.get('message')
-
-        widget = self.widgets.get(widget_ref)
+        if not log_item.widget_ref:
+            self.logger.debug(
+                'No widget_ref on the log item. log_item: {}'.format(
+                    log_item
+                )
+            )
+            return
+        widget = self.widgets.get(log_item.widget_ref)
         if not widget:
             self.logger.debug(
                 'Widget ref :{} not found for host_id {} ! '.format(
-                    widget_ref, host_id
+                    log_item.widget_ref, log_item.host_id
                 )
             )
             return
 
-        if status:
+        if log_item.status:
             self.logger.debug(
                 'updating widget: {} Status: {}, Message: {}, User Message: {}'.format(
-                    widget, status, message, user_message
+                    widget, log_item.status, log_item.message, log_item.user_message
                 )
             )
-            if user_message:
-                widget.set_status(status, user_message)
+            if log_item.user_message:
+                widget.set_status(log_item.status, log_item.user_message)
             else:
-                widget.set_status(status, message)
+                widget.set_status(log_item.status, log_item.message)
 
-        if result:
+        if log_item.result:
             self.logger.debug(
                 'updating widget: {} with run result {}'.format(
-                    widget, result
+                    widget, log_item.result
                 )
             )
-            widget.set_run_result(result)
+            widget.set_run_result(log_item.result)
 
     def _listen_widget_updates(self):
         '''
@@ -478,14 +476,6 @@ class WidgetFactory(QtWidgets.QWidget):
         topic to call the _update_widget function when the host returns and
         answer through the same topic
         '''
-
-        self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.host_id={}'.format(
-                core_constants.PIPELINE_CLIENT_NOTIFICATION,
-                self.host_connection.id
-            ),
-            self._update_widget
-        )
 
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.host_id={}'.format(
