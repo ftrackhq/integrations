@@ -200,4 +200,8 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.widget_factory.progress_widget.show_widget()
         self.run_definition(serialized_data, engine_type)
 
-
+    def _notify_client(self, event):
+        super(QtClient, self)._notify_client(event)
+        # We pass the latest log which should be the recently added one.
+        # Otherwise, we have no way to check which log we should be passing
+        self.widget_factory.update_widget(self.logs[-1])
