@@ -101,9 +101,9 @@ class LogDB(object):
 
         if not os.path.exists(user_data_dir):
             try:
-                os.makedirs(log_directory)
+                os.makedirs(user_data_dir)
             except OSError as error:
-                if error.errno == errno.EEXIST and os.path.isdir(log_directory):
+                if error.errno == errno.EEXIST and os.path.isdir(user_data_dir):
                     pass
                 else:
                     raise
