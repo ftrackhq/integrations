@@ -7,6 +7,7 @@ import ftrack_api
 import time
 import traceback
 import copy
+import uuid
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import exception
 from ftrack_connect_pipeline import event
@@ -135,6 +136,9 @@ class BasePlugin(object):
     _required_output = {}
     '''Required return output'''
 
+    plugin_id = None
+    '''Id of the plugin'''
+
     def __repr__(self):
         return '<{}:{}>'.format(self.plugin_type, self.plugin_name)
 
@@ -192,6 +196,9 @@ class BasePlugin(object):
         self.logger = logging.getLogger(
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
+
+        self.plugin_id = uuid.uuid4().hex
+
         self._raw_data = []
         self._method = []
         self._event_manager = event.EventManager(
@@ -396,7 +403,8 @@ class BasePlugin(object):
             'result': None,
             'execution_time': 0,
             'message': None,
-            'user_data': user_data
+            'user_data': user_data,
+            'plugin_id': self.plugin_id
             }
 
         run_fn = getattr(self, self.method)

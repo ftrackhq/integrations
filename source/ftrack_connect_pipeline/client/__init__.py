@@ -492,6 +492,7 @@ class Client(object):
         message = event['data']['pipeline']['message']
         user_data = event['data']['pipeline'].get('user_data') or {}
         user_message = user_data.get('message')
+        plugin_id = event['data']['pipeline']['plugin_id']
 
         self._add_log_item(LogItem(event['data']['pipeline']))
 
@@ -499,8 +500,9 @@ class Client(object):
 
             self.logger.debug(
                 '\n plugin_name: {} \n status: {} \n result: {} \n '
-                'message: {} \n user_message: {}'.format(
-                    plugin_name, status, result, message, user_message
+                'message: {} \n user_message: {} \n plugin_id: {}'.format(
+                    plugin_name, status, result, message, user_message,
+                    plugin_id
                 )
             )
 
@@ -511,7 +513,7 @@ class Client(object):
             raise Exception(
                 'An error occurred during the execution of the '
                 'plugin name {} \n message: {}  \n user_message: {} '
-                '\n data: {}'.format(
-                    plugin_name, message, user_message, result
+                '\n data: {} \n plugin_id: {}'.format(
+                    plugin_name, message, user_message, result, plugin_id
                 )
             )
