@@ -182,7 +182,16 @@ class ProgressWidget(BaseUIWidget):
         self._widget.clicked.connect(self.show_widget)
 
     def show_widget(self):
-        self.overlay_container.setParent(self.widget.window())
+        main_window = self.widget.window()
+        if not main_window:
+            return
+        if not main_window.objectName() == "main_framework_widget":
+            main_window = main_window.findChild(
+                QtWidgets.QWidget, "main_framework_widget"
+            )
+
+        if main_window:
+            self.overlay_container.setParent(main_window)
         self.overlay_container.setVisible(True)
 
     def add_component(self, step_type, step_name):

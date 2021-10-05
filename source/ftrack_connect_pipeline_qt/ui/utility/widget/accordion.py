@@ -281,7 +281,16 @@ class ExtraButton(QtWidgets.QPushButton):
         self.clicked.connect(self.on_click_callback)
 
     def on_click_callback(self):
-        self.overlay_container.setParent(self.window())
+        main_window = self.window()
+        if not main_window:
+            return
+        if not main_window.objectName() == "main_framework_widget":
+            main_window = main_window.findChild(
+                QtWidgets.QWidget, "main_framework_widget"
+            )
+
+        if main_window:
+            self.overlay_container.setParent(main_window)
         self.overlay_container.setVisible(True)
 
     def add_widget(self, widget):

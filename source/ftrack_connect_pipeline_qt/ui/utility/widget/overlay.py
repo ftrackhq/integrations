@@ -80,7 +80,16 @@ class Overlay(QtWidgets.QWidget):
                         break
 
         super(Overlay, self).setVisible(visible)
-        self.resize(self.widget.window().size())
+        main_window = self.widget.window()
+        if not main_window:
+            return
+        if not main_window.objectName() == "main_framework_widget":
+            main_window = main_window.findChild(
+                QtWidgets.QWidget, "main_framework_widget"
+            )
+
+        if main_window:
+            self.resize(main_window.size())
 
     def eventFilter(self, obj, event):
         '''Filter *event* sent to *obj*.
