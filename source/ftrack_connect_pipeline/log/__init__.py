@@ -62,7 +62,7 @@ class LogDB(object):
                 ''' status text,widget_ref text,'''
                 ''' host_id text, execution_time real, plugin_name text,'''
                 ''' result text, message text, user_message text,'''
-                ''' plugin_type text)'''.format(self.table_name)
+                ''' plugin_type text, plugin_id text)'''.format(self.table_name)
             )
             self.connection.commit()
             self.logger.debug('Initialised plugin log persistent storage.')
@@ -143,7 +143,7 @@ class LogDB(object):
             cur.execute(
                 '''INSERT INTO {0} (status,widget_ref,host_id,'''
                 '''execution_time,plugin_name,result,message,user_message,'''
-                '''plugin_type) VALUES (?,?,?,?,?,?,?,?,?)'''.format(
+                '''plugin_type, plugin_id) VALUES (?,?,?,?,?,?,?,?,?,?)'''.format(
                     self.table_name), (
                 log_item.status,
                 log_item.widget_ref,
@@ -157,6 +157,7 @@ class LogDB(object):
                 log_item.message,
                 log_item.user_message,
                 log_item.plugin_type,
+                log_item.plugin_id,
             ))
             self.connection.commit()
 
@@ -176,8 +177,8 @@ class LogDB(object):
         if not host_id is None:
             cur.execute(
                 ''' SELECT status,widget_ref,host_id,execution_time,'''
-                '''plugin_name,result,message,user_message,plugin_type FROM'''
-                ''' {0} WHERE host_id=?;  '''.format(self.table_name), (
+                '''plugin_name,result,message,user_message,plugin_type, plugin_id ''' 
+                ''' FROM {0} WHERE host_id=?;  '''.format(self.table_name), (
                     host_id,)
             )
 
@@ -192,5 +193,38 @@ class LogDB(object):
                     'message':t[6],
                     'user_message':t[7],
                     'plugin_type':t[8],
+                    'plugin_id':t[9],
+                }))
+        return log_items
+
+    def get_log_items_by_plugin_id(self, host_id, plugin_id):
+        '''
+        Stores a :class:`~ftrack_connect_pipeline.log.log_item.LogItem` in
+        persistent log database.
+        '''
+
+        cur = self.connection.cursor()
+
+        log_items = []
+        if not host_id is None:
+            cur.execute(
+                ''' SELECT status,widget_ref,host_id,execution_time,'''
+                '''plugin_name,result,message,user_message,plugin_type, plugin_id '''
+                ''' FROM {0} WHERE host_id=? AND plugin_id=?;  '''.format(self.table_name), (
+                    host_id,plugin_id)
+            )
+
+            for t in cur.fetchall():
+                log_items.append(LogItem({
+                    'status':t[0],
+                    'widget_ref':t[1],
+                    'host_id':t[2],
+                    'execution_time':t[3],
+                    'plugin_name':t[4],
+                    'result':json.loads(base64.b64decode(t[5]).decode('utf-8')),
+                    'message':t[6],
+                    'user_message':t[7],
+                    'plugin_type':t[8],
+                    'plugin_id':t[9],
                 }))
         return log_items

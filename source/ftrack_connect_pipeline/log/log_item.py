@@ -21,6 +21,7 @@ class LogItem(object):
         user_data = log_result.get('user_data') or {}
         self.user_message = user_data.get('message', 'No message provided')
         self.plugin_type = log_result.get('plugin_type')
+        self.plugin_id = log_result.get('plugin_id')
 
     @property
     def execution_time(self):

@@ -122,7 +122,8 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 "user_data": plugin_result.get('user_data') or {},
                 "message":plugin_result['message'],
                 "widget_ref":plugin_result['widget_ref'],
-                "host_id":plugin_result['host_id']
+                "host_id":plugin_result['host_id'],
+                "plugin_id":plugin_result['plugin_id']
             }
 
             stage_results.append(plugin_dict)
