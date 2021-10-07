@@ -5,6 +5,7 @@ import logging
 from ftrack_connect_pipeline_qt.client.widgets.client_ui import BaseUIWidget
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
+from ftrack_connect_pipeline_qt import utils
 
 from Qt import QtWidgets, QtCore, QtGui
 
@@ -182,7 +183,9 @@ class ProgressWidget(BaseUIWidget):
         self._widget.clicked.connect(self.show_widget)
 
     def show_widget(self):
-        self.overlay_container.setParent(self.widget.window())
+        main_window = utils.get_main_framework_window_from_widget(self.widget)
+        if main_window:
+            self.overlay_container.setParent(main_window)
         self.overlay_container.setVisible(True)
 
     def add_component(self, step_type, step_name):

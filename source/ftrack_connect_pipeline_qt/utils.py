@@ -5,7 +5,7 @@ import threading
 import sys
 import logging
 
-from Qt import QtCore
+from Qt import QtCore, QtWidgets
 
 class Worker(QtCore.QThread):
     '''Perform work in a background thread.'''
@@ -104,3 +104,18 @@ class BaseThread(threading.Thread):
         result = self.method(*self.target_args)
         if self.callback is not None:
             self.callback(result)
+
+
+def get_main_framework_window_from_widget(widget):
+    '''This function will return the main window of the framework from the
+    given *widget*. The main window is named as main_framework_widget'''
+    main_window = widget.window()
+    if not main_window:
+        return
+
+    if not main_window.objectName() == "main_framework_widget":
+        main_window = main_window.findChild(
+            QtWidgets.QWidget, "main_framework_widget"
+        )
+
+    return main_window
