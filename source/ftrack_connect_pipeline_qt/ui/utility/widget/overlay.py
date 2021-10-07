@@ -3,6 +3,9 @@
 
 from Qt import QtGui, QtCore, QtWidgets
 
+from ftrack_connect_pipeline_qt import utils
+
+
 class Overlay(QtWidgets.QWidget):
     '''
     Display a semi-transparent overlay over another widget.
@@ -80,14 +83,7 @@ class Overlay(QtWidgets.QWidget):
                         break
 
         super(Overlay, self).setVisible(visible)
-        main_window = self.widget.window()
-        if not main_window:
-            return
-        if not main_window.objectName() == "main_framework_widget":
-            main_window = main_window.findChild(
-                QtWidgets.QWidget, "main_framework_widget"
-            )
-
+        main_window = utils.get_main_framework_window_from_widget(self.widget)
         if main_window:
             self.resize(main_window.size())
 

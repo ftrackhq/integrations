@@ -7,6 +7,7 @@ from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline import constants as pipeline_constants
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
+from ftrack_connect_pipeline_qt import utils
 
 
 class AccordionWidget(QtWidgets.QWidget):
@@ -281,14 +282,7 @@ class ExtraButton(QtWidgets.QPushButton):
         self.clicked.connect(self.on_click_callback)
 
     def on_click_callback(self):
-        main_window = self.window()
-        if not main_window:
-            return
-        if not main_window.objectName() == "main_framework_widget":
-            main_window = main_window.findChild(
-                QtWidgets.QWidget, "main_framework_widget"
-            )
-
+        main_window = utils.get_main_framework_window_from_widget(self)
         if main_window:
             self.overlay_container.setParent(main_window)
         self.overlay_container.setVisible(True)
