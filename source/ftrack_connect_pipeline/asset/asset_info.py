@@ -9,6 +9,37 @@ import six
 import ftrack_api
 from ftrack_connect_pipeline.constants import asset as constants
 
+def get_parent_dependency_recursive(parent):
+    dependencies = []
+    if parent.entity_type == 'Project':
+        return []
+    for link in parent.get('incoming_links'):
+        from_entity = link['from']
+        if not from_entity['type']['name'] == 'Generic':
+            dependencies.append(from_entity)
+    if parent.get('parent'):
+        dependencies.extend(get_parent_dependency_recursive(parent['parent']))
+    return list(set(dependencies))
+
+def get_all_dependencies(asset_version_entity):
+    dependencies = []
+    for asset_ver_link in asset_version_entity.get('incoming_links'):
+        from_entity = asset_ver_link['from']
+        if not from_entity['type']['name'] == 'Generic':
+            dependencies.append(from_entity)
+    asset = asset_version_entity['asset']
+    dependencies.extend(get_parent_dependency_recursive(asset['parent']))
+    dependencies = list(set(dependencies))
+    #Check if a lower lavel of an asset is already in the list
+    duplicated = []
+    for dependency in dependencies:
+        for child in dependency['children']:
+            if child in dependencies:
+                duplicated.append(dependency)
+
+    dependencies = list(set(dependencies) - set(duplicated))
+    return dependencies
+
 
 def generate_asset_info_dict_from_args(context_data, data, options, session):
     '''
@@ -27,6 +58,19 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
     *session* : should be instance of :class:`ftrack_api.session.Session`
     to use for communication with the server.
     '''
+
+    # TODO: we will have to extend this in order to represent an asset build
+    #  instead of an asset. That is because in the asset manager we will have to
+    #  deal with the dependencies as well and we can't control what a final user
+    #  will link as dependency, so in the asset manager we will have to show or
+    #  represent something like the following:
+    #  AssetBuild   |   Task    |   AssetVariation  |   version   | Component
+    #  char01       |   Model   |   body_model_A    |   55        | abc
+    #  So if the dependency is linked to a specific asset version we can
+    #  preselect all the options in the AM and let the user select the component,
+    #  but if the dependency is linked to the asset build we will have to let
+    #  the user select the task, the assetVariation, the version and the component.
+
     arguments_dict = {}
 
     arguments_dict[constants.ASSET_NAME] = context_data.get(
@@ -60,6 +104,16 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
         constants.IS_LATEST_VERSION
     ]
 
+    #Get dependencies
+    dependencies = get_all_dependencies(asset_version_entity)
+    #With the dependency count we will check (sync) if there are new dependencies in ftrack
+    arguments_dict[constants.DEPENDENCY_COUNT] = dependencies.count()
+    #Parenting the dependency id in order to call them with
+    # session.query("TypedContext where id is 5258aeb6-06d0-11ea-bb4b-ee594985c7e2").first()
+    # but bere in mind this doesn't work for asset_versions.
+    arguments_dict[constants.DEPENDENCIES] = [
+        dependency['id'] for dependency in dependencies
+    ]
 
     location = session.pick_location()
 
