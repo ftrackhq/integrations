@@ -182,6 +182,7 @@ class BaseEngine(object):
         '''
 
         result_data['host_id'] = self.host_id
+        result_data["plugin_id"] = plugin.get('plugin_id')
         if plugin:
             result_data['widget_ref'] = plugin.get('widget_ref')
         else:

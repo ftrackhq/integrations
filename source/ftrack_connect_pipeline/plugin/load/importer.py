@@ -8,6 +8,7 @@ import base64
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.plugin import base
 from ftrack_connect_pipeline.constants import asset as asset_const
+from ftrack_connect_pipeline.asset import asset_info
 
 
 class LoaderImporterPlugin(base.BaseImporterPlugin):
@@ -24,6 +25,9 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
 
     load_modes = {}
     '''Available load modes for an asset'''
+
+    dependency_load_mode = ''
+    '''Default defendency load Mode'''
 
     def __init__(self, session):
         super(LoaderImporterPlugin, self).__init__(session)
@@ -59,7 +63,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         raise NotImplementedError
 
     def _run(self, event):
-        self.old_objects = self.get_current_objects()
+        self.old_data = self.get_current_objects()
         self.logger.debug('Current objects : {}'.format(len(self.old_objects)))
         # Having this in a separate method, we can override the parse depending
         #  on the plugin type.
@@ -110,19 +114,76 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
                 'result': None,
                 'execution_time': 0,
                 'message': None,
-                'user_data': user_data,
+                'user_data': {},#user_data,
                 'plugin_id': self.plugin_id
             }
 
-        ftrack_asset_class.connect_objects(diff)
 
-        #TODO: even if the asset_load_mode is open, if we should be creating the ftracknode if not exists, and maybe delete it on publish
-        # if asset_load_mode == load_const.OPEN_MODE: #We will have to fix the constants here depending on what dcc we are
-        #     self.logger.warning('{} not created, load mode is {} and not {}'.format(
-        #         self.ftrack_asset_class, asset_load_mode, load_const.OPEN_MODE))
-        #     return super_result
+        if asset_load_mode == 'open':
+            # TODO:
+            #  Don't open the scene after creating the ftrack node, this is wrong,
+            #  should be fixed
+            #  Open the scene # ERROR, this should go before create the node in this case
+            super_result = super(LoaderImporterPlugin, self)._run(event)
+            #  Query all the objects from the scene
+            self.new_data = self.get_current_objects()
+            self.logger.debug(
+                'Scene objects after load : {}'.format(len(self.new_data))
+            )
+            diff = self.new_data.difference(self.old_data)
+            #  Connect all the objects that are not dependencies
+            ftrack_asset_class.connect_objects(diff)
+            #  Check if dependencies already in the scene and what dependencies are missing
+            missing_ids, unconected_dependencies, connected_dependencies = ftrack_asset_class.get_missing_dependencies()
+            if missing_ids:
+                #  if missing dependencies create them
+                dependency_objects = self.create_dependency_objects(missing_ids)
+                unconected_dependencies.extend(dependency_objects)
+            #  connect all the dependencies new and old
+            ftrack_asset_class.connect_dependencies(unconected_dependencies)
+            # Before save delete only the main ftrackNode
+        elif asset_load_mode == 'import':
+            # TODO:
+            #  Don't import the scene
+            #  Create the ftrack node
+            #  Don't create the dependency nodes as we will have them duplicated if we import the asset later on...
+            #  When user load the asset with the asset Manager, import, check
+            #  dependencies and create the missing ones
+            pass
+        elif asset_load_mode == 'reference':
+            # TODO:
+            #  Don't import the scene
+            #  Create the ftrack node
+            #  Don't create the dependency nodes as we will have them duplicated if we import the asset later on...
+            #  When user load the asset with the asset Manager, reference, check
+            #  dependencies and Do not create the missing ones
+            pass
 
         #TODO: the _run_plugin method of the engine.init is expecting a return
         # result here. So if we don't execute the plugin we should be returning
         # something anyway.
         return super_result
+
+    def create_dependency_objects(self, missing_dependencies):
+        dependency_objects =[]
+        for dependency_id in missing_dependencies:
+            entity = self.session.query(
+                "TypedContext where id is {}".format(dependency_id)
+            ).first()
+            if not entity:
+                continue
+            if entity.entity_type == 'Sequence':
+                #TODO: think about how to do this one
+                # We don't have the assetBuild, task, assetName, the version or the
+                # component
+                # This one is in case we want to link a sequence inside a project for
+                # example.
+                pass
+            if entity.entity_type == 'Shot' or entity.entity_type == 'AssetBuild':
+                dependency_asset_info = asset_info.FtrackAssetInfo.from_asset_build(entity)
+                #This should be depending on the DCC
+                dependency_asset_info[asset_const.LOAD_MODE] = self.dependency_load_mode
+                dependency_object = self.create_ftrack_asset_class(dependency_asset_info)
+                dependency_node = dependency_object.init_ftrack_object()
+                dependency_objects.append(dependency_object)
+        return dependency_objects

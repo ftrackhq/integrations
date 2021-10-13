@@ -57,7 +57,12 @@ class FtrackAssetBase(object):
     @property
     def is_latest(self):
         '''Returns True if the current version is the latest version'''
-        return self.asset_version_entity['is_latest_version']
+        return self.asset_version_entity[asset_const.IS_LATEST_VERSION]
+
+    @property
+    def is_dependency(self):
+        '''Returns True if the current version is the latest version'''
+        return self.asset_version_entity[asset_const.IS_DEPENDENCY]
 
     @property
     def asset_info(self):
@@ -128,6 +133,24 @@ class FtrackAssetBase(object):
         '''
         self.ftrack_object = None
         return self.ftrack_object
+
+    def get_missing_dependencies(self):
+        if not self.asset_info.get(asset_const.DEPENDENCY_IDS):
+            return
+        return self.asset_info.get(asset_const.DEPENDENCY_IDS)
+
+    def connect_objects(self, objects):
+        '''
+        Parent the given *objects* under current ftrack_object
+        '''
+        raise NotImplementedError
+
+    def connect_dependencies(self, dependencies):
+        '''
+        Parent the given *objects* under current ftrack_object
+        '''
+        raise NotImplementedError
+
 
     def _get_unique_ftrack_object_name(self):
         '''Returns a unique scene name for the current asset_name'''

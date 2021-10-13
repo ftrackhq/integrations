@@ -107,9 +107,10 @@ class BaseLoaderPublisherEngine(BaseEngine):
                     "Execution of the plugin {} failed.".format(plugin_name)
                 )
             else:
-                result = plugin_result['result'].get(default_method)
-                if step_type == constants.CONTEXT:
-                    result['asset_type_name'] = self.asset_type_name
+                if plugin_result['result']:
+                    result = plugin_result['result'].get(default_method)
+                    if step_type == constants.CONTEXT:
+                        result['asset_type_name'] = self.asset_type_name
 
             plugin_dict = {
                 "name": plugin_name,
