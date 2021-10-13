@@ -144,6 +144,14 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
             # Before save delete only the main ftrackNode
         elif asset_load_mode == 'import':
             # TODO:
+            #  IMPORTANT!!! in order to be able to see and choose the way that
+            #  we want the dependencies of an import load, we will generate the
+            #  asset info for all the dependencies but we will not generate the
+            #  node itself as it could be coming in the imported scene. Then when
+            #  we import the scene, we check how we have the asset info configured
+            #  in order to override the nodes in the imported scene.
+
+            # TODO:
             #  Don't import the scene
             #  Create the ftrack node
             #  Don't create the dependency nodes as we will have them duplicated if we import the asset later on...
