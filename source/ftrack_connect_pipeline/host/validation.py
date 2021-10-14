@@ -40,7 +40,7 @@ def validate_schema(schemas, definition):
 class PluginDiscoverValidation(object):
     '''Plugin discover validation base class'''
 
-    def __init__(self, session, host_types):
+    def __init__(self, event_manager, host_types):
         '''
 
         Initialise PluginDiscoverValidation with instance of
@@ -55,8 +55,12 @@ class PluginDiscoverValidation(object):
             __name__ + '.' + self.__class__.__name__
         )
 
-        self.session = session
+        self.event_manager = event_manager
         self.host_types = host_types
+
+    @property
+    def session(self):
+        return self.event_manager.session
 
     def validate_publishers_plugins(self, publishers):
         '''
@@ -257,11 +261,9 @@ class PluginDiscoverValidation(object):
                 data=data
             )
 
-            plugin_result = self.session.event_hub.publish(
-                event,
-                synchronous=True
+            plugin_result = self.event_manager.publish(
+                event
             )
-
 
             if plugin_result:
                 plugin_result = plugin_result[0]
@@ -284,7 +286,7 @@ class PluginDiscoverValidation(object):
                     data=status_event
                 )
 
-                self.session.event_hub.publish(
+                self.event_manager.publish(
                     event
                 )
 

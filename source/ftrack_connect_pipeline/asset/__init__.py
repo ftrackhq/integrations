@@ -174,9 +174,8 @@ class FtrackAssetBase(object):
                 data=asset_info_options
             )
 
-            plugin_result_data = self.session.event_hub.publish(
-                run_event,
-                synchronous=True
+            plugin_result_data = self.event_manager.publish(
+                run_event
             )
 
             result_data = plugin_result_data[0]

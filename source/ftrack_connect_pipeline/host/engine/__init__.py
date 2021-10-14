@@ -155,9 +155,8 @@ class BaseEngine(object):
                 context_data, method
             )
 
-            plugin_result_data = self.session.event_hub.publish(
-                event,
-                synchronous=True
+            plugin_result_data = self.event_manager.publish(
+                event
             )
 
             if plugin_result_data:
