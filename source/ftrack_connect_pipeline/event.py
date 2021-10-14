@@ -96,8 +96,9 @@ class EventManager(object):
         self._event_hub_thread = None
         self._mode = mode
         self._session = session
-        self._connect()
-        self._wait()
+        if mode is not constants.LOCAL_EVENT_MODE:
+            self._connect()
+            self._wait()
 
         # self.logger.debug('Initialising {}'.format(self))
 
@@ -112,25 +113,34 @@ class EventManager(object):
         # )
         if mode is constants.LOCAL_EVENT_MODE:
 
-            result = self.session.event_hub.publish(
+            retval = self.session.event_hub.publish(
                 event,
                 synchronous=True,
             )
 
-            if result:
-                result = result[0]
-
-            # Mock async event reply.
-            new_event = ftrack_api.event.base.Event(
-                topic='ftrack.meta.reply',
-                data=result,
-                in_reply_to_event=event['id'],
-            )
-
             if callback:
+                result = retval[0] if retval else None
+
+                # Mock async event reply.
+                new_event = ftrack_api.event.base.Event(
+                    topic='ftrack.meta.reply',
+                    data=result,
+                    in_reply_to_event=event['id'],
+                )
+
                 callback(new_event)
 
+                return
+
+            # Caller expect result returned
+            return retval
+
         else:
+            if (not self.session.event_hub.connected and
+                    not self.session.event_hub._connection_initialised):
+                # We are in local mode, but are to send an async event - need to connect
+                self._connect()
+                self._wait()
             self.session.event_hub.publish(
                 event,
                 on_reply=callback

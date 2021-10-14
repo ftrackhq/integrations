@@ -204,7 +204,7 @@ class Host(object):
         :func:`ftrack_connect_pipeline_definition.resource.definitions.register.register_definitions`
         '''
         plugin_validator = validation.PluginDiscoverValidation(
-            self.session, self.host_types
+            self._event_manager, self.host_types
         )
 
         invalid_publishers_idxs = plugin_validator.validate_publishers_plugins(
