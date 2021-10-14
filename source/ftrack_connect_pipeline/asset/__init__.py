@@ -134,10 +134,10 @@ class FtrackAssetBase(object):
         self.ftrack_object = None
         return self.ftrack_object
 
-    def get_missing_dependencies(self):
+    def check_app_dependencies(self):
         if not self.asset_info.get(asset_const.DEPENDENCY_IDS):
             return
-        return self.asset_info.get(asset_const.DEPENDENCY_IDS)
+        return self.asset_info.get(asset_const.DEPENDENCY_IDS), None, None
 
     def connect_objects(self, objects):
         '''

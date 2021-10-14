@@ -64,7 +64,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
 
     def _run(self, event):
         self.old_data = self.get_current_objects()
-        self.logger.debug('Current objects : {}'.format(len(self.old_objects)))
+        self.logger.debug('Current objects : {}'.format(len(self.old_data)))
         # Having this in a separate method, we can override the parse depending
         #  on the plugin type.
         self._method, self._plugin_settings = self._parse_run_event(event)
@@ -91,13 +91,22 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
 
         asset_load_mode = options.get(asset_const.LOAD_MODE)
 
+        if asset_load_mode == 'Open':
+            super_result = super(LoaderImporterPlugin, self)._run(event)
+            #  Query all the objects from the scene
+            self.new_data = self.get_current_objects()
+            self.logger.debug(
+                'Scene objects after load : {}'.format(len(self.new_data))
+            )
+            diff = self.new_data.difference(self.old_data)
+
         ftrack_asset_class = self.get_asset_class(context_data, data, options)
         ftrack_node = ftrack_asset_class.init_ftrack_object()
 
         #TODO: if True, the assets willl be load as node
         # only, so the plugin will not be executed but if false the node will be
         # created and the asset will automatically be loaded executing the plugin.
-        if not asset_const.LOAD_AS_NODE_ONLY:
+        if not asset_const.LOAD_AS_NODE_ONLY and asset_load_mode != 'open' :
             super_result = super(LoaderImporterPlugin, self)._run(event)
             self.new_data = self.get_current_objects()
             self.logger.debug(
@@ -119,22 +128,11 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
             }
 
 
-        if asset_load_mode == 'open':
-            # TODO:
-            #  Don't open the scene after creating the ftrack node, this is wrong,
-            #  should be fixed
-            #  Open the scene # ERROR, this should go before create the node in this case
-            super_result = super(LoaderImporterPlugin, self)._run(event)
-            #  Query all the objects from the scene
-            self.new_data = self.get_current_objects()
-            self.logger.debug(
-                'Scene objects after load : {}'.format(len(self.new_data))
-            )
-            diff = self.new_data.difference(self.old_data)
+        if asset_load_mode == 'Open':
             #  Connect all the objects that are not dependencies
             ftrack_asset_class.connect_objects(diff)
             #  Check if dependencies already in the scene and what dependencies are missing
-            missing_ids, unconected_dependencies, connected_dependencies = ftrack_asset_class.get_missing_dependencies()
+            missing_ids, unconected_dependencies, connected_dependencies = ftrack_asset_class.check_app_dependencies()
             if missing_ids:
                 #  if missing dependencies create them
                 dependency_objects = self.create_dependency_objects(missing_ids)
@@ -142,30 +140,32 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
             #  connect all the dependencies new and old
             ftrack_asset_class.connect_dependencies(unconected_dependencies)
             # Before save delete only the main ftrackNode
-        elif asset_load_mode == 'import':
-            # TODO:
-            #  IMPORTANT!!! in order to be able to see and choose the way that
-            #  we want the dependencies of an import load, we will generate the
-            #  asset info for all the dependencies but we will not generate the
-            #  node itself as it could be coming in the imported scene. Then when
-            #  we import the scene, we check how we have the asset info configured
-            #  in order to override the nodes in the imported scene.
-
-            # TODO:
-            #  Don't import the scene
-            #  Create the ftrack node
-            #  Don't create the dependency nodes as we will have them duplicated if we import the asset later on...
-            #  When user load the asset with the asset Manager, import, check
-            #  dependencies and create the missing ones
-            pass
-        elif asset_load_mode == 'reference':
-            # TODO:
-            #  Don't import the scene
-            #  Create the ftrack node
-            #  Don't create the dependency nodes as we will have them duplicated if we import the asset later on...
-            #  When user load the asset with the asset Manager, reference, check
-            #  dependencies and Do not create the missing ones
-            pass
+        # TODO: we don't have to do anything else with the asset_load in here,
+        #  all should go to the AM now
+        # elif asset_load_mode == 'import':
+        #     # TODO:
+        #     #  IMPORTANT!!! in order to be able to see and choose the way that
+        #     #  we want the dependencies of an import load, we will generate the
+        #     #  asset info for all the dependencies but we will not generate the
+        #     #  node itself as it could be coming in the imported scene. Then when
+        #     #  we import the scene, we check how we have the asset info configured
+        #     #  in order to override the nodes in the imported scene.
+        #
+        #     # TODO:
+        #     #  Don't import the scene
+        #     #  Create the ftrack node
+        #     #  Don't create the dependency nodes as we will have them duplicated if we import the asset later on...
+        #     #  When user load the asset with the asset Manager, import, check
+        #     #  dependencies and create the missing ones
+        #     pass
+        # elif asset_load_mode == 'reference':
+        #     # TODO:
+        #     #  Don't import the scene
+        #     #  Create the ftrack node
+        #     #  Don't create the dependency nodes as we will have them duplicated if we import the asset later on...
+        #     #  When user load the asset with the asset Manager, reference, check
+        #     #  dependencies and Do not create the missing ones
+        #     pass
 
         #TODO: the _run_plugin method of the engine.init is expecting a return
         # result here. So if we don't execute the plugin we should be returning
@@ -191,6 +191,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
                 dependency_asset_info = asset_info.FtrackAssetInfo.from_asset_build(entity)
                 #This should be depending on the DCC
                 dependency_asset_info[asset_const.LOAD_MODE] = self.dependency_load_mode
+                dependency_asset_info[asset_const.IS_DEPENDENCY] = True
                 dependency_object = self.create_ftrack_asset_class(dependency_asset_info)
                 dependency_node = dependency_object.init_ftrack_object()
                 dependency_objects.append(dependency_object)
