@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class DummyStream:
     ''' dummyStream behaves like a stream but does nothing. '''
     def __init__(self): pass
-    def write(self, data): logger.info(data)
+    def write(self, data): pass
     def read(self, data): pass
     def flush(self): pass
     def close(self): pass
