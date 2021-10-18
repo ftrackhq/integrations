@@ -21,6 +21,8 @@ class AssetManagerWidget(QtWidgets.QWidget):
     select_assets = QtCore.Signal(object)
     remove_assets = QtCore.Signal(object)
     update_assets = QtCore.Signal(object, object)
+    load_assets = QtCore.Signal(object, object)
+    unload_assets = QtCore.Signal(object, object)
 
     @property
     def event_manager(self):
@@ -95,6 +97,13 @@ class AssetManagerWidget(QtWidgets.QWidget):
             self.on_update_assets
         )
 
+        self.asset_table_view.load_assets.connect(
+            self.on_load_assets
+        )
+        self.asset_table_view.unload_assets.connect(
+            self.on_unload_assets
+        )
+
     def on_asset_change_version(self, index, value):
         '''
         Triggered when a version of the asset has changed on the
@@ -124,6 +133,18 @@ class AssetManagerWidget(QtWidgets.QWidget):
         Triggered when update action is clicked on the asset_table_view.
         '''
         self.update_assets.emit(assets, plugin)
+
+    def on_load_assets(self, assets):
+        '''
+        Triggered when load action is clicked on the asset_table_view.
+        '''
+        self.load_assets.emit(assets)
+
+    def on_unload_assets(self, assets):
+        '''
+        Triggered when unload action is clicked on the asset_table_view.
+        '''
+        self.unload_assets.emit(assets)
 
     def set_asset_list(self, asset_entities_list):
         '''
@@ -172,6 +193,8 @@ class AssetManagerTableView(QtWidgets.QTableView):
     select_assets = QtCore.Signal(object)
     remove_assets = QtCore.Signal(object)
     update_assets = QtCore.Signal(object, object)
+    load_assets = QtCore.Signal(object)
+    unload_assets = QtCore.Signal(object)
 
     @property
     def event_manager(self):
@@ -257,7 +280,7 @@ class AssetManagerTableView(QtWidgets.QTableView):
         Creates all the actions for the context menu.
         '''
         self.action_widgets = {}
-
+        #TODO: decide if to add the actions here or in the definition like the update one
         default_actions = {
             'select': [{
                 'ui_callback': 'ctx_select',
@@ -267,6 +290,14 @@ class AssetManagerTableView(QtWidgets.QTableView):
                 'ui_callback': 'ctx_remove',
                 'name': 'remove_asset'
             }]
+            # 'load': [{
+            #     'ui_callback': 'ctx_load',
+            #     'name': 'load_asset'
+            # }],
+            # 'unload': [{
+            #     'ui_callback': 'ctx_unload',
+            #     'name': 'unload_asset'
+            # }]
         }
         for def_action_type, def_action in list(default_actions.items()):
             if def_action_type in list(actions.keys()):
@@ -351,6 +382,33 @@ class AssetManagerTableView(QtWidgets.QTableView):
             data = self.model().data(index, self.model().DATA_ROLE)
             asset_info_list.append(data)
         self.remove_assets.emit(asset_info_list)
+    def ctx_load(self, plugin):
+        #TODO: we can pass the plugin here, to for example define a standard
+        # load plugin or a check plugin to execute after the load plugin that is
+        # saved in the asset info is executed.
+        '''
+        Triggered when load action menu been clicked.
+        Emits load_assets signal to load the selected assets in the scene.
+        '''
+        asset_info_list = []
+        index_list = self.selectionModel().selectedRows()
+        for index in index_list:
+            data = self.model().data(index, self.model().DATA_ROLE)
+            asset_info_list.append(data)
+
+        self.load_assets.emit(asset_info_list)
+    def ctx_unload(self, plugin):
+        '''
+        Triggered when unload action menu been clicked.
+        Emits load_assets signal to unload the selected assets in the scene.
+        '''
+        asset_info_list = []
+        index_list = self.selectionModel().selectedRows()
+        for index in index_list:
+            data = self.model().data(index, self.model().DATA_ROLE)
+            asset_info_list.append(data)
+
+        self.unload_assets.emit(asset_info_list)
 
     def set_host_connection(self, host_connection):
         '''Sets the host connection'''
