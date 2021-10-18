@@ -4,6 +4,7 @@
 import functools
 import sys
 import os
+import platform
 import logging
 
 import ftrack_api
@@ -39,20 +40,26 @@ def on_discover_pipeline_houdini(session, event):
     # Make sure app supports python 3
     app_path = event['data']['application']['path']
 
-    if os.name == 'nt':
+    if platform.system() == 'Windows':
         if not os.path.exists(os.path.join(app_path, 'python37')):
             logger.debug('Not discovering non-py3k Houdini build ("{0}").'.format(
                 app_path))
             data['integration']['disable'] = True
-    else:
+    elif platform.system() == 'Darwin':
         # Check Python framework link points to a certain target
-        link_path = os.path.join(app_path, '../Frameworks/Python.framework/Versions/Current')
+        link_path = os.path.join(app_path, '..', 'Frameworks/Python.framework/Versions/Current')
         value = os.readlink(link_path)
         if value.split('.')[0] != '3':
             logger.debug('Not discovering non-py3k Houdini build ("{0}",'
                 ' linked interpreter: {1}).'.format(app_path, value))
             data['integration']['disable'] = True
-
+    elif platform.system() == 'Linux':
+        # Check if python 3.7 library exists
+        lib_path = os.path.join(app_path, 'python/lib/python3.7')
+        if not os.path.exists(lib_path):
+            logger.debug('Not discovering non-py3k Houdini build ("{0}").'.format(
+                app_path))
+            data['integration']['disable'] = True
     return data
 
 
