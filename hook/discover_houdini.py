@@ -4,7 +4,6 @@
 import functools
 import sys
 import os
-import platform
 import logging
 
 import ftrack_api
