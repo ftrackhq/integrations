@@ -55,6 +55,7 @@ def on_discover_pipeline_houdini(session, event):
             data['integration']['disable'] = True
     elif platform.system() == 'Linux':
         # Check if python 3.7 library exists
+        app_path = os.path.dirname(os.path.dirname(app_path))
         lib_path = os.path.join(app_path, 'python/lib/python3.7')
         if not os.path.exists(lib_path):
             logger.debug('Not discovering non-py3k Houdini build ("{0}").'.format(
