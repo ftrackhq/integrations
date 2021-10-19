@@ -25,6 +25,54 @@ python_dependencies = os.path.join(
 )
 sys.path.append(python_dependencies)
 
+# Utility function per Os
+
+def get_windows_options(event, data):
+    app_path = event['data']['application']['path']
+    if not os.path.exists(os.path.join(app_path, 'python37')):
+        logger.debug(
+            'Not discovering non-py3k Houdini build ("{0}").'.format(
+                app_path
+            )
+        )
+        data['integration']['disable'] = True
+
+def get_darwin_options(event, data):
+        # Check Python framework link points to a certain target
+        app_path = event['data']['application']['path']
+        link_path = os.path.join(
+            app_path, '..', 'Frameworks/Python.framework/Versions/Current'
+        )
+        value = os.readlink(link_path)
+        if value.split('.')[0] != '3':
+            logger.debug(
+                'Not discovering non-py3k Houdini build ("{0}",'
+                ' linked interpreter: {1}).'.format(app_path, value))
+    
+            data['integration']['disable'] = True
+
+def get_linux_options(event, data):
+     # Check if python 3.7 library exists
+    app_path = event['data']['application']['path']
+    app_dir = os.path.dirname(os.path.dirname(app_path))
+    lib_path = os.path.join(app_dir, 'python/lib/python3.7')
+    if not os.path.exists(app_dir):
+        logger.debug(
+            'Not discovering non-py3k Houdini build ("{0}").'.format(
+                app_dir
+            )
+        )
+        data['integration']['disable'] = True
+
+
+platform_options = {
+    'windows': get_windows_options,
+    'darwin': get_darwin_options,
+    'linux': get_linux_options
+}
+
+
+
 def on_discover_pipeline_houdini(session, event):
 
     from ftrack_connect_pipeline_houdini import __version__ as integration_version
@@ -35,6 +83,9 @@ def on_discover_pipeline_houdini(session, event):
             'version': integration_version
         }
     }
+
+    options_function = platform_options.get(event['data']['platform'])
+    options_function(event, data)
 
     return data
 
