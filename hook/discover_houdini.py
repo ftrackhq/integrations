@@ -40,12 +40,12 @@ def on_discover_pipeline_houdini(session, event):
     # Make sure app supports python 3
     app_path = event['data']['application']['path']
 
-    if platform.system() == 'Windows':
+    if event['data']['platform'] == 'windows':
         if not os.path.exists(os.path.join(app_path, 'python37')):
             logger.debug('Not discovering non-py3k Houdini build ("{0}").'.format(
                 app_path))
             data['integration']['disable'] = True
-    elif platform.system() == 'Darwin':
+    elif event['data']['platform'] == 'darwin':
         # Check Python framework link points to a certain target
         link_path = os.path.join(app_path, '..', 'Frameworks/Python.framework/Versions/Current')
         value = os.readlink(link_path)
@@ -53,7 +53,7 @@ def on_discover_pipeline_houdini(session, event):
             logger.debug('Not discovering non-py3k Houdini build ("{0}",'
                 ' linked interpreter: {1}).'.format(app_path, value))
             data['integration']['disable'] = True
-    elif platform.system() == 'Linux':
+    elif event['data']['platform'] == 'linux':
         # Check if python 3.7 library exists
         app_path = os.path.dirname(os.path.dirname(app_path))
         lib_path = os.path.join(app_path, 'python/lib/python3.7')
