@@ -21,8 +21,8 @@ class AssetManagerWidget(QtWidgets.QWidget):
     select_assets = QtCore.Signal(object)
     remove_assets = QtCore.Signal(object)
     update_assets = QtCore.Signal(object, object)
-    load_assets = QtCore.Signal(object, object)
-    unload_assets = QtCore.Signal(object, object)
+    load_assets = QtCore.Signal(object)
+    unload_assets = QtCore.Signal(object)
 
     @property
     def event_manager(self):
@@ -289,15 +289,15 @@ class AssetManagerTableView(QtWidgets.QTableView):
             'remove': [{
                 'ui_callback': 'ctx_remove',
                 'name': 'remove_asset'
+            }],
+            'load': [{
+                'ui_callback': 'ctx_load',
+                'name': 'load_asset'
+            }],
+            'unload': [{
+                'ui_callback': 'ctx_unload',
+                'name': 'unload_asset'
             }]
-            # 'load': [{
-            #     'ui_callback': 'ctx_load',
-            #     'name': 'load_asset'
-            # }],
-            # 'unload': [{
-            #     'ui_callback': 'ctx_unload',
-            #     'name': 'unload_asset'
-            # }]
         }
         for def_action_type, def_action in list(default_actions.items()):
             if def_action_type in list(actions.keys()):
