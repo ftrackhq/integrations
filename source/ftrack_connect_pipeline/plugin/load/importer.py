@@ -62,7 +62,21 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         #TODO: implement this function un the dcc plugin importer.py
         raise NotImplementedError
 
+    def load_nodes(self, event):
+        # self._method, self._plugin_settings = self._parse_run_event(event)
+
+        context_data = self.plugin_settings.get('context_data')
+        data = self.plugin_settings.get('data')
+        options = self.plugin_settings.get('options')
+
+        ftrack_asset_class = self.get_asset_class(context_data, data, options)
+        ftrack_node = ftrack_asset_class.init_ftrack_object()
+
+        results = [ftrack_node]
+        return results
+
     def _run(self, event):
+        print("event in run ---> {}".format(event))
         self.old_data = self.get_current_objects()
         self.logger.debug('Current objects : {}'.format(len(self.old_data)))
         # Having this in a separate method, we can override the parse depending
@@ -78,6 +92,15 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         options = self.plugin_settings.get('options')
         self.logger.debug('Current options : {}'.format(options))
 
+        asset_load_mode = options.get(asset_const.LOAD_MODE)
+
+        # In case of open mode = open or
+        # asset_const.LOAD_AS_NODE_ONLY make sure the method is not load_nodes
+        if asset_load_mode == 'Open':
+            if self.method == 'load_nodes':
+                event['data']['pipeline']['method'] = 'run'
+                self._method = event['data']['pipeline']['method']
+
         json_data = json.dumps(event['data'])
         if six.PY2:
             options[asset_const.ASSET_INFO_OPTIONS] = base64.b64encode(
@@ -89,46 +112,19 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
                 input_bytes
             ).decode('ascii')
 
-        asset_load_mode = options.get(asset_const.LOAD_MODE)
 
-        if asset_load_mode == 'Open':
-            super_result = super(LoaderImporterPlugin, self)._run(event)
-            #  Query all the objects from the scene
-            self.new_data = self.get_current_objects()
-            self.logger.debug(
-                'Scene objects after load : {}'.format(len(self.new_data))
-            )
-            diff = self.new_data.difference(self.old_data)
+        super_result = super(LoaderImporterPlugin, self)._run(event)
+        #  Query all the objects from the scene
+        self.new_data = self.get_current_objects()
+        self.logger.debug(
+            'Scene objects after load : {}'.format(len(self.new_data))
+        )
+        diff = self.new_data.difference(self.old_data)
 
-        ftrack_asset_class = self.get_asset_class(context_data, data, options)
-        ftrack_node = ftrack_asset_class.init_ftrack_object()
+        if asset_load_mode == 'Open' or self.method == 'run':
+            ftrack_asset_class = self.get_asset_class(context_data, data, options)
+            ftrack_node = ftrack_asset_class.init_ftrack_object()
 
-        #TODO: if True, the assets willl be load as node
-        # only, so the plugin will not be executed but if false the node will be
-        # created and the asset will automatically be loaded executing the plugin.
-        if not asset_const.LOAD_AS_NODE_ONLY and asset_load_mode != 'open' :
-            super_result = super(LoaderImporterPlugin, self)._run(event)
-            self.new_data = self.get_current_objects()
-            self.logger.debug(
-                'Scene objects after load : {}'.format(len(self.new_data))
-            )
-
-        else:
-            #TODO: we can return this or somehow execute the ftracknodes plugin or the ftrack asset class init object.
-            super_result = {
-                'plugin_name': self.plugin_name,
-                'plugin_type': self.plugin_type,
-                'method': self.method,
-                'status': constants.SUCCESS_STATUS,
-                'result': None,
-                'execution_time': 0,
-                'message': None,
-                'user_data': {},#user_data,
-                'plugin_id': self.plugin_id
-            }
-
-
-        if asset_load_mode == 'Open':
             #  Connect all the objects that are not dependencies
             ftrack_asset_class.connect_objects(diff)
             #  Check if dependencies already in the scene and what dependencies are missing
@@ -140,36 +136,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
             #  connect all the dependencies new and old
             ftrack_asset_class.connect_dependencies(unconected_dependencies)
             # Before save delete only the main ftrackNode
-        # TODO: we don't have to do anything else with the asset_load in here,
-        #  all should go to the AM now
-        # elif asset_load_mode == 'import':
-        #     # TODO:
-        #     #  IMPORTANT!!! in order to be able to see and choose the way that
-        #     #  we want the dependencies of an import load, we will generate the
-        #     #  asset info for all the dependencies but we will not generate the
-        #     #  node itself as it could be coming in the imported scene. Then when
-        #     #  we import the scene, we check how we have the asset info configured
-        #     #  in order to override the nodes in the imported scene.
-        #
-        #     # TODO:
-        #     #  Don't import the scene
-        #     #  Create the ftrack node
-        #     #  Don't create the dependency nodes as we will have them duplicated if we import the asset later on...
-        #     #  When user load the asset with the asset Manager, import, check
-        #     #  dependencies and create the missing ones
-        #     pass
-        # elif asset_load_mode == 'reference':
-        #     # TODO:
-        #     #  Don't import the scene
-        #     #  Create the ftrack node
-        #     #  Don't create the dependency nodes as we will have them duplicated if we import the asset later on...
-        #     #  When user load the asset with the asset Manager, reference, check
-        #     #  dependencies and Do not create the missing ones
-        #     pass
 
-        #TODO: the _run_plugin method of the engine.init is expecting a return
-        # result here. So if we don't execute the plugin we should be returning
-        # something anyway.
         return super_result
 
     def create_dependency_objects(self, missing_dependencies):

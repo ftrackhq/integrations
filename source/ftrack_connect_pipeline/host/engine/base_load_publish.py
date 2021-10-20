@@ -5,6 +5,7 @@ import copy
 import logging
 import ftrack_api
 from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline.constants import asset as asset_const
 from ftrack_connect_pipeline.host.engine import BaseEngine
 
 
@@ -89,6 +90,8 @@ class BaseLoaderPublisherEngine(BaseEngine):
             category = plugin['category']
             type = plugin['type']
             default_method = plugin['default_method']
+            if asset_const.LOAD_AS_NODE_ONLY and type == constants.IMPORTER:
+                default_method = 'load_nodes'
 
             plugin_result = self._run_plugin(
                 plugin, plugin_type,

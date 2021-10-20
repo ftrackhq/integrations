@@ -133,6 +133,8 @@ class BaseEngine(object):
 
         '''
 
+        print("plugin ---> {}".format(plugin))
+
         plugin_name = plugin['plugin']
         start_data = {
             'plugin_name': plugin_name,
@@ -159,6 +161,7 @@ class BaseEngine(object):
                 event,
                 synchronous=True
             )
+            print("plugin_result_data ---> {}".format(plugin_result_data))
 
             if plugin_result_data:
                 result_data = plugin_result_data[0]
