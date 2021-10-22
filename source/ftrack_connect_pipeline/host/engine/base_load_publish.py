@@ -67,10 +67,6 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
         i=1
         for plugin in plugins:
-            # TODO: we want something like this:
-            #  Running stage_name (plural "collectors")
-            #  Next signal Running "Validators" (1/4) i/len(plugins)
-            #  Next signal Running "outputs" (1/4)
             self._notify_progress_client(
                 step_type=step_type,
                 step_name=step_name,
@@ -213,16 +209,11 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 # We stop the loop if the stage failed. To raise an error on
                 # run_definitions
                 if not step_status:
-                    # TODO: we want something like this:
-                    #  Failed
-                    #  Send step_results
                     self._notify_progress_client(
                         step_type, step_name, stage_name, None, None,
                         constants.ERROR_STATUS, step_results
                     )
                     return step_status, step_results
-        # TODO: we want something like this:
-        #  Completed
         self._notify_progress_client(
             step_type, step_name, None, None, None,
             constants.SUCCESS_STATUS, step_results
