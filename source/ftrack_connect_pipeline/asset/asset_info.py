@@ -44,26 +44,6 @@ def get_all_dependencies(entity):
     dependencies = list(set(dependencies) - set(duplicated))
     return dependencies
 
-# def get_all_dependencies(asset_version_entity):
-#     #TODO: fix this to avoid linked tasks
-#     dependencies = []
-#     for asset_ver_link in asset_version_entity.get('incoming_links'):
-#         from_entity = asset_ver_link['from']
-#         if not from_entity['type']['name'] == 'Generic':
-#             dependencies.append(from_entity)
-#     asset = asset_version_entity['asset']
-#     dependencies.extend(get_parent_dependency_recursive(asset['parent']))
-#     dependencies = list(set(dependencies))
-#     #Check if a lower lavel of an asset is already in the list
-#     duplicated = []
-#     for dependency in dependencies:
-#         for child in dependency['children']:
-#             if child in dependencies:
-#                 duplicated.append(dependency)
-#
-#     dependencies = list(set(dependencies) - set(duplicated))
-#     return dependencies
-
 
 def generate_asset_info_dict_from_args(context_data, data, options, session):
     '''
@@ -89,13 +69,13 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
     #  will link as dependency, so in the asset manager we will have to show or
     #  represent something like the following:
     #  (alternative) ---> Sequence / AssetBuild   |   Task (or type)    |   AssetName  |   version   | Component
-    #  AssetBuild   |   Task    |   AssetName  |   version   | Component
-    #  char01       |   Model   |   body_model_A    |   55        | abc
-    #         prop01       |   Model   |   body_model_A    |   55        | abc
-    #         prop02       |   Model   |   body_model_A    |   55        | abc
-    #  char02       |   Model   |   body_model_A    |   55        | abc
-    #         prop01       |   Model   |   body_model_A    |   55        | abc
-    #               prop02       |   Model   |   body_model_A    |   55        | abc
+    #  AssetBuild   |   Type(Selectable By User)    |   AssetName(SBU)  |   version(SBU)   | Component(SBU)
+    #  char01       |   Geometry                    |   body_model_A    |   55              | abc
+    #         prop01 |   Geometry                   |   body_model_A    |   55              | abc
+    #         prop02 |   Rigging                    |   body_model_A    |   55              | abc
+    #  char02       |   Shading                     |   body_model_A    |   55        | abc
+    #      prop01  |   Camera                       |   body_model_A    |   55        | abc
+    #         prop02|   ImagePlane                  |   body_model_A    |   55        | abc
     #  So if the dependency is linked to a specific asset version we can
     #  preselect all the options in the AM and let the user select the component,
     #  but if the dependency is linked to the asset build we will have to let
@@ -103,21 +83,14 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
     #  We will have to add the task somehow here... or instead add the type but
     #  the problem is that we can't link an asset with a specific type to a shot
     #  but we can link a specific task to a shot....
-    #  Maybe we should linit it and don't let the user link task, instead they
-    #  should allways link assetBuilds so then we make sure that we filter by
-    #  type and we aboid having to chose the task. The biggest problem is that
-    #  there is no way with ftrack to link the modeling of an asset into a shot
-    #  because you could have 2 different modelling tasks in ftrack so isn't
-    #  useful to link tasks.
-    #  So my idea is something like this:
-    #  : (also we should think about adding the sequence in some cases)
-    #  AssetBuild   |   Type(Selectable By User)    |   AssetName(SBU)  |   version(SBU)   | Component(SBU)
-    #  char01       |   Geometry   |   body_model_A    |   55        | abc
-    #         prop01       |   Geometry   |   body_model_A    |   55        | abc
-    #         prop02       |   Rigging   |   body_model_A    |   55        | abc
-    #  char02       |   Shading   |   body_model_A    |   55        | abc
-    #         prop01       |   Camera   |   body_model_A    |   55        | abc
-    #               prop02       |   ImagePlane   |   body_model_A    |   55        | abc
+    #  ##### SO THE PROBLEM is that you can't link Assets, assetversions, or assetTypes
+    #  using the platform, you can only link assetBuilds and tasks. ######
+    #  In ordeer to standarize this a bit, now when we look into the dependencies,
+    #  we filter the tasks in order to make sure that only assetbuilds are linked.
+    #  The biggest problem is that there is no way with ftrack to link the modeling
+    #  asset of an assetbuild into a shot and is not useful to link tasks, because
+    #  you could have 2 different modeling tasks for the same assetBuild.
+
 
     arguments_dict = {}
 
@@ -154,14 +127,9 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
 
     #Get dependencies
     dependencies = get_all_dependencies(asset_version_entity)
-    #With the dependency count we will check (sync) if there are new dependencies in ftrack
     arguments_dict[constants.DEPENDENCY_IDS] = [
         dependency['id'] for dependency in dependencies
     ]
-    #Parenting the dependency id in order to call them with
-    # session.query("TypedContext where id is 5258aeb6-06d0-11ea-bb4b-ee594985c7e2").first()
-    # but bere in mind this doesn't work for asset_versions.
-    # arguments_dict[constants.DEPENDENCIES] = []
     arguments_dict[constants.IS_DEPENDENCY] = False
 
     location = session.pick_location()
@@ -373,14 +341,9 @@ class FtrackAssetInfo(dict):
 
         #Get dependencies
         dependencies = get_all_dependencies(version_entity)
-        #With the dependency count we will check (sync) if there are new dependencies in ftrack
         asset_info_data[constants.DEPENDENCY_IDS] = [
             dependency['id'] for dependency in dependencies
         ]
-        #Parenting the dependency id in order to call them with
-        # session.query("TypedContext where id is 5258aeb6-06d0-11ea-bb4b-ee594985c7e2").first()
-        # but bere in mind this doesn't work for asset_versions.
-        # asset_info_data[constants.DEPENDENCIES] = []
 
         asset_info_data[constants.ASSET_INFO_ID] = uuid.uuid4().hex
 
@@ -425,8 +388,6 @@ class FtrackAssetInfo(dict):
         asset_info_data[constants.VERSION_ID] = ''
         asset_info_data[constants.IS_LATEST_VERSION] = False
         asset_info_data[constants.LOAD_MODE] = ''
-        # TODO: Here we could probably pass how to load this assets so the
-        #  loader for the dependencies, just changing the load mode to reference
         asset_info_data[constants.ASSET_INFO_OPTIONS] = ''
 
         dependencies = get_all_dependencies(asset_build)
