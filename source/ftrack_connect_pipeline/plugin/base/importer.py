@@ -67,6 +67,6 @@ class BaseImporterPlugin(BasePlugin):
         method using the given *context_data*, *data*, and *options*.
         '''
 
-        ftrack_asset_class = self.ftrack_asset_class(self.event_manager)
-        ftrack_asset_class.asset_info = asset_info_class
-        return ftrack_asset_class
+        ftrack_asset = self.ftrack_asset_class(self.event_manager)
+        ftrack_asset.asset_info = asset_info_class
+        return ftrack_asset

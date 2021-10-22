@@ -62,21 +62,15 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         #TODO: implement this function un the dcc plugin importer.py
         raise NotImplementedError
 
-    def load_nodes(self, event):
-        # self._method, self._plugin_settings = self._parse_run_event(event)
+    def init_scene_nodes(self, context_data=None, data=None, options=None):
+        '''Alternative plugin metod to init all the nodes in the scene but not
+        need to load the assets'''
+        ftrack_object = self.ftrack_asset.init_ftrack_object()
 
-        context_data = self.plugin_settings.get('context_data')
-        data = self.plugin_settings.get('data')
-        options = self.plugin_settings.get('options')
-
-        ftrack_asset_class = self.get_asset_class(context_data, data, options)
-        ftrack_node = ftrack_asset_class.init_ftrack_object()
-
-        results = [ftrack_node]
+        results = [ftrack_object]
         return results
 
     def _run(self, event):
-        print("event in run ---> {}".format(event))
         self.old_data = self.get_current_objects()
         self.logger.debug('Current objects : {}'.format(len(self.old_data)))
         # Having this in a separate method, we can override the parse depending
@@ -95,9 +89,9 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         asset_load_mode = options.get(asset_const.LOAD_MODE)
 
         # In case of open mode = open or
-        # asset_const.LOAD_AS_NODE_ONLY make sure the method is not load_nodes
+        # asset_const.LOAD_AS_NODE_ONLY make sure the method is not init_scene_nodes
         if asset_load_mode == 'Open':
-            if self.method == 'load_nodes':
+            if self.method == 'init_scene_nodes':
                 event['data']['pipeline']['method'] = 'run'
                 self._method = event['data']['pipeline']['method']
 
@@ -112,8 +106,10 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
                 input_bytes
             ).decode('ascii')
 
+        self.ftrack_asset = self.get_asset_class(context_data, data, options)
 
         super_result = super(LoaderImporterPlugin, self)._run(event)
+
         #  Query all the objects from the scene
         self.new_data = self.get_current_objects()
         self.logger.debug(
@@ -122,19 +118,17 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         diff = self.new_data.difference(self.old_data)
 
         if asset_load_mode == 'Open' or self.method == 'run':
-            ftrack_asset_class = self.get_asset_class(context_data, data, options)
-            ftrack_node = ftrack_asset_class.init_ftrack_object()
-
+            ftrack_object = self.ftrack_asset.init_ftrack_object()
             #  Connect all the objects that are not dependencies
-            ftrack_asset_class.connect_objects(diff)
+            self.ftrack_asset.connect_objects(diff)
             #  Check if dependencies already in the scene and what dependencies are missing
-            missing_ids, unconected_dependencies, connected_dependencies = ftrack_asset_class.check_app_dependencies()
+            missing_ids, unconected_dependencies, connected_dependencies = self.ftrack_asset.check_app_dependencies()
             if missing_ids:
                 #  if missing dependencies create them
                 dependency_objects = self.create_dependency_objects(missing_ids)
                 unconected_dependencies.extend(dependency_objects)
             #  connect all the dependencies new and old
-            ftrack_asset_class.connect_dependencies(unconected_dependencies)
+            self.ftrack_asset.connect_dependencies(unconected_dependencies)
             # Before save delete only the main ftrackNode
 
         return super_result
@@ -159,7 +153,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
                 #This should be depending on the DCC
                 dependency_asset_info[asset_const.LOAD_MODE] = self.dependency_load_mode
                 dependency_asset_info[asset_const.IS_DEPENDENCY] = True
-                dependency_object = self.create_ftrack_asset_class(dependency_asset_info)
-                dependency_node = dependency_object.init_ftrack_object()
+                dependency_ftrack_asset = self.create_ftrack_asset_class(dependency_asset_info)
+                dependency_object = dependency_ftrack_asset.init_ftrack_object()
                 dependency_objects.append(dependency_object)
         return dependency_objects

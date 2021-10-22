@@ -386,7 +386,6 @@ class BasePlugin(object):
         called.
 
         '''
-        print("_run event --->{} ".format(event))
         # Having this in a separate method, we can override the parse depending
         #  on the plugin type.
         self._method, self._plugin_settings = self._parse_run_event(event)
@@ -417,7 +416,9 @@ class BasePlugin(object):
             result_data['message'] = str(message)
             return result_data
         try:
+            print("executing self.method --> {} for plugin {}".format(self.method, self.plugin_name))
             result = run_fn(**self.plugin_settings)
+            print("after executing self.method --> {} for plugin {}".format(self.method, self.plugin_name))
             if isinstance(result, tuple):
                 user_data = result[1]
                 result = result[0]

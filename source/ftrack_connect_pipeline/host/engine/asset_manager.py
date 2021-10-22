@@ -371,7 +371,6 @@ class AssetManagerEngine(BaseEngine):
         for asset_info in assets:
             try:
                 status, result = self.load_asset(asset_info, options, plugin)
-                print("status, result  --> {}  --- {}".format(status, result))
             except Exception as e:
                 status = constants.ERROR_STATUS
                 self.logger.error(
@@ -407,11 +406,10 @@ class AssetManagerEngine(BaseEngine):
 
         plugin_name = load_plugin['pipeline']['plugin_name']
         plugin_type = load_plugin['pipeline']['plugin_type']
-        plugin_method = load_plugin['pipeline']['method']
+        plugin_method = 'run'
         plugin_category = load_plugin['pipeline']['category']
         plugin_host_type = load_plugin['pipeline']['host_type']
 
-        print("plugin_method ---> {}".format(plugin_method))
         plugin={
             'category': plugin_category,
             'type': plugin_type.split(".")[-1],
@@ -459,7 +457,6 @@ class AssetManagerEngine(BaseEngine):
                 context_data=plugin_context_data,
                 method=plugin_method
             )
-            print("plugin_result ---> {}".format(plugin_result))
             if plugin_result:
                 status = plugin_result['status']
                 result = plugin_result['result'].get(plugin_method)

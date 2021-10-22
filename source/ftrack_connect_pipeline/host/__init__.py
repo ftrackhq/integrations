@@ -131,7 +131,6 @@ class Host(object):
         if package:
             runner_result = engine_runner.run_definition(data)
         else:
-            print("data --> {}".format(data))
             runner_result = engine_runner.run(data)
         if runner_result == False:
             self.logger.error("Couldn't publish the data {}".format(data))
