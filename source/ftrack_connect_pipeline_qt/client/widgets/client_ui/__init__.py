@@ -5,8 +5,6 @@ import logging
 import uuid
 from Qt import QtGui, QtCore, QtWidgets
 
-# TODO: Not sure to inherit from object or widget, is now object to avoid
-#  creating to many widgets
 class BaseUIWidget(object):
     '''
     Base class of a widget representation from json schema types
@@ -65,7 +63,6 @@ class BaseUIWidget(object):
             __name__ + '.' + self.__class__.__name__
         )
 
-        # self.widget_factory = widget_factory
         self.fragment_data = fragment_data
         self._parent = parent
 
