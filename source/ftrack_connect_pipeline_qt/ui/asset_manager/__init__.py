@@ -383,8 +383,10 @@ class AssetManagerTableView(QtWidgets.QTableView):
             asset_info_list.append(data)
         self.remove_assets.emit(asset_info_list)
     def ctx_load(self, plugin):
-        #TODO: we can pass the plugin here, to for example define a standard
-        # load plugin or a check plugin to execute after the load plugin that is
+        #TODO: I think is better to not pass a Plugin, and use directly the
+        # function in the engine. But if we want, we can pass the plugin here,
+        # to for example define a standard load plugin or a check plugin to
+        # execute after the load plugin that is
         # saved in the asset info is executed.
         '''
         Triggered when load action menu been clicked.
