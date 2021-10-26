@@ -25,64 +25,12 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
     '''
     ftrack_asset_class = FtrackAssetNode
 
-    def _run(self, event):
+    load_modes = load_const.LOAD_MODES
 
-        self.old_data = maya_utils.get_current_scene_objects()
-        self.logger.debug('Scene objects : {}'.format(len(self.old_data)))
+    dependency_load_mode = load_const.REFERENCE_MODE
 
-        super_result = super(LoaderImporterMayaPlugin, self)._run(event)
-
-        context_data = self.plugin_settings.get('context_data')
-        self.logger.debug('Current context : {}'.format(context_data))
-
-        data = self.plugin_settings.get('data')
-        self.logger.debug('Current data : {}'.format(data))
-
-        options = self.plugin_settings.get('options')
-        self.logger.debug('Current options : {}'.format(options))
-
-        json_data = json.dumps(event['data'])
-        if six.PY2:
-            options[asset_const.ASSET_INFO_OPTIONS] = base64.b64encode(
-                json_data
-            )
-        else:
-            input_bytes = json_data.encode('utf8')
-            options[asset_const.ASSET_INFO_OPTIONS] = base64.b64encode(
-                input_bytes
-            ).decode('ascii')
-
-        asset_load_mode = options.get(asset_const.LOAD_MODE, 'Not set')
-
-        if asset_load_mode == load_const.OPEN_MODE:
-            self.logger.warning('{} not created, load mode is {} and not {}'.format(
-                self.ftrack_asset_class, asset_load_mode, load_const.OPEN_MODE))
-            return super_result
-
-        self.new_data = maya_utils.get_current_scene_objects()
-        self.logger.debug(
-            'Scene objects after load : {}'.format(len(self.new_data))
-        )
-
-        self.link_to_ftrack_node(context_data, data, options)
-
-        return super_result
-
-    def link_to_ftrack_node(self, context_data, data, options):
-        diff = self.new_data.difference(self.old_data)
-        if not diff:
-            self.logger.debug('No differences found in the scene')
-            return
-
-        self.logger.debug(
-            'Checked differences between ftrack_objects before and after'
-            ' inport : {}'.format(diff)
-        )
-
-        ftrack_asset_class = self.get_asset_class(context_data, data, options)
-
-        ftrack_node = ftrack_asset_class.init_ftrack_object()
-        ftrack_asset_class.connect_objects(diff)
+    def get_current_objects(self):
+        return maya_utils.get_current_scene_objects()
 
 
 
