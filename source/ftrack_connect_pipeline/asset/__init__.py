@@ -61,7 +61,7 @@ class FtrackAssetBase(object):
 
     @property
     def is_dependency(self):
-        '''Returns True if the current version is the latest version'''
+        '''Returns True if the current version is a dependency'''
         return self.asset_version_entity[asset_const.IS_DEPENDENCY]
 
     @property
@@ -135,19 +135,29 @@ class FtrackAssetBase(object):
         return self.ftrack_object
 
     def check_app_dependencies(self):
+        '''Checks if there are already existing dependencies on the DCC app
+        returns missing_ids, unconected_dependencies, connected_dependencies
+        missing_ids: are dependency id that are not found in the current scene
+        unconected_dependencies: are dependency id that are found in the scene
+        but not connected to the ftrackNode
+        connected_dependencies: are dependencies found in the scene and already
+        connected to an ftrackNode
+        '''
         if not self.asset_info.get(asset_const.DEPENDENCY_IDS):
             return
         return self.asset_info.get(asset_const.DEPENDENCY_IDS), None, None
 
     def connect_objects(self, objects):
         '''
-        Parent the given *objects* under current ftrack_object
+        Parent the given *objects* under current ftrack_object asset link
+        attribute
         '''
         raise NotImplementedError
 
     def connect_dependencies(self, dependencies):
         '''
-        Parent the given *objects* under current ftrack_object
+        Parent the given *dependencies* under current ftrack_object dependencies
+        attribute
         '''
         raise NotImplementedError
 
