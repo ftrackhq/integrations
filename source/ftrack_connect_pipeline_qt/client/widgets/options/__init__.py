@@ -212,7 +212,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
     def on_init_scene_nodes_callback(self, result):
         '''Callback function for plugin execution'''
-        self.logger.debug("on_init_scene_nodes_callback, result: {}".format(result))
+        self.logger.debug("result: {}".format(result))
 
     def to_json_object(self):
         '''Return a formated json with the data from the current widget'''
