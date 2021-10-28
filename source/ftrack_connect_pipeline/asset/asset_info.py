@@ -10,26 +10,26 @@ import ftrack_api
 from ftrack_connect_pipeline.constants import asset as constants
 
 def get_parent_dependency_recursive(parent):
-    #TODO: fix this to avoid linked tasks
     dependencies = []
     if parent.entity_type == 'Project':
         return []
     for link in parent.get('incoming_links'):
         from_entity = link['from']
-        if not from_entity['type']['name'] == 'Generic':
+        # avoid linking tasks
+        if not from_entity.entity_type == 'Task':
             dependencies.append(from_entity)
     if parent.get('parent'):
         dependencies.extend(get_parent_dependency_recursive(parent['parent']))
     return list(set(dependencies))
 
 def get_all_dependencies(entity):
-    #TODO: fix this to avoid linked tasks
     dependencies = []
     asset = entity
     if entity.entity_type == 'AssetVersion':
         for asset_ver_link in entity.get('incoming_links'):
             from_entity = asset_ver_link['from']
-            if not from_entity['type']['name'] == 'Generic':
+            # avoid linking tasks
+            if not from_entity.entity_type == 'Task':
                 dependencies.append(from_entity)
         asset = entity['asset']
     dependencies.extend(get_parent_dependency_recursive(asset['parent']))
