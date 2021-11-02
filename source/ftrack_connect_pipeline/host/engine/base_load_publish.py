@@ -87,7 +87,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
             type = plugin['type']
             default_method = plugin['default_method']
             if asset_const.LOAD_AS_NODE_ONLY and type == constants.IMPORTER:
-                default_method = 'init_scene_nodes'
+                default_method = 'init_nodes'
 
             plugin_result = self._run_plugin(
                 plugin, plugin_type,

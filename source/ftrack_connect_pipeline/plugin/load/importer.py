@@ -62,7 +62,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         #TODO: implement this function un the dcc plugin importer.py
         raise NotImplementedError
 
-    def init_scene_nodes(self, context_data=None, data=None, options=None):
+    def init_nodes(self, context_data=None, data=None, options=None):
         '''Alternative plugin metod to init all the nodes in the scene but not
         need to load the assets'''
         ftrack_object = self.ftrack_asset.init_ftrack_object()
@@ -89,9 +89,9 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         asset_load_mode = options.get(asset_const.LOAD_MODE)
 
         # In case of open mode = open or
-        # asset_const.LOAD_AS_NODE_ONLY make sure the method is not init_scene_nodes
+        # asset_const.LOAD_AS_NODE_ONLY make sure the method is not init_nodes
         if asset_load_mode == 'Open':
-            if self.method == 'init_scene_nodes':
+            if self.method == 'init_nodes':
                 event['data']['pipeline']['method'] = 'run'
                 self._method = event['data']['pipeline']['method']
 
@@ -122,7 +122,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
             #  Connect all the objects that are not dependencies
             self.ftrack_asset.connect_objects(diff)
             #  Check if dependencies already in the scene and what dependencies are missing
-            missing_ids, unconected_dependencies, connected_dependencies = self.ftrack_asset.check_app_dependencies()
+            missing_ids, unconected_dependencies, connected_dependencies = self.ftrack_asset.check_dependencies_status()
             if missing_ids:
                 #  if missing dependencies create them
                 dependency_objects = self.create_dependency_objects(missing_ids)

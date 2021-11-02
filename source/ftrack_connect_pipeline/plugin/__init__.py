@@ -416,9 +416,7 @@ class BasePlugin(object):
             result_data['message'] = str(message)
             return result_data
         try:
-            print("executing self.method --> {} for plugin {}".format(self.method, self.plugin_name))
             result = run_fn(**self.plugin_settings)
-            print("after executing self.method --> {} for plugin {}".format(self.method, self.plugin_name))
             if isinstance(result, tuple):
                 user_data = result[1]
                 result = result[0]

@@ -134,7 +134,7 @@ class FtrackAssetBase(object):
         self.ftrack_object = None
         return self.ftrack_object
 
-    def check_app_dependencies(self):
+    def check_dependencies_status(self):
         '''Checks if there are already existing dependencies on the DCC app
         returns missing_ids, unconected_dependencies, connected_dependencies
         missing_ids: are dependency id that are not found in the current scene
