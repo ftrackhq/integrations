@@ -210,7 +210,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         '''Callback function for plugin execution'''
         self.logger.debug("on_run_callback, result: {}".format(result))
 
-    def on_init_scene_nodes_callback(self, result):
+    def on_init_nodes_callback(self, result):
         '''Callback function for plugin execution'''
         self.logger.debug("result: {}".format(result))
 
