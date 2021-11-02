@@ -81,7 +81,7 @@ class FtrackAssetNode(FtrackAssetBase):
                     # Meanwhile ASSET_INFO_OPTIONS added on the list of not needed
 
                     # if k == asset_const.ASSET_INFO_OPTIONS:
-                    #     if node_asset_info[k].get('method') == 'init_scene_nodes':
+                    #     if node_asset_info[k].get('method') == 'init_nodes':
 
                     diff_values.append(k)
             if set(diff_values) != {
@@ -141,7 +141,7 @@ class FtrackAssetNode(FtrackAssetBase):
                 missing_ids.append(id)
         return missing_ids
 
-    def check_app_dependencies(self):
+    def check_dependencies_status(self):
         if not self.asset_info.get(asset_const.DEPENDENCY_IDS):
             return
         missing_ids = []
