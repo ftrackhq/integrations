@@ -26,7 +26,10 @@ class QtClient(client.Client, QtWidgets.QWidget):
         QtWidgets.QWidget.__init__(self, parent=parent)
         client.Client.__init__(self, event_manager)
 
-        self.setObjectName('main_framework_widget')
+        self.setObjectName('{}_{}'.format(
+            qt_constants.MAIN_FRAMEWORK_WIDGET,
+            self.__class__.__name__)
+        )
 
         self.is_valid_asset_name = False
         self.widget_factory = factory.WidgetFactory(

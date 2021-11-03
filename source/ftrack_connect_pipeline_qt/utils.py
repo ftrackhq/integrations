@@ -6,6 +6,7 @@ import sys
 import logging
 
 from Qt import QtCore, QtWidgets
+from ftrack_connect_pipeline_qt import constants as qt_constants
 
 class Worker(QtCore.QThread):
     '''Perform work in a background thread.'''
@@ -105,6 +106,13 @@ class BaseThread(threading.Thread):
         if self.callback is not None:
             self.callback(result)
 
+def find_parent(widget, name):
+    parent_widget = widget.parentWidget()
+    if not parent_widget:
+        return
+    if name in parent_widget.objectName():
+        return parent_widget
+    return find_parent(parent_widget, name)
 
 def get_main_framework_window_from_widget(widget):
     '''This function will return the main window of the framework from the
@@ -113,9 +121,9 @@ def get_main_framework_window_from_widget(widget):
     if not main_window:
         return
 
-    if not main_window.objectName() == "main_framework_widget":
-        main_window = main_window.findChild(
-            QtWidgets.QWidget, "main_framework_widget"
-        )
+    if qt_constants.MAIN_FRAMEWORK_WIDGET not in main_window.objectName():
+        parent = find_parent(widget.parentWidget(), qt_constants.MAIN_FRAMEWORK_WIDGET)
+        if parent:
+            main_window = parent
 
     return main_window
