@@ -17,6 +17,8 @@ from ftrack_connect_pipeline_qt.utils import BaseThread
 class PublishContextWidget(BaseOptionsWidget):
     '''Main class to represent a context widget on a publish process'''
 
+    statuses_fetched = QtCore.Signal(object)
+
     def __init__(
             self, parent=None, session=None, data=None, name=None,
             description=None, options=None, context_id=None, asset_type_name=None
@@ -37,6 +39,7 @@ class PublishContextWidget(BaseOptionsWidget):
         if self.context_id:
             self.set_option_result(self.context_id, key='context_id')
         self._build_asset_selector()
+        self.statuses_fetched.connect(self.set_statuses)
         self._build_status_selector()
         self._build_comments_input()
 
@@ -99,12 +102,20 @@ class PublishContextWidget(BaseOptionsWidget):
         thread = BaseThread(
             name='get_status_thread',
             target=self._get_statuses,
-            callback=self.set_statuses,
+            callback=self.emit_statuses,
             target_args=()
         )
         thread.start()
 
+    def emit_statuses(self, statuses):
+        '''Emit signal to set statuses on the combobox'''
+        #Emit signal to add the sttuses to the combobox
+        # because here we could have problems with the threads
+        self.statuses_fetched.emit(statuses)
+
     def set_statuses(self, statuses):
+        '''Set statuses on the combo box'''
+        #We are now in the main thread
         for index, status in enumerate(statuses):
             pixmap_status = QtGui.QPixmap(13, 13)
             pixmap_status.fill(QtGui.QColor(status['color']))
