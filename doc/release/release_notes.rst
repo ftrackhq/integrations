@@ -7,6 +7,14 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: changed
+        :tags: TaskPlugin
+        
+        Copy Exporter does not force 4 digit limits in sequence file names.
+
+
 .. release:: 2.5.0
     :date: 2021-09-06
     
