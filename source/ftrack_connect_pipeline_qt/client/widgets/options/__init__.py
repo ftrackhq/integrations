@@ -86,7 +86,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
             callback_fn = getattr(self, method)
             callback_fn(result)
         else:
-            self.debug("Not implemented callback method: {}".format(method))
+            self.logger.debug("Not implemented callback method: {}".format(method))
             raise NotImplementedError
 
     def set_status(self, status, message):
@@ -209,6 +209,10 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     def on_run_callback(self, result):
         '''Callback function for plugin execution'''
         self.logger.debug("on_run_callback, result: {}".format(result))
+
+    def on_init_nodes_callback(self, result):
+        '''Callback function for plugin execution'''
+        self.logger.debug("result: {}".format(result))
 
     def to_json_object(self):
         '''Return a formated json with the data from the current widget'''
