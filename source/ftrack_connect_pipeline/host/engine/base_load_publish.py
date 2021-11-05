@@ -5,6 +5,7 @@ import copy
 import logging
 import ftrack_api
 from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline.constants import asset as asset_const
 from ftrack_connect_pipeline.host.engine import BaseEngine
 
 
@@ -85,6 +86,8 @@ class BaseLoaderPublisherEngine(BaseEngine):
             category = plugin['category']
             type = plugin['type']
             default_method = plugin['default_method']
+            if asset_const.LOAD_AS_NODE_ONLY and type == constants.IMPORTER:
+                default_method = 'init_nodes'
 
             plugin_result = self._run_plugin(
                 plugin, plugin_type,
@@ -103,9 +106,10 @@ class BaseLoaderPublisherEngine(BaseEngine):
                     "Execution of the plugin {} failed.".format(plugin_name)
                 )
             else:
-                result = plugin_result['result'].get(default_method)
-                if step_type == constants.CONTEXT:
-                    result['asset_type_name'] = self.asset_type_name
+                if plugin_result['result']:
+                    result = plugin_result['result'].get(default_method)
+                    if step_type == constants.CONTEXT:
+                        result['asset_type_name'] = self.asset_type_name
 
             plugin_dict = {
                 "name": plugin_name,

@@ -356,6 +356,209 @@ class AssetManagerEngine(BaseEngine):
 
         return status, result
 
+    def load_assets(self, assets, options=None, plugin=None):
+        '''
+        Returns status dictionary and results dictionary keyed by the id for
+        executing the :meth:`remove_asset` for all the
+        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo` in the given
+        *assets* list.
+        '''
+        status = None
+        result = None
+        statuses = {}
+        results = {}
+
+        for asset_info in assets:
+            try:
+                status, result = self.load_asset(asset_info, options, plugin)
+            except Exception as e:
+                status = constants.ERROR_STATUS
+                self.logger.error(
+                    "Error removing asset with version id {} \n error: {} "
+                    "\n asset_info: {}".format(
+                        asset_info[asset_const.VERSION_ID],
+                        e,
+                        asset_info
+                    )
+                )
+
+            bool_status = constants.status_bool_mapping[status]
+            statuses[asset_info[asset_const.ASSET_INFO_ID]] = bool_status
+            results[asset_info[asset_const.ASSET_INFO_ID]] = result
+
+        return statuses, results
+
+    def load_asset(self, asset_info, options=None, plugin=None):
+        '''
+        (Not implemented for python standalone mode)
+        Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
+        result of removing the given *asset_info*
+
+        *asset_info* : :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
+        '''
+
+        # TODO: this contains the import plugin needed info asset_info[asset_const.ASSET_INFO_OPTIONS]
+
+        load_plugin = asset_info[asset_const.ASSET_INFO_OPTIONS]
+        plugin_data = load_plugin['settings']['data']
+        plugin_options = load_plugin['settings']['options']
+        plugin_context_data = load_plugin['settings']['context_data']
+
+        plugin_name = load_plugin['pipeline']['plugin_name']
+        plugin_type = load_plugin['pipeline']['plugin_type']
+        plugin_method = 'run'
+        plugin_category = load_plugin['pipeline']['category']
+        plugin_host_type = load_plugin['pipeline']['host_type']
+
+        plugin={
+            'category': plugin_category,
+            'type': plugin_type.split(".")[-1],
+            #'name': 'context selector', #We dont have this information
+            'name':None,
+            'plugin': plugin_name,
+            'widget': None,
+            'options': plugin_options,
+            'default_method': plugin_method
+        }
+
+        start_time = time.time()
+        status = constants.UNKNOWN_STATUS
+        result = []
+        message = None
+
+        # TODO: Maybe we don't want to execute a asset manager plugin,
+        #  we want an importer plugin maybe. So, Think about removing this part...
+        # plugin_type = constants.PLUGIN_AM_ACTION_TYPE
+        # plugin_name = None
+        # if plugin:
+        #     plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+        #     plugin_name = plugin.get('name')
+
+        result_data = {
+            'plugin_name': plugin_name,
+            'plugin_type': plugin_type,
+            'method': 'load_asset',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': message
+        }
+
+        if not options:
+            options={}
+        if plugin:
+
+            # plugin['plugin_data'] = asset_info
+
+            plugin_result = self._run_plugin(
+                plugin, plugin_type,
+                data=plugin_data,
+                options=plugin_options,
+                context_data=plugin_context_data,
+                method=plugin_method
+            )
+            if plugin_result:
+                status = plugin_result['status']
+                result = plugin_result['result'].get(plugin_method)
+            bool_status = constants.status_bool_mapping[status]
+            if not bool_status:
+                message = "Error executing the plugin: {}".format(plugin)
+                self.logger.error(message)
+
+                end_time = time.time()
+                total_time = end_time - start_time
+
+                result_data['status'] = status
+                result_data['result'] = result
+                result_data['execution_time'] = total_time
+                result_data['message'] = message
+
+                self._notify_client(plugin, result_data)
+
+                return status, result
+
+            # if result:
+            #     options['new_version_id'] = result[0]
+            #
+            #     status, result = self.change_version(asset_info, options)
+
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        result_data['status'] = status
+        result_data['result'] = result
+        result_data['execution_time'] = total_time
+
+        self._notify_client(plugin, result_data)
+
+        return status, result
+
+
+    def unload_assets(self, assets, options=None, plugin=None):
+        '''
+        Returns status dictionary and results dictionary keyed by the id for
+        executing the :meth:`remove_asset` for all the
+        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo` in the given
+        *assets* list.
+        '''
+        status = None
+        result = None
+        statuses = {}
+        results = {}
+
+        for asset_info in assets:
+            try:
+                status, result = self.unload_asset(asset_info, options, plugin)
+            except Exception as e:
+                status = constants.ERROR_STATUS
+                self.logger.error(
+                    "Error removing asset with version id {} \n error: {} "
+                    "\n asset_info: {}".format(
+                        asset_info[asset_const.VERSION_ID],
+                        e,
+                        asset_info
+                    )
+                )
+
+            bool_status = constants.status_bool_mapping[status]
+            statuses[asset_info[asset_const.ASSET_INFO_ID]] = bool_status
+            results[asset_info[asset_const.ASSET_INFO_ID]] = result
+
+        return statuses, results
+
+    def unload_asset(self, asset_info, options=None, plugin=None):
+        '''
+        (Not implemented for python standalone mode)
+        Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
+        result of removing the given *asset_info*
+
+        *asset_info* : :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
+        '''
+
+        result = True
+        status = constants.SUCCESS_STATUS
+
+        plugin_type = constants.PLUGIN_AM_ACTION_TYPE
+        plugin_name = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_name = plugin.get('name')
+
+        result_data = {
+            'plugin_name': plugin_name,
+            'plugin_type': plugin_type,
+            'method': 'unload_asset',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': None
+        }
+
+        self._notify_client(plugin, result_data)
+
+        return status, result
+
+
     def change_version(self, asset_info, options, plugin=None):
         '''
         Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the

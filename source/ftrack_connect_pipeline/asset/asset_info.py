@@ -9,6 +9,41 @@ import six
 import ftrack_api
 from ftrack_connect_pipeline.constants import asset as constants
 
+def get_parent_dependency_recursive(parent):
+    dependencies = []
+    if parent.entity_type == 'Project':
+        return []
+    for link in parent.get('incoming_links'):
+        from_entity = link['from']
+        # avoid linking tasks
+        if not from_entity.entity_type == 'Task':
+            dependencies.append(from_entity)
+    if parent.get('parent'):
+        dependencies.extend(get_parent_dependency_recursive(parent['parent']))
+    return list(set(dependencies))
+
+def get_all_dependencies(entity):
+    dependencies = []
+    asset = entity
+    if entity.entity_type == 'AssetVersion':
+        for asset_ver_link in entity.get('incoming_links'):
+            from_entity = asset_ver_link['from']
+            # avoid linking tasks
+            if not from_entity.entity_type == 'Task':
+                dependencies.append(from_entity)
+        asset = entity['asset']
+    dependencies.extend(get_parent_dependency_recursive(asset['parent']))
+    dependencies = list(set(dependencies))
+    #Check if a lower lavel of an asset is already in the list
+    duplicated = []
+    for dependency in dependencies:
+        for child in dependency['children']:
+            if child in dependencies:
+                duplicated.append(dependency)
+
+    dependencies = list(set(dependencies) - set(duplicated))
+    return dependencies
+
 
 def generate_asset_info_dict_from_args(context_data, data, options, session):
     '''
@@ -27,6 +62,36 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
     *session* : should be instance of :class:`ftrack_api.session.Session`
     to use for communication with the server.
     '''
+
+    # TODO: we will have to extend this in order to represent an asset build
+    #  instead of an asset. That is because in the asset manager we will have to
+    #  deal with the dependencies as well and we can't control what a final user
+    #  will link as dependency, so in the asset manager we will have to show or
+    #  represent something like the following:
+    #  (alternative) ---> Sequence / AssetBuild   |   Task (or type)    |   AssetName  |   version   | Component
+    #  AssetBuild   |   Type(Selectable By User)    |   AssetName(SBU)  |   version(SBU)   | Component(SBU)
+    #  char01       |   Geometry                    |   body_model_A    |   55              | abc
+    #         prop01 |   Geometry                   |   body_model_A    |   55              | abc
+    #         prop02 |   Rigging                    |   body_model_A    |   55              | abc
+    #  char02       |   Shading                     |   body_model_A    |   55        | abc
+    #      prop01  |   Camera                       |   body_model_A    |   55        | abc
+    #         prop02|   ImagePlane                  |   body_model_A    |   55        | abc
+    #  So if the dependency is linked to a specific asset version we can
+    #  preselect all the options in the AM and let the user select the component,
+    #  but if the dependency is linked to the asset build we will have to let
+    #  the user select the task, the assetVariation, the version and the component.
+    #  We will have to add the task somehow here... or instead add the type but
+    #  the problem is that we can't link an asset with a specific type to a shot
+    #  but we can link a specific task to a shot....
+    #  ##### SO THE PROBLEM is that you can't link Assets, assetversions, or assetTypes
+    #  using the platform, you can only link assetBuilds and tasks. ######
+    #  In ordeer to standarize this a bit, now when we look into the dependencies,
+    #  we filter the tasks in order to make sure that only assetbuilds are linked.
+    #  The biggest problem is that there is no way with ftrack to link the modeling
+    #  asset of an assetbuild into a shot and is not useful to link tasks, because
+    #  you could have 2 different modeling tasks for the same assetBuild.
+
+
     arguments_dict = {}
 
     arguments_dict[constants.ASSET_NAME] = context_data.get(
@@ -60,6 +125,12 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
         constants.IS_LATEST_VERSION
     ]
 
+    #Get dependencies
+    dependencies = get_all_dependencies(asset_version_entity)
+    arguments_dict[constants.DEPENDENCY_IDS] = [
+        dependency['id'] for dependency in dependencies
+    ]
+    arguments_dict[constants.IS_DEPENDENCY] = False
 
     location = session.pick_location()
 
@@ -268,6 +339,12 @@ class FtrackAssetInfo(dict):
 
         location = version_entity.session.pick_location()
 
+        #Get dependencies
+        dependencies = get_all_dependencies(version_entity)
+        asset_info_data[constants.DEPENDENCY_IDS] = [
+            dependency['id'] for dependency in dependencies
+        ]
+
         asset_info_data[constants.ASSET_INFO_ID] = uuid.uuid4().hex
 
         for component in version_entity['components']:
@@ -287,5 +364,39 @@ class FtrackAssetInfo(dict):
                         asset_info_data[
                             constants.COMPONENT_PATH
                         ] = component_path
+
+        return cls(asset_info_data)
+
+    @classmethod
+    def from_asset_build(cls, asset_build):
+        '''
+        Returns an :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo` object
+        generated from the given *ftrack_version* and the given *component_name*
+
+        *ftrack_version* : :class:`ftrack_api.entity.asset_version.AssetVersion`
+
+        *component_name* : Component name
+
+        '''
+        asset_info_data = {}
+
+        #We don't have the type, assetName, the version or the component
+        asset_info_data[constants.ASSET_NAME] = asset_build['name']
+        asset_info_data[constants.ASSET_TYPE_NAME] = asset_build['type']['name']
+        asset_info_data[constants.ASSET_ID] = asset_build['id']
+        asset_info_data[constants.VERSION_NUMBER] = int(0)
+        asset_info_data[constants.VERSION_ID] = ''
+        asset_info_data[constants.IS_LATEST_VERSION] = False
+        asset_info_data[constants.LOAD_MODE] = ''
+        asset_info_data[constants.ASSET_INFO_OPTIONS] = ''
+
+        dependencies = get_all_dependencies(asset_build)
+        asset_info_data[constants.DEPENDENCY_IDS] = [
+            dependency['id'] for dependency in dependencies
+        ]
+        asset_info_data[constants.ASSET_INFO_ID] = uuid.uuid4().hex
+        asset_info_data[constants.COMPONENT_NAME] = ''
+        asset_info_data[constants.COMPONENT_ID] = ''
+        asset_info_data[constants.COMPONENT_PATH] = ''
 
         return cls(asset_info_data)

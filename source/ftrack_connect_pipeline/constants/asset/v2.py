@@ -61,6 +61,18 @@ SESSION = 'session'
 #: :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
 #: and the DCC ftrack plugin.
 ASSET_INFO_ID = 'asset_info_id'
+#: Dependency ids constant identifier key for ftrack assets connected or used with
+#: :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
+#: and the DCC ftrack plugin.
+DEPENDENCY_IDS = 'dependency_ids'
+# #: Dependencies constant identifier key for ftrack assets connected or used with
+# #: :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
+# #: and the DCC ftrack plugin.
+# DEPENDENCIES = 'dependencies'
+#: Is dependency constant identifier key for ftrack assets connected or used with
+#: :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
+#: and the DCC ftrack plugin.
+IS_DEPENDENCY = 'is_dependency'
 
 #: Identifier version of the asset constants and plugin.
 VERSION = '2.0'
@@ -70,5 +82,6 @@ VERSION = '2.0'
 KEYS = [
     ASSET_ID, ASSET_NAME, ASSET_TYPE_NAME, VERSION_ID, VERSION_NUMBER,
     COMPONENT_PATH, COMPONENT_NAME, COMPONENT_ID, LOAD_MODE, ASSET_INFO_OPTIONS,
-    REFERENCE_OBJECT, IS_LATEST_VERSION, ASSET_VERSIONS_ENTITIES, SESSION, ASSET_INFO_ID
+    REFERENCE_OBJECT, IS_LATEST_VERSION, ASSET_VERSIONS_ENTITIES, SESSION,
+    ASSET_INFO_ID, DEPENDENCY_IDS, IS_DEPENDENCY
 ]

@@ -386,7 +386,6 @@ class BasePlugin(object):
         called.
 
         '''
-
         # Having this in a separate method, we can override the parse depending
         #  on the plugin type.
         self._method, self._plugin_settings = self._parse_run_event(event)
