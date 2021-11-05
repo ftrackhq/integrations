@@ -69,13 +69,39 @@ class FtrackAssetNode(FtrackAssetBase):
             node_asset_info = FtrackAssetInfo(param_dict)
             if node_asset_info.is_deprecated:
                 raise DeprecationWarning("Can not read v1 ftrack asset plugin")
-            if (
-                    node_asset_info[asset_const.REFERENCE_OBJECT] ==
-                    self.asset_info[asset_const.REFERENCE_OBJECT]
+
+            diff_values = []
+            for k in node_asset_info:
+                if k in [asset_const.ASSET_VERSIONS_ENTITIES]:
+                    continue
+                if node_asset_info[k] != self.asset_info[k]:
+                    #TODO: Check that only the key method is different, one will
+                    # be init_scene_modes and the other will be run. But all the
+                    # other options should be the same
+                    # Meanwhile ASSET_INFO_OPTIONS added on the list of not needed
+
+                    # if k == asset_const.ASSET_INFO_OPTIONS:
+                    #     if node_asset_info[k].get('method') == 'init_nodes':
+
+                    diff_values.append(k)
+            if set(diff_values) != {
+                asset_const.REFERENCE_OBJECT,
+                asset_const.ASSET_INFO_ID,
+                asset_const.ASSET_INFO_OPTIONS
+            }:
+                continue
+
+            #TODO: ASSET link should be generic for all applications and should
+            # be in the dicionary, now is not so we could be checking only the
+            # keys, now we have to check the connection
+            #Check the object is not already connected.
+            if not cmds.listConnections(
+                    '{}.{}'.format(ftrack_object, asset_const.ASSET_LINK)
             ):
                 result_object = ftrack_object
+                break
 
-        self.logger.debug('Found {} existing node'.format(result_object))
+        self.logger.debug('Found {} existing object'.format(result_object))
         return result_object
 
     def _check_ftrack_object_sync(self, ftrack_object):
@@ -100,6 +126,49 @@ class FtrackAssetNode(FtrackAssetBase):
 
         return synced
 
+    def get_current_dependencies(self):
+        if not self.asset_info.get(asset_const.DEPENDENCY_IDS):
+            return
+        missing_ids = []
+        scene_ids = []
+        ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
+        for ftrack_object in ftrack_asset_nodes:
+            param_dict = self.get_parameters_dictionary(ftrack_object)
+            node_asset_info = FtrackAssetInfo(param_dict)
+            scene_ids.append(node_asset_info.get(asset_const.ASSET_ID))
+        for id in self.asset_info.get(asset_const.DEPENDENCY_IDS):
+            if id not in scene_ids:
+                missing_ids.append(id)
+        return missing_ids
+
+    def check_dependencies_status(self):
+        if not self.asset_info.get(asset_const.DEPENDENCY_IDS):
+            return
+        missing_ids = []
+        unconected_dependencies = []
+        connected_dependencies = []
+        ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
+        for ftrack_dependency_object in ftrack_asset_nodes:
+            param_dict = self.get_parameters_dictionary(ftrack_dependency_object)
+            node_asset_info = FtrackAssetInfo(param_dict)
+            if not node_asset_info.get(asset_const.IS_DEPENDENCY):
+                continue
+            #TODO: change this for parent attribute
+            connections = cmds.listConnections('{}.message'.format(ftrack_dependency_object))
+            if self.ftrack_object in connections:
+                connected_dependencies.append(ftrack_dependency_object)
+                continue
+            for connection in connections:
+                if cmds.objectType(connection, isType=asset_const.FTRACK_PLUGIN_TYPE ):
+                    continue
+
+            # here just connect them
+            unconected_dependencies.append(ftrack_dependency_object)
+        for id in self.asset_info.get(asset_const.DEPENDENCY_IDS):
+            if id not in unconected_dependencies and id not in connected_dependencies:
+                missing_ids.append(id)
+        return missing_ids, unconected_dependencies, connected_dependencies
+
     def _get_unique_ftrack_object_name(self):
         '''
         Return a unique scene name for the current ftrack_object
@@ -122,6 +191,12 @@ class FtrackAssetNode(FtrackAssetBase):
         Parent the given *objects* under current ftrack_object
         '''
         for obj in objects:
+            if cmds.objectType( obj, isType=asset_const.FTRACK_PLUGIN_TYPE):
+                is_dependency = cmds.getAttr(obj, ln=asset_const.IS_DEPENDENCY)
+                if is_dependency:
+                    continue
+            #TODO: check that the object is not connected to a FtrackNode, in
+            # this case we don't want to contect it to this node
             if cmds.lockNode(obj, q=True)[0]:
                 cmds.lockNode(obj, l=False)
 
@@ -133,6 +208,18 @@ class FtrackAssetNode(FtrackAssetBase):
                     '{}.{}'.format(self.ftrack_object, asset_const.ASSET_LINK),
                     '{}.ftrack'.format(obj)
                 )
+
+    def connect_dependencies(self, dependencies):
+        '''
+        Parent the given *objects* under current ftrack_object
+        '''
+        i=0
+        for dependency_object in dependencies:
+            cmds.connectAttr(
+                '{}.message'.format(dependency_object),
+                '{}.{}[{}]'.format(self.ftrack_object, asset_const.DEPENDENCIES, i)
+            )
+            i+=1
 
     def get_load_mode_from_ftrack_object(self, obj):
         '''Return the load mode used to import the given *obj*.'''
@@ -170,9 +257,14 @@ class FtrackAssetNode(FtrackAssetBase):
                 cmds.setAttr('{}.{}'.format(
                     ftrack_object, k), str(v), type="string", l=True
                 )
-            elif k == asset_const.IS_LATEST_VERSION:
+            elif k == asset_const.IS_LATEST_VERSION or k == asset_const.IS_DEPENDENCY:
                 cmds.setAttr('{}.{}'.format(
                     ftrack_object, k), bool(v), l=True
+                )
+
+            elif k == asset_const.DEPENDENCY_IDS:
+                cmds.setAttr('{}.{}'.format(
+                    ftrack_object, k), *([len(v)] + v), type="stringArray", l=True
                 )
 
             else:
