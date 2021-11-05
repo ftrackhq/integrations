@@ -100,7 +100,7 @@ class ComponentButton(QtWidgets.QPushButton):
             message = "\n".join(self.logged_errors)
             self.log_text_edit.setText(message)
         else:
-            self.log_text_edit.setText("No errors fund")
+            self.log_text_edit.setText("No errors found")
         self.overlay_container.setVisible(True)
         self.overlay_container.resize(self.parent().size())
 
