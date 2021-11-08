@@ -9,6 +9,12 @@ Releases
 
     .. change:: fixed
 
+        DMG can now be build without needing to code sign it.
+
+.. release:: Upcoming
+
+    .. change:: fixed
+
         Connect package does not provide a consistent ProductCode when generating msi installer.
 
     .. change:: fixed
