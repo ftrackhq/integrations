@@ -611,7 +611,7 @@ def codesign_osx(create_dmg=True, notarize=True):
     if codesign_result != 0:
         raise(
             Exception(
-                "Codesign not working please nake sure you have the "
+                "Codesign not working please make sure you have the "
                 "CODESIGN_IDENTITY, APPLE_USER_NAME environment variables and "
                 "ftrack_connect_sign_pass on the keychain."
             )
@@ -629,8 +629,8 @@ def codesign_osx(create_dmg=True, notarize=True):
             raise (Exception("dmg creation not working please check."))
         else:
             logging.info(' {} Created.'.format(dmg_path))
-        if notarize == True:
-            logging.info(' Setting up xcode, please eter your sudo password')
+        if notarize is True:
+            logging.info(' Setting up xcode, please enter your sudo password')
             setup_xcode_cmd = 'sudo xcode-select -s /Applications/Xcode.app'
             setup_result = os.system(setup_xcode_cmd)
             if setup_result != 0:
@@ -660,7 +660,7 @@ def codesign_osx(create_dmg=True, notarize=True):
 
             status = "in progress"
             exit_loop = False
-            while status == "in progress" and exit_loop == False:
+            while status == "in progress" and exit_loop is False:
                 # Query status
                 notarize_query = (
                     'xcrun altool --notarization-info {} -u $APPLE_USER_NAME '
@@ -702,7 +702,7 @@ def codesign_osx(create_dmg=True, notarize=True):
                             '-p "@keychain:ftrack_connect_sign_pass"'.format(uuid_num)
                         )
                         logging.info(
-                            ' Please once notarization is succed use the '
+                            ' Please once notarization is succeed use the '
                             'following command to staple the app and the dmg: \n'
                             'xcrum stapler staple "{}" \n'
                             'xcrun stapler staple "{}"'.format(bundle_path, dmg_path)
@@ -713,7 +713,7 @@ def codesign_osx(create_dmg=True, notarize=True):
                         except Exception as e:
                             exit_loop = True
                             raise (
-                                "Could not read the imput minutes, please check "
+                                "Could not read the input minutes, please check "
                                 "the notarize manually and staple the code after. \n"
                                 "Error: {}".format(e)
                             )
@@ -747,7 +747,7 @@ if sys.platform == 'darwin':
     )
     parser.add_argument(
         '-not', '--notarize', action='store_true',
-        help='Notarice the dmg application after codesign'
+        help='Notarize the dmg application after codesign'
     )
     args, unknown = parser.parse_known_args()
     sys.argv = [sys.argv[0]] + unknown
@@ -767,3 +767,14 @@ if sys.platform == 'darwin':
         post_setup(codesign_frameworks=osx_args.codesign_frameworks)
         if osx_args.codesign:
             codesign_osx(create_dmg=osx_args.create_dmg, notarize=osx_args.notarize)
+        elif osx_args.create_dmg:
+            dmg_name = '{0}-{1}.dmg'.format(bundle_name, VERSION)
+            dmg_path = os.path.join(BUILD_PATH, dmg_name)
+            dmg_command = (
+                'appdmg resource/appdmg.json "{}"'.format(dmg_path)
+            )
+            dmg_result = os.system(dmg_command)
+            if dmg_result != 0:
+                raise (Exception("dmg creation not working please check."))
+            else:
+                logging.info(' {} Created.'.format(dmg_path))
