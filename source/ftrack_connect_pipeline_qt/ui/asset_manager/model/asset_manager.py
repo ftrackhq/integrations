@@ -123,33 +123,13 @@ class Item(object):
         *unparented* :py:class:`Item` instances.
 
         '''
-
-        # TODO: we have to merge this method with the one in the importer,
-        #  somehow we should be getting the asset infos from the parent asset
-        #  then in case check if there is any missing
-
+        self.asset_info.update_dependencies()
         children = []
-        for dependency_id in self.asset_info.get(core_asset_constants.DEPENDENCY_IDS):
-            entity = self.asset_info.session.query(
-                "TypedContext where id is {}".format(dependency_id)
-            ).first()
-            if not entity:
-                continue
-            if entity.entity_type == 'Sequence':
-                #TODO: think about how to do this one
-                # We don't have the assetBuild, task, assetName, the version or the
-                # component
-                # This one is in case we want to link a sequence inside a project for
-                # example.
-                continue
-            if entity.entity_type == 'Shot' or entity.entity_type == 'AssetBuild':
-                dependency_asset_info = asset_info.FtrackAssetInfo.from_asset_build(entity)
-                #This should be depending on the DCC
-                # dependency_asset_info[core_asset_constants.LOAD_MODE] = self.dependency_load_mode
-                dependency_asset_info[core_asset_constants.IS_DEPENDENCY] = True
-                # dependency_ftrack_asset = self.create_ftrack_asset_class(dependency_asset_info)
-                # dependency_object = dependency_ftrack_asset.init_ftrack_object()
-                children.append(Item(dependency_asset_info))
+        for dependency in self.asset_info.get(core_asset_constants.DEPENDENCIES, []):
+            #TODO: if we want more than one level of depth in dependencies,
+            # call fetch childen before append the item
+            item = Item(dependency)
+            children.append(item)
         return children
 
     def clearChildren(self):
