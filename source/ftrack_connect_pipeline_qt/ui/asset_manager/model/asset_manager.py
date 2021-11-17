@@ -261,6 +261,7 @@ class AssetManagerModel(QtCore.QAbstractItemModel):#QtGui.QStandardItemModel):#Q
 
         # item = self.asset_entities_list[row]
         # data = item[self.columns[column]]
+
         data = item.asset_info.get(self.columns[column])
 
         # style versions
