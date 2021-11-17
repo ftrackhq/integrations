@@ -275,6 +275,8 @@ class FtrackAssetInfo(dict):
         if k == constants.SESSION:
             if self.session:
                 value = self.session
+        if k == constants.DEPENDENCIES:
+            value = self._check_asset_info_dependencies(value)
         return value
 
     def __setitem__(self, k, v):
@@ -308,6 +310,8 @@ class FtrackAssetInfo(dict):
             # Make sure that in case is returning None, set the default value
             if new_value:
                 value = new_value
+        if k == constants.DEPENDENCIES:
+            value = self._check_asset_info_dependencies(value)
         return value
 
     def setdefault(self, k, default=None):
@@ -359,6 +363,23 @@ class FtrackAssetInfo(dict):
         )
         versions = self.session.query(query).all()
         return versions
+
+    def _check_asset_info_dependencies(self, value):
+        '''
+        Return all the dependencies as asset_info. In case the dependency is a
+        string convert it to asset_info. (This maya for example)
+        '''
+        new_value = []
+        for dependency in value:
+            if type(dependency) == str:
+                dict_dept = dict(eval(dependency))
+                dep_asset_info = FtrackAssetInfo(dict_dept)
+                new_value.append(dep_asset_info)
+                continue
+            new_value.append(dependency)
+        if new_value:
+            value = new_value
+        return value
 
     @classmethod
     def from_version_entity(cls, version_entity, component_name):
