@@ -23,11 +23,6 @@ class Item(object):
         return '<{0} {1}>'.format(self.__class__.__name__, self.asset_info)
 
     # @property
-    # def id(self):
-    #     '''Return id of item.'''
-    #     return self.asset_info.get('id')
-    #
-    # @property
     # def name(self):
     #     '''Return name of item.'''
     #     return self.asset_info.get('name')
@@ -142,17 +137,10 @@ class Item(object):
         self._fetched = False
 
 
-class AssetManagerModel(QtCore.QAbstractItemModel):#QtGui.QStandardItemModel):#QtCore.QAbstractItemModel
+class AssetManagerModel(QtCore.QAbstractItemModel):
     '''Model representing AssetManager.'''
 
     DATA_ROLE = QtCore.Qt.UserRole + 1
-
-    # @property
-    # def asset_entities_list(self):
-    #     '''
-    #     Returns the :obj:`asset_entities_list`
-    #     '''
-    #     return self._asset_entities_list
 
     @property
     def root(self):
@@ -164,8 +152,6 @@ class AssetManagerModel(QtCore.QAbstractItemModel):#QtGui.QStandardItemModel):#Q
     def __init__(self, asset_entities_list=[], parent=None):
         '''Initialise Model.'''
         super(AssetManagerModel, self).__init__(parent=parent)
-
-        # self._asset_entities_list = asset_entities_list
 
         self._root = Item(None)
         if asset_entities_list:
@@ -179,13 +165,11 @@ class AssetManagerModel(QtCore.QAbstractItemModel):#QtGui.QStandardItemModel):#Q
         *asset_entities_list*
         '''
         self.beginResetModel()
-        #self.clear()
         for asset_entity in asset_entities_list:
             new_item = Item(asset_entity)
             self._root.addChild(new_item)
             children = new_item.fetchChildren()
             new_item.addChildren(children)
-        # self._asset_entities_list = asset_entities_list
         self.endResetModel()
 
     def index(self, row, column, parent=None):
@@ -255,12 +239,9 @@ class AssetManagerModel(QtCore.QAbstractItemModel):#QtGui.QStandardItemModel):#Q
         if not index.isValid():
             return None
 
-        # row = index.row()
         column = index.column()
         item = index.internalPointer()
 
-        # item = self.asset_entities_list[row]
-        # data = item[self.columns[column]]
 
         data = item.asset_info.get(self.columns[column])
 
@@ -337,8 +318,6 @@ class AssetManagerModel(QtCore.QAbstractItemModel):#QtGui.QStandardItemModel):#Q
         '''Reset model'''
         self.beginResetModel()
         self.root.clearChildren()
-        # self._asset_entities_list = []
-        # self.root.clearChildren()
         self.endResetModel()
 
 

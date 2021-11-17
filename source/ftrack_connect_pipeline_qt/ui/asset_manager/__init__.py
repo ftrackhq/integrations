@@ -238,18 +238,10 @@ class AssetManagerTableView(QtWidgets.QTreeView):
     def pre_build(self):
         '''Prepare general layout.'''
         self.setAlternatingRowColors(True)
-        # self.verticalHeader().hide()
 
         self.setSelectionBehavior(
             QtWidgets.QAbstractItemView.SelectRows
         )
-
-        # QtCompat.setSectionResizeMode(
-        #     self.verticalHeader(),
-        #     QtWidgets.QHeaderView.ResizeToContents
-        # )
-
-        # self.horizontalHeader().setStretchLastSection(True)
 
     def build(self):
         '''Build widgets and parent them.'''
