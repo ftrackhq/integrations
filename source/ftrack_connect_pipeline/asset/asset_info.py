@@ -369,6 +369,8 @@ class FtrackAssetInfo(dict):
         Return all the dependencies as asset_info. In case the dependency is a
         string convert it to asset_info. (This maya for example)
         '''
+        if not value:
+            return value
         new_value = []
         for dependency in value:
             if type(dependency) == str:
