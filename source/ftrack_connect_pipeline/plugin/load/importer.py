@@ -122,7 +122,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
             #  Connect all the objects that are not dependencies
             self.ftrack_asset.connect_objects(diff)
             #  Check if dependencies already in the scene and what dependencies are missing
-            missing_ids, unconected_dependencies, connected_dependencies = self.ftrack_asset.check_dependencies_status()
+            missing_ids, unconected_dependencies, untracked_dependencies = self.ftrack_asset.check_dependencies()
             if missing_ids:
                 #  if missing dependencies create them
                 dependency_objects = self.create_dependency_objects(missing_ids)
@@ -149,7 +149,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
                 # example.
                 pass
             if entity.entity_type == 'Shot' or entity.entity_type == 'AssetBuild':
-                dependency_asset_info = asset_info.FtrackAssetInfo.from_asset_build(entity)
+                dependency_asset_info = asset_info.FtrackAssetInfo.from_context(entity)
                 #This should be depending on the DCC
                 dependency_asset_info[asset_const.LOAD_MODE] = self.dependency_load_mode
                 dependency_asset_info[asset_const.IS_DEPENDENCY] = True

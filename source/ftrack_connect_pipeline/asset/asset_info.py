@@ -120,6 +120,11 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
         )
     ).one()
 
+    asset = asset_version_entity['asset']
+    asset_parent = asset['parent']
+    context_name = asset_parent['name']
+    arguments_dict[constants.CONTEXT_NAME] = context_name
+
 
     arguments_dict[constants.IS_LATEST_VERSION] = asset_version_entity[
         constants.IS_LATEST_VERSION
@@ -131,6 +136,22 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
         dependency['id'] for dependency in dependencies
     ]
     arguments_dict[constants.IS_DEPENDENCY] = False
+
+    #Save the asset info of each dependency
+    dependencies_asset_info = []
+    for dependency in dependencies:
+        entity = session.query(
+            "TypedContext where id is {}".format(dependency['id'])
+        ).first()
+        if not entity:
+            continue
+        if entity.entity_type == 'Sequence':
+            continue
+        if entity.entity_type == 'Shot' or entity.entity_type == 'AssetBuild':
+            dependency_asset_info = FtrackAssetInfo.from_context(entity)
+            dependency_asset_info[constants.IS_DEPENDENCY] = True
+            dependencies_asset_info.append(dependency_asset_info)
+    arguments_dict[constants.DEPENDENCIES] = dependencies_asset_info
 
     location = session.pick_location()
 
@@ -166,6 +187,15 @@ class FtrackAssetInfo(dict):
         of the asset_information.
         '''
         return self._is_deprecated_version
+
+    @property
+    def asset_version_entity(self):
+        asset_version_entity = self.session.query(
+            'select version from AssetVersion where id is "{}"'.format(
+                self[constants.VERSION_ID]
+            )
+        ).one()
+        return asset_version_entity
 
     def _conform_data(self, mapping):
         '''
@@ -245,6 +275,8 @@ class FtrackAssetInfo(dict):
         if k == constants.SESSION:
             if self.session:
                 value = self.session
+        if k == constants.DEPENDENCIES:
+            value = self._check_asset_info_dependencies(value)
         return value
 
     def __setitem__(self, k, v):
@@ -278,6 +310,8 @@ class FtrackAssetInfo(dict):
             # Make sure that in case is returning None, set the default value
             if new_value:
                 value = new_value
+        if k == constants.DEPENDENCIES:
+            value = self._check_asset_info_dependencies(value)
         return value
 
     def setdefault(self, k, default=None):
@@ -293,6 +327,23 @@ class FtrackAssetInfo(dict):
                 raise ValueError()
             self._session = default
         super(FtrackAssetInfo, self).setdefault(k, default)
+
+    def _fetch_dependencies(self):
+        dependencies = get_all_dependencies(self.asset_version_entity)
+        return dependencies
+
+    def update_dependencies(self):
+        dependencies = self._fetch_dependencies()
+        if not dependencies or not self[constants.DEPENDENCIES]:
+            self[constants.DEPENDENCIES] = []
+        for dependency in dependencies:
+            dependency_asset_info = self.from_context(dependency)
+            dependency_asset_info[constants.IS_DEPENDENCY] = True
+            if dependency['id'] not in self[constants.DEPENDENCY_IDS]:
+                self[constants.DEPENDENCY_IDS].append(dependency['id'])
+            if dependency_asset_info not in self[constants.DEPENDENCIES]:
+                self[constants.DEPENDENCIES].append(dependency_asset_info)
+
 
     def _get_asset_versions_entities(self):
         '''
@@ -313,6 +364,25 @@ class FtrackAssetInfo(dict):
         versions = self.session.query(query).all()
         return versions
 
+    def _check_asset_info_dependencies(self, value):
+        '''
+        Return all the dependencies as asset_info. In case the dependency is a
+        string convert it to asset_info. (This maya for example)
+        '''
+        if not value:
+            return None
+        new_value = []
+        for dependency in value:
+            if type(dependency) == str:
+                dict_dept = dict(eval(dependency))
+                dep_asset_info = FtrackAssetInfo(dict_dept)
+                new_value.append(dep_asset_info)
+                continue
+            new_value.append(dependency)
+        if new_value:
+            value = new_value
+        return value
+
     @classmethod
     def from_version_entity(cls, version_entity, component_name):
         '''
@@ -327,6 +397,7 @@ class FtrackAssetInfo(dict):
         asset_info_data = {}
         asset_entity = version_entity['asset']
 
+        asset_info_data[constants.CONTEXT_NAME] = asset_entity['parent']['name']
         asset_info_data[constants.ASSET_NAME] = asset_entity['name']
         asset_info_data[constants.ASSET_TYPE_NAME] = asset_entity['type']['name']
         asset_info_data[constants.ASSET_ID] = asset_entity['id']
@@ -344,6 +415,7 @@ class FtrackAssetInfo(dict):
         asset_info_data[constants.DEPENDENCY_IDS] = [
             dependency['id'] for dependency in dependencies
         ]
+        asset_info_data[constants.IS_DEPENDENCY] = False
 
         asset_info_data[constants.ASSET_INFO_ID] = uuid.uuid4().hex
 
@@ -368,7 +440,7 @@ class FtrackAssetInfo(dict):
         return cls(asset_info_data)
 
     @classmethod
-    def from_asset_build(cls, asset_build):
+    def from_context(cls, asset_build):
         '''
         Returns an :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo` object
         generated from the given *ftrack_version* and the given *component_name*
@@ -380,8 +452,12 @@ class FtrackAssetInfo(dict):
         '''
         asset_info_data = {}
 
+        asset_info_data[constants.CONTEXT_NAME] = asset_build['name']
+        #TODO: fill up all the other attributes based on the asset workflow we
+        # decided. We need a task for that. Example, automatically know which
+        # assset we should be getting based on the definition.
         #We don't have the type, assetName, the version or the component
-        asset_info_data[constants.ASSET_NAME] = asset_build['name']
+        asset_info_data[constants.ASSET_NAME] = 'No name found'
         asset_info_data[constants.ASSET_TYPE_NAME] = asset_build['type']['name']
         asset_info_data[constants.ASSET_ID] = asset_build['id']
         asset_info_data[constants.VERSION_NUMBER] = int(0)
