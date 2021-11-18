@@ -126,48 +126,66 @@ class FtrackAssetNode(FtrackAssetBase):
 
         return synced
 
-    def get_current_dependencies(self):
-        if not self.asset_info.get(asset_const.DEPENDENCY_IDS):
-            return
-        missing_ids = []
-        scene_ids = []
-        ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
-        for ftrack_object in ftrack_asset_nodes:
-            param_dict = self.get_parameters_dictionary(ftrack_object)
-            node_asset_info = FtrackAssetInfo(param_dict)
-            scene_ids.append(node_asset_info.get(asset_const.ASSET_ID))
-        for id in self.asset_info.get(asset_const.DEPENDENCY_IDS):
-            if id not in scene_ids:
-                missing_ids.append(id)
-        return missing_ids
+    def update_dependencies(self):
+        self.asset_info.update_dependencies()
 
-    def check_dependencies_status(self):
+    def check_dependencies(self):
+        self.update_dependencies()
+        return self._check_dependencies()
+
+    def _check_dependencies(self):
+        '''
+        Check dependencies in the scene. Catagorize them as
+        connected_dependency which means that is connected to the current
+        ftrack object, untracked_dependency which means that is connected to the
+        current ftrack object but not tracked in the ftrack platform,
+        unconected_dependency which means that is in the scene but is not
+        connected to any ftrackObject and missing_dependeny which means is in
+        the ftrack platform but not in the scene.
+        '''
+        missing_dependency_ids = []
+        uncontected_dependency_ids = []
+        connected_dependency_ids = []
+        untracked_dependency_nodes = []
+        uncontected_dependency_nodes = []
         if not self.asset_info.get(asset_const.DEPENDENCY_IDS):
             return
-        missing_ids = []
-        unconected_dependencies = []
-        connected_dependencies = []
+
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
         for ftrack_dependency_object in ftrack_asset_nodes:
-            param_dict = self.get_parameters_dictionary(ftrack_dependency_object)
-            node_asset_info = FtrackAssetInfo(param_dict)
+            node_asset_info = self.get_asset_info_from_node(ftrack_dependency_object)
             if not node_asset_info.get(asset_const.IS_DEPENDENCY):
                 continue
-            #TODO: change this for parent attribute
             connections = cmds.listConnections('{}.message'.format(ftrack_dependency_object))
             if self.ftrack_object in connections:
-                connected_dependencies.append(ftrack_dependency_object)
+                connected_dependency_ids.append(node_asset_info.get(asset_const.ASSET_ID))
+                if node_asset_info.get(asset_const.ASSET_ID) not in self.asset_info.get(asset_const.DEPENDENCY_IDS):
+                    #TODO: we could add an attribute to the node to tag it as
+                    # untracked so we can later change the collor or something
+                    # like that in the AM an untracked asset ftrack node is a
+                    # node that is connected as a dependency of our node, but is
+                    # not in the ftrack platform
+                    untracked_dependency_nodes.append(ftrack_dependency_object)
                 continue
             for connection in connections:
                 if cmds.objectType(connection, isType=asset_const.FTRACK_PLUGIN_TYPE ):
                     continue
 
-            # here just connect them
-            unconected_dependencies.append(ftrack_dependency_object)
+            if node_asset_info.get(asset_const.ASSET_ID) in self.asset_info.get(asset_const.DEPENDENCY_IDS):
+                uncontected_dependency_ids.append(node_asset_info.get(asset_const.ASSET_ID))
+                uncontected_dependency_nodes.append(ftrack_dependency_object)
+
         for id in self.asset_info.get(asset_const.DEPENDENCY_IDS):
-            if id not in unconected_dependencies and id not in connected_dependencies:
-                missing_ids.append(id)
-        return missing_ids, unconected_dependencies, connected_dependencies
+            if id not in uncontected_dependency_ids and id not in connected_dependency_ids:
+                missing_dependency_ids.append(id)
+
+        return missing_dependency_ids, uncontected_dependency_nodes, untracked_dependency_nodes
+
+    def get_asset_info_from_node(self, ftrack_object):
+        param_dict = self.get_parameters_dictionary(ftrack_object)
+        asset_info = FtrackAssetInfo(param_dict)
+        return asset_info
+
 
     def _get_unique_ftrack_object_name(self):
         '''
@@ -262,7 +280,7 @@ class FtrackAssetNode(FtrackAssetBase):
                     ftrack_object, k), bool(v), l=True
                 )
 
-            elif k == asset_const.DEPENDENCY_IDS:
+            elif k == asset_const.DEPENDENCY_IDS or k == asset_const.DEPENDENCIES:
                 cmds.setAttr('{}.{}'.format(
                     ftrack_object, k), *([len(v)] + v), type="stringArray", l=True
                 )
