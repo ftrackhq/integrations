@@ -149,10 +149,10 @@ class AssetManagerModel(QtCore.QAbstractItemModel):
         '''
         return self._root
 
-    def __init__(self, asset_entities_list=[], parent=None):
+    def __init__(self, asset_entities_list=None, parent=None):
         '''Initialise Model.'''
         super(AssetManagerModel, self).__init__(parent=parent)
-
+        asset_entities_list = asset_entities_list or []
         self._root = Item(None)
         if asset_entities_list:
             self.set_asset_list(asset_entities_list)
