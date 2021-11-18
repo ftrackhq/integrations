@@ -370,7 +370,7 @@ class FtrackAssetInfo(dict):
         string convert it to asset_info. (This maya for example)
         '''
         if not value:
-            return value
+            return None
         new_value = []
         for dependency in value:
             if type(dependency) == str:
