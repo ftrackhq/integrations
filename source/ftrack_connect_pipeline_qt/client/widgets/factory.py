@@ -97,6 +97,10 @@ class WidgetFactory(QtWidgets.QWidget):
         self.definition_type = definition_type
 
     def get_override(self, type_name, widget_type, name, data, definition_type):
+        '''
+        From the given *type_name* and *widget_type* find the widget override
+        in the client_ui_overrides.py file
+        '''
         obj_override = UI_OVERRIDES.get(
             type_name
         ).get('{}.{}'.format(widget_type, name), constants.NOT_SET)
@@ -121,10 +125,16 @@ class WidgetFactory(QtWidgets.QWidget):
         return UI_OVERRIDES.get('progress_widget')(None, None)
 
     def create_main_widget(self):
-        # Check for overrides of the main widget, otherwise call the default one
+        '''
+        Check for overrides of the main widget,
+        otherwise call the default one.
+        '''
         return UI_OVERRIDES.get('main_widget')(None, None)
 
     def create_typed_widget(self, definition, type_name):
+        '''
+        Main loop to create the widgets UI overrides.
+        '''
         definition_type = definition.get('type')
         step_container_obj = self.get_override(
             type_name, 'step_container', type_name, definition, definition_type
@@ -168,9 +178,12 @@ class WidgetFactory(QtWidgets.QWidget):
                         plugin,
                         definition_type
                     )
+                    # Here is where we inject the user custom widgets.
                     plugin_widget = self.fetch_plugin_widget(
                         plugin, stage['name']
                     )
+
+                    # Start parent ing widgets
                     if plugin_container_obj:
                         plugin_widget.toggle_status(show=False)
                         plugin_widget.toggle_name(show=False)
@@ -201,20 +214,28 @@ class WidgetFactory(QtWidgets.QWidget):
         return step_container_obj
 
     def build_definition_ui(self, name, definition=None):
+        '''
+        Given the provided definition, we generate the client UI.
+        '''
         self.progress_widget.clear_components()
+        # Backup the original definition, as it will be extended by the user UI
         self.original_definition = copy.deepcopy(definition)
         self.working_definition = definition
 
+        # Create the main UI widget based on the user overrides
         main_obj = self.create_main_widget()
 
+        # Create the context widget based on the definition ans user overrides
         context_obj = self.create_typed_widget(
             definition, type_name=core_constants.CONTEXTS
         )
 
+        # Create the components widget based on the definition
         self.components_obj = self.create_typed_widget(
             definition, type_name=core_constants.COMPONENTS
         )
 
+        # Create the finalizers widget based on the definition
         finalizers_obj = self.create_typed_widget(
             definition, type_name=core_constants.FINALIZERS
         )
@@ -222,9 +243,11 @@ class WidgetFactory(QtWidgets.QWidget):
         main_obj.widget.layout().addWidget(context_obj.widget)
         main_obj.widget.layout().addWidget(self.components_obj.widget)
         main_obj.widget.layout().addWidget(finalizers_obj.widget)
+        # If there is a Finalizer widget show the widget otherwise not.
         if not UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True):
             finalizers_obj.widget.hide()
 
+        # Check all components status of the current UI
         self.post_build_definition()
 
         return main_obj.widget
