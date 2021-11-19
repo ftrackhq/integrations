@@ -107,6 +107,14 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
             self._on_update_assets
         )
 
+        self.asset_manager_widget.load_assets.connect(
+            self._on_load_assets
+        )
+
+        self.asset_manager_widget.unload_assets.connect(
+            self._on_unload_assets
+        )
+
     def _on_widget_status_updated(self, data):
         ''' Triggered when a widget emits the
         widget_status_update signal.
@@ -160,6 +168,35 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
         '''
         AssetManagerClient._update_assets_callback(self, event)
         self.update()
+
+    def _on_load_assets(self, asset_info_list):
+        '''
+        Triggered when load action is clicked on the ui.
+        '''
+        self.load_assets(asset_info_list)
+
+    def _load_assets_callback(self, event):
+        '''
+        Callback function of the load_assets. Updates the ui.
+        '''
+        #TODO: update this function to change the collor of the row for example
+        # or set up as loaded or something like that
+        AssetManagerClient._load_assets_callback(self, event)
+        # self.asset_manager_widget.set_asset_list(self.asset_entities_list)
+    def _on_unload_assets(self, asset_info_list):
+        '''
+        Triggered when unload action is clicked on the ui.
+        '''
+        self.unload_assets(asset_info_list)
+
+    def _unload_assets_callback(self, event):
+        '''
+        Callback function of the unload_assets. Updates the ui.
+        '''
+        #TODO: update this function to change the collor of the row for example
+        # or set up as loaded or something like that
+        AssetManagerClient._unload_assets_callback(self, event)
+        # self.asset_manager_widget.set_asset_list(self.asset_entities_list)
 
     def change_host(self, host_connection):
         '''

@@ -5,14 +5,19 @@ import os
 from Qt import QtWidgets, QtCore, QtGui
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
 
-from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import ContextSelector
 from ftrack_connect_pipeline_qt.ui.utility.widget.asset_selector import AssetSelector
 from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import VersionSelector
+from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import AssetVersion as AssetVersionThumbnail
+from ftrack_connect_pipeline_qt.ui.utility.widget.entity_info import VersionInfo
+from ftrack_connect_pipeline_qt.ui.utility.widget.asset_grid_selector import AssetGridSelector
+from ftrack_connect_pipeline_qt.utils import BaseThread
+
 
 
 class PublishContextWidget(BaseOptionsWidget):
     '''Main class to represent a context widget on a publish process'''
 
+    statuses_fetched = QtCore.Signal(object)
 
     def __init__(
             self, parent=None, session=None, data=None, name=None,
@@ -27,13 +32,14 @@ class PublishContextWidget(BaseOptionsWidget):
             description=description, options=options, context_id=context_id,
             asset_type_name=asset_type_name
         )
-        self.asset_selector.set_context(self.context_entity, self.asset_type_entity)
+        self.asset_selector.set_context(context_id, asset_type_name)
 
     def build(self):
         '''build function widgets.'''
-        if self.context_entity:
-            self.set_option_result(self.context_entity['id'], key='context_id')
+        if self.context_id:
+            self.set_option_result(self.context_id, key='context_id')
         self._build_asset_selector()
+        self.statuses_fetched.connect(self.set_statuses)
         self._build_status_selector()
         self._build_comments_input()
 
@@ -53,61 +59,80 @@ class PublishContextWidget(BaseOptionsWidget):
     def _on_comment_updated(self):
         '''Updates the option dicctionary with current text when
         textChanged of comments_input event is triggered'''
-        current_text = self.comments_input.toPlainText()
+        current_text = self.comments_input.text()
         self.set_option_result(current_text, key='comment')
 
-    def _on_asset_changed(self, asset_name, asset_id, is_valid):
+    def _on_asset_changed(self, asset_name, asset_entity, is_valid):
         '''Updates the option dicctionary with provided *asset_name* when
         asset_changed of asset_selector event is triggered'''
         self.set_option_result(asset_name, key='asset_name')
-        self.set_option_result(asset_id, key='asset_id')
         self.set_option_result(is_valid, key='is_valid_name')
-        self.asset_changed.emit(asset_name, asset_id, is_valid)
+        if asset_entity:
+            self.set_option_result(asset_entity['id'], key='asset_id')
+            self.asset_changed.emit(asset_name, asset_entity['id'], is_valid)
+        else:
+            self.asset_changed.emit(asset_name, None, is_valid)
 
     def _build_asset_selector(self):
         '''Builds the asset_selector widget'''
-        self.asset_layout = QtWidgets.QHBoxLayout()
+        self.asset_layout = QtWidgets.QVBoxLayout()
         self.asset_layout.setContentsMargins(0, 0, 0, 0)
         self.asset_layout.setAlignment(QtCore.Qt.AlignTop)
 
         self.asset_selector = AssetSelector(self.session)
         self.asset_layout.addWidget(self.asset_selector)
         self.layout().addLayout(self.asset_layout)
-        current_asset = self.asset_selector.asset_combobox.currentText()
-        self.set_option_result(current_asset, key='asset_name')
-        is_valid = self.asset_selector.asset_combobox.validate_name()
-        self.set_option_result(is_valid, key='is_valid_name')
 
     def _build_status_selector(self):
         '''Builds the status_selector widget'''
-        self.status_layout = QtWidgets.QVBoxLayout()
+        self.status_layout = QtWidgets.QHBoxLayout()
         self.status_layout.setContentsMargins(0, 0, 0, 0)
         self.status_layout.setAlignment(QtCore.Qt.AlignTop)
 
-        self.asset_status_label = QtWidgets.QLabel("Asset Status")
+        self.asset_status_label = QtWidgets.QLabel("Status")
+
         self.status_selector = QtWidgets.QComboBox()
         self.status_selector.setEditable(False)
+
         self.status_layout.addWidget(self.asset_status_label)
         self.status_layout.addWidget(self.status_selector)
+        self.status_layout.addStretch()
         self.layout().addLayout(self.status_layout)
-        statuses = self._get_statuses()
+
+        thread = BaseThread(
+            name='get_status_thread',
+            target=self._get_statuses,
+            callback=self.emit_statuses,
+            target_args=()
+        )
+        thread.start()
+
+    def emit_statuses(self, statuses):
+        '''Emit signal to set statuses on the combobox'''
+        #Emit signal to add the sttuses to the combobox
+        # because here we could have problems with the threads
+        self.statuses_fetched.emit(statuses)
+
+    def set_statuses(self, statuses):
+        '''Set statuses on the combo box'''
+        #We are now in the main thread
         for index, status in enumerate(statuses):
-            self.status_selector.addItem(status['name'], status['id'])
-            status_color = status['color']
-            self.status_selector.setItemData(
-                index,
-                QtGui.QColor(status_color),
-                QtCore.Qt.BackgroundColorRole
-            )
+            pixmap_status = QtGui.QPixmap(13, 13)
+            pixmap_status.fill(QtGui.QColor(status['color']))
+            self.status_selector.addItem(pixmap_status, status['name'], status['id'])
 
         if statuses:
             self.set_option_result(statuses[0]['id'], key='status_id')
 
     def _get_statuses(self):
         '''Returns the status of the selected assetVersion'''
+        context_entity = self.session.query(
+                'select link, name , parent, parent.name from Context where id is "{}"'.format(self.context_id)
+            ).one()
+
         project = self.session.query(
             'select name , parent, parent.name from Context where id is "{}"'.format(
-                self.context_entity['link'][0]['id']
+                context_entity['link'][0]['id']
             )
         ).one()
 
@@ -117,25 +142,29 @@ class PublishContextWidget(BaseOptionsWidget):
 
     def _build_comments_input(self):
         '''Builds the comments_container widget'''
-        self.comments_container = QtWidgets.QGroupBox('Comment')
+        self.coments_layout = QtWidgets.QVBoxLayout()
+        self.coments_layout.setContentsMargins(0, 0, 0, 0)
+        self.coments_layout.setAlignment(QtCore.Qt.AlignTop)
 
-        self.comments_container.setMaximumHeight(150)
+        comment_label = QtWidgets.QLabel('Description')
+        self.comments_input = QtWidgets.QLineEdit()
+        self.comments_input.setPlaceholderText("Type a description...")
+        self.comments_input.setStyleSheet(
+            "border: none;"
+            "background-color: transparent;"
+        )
 
-        self.comments_layout = QtWidgets.QHBoxLayout()
+        self.coments_layout.addWidget(comment_label)
+        self.coments_layout.addWidget(self.comments_input)
+        self.layout().addLayout(self.coments_layout)
 
-        self.comments_input = QtWidgets.QTextEdit()
-        self.comments_layout.addWidget(self.comments_input)
-        self.comments_container.setLayout(self.comments_layout)
-
-        self.layout().addWidget(self.comments_container)
-        current_text = self.comments_input.toPlainText()
+        current_text = self.comments_input.text()
         if current_text:
             self.set_option_result(current_text, key='comment')
 
 
 class LoadContextWidget(BaseOptionsWidget):
     '''Main class to represent a context widget on a publish process'''
-
 
     def __init__(
             self, parent=None, session=None, data=None, name=None,
@@ -151,68 +180,40 @@ class LoadContextWidget(BaseOptionsWidget):
             asset_type_name=asset_type_name
         )
 
-        self.asset_selector.set_context(self.context_entity, self.asset_type_entity)
+        self.asset_grid_selector.set_context(context_id, asset_type_name)
+
+    def pre_build(self):
+        super(LoadContextWidget, self).pre_build()
+        self.main_layout = QtWidgets.QVBoxLayout()
+        self.layout().addLayout(self.main_layout)
 
     def build(self):
         '''build function widgets.'''
-        super(LoadContextWidget, self).build()
-        if self.context_entity:
-            self.set_option_result(self.context_entity['id'], key='context_id')
-        self._build_asset_selector()
-        self._build_version_selector()
+        if self.context_id:
+            self.set_option_result(self.context_id, key='context_id')
+
+        self._build_asset_grid_selector()
 
     def post_build(self):
         '''hook events'''
         super(LoadContextWidget, self).post_build()
-        self.asset_selector.asset_changed.connect(self._on_asset_changed)
-        self.version_selector.version_changed.connect(self._on_version_changed)
+        # self.asset_grid_selector.assets_query_done.connect(self._pre_select_asset)
+        self.asset_grid_selector.asset_changed.connect(self._on_asset_changed)
 
-    def _on_asset_changed(self, asset_name, asset_id, is_valid):
+    def _on_asset_changed(self, asset_name, asset_entity, asset_version_id, version_num):
         '''Updates the option dicctionary with provided *asset_name* when
         asset_changed of asset_selector event is triggered'''
         self.set_option_result(asset_name, key='asset_name')
-        self.set_option_result(asset_id, key='asset_id')
-        self.set_option_result(is_valid, key='is_valid_name')
-        self.version_selector.set_context(self.context_entity)
-        self.version_selector.set_asset_id(asset_id)
-        self.asset_changed.emit(asset_name, asset_id, is_valid)
-
-    def _on_version_changed(self, version_num, version_id):
-        '''Updates the option dicctionary with provided *version_number* when
-        version_changed of version_selector event is triggered'''
+        self.set_option_result(asset_entity['id'], key='asset_id')
         self.set_option_result(version_num, key='version_number')
-        self.set_option_result(version_id, key='version_id')
-        self.asset_version_changed.emit(version_id)
+        self.set_option_result(asset_version_id, key='version_id')
+        self.asset_changed.emit(asset_name, asset_entity['id'], True)
+        self.asset_version_changed.emit(asset_version_id)
 
-    def _build_asset_selector(self):
-        '''Builds the asset_selector widget'''
-        self.asset_layout = QtWidgets.QHBoxLayout()
-        self.asset_layout.setContentsMargins(0, 0, 0, 0)
+    def _build_asset_grid_selector(self):
+        label = QtWidgets.QLabel("Choose which asset and version to load")
+        self.asset_grid_selector = AssetGridSelector(self.session)
 
-        self.asset_selector = AssetSelector(self.session)
-        self.asset_selector.asset_combobox.setEditable(False)
-        self.asset_layout.addWidget(self.asset_selector)
-        self.layout().addLayout(self.asset_layout)
-        asset_name = self.asset_selector.asset_combobox.currentText()
-        current_idx = self.asset_selector.asset_combobox.currentIndex()
-        asset_id = self.asset_selector.asset_combobox.itemData(current_idx)
-        is_valid = self.asset_selector.asset_combobox.validate_name()
-        self.set_option_result(asset_name, key='asset_name')
-        self.set_option_result(asset_id, key='asset_id')
-        self.set_option_result(is_valid, key='is_valid_name')
+        self.main_layout.addWidget(label)
+        self.main_layout.addWidget(self.asset_grid_selector)
 
-    def _build_version_selector(self):
-        '''Builds the asset_selector widget'''
-        self.version_layout = QtWidgets.QHBoxLayout()
-        self.version_layout.setContentsMargins(0, 0, 0, 0)
-
-        self.version_selector = VersionSelector(self.session)
-        self.version_layout.addWidget(self.version_selector)
-        self.layout().addLayout(self.version_layout)
-
-        version_num = self.version_selector.version_combobox.currentText()
-        current_idx = self.version_selector.version_combobox.currentIndex()
-        version_id = self.version_selector.version_combobox.itemData(current_idx)
-        self.set_option_result(version_num, key='version_number')
-        self.set_option_result(version_id, key='version_id')
-        self.asset_version_changed.emit(version_id)

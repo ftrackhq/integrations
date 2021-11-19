@@ -9,6 +9,7 @@ from Qt import QtCore, QtWidgets
 class LoadBaseWidget(BaseOptionsWidget):
     ''' Base Class to represent a Load Widget'''
     load_modes = []
+    max_column=3
 
     def __init__(
             self, parent=None, session=None, data=None, name=None,
@@ -28,21 +29,26 @@ class LoadBaseWidget(BaseOptionsWidget):
         if not self.load_modes:
             raise Exception('No Load Modes defined')
 
+        self.load_text_label = QtWidgets.QLabel("Choose how to load file(s):")
+
         self.default_mode = self.options.get('load_mode', self.load_modes[0])
         self.default_options = self.options.get('load_options', {})
         self.button_group = QtWidgets.QButtonGroup(self)
-        grid_lay = QtWidgets.QGridLayout()
-        col_row = (0, 0)
+        self.load_mode_layout = QtWidgets.QGridLayout()
+        row_col = (0, 0)
         for mode in self.load_modes:
-            r_b = QtWidgets.QRadioButton(mode)
-            self.button_group.addButton(r_b)
-            grid_lay.addWidget(r_b, col_row[0], col_row[1])
-            if col_row[1] < 1:
-                col_row = (col_row[0], col_row[1]+1)
+            p_b = QtWidgets.QPushButton(mode)
+            p_b.setAutoExclusive(True)
+            p_b.setCheckable(True)
+            self.button_group.addButton(p_b)
+            self.load_mode_layout.addWidget(p_b, row_col[0], row_col[1])
+            if row_col[1] == self.max_column-1:
+                row_col = (row_col[0]+1, 0)
             else:
-                col_row = (col_row[0]+1, 0)
+                row_col = (row_col[0], row_col[1]+1)
 
-        self.layout().addLayout(grid_lay)
+        self.layout().addWidget(self.load_text_label)
+        self.layout().addLayout(self.load_mode_layout)
 
     def post_build(self):
         super(LoadBaseWidget, self).post_build()

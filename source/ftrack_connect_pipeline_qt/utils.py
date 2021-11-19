@@ -5,7 +5,8 @@ import threading
 import sys
 import logging
 
-from Qt import QtCore
+from Qt import QtCore, QtWidgets
+from ftrack_connect_pipeline_qt import constants as qt_constants
 
 class Worker(QtCore.QThread):
     '''Perform work in a background thread.'''
@@ -90,3 +91,39 @@ def asynchronous(method):
         thread.start()
 
     return wrapper
+
+
+class BaseThread(threading.Thread):
+    def __init__(self, callback=None, target_args=None, *args, **kwargs):
+        target = kwargs.pop('target')
+        super(BaseThread, self).__init__(target=self.target_with_callback, *args, **kwargs)
+        self.callback = callback
+        self.method = target
+        self.target_args = target_args
+
+    def target_with_callback(self):
+        result = self.method(*self.target_args)
+        if self.callback is not None:
+            self.callback(result)
+
+def find_parent(widget, name):
+    parent_widget = widget.parentWidget()
+    if not parent_widget:
+        return
+    if name in parent_widget.objectName():
+        return parent_widget
+    return find_parent(parent_widget, name)
+
+def get_main_framework_window_from_widget(widget):
+    '''This function will return the main window of the framework from the
+    given *widget*. The main window is named as main_framework_widget'''
+    main_window = widget.window()
+    if not main_window:
+        return
+
+    if qt_constants.MAIN_FRAMEWORK_WIDGET not in main_window.objectName():
+        parent = find_parent(widget.parentWidget(), qt_constants.MAIN_FRAMEWORK_WIDGET)
+        if parent:
+            main_window = parent
+
+    return main_window

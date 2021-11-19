@@ -31,26 +31,14 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         return '{} {}'.format(self.__class__.__name__, self.name)
 
     @property
-    def context_entity(self):
-        '''Returns the context_entity'''
-        return self._context_entity
-
-    @context_entity.setter
-    def context_entity(self, value):
-        '''Sets context_entity with the given *value*'''
-        self._context_entity = value
+    def context_id(self):
+        '''Returns the context_id'''
+        return self._context_id
 
     @property
-    def asset_type_entity(self):
-        '''Returns asset_type entity'''
-        return self._asset_type_entity
-
-    @asset_type_entity.setter
-    def asset_type_entity(self, asset_type_name):
-        '''Sets asset type from the given *value*'''
-        self._asset_type_entity = self.session.query(
-            'AssetType where short is "{}"'.format(asset_type_name)
-        ).first()
+    def asset_type_name(self):
+        '''Returns asset_type name'''
+        return self._asset_type_name
 
     @property
     def session(self):
@@ -98,7 +86,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
             callback_fn = getattr(self, method)
             callback_fn(result)
         else:
-            self.debug("Not implemented callback method: {}".format(method))
+            self.logger.debug("Not implemented callback method: {}".format(method))
             raise NotImplementedError
 
     def set_status(self, status, message):
@@ -112,6 +100,12 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     def fetch_on_init(self, method='fetch'):
         '''Executes the fetch method of the plugin on the initialization time'''
         self.on_run_plugin(method)
+
+    def toggle_status(self, show=False):
+        self._status_icon.setVisible(show)
+
+    def toggle_name(self, show=False):
+        self.name_label.setVisible(show)
 
     def __init__(
             self, parent=None, session=None, data=None, name=None,
@@ -150,17 +144,13 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self._name = name
         self._description = description
         self._options = options
-        self._context_entity = None
 
-        context_id = context_id
+        self._status_icon = None
+        self.name_label = None
 
-        #we set the asset_type entity with the asset_type name
-        self.asset_type_entity = self.set_asset_type_entity(asset_type_name)
+        self._context_id = context_id
 
-        self.context_entity = session.query(
-            'select link, name , parent, parent.name from Context where id is "{}"'.format(context_id)
-        ).one()
-
+        self._asset_type_name = asset_type_name
         # Build widget
         self.pre_build()
         self.build()
@@ -190,9 +180,9 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
     def build(self):
         '''build function , mostly used to create the widgets.'''
-        name_label = QtWidgets.QLabel(self.name)
-        name_label.setToolTip(self.description)
-        self.layout().addWidget(name_label)
+        self.name_label = QtWidgets.QLabel(self.name)
+        self.name_label.setToolTip(self.description)
+        self.layout().addWidget(self.name_label)
 
     def post_build(self):
         '''post build function , mostly used connect widgets events.'''
@@ -200,7 +190,6 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self.run_result_updated.connect(self._set_internal_run_result)
 
     def set_asset_type_entity(self, asset_type_name):
-        #TODO: move the code from the asset_type_entity setter to here.
         return asset_type_name
 
     def run_build(self):
@@ -221,6 +210,10 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         '''Callback function for plugin execution'''
         self.logger.debug("on_run_callback, result: {}".format(result))
 
+    def on_init_nodes_callback(self, result):
+        '''Callback function for plugin execution'''
+        self.logger.debug("result: {}".format(result))
+
     def to_json_object(self):
         '''Return a formated json with the data from the current widget'''
         out = {}
@@ -229,13 +222,3 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         for key, value in list(self.options.items()):
             out['options'][key] = value
         return out
-
-    def emit_initial_state(self):
-        if self.options.get('version_id'):
-            self.asset_version_changed.emit(self.options['version_id'])
-        if self.options.get('asset_name'):
-            self.asset_changed.emit(
-                self.options['asset_name'],
-                self.options['asset_id'],
-                self.options['is_valid_name']
-            )

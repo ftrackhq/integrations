@@ -1,18 +1,21 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
-
+import copy
 import logging
 from collections import OrderedDict
 from functools import partial
 
 import uuid
 import ftrack_api
+
 from ftrack_connect_pipeline_qt import constants
+from ftrack_connect_pipeline_qt.utils import BaseThread
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
-from ftrack_connect_pipeline_qt.client.widgets import schema as schema_widget
-from ftrack_connect_pipeline_qt.client.widgets.schema.overrides import step,\
-    hidden, plugin_container
+from ftrack_connect_pipeline_qt.client.widgets.client_ui import BaseUIWidget
+from ftrack_connect_pipeline_qt.client.widgets.client_ui import default as default_widgets
+from ftrack_connect_pipeline_qt.client.widgets.client_ui import overrides as override_widgets
+from ftrack_connect_pipeline_qt.ui.client_ui_overrides import UI_OVERRIDES
 
 from Qt import QtCore, QtWidgets
 
@@ -24,6 +27,7 @@ class WidgetFactory(QtWidgets.QWidget):
     widget_context_updated = QtCore.Signal(object)
     widget_asset_updated = QtCore.Signal(object, object, object)
     widget_run_plugin = QtCore.Signal(object, object)
+    on_query_asset_version_done = QtCore.Signal()
 
     host_types = None
     ui_types = None
@@ -57,46 +61,21 @@ class WidgetFactory(QtWidgets.QWidget):
         self._event_manager = event_manager
         self.ui_types = ui_types
         self._widgets_ref = {}
+        self._step_objs_ref = {}
+        self._stage_objs_ref = {}
         self._type_widgets_ref = {}
         self.context_id = None
         self.asset_type_name = None
         self.host_connection = None
+        self.original_definition = None
+        self.working_definition = None
+        self.components_obj = None
 
         self.components_names = []
 
-        self.schema_type_mapping = {
-            'object': schema_widget.JsonObject,
-            'string': schema_widget.JsonString,
-            'integer': schema_widget.JsonInteger,
-            'array': schema_widget.JsonArray,
-            'number': schema_widget.JsonNumber,
-            'boolean': schema_widget.JsonBoolean
-        }
-        self.schema_name_mapping = {
-            'components': step.StepArray,
-            'contexts': step.StepArray,
-            'finalizers': step.StepArray,
-            '_config': hidden.HiddenObject,
-            'ui_type': hidden.HiddenString,
-            'category': hidden.HiddenString,
-            'type': hidden.HiddenString,
-            'name': hidden.HiddenString,
-            'enabled': hidden.HiddenBoolean,
-            'package': hidden.HiddenString,
-            'engine_type': hidden.HiddenString,
-            'host_type': hidden.HiddenString,
-            'optional': hidden.HiddenBoolean,
-            'discoverable': hidden.HiddenArray,
-        }
+        self.progress_widget = self.create_progress_widget()
 
-        self.schema_title_mapping = {
-            'Publisher': hidden.HiddenObject,
-            'Loader': hidden.HiddenObject,
-            'AssetManager': hidden.HiddenObject,
-            'Step': hidden.HiddenObject,
-            'Plugin': plugin_container.PluginContainerObject,
-            'Component': plugin_container.PluginContainerObject
-        }
+        self.on_query_asset_version_done.connect(self.check_components)
 
     def set_context(self, context_id, asset_type_name):
         '''Set :obj:`context_id` and :obj:`asset_type_name` with the given
@@ -117,82 +96,186 @@ class WidgetFactory(QtWidgets.QWidget):
         '''Set :obj:`definition_type` with the given *definition_type*'''
         self.definition_type = definition_type
 
-    def create_widget(
-            self, name, schema_fragment, fragment_data=None,
-            previous_object_data=None, parent=None):
-        '''
-        Create the appropriate widget for a given schema element with *name*,
-        *schema_fragment*, *fragment_data*, *previous_object_data*, *parent*
+    def get_override(self, type_name, widget_type, name, data, definition_type):
+        obj_override = UI_OVERRIDES.get(
+            type_name
+        ).get('{}.{}'.format(widget_type, name), constants.NOT_SET)
+        if obj_override == constants.NOT_SET:
+            obj_override = UI_OVERRIDES.get(
+                type_name
+            ).get('{}.{}'.format(widget_type, data['type']), constants.NOT_SET)
+        if obj_override == constants.NOT_SET:
+            obj_override = UI_OVERRIDES.get(
+                type_name
+            ).get('{}.{}'.format(widget_type, definition_type), constants.NOT_SET)
+        if obj_override == constants.NOT_SET:
+            obj_override = UI_OVERRIDES.get(
+                type_name
+            ).get(widget_type)
+        if obj_override and obj_override != constants.NOT_SET:
+            return obj_override(name, data)
+        return obj_override
 
-        *name* : widget name
+    def create_progress_widget(self):
+        # Check for overrides of the main widget, otherwise call the default one
+        return UI_OVERRIDES.get('progress_widget')(None, None)
 
-        *schema_fragment* : fragment of the schema to generate the current widget
+    def create_main_widget(self):
+        # Check for overrides of the main widget, otherwise call the default one
+        return UI_OVERRIDES.get('main_widget')(None, None)
 
-        *fragment_data* : fragment of the data from the definition to fill
-        the current widget.
-
-        *previous_object_data* : fragment of the data from the previous schema
-        fragment
-
-        *parent* : widget to parent the current widget (optional).
-
-        '''
-
-        schema_fragment_order = schema_fragment.get('order', [])
-
-        # sort schema fragment keys by the order defined in the schema order
-        # any not found entry will be added last.
-
-        if 'properties' in schema_fragment:
-            schema_fragment_properties = OrderedDict(
-                sorted(
-                    list(schema_fragment['properties'].items()),
-                    key=lambda pair: schema_fragment_order.index(pair[0])
-                    if pair[0] in schema_fragment_order
-                    else len(list(schema_fragment['properties'].keys())) - 1)
-            )
-            schema_fragment['properties'] = schema_fragment_properties
-
-        widget_fn = self.schema_name_mapping.get(name)
-
-        if not widget_fn:
-            widget_fn = self.schema_title_mapping.get(
-                schema_fragment.get('title'))
-
-        if not widget_fn:
-            if previous_object_data:
-                if previous_object_data.get('category') == 'step':
-                    if (
-                            name in previous_object_data.get('stage_order')
-                            and schema_fragment.get('type') == 'string'
-                    ):
-                        widget_fn = hidden.HiddenString
-
-        if not widget_fn:
-            widget_fn = self.schema_type_mapping.get(
-                schema_fragment.get('type'))
-
-        if not widget_fn:
-            if schema_fragment.get('allOf'):
-                # When the schema contains allOf in the keys, we handle it as
-                # an object type.
-                widget_fn = self.schema_title_mapping.get(
-                    schema_fragment.get('allOf')[0].get('title'))
-                if not widget_fn:
-                    widget_fn = self.schema_type_mapping.get(
-                        schema_fragment.get('allOf')[0].get('type'),
-                        schema_widget.UnsupportedSchema
-                    )
-            else:
-                widget_fn = schema_widget.UnsupportedSchema
-
-        type_widget = widget_fn(
-            name, schema_fragment, fragment_data, previous_object_data,
-            self, parent
+    def create_typed_widget(self, definition, type_name):
+        definition_type = definition.get('type')
+        step_container_obj = self.get_override(
+            type_name, 'step_container', type_name, definition, definition_type
         )
-        self.register_type_widget_plugin(type_widget)
 
-        return type_widget
+        for step in definition[type_name]:
+            # Create widget for the step
+            # print(step)
+            step_category = step['category']
+            step_type = step['type']
+            step_name = step.get('name')
+            self.progress_widget.add_component(step_type, step_name)
+            step_obj = self.get_override(
+                type_name, '{}_widget'.format(step_category), step_name, step,
+                definition_type
+            )
+            if step_obj:
+                self.register_object(step, step_obj, step_category)
+            for stage in step['stages']:
+                # create widget for the stages
+                # print(stage)
+                stage_category = stage['category']
+                stage_type = stage['type']
+                stage_name = stage.get('name')
+                stage_obj = self.get_override(
+                    type_name, '{}_widget'.format(stage_category), stage_name,
+                    stage, definition_type
+                )
+                if stage_obj:
+                    self.register_object(stage, stage_obj, stage_category)
+
+                for plugin in stage['plugins']:
+                    # create widget for the plugins
+                    # print(plugin)
+                    plugin_type = plugin['type']
+                    plugin_category = plugin['category']
+                    plugin_name = plugin.get('name')
+                    plugin_container_obj = self.get_override(
+                        type_name, '{}_container'.format(plugin_category),
+                        plugin_name,
+                        plugin,
+                        definition_type
+                    )
+                    plugin_widget = self.fetch_plugin_widget(
+                        plugin, stage['name']
+                    )
+                    if plugin_container_obj:
+                        plugin_widget.toggle_status(show=False)
+                        plugin_widget.toggle_name(show=False)
+                        plugin_container_obj.parent_widget(plugin_widget)
+                        stage_obj.parent_widget(plugin_container_obj)
+                    else:
+                        stage_obj.parent_widget(plugin_widget)
+                if isinstance(step_obj, override_widgets.AccordionStepWidget):
+                    if stage_type == core_constants.VALIDATOR:
+                        step_obj.parent_validator(stage_obj)
+                        continue
+                    if stage_type == core_constants.OUTPUT:
+                        step_obj.parent_output(stage_obj)
+                        continue
+
+                elif (
+                        isinstance(step_obj, override_widgets.OptionsStepWidget) and
+                        definition_type == core_constants.LOADER
+                ):
+                        step_obj.parent_options(stage_obj)
+                        continue
+                if step_obj:
+                    step_obj.parent_widget(stage_obj)
+                elif step_container_obj:
+                    step_container_obj.parent_widget(stage_obj)
+            if step_container_obj and step_obj:
+                step_container_obj.parent_widget(step_obj)
+        return step_container_obj
+
+    def build_definition_ui(self, name, definition=None):
+        self.progress_widget.clear_components()
+        self.original_definition = copy.deepcopy(definition)
+        self.working_definition = definition
+
+        main_obj = self.create_main_widget()
+
+        context_obj = self.create_typed_widget(
+            definition, type_name=core_constants.CONTEXTS
+        )
+
+        self.components_obj = self.create_typed_widget(
+            definition, type_name=core_constants.COMPONENTS
+        )
+
+        finalizers_obj = self.create_typed_widget(
+            definition, type_name=core_constants.FINALIZERS
+        )
+
+        main_obj.widget.layout().addWidget(context_obj.widget)
+        main_obj.widget.layout().addWidget(self.components_obj.widget)
+        main_obj.widget.layout().addWidget(finalizers_obj.widget)
+        if not UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True):
+            finalizers_obj.widget.hide()
+
+        self.post_build_definition()
+
+        return main_obj.widget
+
+    def to_json_object(self):
+        out = self.working_definition
+        types = [core_constants.CONTEXTS,core_constants.COMPONENTS, core_constants.FINALIZERS]
+        for type_name in types:
+            for step in out[type_name]:
+                step_obj = self.get_registered_object(step, step['category'])
+                for stage in step['stages']:
+                    stage_obj = self.get_registered_object(stage, stage['category'])
+                    for plugin in stage['plugins']:
+                        plugin_widget = self.get_registered_widget_plugin(plugin)
+                        if plugin_widget:
+                            plugin.update(plugin_widget.to_json_object())
+                    if stage_obj:
+                        stage.update(stage_obj.to_json_object())
+                if step_obj:
+                    step.update(step_obj.to_json_object())
+
+        return out
+
+    def post_build_definition(self):
+        self.check_components()
+        self.update_selected_components(True)
+        for step in self.working_definition[core_constants.COMPONENTS]:
+            step_obj = self.get_registered_object(step, step['category'])
+            if isinstance(step_obj, default_widgets.DefaultStepWidget):
+                step_obj.check_box.stateChanged.connect(
+                    self.update_selected_components
+                )
+
+    def update_selected_components(self, state):
+        enabled_components=0
+        total_components=0
+        for step in self.working_definition[core_constants.COMPONENTS]:
+            step_obj = self.get_registered_object(step, step['category'])
+            if isinstance(step_obj, BaseUIWidget):
+                enabled = step_obj.is_enabled
+                if enabled:
+                    enabled_components += 1
+            else:
+                self.logger.error(
+                    "{} isn't instance of BaseUIWidget".format(step_obj)
+                )
+            total_components += 1
+        if isinstance(self.components_obj, override_widgets.AccordionStepContainerWidget):
+            self.components_obj.update_selected_components(
+                enabled_components, total_components
+            )
 
     def fetch_plugin_widget(self, plugin_data, stage_name, extra_options=None):
         '''
@@ -262,7 +345,6 @@ class WidgetFactory(QtWidgets.QWidget):
         widget.status_updated.connect(self._on_widget_status_updated)
         widget.asset_changed.connect(self._on_widget_asset_changed)
         widget.asset_version_changed.connect(self._asset_version_changed)
-        widget.emit_initial_state()
 
         self.register_widget_plugin(plugin_data, widget)
 
@@ -322,42 +404,69 @@ class WidgetFactory(QtWidgets.QWidget):
                 if result:
                     return result
 
-    def _update_widget(self, event):
-        '''*event* callback to update widget with the current status/value'''
-        result = event['data']['pipeline']['result']
-        widget_ref = event['data']['pipeline']['widget_ref']
+    def _update_progress_widget(self, event):
+        step_type = event['data']['pipeline']['step_type']
+        step_name = event['data']['pipeline']['step_name']
+        stage_name = event['data']['pipeline']['stage_name']
+        total_plugins = event['data']['pipeline']['total_plugins']
+        current_plugin_index = event['data']['pipeline']['current_plugin_index']
         status = event['data']['pipeline']['status']
-        message = event['data']['pipeline']['message']
-        host_id = event['data']['pipeline']['host_id']
-        user_data = event['data']['pipeline'].get('user_data') or {}
-        user_message = user_data.get('message')
+        results = event['data']['pipeline']['results']
 
-        widget = self.widgets.get(widget_ref)
+        if status == constants.RUNNING_STATUS:
+            status_message = "Running Stage {}... ({}/{})".format(
+                stage_name, current_plugin_index, total_plugins
+            )
+            self.progress_widget.update_component_status(
+                step_type, step_name, status, status_message, results
+            )
+        elif status == constants.ERROR_STATUS:
+            status_message = "Failed"
+            self.progress_widget.update_component_status(
+                step_type, step_name, status, status_message, results
+            )
+        elif status == constants.SUCCESS_STATUS:
+            status_message = "Completed"
+            self.progress_widget.update_component_status(
+                step_type, step_name, status, status_message, results
+            )
+
+    def update_widget(self, log_item):
+        '''*event* callback to update widget with the current status/value'''
+        if not log_item.widget_ref:
+            self.logger.debug(
+                'No widget_ref on the log item. log_item: {}'.format(
+                    log_item
+                )
+            )
+            return
+        widget = self.widgets.get(log_item.widget_ref)
         if not widget:
             self.logger.debug(
                 'Widget ref :{} not found for host_id {} ! '.format(
-                    widget_ref, host_id
+                    log_item.widget_ref, log_item.host_id
                 )
             )
             return
 
-        if status:
+        if log_item.status:
             self.logger.debug(
                 'updating widget: {} Status: {}, Message: {}, User Message: {}'.format(
-                    widget, status, message, user_message
+                    widget, log_item.status, log_item.message, log_item.user_message
                 )
             )
-            if user_message:
-                widget.set_status(status, user_message)
+            if log_item.user_message:
+                widget.set_status(log_item.status, log_item.user_message)
             else:
-                widget.set_status(status, message)
-        if result:
+                widget.set_status(log_item.status, log_item.message)
+
+        if log_item.result:
             self.logger.debug(
                 'updating widget: {} with run result {}'.format(
-                    widget, result
+                    widget, log_item.result
                 )
             )
-            widget.set_run_result(result)
+            widget.set_run_result(log_item.result)
 
     def _listen_widget_updates(self):
         '''
@@ -369,10 +478,10 @@ class WidgetFactory(QtWidgets.QWidget):
 
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.host_id={}'.format(
-                core_constants.PIPELINE_CLIENT_NOTIFICATION,
+                core_constants.PIPELINE_CLIENT_PROGRESS_NOTIFICATION,
                 self.host_connection.id
             ),
-            self._update_widget
+            self._update_progress_widget
         )
 
     def _on_widget_status_updated(self, status):
@@ -401,16 +510,26 @@ class WidgetFactory(QtWidgets.QWidget):
 
         return uid
 
+    def register_object(self, data, obj, type):
+        if type == 'stage':
+            self._stage_objs_ref[obj.widget_id] = obj
+        if type == 'step':
+            self._step_objs_ref[obj.widget_id] = obj
+        data['widget_ref'] = obj.widget_id
+        return obj.widget_id
+
     def get_registered_widget_plugin(self, plugin_data):
         '''return the widget registered for the given *plugin_data*.'''
-        return self._widgets_ref[plugin_data['widget_ref']]
+        if plugin_data.get('widget_ref'):
+            return self._widgets_ref[plugin_data['widget_ref']]
 
-    def register_type_widget_plugin(self, widget):
-        '''regiter the *widget* in the :obj:`type_widgets_ref`'''
-        uid = uuid.uuid4().hex
-        self._type_widgets_ref[uid] = widget
-
-        return uid
+    def get_registered_object(self, data, category):
+        '''return the widget registered for the given *plugin_data*.'''
+        if data.get('widget_ref'):
+            if category == 'stage':
+                return self._stage_objs_ref[data['widget_ref']]
+            if category == 'step':
+                return self._step_objs_ref[data['widget_ref']]
 
     def reset_type_widget_plugin(self):
         '''empty :obj:`type_widgets_ref`'''
@@ -420,23 +539,42 @@ class WidgetFactory(QtWidgets.QWidget):
         ''' Set the component as unavailable if it isn't available on the server'''
         if not self.components_names:
             return
-        for k, v in self.type_widgets.items():
-            if hasattr(v, 'accordion_widgets') and v.type == core_constants.COMPONENT:
-                for widget in v.accordion_widgets:
-                    if widget.title not in self.components_names:
-                        widget.set_unavailable()
-                    else:
-                        widget.set_default_state()
+        for step in self.working_definition[core_constants.COMPONENTS]:
+            step_obj = self.get_registered_object(step, step['category'])
+            if not isinstance(step_obj, default_widgets.DefaultStepWidget):
+                self.logger.error(
+                    "{} should be instance of DefaultStepWidget ".format(step_obj.name)
+                )
+                continue
 
-    def _asset_version_changed(self, version_id):
-        '''Callbac funtion triggered when a asset version has changed'''
-        self.version_id = version_id
+            if step_obj.name not in self.components_names:
+                step_obj.set_unavailable()
+            else:
+                step_obj.set_available()
+
+    def query_asset_version_from_version_id(self, version_id):
         asset_version_entity = self.session.query(
-            'select components '
+            'select components, components.name '
             'from AssetVersion where id is {}'.format(version_id)
         ).first()
+        return asset_version_entity
+
+    def _query_asset_version_callback(self, asset_version_entity):
         if not asset_version_entity:
             return
         components = asset_version_entity['components']
         self.components_names = [component['name'] for component in components]
-        self.check_components()
+        self.on_query_asset_version_done.emit()
+
+
+    def _asset_version_changed(self, version_id):
+        '''Callbac funtion triggered when a asset version has changed'''
+        self.version_id = version_id
+
+        thread = BaseThread(
+            name='get_asset_version_entity_thread',
+            target=self.query_asset_version_from_version_id,
+            callback=self._query_asset_version_callback,
+            target_args=[version_id]
+        )
+        thread.start()

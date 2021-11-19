@@ -1,5 +1,20 @@
 import logging
+from functools import partial
 from Qt import QtWidgets, QtCore
+
+
+class DefinitionItem(QtWidgets.QPushButton):
+    version_changed = QtCore.Signal(object, object)
+
+    @property
+    def definition(self):
+        return self._definition
+
+    def __init__(self, text, definition_item, parent=None):
+        super(DefinitionItem, self).__init__(text, parent=parent)
+        self.setCheckable(True)
+        self.setAutoExclusive(True)
+        self._definition = definition_item
 
 
 class DefinitionSelector(QtWidgets.QWidget):
@@ -23,6 +38,7 @@ class DefinitionSelector(QtWidgets.QWidget):
         self.host_connection = None
         self.schemas = None
         self.definition_filter = None
+        self.definitions = []
 
         self.host_connections = []
         self.pre_build()
@@ -59,7 +75,7 @@ class DefinitionSelector(QtWidgets.QWidget):
         self.host_changed.emit(self.host_connection)
 
         if not self.host_connection:
-            self.logger.warning('No data for selected host')
+            self.logger.debug('No data for selected host')
             return
 
         self.schemas = [
@@ -71,13 +87,14 @@ class DefinitionSelector(QtWidgets.QWidget):
 
     def _populate_definitions(self):
         self.definition_combobox.addItem('- Select Definition -')
-
+        self.definitions=[]
         for schema in self.schemas:
             schema_title = schema.get('title').lower()
             if self.definition_filter:
                 if schema_title != self.definition_filter:
                     continue
             items = self.host_connection.definitions.get(schema_title)
+            self.definitions=items
 
             for item in items:
                 text = '{}'.format(item.get('name'))
@@ -88,11 +105,17 @@ class DefinitionSelector(QtWidgets.QWidget):
                     )
                 self.definition_combobox.addItem(text, item)
 
+        if len(self.definitions) == 1:
+            self.definition_combobox.setCurrentIndex(1)
+            self.definition_combobox.hide()
+        else:
+            self.definition_combobox.show()
+
     def _on_select_definition(self, index):
         self.definition = self.definition_combobox.itemData(index)
 
         if not self.definition:
-            self.logger.warning('No data for selected definition')
+            self.logger.debug('No data for selected definition')
             self.definition_changed.emit(None, None)
             return
 
@@ -109,9 +132,136 @@ class DefinitionSelector(QtWidgets.QWidget):
     def add_hosts(self, host_connections):
         for host_connection in host_connections:
             self.host_combobox.addItem(host_connection.name, host_connection)
+            self.host_connections.append(host_connection)
         if len(host_connections) == 1 and host_connections[0].context_id != None:
             self.host_combobox.setCurrentIndex(1)
 
     def set_definition_filter(self, filter):
         self.definition_filter = filter
 
+    def get_current_definition_index(self):
+        return self.definition_combobox.currentIndex()
+
+    def set_current_definition_index(self, index):
+        self.definition_combobox.setCurrentIndex(index)
+        self._on_select_definition(index)
+
+
+class DefinitionSelectorButtons(DefinitionSelector):
+    '''DefinitionSelector Base Class'''
+    definition_changed = QtCore.Signal(object, object)
+    host_changed = QtCore.Signal(object)
+    max_column = 3
+
+    def __init__(self, parent=None):
+        '''Initialize DefinitionSelector widget'''
+        super(DefinitionSelectorButtons, self).__init__(parent=parent)
+
+    def build(self):
+        self.host_combobox = QtWidgets.QComboBox()
+
+        self.definitions_widget = QtWidgets.QWidget()
+
+        self.definitions_text = QtWidgets.QLabel("Choose what to publish:")
+        self.button_group = QtWidgets.QButtonGroup(self)
+        definition_layout = QtWidgets.QVBoxLayout()
+        self.definition_grid_layout = QtWidgets.QGridLayout()
+
+        self.definitions_widget.setLayout(definition_layout)
+        self.definitions_widget.layout().addWidget(self.definitions_text)
+        self.definitions_widget.layout().addLayout(self.definition_grid_layout)
+
+        self.layout().addWidget(self.host_combobox)
+        self.layout().addWidget(self.definitions_widget)
+
+        self.host_combobox.addItem('- Select host -')
+
+    def post_build(self):
+        '''Connect the widget signals'''
+        self.host_combobox.currentIndexChanged.connect(self._on_change_host)
+
+    def _on_change_host(self, index):
+        '''triggered when chaging host selection to *index*'''
+        self.clear_definitions()
+        self.host_connection = self.host_combobox.itemData(index)
+        self.host_changed.emit(self.host_connection)
+
+        if not self.host_connection:
+            self.logger.debug('No data for selected host')
+            return
+
+        self.schemas = [
+            schema for schema in self.host_connection.definitions['schema']
+            if schema.get('title').lower() != 'package'
+        ]
+
+        self._populate_definitions()
+
+    def clear_definitions(self):
+        buttons = self.button_group.buttons()
+        for button in buttons:
+            self.button_group.removeButton(button)
+            button.deleteLater()
+
+    def _populate_definitions(self):
+        self.definitions=[]
+        for schema in self.schemas:
+            schema_title = schema.get('title').lower()
+            if self.definition_filter:
+                if schema_title != self.definition_filter:
+                    continue
+            items = self.host_connection.definitions.get(schema_title)
+            self.definitions=items
+
+            row_col = (0, 0)
+            for item in items:
+                text = '{}'.format(item.get('name'))
+                if not self.definition_filter:
+                    text = '{} - {}'.format(
+                        schema.get('title'),
+                        item.get('name')
+                    )
+                p_b = DefinitionItem(text, item)
+                self.button_group.addButton(p_b)
+                self.definition_grid_layout.addWidget(p_b, row_col[0], row_col[1])
+                p_b.clicked.connect(partial(self._on_select_definition, p_b))
+                if row_col == (0,0):
+                    p_b.click()
+                if row_col[1] == self.max_column-1:
+                    row_col = (row_col[0]+1, 0)
+                else:
+                    row_col = (row_col[0], row_col[1]+1)
+
+        if len(self.definitions) == 1:
+            self.definitions_widget.hide()
+            self.definitions_text.setText(self.definition.get('name'))
+            self.layout().addWidget(self.definitions_text)
+        else:
+            self.definitions_text.setText("Choose what to publish:")
+            self.definitions_widget.layout().insertWidget(0, self.definitions_text)
+            self.definitions_widget.show()
+
+    def _on_select_definition(self, definition_item):
+        self.definition = definition_item.definition
+
+        if not self.definition:
+            self.logger.debug('No data for selected definition')
+            self.definition_changed.emit(None, None)
+            return
+
+        for schema in self.schemas:
+            if (
+                    self.definition.get('type').lower() ==
+                    schema.get('title').lower()
+            ):
+                self.schema = schema
+                break
+
+        self.definition_changed.emit(self.schema, self.definition)
+
+    def get_current_definition_index(self):
+        return self.button_group.checkedId()
+
+    def set_current_definition_index(self, index):
+        button = self.button_group.button(index)
+        self._on_select_definition(button)
