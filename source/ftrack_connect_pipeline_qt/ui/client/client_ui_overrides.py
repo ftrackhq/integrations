@@ -1,5 +1,4 @@
-from ftrack_connect_pipeline_qt.client.widgets.client_ui import default as default_widgets
-from ftrack_connect_pipeline_qt.client.widgets.client_ui import overrides as override_widgets
+from ftrack_connect_pipeline_qt.ui.client import overrides as override_widgets, default as default_widgets
 from ftrack_connect_pipeline import constants as core_constants
 
 UI_OVERRIDES = {

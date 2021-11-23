@@ -2,7 +2,6 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 import copy
 import logging
-from collections import OrderedDict
 from functools import partial
 
 import uuid
@@ -11,11 +10,10 @@ import ftrack_api
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.utils import BaseThread
 from ftrack_connect_pipeline import constants as core_constants
-from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
-from ftrack_connect_pipeline_qt.client.widgets.client_ui import BaseUIWidget
-from ftrack_connect_pipeline_qt.client.widgets.client_ui import default as default_widgets
-from ftrack_connect_pipeline_qt.client.widgets.client_ui import overrides as override_widgets
-from ftrack_connect_pipeline_qt.ui.client_ui_overrides import UI_OVERRIDES
+from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
+from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
+from ftrack_connect_pipeline_qt.ui.client import overrides as override_widgets, default as default_widgets
+from ftrack_connect_pipeline_qt.ui.client.client_ui_overrides import UI_OVERRIDES
 
 from Qt import QtCore, QtWidgets
 
@@ -183,7 +181,7 @@ class WidgetFactory(QtWidgets.QWidget):
                         plugin, stage['name']
                     )
 
-                    # Start parent ing widgets
+                    # Start parenting widgets
                     if plugin_container_obj:
                         plugin_widget.toggle_status(show=False)
                         plugin_widget.toggle_name(show=False)
