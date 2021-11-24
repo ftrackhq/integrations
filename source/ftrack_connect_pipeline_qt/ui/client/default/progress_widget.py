@@ -120,8 +120,8 @@ class MainButtonWidget(QtWidgets.QPushButton):
 
         self.setStyleSheet("""
             QPushButton {
-                background-color: grey;
-                border: none;
+                border: 1px solid black;
+                border-radius: 4px;
             }
             """)
         self.setMinimumHeight(50)

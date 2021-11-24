@@ -16,11 +16,11 @@ class EntityInfo(QtWidgets.QWidget):
         self.post_build()
 
     def build(self):
-        self.type_field = QtWidgets.QLabel()
+        #self.type_field = QtWidgets.QLabel()
         self.name_field = QtWidgets.QLabel()
         self.path_field = QtWidgets.QLabel()
 
-        self.layout().addWidget(self.type_field)
+        #self.layout().addWidget(self.type_field)
         self.layout().addWidget(self.name_field)
         self.layout().addWidget(self.path_field)
         self.layout().addStretch()
@@ -46,7 +46,7 @@ class EntityInfo(QtWidgets.QWidget):
 
     def on_path_ready(self, parents):
         '''Set current path to *names*.'''
-        self.type_field.setText(parents[-1].get('type', {}).get('name', 'Project'))
+        #self.type_field.setText(parents[-1].get('type', {}).get('name', 'Project'))
         self.name_field.setText(parents[-1]['name'])
         self.path_field.setText(os.sep.join([p['name'] for p in parents[:-1]]))
 
