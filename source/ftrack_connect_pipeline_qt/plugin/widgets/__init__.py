@@ -181,7 +181,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     def build(self):
         '''build function , mostly used to create the widgets.'''
         self.name_label = QtWidgets.QLabel(self.name)
-        self.name_label.setToolTip(str(self))
+        self.name_label.setToolTip(self.description)
         self.layout().addWidget(self.name_label)
 
     def post_build(self):

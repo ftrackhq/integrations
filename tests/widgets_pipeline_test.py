@@ -11,10 +11,11 @@ import sys
 
 # Set the minimum required Environment variables.
 os.environ['FTRACK_EVENT_PLUGIN_PATH'] = os.pathsep.join([
-    '/Users/henriknorin/Documents/ftrack/dev/ftrack-connect-pipeline-definition/git/resource/plugins/qt',
-    '/Users/henriknorin/Documents/ftrack/dev/ftrack-connect-pipeline-definition/git/resource/plugins/common',
-    '/Users/henriknorin/Documents/ftrack/dev/ftrack-connect-pipeline-definition/git/resource/definitions',
+    '<PATH-TO-PIPELINE-DEFINITION>\\resource\\plugins\\qt',
+    '<PATH-TO-PIPELINE-DEFINITION>\\resource\\plugins\\common',
+    '<PATH-TO-PIPELINE-DEFINITION>\\resource\\definitions',
 ])
+
 
 # Init QApplication
 app = QtWidgets.QApplication(sys.argv)
@@ -36,7 +37,7 @@ pub_client_connection = publish.QtPublisherClient(event_manager)
 # lv_client_connection = log_viewer.QtLogViewerClient(event_manager)
 
 # Set the context
-context_id = 'a2f3f7f6-3d5e-11ec-a831-2e0d6e3d7bf3'
+context_id = '<Add a context id here>'#'690afd58-06d0-11ea-bbbb-ee594985c7e2'
 
 pub_client_connection.context_selector.set_context_id(context_id)
 # load_client_connection.context_selector.set_context_id(context_id)
