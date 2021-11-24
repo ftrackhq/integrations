@@ -1,15 +1,14 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-import logging
 from functools import partial
 from ftrack_connect_pipeline import constants as pipeline_constants
 from ftrack_connect_pipeline_qt import constants
-from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
-from ftrack_connect_pipeline_qt.client.widgets.client_ui import BaseUIWidget
-from ftrack_connect_pipeline_qt.client.widgets.client_ui.default.step_container import DefaultStepContainerWidget
+from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
+from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
+from ftrack_connect_pipeline_qt.ui.client.default import DefaultStepContainerWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import AccordionWidget
-from Qt import QtGui, QtCore, QtWidgets
+from Qt import QtGui, QtWidgets
 
 
 class GroupBoxStepContainerWidget(BaseUIWidget):

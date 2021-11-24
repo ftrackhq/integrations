@@ -1,14 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-import os
 from Qt import QtWidgets, QtCore, QtGui
-from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
+from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 
 from ftrack_connect_pipeline_qt.ui.utility.widget.asset_selector import AssetSelector
-from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import VersionSelector
-from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import AssetVersion as AssetVersionThumbnail
-from ftrack_connect_pipeline_qt.ui.utility.widget.entity_info import VersionInfo
 from ftrack_connect_pipeline_qt.ui.utility.widget.asset_grid_selector import AssetGridSelector
 from ftrack_connect_pipeline_qt.utils import BaseThread
 

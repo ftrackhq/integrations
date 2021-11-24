@@ -97,6 +97,7 @@ class BaseUIWidget(object):
             self.widget.setToolTip(self.description)
 
     def parent_widget(self, widget):
+        ''' Add the *widget*, setting me as the parent. '''
         if self.widget:
             if isinstance(widget, BaseUIWidget):
                 self.widget.layout().addWidget(widget.widget)

@@ -4,7 +4,7 @@
 from ftrack_connect_pipeline import exception
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import constants
-from ftrack_connect_pipeline_qt.client.widgets.options import BaseOptionsWidget
+from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 
 
 class BasePluginWidget(plugin.BasePlugin):

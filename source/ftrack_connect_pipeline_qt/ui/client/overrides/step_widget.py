@@ -1,10 +1,9 @@
 from ftrack_connect_pipeline import constants as core_constants
-from ftrack_connect_pipeline_qt import constants
-from ftrack_connect_pipeline_qt.client.widgets.client_ui import BaseUIWidget
+from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import AccordionWidget
-from ftrack_connect_pipeline_qt.client.widgets.client_ui.default.step_widget import DefaultStepWidget
-from ftrack_connect_pipeline_qt.client.widgets.options.load_widget import LoadBaseWidget
-from Qt import QtGui, QtCore, QtWidgets
+from ftrack_connect_pipeline_qt.ui.client.default.step_widget import DefaultStepWidget
+from ftrack_connect_pipeline_qt.plugin.widgets.load_widget import LoadBaseWidget
+from Qt import QtWidgets
 
 
 def recursive_get_load_mode_container(widget):
