@@ -1,10 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-from Qt import QtGui, QtCore, QtWidgets
+from Qt import QtCore, QtWidgets
 from ftrack_connect_pipeline import client, constants
 from ftrack_connect_pipeline_qt.ui.utility.widget import header, definition_selector
-from ftrack_connect_pipeline_qt.client.widgets import factory
+from ftrack_connect_pipeline_qt.client import factory
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import ContextSelector
 from ftrack_connect_pipeline_qt.ui import resource

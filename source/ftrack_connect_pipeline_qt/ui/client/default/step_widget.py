@@ -1,9 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-import logging
-from ftrack_connect_pipeline_qt.client.widgets.client_ui import BaseUIWidget
-from Qt import QtGui, QtCore, QtWidgets
+from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
+from Qt import QtWidgets
 
 
 class DefaultStepWidget(BaseUIWidget):

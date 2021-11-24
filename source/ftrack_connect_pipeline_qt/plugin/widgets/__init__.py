@@ -23,7 +23,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     # enable_run_plugin True will enable the run button to run the plugin run
     # function individually.
     enable_run_plugin = False
-    # auto_fetch_on_init True will run the funtion fetch_on_init('fetch')
+    # auto_fetch_on_init True will run the function fetch_on_init('fetch')
     # on plugin initialization
     auto_fetch_on_init = False
 
