@@ -23,7 +23,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     # enable_run_plugin True will enable the run button to run the plugin run
     # function individually.
     enable_run_plugin = False
-    # auto_fetch_on_init True will run the funtion fetch_on_init('fetch')
+    # auto_fetch_on_init True will run the function fetch_on_init('fetch')
     # on plugin initialization
     auto_fetch_on_init = False
 
@@ -181,7 +181,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     def build(self):
         '''build function , mostly used to create the widgets.'''
         self.name_label = QtWidgets.QLabel(self.name)
-        self.name_label.setToolTip(self.description)
+        self.name_label.setToolTip(str(self))
         self.layout().addWidget(self.name_label)
 
     def post_build(self):

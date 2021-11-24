@@ -139,8 +139,7 @@ class WidgetFactory(QtWidgets.QWidget):
         )
 
         for step in definition[type_name]:
-            # Create widget for the step
-            # print(step)
+            # Create widget for the step (a component, a finaliser...)
             step_category = step['category']
             step_type = step['type']
             step_name = step.get('name')
@@ -152,8 +151,7 @@ class WidgetFactory(QtWidgets.QWidget):
             if step_obj:
                 self.register_object(step, step_obj, step_category)
             for stage in step['stages']:
-                # create widget for the stages
-                # print(stage)
+                # create widget for the stages (collector, validator, output/importer)
                 stage_category = stage['category']
                 stage_type = stage['type']
                 stage_name = stage.get('name')
@@ -165,8 +163,7 @@ class WidgetFactory(QtWidgets.QWidget):
                     self.register_object(stage, stage_obj, stage_category)
 
                 for plugin in stage['plugins']:
-                    # create widget for the plugins
-                    # print(plugin)
+                    # create widget for the plugins, usually just one
                     plugin_type = plugin['type']
                     plugin_category = plugin['category']
                     plugin_name = plugin.get('name')
@@ -180,7 +177,6 @@ class WidgetFactory(QtWidgets.QWidget):
                     plugin_widget = self.fetch_plugin_widget(
                         plugin, stage['name']
                     )
-
                     # Start parenting widgets
                     if plugin_container_obj:
                         plugin_widget.toggle_status(show=False)

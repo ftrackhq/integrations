@@ -3,8 +3,8 @@
 
 from functools import partial
 
-from Qt import QtWidgets, QtGui
 from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
+from Qt import QtWidgets, QtGui
 
 class BaseCollectorWidget(BaseOptionsWidget):
     ''' Base class to represent a Collector widget '''

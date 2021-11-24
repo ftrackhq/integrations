@@ -43,6 +43,7 @@ class AccordionWidget(QtWidgets.QWidget):
         self._main_v_layout.addWidget(title_widget)
 
         content_widget = self.init_content(self._is_collapsed)
+
         self._main_v_layout.addWidget(content_widget)
 
     def post_build(self):
@@ -127,7 +128,6 @@ class AccordionWidget(QtWidgets.QWidget):
             return self._title_frame.checkbox.setChecked(checked)
 
     def toggle_collapsed(self):
-        print('@@@ toggle_collapsed, content: {}'.format(self._content))
         self._content.setVisible(self._is_collapsed)
         self._is_collapsed = not self._is_collapsed
         self._title_frame._arrow.set_arrow(int(self._is_collapsed))
@@ -337,6 +337,7 @@ class Arrow(QtWidgets.QFrame):
             self._arrow = self._arrow_vertical
         else:
             self._arrow = self._arrow_horizontal
+        self.update()
 
     def paintEvent(self, event):
         painter = QtGui.QPainter()
