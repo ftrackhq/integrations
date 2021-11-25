@@ -63,7 +63,7 @@ class ContextSelector(QtWidgets.QWidget):
         self.layout().addWidget(QtWidgets.QLabel(), 10)
         self.layout().addWidget(self.entityBrowseButton)
 
-    def set_thumbnmail(self, entity):
+    def set_thumbnail(self, entity):
         self.thumbnail_widget.load(entity['id'])
 
     def post_build(self):
@@ -71,7 +71,7 @@ class ContextSelector(QtWidgets.QWidget):
             self._onEntityBrowseButtonClicked
         )
         self.entityChanged.connect(self.entity_info.setEntity)
-        self.entityChanged.connect(self.set_thumbnmail)
+        self.entityChanged.connect(self.set_thumbnail)
         self.entityBrowser.selectionChanged.connect(
             self._onEntityBrowserSelectionChanged
         )

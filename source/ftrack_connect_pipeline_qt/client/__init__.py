@@ -105,7 +105,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.scroll.setWidgetResizable(True)
         self.layout().addWidget(self.scroll)
 
-        self.run_button = QtWidgets.QPushButton(self.run_definition_button_text)
+        self.run_button = QtWidgets.QPushButton(self.run_definition_button_text.upper())
         self.layout().addWidget(self.run_button)
 
     def post_build(self):
@@ -124,10 +124,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
         )
         if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
             self.host_selector.host_combobox.hide()
-
-        # # apply styles
-        #theme.applyTheme(self, 'dark')
-        #theme.applyFont()
 
     def _on_context_selector_context_changed(self, context_entity):
         '''Updates the option dicctionary with provided *context* when

@@ -3,8 +3,10 @@ QLabel {
     color: $text-color;
 }
 
-QLabel[title] {
+QLabel#task-name {
+    color: $color-white;
     font-weight: bold;
+    font-size: larger;
 }
 
 QComboBox {

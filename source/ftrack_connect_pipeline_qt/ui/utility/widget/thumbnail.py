@@ -40,6 +40,7 @@ class Base(QtWidgets.QLabel):
 
     def load(self, reference):
         '''Load thumbnail from *reference* and display it.'''
+
         if reference in IMAGE_CACHE:
             self._updatePixmapData(IMAGE_CACHE[reference])
             return
@@ -56,9 +57,9 @@ class Base(QtWidgets.QLabel):
         self.__loadingReference = reference
         self._worker.start()
 
-        self._worker.finished.connect(self._workerFinnished)
+        self._worker.finished.connect(self._workerFinished)
 
-    def _workerFinnished(self):
+    def _workerFinished(self):
         '''Handler worker finished event.'''
         if self._worker:
             IMAGE_CACHE[self.__loadingReference] = self._worker.result
