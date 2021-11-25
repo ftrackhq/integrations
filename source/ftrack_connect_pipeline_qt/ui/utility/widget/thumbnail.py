@@ -40,6 +40,7 @@ class Base(QtWidgets.QLabel):
 
     def load(self, reference):
         '''Load thumbnail from *reference* and display it.'''
+
         if reference in IMAGE_CACHE:
             self._updatePixmapData(IMAGE_CACHE[reference])
             return
@@ -50,15 +51,15 @@ class Base(QtWidgets.QLabel):
                 app.processEvents()
 
         self._worker = Worker(
-            self._download, [reference], parent=self
+            self._download, args=[reference], parent=self
         )
 
         self.__loadingReference = reference
         self._worker.start()
 
-        self._worker.finished.connect(self._workerFinnished)
+        self._worker.finished.connect(self._workerFinished)
 
-    def _workerFinnished(self):
+    def _workerFinished(self):
         '''Handler worker finished event.'''
         if self._worker:
             IMAGE_CACHE[self.__loadingReference] = self._worker.result
@@ -160,7 +161,10 @@ class Context(Base):
 
     def _download(self, reference):
         '''Return thumbnail from *reference*.'''
-        thumbnail = self.session.get('Context', reference)['thumbnail']
+        context = self.session.get('Context', reference)
+        thumbnail = context['thumbnail']
+        if thumbnail is None and context['thumbnail_id'] is not None:
+            thumbnail = self.session.query('FileComponent where id is "{}"'.format(context['thumbnail_id'])).one()
         url = self.get_thumbnail_url(thumbnail)
         url = url or self.placholderThumbnail
         return super(Context, self)._download(url)

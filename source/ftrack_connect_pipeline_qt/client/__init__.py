@@ -7,6 +7,10 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import header, definition_sele
 from ftrack_connect_pipeline_qt.client import factory
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import ContextSelector
+try:
+    from ftrack_connect_pipeline_qt.ui import resource
+except ImportError as e:
+    pass
 
 
 class QtClient(client.Client, QtWidgets.QWidget):
@@ -25,6 +29,8 @@ class QtClient(client.Client, QtWidgets.QWidget):
         *parent* widget'''
         QtWidgets.QWidget.__init__(self, parent=parent)
         client.Client.__init__(self, event_manager)
+
+        self.setTheme('dark')
 
         self.setObjectName('{}_{}'.format(
             qt_constants.MAIN_FRAMEWORK_WIDGET,
@@ -69,6 +75,17 @@ class QtClient(client.Client, QtWidgets.QWidget):
             self.host_selector.set_definition_filter(self.definition_filter)
         self.host_selector.add_hosts(self.host_connections)
 
+    def setTheme(self, selected_theme):
+        try:
+            from ftrack_connect_pipeline_qt.ui import theme
+
+            theme.applyFont()
+            theme.applyTheme(self, selected_theme, 'plastique')
+        except:
+            # Until UX style branch is merged, this is expected to fail
+            import traceback
+            print(traceback.format_exc())
+
     def pre_build(self):
         '''Prepare general layout.'''
         layout = QtWidgets.QVBoxLayout()
@@ -97,7 +114,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.scroll.setWidgetResizable(True)
         self.layout().addWidget(self.scroll)
 
-        self.run_button = QtWidgets.QPushButton(self.run_definition_button_text)
+        self.run_button = QtWidgets.QPushButton(self.run_definition_button_text.upper())
         self.layout().addWidget(self.run_button)
 
     def post_build(self):
@@ -116,10 +133,6 @@ class QtClient(client.Client, QtWidgets.QWidget):
         )
         if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
             self.host_selector.host_combobox.hide()
-
-        # # apply styles
-        # theme.applyTheme(self, 'dark')
-        # theme.applyFont()
 
     def _on_context_selector_context_changed(self, context_entity):
         '''Updates the option dicctionary with provided *context* when

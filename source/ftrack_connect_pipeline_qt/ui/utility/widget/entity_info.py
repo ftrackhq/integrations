@@ -18,6 +18,7 @@ class EntityInfo(QtWidgets.QWidget):
     def build(self):
         #self.type_field = QtWidgets.QLabel()
         self.name_field = QtWidgets.QLabel()
+        self.name_field.setObjectName('task-name')
         self.path_field = QtWidgets.QLabel()
 
         #self.layout().addWidget(self.type_field)

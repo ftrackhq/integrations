@@ -113,23 +113,17 @@ class MainButtonWidget(QtWidgets.QPushButton):
         super(MainButtonWidget, self).__init__(parent)
 
         self.status = constants.DEFAULT_STATUS
-
+        self.setObjectName("status-widget")
+        self.setProperty('status', 'success')
         self.build()
 
     def build(self):
 
-        self.setStyleSheet("""
-            QPushButton {
-                border: 1px solid black;
-                border-radius: 4px;
-            }
-            """)
         self.setMinimumHeight(50)
         self.setMinimumWidth(300)
         # self.setFlat(True)
 
-        layout = QtWidgets.QHBoxLayout()
-        self.setLayout(layout)
+        self.setLayout(QtWidgets.QHBoxLayout())
 
         self.status_label = QtWidgets.QLabel(self.status)
         show_more = QtWidgets.QLabel("SHOW MORE")
@@ -169,8 +163,7 @@ class ProgressWidget(BaseUIWidget):
         self.scroll.setWidgetResizable(True)
 
         self.content_widget = QtWidgets.QWidget()
-        inner_widget = QtWidgets.QVBoxLayout()
-        self.content_widget.setLayout(inner_widget)
+        self.content_widget.setLayout(QtWidgets.QVBoxLayout())
         self.content_widget.layout().addSpacing(30)
 
         self.scroll.setWidget(self.content_widget)
