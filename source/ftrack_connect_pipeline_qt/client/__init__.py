@@ -28,7 +28,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
         QtWidgets.QWidget.__init__(self, parent=parent)
         client.Client.__init__(self, event_manager)
 
-        self.setTheme('light')
+        self.setTheme('dark')
 
         self.setObjectName('{}_{}'.format(
             qt_constants.MAIN_FRAMEWORK_WIDGET,
@@ -126,8 +126,8 @@ class QtClient(client.Client, QtWidgets.QWidget):
             self.host_selector.host_combobox.hide()
 
         # # apply styles
-        # theme.applyTheme(self, 'dark')
-        # theme.applyFont()
+        #theme.applyTheme(self, 'dark')
+        #theme.applyFont()
 
     def _on_context_selector_context_changed(self, context_entity):
         '''Updates the option dicctionary with provided *context* when

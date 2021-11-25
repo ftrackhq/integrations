@@ -15,6 +15,8 @@ class DefinitionItem(QtWidgets.QPushButton):
         self.setCheckable(True)
         self.setAutoExclusive(True)
         self._definition = definition_item
+        self.setStyleSheet('border: 1px solid black;')
+        self.setMinimumWidth(80)
 
 
 class DefinitionSelector(QtWidgets.QWidget):
@@ -47,6 +49,7 @@ class DefinitionSelector(QtWidgets.QWidget):
 
     def pre_build(self):
         main_layout = QtWidgets.QVBoxLayout()
+        main_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(main_layout)
 
     def build(self):
@@ -162,14 +165,18 @@ class DefinitionSelectorButtons(DefinitionSelector):
 
         self.definitions_widget = QtWidgets.QWidget()
 
-        self.definitions_text = QtWidgets.QLabel("Choose what to publish:")
-        self.button_group = QtWidgets.QButtonGroup(self)
-        definition_layout = QtWidgets.QVBoxLayout()
-        self.definition_grid_layout = QtWidgets.QGridLayout()
+        self.definitions_widget.setLayout(QtWidgets.QVBoxLayout())
+        self.definitions_widget.layout().setContentsMargins(0, 0, 0, 0)
 
-        self.definitions_widget.setLayout(definition_layout)
-        self.definitions_widget.layout().addWidget(self.definitions_text)
-        self.definitions_widget.layout().addLayout(self.definition_grid_layout)
+        self.label = QtWidgets.QLabel("Choose what to publish:")
+        self.definitions_widget.layout().addWidget(self.label)
+
+        self.button_group = QtWidgets.QButtonGroup(self)
+        self.definition_buttons_widget = QtWidgets.QWidget()
+        self.definition_buttons_widget.setLayout(QtWidgets.QHBoxLayout())
+        self.definition_buttons_widget.layout().setContentsMargins(0, 0, 0, 0)
+
+        self.definitions_widget.layout().addWidget(self.definition_buttons_widget)
 
         self.layout().addWidget(self.host_combobox)
         self.layout().addWidget(self.definitions_widget)
@@ -202,44 +209,72 @@ class DefinitionSelectorButtons(DefinitionSelector):
         for button in buttons:
             self.button_group.removeButton(button)
             button.deleteLater()
+    #
+    # def _populate_definitions(self):
+    #     self.definitions=[]
+    #     for schema in self.schemas:
+    #         schema_title = schema.get('title').lower()
+    #         if self.definition_filter:
+    #             if schema_title != self.definition_filter:
+    #                 continue
+    #         items = self.host_connection.definitions.get(schema_title)
+    #         self.definitions=items
+    #
+    #         row_col = (0, 0)
+    #         for item in items:
+    #             text = '{}'.format(' '.join(item.get('name').split(' ')[:-1])) # Remove ' Publisher'
+    #             if not self.definition_filter:
+    #                 text = '{} - {}'.format(
+    #                     schema.get('title'),
+    #                     item.get('name')
+    #                 )
+    #             p_b = DefinitionItem(text, item)
+    #             self.button_group.addButton(p_b)
+    #             self.definition_grid_layout.addWidget(p_b, row_col[0], row_col[1])
+    #             p_b.clicked.connect(partial(self._on_select_definition, p_b))
+    #             if row_col == (0,0):
+    #                 p_b.click()
+    #             if row_col[1] == self.max_column-1:
+    #                 row_col = (row_col[0]+1, 0)
+    #             else:
+    #                 row_col = (row_col[0], row_col[1]+1)
 
     def _populate_definitions(self):
-        self.definitions=[]
+
+        self.definitions = []
         for schema in self.schemas:
             schema_title = schema.get('title').lower()
             if self.definition_filter:
                 if schema_title != self.definition_filter:
                     continue
             items = self.host_connection.definitions.get(schema_title)
-            self.definitions=items
+            self.definitions = items
 
-            row_col = (0, 0)
+            index = 0
             for item in items:
-                text = '{}'.format(item.get('name'))
+                text = '{}'.format(' '.join(item.get('name').split(' ')[:-1]))  # Remove ' Publisher'
                 if not self.definition_filter:
                     text = '{} - {}'.format(
                         schema.get('title'),
                         item.get('name')
                     )
-                p_b = DefinitionItem(text, item)
-                self.button_group.addButton(p_b)
-                self.definition_grid_layout.addWidget(p_b, row_col[0], row_col[1])
-                p_b.clicked.connect(partial(self._on_select_definition, p_b))
-                if row_col == (0,0):
-                    p_b.click()
-                if row_col[1] == self.max_column-1:
-                    row_col = (row_col[0]+1, 0)
-                else:
-                    row_col = (row_col[0], row_col[1]+1)
+                definition_button = DefinitionItem(text, item)
+                self.button_group.addButton(definition_button)
+                self.definition_buttons_widget.layout().addWidget(definition_button)
+                definition_button.clicked.connect(partial(self._on_select_definition, definition_button))
+                if index == 0:
+                    definition_button.click()
 
-        if len(self.definitions) == 1:
-            self.definitions_widget.hide()
-            self.definitions_text.setText(self.definition.get('name'))
-            self.layout().addWidget(self.definitions_text)
-        else:
-            self.definitions_text.setText("Choose what to publish:")
-            self.definitions_widget.layout().insertWidget(0, self.definitions_text)
-            self.definitions_widget.show()
+        self.definition_buttons_widget.layout().addWidget(QtWidgets.QLabel(), 100)
+
+        # if len(self.definitions) == 1:
+        #     self.definitions_widget.hide()
+        #     self.definitions_text.setText(self.definition.get('name'))
+        #     self.layout().addWidget(self.definitions_text)
+        # else:
+        #   self.definitions_text.setText("Choose what to publish:")
+        #   self.definitions_widget.layout().insertWidget(0, self.definitions_text)
+        self.definitions_widget.show()
 
     def _on_select_definition(self, definition_item):
         self.definition = definition_item.definition
