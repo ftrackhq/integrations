@@ -3,8 +3,10 @@
 import copy
 import logging
 from functools import partial
-
 import uuid
+
+from Qt import QtCore, QtWidgets
+
 import ftrack_api
 
 from ftrack_connect_pipeline_qt import constants
@@ -14,8 +16,6 @@ from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
 from ftrack_connect_pipeline_qt.ui.client import overrides as override_widgets, default as default_widgets
 from ftrack_connect_pipeline_qt.ui.client.client_ui_overrides import UI_OVERRIDES
-
-from Qt import QtCore, QtWidgets
 
 
 class WidgetFactory(QtWidgets.QWidget):
@@ -241,7 +241,7 @@ class WidgetFactory(QtWidgets.QWidget):
         # If there is a Finalizer widget show the widget otherwise not.
         if not UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True):
             finalizers_obj.widget.hide()
-        main_obj.widget.layout().addWidget(QtWidgets.QLabel(), 1000)
+        main_obj.widget.layout().addStretch()
 
         # Check all components status of the current UI
         self.post_build_definition()

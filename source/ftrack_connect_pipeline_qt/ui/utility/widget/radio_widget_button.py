@@ -1,3 +1,6 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2021 ftrack
+
 from Qt import QtWidgets, QtCore, QtGui
 
 

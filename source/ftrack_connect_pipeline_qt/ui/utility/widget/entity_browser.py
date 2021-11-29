@@ -3,7 +3,6 @@
 #             Copyright (c) 2014 Martin Pengelly-Phillips
 # :notice: Derived from Riffle (https://github.com/4degrees/riffle)
 
-
 from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect_pipeline_qt.ui.utility.model.entity_tree import EntityTreeModel, EntityTreeProxyModel, ItemFactory

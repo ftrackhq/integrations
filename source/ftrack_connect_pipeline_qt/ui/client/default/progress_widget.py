@@ -1,13 +1,13 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
-
 import logging
+
+from Qt import QtWidgets, QtCore, QtGui
+
 from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
 from ftrack_connect_pipeline_qt import utils
-
-from Qt import QtWidgets, QtCore, QtGui
 
 
 class ComponentButton(QtWidgets.QPushButton):

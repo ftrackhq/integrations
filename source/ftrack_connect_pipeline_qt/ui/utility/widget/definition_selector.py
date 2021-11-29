@@ -1,5 +1,6 @@
 import logging
 from functools import partial
+
 from Qt import QtWidgets, QtCore
 
 

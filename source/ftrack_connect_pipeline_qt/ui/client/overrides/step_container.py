@@ -1,6 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
+from Qt import QtGui, QtWidgets
+
 from functools import partial
 from ftrack_connect_pipeline import constants as pipeline_constants
 from ftrack_connect_pipeline_qt import constants
@@ -8,7 +10,6 @@ from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
 from ftrack_connect_pipeline_qt.ui.client.default import DefaultStepContainerWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import AccordionWidget
-from Qt import QtGui, QtWidgets
 
 
 class GroupBoxStepContainerWidget(BaseUIWidget):

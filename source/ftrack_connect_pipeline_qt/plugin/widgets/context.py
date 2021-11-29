@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 from Qt import QtWidgets, QtCore, QtGui
+
 from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 
 from ftrack_connect_pipeline_qt.ui.utility.widget.asset_selector import AssetSelector
@@ -9,9 +10,8 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.asset_grid_selector import Ass
 from ftrack_connect_pipeline_qt.utils import BaseThread
 
 
-
 class PublishContextWidget(BaseOptionsWidget):
-    '''Main class to represent a context widget on a publish process'''
+    ''' Main class to represent a context widget on a publish process. '''
 
     statuses_fetched = QtCore.Signal(object)
 
@@ -36,6 +36,7 @@ class PublishContextWidget(BaseOptionsWidget):
             self.set_option_result(self.context_id, key='context_id')
         self._build_asset_selector()
         self.statuses_fetched.connect(self.set_statuses)
+        self.layout().addWidget(QtWidgets.QLabel('Version information'))
         self._build_status_selector()
         self._build_comments_input()
 
@@ -92,6 +93,7 @@ class PublishContextWidget(BaseOptionsWidget):
 
         self.status_layout.addWidget(self.asset_status_label)
         self.status_layout.addWidget(self.status_selector)
+
         self.status_layout.addStretch()
         self.layout().addLayout(self.status_layout)
 
@@ -102,6 +104,26 @@ class PublishContextWidget(BaseOptionsWidget):
             target_args=()
         )
         thread.start()
+
+    def _build_comments_input(self):
+        '''Builds the comments_container widget'''
+        self.coments_layout = QtWidgets.QHBoxLayout()
+        self.coments_layout.setContentsMargins(0, 0, 0, 0)
+        self.coments_layout.setAlignment(QtCore.Qt.AlignTop)
+
+        comment_label = QtWidgets.QLabel('Description')
+        self.comments_input = QtWidgets.QLineEdit()
+        self.comments_input.setPlaceholderText("Type a description...")
+        self.comments_input.setStyleSheet(
+            "border: none;"
+            "background-color: transparent;"
+        )
+
+        self.coments_layout.addWidget(comment_label)
+        self.coments_layout.addWidget(self.comments_input)
+        self.layout().addLayout(self.coments_layout)
+
+        self.set_option_result(self.comments_input.text(), key='comment')
 
     def emit_statuses(self, statuses):
         '''Emit signal to set statuses on the combobox'''
@@ -135,29 +157,6 @@ class PublishContextWidget(BaseOptionsWidget):
         schema = project['project_schema']
         statuses = schema.get_statuses('AssetVersion')
         return statuses
-
-    def _build_comments_input(self):
-        '''Builds the comments_container widget'''
-        self.coments_layout = QtWidgets.QVBoxLayout()
-        self.coments_layout.setContentsMargins(0, 0, 0, 0)
-        self.coments_layout.setAlignment(QtCore.Qt.AlignTop)
-
-        comment_label = QtWidgets.QLabel('Description')
-        self.comments_input = QtWidgets.QLineEdit()
-        self.comments_input.setPlaceholderText("Type a description...")
-        self.comments_input.setStyleSheet(
-            "border: none;"
-            "background-color: transparent;"
-        )
-
-        self.coments_layout.addWidget(comment_label)
-        self.coments_layout.addWidget(self.comments_input)
-        self.layout().addLayout(self.coments_layout)
-
-        current_text = self.comments_input.text()
-        if current_text:
-            self.set_option_result(current_text, key='comment')
-
 
 class LoadContextWidget(BaseOptionsWidget):
     '''Main class to represent a context widget on a publish process'''
