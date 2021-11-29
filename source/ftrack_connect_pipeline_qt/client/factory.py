@@ -240,6 +240,7 @@ class WidgetFactory(QtWidgets.QWidget):
         # If there is a Finalizer widget show the widget otherwise not.
         if not UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True):
             finalizers_obj.widget.hide()
+        main_obj.widget.layout().addStretch()
 
         # Check all components status of the current UI
         self.post_build_definition()

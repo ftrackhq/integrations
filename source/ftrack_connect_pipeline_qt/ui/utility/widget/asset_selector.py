@@ -1,28 +1,49 @@
 import logging
-from Qt import QtWidgets, QtCore, QtGui
+import traceback
+
 from ftrack_connect_pipeline_qt.utils import BaseThread
-from ftrack_connect_pipeline_qt.ui.utility.widget.radio_widget_button import (
-    RadioVarticalWidgetButton, RadioHorizontalWidgetButton
-)
+from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import AssetVersion
 
+from Qt import QtWidgets, QtCore, QtGui
 
-class AssetComboBox(QtWidgets.QComboBox):
-    # valid_asset_name = QtCore.QRegExp('[A-Za-z0-9_]+')
+class AssetListItem(QtWidgets.QWidget):
+
+    def __init__(self, asset, session):
+        super(AssetListItem, self).__init__()
+        self.setLayout(QtWidgets.QHBoxLayout())
+        self.thumbnail_widget = AssetVersion(session)
+        self.thumbnail_widget.setScaledContents(True)
+        self.thumbnail_widget.setMinimumSize(40, 40)
+        self.thumbnail_widget.setMaximumSize(40, 40)
+        self.layout().addWidget(self.thumbnail_widget)
+        self.thumbnail_widget.load(asset['latest_version']['id'])
+
+        self.asset_name = QtWidgets.QLabel(asset['name'])
+        self.layout().addWidget(self.asset_name )
+
+        self.create_label = QtWidgets.QLabel('- create')
+        self.layout().addWidget(self.create_label)
+
+        self.version_label = QtWidgets.QLabel('Version {}'.format(asset['latest_version']['version']+1))
+        self.layout().addWidget(self.version_label)
+
+class AssetList(QtWidgets.QListWidget):
     assets_query_done = QtCore.Signal()
+    assets_added = QtCore.Signal()
 
     def __init__(self, session, parent=None):
-        super(AssetComboBox, self).__init__(parent=parent)
+        super(AssetList, self).__init__(parent=parent)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
 
         self.session = session
-        self.setMinimumWidth(200)
+        self.setMinimumWidth(250)
         self.setSizePolicy(
             QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding
         )
 
-    def query_assets_from_context(self, context_id, asset_type_name):
+    def _query_assets_from_context(self, context_id, asset_type_name):
         asset_type_entity = self.session.query(
                     'select name from AssetType where short is "{}"'.format(asset_type_name)
                 ).first()
@@ -34,32 +55,80 @@ class AssetComboBox(QtWidgets.QComboBox):
         ).all()
         return assets
 
-    def add_assets_to_ui(self, assets):
-        for asset_entity in assets:
-            self.addItem(
-                "{} (to v{})".format(
-                    asset_entity['name'], asset_entity['latest_version']['version']
-                ),
-                asset_entity
-            )
-        self.assets_query_done.emit()
+    def add_assets_to_ui(self, assets=None):
+        if assets is not None:
+            ''' Async, store assets and add through signal.'''
+            self.assets = assets
+            # Add data placeholder for new asset input
+            self.assets_query_done.emit()
+        else:
+            for asset_entity in self.assets:
+                widget = AssetListItem(
+                    asset_entity,
+                    self.session,
+                )
+                list_item = QtWidgets.QListWidgetItem(self)
+                list_item.setSizeHint(widget.sizeHint())
+                self.addItem(list_item)
+                self.setItemWidget(list_item, widget)
+            self.assets_added.emit()
 
     def on_context_changed(self, context_id, asset_type_name):
         self.clear()
 
         thread = BaseThread(
             name='get_assets_thread',
-            target=self.query_assets_from_context,
+            target=self._query_assets_from_context,
             callback=self.add_assets_to_ui,
             target_args=(context_id, asset_type_name)
         )
         thread.start()
 
+class NewAssetNameInput(QtWidgets.QLineEdit):
+    clicked = QtCore.Signal()
+    def __init__(self):
+        super(NewAssetNameInput, self).__init__()
+
+    def mousePressEvent(self, event):
+        '''Override mouse press to emit signal.'''
+        self.clicked.emit()
+
+class NewAssetInput(QtWidgets.QWidget):
+    clicked = QtCore.Signal()
+    def __init__(self, validator, placeholder_name):
+        super(NewAssetInput, self).__init__()
+
+        self.setLayout(QtWidgets.QHBoxLayout())
+
+        self.button = QtWidgets.QPushButton('NEW')
+        self.button.setMinimumSize(40, 40)
+        self.button.setMaximumSize(40, 40)
+        self.button.clicked.connect(self.input_clicked)
+        self.layout().addWidget(self.button)
+
+        self.name = NewAssetNameInput()
+        self.name.setPlaceholderText(placeholder_name)
+        self.name.setValidator(validator)
+        self.name.setSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum
+        )
+        self.name.clicked.connect(self.input_clicked)
+        self.layout().addWidget(self.name)
+
+        self.version_label = QtWidgets.QLabel('- Version 1')
+        self.layout().addWidget(self.version_label)
+
+    def mousePressEvent(self, event):
+        '''Override mouse press to emit signal.'''
+        self.input_clicked()
+
+    def input_clicked(self):
+        self.clicked.emit()
 
 class AssetSelector(QtWidgets.QWidget):
-
-    asset_changed = QtCore.Signal(object, object, object)
     valid_asset_name = QtCore.QRegExp('[A-Za-z0-9_]+')
+    asset_changed = QtCore.Signal(object, object, object)
+    update_widget = QtCore.Signal(object)
 
     def __init__(self, session, is_loader=False, parent=None):
         super(AssetSelector, self).__init__(parent=parent)
@@ -69,6 +138,9 @@ class AssetSelector(QtWidgets.QWidget):
 
         self.is_loader = is_loader
         self.session = session
+
+        self.validator = QtGui.QRegExpValidator(self.valid_asset_name)
+        self.placeholder_name = "Asset Name..."
 
         self.pre_build()
         self.build()
@@ -80,114 +152,84 @@ class AssetSelector(QtWidgets.QWidget):
         self.setLayout(main_layout)
 
     def build(self):
-        self.validator = QtGui.QRegExpValidator(self.valid_asset_name)
 
-        self.main_label = QtWidgets.QLabel("Choose how to publish this new version")
+        self.select_existing_label = QtWidgets.QLabel()
+        self.layout().addWidget(self.select_existing_label)
 
-        self.asset_combobox = AssetComboBox(self.session)
-        self.asset_combobox.setValidator(self.validator)
+        self.asset_list = AssetList(self.session)
+        self.layout().addWidget(self.asset_list)
 
-        if self.is_loader:
-            self.layout().addWidget(self.main_label)
-            self.layout().addWidget(self.asset_combobox)
-            return
-
-        self.asset_combobox.setStyleSheet(
-            "border: none;"
-            "background-color: transparent;"
-        )
-
-        self.version_up_rb = RadioHorizontalWidgetButton(label="Version Up", widget=self.asset_combobox)
-
-
-
-
-        self.new_asset_name = QtWidgets.QLineEdit()
-        self.new_asset_name.setPlaceholderText("Asset Name...")
-        self.new_asset_name.setValidator(self.validator)
-        self.new_asset_name.setStyleSheet(
-            "border: none;"
-            "background-color: transparent;"
-        )
-        self.new_asset_name.setSizePolicy(
-            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum
-        )
-
-        new_name_container = QtWidgets.QWidget()
-        new_name_container.setContentsMargins(0, 0, 0, 0)
-        text_layout = QtWidgets.QHBoxLayout()
-        version_label = QtWidgets.QLabel("v1")
-        version_label.setEnabled(False)
-        new_name_container.setLayout(text_layout)
-        new_name_container.layout().setContentsMargins(0, 0, 0, 0)
-
-        new_name_container.layout().addWidget(self.new_asset_name)
-        new_name_container.layout().addWidget(version_label)
-        new_name_container.layout().addStretch()
-
-        self.new_asset_rb = RadioVarticalWidgetButton(label="As a new asset", widget=new_name_container)
-
-        button_group = QtWidgets.QButtonGroup()
-
-        button_group.addButton(self.version_up_rb)
-        button_group.addButton(self.new_asset_rb)
-
-        self.layout().addWidget(self.main_label)
-        self.layout().addWidget(self.version_up_rb)
-        self.layout().addWidget(self.new_asset_rb)
-
-        self.version_up_rb.setChecked(True)
-        self.new_asset_rb.toggle_state()
+        # Create new asset
+        self.new_asset_input = NewAssetInput(self.validator, self.placeholder_name)
+        self.layout().addWidget(self.new_asset_input)
 
     def post_build(self):
-        self.asset_combobox.currentIndexChanged.connect(
+        self.asset_list.itemChanged.connect(
             self._current_asset_changed
         )
-        self.asset_combobox.assets_query_done.connect(self._pre_select_asset)
-        if not self.is_loader:
-            self.new_asset_name.textChanged.connect(self._new_assset_changed)
-            self.version_up_rb.clicked.connect(self.toggle_rb_state)
-            self.new_asset_rb.clicked.connect(self.toggle_rb_state)
+        self.asset_list.assets_query_done.connect(self._add_assets)
+        self.asset_list.assets_added.connect(self._pre_select_asset)
+        self.asset_list.itemActivated.connect(self._list_selection_updated)
+        self.asset_list.itemSelectionChanged.connect(self._list_selection_updated)
+        self.new_asset_input.clicked.connect(self._update_widget)
+        self.new_asset_input.name.textChanged.connect(self._new_asset_changed)
+        self.update_widget.connect(self._update_widget)
 
-    def toggle_rb_state(self):
-        self.version_up_rb.toggle_state()
-        self.new_asset_rb.toggle_state()
-        if self.new_asset_rb.isChecked() and self.new_asset_name.text() == "":
-            self.new_asset_name.setText(self.new_asset_name.placeholderText())
-        elif not self.new_asset_rb.isChecked():
-            self.new_asset_name.textChanged.disconnect()
-            self.new_asset_name.setText("")
-            self.new_asset_name.textChanged.connect(self._new_assset_changed)
+    def _add_assets(self):
+        ''' Add assets queried in separate thread to list.'''
+        self.asset_list.add_assets_to_ui()
 
     def _pre_select_asset(self):
-        if self.asset_combobox.count() > 0:
-            self.asset_combobox.setCurrentIndex(0)
-            self.new_asset_rb.text_widget.setText("As a new asset")
-            self.main_label.show()
-            self.version_up_rb.show()
-        if self.asset_combobox.count() <=0:
-            self.version_up_rb.hide()
-            self.main_label.hide()
-            self.new_asset_rb.text_widget.setText("Name")
-            self.new_asset_rb.click()
+        # Assets have been loaded, select most suitable asset to start with
+        if self.asset_list.count() > 0:
+            self.select_existing_label.setText('We found {} assets already '
+                'published on this task. Choose which one to version up or create '
+                'a new asset'.format(self.asset_list.count()))
 
+            self.asset_list.setCurrentRow(0)
+            self.select_existing_label.show()
+            self.asset_list.show()
 
+        if self.asset_list.count() <= 0:
+            self.select_existing_label.hide()
+            self.asset_list.hide()
 
-    def _current_asset_changed(self, index):
-        current_idx = self.asset_combobox.currentIndex()
-        asset_entity = self.asset_combobox.itemData(current_idx)
-        asset_name = asset_entity['name']
-        is_valid_name = self.validate_name(asset_name)
-        self.asset_changed.emit(asset_name, asset_entity, is_valid_name)
+    def _list_selection_updated(self):
+        selected_index = self.asset_list.currentRow()
+        if selected_index == -1:
+            # Deselected, go over to new asset input
+            self.update_widget.emit(None)
+        else:
+            self.update_widget.emit(self.asset_list.assets[selected_index])
 
-    def _new_assset_changed(self):
-        asset_name = self.new_asset_name.text()
-        is_valid_name = self.validate_name(asset_name)
-        self.asset_changed.emit(asset_name, None, is_valid_name)
+    def _current_asset_changed(self, item):
+        ''' An existing asset has been selected. '''
+        selected_index = self.asset_list.currentRow()
+        if selected_index > -1:
+            # A proper asset were selected
+            asset_entity = self.asset_list.assets[selected_index]
+            asset_name = asset_entity['name']
+            is_valid_name = self.validate_name(asset_name)
+            self.asset_changed.emit(asset_name, asset_entity, is_valid_name)
+            self.update_widget.emit(asset_entity)
+        else:
+            # All items de-selected
+            self.update_widget.emit(None)
+
+    def _update_widget(self, selected_asset=None):
+        ''' Synchronize state of list with new asset input. '''
+        if selected_asset is not None:
+            # Bring focus to list, remove focus from new asset input
+            self.new_asset_input.setStyleSheet('QWidget{border: 0px solid transparent;}')
+        else:
+            # Deselect all assets in list, bring focus to new asset input
+            self.asset_list.setCurrentRow(-1)
+            self.new_asset_input.setStyleSheet('QWidget{border: 1px dashed purple;}')
+        self.new_asset_input.button.setEnabled(selected_asset is not None)
 
     def set_context(self, context_id, asset_type_name):
         self.logger.debug('setting context to :{}'.format(context_id))
-        self.asset_combobox.on_context_changed(context_id, asset_type_name)
+        self.asset_list.on_context_changed(context_id, asset_type_name)
         self.propose_new_asset_placeholder_name(context_id)
 
     def _get_context_entity(self, context_id):
@@ -206,9 +248,14 @@ class AssetSelector(QtWidgets.QWidget):
         thread.start()
 
     def _set_placeholder_name(self, context_entity):
-        self.new_asset_name.setPlaceholderText(
-            context_entity.get("name", "New Asset Name...").replace(" ", "_")
-        )
+        if context_entity.get("name"):
+            self.placeholder_name = context_entity.get("name").replace(" ", "_")
+        self.new_asset_input.name.setPlaceholderText(self.placeholder_name)
+
+    def _new_asset_changed(self):
+        asset_name = self.new_asset_input.name.text()
+        is_valid_name = self.validate_name(asset_name)
+        self.asset_changed.emit(asset_name, None, is_valid_name)
 
     def validate_name(self, asset_name):
         is_valid_bool = True
