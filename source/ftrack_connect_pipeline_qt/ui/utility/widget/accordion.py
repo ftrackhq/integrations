@@ -297,6 +297,7 @@ class Status(QtWidgets.QLabel):
         icon = self.status_icons[constants.DEFAULT_STATUS]
         self.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
         self.setPixmap(icon)
+        self.hide()
 
     def set_status(self, status, message=None):
         icon = self.status_icons[status]

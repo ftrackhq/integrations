@@ -235,6 +235,7 @@ class WidgetFactory(QtWidgets.QWidget):
         )
 
         main_obj.widget.layout().addWidget(context_obj.widget)
+        main_obj.widget.layout().addWidget(QtWidgets.QLabel('Components'))
         main_obj.widget.layout().addWidget(self.components_obj.widget)
         main_obj.widget.layout().addWidget(finalizers_obj.widget)
         # If there is a Finalizer widget show the widget otherwise not.
@@ -586,7 +587,7 @@ class WidgetFactory(QtWidgets.QWidget):
 
 
     def _asset_version_changed(self, version_id):
-        '''Callbac funtion triggered when a asset version has changed'''
+        '''Callbac function triggered when a asset version has changed'''
         self.version_id = version_id
 
         thread = BaseThread(
