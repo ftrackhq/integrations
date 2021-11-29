@@ -43,7 +43,7 @@ class ContextSelector(QtWidgets.QWidget):
 
     def build(self):
         self.thumbnail_widget = Context(self.session)
-        self.thumbnail_widget.setScaledContents(True)
+        #self.thumbnail_widget.setScaledContents(True)
 
         self.thumbnail_widget.setMinimumWidth(50)
         self.thumbnail_widget.setMinimumHeight(50)

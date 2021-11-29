@@ -80,18 +80,19 @@ class Logo(QtWidgets.QLabel):
             QtCore.Qt.AlignTop
         )
         self.setLayout(self.main_layout)
+
     def build(self):
-        #TODO: fix this logo not working
-        logoPixmap = None#QtGui.QPixmap(':ftrack/image/default/ftrackLogoLabel')
-        # self.setPixmap(
-        #     logoPixmap.scaled(
-        #         self.size(),
-        #         QtCore.Qt.KeepAspectRatio,
-        #         QtCore.Qt.SmoothTransformation
-        #     )
-        # )
-        if not logoPixmap:
-            self.setText("FTRACKLOGO")
+        logoPixmap = QtGui.QPixmap(':ftrack/image/default/ftrackLogoLabel')
+        if not logoPixmap is None:
+            self.setPixmap(
+                logoPixmap.scaled(
+                    QtCore.QSize(self.width(), 20),
+                    QtCore.Qt.KeepAspectRatio,
+                    QtCore.Qt.SmoothTransformation
+                )
+            )
+        else:
+            self.setText("ftrack1")
 
 
 class User(QtWidgets.QWidget):
