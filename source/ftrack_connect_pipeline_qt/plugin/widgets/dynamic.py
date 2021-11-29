@@ -2,7 +2,9 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 from functools import partial
+
 from Qt import QtWidgets, QtCore
+
 from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 
 

@@ -7,6 +7,7 @@ import urllib.request, urllib.parse, urllib.error
 import urllib.request, urllib.error, urllib.parse
 
 from Qt import QtCore, QtGui, QtWidgets
+
 from ftrack_connect_pipeline_qt.utils import Worker
 
 # Cache of thumbnail images.
