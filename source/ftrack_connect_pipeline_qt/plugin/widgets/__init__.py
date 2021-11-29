@@ -102,10 +102,12 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self.on_run_plugin(method)
 
     def toggle_status(self, show=False):
-        self._status_icon.setVisible(show and False)
+        #self._status_icon.setVisible(show and False)
+        pass
 
     def toggle_name(self, show=False):
-        self.name_label.setVisible(show and False)
+        #self.name_label.setVisible(show and False)
+        pass
 
     def __init__(
             self, parent=None, session=None, data=None, name=None,
