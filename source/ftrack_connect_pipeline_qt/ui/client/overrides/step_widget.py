@@ -1,9 +1,13 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2021 ftrack
+
+from Qt import QtWidgets
+
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import AccordionWidget
 from ftrack_connect_pipeline_qt.ui.client.default.step_widget import DefaultStepWidget
 from ftrack_connect_pipeline_qt.plugin.widgets.load_widget import LoadBaseWidget
-from Qt import QtWidgets
 
 
 def recursive_get_load_mode_container(widget):

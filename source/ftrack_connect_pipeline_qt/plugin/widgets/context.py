@@ -1,13 +1,14 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
+from Qt import QtWidgets, QtCore, QtGui
+
 from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 
 from ftrack_connect_pipeline_qt.ui.utility.widget.asset_selector import AssetSelector
 from ftrack_connect_pipeline_qt.ui.utility.widget.asset_grid_selector import AssetGridSelector
 from ftrack_connect_pipeline_qt.utils import BaseThread
 
-from Qt import QtWidgets, QtCore, QtGui
 
 class PublishContextWidget(BaseOptionsWidget):
     ''' Main class to represent a context widget on a publish process. '''
@@ -122,9 +123,7 @@ class PublishContextWidget(BaseOptionsWidget):
         self.coments_layout.addWidget(self.comments_input)
         self.layout().addLayout(self.coments_layout)
 
-        current_text = self.comments_input.text()
-        if current_text:
-            self.set_option_result(current_text, key='comment')
+        self.set_option_result(self.comments_input.text(), key='comment')
 
     def emit_statuses(self, statuses):
         '''Emit signal to set statuses on the combobox'''

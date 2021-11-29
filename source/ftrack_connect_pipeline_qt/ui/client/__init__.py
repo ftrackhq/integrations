@@ -1,8 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
-
 import logging
 import uuid
+
 from Qt import QtGui, QtCore, QtWidgets
 
 class BaseUIWidget(object):

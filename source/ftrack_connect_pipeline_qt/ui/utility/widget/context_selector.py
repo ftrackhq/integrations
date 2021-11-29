@@ -1,7 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015 ftrack
 
-
 from Qt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline_qt.ui.utility.widget.entity_info import EntityInfo

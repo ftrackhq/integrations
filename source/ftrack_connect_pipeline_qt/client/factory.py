@@ -3,8 +3,10 @@
 import copy
 import logging
 from functools import partial
-
 import uuid
+
+from Qt import QtCore, QtWidgets
+
 import ftrack_api
 
 from ftrack_connect_pipeline_qt import constants
@@ -14,8 +16,6 @@ from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
 from ftrack_connect_pipeline_qt.ui.client import overrides as override_widgets, default as default_widgets
 from ftrack_connect_pipeline_qt.ui.client.client_ui_overrides import UI_OVERRIDES
-
-from Qt import QtCore, QtWidgets
 
 
 class WidgetFactory(QtWidgets.QWidget):

@@ -8,6 +8,7 @@ import sys
 import subprocess
 
 from Qt import QtGui, QtCore, QtWidgets
+
 from ftrack_connect_pipeline import client, constants
 from ftrack_connect_pipeline.configure_logging import get_log_directory
 from ftrack_connect_pipeline.client.log_viewer import LogViewerClient

@@ -1,6 +1,7 @@
 from functools import partial
 
 from Qt import QtWidgets, QtCore, QtGui
+
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline import constants as pipeline_constants
 from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget

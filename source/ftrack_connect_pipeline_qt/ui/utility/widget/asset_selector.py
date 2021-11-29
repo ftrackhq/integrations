@@ -1,33 +1,47 @@
 import logging
-import traceback
+
+from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect_pipeline_qt.utils import BaseThread
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import AssetVersion
 
-from Qt import QtWidgets, QtCore, QtGui
 
 class AssetListItem(QtWidgets.QWidget):
-
+    ''' Widget representing an asset within the '''
     def __init__(self, asset, session):
         super(AssetListItem, self).__init__()
+    
+        self.asset = asset
+        self.session = session
+        self.pre_build()
+        self.build()
+        self.post_build()
+    
+    def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())
-        self.thumbnail_widget = AssetVersion(session)
+    
+    def build(self):
+        self.thumbnail_widget = AssetVersion(self.session)
         self.thumbnail_widget.setScaledContents(True)
         self.thumbnail_widget.setMinimumSize(40, 40)
         self.thumbnail_widget.setMaximumSize(40, 40)
         self.layout().addWidget(self.thumbnail_widget)
-        self.thumbnail_widget.load(asset['latest_version']['id'])
+        self.thumbnail_widget.load(self.asset['latest_version']['id'])
 
-        self.asset_name = QtWidgets.QLabel(asset['name'])
+        self.asset_name = QtWidgets.QLabel(self.asset['name'])
         self.layout().addWidget(self.asset_name )
 
         self.create_label = QtWidgets.QLabel('- create')
         self.layout().addWidget(self.create_label)
 
-        self.version_label = QtWidgets.QLabel('Version {}'.format(asset['latest_version']['version']+1))
+        self.version_label = QtWidgets.QLabel('Version {}'.format(self.asset['latest_version']['version']+1))
         self.layout().addWidget(self.version_label)
-
+        
+    def post_build(self):
+        pass
+        
 class AssetList(QtWidgets.QListWidget):
+    ''' Widget presenting list of existing assets '''
     assets_query_done = QtCore.Signal()
     assets_added = QtCore.Signal()
 
@@ -44,6 +58,7 @@ class AssetList(QtWidgets.QListWidget):
         )
 
     def _query_assets_from_context(self, context_id, asset_type_name):
+        ''' (Run in background thread) Fetch assets from current context'''
         asset_type_entity = self.session.query(
                     'select name from AssetType where short is "{}"'.format(asset_type_name)
                 ).first()
@@ -55,23 +70,24 @@ class AssetList(QtWidgets.QListWidget):
         ).all()
         return assets
 
-    def add_assets_to_ui(self, assets=None):
-        if assets is not None:
-            ''' Async, store assets and add through signal.'''
-            self.assets = assets
-            # Add data placeholder for new asset input
-            self.assets_query_done.emit()
-        else:
-            for asset_entity in self.assets:
-                widget = AssetListItem(
-                    asset_entity,
-                    self.session,
-                )
-                list_item = QtWidgets.QListWidgetItem(self)
-                list_item.setSizeHint(widget.sizeHint())
-                self.addItem(list_item)
-                self.setItemWidget(list_item, widget)
-            self.assets_added.emit()
+    def _store_assets(self, assets):
+        ''' Async, store assets and add through signal'''
+        self.assets = assets
+        # Add data placeholder for new asset input
+        self.assets_query_done.emit()
+        
+    def add_assets_to_ui(self):
+        ''' Add fetched assets to list '''
+        for asset_entity in self.assets:
+            widget = AssetListItem(
+                asset_entity,
+                self.session,
+            )
+            list_item = QtWidgets.QListWidgetItem(self)
+            list_item.setSizeHint(widget.sizeHint())
+            self.addItem(list_item)
+            self.setItemWidget(list_item, widget)
+        self.assets_added.emit()
 
     def on_context_changed(self, context_id, asset_type_name):
         self.clear()
@@ -79,21 +95,23 @@ class AssetList(QtWidgets.QListWidget):
         thread = BaseThread(
             name='get_assets_thread',
             target=self._query_assets_from_context,
-            callback=self.add_assets_to_ui,
+            callback=self._store_assets,
             target_args=(context_id, asset_type_name)
         )
         thread.start()
 
 class NewAssetNameInput(QtWidgets.QLineEdit):
+    ''' Widget holding new asset name input '''
     clicked = QtCore.Signal()
     def __init__(self):
         super(NewAssetNameInput, self).__init__()
 
     def mousePressEvent(self, event):
-        '''Override mouse press to emit signal.'''
+        '''Override mouse press to emit signal'''
         self.clicked.emit()
 
 class NewAssetInput(QtWidgets.QWidget):
+    ''' Widget holding new asset inputs '''
     clicked = QtCore.Signal()
     def __init__(self, validator, placeholder_name):
         super(NewAssetInput, self).__init__()
@@ -152,7 +170,6 @@ class AssetSelector(QtWidgets.QWidget):
         self.setLayout(main_layout)
 
     def build(self):
-
         self.select_existing_label = QtWidgets.QLabel()
         self.layout().addWidget(self.select_existing_label)
 
@@ -180,7 +197,7 @@ class AssetSelector(QtWidgets.QWidget):
         self.asset_list.add_assets_to_ui()
 
     def _pre_select_asset(self):
-        # Assets have been loaded, select most suitable asset to start with
+        ''' Assets have been loaded, select most suitable asset to start with '''
         if self.asset_list.count() > 0:
             self.select_existing_label.setText('We found {} assets already '
                 'published on this task. Choose which one to version up or create '
@@ -190,14 +207,14 @@ class AssetSelector(QtWidgets.QWidget):
             self.select_existing_label.show()
             self.asset_list.show()
 
-        if self.asset_list.count() <= 0:
+        else:
             self.select_existing_label.hide()
             self.asset_list.hide()
 
     def _list_selection_updated(self):
         selected_index = self.asset_list.currentRow()
         if selected_index == -1:
-            # Deselected, go over to new asset input
+            # Deselected, give focus to new asset input
             self.update_widget.emit(None)
         else:
             self.update_widget.emit(self.asset_list.assets[selected_index])
