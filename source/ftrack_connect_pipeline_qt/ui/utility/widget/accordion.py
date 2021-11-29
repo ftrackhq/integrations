@@ -31,6 +31,7 @@ class AccordionWidget(QtWidgets.QWidget):
         self.post_build()
 
     def set_status(self, status, message):
+        # TODO: Instead of run status, implement collector status
         self._title_frame._status.set_status(status, message)
 
     def pre_build(self):
@@ -142,11 +143,11 @@ class AccordionWidget(QtWidgets.QWidget):
         )
 
     def set_unavailable(self):
-        self.setToolTip('This component is not available in Ftrack')
+        self.setToolTip('This component is not available in ftrack')
         if not self.checkable:
             self.paint_title("red")
             self.setToolTip(
-                'This component is mandatory and is not available in Ftrack'
+                'This component is mandatory and is not available in ftrack'
             )
         self.set_checked(False)
         self.setEnabled(False)
@@ -196,24 +197,24 @@ class AccordionTitleWidget(QtWidgets.QFrame):
         self._hlayout.setContentsMargins(0, 0, 0, 0)
 
     def build(self):
-        if self.checkable:
-            self._hlayout.addWidget(self.init_checkbox(True))
+        self._hlayout.addWidget(self.init_checkbox(True, self.checkable))
         self._hlayout.addWidget(self.init_title(self.title))
         self._hlayout.addStretch()
-        self._hlayout.addWidget(self.init_arrow(self.initial_collapse))
         self._hlayout.addWidget(self.init_status())
+        self._hlayout.addWidget(self.init_arrow(self.initial_collapse))
+
 
     def post_build(self):
         if self.checkbox:
             self._checkbox.stateChanged.connect(self.enable_content)
 
     def add_extra_button(self, title, idx):
-        extra_button = self.init_extraButton(title)
+        extra_button = self.init_options_button(title)
         self._hlayout.insertWidget(idx, extra_button)
         return extra_button
 
-    def init_extraButton(self, title):
-        extra_button = ExtraButton(title)
+    def init_options_button(self, title):
+        extra_button = OptionsButton(title)
         self._extra_buttons[title] = extra_button
         return extra_button
 
@@ -233,10 +234,10 @@ class AccordionTitleWidget(QtWidgets.QFrame):
 
         return self._title_label
 
-    def init_checkbox(self, checked):
+    def init_checkbox(self, checked, enabled):
         self._checkbox = QtWidgets.QCheckBox()
         self._checkbox.setChecked(checked)
-
+        self._checkbox.setEnabled(enabled)
         return self._checkbox
 
     def mousePressEvent(self, event):
@@ -248,10 +249,10 @@ class AccordionTitleWidget(QtWidgets.QFrame):
         self.checked.emit(check_enabled)
 
 
-class ExtraButton(QtWidgets.QPushButton):
+class OptionsButton(QtWidgets.QPushButton):
 
     def __init__(self, title, parent=None):
-        super(ExtraButton, self).__init__(parent=parent)
+        super(OptionsButton, self).__init__(parent=parent)
         self.name = title
 
         self.setMinimumSize(30, 30)
@@ -264,7 +265,7 @@ class ExtraButton(QtWidgets.QPushButton):
                 font: 14px;
                 text-align: center;
             }
-            """)
+        """)
         self.setFlat(True)
 
         self.build()
@@ -287,7 +288,15 @@ class ExtraButton(QtWidgets.QPushButton):
             self.overlay_container.setParent(main_window)
         self.overlay_container.setVisible(True)
 
-    def add_widget(self, widget):
+    def add_validator_widget(self, widget):
+        self.main_widget.layout().addWidget(QtWidgets.QLabel(''))
+        self.main_widget.layout().addWidget(QtWidgets.QLabel(''))
+        self.main_widget.layout().addWidget(QtWidgets.QLabel('<html><strong>Validators:<strong><html>'))
+        self.main_widget.layout().addWidget(widget)
+
+    def add_output_widget(self, widget):
+        self.main_widget.layout().addWidget(QtWidgets.QLabel(''))
+        self.main_widget.layout().addWidget(QtWidgets.QLabel('<html><strong>Output:<strong><html>'))
         self.main_widget.layout().addWidget(widget)
 
 class Status(QtWidgets.QLabel):
@@ -298,7 +307,6 @@ class Status(QtWidgets.QLabel):
         icon = self.status_icons[constants.DEFAULT_STATUS]
         self.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
         self.setPixmap(icon)
-        self.hide()
 
     def set_status(self, status, message=None):
         icon = self.status_icons[status]
