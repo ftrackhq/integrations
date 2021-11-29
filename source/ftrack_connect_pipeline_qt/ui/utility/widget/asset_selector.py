@@ -56,6 +56,7 @@ class AssetList(QtWidgets.QListWidget):
         self.setSizePolicy(
             QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding
         )
+        self.assets = []
 
     def _query_assets_from_context(self, context_id, asset_type_name):
         ''' (Run in background thread) Fetch assets from current context'''
@@ -76,8 +77,9 @@ class AssetList(QtWidgets.QListWidget):
         # Add data placeholder for new asset input
         self.assets_query_done.emit()
         
-    def add_assets_to_ui(self):
+    def refresh(self):
         ''' Add fetched assets to list '''
+        self.clear()
         for asset_entity in self.assets:
             widget = AssetListItem(
                 asset_entity,
@@ -184,7 +186,7 @@ class AssetSelector(QtWidgets.QWidget):
         self.asset_list.itemChanged.connect(
             self._current_asset_changed
         )
-        self.asset_list.assets_query_done.connect(self._add_assets)
+        self.asset_list.assets_query_done.connect(self._refresh)
         self.asset_list.assets_added.connect(self._pre_select_asset)
         self.asset_list.itemActivated.connect(self._list_selection_updated)
         self.asset_list.itemSelectionChanged.connect(self._list_selection_updated)
@@ -192,9 +194,9 @@ class AssetSelector(QtWidgets.QWidget):
         self.new_asset_input.name.textChanged.connect(self._new_asset_changed)
         self.update_widget.connect(self._update_widget)
 
-    def _add_assets(self):
+    def _refresh(self):
         ''' Add assets queried in separate thread to list.'''
-        self.asset_list.add_assets_to_ui()
+        self.asset_list.refresh()
 
     def _pre_select_asset(self):
         ''' Assets have been loaded, select most suitable asset to start with '''
