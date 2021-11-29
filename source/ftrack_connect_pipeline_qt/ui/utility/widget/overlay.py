@@ -1,10 +1,9 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2021 ftrack
 
-from Qt import QtGui, QtCore, QtWidgets
-
 from ftrack_connect_pipeline_qt import utils
 
+from Qt import QtGui, QtCore, QtWidgets
 
 class Overlay(QtWidgets.QWidget):
     '''
