@@ -102,10 +102,12 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self.on_run_plugin(method)
 
     def toggle_status(self, show=False):
-        self._status_icon.setVisible(show)
+        #self._status_icon.setVisible(show and False)
+        pass
 
     def toggle_name(self, show=False):
-        self.name_label.setVisible(show)
+        #self.name_label.setVisible(show and False)
+        pass
 
     def __init__(
             self, parent=None, session=None, data=None, name=None,
@@ -168,7 +170,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
             QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
         )
         self._status_icon.setMaximumHeight(10)
-
+        self._status_icon.hide()
         layout.addWidget(self._status_icon)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setAlignment(QtCore.Qt.AlignTop)

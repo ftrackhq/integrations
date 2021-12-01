@@ -6,6 +6,7 @@ import sys
 import logging
 
 from Qt import QtCore, QtWidgets
+
 from ftrack_connect_pipeline_qt import constants as qt_constants
 
 class Worker(QtCore.QThread):

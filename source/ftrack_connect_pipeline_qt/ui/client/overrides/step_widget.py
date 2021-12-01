@@ -1,9 +1,13 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2021 ftrack
+
+from Qt import QtWidgets
+
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import AccordionWidget
 from ftrack_connect_pipeline_qt.ui.client.default.step_widget import DefaultStepWidget
 from ftrack_connect_pipeline_qt.plugin.widgets.load_widget import LoadBaseWidget
-from Qt import QtWidgets
 
 
 def recursive_get_load_mode_container(widget):
@@ -32,19 +36,14 @@ class AccordionStepWidget(BaseUIWidget):
             return self._is_enabled
 
     @property
-    def validators_widget(self):
-        return self._validators_widget
-
-    @property
-    def outputs_widget(self):
-        return self._outputs_widget
+    def options_widget(self):
+        return self._options_widget
 
     def __init__(self, name, fragment_data, parent=None):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
 
-        self._validators_widget = None
-        self._outputs_widget = None
+        self._options_widget = None
 
         super(AccordionStepWidget, self).__init__(
             name, fragment_data, parent=parent
@@ -57,33 +56,33 @@ class AccordionStepWidget(BaseUIWidget):
         self._widget = AccordionWidget(
             title=self.name, checkable=self.is_optional
         )
-        idx=2
-        if self.is_optional:
-            idx=3
+        #idx=2
+        #if self.is_optional:
+        idx=3
 
-        if core_constants.VALIDATOR in self.fragment_data.get('stage_order'):
-            self._validators_widget = self._widget.add_extra_button("V", idx)
+        #if core_constants.VALIDATOR in self.fragment_data.get('stage_order'):
+        #    self._validators_widget = self._widget.add_extra_button("V", idx)
 
         if core_constants.OUTPUT in self.fragment_data.get('stage_order'):
-            self._outputs_widget = self._widget.add_extra_button("O", idx)
+            self._options_widget = self._widget.add_extra_button("O", idx)
 
     def parent_validator(self, step_widget):
-        if self.validators_widget:
+        if self.options_widget:
             if isinstance(step_widget, BaseUIWidget):
-                self.validators_widget.add_widget(step_widget.widget)
+                self.options_widget.add_validator_widget(step_widget.widget)
             else:
-                self.validators_widget.add_widget(step_widget)
+                self.options_widget.add_validator_widget(step_widget)
         else:
-            self.logger.error("Please create a validators_widget before parent")
+            self.logger.error("Please create a options_widget before parent")
 
     def parent_output(self, step_widget):
-        if self.outputs_widget:
+        if self.options_widget:
             if isinstance(step_widget, BaseUIWidget):
-                self.outputs_widget.add_widget(step_widget.widget)
+                self.options_widget.add_output_widget(step_widget.widget)
             else:
-                self.outputs_widget.add_widget(step_widget)
+                self.options_widget.add_output_widget(step_widget)
         else:
-            self.logger.error("Please create a outputs_widget before parent")
+            self.logger.error("Please create a options_widget before parent")
 
     def parent_widget(self, step_widget):
         if self.widget:

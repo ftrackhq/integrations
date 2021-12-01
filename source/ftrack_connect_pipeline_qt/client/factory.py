@@ -3,8 +3,10 @@
 import copy
 import logging
 from functools import partial
-
 import uuid
+
+from Qt import QtCore, QtWidgets
+
 import ftrack_api
 
 from ftrack_connect_pipeline_qt import constants
@@ -14,8 +16,6 @@ from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
 from ftrack_connect_pipeline_qt.ui.client import overrides as override_widgets, default as default_widgets
 from ftrack_connect_pipeline_qt.ui.client.client_ui_overrides import UI_OVERRIDES
-
-from Qt import QtCore, QtWidgets
 
 
 class WidgetFactory(QtWidgets.QWidget):
@@ -235,12 +235,13 @@ class WidgetFactory(QtWidgets.QWidget):
         )
 
         main_obj.widget.layout().addWidget(context_obj.widget)
+        main_obj.widget.layout().addWidget(QtWidgets.QLabel('Components'))
         main_obj.widget.layout().addWidget(self.components_obj.widget)
         main_obj.widget.layout().addWidget(finalizers_obj.widget)
         # If there is a Finalizer widget show the widget otherwise not.
         if not UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True):
             finalizers_obj.widget.hide()
-        main_obj.widget.layout().addWidget(QtWidgets.QLabel(), 1000)
+        main_obj.widget.layout().addStretch()
 
         # Check all components status of the current UI
         self.post_build_definition()
@@ -586,7 +587,7 @@ class WidgetFactory(QtWidgets.QWidget):
 
 
     def _asset_version_changed(self, version_id):
-        '''Callbac funtion triggered when a asset version has changed'''
+        '''Callbac function triggered when a asset version has changed'''
         self.version_id = version_id
 
         thread = BaseThread(

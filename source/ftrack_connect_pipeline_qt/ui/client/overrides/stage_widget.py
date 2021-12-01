@@ -1,8 +1,9 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
 from Qt import QtWidgets
+
+from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
 
 
 class GroupBoxStageWidget(BaseUIWidget):

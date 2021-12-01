@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 from Qt import QtCore, QtWidgets
+
 from ftrack_connect_pipeline import client, constants
 from ftrack_connect_pipeline_qt.ui.utility.widget import header, definition_selector
 from ftrack_connect_pipeline_qt.client import factory
@@ -103,6 +104,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
         self.scroll = QtWidgets.QScrollArea()
         self.scroll.setWidgetResizable(True)
+        self.scroll.setStyleSheet('border: 0px solid transparent;')
         self.layout().addWidget(self.scroll)
 
         self.run_button = QtWidgets.QPushButton(self.run_definition_button_text.upper())

@@ -7,6 +7,7 @@ import urllib.request, urllib.parse, urllib.error
 import urllib.request, urllib.error, urllib.parse
 
 from Qt import QtCore, QtGui, QtWidgets
+
 from ftrack_connect_pipeline_qt.utils import Worker
 
 # Cache of thumbnail images.
@@ -51,7 +52,7 @@ class Base(QtWidgets.QLabel):
                 app.processEvents()
 
         self._worker = Worker(
-            self._download, [reference], parent=self
+            self._download, args=[reference], parent=self
         )
 
         self.__loadingReference = reference
@@ -161,7 +162,10 @@ class Context(Base):
 
     def _download(self, reference):
         '''Return thumbnail from *reference*.'''
-        thumbnail = self.session.get('Context', reference)['thumbnail']
+        context = self.session.get('Context', reference)
+        thumbnail = context['thumbnail']
+        if thumbnail is None and context['thumbnail_id'] is not None:
+            thumbnail = self.session.query('FileComponent where id is "{}"'.format(context['thumbnail_id'])).one()
         url = self.get_thumbnail_url(thumbnail)
         url = url or self.placholderThumbnail
         return super(Context, self)._download(url)

@@ -4,8 +4,9 @@
 
 from functools import partial
 
-from ftrack_connect_pipeline.client.asset_manager import AssetManagerClient
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
+
+from ftrack_connect_pipeline.client.asset_manager import AssetManagerClient
 from ftrack_connect_pipeline_qt.ui.utility.widget import header, host_selector
 from ftrack_connect_pipeline_qt.ui.asset_manager import AssetManagerWidget
 
