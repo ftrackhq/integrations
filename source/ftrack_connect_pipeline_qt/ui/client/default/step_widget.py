@@ -35,6 +35,7 @@ class DefaultStepWidget(BaseUIWidget):
         if not self.is_optional:
             self.check_box.setChecked(True)
             self.check_box.setEnabled(False)
+        self.check_box.hide()
 
     def post_build(self):
         super(DefaultStepWidget, self).post_build()

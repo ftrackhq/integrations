@@ -236,7 +236,9 @@ setup(
         'qtawesome'
     ],
     install_requires=[
-        'qt.py >=1.0.0, < 2'
+        'Qt.py >=1.0.0, < 2',
+        'qtpy',
+        'qtawesome'
     ],
     tests_require=[
         'pytest >= 2.3.5, < 3'

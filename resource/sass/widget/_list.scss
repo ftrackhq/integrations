@@ -1,0 +1,34 @@
+/** List */
+QListWidget {
+    border: 1px solid $gray-dark;
+    outline: 0;
+    background: transparent;
+}
+QListWidget::item
+{
+    background: transparent;
+    padding: 2px;
+    color: white;
+}
+QListWidget::item QLabel
+{
+    background: transparent;
+}
+
+QListWidget::item:selected
+{
+   background: $color-purple-light-1;
+}
+
+
+AssetList {
+    border: none;
+    outline: 0;
+    background: transparent;
+}
+
+AssetList::item:selected
+{
+    border: 1px dashed $color-purple;
+    background: transparent;
+}

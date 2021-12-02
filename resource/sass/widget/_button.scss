@@ -5,13 +5,21 @@ QPushButton {
     background-color: transparent;
     color: $color-purple;
     padding: 4px;
-    min-width: 80px;
-
+    /*min-width: 80px;*/
 }
 
 QPushButton#status-widget[status='success'] {
     border: 1px solid $color-green;
     border-radius: 4px;
+}
+
+QFrame#new-asset-input[status=''] QPushButton {
+    border: 1px; solid transparent;
+}
+
+OptionsButton {
+    padding: 0px;
+    margin: 0px;
 }
 
 QPushButton:hover {
@@ -73,4 +81,9 @@ QToolButton:pressed {
     border-color: darken($color-purple, 5%);
     background-color:  $gray-lighter;
     color: white
+}
+
+DefinitionItem:checked,DefinitionItem:disabled {
+    color: $color-purple;
+    background-color: $color-purple-dark;
 }

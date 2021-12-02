@@ -1,6 +1,7 @@
 /** Form elements */
 QLabel {
     color: $text-color;
+    background-color: transparent;
 }
 
 QLabel#task-name {
@@ -10,15 +11,15 @@ QLabel#task-name {
 }
 
 QComboBox {
-    border: 1px solid $input-border-color;
+    border: 1px solid $gray-dark;
     border-radius: 2px;
     padding: $input-padding;
     background: $input-background;
-    selection-background-color: $input-border-color;
+    selection-background-color: $gray-dark;
     color: $text-color;
 
     &:hover {
-        border-color: darken($input-border-color, 5%);
+        border-color: darken($gray-dark, 5%);
     }
 
     &:focus {
@@ -27,18 +28,38 @@ QComboBox {
 }
 
 QTextEdit, QLineEdit  {
-    border: 1px solid $input-border-color;
+    border: 1px solid $gray-dark;
     border-radius: 2px;
     padding: $input-padding;
     background: $input-background;
-    selection-background-color: $input-border-color;
+    selection-background-color: $gray-dark;
     color: $text-color;
 
     &:hover {
-        border-color: darken($input-border-color, 5%);
+        border-color: darken($gray-dark, 5%);
     }
 
     &:focus {
         border: 1px solid #33313F;
     }
+}
+
+QLineEdit[input="invalid"] {
+    border: 1px solid darken(red, 50%);
+}
+
+QCheckBox::indicator {
+    image: theme-image('checkbox_unchecked');
+}
+
+QCheckBox::indicator:disabled {
+    image: theme-image('checkbox_unchecked_disabled');
+}
+
+QCheckBox::indicator:checked {
+    image: theme-image('checkbox_checked');
+}
+
+QCheckBox::indicator:checked:disabled {
+    image: theme-image('checkbox_checked_disabled');
 }

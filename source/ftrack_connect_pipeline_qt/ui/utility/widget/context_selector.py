@@ -37,7 +37,7 @@ class ContextSelector(QtWidgets.QWidget):
 
     def pre_build(self):
         layout = QtWidgets.QHBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
+        #layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
 
     def build(self):
@@ -53,20 +53,21 @@ class ContextSelector(QtWidgets.QWidget):
         self.entityBrowser.setMinimumWidth(600)
 
         self.entity_info = EntityInfo()
+        self.entity_info.setMinimumHeight(60)
         self.entity_info.setMaximumHeight(60)
 
-        self.entityBrowseButton = QtWidgets.QPushButton('Change')
+        self.entity_browse_button = QtWidgets.QPushButton('CHANGE')
 
         self.layout().addWidget(self.thumbnail_widget)
         self.layout().addWidget(self.entity_info)
         self.layout().addWidget(QtWidgets.QLabel(), 10)
-        self.layout().addWidget(self.entityBrowseButton)
+        self.layout().addWidget(self.entity_browse_button)
 
     def set_thumbnail(self, entity):
         self.thumbnail_widget.load(entity['id'])
 
     def post_build(self):
-        self.entityBrowseButton.clicked.connect(
+        self.entity_browse_button.clicked.connect(
             self._onEntityBrowseButtonClicked
         )
         self.entityChanged.connect(self.entity_info.setEntity)

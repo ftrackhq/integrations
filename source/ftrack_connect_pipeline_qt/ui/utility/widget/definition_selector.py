@@ -5,7 +5,6 @@ from Qt import QtWidgets, QtCore
 
 
 class DefinitionItem(QtWidgets.QPushButton):
-    version_changed = QtCore.Signal(object, object)
 
     @property
     def definition(self):
@@ -49,7 +48,6 @@ class DefinitionSelector(QtWidgets.QWidget):
 
     def pre_build(self):
         main_layout = QtWidgets.QVBoxLayout()
-        main_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(main_layout)
 
     def build(self):
@@ -168,13 +166,27 @@ class DefinitionSelectorButtons(DefinitionSelector):
         self.definitions_widget.setLayout(QtWidgets.QVBoxLayout())
         self.definitions_widget.layout().setContentsMargins(0, 0, 0, 0)
 
+        header_widget = QtWidgets.QWidget()
+        header_widget.setLayout(QtWidgets.QHBoxLayout())
+        header_widget.layout().setContentsMargins(0, 0, 0, 0)
+        header_widget.layout().setSpacing(0)
+
         self.label = QtWidgets.QLabel("Choose what to publish")
-        self.definitions_widget.layout().addWidget(self.label)
+        header_widget.layout().addWidget(self.label)
+        header_widget.layout().addStretch()
+
+        self.start_over_button = QtWidgets.QPushButton("START OVER")
+        self.start_over_button.setObjectName('borderless')
+        self.start_over_button.clicked.connect(self._start_over)
+        header_widget.layout().addWidget(self.start_over_button)
+
+        self.definitions_widget.layout().addWidget(header_widget)
 
         self.button_group = QtWidgets.QButtonGroup(self)
         self.definition_buttons_widget = QtWidgets.QWidget()
         self.definition_buttons_widget.setLayout(QtWidgets.QHBoxLayout())
         self.definition_buttons_widget.layout().setContentsMargins(0, 0, 0, 0)
+        self.definition_buttons_widget.layout().setSpacing(0)
 
         self.definitions_widget.layout().addWidget(self.definition_buttons_widget)
 
@@ -235,6 +247,7 @@ class DefinitionSelectorButtons(DefinitionSelector):
                 definition_button.clicked.connect(partial(self._on_select_definition, definition_button))
                 if index == 0:
                     definition_button.click()
+                index+=1
 
         self.definition_buttons_widget.layout().addWidget(QtWidgets.QLabel(), 100)
 
@@ -248,6 +261,10 @@ class DefinitionSelectorButtons(DefinitionSelector):
         self.definitions_widget.show()
 
     def _on_select_definition(self, definition_item):
+        definition_item.setEnabled(False)
+        for button in self.button_group.buttons():
+            if not button is definition_item:
+                button.setEnabled(True)
         self.definition = definition_item.definition
 
         if not self.definition:
@@ -271,3 +288,6 @@ class DefinitionSelectorButtons(DefinitionSelector):
     def set_current_definition_index(self, index):
         button = self.button_group.button(index)
         self._on_select_definition(button)
+
+    def _start_over(self):
+        self._on_select_definition(self.button_group.checkedButton())

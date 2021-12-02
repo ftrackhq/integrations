@@ -1,4 +1,5 @@
 from functools import partial
+import qtawesome as qta
 
 from Qt import QtWidgets, QtCore, QtGui
 
@@ -7,6 +8,7 @@ from ftrack_connect_pipeline import constants as pipeline_constants
 from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
 from ftrack_connect_pipeline_qt import utils
+from ftrack_connect_pipeline_qt.ui.utility.widget import line
 
 
 class AccordionWidget(QtWidgets.QWidget):
@@ -38,6 +40,7 @@ class AccordionWidget(QtWidgets.QWidget):
         self._main_v_layout = QtWidgets.QVBoxLayout()
         self._main_v_layout.setAlignment(QtCore.Qt.AlignTop)
         self._main_v_layout.setContentsMargins(0, 0, 0, 0)
+        self._main_v_layout.setSpacing(1)
         self.setLayout(self._main_v_layout)
 
     def build(self):
@@ -85,9 +88,9 @@ class AccordionWidget(QtWidgets.QWidget):
             else:
                 self.set_status(constants.ERROR_STATUS, None)
 
-    def add_extra_button(self, title, idx):
-        extra_button = self._title_frame.add_extra_button(title, idx)
-        return extra_button
+    def add_option_button(self, title, icon, idx):
+        option_button = self._title_frame.add_option_button(title, icon, idx)
+        return option_button
 
     def get_extra_button_by_title(self, title):
         return self._title_frame.extra_buttons.get(title)
@@ -194,32 +197,33 @@ class AccordionTitleWidget(QtWidgets.QFrame):
         self.setMinimumHeight(24)
         self.move(QtCore.QPoint(24, 0))
         self._hlayout = QtWidgets.QHBoxLayout(self)
-        self._hlayout.setContentsMargins(0, 0, 0, 0)
+        self._hlayout.setContentsMargins(15, 0, 0, 0)
 
     def build(self):
         self._hlayout.addWidget(self.init_checkbox(True, self.checkable))
         self._hlayout.addWidget(self.init_title(self.title))
         self._hlayout.addStretch()
+        self._hlayout.addWidget(line.Line(horizontal=True))
         self._hlayout.addWidget(self.init_status())
+        self._hlayout.addWidget(line.Line(horizontal=True))
         self._hlayout.addWidget(self.init_arrow(self.initial_collapse))
-
 
     def post_build(self):
         if self.checkbox:
             self._checkbox.stateChanged.connect(self.enable_content)
 
-    def add_extra_button(self, title, idx):
-        extra_button = self.init_options_button(title)
+    def add_option_button(self, title, icon, idx):
+        extra_button = self.init_options_button(title, icon)
         self._hlayout.insertWidget(idx, extra_button)
         return extra_button
 
-    def init_options_button(self, title):
-        extra_button = OptionsButton(title)
+    def init_options_button(self, title, icon):
+        extra_button = OptionsButton(title, icon)
         self._extra_buttons[title] = extra_button
         return extra_button
 
     def init_status(self):
-        self._status = Status()
+        self._status = AccordionStatus()
         return self._status
 
     def init_arrow(self, collapsed):
@@ -251,15 +255,16 @@ class AccordionTitleWidget(QtWidgets.QFrame):
 
 class OptionsButton(QtWidgets.QPushButton):
 
-    def __init__(self, title, parent=None):
+    def __init__(self, title, icon, parent=None):
         super(OptionsButton, self).__init__(parent=parent)
         self.name = title
 
         self.setMinimumSize(30, 30)
         self.setMaximumSize(30, 30)
-        self.setContentsMargins(0, 0, 0, 0)
+        #self.setContentsMargins(0, 0, 0, 0)
 
-        self.setText(self.name)
+        #self.setText(self.name)
+        self.setIcon(icon)
         self.setStyleSheet("""
             QPushButton {
                 font: 14px;
@@ -299,21 +304,50 @@ class OptionsButton(QtWidgets.QPushButton):
         self.main_widget.layout().addWidget(QtWidgets.QLabel('<html><strong>Output:<strong><html>'))
         self.main_widget.layout().addWidget(widget)
 
-class Status(QtWidgets.QLabel):
+class AccordionStatus(QtWidgets.QLabel):
+    # #: Unknown status of plugin execution.
+    # UNKNOWN_STATUS = 'UNKONWN_STATUS'
+    # #: Succed status of plugin execution.
+    # SUCCESS_STATUS = 'SUCCESS_STATUS'
+    # #: Warning status of plugin execution.
+    # WARNING_STATUS = 'WARNING_STATUS'
+    # #: Error status of plugin execution.
+    # ERROR_STATUS = 'ERROR_STATUS'
+    # #: Exception status of plugin execution.
+    # EXCEPTION_STATUS = 'EXCEPTION_STATUS'
+    # #: Running status of plugin execution.
+    # RUNNING_STATUS = 'RUNNING_STATUS'
+    # #: Default status of plugin execution.
+    # DEFAULT_STATUS = 'PAUSE_STATUS'
     status_icons = constants.icons.status_icons
 
     def __init__(self, parent=None):
-        super(Status, self).__init__(parent=parent)
-        icon = self.status_icons[constants.DEFAULT_STATUS]
+        super(AccordionStatus, self).__init__(parent=parent)
+        #icon = self.status_icons[constants.DEFAULT_STATUS]
+        icon = qta.icon('mdi6.check', color='gray')
         self.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
-        self.setPixmap(icon)
+        self.setPixmap(icon.pixmap(QtCore.QSize(16,16)))
 
     def set_status(self, status, message=None):
-        icon = self.status_icons[status]
-        self.setPixmap(icon)
+        #icon = self.status_icons[status]
+        icon = qta.icon('mdi6.check', color='gray')
+        self.setPixmap(icon.pixmap(QtCore.QSize(16,16)))
         if message:
             self.setToolTip(str(message))
 
+class AccordionArrowContainer(QtWidgets.QWidget):
+    def __init__(self, parent=None, collapsed=False):
+        super(AccordionArrowContainer, self).__init__(parent=parent)
+        self.setLayout(QtWidgets.QHBoxLayout())
+        self.set_arrow(int(collapsed))
+
+    def set_arrow(self, arrow_direction):
+        for i in reversed(range(self.layout().count())):
+            self.layout().itemAt(i).widget().setParent(None)
+        if arrow_direction:
+            self.layout().addWidget(QtWidgets.QLabel(qta.icon('mdi6.chevron-down', color='gray')))
+        else:
+            self.layout().addWidget(QtWidgets.QLabel(qta.icon('mdi6.chevron-up', color='gray')))
 
 class Arrow(QtWidgets.QFrame):
     def __init__(self, parent=None, collapsed=False):

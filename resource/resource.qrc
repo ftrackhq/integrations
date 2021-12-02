@@ -38,7 +38,7 @@
     </qresource>
 
     <qresource prefix='ftrack/font'>
-        <file alias='main'>font/open_sans_regular.ttf</file>
+        <file alias='main'>font/roboto_regular.ttf</file>
     </qresource>
 
     <qresource prefix='ftrack/image/light'>
@@ -62,6 +62,10 @@
         <file alias='radiobutton_checked'>image/light/radiobutton/radiobutton_checked.png</file>
         <file alias='radiobutton_checked_hover'>image/light/radiobutton/radiobutton_checked_hover.png</file>
         <file alias='radiobutton_checked_pressed'>image/light/radiobutton/radiobutton_checked_pressed.png</file>
+        <file alias='checkbox_unchecked'>image/dark/checkbox/checkbox_unchecked.png</file>
+        <file alias='checkbox_checked'>image/dark/checkbox/checkbox_checked.png</file>
+        <file alias='checkbox_unchecked_disabled'>image/dark/checkbox/checkbox_unchecked_disabled.png</file>
+        <file alias='checkbox_checked_disabled'>image/dark/checkbox/checkbox_checked_disabled.png</file>
     </qresource>
 
     <qresource prefix='ftrack/image/light/object_type'>
@@ -311,6 +315,10 @@
         <file alias='radiobutton_checked'>image/dark/radiobutton/radiobutton_checked.png</file>
         <file alias='radiobutton_checked_hover'>image/dark/radiobutton/radiobutton_checked_hover.png</file>
         <file alias='radiobutton_checked_pressed'>image/dark/radiobutton/radiobutton_checked_pressed.png</file>
+        <file alias='checkbox_unchecked'>image/dark/checkbox/checkbox_unchecked.png</file>
+        <file alias='checkbox_checked'>image/dark/checkbox/checkbox_checked.png</file>
+        <file alias='checkbox_unchecked_disabled'>image/dark/checkbox/checkbox_unchecked_disabled.png</file>
+        <file alias='checkbox_checked_disabled'>image/dark/checkbox/checkbox_checked_disabled.png</file>
     </qresource>
 
     <qresource prefix='ftrack/image/dark/object_type'>

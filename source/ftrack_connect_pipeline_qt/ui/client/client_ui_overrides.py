@@ -27,10 +27,12 @@ UI_OVERRIDES = {
         # 'plugin_container.collect from given path': default_widgets.DefaultPluginContainerWidget,
     },
     core_constants.FINALIZERS: {
-        'show': False,
-        'step_container': override_widgets.TabStepContainerWidget,
+        'show': True,
+        #'step_container': override_widgets.TabStepContainerWidget,
+        'step_container': default_widgets.DefaultStepContainerWidget,
         'step_widget': default_widgets.DefaultStepWidget,
-        'stage_widget': override_widgets.GroupBoxStageWidget,
+        #'stage_widget': override_widgets.GroupBoxStageWidget,
+        'stage_widget': default_widgets.DefaultStageWidget,
         'plugin_container': override_widgets.AccordionPluginContainerWidget,
     }
 }
