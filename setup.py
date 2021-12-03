@@ -225,6 +225,7 @@ setup(
     },
     python_requires='<3.8',
     setup_requires=[
+        'PySide2 >=5.0.0, < 5.13',
         'Qt.py >=1.0.0, < 2',
         'pyScss >= 1.2.0, < 2',
         'sphinx >= 1.8.5, < 4',
@@ -236,6 +237,7 @@ setup(
         'qtawesome'
     ],
     install_requires=[
+        'PySide2 >=5.0.0, < 5.13',
         'Qt.py >=1.0.0, < 2',
         'qtpy',
         'qtawesome'

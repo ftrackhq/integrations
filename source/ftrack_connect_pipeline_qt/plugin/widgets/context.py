@@ -137,6 +137,7 @@ class PublishContextWidget(BaseOptionsWidget):
         self.status_selector.set_statuses(statuses)
         if statuses:
             self.set_option_result(statuses[0]['id'], key='status_id')
+            self.status_selector.on_status_changed(statuses[0]['id'])
 
     def _get_statuses(self):
         '''Returns the status of the selected assetVersion'''
@@ -227,5 +228,12 @@ class StatusSelector(QtWidgets.QComboBox):
             self._status_colors[status['id']] = status['color']
 
     def on_status_changed(self, status_id):
-        ''' Update my border to reflect status color. '''
-        pass
+        ''' Update my style to reflect status color. '''
+        self.setStyleSheet('''
+            QComboBox {
+                border: 1px solid %s;
+                border-radius: 10px;
+                color: %s;
+            }
+        '''%(self._status_colors.get(status_id) or '#303030',
+             self._status_colors.get(status_id) or '#303030'))
