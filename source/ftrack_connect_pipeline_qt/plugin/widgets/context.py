@@ -57,6 +57,7 @@ class PublishContextWidget(BaseOptionsWidget):
         currentIndexChanged of status_selector event is triggered'''
         status_id = self.status_selector.itemData(status)
         self.set_option_result(status_id, key='status_id')
+        self.status_selector.on_status_changed(status_id)
 
     def _on_comment_updated(self):
         '''Updates the option dicctionary with current text when
@@ -93,8 +94,7 @@ class PublishContextWidget(BaseOptionsWidget):
 
         self.asset_status_label = QtWidgets.QLabel("Status")
 
-        self.status_selector = QtWidgets.QComboBox()
-        self.status_selector.setEditable(False)
+        self.status_selector = StatusSelector()
 
         self.status_layout.addWidget(self.asset_status_label)
         self.status_layout.addWidget(self.status_selector)
@@ -134,12 +134,7 @@ class PublishContextWidget(BaseOptionsWidget):
 
     def set_statuses(self, statuses):
         '''Set statuses on the combo box'''
-        #We are now in the main thread
-        for index, status in enumerate(statuses):
-            pixmap_status = QtGui.QPixmap(13, 13)
-            pixmap_status.fill(QtGui.QColor(status['color']))
-            self.status_selector.addItem(pixmap_status, status['name'], status['id'])
-
+        self.status_selector.set_statuses(statuses)
         if statuses:
             self.set_option_result(statuses[0]['id'], key='status_id')
 
@@ -213,3 +208,24 @@ class LoadContextWidget(BaseOptionsWidget):
         self.main_layout.addWidget(label)
         self.main_layout.addWidget(self.asset_grid_selector)
 
+
+class StatusSelector(QtWidgets.QComboBox):
+    _status_colors = {}
+    def __init__(self):
+        super(StatusSelector, self).__init__()
+        self.setEditable(False)
+        self.setMinimumWidth(150)
+
+    def set_statuses(self, statuses):
+        '''Set statuses on the combo box'''
+        #We are now in the main thread
+        for index, status in enumerate(statuses):
+            #pixmap_status = QtGui.QPixmap(13, 13)
+            #pixmap_status.fill(QtGui.QColor(status['color']))
+            #self.status_selector.addItem(pixmap_status, status['name'], status['id'])
+            self.addItem(status['name'].upper(), status['id'])
+            self._status_colors[status['id']] = status['color']
+
+    def on_status_changed(self, status_id):
+        ''' Update my border to reflect status color. '''
+        pass

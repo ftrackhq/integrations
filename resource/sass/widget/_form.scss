@@ -2,12 +2,7 @@
 QLabel {
     color: $text-color;
     background-color: transparent;
-}
-
-QLabel#task-name {
-    color: $color-white;
-    font-weight: bold;
-    font-size: larger;
+    border: none;
 }
 
 QComboBox {
@@ -44,10 +39,6 @@ QTextEdit, QLineEdit  {
     }
 }
 
-QLineEdit[input="invalid"] {
-    border: 1px solid darken(red, 50%);
-}
-
 QCheckBox::indicator {
     image: theme-image('checkbox_unchecked');
 }
@@ -62,4 +53,15 @@ QCheckBox::indicator:checked {
 
 QCheckBox::indicator:checked:disabled {
     image: theme-image('checkbox_checked_disabled');
+}
+
+
+QLineEdit[input="invalid"] {
+    border: 1px solid darken(red, 50%);
+}
+
+QLabel#task-name {
+    color: $color-white;
+    font-weight: bold;
+    font-size: larger;
 }

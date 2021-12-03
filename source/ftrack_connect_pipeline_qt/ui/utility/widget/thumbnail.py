@@ -27,7 +27,6 @@ class Base(QtWidgets.QLabel):
 
         self._worker = None
         self.__loadingReference = None
-
         self.pre_build()
 
     def pre_build(self):

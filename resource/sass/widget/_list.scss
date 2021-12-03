@@ -8,7 +8,7 @@ QListWidget::item
 {
     background: transparent;
     padding: 2px;
-    color: white;
+    color: $text-color;
 }
 QListWidget::item QLabel
 {
