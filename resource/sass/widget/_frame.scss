@@ -14,7 +14,7 @@ NewAssetInput[status=''] {
     border: 1px dashed transparent;
 }
 
-AccordionTitleWidget {
+AccordionHeaderWidget, AccordionTitleWidget {
     border: 1px dashed $gray-dark;
 }
 

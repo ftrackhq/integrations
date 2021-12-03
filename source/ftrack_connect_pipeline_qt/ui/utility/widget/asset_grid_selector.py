@@ -1,3 +1,5 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2021 ftrack
 import logging
 import time
 from functools import partial

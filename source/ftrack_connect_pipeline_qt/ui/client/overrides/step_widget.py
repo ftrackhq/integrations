@@ -3,14 +3,17 @@
 
 import qtawesome as qta
 
-from Qt import QtWidgets
+from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
-from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import AccordionWidget
+from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import  AccordionBaseWidget
 from ftrack_connect_pipeline_qt.ui.client.default.step_widget import DefaultStepWidget
 from ftrack_connect_pipeline_qt.plugin.widgets.load_widget import LoadBaseWidget
-
+from ftrack_connect_pipeline_qt.ui.utility.widget import line
+from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
+from ftrack_connect_pipeline_qt import utils
+from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import MaterialIconWidget
 
 def recursive_get_load_mode_container(widget):
     if not widget.layout():
@@ -27,6 +30,82 @@ def recursive_get_load_mode_container(widget):
                     return load_mode_widget
     return load_mode_widget
 
+class OptionsButton(QtWidgets.QPushButton):
+
+    def __init__(self, title, icon, parent=None):
+        super(OptionsButton, self).__init__(parent=parent)
+        self.name = title
+        self.setMinimumSize(30, 30)
+        self.setMaximumSize(30, 30)
+
+        self.setIcon(icon)
+        self.setFlat(True)
+        self.build()
+        self.post_build()
+
+    def build(self):
+        self.main_widget = QtWidgets.QWidget()
+        self.main_widget.setLayout(QtWidgets.QVBoxLayout())
+        self.main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
+        self.overlay_container = overlay.Overlay(self.main_widget)
+        self.overlay_container.setVisible(False)
+
+    def post_build(self):
+        self.clicked.connect(self.on_click_callback)
+
+    def on_click_callback(self):
+        main_window = utils.get_main_framework_window_from_widget(self)
+        if main_window:
+            self.overlay_container.setParent(main_window)
+        self.overlay_container.setVisible(True)
+
+    def add_validator_widget(self, widget):
+        self.main_widget.layout().addWidget(QtWidgets.QLabel(''))
+        self.main_widget.layout().addWidget(QtWidgets.QLabel(''))
+        self.main_widget.layout().addWidget(QtWidgets.QLabel('<html><strong>Validators:<strong><html>'))
+        self.main_widget.layout().addWidget(widget)
+
+    def add_output_widget(self, widget):
+        self.main_widget.layout().addWidget(QtWidgets.QLabel(''))
+        self.main_widget.layout().addWidget(QtWidgets.QLabel('<html><strong>Output:<strong><html>'))
+        self.main_widget.layout().addWidget(widget)
+
+
+class PublisherAccordion(AccordionBaseWidget):
+    @property
+    def options_widget(self):
+        return self._options_button
+
+    def __init__(self, parent=None, title=None, checkable=False):
+        super(PublisherAccordion,self).__init__(parent=parent, title=title, checkable=checkable)
+
+    def init_status_label(self):
+        self._status_label = QtWidgets.QLabel()
+        return self._status_label
+
+    def init_options_button(self):
+        self._options_button = OptionsButton('O', qta.icon('mdi6.cog',color='gray'))
+        self._options_button.setObjectName('borderless')
+        return self._options_button
+
+    def init_status_icon(self):
+        self._status_icon = MaterialIconWidget(name='check')
+        self._status_icon.setObjectName('borderless')
+        return self._status_icon
+
+    def init_header_content(self,layout, collapsed):
+        '''Add publish related widgets to the accordion header'''
+        layout.addWidget(self.init_status_label())
+        layout.addStretch()
+        layout.addWidget(line.Line(horizontal=True))
+        layout.addWidget(self.init_options_button())
+        layout.addWidget(line.Line(horizontal=True))
+        layout.addWidget(self.init_status_icon())
+
+    def on_collapse(self, collapsed):
+        '''Callback on accordion collapse/expand.'''
+        pass
+
 class AccordionStepWidget(BaseUIWidget):
     '''Widget representation of a boolean'''
 
@@ -39,13 +118,11 @@ class AccordionStepWidget(BaseUIWidget):
 
     @property
     def options_widget(self):
-        return self._options_widget
+        return self.widget.options_widget
 
     def __init__(self, name, fragment_data, parent=None):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
-
-        self._options_widget = None
 
         super(AccordionStepWidget, self).__init__(
             name, fragment_data, parent=parent
@@ -55,19 +132,9 @@ class AccordionStepWidget(BaseUIWidget):
         self._is_optional = self.fragment_data.get('optional')
 
     def build(self):
-        self._widget = AccordionWidget(
+        self._widget = PublisherAccordion(
             title=self.name, checkable=self.is_optional
         )
-        #idx=2
-        #if self.is_optional:
-        idx=3
-
-        #if core_constants.VALIDATOR in self.fragment_data.get('stage_order'):
-        #    self._validators_widget = self._widget.add_extra_button("V", idx)
-
-        if core_constants.OUTPUT in self.fragment_data.get('stage_order'):
-            self._options_widget = self._widget.add_option_button('O', qta.icon('mdi6.cog',color='gray'), idx)
-            self._options_widget.setObjectName('borderless')
 
     def parent_validator(self, step_widget):
         if self.options_widget:
@@ -88,6 +155,7 @@ class AccordionStepWidget(BaseUIWidget):
             self.logger.error("Please create a options_widget before parent")
 
     def parent_widget(self, step_widget):
+        '''Override'''
         if self.widget:
             if isinstance(step_widget, BaseUIWidget):
                 self.widget.add_widget(step_widget.widget)
