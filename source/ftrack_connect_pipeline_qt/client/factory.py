@@ -16,7 +16,7 @@ from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
 from ftrack_connect_pipeline_qt.ui.client import overrides as override_widgets, default as default_widgets
 from ftrack_connect_pipeline_qt.ui.client.client_ui_overrides import UI_OVERRIDES
-
+from ftrack_connect_pipeline_qt.ui.utility.widget import line
 
 class WidgetFactory(QtWidgets.QWidget):
     '''Main class to represent widgets from json schemas'''
@@ -235,8 +235,22 @@ class WidgetFactory(QtWidgets.QWidget):
         )
 
         main_obj.widget.layout().addWidget(context_obj.widget)
-        main_obj.widget.layout().addWidget(QtWidgets.QLabel('Components'))
+
+        main_obj.widget.layout().addWidget(line.Line())
+
+        indented_widget = QtWidgets.QWidget()
+        indented_widget.setLayout(QtWidgets.QVBoxLayout())
+        indented_widget.layout().addWidget(QtWidgets.QLabel('Components'))
+        main_obj.widget.layout().addWidget(indented_widget)
+
+
         main_obj.widget.layout().addWidget(self.components_obj.widget)
+
+        indented_widget = QtWidgets.QWidget()
+        indented_widget.setLayout(QtWidgets.QVBoxLayout())
+        indented_widget.layout().addWidget(QtWidgets.QLabel('Finalizers'))
+        main_obj.widget.layout().addWidget(indented_widget)
+
         main_obj.widget.layout().addWidget(finalizers_obj.widget)
         # If there is a Finalizer widget show the widget otherwise not.
         if not UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True):

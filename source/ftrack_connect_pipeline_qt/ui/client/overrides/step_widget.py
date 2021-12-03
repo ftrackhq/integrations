@@ -1,6 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2021 ftrack
 
+import qtawesome as qta
+
 from Qt import QtWidgets
 
 from ftrack_connect_pipeline import constants as core_constants
@@ -64,7 +66,8 @@ class AccordionStepWidget(BaseUIWidget):
         #    self._validators_widget = self._widget.add_extra_button("V", idx)
 
         if core_constants.OUTPUT in self.fragment_data.get('stage_order'):
-            self._options_widget = self._widget.add_extra_button("O", idx)
+            self._options_widget = self._widget.add_option_button('O', qta.icon('mdi6.cog',color='gray'), idx)
+            self._options_widget.setObjectName('borderless')
 
     def parent_validator(self, step_widget):
         if self.options_widget:

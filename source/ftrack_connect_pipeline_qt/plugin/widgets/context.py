@@ -6,6 +6,7 @@ from Qt import QtWidgets, QtCore, QtGui
 from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 
 from ftrack_connect_pipeline_qt.ui.utility.widget.asset_selector import AssetSelector
+from ftrack_connect_pipeline_qt.ui.utility.widget import line
 from ftrack_connect_pipeline_qt.ui.utility.widget.asset_grid_selector import AssetGridSelector
 from ftrack_connect_pipeline_qt.utils import BaseThread
 
@@ -34,11 +35,15 @@ class PublishContextWidget(BaseOptionsWidget):
         '''build function widgets.'''
         if self.context_id:
             self.set_option_result(self.context_id, key='context_id')
-        self._build_asset_selector()
+        self.layout().addLayout(self._build_asset_selector())
         self.statuses_fetched.connect(self.set_statuses)
-        self.layout().addWidget(QtWidgets.QLabel('Version information'))
-        self._build_status_selector()
-        self._build_comments_input()
+        self.layout().addWidget(line.Line())
+        version_and_comment = QtWidgets.QWidget()
+        version_and_comment.setLayout(QtWidgets.QVBoxLayout())
+        version_and_comment.layout().addWidget(QtWidgets.QLabel('Version information'))
+        version_and_comment.layout().addLayout(self._build_status_selector())
+        version_and_comment.layout().addLayout(self._build_comments_input())
+        self.layout().addWidget(version_and_comment)
 
     def post_build(self):
         '''hook events'''
@@ -52,6 +57,7 @@ class PublishContextWidget(BaseOptionsWidget):
         currentIndexChanged of status_selector event is triggered'''
         status_id = self.status_selector.itemData(status)
         self.set_option_result(status_id, key='status_id')
+        self.status_selector.on_status_changed(status_id)
 
     def _on_comment_updated(self):
         '''Updates the option dicctionary with current text when
@@ -73,29 +79,27 @@ class PublishContextWidget(BaseOptionsWidget):
     def _build_asset_selector(self):
         '''Builds the asset_selector widget'''
         self.asset_layout = QtWidgets.QVBoxLayout()
-        self.asset_layout.setContentsMargins(0, 0, 0, 0)
+        #self.asset_layout.setContentsMargins(0, 0, 0, 0)
         self.asset_layout.setAlignment(QtCore.Qt.AlignTop)
 
         self.asset_selector = AssetSelector(self.session)
         self.asset_layout.addWidget(self.asset_selector)
-        self.layout().addLayout(self.asset_layout)
+        return self.asset_layout
 
     def _build_status_selector(self):
         '''Builds the status_selector widget'''
         self.status_layout = QtWidgets.QHBoxLayout()
-        self.status_layout.setContentsMargins(0, 0, 0, 0)
+        #self.status_layout.setContentsMargins(0, 0, 0, 0)
         self.status_layout.setAlignment(QtCore.Qt.AlignTop)
 
         self.asset_status_label = QtWidgets.QLabel("Status")
 
-        self.status_selector = QtWidgets.QComboBox()
-        self.status_selector.setEditable(False)
+        self.status_selector = StatusSelector()
 
         self.status_layout.addWidget(self.asset_status_label)
         self.status_layout.addWidget(self.status_selector)
 
         self.status_layout.addStretch()
-        self.layout().addLayout(self.status_layout)
 
         thread = BaseThread(
             name='get_status_thread',
@@ -104,6 +108,8 @@ class PublishContextWidget(BaseOptionsWidget):
             target_args=()
         )
         thread.start()
+
+        return self.status_layout
 
     def _build_comments_input(self):
         '''Builds the comments_container widget'''
@@ -114,16 +120,11 @@ class PublishContextWidget(BaseOptionsWidget):
         comment_label = QtWidgets.QLabel('Description')
         self.comments_input = QtWidgets.QLineEdit()
         self.comments_input.setPlaceholderText("Type a description...")
-        self.comments_input.setStyleSheet(
-            "border: none;"
-            "background-color: transparent;"
-        )
-
         self.coments_layout.addWidget(comment_label)
         self.coments_layout.addWidget(self.comments_input)
-        self.layout().addLayout(self.coments_layout)
 
         self.set_option_result(self.comments_input.text(), key='comment')
+        return self.coments_layout
 
     def emit_statuses(self, statuses):
         '''Emit signal to set statuses on the combobox'''
@@ -133,14 +134,10 @@ class PublishContextWidget(BaseOptionsWidget):
 
     def set_statuses(self, statuses):
         '''Set statuses on the combo box'''
-        #We are now in the main thread
-        for index, status in enumerate(statuses):
-            pixmap_status = QtGui.QPixmap(13, 13)
-            pixmap_status.fill(QtGui.QColor(status['color']))
-            self.status_selector.addItem(pixmap_status, status['name'], status['id'])
-
+        self.status_selector.set_statuses(statuses)
         if statuses:
             self.set_option_result(statuses[0]['id'], key='status_id')
+            self.status_selector.on_status_changed(statuses[0]['id'])
 
     def _get_statuses(self):
         '''Returns the status of the selected assetVersion'''
@@ -212,3 +209,31 @@ class LoadContextWidget(BaseOptionsWidget):
         self.main_layout.addWidget(label)
         self.main_layout.addWidget(self.asset_grid_selector)
 
+
+class StatusSelector(QtWidgets.QComboBox):
+    _status_colors = {}
+    def __init__(self):
+        super(StatusSelector, self).__init__()
+        self.setEditable(False)
+        self.setMinimumWidth(150)
+
+    def set_statuses(self, statuses):
+        '''Set statuses on the combo box'''
+        #We are now in the main thread
+        for index, status in enumerate(statuses):
+            #pixmap_status = QtGui.QPixmap(13, 13)
+            #pixmap_status.fill(QtGui.QColor(status['color']))
+            #self.status_selector.addItem(pixmap_status, status['name'], status['id'])
+            self.addItem(status['name'].upper(), status['id'])
+            self._status_colors[status['id']] = status['color']
+
+    def on_status_changed(self, status_id):
+        ''' Update my style to reflect status color. '''
+        self.setStyleSheet('''
+            QComboBox {
+                border: 1px solid %s;
+                border-radius: 10px;
+                color: %s;
+            }
+        '''%(self._status_colors.get(status_id) or '#303030',
+             self._status_colors.get(status_id) or '#303030'))

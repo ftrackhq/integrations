@@ -197,7 +197,8 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     def run_build(self):
         '''Creates a run button to run the plugin individually, enable/disbale
         it with the class variable self.enable_run_plugin'''
-        self.run_plugin_button = QtWidgets.QPushButton('run')
+        self.run_plugin_button = QtWidgets.QPushButton('RUN')
+        self.run_plugin_button.setObjectName('borderless')
         self.run_plugin_button.clicked.connect(
             partial(self.on_run_plugin, 'run')
         )

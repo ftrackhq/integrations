@@ -1,0 +1,32 @@
+QGroupBox {
+    color: $text-color-light;
+}
+
+QGroupBox::indicator {
+    width: 20px;
+    height: 20px;
+}
+
+QGroupBox::indicator::unchecked {
+    image: theme-image('menu');
+}
+
+QGroupBox::indicator:unchecked:hover {
+    image: theme-image('apps');
+}
+
+QGroupBox::indicator:unchecked:pressed {
+    image: theme-image('menu');
+}
+
+QGroupBox::indicator::checked {
+    image: theme-image('apps');
+}
+
+QGroupBox::indicator:checked:hover {
+    image: theme-image('menu');
+}
+
+QGroupBox::indicator:checked:pressed {
+    image: theme-image('apps');
+}

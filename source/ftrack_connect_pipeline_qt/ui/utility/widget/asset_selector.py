@@ -19,12 +19,14 @@ class AssetListItem(QtWidgets.QWidget):
     
     def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())
+        self.layout().setContentsMargins(1, 1, 1, 1)
+        self.layout().setSpacing(3)
     
     def build(self):
         self.thumbnail_widget = AssetVersion(self.session)
         self.thumbnail_widget.setScaledContents(True)
-        self.thumbnail_widget.setMinimumSize(40, 40)
-        self.thumbnail_widget.setMaximumSize(40, 40)
+        self.thumbnail_widget.setMinimumSize(46, 32)
+        self.thumbnail_widget.setMaximumSize(46, 32)
         self.layout().addWidget(self.thumbnail_widget)
         self.thumbnail_widget.load(self.asset['latest_version']['id'])
 
@@ -32,10 +34,14 @@ class AssetListItem(QtWidgets.QWidget):
         self.layout().addWidget(self.asset_name )
 
         self.create_label = QtWidgets.QLabel('- create')
+        self.create_label.setObjectName("gray")
         self.layout().addWidget(self.create_label)
 
         self.version_label = QtWidgets.QLabel('Version {}'.format(self.asset['latest_version']['version']+1))
+        self.version_label.setObjectName("purple")
         self.layout().addWidget(self.version_label)
+
+        self.layout().addStretch()
         
     def post_build(self):
         pass
@@ -52,17 +58,20 @@ class AssetList(QtWidgets.QListWidget):
         )
 
         self.session = session
-        self.setMinimumWidth(250)
-        self.setSizePolicy(
-            QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding
-        )
+        #self.setMinimumWidth(250)
+        #self.setSizePolicy(
+        #    QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding
+        #)
+        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setSpacing(1)
         self.assets = []
 
     def _query_assets_from_context(self, context_id, asset_type_name):
-        ''' (Run in background thread) Fetch assets from current context'''
+        ''' (Run in background thread) Fetch assets from current context '''
         asset_type_entity = self.session.query(
-                    'select name from AssetType where short is "{}"'.format(asset_type_name)
-                ).first()
+            'select name from AssetType where short is "{}"'.format(asset_type_name)
+        ).first()
         assets = self.session.query(
             'select name, versions.task.id , type.id, id, latest_version,'
             'latest_version.version '
@@ -86,7 +95,7 @@ class AssetList(QtWidgets.QListWidget):
                 self.session,
             )
             list_item = QtWidgets.QListWidgetItem(self)
-            list_item.setSizeHint(widget.sizeHint())
+            list_item.setSizeHint(QtCore.QSize(widget.sizeHint().width(), widget.sizeHint().height()+5))
             self.addItem(list_item)
             self.setItemWidget(list_item, widget)
         self.assets_added.emit()
@@ -112,18 +121,21 @@ class NewAssetNameInput(QtWidgets.QLineEdit):
         '''Override mouse press to emit signal'''
         self.clicked.emit()
 
-class NewAssetInput(QtWidgets.QWidget):
+class NewAssetInput(QtWidgets.QFrame):
     ''' Widget holding new asset inputs '''
     clicked = QtCore.Signal()
     def __init__(self, validator, placeholder_name):
         super(NewAssetInput, self).__init__()
 
         self.setLayout(QtWidgets.QHBoxLayout())
+        self.layout().setContentsMargins(1, 1, 1, 1)
+        self.layout().setSpacing(1)
 
         self.button = QtWidgets.QPushButton('NEW')
-        self.button.setMinimumSize(40, 40)
-        self.button.setMaximumSize(40, 40)
+        self.button.setFixedSize(46, 32)
+        self.button.setMaximumSize(46, 32)
         self.button.clicked.connect(self.input_clicked)
+
         self.layout().addWidget(self.button)
 
         self.name = NewAssetNameInput()
@@ -133,9 +145,10 @@ class NewAssetInput(QtWidgets.QWidget):
             QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum
         )
         self.name.clicked.connect(self.input_clicked)
-        self.layout().addWidget(self.name)
+        self.layout().addWidget(self.name, 1000)
 
         self.version_label = QtWidgets.QLabel('- Version 1')
+        self.version_label.setObjectName("purple")
         self.layout().addWidget(self.version_label)
 
     def mousePressEvent(self, event):
@@ -144,6 +157,25 @@ class NewAssetInput(QtWidgets.QWidget):
 
     def input_clicked(self):
         self.clicked.emit()
+
+class AssetListAndInput(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super(AssetListAndInput, self).__init__(parent=parent)
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().setSpacing(0)
+
+    def add_asset_list(self, asset_list):
+        self.asset_list = asset_list
+        self.layout().addWidget(asset_list)
+
+    def resizeEvent(self, event):
+        self._size_changed()
+
+    def _size_changed(self):
+        self.asset_list.setFixedSize(self.size().width()-1,
+            self.asset_list.sizeHintForRow(0) * self.asset_list.count() +
+            2 * self.asset_list.frameWidth())
 
 class AssetSelector(QtWidgets.QWidget):
     valid_asset_name = QtCore.QRegExp('[A-Za-z0-9_]+')
@@ -168,19 +200,24 @@ class AssetSelector(QtWidgets.QWidget):
 
     def pre_build(self):
         main_layout = QtWidgets.QVBoxLayout()
-        main_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(main_layout)
 
     def build(self):
         self.select_existing_label = QtWidgets.QLabel()
+        self.select_existing_label.setObjectName('gray')
+        self.select_existing_label.setWordWrap(True)
         self.layout().addWidget(self.select_existing_label)
 
+        self.list_and_input = AssetListAndInput()
+
         self.asset_list = AssetList(self.session)
-        self.layout().addWidget(self.asset_list)
+        self.list_and_input.add_asset_list(self.asset_list)
 
         # Create new asset
         self.new_asset_input = NewAssetInput(self.validator, self.placeholder_name)
-        self.layout().addWidget(self.new_asset_input)
+        self.list_and_input.layout().addWidget(self.new_asset_input)
+
+        self.layout().addWidget(self.list_and_input)
 
     def post_build(self):
         self.asset_list.itemChanged.connect(
@@ -208,10 +245,10 @@ class AssetSelector(QtWidgets.QWidget):
             self.asset_list.setCurrentRow(0)
             self.select_existing_label.show()
             self.asset_list.show()
-
         else:
             self.select_existing_label.hide()
             self.asset_list.hide()
+        self.list_and_input._size_changed()
 
     def _list_selection_updated(self):
         selected_index = self.asset_list.currentRow()
@@ -237,14 +274,18 @@ class AssetSelector(QtWidgets.QWidget):
 
     def _update_widget(self, selected_asset=None):
         ''' Synchronize state of list with new asset input. '''
+        self.asset_list.ensurePolished()
         if selected_asset is not None:
             # Bring focus to list, remove focus from new asset input
-            self.new_asset_input.setStyleSheet('QWidget{border: 0px solid transparent;}')
+            self.new_asset_input.setProperty('status', '')
         else:
             # Deselect all assets in list, bring focus to new asset input
             self.asset_list.setCurrentRow(-1)
-            self.new_asset_input.setStyleSheet('QWidget{border: 1px dashed purple;}')
+            self.new_asset_input.setProperty('status', 'focused')
         self.new_asset_input.button.setEnabled(selected_asset is not None)
+        self.new_asset_input.style().unpolish(self.new_asset_input)
+        self.new_asset_input.style().polish(self.new_asset_input)
+        self.new_asset_input.update()
 
     def set_context(self, context_id, asset_type_name):
         self.logger.debug('setting context to :{}'.format(context_id))
@@ -278,12 +319,23 @@ class AssetSelector(QtWidgets.QWidget):
 
     def validate_name(self, asset_name):
         is_valid_bool = True
-        if self.validator:
+        # Already an asset by that name
+        if self.asset_list.assets:
+            for asset_entity in self.asset_list.assets:
+                if asset_entity['name'].lower() == asset_name.lower():
+                    is_valid_bool = False
+                    break
+        if is_valid_bool and self.validator:
             is_valid = self.validator.validate(asset_name, 0)
             if is_valid[0] != QtGui.QValidator.Acceptable:
                 is_valid_bool = False
-                self.setStyleSheet("border: 1px solid red;")
             else:
                 is_valid_bool = True
-                self.setStyleSheet("")
+        if is_valid_bool:
+            self.new_asset_input.name.setProperty('input', '')
+        else:
+            self.new_asset_input.name.setProperty('input', 'invalid')
+        self.new_asset_input.name.style().unpolish(self.new_asset_input.name)
+        self.new_asset_input.name.style().polish(self.new_asset_input.name)
+        self.new_asset_input.name.update()
         return is_valid_bool

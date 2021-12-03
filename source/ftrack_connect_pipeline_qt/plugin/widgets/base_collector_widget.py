@@ -30,6 +30,7 @@ class BaseCollectorWidget(BaseOptionsWidget):
         '''build function , mostly used to create the widgets.'''
         super(BaseCollectorWidget, self).build()
         self.add_button = QtWidgets.QPushButton("Add Selected")
+        self.add_button.setObjectName('borderless')
         self.list_widget = QtWidgets.QListWidget()
 
         self.list_widget.setAlternatingRowColors(True)

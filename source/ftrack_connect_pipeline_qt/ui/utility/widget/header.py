@@ -25,7 +25,7 @@ class Header(QtWidgets.QFrame):
 
     def pre_build(self):
         self.main_layout = QtWidgets.QVBoxLayout()
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        #self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setAlignment(
             QtCore.Qt.AlignTop
         )

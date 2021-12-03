@@ -4,17 +4,15 @@
 from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline import client, constants
-from ftrack_connect_pipeline_qt.ui.utility.widget import header, definition_selector
+from ftrack_connect_pipeline_qt.ui.utility.widget import header, definition_selector, line
 from ftrack_connect_pipeline_qt.client import factory
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import ContextSelector
-try:
-    from ftrack_connect_pipeline_qt.ui import resource
-except ImportError as e:
-    pass
+from ftrack_connect_pipeline_qt.ui import resource
+from ftrack_connect_pipeline_qt.ui import theme
 
 
-class QtClient(client.Client, QtWidgets.QWidget):
+class QtClient(client.Client, QtWidgets.QFrame):
     '''
     Base QT client widget class.
     '''
@@ -28,7 +26,7 @@ class QtClient(client.Client, QtWidgets.QWidget):
     def __init__(self, event_manager, parent=None):
         '''Initialise with *event_manager* and
         *parent* widget'''
-        QtWidgets.QWidget.__init__(self, parent=parent)
+        QtWidgets.QFrame.__init__(self, parent=parent)
         client.Client.__init__(self, event_manager)
 
         self.setTheme('dark')
@@ -77,27 +75,22 @@ class QtClient(client.Client, QtWidgets.QWidget):
         self.host_selector.add_hosts(self.host_connections)
 
     def setTheme(self, selected_theme):
-        try:
-            from ftrack_connect_pipeline_qt.ui import theme
-
-            theme.applyFont()
-            theme.applyTheme(self, selected_theme, 'plastique')
-        except:
-            # Until UX style branch is merged, this is expected to fail
-            import traceback
-            print(traceback.format_exc())
+        theme.applyFont()
+        theme.applyTheme(self, selected_theme, 'plastique')
 
     def pre_build(self):
         '''Prepare general layout.'''
         layout = QtWidgets.QVBoxLayout()
         layout.setAlignment(QtCore.Qt.AlignTop)
+        layout.setContentsMargins(7, 7, 7, 7)
+        layout.setSpacing(5)
         self.setLayout(layout)
+        #self.setAutoFillBackground(True)
 
     def build(self):
         '''Build widgets and parent them.'''
         self.header = header.Header(self.session)
         self.layout().addWidget(self.header)
-
 
         self.header.id_container_layout.insertWidget(
             1,
@@ -108,12 +101,14 @@ class QtClient(client.Client, QtWidgets.QWidget):
 
         self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
 
+        self.layout().addWidget(line.Line())
+
         self.host_selector = definition_selector.DefinitionSelectorButtons()
         self.layout().addWidget(self.host_selector)
 
         self.scroll = QtWidgets.QScrollArea()
         self.scroll.setWidgetResizable(True)
-        self.scroll.setStyleSheet('border: 0px solid transparent;')
+        self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.layout().addWidget(self.scroll)
 
         self.run_button = QtWidgets.QPushButton(self.run_definition_button_text.upper())

@@ -37,10 +37,10 @@ pub_client_connection = publish.QtPublisherClient(event_manager)
 # lv_client_connection = log_viewer.QtLogViewerClient(event_manager)
 
 # Set the context
-context_id = '<Add a context id here>'#'690afd58-06d0-11ea-bbbb-ee594985c7e2'
+context_entity = session.query("Task").first()
 
 pub_client_connection.context_selector.set_context_id(context_id)
-# load_client_connection.context_selector.set_context_id(context_id)
+# load_client_connection.context_selector.set_context_id(context_id))
 # am_client_connection.context_id(context_id)
 # lv_client_connection.context_id(context_id)
 

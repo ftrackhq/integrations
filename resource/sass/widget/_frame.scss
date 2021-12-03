@@ -1,0 +1,20 @@
+QFrame {
+    background: $white;
+}
+
+Line {
+    border: 1px dashed $gray-dark;
+}
+
+NewAssetInput[status='focused'] {
+    border: 1px dashed $color-purple;
+}
+
+NewAssetInput[status=''] {
+    border: 1px dashed transparent;
+}
+
+AccordionTitleWidget {
+    border: 1px dashed $gray-dark;
+}
+
