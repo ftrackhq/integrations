@@ -19,6 +19,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     run_plugin_clicked = QtCore.Signal(object, object)
     run_result_updated = QtCore.Signal(object)
     asset_version_changed = QtCore.Signal(object)
+    input_changed  = QtCore.Signal(object)
 
     # enable_run_plugin True will enable the run button to run the plugin run
     # function individually.
@@ -195,7 +196,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         return asset_type_name
 
     def run_build(self):
-        '''Creates a run button to run the plugin individually, enable/disbale
+        '''Creates a run button to run the plugin individually, enable/disable
         it with the class variable self.enable_run_plugin'''
         self.run_plugin_button = QtWidgets.QPushButton('RUN')
         self.run_plugin_button.setObjectName('borderless')
@@ -217,6 +218,13 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         '''Callback function for plugin execution'''
         self.logger.debug("result: {}".format(result))
 
+    def report_input(self):
+        '''To be overridden.'''
+        self.input_changed.emit({
+            'status': False,
+            'message': 'Collector summary report not implemented!'
+        })
+        
     def to_json_object(self):
         '''Return a formated json with the data from the current widget'''
         out = {}

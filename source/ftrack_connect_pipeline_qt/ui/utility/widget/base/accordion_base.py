@@ -2,8 +2,6 @@
 # :copyright: Copyright (c) 2014-2021 ftrack
 from functools import partial
 
-import qtawesome as qta
-
 from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect_pipeline_qt import constants
@@ -42,6 +40,9 @@ class AccordionBaseWidget(QtWidgets.QWidget):
         self._inner_widget_status = {}
         self.checkable = checkable
 
+        self._input_message = 'Initializing...'
+        self._input_status = False
+
         self.pre_build()
         self.build()
         self.post_build()
@@ -69,7 +70,8 @@ class AccordionBaseWidget(QtWidgets.QWidget):
 
     def post_build(self):
         self.init_collapsable()
-
+        self.update_input(self._input_message, self._input_status)
+        
     def init_header(self, title, collapsed):
         self._header = AccordionHeaderWidget(self,
             title=title, collapsed=collapsed, checkable=self.checkable)
@@ -175,6 +177,10 @@ class AccordionBaseWidget(QtWidgets.QWidget):
         self.set_checked(True)
         self.setEnabled(True)
 
+    def update_input(self, message, status):
+        '''Update the accordion input summary, should be overridden by child.'''
+        raise NotImplementedError()
+
 
 class AccordionHeaderWidget(QtWidgets.QFrame):
     ''' Container for accordion header - holding checkbox, title, user content
@@ -272,4 +278,3 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
     def enable_content(self, check_enabled):
         self._title_label.setEnabled(check_enabled)
         self.checked.emit(check_enabled)
-

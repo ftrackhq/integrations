@@ -3,6 +3,8 @@
 
 from functools import partial
 
+import qtawesome as qta
+
 from Qt import QtWidgets, QtGui
 
 from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
@@ -29,17 +31,22 @@ class BaseCollectorWidget(BaseOptionsWidget):
     def build(self):
         '''build function , mostly used to create the widgets.'''
         super(BaseCollectorWidget, self).build()
-        self.add_button = QtWidgets.QPushButton("Add Selected")
-        self.add_button.setObjectName('borderless')
-        self.list_widget = QtWidgets.QListWidget()
 
+        self._summary_widget = QtWidgets.QLabel()
+        self.layout().addWidget(self._summary_widget)
+
+        self.list_widget = QtWidgets.QListWidget()
         self.list_widget.setAlternatingRowColors(True)
         self.list_widget.setSelectionBehavior(
             QtWidgets.QAbstractItemView.SelectRows
         )
-
-        self.layout().addWidget(self.add_button)
         self.layout().addWidget(self.list_widget)
+
+        self.add_button = QtWidgets.QPushButton(qta.icon('mdi6.add',color='BF9AC9'), "ADD SELECTED")
+        self.add_button.setObjectName('borderless')
+        self.layout().addWidget(self.add_button)
+
+        self.report_input()
 
     def contextMenuEvent(self, event):
         '''
@@ -67,7 +74,7 @@ class BaseCollectorWidget(BaseOptionsWidget):
 
     def on_fetch_callback(self, result):
         '''
-        Callback funtion called by the _set_internal_run_result method of the
+        Callback function called by the _set_internal_run_result method of the
         :class:`~ftrack_connect_pipeline_qt.client.widgets.options.BaseOptionsWidget`
         '''
         self.list_widget.clear()
@@ -76,7 +83,7 @@ class BaseCollectorWidget(BaseOptionsWidget):
 
     def on_add_callback(self, result):
         '''
-        Callback funtion called by the _set_internal_run_result method of the
+        Callback function called by the _set_internal_run_result method of the
         :class:`~ftrack_connect_pipeline_qt.client.widgets.options.BaseOptionsWidget`
         '''
         current_objects = self.get_current_objects()
@@ -87,7 +94,7 @@ class BaseCollectorWidget(BaseOptionsWidget):
 
     def on_select_callback(self, result):
         '''
-        Callback funtion called by the _set_internal_run_result method of the
+        Callback function called by the _set_internal_run_result method of the
         :class:`~ftrack_connect_pipeline_qt.client.widgets.options.BaseOptionsWidget`
         '''
         self.logger.debug("selected objects: {}".format(result))
@@ -100,6 +107,8 @@ class BaseCollectorWidget(BaseOptionsWidget):
             self._collected_objects.append(item.text())
         if item.text() not in self._options['collected_objects']:
             self._options['collected_objects'].append(item.text())
+        self.report_input()
+
     def get_current_objects(self):
         '''Return the objects in the :obj:`list_widget`'''
         current_objects = []
@@ -112,8 +121,11 @@ class BaseCollectorWidget(BaseOptionsWidget):
         Callback function called when :obj:`list_widget` itemchanged signal is
         triggered
         '''
+        if item.text() not in self.collected_objects:
+            self._collected_objects.append(item.text())
         if item.text() not in self._options['collected_objects']:
             self._options['collected_objects'].append(item.text())
+        self.report_input()
 
     def menu_triggered(self, action):
         '''
@@ -145,3 +157,16 @@ class BaseCollectorWidget(BaseOptionsWidget):
             self._collected_objects.remove(item.text())
             row = self.list_widget.row(item)
             self.list_widget.takeItem(row)
+        self.report_input()
+
+    def report_input(self):
+        '''(Override) Amount of collected objects has changed, notify parent(s)'''
+        message = ''
+        status = False
+        num_objects = len(self._options.get('collected_objects') or [])
+        if num_objects > 0:
+            message = '{} item{} selected'.format(num_objects, 's' if num_objects>1 else '')
+        self.input_changed.emit({
+            'status': status,
+            'message': message,
+        })

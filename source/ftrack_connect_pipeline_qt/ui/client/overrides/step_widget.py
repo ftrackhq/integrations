@@ -81,6 +81,7 @@ class PublisherAccordion(AccordionBaseWidget):
 
     def init_status_label(self):
         self._status_label = QtWidgets.QLabel()
+        self._status_label.setObjectName('purple')
         return self._status_label
 
     def init_options_button(self):
@@ -104,7 +105,18 @@ class PublisherAccordion(AccordionBaseWidget):
 
     def on_collapse(self, collapsed):
         '''Callback on accordion collapse/expand.'''
-        pass
+        self.update_input(self._input_message, self._input_status)
+
+    def update_input(self, message, status):
+        '''(Override)'''
+        self._input_message = message
+        self._input_status = status
+        if self.is_collapsed:
+            self._status_label.setText('- {}'.format(self._input_message))
+        else:
+            self._status_label.setText('')
+        self._status_icon.set_icon('check' if status else 'alert-circle-outline',
+            color = 'gray' if not self.checkable else ('green' if status else 'orange'))
 
 class AccordionStepWidget(BaseUIWidget):
     '''Widget representation of a boolean'''
@@ -163,6 +175,12 @@ class AccordionStepWidget(BaseUIWidget):
                 self.widget.add_widget(step_widget)
         else:
             self.logger.error("Please create a widget before parent")
+
+    def collector_input_changed(self, input):
+        '''The collector input has changed, update accordion'''
+        input_info = input.get('message') or ''
+        input_status = input.get('status') or False
+        self._widget.update_input(input_info, input_status)
 
     def to_json_object(self):
         '''Return a formated json with the data from the current widget'''

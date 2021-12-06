@@ -185,11 +185,17 @@ class WidgetFactory(QtWidgets.QWidget):
                         stage_obj.parent_widget(plugin_container_obj)
                     else:
                         stage_obj.parent_widget(plugin_widget)
+                    if stage_type == core_constants.COLLECTOR and isinstance(step_obj, override_widgets.AccordionStepWidget):
+                        # Connect input change to accordion
+                        # TODO: support multiple collectors
+                        plugin_widget.input_changed.connect(step_obj.collector_input_changed)
+                        # Eventual initial summary is lost prior to the signal connect, have widget do it again
+                        plugin_widget.report_input()
                 if isinstance(step_obj, override_widgets.AccordionStepWidget):
                     if stage_type == core_constants.VALIDATOR:
                         step_obj.parent_validator(stage_obj)
                         continue
-                    if stage_type == core_constants.OUTPUT:
+                    elif stage_type == core_constants.OUTPUT:
                         step_obj.parent_output(stage_obj)
                         continue
 
@@ -601,7 +607,7 @@ class WidgetFactory(QtWidgets.QWidget):
 
 
     def _asset_version_changed(self, version_id):
-        '''Callbac function triggered when a asset version has changed'''
+        '''Callback function triggered when a asset version has changed'''
         self.version_id = version_id
 
         thread = BaseThread(
