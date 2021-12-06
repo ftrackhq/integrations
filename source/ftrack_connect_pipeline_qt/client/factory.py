@@ -217,7 +217,7 @@ class WidgetFactory(QtWidgets.QWidget):
         '''
         Given the provided definition, we generate the client UI.
         '''
-        self.progress_widget.clear_components()
+        self.progress_widget.prepare_add_component()
         # Backup the original definition, as it will be extended by the user UI
         self.original_definition = copy.deepcopy(definition)
         self.working_definition = definition
@@ -262,6 +262,8 @@ class WidgetFactory(QtWidgets.QWidget):
         if not UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True):
             finalizers_obj.widget.hide()
         main_obj.widget.layout().addStretch()
+
+        self.progress_widget.components_added()
 
         # Check all components status of the current UI
         self.post_build_definition()

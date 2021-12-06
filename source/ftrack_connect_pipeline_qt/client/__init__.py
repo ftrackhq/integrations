@@ -112,6 +112,7 @@ class QtClient(client.Client, QtWidgets.QFrame):
         self.layout().addWidget(self.scroll)
 
         self.run_button = QtWidgets.QPushButton(self.run_definition_button_text.upper())
+        self.run_button.setObjectName('large')
         self.layout().addWidget(self.run_button)
 
     def post_build(self):
@@ -209,7 +210,7 @@ class QtClient(client.Client, QtWidgets.QFrame):
         serialized_data = self.widget_factory.to_json_object()
         if not self.is_valid_asset_name:
             msg = "Can't publish without a valid asset name"
-            self.header.setMessage(msg, 'ERROR_STATUS')
+            self.widget_factory.progress_widget.set_status(constants.ERROR_STATUS, msg)
             self.logger.error(msg)
             return
         engine_type = serialized_data['_config']['engine_type']

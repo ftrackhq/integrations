@@ -13,11 +13,11 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import MaterialI
 class AccordionBaseWidget(QtWidgets.QWidget):
 
     def on_collapse(self, collapsed):
-        ''' Can be overridden by child. '''
+        '''To be overridden by child'''
         pass
 
     def init_header_content(self, layout, collapsed):
-        ''' Can be overridden by child. '''
+        '''To be overridden by child'''
         layout.addStretch()
 
     @property
@@ -27,6 +27,10 @@ class AccordionBaseWidget(QtWidgets.QWidget):
     @property
     def is_collapsed(self):
         return self._is_collapsed
+
+    @property
+    def header(self):
+        return self._header
 
     def __init__(self, parent=None, title=None, checkable=False):
         super(AccordionBaseWidget, self).__init__(parent=parent)
@@ -47,13 +51,9 @@ class AccordionBaseWidget(QtWidgets.QWidget):
         self.build()
         self.post_build()
 
-    @property
-    def header(self):
-        return self._header
-
     def set_status(self, status, message):
         # TODO: Instead of run status, implement collector status
-        self.header._status.set_status(status, message)
+        self._header.set_status(status, message)
 
     def pre_build(self):
         self.setLayout(QtWidgets.QVBoxLayout())
@@ -71,7 +71,7 @@ class AccordionBaseWidget(QtWidgets.QWidget):
     def post_build(self):
         self.init_collapsable()
         self.update_input(self._input_message, self._input_status)
-        
+
     def init_header(self, title, collapsed):
         self._header = AccordionHeaderWidget(self,
             title=title, collapsed=collapsed, checkable=self.checkable)
@@ -255,10 +255,6 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
                                             self._accordion.is_collapsed)
         return self._content
 
-    # def init_status(self):
-    #     self._status = AccordionStatus()
-    #     return self._status
-
     def update_arrow_icon(self, collapsed):
         if collapsed:
             icon_name = 'chevron-down'
@@ -278,3 +274,6 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
     def enable_content(self, check_enabled):
         self._title_label.setEnabled(check_enabled)
         self.checked.emit(check_enabled)
+
+    def set_status(self, status, message):
+        pass
