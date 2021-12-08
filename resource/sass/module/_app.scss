@@ -1,4 +1,4 @@
-/** Application window */
+/** Application window
 QMainWindow#ftrack-connect-window {
     background: $white;
 }
@@ -10,7 +10,7 @@ QLabel#login-label {
 QLabel#regular-label {
     font-size: 15px;
     font-weight: light;
-}
+}*/
 
 * {
     font-family: $font-family-base;
@@ -28,7 +28,12 @@ QPixmap{
 }
 
 QScrollArea {
-    border: 0px solid transparent;
+    border: none;
+    background-color: transparent;
+}
+
+QScrollArea QWidget {
+    background-color: transparent;
 }
 
 /* Shared styles */

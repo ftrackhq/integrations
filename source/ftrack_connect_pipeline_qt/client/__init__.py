@@ -29,12 +29,17 @@ class QtClient(client.Client, QtWidgets.QFrame):
         QtWidgets.QFrame.__init__(self, parent=parent)
         client.Client.__init__(self, event_manager)
 
-        self.setTheme('dark')
-
+        if self.get_theme():
+            self.setTheme(self.get_theme())
+            if self.get_background_color():
+                self.setProperty('background', self.get_background_color())
         self.setObjectName('{}_{}'.format(
             qt_constants.MAIN_FRAMEWORK_WIDGET,
             self.__class__.__name__)
         )
+
+        self.setProperty('background', 'houdini')
+        #self.setProperty('background', 'ftrack')
 
         self.is_valid_asset_name = False
         self.widget_factory = factory.WidgetFactory(
@@ -48,6 +53,14 @@ class QtClient(client.Client, QtWidgets.QFrame):
         if self.context_id:
             self.context_selector.set_context_id(self.context_id)
         self.add_hosts(self.discover_hosts())
+
+    def get_theme(self):
+        '''Return the client theme, return None to disable themes. Can be overridden by child.'''
+        return 'dark'
+
+    def get_background_color(self):
+        '''Return the theme background color style. Can be overridden by child.'''
+        return 'houdini'
 
     def add_hosts(self, host_connections):
         '''
@@ -98,12 +111,12 @@ class QtClient(client.Client, QtWidgets.QFrame):
         )
 
         self.context_selector = ContextSelector(self.session)
-
         self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
 
         self.layout().addWidget(line.Line())
 
         self.host_selector = definition_selector.DefinitionSelectorButtons()
+        self.host_selector.start_over_button.clicked.connect(self.widget_factory.progress_widget.set_status_widget_visibility)
         self.layout().addWidget(self.host_selector)
 
         self.scroll = QtWidgets.QScrollArea()

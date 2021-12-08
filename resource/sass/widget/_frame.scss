@@ -1,5 +1,9 @@
-QFrame {
-    background: $white;
+QFrame[background='transparent'] {
+    background: transparent;
+}
+
+QFrame[background='houdini'] {
+    background: rgb(55,55,55);
 }
 
 Line {

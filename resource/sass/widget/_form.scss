@@ -1,7 +1,7 @@
 /** Form elements */
 QLabel {
     color: $text-color;
-    background-color: transparent;
+    /*background-color: transparent;*/
     border: none;
 }
 
@@ -23,7 +23,14 @@ QComboBox {
 }
 
 QComboBox::drop-down {
-    background-color: $white;
+    /*background-color: $white;*/
+    border: 0px;
+}
+
+QComboBox::down-arrow {
+    image: theme-image('checkbox_down_arrow');
+    width: 12px;
+    height: 12px;
 }
 
 QTextEdit, QLineEdit  {

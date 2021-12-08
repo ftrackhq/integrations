@@ -40,11 +40,16 @@ class BaseCollectorWidget(BaseOptionsWidget):
         self.list_widget.setSelectionBehavior(
             QtWidgets.QAbstractItemView.SelectRows
         )
+        self.list_widget.setMaximumHeight(120)
         self.layout().addWidget(self.list_widget)
 
-        self.add_button = QtWidgets.QPushButton(qta.icon('mdi6.add',color='BF9AC9'), "ADD SELECTED")
+        add_widget = QtWidgets.QWidget()
+        add_widget.setLayout(QtWidgets.QHBoxLayout())
+        add_widget.layout().addStretch()
+        self.add_button = QtWidgets.QPushButton(qta.icon('mdi6.plus',color='#BF9AC9'), "ADD SELECTED")
         self.add_button.setObjectName('borderless')
-        self.layout().addWidget(self.add_button)
+        add_widget.layout().addWidget(self.add_button)
+        self.layout().addWidget(add_widget)
 
         self.report_input()
 
@@ -166,6 +171,7 @@ class BaseCollectorWidget(BaseOptionsWidget):
         num_objects = len(self._options.get('collected_objects') or [])
         if num_objects > 0:
             message = '{} item{} selected'.format(num_objects, 's' if num_objects>1 else '')
+            status = True
         self.input_changed.emit({
             'status': status,
             'message': message,

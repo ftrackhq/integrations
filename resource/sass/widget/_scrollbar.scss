@@ -1,19 +1,25 @@
 /** Scroll bar */
 QScrollBar:vertical {               
     border: 0;
-    background: $white-almost;
+    background: transparent;
     width: 12px;    
     margin: 0;
 }
 
-QScrollBar::handle:vertical {
+QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
     border: 0;
     border-radius: 4px;
-    background: #dadada;
+    background: #656a6d;
     margin: 2px;
 }
 
-QScrollBar::add-line:vertical {
+QScrollBar::left-arrow, QScrollBar::right-arrow,QScrollBar::down-arrow, QScrollBar::up-arrow {
+    width: 0px;
+    height: 0px;
+    border: none;
+}
+
+QScrollBar::add-line {
     border: 0;
     height: 0;
     background: $white;
@@ -21,7 +27,7 @@ QScrollBar::add-line:vertical {
     subcontrol-origin: margin;
 }
 
-QScrollBar::sub-line:vertical {
+QScrollBar::sub-line {
     border: 0;
     height: 0;
     background: $white;

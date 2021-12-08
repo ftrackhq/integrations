@@ -116,7 +116,7 @@ class PublisherAccordion(AccordionBaseWidget):
         else:
             self._status_label.setText('')
         self._status_icon.set_icon('check' if status else 'alert-circle-outline',
-            color = 'gray' if not self.checkable else ('green' if status else 'orange'))
+            color = 'gray' if not self.checkable or not self.is_checked() else ('green' if status else 'orange'))
 
 class AccordionStepWidget(BaseUIWidget):
     '''Widget representation of a boolean'''

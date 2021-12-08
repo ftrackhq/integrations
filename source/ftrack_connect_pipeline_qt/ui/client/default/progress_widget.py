@@ -177,7 +177,7 @@ class ProgressWidget(BaseUIWidget):
 
     def build(self):
         self._widget = StatusButtonWidget(self._status_view_mode)
-        #self.widget.setLayout(QtWidgets.QVBoxLayout())
+        self.set_status_widget_visibility(False)
 
         self.scroll = QtWidgets.QScrollArea()
         self.scroll.setWidgetResizable(True)
@@ -231,6 +231,10 @@ class ProgressWidget(BaseUIWidget):
     def set_status(self, status, message=None):
         self.widget.set_status(status, message=message)
         self.status_banner.set_status(status, message=message)
+        self.set_status_widget_visibility(True)
+
+    def set_status_widget_visibility(self, visibility=False):
+        self.widget.setVisible(visibility)
 
     def update_component_status(
             self, step_type, step_name, status, status_message, results

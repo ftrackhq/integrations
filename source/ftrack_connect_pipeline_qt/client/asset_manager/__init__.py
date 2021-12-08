@@ -7,11 +7,13 @@ from functools import partial
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
 from ftrack_connect_pipeline.client.asset_manager import AssetManagerClient
-from ftrack_connect_pipeline_qt.ui.utility.widget import header, host_selector
+from ftrack_connect_pipeline_qt.ui.utility.widget import header, host_selector, line
 from ftrack_connect_pipeline_qt.ui.asset_manager import AssetManagerWidget
+from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import ContextSelector
+from ftrack_connect_pipeline_qt.ui import theme
 
 
-class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
+class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     '''
     QtAssetManagerClient class.
     '''
@@ -22,8 +24,14 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
         '''Initialise AssetManagerClient with instance of
         :class:`~ftrack_connect_pipeline.event.EventManager`
         '''
-        QtWidgets.QWidget.__init__(self, parent=parent)
+        QtWidgets.QFrame.__init__(self, parent=parent)
         AssetManagerClient.__init__(self, event_manager)
+
+
+        if self.get_theme():
+            self.setTheme(self.get_theme())
+            if self.get_background_color():
+                self.setProperty('background', self.get_background_color())
 
         self.asset_manager_widget = AssetManagerWidget(event_manager)
         self.asset_manager_widget.set_asset_list(self.asset_entities_list)
@@ -34,6 +42,18 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
         self.build()
         self.post_build()
         self.add_hosts(self.discover_hosts())
+
+    def setTheme(self, selected_theme):
+        theme.applyFont()
+        theme.applyTheme(self, selected_theme, 'plastique')
+
+    def get_theme(self):
+        '''Return the client theme, return None to disable themes. Can be overridden by child.'''
+        return 'dark'
+
+    def get_background_color(self):
+        '''Return the theme background color style. Can be overridden by child.'''
+        return 'houdini'
 
     def add_hosts(self, host_connections):
         '''
@@ -46,6 +66,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
             if host_connection in self.host_connections:
                 continue
             self._host_connections.append(host_connection)
+        self.host_selector.setVisible(1<len(self._host_connections))
 
     def _host_discovered(self, event):
         '''
@@ -61,6 +82,8 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
     def pre_build(self):
         '''Prepare general layout.'''
         layout = QtWidgets.QVBoxLayout()
+        layout.setContentsMargins(4,4,4,4)
+        layout.setSpacing(2)
         self.setLayout(layout)
 
     def build(self):
@@ -68,8 +91,17 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
         self.header = header.Header(self.session)
         self.layout().addWidget(self.header)
 
+        self.context_selector = ContextSelector(self.session)
+        self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
+
+        self.layout().addWidget(line.Line())
+
         self.host_selector = host_selector.HostSelector()
+        self.host_selector.setVisible(False)
         self.layout().addWidget(self.host_selector)
+
+        toolbar = QtWidgets.QWidget()
+        toolbar.setLayout(QtWidgets.QHBoxLayout())
 
         self.refresh_button = QtWidgets.QPushButton('Refresh')
         self.refresh_button.setSizePolicy(
@@ -184,6 +216,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QWidget):
         # or set up as loaded or something like that
         AssetManagerClient._load_assets_callback(self, event)
         # self.asset_manager_widget.set_asset_list(self.asset_entities_list)
+
     def _on_unload_assets(self, asset_info_list):
         '''
         Triggered when unload action is clicked on the ui.
