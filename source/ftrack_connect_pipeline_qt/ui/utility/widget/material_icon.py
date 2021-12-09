@@ -7,20 +7,26 @@ from Qt import QtWidgets, QtCore, QtGui
 from ftrack_connect_pipeline_qt import constants
 
 class MaterialIconWidget(QtWidgets.QWidget):
-    def __init__(self, parent=None, name=None):
+    @property
+    def icon(self):
+        return self._icon
+    def __init__(self, name, parent=None, color=None):
         super(MaterialIconWidget, self).__init__(parent=parent)
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(1)
+        self._icon = None
         if name:
-            self.set_icon(name)
+            self.set_icon(name, color=color)
 
-    def set_icon(self, name, color='gray', size=16):
+    def set_icon(self, name, color=None, size=16):
         for i in reversed(range(self.layout().count())):
             self.layout().itemAt(i).widget().setParent(None)
+        if color is None:
+            color = 'gray'
         label = QtWidgets.QLabel()
-        icon = qta.icon('mdi6.{}'.format(name), color=color)
-        label.setPixmap(icon.pixmap(QtCore.QSize(size, size)))
+        self._icon = qta.icon('mdi6.{}'.format(name), color=color)
+        label.setPixmap(self._icon.pixmap(QtCore.QSize(size, size)))
         self.layout().addWidget(label)
 
     def set_status(self, status, size=16):

@@ -237,7 +237,7 @@ class AssetManagerTableView(QtWidgets.QTreeView):
 
     def pre_build(self):
         '''Prepare general layout.'''
-        self.setAlternatingRowColors(True)
+        #self.setAlternatingRowColors(True)
 
         self.setSelectionBehavior(
             QtWidgets.QAbstractItemView.SelectRows

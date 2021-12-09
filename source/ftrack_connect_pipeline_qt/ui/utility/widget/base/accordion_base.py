@@ -263,7 +263,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self._arrow.set_icon(name=icon_name)
 
     def init_arrow(self, collapsed):
-        self._arrow = MaterialIconWidget()
+        self._arrow = MaterialIconWidget(None)
         self.update_arrow_icon(collapsed)
         return self._arrow
 

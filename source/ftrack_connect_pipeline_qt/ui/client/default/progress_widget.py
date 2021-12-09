@@ -34,7 +34,7 @@ class PhaseButton(QtWidgets.QPushButton):
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(3, 3, 3, 3)
 
-        self.icon_widget = MaterialIconWidget()
+        self.icon_widget = MaterialIconWidget(None)
         self.layout().addWidget(self.icon_widget)
         self.set_status(constants.DEFAULT_STATUS)
 
@@ -139,7 +139,7 @@ class StatusButtonWidget(QtWidgets.QPushButton):
         self.message_label = QtWidgets.QLabel()
         self.layout().addWidget(self.message_label)
         self.layout().addStretch()
-        self.status_icon = MaterialIconWidget()
+        self.status_icon = MaterialIconWidget(None)
         self.layout().addWidget(self.status_icon)
 
         self.set_status(constants.SUCCESS_STATUS)

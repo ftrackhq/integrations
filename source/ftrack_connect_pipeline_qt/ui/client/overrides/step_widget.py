@@ -90,7 +90,7 @@ class PublisherAccordion(AccordionBaseWidget):
         return self._options_button
 
     def init_status_icon(self):
-        self._status_icon = MaterialIconWidget(name='check')
+        self._status_icon = MaterialIconWidget('check')
         self._status_icon.setObjectName('borderless')
         return self._status_icon
 

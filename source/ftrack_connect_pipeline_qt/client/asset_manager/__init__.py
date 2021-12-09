@@ -8,7 +8,7 @@ from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
 from ftrack_connect_pipeline.client.asset_manager import AssetManagerClient
 from ftrack_connect_pipeline_qt.ui.utility.widget import header, host_selector, line
-from ftrack_connect_pipeline_qt.ui.asset_manager import AssetManagerWidget
+from ftrack_connect_pipeline_qt.ui.asset_manager.asset_manager import AssetManagerWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import ContextSelector
 from ftrack_connect_pipeline_qt.ui import theme
 
@@ -35,6 +35,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 
         self.asset_manager_widget = AssetManagerWidget(event_manager)
         self.asset_manager_widget.set_asset_list(self.asset_entities_list)
+        self.asset_manager_widget.refresh.connect(self._refresh_ui)
 
         self._host_connection = None
 
@@ -100,18 +101,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         self.host_selector.setVisible(False)
         self.layout().addWidget(self.host_selector)
 
-        toolbar = QtWidgets.QWidget()
-        toolbar.setLayout(QtWidgets.QHBoxLayout())
-
-        self.refresh_button = QtWidgets.QPushButton('Refresh')
-        self.refresh_button.setSizePolicy(
-            QtWidgets.QSizePolicy.Fixed,
-            QtWidgets.QSizePolicy.Fixed
-        )
-        self.layout().addWidget(
-            self.refresh_button, alignment=QtCore.Qt.AlignRight
-        )
-
         self.scroll = QtWidgets.QScrollArea()
         self.scroll.setWidgetResizable(True)
         self.layout().addWidget(self.scroll)
@@ -119,7 +108,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     def post_build(self):
         '''Post Build ui method for events connections.'''
         self.host_selector.host_changed.connect(self.change_host)
-        self.refresh_button.clicked.connect(partial(self._refresh_ui, None))
 
         self.asset_manager_widget.widget_status_updated.connect(
             self._on_widget_status_updated
