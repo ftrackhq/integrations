@@ -185,11 +185,17 @@ class WidgetFactory(QtWidgets.QWidget):
                         stage_obj.parent_widget(plugin_container_obj)
                     else:
                         stage_obj.parent_widget(plugin_widget)
+                    if stage_type == core_constants.COLLECTOR and isinstance(step_obj, override_widgets.AccordionStepWidget):
+                        # Connect input change to accordion
+                        # TODO: support multiple collectors
+                        plugin_widget.input_changed.connect(step_obj.collector_input_changed)
+                        # Eventual initial summary is lost prior to the signal connect, have widget do it again
+                        plugin_widget.report_input()
                 if isinstance(step_obj, override_widgets.AccordionStepWidget):
                     if stage_type == core_constants.VALIDATOR:
                         step_obj.parent_validator(stage_obj)
                         continue
-                    if stage_type == core_constants.OUTPUT:
+                    elif stage_type == core_constants.OUTPUT:
                         step_obj.parent_output(stage_obj)
                         continue
 
@@ -211,7 +217,7 @@ class WidgetFactory(QtWidgets.QWidget):
         '''
         Given the provided definition, we generate the client UI.
         '''
-        self.progress_widget.clear_components()
+        self.progress_widget.prepare_add_component()
         # Backup the original definition, as it will be extended by the user UI
         self.original_definition = copy.deepcopy(definition)
         self.working_definition = definition
@@ -256,6 +262,8 @@ class WidgetFactory(QtWidgets.QWidget):
         if not UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True):
             finalizers_obj.widget.hide()
         main_obj.widget.layout().addStretch()
+
+        self.progress_widget.components_added()
 
         # Check all components status of the current UI
         self.post_build_definition()
@@ -601,7 +609,7 @@ class WidgetFactory(QtWidgets.QWidget):
 
 
     def _asset_version_changed(self, version_id):
-        '''Callbac function triggered when a asset version has changed'''
+        '''Callback function triggered when a asset version has changed'''
         self.version_id = version_id
 
         thread = BaseThread(

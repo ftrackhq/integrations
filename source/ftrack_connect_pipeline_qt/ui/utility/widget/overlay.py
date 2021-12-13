@@ -1,6 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2021 ftrack
 
+import qtawesome as qta
+
 from Qt import QtGui, QtCore, QtWidgets
 
 from ftrack_connect_pipeline_qt import utils
@@ -23,14 +25,13 @@ class Overlay(QtWidgets.QWidget):
         self.widget.setParent(self)
         self.widget.setAutoFillBackground(True)
 
-        self.close_btn = QtWidgets.QPushButton("X", self)
-        self.close_btn.setStyleSheet(
-            "background-color: rgba(0, 0, 0, 0);"
-        )
+        self.close_btn = QtWidgets.QPushButton('', self)
+        self.close_btn.setIcon(qta.icon('mdi6.close-thick', color='#D3d4D6'))
+        self.close_btn.setObjectName('borderless')
         self.close_btn.setFixedSize(30, 30)
         self.close_btn.clicked.connect(self.close)
 
-        self.fill_color = QtGui.QColor(30, 30, 30, 120)
+        self.fill_color = QtGui.QColor(30, 30, 30, 200)
         self.pen_color = QtGui.QColor("#333333")
 
         # Install global event filter that will deal with matching parent size
@@ -55,13 +56,13 @@ class Overlay(QtWidgets.QWidget):
         super(Overlay, self).resizeEvent(event)
         size = self.size()
         widget_width = size.width() - (size.width() * 0.2)
-        widget_height = size.height() - (size.height() * 0.2)
+        widget_height = size.height() - (size.height() * 0.4)
         origin_w = int(size.width()/2-widget_width/2)
-        origin_h = int(size.height()/2-widget_height/2)
+        origin_h = 40 #int(size.height()/2-widget_height/2)
         self.widget.resize(widget_width, widget_height)
         self.widget.move(origin_w, origin_h)
         # Move the close button to the desired position
-        self.close_btn.move(origin_w, origin_h)
+        self.close_btn.move(origin_w+widget_width-32, origin_h)
 
     def setVisible(self, visible):
         '''Set whether *visible* or not.'''

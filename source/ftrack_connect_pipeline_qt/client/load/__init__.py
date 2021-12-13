@@ -20,3 +20,5 @@ class QtLoaderClient(QtClient):
         )
         self.setWindowTitle('Standalone Pipeline Loader')
         self.logger.debug('start qt loader')
+
+        self.setProperty('background', 'styled')

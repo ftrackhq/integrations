@@ -1,5 +1,9 @@
-QFrame {
-    background: $white;
+QFrame[background='transparent'] {
+    background: transparent;
+}
+
+QFrame[background='houdini'] {
+    background: rgb(55,55,55);
 }
 
 Line {
@@ -14,7 +18,7 @@ NewAssetInput[status=''] {
     border: 1px dashed transparent;
 }
 
-AccordionTitleWidget {
+AccordionHeaderWidget, AccordionTitleWidget {
     border: 1px dashed $gray-dark;
 }
 

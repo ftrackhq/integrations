@@ -8,7 +8,7 @@ QListWidget::item
 {
     background: transparent;
     padding: 2px;
-    color: $text-color;
+    color: gray;
 }
 QListWidget::item QLabel
 {
@@ -17,7 +17,9 @@ QListWidget::item QLabel
 
 QListWidget::item:selected
 {
-   background: $color-purple-light-1;
+   /*background: $color-purple-light-1;*/
+   color: $text-color;
+   border: 1px dashed $color-purple;
 }
 
 
@@ -29,6 +31,5 @@ AssetList {
 
 AssetList::item:selected
 {
-    border: 1px dashed $color-purple;
     background: transparent;
 }

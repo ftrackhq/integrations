@@ -11,10 +11,18 @@ class Item(object):
     '''Represent ftrack entity with consistent interface.'''
 
     def __init__(self, asset_info):
-        '''Initialise item with *entity*.'''
+        '''Initialise item with *entity*.
+        asset_info: {'asset_id': 'db4ad014-5b76-434b-8a0f-ab6ae979ef4d', 'asset_name': 'uploadasset',
+            'asset_type_name': 'Upload', 'version_id': '1720f6f3-4854-4796-a2ce-fe225178bf49', 'version_number': 2,
+            'component_path': '/Volumes/AccsynStorage/accsynftrackpoc/sq010/sh030/_PUBLISH/generic/v002/main.mp4',
+            'component_name': 'main', 'component_id': 'a07e3c4a-8f51-4492-bc97-04a54cf94fbb', 'load_mode': None,
+            'asset_info_options': None, 'reference_object': None, 'is_latest_version': True,
+            'asset_versions_entities': None, 'session': <ftrack_api.session.Session object at 0x102975210>,
+            'asset_info_id': '51b6abdc3c5141a3bbe79983c5a2813f', 'dependency_ids': [], 'is_dependency': False,
+             'dependencies': None, 'context_name': 'sh030'}
+        '''
         super(Item, self).__init__()
         self.asset_info = asset_info
-
         self.children = []
         self.parent = None
         self._fetched = False

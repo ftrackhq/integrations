@@ -4,6 +4,7 @@
 from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect_pipeline.asset import asset_info
+from ftrack_connect_pipeline.constants import asset as constants
 
 class VersionDelegate(QtWidgets.QItemDelegate):
     change_version = QtCore.Signal(object, object)
@@ -19,7 +20,7 @@ class VersionDelegate(QtWidgets.QItemDelegate):
         # it returns a generic dictionary.
         item = asset_info.FtrackAssetInfo(index.model().data(index, index.model().DATA_ROLE))
 
-        versions_collection = item['versions']
+        versions_collection = item[constants.ASSET_VERSIONS_ENTITIES]
         combo = QtWidgets.QComboBox(parent)
         for asset_version in versions_collection:
             combo.addItem(str(asset_version['version']), asset_version['id'])

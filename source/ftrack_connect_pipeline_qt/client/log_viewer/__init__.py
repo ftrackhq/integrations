@@ -104,7 +104,7 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
     def post_build(self):
         '''Post Build ui method for events connections.'''
         self.host_selector.host_changed.connect(self.change_host)
-        self.refresh_button.clicked.connect(partial(self._refresh_ui, None))
+        self.refresh_button.clicked.connect(self._refresh_ui)
         self.open_log_folder_button.clicked.connect(
             self._on_logging_button_clicked
         )
@@ -165,7 +165,7 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
         else:
             subprocess.Popen(['xdg-open', directory])
 
-    def _refresh_ui(self, event):
+    def _refresh_ui(self):
         '''
         Refreshes the ui seting the :obj:`logs` items to the
         :obj:`log_viewer_widget`

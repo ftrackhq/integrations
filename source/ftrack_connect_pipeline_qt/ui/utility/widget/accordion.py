@@ -335,20 +335,6 @@ class AccordionStatus(QtWidgets.QLabel):
         if message:
             self.setToolTip(str(message))
 
-class AccordionArrowContainer(QtWidgets.QWidget):
-    def __init__(self, parent=None, collapsed=False):
-        super(AccordionArrowContainer, self).__init__(parent=parent)
-        self.setLayout(QtWidgets.QHBoxLayout())
-        self.set_arrow(int(collapsed))
-
-    def set_arrow(self, arrow_direction):
-        for i in reversed(range(self.layout().count())):
-            self.layout().itemAt(i).widget().setParent(None)
-        if arrow_direction:
-            self.layout().addWidget(QtWidgets.QLabel(qta.icon('mdi6.chevron-down', color='gray')))
-        else:
-            self.layout().addWidget(QtWidgets.QLabel(qta.icon('mdi6.chevron-up', color='gray')))
-
 class Arrow(QtWidgets.QFrame):
     def __init__(self, parent=None, collapsed=False):
         super(Arrow, self).__init__(parent=parent)
