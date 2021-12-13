@@ -35,13 +35,17 @@ class OptionsButton(QtWidgets.QPushButton):
     def __init__(self, title, icon, parent=None):
         super(OptionsButton, self).__init__(parent=parent)
         self.name = title
-        self.setMinimumSize(30, 30)
-        self.setMaximumSize(30, 30)
+        self._icon = icon
 
-        self.setIcon(icon)
-        self.setFlat(True)
+        self.pre_build()
         self.build()
         self.post_build()
+
+    def pre_build(self):
+        self.setMinimumSize(30, 30)
+        self.setMaximumSize(30, 30)
+        self.setIcon(self._icon)
+        self.setFlat(True)
 
     def build(self):
         self.main_widget = QtWidgets.QWidget()
@@ -116,7 +120,8 @@ class PublisherAccordion(AccordionBaseWidget):
         else:
             self._status_label.setText('')
         self._status_icon.set_icon('check' if status else 'alert-circle-outline',
-            color = 'gray' if not self.checkable or not self.is_checked() else ('green' if status else 'orange'))
+            color = 'gray' if not self.checkable or not self.is_checked() else
+                ('green' if status else 'orange'))
 
 class AccordionStepWidget(BaseUIWidget):
     '''Widget representation of a boolean'''

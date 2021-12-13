@@ -116,7 +116,8 @@ class QtClient(client.Client, QtWidgets.QFrame):
         self.layout().addWidget(line.Line())
 
         self.host_selector = definition_selector.DefinitionSelectorButtons()
-        self.host_selector.start_over_button.clicked.connect(self.widget_factory.progress_widget.set_status_widget_visibility)
+        self.host_selector.start_over_button.clicked.connect(
+            self.widget_factory.progress_widget.set_status_widget_visibility)
         self.layout().addWidget(self.host_selector)
 
         self.scroll = QtWidgets.QScrollArea()

@@ -49,12 +49,6 @@ class PhaseButton(QtWidgets.QPushButton):
 
         self.layout().addLayout(v_layout, 100)
 
-        #self.error_widget = QtWidgets.QLabel()
-        #self.layout().addWidget(self.error_widget)
-        #icon = self.status_icons[constants.ERROR_STATUS]
-        #self.error_widget.setPixmap(icon)
-        #self.error_widget.hide()
-
         self.log_widget = QtWidgets.QWidget()
         self.log_widget.setLayout(QtWidgets.QVBoxLayout())
         self.log_widget.layout().addSpacing(30)
