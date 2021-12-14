@@ -129,6 +129,7 @@ configuration = dict(
     keywords='ftrack, connect, package',
     url='https://bitbucket.org/ftrack/ftrack-connect-package',
     author='ftrack',
+    include_package_data=True,
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
     packages=find_packages(SOURCE_PATH),
@@ -497,7 +498,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         'packages': ['ftrack_connect'],
         'includes': includes,
         "zip_include_packages": [
-            'ftrack_connect',
+            # 'ftrack_connect',
             "PySide2",
             "shiboken2",
             "Qt",
