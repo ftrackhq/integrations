@@ -199,12 +199,12 @@ class WidgetFactory(QtWidgets.QWidget):
                         step_obj.parent_output(stage_obj)
                         continue
 
-                elif (
-                        isinstance(step_obj, override_widgets.OptionsStepWidget) and
-                        definition_type == core_constants.LOADER
-                ):
-                        step_obj.parent_options(stage_obj)
-                        continue
+                # elif (
+                #         isinstance(step_obj, override_widgets.OptionsStepWidget) and
+                #         definition_type == core_constants.LOADER
+                # ):
+                #         step_obj.parent_options(stage_obj)
+                #         continue
                 if step_obj:
                     step_obj.parent_widget(stage_obj)
                 elif step_container_obj:

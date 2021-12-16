@@ -33,6 +33,41 @@ QComboBox::down-arrow {
     height: 12px;
 }
 
+AssetVersion/** Form elements */
+QLabel {
+    color: $text-color;
+    /*background-color: transparent;*/
+    border: none;
+}
+
+QComboBox {
+    border: 1px solid $gray-dark;
+    border-radius: 2px;
+    padding: $input-padding;
+    background: $input-background;
+    selection-background-color: $gray-dark;
+    color: $text-color;
+
+    &:hover {
+        border-color: darken($gray-dark, 5%);
+    }
+
+    &:focus {
+        border: 1px solid $input-border-color-focus;
+    }
+}
+
+QComboBox::drop-down {
+    /*background-color: $white;*/
+    border: 0px;
+}
+
+QComboBox::down-arrow {
+    image: theme-image('checkbox_down_arrow');
+    width: 12px;
+    height: 12px;
+}
+
 QTextEdit, QLineEdit  {
     border: 1px solid $gray-dark;
     border-radius: 2px;
@@ -66,13 +101,57 @@ QCheckBox::indicator:checked:disabled {
     image: theme-image('checkbox_checked_disabled');
 }
 
+QLineEdit[input="invalid"] {
+    border: 1px solid darken(red, 50%);
+}
+
+QTextEdit, QLineEdit  {
+    border: 1px solid $gray-dark;
+    border-radius: 2px;
+    padding: $input-padding;
+    background: $input-background;
+    selection-background-color: $gray-dark;
+    color: $text-color;
+
+    &:hover {
+        border-color: darken($gray-dark, 5%);
+    }
+
+    &:focus {
+        border: 1px solid #33313F;
+    }
+}
+
+QCheckBox::indicator {
+    image: theme-image('checkbox_unchecked');
+}
+
+QCheckBox::indicator:disabled {
+    image: theme-image('checkbox_unchecked_disabled');
+}
+
+QCheckBox::indicator:checked {
+    image: theme-image('checkbox_checked');
+}
+
+QCheckBox::indicator:checked:disabled {
+    image: theme-image('checkbox_checked_disabled');
+}
 
 QLineEdit[input="invalid"] {
     border: 1px solid darken(red, 50%);
 }
 
-QLabel#h3 {
-    color: $color-white;
-    font-weight: bold;
-    font-size: larger;
+AssetVersionSelector {
+    border: 1px solid $color-purple;
+    border-radius: 2px;
+    color: $color-purple;
+
+    &:hover {
+        border-color: darken($color-purple, 5%);
+    }
+
+    &:focus {
+        border: 1px solid $input-border-color-focus;
+    }
 }

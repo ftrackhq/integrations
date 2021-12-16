@@ -3,22 +3,22 @@ QMenuBar {
 }
 
 QMenu {
-    background: $white;
+    background: $gray-dark;
 }
 
 QMenu::item {
-    background: $white;
+    background: $gray-dark;
     border: 0px;
-    padding: 5px;
+    padding: 7px;
     color: $text-color;
 }
 
 QMenu::item:selected:enabled {
-    background: darken($white, 5%);
+    background: darken($gray-dark, 5%);
 }
 
 QMenu::item:pressed:enabled {
-    background: darken($white, 10%);
+    background: darken($gray-dark, 10%);
 }
 
 QMenu::item:unchecked {

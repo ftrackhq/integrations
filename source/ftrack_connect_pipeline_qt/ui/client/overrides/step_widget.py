@@ -1,11 +1,13 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2021 ftrack
+from functools import partial
 
 import qtawesome as qta
 
 from Qt import QtCore, QtWidgets
 
-from ftrack_connect_pipeline import constants as core_constants
+from ftrack_connect_pipeline_qt import constants
+from ftrack_connect_pipeline import constants as pipeline_constants
 from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import  AccordionBaseWidget
 from ftrack_connect_pipeline_qt.ui.client.default.step_widget import DefaultStepWidget
@@ -14,6 +16,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import line
 from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
 from ftrack_connect_pipeline_qt import utils
 from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import MaterialIconWidget
+from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 
 def recursive_get_load_mode_container(widget):
     if not widget.layout():
@@ -76,6 +79,7 @@ class OptionsButton(QtWidgets.QPushButton):
 
 
 class PublisherAccordion(AccordionBaseWidget):
+
     @property
     def options_widget(self):
         return self._options_button
@@ -107,6 +111,41 @@ class PublisherAccordion(AccordionBaseWidget):
         layout.addWidget(line.Line(horizontal=True))
         layout.addWidget(self.init_status_icon())
 
+    def add_widget(self, widget):
+        super(PublisherAccordion, self).add_widget(widget)
+        self._connect_inner_widgets(widget)
+
+    def update_inner_status(self, inner_widget, data):
+        status, message = data
+
+        self._inner_widget_status[inner_widget] = status
+
+        all_bool_status = [
+            pipeline_constants.status_bool_mapping[_status]
+            for _status in list(self._inner_widget_status.values())
+        ]
+        if all(all_bool_status):
+            self.set_status(constants.SUCCESS_STATUS, None)
+        else:
+            if constants.RUNNING_STATUS in list(self._inner_widget_status.values()):
+                self.set_status(constants.RUNNING_STATUS, None)
+            else:
+                self.set_status(constants.ERROR_STATUS, None)
+
+    def _connect_inner_widgets(self, widget):
+        if issubclass(widget.__class__, BaseOptionsWidget):
+            self._widgets[widget] = widget
+            widget.status_updated.connect(
+                partial(self.update_inner_status, widget)
+            )
+            return
+        inner_widgets = widget.findChildren(BaseOptionsWidget)
+        self._widgets[widget] = inner_widgets
+        for inner_widget in inner_widgets:
+            inner_widget.status_updated.connect(
+                partial(self.update_inner_status, inner_widget)
+            )
+
     def on_collapse(self, collapsed):
         '''Callback on accordion collapse/expand.'''
         self.update_input(self._input_message, self._input_status)
@@ -115,13 +154,16 @@ class PublisherAccordion(AccordionBaseWidget):
         '''(Override)'''
         self._input_message = message
         self._input_status = status
-        if self.is_collapsed:
+        if self.collapsed:
             self._status_label.setText('- {}'.format(self._input_message))
         else:
             self._status_label.setText('')
-        self._status_icon.set_icon('check' if status else 'alert-circle-outline',
-            color = 'gray' if not self.checkable or not self.is_checked() else
-                ('green' if status else 'orange'))
+        self._status_icon.setVisible(not status is None)
+        if not status is None:
+            self._status_icon.set_icon('check' if status else 'alert-circle-outline',
+                color = 'gray' if not self.checkable or not self.is_checked() else
+                    ('green' if status else 'orange'))
+
 
 class AccordionStepWidget(BaseUIWidget):
     '''Widget representation of a boolean'''

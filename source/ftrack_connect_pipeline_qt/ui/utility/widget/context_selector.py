@@ -19,12 +19,12 @@ class ContextSelector(QtWidgets.QWidget):
     def context_id(self):
         return self._context_id
 
-    def __init__(self, session, current_context_id=None, currentEntity=None, parent=None):
-        '''Initialise ContextSelector widget with the *currentEntity* and
+    def __init__(self, session, current_context_id=None, current_entity=None, parent=None):
+        '''Initialise ContextSelector widget with the *current_entity* and
         *parent* widget.
         '''
         super(ContextSelector, self).__init__(parent=parent)
-        self._entity = currentEntity
+        self._entity = current_entity
         self._context_id = current_context_id
         self.session = session
 
@@ -33,7 +33,7 @@ class ContextSelector(QtWidgets.QWidget):
         self.post_build()
 
         self.set_context_id(self._context_id)
-        self.setEntity(currentEntity)
+        self.set_entity(current_entity)
 
     def pre_build(self):
         layout = QtWidgets.QHBoxLayout()
@@ -70,7 +70,7 @@ class ContextSelector(QtWidgets.QWidget):
         self.entity_browse_button.clicked.connect(
             self._onEntityBrowseButtonClicked
         )
-        self.entityChanged.connect(self.entity_info.setEntity)
+        self.entityChanged.connect(self.entity_info.set_entity)
         self.entityChanged.connect(self.set_thumbnail)
         self.entityBrowser.selectionChanged.connect(
             self._onEntityBrowserSelectionChanged
@@ -79,11 +79,11 @@ class ContextSelector(QtWidgets.QWidget):
 
     def reset(self, entity=None):
         '''reset browser to the given *entity* or the default one'''
-        currentEntity = entity or self._entity
-        self.entity_info.setEntity(currentEntity)
-        self.setEntity(currentEntity)
+        current_entity = entity or self._entity
+        self.entity_info.set_entity(current_entity)
+        self.set_entity(current_entity)
 
-    def setEntity(self, entity):
+    def set_entity(self, entity):
         '''Set the *entity* for the view.'''
         if not entity:
             return
@@ -101,7 +101,7 @@ class ContextSelector(QtWidgets.QWidget):
             thread = BaseThread(
                 name='context entity thread',
                 target=self.find_context_entity,
-                callback=self.setEntity,
+                callback=self.set_entity,
                 target_args=[context_id]
             )
             thread.start()
@@ -129,9 +129,9 @@ class ContextSelector(QtWidgets.QWidget):
         if self.entityBrowser.exec_():
             selected = self.entityBrowser.selected()
             if selected:
-                self.setEntity(selected[0])
+                self.set_entity(selected[0])
             else:
-                self.setEntity(None)
+                self.set_entity(None)
 
     def _onEntityBrowserSelectionChanged(self, selection):
         '''Handle selection of entity in browser.'''

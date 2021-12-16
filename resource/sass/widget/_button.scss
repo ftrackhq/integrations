@@ -1,5 +1,5 @@
 /** Button */
-QPushButton {
+QPushButton, QMessageBox QPushButton {
     border: 1px solid $color-purple;
     border-radius: 3px;
     background-color: transparent;

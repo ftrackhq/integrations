@@ -1,11 +1,13 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-from functools import partial
+import qtawesome as qta
+
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
 from ftrack_connect_pipeline import constants as core_const
 from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
+#from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
 
 class AssetManagerBaseWidget(QtWidgets.QWidget):
     '''Base widget of the asset manager and assembler'''
@@ -46,8 +48,6 @@ class AssetManagerBaseWidget(QtWidgets.QWidget):
         self._event_manager = event_manager
         self._engine_type = None
 
-        self.asset_entities_list = []
-
         self.pre_build()
         self.build()
         self.post_build()
@@ -64,12 +64,10 @@ class AssetManagerBaseWidget(QtWidgets.QWidget):
         self.init_header_content(self._header.layout())
         self.layout().addWidget(self._header)
 
-        #self.asset_table_view = AssetManagerTableView(
-        #    self.event_manager, parent=self
-        #)
-        #self.layout().addWidget(self.asset_table_view)
-
-        self.layout().addStretch()
+        self.scroll = QtWidgets.QScrollArea()
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.layout().addWidget(self.scroll, 100)
 
     def post_build(self):
         '''Post Build ui method for events connections.'''
@@ -85,32 +83,104 @@ class AssetManagerBaseWidget(QtWidgets.QWidget):
         '''Search in the current model.'''
         pass
 
-    def set_host_connection(self, host_connection):
-        '''Sets :obj:`host_connection` with the given *host_connection*.'''
-        self.host_connection = host_connection
-        self._listen_widget_updates()
-        #self.asset_table_view.set_host_connection(self.host_connection)
+class AssetListModel(QtCore.QAbstractTableModel):
+    '''Custom asset list model'''
+    @property
+    def session(self):
+        return self._session
 
-    def set_context_actions(self, actions):
-        '''Set the :obj:`engine_type` into the asset_table_view and calls the
-        create_action function of the same class with the given *actions*'''
-        #self.asset_table_view.engine_type = self.engine_type
-        #self.asset_table_view.create_actions(actions)
+    def __init__(self, session):
+        super(AssetListModel, self).__init__()
+        self._session = session
+        self.__asset_entities_list = []
 
-    def _update_widget(self, event):
-        '''*event* callback to update widget with the current status/value'''
+    def rowCount(self, index=QtCore.QModelIndex):
+        return len(self.__asset_entities_list)
+
+    def columnCount(self, index=QtCore.QModelIndex):
+        return 1
+
+    def data(self, index, role=QtCore.Qt.DisplayRole):
+        if role == QtCore.Qt.DisplayRole:
+            return self.__asset_entities_list[index.row()]
+
+    def insertRows(self, position, data, index=QtCore.QModelIndex):
+        rows = len(data)
+        self.beginInsertRows(QtCore.QModelIndex(), position, position + rows - 1)
+        for row in range(rows):
+            if position+row<len(self.__asset_entities_list):
+                self.__asset_entities_list.insert(position+row, data[row])
+            else:
+                self.__asset_entities_list.append(data[row])
+        self.endInsertRows()
+
+    def reset(self):
+        self.beginResetModel()
+        self.__asset_entities_list = []
+        self.endResetModel()
+
+    def flags(self, index):
+        if not index.isValid():
+            return QtCore.Qt.ItemIsEnabled
+        return QtCore.Qt.ItemFlags(QtCore.QAbstractTableModel.flags(self, index))|QtCore.Qt.ItemIsEditable
+
+class AssetListWidget(QtWidgets.QWidget):
+    '''Custom asset list view'''
+
+    @property
+    def model(self):
+        return self._model
+
+    def __init__(self, model, asset_widget_class, parent=None):
+        super(AssetListWidget, self).__init__(parent=parent)
+        self._model = model
+        self._asset_widget_class = asset_widget_class
+
+        self.pre_build()
+        self.build()
+        self.post_build()
+
+    def pre_build(self):
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().setContentsMargins(1, 1, 1, 1)
+        self.layout().setSpacing(1)
+
+    def build(self):
         pass
 
-    def _listen_widget_updates(self):
-        '''Subscribe to the PIPELINE_CLIENT_NOTIFICATION topic to call the
-        _update_widget function when the host returns and answer through the
-        same topic'''
+    def post_build(self):
+        self._model.rowsInserted.connect(self._assets_added)
+        self._model.modelReset.connect(self.rebuild)
 
-        self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.host_id={}'.format(
-                core_const.PIPELINE_CLIENT_NOTIFICATION,
-                self.host_connection.id
-            ),
-            self._update_widget
-        )
+    def _assets_added(self, parent, first, last):
+        # TODO: Insert only the new widgets
+        self.rebuild()
 
+    def rebuild(self):
+        '''Clear widget and add all assets again from model'''
+        for i in reversed(range(self.layout().count())):
+            widget = self.layout().itemAt(i).widget()
+            if widget:
+                widget.setParent(None)
+        for row in range(self.model.rowCount()):
+            asset_widget = self._asset_widget_class(self.model.createIndex(row, 0, self.model), self.model.session, checkable=True)
+            asset_info = self.model.data(asset_widget.index)
+            asset_widget.update(asset_info)
+            self.layout().addWidget(asset_widget)
+
+    def reset(self):
+        self.model.reset()
+
+    def get_selection(self, warn_on_empty=True):
+        result = []
+        for i in range(self.layout().count()):
+            widget = self.layout().itemAt(i).widget()
+            # All widgets should be accordions
+            if widget.checked:
+                result.append(self.model.data(widget.index))
+        if warn_on_empty and len(result) == 0:
+            QtWidgets.QMessageBox.critical(None,
+                'Error!',
+                "Please select at least one asset!",
+                QtWidgets.QMessageBox.Abort)
+        return result
