@@ -40,6 +40,16 @@ class WidgetFactory(QtWidgets.QWidget):
         '''Return registered type widgets.'''
         return self._type_widgets_ref
 
+    @property
+    def host_connection(self):
+        return self._host_connection
+
+    @host_connection.setter
+    def host_connection(self, host_connection):
+        '''Sets :obj:`host_connection` with the given *host_connection*.'''
+        self._host_connection = host_connection
+        self._listen_widget_updates()
+
     def __init__(self, event_manager, ui_types):
         '''Initialise WidgetFactory with *event_manager*, *ui*
 
@@ -64,7 +74,7 @@ class WidgetFactory(QtWidgets.QWidget):
         self._type_widgets_ref = {}
         self.context_id = None
         self.asset_type_name = None
-        self.host_connection = None
+        self._host_connection = None
         self.original_definition = None
         self.working_definition = None
         self.components_obj = None
@@ -84,11 +94,6 @@ class WidgetFactory(QtWidgets.QWidget):
     def set_package(self, package):
         '''Set :obj:`package` with the given *package*'''
         self.package = package
-
-    def set_host_connection(self, host_connection):
-        '''Set :obj:`host_connection` with the given *host_connection*'''
-        self.host_connection = host_connection
-        self._listen_widget_updates()
 
     def set_definition_type(self, definition_type):
         '''Set :obj:`definition_type` with the given *definition_type*'''
@@ -198,13 +203,6 @@ class WidgetFactory(QtWidgets.QWidget):
                     elif stage_type == core_constants.OUTPUT:
                         step_obj.parent_output(stage_obj)
                         continue
-
-                # elif (
-                #         isinstance(step_obj, override_widgets.OptionsStepWidget) and
-                #         definition_type == core_constants.LOADER
-                # ):
-                #         step_obj.parent_options(stage_obj)
-                #         continue
                 if step_obj:
                     step_obj.parent_widget(stage_obj)
                 elif step_container_obj:

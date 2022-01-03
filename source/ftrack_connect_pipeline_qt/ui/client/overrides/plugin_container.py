@@ -17,21 +17,6 @@ class PluginAccordion(AccordionBaseWidget):
             AccordionBaseWidget.CHECK_MODE_CHECKBOX if checkable else AccordionBaseWidget.CHECK_MODE_CHECKBOX_DISABLED,
             parent=parent, title=title)
 
-    #def init_status_label(self):
-    #    self._status_label = QtWidgets.QLabel()
-    #    self._status_label.setObjectName('purple')
-    #    return self._status_label
-
-    #def init_options_button(self):
-    #    self._options_button = OptionsButton('O', qta.icon('mdi6.cog',color='gray'))
-    #    self._options_button.setObjectName('borderless')
-    #    return self._options_button
-
-    #def init_status_icon(self):
-    #    self._status_icon = MaterialIconWidget('check')
-    #    self._status_icon.setObjectName('borderless')
-    #    return self._status_icon
-
     def init_header_content(self,layout, collapsed):
         '''Add publish related widgets to the accordion header'''
         #layout.addWidget(self.init_status_label())

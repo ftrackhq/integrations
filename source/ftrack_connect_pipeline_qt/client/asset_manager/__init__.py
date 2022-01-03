@@ -232,7 +232,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 
         AssetManagerClient.change_host(self, host_connection)
 
-        self.asset_manager_widget.set_host_connection(self.host_connection)
+        self.asset_manager_widget.host_connection = self.host_connection
 
         self.discover_assets()
         self.asset_manager_widget.engine_type = self.engine_type

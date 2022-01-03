@@ -21,7 +21,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     CHECK_MODE_CHECKBOX_DISABLED = 1     # Visible but not checkable
 
     def on_collapse(self, collapsed):
-        '''To be overridden by child'''
+        '''(Optional) To be overridden by child'''
         pass
 
     def init_header_content(self, header_layout, collapsed):
@@ -29,7 +29,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         header_layout.addStretch()
 
     def init_content(self, content_layout):
-        '''To be overridden by child'''
+        '''(Optional) To be overridden by child'''
         pass
 
     def update_input(self, message, status):
@@ -206,8 +206,6 @@ class AccordionBaseWidget(QtWidgets.QFrame):
 
     def set_default_state(self):
         self.setToolTip("")
-        #if not self.checkable:
-        #    self._header._title_label.setStyleSheet("")
         self.set_checked(True)
         self.setEnabled(True)
 
@@ -315,13 +313,8 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
 
     def init_checkbox(self, check_mode, checked):
         self._checkbox = QtWidgets.QCheckBox()
-        if check_mode == self.accordion.CHECK_MODE_NONE:
-            self._checkbox.setEnabled(False)
-            self._checkbox.setVisible(False)
-        elif check_mode == self.accordion.CHECK_MODE_CHECKBOX:
-            self._checkbox.setEnabled(True)
-        elif check_mode == self.accordion.CHECK_MODE_CHECKBOX_DISABLED:
-            self._checkbox.setEnabled(False)
+        self._checkbox.setEnabled(check_mode == self.accordion.CHECK_MODE_CHECKBOX)
+        self._checkbox.setVisible(check_mode != self.accordion.CHECK_MODE_NONE)
         self._checkbox.setChecked(checked)
         return self._checkbox
 

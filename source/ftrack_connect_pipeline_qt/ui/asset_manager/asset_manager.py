@@ -31,12 +31,43 @@ class AssetManagerWidget(AssetManagerBaseWidget):
     load_assets = QtCore.Signal(object)
     unload_assets = QtCore.Signal(object)
 
+    DEFAULT_ACTIONS = {
+        'select': [{
+            'ui_callback': 'ctx_select',
+            'name': 'select_asset'
+        }],
+        'remove': [{
+            'ui_callback': 'ctx_remove',
+            'name': 'remove_asset'
+        }],
+        'load': [{
+            'ui_callback': 'ctx_load',
+            'name': 'load_asset'
+        }],
+        'unload': [{
+            'ui_callback': 'ctx_unload',
+            'name': 'unload_asset'
+        }]
+    }
+
     @property
     def asset_list(self):
+        '''Return asset list widget'''
         return self._asset_list
+
+    @property
+    def host_connection(self):
+        return self._host_connection
+
+    @host_connection.setter
+    def host_connection(self, host_connection):
+        '''Sets :obj:`host_connection` with the given *host_connection*.'''
+        self._host_connection = host_connection
+        self._listen_widget_updates()
 
     def __init__(self, event_manager, parent=None):
         super(AssetManagerWidget, self).__init__(event_manager, parent=parent)
+        self._host_connection = None
 
     def init_header_content(self, layout):
         '''Create toolbar'''
@@ -50,9 +81,6 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         self._config_button = CircularButton('cog', '#87E1EB')
         self._config_button.clicked.connect(self._on_config)
         layout.addWidget(self._config_button)
-
-    def pre_build(self):
-        super(AssetManagerWidget, self).pre_build()
 
     def build(self):
         super(AssetManagerWidget, self).build()
@@ -69,13 +97,6 @@ class AssetManagerWidget(AssetManagerBaseWidget):
 
         self.scroll.setWidget(asset_list_container)
 
-
-    def set_host_connection(self, host_connection):
-        '''Sets :obj:`host_connection` with the given *host_connection*.'''
-        self.host_connection = host_connection
-        self._listen_widget_updates()
-        #self.asset_table_view.set_host_connection(self.host_connection)
-
     def set_asset_list(self, asset_entities_list):
         '''Clears model and add asset entities'''
         self._asset_list.reset()
@@ -83,31 +104,11 @@ class AssetManagerWidget(AssetManagerBaseWidget):
             self._asset_list.model.insertRows(0, asset_entities_list)
 
     def create_actions(self, actions):
-        '''
-        Creates all the actions for the context menu.
-        '''
+        '''Creates all the actions for the context menu.'''
         self.action_widgets = {}
         # TODO: decide if to add the actions here or in the definition like the
         #  update one
-        default_actions = {
-            'select': [{
-                'ui_callback': 'ctx_select',
-                'name': 'select_asset'
-            }],
-            'remove': [{
-                'ui_callback': 'ctx_remove',
-                'name': 'remove_asset'
-            }],
-            'load': [{
-                'ui_callback': 'ctx_load',
-                'name': 'load_asset'
-            }],
-            'unload': [{
-                'ui_callback': 'ctx_unload',
-                'name': 'unload_asset'
-            }]
-        }
-        for def_action_type, def_action in list(default_actions.items()):
+        for def_action_type, def_action in list(self.DEFAULT_ACTIONS.items()):
             if def_action_type in list(actions.keys()):
                 actions[def_action_type].extend(def_action)
 
@@ -124,7 +125,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         '''Executes the context menu'''
         # Anything selected?
         widget_deselect = None
-        if len(self._asset_list.get_selection(warn_on_empty=False))==0:
+        if len(self._asset_list.selection(warn_on_empty=False))==0:
             # Temporaily select the clicked widget
             widget_deselect = self.childAt(event.x(), event.y())
             if widget_deselect:
@@ -145,8 +146,6 @@ class AssetManagerWidget(AssetManagerBaseWidget):
 
         # add other required actions
         self.menu.exec_(QtGui.QCursor.pos())
-        #if widget_deselect:
-        #    widget_deselect.header.checkbox.setChecked(False)
 
     def menu_triggered(self, action):
         '''
@@ -164,21 +163,21 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         Emits update_asset signal.
         Uses the given *plugin* to update the selected assets
         '''
-        self.update_assets.emit(self._asset_list.get_selection(), plugin)
+        self.update_assets.emit(self._asset_list.selection(), plugin)
 
     def ctx_select(self, plugin):
         '''
         Triggered when select action menu been clicked.
         Emits select_asset signal.
         '''
-        self.select_assets.emit(self._asset_list.get_selection())
+        self.select_assets.emit(self._asset_list.selection())
 
     def ctx_remove(self, plugin):
         '''
         Triggered when remove action menu been clicked.
         Emits remove_asset signal.
         '''
-        self.remove_assets.emit(self._asset_list.get_selection())
+        self.remove_assets.emit(self._asset_list.selection())
 
     def ctx_load(self, plugin):
         #TODO: I think is better to not pass a Plugin, and use directly the
@@ -190,14 +189,14 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         Triggered when load action menu been clicked.
         Emits load_assets signal to load the selected assets in the scene.
         '''
-        self.load_assets.emit(self._asset_list.get_selection())
+        self.load_assets.emit(self._asset_list.selection())
 
     def ctx_unload(self, plugin):
         '''
         Triggered when unload action menu been clicked.
         Emits load_assets signal to unload the selected assets in the scene.
         '''
-        self.unload_assets.emit(self._asset_list.get_selection())
+        self.unload_assets.emit(self._asset_list.selection())
 
     def set_context_actions(self, actions):
         '''Set the :obj:`engine_type` into the asset_table_view and calls the
@@ -317,20 +316,25 @@ class AssetWidget(AccordionBaseWidget):
         '''Update widget from data'''
         self._version_id = asset_info[asset_constants.VERSION_ID]
         self._asset_name_widget.setText('{} '.format(
-            asset_info[asset_constants.ASSET_NAME]))
+            asset_info[asset_constants.ASSET_NAME])
+        )
         self._versions_collection = asset_info[asset_constants.ASSET_VERSIONS_ENTITIES]
         version = self.session.query('AssetVersion where id={}'.format(
-            self._version_id)).one()
+            self._version_id
+        )).one()
         self._status_widget.set_status(version['status'])
         self._load_mode = asset_info[asset_constants.LOAD_MODE]
         self._component_path = asset_info[asset_constants.COMPONENT_NAME] or '?.?'
         self._component_and_version_header_widget.set_component_filename(
-            self._component_path)
+            self._component_path
+        )
         self._component_and_version_header_widget.set_version(
-            asset_info[asset_constants.VERSION_NUMBER])
+            asset_info[asset_constants.VERSION_NUMBER]
+        )
         self._is_latest_version = asset_info[asset_constants.IS_LATEST_VERSION]
         self._component_and_version_header_widget.set_latest_version(
-            self._is_latest_version)
+            self._is_latest_version
+        )
         self._load_mode = asset_info[asset_constants.LOAD_MODE]
         self._loader = '?'
         self._version_dependency_ids = asset_info[asset_constants.DEPENDENCY_IDS]
@@ -462,11 +466,9 @@ class AssetVersionStatusWidget(QtWidgets.QFrame):
             color: {0};
             border: none;
         '''.format(status['color']))
-        self.setObjectName('Test')
         self.setStyleSheet('''
             QFrame {
                 border: 1px solid %s;
-                border-radius: 8px;
             }
          '''%(status['color']))
 
@@ -515,7 +517,6 @@ class ComponentAndVersionWidget(QtWidgets.QWidget):
             self._version_selector.setStyleSheet('''
                 color: {0};
                 border: 1px solid {0};
-                border-radius: 4px;
             '''.format(color))
 
     def set_component_filename(self, component_path):
@@ -526,5 +527,3 @@ class ComponentAndVersionWidget(QtWidgets.QWidget):
     def set_version(self, version_nr):
         if self._collapsed:
             self._version_nr_widget.setText('v{}'.format(str(version_nr)))
-        else:
-            raise Exception('Please change version selector selected version!')

@@ -78,7 +78,7 @@ class ContextSelector(QtWidgets.QWidget):
         self.setMaximumHeight(70)
 
     def reset(self, entity=None):
-        '''reset browser to the given *entity* or the default one'''
+        '''Reset browser to the given *entity* or the default one'''
         current_entity = entity or self._entity
         self.entity_info.set_entity(current_entity)
         self.set_entity(current_entity)

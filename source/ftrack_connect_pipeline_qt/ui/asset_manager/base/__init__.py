@@ -163,10 +163,10 @@ class AssetListWidget(QtWidgets.QWidget):
         pass
 
     def post_build(self):
-        self._model.rowsInserted.connect(self._assets_added)
+        self._model.rowsInserted.connect(self.on_assets_added)
         self._model.modelReset.connect(self.rebuild)
 
-    def _assets_added(self, parent, first, last):
+    def on_assets_added(self, parent, first, last):
         self.rebuild()
 
     def rebuild(self):
@@ -192,7 +192,7 @@ class AssetListWidget(QtWidgets.QWidget):
         self.model.reset()
         self.rebuild()
 
-    def get_selection(self, warn_on_empty=True):
+    def selection(self, warn_on_empty=True):
         result = []
         for widget in self.assets:
             if widget.selected:

@@ -237,7 +237,7 @@ setup(
         'qtawesome'
     ],
     install_requires=[
-        #'PySide2 >=5.0.0, < 5.13',
+        'PySide2 >=5.0.0, < 5.13',
         'Qt.py >=1.0.0, < 2',
         'qtpy',
         'qtawesome'
