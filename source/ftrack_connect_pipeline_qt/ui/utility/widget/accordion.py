@@ -20,7 +20,7 @@ class AccordionWidget(QtWidgets.QWidget):
         super(AccordionWidget, self).__init__(parent=parent)
 
         self._reference_widget = None
-        self._is_collapsed = True
+        self._collapsed = True
         self._title_frame = None
         self._content, self._content_layout = (None, None)
         self._title = title
@@ -44,10 +44,10 @@ class AccordionWidget(QtWidgets.QWidget):
         self.setLayout(self._main_v_layout)
 
     def build(self):
-        title_widget = self.init_title_frame(self._title, self._is_collapsed)
+        title_widget = self.init_title_frame(self._title, self._collapsed)
         self._main_v_layout.addWidget(title_widget)
 
-        content_widget = self.init_content(self._is_collapsed)
+        content_widget = self.init_content(self._collapsed)
 
         self._main_v_layout.addWidget(content_widget)
 
@@ -133,9 +133,9 @@ class AccordionWidget(QtWidgets.QWidget):
             return self._title_frame.checkbox.setChecked(checked)
 
     def toggle_collapsed(self):
-        self._content.setVisible(self._is_collapsed)
-        self._is_collapsed = not self._is_collapsed
-        self._title_frame._arrow.set_arrow(int(self._is_collapsed))
+        self._content.setVisible(self._collapsed)
+        self._collapsed = not self._collapsed
+        self._title_frame._arrow.set_arrow(int(self._collapsed))
 
     def enable_content(self, check_enabled):
         self._content.setEnabled(check_enabled)
@@ -228,13 +228,13 @@ class AccordionTitleWidget(QtWidgets.QFrame):
 
     def init_arrow(self, collapsed):
         self._arrow = Arrow(collapsed=collapsed)
-        self._arrow.setStyleSheet("border:0px")
+        self._arrow.setObjectName('borderless')
 
         return self._arrow
 
     def init_title(self, title=None):
         self._title_label = QtWidgets.QLabel(title)
-        self._title_label.setStyleSheet("border:0px")
+        self._title_label.setObjectName('borderless')
 
         return self._title_label
 

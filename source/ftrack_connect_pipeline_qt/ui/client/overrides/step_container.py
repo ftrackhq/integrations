@@ -10,7 +10,7 @@ from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
 from ftrack_connect_pipeline_qt.ui.client.default import DefaultStepContainerWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import AccordionWidget
-
+from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import  AccordionBaseWidget
 
 class GroupBoxStepContainerWidget(BaseUIWidget):
     '''Widget representation of a boolean'''

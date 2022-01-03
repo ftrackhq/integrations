@@ -1,48 +1,95 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2021 ftrack
-from functools import partial
 
 from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline import constants as pipeline_constants
-from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import MaterialIconWidget
+from ftrack_connect_pipeline_qt.utils import set_property
 
+class AccordionBaseWidget(QtWidgets.QFrame):
+    clicked = QtCore.Signal(object)
 
-class AccordionBaseWidget(QtWidgets.QWidget):
+    SELECT_MODE_NONE = -1       # Not selectable
+    #SELECT_MODE_CHECKBOX = 0    # Checkbox only
+    #SELECT_MODE_CHECKBOX_AND_LIST = 1   # Checkbox and list selection
+    SELECT_MODE_LIST = 0        # Only list selection mode
+
+    CHECK_MODE_NONE = -1        # Not checkable and not showing checkbox
+    CHECK_MODE_CHECKBOX = 0     # Checkable and visible
+    CHECK_MODE_CHECKBOX_DISABLED = 1     # Visible but not checkable
 
     def on_collapse(self, collapsed):
-        '''To be overridden by child'''
+        '''(Optional) To be overridden by child'''
         pass
 
-    def init_header_content(self, layout, collapsed):
+    def init_header_content(self, header_layout, collapsed):
         '''To be overridden by child'''
-        layout.addStretch()
+        header_layout.addStretch()
+
+    def init_content(self, content_layout):
+        '''(Optional) To be overridden by child'''
+        pass
+
+    def update_input(self, message, status):
+        '''Update the accordion input summary, should be overridden by child.'''
+        raise NotImplementedError()
 
     @property
     def title(self):
         return self._title
 
     @property
-    def is_collapsed(self):
-        return self._is_collapsed
+    def select_mode(self):
+        return self._select_mode
+
+    @property
+    def check_mode(self):
+        return self._check_mode
+
+    @property
+    def collapsed(self):
+        return self._collapsed
+
+    @property
+    def selected(self):
+        return self._selected
+
+    @property
+    def checked(self):
+        return self._checked
 
     @property
     def header(self):
         return self._header
 
-    def __init__(self, parent=None, title=None, checkable=False):
+    @property
+    def content(self):
+        return self._content
+
+    @property
+    def session(self):
+        return self._session
+
+    def __init__(self, select_mode, check_mode, session=None, title=None, selected=False,
+                 checked=True, parent=None):
         super(AccordionBaseWidget, self).__init__(parent=parent)
 
+        self._session = session
         self._reference_widget = None
-        self._is_collapsed = True
+        self._collapsed = True
+        self._checked = checked
         self._header = None
         self._content = None
         self._title = title
         self._widgets = {}
         self._inner_widget_status = {}
-        self.checkable = checkable
+
+        self._select_mode = select_mode
+        self._check_mode = check_mode
+        self._selected = selected
+        self._checked = checked
 
         self._input_message = 'Initializing...'
         self._input_status = False
@@ -51,58 +98,64 @@ class AccordionBaseWidget(QtWidgets.QWidget):
         self.build()
         self.post_build()
 
+
     def set_status(self, status, message):
         # TODO: Instead of run status, implement collector status
         self._header.set_status(status, message)
 
     def pre_build(self):
-        self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().setAlignment(QtCore.Qt.AlignTop)
+
+        self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
-        self.layout().setSpacing(1)
+        self.layout().setSpacing(0)
 
     def build(self):
-        title_widget = self.init_header(self._title, self._is_collapsed)
-        self.layout().addWidget(title_widget)
 
-        content_widget = self._init_content(self._is_collapsed)
-        self.layout().addWidget(content_widget)
+        self._indicator_widget = QtWidgets.QFrame()
+        self._indicator_widget.setMaximumWidth(4)
+        self._indicator_widget.setMinimumWidth(4)
+        self._indicator_widget.setVisible(False)
+
+        self.layout().addWidget(self._indicator_widget)
+
+        main_widget = QtWidgets.QWidget()
+        main_widget.setLayout(QtWidgets.QVBoxLayout())
+        main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
+        main_widget.layout().setContentsMargins(0, 0, 0, 0)
+        main_widget.layout().setSpacing(1)
+
+        main_widget.layout().addWidget(self.init_header(self._title))
+
+        content_widget = self._init_content(self._collapsed)
+        main_widget.layout().addWidget(content_widget)
+
+        self.layout().addWidget(main_widget)
 
     def post_build(self):
-        self.init_collapsable()
         self.update_input(self._input_message, self._input_status)
+        #self.clicked.connect(self.on_click)
+        if self.check_mode != self.CHECK_MODE_NONE:
+            self.header.checkbox.stateChanged.connect(self.on_header_checkbox_checked)
+        self.header.clicked.connect(self.on_header_clicked)
+        self.header.arrow.clicked.connect(self.on_header_arrow_clicked)
 
-    def init_header(self, title, collapsed):
+    def init_header(self, title):
         self._header = AccordionHeaderWidget(self,
-            title=title, collapsed=collapsed, checkable=self.checkable)
+            title=title)
         return self._header
 
     def _init_content(self, collapsed):
-        self._content = QtWidgets.QWidget()
+        self._content = QtWidgets.QFrame()
+        #self._content.setObjectName('bordered')
         self._content.setLayout(QtWidgets.QVBoxLayout())
         self._content.setVisible(not collapsed)
 
-        self._content.layout().setContentsMargins(0, 0, 0, 0)
+        self._content.layout().setContentsMargins(2, 2, 2, 2)
         self._content.layout().setSpacing(0)
 
+        self.init_content(self._content.layout())
+
         return self._content
-
-    def update_inner_status(self, inner_widget, data):
-        status, message = data
-
-        self._inner_widget_status[inner_widget] = status
-
-        all_bool_status = [
-            pipeline_constants.status_bool_mapping[_status]
-            for _status in list(self._inner_widget_status.values())
-        ]
-        if all(all_bool_status):
-            self.set_status(constants.SUCCESS_STATUS, None)
-        else:
-            if constants.RUNNING_STATUS in list(self._inner_widget_status.values()):
-                self.set_status(constants.RUNNING_STATUS, None)
-            else:
-                self.set_status(constants.ERROR_STATUS, None)
 
     def add_option_button(self, title, icon, idx):
         option_button = self._header.add_option_button(title, icon, idx)
@@ -111,49 +164,30 @@ class AccordionBaseWidget(QtWidgets.QWidget):
     def add_widget(self, widget):
         ''' Add widget to content '''
         self._content.layout().addWidget(widget)
-        self._connect_inner_widgets(widget)
-
-    def _connect_inner_widgets(self, widget):
-        if issubclass(widget.__class__, BaseOptionsWidget):
-            self._widgets[widget] = widget
-            widget.status_updated.connect(
-                partial(self.update_inner_status, widget)
-            )
-            return
-        inner_widgets = widget.findChildren(BaseOptionsWidget)
-        self._widgets[widget] = inner_widgets
-        for inner_widget in inner_widgets:
-            inner_widget.status_updated.connect(
-                partial(self.update_inner_status, inner_widget)
-            )
 
     def count_widgets(self):
         return self._content.layout().count()
 
-    def get_witget_at(self, index):
+    def get_widget_at(self, index):
         return self._content.layout().itemAt(index).widget()
 
-    def init_collapsable(self):
-        self._header.clicked.connect(self.toggle_collapsed)
-        self._header.checked.connect(self.enable_content)
-
-    def is_checked(self):
-        if self._header.checkable:
-            return self._header.checkbox.isChecked()
-        return True
+    def set_selected(self, selected):
+        self._selected = selected
+        self.update_accordion()
 
     def set_checked(self, checked):
-        if self._header.checkable:
-            return self._header.checkbox.setChecked(checked)
+        self._checked = checked
+        if self.check_mode == self.CHECK_MODE_CHECKBOX:
+            return self.header.checkbox.setChecked(checked)
 
-    def toggle_collapsed(self):
-        self._content.setVisible(self._is_collapsed)
-        self._is_collapsed = not self._is_collapsed
-        self._header.update_arrow_icon(int(self._is_collapsed))
-        self.on_collapse(self.is_collapsed)
+    def header_clicked(self):
+        self._collapsed = not self._collapsed
+        self.header.update_arrow_icon(int(self._collapsed))
+        self.on_collapse(self.collapsed)
+        self._content.setVisible(not self.collapsed)
 
-    def enable_content(self, check_enabled):
-        self._content.setEnabled(check_enabled)
+    def enable_content(self):
+        self._content.setEnabled(self.checked)
 
     def paint_title(self, color):
         self._header._title_label.setStyleSheet(
@@ -172,33 +206,80 @@ class AccordionBaseWidget(QtWidgets.QWidget):
 
     def set_default_state(self):
         self.setToolTip("")
-        if not self.checkable:
-            self._header._title_label.setStyleSheet("")
         self.set_checked(True)
         self.setEnabled(True)
 
-    def update_input(self, message, status):
-        '''Update the accordion input summary, should be overridden by child.'''
-        raise NotImplementedError()
+    def set_indicator(self, indication):
+        set_property(self._indicator_widget, 'indicator', ('on' if indication else 'off'))
 
+        self._indicator_widget.setVisible(True)
+
+    def mousePressEvent(self, event):
+        self.clicked.emit(event)
+        self.on_click(event)
+        return super(AccordionBaseWidget, self).mousePressEvent(event)
+
+    def on_header_checkbox_checked(self):
+        self._checked = self.header.checkbox.isChecked()
+        self.header.title_label.setEnabled(self._checked)
+        #self.checked.emit(self._checked)
+        self.enable_content()
+
+    def on_header_clicked(self, event):
+        if self._select_mode == self.SELECT_MODE_NONE:
+            if event.button() != QtCore.Qt.RightButton:
+                self.toggle_collapsed()
+        #else:
+        #    # A potential selection event, leave for parent list to process
+        #    self.clicked.emit(event)
+
+    def on_header_arrow_clicked(self, event):
+        if self._select_mode == self.SELECT_MODE_LIST:
+            # This is the way to collapse
+            self.toggle_collapsed()
+
+    def toggle_collapsed(self):
+        self._collapsed = not self._collapsed
+        self.header.update_arrow_icon(int(self.collapsed))
+        self.on_collapse(self.collapsed)
+        self.content.setVisible(not self.collapsed)
+
+    def on_click(self, event):
+        '''Accordion were pressed overall'''
+        pass
+
+    def update_accordion(self):
+        # Paint selection status
+        if self._select_mode == self.SELECT_MODE_LIST:
+            set_property(self, 'background', 'selected' if self._selected else 'transparent')
 
 class AccordionHeaderWidget(QtWidgets.QFrame):
     ''' Container for accordion header - holding checkbox, title, user content
     and expander button.'''
-    clicked = QtCore.Signal()
-    checked = QtCore.Signal(object)
+    clicked = QtCore.Signal(object)
+
+    @property
+    def accordion(self):
+        return self._accordion
 
     @property
     def checkbox(self):
         return self._checkbox
 
     @property
+    def title_label(self):
+        return self._title_label
+
+    @property
     def content(self):
         ''' Return the content widget where user widgets can be added.'''
         return self._content
 
-    def __init__(self, accordion, parent=None, title=None, collapsed=False,
-                 checkable=False):
+    @property
+    def arrow(self):
+        return self._arrow
+
+    def __init__(self, accordion, title=None, parent=None):
         super(AccordionHeaderWidget, self).__init__(parent=parent)
 
         self._accordion = accordion
@@ -210,8 +291,6 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self._arrow = None
 
         self.title = title
-        self.initial_collapse = collapsed
-        self.checkable = checkable
 
         self.pre_build()
         self.build()
@@ -224,24 +303,24 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self.layout().setContentsMargins(15, 0, 0, 0)
 
     def build(self):
-        self.layout().addWidget(self.init_checkbox(True, self.checkable))
+        self.layout().addWidget(self.init_checkbox(self.accordion.check_mode, self.accordion.checked))
         self.layout().addWidget(self.init_title(self.title))
         self.layout().addWidget(self.init_content())
-        self.layout().addWidget(self.init_arrow(self.initial_collapse))
+        self.layout().addWidget(self.init_arrow(self.accordion.collapsed))
 
     def post_build(self):
-        if self.checkbox:
-            self._checkbox.stateChanged.connect(self.enable_content)
+        pass
 
-    def init_checkbox(self, checked, enabled):
+    def init_checkbox(self, check_mode, checked):
         self._checkbox = QtWidgets.QCheckBox()
+        self._checkbox.setEnabled(check_mode == self.accordion.CHECK_MODE_CHECKBOX)
+        self._checkbox.setVisible(check_mode != self.accordion.CHECK_MODE_NONE)
         self._checkbox.setChecked(checked)
-        self._checkbox.setEnabled(enabled)
         return self._checkbox
 
     def init_title(self, title=None):
         self._title_label = QtWidgets.QLabel(title or '')
-        self._title_label.setStyleSheet("border:0px")
+        self._title_label.setObjectName('borderless')
         if not title:
             self._title_label.hide()
         return self._title_label
@@ -252,7 +331,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self._content.layout().setContentsMargins(0, 0, 0, 0)
         self._content.layout().setSpacing(1)
         self._accordion.init_header_content(self._content.layout(),
-                                            self._accordion.is_collapsed)
+                self._accordion.collapsed)
         return self._content
 
     def update_arrow_icon(self, collapsed):
@@ -263,17 +342,23 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self._arrow.set_icon(name=icon_name)
 
     def init_arrow(self, collapsed):
-        self._arrow = MaterialIconWidget(None)
+        self._arrow = ArrowMaterialIconWidget(None)
         self.update_arrow_icon(collapsed)
         return self._arrow
 
     def mousePressEvent(self, event):
-        self.clicked.emit()
+        self.clicked.emit(event)
         return super(AccordionHeaderWidget, self).mousePressEvent(event)
-
-    def enable_content(self, check_enabled):
-        self._title_label.setEnabled(check_enabled)
-        self.checked.emit(check_enabled)
 
     def set_status(self, status, message):
         pass
+
+class ArrowMaterialIconWidget(MaterialIconWidget):
+    clicked = QtCore.Signal(object)
+
+    def __init__(self, name, color=None, parent=None):
+        super(ArrowMaterialIconWidget, self).__init__(name, color=color, parent=parent)
+
+    def mousePressEvent(self, event):
+        self.clicked.emit(event)
+        return super(ArrowMaterialIconWidget, self).mousePressEvent(event)

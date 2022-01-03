@@ -29,8 +29,8 @@ class Search(QtWidgets.QFrame):
         self.setLayout(QtWidgets.QHBoxLayout(self))
         self.layout().setContentsMargins(1, 1, 1, 1)
         self.layout().setSpacing(1)
-        self.setMaximumHeight(32)
-        self.setMinimumHeight(32)
+        self.setMaximumHeight(33)
+        self.setMinimumHeight(33)
 
     def build(self):
         '''Build widgets and parent them.'''
@@ -53,7 +53,7 @@ class Search(QtWidgets.QFrame):
             self.setStyleSheet('''border:none;''')
             self._search_button = CircularButton('magnify', '#999999')
             self._search_button.setStyleSheet('''
-                border: 1px solid #1A1A1A;
+                border: 1px solid #555555;
                 border-radius: 16px;
             ''')
         else:
@@ -70,12 +70,12 @@ class Search(QtWidgets.QFrame):
             self._input.setStyleSheet('border: none;')
             self._input.setFocus()
             self.layout().addWidget(self._input, 100)
-            self._clear_button = CircularButton('close', '#1A1A1A', diameter=30)
+            self._clear_button = CircularButton('close', '#555555', diameter=30)
             self._clear_button.setStyleSheet('''border:none;''')
             self._clear_button.clicked.connect(self._on_clear)
             self.layout().addWidget(self._clear_button)
             self.setStyleSheet('''
-                border: 1px solid #1A1A1A;
+                border: 1px solid #555555;
                 border-radius: 16px;
             ''')
 

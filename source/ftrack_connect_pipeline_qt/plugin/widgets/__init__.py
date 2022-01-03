@@ -221,8 +221,8 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     def report_input(self):
         '''To be overridden.'''
         self.input_changed.emit({
-            'status': False,
-            'message': 'Collector summary report not implemented!'
+            'status': None,
+            'message': ''
         })
         
     def to_json_object(self):

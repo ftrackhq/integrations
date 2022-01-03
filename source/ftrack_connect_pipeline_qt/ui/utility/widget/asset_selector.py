@@ -6,7 +6,7 @@ from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect_pipeline_qt.utils import BaseThread
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import AssetVersion
-
+from ftrack_connect_pipeline_qt.utils import set_property
 
 class AssetListItem(QtWidgets.QWidget):
     ''' Widget representing an asset within the '''
@@ -279,15 +279,12 @@ class AssetSelector(QtWidgets.QWidget):
         self.asset_list.ensurePolished()
         if selected_asset is not None:
             # Bring focus to list, remove focus from new asset input
-            self.new_asset_input.setProperty('status', '')
+            set_property(self.new_asset_input, 'status', '')
         else:
             # Deselect all assets in list, bring focus to new asset input
             self.asset_list.setCurrentRow(-1)
-            self.new_asset_input.setProperty('status', 'focused')
+            set_property(self.new_asset_input, 'status', 'focused')
         self.new_asset_input.button.setEnabled(selected_asset is not None)
-        self.new_asset_input.style().unpolish(self.new_asset_input)
-        self.new_asset_input.style().polish(self.new_asset_input)
-        self.new_asset_input.update()
 
     def set_context(self, context_id, asset_type_name):
         self.logger.debug('setting context to :{}'.format(context_id))
@@ -334,10 +331,7 @@ class AssetSelector(QtWidgets.QWidget):
             else:
                 is_valid_bool = True
         if is_valid_bool:
-            self.new_asset_input.name.setProperty('input', '')
+            set_property(self.new_asset_input.name, 'input', '')
         else:
-            self.new_asset_input.name.setProperty('input', 'invalid')
-        self.new_asset_input.name.style().unpolish(self.new_asset_input.name)
-        self.new_asset_input.name.style().polish(self.new_asset_input.name)
-        self.new_asset_input.name.update()
+            set_property(self.new_asset_input.name, 'input', 'invalid')
         return is_valid_bool

@@ -7,7 +7,7 @@ QFrame[background='houdini'] {
 }
 
 Line {
-    border: 1px dashed $gray-dark;
+    border: 1px dashed $border-color;
 }
 
 NewAssetInput[status='focused'] {
@@ -18,7 +18,27 @@ NewAssetInput[status=''] {
     border: 1px dashed transparent;
 }
 
-AccordionHeaderWidget, AccordionTitleWidget {
-    border: 1px dashed $gray-dark;
+#bordered, AccordionBaseWidget {
+    border: 1px dashed $border-color;
+}
+
+QFrame[indicator='on'] {
+    background: '#79DFB6';
+}
+
+QFrame[indicator='off'] {
+    background: '#404040';
+}
+
+QFrame[background='selected'] {
+    background: '#444444';
+}
+
+QFrame[background='transparent'] {
+    background: transparent;
+}
+
+AssetVersionStatusWidget {
+    border-radius: 8px;
 }
 

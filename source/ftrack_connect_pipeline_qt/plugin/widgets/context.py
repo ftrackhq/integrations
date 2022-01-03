@@ -156,7 +156,7 @@ class PublishContextWidget(BaseOptionsWidget):
         return statuses
 
 class LoadContextWidget(BaseOptionsWidget):
-    '''Main class to represent a context widget on a publish process'''
+    '''Main class to represent a context widget on a load process'''
 
     def __init__(
             self, parent=None, session=None, data=None, name=None,

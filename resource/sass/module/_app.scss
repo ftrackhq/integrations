@@ -36,7 +36,34 @@ QScrollArea QWidget {
     background-color: transparent;
 }
 
+QMessageBox {
+    background-color: $gray-darker;
+}
+
 /* Shared styles */
+
+#h1 {
+    color: $color-white;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+#h2 {
+    color: $color-white;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+#h3 {
+    color: $color-white;
+    font-weight: bold;
+    font-size: larger;
+}
+
+#h4 {
+    color: #444444;
+    font-size: 9px;
+}
 
 #gray {
     color: $gray;

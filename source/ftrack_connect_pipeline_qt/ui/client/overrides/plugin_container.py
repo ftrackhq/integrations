@@ -4,6 +4,35 @@ import logging
 
 from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import AccordionWidget
+from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import  AccordionBaseWidget
+
+class PluginAccordion(AccordionBaseWidget):
+
+    @property
+    def options_widget(self):
+        return self._options_button
+
+    def __init__(self, title=None, checkable=False, parent=None):
+        super(PluginAccordion,self).__init__(AccordionBaseWidget.SELECT_MODE_NONE,
+            AccordionBaseWidget.CHECK_MODE_CHECKBOX if checkable else AccordionBaseWidget.CHECK_MODE_CHECKBOX_DISABLED,
+            parent=parent, title=title)
+
+    def init_header_content(self,layout, collapsed):
+        '''Add publish related widgets to the accordion header'''
+        #layout.addWidget(self.init_status_label())
+        layout.addStretch()
+        #layout.addWidget(line.Line(horizontal=True))
+        #layout.addWidget(self.init_options_button())
+        #layout.addWidget(line.Line(horizontal=True))
+        #layout.addWidget(self.init_status_icon())
+
+    def on_collapse(self, collapsed):
+        '''Callback on accordion collapse/expand.'''
+        pass
+
+    def update_input(self, message, status):
+        '''(Override)'''
+        pass
 
 
 class AccordionPluginContainerWidget(BaseUIWidget):
@@ -16,7 +45,7 @@ class AccordionPluginContainerWidget(BaseUIWidget):
         )
 
     def build(self):
-        self._widget = AccordionWidget(
+        self._widget = PluginAccordion(
             title=self.name, checkable=False
         )
 
