@@ -12,7 +12,7 @@ Release Notes
     .. change:: changed
         :tags: Setup
 
-        Remove pyside2 installation dependency. 
+        Remove pyside2 installation's dependency. 
 
     .. change:: changed
         :tags: TaskPlugin
