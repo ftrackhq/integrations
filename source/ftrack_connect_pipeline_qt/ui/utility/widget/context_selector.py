@@ -37,7 +37,6 @@ class ContextSelector(QtWidgets.QWidget):
 
     def pre_build(self):
         layout = QtWidgets.QHBoxLayout()
-        #layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
 
     def build(self):
@@ -80,7 +79,6 @@ class ContextSelector(QtWidgets.QWidget):
     def reset(self, entity=None):
         '''Reset browser to the given *entity* or the default one'''
         current_entity = entity or self._entity
-        self.entity_info.set_entity(current_entity)
         self.set_entity(current_entity)
 
     def set_entity(self, entity):
@@ -89,6 +87,7 @@ class ContextSelector(QtWidgets.QWidget):
             return
         self._entity = entity
         self.entityChanged.emit(entity)
+        self.entity_info.set_entity(entity)
 
     def find_context_entity(self, context_id):
         context_entity = self.session.query(
@@ -107,7 +106,7 @@ class ContextSelector(QtWidgets.QWidget):
             thread.start()
 
     def _onEntityBrowseButtonClicked(self):
-        '''Handle entity browse button clicked.'''
+        '''Handle entity browse button clicked'''
         # Ensure browser points to parent of currently selected entity.
         if self._entity is not None:
             location = []
