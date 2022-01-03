@@ -191,7 +191,6 @@ setup(
     ],
     install_requires=[
         'clique==1.6.1',
-        'PySide2 >=5, <6',
         'appdirs == 1.4.0',
         'lucidity >= 1.5, < 2',
         'opentimelineio ==0.11',

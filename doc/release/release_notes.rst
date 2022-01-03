@@ -10,6 +10,11 @@ Release Notes
 .. release:: Upcoming
 
     .. change:: changed
+        :tags: Setup
+
+        Remove pyside2 installation's dependency. 
+
+    .. change:: changed
         :tags: TaskPlugin
         
         Copy Exporter does not force 4 digit limits in sequence file names.
