@@ -248,7 +248,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         AssetManagerClient._asset_discovered_callback(self, event)
         self.asset_manager_widget.set_asset_list(self.asset_entities_list)
 
-    def _refresh_ui(self, event):
+    def _refresh_ui(self):
         '''
         Refreshes the ui running the discover_assets()
         '''
@@ -257,7 +257,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         self.discover_assets()
 
     def mousePressEvent(self, event):
-        print('@@@ AssetManagerClient;:mousePressEvent, {}'.format(self.asset_manager_widget.asset_list.was_clicked))
         if event.button() != QtCore.Qt.RightButton:
             self.asset_manager_widget.asset_list.clear_selection()
         return super(QtAssetManagerClient, self).mousePressEvent(event)

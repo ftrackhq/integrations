@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 import functools
+import platform
 
 import qtawesome as qta
 
@@ -8,7 +9,9 @@ from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
 from ftrack_connect_pipeline import constants as core_const
 from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
-from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import  AccordionBaseWidget
+from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
+    AccordionBaseWidget
+)
 
 class AssetManagerBaseWidget(QtWidgets.QWidget):
     '''Base widget of the asset manager and assembler'''
@@ -106,7 +109,6 @@ class AssetListModel(QtCore.QAbstractTableModel):
             return self.__asset_entities_list[index.row()]
 
     def insertRows(self, position, data, index=QtCore.QModelIndex):
-        print('@@@ insertRows; \n data: {}'.format('\n'.join([str(ai) for ai in data])))
         rows = len(data)
         self.beginInsertRows(QtCore.QModelIndex(), position, position + rows - 1)
         for row in range(rows):
@@ -124,14 +126,23 @@ class AssetListModel(QtCore.QAbstractTableModel):
     def flags(self, index):
         if not index.isValid():
             return QtCore.Qt.ItemIsEnabled
-        return QtCore.Qt.ItemFlags(QtCore.QAbstractTableModel.flags(self, index))|QtCore.Qt.ItemIsEditable
+        return QtCore.Qt.ItemFlags(
+            QtCore.QAbstractTableModel.flags(self, index))|QtCore.Qt.ItemIsEditable
 
 class AssetListWidget(QtWidgets.QWidget):
     '''Custom asset list view'''
+    _last_clicked = None
 
     @property
     def model(self):
         return self._model
+
+    @property
+    def assets(self):
+        for i in range(self.layout().count()):
+            widget = self.layout().itemAt(i).widget()
+            if widget and isinstance(widget, AccordionBaseWidget):
+                yield widget
 
     def __init__(self, model, asset_widget_class, parent=None):
         super(AssetListWidget, self).__init__(parent=parent)
@@ -155,32 +166,31 @@ class AssetListWidget(QtWidgets.QWidget):
         self._model.rowsInserted.connect(self._assets_added)
         self._model.modelReset.connect(self.rebuild)
 
-    @property
-    def assets(self):
-        for i in range(self.layout().count()):
-            widget = self.layout().itemAt(i).widget()
-            if widget and isinstance(widget, AccordionBaseWidget):
-                yield widget
-
     def _assets_added(self, parent, first, last):
-        # TODO: Insert only the new widgets
         self.rebuild()
 
     def rebuild(self):
-        '''Clear widget and add all assets again from model'''
+        '''Clear widget and add all assets again from model.'''
         for widget in reversed(list(self.assets)):
             widget.setParent(None)
+            widget.deleteLater()
+        # TODO: Save selection state
         for row in range(self.model.rowCount()):
-            asset_widget = self._asset_widget_class(self.model.createIndex(row, 0, self.model), self.model.session)
+            asset_widget = self._asset_widget_class(
+                self.model.createIndex(row, 0, self.model), self.model.session)
             asset_info = self.model.data(asset_widget.index)
-            asset_widget.update(asset_info)
+            asset_widget.set_asset_info(asset_info)
             self.layout().addWidget(asset_widget)
-            asset_widget.clicked.connect(functools.partial(self.asset_clicked, asset_widget))
+            asset_widget.clicked.connect(
+                functools.partial(self.asset_clicked, asset_widget))
+            # Test code for showing load indication during standalone
             import random
             asset_widget.set_indicator(bool(random.getrandbits(1)))
 
     def reset(self):
+        ''' Remove all assets'''
         self.model.reset()
+        self.rebuild()
 
     def get_selection(self, warn_on_empty=True):
         result = []
@@ -201,18 +211,24 @@ class AssetListWidget(QtWidgets.QWidget):
     def asset_clicked(self, asset_widget, event):
         '''An asset (accordion) were clicked in list, evaluate selection.'''
         modifiers = QtWidgets.QApplication.keyboardModifiers()
-        print('@@@ asset_clicked({},{}); modifiers: {}'.format(asset_widget, event, modifiers))
         if event.button() == QtCore.Qt.RightButton:
             return
-        if modifiers == QtCore.Qt.Key_Meta:
+        if ((modifiers == QtCore.Qt.Key_Meta and platform.system() != 'Darwin') or
+            (modifiers == QtCore.Qt.ControlModifier and platform.system() == 'Darwin')):
             # Add to selection
             pass
         elif modifiers == QtCore.Qt.ShiftModifier:
-            # TODO: Select inbetweens
-            pass
+            # Select inbetweens
+            if self._last_clicked:
+                start_row = min(self._last_clicked.index.row(), asset_widget.index.row())
+                end_row = max(self._last_clicked.index.row(), asset_widget.index.row())
+                for widget in self.assets:
+                    if start_row < widget.index.row() < end_row:
+                        widget.set_selected(True)
         else:
             self.clear_selection()
         asset_widget.set_selected(True)
+        self._last_clicked = asset_widget
 
     def mousePressEvent(self, event):
         # Consume this event, so parent client does not de-select all

@@ -22,3 +22,19 @@ NewAssetInput[status=''] {
     border: 1px dashed $border-color;
 }
 
+QFrame[indicator='on'] {
+    background: '#79DFB6';
+}
+
+QFrame[indicator='off'] {
+    background: '#404040';
+}
+
+QFrame[background='selected'] {
+    background: '#444444';
+}
+
+QFrame[background='transparent'] {
+    background: transparent;
+}
+

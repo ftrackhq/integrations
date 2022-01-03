@@ -9,6 +9,7 @@ from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
 from ftrack_connect_pipeline_qt import utils
 from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import MaterialIconWidget
+from ftrack_connect_pipeline_qt.utils import set_property
 
 class PhaseButton(QtWidgets.QPushButton):
     '''Showing progress of a phase(component)'''
@@ -142,16 +143,15 @@ class StatusButtonWidget(QtWidgets.QPushButton):
         return self.status
 
     def set_status(self, status, message=''):
-        #self.ensurePolished()
         self.status = status or constants.DEFAULT_STATUS
         self.message = message
         self.message_label.setText(self.message)
-        self.setProperty('status', self.status.lower())
+        set_property(self, 'status', self.status.lower())
         self.status_icon.set_status(self.status, size=24)
-        for widget in [self, self.message_label]:
-            widget.style().unpolish(widget)
-            widget.style().polish(widget)
-            widget.update()
+        #for widget in [self, self.message_label]:
+        #    widget.style().unpolish(widget)
+        #    widget.style().polish(widget)
+        #    widget.update()
 
 class ProgressWidget(BaseUIWidget):
     '''Widget representation of a boolean'''

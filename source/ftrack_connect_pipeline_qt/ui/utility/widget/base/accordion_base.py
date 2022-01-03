@@ -6,7 +6,7 @@ from Qt import QtWidgets, QtCore, QtGui
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline import constants as pipeline_constants
 from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import MaterialIconWidget
-
+from ftrack_connect_pipeline_qt.utils import set_property
 
 class AccordionBaseWidget(QtWidgets.QFrame):
     clicked = QtCore.Signal(object)
@@ -98,7 +98,6 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self.build()
         self.post_build()
 
-        #self.setStyleSheet('background-color: red;')
 
     def set_status(self, status, message):
         # TODO: Instead of run status, implement collector status
@@ -207,15 +206,14 @@ class AccordionBaseWidget(QtWidgets.QFrame):
 
     def set_default_state(self):
         self.setToolTip("")
-        if not self.checkable:
-            self._header._title_label.setStyleSheet("")
+        #if not self.checkable:
+        #    self._header._title_label.setStyleSheet("")
         self.set_checked(True)
         self.setEnabled(True)
 
     def set_indicator(self, indication):
-        self._indicator_widget.setStyleSheet('''
-            background-color: {};
-        '''.format('#79DFB6' if indication is True else '#404040'))
+        set_property(self._indicator_widget, 'indicator', ('on' if indication else 'off'))
+
         self._indicator_widget.setVisible(True)
 
     def mousePressEvent(self, event):
@@ -224,14 +222,12 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         return super(AccordionBaseWidget, self).mousePressEvent(event)
 
     def on_header_checkbox_checked(self):
-        print('@@@ on_header_checkbox_checked()')
         self._checked = self.header.checkbox.isChecked()
         self.header.title_label.setEnabled(self._checked)
         #self.checked.emit(self._checked)
         self.enable_content()
 
     def on_header_clicked(self, event):
-        print('@@@ on_header_clicked({})'.format(event))
         if self._select_mode == self.SELECT_MODE_NONE:
             if event.button() != QtCore.Qt.RightButton:
                 self.toggle_collapsed()
@@ -240,7 +236,6 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         #    self.clicked.emit(event)
 
     def on_header_arrow_clicked(self, event):
-        print('@@@ on_header_arrow_clicked({})'.format(event))
         if self._select_mode == self.SELECT_MODE_LIST:
             # This is the way to collapse
             self.toggle_collapsed()
@@ -253,19 +248,12 @@ class AccordionBaseWidget(QtWidgets.QFrame):
 
     def on_click(self, event):
         '''Accordion were pressed overall'''
-        print('@@@ on_click({})'.format(event))
+        pass
 
     def update_accordion(self):
         # Paint selection status
         if self._select_mode == self.SELECT_MODE_LIST:
-            if self._selected:
-                self.setStyleSheet(
-                    "background-color: #444444;"
-                )
-            else:
-                self.setStyleSheet(
-                    "background-color: transparent;"
-                )
+            set_property(self, 'background', 'selected' if self._selected else 'transparent')
 
 class AccordionHeaderWidget(QtWidgets.QFrame):
     ''' Container for accordion header - holding checkbox, title, user content
@@ -339,7 +327,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
 
     def init_title(self, title=None):
         self._title_label = QtWidgets.QLabel(title or '')
-        self._title_label.setStyleSheet("border:0px")
+        self._title_label.setObjectName('borderless')
         if not title:
             self._title_label.hide()
         return self._title_label

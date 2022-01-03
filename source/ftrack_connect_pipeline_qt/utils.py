@@ -128,3 +128,10 @@ def get_main_framework_window_from_widget(widget):
             main_window = parent
 
     return main_window
+
+def set_property(widget, name, value):
+    '''Update property *name* to *value* for *widget*, and polish afterwards.'''
+    widget.setProperty(name, value)
+    widget.style().unpolish(widget)
+    widget.style().polish(widget)
+    widget.update()

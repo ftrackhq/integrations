@@ -228,13 +228,13 @@ class AccordionTitleWidget(QtWidgets.QFrame):
 
     def init_arrow(self, collapsed):
         self._arrow = Arrow(collapsed=collapsed)
-        self._arrow.setStyleSheet("border:0px")
+        self._arrow.setObjectName('borderless')
 
         return self._arrow
 
     def init_title(self, title=None):
         self._title_label = QtWidgets.QLabel(title)
-        self._title_label.setStyleSheet("border:0px")
+        self._title_label.setObjectName('borderless')
 
         return self._title_label
 
