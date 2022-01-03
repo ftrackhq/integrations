@@ -9,27 +9,38 @@ class EntityInfo(QtWidgets.QWidget):
     '''Entity path widget.'''
     path_ready = QtCore.Signal(object)
 
-    def __init__(self, parent=None):
+    def __init__(self, additional_widget=None, parent=None):
         '''Instantiate the entity path widget.'''
         super(EntityInfo, self).__init__(parent=parent)
+
+        self._additional_widget = additional_widget
 
         self.pre_build()
         self.build()
         self.post_build()
 
-        #self.setStyleSheet('background-color: blue;')
-
     def pre_build(self):
         self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().setContentsMargins(2, 2, 2, 2)
+        self.layout().setSpacing(2)
+
 
     def build(self):
         #self.type_field = QtWidgets.QLabel()
         #self.layout().addWidget(self.type_field)
 
+        name_widget = QtWidgets.QWidget()
+        name_widget.setLayout(QtWidgets.QHBoxLayout())
+        name_widget.layout().setContentsMargins(0, 0, 0, 0)
+        name_widget.layout().setSpacing(0)
+
         self._name_field = QtWidgets.QLabel()
         self._name_field.setObjectName('h3')
-        #self._name_field.setProperty('paragraph', 'h3')
-        self.layout().addWidget(self._name_field)
+        name_widget.layout().addWidget(self._name_field)
+        if self._additional_widget:
+            name_widget.layout().addWidget(self._additional_widget)
+        name_widget.layout().addStretch()
+        self.layout().addWidget(name_widget)
 
         self._path_field = QtWidgets.QLabel()
         self._path_field.setObjectName('gray')
@@ -56,7 +67,7 @@ class EntityInfo(QtWidgets.QWidget):
     def on_path_ready(self, parents):
         '''Set current path to *names*.'''
         #self.type_field.setText(parents[-1].get('type', {}).get('name', 'Project'))
-        self._name_field.setText(parents[-1]['name'])
+        self._name_field.setText('{} '.format(parents[-1]['name']))
         self._path_field.setText(os.sep.join([p['name'] for p in parents[:-1]]))
 
 

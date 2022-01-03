@@ -27,6 +27,10 @@ class AssetManagerWidget(AssetManagerBaseWidget):
     load_assets = QtCore.Signal(object)
     unload_assets = QtCore.Signal(object)
 
+    @property
+    def asset_list(self):
+        return self._asset_list
+
     def __init__(self, event_manager, parent=None):
         super(AssetManagerWidget, self).__init__(event_manager, parent=parent)
 
@@ -53,7 +57,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
 
         asset_list_container = QtWidgets.QWidget()
         asset_list_container.setLayout(QtWidgets.QVBoxLayout())
-        asset_list_container.layout().setContentsMargins(0,0,0,0)
+        asset_list_container.layout().setContentsMargins(0, 0, 0, 0)
         asset_list_container.layout().setSpacing(0)
         asset_list_container.layout().addWidget(self._asset_list)
         asset_list_container.layout().addWidget(QtWidgets.QLabel(''), 1000)
@@ -272,42 +276,55 @@ class AssetWidget(AccordionBaseWidget):
     def options_widget(self):
         return self._options_button
 
-    def __init__(self, index, session, title=None, checkable=False, parent=None):
-        super(AssetWidget, self).__init__(session=session, title=title, checkable=checkable, checked=False, parent=parent)
+    def __init__(self, index, session, title=None, parent=None):
+        super(AssetWidget, self).__init__(AccordionBaseWidget.SELECT_MODE_LIST,
+            AccordionBaseWidget.CHECK_MODE_NONE,
+            session=session, title=title, checked=False, parent=parent)
         self._version_id = None
         self._index = index
 
-    def init_status_icon(self):
-        self._status_icon = MaterialIconWidget(None)
-        self._status_icon.setObjectName('borderless')
-        return self._status_icon
+    def init_status_widget(self):
+        self._status_widget = AssetVersionStatusWidget()
+        #self._status_widget.setObjectName('borderless')
+        return self._status_widget
 
     def init_header_content(self, header_layout, collapsed):
         '''Add publish related widgets to the accordion header'''
         header_layout.setContentsMargins(1, 1, 1, 1)
         header_layout.setSpacing(2)
         self._asset_name_widget = QtWidgets.QLabel()
+        self._asset_name_widget.setStyleSheet('''
+            font-weight: bold;
+            font-size: 12px;
+        ''')
         header_layout.addWidget(self._asset_name_widget)
-        self._version_selector = AssetVersionSelector()
-        header_layout.addWidget(self._version_selector)
+        self._component_and_version_header_widget = ComponentAndVersionWidget(True)
+        header_layout.addWidget(self._component_and_version_header_widget)
         header_layout.addStretch()
-        header_layout.addWidget(self.init_status_icon())
+        header_layout.addWidget(self.init_status_widget())
 
     def init_content(self, content_layout):
-        self.content.setMinimumHeight(200)
+        #self.content.setMinimumHeight(200)
         content_layout.setContentsMargins(10, 2, 10, 2)
+        content_layout.setSpacing(5)
 
     def update(self, asset_info):
         '''Update widget from data'''
         # ({'asset_id': 'db4ad014-5b76-434b-8a0f-ab6ae979ef4d', 'asset_name': 'uploadasset', 'asset_type_name': 'Upload', 'version_id': '1720f6f3-4854-4796-a2ce-fe225178bf49', 'version_number': 2, 'component_path': '/Volumes/AccsynStorage/accsynftrackpoc/sq010/sh030/_PUBLISH/generic/v002/main.mp4', 'component_name': 'main', 'component_id': 'a07e3c4a-8f51-4492-bc97-04a54cf94fbb', 'load_mode': None, 'asset_info_options': None, 'reference_object': None, 'is_latest_version': True, 'asset_versions_entities': None, 'session': <ftrack_api.session.Session object at 0x10b527250>, 'asset_info_id': '38bb6b0442014a278181d335abe5124a', 'dependency_ids': [], 'is_dependency': False, 'dependencies': None, 'context_name': 'sh030'})
         self._version_id = asset_info[asset_constants.VERSION_ID]
-        self._asset_name_widget.setText('{} - '.format(asset_info[asset_constants.ASSET_NAME]))
-        self._version_selector.clear()
-        versions_collection = asset_info[asset_constants.ASSET_VERSIONS_ENTITIES]
-        for asset_version in versions_collection:
-            self._version_selector.addItem('v{}'.format(asset_version['version']), asset_version['id'])
-        self._status_icon.set_icon('check' if not asset_info[asset_constants.LOAD_MODE] is None else 'close',
-                                   color = '#87E1EB' if not asset_info[asset_constants.LOAD_MODE] is None else '#999999')
+        self._asset_name_widget.setText('{} '.format(asset_info[asset_constants.ASSET_NAME]))
+        self._versions_collection = asset_info[asset_constants.ASSET_VERSIONS_ENTITIES]
+        version = self.session.query('AssetVersion where id={}'.format(self._version_id)).one()
+        self._status_widget.set_status(version['status'])
+        #self._status_icon.set_icon('check' if not asset_info[asset_constants.LOAD_MODE] is None else 'close',
+        #                           color = '#87E1EB' if not asset_info[asset_constants.LOAD_MODE] is None else '#999999')
+        self._component_path = asset_info[asset_constants.COMPONENT_NAME] or '?.?'
+        self._component_and_version_header_widget.set_component_filename(self._component_path)
+        self._component_and_version_header_widget.set_version(asset_info[asset_constants.VERSION_NUMBER])
+        self._is_latest_version = asset_info[asset_constants.IS_LATEST_VERSION]
+        self._component_and_version_header_widget.set_latest_version(self._is_latest_version)
+        self._load_mode = asset_info[asset_constants.LOAD_MODE]
+        self._loader = '?'
         self._version_dependency_ids = asset_info[asset_constants.DEPENDENCY_IDS]
 
     def on_collapse(self, collapsed):
@@ -324,11 +341,9 @@ class AssetWidget(AccordionBaseWidget):
             else:
                 version = self.session.query('AssetVersion where id={}'.format(self._version_id)).one()
 
-            self.add_widget(QtWidgets.QLabel('Context:'))
-
             context_widget = QtWidgets.QWidget()
             context_widget.setLayout(QtWidgets.QHBoxLayout())
-            context_widget.setContentsMargins(1, 1, 1, 1)
+            context_widget.layout().setContentsMargins(1, 3, 1, 3)
             context_widget.setMaximumHeight(64)
 
             if version:
@@ -340,8 +355,17 @@ class AssetWidget(AccordionBaseWidget):
                 self._thumbnail_widget.setMaximumSize(69, 48)
                 context_widget.layout().addWidget(self._thumbnail_widget)
 
-                # Add context info
-                self._entity_info = EntityInfo()
+                self._component_and_version_widget = ComponentAndVersionWidget(False)
+                self._component_and_version_widget.set_component_filename(self._component_path)
+
+                self._component_and_version_widget.version_selector.clear()
+                for asset_version in self._versions_collection:
+                    self._component_and_version_widget.version_selector.addItem(
+                        'v{}'.format(asset_version['version']), asset_version['id'])
+                self._component_and_version_widget.set_latest_version(self._is_latest_version)
+
+                # Add context info with version selection
+                self._entity_info = EntityInfo(additional_widget=self._component_and_version_widget)
                 self._entity_info.set_entity(version['asset']['parent'])
                 self._entity_info.setMinimumHeight(100)
                 context_widget.layout().addWidget(self._entity_info, 100)
@@ -351,39 +375,50 @@ class AssetWidget(AccordionBaseWidget):
 
             self.add_widget(line.Line())
 
-            self.add_widget(QtWidgets.QLabel('Dependencies:'))
+            load_info_label = QtWidgets.QLabel('<html>Added as a <font color="white">{}</font> with <font color="white">? Loader</font></html>'.format(
+                self._load_mode, self._loader
+            ))
+            self.add_widget(load_info_label)
 
-            for dep_version_id in (self._version_dependency_ids or []):
-                dep_version = self.session.query('AssetVersion where id={}'.format(dep_version_id)).first()
+            if 0<len(self._version_dependency_ids or []):
+                self.add_widget(line.Line())
 
-                if dep_version:
-                    dep_version_widget = QtWidgets.QWidget()
-                    dep_version_widget.setLayout(QtWidgets.QHBoxLayout())
-                    dep_version_widget.setContentsMargins(15, 1, 1, 1)
-                    dep_version_widget.setMaximumHeight(64)
+                dependencies_label = QtWidgets.QLabel('DEPENDENCIES:')
+                dependencies_label.setStyleSheet('''
+                    color: #444444;
+                    size: 9px;
+                ''')
+                self.add_widget(dependencies_label)
 
-                    dep_thumbnail_widget = AssetVersionThumbnail(self.session)
-                    dep_thumbnail_widget.load(dep_version_id)
-                    dep_thumbnail_widget.setScaledContents(True)
-                    dep_thumbnail_widget.setMinimumSize(69, 48)
-                    dep_thumbnail_widget.setMaximumSize(69, 48)
-                    dep_version_widget.layout().addWidget(dep_thumbnail_widget)
+                for dep_version_id in (self._version_dependency_ids or []):
+                    dep_version = self.session.query('AssetVersion where id={}'.format(dep_version_id)).first()
 
-                    # Add context info
-                    dep_entity_info = EntityInfo()
-                    dep_entity_info.set_entity(version['asset']['parent'])
-                    dep_entity_info.setMinimumHeight(100)
-                    context_widget.layout().addWidget(dep_entity_info, 100)
-                    # context_widget.layout().addWidget(QtWidgets.QLabel('Test'))
+                    if dep_version:
+                        dep_version_widget = QtWidgets.QWidget()
+                        dep_version_widget.setLayout(QtWidgets.QHBoxLayout())
+                        dep_version_widget.setContentsMargins(15, 1, 1, 1)
+                        dep_version_widget.setMaximumHeight(64)
 
-                    self.add_widget(dep_version_widget)
-                else:
-                    self.add_widget(QtWidgets.QLabel('MISSING dependency version: {}'.format(dep_version_id)))
+                        dep_thumbnail_widget = AssetVersionThumbnail(self.session)
+                        dep_thumbnail_widget.load(dep_version_id)
+                        dep_thumbnail_widget.setScaledContents(True)
+                        dep_thumbnail_widget.setMinimumSize(69, 48)
+                        dep_thumbnail_widget.setMaximumSize(69, 48)
+                        dep_version_widget.layout().addWidget(dep_thumbnail_widget)
 
-            self.add_widget(line.Line())
+                        # Add context info
+                        dep_entity_info = EntityInfo()
+                        dep_entity_info.set_entity(version['asset']['parent'])
+                        dep_entity_info.setMinimumHeight(100)
+                        context_widget.layout().addWidget(dep_entity_info, 100)
 
-            self.add_widget(QtWidgets.QLabel('Load options:'))
+                        self.add_widget(dep_version_widget)
+                    else:
+                        self.add_widget(QtWidgets.QLabel('MISSING dependency version: {}'.format(dep_version_id)))
 
+                self.add_widget(line.Line())
+
+            self.content.layout().addStretch()
 
     def update_input(self, message, status):
         '''Update the accordion input summary, should be overridden by child.'''
@@ -393,4 +428,92 @@ class AssetWidget(AccordionBaseWidget):
 class AssetVersionSelector(QtWidgets.QComboBox):
     def __init__(self):
         super(AssetVersionSelector, self).__init__()
-        #self.setMinimumWidth(150)
+
+class AssetVersionStatusWidget(QtWidgets.QFrame):
+    def __init__(self):
+        super(AssetVersionStatusWidget, self).__init__()
+
+        self.pre_build()
+        self.build()
+
+    def pre_build(self):
+        self.setLayout(QtWidgets.QHBoxLayout())
+        self.layout().setContentsMargins(4, 2, 4, 2)
+        self.layout().setSpacing(4)
+
+    def build(self):
+        self._label_widget = QtWidgets.QLabel()
+        self.layout().addWidget(self._label_widget)
+
+    def set_status(self, status):
+        self._label_widget.setText(status['name'].upper())
+        self._label_widget.setStyleSheet('''
+            color: {0};
+            border: none;
+        '''.format(status['color']))
+        self.setObjectName('Test')
+        self.setStyleSheet('''
+            QFrame {
+                border: 1px solid %s;
+                border-radius: 8px;
+            }
+         '''%(status['color']))
+
+class ComponentAndVersionWidget(QtWidgets.QWidget):
+
+    @property
+    def version_selector(self):
+        return self._version_selector
+
+    def __init__(self, collapsed, parent=None):
+        super(ComponentAndVersionWidget, self).__init__(parent=parent)
+
+        self._collapsed = collapsed
+
+        self.pre_build()
+        self.build()
+        self.post_build()
+
+    def pre_build(self):
+        self.setLayout(QtWidgets.QHBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().setSpacing(0)
+
+    def build(self):
+        self._component_filename_widget = QtWidgets.QLabel()
+        self._component_filename_widget.setObjectName('gray')
+        self.layout().addWidget(self._component_filename_widget)
+        self.layout().addWidget(QtWidgets.QLabel(' - '))
+
+        if self._collapsed:
+            self._version_nr_widget = QtWidgets.QLabel()
+            self.layout().addWidget(self._version_nr_widget)
+        else:
+            self._version_selector = AssetVersionSelector()
+            self._version_selector.setMaximumHeight(20)
+            self.layout().addWidget(self._version_selector)
+
+    def post_build(self):
+        pass
+
+    def set_latest_version(self, is_latest_version):
+        color = '#935BA2' if is_latest_version else '#FFBA5C'
+        if self._collapsed:
+            self._version_nr_widget.setStyleSheet('color: {}'.format(color))
+        else:
+            self._version_selector.setStyleSheet('''
+                color: {0};
+                border: 1px solid {0};
+                border-radius: 4px;
+            '''.format(color))
+
+    def set_component_filename(self, component_path):
+        self._component_filename_widget.setText('({})'.format(
+            component_path.replace('\\', '/').split('/')[-1]
+        ))
+
+    def set_version(self, version_nr):
+        if self._collapsed:
+            self._version_nr_widget.setText('v{}'.format(str(version_nr)))
+        else:
+            raise Exception('Please change version selector selected version!')

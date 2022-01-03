@@ -13,7 +13,9 @@ class PluginAccordion(AccordionBaseWidget):
         return self._options_button
 
     def __init__(self, title=None, checkable=False, parent=None):
-        super(PluginAccordion,self).__init__(parent=parent, title=title, checkable=checkable)
+        super(PluginAccordion,self).__init__(AccordionBaseWidget.SELECT_MODE_NONE,
+            AccordionBaseWidget.CHECK_MODE_CHECKBOX if checkable else AccordionBaseWidget.CHECK_MODE_CHECKBOX_DISABLED,
+            parent=parent, title=title)
 
     #def init_status_label(self):
     #    self._status_label = QtWidgets.QLabel()

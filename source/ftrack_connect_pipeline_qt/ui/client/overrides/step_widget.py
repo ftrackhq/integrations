@@ -85,7 +85,9 @@ class PublisherAccordion(AccordionBaseWidget):
         return self._options_button
 
     def __init__(self, parent=None, title=None, checkable=False):
-        super(PublisherAccordion,self).__init__(parent=parent, title=title, checkable=checkable)
+        super(PublisherAccordion,self).__init__(AccordionBaseWidget.SELECT_MODE_NONE,
+            AccordionBaseWidget.CHECK_MODE_CHECKBOX if checkable else AccordionBaseWidget.CHECK_MODE_CHECKBOX_DISABLED,
+            title=title, parent=parent)
 
     def init_status_label(self):
         self._status_label = QtWidgets.QLabel()

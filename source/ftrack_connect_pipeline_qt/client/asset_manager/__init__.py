@@ -11,7 +11,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import header, host_selector, 
 from ftrack_connect_pipeline_qt.ui.asset_manager.asset_manager import AssetManagerWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import ContextSelector
 from ftrack_connect_pipeline_qt.ui import theme
-
+from ftrack_connect_pipeline_qt.ui.asset_manager.base import AssetListWidget
 
 class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     '''
@@ -83,7 +83,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     def pre_build(self):
         '''Prepare general layout.'''
         layout = QtWidgets.QVBoxLayout()
-        layout.setContentsMargins(4,4,4,4)
+        layout.setContentsMargins(1, 1, 1, 1)
         layout.setSpacing(2)
         self.setLayout(layout)
 
@@ -255,3 +255,9 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         if not self.host_connection:
             return
         self.discover_assets()
+
+    def mousePressEvent(self, event):
+        print('@@@ AssetManagerClient;:mousePressEvent, {}'.format(self.asset_manager_widget.asset_list.was_clicked))
+        if event.button() != QtCore.Qt.RightButton:
+            self.asset_manager_widget.asset_list.clear_selection()
+        return super(QtAssetManagerClient, self).mousePressEvent(event)
