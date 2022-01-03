@@ -33,7 +33,7 @@ configure_logging(
 logger = logging.getLogger('ftrack_connect_pipeline_maya')
 
 
-created_dialogs = dict()
+created_widgets = dict()
 
 def get_ftrack_menu(menu_name = 'ftrack', submenu_name = 'pipeline'):
     '''Get the current ftrack menu, create it if does not exists.'''
@@ -73,40 +73,26 @@ def get_ftrack_menu(menu_name = 'ftrack', submenu_name = 'pipeline'):
     return submenu
 
 
-def _open_client(event_manager, widgets, event):
-    '''Open *dialog_class* and create if not already existing.'''
+def _open_widget(event_manager, widgets, event):
+    '''Open Maya widget based on widget name in *event*, and create if not already
+    exists'''
     widget_name = None
     for (_widget_name, widget_class, unused_label) in widgets:
         if _widget_name == event['data']['pipeline']['widget_name']:
             widget_name = _widget_name
             break
     if widget_name:
-        if widget_name not in created_dialogs:
+        if widget_name not in created_widgets:
             ftrack_client = widget_class
-            created_dialogs[widget_name] = ftrack_client(
+            created_widgets[widget_name] = ftrack_client(
                 event_manager
             )
-        created_dialogs[widget_name].show()
+        created_widgets[widget_name].show()
     else:
         raise Exception('Unknown client {}!'.format(
             event['data']['pipeline']['widget_name'])
         )
 
-def _launch_client(event_manager, host, widget_name, source=None):
-    '''Send a client launch event'''
-    event = ftrack_api.event.base.Event(
-        topic=qt_constants.PIPELINE_CLIENT_LAUNCH,
-        data={
-            'pipeline': {
-                'host_id': host.host_id,
-                'widget_name': widget_name,
-                'source': source
-            }
-        }
-    )
-    event_manager.publish(
-        event,
-    )
 
 def initialise():
     # TODO : later we need to bring back here all the maya initialisations
@@ -158,17 +144,17 @@ def initialise():
             parent=ftrack_menu,
             label=label,
             command=(
-               functools.partial(_launch_client, event_manager, host, widget_name)
+               functools.partial(event_manager.launch_client, host.host_id, widget_name)
             )
         )
 
     # Listen to client launch events
     session.event_hub.subscribe(
         'topic={} and data.pipeline.host_id={}'.format(
-            qt_constants.PIPELINE_CLIENT_LAUNCH,
+            qt_constants.PIPELINE_WIDGET_LAUNCH,
             host.host_id
         ),
-        functools.partial(_open_client, event_manager, widgets)
+        functools.partial(_open_widget, event_manager, widgets)
     )
 
 
