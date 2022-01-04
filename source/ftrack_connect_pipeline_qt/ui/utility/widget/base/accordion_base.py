@@ -49,6 +49,10 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         return self._check_mode
 
     @property
+    def checkable(self):
+        return self._check_mode == self.CHECK_MODE_CHECKBOX
+
+    @property
     def collapsed(self):
         return self._collapsed
 

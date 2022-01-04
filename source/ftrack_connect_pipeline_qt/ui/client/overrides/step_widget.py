@@ -163,7 +163,7 @@ class PublisherAccordion(AccordionBaseWidget):
         self._status_icon.setVisible(not status is None)
         if not status is None:
             self._status_icon.set_icon('check' if status else 'alert-circle-outline',
-                color = 'gray' if not self.checkable or not self.is_checked() else
+                color = 'gray' if not self.checkable or not self.checked else
                     ('green' if status else 'orange'))
 
 
@@ -173,7 +173,7 @@ class AccordionStepWidget(BaseUIWidget):
     @property
     def is_enabled(self):
         if self._widget:
-            return self._widget.is_checked()
+            return self._widget.checked
         else:
             return self._is_enabled
 
