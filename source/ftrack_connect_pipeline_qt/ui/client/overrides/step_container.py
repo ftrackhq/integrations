@@ -144,3 +144,31 @@ class TabStepContainerWidget(DefaultStepContainerWidget):
                 icon = self.status_icons[constants.ERROR_STATUS]
                 self.tab_widget.setTabIcon(tab_idx, QtGui.QIcon(icon))
 
+class ComboBoxStepContainerWidget(BaseUIWidget):
+    '''Widget representation of a boolean'''
+
+    def __init__(self, name, fragment_data, parent=None):
+        '''Initialise JsonBoolean with *name*, *schema_fragment*,
+        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
+
+        super(ComboBoxStepContainerWidget, self).__init__(
+            name, fragment_data, parent=parent
+        )
+
+    def build(self):
+        self._widget = QtWidgets.QComboBox()
+
+    def update_selected_components(self, enabled, total):
+        pass
+
+    def parent_widget(self, step_widget):
+        if self.widget:
+            #if isinstance(step_widget, BaseUIWidget):
+            #    widget = step_widget.widget
+            #else:
+            #    widget = step_widget
+            self.widget.addItem(step_widget.get_label())
+            # Assume ComboBoxItemStepWidget
+            step_widget.set_parent(self)
+        else:
+            self.logger.error("Please create a widget before parent")

@@ -26,9 +26,6 @@ class EntityInfo(QtWidgets.QWidget):
 
 
     def build(self):
-        #self.type_field = QtWidgets.QLabel()
-        #self.layout().addWidget(self.type_field)
-
         name_widget = QtWidgets.QWidget()
         name_widget.setLayout(QtWidgets.QHBoxLayout())
         name_widget.layout().setContentsMargins(0, 0, 0, 0)

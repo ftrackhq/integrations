@@ -16,7 +16,11 @@ class DefaultStepContainerWidget(BaseUIWidget):
             name, fragment_data, parent=parent
         )
 
-    def build(self):
+
+    def pre_build(self):
         self._widget = QtWidgets.QWidget()
-        main_layout = QtWidgets.QVBoxLayout()
-        self.widget.setLayout(main_layout)
+        self.widget.setLayout(QtWidgets.QVBoxLayout())
+
+    def build(self):
+        pass
+

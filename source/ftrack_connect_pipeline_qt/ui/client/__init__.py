@@ -30,6 +30,7 @@ class BaseUIWidget(object):
     @property
     def is_enabled(self):
         return self._is_enabled
+
     @property
     def is_optional(self):
         return self._is_optional
@@ -91,7 +92,7 @@ class BaseUIWidget(object):
 
     def post_build(self):
         '''post build function , mostly used connect widgets events.'''
-        if self.widget:
+        if self.widget and self.widget.layout():
             self.widget.layout().setContentsMargins(0, 0, 0, 0)
             self.widget.layout().setSpacing(5)
             self.widget.setToolTip(self.description)

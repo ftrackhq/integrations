@@ -79,7 +79,7 @@ class WidgetFactory(QtWidgets.QWidget):
         self.working_definition = None
         self.components_obj = None
 
-        self.components_names = []
+        self.components = [] # Load; the available components of current version
 
         self.progress_widget = self.create_progress_widget()
 
@@ -134,7 +134,7 @@ class WidgetFactory(QtWidgets.QWidget):
         '''
         return UI_OVERRIDES.get('main_widget')(None, None)
 
-    def create_typed_widget(self, definition, type_name):
+    def create_typed_widget(self, definition, type_name, stage_name_filters=None):
         '''
         Main loop to create the widgets UI overrides.
         '''
@@ -160,6 +160,8 @@ class WidgetFactory(QtWidgets.QWidget):
                 stage_category = stage['category']
                 stage_type = stage['type']
                 stage_name = stage.get('name')
+                if stage_name_filters and stage_name not in stage_name_filters:
+                    continue
                 stage_obj = self.get_override(
                     type_name, '{}_widget'.format(stage_category), stage_name,
                     stage, definition_type
@@ -211,7 +213,7 @@ class WidgetFactory(QtWidgets.QWidget):
                 step_container_obj.parent_widget(step_obj)
         return step_container_obj
 
-    def build_definition_ui(self, name, definition=None):
+    def build_definition_ui(self, name, definition, component_names_filter):
         '''
         Given the provided definition, we generate the client UI.
         '''
@@ -230,7 +232,7 @@ class WidgetFactory(QtWidgets.QWidget):
 
         # Create the components widget based on the definition
         self.components_obj = self.create_typed_widget(
-            definition, type_name=core_constants.COMPONENTS
+            definition, type_name=core_constants.COMPONENTS, stage_name_filters=component_names_filter
         )
 
         # Create the finalizers widget based on the definition
@@ -245,10 +247,9 @@ class WidgetFactory(QtWidgets.QWidget):
         indented_widget = QtWidgets.QWidget()
         indented_widget.setLayout(QtWidgets.QVBoxLayout())
         indented_widget.layout().addWidget(QtWidgets.QLabel('Components'))
+        indented_widget.layout().addWidget(self.components_obj.widget)
+
         main_obj.widget.layout().addWidget(indented_widget)
-
-
-        main_obj.widget.layout().addWidget(self.components_obj.widget)
 
         indented_widget = QtWidgets.QWidget()
         indented_widget.setLayout(QtWidgets.QVBoxLayout())
@@ -576,7 +577,7 @@ class WidgetFactory(QtWidgets.QWidget):
 
     def check_components(self):
         ''' Set the component as unavailable if it isn't available on the server'''
-        if not self.components_names:
+        if not self.components:
             return
         for step in self.working_definition[core_constants.COMPONENTS]:
             step_obj = self.get_registered_object(step, step['category'])
@@ -585,11 +586,7 @@ class WidgetFactory(QtWidgets.QWidget):
                     "{} should be instance of DefaultStepWidget ".format(step_obj.name)
                 )
                 continue
-
-            if step_obj.name not in self.components_names:
-                step_obj.set_unavailable()
-            else:
-                step_obj.set_available()
+            step_obj.check_components(self.session, self.components)
 
     def query_asset_version_from_version_id(self, version_id):
         asset_version_entity = self.session.query(
@@ -602,7 +599,7 @@ class WidgetFactory(QtWidgets.QWidget):
         if not asset_version_entity:
             return
         components = asset_version_entity['components']
-        self.components_names = [component['name'] for component in components]
+        self.components = components
         self.on_query_asset_version_done.emit()
 
 

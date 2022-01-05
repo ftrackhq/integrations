@@ -178,6 +178,7 @@ class LoadContextWidget(BaseOptionsWidget):
         super(LoadContextWidget, self).pre_build()
         self.main_layout = QtWidgets.QVBoxLayout()
         self.layout().addLayout(self.main_layout)
+        self.layout().setContentsMargins(15, 1, 1, 1)
 
     def build(self):
         '''build function widgets.'''
@@ -203,7 +204,7 @@ class LoadContextWidget(BaseOptionsWidget):
         self.asset_version_changed.emit(asset_version_id)
 
     def _build_asset_grid_selector(self):
-        label = QtWidgets.QLabel("Choose which asset and version to load")
+        label = QtWidgets.QLabel("Choose which asset and version to open")
         self.asset_grid_selector = AssetGridSelector(self.session)
 
         self.main_layout.addWidget(label)

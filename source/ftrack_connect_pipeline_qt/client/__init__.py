@@ -84,7 +84,9 @@ class QtClient(client.Client, QtWidgets.QFrame):
         '''
         super(QtClient, self)._host_discovered(event)
         if self.definition_filter:
-            self.host_selector.set_definition_filter(self.definition_filter)
+            self.host_selector.set_definition_title_filter(self.definition_filter)
+        if self.definition_extensions_filter:
+            self.host_selector.set_definition_extensions_filter(self.definition_extensions_filter)
         self.host_selector.add_hosts(self.host_connections)
 
     def setTheme(self, selected_theme):
@@ -115,7 +117,9 @@ class QtClient(client.Client, QtWidgets.QFrame):
 
         self.layout().addWidget(line.Line())
 
-        self.host_selector = definition_selector.DefinitionSelectorButtons()
+        self.host_selector = definition_selector.DefinitionSelectorButtons(
+            "Choose what to {}".format(self.run_definition_button_text.lower())
+        )
         self.host_selector.start_over_button.clicked.connect(
             self.widget_factory.progress_widget.set_status_widget_visibility)
         self.layout().addWidget(self.host_selector)
@@ -183,7 +187,7 @@ class QtClient(client.Client, QtWidgets.QFrame):
         self._clear_host_widget()
         super(QtClient, self).change_host(host_connection)
 
-    def change_definition(self, schema, definition):
+    def change_definition(self, schema, definition, component_names_filter):
         '''
         Triggered when definition_changed is called from the host_selector.
         Generates the widgets interface from the given *schema* and *definition*
@@ -206,7 +210,8 @@ class QtClient(client.Client, QtWidgets.QFrame):
         self.widget_factory.set_package(self.current_package)
         self.definition_widget = self.widget_factory.build_definition_ui(
             definition['name'],
-            self.definition
+            self.definition,
+            component_names_filter
         )
         self.scroll.setWidget(self.definition_widget)
 

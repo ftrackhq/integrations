@@ -22,9 +22,6 @@ class AssetItem(QtWidgets.QPushButton):
         self.setCheckable(True)
         self.setAutoExclusive(True)
 
-        self.setMinimumHeight(200)
-        self.setMinimumWidth(100)
-
         self.session = session
         self.asset = asset
         self.current_version_id = asset['latest_version']['id']
@@ -36,8 +33,12 @@ class AssetItem(QtWidgets.QPushButton):
         self.post_build()
 
     def pre_build(self):
-        layout = QtWidgets.QVBoxLayout()
-        self.setLayout(layout)
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().setContentsMargins(5, 2, 5, 1)
+        self.setMinimumHeight(100)
+        self.setMaximumHeight(100)
+        self.setMinimumWidth(100)
+        self.setMaximumWidth(100)
 
     def build(self):
         self.thumbnail_widget = AssetVersionThumbnail(self.session)
@@ -45,6 +46,7 @@ class AssetItem(QtWidgets.QPushButton):
         self.thumbnail_widget.load(self.current_version_id)
 
         self.asset_name_label = QtWidgets.QLabel(self.asset['name'])
+        self.asset_name_label.setObjectName('h3')
         self.version_combobox = VersionComboBox(self.session)
         self.version_combobox.set_context_id(self.context_id)
         self.version_combobox.set_asset_entity(self.asset)
@@ -73,7 +75,7 @@ class AssetGridSelector(QtWidgets.QWidget):
     assets_query_done = QtCore.Signal(object)
 
     asset_changed = QtCore.Signal(object, object, object, object)
-    max_column = 3
+    max_column = 4
 
     def __init__(self, session, parent=None):
         super(AssetGridSelector, self).__init__(parent=parent)
@@ -90,7 +92,7 @@ class AssetGridSelector(QtWidgets.QWidget):
 
     def pre_build(self):
         main_layout = QtWidgets.QGridLayout()
-        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setContentsMargins(1, 1, 1, 1)
         self.setLayout(main_layout)
 
     def build(self):
@@ -157,7 +159,12 @@ class AssetGridSelector(QtWidgets.QWidget):
                 row += 1
                 column = 0
             else:
-                column +=1
+                column += 1
+        while column < self.max_column-1:
+            filler_label = QtWidgets.QLabel()
+            filler_label.setMinimumWidth(130)
+            self.layout().addWidget(filler_label, row, column)
+            column += 1
 
     def _on_asset_changed(self, asset_item):
         self.current_asset_entity = asset_item.asset

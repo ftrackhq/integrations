@@ -10,17 +10,22 @@ class DefinitionItem(QtWidgets.QPushButton):
     def definition(self):
         return self._definition
 
-    def __init__(self, text, definition_item, parent=None):
+    @property
+    def component_names_filter(self):
+        return self._component_names_filter
+
+    def __init__(self, text, definition_item, component_names_filter, parent=None):
         super(DefinitionItem, self).__init__(text, parent=parent)
         self.setCheckable(True)
         self.setAutoExclusive(True)
         self._definition = definition_item
+        self._component_names_filter = component_names_filter
         self.setMinimumWidth(80)
 
 
 class DefinitionSelector(QtWidgets.QWidget):
     '''DefinitionSelector Base Class'''
-    definition_changed = QtCore.Signal(object, object)
+    definition_changed = QtCore.Signal(object, object, object)
     host_changed = QtCore.Signal(object)
 
     @property
@@ -38,7 +43,8 @@ class DefinitionSelector(QtWidgets.QWidget):
 
         self.host_connection = None
         self.schemas = None
-        self.definition_filter = None
+        self._definition_title_filter = None
+        self._definition_extensions_filter = None
         self.definitions = []
 
         self.host_connections = []
@@ -91,15 +97,15 @@ class DefinitionSelector(QtWidgets.QWidget):
         self.definitions=[]
         for schema in self.schemas:
             schema_title = schema.get('title').lower()
-            if self.definition_filter:
-                if schema_title != self.definition_filter:
+            if self._definition_title_filter:
+                if schema_title != self._definition_title_filter:
                     continue
             items = self.host_connection.definitions.get(schema_title)
             self.definitions=items
 
             for item in items:
                 text = '{}'.format(item.get('name'))
-                if not self.definition_filter:
+                if not self._definition_title_filter:
                     text = '{} - {}'.format(
                         schema.get('title'),
                         item.get('name')
@@ -137,8 +143,11 @@ class DefinitionSelector(QtWidgets.QWidget):
         if len(host_connections) == 1 and host_connections[0].context_id != None:
             self.host_combobox.setCurrentIndex(1)
 
-    def set_definition_filter(self, filter):
-        self.definition_filter = filter
+    def set_definition_title_filter(self, title_filter):
+        self._definition_title_filter = title_filter
+
+    def set_definition_extensions_filter(self, extensions_filter):
+        self._definition_extensions_filter = extensions_filter
 
     def get_current_definition_index(self):
         return self.definition_combobox.currentIndex()
@@ -150,12 +159,13 @@ class DefinitionSelector(QtWidgets.QWidget):
 
 class DefinitionSelectorButtons(DefinitionSelector):
     '''DefinitionSelector Base Class'''
-    definition_changed = QtCore.Signal(object, object)
+    definition_changed = QtCore.Signal(object, object, object)
     host_changed = QtCore.Signal(object)
     max_column = 3
 
-    def __init__(self, parent=None):
+    def __init__(self, label_text, parent=None):
         '''Initialize DefinitionSelector widget'''
+        self.label_text = label_text
         super(DefinitionSelectorButtons, self).__init__(parent=parent)
 
     def build(self):
@@ -171,8 +181,8 @@ class DefinitionSelectorButtons(DefinitionSelector):
         header_widget.layout().setContentsMargins(0, 0, 0, 0)
         header_widget.layout().setSpacing(0)
 
-        self.label = QtWidgets.QLabel("Choose what to publish")
-        header_widget.layout().addWidget(self.label)
+        self.label_widget = QtWidgets.QLabel(self.label_text)
+        header_widget.layout().addWidget(self.label_widget)
         header_widget.layout().addStretch()
 
         self.start_over_button = QtWidgets.QPushButton("START OVER")
@@ -225,23 +235,40 @@ class DefinitionSelectorButtons(DefinitionSelector):
     def _populate_definitions(self):
 
         self.definitions = []
+
         for schema in self.schemas:
             schema_title = schema.get('title').lower()
-            if self.definition_filter:
-                if schema_title != self.definition_filter:
+            if self._definition_title_filter:
+                if schema_title != self._definition_title_filter:
                     continue
             items = self.host_connection.definitions.get(schema_title)
             self.definitions = items
 
             index = 0
             for item in items:
-                text = '{}'.format(' '.join(item.get('name').split(' ')[:-1]))  # Remove ' Publisher'
-                if not self.definition_filter:
+                text = '{}'.format(' '.join(item.get('name').split(' ')[:-1]))  # Remove ' Publisher/Loader'
+                component_names_filter = None
+                if self._definition_extensions_filter is not None:
+                    # Only provide the schemas, and components that can load the file extensions
+                    #import json
+                    #print('@@@ {}'.format(json.dumps(item, indent=4)))
+                    for component in item['components']:
+                        for stage in component['stages']:
+                            for plugin in stage['plugins']:
+                                if 'accepted_formats' in plugin['options']:
+                                    accepted_formats = plugin['options']['accepted_formats']
+                                    if set(accepted_formats).intersection(set(self._definition_extensions_filter)):
+                                        if component_names_filter is None:
+                                            component_names_filter = set()
+                                        component_names_filter.add(component['name'])
+                    if component_names_filter is None:
+                        continue
+                if not self._definition_title_filter:
                     text = '{} - {}'.format(
                         schema.get('title'),
                         item.get('name')
                     )
-                definition_button = DefinitionItem(text.upper(), item)
+                definition_button = DefinitionItem(text.upper(), item, component_names_filter)
                 self.button_group.addButton(definition_button)
                 self.definition_buttons_widget.layout().addWidget(definition_button)
                 definition_button.clicked.connect(partial(self._on_select_definition, definition_button))
@@ -249,7 +276,7 @@ class DefinitionSelectorButtons(DefinitionSelector):
                     definition_button.click()
                 index+=1
 
-        self.definition_buttons_widget.layout().addWidget(QtWidgets.QLabel(), 100)
+        self.definition_buttons_widget.layout().addStretch()
 
         # if len(self.definitions) == 1:
         #     self.definitions_widget.hide()
@@ -266,6 +293,7 @@ class DefinitionSelectorButtons(DefinitionSelector):
             if not button is definition_item:
                 button.setEnabled(True)
         self.definition = definition_item.definition
+        self.component_names_filter = definition_item.component_names_filter
 
         if not self.definition:
             self.logger.debug('No data for selected definition')
@@ -280,7 +308,7 @@ class DefinitionSelectorButtons(DefinitionSelector):
                 self.schema = schema
                 break
 
-        self.definition_changed.emit(self.schema, self.definition)
+        self.definition_changed.emit(self.schema, self.definition, self.component_names_filter )
 
     def get_current_definition_index(self):
         return self.button_group.checkedId()

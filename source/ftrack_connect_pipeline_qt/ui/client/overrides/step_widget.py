@@ -311,3 +311,38 @@ class OptionsStepWidget(DefaultStepWidget):
             self.widget.layout().insertLayout((options_idx), layout)
         else:
             self.logger.error("Please create a widget before parent")
+
+class ComboBoxItemStepWidget(DefaultStepWidget):
+    '''Widget representation of a boolean'''
+
+    def __init__(self, name, fragment_data, parent=None):
+        '''Initialise JsonBoolean with *name*, *schema_fragment*,
+        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
+        self._parent = None
+        super(ComboBoxItemStepWidget, self).__init__(
+            name, fragment_data, parent=parent
+        )
+
+    def set_parent(self, step_container):
+        '''Set parent step container'''
+        self._parent = step_container
+        self._row = step_container.widget.count()-1
+
+    def get_label(self):
+        '''Return the label for parent combobox'''
+        result = '{}: '.format(self.name)
+        if self.is_enabled:
+            if self._component:
+                # Fetch path
+                location = self._session.pick_location()
+                result += location.get_filesystem_path(self._component)
+        else:
+            result += 'UNAVAILABLE - please choose another version!'
+        return result
+
+    def set_enabled(self, enabled):
+        super(ComboBoxItemStepWidget, self).set_enabled(enabled)
+        if self._parent:
+            '''Update parent combobox'''
+            combobox = self._parent.widget
+            combobox.setItemText(self._row, self.get_label())
