@@ -50,7 +50,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
             return method, plugin_settings
         for component_stage in component_step.get("result"):
             if (
-                    component_stage.get("name") == constants.COLLECTOR
+                component_stage.get("name") == constants.COLLECTOR
             ):
                 collector_result = component_stage.get("result")
                 break

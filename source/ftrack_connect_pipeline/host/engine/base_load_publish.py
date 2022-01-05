@@ -298,7 +298,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
                 if not step_enabled:
                     self.logger.debug(
-                        'Skipping step {} as it been disabled'.format(
+                        'Skipping step {} as it has been disabled'.format(
                             step_name
                         )
                     )

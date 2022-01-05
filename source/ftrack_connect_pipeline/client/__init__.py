@@ -175,6 +175,8 @@ class Client(object):
     '''Compatible UI for this client.'''
     definition_filter = None
     '''Use only definitions that matches the definition_filter'''
+    definition_extensions_filter = None
+    '''(Open) Only show definitions capable of accept these filename extensions. '''
 
     def __repr__(self):
         return '<Client:{0}>'.format(self.ui_types)
@@ -348,6 +350,10 @@ class Client(object):
 
         Callback received at :meth:`_run_callback`
         '''
+        import json
+        print('@@@ run_definition({})'.format(
+            json.dumps(definition, indent=4)
+        ))
         self.host_connection.run(
             definition, engine_type, self._run_callback
         )

@@ -55,7 +55,9 @@ class AssetManagerEngine(BaseEngine):
 
     def discover_assets(self, assets=None, options=None, plugin=None):
         '''
-        Discover 10 assets from Ftrack with component name main.
+        Should be overridden by child
+
+        (Standalone mode) Discover 10 random assets from Ftrack with component name main.
         Returns :const:`~ftrack_connnect_pipeline.constants.status` and
         :attr:`ftrack_asset_info_list` which is a list of
         :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
@@ -63,14 +65,44 @@ class AssetManagerEngine(BaseEngine):
 
         start_time = time.time()
 
-        component_name = 'main'
-        asset_versions_entities = self.session.query(
-            'select id, components, components.name, components.id, version, '
-            'asset , asset.name, asset.type.name from AssetVersion where '
-            'asset_id != None and components.name is "{0}" limit 10'.format(
-                component_name
-            )
-        ).all()
+        #component_name = 'main'
+        component_name = 'fbx'
+
+        if False:
+            asset_versions_entities = self.session.query(
+                'select id, components, components.name, components.id, version, '
+                'asset , asset.name, asset.type.name from AssetVersion where '
+                'asset_id != None limit 10'.format(
+            )).all()
+
+        if False:
+            asset_versions_entities = self.session.query(
+                'select id, components, components.name, components.id, version, '
+                'asset , asset.name, asset.type.name from AssetVersion where '
+                'asset_id != None and components.name is "{0}" limit 10'.format(
+                    component_name
+            )).all()
+
+        if True:
+            asset_versions_entities = []
+            for v in self.session.query(
+                'select id, components, components.name, components.id, version, '
+                'asset , asset.name, asset.type.name from AssetVersion where '
+                'asset_id != None and (asset.type.name=animation or asset.type.name=geometry) limit 3'.format()
+            ):
+                #if not v['asset']['type']['name'].lower() in ['animation','geometry']:
+                #    continue
+                do_add = True
+                for ev in asset_versions_entities:
+                    if ev['asset']['id'] == v['asset']['id']:
+                        do_add = False
+                        break
+                if do_add:
+                    asset_versions_entities.append(v)
+                    if 10 == len(asset_versions_entities):
+                        break
+
+
 
         ftrack_asset_info_list = []
         status = constants.SUCCESS_STATUS
