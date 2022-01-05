@@ -101,6 +101,7 @@ def initialise():
 
     cmds.loadPlugin('ftrackMayaPlugin.py', quiet=True)
 
+    from ftrack_connect_pipeline_maya.client import open
     from ftrack_connect_pipeline_maya.client import load
     from ftrack_connect_pipeline_maya.client import publish
     from ftrack_connect_pipeline_maya.client import asset_manager
@@ -109,6 +110,9 @@ def initialise():
     # Enable loader and publisher only if is set to run local (default)
     dialogs = []
 
+    dialogs.append(
+        (open.MayaOpenClient, 'Open')
+    )
     dialogs.append(
         (load.MayaLoaderClient, 'Loader')
     )
