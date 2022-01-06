@@ -67,14 +67,16 @@ class OptionsButton(QtWidgets.QPushButton):
         self.overlay_container.setVisible(True)
 
     def add_validator_widget(self, widget):
-        self.main_widget.layout().addWidget(QtWidgets.QLabel(''))
-        self.main_widget.layout().addWidget(QtWidgets.QLabel(''))
-        self.main_widget.layout().addWidget(QtWidgets.QLabel('<html><strong>Validators:<strong><html>'))
+        self.main_widget.layout().addWidget(
+            QtWidgets.QLabel('<html><strong>Validators:<strong><html>')
+        )
         self.main_widget.layout().addWidget(widget)
 
     def add_output_widget(self, widget):
         self.main_widget.layout().addWidget(QtWidgets.QLabel(''))
-        self.main_widget.layout().addWidget(QtWidgets.QLabel('<html><strong>Output:<strong><html>'))
+        self.main_widget.layout().addWidget(
+            QtWidgets.QLabel('<html><strong>Output:<strong><html>')
+        )
         self.main_widget.layout().addWidget(widget)
 
 

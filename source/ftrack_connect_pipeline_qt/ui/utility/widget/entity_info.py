@@ -21,7 +21,7 @@ class EntityInfo(QtWidgets.QWidget):
 
     def pre_build(self):
         self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().setContentsMargins(2, 2, 2, 2)
+        self.layout().setContentsMargins(2, 12, 2, 2)
         self.layout().setSpacing(2)
 
 
@@ -89,7 +89,13 @@ class VersionInfo(QtWidgets.QWidget):
 
     def set_entity(self, version_id):
         version = self.session.get('AssetVersion', version_id)
-        self.date_field.setText('Date : {}'.format(str(version['date'].humanize())))
-        self.user_field.setText('User : {}'.format(str(version['user'].get('username', 'No User set'))))
-        self.description_field.setText('Comment : {}'.format(str(version.get('comment') or 'No Comment set')))
+        self.date_field.setText('Date : {}'.format(
+            str(version['date'].humanize()))
+        )
+        self.user_field.setText('User : {}'.format(
+            str(version['user'].get('username', 'No User set')))
+        )
+        self.description_field.setText('Comment : {}'.format(
+            str(version.get('comment') or 'No Comment set'))
+        )
 

@@ -38,8 +38,7 @@ class QtClient(client.Client, QtWidgets.QFrame):
             self.__class__.__name__)
         )
 
-        self.setProperty('background', 'houdini')
-        #self.setProperty('background', 'ftrack')
+        self.setProperty('background', 'default')
 
         self.is_valid_asset_name = False
         self.widget_factory = factory.WidgetFactory(
@@ -60,7 +59,7 @@ class QtClient(client.Client, QtWidgets.QFrame):
 
     def get_background_color(self):
         '''Return the theme background color style. Can be overridden by child.'''
-        return 'houdini'
+        return 'default'
 
     def add_hosts(self, host_connections):
         '''
@@ -121,7 +120,8 @@ class QtClient(client.Client, QtWidgets.QFrame):
             "Choose what to {}".format(self.run_definition_button_text.lower())
         )
         self.host_selector.start_over_button.clicked.connect(
-            self.widget_factory.progress_widget.set_status_widget_visibility)
+            self.widget_factory.progress_widget.set_status_widget_visibility
+        )
         self.layout().addWidget(self.host_selector)
 
         self.scroll = QtWidgets.QScrollArea()

@@ -183,9 +183,6 @@ class AssetListWidget(QtWidgets.QWidget):
             self.layout().addWidget(asset_widget)
             asset_widget.clicked.connect(
                 functools.partial(self.asset_clicked, asset_widget))
-            # Test code for showing load indication during standalone
-            import random
-            asset_widget.set_indicator(bool(random.getrandbits(1)))
 
     def reset(self):
         ''' Remove all assets'''

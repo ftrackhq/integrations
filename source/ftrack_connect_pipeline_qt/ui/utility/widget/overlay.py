@@ -8,7 +8,7 @@ from Qt import QtGui, QtCore, QtWidgets
 from ftrack_connect_pipeline_qt import utils
 
 
-class Overlay(QtWidgets.QWidget):
+class Overlay(QtWidgets.QFrame):
     '''
     Display a semi-transparent overlay over another widget.
 
@@ -19,16 +19,21 @@ class Overlay(QtWidgets.QWidget):
     def __init__(self, widget, parent=None):
         '''Initialise overlay for target *parent*.'''
         super(Overlay, self).__init__(parent=parent)
-        self.setObjectName('overlay')
+        #self.setObjectName('overlay')
 
-        self.widget = widget
+        self.widget = QtWidgets.QFrame()
+        self.widget.setProperty('background', 'default')
+        self.widget.setLayout(QtWidgets.QVBoxLayout())
+        self.widget.layout().setContentsMargins(1, 20, 1, 1)
+        self.widget.layout().addWidget(widget)
+        widget.setAutoFillBackground(False)
+        widget.setStyleSheet('background: transparent;')
         self.widget.setParent(self)
-        self.widget.setAutoFillBackground(True)
 
         self.close_btn = QtWidgets.QPushButton('', self)
         self.close_btn.setIcon(qta.icon('mdi6.close-thick', color='#D3d4D6'))
         self.close_btn.setObjectName('borderless')
-        self.close_btn.setFixedSize(30, 30)
+        self.close_btn.setFixedSize(20, 20)
         self.close_btn.clicked.connect(self.close)
 
         self.fill_color = QtGui.QColor(30, 30, 30, 200)
@@ -55,14 +60,14 @@ class Overlay(QtWidgets.QWidget):
     def resizeEvent(self, event):
         super(Overlay, self).resizeEvent(event)
         size = self.size()
-        widget_width = size.width() - (size.width() * 0.2)
-        widget_height = size.height() - (size.height() * 0.4)
-        origin_w = int(size.width()/2-widget_width/2)
-        origin_h = 40 #int(size.height()/2-widget_height/2)
+        widget_width = size.width() * 0.8
+        widget_height = size.height() * 0.6
+        widget_x = int((size.width()-widget_width)/2)
+        widget_y = 40 #int(size.height()/2-widget_height/2)
         self.widget.resize(widget_width, widget_height)
-        self.widget.move(origin_w, origin_h)
+        self.widget.move(widget_x, widget_y)
         # Move the close button to the desired position
-        self.close_btn.move(origin_w+widget_width-32, origin_h)
+        self.close_btn.move(widget_x+widget_width-22, widget_y)
 
     def setVisible(self, visible):
         '''Set whether *visible* or not.'''

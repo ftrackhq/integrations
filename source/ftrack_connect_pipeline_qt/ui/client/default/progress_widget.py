@@ -105,7 +105,7 @@ class StatusButtonWidget(QtWidgets.QPushButton):
     status_icons = constants.icons.status_icons
 
     VIEW_COLLAPSED_BUTTON = 'collapsed-button'  # AM (Opens progress overlay)
-    VIEW_EXPANDED_BUTTON = 'expanded-button'    # Opener/Assember/Publisher (Opens progress overlay)
+    VIEW_EXPANDED_BUTTON = 'expanded-button'    # Opener/Assembler/Publisher (Opens progress overlay)
     VIEW_EXPANDED_BANNER = 'expanded-banner'    # Progress overlay
 
     def __init__(self, view_mode, parent=None):
@@ -147,7 +147,8 @@ class StatusButtonWidget(QtWidgets.QPushButton):
         self.message = message
         self.message_label.setText(self.message)
         set_property(self, 'status', self.status.lower())
-        self.status_icon.set_status(self.status, size=24)
+        color = self.status_icon.set_status(self.status, size=24)
+        self.message_label.setStyleSheet('color: #{}'.format(color))
         #for widget in [self, self.message_label]:
         #    widget.style().unpolish(widget)
         #    widget.style().polish(widget)
@@ -179,7 +180,7 @@ class ProgressWidget(BaseUIWidget):
         self.content_widget = QtWidgets.QFrame()
         self.content_widget.setObjectName('overlay')
         self.content_widget.setLayout(QtWidgets.QVBoxLayout())
-        self.content_widget.layout().setContentsMargins(15,15,15,15)
+        self.content_widget.layout().setContentsMargins(15, 15, 15, 15)
 
         self.scroll.setWidget(self.content_widget)
 
@@ -195,10 +196,10 @@ class ProgressWidget(BaseUIWidget):
         if main_window:
             self.overlay_container.setParent(main_window)
         self.overlay_container.setVisible(True)
+        self.widget.setVisible(True)
 
     def prepare_add_component(self):
         self.clear_components()
-        self.content_widget.layout().addSpacing(30)
         self.status_banner = StatusButtonWidget(StatusButtonWidget.VIEW_EXPANDED_BANNER)
         self.content_widget.layout().addWidget(self.status_banner)
 
@@ -234,10 +235,12 @@ class ProgressWidget(BaseUIWidget):
             self, step_type, step_name, status, status_message, results
     ):
         id_name = "{}.{}".format(step_type, step_name)
-        self.component_widgets[id_name].update_status(
-            status, status_message, results
-        )
-        if status != self.widget.get_status():
-            self.widget.set_status(status, message=id_name)
-            self.status_banner.set_status(status, message=id_name)
+        if id_name in self.component_widgets:
+            self.component_widgets[id_name].update_status(
+                status, status_message, results
+            )
+            if status != self.widget.get_status():
+                main_status_message = '{}: {}'.format(id_name, status_message)
+                self.widget.set_status(status, message=main_status_message)
+                self.status_banner.set_status(status, message=main_status_message)
 

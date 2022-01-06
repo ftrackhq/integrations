@@ -2,6 +2,10 @@ QFrame[background='transparent'] {
     background: transparent;
 }
 
+QFrame[background='default'] {
+    background: rgb(55,55,55);
+}
+
 QFrame[background='houdini'] {
     background: rgb(55,55,55);
 }

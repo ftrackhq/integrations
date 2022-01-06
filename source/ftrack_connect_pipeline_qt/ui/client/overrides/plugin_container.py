@@ -43,10 +43,11 @@ class AccordionPluginContainerWidget(BaseUIWidget):
         super(AccordionPluginContainerWidget, self).__init__(
             name, fragment_data, parent=parent
         )
+        import json
 
     def build(self):
         self._widget = PluginAccordion(
-            title=self.name, checkable=False
+            title=self.name, checkable=True
         )
 
     def parent_widget(self, widget):

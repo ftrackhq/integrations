@@ -1,6 +1,9 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 from functools import partial
+import six
+import base64
+import json
 
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
@@ -324,6 +327,7 @@ class AssetWidget(AccordionBaseWidget):
         )).one()
         self._status_widget.set_status(version['status'])
         self._load_mode = asset_info[asset_constants.LOAD_MODE]
+        self.set_indicator(self._load_mode is not None)
         self._component_path = asset_info[asset_constants.COMPONENT_NAME] or '?.?'
         self._component_and_version_header_widget.set_component_filename(
             self._component_path
@@ -336,8 +340,8 @@ class AssetWidget(AccordionBaseWidget):
             self._is_latest_version
         )
         self._load_mode = asset_info[asset_constants.LOAD_MODE]
-        self._loader = '?'
         self._version_dependency_ids = asset_info[asset_constants.DEPENDENCY_IDS]
+        self._asset_info_options = asset_info[asset_constants.ASSET_INFO_OPTIONS]
 
     def on_collapse(self, collapsed):
         '''Dynamically populate asset expanded view'''
@@ -391,10 +395,13 @@ class AssetWidget(AccordionBaseWidget):
 
             self.add_widget(line.Line())
 
-            load_info_label = QtWidgets.QLabel('<html>Added as a <font color="white">{}</font> with <font color="white">? Loader</font></html>'.format(
-                self._load_mode, self._loader
+            load_info_label = QtWidgets.QLabel(
+                '<html>Added as a <font color="white">{}</font> with <font color="white">'
+                '{}</font></html>'.format(
+                    self._load_mode, self._asset_info_options['pipeline'].get('definition','?')
             ))
             self.add_widget(load_info_label)
+            load_info_label.setToolTip(json.dumps(self._asset_info_options, indent=2))
 
             if 0<len(self._version_dependency_ids or []):
                 self.add_widget(line.Line())

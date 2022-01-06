@@ -45,3 +45,4 @@ class MaterialIconWidget(QtWidgets.QWidget):
             icon_name = 'alert-circle-outline'
             color = 'FF7A73'
         self.set_icon(icon_name, color='#{}'.format(color), size=size)
+        return color

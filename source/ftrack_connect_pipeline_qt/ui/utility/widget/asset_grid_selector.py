@@ -99,7 +99,7 @@ class AssetGridSelector(QtWidgets.QWidget):
         pass
 
     def post_build(self):
-        self.assets_query_done.connect(self.add_item)
+        self.assets_query_done.connect(self.add_items)
 
     def _pre_select_asset(self, asset_item):
         asset_item.click()
@@ -142,29 +142,33 @@ class AssetGridSelector(QtWidgets.QWidget):
     def add_assets_to_ui(self, assets):
         self.assets_query_done.emit(assets)
 
-    def add_item(self, assets):
-        row = 0
-        column = 0
-        for asset in assets:
-            asset_item = AssetItem(self.session, asset, self.context_id)
-            asset_item.clicked.connect(partial(self._on_asset_changed, asset_item))
-            asset_item.version_changed.connect(
-                partial(self._on_version_changed, asset_item)
-            )
-            if row == 0 and column == 0:
-                self._pre_select_asset(asset_item)
+    def add_items(self, assets):
+        if 0<len(assets):
+            row = 0
+            column = 0
+            for asset in assets:
+                asset_item = AssetItem(self.session, asset, self.context_id)
+                asset_item.clicked.connect(partial(self._on_asset_changed, asset_item))
+                asset_item.version_changed.connect(
+                    partial(self._on_version_changed, asset_item)
+                )
+                if row == 0 and column == 0:
+                    self._pre_select_asset(asset_item)
 
-            self.layout().addWidget(asset_item, row, column)
-            if column == self.max_column-1:
-                row += 1
-                column = 0
-            else:
+                self.layout().addWidget(asset_item, row, column)
+                if column == self.max_column-1:
+                    row += 1
+                    column = 0
+                else:
+                    column += 1
+            while column < self.max_column-1:
+                filler_label = QtWidgets.QLabel()
+                filler_label.setMinimumWidth(130)
+                self.layout().addWidget(filler_label, row, column)
                 column += 1
-        while column < self.max_column-1:
-            filler_label = QtWidgets.QLabel()
-            filler_label.setMinimumWidth(130)
-            self.layout().addWidget(filler_label, row, column)
-            column += 1
+        else:
+            self.layout().addWidget(QtWidgets.QLabel(
+                '<html><i>No version(s) published at this context!</i></html>'), 0, 0)
 
     def _on_asset_changed(self, asset_item):
         self.current_asset_entity = asset_item.asset
@@ -179,6 +183,3 @@ class AssetGridSelector(QtWidgets.QWidget):
         if asset_item.asset != self.current_asset_entity:
             return
         self._on_asset_changed(asset_item)
-
-
-

@@ -39,7 +39,8 @@ class AssetListItem(QtWidgets.QWidget):
         self.create_label.setObjectName("gray")
         self.layout().addWidget(self.create_label)
 
-        self.version_label = QtWidgets.QLabel('Version {}'.format(self.asset['latest_version']['version']+1))
+        self.version_label = QtWidgets.QLabel('Version {}'.format(
+            self.asset['latest_version']['version']+1))
         self.version_label.setObjectName("purple")
         self.layout().addWidget(self.version_label)
 
@@ -60,10 +61,6 @@ class AssetList(QtWidgets.QListWidget):
         )
 
         self.session = session
-        #self.setMinimumWidth(250)
-        #self.setSizePolicy(
-        #    QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding
-        #)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setSpacing(1)
@@ -289,7 +286,8 @@ class AssetSelector(QtWidgets.QWidget):
     def set_context(self, context_id, asset_type_name):
         self.logger.debug('setting context to :{}'.format(context_id))
         self.asset_list.on_context_changed(context_id, asset_type_name)
-        self.propose_new_asset_placeholder_name(context_id)
+        self.new_asset_input.name.setText(asset_type_name)
+        #self.propose_new_asset_placeholder_name(context_id)
 
     def _get_context_entity(self, context_id):
         context_entity = self.session.query(

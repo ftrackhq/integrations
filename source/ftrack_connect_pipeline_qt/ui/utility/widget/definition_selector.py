@@ -246,21 +246,36 @@ class DefinitionSelectorButtons(DefinitionSelector):
 
             index = 0
             for item in items:
-                text = '{}'.format(' '.join(item.get('name').split(' ')[:-1]))  # Remove ' Publisher/Loader'
+                # Remove ' Publisher/Loader'
+                text = '{}'.format(' '.join(item.get('name').split(' ')[:-1]))
                 component_names_filter = None
                 if self._definition_extensions_filter is not None:
-                    # Only provide the schemas, and components that can load the file extensions
+                    # Open mode; Only provide the schemas, and components that
+                    # can load the file extensions
                     #import json
                     #print('@@@ {}'.format(json.dumps(item, indent=4)))
                     for component in item['components']:
+                        can_open_component = False
                         for stage in component['stages']:
                             for plugin in stage['plugins']:
-                                if 'accepted_formats' in plugin['options']:
+                                if 'accepted_formats' in plugin.get('options', {}):
                                     accepted_formats = plugin['options']['accepted_formats']
-                                    if set(accepted_formats).intersection(set(self._definition_extensions_filter)):
-                                        if component_names_filter is None:
-                                            component_names_filter = set()
-                                        component_names_filter.add(component['name'])
+                                    if set(accepted_formats).intersection(
+                                            set(self._definition_extensions_filter)):
+                                        can_open_component = True
+
+                                elif plugin.get('type') == 'importer':
+                                    if not 'options' in plugin:
+                                        plugin['options'] = {}
+                                    plugin['options']['load_mode'] = 'Open'
+                        if can_open_component:
+                            if component_names_filter is None:
+                                component_names_filter = set()
+                            component_names_filter.add(component['name'])
+                        else:
+                            # Make sure it's not visible of executed
+                            component['visible'] = False
+                            component['enabled'] = False
                     if component_names_filter is None:
                         continue
                 if not self._definition_title_filter:
@@ -271,7 +286,9 @@ class DefinitionSelectorButtons(DefinitionSelector):
                 definition_button = DefinitionItem(text.upper(), item, component_names_filter)
                 self.button_group.addButton(definition_button)
                 self.definition_buttons_widget.layout().addWidget(definition_button)
-                definition_button.clicked.connect(partial(self._on_select_definition, definition_button))
+                definition_button.clicked.connect(
+                    partial(self._on_select_definition, definition_button)
+                )
                 if index == 0:
                     definition_button.click()
                 index+=1
@@ -308,7 +325,8 @@ class DefinitionSelectorButtons(DefinitionSelector):
                 self.schema = schema
                 break
 
-        self.definition_changed.emit(self.schema, self.definition, self.component_names_filter )
+        self.definition_changed.emit(self.schema, self.definition,
+                                     self.component_names_filter )
 
     def get_current_definition_index(self):
         return self.button_group.checkedId()

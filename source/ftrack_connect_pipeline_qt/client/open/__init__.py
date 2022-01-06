@@ -2,9 +2,9 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
+import os
 
 from ftrack_connect_pipeline_qt.client import QtClient
-
 
 class QtOpenClient(QtClient):
     '''
@@ -19,6 +19,12 @@ class QtOpenClient(QtClient):
         super(QtOpenClient, self).__init__(
             event_manager, parent=parent
         )
-        self.setWindowTitle('Standalone Pipeline Opener')
         self.logger.debug('start qt opener')
-        self.resize(450, 500)
+
+    def post_build(self):
+        super(QtOpenClient, self).post_build()
+        self.context_selector.entityChanged.connect(self._store_global_context)
+
+    def _store_global_context(self, entity):
+        os.environ['FTRACK_CONTEXT_ID'] = entity['id']
+        self.logger.warning('Global context is now: {}'.format(entity))

@@ -12,7 +12,7 @@ from ftrack_connect_pipeline_qt.utils import BaseThread
 
 
 class PublishContextWidget(BaseOptionsWidget):
-    ''' Main class to represent a context widget on a publish process. '''
+    ''' Main class to represent a conttext widget on a publish process. '''
 
     statuses_fetched = QtCore.Signal(object)
 
@@ -142,7 +142,8 @@ class PublishContextWidget(BaseOptionsWidget):
     def _get_statuses(self):
         '''Returns the status of the selected assetVersion'''
         context_entity = self.session.query(
-                'select link, name , parent, parent.name from Context where id is "{}"'.format(self.context_id)
+                'select link, name , parent, parent.name from Context where id '
+                'is "{}"'.format(self.context_id)
             ).one()
 
         project = self.session.query(
@@ -222,9 +223,6 @@ class StatusSelector(QtWidgets.QComboBox):
         '''Set statuses on the combo box'''
         #We are now in the main thread
         for index, status in enumerate(statuses):
-            #pixmap_status = QtGui.QPixmap(13, 13)
-            #pixmap_status.fill(QtGui.QColor(status['color']))
-            #self.status_selector.addItem(pixmap_status, status['name'], status['id'])
             self.addItem(status['name'].upper(), status['id'])
             self._status_colors[status['id']] = status['color']
 

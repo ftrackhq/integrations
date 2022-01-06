@@ -148,7 +148,8 @@ class WidgetFactory(QtWidgets.QWidget):
             step_category = step['category']
             step_type = step['type']
             step_name = step.get('name')
-            self.progress_widget.add_component(step_type, step_name)
+            if step_type != 'finalizer' and step.get('visible', True) is True:
+                self.progress_widget.add_component(step_type, step_name)
             step_obj = self.get_override(
                 type_name, '{}_widget'.format(step_category), step_name, step,
                 definition_type
@@ -162,6 +163,8 @@ class WidgetFactory(QtWidgets.QWidget):
                 stage_name = stage.get('name')
                 if stage_name_filters and stage_name not in stage_name_filters:
                     continue
+                if step_type == 'finalizer' and stage.get('visible', True) is True:
+                    self.progress_widget.add_component(step_type, stage_name)
                 stage_obj = self.get_override(
                     type_name, '{}_widget'.format(stage_category), stage_name,
                     stage, definition_type
@@ -192,7 +195,8 @@ class WidgetFactory(QtWidgets.QWidget):
                         stage_obj.parent_widget(plugin_container_obj)
                     else:
                         stage_obj.parent_widget(plugin_widget)
-                    if stage_type == core_constants.COLLECTOR and isinstance(step_obj, override_widgets.AccordionStepWidget):
+                    if (stage_type == core_constants.COLLECTOR and
+                            isinstance(step_obj, override_widgets.AccordionStepWidget)):
                         # Connect input change to accordion
                         # TODO: support multiple collectors
                         plugin_widget.input_changed.connect(step_obj.collector_input_changed)
@@ -236,7 +240,7 @@ class WidgetFactory(QtWidgets.QWidget):
         )
 
         # Create the finalizers widget based on the definition
-        finalizers_obj = self.create_typed_widget(
+        self.finalizers_obj = self.create_typed_widget(
             definition, type_name=core_constants.FINALIZERS
         )
 
@@ -244,22 +248,22 @@ class WidgetFactory(QtWidgets.QWidget):
 
         main_obj.widget.layout().addWidget(line.Line())
 
-        indented_widget = QtWidgets.QWidget()
-        indented_widget.setLayout(QtWidgets.QVBoxLayout())
-        indented_widget.layout().addWidget(QtWidgets.QLabel('Components'))
-        indented_widget.layout().addWidget(self.components_obj.widget)
+        self.components_section = QtWidgets.QWidget()
+        self.components_section.setLayout(QtWidgets.QVBoxLayout())
+        self.components_section.layout().addWidget(QtWidgets.QLabel('Components'))
+        self.components_section.layout().addWidget(self.components_obj.widget)
+        if definition['type'] == 'loader':
+            self.components_section.hide()
+        main_obj.widget.layout().addWidget(self.components_section)
 
-        main_obj.widget.layout().addWidget(indented_widget)
+        self.finalizers_section = QtWidgets.QWidget()
+        self.finalizers_section.setLayout(QtWidgets.QVBoxLayout())
+        self.finalizers_section.layout().addWidget(QtWidgets.QLabel('Finalizers'))
+        self.finalizers_section.layout().addWidget(self.finalizers_obj.widget)
+        if definition['type'] == 'loader' or not UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True):
+            self.finalizers_section.hide()
+        main_obj.widget.layout().addWidget(self.finalizers_section)
 
-        indented_widget = QtWidgets.QWidget()
-        indented_widget.setLayout(QtWidgets.QVBoxLayout())
-        indented_widget.layout().addWidget(QtWidgets.QLabel('Finalizers'))
-        main_obj.widget.layout().addWidget(indented_widget)
-
-        main_obj.widget.layout().addWidget(finalizers_obj.widget)
-        # If there is a Finalizer widget show the widget otherwise not.
-        if not UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True):
-            finalizers_obj.widget.hide()
         main_obj.widget.layout().addStretch()
 
         self.progress_widget.components_added()
@@ -453,22 +457,24 @@ class WidgetFactory(QtWidgets.QWidget):
         status = event['data']['pipeline']['status']
         results = event['data']['pipeline']['results']
 
+        step_name_effective = step_name if step_type != 'finalizer' else stage_name
+
         if status == constants.RUNNING_STATUS:
             status_message = "Running Stage {}... ({}/{})".format(
                 stage_name, current_plugin_index, total_plugins
             )
             self.progress_widget.update_component_status(
-                step_type, step_name, status, status_message, results
+                step_type, step_name_effective, status, status_message, results
             )
         elif status == constants.ERROR_STATUS:
             status_message = "Failed"
             self.progress_widget.update_component_status(
-                step_type, step_name, status, status_message, results
+                step_type, step_name_effective, status, status_message, results
             )
         elif status == constants.SUCCESS_STATUS:
             status_message = "Completed"
             self.progress_widget.update_component_status(
-                step_type, step_name, status, status_message, results
+                step_type, step_name_effective, status, status_message, results
             )
 
     def update_widget(self, log_item):
@@ -601,7 +607,10 @@ class WidgetFactory(QtWidgets.QWidget):
         components = asset_version_entity['components']
         self.components = components
         self.on_query_asset_version_done.emit()
-
+        self.components_section.show()
+        # If there is a Finalizer widget show the widget otherwise not.
+        if UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True) is True:
+            self.finalizers_section.show()
 
     def _asset_version_changed(self, version_id):
         '''Callback function triggered when a asset version has changed'''

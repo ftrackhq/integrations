@@ -82,6 +82,9 @@ class BaseUIWidget(object):
         self.build()
         self.post_build()
 
+        if self._widget and self.fragment_data:
+            self._widget.setVisible(self.fragment_data.get('visible', True))
+
     def pre_build(self):
         '''pre build function, mostly used setup the widget's layout.'''
         pass
