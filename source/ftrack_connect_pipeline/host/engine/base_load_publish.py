@@ -113,6 +113,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
             plugin_dict = {
                 "name": plugin_name,
+                "options": plugin_options,
                 "result": result,
                 "status": bool_status,
                 "category": category,
@@ -120,14 +121,14 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 "plugin_type": plugin_result['plugin_type'],
                 "method": plugin_result['method'],
                 "user_data": plugin_result.get('user_data') or {},
-                "message":plugin_result['message'],
-                "widget_ref":plugin_result['widget_ref'],
-                "host_id":plugin_result['host_id'],
-                "plugin_id":plugin_result['plugin_id']
+                "message": plugin_result['message'],
+                "widget_ref": plugin_result['widget_ref'],
+                "host_id": plugin_result['host_id'],
+                "plugin_id": plugin_result['plugin_id']
             }
 
             stage_results.append(plugin_dict)
-            i+=1
+            i += 1
         return stage_status, stage_results
 
 
@@ -218,6 +219,11 @@ class BaseLoaderPublisherEngine(BaseEngine):
                         constants.ERROR_STATUS, step_results
                     )
                     return step_status, step_results
+                else:
+                    self._notify_progress_client(
+                        step_type, step_name, stage_name, None, None,
+                        constants.SUCCESS_STATUS, step_results
+                    )
         self._notify_progress_client(
             step_type, step_name, None, None, None,
             constants.SUCCESS_STATUS, step_results
@@ -272,6 +278,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
         :meth:`~ftrack_connect_pipeline.client.HostConnection.run` Should be a
         valid definition.
         '''
+        self._definition = data
 
         context_data = None
         components_output = []
@@ -359,11 +366,9 @@ class BaseLoaderPublisherEngine(BaseEngine):
                                 component_stage.get("name"), component_stage.get("type")
                             )
                         )
-                        if (
-                                component_stage.get("type") != constants.OUTPUT
-                                and
-                                component_stage.get("type") != constants.POST_IMPORT
-                        ):
+                        if not component_stage.get("type") in [constants.IMPORTER,
+                                                               constants.OUTPUT,
+                                                               constants.POST_IMPORT]:
                             self.logger.debug(
                                 "Removing stage name {} of type {}".format(
                                     component_stage.get("name"), component_stage.get("type")
@@ -373,5 +378,5 @@ class BaseLoaderPublisherEngine(BaseEngine):
                     i += 1
 
         #TODO: maybe we could be returning the finalizers_result? or maybe not
-        # needed and just dd it to a log or pas it to the notify client
+        # needed and just add it to a log or pass it to the notify client
         return True

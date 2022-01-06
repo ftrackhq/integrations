@@ -122,13 +122,15 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
             #  Connect all the objects that are not dependencies
             self.ftrack_asset.connect_objects(diff)
             #  Check if dependencies already in the scene and what dependencies are missing
-            missing_ids, unconected_dependencies, untracked_dependencies = self.ftrack_asset.check_dependencies()
+            missing_ids, unconnected_dependencies, untracked_dependencies = \
+                self.ftrack_asset.check_dependencies(self.session)
             if missing_ids:
                 #  if missing dependencies create them
                 dependency_objects = self.create_dependency_objects(missing_ids)
-                unconected_dependencies.extend(dependency_objects)
-            #  connect all the dependencies new and old
-            self.ftrack_asset.connect_dependencies(unconected_dependencies)
+                unconnected_dependencies.extend(dependency_objects)
+            if unconnected_dependencies:
+                #  connect all the dependencies new and old
+                self.ftrack_asset.connect_dependencies(unconnected_dependencies)
             # Before save delete only the main ftrackNode
 
         return super_result

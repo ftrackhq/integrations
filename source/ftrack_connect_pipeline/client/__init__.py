@@ -350,10 +350,6 @@ class Client(object):
 
         Callback received at :meth:`_run_callback`
         '''
-        import json
-        print('@@@ run_definition({})'.format(
-            json.dumps(definition, indent=4)
-        ))
         self.host_connection.run(
             definition, engine_type, self._run_callback
         )

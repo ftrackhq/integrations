@@ -190,6 +190,9 @@ class FtrackAssetInfo(dict):
 
     @property
     def asset_version_entity(self):
+        if not self.session:
+            raise AttributeError('asset_info.session has to be set before query '
+                                 'version')
         asset_version_entity = self.session.query(
             'select version from AssetVersion where id is "{}"'.format(
                 self[constants.VERSION_ID]
@@ -253,8 +256,9 @@ class FtrackAssetInfo(dict):
         if not asset_info_options:
             self.logger.error("asset_info_options is empty")
         if six.PY2:
-            json.loads(base64.b64decode(asset_info_options))
-        return json.loads(base64.b64decode(asset_info_options).decode('ascii'))
+            return json.loads(base64.b64decode(asset_info_options))
+        else:
+            return json.loads(base64.b64decode(asset_info_options).decode('ascii'))
 
     def __getitem__(self, k):
         '''
@@ -332,7 +336,8 @@ class FtrackAssetInfo(dict):
         dependencies = get_all_dependencies(self.asset_version_entity)
         return dependencies
 
-    def update_dependencies(self):
+    def update_dependencies(self, session):
+        self._session = session
         dependencies = self._fetch_dependencies()
         if not dependencies or not self[constants.DEPENDENCIES]:
             self[constants.DEPENDENCIES] = []
