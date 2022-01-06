@@ -126,14 +126,14 @@ class FtrackAssetNode(FtrackAssetBase):
 
         return synced
 
-    def update_dependencies(self):
-        self.asset_info.update_dependencies()
+    def update_dependencies(self, session):
+        self.asset_info.update_dependencies(session)
 
-    def check_dependencies(self):
-        self.update_dependencies()
-        return self._check_dependencies()
+    def check_dependencies(self, session):
+        self.update_dependencies(session)
+        return self._check_dependencies(session)
 
-    def _check_dependencies(self):
+    def _check_dependencies(self, session):
         '''
         Check dependencies in the scene. Catagorize them as
         connected_dependency which means that is connected to the current
@@ -149,7 +149,7 @@ class FtrackAssetNode(FtrackAssetBase):
         untracked_dependency_nodes = []
         uncontected_dependency_nodes = []
         if not self.asset_info.get(asset_const.DEPENDENCY_IDS):
-            return
+            return None, None, None
 
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
         for ftrack_dependency_object in ftrack_asset_nodes:

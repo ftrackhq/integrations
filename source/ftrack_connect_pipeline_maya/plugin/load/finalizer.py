@@ -18,6 +18,16 @@ class LoaderFinalizerMayaPlugin(plugin.LoaderFinalizerPlugin, BaseMayaPlugin):
             current asset
     '''
 
+class LoaderPostFinalizerMayaPlugin(plugin.LoaderPostFinalizerPlugin, BaseMayaPlugin):
+    ''' Class representing a Post Finalizer Plugin
+
+        .. note::
+
+            _required_output is a dictionary containing the 'context_id',
+            'asset_name', 'asset_type_name', 'comment' and 'status_id' of the
+            current asset
+    '''
+
 
 class LoaderFinalizerMayaWidget(
     pluginWidget.LoaderFinalizerWidget, BaseMayaPluginWidget

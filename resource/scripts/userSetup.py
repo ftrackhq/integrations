@@ -111,7 +111,7 @@ def initialise():
     dialogs = []
 
     dialogs.append(
-        (open.MayaOpenClient, 'Open')
+        (open.MayaOpenDialog, 'Open')
     )
     dialogs.append(
         (load.MayaLoaderClient, 'Loader')
