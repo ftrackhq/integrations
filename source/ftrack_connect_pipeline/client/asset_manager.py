@@ -43,6 +43,7 @@ class AssetManagerClient(client.Client):
 
         self.menu_action_plugins = self.definition.get('actions')
         self.discover_plugins = self.definition.get('discover')
+        self.resolver_plugins = self.definition['resolvers'].get('resolve_dependencies')
 
     def _reset_asset_list(self):
         '''Empty the :obj:`asset_entities_list`'''
@@ -216,6 +217,40 @@ class AssetManagerClient(client.Client):
         }
         self.host_connection.run(
             data, self.engine_type, self._unload_assets_callback
+        )
+
+    def resolve_dependencies(self, context_id, resolve_dependencies_callback):
+        '''
+        Calls the :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
+        to run the method
+        :meth:`~ftrack_connect_pipeline.host.engine.AssetManagerEngine.resolve_dependencies`
+        To fetch list of version dependencies on the given *context_id*.
+
+        Callback received *resolve_dependencies_callback*
+
+        *context_id* : Should be the ID of an existing task.
+
+        *resolve_dependencies_callback* : Callback function that should take the result
+        as argument.
+        '''
+
+        resolver_plugin = self.resolver_plugins[0]
+
+        plugin_type =  '{}.{}'.format('asset_manager', resolver_plugin['type'])
+        data = {
+            'method': 'resolve_dependencies',
+            'plugin': resolver_plugin,
+            'context_id': context_id,
+            'plugin_type': plugin_type
+        }
+
+        def _resolve_dependencies_callback(event):
+            if not event['data']:
+                return
+            resolve_dependencies_callback(event['data'])
+
+        self.host_connection.run(
+            data, self.engine_type, _resolve_dependencies_callback
         )
 
     def _find_asset_info_by_id(self, id):

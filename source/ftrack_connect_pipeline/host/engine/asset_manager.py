@@ -57,7 +57,7 @@ class AssetManagerEngine(BaseEngine):
         '''
         Should be overridden by child
 
-        (Standalone mode) Discover 10 random assets from Ftrack with component name main.
+        (Standalone mode, dev, testing) Discover 10 random assets from Ftrack with component name main.
         Returns :const:`~ftrack_connnect_pipeline.constants.status` and
         :attr:`ftrack_asset_info_list` which is a list of
         :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
@@ -134,6 +134,83 @@ class AssetManagerEngine(BaseEngine):
             'execution_time': total_time,
             'message': None
         }
+
+        self._notify_client(plugin, result_data)
+
+        return status, result
+
+    def resolve_dependencies(self, context_id, options=None, plugin=None):
+        '''
+        Returns a list the of asset versions that task identified by *context_id*
+        is depending upon, with additional options using the given *plugin*.
+
+        *context_id* : id of the task.
+
+        *options* : Options to resolver.
+
+        *plugin* : Plugin definition, a dictionary with the plugin information.
+        '''
+
+        start_time = time.time()
+        status = constants.UNKNOWN_STATUS
+        result = []
+        message = None
+
+        plugin_type = constants.PLUGIN_AM_RESOLVE_TYPE
+        plugin_name = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_name = plugin.get('name')
+
+        result_data = {
+            'plugin_name': plugin_name,
+            'plugin_type': plugin_type,
+            'method': 'resolve_dependencies',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': message
+        }
+
+        if not options:
+            options = {}
+        if plugin:
+
+            plugin['plugin_data'] = {'context_id': context_id}
+
+            plugin_result = self._run_plugin(
+                plugin, plugin_type,
+                data=plugin.get('plugin_data'),
+                options=plugin['options'],
+                context_data=None,
+                method=plugin['default_method']
+            )
+            if plugin_result:
+                status = plugin_result['status']
+                result = plugin_result['result'].get(plugin['default_method'])
+            bool_status = constants.status_bool_mapping[status]
+            if not bool_status:
+                message = "Error executing the plugin: {}".format(plugin)
+                self.logger.error(message)
+
+                end_time = time.time()
+                total_time = end_time - start_time
+
+                result_data['status'] = status
+                result_data['result'] = result
+                result_data['execution_time'] = total_time
+                result_data['message'] = message
+
+                self._notify_client(plugin, result_data)
+
+                return status, result
+
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        result_data['status'] = status
+        result_data['result'] = result
+        result_data['execution_time'] = total_time
 
         self._notify_client(plugin, result_data)
 
@@ -720,7 +797,7 @@ class AssetManagerEngine(BaseEngine):
 
         method = data.get('method', '')
         plugin = data.get('plugin', None)
-        assets = data.get('assets', None)
+        arg = data.get('assets', data.get('context_id'))
         options = data.get('options', {})
         plugin_type = data.get('plugin_type', None)
 
@@ -728,7 +805,7 @@ class AssetManagerEngine(BaseEngine):
 
         if hasattr(self, method):
             callback_fn = getattr(self, method)
-            status, result = callback_fn(assets, options, plugin)
+            status, result = callback_fn(arg, options, plugin)
             if isinstance(status, dict):
                 if not all(status.values()):
                     raise Exception(

@@ -68,7 +68,7 @@ class BasePluginValidation(object):
 
         if self.return_type is not None:
             if not isinstance(result, self.return_type):
-                message = 'Return value of {} is of type {}, should {} ' \
+                message = 'Return value of {} is of type {}, should be {} ' \
                           'type'.format(self.plugin_name, type(result),
                                         self.return_type)
                 validator_result = (False, message)
