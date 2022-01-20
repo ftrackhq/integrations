@@ -307,11 +307,6 @@ class OpenContextWidget(BaseOptionsWidget):
     ):
         '''Updates the option dictionary with provided *asset_name* when
         asset_changed of asset_selector event is triggered'''
-        print(
-            '@@@ OpenContextWidget::_on_asset_changed({},{},{},{})'.format(
-                asset_name, asset_entity, asset_version_id, version_num
-            )
-        )
         self.set_option_result(asset_name, key='asset_name')
         self.set_option_result(asset_entity['id'], key='asset_id')
         self.set_option_result(version_num, key='version_number')

@@ -53,11 +53,6 @@ class QtOpenClient(QtClient):
 
     def definition_changed(self, definition, available_components_count):
         '''React upon change of definition, or no versions/components(definitions) available.'''
-        print(
-            '@@@ definition_changed({},{})'.format(
-                definition, available_components_count
-            )
-        )
         if definition is not None:
             if not available_components_count:
                 # We have definitions that can open but nothing previously published

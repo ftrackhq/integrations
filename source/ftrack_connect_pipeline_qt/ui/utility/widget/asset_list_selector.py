@@ -88,9 +88,6 @@ class AssetList(QtWidgets.QListWidget):
 
     def _query_assets_from_context(self, context_id, asset_type_name):
         '''(Run in background thread) Fetch assets from current context'''
-        print(
-            '@@@ _query_assets_from_context({},{})'.format(context_id, asset_type_name)
-        )
         self._context_id = context_id
         self._asset_type_name = asset_type_name
         asset_type_entity = self.session.query(
@@ -218,7 +215,6 @@ class AssetListSelector(QtWidgets.QFrame):
             ):
                 recent_version = asset['latest_version']
                 selected_index = idx
-        print('@@@: selected_index: {}'.format(selected_index))
         self.asset_list.setCurrentRow(selected_index)
         self.list_and_input._size_changed()
 
@@ -231,7 +227,6 @@ class AssetListSelector(QtWidgets.QFrame):
 
     def _current_asset_changed(self, asset_item):
         '''An existing asset has been selected.'''
-        print('@@@ AssetListSelector::_current_asset_changed({})'.format(asset_item))
         if asset_item:
             # A proper asset were selected
             asset_entity = asset_item.asset
