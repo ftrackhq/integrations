@@ -14,18 +14,22 @@ import datetime
 
 from ftrack_connect_pipeline.log.log_item import LogItem
 
+
 class ResultEncoder(JSONEncoder):
-    ''' JSON encoder for handling non serializable objects in plugin result '''
+    '''JSON encoder for handling non serializable objects in plugin result'''
+
     def default(self, obj):
         return str(obj)
+
 
 class LogDB(object):
     '''
     Log database class
     '''
+
     db_name = 'pipeline-{}.db'
     table_name = 'LOGMGR'
-    database_expire_grace_s = 7*24*3600
+    database_expire_grace_s = 7 * 24 * 3600
     _connection = None
     _database_path = None
 
@@ -40,9 +44,9 @@ class LogDB(object):
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
 
-        if 0<len(db_name or ''):
+        if 0 < len(db_name or ''):
             self.db_name = db_name
-        if 0<len(table_name or ''):
+        if 0 < len(table_name or ''):
             self.table_name = table_name
 
         self._database_path = self.get_database_path(host_id)
@@ -68,17 +72,14 @@ class LogDB(object):
             self.logger.debug('Initialised plugin log persistent storage.')
 
         # Log out the file output.
-        self.logger.info('Storing persistent log: {0}'.format(
-            self._database_path))
-
+        self.logger.info('Storing persistent log: {0}'.format(self._database_path))
 
     def __del__(self):
-        ''' Release resources (called mostly, not by all DCC apps) '''
+        '''Release resources (called mostly, not by all DCC apps)'''
         self.connection.close()
         if not self._database_path is None:
             # Delete database from disk
-            self.logger.info('Removing database @ {}'.format(
-                self._database_path))
+            self.logger.info('Removing database @ {}'.format(self._database_path))
             try:
                 os.remove(self._database_path)
                 self._database_path = None
@@ -111,15 +112,17 @@ class LogDB(object):
             # Check for and remove expired db:s older than one week by default
 
             date_grace = datetime.datetime.now() - datetime.timedelta(
-                seconds=self.database_expire_grace_s)
+                seconds=self.database_expire_grace_s
+            )
 
             for filename in os.listdir(user_data_dir):
                 if not filename.lower().endswith('.db'):
                     continue
                 db_path = os.path.join(user_data_dir, filename)
                 date_modified = datetime.datetime.fromtimestamp(
-                    os.path.getmtime(db_path))
-                if date_modified<=date_grace:
+                    os.path.getmtime(db_path)
+                )
+                if date_modified <= date_grace:
                     self.logger.info(
                         'Removing expired local persistent database: '
                         '{}'.format(filename)
@@ -130,7 +133,6 @@ class LogDB(object):
                         self.logger.error(e)
 
         return os.path.join(user_data_dir, self.db_name.format(host_id))
-
 
     def add_log_item(self, log_item):
         '''
@@ -144,26 +146,29 @@ class LogDB(object):
                 '''INSERT INTO {0} (status,widget_ref,host_id,'''
                 '''execution_time,plugin_name,result,message,user_message,'''
                 '''plugin_type, plugin_id) VALUES (?,?,?,?,?,?,?,?,?,?)'''.format(
-                    self.table_name), (
-                log_item.status,
-                log_item.widget_ref,
-                log_item.host_id,
-                log_item.execution_time,
-                log_item.plugin_name,
-                base64.encodebytes(
-                    json.dumps(
-                        log_item.result, cls=ResultEncoder).encode('utf-8')
-                ).decode('utf-8'),
-                log_item.message,
-                log_item.user_message,
-                log_item.plugin_type,
-                log_item.plugin_id,
-            ))
+                    self.table_name
+                ),
+                (
+                    log_item.status,
+                    log_item.widget_ref,
+                    log_item.host_id,
+                    log_item.execution_time,
+                    log_item.plugin_name,
+                    base64.encodebytes(
+                        json.dumps(log_item.result, cls=ResultEncoder).encode('utf-8')
+                    ).decode('utf-8'),
+                    log_item.message,
+                    log_item.user_message,
+                    log_item.plugin_type,
+                    log_item.plugin_id,
+                ),
+            )
             self.connection.commit()
 
         except sqlite3.Error as e:
-            self.logger.error('Error storing log message in local persistent'
-                ' database {}'.format(e))       
+            self.logger.error(
+                'Error storing log message in local persistent' ' database {}'.format(e)
+            )
 
     def get_log_items(self, host_id):
         '''
@@ -177,24 +182,30 @@ class LogDB(object):
         if not host_id is None:
             cur.execute(
                 ''' SELECT status,widget_ref,host_id,execution_time,'''
-                '''plugin_name,result,message,user_message,plugin_type, plugin_id ''' 
-                ''' FROM {0} WHERE host_id=?;  '''.format(self.table_name), (
-                    host_id,)
+                '''plugin_name,result,message,user_message,plugin_type, plugin_id '''
+                ''' FROM {0} WHERE host_id=?;  '''.format(self.table_name),
+                (host_id,),
             )
 
             for t in cur.fetchall():
-                log_items.append(LogItem({
-                    'status':t[0],
-                    'widget_ref':t[1],
-                    'host_id':t[2],
-                    'execution_time':t[3],
-                    'plugin_name':t[4],
-                    'result':json.loads(base64.b64decode(t[5]).decode('utf-8')),
-                    'message':t[6],
-                    'user_message':t[7],
-                    'plugin_type':t[8],
-                    'plugin_id':t[9],
-                }))
+                log_items.append(
+                    LogItem(
+                        {
+                            'status': t[0],
+                            'widget_ref': t[1],
+                            'host_id': t[2],
+                            'execution_time': t[3],
+                            'plugin_name': t[4],
+                            'result': json.loads(
+                                base64.b64decode(t[5]).decode('utf-8')
+                            ),
+                            'message': t[6],
+                            'user_message': t[7],
+                            'plugin_type': t[8],
+                            'plugin_id': t[9],
+                        }
+                    )
+                )
         return log_items
 
     def get_log_items_by_plugin_id(self, host_id, plugin_id):
@@ -210,21 +221,29 @@ class LogDB(object):
             cur.execute(
                 ''' SELECT status,widget_ref,host_id,execution_time,'''
                 '''plugin_name,result,message,user_message,plugin_type, plugin_id '''
-                ''' FROM {0} WHERE host_id=? AND plugin_id=?;  '''.format(self.table_name), (
-                    host_id,plugin_id)
+                ''' FROM {0} WHERE host_id=? AND plugin_id=?;  '''.format(
+                    self.table_name
+                ),
+                (host_id, plugin_id),
             )
 
             for t in cur.fetchall():
-                log_items.append(LogItem({
-                    'status':t[0],
-                    'widget_ref':t[1],
-                    'host_id':t[2],
-                    'execution_time':t[3],
-                    'plugin_name':t[4],
-                    'result':json.loads(base64.b64decode(t[5]).decode('utf-8')),
-                    'message':t[6],
-                    'user_message':t[7],
-                    'plugin_type':t[8],
-                    'plugin_id':t[9],
-                }))
+                log_items.append(
+                    LogItem(
+                        {
+                            'status': t[0],
+                            'widget_ref': t[1],
+                            'host_id': t[2],
+                            'execution_time': t[3],
+                            'plugin_name': t[4],
+                            'result': json.loads(
+                                base64.b64decode(t[5]).decode('utf-8')
+                            ),
+                            'message': t[6],
+                            'user_message': t[7],
+                            'plugin_type': t[8],
+                            'plugin_id': t[9],
+                        }
+                    )
+                )
         return log_items

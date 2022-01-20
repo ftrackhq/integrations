@@ -5,11 +5,13 @@ from ftrack_connect_pipeline.asset import FtrackAssetBase
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.plugin import base
 
+
 class AssetManagerActionPlugin(base.BaseActionPlugin):
     '''
     Class representing a Asset Manager Action Plugin Inherits from
     :class:`~ftrack_connect_pipeline.plugin.base.BaseActionPlugin`
     '''
+
     return_type = list
     '''Type of object that should be returned'''
     plugin_type = constants.PLUGIN_AM_ACTION_TYPE

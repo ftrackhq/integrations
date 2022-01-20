@@ -22,6 +22,7 @@ class BaseFinalizerPlugin(BasePlugin):
     Base Finalizer Plugin Class inherits from
     :class:`~ftrack_connect_pipeline.plugin.BasePlugin`
     '''
+
     return_type = dict
     '''Required return type'''
     plugin_type = plugin._PLUGIN_FINALIZER_TYPE
@@ -32,8 +33,7 @@ class BaseFinalizerPlugin(BasePlugin):
     def __init__(self, session):
         super(BaseFinalizerPlugin, self).__init__(session)
         self.validator = FinalizerPluginValidation(
-            self.plugin_name, self._required_output, self.return_type,
-            self.return_value
+            self.plugin_name, self._required_output, self.return_type, self.return_value
         )
 
     def run(self, context_data=None, data=None, options=None):

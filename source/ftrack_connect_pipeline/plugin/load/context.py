@@ -10,12 +10,17 @@ class LoaderContextPlugin(base.BaseContextPlugin):
     Base Loader Context Plugin Class inherits from
     :class:`~ftrack_connect_pipeline.plugin.base.BaseContextPlugin`
     '''
+
     return_type = dict
     '''Required return type'''
     plugin_type = constants.PLUGIN_LOADER_CONTEXT_TYPE
     '''Type of the plugin'''
-    _required_output = {'context_id': None, 'asset_name': None,
-                        'comment': None, 'status_id': None}
+    _required_output = {
+        'context_id': None,
+        'asset_name': None,
+        'comment': None,
+        'status_id': None,
+    }
     '''Required return output'''
 
     def __init__(self, session):

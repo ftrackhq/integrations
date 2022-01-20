@@ -3,15 +3,11 @@
 
 import os
 
+
 def get_current_context_id():
     '''return an api object representing the current context.'''
     context_id = os.getenv(
-        'FTRACK_CONTEXTID',
-            os.getenv('FTRACK_TASKID',
-                os.getenv('FTRACK_SHOTID'
-            )
-        )
+        'FTRACK_CONTEXTID', os.getenv('FTRACK_TASKID', os.getenv('FTRACK_SHOTID'))
     )
 
     return context_id
-

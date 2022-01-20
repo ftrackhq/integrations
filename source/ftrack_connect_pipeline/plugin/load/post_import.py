@@ -10,6 +10,7 @@ class LoaderPostImportPlugin(base.BasePostImportPlugin):
     Base Loader Post Import Plugin Class inherits from
     :class:`~ftrack_connect_pipeline.plugin.base.BasePostImportPlugin`
     '''
+
     return_type = dict
     '''Required return type'''
     plugin_type = constants.PLUGIN_LOADER_POST_IMPORT_TYPE
@@ -27,17 +28,15 @@ class LoaderPostImportPlugin(base.BasePostImportPlugin):
         This is an override that modifies the plugin_setting['data'] to pass
         only the results of the collector stage of the current step.
         '''
-        method, plugin_settings = super(
-            LoaderPostImportPlugin, self
-        )._parse_run_event(event)
+        method, plugin_settings = super(LoaderPostImportPlugin, self)._parse_run_event(
+            event
+        )
         data = plugin_settings.get('data')
-        #We only want the data of the collector in this stage
+        # We only want the data of the collector in this stage
         collector_result = []
         component_step = data[-1]
         for component_stage in component_step.get("result"):
-            if (
-                    component_stage.get("name") == constants.COLLECTOR
-            ):
+            if component_stage.get("name") == constants.COLLECTOR:
                 collector_result = component_stage.get("result")
                 break
         plugin_settings['data'] = collector_result

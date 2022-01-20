@@ -20,8 +20,6 @@ def get_log_directory():
     user_data_dir = appdirs.user_data_dir('ftrack-connect', 'ftrack')
     log_directory = os.path.join(user_data_dir, 'log').encode('utf8')
 
-
-
     if not os.path.exists(log_directory):
         try:
             os.makedirs(log_directory)
@@ -35,8 +33,12 @@ def get_log_directory():
 
 
 def configure_logging(
-        logger_name, level=None, format=None, extra_modules=None,
-        extra_handlers=None, propagate=True
+    logger_name,
+    level=None,
+    format=None,
+    extra_modules=None,
+    extra_handlers=None,
+    propagate=True,
 ):
     '''Configure `loggerName` loggers with console and file handler.
 
@@ -48,13 +50,14 @@ def configure_logging(
     Optional *extra_modules* to extend the modules to be set to *level*.
     '''
     # Provide default values for level and format.
-    format = format or '%(levelname)s - %(threadName)s - %(asctime)s - %(name)s - %(message)s'
+    format = (
+        format
+        or '%(levelname)s - %(threadName)s - %(asctime)s - %(name)s - %(message)s'
+    )
     level = level or logging.INFO
 
     log_directory = get_log_directory()
-    logfile = os.path.join(
-        log_directory, '{0}.log'.format(logger_name).encode('utf8')
-    )
+    logfile = os.path.join(log_directory, '{0}.log'.format(logger_name).encode('utf8'))
 
     # Sanitise the variable, checking the type.
     if not isinstance(extra_modules, (list, tuple, type(None))):
@@ -92,31 +95,15 @@ def configure_logging(
                 'mode': 'a',
                 'maxBytes': 10485760,
                 'backupCount': 5,
-            }
+            },
         },
-        'formatters': {
-            'file': {
-                'format': format
-            }
-        },
+        'formatters': {'file': {'format': format}},
         'loggers': {
-            '': {
-                'level': 'INFO',
-                'handlers': ['console']
-            },
-            'ftrack_api': {
-                'level': 'INFO',
-                'handlers': ['file']
-            },
-            'requests': {
-                'level': 'WARNING',
-                'handlers': ['file']
-            },
-            'urllib3': {
-                'level': 'WARNING',
-                'handlers': ['file']
-            }
-        }
+            '': {'level': 'INFO', 'handlers': ['console']},
+            'ftrack_api': {'level': 'INFO', 'handlers': ['file']},
+            'requests': {'level': 'WARNING', 'handlers': ['file']},
+            'urllib3': {'level': 'WARNING', 'handlers': ['file']},
+        },
     }
 
     logging_settings['handlers'].update(extra_handlers)
@@ -127,11 +114,8 @@ def configure_logging(
     for module in modules:
         current_level = logging.getLevelName(level)
         logging_settings['loggers'].setdefault(
-            module, {
-                'level': 'DEBUG',
-                'handlers': modules_handlers,
-                'propagate': propagate
-            }
+            module,
+            {'level': 'DEBUG', 'handlers': modules_handlers, 'propagate': propagate},
         )
 
     # Set default logging settings.

@@ -9,7 +9,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def _validate_and_augment_schema(schema, definition ,type):
+def _validate_and_augment_schema(schema, definition, type):
     '''
     Augments the given *definition* ot he given *type* with the
     given *schema*
@@ -74,9 +74,7 @@ def validate_asset_types(data, session):
         if package['asset_type_name'] not in valid_assets_types:
             logger.error(
                 'Package {} does use a non existing'
-                ' asset type: {}'.format(
-                    package['name'], package['asset_type_name']
-                    )
+                ' asset type: {}'.format(package['name'], package['asset_type_name'])
             )
             copy_data['package'].remove(package)
 
@@ -102,9 +100,13 @@ def validate_package_type(data):
             if str(definition.get('package')) not in valid_packages:
                 logger.debug(
                     '{} {}:{} use unknown package : {} , packages: {}'.format(
-                        entry, definition['host_type'], definition['name'],
-                        definition.get('package'), valid_packages)
+                        entry,
+                        definition['host_type'],
+                        definition['name'],
+                        definition.get('package'),
+                        valid_packages,
                     )
+                )
                 # pop definition
                 copy_data[entry].remove(definition)
 
@@ -123,7 +125,8 @@ def validate_definition_components(data):
     # validate package vs definitions components
     for package in data['package']:
         package_component_names = [
-            component['name'] for component in package['components']
+            component['name']
+            for component in package['components']
             if component.get('required', True)
         ]
         for entry in ['loader', 'publisher']:
@@ -141,8 +144,12 @@ def validate_definition_components(data):
                         logger.debug(
                             '{} {}:{} package {} components'
                             ' are not matching : required component: {}'.format(
-                                entry, definition['host_type'], definition['name'],
-                                definition['package'], package_component_names)
+                                entry,
+                                definition['host_type'],
+                                definition['name'],
+                                definition['package'],
+                                package_component_names,
+                            )
                         )
                         copy_data[entry].remove(definition)
                         break
@@ -162,17 +169,19 @@ def validate_definition_components(data):
                     component['name'] for component in package['components']
                 ]
 
-                component_diff = set(
-                    definition_components_names
-                ).difference(
+                component_diff = set(definition_components_names).difference(
                     set(package_component_names)
                 )
                 if len(component_diff) != 0:
                     logger.debug(
                         '{} {}:{} package {} components'
                         ' are not matching : required component: {}'.format(
-                            entry, definition['host_type'], definition['name'],
-                            definition['package'], package_component_names)
+                            entry,
+                            definition['host_type'],
+                            definition['name'],
+                            definition['package'],
+                            package_component_names,
+                        )
                     )
                     copy_data[entry].remove(definition)
 

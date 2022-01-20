@@ -10,6 +10,7 @@ class PublisherValidatorPlugin(base.BaseValidatorPlugin):
     Base Publisher Validator Plugin Class inherits from
     :class:`~ftrack_connect_pipeline.plugin.base.BaseValidatorPlugin`
     '''
+
     return_type = bool
     '''Required return type'''
     plugin_type = constants.PLUGIN_PUBLISHER_VALIDATOR_TYPE
@@ -31,15 +32,12 @@ class PublisherValidatorPlugin(base.BaseValidatorPlugin):
             PublisherValidatorPlugin, self
         )._parse_run_event(event)
         data = plugin_settings.get('data')
-        #We only want the data of the collector in this stage
+        # We only want the data of the collector in this stage
         collector_result = []
         component_step = data[-1]
         for component_stage in component_step.get("result"):
-            if (
-                    component_stage.get("name") == constants.COLLECTOR
-            ):
+            if component_stage.get("name") == constants.COLLECTOR:
                 collector_result = component_stage.get("result")
                 break
         plugin_settings['data'] = collector_result
         return method, plugin_settings
-

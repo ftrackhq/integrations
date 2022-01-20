@@ -7,7 +7,9 @@ import logging
 import ftrack_api
 from ftrack_connect_pipeline import constants
 import uuid
+
 logger = logging.getLogger(__name__)
+
 
 class _EventHubThread(threading.Thread):
     '''Listen for events from ftrack's event hub.'''
@@ -16,14 +18,10 @@ class _EventHubThread(threading.Thread):
         return "<{0}:{1}>".format(self.__class__.__name__, self.name)
 
     def __init__(self, session):
-        self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
-        )
+        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
         _name = str(hash(session))
         super(_EventHubThread, self).__init__(name=_name)
-        self.logger.debug(
-            'Name set for the thread: {}'.format(_name)
-        )
+        self.logger.debug('Name set for the thread: {}'.format(_name))
         self._session = session
 
     def start(self):
@@ -35,9 +33,7 @@ class _EventHubThread(threading.Thread):
 
     def run(self):
         '''Listen for events.'''
-        self.logger.debug(
-            'hub thread started for session {}'.format(self._session)
-        )
+        self.logger.debug('hub thread started for session {}'.format(self._session))
         self._session.event_hub.wait()
 
 
@@ -90,9 +86,7 @@ class EventManager(object):
             self._event_hub_thread.start()
 
     def __init__(self, session, mode=constants.LOCAL_EVENT_MODE):
-        self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
-        )
+        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
         self._event_hub_thread = None
         self._mode = mode
         self._session = session
@@ -131,15 +125,7 @@ class EventManager(object):
                 callback(new_event)
 
         else:
-            self.session.event_hub.publish(
-                event,
-                on_reply=callback
-            )
+            self.session.event_hub.publish(event, on_reply=callback)
 
     def subscribe(self, topic, callback):
-        self.session.event_hub.subscribe(
-            'topic={}'.format(
-                topic
-            ),
-            callback
-        )
+        self.session.event_hub.subscribe('topic={}'.format(topic), callback)

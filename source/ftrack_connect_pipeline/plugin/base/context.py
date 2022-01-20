@@ -16,11 +16,13 @@ class ContextPluginValidation(BasePluginValidation):
             plugin_name, required_output, return_type, return_value
         )
 
+
 class BaseContextPlugin(BasePlugin):
     '''
     Base Context Plugin Class inherits from
     :class:`~ftrack_connect_pipeline.plugin.BasePlugin`
     '''
+
     return_type = dict
     '''Required return type'''
     plugin_type = plugin._PLUGIN_CONTEXT_TYPE
@@ -31,8 +33,7 @@ class BaseContextPlugin(BasePlugin):
     def __init__(self, session):
         super(BaseContextPlugin, self).__init__(session)
         self.validator = ContextPluginValidation(
-            self.plugin_name, self._required_output, self.return_type,
-            self.return_value
+            self.plugin_name, self._required_output, self.return_type, self.return_value
         )
 
     def run(self, context_data=None, data=None, options=None):

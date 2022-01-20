@@ -45,5 +45,4 @@ def collect_and_validate(session, current_dir, host_type):
     for key, value in list(data.items()):
         logger.debug('Discovering definition took : {} : {}'.format(key, len(value)))
 
-
     return data

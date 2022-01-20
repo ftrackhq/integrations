@@ -9,6 +9,7 @@ class AssetManagerClient(client.Client):
     '''
     Asset Manager Client Base Class
     '''
+
     definition_filter = 'asset_manager'
     '''Use only definitions that matches the definition_filter'''
 
@@ -28,16 +29,17 @@ class AssetManagerClient(client.Client):
         super(AssetManagerClient, self).change_host(host_connection)
 
         self.schemas = [
-            schema for schema in self.host_connection.definitions['schema']
+            schema
+            for schema in self.host_connection.definitions['schema']
             if schema.get('title').lower() == self.definition_filter
         ]
 
-        #Only one schema available for now, we Don't have a schema selector
+        # Only one schema available for now, we Don't have a schema selector
         # on the AM
         schema = self.schemas[0]
         schema_title = schema.get('title').lower()
         definitions = self.host_connection.definitions.get(schema_title)
-        #Only one definition for now, we don't have a definition schema on the
+        # Only one definition for now, we don't have a definition schema on the
         # AM
         self.change_definition(schema, definitions[0])
 
@@ -46,7 +48,7 @@ class AssetManagerClient(client.Client):
 
     def _reset_asset_list(self):
         '''Empty the :obj:`asset_entities_list`'''
-        self._asset_entities_list= []
+        self._asset_entities_list = []
 
     def discover_assets(self, plugin=None):
         '''
@@ -66,7 +68,7 @@ class AssetManagerClient(client.Client):
         data = {
             'method': 'discover_assets',
             'plugin': plugin,
-            'plugin_type': plugin_type
+            'plugin_type': plugin_type,
         }
         self.host_connection.run(
             data, self.engine_type, self._asset_discovered_callback
@@ -101,11 +103,9 @@ class AssetManagerClient(client.Client):
             'method': 'change_version',
             'plugin': None,
             'assets': asset_info,
-            'options': {'new_version_id': new_version_id}
+            'options': {'new_version_id': new_version_id},
         }
-        self.host_connection.run(
-            data, self.engine_type, self._change_version_callback
-        )
+        self.host_connection.run(data, self.engine_type, self._change_version_callback)
 
     def select_assets(self, asset_info_list):
         '''
@@ -117,11 +117,7 @@ class AssetManagerClient(client.Client):
         *asset_info_list* : Should a list pf be instances of
         :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
-        data = {
-            'method': 'select_assets',
-            'plugin': None,
-            'assets': asset_info_list
-        }
+        data = {'method': 'select_assets', 'plugin': None, 'assets': asset_info_list}
         self.host_connection.run(data, self.engine_type)
 
     def remove_assets(self, asset_info_list):
@@ -137,14 +133,8 @@ class AssetManagerClient(client.Client):
         :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
 
-        data = {
-            'method': 'remove_assets',
-            'plugin': None,
-            'assets': asset_info_list
-        }
-        self.host_connection.run(
-            data, self.engine_type, self._remove_assets_callback
-        )
+        data = {'method': 'remove_assets', 'plugin': None, 'assets': asset_info_list}
+        self.host_connection.run(data, self.engine_type, self._remove_assets_callback)
 
     def update_assets(self, asset_info_list, plugin):
         '''
@@ -168,11 +158,9 @@ class AssetManagerClient(client.Client):
             'method': 'update_assets',
             'plugin': plugin,
             'assets': asset_info_list,
-            'plugin_type': plugin_type
+            'plugin_type': plugin_type,
         }
-        self.host_connection.run(
-            data, self.engine_type, self._update_assets_callback
-        )
+        self.host_connection.run(data, self.engine_type, self._update_assets_callback)
 
     def load_assets(self, asset_info_list):
         '''
@@ -187,14 +175,8 @@ class AssetManagerClient(client.Client):
         :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
 
-        data = {
-            'method': 'load_assets',
-            'plugin': None,
-            'assets': asset_info_list
-        }
-        self.host_connection.run(
-            data, self.engine_type, self._load_assets_callback
-        )
+        data = {'method': 'load_assets', 'plugin': None, 'assets': asset_info_list}
+        self.host_connection.run(data, self.engine_type, self._load_assets_callback)
 
     def unload_assets(self, asset_info_list):
         '''
@@ -209,14 +191,8 @@ class AssetManagerClient(client.Client):
         :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
 
-        data = {
-            'method': 'unload_assets',
-            'plugin': None,
-            'assets': asset_info_list
-        }
-        self.host_connection.run(
-            data, self.engine_type, self._unload_assets_callback
-        )
+        data = {'method': 'unload_assets', 'plugin': None, 'assets': asset_info_list}
+        self.host_connection.run(data, self.engine_type, self._unload_assets_callback)
 
     def _find_asset_info_by_id(self, id):
         '''
@@ -226,7 +202,14 @@ class AssetManagerClient(client.Client):
         :const:`~ftrack_connnect_pipeline.constants.asset.ASSET_INFO_ID`
         of an object in :obj:`asset_entities_list`
         '''
-        asset_info = next((sub for sub in self.asset_entities_list if sub[asset_const.ASSET_INFO_ID] == id), None)
+        asset_info = next(
+            (
+                sub
+                for sub in self.asset_entities_list
+                if sub[asset_const.ASSET_INFO_ID] == id
+            ),
+            None,
+        )
         if not asset_info:
             self.logger.warning('No asset info found for id {}'.format(id))
         return asset_info

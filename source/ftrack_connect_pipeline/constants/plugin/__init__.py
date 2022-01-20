@@ -24,4 +24,3 @@ _PLUGIN_POST_IMPORT_TYPE = 'post_import'
 _PLUGIN_ACTION_TYPE = 'action'
 #: Generic plugin type for discover plugins
 _PLUGIN_DISCOVER_TYPE = 'discover'
-

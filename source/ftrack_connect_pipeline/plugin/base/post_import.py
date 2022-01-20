@@ -22,6 +22,7 @@ class BasePostImportPlugin(BasePlugin):
     Base Post Import Plugin Class inherits from
     :class:`~ftrack_connect_pipeline.plugin.BasePlugin`
     '''
+
     return_type = dict
     '''Required return type'''
     plugin_type = plugin._PLUGIN_POST_IMPORT_TYPE
@@ -32,8 +33,7 @@ class BasePostImportPlugin(BasePlugin):
     def __init__(self, session):
         super(BasePostImportPlugin, self).__init__(session)
         self.validator = PostImportPluginValidation(
-            self.plugin_name, self._required_output, self.return_type,
-            self.return_value
+            self.plugin_name, self._required_output, self.return_type, self.return_value
         )
 
     def run(self, context_data=None, data=None, options=None):

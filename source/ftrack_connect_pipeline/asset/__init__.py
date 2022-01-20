@@ -36,14 +36,12 @@ class FtrackAssetBase(object):
             'components.id, version, asset , asset.name, asset.type.name from '
             'AssetVersion where asset.id is "{}" and components.name is "{}"'
             'order by version ascending'
-        ).format(
-            self.asset_info[asset_const.ASSET_ID], self.component_name
-        )
+        ).format(self.asset_info[asset_const.ASSET_ID], self.component_name)
         versions_entities = self.session.query(query).all()
         return versions_entities
 
     @property
-    def asset_version_entity(self):#ftrack_version(self):
+    def asset_version_entity(self):  # ftrack_version(self):
         '''Returns the :class:`ftrack_api.entity.asset_version.AssetVersion`
         object of the current version_id'''
         asset_version_entity = self.session.query(
@@ -118,9 +116,7 @@ class FtrackAssetBase(object):
         '''
         super(FtrackAssetBase, self).__init__()
 
-        self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
-        )
+        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
 
         self._asset_info = None
         self._event_manager = event_manager
@@ -134,7 +130,7 @@ class FtrackAssetBase(object):
         self.ftrack_object = None
         return self.ftrack_object
 
-    def check_dependencies(self, session):
+    def check_dependencies(self):
         '''Checks if there are already existing dependencies on the DCC app
         returns missing_ids, unconected_dependencies, untracked_dependencies
         missing_ids: are dependency id that are not found in the current scene
@@ -160,7 +156,6 @@ class FtrackAssetBase(object):
         attribute
         '''
         raise NotImplementedError
-
 
     def _get_unique_ftrack_object_name(self):
         '''Returns a unique scene name for the current asset_name'''
@@ -193,23 +188,31 @@ class FtrackAssetBase(object):
 
             asset_context_data = asset_info_options['settings']['context_data']
             asset_data = new_asset_info[asset_const.COMPONENT_PATH]
-            asset_context_data[asset_const.ASSET_ID] = new_asset_info[asset_const.ASSET_ID]
-            asset_context_data[asset_const.VERSION_NUMBER] = new_asset_info[asset_const.VERSION_NUMBER]
-            asset_context_data[asset_const.ASSET_NAME] = new_asset_info[asset_const.ASSET_NAME]
-            asset_context_data[asset_const.ASSET_TYPE_NAME] = new_asset_info[asset_const.ASSET_TYPE_NAME]
-            asset_context_data[asset_const.VERSION_ID] = new_asset_info[asset_const.VERSION_ID]
+            asset_context_data[asset_const.ASSET_ID] = new_asset_info[
+                asset_const.ASSET_ID
+            ]
+            asset_context_data[asset_const.VERSION_NUMBER] = new_asset_info[
+                asset_const.VERSION_NUMBER
+            ]
+            asset_context_data[asset_const.ASSET_NAME] = new_asset_info[
+                asset_const.ASSET_NAME
+            ]
+            asset_context_data[asset_const.ASSET_TYPE_NAME] = new_asset_info[
+                asset_const.ASSET_TYPE_NAME
+            ]
+            asset_context_data[asset_const.VERSION_ID] = new_asset_info[
+                asset_const.VERSION_ID
+            ]
 
             asset_info_options['settings']['data'][0]['result'] = [asset_data]
             asset_info_options['settings']['context_data'].update(asset_context_data)
 
             run_event = ftrack_api.event.base.Event(
-                topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
-                data=asset_info_options
+                topic=constants.PIPELINE_RUN_PLUGIN_TOPIC, data=asset_info_options
             )
 
             plugin_result_data = self.session.event_hub.publish(
-                run_event,
-                synchronous=True
+                run_event, synchronous=True
             )
 
             result_data = plugin_result_data[0]
@@ -236,4 +239,3 @@ class FtrackAssetBase(object):
         self.asset_info.update(new_asset_info)
 
         return new_asset_info
-
