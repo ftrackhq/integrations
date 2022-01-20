@@ -26,13 +26,14 @@ def get_sequence_fist_last_frame(path):
             path = path.replace('%V', 'left')
         has_match = re.search('#+', path)
         if has_match:
-            path = path[:has_match.start(0)] + '*' + path[has_match.end(0):]
+            path = path[: has_match.start(0)] + '*' + path[has_match.end(0) :]
 
         nuke_format_match = re.search('%\d+d', path)
         if nuke_format_match:
             path = (
-                path[:nuke_format_match.start(0)] + '*' +
-                path[nuke_format_match.end(0):]
+                path[: nuke_format_match.start(0)]
+                + '*'
+                + path[nuke_format_match.end(0) :]
             )
 
         file_extension = os.path.splitext(path)[1].replace('.', '\.')
@@ -80,6 +81,7 @@ def get_unique_scene_name(current_name):
     else:
         return current_name
 
+
 def get_nodes_with_ftrack_tab():
     '''
     Returns all the nuke ftrack_objects that contain an ftrack tab.
@@ -100,12 +102,14 @@ def reference_scene(path, options=None):
     )
     return node
 
+
 def open_scene(path, options=None):
     '''
     Open nuke scene from the given *path*
     '''
     result = nuke.scriptOpen(path)
     return result
+
 
 def import_scene(path, options=None):
     '''
@@ -117,11 +121,13 @@ def import_scene(path, options=None):
 def get_current_scene_objects():
     return set(nuke.allNodes())
 
+
 def get_all_write_nodes():
     write_nodes = []
     for node in nuke.allNodes('Write'):
         write_nodes.append(node)
     return write_nodes
+
 
 def cleanSelection():
     for node in nuke.selectedNodes():

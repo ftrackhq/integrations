@@ -39,7 +39,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             'status': status,
             'result': result,
             'execution_time': 0,
-            'message': message
+            'message': message,
         }
 
         ftrack_asset_nodes = nuke_utils.get_nodes_with_ftrack_tab()
@@ -47,9 +47,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
 
         if ftrack_asset_nodes:
             for ftrack_object in ftrack_asset_nodes:
-                param_dict = FtrackAssetTab.get_parameters_dictionary(
-                    ftrack_object
-                )
+                param_dict = FtrackAssetTab.get_parameters_dictionary(ftrack_object)
                 # avoid read and write nodes containing the old ftrack tab
                 # without information
                 if not param_dict:
@@ -101,7 +99,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             'status': status,
             'result': result,
             'execution_time': 0,
-            'message': message
+            'message': message,
         }
 
         ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
@@ -125,11 +123,8 @@ class NukeAssetManagerEngine(AssetManagerEngine):
 
         if ftrack_object.Class() == 'BackdropNode':
             parented_nodes = ftrack_object.getNodes()
-            parented_nodes_names = [x.knob('name').value() for x in
-                                    parented_nodes]
-            nodes_to_delete_str = ftrack_object.knob(
-                asset_const.ASSET_LINK
-            ).value()
+            parented_nodes_names = [x.knob('name').value() for x in parented_nodes]
+            nodes_to_delete_str = ftrack_object.knob(asset_const.ASSET_LINK).value()
             nodes_to_delete = nodes_to_delete_str.split(";")
             nodes_to_delete = set(nodes_to_delete + parented_nodes_names)
             for node_s in nodes_to_delete:
@@ -142,7 +137,8 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                 except Exception as error:
                     message = str(
                         'Could not delete the node {}, error: {}'.format(
-                            str(node_s), error)
+                            str(node_s), error
+                        )
                     )
                     self.logger.error(message)
                     status = constants.ERROR_STATUS
@@ -166,9 +162,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             result.append(str_node)
             status = constants.SUCCESS_STATUS
         except Exception as error:
-            message = str(
-                'Could not delete the ftrack_object, error: {}'.format(error)
-            )
+            message = str('Could not delete the ftrack_object, error: {}'.format(error))
             self.logger.error(message)
             status = constants.ERROR_STATUS
 
@@ -221,7 +215,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             'status': status,
             'result': result,
             'execution_time': 0,
-            'message': message
+            'message': message,
         }
 
         ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
@@ -233,9 +227,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
 
         parented_nodes = ftrack_object.getNodes()
         parented_nodes_names = [x.knob('name').value() for x in parented_nodes]
-        nodes_to_select_str = ftrack_object.knob(
-            asset_const.ASSET_LINK
-        ).value()
+        nodes_to_select_str = ftrack_object.knob(asset_const.ASSET_LINK).value()
         nodes_to_select = nodes_to_select_str.split(";")
         nodes_to_select = set(nodes_to_select + parented_nodes_names)
 
@@ -247,8 +239,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                 status = constants.SUCCESS_STATUS
             except Exception as error:
                 message = str(
-                    'Could not select the node {}, error: {}'.format(
-                        str(node_s), error)
+                    'Could not select the node {}, error: {}'.format(str(node_s), error)
                 )
                 self.logger.error(message)
                 status = constants.ERROR_STATUS
@@ -271,9 +262,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             result.append(str(ftrack_object))
             status = constants.SUCCESS_STATUS
         except Exception as error:
-            message = str(
-                'Could not select the ftrack_object, error: {}'.format(error)
-            )
+            message = str('Could not select the ftrack_object, error: {}'.format(error))
             self.logger.error(message)
             status = constants.ERROR_STATUS
 

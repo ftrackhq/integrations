@@ -3,13 +3,11 @@
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
-from ftrack_connect_pipeline_nuke.plugin import (
-    BaseNukePlugin, BaseNukePluginWidget
-)
+from ftrack_connect_pipeline_nuke.plugin import BaseNukePlugin, BaseNukePluginWidget
 
 
 class LoaderContextNukePlugin(plugin.LoaderContextPlugin, BaseNukePlugin):
-    ''' Class representing a Context Plugin
+    '''Class representing a Context Plugin
     .. note::
 
         _required_output is a dictionary containing the 'context_id',
@@ -17,14 +15,10 @@ class LoaderContextNukePlugin(plugin.LoaderContextPlugin, BaseNukePlugin):
     '''
 
 
-class LoaderContextNukeWidget(
-    pluginWidget.LoaderContextWidget, BaseNukePluginWidget
-):
-    ''' Class representing a Context Widget
+class LoaderContextNukeWidget(pluginWidget.LoaderContextWidget, BaseNukePluginWidget):
+    '''Class representing a Context Widget
     .. note::
 
         _required_output is a dictionary containing the 'context_id',
         'asset_name', 'comment' and 'status_id' of the current asset
     '''
-
-

@@ -9,9 +9,7 @@ from ftrack_connect_pipeline.host import Host
 from ftrack_connect_pipeline_nuke.host import engine as host_engine
 
 
-logger = logging.getLogger(
-    __name__
-)
+logger = logging.getLogger(__name__)
 
 
 class NukeHost(Host):

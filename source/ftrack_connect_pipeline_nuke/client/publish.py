@@ -11,6 +11,7 @@ class NukePublisherClient(QtPublisherClient):
     ui_types = [constants.UI_TYPE, qt_constants.UI_TYPE, nuke_constants.UI_TYPE]
 
     '''Dockable maya load widget'''
+
     def __init__(self, event_manager, parent=None):
         super(NukePublisherClient, self).__init__(
             event_manager=event_manager, parent=parent

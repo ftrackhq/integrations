@@ -7,9 +7,7 @@ import base64
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
-from ftrack_connect_pipeline_nuke.plugin import (
-    BaseNukePlugin, BaseNukePluginWidget
-)
+from ftrack_connect_pipeline_nuke.plugin import BaseNukePlugin, BaseNukePluginWidget
 
 from ftrack_connect_pipeline_nuke.asset import FtrackAssetTab
 from ftrack_connect_pipeline_nuke.constants import asset as asset_const
@@ -18,12 +16,13 @@ from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
 
 
 class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
-    ''' Class representing a Collector Plugin
+    '''Class representing a Collector Plugin
 
     .. note::
 
         _required_output a List
     '''
+
     ftrack_asset_class = FtrackAssetTab
 
     def _run(self, event):
@@ -51,9 +50,7 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
 
         json_data = json.dumps(event['data'])
         if six.PY2:
-            options[asset_const.ASSET_INFO_OPTIONS] = base64.b64encode(
-                json_data
-            )
+            options[asset_const.ASSET_INFO_OPTIONS] = base64.b64encode(json_data)
         else:
             input_bytes = json_data.encode('utf8')
             options[asset_const.ASSET_INFO_OPTIONS] = base64.b64encode(
@@ -85,23 +82,21 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
         if asset_load_mode != load_const.IMPORT_MODE:
             if result:
                 scene_node = result.get(
-                            ftrack_asset_class.asset_info[asset_const.COMPONENT_PATH]
-                        )
+                    ftrack_asset_class.asset_info[asset_const.COMPONENT_PATH]
+                )
                 ftrack_asset_class.ftrack_object = scene_node
 
         ftrack_node = ftrack_asset_class.init_ftrack_object()
 
         ftrack_asset_class.connect_objects(diff)
 
-
         return super_result
 
 
 class LoaderImporterNukeWidget(pluginWidget.LoaderImporterWidget, BaseNukePluginWidget):
-    ''' Class representing a Collector Widget
+    '''Class representing a Collector Widget
 
     .. note::
 
         _required_output a List
     '''
-

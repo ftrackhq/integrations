@@ -3,30 +3,30 @@
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
-from ftrack_connect_pipeline_nuke.plugin import (
-    BaseNukePlugin, BaseNukePluginWidget
-)
+from ftrack_connect_pipeline_nuke.plugin import BaseNukePlugin, BaseNukePluginWidget
 
 
-class PublisherPostFinalizerNukePlugin(plugin.PublisherPostFinalizerPlugin, BaseNukePlugin):
-    ''' Class representing a Post Finalizer Plugin
+class PublisherPostFinalizerNukePlugin(
+    plugin.PublisherPostFinalizerPlugin, BaseNukePlugin
+):
+    '''Class representing a Post Finalizer Plugin
 
-        .. note::
+    .. note::
 
-            _required_output is a dictionary containing the 'context_id',
-            'asset_name', 'asset_type_name', 'comment' and 'status_id' of the
-            current asset
+        _required_output is a dictionary containing the 'context_id',
+        'asset_name', 'asset_type_name', 'comment' and 'status_id' of the
+        current asset
     '''
 
 
 class PublisherPostFinalizerNukeWidget(
     pluginWidget.PublisherPostFinalizerWidget, BaseNukePluginWidget
 ):
-    ''' Class representing a Finalizer Widget
+    '''Class representing a Finalizer Widget
 
-        .. note::
+    .. note::
 
-            _required_output is a dictionary containing the 'context_id',
-            'asset_name', 'asset_type_name', 'comment' and 'status_id' of the
-            current asset
+        _required_output is a dictionary containing the 'context_id',
+        'asset_name', 'asset_type_name', 'comment' and 'status_id' of the
+        current asset
     '''
