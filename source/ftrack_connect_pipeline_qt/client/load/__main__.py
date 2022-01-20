@@ -23,18 +23,14 @@ if __name__ == '__main__':
 
     from ftrack_connect_pipeline_qt.client.load import QtLoaderClient
 
-
     class StandaloneLoaderClient(QtLoaderClient):
-
         def __init__(self, parent=None):
             session = ftrack_api.Session(auto_connect_event_hub=False)
             event_manager = event.QEventManager(
                 session=session, mode=constants.LOCAL_EVENT_MODE
             )
             self.current_host = host.Host(event_manager)
-            super(StandaloneLoaderClient, self).__init__(
-                event_manager, parent=parent
-            )
+            super(StandaloneLoaderClient, self).__init__(event_manager, parent=parent)
 
     wid = StandaloneLoaderClient()
     wid.show()

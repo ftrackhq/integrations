@@ -10,10 +10,14 @@ from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
 from ftrack_connect_pipeline_qt.ui.client.default import DefaultStepContainerWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import AccordionWidget
-from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import  AccordionBaseWidget
+from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
+    AccordionBaseWidget,
+)
+
 
 class GroupBoxStepContainerWidget(BaseUIWidget):
     '''Widget representation of a boolean'''
+
     def __init__(self, name, fragment_data, parent=None):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
@@ -27,6 +31,7 @@ class GroupBoxStepContainerWidget(BaseUIWidget):
         main_layout = QtWidgets.QVBoxLayout()
         self.widget.setLayout(main_layout)
 
+
 class AccordionStepContainerWidget(BaseUIWidget):
     '''Widget representation of a boolean'''
 
@@ -39,9 +44,7 @@ class AccordionStepContainerWidget(BaseUIWidget):
         )
 
     def build(self):
-        self._widget = AccordionWidget(
-            title="0 components selected", checkable=False
-        )
+        self._widget = AccordionWidget(title="0 components selected", checkable=False)
 
     def update_selected_components(self, enabled, total):
         self._widget._title_frame._title_label.setText(
@@ -60,6 +63,7 @@ class AccordionStepContainerWidget(BaseUIWidget):
 
 class TabStepContainerWidget(DefaultStepContainerWidget):
     '''Widget representation of a boolean'''
+
     def __init__(self, name, fragment_data, parent=None):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
@@ -67,9 +71,7 @@ class TabStepContainerWidget(DefaultStepContainerWidget):
         self.status_icons = constants.icons.status_icons
         self._inner_widget_status = {}
 
-        super(TabStepContainerWidget, self).__init__(
-            name, fragment_data, parent=parent
-        )
+        super(TabStepContainerWidget, self).__init__(name, fragment_data, parent=parent)
 
     def build(self):
         super(TabStepContainerWidget, self).build()
@@ -106,9 +108,7 @@ class TabStepContainerWidget(DefaultStepContainerWidget):
                     checkbox.setChecked(True)
                     self.checkBoxList.append(checkbox)
                     self.tab_widget.tabBar().setTabButton(
-                        tab_idx,
-                        QtWidgets.QTabBar.RightSide,
-                        checkbox
+                        tab_idx, QtWidgets.QTabBar.RightSide, checkbox
                     )
                     checkbox.stateChanged.connect(
                         partial(self._toggle_tab_state, tab_idx, step_widget)
@@ -144,6 +144,7 @@ class TabStepContainerWidget(DefaultStepContainerWidget):
                 icon = self.status_icons[constants.ERROR_STATUS]
                 self.tab_widget.setTabIcon(tab_idx, QtGui.QIcon(icon))
 
+
 class ComboBoxStepContainerWidget(BaseUIWidget):
     '''Widget representation of a boolean'''
 
@@ -163,12 +164,35 @@ class ComboBoxStepContainerWidget(BaseUIWidget):
 
     def parent_widget(self, step_widget):
         if self.widget:
-            #if isinstance(step_widget, BaseUIWidget):
-            #    widget = step_widget.widget
-            #else:
-            #    widget = step_widget
             self.widget.addItem(step_widget.get_label())
             # Assume ComboBoxItemStepWidget
             step_widget.set_parent(self)
         else:
             self.logger.error("Please create a widget before parent")
+
+
+class RadioButtonStepContainerWidget(BaseUIWidget):
+    '''Widget representation of a boolean'''
+
+    def __init__(self, name, fragment_data, parent=None):
+        '''Initialise JsonBoolean with *name*, *schema_fragment*,
+        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
+
+        super(RadioButtonStepContainerWidget, self).__init__(
+            name, fragment_data, parent=parent
+        )
+
+    def pre_build(self):
+        self._widget = QtWidgets.QWidget()
+        self.widget.setLayout(QtWidgets.QVBoxLayout())
+        self.button_group = QtWidgets.QButtonGroup(self._widget)
+
+    def parent_widget(self, widget):
+        super(RadioButtonStepContainerWidget, self).parent_widget(widget)
+        self.button_group.addButton(widget.button)
+
+    def pre_select(self):
+        for button in self.button_group.buttons():
+            if button.isEnabled():
+                button.setChecked(True)
+                break

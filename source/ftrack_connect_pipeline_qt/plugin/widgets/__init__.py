@@ -13,13 +13,14 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     '''
     Base class of a widget representation for options widgets
     '''
+
     status_updated = QtCore.Signal(object)
     asset_changed = QtCore.Signal(object, object, object)
     status_icons = constants.icons.status_icons
     run_plugin_clicked = QtCore.Signal(object, object)
     run_result_updated = QtCore.Signal(object)
     asset_version_changed = QtCore.Signal(object)
-    input_changed  = QtCore.Signal(object)
+    input_changed = QtCore.Signal(object)
 
     # enable_run_plugin True will enable the run button to run the plugin run
     # function individually.
@@ -103,16 +104,23 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self.on_run_plugin(method)
 
     def toggle_status(self, show=False):
-        #self._status_icon.setVisible(show and False)
+        # self._status_icon.setVisible(show and False)
         pass
 
     def toggle_name(self, show=False):
-        #self.name_label.setVisible(show and False)
+        # self.name_label.setVisible(show and False)
         pass
 
     def __init__(
-            self, parent=None, session=None, data=None, name=None,
-            description=None, options=None, context_id=None, asset_type_name=None
+        self,
+        parent=None,
+        session=None,
+        data=None,
+        name=None,
+        description=None,
+        options=None,
+        context_id=None,
+        asset_type_name=None,
     ):
         '''initialise widget with *parent*, *session*, *data*, *name*,
         *description*, *options*
@@ -137,9 +145,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         super(BaseOptionsWidget, self).__init__(parent=parent)
         self.setParent(parent)
 
-        self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
-        )
+        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
         self._widgets = {}
 
         self._session = session
@@ -167,19 +173,14 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self._status_icon = QtWidgets.QLabel()
         icon = self.status_icons[constants.DEFAULT_STATUS]
         self._status_icon.setPixmap(icon)
-        self._status_icon.setAlignment(
-            QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
-        )
+        self._status_icon.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self._status_icon.setMaximumHeight(10)
         self._status_icon.hide()
         layout.addWidget(self._status_icon)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setAlignment(QtCore.Qt.AlignTop)
         self.setLayout(layout)
-        self.setSizePolicy(
-            QtWidgets.QSizePolicy.Preferred,
-            QtWidgets.QSizePolicy.Fixed
-        )
+        self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
 
     def build(self):
         '''build function , mostly used to create the widgets.'''
@@ -200,9 +201,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         it with the class variable self.enable_run_plugin'''
         self.run_plugin_button = QtWidgets.QPushButton('RUN')
         self.run_plugin_button.setObjectName('borderless')
-        self.run_plugin_button.clicked.connect(
-            partial(self.on_run_plugin, 'run')
-        )
+        self.run_plugin_button.clicked.connect(partial(self.on_run_plugin, 'run'))
         self.layout().addWidget(self.run_plugin_button)
         self.run_plugin_button.setVisible(self.enable_run_plugin)
 
@@ -220,16 +219,13 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
     def report_input(self):
         '''To be overridden.'''
-        self.input_changed.emit({
-            'status': None,
-            'message': ''
-        })
-        
+        self.input_changed.emit({'status': None, 'message': ''})
+
     def to_json_object(self):
         '''Return a formated json with the data from the current widget'''
         out = {}
         out['name'] = self.name
-        out['options']={}
+        out['options'] = {}
         for key, value in list(self.options.items()):
             out['options'][key] = value
         return out

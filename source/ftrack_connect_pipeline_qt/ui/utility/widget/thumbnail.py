@@ -21,9 +21,7 @@ class Base(QtWidgets.QLabel):
         super(Base, self).__init__(parent)
         self.session = session
 
-        self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
-        )
+        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
 
         self._worker = None
         self.__loadingReference = None
@@ -34,9 +32,7 @@ class Base(QtWidgets.QLabel):
         self.setFrameStyle(QtWidgets.QFrame.StyledPanel)
         self.setAlignment(QtCore.Qt.AlignCenter)
 
-        self.placholderThumbnail = (
-            self.session.server_url + '/img/thumbnail2.png'
-        )
+        self.placholderThumbnail = self.session.server_url + '/img/thumbnail2.png'
 
     def load(self, reference):
         '''Load thumbnail from *reference* and display it.'''
@@ -50,9 +46,7 @@ class Base(QtWidgets.QLabel):
                 app = QtWidgets.QApplication.instance()
                 app.processEvents()
 
-        self._worker = Worker(
-            self._download, args=[reference], parent=self
-        )
+        self._worker = Worker(self._download, args=[reference], parent=self)
 
         self.__loadingReference = reference
         self._worker.start()
@@ -78,8 +72,7 @@ class Base(QtWidgets.QLabel):
     def _scaleAndSetPixmap(self, pixmap):
         '''Scale and set *pixmap*.'''
         scaledPixmap = pixmap.scaledToWidth(
-            self.width(),
-            mode=QtCore.Qt.SmoothTransformation
+            self.width(), mode=QtCore.Qt.SmoothTransformation
         )
         self.setPixmap(scaledPixmap)
 
@@ -132,39 +125,26 @@ class EllipseBase(Base):
     def paintEvent(self, event):
         '''Override paint event to make round thumbnails.'''
         painter = QtGui.QPainter(self)
-        painter.setRenderHints(
-            QtGui.QPainter.Antialiasing,
-            True
-        )
+        painter.setRenderHints(QtGui.QPainter.Antialiasing, True)
 
-        brush = QtGui.QBrush(
-            self.pixmap()
-        )
+        brush = QtGui.QBrush(self.pixmap())
 
         painter.setBrush(brush)
 
-        painter.setPen(
-            QtGui.QPen(
-                QtGui.QColor(0, 0, 0, 0)
-            )
-        )
+        painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0, 0)))
 
-        painter.drawEllipse(
-            QtCore.QRectF(
-                0, 0,
-                self.width(), self.height()
-            )
-        )
+        painter.drawEllipse(QtCore.QRectF(0, 0, self.width(), self.height()))
 
 
 class Context(Base):
-
     def _download(self, reference):
         '''Return thumbnail from *reference*.'''
         context = self.session.get('Context', reference)
         thumbnail = context['thumbnail']
         if thumbnail is None and context['thumbnail_id'] is not None:
-            thumbnail = self.session.query('FileComponent where id is "{}"'.format(context['thumbnail_id'])).one()
+            thumbnail = self.session.query(
+                'FileComponent where id is "{}"'.format(context['thumbnail_id'])
+            ).one()
         url = self.get_thumbnail_url(thumbnail)
         url = url or self.placholderThumbnail
         return super(Context, self)._download(url)
@@ -173,11 +153,13 @@ class Context(Base):
         if not component:
             return
 
-        params = urllib.parse.urlencode({
-            'id': component['id'],
-            'username': self.session.api_user,
-            'apiKey': self.session.api_key
-        })
+        params = urllib.parse.urlencode(
+            {
+                'id': component['id'],
+                'username': self.session.api_user,
+                'apiKey': self.session.api_key,
+            }
+        )
 
         result_url = '{base_url}/component/thumbnail?{params}'.format(
             base_url=self.session._server_url, params=params
@@ -187,9 +169,7 @@ class Context(Base):
     def _scaleAndSetPixmap(self, pixmap):
         '''Scale and set *pixmap*.'''
         scaled_pixmap = pixmap.scaled(
-            self.size(),
-            QtCore.Qt.KeepAspectRatio,
-            QtCore.Qt.SmoothTransformation
+            self.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
         )
         self.setPixmap(scaled_pixmap)
 
@@ -205,11 +185,13 @@ class AssetVersion(Base):
         if not component:
             return
 
-        params = urllib.parse.urlencode({
-            'id': component['id'],
-            'username': self.session.api_user,
-            'apiKey': self.session.api_key
-        })
+        params = urllib.parse.urlencode(
+            {
+                'id': component['id'],
+                'username': self.session.api_user,
+                'apiKey': self.session.api_key,
+            }
+        )
 
         result_url = '{base_url}/component/thumbnail?{params}'.format(
             base_url=self.session._server_url, params=params
@@ -219,20 +201,16 @@ class AssetVersion(Base):
     def _scaleAndSetPixmap(self, pixmap):
         '''Scale and set *pixmap*.'''
         scaled_pixmap = pixmap.scaled(
-            self.size(),
-            QtCore.Qt.KeepAspectRatio,
-            QtCore.Qt.SmoothTransformation
+            self.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
         )
         self.setPixmap(scaled_pixmap)
 
-class User(EllipseBase):
 
+class User(EllipseBase):
     def _download(self, reference):
         '''Return thumbnail from *reference*.'''
         thumbnail = self.session.query(
-            'select thumbnail from User where username is "{}"'.format(
-                reference
-            )
+            'select thumbnail from User where username is "{}"'.format(reference)
         ).first()['thumbnail']
         url = self.get_thumbnail_url(thumbnail)
         return super(User, self)._download(url)
@@ -241,11 +219,13 @@ class User(EllipseBase):
         if not component:
             return
 
-        params = urllib.parse.urlencode({
-            'id': component['id'],
-            'username': self.session.api_user,
-            'apiKey': self.session.api_key
-        })
+        params = urllib.parse.urlencode(
+            {
+                'id': component['id'],
+                'username': self.session.api_user,
+                'apiKey': self.session.api_key,
+            }
+        )
 
         result_url = '{base_url}/component/thumbnail?{params}'.format(
             base_url=self.session._server_url, params=params

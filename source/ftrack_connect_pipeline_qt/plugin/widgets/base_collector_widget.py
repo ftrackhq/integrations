@@ -9,8 +9,9 @@ from Qt import QtWidgets, QtGui
 
 from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 
+
 class BaseCollectorWidget(BaseOptionsWidget):
-    ''' Base class to represent a Collector widget '''
+    '''Base class to represent a Collector widget'''
 
     @property
     def collected_objects(self):
@@ -18,14 +19,26 @@ class BaseCollectorWidget(BaseOptionsWidget):
         return self._collected_objects
 
     def __init__(
-        self, parent=None, session=None, data=None, name=None,
-        description=None, options=None, context_id=None, asset_type_name=None
+        self,
+        parent=None,
+        session=None,
+        data=None,
+        name=None,
+        description=None,
+        options=None,
+        context_id=None,
+        asset_type_name=None,
     ):
         self._collected_objects = []
         super(BaseCollectorWidget, self).__init__(
-            parent=parent, session=session, data=data, name=name,
-            description=description, options=options, context_id=context_id,
-            asset_type_name=asset_type_name
+            parent=parent,
+            session=session,
+            data=data,
+            name=name,
+            description=description,
+            options=options,
+            context_id=context_id,
+            asset_type_name=asset_type_name,
         )
 
     def build(self):
@@ -37,16 +50,16 @@ class BaseCollectorWidget(BaseOptionsWidget):
 
         self.list_widget = QtWidgets.QListWidget()
         self.list_widget.setAlternatingRowColors(True)
-        self.list_widget.setSelectionBehavior(
-            QtWidgets.QAbstractItemView.SelectRows
-        )
+        self.list_widget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.list_widget.setMaximumHeight(120)
         self.layout().addWidget(self.list_widget)
 
         add_widget = QtWidgets.QWidget()
         add_widget.setLayout(QtWidgets.QHBoxLayout())
         add_widget.layout().addStretch()
-        self.add_button = QtWidgets.QPushButton(qta.icon('mdi6.plus',color='#BF9AC9'), "ADD SELECTED")
+        self.add_button = QtWidgets.QPushButton(
+            qta.icon('mdi6.plus', color='#BF9AC9'), "ADD SELECTED"
+        )
         self.add_button.setObjectName('borderless')
         add_widget.layout().addWidget(self.add_button)
         self.layout().addWidget(add_widget)
@@ -72,9 +85,7 @@ class BaseCollectorWidget(BaseOptionsWidget):
     def post_build(self):
         super(BaseCollectorWidget, self).post_build()
         self.list_widget.itemChanged.connect(self._on_item_changed)
-        self.add_button.clicked.connect(
-            partial(self.on_run_plugin, 'add')
-        )
+        self.add_button.clicked.connect(partial(self.on_run_plugin, 'add'))
         self.set_option_result(self.collected_objects, key='collected_objects')
 
     def on_fetch_callback(self, result):
@@ -170,9 +181,13 @@ class BaseCollectorWidget(BaseOptionsWidget):
         status = False
         num_objects = len(self._options.get('collected_objects') or [])
         if num_objects > 0:
-            message = '{} item{} selected'.format(num_objects, 's' if num_objects>1 else '')
+            message = '{} item{} selected'.format(
+                num_objects, 's' if num_objects > 1 else ''
+            )
             status = True
-        self.input_changed.emit({
-            'status': status,
-            'message': message,
-        })
+        self.input_changed.emit(
+            {
+                'status': status,
+                'message': message,
+            }
+        )

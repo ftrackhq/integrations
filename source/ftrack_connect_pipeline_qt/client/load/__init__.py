@@ -10,13 +10,12 @@ class QtLoaderClient(QtClient):
     '''
     Base load widget class.
     '''
+
     definition_filter = 'loader'
-    run_definition_button_text = 'Load'
+    client_name = 'load'
 
     def __init__(self, event_manager, parent=None):
 
-        super(QtLoaderClient, self).__init__(
-            event_manager, parent=parent
-        )
+        super(QtLoaderClient, self).__init__(event_manager, parent=parent)
         self.setWindowTitle('Standalone Pipeline Loader')
         self.logger.debug('start qt loader')

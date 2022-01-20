@@ -10,8 +10,9 @@ from Qt import QtWidgets, QtCore, QtCompat, QtGui
 from ftrack_connect_pipeline import constants as core_const
 from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
-    AccordionBaseWidget
+    AccordionBaseWidget,
 )
+
 
 class AssetManagerBaseWidget(QtWidgets.QWidget):
     '''Base widget of the asset manager and assembler'''
@@ -87,8 +88,10 @@ class AssetManagerBaseWidget(QtWidgets.QWidget):
         '''Search in the current model.'''
         pass
 
+
 class AssetListModel(QtCore.QAbstractTableModel):
     '''Custom asset list model'''
+
     @property
     def session(self):
         return self._session
@@ -112,8 +115,8 @@ class AssetListModel(QtCore.QAbstractTableModel):
         rows = len(data)
         self.beginInsertRows(QtCore.QModelIndex(), position, position + rows - 1)
         for row in range(rows):
-            if position+row<len(self.__asset_entities_list):
-                self.__asset_entities_list.insert(position+row, data[row])
+            if position + row < len(self.__asset_entities_list):
+                self.__asset_entities_list.insert(position + row, data[row])
             else:
                 self.__asset_entities_list.append(data[row])
         self.endInsertRows()
@@ -126,11 +129,15 @@ class AssetListModel(QtCore.QAbstractTableModel):
     def flags(self, index):
         if not index.isValid():
             return QtCore.Qt.ItemIsEnabled
-        return QtCore.Qt.ItemFlags(
-            QtCore.QAbstractTableModel.flags(self, index))|QtCore.Qt.ItemIsEditable
+        return (
+            QtCore.Qt.ItemFlags(QtCore.QAbstractTableModel.flags(self, index))
+            | QtCore.Qt.ItemIsEditable
+        )
+
 
 class AssetListWidget(QtWidgets.QWidget):
     '''Custom asset list view'''
+
     _last_clicked = None
 
     @property
@@ -177,15 +184,17 @@ class AssetListWidget(QtWidgets.QWidget):
         # TODO: Save selection state
         for row in range(self.model.rowCount()):
             asset_widget = self._asset_widget_class(
-                self.model.createIndex(row, 0, self.model), self.model.session)
+                self.model.createIndex(row, 0, self.model), self.model.session
+            )
             asset_info = self.model.data(asset_widget.index)
             asset_widget.set_asset_info(asset_info)
             self.layout().addWidget(asset_widget)
             asset_widget.clicked.connect(
-                functools.partial(self.asset_clicked, asset_widget))
+                functools.partial(self.asset_clicked, asset_widget)
+            )
 
     def reset(self):
-        ''' Remove all assets'''
+        '''Remove all assets'''
         self.model.reset()
         self.rebuild()
 
@@ -195,10 +204,12 @@ class AssetListWidget(QtWidgets.QWidget):
             if widget.selected:
                 result.append(self.model.data(widget.index))
         if warn_on_empty and len(result) == 0:
-            QtWidgets.QMessageBox.critical(None,
+            QtWidgets.QMessageBox.critical(
+                None,
                 'Error!',
                 "Please select at least one asset!",
-                QtWidgets.QMessageBox.Abort)
+                QtWidgets.QMessageBox.Abort,
+            )
         return result
 
     def clear_selection(self):
@@ -210,14 +221,17 @@ class AssetListWidget(QtWidgets.QWidget):
         modifiers = QtWidgets.QApplication.keyboardModifiers()
         if event.button() == QtCore.Qt.RightButton:
             return
-        if ((modifiers == QtCore.Qt.Key_Meta and platform.system() != 'Darwin') or
-            (modifiers == QtCore.Qt.ControlModifier and platform.system() == 'Darwin')):
+        if (modifiers == QtCore.Qt.Key_Meta and platform.system() != 'Darwin') or (
+            modifiers == QtCore.Qt.ControlModifier and platform.system() == 'Darwin'
+        ):
             # Add to selection
             pass
         elif modifiers == QtCore.Qt.ShiftModifier:
             # Select inbetweens
             if self._last_clicked:
-                start_row = min(self._last_clicked.index.row(), asset_widget.index.row())
+                start_row = min(
+                    self._last_clicked.index.row(), asset_widget.index.row()
+                )
                 end_row = max(self._last_clicked.index.row(), asset_widget.index.row())
                 for widget in self.assets:
                     if start_row < widget.index.row() < end_row:

@@ -10,21 +10,27 @@ from Qt import QtWidgets, QtCore, QtCompat, QtGui
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.constants import asset as asset_constants
 from ftrack_connect_pipeline_qt.ui.asset_manager.base import (
-    AssetManagerBaseWidget, AssetListModel, AssetListWidget
+    AssetManagerBaseWidget,
+    AssetListModel,
+    AssetListWidget,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import CircularButton
-from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import  (
-    AccordionBaseWidget
+from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
+    AccordionBaseWidget,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import MaterialIconWidget
+from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import (
+    MaterialIconWidget,
+)
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import (
-    AssetVersion as AssetVersionThumbnail
+    AssetVersion as AssetVersionThumbnail,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget.entity_info import EntityInfo
 from ftrack_connect_pipeline_qt.ui.utility.widget import line
 
+
 class AssetManagerWidget(AssetManagerBaseWidget):
     '''Base widget of the asset manager and assembler'''
+
     refresh = QtCore.Signal()
     widget_status_updated = QtCore.Signal(object)
     change_asset_version = QtCore.Signal(object, object)
@@ -35,22 +41,10 @@ class AssetManagerWidget(AssetManagerBaseWidget):
     unload_assets = QtCore.Signal(object)
 
     DEFAULT_ACTIONS = {
-        'select': [{
-            'ui_callback': 'ctx_select',
-            'name': 'select_asset'
-        }],
-        'remove': [{
-            'ui_callback': 'ctx_remove',
-            'name': 'remove_asset'
-        }],
-        'load': [{
-            'ui_callback': 'ctx_load',
-            'name': 'load_asset'
-        }],
-        'unload': [{
-            'ui_callback': 'ctx_unload',
-            'name': 'unload_asset'
-        }]
+        'select': [{'ui_callback': 'ctx_select', 'name': 'select_asset'}],
+        'remove': [{'ui_callback': 'ctx_remove', 'name': 'remove_asset'}],
+        'load': [{'ui_callback': 'ctx_load', 'name': 'load_asset'}],
+        'unload': [{'ui_callback': 'ctx_unload', 'name': 'unload_asset'}],
     }
 
     @property
@@ -89,7 +83,8 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         super(AssetManagerWidget, self).build()
 
         self._asset_list = AssetListWidget(
-            AssetListModel(self.event_manager.session), AssetWidget)
+            AssetListModel(self.event_manager.session), AssetWidget
+        )
 
         asset_list_container = QtWidgets.QWidget()
         asset_list_container.setLayout(QtWidgets.QVBoxLayout())
@@ -120,7 +115,8 @@ class AssetManagerWidget(AssetManagerBaseWidget):
                 self.action_widgets[action_type] = []
             for action in actions:
                 action_widget = QtWidgets.QAction(
-                    action['name'].replace('_',' ').title(), self)
+                    action['name'].replace('_', ' ').title(), self
+                )
                 action_widget.setData(action)
                 self.action_widgets[action_type].append(action_widget)
 
@@ -128,7 +124,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         '''Executes the context menu'''
         # Anything selected?
         widget_deselect = None
-        if len(self._asset_list.selection(warn_on_empty=False))==0:
+        if len(self._asset_list.selection(warn_on_empty=False)) == 0:
             # Temporaily select the clicked widget
             widget_deselect = self.childAt(event.x(), event.y())
             if widget_deselect:
@@ -183,7 +179,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         self.remove_assets.emit(self._asset_list.selection())
 
     def ctx_load(self, plugin):
-        #TODO: I think is better to not pass a Plugin, and use directly the
+        # TODO: I think is better to not pass a Plugin, and use directly the
         # function in the engine. But if we want, we can pass the plugin here,
         # to for example define a standard load plugin or a check plugin to
         # execute after the load plugin that is
@@ -219,10 +215,9 @@ class AssetManagerWidget(AssetManagerBaseWidget):
 
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.host_id={}'.format(
-                core_constants.PIPELINE_CLIENT_NOTIFICATION,
-                self.host_connection.id
+                core_constants.PIPELINE_CLIENT_NOTIFICATION, self.host_connection.id
             ),
-            self._update_widget
+            self._update_widget,
         )
 
     def _on_refresh(self):
@@ -237,9 +232,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         Triggered when a version of the asset has changed on the
         :obj:`version_cb_delegate`
         '''
-        _asset_info = self._asset_list.model.getData(
-            index.row()
-        )
+        _asset_info = self._asset_list.model.getData(index.row())
         # Copy to avoid update automatically
         asset_info = _asset_info.copy()
         self.change_asset_version.emit(asset_info, value)
@@ -287,15 +280,20 @@ class AssetWidget(AccordionBaseWidget):
         return self._options_button
 
     def __init__(self, index, session, title=None, parent=None):
-        super(AssetWidget, self).__init__(AccordionBaseWidget.SELECT_MODE_LIST,
+        super(AssetWidget, self).__init__(
+            AccordionBaseWidget.SELECT_MODE_LIST,
             AccordionBaseWidget.CHECK_MODE_NONE,
-            session=session, title=title, checked=False, parent=parent)
+            session=session,
+            title=title,
+            checked=False,
+            parent=parent,
+        )
         self._version_id = None
         self._index = index
 
     def init_status_widget(self):
         self._status_widget = AssetVersionStatusWidget()
-        #self._status_widget.setObjectName('borderless')
+        # self._status_widget.setObjectName('borderless')
         return self._status_widget
 
     def init_header_content(self, header_layout, collapsed):
@@ -311,20 +309,20 @@ class AssetWidget(AccordionBaseWidget):
         header_layout.addWidget(self.init_status_widget())
 
     def init_content(self, content_layout):
-        #self.content.setMinimumHeight(200)
+        # self.content.setMinimumHeight(200)
         content_layout.setContentsMargins(10, 2, 10, 2)
         content_layout.setSpacing(5)
 
     def set_asset_info(self, asset_info):
         '''Update widget from data'''
         self._version_id = asset_info[asset_constants.VERSION_ID]
-        self._asset_name_widget.setText('{} '.format(
-            asset_info[asset_constants.ASSET_NAME])
+        self._asset_name_widget.setText(
+            '{} '.format(asset_info[asset_constants.ASSET_NAME])
         )
         self._versions_collection = asset_info[asset_constants.ASSET_VERSIONS_ENTITIES]
-        version = self.session.query('AssetVersion where id={}'.format(
-            self._version_id
-        )).one()
+        version = self.session.query(
+            'AssetVersion where id={}'.format(self._version_id)
+        ).one()
         self._status_widget.set_status(version['status'])
         self._load_mode = asset_info[asset_constants.LOAD_MODE]
         self.set_indicator(self._load_mode is not None)
@@ -345,7 +343,7 @@ class AssetWidget(AccordionBaseWidget):
 
     def on_collapse(self, collapsed):
         '''Dynamically populate asset expanded view'''
-        #Remove all content widgets
+        # Remove all content widgets
         for i in reversed(range(self.content.layout().count())):
             widget = self.content.layout().itemAt(i).widget()
             if widget:
@@ -355,8 +353,9 @@ class AssetWidget(AccordionBaseWidget):
                 self.add_widget(QtWidgets.QLabel('Have no version ID!'))
                 version = None
             else:
-                version = self.session.query('AssetVersion where id={}'.format(
-                    self._version_id)).one()
+                version = self.session.query(
+                    'AssetVersion where id={}'.format(self._version_id)
+                ).one()
 
             context_widget = QtWidgets.QWidget()
             context_widget.setLayout(QtWidgets.QHBoxLayout())
@@ -374,22 +373,26 @@ class AssetWidget(AccordionBaseWidget):
 
                 self._component_and_version_widget = ComponentAndVersionWidget(False)
                 self._component_and_version_widget.set_component_filename(
-                    self._component_path)
+                    self._component_path
+                )
 
                 self._component_and_version_widget.version_selector.clear()
                 for asset_version in self._versions_collection:
                     self._component_and_version_widget.version_selector.addItem(
-                        'v{}'.format(asset_version['version']), asset_version['id'])
+                        'v{}'.format(asset_version['version']), asset_version['id']
+                    )
                 self._component_and_version_widget.set_latest_version(
-                    self._is_latest_version)
+                    self._is_latest_version
+                )
 
                 # Add context info with version selection
                 self._entity_info = EntityInfo(
-                    additional_widget=self._component_and_version_widget)
+                    additional_widget=self._component_and_version_widget
+                )
                 self._entity_info.set_entity(version['asset']['parent'])
                 self._entity_info.setMinimumHeight(100)
                 context_widget.layout().addWidget(self._entity_info, 100)
-                #context_widget.layout().addWidget(QtWidgets.QLabel('Test'))
+                # context_widget.layout().addWidget(QtWidgets.QLabel('Test'))
 
             self.add_widget(context_widget)
 
@@ -398,21 +401,26 @@ class AssetWidget(AccordionBaseWidget):
             load_info_label = QtWidgets.QLabel(
                 '<html>Added as a <font color="white">{}</font> with <font color="white">'
                 '{}</font></html>'.format(
-                    self._load_mode, self._asset_info_options['pipeline'].get('definition','?')
-            ))
+                    self._load_mode,
+                    self._asset_info_options.get('pipeline', {}).get('definition', '?')
+                    if self._asset_info_options
+                    else '?',
+                )
+            )
             self.add_widget(load_info_label)
             load_info_label.setToolTip(json.dumps(self._asset_info_options, indent=2))
 
-            if 0<len(self._version_dependency_ids or []):
+            if 0 < len(self._version_dependency_ids or []):
                 self.add_widget(line.Line())
 
                 dependencies_label = QtWidgets.QLabel('DEPENDENCIES:')
                 dependencies_label.setObjectName('h4')
                 self.add_widget(dependencies_label)
 
-                for dep_version_id in (self._version_dependency_ids or []):
-                    dep_version = self.session.query('AssetVersion where id={}'.format(
-                        dep_version_id)).first()
+                for dep_version_id in self._version_dependency_ids or []:
+                    dep_version = self.session.query(
+                        'AssetVersion where id={}'.format(dep_version_id)
+                    ).first()
 
                     if dep_version:
                         dep_version_widget = QtWidgets.QWidget()
@@ -435,8 +443,12 @@ class AssetWidget(AccordionBaseWidget):
 
                         self.add_widget(dep_version_widget)
                     else:
-                        self.add_widget(QtWidgets.QLabel('MISSING dependency '
-                            'version: {}'.format(dep_version_id)))
+                        self.add_widget(
+                            QtWidgets.QLabel(
+                                'MISSING dependency '
+                                'version: {}'.format(dep_version_id)
+                            )
+                        )
 
                 self.add_widget(line.Line())
 
@@ -450,6 +462,7 @@ class AssetWidget(AccordionBaseWidget):
 class AssetVersionSelector(QtWidgets.QComboBox):
     def __init__(self):
         super(AssetVersionSelector, self).__init__()
+
 
 class AssetVersionStatusWidget(QtWidgets.QFrame):
     def __init__(self):
@@ -469,18 +482,25 @@ class AssetVersionStatusWidget(QtWidgets.QFrame):
 
     def set_status(self, status):
         self._label_widget.setText(status['name'].upper())
-        self._label_widget.setStyleSheet('''
+        self._label_widget.setStyleSheet(
+            '''
             color: {0};
             border: none;
-        '''.format(status['color']))
-        self.setStyleSheet('''
+        '''.format(
+                status['color']
+            )
+        )
+        self.setStyleSheet(
+            '''
             QFrame {
                 border: 1px solid %s;
             }
-         '''%(status['color']))
+         '''
+            % (status['color'])
+        )
+
 
 class ComponentAndVersionWidget(QtWidgets.QWidget):
-
     @property
     def version_selector(self):
         return self._version_selector
@@ -521,15 +541,19 @@ class ComponentAndVersionWidget(QtWidgets.QWidget):
         if self._collapsed:
             self._version_nr_widget.setStyleSheet('color: {}'.format(color))
         else:
-            self._version_selector.setStyleSheet('''
+            self._version_selector.setStyleSheet(
+                '''
                 color: {0};
                 border: 1px solid {0};
-            '''.format(color))
+            '''.format(
+                    color
+                )
+            )
 
     def set_component_filename(self, component_path):
-        self._component_filename_widget.setText('({})'.format(
-            component_path.replace('\\', '/').split('/')[-1]
-        ))
+        self._component_filename_widget.setText(
+            '({})'.format(component_path.replace('\\', '/').split('/')[-1])
+        )
 
     def set_version(self, version_nr):
         if self._collapsed:

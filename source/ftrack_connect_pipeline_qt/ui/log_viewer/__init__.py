@@ -5,12 +5,14 @@ import os, sys, subprocess
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
 from ftrack_connect_pipeline_qt.ui.log_viewer.model.log_table import (
-    LogTableModel, FilterProxyModel
+    LogTableModel,
+    FilterProxyModel,
 )
 
 
 class LogViewerWidget(QtWidgets.QWidget):
-    ''' Main widget of the Log viewer '''
+    '''Main widget of the Log viewer'''
+
     @property
     def event_manager(self):
         '''Returns event_manager'''
@@ -56,9 +58,7 @@ class LogViewerWidget(QtWidgets.QWidget):
         filter_layout.addWidget(self.filter_field)
         self.layout().addLayout(filter_layout)
 
-        self.log_table_view = LogDialogTableView(
-            self.event_manager, parent=self
-        )
+        self.log_table_view = LogDialogTableView(self.event_manager, parent=self)
         self.layout().addWidget(self.log_table_view)
 
     def post_build(self):
@@ -126,9 +126,7 @@ class LogDialogTableView(QtWidgets.QTableView):
         self.setAlternatingRowColors(True)
         self.verticalHeader().hide()
 
-        self.setSelectionBehavior(
-            QtWidgets.QAbstractItemView.SelectRows
-        )
+        self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
 
         self.horizontalHeader().setStretchLastSection(True)
 
@@ -213,6 +211,6 @@ class LogViewerDetailWidget(QtWidgets.QDockWidget):
             plugin_type=data.plugin_type,
             result=data.result,
             message=data.message,
-            user_message=data.user_message
+            user_message=data.user_message,
         )
         self.textEdit.setText(formated_text)

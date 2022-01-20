@@ -6,6 +6,7 @@ from Qt import QtWidgets, QtCore
 
 class EntityPath(QtWidgets.QLineEdit):
     '''Entity path widget.'''
+
     path_ready = QtCore.Signal(object)
 
     def __init__(self, *args, **kwargs):

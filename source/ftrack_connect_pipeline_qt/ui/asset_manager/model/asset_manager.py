@@ -7,6 +7,7 @@ from ftrack_connect_pipeline.asset import asset_info
 from ftrack_connect_pipeline_qt.constants import asset as asset_constants
 from ftrack_connect_pipeline.constants import asset as core_asset_constants
 
+
 class Item(object):
     '''Represent ftrack entity with consistent interface.'''
 
@@ -130,7 +131,7 @@ class Item(object):
         self.asset_info.update_dependencies()
         children = []
         for dependency in self.asset_info.get(core_asset_constants.DEPENDENCIES, []):
-            #TODO: if we want more than one level of depth in dependencies,
+            # TODO: if we want more than one level of depth in dependencies,
             # call fetch childen before append the item
             item = Item(dependency)
             children.append(item)
@@ -251,27 +252,29 @@ class AssetManagerModel(QtCore.QAbstractItemModel):
         column = index.column()
         item = index.internalPointer()
 
-
         data = item.asset_info.get(self.columns[column])
 
         # style versions
         if (
-                role == QtCore.Qt.BackgroundRole and
-                index.column() == self.get_version_column_index()
+            role == QtCore.Qt.BackgroundRole
+            and index.column() == self.get_version_column_index()
         ):
-            if item.asset_info.get(core_asset_constants.IS_LATEST_VERSION):#.is_latest:
+            if item.asset_info.get(
+                core_asset_constants.IS_LATEST_VERSION
+            ):  # .is_latest:
                 return QtGui.QBrush(QtGui.QColor(155, 250, 218, 200))
             else:
                 return QtGui.QBrush(QtGui.QColor(250, 171, 155, 200))
 
         elif (
-                role == QtCore.Qt.TextAlignmentRole and
-                index.column() == self.get_version_column_index()
+            role == QtCore.Qt.TextAlignmentRole
+            and index.column() == self.get_version_column_index()
         ):
             return QtCore.Qt.AlignCenter
 
-        elif (role == QtCore.Qt.TextColorRole and
-              index.column() == self.get_version_column_index()
+        elif (
+            role == QtCore.Qt.TextColorRole
+            and index.column() == self.get_version_column_index()
         ):
             return QtGui.QColor(0, 0, 0, 255)
 
@@ -289,10 +292,7 @@ class AssetManagerModel(QtCore.QAbstractItemModel):
 
     def headerData(self, column, orientation, role):
         '''Provide header data'''
-        if (
-                orientation == QtCore.Qt.Horizontal and
-                role == QtCore.Qt.DisplayRole
-        ):
+        if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
             return self.columns[column].replace('_', ' ').capitalize()
 
         return None
@@ -348,9 +348,7 @@ class FilterProxyModel(QtCore.QSortFilterProxyModel):
 
     def filterAcceptsRowItself(self, source_row, source_parent):
         '''Provide a way to filter internal values.'''
-        return super(FilterProxyModel, self).filterAcceptsRow(
-            source_row, source_parent
-        )
+        return super(FilterProxyModel, self).filterAcceptsRow(source_row, source_parent)
 
     def filterAcceptsRow(self, source_row, source_parent):
         '''Override filterAcceptRow to filter to any entry.'''
@@ -371,4 +369,3 @@ class FilterProxyModel(QtCore.QSortFilterProxyModel):
         right_data = self.sourceModel().item(right)
         print((left_data, right_data))
         return left_data.id > right_data.id
-

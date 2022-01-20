@@ -8,12 +8,11 @@ from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
 
 class GroupBoxStageWidget(BaseUIWidget):
     '''Widget representation of a boolean'''
+
     def __init__(self, name, fragment_data, parent=None):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
-        super(GroupBoxStageWidget, self).__init__(
-            name, fragment_data, parent=parent
-        )
+        super(GroupBoxStageWidget, self).__init__(name, fragment_data, parent=parent)
 
     def build(self):
         self._widget = QtWidgets.QGroupBox(self.name)

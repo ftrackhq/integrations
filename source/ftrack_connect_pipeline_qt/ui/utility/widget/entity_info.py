@@ -7,6 +7,7 @@ from Qt import QtWidgets, QtCore
 
 class EntityInfo(QtWidgets.QWidget):
     '''Entity path widget.'''
+
     path_ready = QtCore.Signal(object)
 
     def __init__(self, additional_widget=None, parent=None):
@@ -24,7 +25,6 @@ class EntityInfo(QtWidgets.QWidget):
         self.layout().setContentsMargins(2, 12, 2, 2)
         self.layout().setSpacing(2)
 
-
     def build(self):
         name_widget = QtWidgets.QWidget()
         name_widget.setLayout(QtWidgets.QHBoxLayout())
@@ -41,7 +41,7 @@ class EntityInfo(QtWidgets.QWidget):
 
         self._path_field = QtWidgets.QLabel()
         self._path_field.setObjectName('gray')
-        #self._path_field.setProperty('color', 'gray')
+        # self._path_field.setProperty('color', 'gray')
         self.layout().addWidget(self._path_field)
 
         self.layout().addStretch()
@@ -63,17 +63,16 @@ class EntityInfo(QtWidgets.QWidget):
 
     def on_path_ready(self, parents):
         '''Set current path to *names*.'''
-        #self.type_field.setText(parents[-1].get('type', {}).get('name', 'Project'))
+        # self.type_field.setText(parents[-1].get('type', {}).get('name', 'Project'))
         self._name_field.setText('{} '.format(parents[-1]['name']))
         self._path_field.setText(os.sep.join([p['name'] for p in parents[:-1]]))
 
 
 class VersionInfo(QtWidgets.QWidget):
-
     def __init__(self, session=None, parent=None):
         '''Instantiate the entity path widget.'''
         super(VersionInfo, self).__init__(parent=parent)
-        self.session=session
+        self.session = session
         self.setLayout(QtWidgets.QVBoxLayout())
         self.build()
         self.layout().addStretch()
@@ -89,13 +88,10 @@ class VersionInfo(QtWidgets.QWidget):
 
     def set_entity(self, version_id):
         version = self.session.get('AssetVersion', version_id)
-        self.date_field.setText('Date : {}'.format(
-            str(version['date'].humanize()))
+        self.date_field.setText('Date : {}'.format(str(version['date'].humanize())))
+        self.user_field.setText(
+            'User : {}'.format(str(version['user'].get('username', 'No User set')))
         )
-        self.user_field.setText('User : {}'.format(
-            str(version['user'].get('username', 'No User set')))
+        self.description_field.setText(
+            'Comment : {}'.format(str(version.get('comment') or 'No Comment set'))
         )
-        self.description_field.setText('Comment : {}'.format(
-            str(version.get('comment') or 'No Comment set'))
-        )
-

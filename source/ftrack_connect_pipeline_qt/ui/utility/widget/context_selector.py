@@ -21,7 +21,9 @@ class ContextSelector(QtWidgets.QWidget):
     def context_id(self):
         return self._context_id
 
-    def __init__(self, session, current_context_id=None, current_entity=None, parent=None):
+    def __init__(
+        self, session, current_context_id=None, current_entity=None, parent=None
+    ):
         '''Initialise ContextSelector widget with the *current_entity* and
         *parent* widget.
         '''
@@ -34,7 +36,7 @@ class ContextSelector(QtWidgets.QWidget):
         self.build()
         self.post_build()
 
-        self.set_context_id(self._context_id or get_current_context_id())
+        self.set_default_context_id()
         self.set_entity(current_entity)
 
     def pre_build(self):
@@ -43,7 +45,7 @@ class ContextSelector(QtWidgets.QWidget):
 
     def build(self):
         self.thumbnail_widget = Context(self.session)
-        #self.thumbnail_widget.setScaledContents(True)
+        # self.thumbnail_widget.setScaledContents(True)
 
         self.thumbnail_widget.setMinimumWidth(50)
         self.thumbnail_widget.setMinimumHeight(50)
@@ -68,15 +70,16 @@ class ContextSelector(QtWidgets.QWidget):
         self.thumbnail_widget.load(entity['id'])
 
     def post_build(self):
-        self.entity_browse_button.clicked.connect(
-            self._onEntityBrowseButtonClicked
-        )
+        self.entity_browse_button.clicked.connect(self._onEntityBrowseButtonClicked)
         self.entityChanged.connect(self.entity_info.set_entity)
         self.entityChanged.connect(self.set_thumbnail)
         self.entityBrowser.selectionChanged.connect(
             self._onEntityBrowserSelectionChanged
         )
         self.setMaximumHeight(70)
+
+    def set_default_context_id(self):
+        self.set_context_id(self._context_id or get_current_context_id())
 
     def reset(self, entity=None):
         '''Reset browser to the given *entity* or the default one'''
@@ -105,7 +108,7 @@ class ContextSelector(QtWidgets.QWidget):
                 name='context entity thread',
                 target=self.find_context_entity,
                 callback=self.set_entity,
-                target_args=[context_id]
+                target_args=[context_id],
             )
             thread.start()
 

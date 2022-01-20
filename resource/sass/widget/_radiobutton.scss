@@ -7,6 +7,10 @@ QRadioButton::indicator {
     height: 13px;
 }
 
+QRadioButton:disabled {
+   color: $gray;
+}
+
 QRadioButton::indicator::unchecked {
     image: theme-image('radiobutton_unchecked');
 }

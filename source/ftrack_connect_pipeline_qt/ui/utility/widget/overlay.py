@@ -19,7 +19,7 @@ class Overlay(QtWidgets.QFrame):
     def __init__(self, widget, parent=None):
         '''Initialise overlay for target *parent*.'''
         super(Overlay, self).__init__(parent=parent)
-        #self.setObjectName('overlay')
+        # self.setObjectName('overlay')
 
         self.widget = QtWidgets.QFrame()
         self.widget.setProperty('background', 'default')
@@ -44,7 +44,6 @@ class Overlay(QtWidgets.QFrame):
         application = QtCore.QCoreApplication.instance()
         application.installEventFilter(self)
 
-
     def paintEvent(self, event):
         super(Overlay, self).paintEvent(event)
         # get current window size
@@ -62,12 +61,12 @@ class Overlay(QtWidgets.QFrame):
         size = self.size()
         widget_width = size.width() * 0.8
         widget_height = size.height() * 0.6
-        widget_x = int((size.width()-widget_width)/2)
-        widget_y = 40 #int(size.height()/2-widget_height/2)
+        widget_x = int((size.width() - widget_width) / 2)
+        widget_y = 40  # int(size.height()/2-widget_height/2)
         self.widget.resize(widget_width, widget_height)
         self.widget.move(widget_x, widget_y)
         # Move the close button to the desired position
-        self.close_btn.move(widget_x+widget_width-22, widget_y)
+        self.close_btn.move(widget_x + widget_width - 22, widget_y)
 
     def setVisible(self, visible):
         '''Set whether *visible* or not.'''
@@ -121,16 +120,9 @@ class Overlay(QtWidgets.QFrame):
         # enabled state of each child grows too complex as have to remember the
         # initial state of each widget when the overlay is shown and then revert
         # to it on hide.
-        if (
-            self.isVisible()
-            and obj != self
-            and event.type() == QtCore.QEvent.FocusIn
-        ):
+        if self.isVisible() and obj != self and event.type() == QtCore.QEvent.FocusIn:
             parent = self.parent()
-            if (
-                isinstance(obj, QtWidgets.QWidget)
-                and parent.isAncestorOf(obj)
-            ):
+            if isinstance(obj, QtWidgets.QWidget) and parent.isAncestorOf(obj):
                 # Ensure the targeted object loses its focus.
                 obj.clearFocus()
 
@@ -157,10 +149,9 @@ class Overlay(QtWidgets.QFrame):
                     # Keep track of candidates to avoid infinite recursion.
                     seen.append(candidate)
 
-                    if (
-                        isinstance(candidate, QtWidgets.QWidget)
-                        and not parent.isAncestorOf(candidate)
-                    ):
+                    if isinstance(
+                        candidate, QtWidgets.QWidget
+                    ) and not parent.isAncestorOf(candidate):
                         candidate.setFocus(event.reason())
                         break
 

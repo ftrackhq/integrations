@@ -3,7 +3,10 @@
 
 from Qt import QtWidgets, QtCore
 
-from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import MaterialIconWidget
+from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import (
+    MaterialIconWidget,
+)
+
 
 class CircularButton(QtWidgets.QPushButton):
     def __init__(self, icon_name, color, diameter=32, parent=None):
@@ -14,8 +17,11 @@ class CircularButton(QtWidgets.QPushButton):
 
         self.setIcon(MaterialIconWidget(icon_name, color=color).icon)
 
-        self.setStyleSheet('''
+        self.setStyleSheet(
+            '''
             border: 1px solid {};
             border-radius: 16px;
-        '''.format(color))
-
+        '''.format(
+                color
+            )
+        )

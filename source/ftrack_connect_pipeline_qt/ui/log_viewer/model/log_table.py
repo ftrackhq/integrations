@@ -23,9 +23,7 @@ class LogTableModel(QtCore.QAbstractTableModel):
 
         super(LogTableModel, self).__init__(parent)
 
-        self._headers = [
-            'status', 'execution_time', 'plugin_name', 'plugin_type'
-        ]
+        self._headers = ['status', 'execution_time', 'plugin_name', 'plugin_type']
 
         self._data = []
 
@@ -37,7 +35,6 @@ class LogTableModel(QtCore.QAbstractTableModel):
         self.beginResetModel()
         self._data = log_items
         self.endResetModel()
-
 
     def rowCount(self, parent):
         '''Return the row count for the internal data.'''
@@ -85,10 +82,7 @@ class LogTableModel(QtCore.QAbstractTableModel):
 
     def headerData(self, col, orientation, role):
         '''Provide header data'''
-        if (
-            orientation == QtCore.Qt.Horizontal and
-            role == QtCore.Qt.DisplayRole
-        ):
+        if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
             return self._headers[col].capitalize()
         return None
 
@@ -107,9 +101,7 @@ class FilterProxyModel(QtCore.QSortFilterProxyModel):
 
     def filterAcceptsRowItself(self, source_row, source_parent):
         '''Provide a way to filter internal values.'''
-        return super(FilterProxyModel, self).filterAcceptsRow(
-            source_row, source_parent
-        )
+        return super(FilterProxyModel, self).filterAcceptsRow(source_row, source_parent)
 
     def filterAcceptsRow(self, source_row, source_parent):
         '''Override filterAcceptRow to filter to any entry.'''

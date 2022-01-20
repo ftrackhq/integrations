@@ -158,7 +158,9 @@ class Root(Item):
     def _fetchChildren(self):
         '''Fetch and return new child items.'''
         children = []
-        for entity in self._session.query('select name, full_name from Project where status is active'):
+        for entity in self._session.query(
+            'select name, full_name from Project where status is active'
+        ):
             children.append(Project(self._session, entity))
 
         return children
@@ -181,9 +183,7 @@ class Context(Item):
     def icon(self):
         '''Return icon.'''
         icon = self.entity.get('object_type', {}).get('icon', 'default')
-        return QtGui.QIcon(
-            ':/ftrack/image/light/object_type/{0}'.format(icon)
-        )
+        return QtGui.QIcon(':/ftrack/image/light/object_type/{0}'.format(icon))
 
     def _fetchChildren(self):
         '''Fetch and return new child items.'''
@@ -442,15 +442,13 @@ class EntityTreeProxyModel(QtCore.QSortFilterProxyModel):
             leftItem = sourceModel.item(left)
             rightItem = sourceModel.item(right)
 
-            if (
-                isinstance(leftItem, (Context, Project))
-                and not isinstance(rightItem, (Context, Project))
+            if isinstance(leftItem, (Context, Project)) and not isinstance(
+                rightItem, (Context, Project)
             ):
                 return self.sortOrder() == QtCore.Qt.AscendingOrder
 
-            elif (
-                not isinstance(leftItem, (Context, Project))
-                and isinstance(rightItem, (Context, Project))
+            elif not isinstance(leftItem, (Context, Project)) and isinstance(
+                rightItem, (Context, Project)
             ):
                 return self.sortOrder() == QtCore.Qt.DescendingOrder
 

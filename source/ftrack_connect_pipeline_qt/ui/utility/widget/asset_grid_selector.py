@@ -7,8 +7,12 @@ from functools import partial
 from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect_pipeline_qt.utils import BaseThread
-from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import AssetVersion as AssetVersionThumbnail
-from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import VersionComboBox
+from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import (
+    AssetVersion as AssetVersionThumbnail,
+)
+from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import (
+    VersionComboBox,
+)
 
 
 class AssetItem(QtWidgets.QPushButton):
@@ -16,9 +20,7 @@ class AssetItem(QtWidgets.QPushButton):
 
     def __init__(self, session, asset, context_id, parent=None):
         super(AssetItem, self).__init__(parent=parent)
-        self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
-        )
+        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
         self.setCheckable(True)
         self.setAutoExclusive(True)
 
@@ -50,21 +52,23 @@ class AssetItem(QtWidgets.QPushButton):
         self.version_combobox = VersionComboBox(self.session)
         self.version_combobox.set_context_id(self.context_id)
         self.version_combobox.set_asset_entity(self.asset)
-        self.current_version_number = self.version_combobox.currentText().split("Version ")[1]
+        self.current_version_number = self.version_combobox.currentText().split(
+            "Version "
+        )[1]
 
         self.layout().addWidget(self.thumbnail_widget, stretch=2)
         self.layout().addWidget(self.asset_name_label)
         self.layout().addWidget(self.version_combobox)
 
     def post_build(self):
-        self.version_combobox.currentIndexChanged.connect(
-            self._current_version_changed
-        )
+        self.version_combobox.currentIndexChanged.connect(self._current_version_changed)
 
     def _current_version_changed(self, current_index):
         if current_index == -1:
             return
-        self.current_version_number = self.version_combobox.currentText().split("Version ")[1]
+        self.current_version_number = self.version_combobox.currentText().split(
+            "Version "
+        )[1]
         current_idx = self.version_combobox.currentIndex()
         self.current_version_id = self.version_combobox.itemData(current_idx)
         self.thumbnail_widget.load(self.current_version_id)
@@ -79,9 +83,7 @@ class AssetGridSelector(QtWidgets.QWidget):
 
     def __init__(self, session, parent=None):
         super(AssetGridSelector, self).__init__(parent=parent)
-        self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
-        )
+        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
 
         self.session = session
         self.context_id = None
@@ -107,6 +109,7 @@ class AssetGridSelector(QtWidgets.QWidget):
     def set_context(self, context_id, asset_type_name):
         self.logger.debug('setting context to :{}'.format(context_id))
         self.context_id = context_id
+        self._asset_type_name = asset_type_name
         self._on_context_changed(context_id, asset_type_name)
 
     def clear_layout(self):
@@ -122,7 +125,7 @@ class AssetGridSelector(QtWidgets.QWidget):
             name='get_assets_thread',
             target=self.query_assets_from_context,
             callback=self.add_assets_to_ui,
-            target_args=(context_id, asset_type_name)
+            target_args=(context_id, asset_type_name),
         )
         thread.start()
 
@@ -134,7 +137,8 @@ class AssetGridSelector(QtWidgets.QWidget):
             'select name, type.id, id, latest_version, '
             'latest_version.id, latest_version.version '
             'from Asset where versions.task.id is {} and type.id is {}'.format(
-                context_id, asset_type_entity['id'])
+                context_id, asset_type_entity['id']
+            )
         ).all()
 
         return assets
@@ -143,7 +147,7 @@ class AssetGridSelector(QtWidgets.QWidget):
         self.assets_query_done.emit(assets)
 
     def add_items(self, assets):
-        if 0<len(assets):
+        if 0 < len(assets):
             row = 0
             column = 0
             for asset in assets:
@@ -156,19 +160,25 @@ class AssetGridSelector(QtWidgets.QWidget):
                     self._pre_select_asset(asset_item)
 
                 self.layout().addWidget(asset_item, row, column)
-                if column == self.max_column-1:
+                if column == self.max_column - 1:
                     row += 1
                     column = 0
                 else:
                     column += 1
-            while column < self.max_column-1:
+            while column < self.max_column - 1:
                 filler_label = QtWidgets.QLabel()
                 filler_label.setMinimumWidth(130)
                 self.layout().addWidget(filler_label, row, column)
                 column += 1
         else:
-            self.layout().addWidget(QtWidgets.QLabel(
-                '<html><i>No version(s) published at this context!</i></html>'), 0, 0)
+            self.layout().addWidget(
+                QtWidgets.QLabel(
+                    '<html><i>No version(s) having "{}" assets published at this context!'
+                    '</i></html>'.format(self._asset_type_name)
+                ),
+                0,
+                0,
+            )
 
     def _on_asset_changed(self, asset_item):
         self.current_asset_entity = asset_item.asset

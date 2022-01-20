@@ -9,12 +9,12 @@ UI_OVERRIDES = {
         'step_container': default_widgets.DefaultStepContainerWidget,
         'step_widget': None,
         'stage_widget': default_widgets.DefaultStageWidget,
-        'plugin_container': None
+        'plugin_container': None,
     },
     core_constants.COMPONENTS: {
         'step_container': default_widgets.DefaultStepContainerWidget,
-        'step_container.loader': override_widgets.ComboBoxStepContainerWidget,
-        'step_widget.loader': override_widgets.ComboBoxItemStepWidget,
+        'step_container.loader': override_widgets.RadioButtonStepContainerWidget,
+        'step_widget.loader': override_widgets.RadioButtonItemStepWidget,
         'step_widget.publisher': override_widgets.AccordionStepWidget,
         'stage_widget': default_widgets.DefaultStageWidget,
         # Example to override specific stage widget
@@ -34,5 +34,5 @@ UI_OVERRIDES = {
         #'stage_widget': override_widgets.GroupBoxStageWidget,
         'stage_widget': default_widgets.DefaultStageWidget,
         'plugin_container': override_widgets.AccordionPluginContainerWidget,
-    }
+    },
 }

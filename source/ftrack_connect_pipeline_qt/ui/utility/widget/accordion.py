@@ -56,7 +56,8 @@ class AccordionWidget(QtWidgets.QWidget):
 
     def init_title_frame(self, title, collapsed):
         self._title_frame = AccordionTitleWidget(
-            title=title, collapsed=collapsed, checkable=self.checkable)
+            title=title, collapsed=collapsed, checkable=self.checkable
+        )
         return self._title_frame
 
     def init_content(self, collapsed):
@@ -102,9 +103,7 @@ class AccordionWidget(QtWidgets.QWidget):
     def _connect_inner_widgets(self, widget):
         if issubclass(widget.__class__, BaseOptionsWidget):
             self._widgets[widget] = widget
-            widget.status_updated.connect(
-                partial(self.update_inner_status, widget)
-            )
+            widget.status_updated.connect(partial(self.update_inner_status, widget))
             return
         inner_widgets = widget.findChildren(BaseOptionsWidget)
         self._widgets[widget] = inner_widgets
@@ -141,9 +140,7 @@ class AccordionWidget(QtWidgets.QWidget):
         self._content.setEnabled(check_enabled)
 
     def paint_title(self, color):
-        self._title_frame._title_label.setStyleSheet(
-            "color: {}".format(color)
-        )
+        self._title_frame._title_label.setStyleSheet("color: {}".format(color))
 
     def set_unavailable(self):
         self.setToolTip('This component is not available in ftrack')
@@ -182,12 +179,11 @@ class AccordionTitleWidget(QtWidgets.QFrame):
         self._title_label = None
         self._status = None
         self._checkbox = None
-        self._extra_buttons ={}
+        self._extra_buttons = {}
 
         self.title = title
         self.initial_collapse = collapsed
         self.checkable = checkable
-
 
         self.pre_build()
         self.build()
@@ -254,23 +250,24 @@ class AccordionTitleWidget(QtWidgets.QFrame):
 
 
 class OptionsButton(QtWidgets.QPushButton):
-
     def __init__(self, title, icon, parent=None):
         super(OptionsButton, self).__init__(parent=parent)
         self.name = title
 
         self.setMinimumSize(30, 30)
         self.setMaximumSize(30, 30)
-        #self.setContentsMargins(0, 0, 0, 0)
+        # self.setContentsMargins(0, 0, 0, 0)
 
-        #self.setText(self.name)
+        # self.setText(self.name)
         self.setIcon(icon)
-        self.setStyleSheet("""
+        self.setStyleSheet(
+            """
             QPushButton {
                 font: 14px;
                 text-align: center;
             }
-        """)
+        """
+        )
         self.setFlat(True)
 
         self.build()
@@ -296,13 +293,18 @@ class OptionsButton(QtWidgets.QPushButton):
     def add_validator_widget(self, widget):
         self.main_widget.layout().addWidget(QtWidgets.QLabel(''))
         self.main_widget.layout().addWidget(QtWidgets.QLabel(''))
-        self.main_widget.layout().addWidget(QtWidgets.QLabel('<html><strong>Validators:<strong><html>'))
+        self.main_widget.layout().addWidget(
+            QtWidgets.QLabel('<html><strong>Validators:<strong><html>')
+        )
         self.main_widget.layout().addWidget(widget)
 
     def add_output_widget(self, widget):
         self.main_widget.layout().addWidget(QtWidgets.QLabel(''))
-        self.main_widget.layout().addWidget(QtWidgets.QLabel('<html><strong>Output:<strong><html>'))
+        self.main_widget.layout().addWidget(
+            QtWidgets.QLabel('<html><strong>Output:<strong><html>')
+        )
         self.main_widget.layout().addWidget(widget)
+
 
 class AccordionStatus(QtWidgets.QLabel):
     # #: Unknown status of plugin execution.
@@ -323,17 +325,18 @@ class AccordionStatus(QtWidgets.QLabel):
 
     def __init__(self, parent=None):
         super(AccordionStatus, self).__init__(parent=parent)
-        #icon = self.status_icons[constants.DEFAULT_STATUS]
+        # icon = self.status_icons[constants.DEFAULT_STATUS]
         icon = qta.icon('mdi6.check', color='gray')
         self.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
-        self.setPixmap(icon.pixmap(QtCore.QSize(16,16)))
+        self.setPixmap(icon.pixmap(QtCore.QSize(16, 16)))
 
     def set_status(self, status, message=None):
-        #icon = self.status_icons[status]
+        # icon = self.status_icons[status]
         icon = qta.icon('mdi6.check', color='gray')
-        self.setPixmap(icon.pixmap(QtCore.QSize(16,16)))
+        self.setPixmap(icon.pixmap(QtCore.QSize(16, 16)))
         if message:
             self.setToolTip(str(message))
+
 
 class Arrow(QtWidgets.QFrame):
     def __init__(self, parent=None, collapsed=False):
@@ -347,7 +350,7 @@ class Arrow(QtWidgets.QFrame):
             [
                 QtCore.QPointF(7.0, 8.0),
                 QtCore.QPointF(17.0, 8.0),
-                QtCore.QPointF(12.0, 13.0)
+                QtCore.QPointF(12.0, 13.0),
             ]
         )
         # vertical == 1
@@ -355,7 +358,7 @@ class Arrow(QtWidgets.QFrame):
             [
                 QtCore.QPointF(8.0, 7.0),
                 QtCore.QPointF(13.0, 12.0),
-                QtCore.QPointF(8.0, 17.0)
+                QtCore.QPointF(8.0, 17.0),
             ]
         )
         # arrow

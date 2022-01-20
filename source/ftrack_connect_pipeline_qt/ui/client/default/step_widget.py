@@ -13,14 +13,11 @@ class DefaultStepWidget(BaseUIWidget):
     def is_enabled(self):
         return self.check_box.isChecked()
 
-
     def __init__(self, name, fragment_data, parent=None):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
 
-        super(DefaultStepWidget, self).__init__(
-            name, fragment_data, parent=parent
-        )
+        super(DefaultStepWidget, self).__init__(name, fragment_data, parent=parent)
 
         self._component = None
 
@@ -58,9 +55,9 @@ class DefaultStepWidget(BaseUIWidget):
         self.set_enabled(False)
 
     def set_available(self):
-        self.check_box.setChecked(True)
         self.widget.setEnabled(True)
         self.set_enabled(True)
+        self.check_box.setChecked(True)
         if not self.is_optional:
             self.check_box.setEnabled(False)
         else:

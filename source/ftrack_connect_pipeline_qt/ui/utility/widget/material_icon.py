@@ -6,10 +6,12 @@ from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect_pipeline_qt import constants
 
+
 class MaterialIconWidget(QtWidgets.QWidget):
     @property
     def icon(self):
         return self._icon
+
     def __init__(self, name, parent=None, color=None):
         super(MaterialIconWidget, self).__init__(parent=parent)
         self.setLayout(QtWidgets.QHBoxLayout())
