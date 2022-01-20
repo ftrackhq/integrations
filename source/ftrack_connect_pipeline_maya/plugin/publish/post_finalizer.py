@@ -3,30 +3,30 @@
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
-from ftrack_connect_pipeline_maya.plugin import (
-    BaseMayaPlugin, BaseMayaPluginWidget
-)
+from ftrack_connect_pipeline_maya.plugin import BaseMayaPlugin, BaseMayaPluginWidget
 
 
-class PublisherPostFinalizerMayaPlugin(plugin.PublisherPostFinalizerPlugin, BaseMayaPlugin):
-    ''' Class representing a Post Finalizer Plugin
+class PublisherPostFinalizerMayaPlugin(
+    plugin.PublisherPostFinalizerPlugin, BaseMayaPlugin
+):
+    '''Class representing a Post Finalizer Plugin
 
-        .. note::
+    .. note::
 
-            _required_output is a dictionary containing the 'context_id',
-            'asset_name', 'asset_type_name', 'comment' and 'status_id' of the
-            current asset
+        _required_output is a dictionary containing the 'context_id',
+        'asset_name', 'asset_type_name', 'comment' and 'status_id' of the
+        current asset
     '''
 
 
 class PublisherPostFinalizerMayaWidget(
     pluginWidget.PublisherPostFinalizerWidget, BaseMayaPluginWidget
 ):
-    ''' Class representing a Finalizer Widget
+    '''Class representing a Finalizer Widget
 
-        .. note::
+    .. note::
 
-            _required_output is a dictionary containing the 'context_id',
-            'asset_name', 'asset_type_name', 'comment' and 'status_id' of the
-            current asset
+        _required_output is a dictionary containing the 'context_id',
+        'asset_name', 'asset_type_name', 'comment' and 'status_id' of the
+        current asset
     '''

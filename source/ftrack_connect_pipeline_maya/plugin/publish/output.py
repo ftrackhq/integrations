@@ -3,13 +3,11 @@
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
-from ftrack_connect_pipeline_maya.plugin import (
-    BaseMayaPlugin, BaseMayaPluginWidget
-)
+from ftrack_connect_pipeline_maya.plugin import BaseMayaPlugin, BaseMayaPluginWidget
 
 
 class PublisherOutputMayaPlugin(plugin.PublisherOutputPlugin, BaseMayaPlugin):
-    ''' Class representing an Output Plugin
+    '''Class representing an Output Plugin
     .. note::
 
         _required_output a Dictionary
@@ -19,8 +17,8 @@ class PublisherOutputMayaPlugin(plugin.PublisherOutputPlugin, BaseMayaPlugin):
 class PublisherOutputMayaWidget(
     pluginWidget.PublisherOutputWidget, BaseMayaPluginWidget
 ):
-    ''' Class representing an Output Widget
-        .. note::
+    '''Class representing an Output Widget
+    .. note::
 
-            _required_output a Dictionary
+        _required_output a Dictionary
     '''

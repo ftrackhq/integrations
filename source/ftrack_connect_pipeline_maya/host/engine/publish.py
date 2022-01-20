@@ -13,6 +13,3 @@ class MayaPublisherEngine(PublisherEngine):
         super(MayaPublisherEngine, self).__init__(
             event_manager, host_types, host_id, asset_type_name
         )
-
-
-

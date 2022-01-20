@@ -40,7 +40,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             'status': status,
             'result': result,
             'execution_time': 0,
-            'message': message
+            'message': message,
         }
 
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
@@ -48,9 +48,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
 
         if ftrack_asset_nodes:
             for ftrack_object in ftrack_asset_nodes:
-                param_dict = FtrackAssetNode.get_parameters_dictionary(
-                    ftrack_object
-                )
+                param_dict = FtrackAssetNode.get_parameters_dictionary(ftrack_object)
                 node_asset_info = FtrackAssetInfo(param_dict)
                 ftrack_asset_info_list.append(node_asset_info)
 
@@ -98,16 +96,14 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             'status': status,
             'result': result,
             'execution_time': 0,
-            'message': message
+            'message': message,
         }
 
         ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
 
         reference_node = False
         for node in cmds.listConnections(
-            '{}.{}'.format(
-                ftrack_asset_object.ftrack_object, asset_const.ASSET_LINK
-            )
+            '{}.{}'.format(ftrack_asset_object.ftrack_object, asset_const.ASSET_LINK)
         ):
             if cmds.nodeType(node) == 'reference':
                 reference_node = maya_utils.getReferenceNode(node)
@@ -123,7 +119,8 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             except Exception as error:
                 message = str(
                     'Could not remove the reference node {}, error: {}'.format(
-                        str(reference_node), error)
+                        str(reference_node), error
+                    )
                 )
                 self.logger.error(message)
                 status = constants.ERROR_STATUS
@@ -147,9 +144,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                 )
             )
             for node in nodes:
-                self.logger.debug(
-                    "Removing object: {}".format(node)
-                )
+                self.logger.debug("Removing object: {}".format(node))
                 try:
                     if cmds.objExists(node):
                         cmds.delete(node)
@@ -157,9 +152,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                         status = constants.SUCCESS_STATUS
                 except Exception as error:
                     message = str(
-                        'Node: {0} could not be deleted, error: {1}'.format(
-                            node, error
-                        )
+                        'Node: {0} could not be deleted, error: {1}'.format(node, error)
                     )
                     self.logger.error(message)
                     status = constants.ERROR_STATUS
@@ -239,7 +232,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             'status': status,
             'result': result,
             'execution_time': 0,
-            'message': message
+            'message': message,
         }
 
         ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
@@ -248,9 +241,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             cmds.select(cl=True)
 
         nodes = cmds.listConnections(
-            '{}.{}'.format(
-                ftrack_asset_object.ftrack_object, asset_const.ASSET_LINK
-            )
+            '{}.{}'.format(ftrack_asset_object.ftrack_object, asset_const.ASSET_LINK)
         )
         for node in nodes:
             try:
@@ -259,8 +250,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                 status = constants.SUCCESS_STATUS
             except Exception as error:
                 message = str(
-                    'Could not select the node {}, error: {}'.format(
-                        str(node), error)
+                    'Could not select the node {}, error: {}'.format(str(node), error)
                 )
                 self.logger.error(message)
                 status = constants.ERROR_STATUS

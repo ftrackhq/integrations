@@ -13,6 +13,7 @@ class MayaPublisherClient(MayaQWidgetDockableMixin, QtPublisherClient):
     ui_types = [constants.UI_TYPE, qt_constants.UI_TYPE, maya_constants.UI_TYPE]
 
     '''Dockable maya load widget'''
+
     def __init__(self, event_manager, parent=None):
         super(MayaPublisherClient, self).__init__(
             event_manager=event_manager, parent=parent
@@ -22,6 +23,11 @@ class MayaPublisherClient(MayaQWidgetDockableMixin, QtPublisherClient):
 
     def show(self):
         super(MayaPublisherClient, self).show(
-            dockable=True, floating=False, area='right',
-            width=200, height=300, x=300, y=600
-    )
+            dockable=True,
+            floating=False,
+            area='right',
+            width=200,
+            height=300,
+            x=300,
+            y=600,
+        )

@@ -13,6 +13,7 @@ class MayaLoaderClient(MayaQWidgetDockableMixin, QtLoaderClient):
     ui_types = [constants.UI_TYPE, qt_constants.UI_TYPE, maya_constants.UI_TYPE]
 
     '''Dockable maya load widget'''
+
     def __init__(self, event_manager, parent=None):
         super(MayaLoaderClient, self).__init__(
             event_manager=event_manager, parent=parent
@@ -21,6 +22,11 @@ class MayaLoaderClient(MayaQWidgetDockableMixin, QtLoaderClient):
 
     def show(self):
         super(MayaLoaderClient, self).show(
-            dockable=True, floating=False, area='right',
-            width=200, height=300, x=300, y=600
-    )
+            dockable=True,
+            floating=False,
+            area='right',
+            width=200,
+            height=300,
+            x=300,
+            y=600,
+        )

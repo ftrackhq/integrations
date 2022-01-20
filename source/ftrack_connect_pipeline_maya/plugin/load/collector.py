@@ -3,13 +3,11 @@
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
-from ftrack_connect_pipeline_maya.plugin import (
-    BaseMayaPlugin, BaseMayaPluginWidget
-)
+from ftrack_connect_pipeline_maya.plugin import BaseMayaPlugin, BaseMayaPluginWidget
 
 
 class LoaderCollectorMayaPlugin(plugin.LoaderCollectorPlugin, BaseMayaPlugin):
-    ''' Class representing a Collector Plugin
+    '''Class representing a Collector Plugin
 
     .. note::
 
@@ -20,10 +18,9 @@ class LoaderCollectorMayaPlugin(plugin.LoaderCollectorPlugin, BaseMayaPlugin):
 class LoaderCollectorMayaWidget(
     pluginWidget.LoaderCollectorWidget, BaseMayaPluginWidget
 ):
-    ''' Class representing a Collector Widget
+    '''Class representing a Collector Widget
 
     .. note::
 
         _required_output a List
     '''
-
