@@ -13,7 +13,7 @@ class PromptDialog(QtWidgets.QDialog):
     def __init__(self, message, parent=None):
         super().__init__(parent)
 
-        self.setWindowTitle("Open")
+        self.setWindowTitle("ftrack Open")
         self.buttonBox = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel
         )
@@ -53,16 +53,16 @@ class QtOpenClient(QtClient):
 
     def definition_changed(self, definition, available_components_count):
         '''React upon change of definition, or no versions/components(definitions) available.'''
-        if definition is not None:
-            if not available_components_count:
-                # We have definitions that can open but nothing previously published
-                # TODO: Search among work files and see if there is and crash scene from previous seession
-                dlg = PromptDialog('Nothing to open, assemble a new scene?', self)
-                if dlg.exec_():
-                    # Close and open assembler
-                    self.hide()
-            elif available_components_count == 1:
-                dlg = PromptDialog('Open latest?', self)
-                if dlg.exec_():
-                    # Trig open
-                    self.run_button.click()
+        if available_components_count == 0:
+            # We have no definitions or nothing previously published
+            # TODO: Search among work files and see if there is and crash scene from previous seession
+            dlg = PromptDialog('Nothing to open, assemble a new scene?', self)
+            if dlg.exec_():
+                # Close and open assembler
+                self.hide()
+                raise NotImplementedError('Assembler open not implemented!')
+        elif definition is not None and available_components_count == 1:
+            dlg = PromptDialog('Open latest?', self)
+            if dlg.exec_():
+                # Trig open
+                self.run_button.click()

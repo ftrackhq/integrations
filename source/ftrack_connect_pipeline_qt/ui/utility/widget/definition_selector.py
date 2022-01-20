@@ -231,6 +231,9 @@ class DefinitionSelectorButtons(DefinitionSelector):
 
         self.definitions = []
 
+        latest_version = None  # The current latest version
+        index_latest_version = -1
+
         for schema in self.schemas:
             schema_title = schema.get('title').lower()
             if self._definition_title_filter:
@@ -240,12 +243,11 @@ class DefinitionSelectorButtons(DefinitionSelector):
             self.definitions = items
 
             index = 0
-            latest_version = None  # The current latest version
-            index_latest_version = 0
             for item in items:
                 # Remove ' Publisher/Loader'
                 text = '{}'.format(' '.join(item.get('name').split(' ')[:-1]))
                 component_names_filter = None  # Outlined openable components
+                enable = True
                 if self._definition_extensions_filter is not None:
                     # Open mode; Only provide the schemas, and components that
                     # can load the file extensions. Peek into versions and pre-select
@@ -279,6 +281,7 @@ class DefinitionSelectorButtons(DefinitionSelector):
                         continue
                     # Check if any versions at all, find out asset type name from package
                     asset_type_name = None
+                    asset_version = None
                     for package in self.host_connection.definitions['package']:
                         if package['name'] == item.get('package'):
                             asset_type_name = package['asset_type_name']
@@ -296,29 +299,41 @@ class DefinitionSelectorButtons(DefinitionSelector):
                         ):
                             latest_version = asset_version
                             index_latest_version = index
+                    if asset_version is None:
+                        enable = False
                 if not self._definition_title_filter:
                     text = '{} - {}'.format(schema.get('title'), item.get('name'))
                 definition_button = DefinitionItem(
                     text.upper(), item, component_names_filter
                 )
                 self.button_group.addButton(definition_button)
+                definition_button.setEnabled(enable)
                 self.definition_buttons_widget.layout().addWidget(definition_button)
                 definition_button.clicked.connect(
                     partial(self._on_select_definition, definition_button)
                 )
                 definition_button.setToolTip(json.dumps(item, indent=4))
                 index += 1
-            self.button_group.buttons()[index_latest_version].click()
+
         if self.definition_buttons_widget.layout().count() == 0:
             self.no_definitions_label.setText(
-                '<html><i>No loader definitions available to open files of type {}!'
+                '<html><i>No pipeline loader definitions available to open files of type {}!'
                 '</i></html>'.format(self._definition_extensions_filter)
             )
             self.no_definitions_label.setVisible(True)
             self.definition_changed.emit(
                 None, None, None
             )  # Tell client there are no definitions
+        elif index_latest_version == -1:
+            # No versions
+            self.no_definitions_label.setText(
+                '<html><i>No version available to open!</i></html>'
+            )
+            self.definition_changed.emit(
+                None, None, None
+            )  # Tell client there are no versions
         else:
+            self.button_group.buttons()[index_latest_version].click()
             self.no_definitions_label.setVisible(False)
         self.definition_buttons_widget.layout().addStretch()
 

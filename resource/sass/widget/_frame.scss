@@ -1,12 +1,12 @@
-QFrame[background='transparent'] {
+QFrame[background='transparent'], QDialog[background='transparent'] {
     background: transparent;
 }
 
-QFrame[background='default'] {
+QFrame[background='default'], QDialog[background='default'] {
     background: rgb(55,55,55);
 }
 
-QFrame[background='houdini'] {
+QFrame[background='houdini'], QDialog[background='houdini'] {
     background: rgb(55,55,55);
 }
 

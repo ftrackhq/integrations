@@ -205,7 +205,6 @@ class AssetListSelector(QtWidgets.QFrame):
     def _pre_select_asset(self):
         '''Assets have been loaded, select most suitable asset to start with
         - have the most recent published version'''
-
         recent_version = None
         selected_index = -1
         for idx, asset in enumerate(self.asset_list.assets):
@@ -215,7 +214,8 @@ class AssetListSelector(QtWidgets.QFrame):
             ):
                 recent_version = asset['latest_version']
                 selected_index = idx
-        self.asset_list.setCurrentRow(selected_index)
+        if selected_index > -1:
+            self.asset_list.setCurrentRow(selected_index)
         self.list_and_input._size_changed()
 
     def _list_item_changed(self):

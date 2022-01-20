@@ -294,13 +294,23 @@ class OpenContextWidget(BaseOptionsWidget):
         '''hook events'''
         super(OpenContextWidget, self).post_build()
         self.asset_selector.asset_changed.connect(self._on_asset_changed)
+        self.asset_selector.asset_list.assets_added.connect(self._update_label)
 
     def _build_asset_selector(self):
-        label = QtWidgets.QLabel("Choose which asset and version to open")
-        self.main_layout.addWidget(label)
+        self._label = QtWidgets.QLabel("")
+        self.main_layout.addWidget(self._label)
 
         self.asset_selector = AssetListSelector(self.session)
         self.main_layout.addWidget(self.asset_selector)
+
+    def _update_label(self):
+        if len(self.asset_selector.asset_list.assets or []) > 0:
+            self._label.setText('Choose which asset and version to open')
+        else:
+            self._label.setText(
+                '<html><i>No version(s) available having "{}" '
+                'assets published!</i></html>'.format(self.asset_type_name)
+            )
 
     def _on_asset_changed(
         self, asset_name, asset_entity, asset_version_id, version_num

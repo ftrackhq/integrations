@@ -142,7 +142,6 @@ class QtClient(client.Client, QtWidgets.QFrame):
         self.run_button = QtWidgets.QPushButton(
             self.client_name.upper() if self.client_name else 'Run'
         )
-        self.run_button.setVisible(False)
         self.run_button.setObjectName('large')
         self.layout().addWidget(self.run_button)
 
@@ -213,7 +212,7 @@ class QtClient(client.Client, QtWidgets.QFrame):
 
         if not schema and not definition:
             self.definition_changed(None, 0)
-            self.run_button.setVisible(False)
+            self.run_button.setText('OPEN ASSEMBLER')
             return
 
         super(QtClient, self).change_definition(schema, definition)
@@ -228,6 +227,7 @@ class QtClient(client.Client, QtWidgets.QFrame):
             definition['name'], self.definition, component_names_filter
         )
         self.scroll.setWidget(self.definition_widget)
+        self.run_button.setText('OPEN ASSEMBLER')
 
     def definition_changed(self, definition, available_components_count):
         '''Can be overridden by child'''
@@ -243,6 +243,9 @@ class QtClient(client.Client, QtWidgets.QFrame):
 
     def _on_run_definition(self):
         '''Function called when click the run button'''
+        if self.definition is None:
+            # TODO: Open assembler
+            raise NotImplementedError('Assembler open not implemented!')
         serialized_data = self.widget_factory.to_json_object()
         if not self.is_valid_asset_name:
             msg = "Can't publish without a valid asset name"
@@ -254,7 +257,11 @@ class QtClient(client.Client, QtWidgets.QFrame):
         self.run_definition(serialized_data, engine_type)
 
     def _on_components_checked(self, available_components_count):
-        self.run_button.setVisible(available_components_count > 0)
+        self.run_button.setText(
+            self.client_name.uppoer()
+            if available_components_count > 0
+            else 'OPEN ASSEMBLER'
+        )
         self.definition_changed(self.definition, available_components_count)
 
     def _notify_client(self, event):
