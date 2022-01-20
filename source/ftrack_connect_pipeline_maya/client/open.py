@@ -54,7 +54,7 @@ class MayaOpenDialog(QtWidgets.QDialog):
 
         self.setModal(True)
 
-        self.setWindowTitle('Open')
+        self.setWindowTitle('ftrack Open')
         self.resize(450, 530)
 
     def show(self):
