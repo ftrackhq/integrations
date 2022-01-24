@@ -15,11 +15,9 @@ def test_discover_host(host, event_manager):
 
 
 def test_discover_host_callback(host, event_manager):
-
     def callback(hosts):
         assert len(hosts) == 1
 
     client_connection = client.Client(event_manager)
     client_connection.on_ready(callback)
     assert client_connection.host_connections
-
