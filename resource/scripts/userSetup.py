@@ -15,18 +15,19 @@ import maya.utils
 import ftrack_api
 
 from ftrack_connect_pipeline.configure_logging import configure_logging
+
 extra_handlers = {
-    'maya':{
-            'class': 'maya.utils.MayaGuiLogHandler',
-            'level': 'INFO',
-            'formatter': 'file',
-        }
+    'maya': {
+        'class': 'maya.utils.MayaGuiLogHandler',
+        'level': 'INFO',
+        'formatter': 'file',
+    }
 }
 configure_logging(
     'ftrack_connect_pipeline_maya',
     extra_modules=['ftrack_connect_pipeline', 'ftrack_connect_pipeline_qt'],
     extra_handlers=extra_handlers,
-    propagate=False
+    propagate=False,
 )
 
 
@@ -35,42 +36,26 @@ logger = logging.getLogger('ftrack_connect_pipeline_maya')
 
 created_dialogs = dict()
 
-def get_ftrack_menu(menu_name = 'ftrack', submenu_name = 'pipeline'):
+
+def get_ftrack_menu(menu_name='ftrack', submenu_name='pipeline'):
     '''Get the current ftrack menu, create it if does not exists.'''
     gMainWindow = mm.eval('$temp1=$gMainWindow')
 
-    if cmds.menu(
-            menu_name,
-            exists=True,
-            parent=gMainWindow,
-            label=menu_name
-    ):
+    if cmds.menu(menu_name, exists=True, parent=gMainWindow, label=menu_name):
         menu = menu_name
 
     else:
-        menu = cmds.menu(
-            menu_name,
-            parent=gMainWindow,
-            tearOff=False,
-            label=menu_name
-        )
+        menu = cmds.menu(menu_name, parent=gMainWindow, tearOff=False, label=menu_name)
 
-    if cmds.menuItem(
-            submenu_name,
-            exists=True,
-            parent=menu,
-            label=submenu_name
-        ):
-            submenu = submenu_name
+    if cmds.menuItem(submenu_name, exists=True, parent=menu, label=submenu_name):
+        submenu = submenu_name
     else:
         submenu = cmds.menuItem(
-            submenu_name,
-            subMenu=True,
-            label=submenu_name,
-            parent=menu
+            submenu_name, subMenu=True, label=submenu_name, parent=menu
         )
 
     return submenu
+
 
 def _open_dialog(dialog_class, event_manager):
     '''Open *dialog_class* and create if not already existing.'''
@@ -78,9 +63,7 @@ def _open_dialog(dialog_class, event_manager):
 
     if dialog_name not in created_dialogs:
         ftrack_dialog = dialog_class
-        created_dialogs[dialog_name] = ftrack_dialog(
-            event_manager
-        )
+        created_dialogs[dialog_name] = ftrack_dialog(event_manager)
 
     created_dialogs[dialog_name].show()
 
@@ -110,21 +93,11 @@ def initialise():
     # Enable loader and publisher only if is set to run local (default)
     dialogs = []
 
-    dialogs.append(
-        (open.MayaOpenDialog, 'Open')
-    )
-    dialogs.append(
-        (load.MayaLoaderClient, 'Loader')
-    )
-    dialogs.append(
-        (publish.MayaPublisherClient, 'Publisher')
-    )
-    dialogs.append(
-        (asset_manager.MayaAssetManagerClient, 'Asset Manager')
-    )
-    dialogs.append(
-        (log_viewer.MayaLogViewerClient, 'Log Viewer')
-    )
+    dialogs.append((open.MayaOpenDialog, 'Open'))
+    dialogs.append((load.MayaLoaderClient, 'Loader'))
+    dialogs.append((publish.MayaPublisherClient, 'Publisher'))
+    dialogs.append((asset_manager.MayaAssetManagerClient, 'Asset Manager'))
+    dialogs.append((log_viewer.MayaLogViewerClient, 'Log Viewer'))
 
     ftrack_menu = get_ftrack_menu()
     # Register and hook the dialog in ftrack menu
@@ -139,11 +112,11 @@ def initialise():
             parent=ftrack_menu,
             label=label,
             command=(
-                lambda x, dialog_class=dialog_class: _open_dialog(dialog_class, event_manager)
-            )
+                lambda x, dialog_class=dialog_class: _open_dialog(
+                    dialog_class, event_manager
+                )
+            ),
         )
-
-
 
 
 cmds.evalDeferred('initialise()', lp=True)
