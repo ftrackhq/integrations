@@ -51,18 +51,18 @@ def on_launch_nuke_pipeline(session, event):
 
     if selection:
         task = session.get('Context', selection[0]['entityId'])
-        pipeline_nuke_base_data['integration']['env']['FTRACK_CONTEXTID.set'] = task[
-            'id'
-        ]
-        pipeline_nuke_base_data['integration']['env']['FS.set'] = task['parent'][
-            'custom_attributes'
-        ].get('fstart', '1.0')
-        pipeline_nuke_base_data['integration']['env']['FE.set'] = task['parent'][
-            'custom_attributes'
-        ].get('fend', '100.0')
-        pipeline_nuke_base_data['integration']['env']['FPS.set'] = task['parent'][
-            'custom_attributes'
-        ].get('fps', '24.0')
+        pipeline_nuke_base_data['integration']['env'][
+            'FTRACK_CONTEXTID.set'
+        ] = task['id']
+        pipeline_nuke_base_data['integration']['env']['FS.set'] = task[
+            'parent'
+        ]['custom_attributes'].get('fstart', '1.0')
+        pipeline_nuke_base_data['integration']['env']['FE.set'] = task[
+            'parent'
+        ]['custom_attributes'].get('fend', '100.0')
+        pipeline_nuke_base_data['integration']['env']['FPS.set'] = task[
+            'parent'
+        ]['custom_attributes'].get('fps', '24.0')
 
     return pipeline_nuke_base_data
 
@@ -72,7 +72,9 @@ def register(session):
     if not isinstance(session, ftrack_api.session.Session):
         return
 
-    handle_discovery_event = functools.partial(on_discover_nuke_pipeline, session)
+    handle_discovery_event = functools.partial(
+        on_discover_nuke_pipeline, session
+    )
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.discover'

@@ -14,7 +14,11 @@ import ftrack_connect_pipeline_nuke.constants as nuke_constants
 class NukeOpenClient(QtOpenClient):
     '''Open client within dialog'''
 
-    ui_types = [constants.UI_TYPE, qt_constants.UI_TYPE, nuke_constants.UI_TYPE]
+    ui_types = [
+        constants.UI_TYPE,
+        qt_constants.UI_TYPE,
+        nuke_constants.UI_TYPE,
+    ]
     definition_extensions_filter = ['.nk']
 
     def __init__(self, event_manager):

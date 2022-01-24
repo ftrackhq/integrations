@@ -7,7 +7,10 @@ import base64
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
-from ftrack_connect_pipeline_nuke.plugin import BaseNukePlugin, BaseNukePluginWidget
+from ftrack_connect_pipeline_nuke.plugin import (
+    BaseNukePlugin,
+    BaseNukePluginWidget,
+)
 
 from ftrack_connect_pipeline_nuke.asset import FtrackAssetTab
 from ftrack_connect_pipeline_nuke.constants import asset as asset_const
@@ -50,7 +53,9 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
 
         json_data = json.dumps(event['data'])
         if six.PY2:
-            options[asset_const.ASSET_INFO_OPTIONS] = base64.b64encode(json_data)
+            options[asset_const.ASSET_INFO_OPTIONS] = base64.b64encode(
+                json_data
+            )
         else:
             input_bytes = json_data.encode('utf8')
             options[asset_const.ASSET_INFO_OPTIONS] = base64.b64encode(
@@ -93,7 +98,9 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
         return super_result
 
 
-class LoaderImporterNukeWidget(pluginWidget.LoaderImporterWidget, BaseNukePluginWidget):
+class LoaderImporterNukeWidget(
+    pluginWidget.LoaderImporterWidget, BaseNukePluginWidget
+):
     '''Class representing a Collector Widget
 
     .. note::

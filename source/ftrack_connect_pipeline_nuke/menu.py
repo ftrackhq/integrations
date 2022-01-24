@@ -13,7 +13,9 @@ def build_menu_widgets(ftrack_menu, event_manager):
         return NukeLoaderClient(event_manager)
 
     def wrap_publisher_class(*args, **kwargs):
-        from ftrack_connect_pipeline_nuke.client.publish import NukePublisherClient
+        from ftrack_connect_pipeline_nuke.client.publish import (
+            NukePublisherClient,
+        )
 
         return NukePublisherClient(event_manager)
 
@@ -25,7 +27,9 @@ def build_menu_widgets(ftrack_menu, event_manager):
         return NukeAssetManagerClient(event_manager)
 
     def wrap_log_viewer_class(*args, **kwargs):
-        from ftrack_connect_pipeline_nuke.client.log_viewer import NukeLogViewerClient
+        from ftrack_connect_pipeline_nuke.client.log_viewer import (
+            NukeLogViewerClient,
+        )
 
         return NukeLogViewerClient(event_manager)
 
@@ -62,7 +66,8 @@ def build_menu_widgets(ftrack_menu, event_manager):
 
     # Add menu commands
     ftrack_menu.addCommand(
-        'ftrack Open', 'cls={0}.{1};' 'cls().show()'.format(__name__, 'ftrackOpenClass')
+        'ftrack Open',
+        'cls={0}.{1};' 'cls().show()'.format(__name__, 'ftrackOpenClass'),
     )
 
     ftrack_menu.addCommand(
