@@ -134,7 +134,7 @@ class FtrackAssetBase(object):
         self.ftrack_object = None
         return self.ftrack_object
 
-    def check_dependencies(self):
+    def check_dependencies(self, session):
         '''Checks if there are already existing dependencies on the DCC app
         returns missing_ids, unconected_dependencies, untracked_dependencies
         missing_ids: are dependency id that are not found in the current scene
@@ -144,7 +144,7 @@ class FtrackAssetBase(object):
         connected to an ftrackNode
         '''
         if not self.asset_info.get(asset_const.DEPENDENCY_IDS):
-            return
+            return None, None, None
         return self.asset_info.get(asset_const.DEPENDENCY_IDS), None, None
 
     def connect_objects(self, objects):

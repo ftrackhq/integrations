@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 #: Unknown status of plugin execution.
-UNKNOWN_STATUS = 'UNKONWN_STATUS'
+UNKNOWN_STATUS = 'UNKNOWN_STATUS'
 #: Succed status of plugin execution.
 SUCCESS_STATUS = 'SUCCESS_STATUS'
 #: Warning status of plugin execution.

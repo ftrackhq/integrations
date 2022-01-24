@@ -11,3 +11,7 @@ PLUGIN_AM_ACTION_TYPE = 'asset_manager.{}'.format(
 PLUGIN_AM_DISCOVER_TYPE = 'asset_manager.{}'.format(
     plugin._PLUGIN_DISCOVER_TYPE
 )
+#: Asset Manager plugin type for action plugins
+PLUGIN_AM_RESOLVE_TYPE = 'asset_manager.{}'.format(
+    plugin._PLUGIN_RESOLVER_TYPE
+)

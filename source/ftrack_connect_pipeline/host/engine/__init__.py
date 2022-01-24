@@ -56,6 +56,7 @@ class BaseEngine(object):
         self.session = event_manager.session
         self._host_types = host_types
         self._host_id = host_id
+        self._definition = None
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -97,7 +98,8 @@ class BaseEngine(object):
                             'plugin_type': plugin_type,
                             'method': method,
                             'category': 'plugin',
-                            'host_type': host_type
+                            'host_type': host_type,
+                            'definition': self._definition['name'] if self._definition else None
                         },
                         'settings':
                             {
