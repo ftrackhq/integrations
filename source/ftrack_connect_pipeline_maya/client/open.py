@@ -37,29 +37,33 @@ class MayaOpenDialog(QtWidgets.QDialog):
 
     def __init__(self, event_manager, parent=None):
         super(MayaOpenDialog, self).__init__(parent=get_maya_window())
+        self._event_manager = event_manager
 
-        self._client = MayaOpenClient(event_manager)
+        self._client = None
 
-        self.pre_build()
-        self.build()
-
-        self.shown = False
-
-    def pre_build(self):
-        self.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
-
-    def build(self):
-        self.layout().addWidget(self._client)
+        self.rebuild()
 
         self.setModal(True)
 
         self.setWindowTitle('ftrack Open')
         self.resize(450, 530)
 
+    def rebuild(self):
+        self.pre_build()
+        self.build()
+
+    def pre_build(self):
+        self._client = MayaOpenClient(self._event_manager)
+        self.setLayout(QtWidgets.QHBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
+
+    def build(self):
+        self.layout().addWidget(self._client)
+
     def show(self):
-        if self.shown:
+        if self._client:
             # Widget has been shown before, reset client
-            self._client.context_selector.set_default_context_id()
+            self._client.setParent(None)
+            self.rebuild()
+
         super(MayaOpenDialog, self).show()
-        self.shown = True
