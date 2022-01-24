@@ -149,7 +149,9 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self.update_input(self._input_message, self._input_status)
         # self.clicked.connect(self.on_click)
         if self.check_mode != self.CHECK_MODE_NONE:
-            self.header.checkbox.stateChanged.connect(self.on_header_checkbox_checked)
+            self.header.checkbox.stateChanged.connect(
+                self.on_header_checkbox_checked
+            )
         self.header.clicked.connect(self.on_header_clicked)
         self.header.arrow.clicked.connect(self.on_header_arrow_clicked)
 
@@ -222,7 +224,9 @@ class AccordionBaseWidget(QtWidgets.QFrame):
 
     def set_indicator(self, indication):
         set_property(
-            self._indicator_widget, 'indicator', ('on' if indication else 'off')
+            self._indicator_widget,
+            'indicator',
+            ('on' if indication else 'off'),
         )
 
         self._indicator_widget.setVisible(True)
@@ -265,7 +269,9 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         # Paint selection status
         if self._select_mode == self.SELECT_MODE_LIST:
             set_property(
-                self, 'background', 'selected' if self._selected else 'transparent'
+                self,
+                'background',
+                'selected' if self._selected else 'transparent',
             )
 
 
@@ -321,7 +327,9 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
 
     def build(self):
         self.layout().addWidget(
-            self.init_checkbox(self.accordion.check_mode, self.accordion.checked)
+            self.init_checkbox(
+                self.accordion.check_mode, self.accordion.checked
+            )
         )
         self.layout().addWidget(self.init_title(self.title))
         self.layout().addWidget(self.init_content())
@@ -332,7 +340,9 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
 
     def init_checkbox(self, check_mode, checked):
         self._checkbox = QtWidgets.QCheckBox()
-        self._checkbox.setEnabled(check_mode == self.accordion.CHECK_MODE_CHECKBOX)
+        self._checkbox.setEnabled(
+            check_mode == self.accordion.CHECK_MODE_CHECKBOX
+        )
         self._checkbox.setVisible(check_mode != self.accordion.CHECK_MODE_NONE)
         self._checkbox.setChecked(checked)
         return self._checkbox
@@ -378,7 +388,9 @@ class ArrowMaterialIconWidget(MaterialIconWidget):
     clicked = QtCore.Signal(object)
 
     def __init__(self, name, color=None, parent=None):
-        super(ArrowMaterialIconWidget, self).__init__(name, color=color, parent=parent)
+        super(ArrowMaterialIconWidget, self).__init__(
+            name, color=color, parent=parent
+        )
 
     def mousePressEvent(self, event):
         self.clicked.emit(event)

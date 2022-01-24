@@ -111,5 +111,7 @@ class DynamicWidget(BaseOptionsWidget):
 
         for key, value in list(self.options.items()):
             value_type = type(value)
-            widget_fn = self._type_mapping.get(value_type, self._build_str_widget)
+            widget_fn = self._type_mapping.get(
+                value_type, self._build_str_widget
+            )
             widget_fn(key, value)

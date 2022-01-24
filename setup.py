@@ -53,7 +53,9 @@ class BuildResources(setuptools.Command):
 
         '''
         replace = r'from Qt import QtCore'
-        for line in fileinput.input(self.resource_target_path, inplace=True, mode='r'):
+        for line in fileinput.input(
+            self.resource_target_path, inplace=True, mode='r'
+        ):
             if r'import QtCore' in line:
                 # Calling print will yield a new line in the resource file.
                 sys.stdout.write(line.replace(line, replace))
@@ -74,7 +76,9 @@ class BuildResources(setuptools.Command):
 
         themes = ['style_light', 'style_dark']
         for theme in themes:
-            scss_source = os.path.join(self.sass_path, '{0}.scss'.format(theme))
+            scss_source = os.path.join(
+                self.sass_path, '{0}.scss'.format(theme)
+            )
             css_target = os.path.join(self.css_path, '{0}.css'.format(theme))
 
             compiled = compiler.compile(scss_file=scss_source)
@@ -159,7 +163,9 @@ class BuildPlugin(setuptools.Command):
         )
 
         shutil.make_archive(
-            os.path.join(BUILD_PATH, 'ftrack-connect-pipeline-qt-{0}'.format(VERSION)),
+            os.path.join(
+                BUILD_PATH, 'ftrack-connect-pipeline-qt-{0}'.format(VERSION)
+            ),
             'zip',
             STAGING_PATH,
         )

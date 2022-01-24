@@ -113,7 +113,9 @@ class AssetListModel(QtCore.QAbstractTableModel):
 
     def insertRows(self, position, data, index=QtCore.QModelIndex):
         rows = len(data)
-        self.beginInsertRows(QtCore.QModelIndex(), position, position + rows - 1)
+        self.beginInsertRows(
+            QtCore.QModelIndex(), position, position + rows - 1
+        )
         for row in range(rows):
             if position + row < len(self.__asset_entities_list):
                 self.__asset_entities_list.insert(position + row, data[row])
@@ -221,8 +223,11 @@ class AssetListWidget(QtWidgets.QWidget):
         modifiers = QtWidgets.QApplication.keyboardModifiers()
         if event.button() == QtCore.Qt.RightButton:
             return
-        if (modifiers == QtCore.Qt.Key_Meta and platform.system() != 'Darwin') or (
-            modifiers == QtCore.Qt.ControlModifier and platform.system() == 'Darwin'
+        if (
+            modifiers == QtCore.Qt.Key_Meta and platform.system() != 'Darwin'
+        ) or (
+            modifiers == QtCore.Qt.ControlModifier
+            and platform.system() == 'Darwin'
         ):
             # Add to selection
             pass
@@ -232,7 +237,9 @@ class AssetListWidget(QtWidgets.QWidget):
                 start_row = min(
                     self._last_clicked.index.row(), asset_widget.index.row()
                 )
-                end_row = max(self._last_clicked.index.row(), asset_widget.index.row())
+                end_row = max(
+                    self._last_clicked.index.row(), asset_widget.index.row()
+                )
                 for widget in self.assets:
                     if start_row < widget.index.row() < end_row:
                         widget.set_selected(True)

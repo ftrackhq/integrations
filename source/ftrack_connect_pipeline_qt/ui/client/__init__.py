@@ -59,7 +59,9 @@ class BaseUIWidget(object):
         '''
         super(BaseUIWidget, self).__init__()
         # setup default vars
-        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
 
         self.fragment_data = fragment_data
         self._parent = parent
@@ -101,7 +103,10 @@ class BaseUIWidget(object):
                 self.widget.layout().addWidget(widget.widget)
             else:
                 self.widget.layout().addWidget(widget)
-            if self.fragment_data and self.fragment_data.get('visible', True) is False:
+            if (
+                self.fragment_data
+                and self.fragment_data.get('visible', True) is False
+            ):
                 self._widget.setVisible(False)
         else:
             self.logger.error("Please create a widget before parent")

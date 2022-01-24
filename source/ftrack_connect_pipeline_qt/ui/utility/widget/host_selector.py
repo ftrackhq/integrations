@@ -16,7 +16,9 @@ class HostSelector(QtWidgets.QWidget):
     def __init__(self, parent=None):
         '''Initialize DefinitionSelector widget'''
         super(HostSelector, self).__init__(parent=parent)
-        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
         self.host_connections = []
         self.pre_build()
         self.build()

@@ -39,7 +39,10 @@ class Header(QtWidgets.QFrame):
         self.id_container.setLayout(self.id_container_layout)
 
         spacer = QtWidgets.QSpacerItem(
-            0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+            0,
+            0,
+            QtWidgets.QSizePolicy.Expanding,
+            QtWidgets.QSizePolicy.Minimum,
         )
 
         self.logo = Logo(self)

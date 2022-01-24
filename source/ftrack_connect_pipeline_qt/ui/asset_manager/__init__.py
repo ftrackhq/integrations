@@ -78,7 +78,9 @@ class AssetManagerWidget(QtWidgets.QWidget):
         filter_layout.addWidget(self.filter_field)
         self.layout().addLayout(filter_layout)
 
-        self.asset_table_view = AssetManagerTableView(self.event_manager, parent=self)
+        self.asset_table_view = AssetManagerTableView(
+            self.event_manager, parent=self
+        )
         self.layout().addWidget(self.asset_table_view)
 
     def post_build(self):
@@ -99,7 +101,9 @@ class AssetManagerWidget(QtWidgets.QWidget):
         Triggered when a version of the asset has changed on the
         :obj:`version_cb_delegate`
         '''
-        _asset_info = self.asset_table_view.asset_model.asset_entities_list[index.row()]
+        _asset_info = self.asset_table_view.asset_model.asset_entities_list[
+            index.row()
+        ]
         # Copy to avoid update automatically
         asset_info = _asset_info.copy()
         self.change_asset_version.emit(asset_info, value)
@@ -169,7 +173,8 @@ class AssetManagerWidget(QtWidgets.QWidget):
 
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.host_id={}'.format(
-                core_const.PIPELINE_CLIENT_NOTIFICATION, self.host_connection.id
+                core_const.PIPELINE_CLIENT_NOTIFICATION,
+                self.host_connection.id,
             ),
             self._update_widget,
         )
@@ -239,7 +244,8 @@ class AssetManagerTableView(QtWidgets.QTreeView):
         self.version_cb_delegate = VersionDelegate(self)
 
         self.setItemDelegateForColumn(
-            self.asset_model.get_version_column_index(), self.version_cb_delegate
+            self.asset_model.get_version_column_index(),
+            self.version_cb_delegate,
         )
 
     def post_build(self):

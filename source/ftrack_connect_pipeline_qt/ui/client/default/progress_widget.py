@@ -85,8 +85,11 @@ class PhaseButton(QtWidgets.QPushButton):
             for stage_result in results:
                 if stage_result.get('status') == False:
                     for plugin_result in stage_result.get('result'):
-                        plug_error = 'Plugin {} failed with message: {}'.format(
-                            plugin_result.get('name'), plugin_result.get('message')
+                        plug_error = (
+                            'Plugin {} failed with message: {}'.format(
+                                plugin_result.get('name'),
+                                plugin_result.get('message'),
+                            )
                         )
                         self.logged_errors.append(plug_error)
         if self.logged_errors:
@@ -109,9 +112,7 @@ class StatusButtonWidget(QtWidgets.QPushButton):
     status_icons = constants.icons.status_icons
 
     VIEW_COLLAPSED_BUTTON = 'collapsed-button'  # AM (Opens progress overlay)
-    VIEW_EXPANDED_BUTTON = (
-        'expanded-button'  # Opener/Assembler/Publisher (Opens progress overlay)
-    )
+    VIEW_EXPANDED_BUTTON = 'expanded-button'  # Opener/Assembler/Publisher (Opens progress overlay)
     VIEW_EXPANDED_BANNER = 'expanded-banner'  # Progress overlay
 
     def __init__(self, view_mode, parent=None):
@@ -166,14 +167,18 @@ class ProgressWidget(BaseUIWidget):
 
     component_widgets = {}
 
-    def __init__(self, name, fragment_data, parent=None, status_view_mode=None):
+    def __init__(
+        self, name, fragment_data, parent=None, status_view_mode=None
+    ):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
 
         self.content_widget = None
         self._status_view_mode = status_view_mode
 
-        super(ProgressWidget, self).__init__(name, fragment_data, parent=parent)
+        super(ProgressWidget, self).__init__(
+            name, fragment_data, parent=parent
+        )
         self.step_types = []
 
     def build(self):
@@ -206,7 +211,9 @@ class ProgressWidget(BaseUIWidget):
 
     def prepare_add_component(self):
         self.clear_components()
-        self.status_banner = StatusButtonWidget(StatusButtonWidget.VIEW_EXPANDED_BANNER)
+        self.status_banner = StatusButtonWidget(
+            StatusButtonWidget.VIEW_EXPANDED_BANNER
+        )
         self.content_widget.layout().addWidget(self.status_banner)
 
     def add_component(self, step_type, step_name):
@@ -248,4 +255,6 @@ class ProgressWidget(BaseUIWidget):
             if status != self.widget.get_status():
                 main_status_message = '{}: {}'.format(id_name, status_message)
                 self.widget.set_status(status, message=main_status_message)
-                self.status_banner.set_status(status, message=main_status_message)
+                self.status_banner.set_status(
+                    status, message=main_status_message
+                )

@@ -47,7 +47,9 @@ class Worker(QtCore.QThread):
         '''
         super(Worker, self).__init__(parent=parent)
 
-        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
 
         self.function = function
         self.args = args or []
@@ -83,7 +85,9 @@ def asynchronous(method):
             except:
                 sys.excepthook(*sys.exc_info())
 
-        thread = threading.Thread(target=exceptHookWrapper, args=args, kwargs=kwargs)
+        thread = threading.Thread(
+            target=exceptHookWrapper, args=args, kwargs=kwargs
+        )
         thread.start()
 
     return wrapper
@@ -122,7 +126,9 @@ def get_main_framework_window_from_widget(widget):
         return
 
     if qt_constants.MAIN_FRAMEWORK_WIDGET not in main_window.objectName():
-        parent = find_parent(widget.parentWidget(), qt_constants.MAIN_FRAMEWORK_WIDGET)
+        parent = find_parent(
+            widget.parentWidget(), qt_constants.MAIN_FRAMEWORK_WIDGET
+        )
         if parent:
             main_window = parent
 

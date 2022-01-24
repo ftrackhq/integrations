@@ -22,7 +22,11 @@ class ContextSelector(QtWidgets.QWidget):
         return self._context_id
 
     def __init__(
-        self, session, current_context_id=None, current_entity=None, parent=None
+        self,
+        session,
+        current_context_id=None,
+        current_entity=None,
+        parent=None,
     ):
         '''Initialise ContextSelector widget with the *current_entity* and
         *parent* widget.
@@ -70,7 +74,9 @@ class ContextSelector(QtWidgets.QWidget):
         self.thumbnail_widget.load(entity['id'])
 
     def post_build(self):
-        self.entity_browse_button.clicked.connect(self._onEntityBrowseButtonClicked)
+        self.entity_browse_button.clicked.connect(
+            self._onEntityBrowseButtonClicked
+        )
         self.entityChanged.connect(self.entity_info.set_entity)
         self.entityChanged.connect(self.set_thumbnail)
         self.entityBrowser.selectionChanged.connect(

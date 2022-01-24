@@ -18,7 +18,9 @@ from ftrack_connect_pipeline_qt.ui.client import (
     overrides as override_widgets,
     default as default_widgets,
 )
-from ftrack_connect_pipeline_qt.ui.client.client_ui_overrides import UI_OVERRIDES
+from ftrack_connect_pipeline_qt.ui.client.client_ui_overrides import (
+    UI_OVERRIDES,
+)
 from ftrack_connect_pipeline_qt.ui.utility.widget import line
 
 
@@ -67,7 +69,9 @@ class WidgetFactory(QtWidgets.QWidget):
         '''
         super(WidgetFactory, self).__init__()
 
-        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
         self.session = event_manager.session
         self._event_manager = event_manager
         self.ui_types = ui_types
@@ -83,7 +87,9 @@ class WidgetFactory(QtWidgets.QWidget):
         self.working_definition = None
         self.components_obj = None
 
-        self.components = []  # Load; the available components of current version
+        self.components = (
+            []
+        )  # Load; the available components of current version
 
         self.progress_widget = self.create_progress_widget()
 
@@ -103,7 +109,9 @@ class WidgetFactory(QtWidgets.QWidget):
         '''Set :obj:`definition_type` with the given *definition_type*'''
         self.definition_type = definition_type
 
-    def get_override(self, type_name, widget_type, name, data, definition_type):
+    def get_override(
+        self, type_name, widget_type, name, data, definition_type
+    ):
         '''
         From the given *type_name* and *widget_type* find the widget override
         in the client_ui_overrides.py file
@@ -136,7 +144,9 @@ class WidgetFactory(QtWidgets.QWidget):
         '''
         return UI_OVERRIDES.get('main_widget')(None, None)
 
-    def create_typed_widget(self, definition, type_name, stage_name_filters=None):
+    def create_typed_widget(
+        self, definition, type_name, stage_name_filters=None
+    ):
         '''
         Main loop to create the widgets UI overrides.
         '''
@@ -168,7 +178,10 @@ class WidgetFactory(QtWidgets.QWidget):
                 stage_name = stage.get('name')
                 if stage_name_filters and stage_name not in stage_name_filters:
                     continue
-                if step_type == 'finalizer' and stage.get('visible', True) is True:
+                if (
+                    step_type == 'finalizer'
+                    and stage.get('visible', True) is True
+                ):
                     self.progress_widget.add_component(step_type, stage_name)
                 stage_obj = self.get_override(
                     type_name,
@@ -199,7 +212,9 @@ class WidgetFactory(QtWidgets.QWidget):
                         definition_type,
                     )
                     # Here is where we inject the user custom widgets.
-                    plugin_widget = self.fetch_plugin_widget(plugin, stage['name'])
+                    plugin_widget = self.fetch_plugin_widget(
+                        plugin, stage['name']
+                    )
                     # Start parenting widgets
                     if plugin_container_obj:
                         plugin_widget.toggle_status(show=False)
@@ -283,7 +298,9 @@ class WidgetFactory(QtWidgets.QWidget):
 
         self.finalizers_section = QtWidgets.QWidget()
         self.finalizers_section.setLayout(QtWidgets.QVBoxLayout())
-        self.finalizers_section.layout().addWidget(QtWidgets.QLabel('Finalizers'))
+        self.finalizers_section.layout().addWidget(
+            QtWidgets.QLabel('Finalizers')
+        )
         self.finalizers_section.layout().addWidget(self.finalizers_obj.widget)
         if definition['type'] == 'loader' or not UI_OVERRIDES.get(
             core_constants.FINALIZERS
@@ -311,9 +328,13 @@ class WidgetFactory(QtWidgets.QWidget):
             for step in out[type_name]:
                 step_obj = self.get_registered_object(step, step['category'])
                 for stage in step['stages']:
-                    stage_obj = self.get_registered_object(stage, stage['category'])
+                    stage_obj = self.get_registered_object(
+                        stage, stage['category']
+                    )
                     for plugin in stage['plugins']:
-                        plugin_widget = self.get_registered_widget_plugin(plugin)
+                        plugin_widget = self.get_registered_widget_plugin(
+                            plugin
+                        )
                         if plugin_widget:
                             plugin.update(plugin_widget.to_json_object())
                     if stage_obj:
@@ -329,7 +350,9 @@ class WidgetFactory(QtWidgets.QWidget):
         for step in self.working_definition[core_constants.COMPONENTS]:
             step_obj = self.get_registered_object(step, step['category'])
             if isinstance(step_obj, default_widgets.DefaultStepWidget):
-                step_obj.check_box.stateChanged.connect(self.update_selected_components)
+                step_obj.check_box.stateChanged.connect(
+                    self.update_selected_components
+                )
 
     def update_selected_components(self, state):
         enabled_components = 0
@@ -341,7 +364,9 @@ class WidgetFactory(QtWidgets.QWidget):
                 if enabled:
                     enabled_components += 1
             else:
-                self.logger.error("{} isn't instance of BaseUIWidget".format(step_obj))
+                self.logger.error(
+                    "{} isn't instance of BaseUIWidget".format(step_obj)
+                )
             total_components += 1
         if isinstance(
             self.components_obj, override_widgets.AccordionStepContainerWidget
@@ -366,7 +391,9 @@ class WidgetFactory(QtWidgets.QWidget):
         plugin_type = '{}.{}'.format(self.definition_type, stage_name)
 
         self.logger.debug(
-            'Fetching widget : {} for plugin {}'.format(widget_name, plugin_name)
+            'Fetching widget : {} for plugin {}'.format(
+                widget_name, plugin_name
+            )
         )
 
         data = self._fetch_plugin_widget(
@@ -387,7 +414,10 @@ class WidgetFactory(QtWidgets.QWidget):
                 plugin_data['widget'] = widget_name
 
             data = self._fetch_plugin_widget(
-                plugin_data, plugin_type, widget_name, extra_options=extra_options
+                plugin_data,
+                plugin_type,
+                widget_name,
+                extra_options=extra_options,
             )
         data = data[0]
 
@@ -402,12 +432,16 @@ class WidgetFactory(QtWidgets.QWidget):
                 'Got response "{}"" while fetching:\n'
                 'plugin: {}\n'
                 'plugin_type: {}\n'
-                'plugin_name: {}'.format(message, plugin_data, plugin_type, widget_name)
+                'plugin_name: {}'.format(
+                    message, plugin_data, plugin_type, widget_name
+                )
             )
 
         if result and not isinstance(widget, BaseOptionsWidget):
             raise Exception(
-                'Widget {} should inherit from {}'.format(widget, BaseOptionsWidget)
+                'Widget {} should inherit from {}'.format(
+                    widget, BaseOptionsWidget
+                )
             )
 
         widget.status_updated.connect(self._on_widget_status_updated)
@@ -463,7 +497,9 @@ class WidgetFactory(QtWidgets.QWidget):
                     topic=core_constants.PIPELINE_RUN_PLUGIN_TOPIC, data=data
                 )
 
-                result = self.session.event_hub.publish(event, synchronous=True)
+                result = self.session.event_hub.publish(
+                    event, synchronous=True
+                )
 
                 if result:
                     return result
@@ -473,11 +509,15 @@ class WidgetFactory(QtWidgets.QWidget):
         step_name = event['data']['pipeline']['step_name']
         stage_name = event['data']['pipeline']['stage_name']
         total_plugins = event['data']['pipeline']['total_plugins']
-        current_plugin_index = event['data']['pipeline']['current_plugin_index']
+        current_plugin_index = event['data']['pipeline'][
+            'current_plugin_index'
+        ]
         status = event['data']['pipeline']['status']
         results = event['data']['pipeline']['results']
 
-        step_name_effective = step_name if step_type != 'finalizer' else stage_name
+        step_name_effective = (
+            step_name if step_type != 'finalizer' else stage_name
+        )
 
         if status == constants.RUNNING_STATUS:
             status_message = "Running Stage {}... ({}/{})".format(
@@ -516,7 +556,10 @@ class WidgetFactory(QtWidgets.QWidget):
         if log_item.status:
             self.logger.debug(
                 'updating widget: {} Status: {}, Message: {}, User Message: {}'.format(
-                    widget, log_item.status, log_item.message, log_item.user_message
+                    widget,
+                    log_item.status,
+                    log_item.message,
+                    log_item.user_message,
                 )
             )
             if log_item.user_message:
@@ -526,7 +569,9 @@ class WidgetFactory(QtWidgets.QWidget):
 
         if log_item.result:
             self.logger.debug(
-                'updating widget: {} with run result {}'.format(widget, log_item.result)
+                'updating widget: {} with run result {}'.format(
+                    widget, log_item.result
+                )
             )
             widget.set_run_result(log_item.result)
 
@@ -606,15 +651,20 @@ class WidgetFactory(QtWidgets.QWidget):
             step_obj = self.get_registered_object(step, step['category'])
             if not isinstance(
                 step_obj, default_widgets.DefaultStepWidget
-            ) and not isinstance(step_obj, override_widgets.RadioButtonItemStepWidget):
+            ) and not isinstance(
+                step_obj, override_widgets.RadioButtonItemStepWidget
+            ):
                 self.logger.error(
-                    "{} should be instance of DefaultStepWidget ".format(step_obj.name)
+                    "{} should be instance of DefaultStepWidget ".format(
+                        step_obj.name
+                    )
                 )
                 continue
             if step_obj.check_components(self.session, self.components):
                 available_components += 1
         if isinstance(
-            self.components_obj, override_widgets.RadioButtonStepContainerWidget
+            self.components_obj,
+            override_widgets.RadioButtonStepContainerWidget,
         ):
             self.components_obj.pre_select()
         self.components_checked.emit(available_components)
@@ -634,7 +684,10 @@ class WidgetFactory(QtWidgets.QWidget):
         self.on_query_asset_version_done.emit()
         self.components_section.show()
         # If there is a Finalizer widget show the widget otherwise not.
-        if UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True) is True:
+        if (
+            UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True)
+            is True
+        ):
             self.finalizers_section.show()
 
     def _asset_version_changed(self, version_id):

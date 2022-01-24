@@ -14,7 +14,9 @@ from ftrack_connect_pipeline_qt.ui.asset_manager.base import (
     AssetListModel,
     AssetListWidget,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import CircularButton
+from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
+    CircularButton,
+)
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
 )
@@ -215,7 +217,8 @@ class AssetManagerWidget(AssetManagerBaseWidget):
 
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.host_id={}'.format(
-                core_constants.PIPELINE_CLIENT_NOTIFICATION, self.host_connection.id
+                core_constants.PIPELINE_CLIENT_NOTIFICATION,
+                self.host_connection.id,
             ),
             self._update_widget,
         )
@@ -303,7 +306,9 @@ class AssetWidget(AccordionBaseWidget):
         self._asset_name_widget = QtWidgets.QLabel()
         self._asset_name_widget.setObjectName('h2')
         header_layout.addWidget(self._asset_name_widget)
-        self._component_and_version_header_widget = ComponentAndVersionWidget(True)
+        self._component_and_version_header_widget = ComponentAndVersionWidget(
+            True
+        )
         header_layout.addWidget(self._component_and_version_header_widget)
         header_layout.addStretch()
         header_layout.addWidget(self.init_status_widget())
@@ -319,14 +324,18 @@ class AssetWidget(AccordionBaseWidget):
         self._asset_name_widget.setText(
             '{} '.format(asset_info[asset_constants.ASSET_NAME])
         )
-        self._versions_collection = asset_info[asset_constants.ASSET_VERSIONS_ENTITIES]
+        self._versions_collection = asset_info[
+            asset_constants.ASSET_VERSIONS_ENTITIES
+        ]
         version = self.session.query(
             'AssetVersion where id={}'.format(self._version_id)
         ).one()
         self._status_widget.set_status(version['status'])
         self._load_mode = asset_info[asset_constants.LOAD_MODE]
         self.set_indicator(self._load_mode is not None)
-        self._component_path = asset_info[asset_constants.COMPONENT_NAME] or '?.?'
+        self._component_path = (
+            asset_info[asset_constants.COMPONENT_NAME] or '?.?'
+        )
         self._component_and_version_header_widget.set_component_filename(
             self._component_path
         )
@@ -338,8 +347,12 @@ class AssetWidget(AccordionBaseWidget):
             self._is_latest_version
         )
         self._load_mode = asset_info[asset_constants.LOAD_MODE]
-        self._version_dependency_ids = asset_info[asset_constants.DEPENDENCY_IDS]
-        self._asset_info_options = asset_info[asset_constants.ASSET_INFO_OPTIONS]
+        self._version_dependency_ids = asset_info[
+            asset_constants.DEPENDENCY_IDS
+        ]
+        self._asset_info_options = asset_info[
+            asset_constants.ASSET_INFO_OPTIONS
+        ]
 
     def on_collapse(self, collapsed):
         '''Dynamically populate asset expanded view'''
@@ -371,7 +384,9 @@ class AssetWidget(AccordionBaseWidget):
                 self._thumbnail_widget.setMaximumSize(69, 48)
                 context_widget.layout().addWidget(self._thumbnail_widget)
 
-                self._component_and_version_widget = ComponentAndVersionWidget(False)
+                self._component_and_version_widget = ComponentAndVersionWidget(
+                    False
+                )
                 self._component_and_version_widget.set_component_filename(
                     self._component_path
                 )
@@ -379,7 +394,8 @@ class AssetWidget(AccordionBaseWidget):
                 self._component_and_version_widget.version_selector.clear()
                 for asset_version in self._versions_collection:
                     self._component_and_version_widget.version_selector.addItem(
-                        'v{}'.format(asset_version['version']), asset_version['id']
+                        'v{}'.format(asset_version['version']),
+                        asset_version['id'],
                     )
                 self._component_and_version_widget.set_latest_version(
                     self._is_latest_version
@@ -402,13 +418,17 @@ class AssetWidget(AccordionBaseWidget):
                 '<html>Added as a <font color="white">{}</font> with <font color="white">'
                 '{}</font></html>'.format(
                     self._load_mode,
-                    self._asset_info_options.get('pipeline', {}).get('definition', '?')
+                    self._asset_info_options.get('pipeline', {}).get(
+                        'definition', '?'
+                    )
                     if self._asset_info_options
                     else '?',
                 )
             )
             self.add_widget(load_info_label)
-            load_info_label.setToolTip(json.dumps(self._asset_info_options, indent=2))
+            load_info_label.setToolTip(
+                json.dumps(self._asset_info_options, indent=2)
+            )
 
             if 0 < len(self._version_dependency_ids or []):
                 self.add_widget(line.Line())
@@ -428,12 +448,16 @@ class AssetWidget(AccordionBaseWidget):
                         dep_version_widget.setContentsMargins(15, 1, 1, 1)
                         dep_version_widget.setMaximumHeight(64)
 
-                        dep_thumbnail_widget = AssetVersionThumbnail(self.session)
+                        dep_thumbnail_widget = AssetVersionThumbnail(
+                            self.session
+                        )
                         dep_thumbnail_widget.load(dep_version_id)
                         dep_thumbnail_widget.setScaledContents(True)
                         dep_thumbnail_widget.setMinimumSize(69, 48)
                         dep_thumbnail_widget.setMaximumSize(69, 48)
-                        dep_version_widget.layout().addWidget(dep_thumbnail_widget)
+                        dep_version_widget.layout().addWidget(
+                            dep_thumbnail_widget
+                        )
 
                         # Add context info
                         dep_entity_info = EntityInfo()

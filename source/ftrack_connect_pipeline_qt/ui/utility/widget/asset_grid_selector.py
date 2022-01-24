@@ -20,7 +20,9 @@ class AssetItem(QtWidgets.QPushButton):
 
     def __init__(self, session, asset, context_id, parent=None):
         super(AssetItem, self).__init__(parent=parent)
-        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
         self.setCheckable(True)
         self.setAutoExclusive(True)
 
@@ -52,27 +54,31 @@ class AssetItem(QtWidgets.QPushButton):
         self.version_combobox = VersionComboBox(self.session)
         self.version_combobox.set_context_id(self.context_id)
         self.version_combobox.set_asset_entity(self.asset)
-        self.current_version_number = self.version_combobox.currentText().split(
-            "Version "
-        )[1]
+        self.current_version_number = (
+            self.version_combobox.currentText().split("Version ")[1]
+        )
 
         self.layout().addWidget(self.thumbnail_widget, stretch=2)
         self.layout().addWidget(self.asset_name_label)
         self.layout().addWidget(self.version_combobox)
 
     def post_build(self):
-        self.version_combobox.currentIndexChanged.connect(self._current_version_changed)
+        self.version_combobox.currentIndexChanged.connect(
+            self._current_version_changed
+        )
 
     def _current_version_changed(self, current_index):
         if current_index == -1:
             return
-        self.current_version_number = self.version_combobox.currentText().split(
-            "Version "
-        )[1]
+        self.current_version_number = (
+            self.version_combobox.currentText().split("Version ")[1]
+        )
         current_idx = self.version_combobox.currentIndex()
         self.current_version_id = self.version_combobox.itemData(current_idx)
         self.thumbnail_widget.load(self.current_version_id)
-        self.version_changed.emit(self.current_version_number, self.current_version_id)
+        self.version_changed.emit(
+            self.current_version_number, self.current_version_id
+        )
 
 
 class AssetGridSelector(QtWidgets.QWidget):
@@ -83,7 +89,9 @@ class AssetGridSelector(QtWidgets.QWidget):
 
     def __init__(self, session, parent=None):
         super(AssetGridSelector, self).__init__(parent=parent)
-        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
 
         self.session = session
         self.context_id = None
@@ -131,7 +139,9 @@ class AssetGridSelector(QtWidgets.QWidget):
 
     def query_assets_from_context(self, context_id, asset_type_name):
         asset_type_entity = self.session.query(
-            'select name from AssetType where short is "{}"'.format(asset_type_name)
+            'select name from AssetType where short is "{}"'.format(
+                asset_type_name
+            )
         ).first()
         assets = self.session.query(
             'select name, type.id, id, latest_version, '
@@ -152,7 +162,9 @@ class AssetGridSelector(QtWidgets.QWidget):
             column = 0
             for asset in assets:
                 asset_item = AssetItem(self.session, asset, self.context_id)
-                asset_item.clicked.connect(partial(self._on_asset_changed, asset_item))
+                asset_item.clicked.connect(
+                    partial(self._on_asset_changed, asset_item)
+                )
                 asset_item.version_changed.connect(
                     partial(self._on_version_changed, asset_item)
                 )
@@ -186,7 +198,10 @@ class AssetGridSelector(QtWidgets.QWidget):
         asset_version_id = asset_item.current_version_id
         version_num = asset_item.current_version_number
         self.asset_changed.emit(
-            asset_name, self.current_asset_entity, asset_version_id, version_num
+            asset_name,
+            self.current_asset_entity,
+            asset_version_id,
+            version_num,
         )
 
     def _on_version_changed(self, asset_item, version_num, current_version_id):

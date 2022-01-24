@@ -50,7 +50,9 @@ class BaseCollectorWidget(BaseOptionsWidget):
 
         self.list_widget = QtWidgets.QListWidget()
         self.list_widget.setAlternatingRowColors(True)
-        self.list_widget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.list_widget.setSelectionBehavior(
+            QtWidgets.QAbstractItemView.SelectRows
+        )
         self.list_widget.setMaximumHeight(120)
         self.layout().addWidget(self.list_widget)
 

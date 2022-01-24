@@ -21,7 +21,9 @@ class Base(QtWidgets.QLabel):
         super(Base, self).__init__(parent)
         self.session = session
 
-        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
 
         self._worker = None
         self.__loadingReference = None
@@ -32,7 +34,9 @@ class Base(QtWidgets.QLabel):
         self.setFrameStyle(QtWidgets.QFrame.StyledPanel)
         self.setAlignment(QtCore.Qt.AlignCenter)
 
-        self.placholderThumbnail = self.session.server_url + '/img/thumbnail2.png'
+        self.placholderThumbnail = (
+            self.session.server_url + '/img/thumbnail2.png'
+        )
 
     def load(self, reference):
         '''Load thumbnail from *reference* and display it.'''
@@ -143,7 +147,9 @@ class Context(Base):
         thumbnail = context['thumbnail']
         if thumbnail is None and context['thumbnail_id'] is not None:
             thumbnail = self.session.query(
-                'FileComponent where id is "{}"'.format(context['thumbnail_id'])
+                'FileComponent where id is "{}"'.format(
+                    context['thumbnail_id']
+                )
             ).one()
         url = self.get_thumbnail_url(thumbnail)
         url = url or self.placholderThumbnail
@@ -169,7 +175,9 @@ class Context(Base):
     def _scaleAndSetPixmap(self, pixmap):
         '''Scale and set *pixmap*.'''
         scaled_pixmap = pixmap.scaled(
-            self.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
+            self.size(),
+            QtCore.Qt.KeepAspectRatio,
+            QtCore.Qt.SmoothTransformation,
         )
         self.setPixmap(scaled_pixmap)
 
@@ -177,7 +185,9 @@ class Context(Base):
 class AssetVersion(Base):
     def _download(self, reference):
         '''Return thumbnail from *reference*.'''
-        url = self.session.get('AssetVersion', reference)['thumbnail_url']['url']
+        url = self.session.get('AssetVersion', reference)['thumbnail_url'][
+            'url'
+        ]
         url = url or self.placholderThumbnail
         return super(AssetVersion, self)._download(url)
 
@@ -201,7 +211,9 @@ class AssetVersion(Base):
     def _scaleAndSetPixmap(self, pixmap):
         '''Scale and set *pixmap*.'''
         scaled_pixmap = pixmap.scaled(
-            self.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
+            self.size(),
+            QtCore.Qt.KeepAspectRatio,
+            QtCore.Qt.SmoothTransformation,
         )
         self.setPixmap(scaled_pixmap)
 
@@ -210,7 +222,9 @@ class User(EllipseBase):
     def _download(self, reference):
         '''Return thumbnail from *reference*.'''
         thumbnail = self.session.query(
-            'select thumbnail from User where username is "{}"'.format(reference)
+            'select thumbnail from User where username is "{}"'.format(
+                reference
+            )
         ).first()['thumbnail']
         url = self.get_thumbnail_url(thumbnail)
         return super(User, self)._download(url)

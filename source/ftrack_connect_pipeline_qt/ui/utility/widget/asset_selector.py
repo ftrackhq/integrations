@@ -61,7 +61,9 @@ class AssetList(QtWidgets.QListWidget):
 
     def __init__(self, session, parent=None):
         super(AssetList, self).__init__(parent=parent)
-        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
 
         self.session = session
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -72,7 +74,9 @@ class AssetList(QtWidgets.QListWidget):
     def _query_assets_from_context(self, context_id, asset_type_name):
         '''(Run in background thread) Fetch assets from current context'''
         asset_type_entity = self.session.query(
-            'select name from AssetType where short is "{}"'.format(asset_type_name)
+            'select name from AssetType where short is "{}"'.format(
+                asset_type_name
+            )
         ).first()
         assets = self.session.query(
             'select name, versions.task.id , type.id, id, latest_version,'
@@ -99,7 +103,9 @@ class AssetList(QtWidgets.QListWidget):
             )
             list_item = QtWidgets.QListWidgetItem(self)
             list_item.setSizeHint(
-                QtCore.QSize(widget.sizeHint().width(), widget.sizeHint().height() + 5)
+                QtCore.QSize(
+                    widget.sizeHint().width(), widget.sizeHint().height() + 5
+                )
             )
             self.addItem(list_item)
             self.setItemWidget(list_item, widget)
@@ -199,7 +205,9 @@ class AssetSelector(QtWidgets.QWidget):
 
     def __init__(self, session, is_loader=False, parent=None):
         super(AssetSelector, self).__init__(parent=parent)
-        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
 
         self.is_loader = is_loader
         self.session = session
@@ -227,7 +235,9 @@ class AssetSelector(QtWidgets.QWidget):
         self.list_and_input.add_asset_list(self.asset_list)
 
         # Create new asset
-        self.new_asset_input = NewAssetInput(self.validator, self.placeholder_name)
+        self.new_asset_input = NewAssetInput(
+            self.validator, self.placeholder_name
+        )
         self.list_and_input.layout().addWidget(self.new_asset_input)
 
         self.layout().addWidget(self.list_and_input)
@@ -237,7 +247,9 @@ class AssetSelector(QtWidgets.QWidget):
         self.asset_list.assets_query_done.connect(self._refresh)
         self.asset_list.assets_added.connect(self._pre_select_asset)
         self.asset_list.itemActivated.connect(self._list_selection_updated)
-        self.asset_list.itemSelectionChanged.connect(self._list_selection_updated)
+        self.asset_list.itemSelectionChanged.connect(
+            self._list_selection_updated
+        )
         self.new_asset_input.clicked.connect(self._update_widget)
         self.new_asset_input.name.textChanged.connect(self._new_asset_changed)
         self.update_widget.connect(self._update_widget)
@@ -320,7 +332,9 @@ class AssetSelector(QtWidgets.QWidget):
 
     def _set_placeholder_name(self, context_entity):
         if context_entity.get("name"):
-            self.placeholder_name = context_entity.get("name").replace(" ", "_")
+            self.placeholder_name = context_entity.get("name").replace(
+                " ", "_"
+            )
         self.new_asset_input.name.setPlaceholderText(self.placeholder_name)
 
     def _new_asset_changed(self):

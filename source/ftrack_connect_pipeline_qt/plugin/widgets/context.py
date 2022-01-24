@@ -5,7 +5,9 @@ from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 
-from ftrack_connect_pipeline_qt.ui.utility.widget.asset_selector import AssetSelector
+from ftrack_connect_pipeline_qt.ui.utility.widget.asset_selector import (
+    AssetSelector,
+)
 from ftrack_connect_pipeline_qt.ui.utility.widget import line
 from ftrack_connect_pipeline_qt.ui.utility.widget.asset_grid_selector import (
     AssetGridSelector,
@@ -57,7 +59,9 @@ class PublishContextWidget(BaseOptionsWidget):
         self.layout().addWidget(line.Line())
         version_and_comment = QtWidgets.QWidget()
         version_and_comment.setLayout(QtWidgets.QVBoxLayout())
-        version_and_comment.layout().addWidget(QtWidgets.QLabel('Version information'))
+        version_and_comment.layout().addWidget(
+            QtWidgets.QLabel('Version information')
+        )
         version_and_comment.layout().addLayout(self._build_status_selector())
         version_and_comment.layout().addLayout(self._build_comments_input())
         self.layout().addWidget(version_and_comment)
@@ -67,7 +71,9 @@ class PublishContextWidget(BaseOptionsWidget):
         super(PublishContextWidget, self).post_build()
         self.asset_selector.asset_changed.connect(self._on_asset_changed)
         self.comments_input.textChanged.connect(self._on_comment_updated)
-        self.status_selector.currentIndexChanged.connect(self._on_status_changed)
+        self.status_selector.currentIndexChanged.connect(
+            self._on_status_changed
+        )
 
     def _on_status_changed(self, status):
         '''Updates the options dictionary with provided *status* when

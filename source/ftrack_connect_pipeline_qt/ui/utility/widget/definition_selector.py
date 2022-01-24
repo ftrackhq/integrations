@@ -14,7 +14,9 @@ class DefinitionItem(QtWidgets.QPushButton):
     def component_names_filter(self):
         return self._component_names_filter
 
-    def __init__(self, text, definition_item, component_names_filter, parent=None):
+    def __init__(
+        self, text, definition_item, component_names_filter, parent=None
+    ):
         super(DefinitionItem, self).__init__(text, parent=parent)
         self.setCheckable(True)
         self.setAutoExclusive(True)
@@ -36,7 +38,9 @@ class DefinitionSelector(QtWidgets.QWidget):
     def __init__(self, parent=None):
         '''Initialize DefinitionSelector widget'''
         super(DefinitionSelector, self).__init__(parent=parent)
-        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
 
         self.host_connection = None
         self.schemas = None
@@ -65,7 +69,9 @@ class DefinitionSelector(QtWidgets.QWidget):
     def post_build(self):
         '''Connect the widget signals'''
         self.host_combobox.currentIndexChanged.connect(self._on_change_host)
-        self.definition_combobox.currentIndexChanged.connect(self._on_select_definition)
+        self.definition_combobox.currentIndexChanged.connect(
+            self._on_select_definition
+        )
 
     def change_host_index(self, index):
         self.host_combobox.setCurrentIndex(index)
@@ -102,7 +108,9 @@ class DefinitionSelector(QtWidgets.QWidget):
             for item in items:
                 text = '{}'.format(item.get('name'))
                 if not self._definition_title_filter:
-                    text = '{} - {}'.format(schema.get('title'), item.get('name'))
+                    text = '{} - {}'.format(
+                        schema.get('title'), item.get('name')
+                    )
                 self.definition_combobox.addItem(text, item)
 
         if len(self.definitions) == 1:
@@ -120,7 +128,10 @@ class DefinitionSelector(QtWidgets.QWidget):
             return
 
         for schema in self.schemas:
-            if self.definition.get('type').lower() == schema.get('title').lower():
+            if (
+                self.definition.get('type').lower()
+                == schema.get('title').lower()
+            ):
                 self.schema = schema
                 break
 
@@ -130,7 +141,10 @@ class DefinitionSelector(QtWidgets.QWidget):
         for host_connection in host_connections:
             self.host_combobox.addItem(host_connection.name, host_connection)
             self.host_connections.append(host_connection)
-        if len(host_connections) == 1 and host_connections[0].context_id != None:
+        if (
+            len(host_connections) == 1
+            and host_connections[0].context_id != None
+        ):
             self.host_combobox.setCurrentIndex(1)
 
     def set_definition_title_filter(self, title_filter):
@@ -190,7 +204,9 @@ class DefinitionSelectorButtons(DefinitionSelector):
         self.definition_buttons_widget.layout().setContentsMargins(0, 0, 0, 0)
         self.definition_buttons_widget.layout().setSpacing(0)
 
-        self.definitions_widget.layout().addWidget(self.definition_buttons_widget)
+        self.definitions_widget.layout().addWidget(
+            self.definition_buttons_widget
+        )
 
         self.layout().addWidget(self.host_combobox)
         self.layout().addWidget(self.definitions_widget)
@@ -256,7 +272,9 @@ class DefinitionSelectorButtons(DefinitionSelector):
                         can_open_component = False
                         for stage in component['stages']:
                             for plugin in stage['plugins']:
-                                if 'accepted_formats' in plugin.get('options', {}):
+                                if 'accepted_formats' in plugin.get(
+                                    'options', {}
+                                ):
                                     accepted_formats = plugin['options'][
                                         'accepted_formats'
                                     ]
@@ -303,7 +321,8 @@ class DefinitionSelectorButtons(DefinitionSelector):
                         asset_version = self.host_connection.session.query(
                             'AssetVersion where '
                             'task.id={} and asset.type.name="{}" and is_latest_version=true'.format(
-                                self.host_connection.context_id, asset_type_name
+                                self.host_connection.context_id,
+                                asset_type_name,
                             )
                         )
                         if asset_version and (
@@ -315,13 +334,17 @@ class DefinitionSelectorButtons(DefinitionSelector):
                     if asset_version is None:
                         enable = False
                 if not self._definition_title_filter:
-                    text = '{} - {}'.format(schema.get('title'), item.get('name'))
+                    text = '{} - {}'.format(
+                        schema.get('title'), item.get('name')
+                    )
                 definition_button = DefinitionItem(
                     text.upper(), item, component_names_filter
                 )
                 self.button_group.addButton(definition_button)
                 definition_button.setEnabled(enable)
-                self.definition_buttons_widget.layout().addWidget(definition_button)
+                self.definition_buttons_widget.layout().addWidget(
+                    definition_button
+                )
                 definition_button.clicked.connect(
                     partial(self._on_select_definition, definition_button)
                 )
@@ -359,7 +382,9 @@ class DefinitionSelectorButtons(DefinitionSelector):
                 if not button is definition_item:
                     button.setEnabled(True)
             self.definition = definition_item.definition
-            self.component_names_filter = definition_item.component_names_filter
+            self.component_names_filter = (
+                definition_item.component_names_filter
+            )
         else:
             self.definition = None
         if not self.definition:
@@ -368,7 +393,10 @@ class DefinitionSelectorButtons(DefinitionSelector):
             return
 
         for schema in self.schemas:
-            if self.definition.get('type').lower() == schema.get('title').lower():
+            if (
+                self.definition.get('type').lower()
+                == schema.get('title').lower()
+            ):
                 self.schema = schema
                 break
 

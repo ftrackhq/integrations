@@ -7,8 +7,14 @@ from functools import partial
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
 from ftrack_connect_pipeline.client.asset_manager import AssetManagerClient
-from ftrack_connect_pipeline_qt.ui.utility.widget import header, host_selector, line
-from ftrack_connect_pipeline_qt.ui.asset_manager.asset_manager import AssetManagerWidget
+from ftrack_connect_pipeline_qt.ui.utility.widget import (
+    header,
+    host_selector,
+    line,
+)
+from ftrack_connect_pipeline_qt.ui.asset_manager.asset_manager import (
+    AssetManagerWidget,
+)
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
     ContextSelector,
 )

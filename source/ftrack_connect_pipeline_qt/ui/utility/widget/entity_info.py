@@ -65,7 +65,9 @@ class EntityInfo(QtWidgets.QWidget):
         '''Set current path to *names*.'''
         # self.type_field.setText(parents[-1].get('type', {}).get('name', 'Project'))
         self._name_field.setText('{} '.format(parents[-1]['name']))
-        self._path_field.setText(os.sep.join([p['name'] for p in parents[:-1]]))
+        self._path_field.setText(
+            os.sep.join([p['name'] for p in parents[:-1]])
+        )
 
 
 class VersionInfo(QtWidgets.QWidget):
@@ -88,10 +90,16 @@ class VersionInfo(QtWidgets.QWidget):
 
     def set_entity(self, version_id):
         version = self.session.get('AssetVersion', version_id)
-        self.date_field.setText('Date : {}'.format(str(version['date'].humanize())))
+        self.date_field.setText(
+            'Date : {}'.format(str(version['date'].humanize()))
+        )
         self.user_field.setText(
-            'User : {}'.format(str(version['user'].get('username', 'No User set')))
+            'User : {}'.format(
+                str(version['user'].get('username', 'No User set'))
+            )
         )
         self.description_field.setText(
-            'Comment : {}'.format(str(version.get('comment') or 'No Comment set'))
+            'Comment : {}'.format(
+                str(version.get('comment') or 'No Comment set')
+            )
         )

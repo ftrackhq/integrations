@@ -37,7 +37,9 @@ class QtOpenClient(QtClient):
     definition_filter = 'loader'
     client_name = 'open'
 
-    def __init__(self, event_manager, definition_extensions_filter=None, parent=None):
+    def __init__(
+        self, event_manager, definition_extensions_filter=None, parent=None
+    ):
         if not definition_extensions_filter is None:
             self.definition_extensions_filter = definition_extensions_filter
         super(QtOpenClient, self).__init__(event_manager, parent=parent)

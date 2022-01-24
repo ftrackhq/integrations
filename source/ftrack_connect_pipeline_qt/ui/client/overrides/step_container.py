@@ -8,8 +8,12 @@ from ftrack_connect_pipeline import constants as pipeline_constants
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
-from ftrack_connect_pipeline_qt.ui.client.default import DefaultStepContainerWidget
-from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import AccordionWidget
+from ftrack_connect_pipeline_qt.ui.client.default import (
+    DefaultStepContainerWidget,
+)
+from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import (
+    AccordionWidget,
+)
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
 )
@@ -44,7 +48,9 @@ class AccordionStepContainerWidget(BaseUIWidget):
         )
 
     def build(self):
-        self._widget = AccordionWidget(title="0 components selected", checkable=False)
+        self._widget = AccordionWidget(
+            title="0 components selected", checkable=False
+        )
 
     def update_selected_components(self, enabled, total):
         self._widget._title_frame._title_label.setText(
@@ -71,7 +77,9 @@ class TabStepContainerWidget(DefaultStepContainerWidget):
         self.status_icons = constants.icons.status_icons
         self._inner_widget_status = {}
 
-        super(TabStepContainerWidget, self).__init__(name, fragment_data, parent=parent)
+        super(TabStepContainerWidget, self).__init__(
+            name, fragment_data, parent=parent
+        )
 
     def build(self):
         super(TabStepContainerWidget, self).build()
@@ -137,7 +145,9 @@ class TabStepContainerWidget(DefaultStepContainerWidget):
             icon = self.status_icons[constants.SUCCESS_STATUS]
             self.tab_widget.setTabIcon(tab_idx, QtGui.QIcon(icon))
         else:
-            if constants.RUNNING_STATUS in list(self._inner_widget_status.values()):
+            if constants.RUNNING_STATUS in list(
+                self._inner_widget_status.values()
+            ):
                 icon = self.status_icons[constants.RUNNING_STATUS]
                 self.tab_widget.setTabIcon(tab_idx, QtGui.QIcon(icon))
             else:

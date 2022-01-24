@@ -84,7 +84,9 @@ class AccordionWidget(QtWidgets.QWidget):
         if all(all_bool_status):
             self.set_status(constants.SUCCESS_STATUS, None)
         else:
-            if constants.RUNNING_STATUS in list(self._inner_widget_status.values()):
+            if constants.RUNNING_STATUS in list(
+                self._inner_widget_status.values()
+            ):
                 self.set_status(constants.RUNNING_STATUS, None)
             else:
                 self.set_status(constants.ERROR_STATUS, None)
@@ -103,7 +105,9 @@ class AccordionWidget(QtWidgets.QWidget):
     def _connect_inner_widgets(self, widget):
         if issubclass(widget.__class__, BaseOptionsWidget):
             self._widgets[widget] = widget
-            widget.status_updated.connect(partial(self.update_inner_status, widget))
+            widget.status_updated.connect(
+                partial(self.update_inner_status, widget)
+            )
             return
         inner_widgets = widget.findChildren(BaseOptionsWidget)
         self._widgets[widget] = inner_widgets
@@ -172,7 +176,9 @@ class AccordionTitleWidget(QtWidgets.QFrame):
     def extra_buttons(self):
         return self._extra_buttons
 
-    def __init__(self, parent=None, title="", collapsed=False, checkable=False):
+    def __init__(
+        self, parent=None, title="", collapsed=False, checkable=False
+    ):
         super(AccordionTitleWidget, self).__init__(parent=parent)
 
         self._arrow = None

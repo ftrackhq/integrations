@@ -54,7 +54,9 @@ def register(session):
     if not isinstance(session, ftrack_api.session.Session):
         return
 
-    handle_discovery_event = functools.partial(on_discover_pipeline_qt, session)
+    handle_discovery_event = functools.partial(
+        on_discover_pipeline_qt, session
+    )
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.discover '
@@ -66,7 +68,8 @@ def register(session):
     handle_launch_event = functools.partial(on_launch_pipeline_qt, session)
 
     session.event_hub.subscribe(
-        'topic=ftrack.connect.application.launch ' 'and data.application.identifier=*',
+        'topic=ftrack.connect.application.launch '
+        'and data.application.identifier=*',
         handle_launch_event,
         priority=30,
     )

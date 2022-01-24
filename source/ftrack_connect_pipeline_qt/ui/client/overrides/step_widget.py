@@ -12,8 +12,12 @@ from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
 )
-from ftrack_connect_pipeline_qt.ui.client.default.step_widget import DefaultStepWidget
-from ftrack_connect_pipeline_qt.plugin.widgets.load_widget import LoadBaseWidget
+from ftrack_connect_pipeline_qt.ui.client.default.step_widget import (
+    DefaultStepWidget,
+)
+from ftrack_connect_pipeline_qt.plugin.widgets.load_widget import (
+    LoadBaseWidget,
+)
 from ftrack_connect_pipeline_qt.ui.utility.widget import line
 from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
 from ftrack_connect_pipeline_qt import utils
@@ -108,7 +112,9 @@ class PublisherAccordion(AccordionBaseWidget):
         return self._status_label
 
     def init_options_button(self):
-        self._options_button = OptionsButton('O', qta.icon('mdi6.cog', color='gray'))
+        self._options_button = OptionsButton(
+            'O', qta.icon('mdi6.cog', color='gray')
+        )
         self._options_button.setObjectName('borderless')
         return self._options_button
 
@@ -142,7 +148,9 @@ class PublisherAccordion(AccordionBaseWidget):
         if all(all_bool_status):
             self.set_status(constants.SUCCESS_STATUS, None)
         else:
-            if constants.RUNNING_STATUS in list(self._inner_widget_status.values()):
+            if constants.RUNNING_STATUS in list(
+                self._inner_widget_status.values()
+            ):
                 self.set_status(constants.RUNNING_STATUS, None)
             else:
                 self.set_status(constants.ERROR_STATUS, None)
@@ -150,7 +158,9 @@ class PublisherAccordion(AccordionBaseWidget):
     def _connect_inner_widgets(self, widget):
         if issubclass(widget.__class__, BaseOptionsWidget):
             self._widgets[widget] = widget
-            widget.status_updated.connect(partial(self.update_inner_status, widget))
+            widget.status_updated.connect(
+                partial(self.update_inner_status, widget)
+            )
             return
         inner_widgets = widget.findChildren(BaseOptionsWidget)
         self._widgets[widget] = inner_widgets
@@ -199,13 +209,17 @@ class AccordionStepWidget(BaseUIWidget):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
 
-        super(AccordionStepWidget, self).__init__(name, fragment_data, parent=parent)
+        super(AccordionStepWidget, self).__init__(
+            name, fragment_data, parent=parent
+        )
 
     def pre_build(self):
         self._is_optional = self.fragment_data.get('optional')
 
     def build(self):
-        self._widget = PublisherAccordion(title=self.name, checkable=self.is_optional)
+        self._widget = PublisherAccordion(
+            title=self.name, checkable=self.is_optional
+        )
 
     def parent_validator(self, step_widget):
         if self.options_widget:
@@ -261,7 +275,9 @@ class OptionsStepWidget(DefaultStepWidget):
 
         self._options_widget = None
 
-        super(OptionsStepWidget, self).__init__(name, fragment_data, parent=parent)
+        super(OptionsStepWidget, self).__init__(
+            name, fragment_data, parent=parent
+        )
 
     def build(self):
         super(OptionsStepWidget, self).build()
@@ -309,7 +325,9 @@ class OptionsStepWidget(DefaultStepWidget):
 
     def parent_widget(self, widget):
         if self.widget:
-            options_idx = self.widget.layout().indexOf(self.show_options_button)
+            options_idx = self.widget.layout().indexOf(
+                self.show_options_button
+            )
             if isinstance(widget, BaseUIWidget):
                 self.widget.layout().insertWidget((options_idx), widget.widget)
             else:
@@ -319,7 +337,9 @@ class OptionsStepWidget(DefaultStepWidget):
 
     def parent_layout(self, layout):
         if self.widget:
-            options_idx = self.widget.layout().indexOf(self.show_options_button)
+            options_idx = self.widget.layout().indexOf(
+                self.show_options_button
+            )
             self.widget.layout().insertLayout((options_idx), layout)
         else:
             self.logger.error("Please create a widget before parent")
@@ -332,7 +352,9 @@ class ComboBoxItemStepWidget(DefaultStepWidget):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
         self._parent = None
-        super(ComboBoxItemStepWidget, self).__init__(name, fragment_data, parent=parent)
+        super(ComboBoxItemStepWidget, self).__init__(
+            name, fragment_data, parent=parent
+        )
 
     def set_parent(self, step_container):
         '''Set parent step container'''
@@ -432,7 +454,9 @@ class RadioButtonItemStepWidget(BaseUIWidget):
                 except Exception as e:
                     self.widget.setToolTip(str(e))
         else:
-            result += ': Component unavailable - please choose another version!'
+            result += (
+                ': Component unavailable - please choose another version!'
+            )
         return result
 
     def set_enabled(self, enabled):

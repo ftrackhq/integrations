@@ -55,14 +55,16 @@ class AssetVersionListItem(QtWidgets.QFrame):
         self.layout().addStretch()
 
     def post_build(self):
-        self.version_combobox.currentIndexChanged.connect(self._current_version_changed)
+        self.version_combobox.currentIndexChanged.connect(
+            self._current_version_changed
+        )
 
     def _current_version_changed(self, current_index):
         if current_index == -1:
             return
-        self.current_version_number = self.version_combobox.currentText().split(
-            "Version "
-        )[1]
+        self.current_version_number = (
+            self.version_combobox.currentText().split("Version ")[1]
+        )
         current_idx = self.version_combobox.currentIndex()
         self.current_version_id = self.version_combobox.itemData(current_idx)
         self.thumbnail_widget.load(self.current_version_id)
@@ -78,7 +80,9 @@ class AssetList(QtWidgets.QListWidget):
 
     def __init__(self, session, parent=None):
         super(AssetList, self).__init__(parent=parent)
-        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
 
         self.session = session
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -91,7 +95,9 @@ class AssetList(QtWidgets.QListWidget):
         self._context_id = context_id
         self._asset_type_name = asset_type_name
         asset_type_entity = self.session.query(
-            'select name from AssetType where short is "{}"'.format(asset_type_name)
+            'select name from AssetType where short is "{}"'.format(
+                asset_type_name
+            )
         ).first()
         assets = self.session.query(
             'select name, versions.task.id, type.id, id, latest_version,'
@@ -117,10 +123,14 @@ class AssetList(QtWidgets.QListWidget):
                 asset_entity,
                 self.session,
             )
-            widget.version_changed.connect(partial(self._on_version_changed, widget))
+            widget.version_changed.connect(
+                partial(self._on_version_changed, widget)
+            )
             list_item = QtWidgets.QListWidgetItem(self)
             list_item.setSizeHint(
-                QtCore.QSize(widget.sizeHint().width(), widget.sizeHint().height() + 5)
+                QtCore.QSize(
+                    widget.sizeHint().width(), widget.sizeHint().height() + 5
+                )
             )
             self.addItem(list_item)
             self.setItemWidget(list_item, widget)
@@ -169,7 +179,9 @@ class AssetListSelector(QtWidgets.QFrame):
 
     def __init__(self, session, is_loader=False, parent=None):
         super(AssetListSelector, self).__init__(parent=parent)
-        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
 
         self.is_loader = is_loader
         self.session = session
@@ -222,7 +234,9 @@ class AssetListSelector(QtWidgets.QFrame):
         selected_index = self.asset_list.currentRow()
         if selected_index > -1:
             self._current_asset_changed(
-                self.asset_list.itemWidget(self.asset_list.item(selected_index))
+                self.asset_list.itemWidget(
+                    self.asset_list.item(selected_index)
+                )
             )
 
     def _current_asset_changed(self, asset_item):

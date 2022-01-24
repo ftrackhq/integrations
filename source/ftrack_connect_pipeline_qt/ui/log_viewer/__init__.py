@@ -58,7 +58,9 @@ class LogViewerWidget(QtWidgets.QWidget):
         filter_layout.addWidget(self.filter_field)
         self.layout().addLayout(filter_layout)
 
-        self.log_table_view = LogDialogTableView(self.event_manager, parent=self)
+        self.log_table_view = LogDialogTableView(
+            self.event_manager, parent=self
+        )
         self.layout().addWidget(self.log_table_view)
 
     def post_build(self):

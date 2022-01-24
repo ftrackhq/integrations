@@ -120,7 +120,11 @@ class Overlay(QtWidgets.QFrame):
         # enabled state of each child grows too complex as have to remember the
         # initial state of each widget when the overlay is shown and then revert
         # to it on hide.
-        if self.isVisible() and obj != self and event.type() == QtCore.QEvent.FocusIn:
+        if (
+            self.isVisible()
+            and obj != self
+            and event.type() == QtCore.QEvent.FocusIn
+        ):
             parent = self.parent()
             if isinstance(obj, QtWidgets.QWidget) and parent.isAncestorOf(obj):
                 # Ensure the targeted object loses its focus.

@@ -40,7 +40,9 @@ class QtClient(client.Client, QtWidgets.QFrame):
             if self.get_background_color():
                 self.setProperty('background', self.get_background_color())
         self.setObjectName(
-            '{}_{}'.format(qt_constants.MAIN_FRAMEWORK_WIDGET, self.__class__.__name__)
+            '{}_{}'.format(
+                qt_constants.MAIN_FRAMEWORK_WIDGET, self.__class__.__name__
+            )
         )
 
         self.is_valid_asset_name = False
@@ -124,7 +126,9 @@ class QtClient(client.Client, QtWidgets.QFrame):
         self.host_and_definition_selector = (
             definition_selector.DefinitionSelectorButtons(
                 "Choose what to {}".format(self.client_name.lower()),
-                'CLEAR' if self.client_name.lower() == 'publish' else 'REFRESH',
+                'CLEAR'
+                if self.client_name.lower() == 'publish'
+                else 'REFRESH',
             )
         )
         self.host_and_definition_selector.start_over_button.clicked.connect(
@@ -148,16 +152,22 @@ class QtClient(client.Client, QtWidgets.QFrame):
         self.context_selector.entityChanged.connect(
             self._on_context_selector_context_changed
         )
-        self.host_and_definition_selector.host_changed.connect(self.change_host)
+        self.host_and_definition_selector.host_changed.connect(
+            self.change_host
+        )
         self.host_and_definition_selector.definition_changed.connect(
             self.change_definition
         )
         self.run_button.clicked.connect(self._on_run_definition)
 
-        self.widget_factory.widget_asset_updated.connect(self._on_widget_asset_updated)
+        self.widget_factory.widget_asset_updated.connect(
+            self._on_widget_asset_updated
+        )
 
         self.widget_factory.widget_run_plugin.connect(self._on_run_plugin)
-        self.widget_factory.components_checked.connect(self._on_components_checked)
+        self.widget_factory.components_checked.connect(
+            self._on_components_checked
+        )
         if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
             self.host_and_definition_selector.host_combobox.hide()
 
@@ -168,7 +178,9 @@ class QtClient(client.Client, QtWidgets.QFrame):
         self.change_context(self.context_id)
 
         # keep reference of the latest selected definition
-        index = self.host_and_definition_selector.get_current_definition_index()
+        index = (
+            self.host_and_definition_selector.get_current_definition_index()
+        )
 
         if len(self.host_and_definition_selector.host_connections) > 0:
             if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
@@ -177,7 +189,9 @@ class QtClient(client.Client, QtWidgets.QFrame):
             self.host_and_definition_selector.change_host_index(0)
 
         if index != -1:
-            self.host_and_definition_selector.set_current_definition_index(index)
+            self.host_and_definition_selector.set_current_definition_index(
+                index
+            )
 
     def change_context(self, context_id):
         '''
@@ -247,7 +261,9 @@ class QtClient(client.Client, QtWidgets.QFrame):
         serialized_data = self.widget_factory.to_json_object()
         if not self.is_valid_asset_name:
             msg = "Can't publish without a valid asset name"
-            self.widget_factory.progress_widget.set_status(constants.ERROR_STATUS, msg)
+            self.widget_factory.progress_widget.set_status(
+                constants.ERROR_STATUS, msg
+            )
             self.logger.error(msg)
             return
         engine_type = serialized_data['_config']['engine_type']

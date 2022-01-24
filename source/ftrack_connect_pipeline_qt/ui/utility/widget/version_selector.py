@@ -13,7 +13,9 @@ class VersionComboBox(QtWidgets.QComboBox):
 
     def __init__(self, session, parent=None):
         super(VersionComboBox, self).__init__(parent=parent)
-        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
 
         self.setEditable(False)
         self.session = session
@@ -28,7 +30,9 @@ class VersionComboBox(QtWidgets.QComboBox):
 
     def showPopup(self):
         self.clear()
-        versions = self.query_versions(self.context_id, self.asset_entity['id'])
+        versions = self.query_versions(
+            self.context_id, self.asset_entity['id']
+        )
         self.add_versions(versions)
         self.setCurrentIndex(0)
         super(VersionComboBox, self).showPopup()
@@ -46,7 +50,9 @@ class VersionComboBox(QtWidgets.QComboBox):
         return versions
 
     def _add_version(self, version):
-        self.addItem(str("Version {}".format(version['version'])), version['id'])
+        self.addItem(
+            str("Version {}".format(version['version'])), version['id']
+        )
 
     def add_versions(self, versions):
         for version in versions:
@@ -60,7 +66,9 @@ class VersionSelector(QtWidgets.QWidget):
 
     def __init__(self, session, parent=None):
         super(VersionSelector, self).__init__(parent=parent)
-        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
         self.session = session
 
         self.pre_build()
@@ -81,8 +89,12 @@ class VersionSelector(QtWidgets.QWidget):
         self.layout().addWidget(self.version_combobox)
 
     def post_build(self):
-        self.version_combobox.currentIndexChanged.connect(self._current_version_changed)
-        self.version_combobox.editTextChanged.connect(self._current_version_changed)
+        self.version_combobox.currentIndexChanged.connect(
+            self._current_version_changed
+        )
+        self.version_combobox.editTextChanged.connect(
+            self._current_version_changed
+        )
 
     def _current_version_changed(self, index):
         if index == -1:

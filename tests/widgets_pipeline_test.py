@@ -24,13 +24,20 @@ app = QtWidgets.QApplication(sys.argv)
 
 # Create a session and Event Manager
 session = ftrack_api.Session(auto_connect_event_hub=False)
-event_manager = event.EventManager(session=session, mode=constants.LOCAL_EVENT_MODE)
+event_manager = event.EventManager(
+    session=session, mode=constants.LOCAL_EVENT_MODE
+)
 
 # Init host
 host.Host(event_manager)
 
 # Init Client
-from ftrack_connect_pipeline_qt.client import publish, load, asset_manager, log_viewer
+from ftrack_connect_pipeline_qt.client import (
+    publish,
+    load,
+    asset_manager,
+    log_viewer,
+)
 
 pub_client_connection = publish.QtPublisherClient(event_manager)
 # load_client_connection = load.QtLoaderClient(event_manager)

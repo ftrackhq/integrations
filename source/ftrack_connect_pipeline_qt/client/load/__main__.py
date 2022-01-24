@@ -30,7 +30,9 @@ if __name__ == '__main__':
                 session=session, mode=constants.LOCAL_EVENT_MODE
             )
             self.current_host = host.Host(event_manager)
-            super(StandaloneLoaderClient, self).__init__(event_manager, parent=parent)
+            super(StandaloneLoaderClient, self).__init__(
+                event_manager, parent=parent
+            )
 
     wid = StandaloneLoaderClient()
     wid.show()

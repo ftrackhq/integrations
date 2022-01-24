@@ -88,7 +88,9 @@ class BaseOptionsWidget(QtWidgets.QWidget):
             callback_fn = getattr(self, method)
             callback_fn(result)
         else:
-            self.logger.debug("Not implemented callback method: {}".format(method))
+            self.logger.debug(
+                "Not implemented callback method: {}".format(method)
+            )
             raise NotImplementedError
 
     def set_status(self, status, message):
@@ -145,7 +147,9 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         super(BaseOptionsWidget, self).__init__(parent=parent)
         self.setParent(parent)
 
-        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
         self._widgets = {}
 
         self._session = session
@@ -173,14 +177,18 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self._status_icon = QtWidgets.QLabel()
         icon = self.status_icons[constants.DEFAULT_STATUS]
         self._status_icon.setPixmap(icon)
-        self._status_icon.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self._status_icon.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
+        )
         self._status_icon.setMaximumHeight(10)
         self._status_icon.hide()
         layout.addWidget(self._status_icon)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setAlignment(QtCore.Qt.AlignTop)
         self.setLayout(layout)
-        self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        self.setSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed
+        )
 
     def build(self):
         '''build function , mostly used to create the widgets.'''
@@ -201,7 +209,9 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         it with the class variable self.enable_run_plugin'''
         self.run_plugin_button = QtWidgets.QPushButton('RUN')
         self.run_plugin_button.setObjectName('borderless')
-        self.run_plugin_button.clicked.connect(partial(self.on_run_plugin, 'run'))
+        self.run_plugin_button.clicked.connect(
+            partial(self.on_run_plugin, 'run')
+        )
         self.layout().addWidget(self.run_plugin_button)
         self.run_plugin_button.setVisible(self.enable_run_plugin)
 

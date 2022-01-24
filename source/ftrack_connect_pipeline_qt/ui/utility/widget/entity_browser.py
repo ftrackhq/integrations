@@ -52,7 +52,9 @@ class EntityBrowser(QtWidgets.QDialog):
 
         self.navigateUpButton = QtWidgets.QToolButton()
         self.navigateUpButton.setObjectName('entity-browser-up-button')
-        self.navigateUpButton.setIcon(QtGui.QIcon(':ftrack/image/light/upArrow'))
+        self.navigateUpButton.setIcon(
+            QtGui.QIcon(':ftrack/image/light/upArrow')
+        )
         self.navigateUpButton.setToolTip('Navigate up a level.')
         self.headerLayout.addWidget(self.navigateUpButton)
 
@@ -125,7 +127,9 @@ class EntityBrowser(QtWidgets.QDialog):
         self.acceptButton.clicked.connect(self.accept)
         self.cancelButton.clicked.connect(self.reject)
 
-        self.navigationBar.currentChanged.connect(self._onSelectNavigationBarItem)
+        self.navigationBar.currentChanged.connect(
+            self._onSelectNavigationBarItem
+        )
         self.navigateUpButton.clicked.connect(self._onNavigateUpButtonClicked)
         self.reloadButton.clicked.connect(self._onReloadButtonClicked)
         self.view.activated.connect(self._onActivateItem)
@@ -155,7 +159,9 @@ class EntityBrowser(QtWidgets.QDialog):
         '''
         # Ensure root children loaded in order to begin search.
         rootIndex = self.model.index(-1, -1)
-        if self.model.hasChildren(rootIndex) and self.model.canFetchMore(rootIndex):
+        if self.model.hasChildren(rootIndex) and self.model.canFetchMore(
+            rootIndex
+        ):
             self.model.fetchMore(rootIndex)
 
         # Search for matching entries by identity.
@@ -169,9 +175,9 @@ class EntityBrowser(QtWidgets.QDialog):
                 break
 
             matchingIndex = matches[0]
-            if self.model.hasChildren(matchingIndex) and self.model.canFetchMore(
+            if self.model.hasChildren(
                 matchingIndex
-            ):
+            ) and self.model.canFetchMore(matchingIndex):
                 self.model.fetchMore(matchingIndex)
 
             searchIndex = self.model.index(0, 0, parent=matchingIndex)
