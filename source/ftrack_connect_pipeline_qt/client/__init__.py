@@ -43,8 +43,6 @@ class QtClient(client.Client, QtWidgets.QFrame):
             '{}_{}'.format(qt_constants.MAIN_FRAMEWORK_WIDGET, self.__class__.__name__)
         )
 
-        self.setProperty('background', 'default')
-
         self.is_valid_asset_name = False
         self.widget_factory = factory.WidgetFactory(
             event_manager, self.ui_types, self.client_name

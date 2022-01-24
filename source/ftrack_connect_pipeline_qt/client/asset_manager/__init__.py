@@ -57,7 +57,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 
     def get_background_color(self):
         '''Return the theme background color style. Can be overridden by child.'''
-        return 'houdini'
+        return 'default'
 
     def add_hosts(self, host_connections):
         '''

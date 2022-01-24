@@ -552,7 +552,7 @@ class WidgetFactory(QtWidgets.QWidget):
         self.widget_status_updated.emit(status)
 
     def _on_widget_asset_changed(self, asset_name, asset_id, is_valid):
-        '''Callback funtion called when asset has been modified on the widget'''
+        '''Callback function called when asset has been modified on the widget'''
         self.widget_asset_updated.emit(asset_name, asset_id, is_valid)
 
     def on_widget_run_plugin(self, plugin_data, method, plugin_options):
