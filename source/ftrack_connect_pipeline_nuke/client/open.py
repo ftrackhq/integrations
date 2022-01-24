@@ -27,39 +27,46 @@ class NukeOpenClient(QtOpenClient):
 class NukeOpenDialog(QtWidgets.QFrame):
     '''Nuke open dialog'''
 
+    _shown = False
+
     def __init__(self, event_manager):
         super(NukeOpenDialog, self).__init__(
             parent=QtWidgets.QApplication.activeWindow()
         )
+        self._event_manager = event_manager
 
-        self.setWindowFlags(QtCore.Qt.Tool)
+        self._client = None
+
         self.setProperty('background', 'nuke')
 
-        self._client = NukeOpenClient(event_manager)
+        self.rebuild()
 
+        self.setWindowFlags(QtCore.Qt.Tool)
+        self.setWindowTitle('Open')
+        self.move(400, 300)
+        self.resize(450, 530)
+
+    def rebuild(self):
         self.pre_build()
         self.build()
         self.post_build()
 
-        self.shown = False
-
     def pre_build(self):
+        self._client = NukeOpenClient(self._event_manager)
+
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
 
     def build(self):
         self.layout().addWidget(self._client)
 
-        self.setWindowTitle('Open')
-        self.move(400, 300)
-        self.resize(450, 530)
-
     def post_build(self):
         pass
 
     def show(self):
-        if self.shown:
+        if self._shown:
             # Widget has been shown before, reset client
-            self._client.context_selector.set_default_context_id()
+            self._client.setParent(None)
+            self.rebuild()
         super(NukeOpenDialog, self).show()
-        self.shown = True
+        self._shown = True
