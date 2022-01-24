@@ -51,7 +51,9 @@ class PluginDiscoverValidation(object):
         '''
         super(PluginDiscoverValidation, self).__init__()
 
-        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
 
         self.session = session
         self.host_types = host_types
@@ -75,7 +77,9 @@ class PluginDiscoverValidation(object):
             # context plugins
             try:
                 if not self.vaildate_definition_plugins(
-                    definition[constants.CONTEXTS], definition['name'], schema_type
+                    definition[constants.CONTEXTS],
+                    definition['name'],
+                    schema_type,
                 ):
                     valid_definition = False
             except Exception as e:
@@ -85,22 +89,30 @@ class PluginDiscoverValidation(object):
                 valid_definition = False
             try:
                 if not self.vaildate_definition_plugins(
-                    definition[constants.COMPONENTS], definition['name'], schema_type
+                    definition[constants.COMPONENTS],
+                    definition['name'],
+                    schema_type,
                 ):
                     valid_definition = False
             except Exception as e:
                 self.logger.error(
-                    'Could not validate publisher components steps: {}'.format(e)
+                    'Could not validate publisher components steps: {}'.format(
+                        e
+                    )
                 )
                 valid_definition = False
             try:
                 if not self.vaildate_definition_plugins(
-                    definition[constants.FINALIZERS], definition['name'], schema_type
+                    definition[constants.FINALIZERS],
+                    definition['name'],
+                    schema_type,
                 ):
                     valid_definition = False
             except Exception as e:
                 self.logger.error(
-                    'Could not validate publisher finalizers steps: {}'.format(e)
+                    'Could not validate publisher finalizers steps: {}'.format(
+                        e
+                    )
                 )
                 valid_definition = False
             if not valid_definition:
@@ -108,7 +120,9 @@ class PluginDiscoverValidation(object):
                 idxs_to_pop.append(idx)
                 self.logger.debug(
                     'The definition {} from type {} contains invalid plugins '
-                    'and will not be used'.format(definition['name'], 'publisher')
+                    'and will not be used'.format(
+                        definition['name'], 'publisher'
+                    )
                 )
 
         return idxs_to_pop or None
@@ -132,7 +146,9 @@ class PluginDiscoverValidation(object):
             # context plugins
             try:
                 if not self.vaildate_definition_plugins(
-                    definition[constants.CONTEXTS], definition['name'], schema_type
+                    definition[constants.CONTEXTS],
+                    definition['name'],
+                    schema_type,
                 ):
                     valid_definition = False
             except Exception as e:
@@ -142,7 +158,9 @@ class PluginDiscoverValidation(object):
                 valid_definition = False
             try:
                 if not self.vaildate_definition_plugins(
-                    definition[constants.COMPONENTS], definition['name'], schema_type
+                    definition[constants.COMPONENTS],
+                    definition['name'],
+                    schema_type,
                 ):
                     valid_definition = False
             except Exception as e:
@@ -152,7 +170,9 @@ class PluginDiscoverValidation(object):
                 valid_definition = False
             try:
                 if not self.vaildate_definition_plugins(
-                    definition[constants.FINALIZERS], definition['name'], schema_type
+                    definition[constants.FINALIZERS],
+                    definition['name'],
+                    schema_type,
                 ):
                     valid_definition = False
             except Exception as e:
@@ -165,7 +185,9 @@ class PluginDiscoverValidation(object):
                 idxs_to_pop.append(idx)
                 self.logger.debug(
                     'The definition {} from type {} contains invalid plugins '
-                    'and will not be used'.format(definition['name'], 'publisher')
+                    'and will not be used'.format(
+                        definition['name'], 'publisher'
+                    )
                 )
 
         return idxs_to_pop or None
@@ -233,7 +255,9 @@ class PluginDiscoverValidation(object):
                 topic=constants.PIPELINE_DISCOVER_PLUGIN_TOPIC, data=data
             )
 
-            plugin_result = self.session.event_hub.publish(event, synchronous=True)
+            plugin_result = self.session.event_hub.publish(
+                event, synchronous=True
+            )
 
             if plugin_result:
                 plugin_result = plugin_result[0]
@@ -252,7 +276,8 @@ class PluginDiscoverValidation(object):
                     'message': "Plugin Ready",
                 }
                 event = ftrack_api.event.base.Event(
-                    topic=constants.PIPELINE_DISCOVER_PLUGIN_TOPIC, data=status_event
+                    topic=constants.PIPELINE_DISCOVER_PLUGIN_TOPIC,
+                    data=status_event,
                 )
 
                 self.session.event_hub.publish(event)

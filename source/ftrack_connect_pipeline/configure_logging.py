@@ -57,7 +57,9 @@ def configure_logging(
     level = level or logging.INFO
 
     log_directory = get_log_directory()
-    logfile = os.path.join(log_directory, '{0}.log'.format(logger_name).encode('utf8'))
+    logfile = os.path.join(
+        log_directory, '{0}.log'.format(logger_name).encode('utf8')
+    )
 
     # Sanitise the variable, checking the type.
     if not isinstance(extra_modules, (list, tuple, type(None))):
@@ -115,7 +117,11 @@ def configure_logging(
         current_level = logging.getLevelName(level)
         logging_settings['loggers'].setdefault(
             module,
-            {'level': 'DEBUG', 'handlers': modules_handlers, 'propagate': propagate},
+            {
+                'level': 'DEBUG',
+                'handlers': modules_handlers,
+                'propagate': propagate,
+            },
         )
 
     # Set default logging settings.

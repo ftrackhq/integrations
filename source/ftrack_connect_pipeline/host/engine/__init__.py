@@ -59,12 +59,21 @@ class BaseEngine(object):
         self._host_id = host_id
         self._definition = None
 
-        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
 
         self.event_manager = event_manager
 
     def run_event(
-        self, plugin_name, plugin_type, host_type, data, options, context_data, method
+        self,
+        plugin_name,
+        plugin_type,
+        host_type,
+        data,
+        options,
+        context_data,
+        method,
     ):
         '''
         Returns an :class:`ftrack_api.event.base.Event` with the topic
@@ -157,10 +166,18 @@ class BaseEngine(object):
 
         for host_type in reversed(self._host_types):
             event = self.run_event(
-                plugin_name, plugin_type, host_type, data, options, context_data, method
+                plugin_name,
+                plugin_type,
+                host_type,
+                data,
+                options,
+                context_data,
+                method,
             )
 
-            plugin_result_data = self.session.event_hub.publish(event, synchronous=True)
+            plugin_result_data = self.session.event_hub.publish(
+                event, synchronous=True
+            )
 
             if plugin_result_data:
                 result_data = plugin_result_data[0]
@@ -192,7 +209,8 @@ class BaseEngine(object):
             result_data["plugin_id"] = None
 
         event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_CLIENT_NOTIFICATION, data={'pipeline': result_data}
+            topic=constants.PIPELINE_CLIENT_NOTIFICATION,
+            data={'pipeline': result_data},
         )
 
         self.event_manager.publish(

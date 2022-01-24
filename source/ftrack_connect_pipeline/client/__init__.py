@@ -56,7 +56,9 @@ class HostConnection(object):
                 context_identifiers.append(entity.get('context_type').lower())
                 if 'type' in entity:
                     # Modeling, animation...
-                    context_identifiers.append(entity['type'].get('name').lower())
+                    context_identifiers.append(
+                        entity['type'].get('name').lower()
+                    )
                 # Name of the task or the project
                 context_identifiers.append(entity.get('name').lower())
 
@@ -64,7 +66,8 @@ class HostConnection(object):
             result = {}
             for schema_title in self._raw_host_data['definition'].keys():
                 result[schema_title] = self._filter_definitions(
-                    context_identifiers, self._raw_host_data['definition'][schema_title]
+                    context_identifiers,
+                    self._raw_host_data['definition'][schema_title],
                 )
             return result
 
@@ -95,7 +98,9 @@ class HostConnection(object):
                 self.logger.debug(
                     'Excluding definition {} - context identifiers {} '
                     'does not match schema discoverable: {}.'.format(
-                        definition.get('name'), context_identifiers, discoverable
+                        definition.get('name'),
+                        context_identifiers,
+                        discoverable,
                     )
                 )
 
@@ -156,7 +161,11 @@ class HostConnection(object):
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_HOST_RUN,
             data={
-                'pipeline': {'host_id': self.id, 'data': data, 'engine_type': engine}
+                'pipeline': {
+                    'host_id': self.id,
+                    'data': data,
+                    'engine_type': engine,
+                }
             },
         )
         self._event_manager.publish(event, callback)
@@ -245,7 +254,9 @@ class Client(object):
     def logs(self):
         self._init_logs()
         return self._logs.get_log_items(
-            self.host_connection.id if not self.host_connection is None else None
+            self.host_connection.id
+            if not self.host_connection is None
+            else None
         )
 
     def _init_logs(self):
@@ -275,7 +286,9 @@ class Client(object):
         self.current_package = None
 
         self.__callback = None
-        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
         self._event_manager = event_manager
         self.logger.debug('Initialising {}'.format(self))
 
@@ -336,7 +349,9 @@ class Client(object):
             topic=constants.PIPELINE_DISCOVER_HOST
         )
 
-        self._event_manager.publish(discover_event, callback=self._host_discovered)
+        self._event_manager.publish(
+            discover_event, callback=self._host_discovered
+        )
 
     def run_definition(self, definition, engine_type):
         '''
@@ -364,7 +379,11 @@ class Client(object):
         # passing data to the engine. And the engine_type is only available
         # on the definition.
         plugin_type = '{}.{}'.format(engine_type, plugin_data['type'])
-        data = {'plugin': plugin_data, 'plugin_type': plugin_type, 'method': method}
+        data = {
+            'plugin': plugin_data,
+            'plugin_type': plugin_type,
+            'method': method,
+        }
         self.host_connection.run(data, engine_type, self._run_callback)
 
     def _run_callback(self, event):
@@ -425,7 +444,9 @@ class Client(object):
         Returns the package of the current :obj:`definition`
         '''
         if not self.host_connection or not self.definition:
-            self.logger.error("please set the host connection and the definition first")
+            self.logger.error(
+                "please set the host connection and the definition first"
+            )
             return
 
         for package in self.host_connection.definitions['package']:
@@ -487,11 +508,19 @@ class Client(object):
             self.logger.debug(
                 '\n plugin_name: {} \n status: {} \n result: {} \n '
                 'message: {} \n user_message: {} \n plugin_id: {}'.format(
-                    plugin_name, status, result, message, user_message, plugin_id
+                    plugin_name,
+                    status,
+                    result,
+                    message,
+                    user_message,
+                    plugin_id,
                 )
             )
 
-        if status == constants.ERROR_STATUS or status == constants.EXCEPTION_STATUS:
+        if (
+            status == constants.ERROR_STATUS
+            or status == constants.EXCEPTION_STATUS
+        ):
             raise Exception(
                 'An error occurred during the execution of the '
                 'plugin name {} \n message: {}  \n user_message: {} '

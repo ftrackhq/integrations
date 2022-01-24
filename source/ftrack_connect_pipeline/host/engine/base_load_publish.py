@@ -106,7 +106,9 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 method=default_method,
             )
 
-            bool_status = constants.status_bool_mapping[plugin_result['status']]
+            bool_status = constants.status_bool_mapping[
+                plugin_result['status']
+            ]
             if not bool_status:
                 stage_status = False
                 result = plugin_result['result']
@@ -337,7 +339,9 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
                 if not step_enabled:
                     self.logger.debug(
-                        'Skipping step {} as it has been disabled'.format(step_name)
+                        'Skipping step {} as it has been disabled'.format(
+                            step_name
+                        )
                     )
                     continue
 
@@ -376,14 +380,18 @@ class BaseLoaderPublisherEngine(BaseEngine):
             if not group_status:
                 raise Exception(
                     'An error occurred during the execution of the a {} and '
-                    'can not continue, please, check the plugin logs'.format(step_group)
+                    'can not continue, please, check the plugin logs'.format(
+                        step_group
+                    )
                 )
 
             if step_group == constants.CONTEXTS:
                 context_latest_step = group_results[-1]
                 context_latest_stage = context_latest_step.get('result')[-1]
                 context_latest_plugin = context_latest_stage.get('result')[-1]
-                context_latest_plugin_result = context_latest_plugin.get('result')
+                context_latest_plugin_result = context_latest_plugin.get(
+                    'result'
+                )
                 context_data = context_latest_plugin_result
 
             elif step_group == constants.COMPONENTS:
@@ -393,7 +401,8 @@ class BaseLoaderPublisherEngine(BaseEngine):
                     for component_stage in component_step.get("result"):
                         self.logger.debug(
                             "Checking stage name {} of type {}".format(
-                                component_stage.get("name"), component_stage.get("type")
+                                component_stage.get("name"),
+                                component_stage.get("type"),
                             )
                         )
                         if not component_stage.get("type") in [
@@ -407,7 +416,9 @@ class BaseLoaderPublisherEngine(BaseEngine):
                                     component_stage.get("type"),
                                 )
                             )
-                            components_output[i]['result'].remove(component_stage)
+                            components_output[i]['result'].remove(
+                                component_stage
+                            )
                     i += 1
 
         # TODO: maybe we could be returning the finalizers_result? or maybe not

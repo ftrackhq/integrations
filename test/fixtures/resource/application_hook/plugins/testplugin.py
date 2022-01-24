@@ -43,7 +43,13 @@ class TestFinalizer(plugin.FinalizerPlugin):
 
 def register(api_object, **kw):
 
-    plugins = [TestContext, TestCollector, TestValidator, TestOutput, TestFinalizer]
+    plugins = [
+        TestContext,
+        TestCollector,
+        TestValidator,
+        TestOutput,
+        TestFinalizer,
+    ]
 
     for plugin in plugins:
         plugin(api_object).register()

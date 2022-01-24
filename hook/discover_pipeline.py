@@ -68,7 +68,8 @@ def register(session):
     handle_launch_event = functools.partial(on_launch_pipeline, session)
 
     session.event_hub.subscribe(
-        'topic=ftrack.connect.application.launch ' 'and data.application.identifier=*',
+        'topic=ftrack.connect.application.launch '
+        'and data.application.identifier=*',
         handle_launch_event,
         priority=20,
     )

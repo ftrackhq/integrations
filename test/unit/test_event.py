@@ -36,7 +36,9 @@ def test_event_manager_initalise(session, test_event, manager_mode):
         'remote override on remote mode',
     ],
 )
-def test_event_manager_publish_mode_overrides(session, test_event, manager_modes):
+def test_event_manager_publish_mode_overrides(
+    session, test_event, manager_modes
+):
     manager_mode, mode_override = manager_modes
 
     def event_data(event):

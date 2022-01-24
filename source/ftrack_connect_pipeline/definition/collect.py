@@ -18,7 +18,9 @@ def resolve_schemas(data):
     *data* : Dictionary of json definitions and schemas generated at
     :func:`collect_definitions`
     '''
-    data['schema'] = [JsonRef.replace_refs(schema) for schema in data['schema']]
+    data['schema'] = [
+        JsonRef.replace_refs(schema) for schema in data['schema']
+    ]
     return data
 
 
@@ -93,7 +95,9 @@ def _collect_json(source_path):
                 data_store = json.load(_file)
             except Exception as error:
                 logger.error(
-                    "{0} could not be registered, reason: {1}".format(_file, str(error))
+                    "{0} could not be registered, reason: {1}".format(
+                        _file, str(error)
+                    )
                 )
         if data_store:
             loaded_jsons.append(data_store)

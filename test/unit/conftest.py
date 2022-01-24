@@ -74,7 +74,9 @@ def session():
             )
         )
     ]
-    session = ftrack_api.Session(plugin_paths=event_paths, auto_connect_event_hub=False)
+    session = ftrack_api.Session(
+        plugin_paths=event_paths, auto_connect_event_hub=False
+    )
 
     return session
 
@@ -91,9 +93,9 @@ def new_project(request, session):
     project_schema = session.query('ProjectSchema').first()
     default_shot_status = project_schema.get_statuses('Shot')[0]
     default_task_type = project_schema.get_types('Task')[0]
-    default_task_status = project_schema.get_statuses('Task', default_task_type['id'])[
-        0
-    ]
+    default_task_status = project_schema.get_statuses(
+        'Task', default_task_type['id']
+    )[0]
 
     project_name = 'pipeline_test_{0}'.format(uuid.uuid1().hex)
     project = session.create(
@@ -108,7 +110,10 @@ def new_project(request, session):
     for sequence_number in range(1):
         sequence = session.create(
             'Sequence',
-            {'name': 'sequence_{0:03d}'.format(sequence_number), 'parent': project},
+            {
+                'name': 'sequence_{0:03d}'.format(sequence_number),
+                'parent': project,
+            },
         )
 
         for shot_number in range(1):
@@ -157,13 +162,17 @@ def host(request, event_manager):
 
 @pytest.fixture()
 def event_manager(session):
-    event_manager = event.EventManager(session, mode=constants.LOCAL_EVENT_MODE)
+    event_manager = event.EventManager(
+        session, mode=constants.LOCAL_EVENT_MODE
+    )
 
     def register_definitions(session, event):
         host_type = event['data']['pipeline']['host_type']
 
         dir = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '..', 'fixtures', 'definitions')
+            os.path.join(
+                os.path.dirname(__file__), '..', 'fixtures', 'definitions'
+            )
         )
 
         print(dir)

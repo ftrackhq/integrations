@@ -11,7 +11,9 @@ class DiscoverPluginValidation(BasePluginValidation):
     :class:`~ftrack_connect_pipeline.plugin.BasePluginValidation`
     '''
 
-    def __init__(self, plugin_name, required_output, return_type, return_value):
+    def __init__(
+        self, plugin_name, required_output, return_type, return_value
+    ):
         super(DiscoverPluginValidation, self).__init__(
             plugin_name, required_output, return_type, return_value
         )
@@ -53,7 +55,10 @@ class BaseDiscoverPlugin(BasePlugin):
     def __init__(self, session):
         super(BaseDiscoverPlugin, self).__init__(session)
         self.validator = DiscoverPluginValidation(
-            self.plugin_name, self._required_output, self.return_type, self.return_value
+            self.plugin_name,
+            self._required_output,
+            self.return_type,
+            self.return_value,
         )
 
     def run(self, context_data=None, data=None, options=None):

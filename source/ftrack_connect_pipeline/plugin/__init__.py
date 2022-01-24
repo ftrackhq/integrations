@@ -16,7 +16,9 @@ from ftrack_connect_pipeline import event
 class BasePluginValidation(object):
     '''Plugin Validation base class'''
 
-    def __init__(self, plugin_name, required_output, return_type, return_value):
+    def __init__(
+        self, plugin_name, required_output, return_type, return_value
+    ):
         '''
         Initialise PluginValidation with *plugin_name*, *required_output*,
         *return_type*, *return_value*.
@@ -68,8 +70,11 @@ class BasePluginValidation(object):
 
         if self.return_type is not None:
             if not isinstance(result, self.return_type):
-                message = 'Return value of {} is of type {}, should {} ' 'type'.format(
-                    self.plugin_name, type(result), self.return_type
+                message = (
+                    'Return value of {} is of type {}, should {} '
+                    'type'.format(
+                        self.plugin_name, type(result), self.return_type
+                    )
                 )
                 validator_result = (False, message)
 
@@ -209,7 +214,10 @@ class BasePlugin(object):
             session=session, mode=constants.LOCAL_EVENT_MODE
         )
         self.validator = BasePluginValidation(
-            self.plugin_name, self._required_output, self.return_type, self.return_value
+            self.plugin_name,
+            self._required_output,
+            self.return_type,
+            self.return_value,
         )
 
     def _base_topic(self, topic):
@@ -238,7 +246,11 @@ class BasePlugin(object):
             'data.pipeline.category={} and data.pipeline.plugin_type={} and '
             'data.pipeline.plugin_name={}'
         ).format(
-            topic, self.host_type, self.category, self.plugin_type, self.plugin_name
+            topic,
+            self.host_type,
+            self.category,
+            self.plugin_type,
+            self.plugin_name,
         )
 
         return topic
@@ -306,9 +318,10 @@ class BasePlugin(object):
             return status, message
 
         # validate result with output options
-        output_valid, output_valid_message = self.validator.validate_required_output(
-            result
-        )
+        (
+            output_valid,
+            output_valid_message,
+        ) = self.validator.validate_required_output(result)
         if not output_valid:
             status = constants.ERROR_STATUS
             message = str(output_valid_message)
@@ -409,8 +422,9 @@ class BasePlugin(object):
 
         run_fn = getattr(self, self.method)
         if not run_fn:
-            message = 'The method : {} does not exist for the ' 'plugin:{}'.format(
-                self.method, self.plugin_name
+            message = (
+                'The method : {} does not exist for the '
+                'plugin:{}'.format(self.method, self.plugin_name)
             )
             self.logger.debug(message)
             result_data['status'] = constants.EXCEPTION_STATUS
@@ -439,7 +453,9 @@ class BasePlugin(object):
         # We check that the optional user_data it's a dictionary and contains
         # message and data keys.
         if user_data:
-            user_data_status, user_data_message = self._validate_user_data(user_data)
+            user_data_status, user_data_message = self._validate_user_data(
+                user_data
+            )
             user_bool_status = constants.status_bool_mapping[user_data_status]
             if not user_bool_status:
                 result_data['status'] = constants.EXCEPTION_STATUS

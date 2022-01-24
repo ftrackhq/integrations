@@ -11,7 +11,9 @@ class PostImportPluginValidation(BasePluginValidation):
     :class:`~ftrack_connect_pipeline.plugin.BasePluginValidation`
     '''
 
-    def __init__(self, plugin_name, required_output, return_type, return_value):
+    def __init__(
+        self, plugin_name, required_output, return_type, return_value
+    ):
         super(PostImportPluginValidation, self).__init__(
             plugin_name, required_output, return_type, return_value
         )
@@ -33,7 +35,10 @@ class BasePostImportPlugin(BasePlugin):
     def __init__(self, session):
         super(BasePostImportPlugin, self).__init__(session)
         self.validator = PostImportPluginValidation(
-            self.plugin_name, self._required_output, self.return_type, self.return_value
+            self.plugin_name,
+            self._required_output,
+            self.return_type,
+            self.return_value,
         )
 
     def run(self, context_data=None, data=None, options=None):

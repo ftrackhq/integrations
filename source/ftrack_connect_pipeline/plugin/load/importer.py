@@ -40,9 +40,9 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         This is an override that modifies the plugin_setting['data'] to pass
         only the results of the collector stage of the current step.
         '''
-        method, plugin_settings = super(LoaderImporterPlugin, self)._parse_run_event(
-            event
-        )
+        method, plugin_settings = super(
+            LoaderImporterPlugin, self
+        )._parse_run_event(event)
         data = plugin_settings.get('data')
         # We only want the data of the collector in this stage
         collector_result = []
@@ -96,7 +96,9 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
 
         json_data = json.dumps(event['data'])
         if six.PY2:
-            options[asset_const.ASSET_INFO_OPTIONS] = base64.b64encode(json_data)
+            options[asset_const.ASSET_INFO_OPTIONS] = base64.b64encode(
+                json_data
+            )
         else:
             input_bytes = json_data.encode('utf8')
             options[asset_const.ASSET_INFO_OPTIONS] = base64.b64encode(
@@ -104,13 +106,17 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
             ).decode('ascii')
 
         if asset_load_mode != 'Open':
-            self.ftrack_asset = self.get_asset_class(context_data, data, options)
+            self.ftrack_asset = self.get_asset_class(
+                context_data, data, options
+            )
 
         super_result = super(LoaderImporterPlugin, self)._run(event)
 
         #  Query all the objects from the scene
         self.new_data = self.get_current_objects()
-        self.logger.debug('Scene objects after load : {}'.format(len(self.new_data)))
+        self.logger.debug(
+            'Scene objects after load : {}'.format(len(self.new_data))
+        )
         diff = self.new_data.difference(self.old_data)
 
         if asset_load_mode != 'Open' and self.method == 'run':
@@ -125,11 +131,15 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
             ) = self.ftrack_asset.check_dependencies()
             if missing_ids:
                 #  if missing dependencies create them
-                dependency_objects = self.create_dependency_objects(missing_ids)
+                dependency_objects = self.create_dependency_objects(
+                    missing_ids
+                )
                 unconnected_dependencies.extend(dependency_objects)
             if unconnected_dependencies:
                 #  connect all the dependencies new and old
-                self.ftrack_asset.connect_dependencies(unconnected_dependencies)
+                self.ftrack_asset.connect_dependencies(
+                    unconnected_dependencies
+                )
             # Before save delete only the main ftrackNode
 
         return super_result
@@ -149,14 +159,23 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
                 # This one is in case we want to link a sequence inside a project for
                 # example.
                 pass
-            if entity.entity_type == 'Shot' or entity.entity_type == 'AssetBuild':
-                dependency_asset_info = asset_info.FtrackAssetInfo.from_context(entity)
+            if (
+                entity.entity_type == 'Shot'
+                or entity.entity_type == 'AssetBuild'
+            ):
+                dependency_asset_info = (
+                    asset_info.FtrackAssetInfo.from_context(entity)
+                )
                 # This should be depending on the DCC
-                dependency_asset_info[asset_const.LOAD_MODE] = self.dependency_load_mode
+                dependency_asset_info[
+                    asset_const.LOAD_MODE
+                ] = self.dependency_load_mode
                 dependency_asset_info[asset_const.IS_DEPENDENCY] = True
                 dependency_ftrack_asset = self.create_ftrack_asset_class(
                     dependency_asset_info
                 )
-                dependency_object = dependency_ftrack_asset.init_ftrack_object()
+                dependency_object = (
+                    dependency_ftrack_asset.init_ftrack_object()
+                )
                 dependency_objects.append(dependency_object)
         return dependency_objects

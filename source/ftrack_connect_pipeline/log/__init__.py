@@ -66,20 +66,26 @@ class LogDB(object):
                 ''' status text,widget_ref text,'''
                 ''' host_id text, execution_time real, plugin_name text,'''
                 ''' result text, message text, user_message text,'''
-                ''' plugin_type text, plugin_id text)'''.format(self.table_name)
+                ''' plugin_type text, plugin_id text)'''.format(
+                    self.table_name
+                )
             )
             self.connection.commit()
             self.logger.debug('Initialised plugin log persistent storage.')
 
         # Log out the file output.
-        self.logger.info('Storing persistent log: {0}'.format(self._database_path))
+        self.logger.info(
+            'Storing persistent log: {0}'.format(self._database_path)
+        )
 
     def __del__(self):
         '''Release resources (called mostly, not by all DCC apps)'''
         self.connection.close()
         if not self._database_path is None:
             # Delete database from disk
-            self.logger.info('Removing database @ {}'.format(self._database_path))
+            self.logger.info(
+                'Removing database @ {}'.format(self._database_path)
+            )
             try:
                 os.remove(self._database_path)
                 self._database_path = None
@@ -104,7 +110,9 @@ class LogDB(object):
             try:
                 os.makedirs(user_data_dir)
             except OSError as error:
-                if error.errno == errno.EEXIST and os.path.isdir(user_data_dir):
+                if error.errno == errno.EEXIST and os.path.isdir(
+                    user_data_dir
+                ):
                     pass
                 else:
                     raise
@@ -155,7 +163,9 @@ class LogDB(object):
                     log_item.execution_time,
                     log_item.plugin_name,
                     base64.encodebytes(
-                        json.dumps(log_item.result, cls=ResultEncoder).encode('utf-8')
+                        json.dumps(log_item.result, cls=ResultEncoder).encode(
+                            'utf-8'
+                        )
                     ).decode('utf-8'),
                     log_item.message,
                     log_item.user_message,
@@ -167,7 +177,8 @@ class LogDB(object):
 
         except sqlite3.Error as e:
             self.logger.error(
-                'Error storing log message in local persistent' ' database {}'.format(e)
+                'Error storing log message in local persistent'
+                ' database {}'.format(e)
             )
 
     def get_log_items(self, host_id):

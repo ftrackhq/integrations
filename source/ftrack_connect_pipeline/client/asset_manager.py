@@ -105,7 +105,9 @@ class AssetManagerClient(client.Client):
             'assets': asset_info,
             'options': {'new_version_id': new_version_id},
         }
-        self.host_connection.run(data, self.engine_type, self._change_version_callback)
+        self.host_connection.run(
+            data, self.engine_type, self._change_version_callback
+        )
 
     def select_assets(self, asset_info_list):
         '''
@@ -117,7 +119,11 @@ class AssetManagerClient(client.Client):
         *asset_info_list* : Should a list pf be instances of
         :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
-        data = {'method': 'select_assets', 'plugin': None, 'assets': asset_info_list}
+        data = {
+            'method': 'select_assets',
+            'plugin': None,
+            'assets': asset_info_list,
+        }
         self.host_connection.run(data, self.engine_type)
 
     def remove_assets(self, asset_info_list):
@@ -133,8 +139,14 @@ class AssetManagerClient(client.Client):
         :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
 
-        data = {'method': 'remove_assets', 'plugin': None, 'assets': asset_info_list}
-        self.host_connection.run(data, self.engine_type, self._remove_assets_callback)
+        data = {
+            'method': 'remove_assets',
+            'plugin': None,
+            'assets': asset_info_list,
+        }
+        self.host_connection.run(
+            data, self.engine_type, self._remove_assets_callback
+        )
 
     def update_assets(self, asset_info_list, plugin):
         '''
@@ -160,7 +172,9 @@ class AssetManagerClient(client.Client):
             'assets': asset_info_list,
             'plugin_type': plugin_type,
         }
-        self.host_connection.run(data, self.engine_type, self._update_assets_callback)
+        self.host_connection.run(
+            data, self.engine_type, self._update_assets_callback
+        )
 
     def load_assets(self, asset_info_list):
         '''
@@ -175,8 +189,14 @@ class AssetManagerClient(client.Client):
         :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
 
-        data = {'method': 'load_assets', 'plugin': None, 'assets': asset_info_list}
-        self.host_connection.run(data, self.engine_type, self._load_assets_callback)
+        data = {
+            'method': 'load_assets',
+            'plugin': None,
+            'assets': asset_info_list,
+        }
+        self.host_connection.run(
+            data, self.engine_type, self._load_assets_callback
+        )
 
     def unload_assets(self, asset_info_list):
         '''
@@ -191,8 +211,14 @@ class AssetManagerClient(client.Client):
         :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
 
-        data = {'method': 'unload_assets', 'plugin': None, 'assets': asset_info_list}
-        self.host_connection.run(data, self.engine_type, self._unload_assets_callback)
+        data = {
+            'method': 'unload_assets',
+            'plugin': None,
+            'assets': asset_info_list,
+        }
+        self.host_connection.run(
+            data, self.engine_type, self._unload_assets_callback
+        )
 
     def _find_asset_info_by_id(self, id):
         '''
@@ -228,7 +254,9 @@ class AssetManagerClient(client.Client):
             index = self.asset_entities_list.index(asset_info)
             if index is None:
                 continue
-            self.logger.debug('Removing id {} with index {}'.format(key, index))
+            self.logger.debug(
+                'Removing id {} with index {}'.format(key, index)
+            )
             self.asset_entities_list[index] = value
 
     def _remove_assets_callback(self, event):
@@ -245,7 +273,9 @@ class AssetManagerClient(client.Client):
             index = self.asset_entities_list.index(asset_info)
             if index is None:
                 continue
-            self.logger.debug('Removing id {} with index {}'.format(key, index))
+            self.logger.debug(
+                'Removing id {} with index {}'.format(key, index)
+            )
             self.asset_entities_list.pop(index)
 
     def _update_assets_callback(self, event):
@@ -261,7 +291,9 @@ class AssetManagerClient(client.Client):
             index = self.asset_entities_list.index(asset_info)
             if index is None:
                 continue
-            self.logger.debug('Updating id {} with index {}'.format(key, index))
+            self.logger.debug(
+                'Updating id {} with index {}'.format(key, index)
+            )
             self.asset_entities_list[index] = value.get(list(value.keys())[0])
 
     def _load_assets_callback(self, event):
@@ -277,7 +309,9 @@ class AssetManagerClient(client.Client):
             index = self.asset_entities_list.index(asset_info)
             if index is None:
                 continue
-            self.logger.debug('Updating id {} with index {}'.format(key, index))
+            self.logger.debug(
+                'Updating id {} with index {}'.format(key, index)
+            )
             # TODO: update this to update the asset_enitites_list as desired or
             #  remove it if not needed
             # self.asset_entities_list[index] = value.get(list(value.keys())[0])
@@ -295,7 +329,9 @@ class AssetManagerClient(client.Client):
             index = self.asset_entities_list.index(asset_info)
             if index is None:
                 continue
-            self.logger.debug('Updating id {} with index {}'.format(key, index))
+            self.logger.debug(
+                'Updating id {} with index {}'.format(key, index)
+            )
             # TODO: update this to update the asset_enitites_list as desired or
             #  remove it if not needed
             # self.asset_entities_list[index] = value.get(list(value.keys())[0])

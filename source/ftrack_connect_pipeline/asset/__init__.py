@@ -116,7 +116,9 @@ class FtrackAssetBase(object):
         '''
         super(FtrackAssetBase, self).__init__()
 
-        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
 
         self._asset_info = None
         self._event_manager = event_manager
@@ -173,7 +175,9 @@ class FtrackAssetBase(object):
         '''
 
         asset_version_entity = self.session.query(
-            'select version from AssetVersion where id is "{}"'.format(new_version_id)
+            'select version from AssetVersion where id is "{}"'.format(
+                new_version_id
+            )
         ).one()
 
         new_asset_info = FtrackAssetInfo.from_version_entity(
@@ -205,10 +209,13 @@ class FtrackAssetBase(object):
             ]
 
             asset_info_options['settings']['data'][0]['result'] = [asset_data]
-            asset_info_options['settings']['context_data'].update(asset_context_data)
+            asset_info_options['settings']['context_data'].update(
+                asset_context_data
+            )
 
             run_event = ftrack_api.event.base.Event(
-                topic=constants.PIPELINE_RUN_PLUGIN_TOPIC, data=asset_info_options
+                topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
+                data=asset_info_options,
             )
 
             plugin_result_data = self.session.event_hub.publish(

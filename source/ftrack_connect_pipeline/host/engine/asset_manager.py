@@ -22,7 +22,9 @@ class AssetManagerEngine(BaseEngine):
     engine_type = 'asset_manager'
     '''Engine type for this engine class'''
 
-    def __init__(self, event_manager, host_types, host_id, asset_type_name=None):
+    def __init__(
+        self, event_manager, host_types, host_id, asset_type_name=None
+    ):
         '''
         Initialise HostConnection with instance of
         :class:`~ftrack_connect_pipeline.event.EventManager` , and *host*,

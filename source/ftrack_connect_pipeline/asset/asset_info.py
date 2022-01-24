@@ -101,13 +101,19 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
     arguments_dict[constants.ASSET_TYPE_NAME] = context_data.get(
         constants.ASSET_TYPE_NAME, ''
     )
-    arguments_dict[constants.ASSET_ID] = context_data.get(constants.ASSET_ID, '')
+    arguments_dict[constants.ASSET_ID] = context_data.get(
+        constants.ASSET_ID, ''
+    )
     arguments_dict[constants.VERSION_NUMBER] = int(
         context_data.get(constants.VERSION_NUMBER, 0)
     )
-    arguments_dict[constants.VERSION_ID] = context_data.get(constants.VERSION_ID, '')
+    arguments_dict[constants.VERSION_ID] = context_data.get(
+        constants.VERSION_ID, ''
+    )
 
-    arguments_dict[constants.LOAD_MODE] = options.get(constants.LOAD_MODE, 'Not Set')
+    arguments_dict[constants.LOAD_MODE] = options.get(
+        constants.LOAD_MODE, 'Not Set'
+    )
 
     arguments_dict[constants.ASSET_INFO_OPTIONS] = options.get(
         constants.ASSET_INFO_OPTIONS, ''
@@ -259,7 +265,9 @@ class FtrackAssetInfo(dict):
         if six.PY2:
             return json.loads(base64.b64decode(asset_info_options))
         else:
-            return json.loads(base64.b64decode(asset_info_options).decode('ascii'))
+            return json.loads(
+                base64.b64decode(asset_info_options).decode('ascii')
+            )
 
     def __getitem__(self, k):
         '''
@@ -357,7 +365,8 @@ class FtrackAssetInfo(dict):
         '''
         if not self.session:
             raise AttributeError(
-                'asset_info.session has to be set before versions ' 'can be queried,'
+                'asset_info.session has to be set before versions '
+                'can be queried,'
             )
         query = (
             'select is_latest_version, id, asset, components, components.name, '
@@ -401,11 +410,17 @@ class FtrackAssetInfo(dict):
         asset_info_data = {}
         asset_entity = version_entity['asset']
 
-        asset_info_data[constants.CONTEXT_NAME] = asset_entity['parent']['name']
+        asset_info_data[constants.CONTEXT_NAME] = asset_entity['parent'][
+            'name'
+        ]
         asset_info_data[constants.ASSET_NAME] = asset_entity['name']
-        asset_info_data[constants.ASSET_TYPE_NAME] = asset_entity['type']['name']
+        asset_info_data[constants.ASSET_TYPE_NAME] = asset_entity['type'][
+            'name'
+        ]
         asset_info_data[constants.ASSET_ID] = asset_entity['id']
-        asset_info_data[constants.VERSION_NUMBER] = int(version_entity['version'])
+        asset_info_data[constants.VERSION_NUMBER] = int(
+            version_entity['version']
+        )
         asset_info_data[constants.VERSION_ID] = version_entity['id']
         asset_info_data[constants.IS_LATEST_VERSION] = version_entity[
             constants.IS_LATEST_VERSION
@@ -428,11 +443,17 @@ class FtrackAssetInfo(dict):
                     component_path = location.get_filesystem_path(component)
                     if component_path:
 
-                        asset_info_data[constants.COMPONENT_NAME] = component['name']
+                        asset_info_data[constants.COMPONENT_NAME] = component[
+                            'name'
+                        ]
 
-                        asset_info_data[constants.COMPONENT_ID] = component['id']
+                        asset_info_data[constants.COMPONENT_ID] = component[
+                            'id'
+                        ]
 
-                        asset_info_data[constants.COMPONENT_PATH] = component_path
+                        asset_info_data[
+                            constants.COMPONENT_PATH
+                        ] = component_path
 
         return cls(asset_info_data)
 
@@ -455,7 +476,9 @@ class FtrackAssetInfo(dict):
         # assset we should be getting based on the definition.
         # We don't have the type, assetName, the version or the component
         asset_info_data[constants.ASSET_NAME] = 'No name found'
-        asset_info_data[constants.ASSET_TYPE_NAME] = asset_build['type']['name']
+        asset_info_data[constants.ASSET_TYPE_NAME] = asset_build['type'][
+            'name'
+        ]
         asset_info_data[constants.ASSET_ID] = asset_build['id']
         asset_info_data[constants.VERSION_NUMBER] = int(0)
         asset_info_data[constants.VERSION_ID] = ''

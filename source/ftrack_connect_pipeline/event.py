@@ -18,7 +18,9 @@ class _EventHubThread(threading.Thread):
         return "<{0}:{1}>".format(self.__class__.__name__, self.name)
 
     def __init__(self, session):
-        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
         _name = str(hash(session))
         super(_EventHubThread, self).__init__(name=_name)
         self.logger.debug('Name set for the thread: {}'.format(_name))
@@ -33,7 +35,9 @@ class _EventHubThread(threading.Thread):
 
     def run(self):
         '''Listen for events.'''
-        self.logger.debug('hub thread started for session {}'.format(self._session))
+        self.logger.debug(
+            'hub thread started for session {}'.format(self._session)
+        )
         self._session.event_hub.wait()
 
 
@@ -60,7 +64,9 @@ class EventManager(object):
         try:
             _connected = self.session.event_hub.connected
         except Exception as e:
-            self.logger.error("Error checking event hub connected {}".format(e))
+            self.logger.error(
+                "Error checking event hub connected {}".format(e)
+            )
         return _connected
 
     @property
@@ -86,7 +92,9 @@ class EventManager(object):
             self._event_hub_thread.start()
 
     def __init__(self, session, mode=constants.LOCAL_EVENT_MODE):
-        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
         self._event_hub_thread = None
         self._mode = mode
         self._session = session

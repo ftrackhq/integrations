@@ -83,9 +83,13 @@ class Host(object):
         '''
         super(Host, self).__init__()
 
-        self.logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
 
-        self._host_id = '{}-{}'.format('.'.join(self.host_types), uuid.uuid4().hex)
+        self._host_id = '{}-{}'.format(
+            '.'.join(self.host_types), uuid.uuid4().hex
+        )
 
         self.logger.debug('initializing {}'.format(self))
         self._event_manager = event_manager
@@ -171,10 +175,15 @@ class Host(object):
         self.__registry = validated_result
 
         handle_event = partial(
-            provide_host_information, self.host_id, validated_result, self.host_name
+            provide_host_information,
+            self.host_id,
+            validated_result,
+            self.host_name,
         )
 
-        self._event_manager.subscribe(constants.PIPELINE_DISCOVER_HOST, handle_event)
+        self._event_manager.subscribe(
+            constants.PIPELINE_DISCOVER_HOST, handle_event
+        )
 
         self._event_manager.subscribe(
             '{} and data.pipeline.host_id={}'.format(
@@ -204,7 +213,9 @@ class Host(object):
             for idx in sorted(invalid_publishers_idxs, reverse=True):
                 data['publisher'].pop(idx)
 
-        invalid_loaders_idxs = plugin_validator.validate_loaders_plugins(data['loader'])
+        invalid_loaders_idxs = plugin_validator.validate_loaders_plugins(
+            data['loader']
+        )
         if invalid_loaders_idxs:
             for idx in sorted(invalid_loaders_idxs, reverse=True):
                 data['loader'].pop(idx)

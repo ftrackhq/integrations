@@ -28,9 +28,9 @@ class LoaderPostImportPlugin(base.BasePostImportPlugin):
         This is an override that modifies the plugin_setting['data'] to pass
         only the results of the collector stage of the current step.
         '''
-        method, plugin_settings = super(LoaderPostImportPlugin, self)._parse_run_event(
-            event
-        )
+        method, plugin_settings = super(
+            LoaderPostImportPlugin, self
+        )._parse_run_event(event)
         data = plugin_settings.get('data')
         # We only want the data of the collector in this stage
         collector_result = []
