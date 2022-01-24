@@ -20,6 +20,9 @@ class NukeOpenClient(QtOpenClient):
     def __init__(self, event_manager):
         super(NukeOpenClient, self).__init__(event_manager=event_manager)
 
+    def get_background_color(self):
+        return 'nuke'
+
 
 class NukeOpenDialog(QtWidgets.QFrame):
     '''Nuke open dialog'''
@@ -30,6 +33,7 @@ class NukeOpenDialog(QtWidgets.QFrame):
         )
 
         self.setWindowFlags(QtCore.Qt.Tool)
+        self.setProperty('background', 'nuke')
 
         self._client = NukeOpenClient(event_manager)
 
@@ -51,7 +55,7 @@ class NukeOpenDialog(QtWidgets.QFrame):
         self.resize(450, 530)
 
     def post_build(self):
-        self.setProperty('background', 'default')
+        pass
 
     def show(self):
         if self.shown:

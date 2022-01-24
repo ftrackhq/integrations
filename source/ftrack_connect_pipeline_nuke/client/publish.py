@@ -17,3 +17,6 @@ class NukePublisherClient(QtPublisherClient):
             event_manager=event_manager, parent=parent
         )
         self.setWindowTitle('Nuke Pipeline Publisher')
+
+    def get_background_color(self):
+        return 'nuke'

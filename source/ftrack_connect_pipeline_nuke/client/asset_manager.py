@@ -17,3 +17,6 @@ class NukeAssetManagerClient(QtAssetManagerClient):
             event_manager=event_manager, parent=parent
         )
         self.setWindowTitle('Nuke Pipeline Asset Manager')
+
+    def get_background_color(self):
+        return 'nuke'
