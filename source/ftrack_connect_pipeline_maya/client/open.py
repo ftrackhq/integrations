@@ -34,6 +34,7 @@ class MayaOpenClient(QtOpenClient):
 
 class MayaOpenDialog(QtWidgets.QDialog):
     '''Maya open dialog'''
+    _shown = False
 
     def __init__(self, event_manager, parent=None):
         super(MayaOpenDialog, self).__init__(parent=get_maya_window())
@@ -61,9 +62,10 @@ class MayaOpenDialog(QtWidgets.QDialog):
         self.layout().addWidget(self._client)
 
     def show(self):
-        if self._client:
+        if self._shown:
             # Widget has been shown before, reset client
             self._client.setParent(None)
             self.rebuild()
 
         super(MayaOpenDialog, self).show()
+        self._shown = True
