@@ -103,7 +103,8 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
                 input_bytes
             ).decode('ascii')
 
-        self.ftrack_asset = self.get_asset_class(context_data, data, options)
+        if asset_load_mode != 'Open':
+            self.ftrack_asset = self.get_asset_class(context_data, data, options)
 
         super_result = super(LoaderImporterPlugin, self)._run(event)
 
@@ -112,7 +113,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         self.logger.debug('Scene objects after load : {}'.format(len(self.new_data)))
         diff = self.new_data.difference(self.old_data)
 
-        if asset_load_mode == 'Open' or self.method == 'run':
+        if asset_load_mode != 'Open' and self.method == 'run':
             ftrack_object = self.ftrack_asset.init_ftrack_object()
             #  Connect all the objects that are not dependencies
             self.ftrack_asset.connect_objects(diff)

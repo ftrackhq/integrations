@@ -153,12 +153,12 @@ class BasePlugin(object):
 
     @property
     def discover_topic(self):
-        '''Return a formated PIPELINE_DISCOVER_PLUGIN_TOPIC'''
+        '''Return a formatted PIPELINE_DISCOVER_PLUGIN_TOPIC'''
         return self._base_topic(constants.PIPELINE_DISCOVER_PLUGIN_TOPIC)
 
     @property
     def run_topic(self):
-        '''Return a formated PIPELINE_RUN_PLUGIN_TOPIC'''
+        '''Return a formatted PIPELINE_RUN_PLUGIN_TOPIC'''
         return self._base_topic(constants.PIPELINE_RUN_PLUGIN_TOPIC)
 
     @property
@@ -215,7 +215,7 @@ class BasePlugin(object):
     def _base_topic(self, topic):
         '''
         Ensures that :attr:`host_type`, :attr:`category`, :attr:`plugin_type`,
-        :attr:`plugin_name` are defined and Returns a formated topic of an event
+        :attr:`plugin_name` are defined and Returns a formatted topic of an event
         for the given *topic*
 
         *topic* topic base value

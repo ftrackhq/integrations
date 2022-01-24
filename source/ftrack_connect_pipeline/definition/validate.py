@@ -143,12 +143,12 @@ def validate_definition_components(data):
                     if name not in definition_components_names:
                         logger.debug(
                             '{} {}:{} package {} components'
-                            ' are not matching : required component: {}'.format(
+                            ' are not matching : required components: {}, component: {}'.format(
                                 entry,
                                 definition['host_type'],
                                 definition['name'],
                                 definition['package'],
-                                package_component_names,
+                                name,
                             )
                         )
                         copy_data[entry].remove(definition)
@@ -175,12 +175,13 @@ def validate_definition_components(data):
                 if len(component_diff) != 0:
                     logger.debug(
                         '{} {}:{} package {} components'
-                        ' are not matching : required component: {}'.format(
+                        ' are not matching : required components: {}, diff: {}'.format(
                             entry,
                             definition['host_type'],
                             definition['name'],
                             definition['package'],
                             package_component_names,
+                            component_diff,
                         )
                     )
                     copy_data[entry].remove(definition)
