@@ -242,7 +242,7 @@ class AccordionStepWidget(BaseUIWidget):
         self._widget.update_input(input_info, input_status)
 
     def to_json_object(self):
-        '''Return a formated json with the data from the current widget'''
+        '''Return a formatted json with the data from the current widget'''
         out = {}
         out['enabled'] = self.is_enabled
         return out
@@ -366,6 +366,14 @@ class RadioButtonItemStepWidget(BaseUIWidget):
     '''Widget representation of a boolean'''
 
     @property
+    def is_enabled(self):
+        return self._button.isChecked()
+
+    @property
+    def is_available(self):
+        return self._button and self._button.isEnabled()
+
+    @property
     def button(self):
         return self._button
 
@@ -413,7 +421,7 @@ class RadioButtonItemStepWidget(BaseUIWidget):
     def get_label(self):
         '''Return the label for parent combobox'''
         result = '{}'.format(self.name)
-        if self.is_enabled:
+        if self.is_available:
             if self._component:
                 # Fetch path
                 try:
@@ -431,3 +439,9 @@ class RadioButtonItemStepWidget(BaseUIWidget):
         super(RadioButtonItemStepWidget, self).set_enabled(enabled)
         self.button.setEnabled(enabled)
         self.button.setText(self.get_label())
+
+    def to_json_object(self):
+        '''Return a formatted json with the data from the current widget'''
+        out = {}
+        out['enabled'] = self.is_available and self.is_enabled
+        return out

@@ -256,7 +256,7 @@ class QtClient(client.Client, QtWidgets.QFrame):
 
     def _on_components_checked(self, available_components_count):
         self.run_button.setText(
-            self.client_name.uppoer()
+            self.client_name.upper()
             if available_components_count > 0
             else 'OPEN ASSEMBLER'
         )

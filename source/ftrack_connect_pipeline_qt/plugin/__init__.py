@@ -22,7 +22,7 @@ class BasePluginWidget(plugin.BasePlugin):
     def _base_topic(self, topic):
         '''
         Ensures that :attr:`host_type`, :attr:`category`, :attr:`plugin_type`,
-        :attr:`plugin_name` and :attr:`ui_type` are defined and Returns a formated topic of an event
+        :attr:`plugin_name` and :attr:`ui_type` are defined and Returns a formatted topic of an event
         for the given *topic*
 
         *topic* topic base value

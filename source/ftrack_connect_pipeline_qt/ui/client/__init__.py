@@ -116,5 +116,5 @@ class BaseUIWidget(object):
         self._is_enabled = enabled
 
     def to_json_object(self):
-        '''Return a formated json with the data from the current widget'''
+        '''Return a formatted json with the data from the current widget'''
         return {}

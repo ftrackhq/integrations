@@ -280,16 +280,29 @@ class DefinitionSelectorButtons(DefinitionSelector):
                         # There were no openable components, try next definition
                         continue
                     # Check if any versions at all, find out asset type name from package
-                    asset_type_name = None
+                    asset_type_short = None
                     asset_version = None
                     for package in self.host_connection.definitions['package']:
                         if package['name'] == item.get('package'):
-                            asset_type_name = package['asset_type_name']
+                            asset_type_short = package['asset_type_name']
                             break
+                    # Package is referring to asset type code, find out name
+                    asset_type_name = None
+                    asset_type = self.host_connection.session.query(
+                        'AssetType where short={}'.format(asset_type_short)
+                    ).first()
+                    if asset_type:
+                        asset_type_name = asset_type['name']
+                    else:
+                        self.logger.warning(
+                            'Cannot identify asset type name from short: {}'.format(
+                                asset_type_short
+                            )
+                        )
                     if asset_type_name:
                         asset_version = self.host_connection.session.query(
                             'AssetVersion where '
-                            'task.id={} and asset.type.name={} and is_latest_version=true'.format(
+                            'task.id={} and asset.type.name="{}" and is_latest_version=true'.format(
                                 self.host_connection.context_id, asset_type_name
                             )
                         )
@@ -340,13 +353,15 @@ class DefinitionSelectorButtons(DefinitionSelector):
         self.definitions_widget.show()
 
     def _on_select_definition(self, definition_item):
-        definition_item.setEnabled(False)
-        for button in self.button_group.buttons():
-            if not button is definition_item:
-                button.setEnabled(True)
-        self.definition = definition_item.definition
-        self.component_names_filter = definition_item.component_names_filter
-
+        if definition_item:
+            definition_item.setEnabled(False)
+            for button in self.button_group.buttons():
+                if not button is definition_item:
+                    button.setEnabled(True)
+            self.definition = definition_item.definition
+            self.component_names_filter = definition_item.component_names_filter
+        else:
+            self.definition = None
         if not self.definition:
             self.logger.debug('No data for selected definition')
             self.definition_changed.emit(None, None, None)

@@ -64,7 +64,7 @@ class DefaultStepWidget(BaseUIWidget):
             self.check_box.setEnabled(True)
 
     def to_json_object(self):
-        '''Return a formated json with the data from the current widget'''
+        '''Return a formatted json with the data from the current widget'''
         out = {}
         out['enabled'] = self.is_enabled
         return out

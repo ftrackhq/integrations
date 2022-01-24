@@ -15,9 +15,7 @@ class QtPublisherClient(QtClient):
 
     def __init__(self, event_manager, parent=None):
 
-        super(QtPublisherClient, self).__init__(
-            event_manager, parent=parent
-        )
+        super(QtPublisherClient, self).__init__(event_manager, parent=parent)
         self.setWindowTitle('Standalone Pipeline Publisher')
         self.logger.debug('start qt publisher')
 

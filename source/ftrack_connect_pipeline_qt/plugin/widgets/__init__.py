@@ -222,7 +222,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self.input_changed.emit({'status': None, 'message': ''})
 
     def to_json_object(self):
-        '''Return a formated json with the data from the current widget'''
+        '''Return a formatted json with the data from the current widget'''
         out = {}
         out['name'] = self.name
         out['options'] = {}
