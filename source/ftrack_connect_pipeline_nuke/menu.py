@@ -2,38 +2,38 @@ from nukescripts import panels
 
 
 def build_menu_widgets(ftrack_menu, event_manager):
-    def wrap_open(*args, **kwargs):
+    def wrap_open_class(*args, **kwargs):
         from ftrack_connect_pipeline_nuke.client.open import NukeOpenDialog
 
         return NukeOpenDialog(event_manager)
 
-    def wrap_loader(*args, **kwargs):
+    def wrap_loader_class(*args, **kwargs):
         from ftrack_connect_pipeline_nuke.client.load import NukeLoaderClient
 
         return NukeLoaderClient(event_manager)
 
-    def wrap_publisher(*args, **kwargs):
+    def wrap_publisher_class(*args, **kwargs):
         from ftrack_connect_pipeline_nuke.client.publish import NukePublisherClient
 
         return NukePublisherClient(event_manager)
 
-    def wrap_asset_manager(*args, **kwargs):
+    def wrap_asset_manager_class(*args, **kwargs):
         from ftrack_connect_pipeline_nuke.client.asset_manager import (
             NukeAssetManagerClient,
         )
 
         return NukeAssetManagerClient(event_manager)
 
-    def wrap_log_viewer(*args, **kwargs):
+    def wrap_log_viewer_class(*args, **kwargs):
         from ftrack_connect_pipeline_nuke.client.log_viewer import NukeLogViewerClient
 
         return NukeLogViewerClient(event_manager)
 
-    globals()['ftrackOpenClass'] = wrap_open
-    globals()['ftrackLoadClass'] = wrap_loader
-    globals()['ftrackAssetManagerClass'] = wrap_asset_manager
-    globals()['ftrackPublishClass'] = wrap_publisher
-    globals()['ftrackLogViewerClass'] = wrap_log_viewer
+    globals()['ftrackOpenClass'] = wrap_open_class
+    globals()['ftrackLoadClass'] = wrap_loader_class
+    globals()['ftrackAssetManagerClass'] = wrap_asset_manager_class
+    globals()['ftrackPublishClass'] = wrap_publisher_class
+    globals()['ftrackLogViewerClass'] = wrap_log_viewer_class
 
     # Register docked panels
     panels.registerWidgetAsPanel(
