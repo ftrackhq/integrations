@@ -3,7 +3,10 @@
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
-from ftrack_connect_pipeline_maya.plugin import BaseMayaPlugin, BaseMayaPluginWidget
+from ftrack_connect_pipeline_maya.plugin import (
+    BaseMayaPlugin,
+    BaseMayaPluginWidget,
+)
 
 
 class LoaderContextMayaPlugin(plugin.LoaderContextPlugin, BaseMayaPlugin):
@@ -15,7 +18,9 @@ class LoaderContextMayaPlugin(plugin.LoaderContextPlugin, BaseMayaPlugin):
     '''
 
 
-class LoaderContextMayaWidget(pluginWidget.LoaderContextWidget, BaseMayaPluginWidget):
+class LoaderContextMayaWidget(
+    pluginWidget.LoaderContextWidget, BaseMayaPluginWidget
+):
     '''Class representing a Context Widget
     .. note::
 

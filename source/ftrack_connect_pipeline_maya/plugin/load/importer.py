@@ -7,7 +7,10 @@ import base64
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
-from ftrack_connect_pipeline_maya.plugin import BaseMayaPlugin, BaseMayaPluginWidget
+from ftrack_connect_pipeline_maya.plugin import (
+    BaseMayaPlugin,
+    BaseMayaPluginWidget,
+)
 
 from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
 from ftrack_connect_pipeline_maya.asset import FtrackAssetNode
@@ -33,7 +36,9 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
         return maya_utils.get_current_scene_objects()
 
 
-class LoaderImporterMayaWidget(pluginWidget.LoaderImporterWidget, BaseMayaPluginWidget):
+class LoaderImporterMayaWidget(
+    pluginWidget.LoaderImporterWidget, BaseMayaPluginWidget
+):
     '''Class representing a Collector Widget
 
     .. note::

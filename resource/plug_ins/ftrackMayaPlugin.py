@@ -85,7 +85,10 @@ def nodeInitializer():
     t_attr.setStorable(True)
 
     FtrackAssetNode.a_is_dependency = booleanAttr.create(
-        asset_const.IS_DEPENDENCY, 'isdep', OpenMaya.MFnNumericData.kBoolean, False
+        asset_const.IS_DEPENDENCY,
+        'isdep',
+        OpenMaya.MFnNumericData.kBoolean,
+        False,
     )
     booleanAttr.setHidden(False)
     booleanAttr.setStorable(True)
@@ -151,7 +154,10 @@ def nodeInitializer():
     t_attr.setHidden(False)
     t_attr.setStorable(True)
     FtrackAssetNode.a_is_latest_version = booleanAttr.create(
-        asset_const.IS_LATEST_VERSION, 'ilv', OpenMaya.MFnNumericData.kBoolean, False
+        asset_const.IS_LATEST_VERSION,
+        'ilv',
+        OpenMaya.MFnNumericData.kBoolean,
+        False,
     )
     booleanAttr.setHidden(False)
     booleanAttr.setStorable(True)
@@ -215,6 +221,8 @@ def uninitializePlugin(m_object):
         m_plugin.deregisterNode(kPluginNodeId)
     except:
         sys.stderr.write(
-            'Failed to deregister ftrack_object: {0}'.format(kPluginNodeTypeName)
+            'Failed to deregister ftrack_object: {0}'.format(
+                kPluginNodeTypeName
+            )
         )
         raise

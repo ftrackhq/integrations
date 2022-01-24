@@ -34,7 +34,8 @@ class FtrackAssetNode(FtrackAssetBase):
         in the scene this function creates a new one.
         '''
         ftrack_object = (
-            self.get_ftrack_object_from_scene() or self.create_new_ftrack_object()
+            self.get_ftrack_object_from_scene()
+            or self.create_new_ftrack_object()
         )
 
         if not self.is_sync(ftrack_object):
@@ -153,7 +154,9 @@ class FtrackAssetNode(FtrackAssetBase):
 
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
         for ftrack_dependency_object in ftrack_asset_nodes:
-            node_asset_info = self.get_asset_info_from_node(ftrack_dependency_object)
+            node_asset_info = self.get_asset_info_from_node(
+                ftrack_dependency_object
+            )
             if not node_asset_info.get(asset_const.IS_DEPENDENCY):
                 continue
             connections = cmds.listConnections(
@@ -163,9 +166,9 @@ class FtrackAssetNode(FtrackAssetBase):
                 connected_dependency_ids.append(
                     node_asset_info.get(asset_const.ASSET_ID)
                 )
-                if node_asset_info.get(asset_const.ASSET_ID) not in self.asset_info.get(
-                    asset_const.DEPENDENCY_IDS
-                ):
+                if node_asset_info.get(
+                    asset_const.ASSET_ID
+                ) not in self.asset_info.get(asset_const.DEPENDENCY_IDS):
                     # TODO: we could add an attribute to the node to tag it as
                     # untracked so we can later change the collor or something
                     # like that in the AM an untracked asset ftrack node is a
@@ -174,12 +177,14 @@ class FtrackAssetNode(FtrackAssetBase):
                     untracked_dependency_nodes.append(ftrack_dependency_object)
                 continue
             for connection in connections:
-                if cmds.objectType(connection, isType=asset_const.FTRACK_PLUGIN_TYPE):
+                if cmds.objectType(
+                    connection, isType=asset_const.FTRACK_PLUGIN_TYPE
+                ):
                     continue
 
-            if node_asset_info.get(asset_const.ASSET_ID) in self.asset_info.get(
-                asset_const.DEPENDENCY_IDS
-            ):
+            if node_asset_info.get(
+                asset_const.ASSET_ID
+            ) in self.asset_info.get(asset_const.DEPENDENCY_IDS):
                 uncontected_dependency_ids.append(
                     node_asset_info.get(asset_const.ASSET_ID)
                 )
@@ -251,7 +256,9 @@ class FtrackAssetNode(FtrackAssetBase):
         for dependency_object in dependencies:
             cmds.connectAttr(
                 '{}.message'.format(dependency_object),
-                '{}.{}[{}]'.format(self.ftrack_object, asset_const.DEPENDENCIES, i),
+                '{}.{}[{}]'.format(
+                    self.ftrack_object, asset_const.DEPENDENCIES, i
+                ),
             )
             i += 1
 
@@ -267,7 +274,9 @@ class FtrackAssetNode(FtrackAssetBase):
 
         name = self._get_unique_ftrack_object_name()
         ftrack_object = cmds.createNode('ftrackAssetNode', name=name)
-        self.logger.debug('Creating new ftrack object {}'.format(ftrack_object))
+        self.logger.debug(
+            'Creating new ftrack object {}'.format(ftrack_object)
+        )
         return ftrack_object
 
     def _update_ftrack_object(self, ftrack_object):
@@ -286,14 +295,26 @@ class FtrackAssetNode(FtrackAssetBase):
                     type="string",
                     l=True,
                 )
-            elif k == asset_const.ASSET_VERSIONS_ENTITIES or k == asset_const.SESSION:
+            elif (
+                k == asset_const.ASSET_VERSIONS_ENTITIES
+                or k == asset_const.SESSION
+            ):
                 cmds.setAttr(
-                    '{}.{}'.format(ftrack_object, k), str(v), type="string", l=True
+                    '{}.{}'.format(ftrack_object, k),
+                    str(v),
+                    type="string",
+                    l=True,
                 )
-            elif k == asset_const.IS_LATEST_VERSION or k == asset_const.IS_DEPENDENCY:
+            elif (
+                k == asset_const.IS_LATEST_VERSION
+                or k == asset_const.IS_DEPENDENCY
+            ):
                 cmds.setAttr('{}.{}'.format(ftrack_object, k), bool(v), l=True)
 
-            elif k == asset_const.DEPENDENCY_IDS or k == asset_const.DEPENDENCIES:
+            elif (
+                k == asset_const.DEPENDENCY_IDS
+                or k == asset_const.DEPENDENCIES
+            ):
                 cmds.setAttr(
                     '{}.{}'.format(ftrack_object, k),
                     *([len(v)] + v),
@@ -302,6 +323,8 @@ class FtrackAssetNode(FtrackAssetBase):
                 )
 
             else:
-                cmds.setAttr('{}.{}'.format(ftrack_object, k), v, type="string", l=True)
+                cmds.setAttr(
+                    '{}.{}'.format(ftrack_object, k), v, type="string", l=True
+                )
 
         return ftrack_object

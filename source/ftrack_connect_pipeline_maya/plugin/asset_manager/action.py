@@ -6,7 +6,9 @@ from ftrack_connect_pipeline_maya.plugin import BaseMayaPlugin
 from ftrack_connect_pipeline_maya.asset import FtrackAssetNode
 
 
-class AssetManagerActionMayaPlugin(plugin.AssetManagerActionPlugin, BaseMayaPlugin):
+class AssetManagerActionMayaPlugin(
+    plugin.AssetManagerActionPlugin, BaseMayaPlugin
+):
     '''
     Class representing a Asset Manager Action Maya Plugin
     '''

@@ -45,9 +45,13 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name='pipeline'):
         menu = menu_name
 
     else:
-        menu = cmds.menu(menu_name, parent=gMainWindow, tearOff=False, label=menu_name)
+        menu = cmds.menu(
+            menu_name, parent=gMainWindow, tearOff=False, label=menu_name
+        )
 
-    if cmds.menuItem(submenu_name, exists=True, parent=menu, label=submenu_name):
+    if cmds.menuItem(
+        submenu_name, exists=True, parent=menu, label=submenu_name
+    ):
         submenu = submenu_name
     else:
         submenu = cmds.menuItem(

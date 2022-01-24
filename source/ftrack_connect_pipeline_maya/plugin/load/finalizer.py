@@ -3,7 +3,10 @@
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
-from ftrack_connect_pipeline_maya.plugin import BaseMayaPlugin, BaseMayaPluginWidget
+from ftrack_connect_pipeline_maya.plugin import (
+    BaseMayaPlugin,
+    BaseMayaPluginWidget,
+)
 
 
 class LoaderFinalizerMayaPlugin(plugin.LoaderFinalizerPlugin, BaseMayaPlugin):
@@ -17,7 +20,9 @@ class LoaderFinalizerMayaPlugin(plugin.LoaderFinalizerPlugin, BaseMayaPlugin):
     '''
 
 
-class LoaderPostFinalizerMayaPlugin(plugin.LoaderPostFinalizerPlugin, BaseMayaPlugin):
+class LoaderPostFinalizerMayaPlugin(
+    plugin.LoaderPostFinalizerPlugin, BaseMayaPlugin
+):
     '''Class representing a Post Finalizer Plugin
 
     .. note::

@@ -1,7 +1,9 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-from ftrack_connect_pipeline_qt.client.asset_manager import QtAssetManagerClient
+from ftrack_connect_pipeline_qt.client.asset_manager import (
+    QtAssetManagerClient,
+)
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_maya.constants as maya_constants
@@ -10,7 +12,11 @@ from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 
 
 class MayaAssetManagerClient(MayaQWidgetDockableMixin, QtAssetManagerClient):
-    ui_types = [constants.UI_TYPE, qt_constants.UI_TYPE, maya_constants.UI_TYPE]
+    ui_types = [
+        constants.UI_TYPE,
+        qt_constants.UI_TYPE,
+        maya_constants.UI_TYPE,
+    ]
 
     '''Dockable maya load widget'''
 
