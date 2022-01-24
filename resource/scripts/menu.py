@@ -13,16 +13,18 @@ import ftrack_api
 import nuke
 
 from ftrack_connect_pipeline.configure_logging import configure_logging
+
 configure_logging(
     'ftrack_connect_pipeline_nuke',
-    extra_modules=['ftrack_connect_pipeline', 'ftrack_connect_pipeline_qt']
+    extra_modules=['ftrack_connect_pipeline', 'ftrack_connect_pipeline_qt'],
 )
 
 logger = logging.getLogger('ftrack_connect_pipeline_nuke')
 
 created_dialogs = dict()
 
-def get_ftrack_menu(menu_name = 'ftrack', submenu_name = 'pipeline'):
+
+def get_ftrack_menu(menu_name='ftrack', submenu_name='pipeline'):
     '''Get the current ftrack menu, create it if does not exists.'''
 
     nuke_menu = nuke.menu("Nuke")
