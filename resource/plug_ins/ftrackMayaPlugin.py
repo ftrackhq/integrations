@@ -79,14 +79,16 @@ def nodeInitializer():
     t_attr.setStorable(True)
 
     FtrackAssetNode.a_dependencies = t_attr.create(
-        asset_const.DEPENDENCIES, 'dep',  OpenMaya.MFnData.kStringArray
+        asset_const.DEPENDENCIES, 'dep', OpenMaya.MFnData.kStringArray
     )
     t_attr.setHidden(False)
     t_attr.setStorable(True)
 
     FtrackAssetNode.a_is_dependency = booleanAttr.create(
-        asset_const.IS_DEPENDENCY, 'isdep', OpenMaya.MFnNumericData.kBoolean,
-        False
+        asset_const.IS_DEPENDENCY,
+        'isdep',
+        OpenMaya.MFnNumericData.kBoolean,
+        False,
     )
     booleanAttr.setHidden(False)
     booleanAttr.setStorable(True)
@@ -152,8 +154,10 @@ def nodeInitializer():
     t_attr.setHidden(False)
     t_attr.setStorable(True)
     FtrackAssetNode.a_is_latest_version = booleanAttr.create(
-        asset_const.IS_LATEST_VERSION, 'ilv', OpenMaya.MFnNumericData.kBoolean,
-        False
+        asset_const.IS_LATEST_VERSION,
+        'ilv',
+        OpenMaya.MFnNumericData.kBoolean,
+        False,
     )
     booleanAttr.setHidden(False)
     booleanAttr.setStorable(True)
@@ -172,7 +176,6 @@ def nodeInitializer():
     )
     t_attr.setHidden(True)
     t_attr.setStorable(True)
-
 
     # Add the attributes to the ftrack_object
     FtrackAssetNode.addAttribute(FtrackAssetNode.a_locked)
@@ -199,16 +202,16 @@ def nodeInitializer():
 
 
 def initializePlugin(m_object):
-    print ('Loading ftrack plugin - version {0}'.format(version))
+    print('Loading ftrack plugin - version {0}'.format(version))
     m_plugin = OpenMayaMPx.MFnPlugin(m_object, 'ftrack', version, 'Any')
     try:
         m_plugin.registerNode(
             kPluginNodeTypeName, kPluginNodeId, nodeCreator, nodeInitializer
         )
     except:
-        sys.stderr.write('Failed to register ftrack_object: {0}'.format(
-            kPluginNodeTypeName
-        ))
+        sys.stderr.write(
+            'Failed to register ftrack_object: {0}'.format(kPluginNodeTypeName)
+        )
         raise
 
 
@@ -217,7 +220,9 @@ def uninitializePlugin(m_object):
     try:
         m_plugin.deregisterNode(kPluginNodeId)
     except:
-        sys.stderr.write('Failed to deregister ftrack_object: {0}'.format(
-            kPluginNodeTypeName
-        ))
+        sys.stderr.write(
+            'Failed to deregister ftrack_object: {0}'.format(
+                kPluginNodeTypeName
+            )
+        )
         raise

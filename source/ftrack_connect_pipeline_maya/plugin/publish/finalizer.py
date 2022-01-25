@@ -4,7 +4,8 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_maya.plugin import (
-    BaseMayaPlugin, BaseMayaPluginWidget
+    BaseMayaPlugin,
+    BaseMayaPluginWidget,
 )
 
 import maya.cmds as cmds
@@ -12,38 +13,40 @@ from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
 
 
-class PublisherFinalizerMayaPlugin(plugin.PublisherFinalizerPlugin, BaseMayaPlugin):
-    ''' Class representing a Finalizer Plugin
+class PublisherFinalizerMayaPlugin(
+    plugin.PublisherFinalizerPlugin, BaseMayaPlugin
+):
+    '''Class representing a Finalizer Plugin
 
-        .. note::
+    .. note::
 
-            _required_output is a dictionary containing the 'context_id',
-            'asset_name', 'asset_type_name', 'comment' and 'status_id' of the
-            current asset
+        _required_output is a dictionary containing the 'context_id',
+        'asset_name', 'asset_type_name', 'comment' and 'status_id' of the
+        current asset
     '''
 
     def _run(self, event):
-        ''' Run the current plugin with the settings form the *event*.
+        '''Run the current plugin with the settings form the *event*.
 
-            .. note::
+        .. note::
 
-               We are not committing the changes here to ftrack, as they should be
-               committed in the finalizer plugin itself. This way we avoid
-               publishing the dependencies if the plugin fails.
+           We are not committing the changes here to ftrack, as they should be
+           committed in the finalizer plugin itself. This way we avoid
+           publishing the dependencies if the plugin fails.
         '''
         self.version_dependencies = []
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
         for dependency in ftrack_asset_nodes:
-            dependency_version_id = cmds.getAttr('{}.{}'.format(
-                dependency, asset_const.VERSION_ID
-            ))
+            dependency_version_id = cmds.getAttr(
+                '{}.{}'.format(dependency, asset_const.VERSION_ID)
+            )
             self.logger.debug(
                 'Adding dependency_asset_version_id: {}'.format(
                     dependency_version_id
                 )
             )
             if dependency_version_id:
-                
+
                 dependency_version = self.session.query(
                     'select version from AssetVersion where id is "{}"'.format(
                         dependency_version_id
@@ -57,14 +60,15 @@ class PublisherFinalizerMayaPlugin(plugin.PublisherFinalizerPlugin, BaseMayaPlug
 
         return super_result
 
+
 class PublisherFinalizerMayaWidget(
     pluginWidget.PublisherFinalizerWidget, BaseMayaPluginWidget
 ):
-    ''' Class representing a Finalizer Widget
+    '''Class representing a Finalizer Widget
 
-        .. note::
+    .. note::
 
-            _required_output is a dictionary containing the 'context_id',
-            'asset_name', 'asset_type_name', 'comment' and 'status_id' of the
-            current asset
+        _required_output is a dictionary containing the 'context_id',
+        'asset_name', 'asset_type_name', 'comment' and 'status_id' of the
+        current asset
     '''

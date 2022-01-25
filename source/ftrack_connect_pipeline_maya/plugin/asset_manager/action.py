@@ -12,4 +12,5 @@ class AssetManagerActionMayaPlugin(
     '''
     Class representing a Asset Manager Action Maya Plugin
     '''
+
     ftrack_asset_class = FtrackAssetNode

@@ -16,7 +16,9 @@ class MayaAssetManagerEngine(AssetManagerEngine):
     ftrack_asset_class = FtrackAssetNode
     engine_type = 'asset_manager'
 
-    def __init__(self, event_manager, host_types, host_id, asset_type_name=None):
+    def __init__(
+        self, event_manager, host_types, host_id, asset_type_name=None
+    ):
         '''Initialise AssetManagerEngine with *event_manager*, *host*, *hostid*
         and *asset_type_name*'''
         super(MayaAssetManagerEngine, self).__init__(
@@ -40,7 +42,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             'status': status,
             'result': result,
             'execution_time': 0,
-            'message': message
+            'message': message,
         }
 
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
@@ -98,7 +100,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             'status': status,
             'result': result,
             'execution_time': 0,
-            'message': message
+            'message': message,
         }
 
         ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
@@ -123,7 +125,8 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             except Exception as error:
                 message = str(
                     'Could not remove the reference node {}, error: {}'.format(
-                        str(reference_node), error)
+                        str(reference_node), error
+                    )
                 )
                 self.logger.error(message)
                 status = constants.ERROR_STATUS
@@ -147,9 +150,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                 )
             )
             for node in nodes:
-                self.logger.debug(
-                    "Removing object: {}".format(node)
-                )
+                self.logger.debug("Removing object: {}".format(node))
                 try:
                     if cmds.objExists(node):
                         cmds.delete(node)
@@ -184,7 +185,9 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                 status = constants.SUCCESS_STATUS
             except Exception as error:
                 message = str(
-                    'Could not delete the ftrack_object, error: {}'.format(error)
+                    'Could not delete the ftrack_object, error: {}'.format(
+                        error
+                    )
                 )
                 self.logger.error(message)
                 status = constants.ERROR_STATUS
@@ -239,7 +242,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             'status': status,
             'result': result,
             'execution_time': 0,
-            'message': message
+            'message': message,
         }
 
         ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
@@ -260,7 +263,8 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             except Exception as error:
                 message = str(
                     'Could not select the node {}, error: {}'.format(
-                        str(node), error)
+                        str(node), error
+                    )
                 )
                 self.logger.error(message)
                 status = constants.ERROR_STATUS

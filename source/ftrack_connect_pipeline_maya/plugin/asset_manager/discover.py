@@ -12,4 +12,5 @@ class AssetManagerDiscoverMayaPlugin(
     '''
     Class representing a Asset Manager Discover Maya Plugin
     '''
+
     ftrack_asset_class = FtrackAssetNode

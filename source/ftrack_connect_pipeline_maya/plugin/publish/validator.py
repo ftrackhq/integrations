@@ -4,14 +4,15 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_maya.plugin import (
-    BaseMayaPlugin, BaseMayaPluginWidget
+    BaseMayaPlugin,
+    BaseMayaPluginWidget,
 )
 
 
 class PublisherValidatorMayaPlugin(
     plugin.PublisherValidatorPlugin, BaseMayaPlugin
 ):
-    ''' Class representing a Validator Plugin
+    '''Class representing a Validator Plugin
 
     .. note::
 
@@ -22,7 +23,7 @@ class PublisherValidatorMayaPlugin(
 class PublisherValidatorMayaWidget(
     pluginWidget.PublisherValidatorWidget, BaseMayaPluginWidget
 ):
-    ''' Class representing a Validator widget
+    '''Class representing a Validator widget
 
     .. note::
 

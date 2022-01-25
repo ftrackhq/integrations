@@ -4,12 +4,13 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_maya.plugin import (
-    BaseMayaPlugin, BaseMayaPluginWidget
+    BaseMayaPlugin,
+    BaseMayaPluginWidget,
 )
 
 
 class LoaderContextMayaPlugin(plugin.LoaderContextPlugin, BaseMayaPlugin):
-    ''' Class representing a Context Plugin
+    '''Class representing a Context Plugin
     .. note::
 
         _required_output is a dictionary containing the 'context_id',
@@ -20,11 +21,9 @@ class LoaderContextMayaPlugin(plugin.LoaderContextPlugin, BaseMayaPlugin):
 class LoaderContextMayaWidget(
     pluginWidget.LoaderContextWidget, BaseMayaPluginWidget
 ):
-    ''' Class representing a Context Widget
+    '''Class representing a Context Widget
     .. note::
 
         _required_output is a dictionary containing the 'context_id',
         'asset_name', 'comment' and 'status_id' of the current asset
     '''
-
-

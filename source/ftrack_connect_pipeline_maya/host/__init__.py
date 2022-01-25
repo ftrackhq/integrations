@@ -7,16 +7,16 @@ from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_maya import constants as maya_constants
 from ftrack_connect_pipeline_maya.host import engine as host_engine
 
-logger = logging.getLogger(
-    __name__
-)
+logger = logging.getLogger(__name__)
+
 
 class MayaHost(Host):
     '''
     MayaHost class.
     '''
+
     host_types = [qt_constants.HOST_TYPE, maya_constants.HOST_TYPE]
-    #Define the Maya engines to be run during the run function
+    # Define the Maya engines to be run during the run function
     engines = {
         'asset_manager': host_engine.MayaAssetManagerEngine,
         'loader': host_engine.MayaLoaderEngine,

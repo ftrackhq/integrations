@@ -24,8 +24,10 @@ def import_file(path, options):
 def reference_file(path, options):
     return cmds.file(path, r=True, **options)
 
+
 def remove_reference_node(referenceNode):
     return cmds.file(rfn=referenceNode, rr=True)
+
 
 def getReferenceNode(assetLink):
     '''Return the references ftrack_objects for the given *assetLink*'''
