@@ -127,7 +127,6 @@ class Host(object):
         engine_runner = Engine(
             self._event_manager, self.host_types, self.host_id, asset_type_name
         )
-
         if package:
             runner_result = engine_runner.run_definition(data)
         else:
