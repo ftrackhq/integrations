@@ -4,12 +4,13 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_nuke.plugin import (
-    BaseNukePlugin, BaseNukePluginWidget
+    BaseNukePlugin,
+    BaseNukePluginWidget,
 )
 
 
 class PublisherOutputNukePlugin(plugin.PublisherOutputPlugin, BaseNukePlugin):
-    ''' Class representing an Output Plugin
+    '''Class representing an Output Plugin
     .. note::
 
         _required_output a Dictionary
@@ -19,8 +20,8 @@ class PublisherOutputNukePlugin(plugin.PublisherOutputPlugin, BaseNukePlugin):
 class PublisherOutputNukeWidget(
     pluginWidget.PublisherOutputWidget, BaseNukePluginWidget
 ):
-    ''' Class representing an Output Widget
-        .. note::
+    '''Class representing an Output Widget
+    .. note::
 
-            _required_output a Dictionary
+        _required_output a Dictionary
     '''

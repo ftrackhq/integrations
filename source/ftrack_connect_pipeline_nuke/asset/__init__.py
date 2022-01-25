@@ -76,10 +76,11 @@ class FtrackAssetTab(FtrackAssetBase):
                 node_asset_info = FtrackAssetInfo(param_dict)
                 if node_asset_info.is_deprecated:
                     raise DeprecationWarning(
-                        "Can not read v1 ftrack asset plugin")
+                        "Can not read v1 ftrack asset plugin"
+                    )
                 if (
-                        node_asset_info[asset_const.REFERENCE_OBJECT] ==
-                        self.asset_info[asset_const.REFERENCE_OBJECT]
+                    node_asset_info[asset_const.REFERENCE_OBJECT]
+                    == self.asset_info[asset_const.REFERENCE_OBJECT]
                 ):
                     return scene_node.knob('name').value()
 
@@ -111,7 +112,6 @@ class FtrackAssetTab(FtrackAssetBase):
             FtrackAssetTab, self
         )._get_unique_ftrack_object_name()
 
-
         count = 0
         while 1:
             if nuke.exists(ftrack_object_name):
@@ -131,17 +131,23 @@ class FtrackAssetTab(FtrackAssetBase):
 
         top_left_backdrop = [backdrop_node.xpos(), backdrop_node.ypos()]
 
-        bottom_right_node = [node.xpos() + node.screenWidth(),
-                           node.ypos() + node.screenHeight()]
+        bottom_right_node = [
+            node.xpos() + node.screenWidth(),
+            node.ypos() + node.screenHeight(),
+        ]
 
-        bottom_right_backdrop = [backdrop_node.xpos() + backdrop_node.screenWidth(),
-                               backdrop_node.ypos() + backdrop_node.screenHeight()]
+        bottom_right_backdrop = [
+            backdrop_node.xpos() + backdrop_node.screenWidth(),
+            backdrop_node.ypos() + backdrop_node.screenHeight(),
+        ]
 
         top_left = (top_left_node[0] >= top_left_backdrop[0]) and (
-                    top_left_node[1] >= top_left_backdrop[1])
+            top_left_node[1] >= top_left_backdrop[1]
+        )
 
         bottom_right = (bottom_right_node[0] <= bottom_right_backdrop[0]) and (
-                    bottom_right_node[1] <= bottom_right_backdrop[1])
+            bottom_right_node[1] <= bottom_right_backdrop[1]
+        )
 
         return top_left and bottom_right
 
@@ -171,7 +177,7 @@ class FtrackAssetTab(FtrackAssetBase):
         )
         selected_nodes = nuke.selectedNodes()
 
-        #TODO: move unwanted nodes out from the backdrop node
+        # TODO: move unwanted nodes out from the backdrop node
         # all_nodes = nuke.allNodes()
         # scene_nodes = list(set(all_nodes) - set(selected_nodes))
         # scene_nodes.remove(ftrack_object)
@@ -194,9 +200,15 @@ class FtrackAssetTab(FtrackAssetBase):
         # if there are backdropNodes selected put the new one immediately behind
         # the farthest one
         if len(selected_backdrop_nodes):
-            z_order = min(
-                [node.knob("z_order").value() for node in selected_backdrop_nodes]
-            ) - 1
+            z_order = (
+                min(
+                    [
+                        node.knob("z_order").value()
+                        for node in selected_backdrop_nodes
+                    ]
+                )
+                - 1
+            )
         else:
             # otherwise (no backdrop in selection) find the nearest backdrop if
             # exists and set the new one in front of it
@@ -212,8 +224,8 @@ class FtrackAssetTab(FtrackAssetBase):
         left, top, right, bottom = (-10, -80, 10, 10)
         bd_X += left
         bd_Y += top
-        bd_W += (right - left)
-        bd_H += (bottom - top)
+        bd_W += right - left
+        bd_H += bottom - top
 
         ftrack_object['xpos'].setValue(bd_X)
         ftrack_object['bdwidth'].setValue(bd_W)
@@ -222,9 +234,11 @@ class FtrackAssetTab(FtrackAssetBase):
         ftrack_object['z_order'].setValue(z_order)
 
         if ftrack_object.getNodes() != selected_nodes:
-            self.logger.warning("There are nodes that shouldn't be on the backdrop")
-            self.logger.warning("in backdrop node: {}".format(
-                ftrack_object.getNodes())
+            self.logger.warning(
+                "There are nodes that shouldn't be on the backdrop"
+            )
+            self.logger.warning(
+                "in backdrop node: {}".format(ftrack_object.getNodes())
             )
             self.logger.warning("in selected nodes: {}".format(selected_nodes))
 
@@ -244,9 +258,9 @@ class FtrackAssetTab(FtrackAssetBase):
         ftrack_object = nuke.toNode(self.ftrack_object)
 
         if (
-                self.asset_info[asset_const.LOAD_MODE] == load_const.IMPORT_MODE
-                or
-                self.asset_info[asset_const.LOAD_MODE] == load_const.REFERENCE_MODE
+            self.asset_info[asset_const.LOAD_MODE] == load_const.IMPORT_MODE
+            or self.asset_info[asset_const.LOAD_MODE]
+            == load_const.REFERENCE_MODE
         ):
             ftrack_object.knob('name').setValue(
                 self._get_unique_ftrack_object_name()

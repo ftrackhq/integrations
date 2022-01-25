@@ -12,4 +12,5 @@ class AssetManagerActionNukePlugin(
     '''
     Class representing a Asset Manager Action Nuke Plugin
     '''
+
     ftrack_asset_class = FtrackAssetTab

@@ -13,9 +13,9 @@ class BaseNukePlugin(plugin.BasePlugin):
     def _run(self, event):
         super_fn = super(BaseNukePlugin, self)._run
         result = super_fn(event)
-        #TODO: check execute in main thread function, on publish time seems to
+        # TODO: check execute in main thread function, on publish time seems to
         # be insestable
-        
+
         # result = nuke.executeInMainThreadWithResult(
         #     super_fn, args=(event)
         # )

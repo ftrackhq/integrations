@@ -12,4 +12,5 @@ class AssetManagerDiscoverNukePlugin(
     '''
     Class representing a Asset Manager Discover Nuke Plugin
     '''
+
     ftrack_asset_class = FtrackAssetTab

@@ -4,14 +4,15 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_nuke.plugin import (
-    BaseNukePlugin, BaseNukePluginWidget
+    BaseNukePlugin,
+    BaseNukePluginWidget,
 )
 
 
 class PublisherCollectorNukePlugin(
     plugin.PublisherCollectorPlugin, BaseNukePlugin
 ):
-    ''' Class representing a Collector Plugin
+    '''Class representing a Collector Plugin
 
     .. note::
 
@@ -22,10 +23,9 @@ class PublisherCollectorNukePlugin(
 class PublisherCollectorNukeWidget(
     pluginWidget.PublisherCollectorWidget, BaseNukePluginWidget
 ):
-    ''' Class representing a Collector Widget
+    '''Class representing a Collector Widget
 
     .. note::
 
         _required_output a List
     '''
-

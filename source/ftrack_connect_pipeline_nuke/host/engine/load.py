@@ -10,8 +10,6 @@ class NukeLoaderEngine(LoaderEngine):
     def __init__(self, event_manager, host_types, host_id, asset_type_name):
         '''Initialise LoaderEngine with *event_manager*, *host*, *hostid* and
         *asset_type_name*'''
-        super(NukeLoaderEngine, self).__init__(event_manager, host_types, host_id,
-                                           asset_type_name)
-
-
-
+        super(NukeLoaderEngine, self).__init__(
+            event_manager, host_types, host_id, asset_type_name
+        )
