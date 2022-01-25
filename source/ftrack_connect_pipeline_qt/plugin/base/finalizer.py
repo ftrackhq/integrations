@@ -10,4 +10,5 @@ class BaseFinalizerWidget(BasePluginWidget):
     Base Finalizer Widget Class inherits from
     :class:`~ftrack_connect_pipeline_qt.plugin.BasePluginWidget`
     '''
+
     plugin_type = plugin._PLUGIN_FINALIZER_TYPE

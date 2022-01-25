@@ -20,20 +20,14 @@ ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
 
-RESOURCE_PATH = os.path.join(
-    ROOT_PATH, 'resource'
-)
+RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 RESOURCE_TARGET_PATH = os.path.join(
-    SOURCE_PATH, 'ftrack_connect_pipeline_qt','ui','resource.py'
+    SOURCE_PATH, 'ftrack_connect_pipeline_qt', 'ui', 'resource.py'
 )
 
-HOOK_PATH = os.path.join(
-    ROOT_PATH, 'hook'
-)
+HOOK_PATH = os.path.join(ROOT_PATH, 'hook')
 
-BUILD_PATH = os.path.join(
-    ROOT_PATH, 'build'
-)
+BUILD_PATH = os.path.join(ROOT_PATH, 'build')
 
 # Custom commands.
 class BuildResources(setuptools.Command):
@@ -48,9 +42,7 @@ class BuildResources(setuptools.Command):
         '''Finalize options to be used.'''
         self.sass_path = os.path.join(RESOURCE_PATH, 'sass')
         self.css_path = RESOURCE_PATH
-        self.resource_source_path = os.path.join(
-            RESOURCE_PATH, 'resource.qrc'
-        )
+        self.resource_source_path = os.path.join(RESOURCE_PATH, 'resource.qrc')
         self.resource_target_path = RESOURCE_TARGET_PATH
 
     def _replace_imports_(self):
@@ -61,7 +53,9 @@ class BuildResources(setuptools.Command):
 
         '''
         replace = r'from Qt import QtCore'
-        for line in fileinput.input(self.resource_target_path, inplace=True, mode='r'):
+        for line in fileinput.input(
+            self.resource_target_path, inplace=True, mode='r'
+        ):
             if r'import QtCore' in line:
                 # Calling print will yield a new line in the resource file.
                 sys.stdout.write(line.replace(line, replace))
@@ -78,21 +72,16 @@ class BuildResources(setuptools.Command):
                 'Check you have the pyScss Python package installed.'
             )
 
-        compiler = scss.Scss(
-            search_paths=[self.sass_path]
-        )
+        compiler = scss.Scss(search_paths=[self.sass_path])
 
-        themes = [
-            'style_light',
-            'style_dark'
-        ]
+        themes = ['style_light', 'style_dark']
         for theme in themes:
-            scss_source = os.path.join(self.sass_path, '{0}.scss'.format(theme))
+            scss_source = os.path.join(
+                self.sass_path, '{0}.scss'.format(theme)
+            )
             css_target = os.path.join(self.css_path, '{0}.css'.format(theme))
 
-            compiled = compiler.compile(
-                scss_file=scss_source
-            )
+            compiled = compiler.compile(scss_file=scss_source)
             with open(css_target, 'w') as file_handle:
                 file_handle.write(compiled)
                 print('Compiled {0}'.format(css_target))
@@ -100,7 +89,7 @@ class BuildResources(setuptools.Command):
         try:
             pyside_rcc_command = 'pyside2-rcc'
             executable = None
-    
+
             # Check if the command for pyside*-rcc is in executable paths.
             if find_executable(pyside_rcc_command):
                 executable = pyside_rcc_command
@@ -113,7 +102,7 @@ class BuildResources(setuptools.Command):
                 executable,
                 '-o',
                 self.resource_target_path,
-                self.resource_source_path
+                self.resource_source_path,
             ]
             print('running : {}'.format(cmd))
             subprocess.check_call(cmd)
@@ -146,6 +135,7 @@ class BuildPlugin(setuptools.Command):
 
         '''Run the build step.'''
         import setuptools_scm
+
         release = setuptools_scm.get_version(version_scheme='post-release')
         VERSION = '.'.join(release.split('.')[:3])
         global STAGING_PATH
@@ -158,27 +148,27 @@ class BuildPlugin(setuptools.Command):
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
 
         # Copy plugin files
-        shutil.copytree(
-            HOOK_PATH,
-            os.path.join(STAGING_PATH, 'hook')
-        )
+        shutil.copytree(HOOK_PATH, os.path.join(STAGING_PATH, 'hook'))
 
         subprocess.check_call(
             [
-                sys.executable, '-m', 'pip', 'install','.','--target',
-                os.path.join(STAGING_PATH, 'dependencies')
+                sys.executable,
+                '-m',
+                'pip',
+                'install',
+                '.',
+                '--target',
+                os.path.join(STAGING_PATH, 'dependencies'),
             ]
         )
 
         shutil.make_archive(
             os.path.join(
-                BUILD_PATH,
-                'ftrack-connect-pipeline-qt-{0}'.format(VERSION)
+                BUILD_PATH, 'ftrack-connect-pipeline-qt-{0}'.format(VERSION)
             ),
             'zip',
-            STAGING_PATH
+            STAGING_PATH,
         )
-
 
 
 # Custom commands.
@@ -193,8 +183,10 @@ class PyTest(TestCommand):
     def run_tests(self):
         '''Import pytest and run.'''
         import pytest
+
         errno = pytest.main(self.test_args)
         raise SystemExit(errno)
+
 
 version_template = '''
 # :coding: utf-8
@@ -215,13 +207,11 @@ setup(
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
     packages=find_packages(SOURCE_PATH),
-    package_dir={
-        '': 'source'
-    },
+    package_dir={'': 'source'},
     use_scm_version={
         'write_to': 'source/ftrack_connect_pipeline_qt/_version.py',
         'write_to_template': version_template,
-        'version_scheme': 'post-release'
+        'version_scheme': 'post-release',
     },
     python_requires='<3.8',
     setup_requires=[
@@ -234,21 +224,15 @@ setup(
         'setuptools >= 44.0.0',
         'setuptools_scm',
         'qtpy',
-        'qtawesome'
+        'qtawesome',
     ],
-    install_requires=[
-        'Qt.py >=1.0.0, < 2',
-        'qtpy',
-        'qtawesome'
-    ],
-    tests_require=[
-        'pytest >= 2.3.5, < 3'
-    ],
+    install_requires=['Qt.py >=1.0.0, < 2', 'qtpy', 'qtawesome'],
+    tests_require=['pytest >= 2.3.5, < 3'],
     cmdclass={
         'test': PyTest,
         'build_plugin': BuildPlugin,
         'build_resources': BuildResources,
-        'test': PyTest
+        'test': PyTest,
     },
-    zip_safe=False
+    zip_safe=False,
 )

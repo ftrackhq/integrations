@@ -7,4 +7,3 @@ from ftrack_connect_pipeline_qt.plugin import base
 
 class PublisherCollectorWidget(base.BaseCollectorWidget):
     plugin_type = constants.PLUGIN_PUBLISHER_COLLECTOR_TYPE
-

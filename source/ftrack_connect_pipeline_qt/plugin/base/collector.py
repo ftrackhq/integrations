@@ -10,6 +10,6 @@ class BaseCollectorWidget(BasePluginWidget):
     Base Collector Widget Class inherits from
     :class:`~ftrack_connect_pipeline_qt.plugin.BasePluginWidget`
     '''
+
     plugin_type = plugin._PLUGIN_COLLECTOR_TYPE
     '''Type of the plugin'''
-

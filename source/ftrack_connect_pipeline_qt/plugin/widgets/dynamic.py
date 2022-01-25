@@ -11,10 +11,19 @@ from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 class DynamicWidget(BaseOptionsWidget):
     '''Main class to represent a various type of widget based on each type of
     each element of the options dictionary'''
+
     enable_run_plugin = False
+
     def __init__(
-            self, parent=None, session=None, data=None, name=None,
-            description=None, options=None, context_id=None, asset_type_name=None
+        self,
+        parent=None,
+        session=None,
+        data=None,
+        name=None,
+        description=None,
+        options=None,
+        context_id=None,
+        asset_type_name=None,
     ):
         '''initialise DynamicWidget with *parent*, *session*, *data*, *name*,
         *description*, *options*
@@ -24,12 +33,17 @@ class DynamicWidget(BaseOptionsWidget):
             int: self._build_int_widget,
             float: self._build_float_widget,
             list: self._build_list_widget,
-            bool: self._build_bool_widget
+            bool: self._build_bool_widget,
         }
         super(DynamicWidget, self).__init__(
-            parent=parent, session=session,data=data, name=name,
-            description=description, options=options, context_id=context_id,
-            asset_type_name=asset_type_name
+            parent=parent,
+            session=session,
+            data=data,
+            name=name,
+            description=description,
+            options=options,
+            context_id=context_id,
+            asset_type_name=asset_type_name,
         )
 
     def _register_widget(self, name, widget):
@@ -44,7 +58,7 @@ class DynamicWidget(BaseOptionsWidget):
         self.layout().addLayout(widget_layout)
 
     def _build_str_widget(self, key, value):
-        '''build a string widget out of options *key* and *value* '''
+        '''build a string widget out of options *key* and *value*'''
         widget = QtWidgets.QLineEdit(str(value))
         self._register_widget(key, widget)
         update_fn = partial(self.set_option_result, key=key)
@@ -52,7 +66,7 @@ class DynamicWidget(BaseOptionsWidget):
         self.set_option_result(value, key)
 
     def _build_int_widget(self, key, value):
-        '''build an integer widget out of options *key* and *value* '''
+        '''build an integer widget out of options *key* and *value*'''
         widget = QtWidgets.QSpinBox()
         widget.setValue(value)
         self._register_widget(key, widget)
@@ -61,8 +75,8 @@ class DynamicWidget(BaseOptionsWidget):
         self.set_option_result(value, key)
 
     def _build_float_widget(self, key, value):
-        '''build a float widget out of options *key* and *value* '''
-        widget= QtWidgets.QDoubleSpinBox()
+        '''build a float widget out of options *key* and *value*'''
+        widget = QtWidgets.QDoubleSpinBox()
         widget.setValue(value)
         self._register_widget(key, widget)
         update_fn = partial(self.set_option_result, key=key)
@@ -70,8 +84,8 @@ class DynamicWidget(BaseOptionsWidget):
         self.set_option_result(value, key)
 
     def _build_bool_widget(self, key, value):
-        '''build a bool widget out of options *key* and *value* '''
-        widget= QtWidgets.QCheckBox()
+        '''build a bool widget out of options *key* and *value*'''
+        widget = QtWidgets.QCheckBox()
         widget.setTristate(False)
         widget.setCheckState(QtCore.Qt.CheckState(value))
         self._register_widget(key, widget)
@@ -80,7 +94,7 @@ class DynamicWidget(BaseOptionsWidget):
         self.set_option_result(value, key)
 
     def _build_list_widget(self, key, values):
-        '''build a list widget out of options *key* and *values* '''
+        '''build a list widget out of options *key* and *values*'''
         widget = QtWidgets.QComboBox()
         widget.addItems(values)
         self._register_widget(key, widget)

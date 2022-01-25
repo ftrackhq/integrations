@@ -7,15 +7,17 @@ from Qt import QtWidgets, QtCore, QtCompat, QtGui
 from ftrack_connect_pipeline import constants as core_const
 
 from ftrack_connect_pipeline_qt.ui.asset_manager.model.asset_manager import (
-    AssetManagerModel, FilterProxyModel
+    AssetManagerModel,
+    FilterProxyModel,
 )
 from ftrack_connect_pipeline_qt.ui.asset_manager.delegate.asset_manager import (
-    VersionDelegate
+    VersionDelegate,
 )
 
 
 class AssetManagerWidget(QtWidgets.QWidget):
-    ''' Main widget of the asset manager '''
+    '''Main widget of the asset manager'''
+
     widget_status_updated = QtCore.Signal(object)
     change_asset_version = QtCore.Signal(object, object)
     select_assets = QtCore.Signal(object)
@@ -87,22 +89,12 @@ class AssetManagerWidget(QtWidgets.QWidget):
         self.asset_table_view.version_cb_delegate.change_version.connect(
             self.on_asset_change_version
         )
-        self.asset_table_view.select_assets.connect(
-            self.on_select_assets
-        )
-        self.asset_table_view.remove_assets.connect(
-            self.on_remove_assets
-        )
-        self.asset_table_view.update_assets.connect(
-            self.on_update_assets
-        )
+        self.asset_table_view.select_assets.connect(self.on_select_assets)
+        self.asset_table_view.remove_assets.connect(self.on_remove_assets)
+        self.asset_table_view.update_assets.connect(self.on_update_assets)
 
-        self.asset_table_view.load_assets.connect(
-            self.on_load_assets
-        )
-        self.asset_table_view.unload_assets.connect(
-            self.on_unload_assets
-        )
+        self.asset_table_view.load_assets.connect(self.on_load_assets)
+        self.asset_table_view.unload_assets.connect(self.on_unload_assets)
 
     def on_asset_change_version(self, index, value):
         '''
@@ -182,14 +174,15 @@ class AssetManagerWidget(QtWidgets.QWidget):
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.host_id={}'.format(
                 core_const.PIPELINE_CLIENT_NOTIFICATION,
-                self.host_connection.id
+                self.host_connection.id,
             ),
-            self._update_widget
+            self._update_widget,
         )
 
 
 class AssetManagerTableView(QtWidgets.QTreeView):
     '''Table view representing AssetManager.'''
+
     select_assets = QtCore.Signal(object)
     remove_assets = QtCore.Signal(object)
     update_assets = QtCore.Signal(object, object)
@@ -237,11 +230,9 @@ class AssetManagerTableView(QtWidgets.QTreeView):
 
     def pre_build(self):
         '''Prepare general layout.'''
-        #self.setAlternatingRowColors(True)
+        # self.setAlternatingRowColors(True)
 
-        self.setSelectionBehavior(
-            QtWidgets.QAbstractItemView.SelectRows
-        )
+        self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
 
     def build(self):
         '''Build widgets and parent them.'''
@@ -253,7 +244,8 @@ class AssetManagerTableView(QtWidgets.QTreeView):
         self.version_cb_delegate = VersionDelegate(self)
 
         self.setItemDelegateForColumn(
-            self.asset_model.get_version_column_index(), self.version_cb_delegate
+            self.asset_model.get_version_column_index(),
+            self.version_cb_delegate,
         )
 
     def post_build(self):
@@ -272,24 +264,12 @@ class AssetManagerTableView(QtWidgets.QTreeView):
         Creates all the actions for the context menu.
         '''
         self.action_widgets = {}
-        #TODO: decide if to add the actions here or in the definition like the update one
+        # TODO: decide if to add the actions here or in the definition like the update one
         default_actions = {
-            'select': [{
-                'ui_callback': 'ctx_select',
-                'name': 'select_asset'
-            }],
-            'remove': [{
-                'ui_callback': 'ctx_remove',
-                'name': 'remove_asset'
-            }],
-            'load': [{
-                'ui_callback': 'ctx_load',
-                'name': 'load_asset'
-            }],
-            'unload': [{
-                'ui_callback': 'ctx_unload',
-                'name': 'unload_asset'
-            }]
+            'select': [{'ui_callback': 'ctx_select', 'name': 'select_asset'}],
+            'remove': [{'ui_callback': 'ctx_remove', 'name': 'remove_asset'}],
+            'load': [{'ui_callback': 'ctx_load', 'name': 'load_asset'}],
+            'unload': [{'ui_callback': 'ctx_unload', 'name': 'unload_asset'}],
         }
         for def_action_type, def_action in list(default_actions.items()):
             if def_action_type in list(actions.keys()):
@@ -374,8 +354,9 @@ class AssetManagerTableView(QtWidgets.QTreeView):
             data = self.model().data(index, self.model().DATA_ROLE)
             asset_info_list.append(data)
         self.remove_assets.emit(asset_info_list)
+
     def ctx_load(self, plugin):
-        #TODO: I think is better to not pass a Plugin, and use directly the
+        # TODO: I think is better to not pass a Plugin, and use directly the
         # function in the engine. But if we want, we can pass the plugin here,
         # to for example define a standard load plugin or a check plugin to
         # execute after the load plugin that is
@@ -391,6 +372,7 @@ class AssetManagerTableView(QtWidgets.QTreeView):
             asset_info_list.append(data)
 
         self.load_assets.emit(asset_info_list)
+
     def ctx_unload(self, plugin):
         '''
         Triggered when unload action menu been clicked.

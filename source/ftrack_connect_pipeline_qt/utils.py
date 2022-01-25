@@ -9,6 +9,7 @@ from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline_qt import constants as qt_constants
 
+
 class Worker(QtCore.QThread):
     '''Perform work in a background thread.'''
 
@@ -85,9 +86,7 @@ def asynchronous(method):
                 sys.excepthook(*sys.exc_info())
 
         thread = threading.Thread(
-            target=exceptHookWrapper,
-            args=args,
-            kwargs=kwargs
+            target=exceptHookWrapper, args=args, kwargs=kwargs
         )
         thread.start()
 
@@ -97,7 +96,9 @@ def asynchronous(method):
 class BaseThread(threading.Thread):
     def __init__(self, callback=None, target_args=None, *args, **kwargs):
         target = kwargs.pop('target')
-        super(BaseThread, self).__init__(target=self.target_with_callback, *args, **kwargs)
+        super(BaseThread, self).__init__(
+            target=self.target_with_callback, *args, **kwargs
+        )
         self.callback = callback
         self.method = target
         self.target_args = target_args
@@ -107,6 +108,7 @@ class BaseThread(threading.Thread):
         if self.callback is not None:
             self.callback(result)
 
+
 def find_parent(widget, name):
     parent_widget = widget.parentWidget()
     if not parent_widget:
@@ -114,6 +116,7 @@ def find_parent(widget, name):
     if name in parent_widget.objectName():
         return parent_widget
     return find_parent(parent_widget, name)
+
 
 def get_main_framework_window_from_widget(widget):
     '''This function will return the main window of the framework from the
@@ -123,11 +126,14 @@ def get_main_framework_window_from_widget(widget):
         return
 
     if qt_constants.MAIN_FRAMEWORK_WIDGET not in main_window.objectName():
-        parent = find_parent(widget.parentWidget(), qt_constants.MAIN_FRAMEWORK_WIDGET)
+        parent = find_parent(
+            widget.parentWidget(), qt_constants.MAIN_FRAMEWORK_WIDGET
+        )
         if parent:
             main_window = parent
 
     return main_window
+
 
 def set_property(widget, name, value):
     '''Update property *name* to *value* for *widget*, and polish afterwards.'''

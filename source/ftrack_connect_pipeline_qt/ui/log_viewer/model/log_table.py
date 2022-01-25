@@ -24,7 +24,10 @@ class LogTableModel(QtCore.QAbstractTableModel):
         super(LogTableModel, self).__init__(parent)
 
         self._headers = [
-            'status', 'execution_time', 'plugin_name', 'plugin_type'
+            'status',
+            'execution_time',
+            'plugin_name',
+            'plugin_type',
         ]
 
         self._data = []
@@ -37,7 +40,6 @@ class LogTableModel(QtCore.QAbstractTableModel):
         self.beginResetModel()
         self._data = log_items
         self.endResetModel()
-
 
     def rowCount(self, parent):
         '''Return the row count for the internal data.'''
@@ -86,8 +88,8 @@ class LogTableModel(QtCore.QAbstractTableModel):
     def headerData(self, col, orientation, role):
         '''Provide header data'''
         if (
-            orientation == QtCore.Qt.Horizontal and
-            role == QtCore.Qt.DisplayRole
+            orientation == QtCore.Qt.Horizontal
+            and role == QtCore.Qt.DisplayRole
         ):
             return self._headers[col].capitalize()
         return None

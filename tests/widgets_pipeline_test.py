@@ -10,11 +10,13 @@ import sys
 # in standalone mode
 
 # Set the minimum required Environment variables.
-os.environ['FTRACK_EVENT_PLUGIN_PATH'] = os.pathsep.join([
-    '<PATH-TO-PIPELINE-DEFINITION>\\resource\\plugins\\qt',
-    '<PATH-TO-PIPELINE-DEFINITION>\\resource\\plugins\\common',
-    '<PATH-TO-PIPELINE-DEFINITION>\\resource\\definitions',
-])
+os.environ['FTRACK_EVENT_PLUGIN_PATH'] = os.pathsep.join(
+    [
+        '<PATH-TO-PIPELINE-DEFINITION>\\resource\\plugins\\qt',
+        '<PATH-TO-PIPELINE-DEFINITION>\\resource\\plugins\\common',
+        '<PATH-TO-PIPELINE-DEFINITION>\\resource\\definitions',
+    ]
+)
 
 
 # Init QApplication
@@ -30,7 +32,13 @@ event_manager = event.EventManager(
 host.Host(event_manager)
 
 # Init Client
-from ftrack_connect_pipeline_qt.client import publish, load, asset_manager, log_viewer
+from ftrack_connect_pipeline_qt.client import (
+    publish,
+    load,
+    asset_manager,
+    log_viewer,
+)
+
 pub_client_connection = publish.QtPublisherClient(event_manager)
 # load_client_connection = load.QtLoaderClient(event_manager)
 # am_client_connection = asset_manager.QtAssetManagerClient(event_manager)

@@ -5,14 +5,13 @@ from Qt import QtWidgets, QtCore
 
 class HostSelector(QtWidgets.QWidget):
     '''DefinitionSelector Base Class'''
+
     host_changed = QtCore.Signal(object)
     host_connection = None
 
     @property
     def selected_host_connection(self):
-        return self.host_combobox.itemData(
-            self.host_combobox.currentIndex()
-        )
+        return self.host_combobox.itemData(self.host_combobox.currentIndex())
 
     def __init__(self, parent=None):
         '''Initialize DefinitionSelector widget'''
@@ -54,5 +53,3 @@ class HostSelector(QtWidgets.QWidget):
             self.host_combobox.addItem(host_connection.name, host_connection)
         if len(host_connections) == 1:
             self.host_combobox.setCurrentIndex(1)
-
-

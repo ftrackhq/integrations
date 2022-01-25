@@ -25,10 +25,8 @@ class Header(QtWidgets.QFrame):
 
     def pre_build(self):
         self.main_layout = QtWidgets.QVBoxLayout()
-        #self.main_layout.setContentsMargins(0, 0, 0, 0)
-        self.main_layout.setAlignment(
-            QtCore.Qt.AlignTop
-        )
+        # self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setAlignment(QtCore.Qt.AlignTop)
         self.setLayout(self.main_layout)
 
     def build(self):
@@ -37,16 +35,14 @@ class Header(QtWidgets.QFrame):
         self.id_container_layout = QtWidgets.QHBoxLayout()
         self.id_container_layout.setContentsMargins(0, 0, 0, 0)
         # self.id_container_layout.setSpacing(0)
-        self.id_container_layout.setAlignment(
-            QtCore.Qt.AlignTop
-        )
+        self.id_container_layout.setAlignment(QtCore.Qt.AlignTop)
         self.id_container.setLayout(self.id_container_layout)
 
         spacer = QtWidgets.QSpacerItem(
             0,
             0,
             QtWidgets.QSizePolicy.Expanding,
-            QtWidgets.QSizePolicy.Minimum
+            QtWidgets.QSizePolicy.Minimum,
         )
 
         self.logo = Logo(self)
@@ -76,9 +72,7 @@ class Logo(QtWidgets.QLabel):
         self.main_layout = QtWidgets.QHBoxLayout()
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
-        self.main_layout.setAlignment(
-            QtCore.Qt.AlignTop
-        )
+        self.main_layout.setAlignment(QtCore.Qt.AlignTop)
         self.setLayout(self.main_layout)
 
     def build(self):
@@ -88,7 +82,7 @@ class Logo(QtWidgets.QLabel):
                 logoPixmap.scaled(
                     QtCore.QSize(self.width(), 20),
                     QtCore.Qt.KeepAspectRatio,
-                    QtCore.Qt.SmoothTransformation
+                    QtCore.Qt.SmoothTransformation,
                 )
             )
         else:
@@ -112,9 +106,7 @@ class User(QtWidgets.QWidget):
     def pre_build(self):
         self.main_layout = QtWidgets.QHBoxLayout()
         self.main_layout.setContentsMargins(0, 0, 0, 0)
-        self.main_layout.setAlignment(
-            QtCore.Qt.AlignRight
-        )
+        self.main_layout.setAlignment(QtCore.Qt.AlignRight)
         self.setLayout(self.main_layout)
 
     def build(self):
@@ -142,7 +134,6 @@ class User(QtWidgets.QWidget):
         # self.label.setText(NAME_CACHE[username])
 
 
-
 class MessageBox(QtWidgets.QWidget):
     '''Message widget.'''
 
@@ -160,9 +151,7 @@ class MessageBox(QtWidgets.QWidget):
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
 
-        self.main_layout.setAlignment(
-            QtCore.Qt.AlignTop
-        )
+        self.main_layout.setAlignment(QtCore.Qt.AlignTop)
         self.setLayout(self.main_layout)
 
     def build(self):
@@ -173,8 +162,7 @@ class MessageBox(QtWidgets.QWidget):
         self.icon.resize(QtCore.QSize(45, 45))
 
         self.label.setSizePolicy(
-            QtWidgets.QSizePolicy.Expanding,
-            QtWidgets.QSizePolicy.Fixed
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed
         )
         self.label.hide()
         self.label.setObjectName('ftrack-header-message-info')

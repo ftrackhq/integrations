@@ -7,18 +7,31 @@ from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 
 
 class LoadBaseWidget(BaseOptionsWidget):
-    ''' Base Class to represent a Load Widget'''
+    '''Base Class to represent a Load Widget'''
+
     load_modes = []
-    max_column=3
+    max_column = 3
 
     def __init__(
-            self, parent=None, session=None, data=None, name=None,
-            description=None, options=None, context_id=None, asset_type_name=None
+        self,
+        parent=None,
+        session=None,
+        data=None,
+        name=None,
+        description=None,
+        options=None,
+        context_id=None,
+        asset_type_name=None,
     ):
         super(LoadBaseWidget, self).__init__(
-            parent=parent, session=session, data=data, name=name,
-            description=description, options=options, context_id=context_id,
-            asset_type_name=asset_type_name
+            parent=parent,
+            session=session,
+            data=data,
+            name=name,
+            description=description,
+            options=options,
+            context_id=context_id,
+            asset_type_name=asset_type_name,
         )
 
         self.set_defaults()
@@ -42,10 +55,10 @@ class LoadBaseWidget(BaseOptionsWidget):
             p_b.setCheckable(True)
             self.button_group.addButton(p_b)
             self.load_mode_layout.addWidget(p_b, row_col[0], row_col[1])
-            if row_col[1] == self.max_column-1:
-                row_col = (row_col[0]+1, 0)
+            if row_col[1] == self.max_column - 1:
+                row_col = (row_col[0] + 1, 0)
             else:
-                row_col = (row_col[0], row_col[1]+1)
+                row_col = (row_col[0], row_col[1] + 1)
 
         self.layout().addWidget(self.load_text_label)
         self.layout().addLayout(self.load_mode_layout)
@@ -53,12 +66,10 @@ class LoadBaseWidget(BaseOptionsWidget):
     def post_build(self):
         super(LoadBaseWidget, self).post_build()
 
-        self.button_group.buttonClicked.connect(
-            self._on_load_mode_changed
-        )
+        self.button_group.buttonClicked.connect(self._on_load_mode_changed)
 
     def set_defaults(self):
-        ''' Set the pre selected default load mode'''
+        '''Set the pre selected default load mode'''
         for button in self.button_group.buttons():
             if button.text() == self.default_mode:
                 button.setChecked(True)

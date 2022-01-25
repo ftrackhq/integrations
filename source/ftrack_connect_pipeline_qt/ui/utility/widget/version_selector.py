@@ -17,11 +17,6 @@ class VersionComboBox(QtWidgets.QComboBox):
             __name__ + '.' + self.__class__.__name__
         )
 
-        self.setStyleSheet(
-            "border: none;"
-            "background-color: transparent;"
-        )
-
         self.setEditable(False)
         self.session = session
         self.context_id = None
@@ -35,7 +30,9 @@ class VersionComboBox(QtWidgets.QComboBox):
 
     def showPopup(self):
         self.clear()
-        versions = self.query_versions(self.context_id, self.asset_entity['id'])
+        versions = self.query_versions(
+            self.context_id, self.asset_entity['id']
+        )
         self.add_versions(versions)
         self.setCurrentIndex(0)
         super(VersionComboBox, self).showPopup()
@@ -48,13 +45,13 @@ class VersionComboBox(QtWidgets.QComboBox):
         versions = self.session.query(
             'select version, id '
             'from AssetVersion where task.id is {} and asset_id is {} order by'
-            ' version descending'.format(context_id, asset_id)).all()
+            ' version descending'.format(context_id, asset_id)
+        ).all()
         return versions
 
     def _add_version(self, version):
         self.addItem(
-            str("Version {}".format(version['version'])),
-            version['id']
+            str("Version {}".format(version['version'])), version['id']
         )
 
     def add_versions(self, versions):
@@ -96,7 +93,8 @@ class VersionSelector(QtWidgets.QWidget):
             self._current_version_changed
         )
         self.version_combobox.editTextChanged.connect(
-            self._current_version_changed)
+            self._current_version_changed
+        )
 
     def _current_version_changed(self, index):
         if index == -1:

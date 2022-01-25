@@ -10,6 +10,5 @@ class BaseContextWidget(BasePluginWidget):
     Base Context Widget Class inherits from
     :class:`~ftrack_connect_pipeline_qt.plugin.BasePluginWidget`
     '''
+
     plugin_type = plugin._PLUGIN_CONTEXT_TYPE
-
-

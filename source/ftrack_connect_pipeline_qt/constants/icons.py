@@ -5,44 +5,64 @@ import Qt
 from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect_pipeline.constants.status import (
-    UNKNOWN_STATUS, DEFAULT_STATUS, ERROR_STATUS, WARNING_STATUS, EXCEPTION_STATUS, RUNNING_STATUS, SUCCESS_STATUS
+    UNKNOWN_STATUS,
+    DEFAULT_STATUS,
+    ERROR_STATUS,
+    WARNING_STATUS,
+    EXCEPTION_STATUS,
+    RUNNING_STATUS,
+    SUCCESS_STATUS,
 )
 
 
 #: UNKNOWN
-_unknown_icon = QtWidgets.QApplication.style().standardIcon(
-    QtWidgets.QStyle.SP_TitleBarContextHelpButton
-).pixmap(QtCore.QSize(16, 16))
+_unknown_icon = (
+    QtWidgets.QApplication.style()
+    .standardIcon(QtWidgets.QStyle.SP_TitleBarContextHelpButton)
+    .pixmap(QtCore.QSize(16, 16))
+)
 
 #: RUNNING
-_running_icon = QtWidgets.QApplication.style().standardIcon(
-    QtWidgets.QStyle.SP_BrowserReload
-).pixmap(QtCore.QSize(16, 16))
+_running_icon = (
+    QtWidgets.QApplication.style()
+    .standardIcon(QtWidgets.QStyle.SP_BrowserReload)
+    .pixmap(QtCore.QSize(16, 16))
+)
 
 #: SUCCESS
-_success_icon = QtWidgets.QApplication.style().standardIcon(
-    QtWidgets.QStyle.SP_DialogApplyButton
-).pixmap(QtCore.QSize(16, 16))
+_success_icon = (
+    QtWidgets.QApplication.style()
+    .standardIcon(QtWidgets.QStyle.SP_DialogApplyButton)
+    .pixmap(QtCore.QSize(16, 16))
+)
 
 #: ERROR
-_error_icon = QtWidgets.QApplication.style().standardIcon(
-    QtWidgets.QStyle.SP_BrowserStop
-).pixmap(QtCore.QSize(16, 16))
+_error_icon = (
+    QtWidgets.QApplication.style()
+    .standardIcon(QtWidgets.QStyle.SP_BrowserStop)
+    .pixmap(QtCore.QSize(16, 16))
+)
 
 #: EXCEPTION
-_exception_icon = QtWidgets.QApplication.style().standardIcon(
-    QtWidgets.QStyle.SP_MessageBoxCritical
-).pixmap(QtCore.QSize(16, 16))
+_exception_icon = (
+    QtWidgets.QApplication.style()
+    .standardIcon(QtWidgets.QStyle.SP_MessageBoxCritical)
+    .pixmap(QtCore.QSize(16, 16))
+)
 
 #: WARNING
-_warning_icon = QtWidgets.QApplication.style().standardIcon(
-    QtWidgets.QStyle.SP_MessageBoxWarning
-).pixmap(QtCore.QSize(16, 16))
+_warning_icon = (
+    QtWidgets.QApplication.style()
+    .standardIcon(QtWidgets.QStyle.SP_MessageBoxWarning)
+    .pixmap(QtCore.QSize(16, 16))
+)
 
 #: DEFAULT
-_default_icon = QtWidgets.QApplication.style().standardIcon(
-    QtWidgets.QStyle.SP_MediaPause
-).pixmap(QtCore.QSize(16, 16))
+_default_icon = (
+    QtWidgets.QApplication.style()
+    .standardIcon(QtWidgets.QStyle.SP_MediaPause)
+    .pixmap(QtCore.QSize(16, 16))
+)
 
 _radio_button = QtWidgets.QApplication.style().PrimitiveElement(
     QtWidgets.QStyle.PE_IndicatorRadioButton

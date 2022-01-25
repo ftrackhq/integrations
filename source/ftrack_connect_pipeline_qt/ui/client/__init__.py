@@ -5,6 +5,7 @@ import uuid
 
 from Qt import QtGui, QtCore, QtWidgets
 
+
 class BaseUIWidget(object):
     '''
     Base class of a widget representation from json schema types
@@ -30,13 +31,12 @@ class BaseUIWidget(object):
     @property
     def is_enabled(self):
         return self._is_enabled
+
     @property
     def is_optional(self):
         return self._is_optional
 
-    def __init__(
-            self, name, fragment_data, parent=None
-    ):
+    def __init__(self, name, fragment_data, parent=None):
         '''Initialise BaseJsonWidget with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*
 
@@ -91,18 +91,23 @@ class BaseUIWidget(object):
 
     def post_build(self):
         '''post build function , mostly used connect widgets events.'''
-        if self.widget:
+        if self.widget and self.widget.layout():
             self.widget.layout().setContentsMargins(0, 0, 0, 0)
             self.widget.layout().setSpacing(5)
             self.widget.setToolTip(self.description)
 
     def parent_widget(self, widget):
-        ''' Add the *widget*, setting me as the parent. '''
+        '''Add the *widget*, setting me as the parent.'''
         if self.widget:
             if isinstance(widget, BaseUIWidget):
                 self.widget.layout().addWidget(widget.widget)
             else:
                 self.widget.layout().addWidget(widget)
+            if (
+                self.fragment_data
+                and self.fragment_data.get('visible', True) is False
+            ):
+                self._widget.setVisible(False)
         else:
             self.logger.error("Please create a widget before parent")
 
@@ -116,5 +121,5 @@ class BaseUIWidget(object):
         self._is_enabled = enabled
 
     def to_json_object(self):
-        '''Return a formated json with the data from the current widget'''
+        '''Return a formatted json with the data from the current widget'''
         return {}

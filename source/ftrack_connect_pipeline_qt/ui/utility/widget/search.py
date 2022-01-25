@@ -5,12 +5,16 @@ import qtawesome as qta
 from Qt import QtGui, QtCore, QtWidgets
 
 from ftrack_connect_pipeline_qt import utils
-from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import CircularButton
+from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
+    CircularButton,
+)
+
 
 class Search(QtWidgets.QFrame):
     '''
     Display a search box, that can be collapsed and expanded.
     '''
+
     input_updated = QtCore.Signal(object)
     search = QtCore.Signal()
     clear = QtCore.Signal()
@@ -52,12 +56,16 @@ class Search(QtWidgets.QFrame):
             self._input = None
             self.setStyleSheet('''border:none;''')
             self._search_button = CircularButton('magnify', '#999999')
-            self._search_button.setStyleSheet('''
+            self._search_button.setStyleSheet(
+                '''
                 border: 1px solid #555555;
                 border-radius: 16px;
-            ''')
+            '''
+            )
         else:
-            self._search_button = CircularButton('magnify', '#999999', diameter=30)
+            self._search_button = CircularButton(
+                'magnify', '#999999', diameter=30
+            )
 
         self._search_button.clicked.connect(self._on_search)
         self.layout().addWidget(self._search_button)
@@ -70,14 +78,18 @@ class Search(QtWidgets.QFrame):
             self._input.setStyleSheet('border: none;')
             self._input.setFocus()
             self.layout().addWidget(self._input, 100)
-            self._clear_button = CircularButton('close', '#555555', diameter=30)
+            self._clear_button = CircularButton(
+                'close', '#555555', diameter=30
+            )
             self._clear_button.setStyleSheet('''border:none;''')
             self._clear_button.clicked.connect(self._on_clear)
             self.layout().addWidget(self._clear_button)
-            self.setStyleSheet('''
+            self.setStyleSheet(
+                '''
                 border: 1px solid #555555;
                 border-radius: 16px;
-            ''')
+            '''
+            )
 
     def _on_search(self):
         self._collapsed = not self._collapsed

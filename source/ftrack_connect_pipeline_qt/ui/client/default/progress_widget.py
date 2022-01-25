@@ -8,11 +8,15 @@ from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
 from ftrack_connect_pipeline_qt import utils
-from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import MaterialIconWidget
+from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import (
+    MaterialIconWidget,
+)
 from ftrack_connect_pipeline_qt.utils import set_property
+
 
 class PhaseButton(QtWidgets.QPushButton):
     '''Showing progress of a phase(component)'''
+
     status_icons = constants.icons.status_icons
 
     def __init__(self, phase_name, status, parent=None):
@@ -27,7 +31,9 @@ class PhaseButton(QtWidgets.QPushButton):
         self.post_build()
 
     def build(self):
-        self.setMinimumHeight(32)  # Set minimum otherwise it will collapse the container
+        self.setMinimumHeight(
+            32
+        )  # Set minimum otherwise it will collapse the container
         self.setMinimumWidth(200)
         # self.setCheckable(True)
         # self.setAutoExclusive(True)
@@ -72,16 +78,18 @@ class PhaseButton(QtWidgets.QPushButton):
         self.icon_widget.set_status(status)
 
     def update_error_message(self, results):
-        #self.error_widget.show()
+        # self.error_widget.show()
         message = None
         self.logged_errors = []
         if results:
             for stage_result in results:
                 if stage_result.get('status') == False:
                     for plugin_result in stage_result.get('result'):
-                        plug_error = 'Plugin {} failed with message: {}'.format(
-                            plugin_result.get('name'),
-                            plugin_result.get('message')
+                        plug_error = (
+                            'Plugin {} failed with message: {}'.format(
+                                plugin_result.get('name'),
+                                plugin_result.get('message'),
+                            )
                         )
                         self.logged_errors.append(plug_error)
         if self.logged_errors:
@@ -100,13 +108,12 @@ class PhaseButton(QtWidgets.QPushButton):
         self.overlay_container.resize(self.parent().size())
 
 
-
 class StatusButtonWidget(QtWidgets.QPushButton):
     status_icons = constants.icons.status_icons
 
     VIEW_COLLAPSED_BUTTON = 'collapsed-button'  # AM (Opens progress overlay)
-    VIEW_EXPANDED_BUTTON = 'expanded-button'    # Opener/Assember/Publisher (Opens progress overlay)
-    VIEW_EXPANDED_BANNER = 'expanded-banner'    # Progress overlay
+    VIEW_EXPANDED_BUTTON = 'expanded-button'  # Opener/Assembler/Publisher (Opens progress overlay)
+    VIEW_EXPANDED_BANNER = 'expanded-banner'  # Progress overlay
 
     def __init__(self, view_mode, parent=None):
         super(StatusButtonWidget, self).__init__(parent)
@@ -129,7 +136,7 @@ class StatusButtonWidget(QtWidgets.QPushButton):
             self.setMinimumWidth(300)
 
         self.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().setContentsMargins(6,6,6,6)
+        self.layout().setContentsMargins(6, 6, 6, 6)
         self.layout().setSpacing(1)
         self.message_label = QtWidgets.QLabel()
         self.layout().addWidget(self.message_label)
@@ -147,17 +154,22 @@ class StatusButtonWidget(QtWidgets.QPushButton):
         self.message = message
         self.message_label.setText(self.message)
         set_property(self, 'status', self.status.lower())
-        self.status_icon.set_status(self.status, size=24)
-        #for widget in [self, self.message_label]:
+        color = self.status_icon.set_status(self.status, size=24)
+        self.message_label.setStyleSheet('color: #{}'.format(color))
+        # for widget in [self, self.message_label]:
         #    widget.style().unpolish(widget)
         #    widget.style().polish(widget)
         #    widget.update()
 
+
 class ProgressWidget(BaseUIWidget):
     '''Widget representation of a boolean'''
+
     component_widgets = {}
 
-    def __init__(self, name, fragment_data, parent=None, status_view_mode=None):
+    def __init__(
+        self, name, fragment_data, parent=None, status_view_mode=None
+    ):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
 
@@ -179,7 +191,7 @@ class ProgressWidget(BaseUIWidget):
         self.content_widget = QtWidgets.QFrame()
         self.content_widget.setObjectName('overlay')
         self.content_widget.setLayout(QtWidgets.QVBoxLayout())
-        self.content_widget.layout().setContentsMargins(15,15,15,15)
+        self.content_widget.layout().setContentsMargins(15, 15, 15, 15)
 
         self.scroll.setWidget(self.content_widget)
 
@@ -195,11 +207,13 @@ class ProgressWidget(BaseUIWidget):
         if main_window:
             self.overlay_container.setParent(main_window)
         self.overlay_container.setVisible(True)
+        self.widget.setVisible(True)
 
     def prepare_add_component(self):
         self.clear_components()
-        self.content_widget.layout().addSpacing(30)
-        self.status_banner = StatusButtonWidget(StatusButtonWidget.VIEW_EXPANDED_BANNER)
+        self.status_banner = StatusButtonWidget(
+            StatusButtonWidget.VIEW_EXPANDED_BANNER
+        )
         self.content_widget.layout().addWidget(self.status_banner)
 
     def add_component(self, step_type, step_name):
@@ -231,13 +245,16 @@ class ProgressWidget(BaseUIWidget):
         self.widget.setVisible(visibility)
 
     def update_component_status(
-            self, step_type, step_name, status, status_message, results
+        self, step_type, step_name, status, status_message, results
     ):
         id_name = "{}.{}".format(step_type, step_name)
-        self.component_widgets[id_name].update_status(
-            status, status_message, results
-        )
-        if status != self.widget.get_status():
-            self.widget.set_status(status, message=id_name)
-            self.status_banner.set_status(status, message=id_name)
-
+        if id_name in self.component_widgets:
+            self.component_widgets[id_name].update_status(
+                status, status_message, results
+            )
+            if status != self.widget.get_status():
+                main_status_message = '{}: {}'.format(id_name, status_message)
+                self.widget.set_status(status, message=main_status_message)
+                self.status_banner.set_status(
+                    status, message=main_status_message
+                )

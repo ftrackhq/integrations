@@ -20,7 +20,8 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
     '''
     QtLogViewerClient class.
     '''
-    definition_filter = 'log_viewer' 
+
+    definition_filter = 'log_viewer'
     '''Use only definitions that matches the definition_filter'''
 
     log_item_added = QtCore.Signal(object)
@@ -82,8 +83,7 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
 
         self.refresh_button = QtWidgets.QPushButton('Refresh')
         self.refresh_button.setSizePolicy(
-            QtWidgets.QSizePolicy.Fixed,
-            QtWidgets.QSizePolicy.Fixed
+            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
         )
         self.layout().addWidget(
             self.refresh_button, alignment=QtCore.Qt.AlignRight
@@ -94,11 +94,13 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
         self.layout().addWidget(self.scroll)
 
         self.open_log_folder_button = QtWidgets.QPushButton(
-            'Open log directory')
+            'Open log directory'
+        )
 
         self.layout().addWidget(self.open_log_folder_button)
+
     def update_log_items(self):
-        ''' Connect to persistent log storage and fetch records. '''
+        '''Connect to persistent log storage and fetch records.'''
         self.log_viewer_widget.set_log_items(self.logs)
 
     def post_build(self):
@@ -111,7 +113,7 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
         self.log_item_added.connect(self.update_log_items)
 
     def _add_log_item(self, log_item):
-        ''' Override client function, update view. '''
+        '''Override client function, update view.'''
         self.log_item_added.emit(log_item)
 
     def change_host(self, host_connection):

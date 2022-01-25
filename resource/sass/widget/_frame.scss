@@ -1,10 +1,19 @@
-QFrame[background='transparent'] {
+QFrame[background='transparent'], QDialog[background='transparent'] {
     background: transparent;
 }
 
-QFrame[background='houdini'] {
+QFrame[background='default'], QDialog[background='default'] {
     background: rgb(55,55,55);
 }
+
+QFrame[background='nuke'], QDialog[background='nuke'] {
+    background: rgb(50,50,50);
+}
+
+QFrame[background='houdini'], QDialog[background='houdini'] {
+    background: rgb(55,55,55);
+}
+
 
 Line {
     border: 1px dashed $border-color;

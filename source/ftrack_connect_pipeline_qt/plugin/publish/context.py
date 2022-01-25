@@ -7,5 +7,3 @@ from ftrack_connect_pipeline_qt.plugin import base
 
 class PublisherContextWidget(base.BaseContextWidget):
     plugin_type = constants.PLUGIN_PUBLISHER_CONTEXT_TYPE
-
-

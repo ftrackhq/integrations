@@ -6,6 +6,7 @@ from Qt import QtWidgets, QtCore, QtGui
 from ftrack_connect_pipeline.asset import asset_info
 from ftrack_connect_pipeline.constants import asset as constants
 
+
 class VersionDelegate(QtWidgets.QItemDelegate):
     change_version = QtCore.Signal(object, object)
 
@@ -18,7 +19,9 @@ class VersionDelegate(QtWidgets.QItemDelegate):
         # Initialize the ftrack info again as when quering from the
         # model even if the DATA_ROLE has the FtrackAssetInfo dictionary,
         # it returns a generic dictionary.
-        item = asset_info.FtrackAssetInfo(index.model().data(index, index.model().DATA_ROLE))
+        item = asset_info.FtrackAssetInfo(
+            index.model().data(index, index.model().DATA_ROLE)
+        )
 
         versions_collection = item[constants.ASSET_VERSIONS_ENTITIES]
         combo = QtWidgets.QComboBox(parent)
@@ -40,4 +43,3 @@ class VersionDelegate(QtWidgets.QItemDelegate):
         if not index.isValid():
             return False
         self.change_version.emit(index, editor.itemData(editor.currentIndex()))
-

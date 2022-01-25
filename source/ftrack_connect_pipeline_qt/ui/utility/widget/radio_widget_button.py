@@ -5,11 +5,12 @@ from Qt import QtWidgets, QtCore, QtGui
 
 
 class RadioVarticalWidgetButton(QtWidgets.QPushButton):
-
     def __init__(self, label, widget, parent=None):
         super(RadioVarticalWidgetButton, self).__init__(parent)
 
-        self.setMinimumHeight(60)  # Set minimum otherwise it will collapse the container
+        self.setMinimumHeight(
+            60
+        )  # Set minimum otherwise it will collapse the container
         self.setCheckable(True)
         self.setAutoExclusive(True)
         self.setContentsMargins(20, 0, 0, 20)
@@ -50,18 +51,19 @@ class RadioVarticalWidgetButton(QtWidgets.QPushButton):
         # create a styleoption and init it with the button
         style = QtWidgets.QStylePainter(self)
 
-
         opt = QtWidgets.QStyleOptionButton()
         self.initStyleOption(opt)
 
         style.drawControl(QtWidgets.QStyle.CE_RadioButton, opt)
 
-class RadioHorizontalWidgetButton(QtWidgets.QPushButton):
 
+class RadioHorizontalWidgetButton(QtWidgets.QPushButton):
     def __init__(self, label, widget, parent=None):
         super(RadioHorizontalWidgetButton, self).__init__(parent)
 
-        self.setMinimumHeight(60)  # Set minimum otherwise it will collapse the container
+        self.setMinimumHeight(
+            60
+        )  # Set minimum otherwise it will collapse the container
         self.setCheckable(True)
         self.setAutoExclusive(True)
         self.setContentsMargins(20, 0, 0, 0)
@@ -102,7 +104,6 @@ class RadioHorizontalWidgetButton(QtWidgets.QPushButton):
         # painter = QtGui.QPainter(self)
         # create a styleoption and init it with the button
         style = QtWidgets.QStylePainter(self)
-
 
         opt = QtWidgets.QStyleOptionButton()
         self.initStyleOption(opt)
