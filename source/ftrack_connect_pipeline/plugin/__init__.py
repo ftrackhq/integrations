@@ -16,7 +16,9 @@ from ftrack_connect_pipeline import event
 class BasePluginValidation(object):
     '''Plugin Validation base class'''
 
-    def __init__(self, plugin_name, required_output, return_type, return_value):
+    def __init__(
+        self, plugin_name, required_output, return_type, return_value
+    ):
         '''
         Initialise PluginValidation with *plugin_name*, *required_output*,
         *return_type*, *return_value*.
@@ -68,9 +70,13 @@ class BasePluginValidation(object):
 
         if self.return_type is not None:
             if not isinstance(result, self.return_type):
-                message = 'Return value of {} is of type {}, should be {} ' \
-                          'type'.format(self.plugin_name, type(result),
-                                        self.return_type)
+                message = (
+                    'Return value of {} is of type {}, should be {} '
+                    'type'.format(
+                        self.plugin_name, type(result), self.return_type
+                    )
+                )
+
                 validator_result = (False, message)
 
         return validator_result
@@ -98,8 +104,10 @@ class BasePluginValidation(object):
 
         if user_data is not None:
             if not isinstance(user_data, dict):
-                message = 'user_data value should be of type {} and it\'s ' \
-                          'type of {}'.format(type(dict), type(user_data))
+                message = (
+                    'user_data value should be of type {} and it\'s '
+                    'type of {}'.format(type(dict), type(user_data))
+                )
                 validator_result = (False, message)
             else:
                 if not 'message' in list(user_data.keys()):
@@ -111,13 +119,15 @@ class BasePluginValidation(object):
                         validator_result = (
                             False,
                             'user_data can only contain they keys "message" '
-                            'and/or "data"')
+                            'and/or "data"',
+                        )
                         break
         return validator_result
 
 
 class BasePlugin(object):
-    ''' Base Class to represent a Plugin '''
+    '''Base Class to represent a Plugin'''
+
     plugin_type = None
     '''Type of the plugin'''
     plugin_name = None
@@ -144,17 +154,17 @@ class BasePlugin(object):
 
     @property
     def output(self):
-        ''' Returns a copy of :attr:`required_output`'''
+        '''Returns a copy of :attr:`required_output`'''
         return copy.deepcopy(self._required_output)
 
     @property
     def discover_topic(self):
-        '''Return a formated PIPELINE_DISCOVER_PLUGIN_TOPIC'''
+        '''Return a formatted PIPELINE_DISCOVER_PLUGIN_TOPIC'''
         return self._base_topic(constants.PIPELINE_DISCOVER_PLUGIN_TOPIC)
 
     @property
     def run_topic(self):
-        '''Return a formated PIPELINE_RUN_PLUGIN_TOPIC'''
+        '''Return a formatted PIPELINE_RUN_PLUGIN_TOPIC'''
         return self._base_topic(constants.PIPELINE_RUN_PLUGIN_TOPIC)
 
     @property
@@ -205,14 +215,16 @@ class BasePlugin(object):
             session=session, mode=constants.LOCAL_EVENT_MODE
         )
         self.validator = BasePluginValidation(
-            self.plugin_name, self._required_output, self.return_type,
-            self.return_value
+            self.plugin_name,
+            self._required_output,
+            self.return_type,
+            self.return_value,
         )
 
     def _base_topic(self, topic):
         '''
         Ensures that :attr:`host_type`, :attr:`category`, :attr:`plugin_type`,
-        :attr:`plugin_name` are defined and Returns a formated topic of an event
+        :attr:`plugin_name` are defined and Returns a formatted topic of an event
         for the given *topic*
 
         *topic* topic base value
@@ -235,7 +247,11 @@ class BasePlugin(object):
             'data.pipeline.category={} and data.pipeline.plugin_type={} and '
             'data.pipeline.plugin_name={}'
         ).format(
-            topic, self.host_type, self.category, self.plugin_type, self.plugin_name
+            topic,
+            self.host_type,
+            self.category,
+            self.plugin_type,
+            self.plugin_name,
         )
 
         return topic
@@ -259,20 +275,14 @@ class BasePlugin(object):
             # Exit to avoid registering this plugin again.
             return
 
-        self.logger.debug('registering: {} for {}'.format(
-            self.plugin_name, self.plugin_type)
+        self.logger.debug(
+            'registering: {} for {}'.format(self.plugin_name, self.plugin_type)
         )
 
-        self.session.event_hub.subscribe(
-            self.run_topic,
-            self._run
-        )
+        self.session.event_hub.subscribe(self.run_topic, self._run)
 
         # subscribe to discover the plugin
-        self.session.event_hub.subscribe(
-            self.discover_topic,
-            self._discover
-        )
+        self.session.event_hub.subscribe(self.discover_topic, self._discover)
 
     def _discover(self, event):
         '''
@@ -299,24 +309,30 @@ class BasePlugin(object):
         # validate result instance type
         status = constants.UNKNOWN_STATUS
         message = None
-        result_type_valid, result_type_valid_message = self.validator.validate_result_type(
-            result)
+        (
+            result_type_valid,
+            result_type_valid_message,
+        ) = self.validator.validate_result_type(result)
         if not result_type_valid:
             status = constants.ERROR_STATUS
             message = str(result_type_valid_message)
             return status, message
 
         # validate result with output options
-        output_valid, output_valid_message = self.validator.validate_required_output(
-            result)
+        (
+            output_valid,
+            output_valid_message,
+        ) = self.validator.validate_required_output(result)
         if not output_valid:
             status = constants.ERROR_STATUS
             message = str(output_valid_message)
             return status, message
 
         # Return value is valid
-        result_value_valid, result_value_valid_message = self.validator.validate_result_value(
-            result)
+        (
+            result_value_valid,
+            result_value_valid_message,
+        ) = self.validator.validate_result_value(result)
         if not result_value_valid:
             status = constants.ERROR_STATUS
             message = str(result_value_valid_message)
@@ -371,7 +387,6 @@ class BasePlugin(object):
         self._raw_data = plugin_settings.get('data')
         return method, plugin_settings
 
-
     def _run(self, event):
         '''
         Callback function of the event
@@ -403,13 +418,15 @@ class BasePlugin(object):
             'execution_time': 0,
             'message': None,
             'user_data': user_data,
-            'plugin_id': self.plugin_id
-            }
+            'plugin_id': self.plugin_id,
+        }
 
         run_fn = getattr(self, self.method)
         if not run_fn:
-            message = 'The method : {} does not exist for the ' \
-                      'plugin:{}'.format(self.method, self.plugin_name)
+            message = (
+                'The method : {} does not exist for the '
+                'plugin:{}'.format(self.method, self.plugin_name)
+            )
             self.logger.debug(message)
             result_data['status'] = constants.EXCEPTION_STATUS
             result_data['execution_time'] = 0
@@ -437,7 +454,9 @@ class BasePlugin(object):
         # We check that the optional user_data it's a dictionary and contains
         # message and data keys.
         if user_data:
-            user_data_status, user_data_message = self._validate_user_data(user_data)
+            user_data_status, user_data_message = self._validate_user_data(
+                user_data
+            )
             user_bool_status = constants.status_bool_mapping[user_data_status]
             if not user_bool_status:
                 result_data['status'] = constants.EXCEPTION_STATUS

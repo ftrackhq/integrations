@@ -4,7 +4,9 @@
 import logging
 import ftrack_api
 from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.host.engine.base_load_publish import BaseLoaderPublisherEngine
+from ftrack_connect_pipeline.host.engine.base_load_publish import (
+    BaseLoaderPublisherEngine,
+)
 
 
 class PublisherEngine(BaseLoaderPublisherEngine):
@@ -14,6 +16,3 @@ class PublisherEngine(BaseLoaderPublisherEngine):
         super(PublisherEngine, self).__init__(
             event_manager, host_types, host_id, asset_type_name
         )
-
-
-

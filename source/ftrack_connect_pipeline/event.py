@@ -7,7 +7,9 @@ import logging
 import ftrack_api
 from ftrack_connect_pipeline import constants
 import uuid
+
 logger = logging.getLogger(__name__)
+
 
 class _EventHubThread(threading.Thread):
     '''Listen for events from ftrack's event hub.'''
@@ -21,9 +23,7 @@ class _EventHubThread(threading.Thread):
         )
         _name = str(hash(session))
         super(_EventHubThread, self).__init__(name=_name)
-        self.logger.debug(
-            'Name set for the thread: {}'.format(_name)
-        )
+        self.logger.debug('Name set for the thread: {}'.format(_name))
         self._session = session
 
     def start(self):
@@ -64,7 +64,9 @@ class EventManager(object):
         try:
             _connected = self.session.event_hub.connected
         except Exception as e:
-            self.logger.error("Error checking event hub connected {}".format(e))
+            self.logger.error(
+                "Error checking event hub connected {}".format(e)
+            )
         return _connected
 
     @property
@@ -131,15 +133,7 @@ class EventManager(object):
                 callback(new_event)
 
         else:
-            self.session.event_hub.publish(
-                event,
-                on_reply=callback
-            )
+            self.session.event_hub.publish(event, on_reply=callback)
 
     def subscribe(self, topic, callback):
-        self.session.event_hub.subscribe(
-            'topic={}'.format(
-                topic
-            ),
-            callback
-        )
+        self.session.event_hub.subscribe('topic={}'.format(topic), callback)

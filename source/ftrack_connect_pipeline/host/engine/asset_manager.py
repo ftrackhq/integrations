@@ -16,12 +16,15 @@ class AssetManagerEngine(BaseEngine):
     '''
     Base Asset Manager Engine class.
     '''
+
     ftrack_asset_class = FtrackAssetBase
     '''Define the class to use for the ftrack node to track the loaded assets'''
     engine_type = 'asset_manager'
     '''Engine type for this engine class'''
 
-    def __init__(self, event_manager, host_types, host_id, asset_type_name=None):
+    def __init__(
+        self, event_manager, host_types, host_id, asset_type_name=None
+    ):
         '''
         Initialise HostConnection with instance of
         :class:`~ftrack_connect_pipeline.event.EventManager` , and *host*,
@@ -65,15 +68,15 @@ class AssetManagerEngine(BaseEngine):
 
         start_time = time.time()
 
-        #component_name = 'main'
+        # component_name = 'main'
         component_name = 'fbx'
 
         if False:
             asset_versions_entities = self.session.query(
                 'select id, components, components.name, components.id, version, '
                 'asset , asset.name, asset.type.name from AssetVersion where '
-                'asset_id != None limit 10'.format(
-            )).all()
+                'asset_id != None limit 10'.format()
+            ).all()
 
         if False:
             asset_versions_entities = self.session.query(
@@ -81,7 +84,8 @@ class AssetManagerEngine(BaseEngine):
                 'asset , asset.name, asset.type.name from AssetVersion where '
                 'asset_id != None and components.name is "{0}" limit 10'.format(
                     component_name
-            )).all()
+                )
+            ).all()
 
         if True:
             asset_versions_entities = []
@@ -90,7 +94,7 @@ class AssetManagerEngine(BaseEngine):
                 'asset , asset.name, asset.type.name from AssetVersion where '
                 'asset_id != None and (asset.type.name=animation or asset.type.name=geometry) limit 3'.format()
             ):
-                #if not v['asset']['type']['name'].lower() in ['animation','geometry']:
+                # if not v['asset']['type']['name'].lower() in ['animation','geometry']:
                 #    continue
                 do_add = True
                 for ev in asset_versions_entities:
@@ -101,8 +105,6 @@ class AssetManagerEngine(BaseEngine):
                     asset_versions_entities.append(v)
                     if 10 == len(asset_versions_entities):
                         break
-
-
 
         ftrack_asset_info_list = []
         status = constants.SUCCESS_STATUS
@@ -132,7 +134,7 @@ class AssetManagerEngine(BaseEngine):
             'status': status,
             'result': result,
             'execution_time': total_time,
-            'message': None
+            'message': None,
         }
 
         self._notify_client(plugin, result_data)
@@ -236,9 +238,7 @@ class AssetManagerEngine(BaseEngine):
                 self.logger.error(
                     "Error removing asset with version id {} \n error: {} "
                     "\n asset_info: {}".format(
-                        asset_info[asset_const.VERSION_ID],
-                        e,
-                        asset_info
+                        asset_info[asset_const.VERSION_ID], e, asset_info
                     )
                 )
 
@@ -273,7 +273,7 @@ class AssetManagerEngine(BaseEngine):
             'status': status,
             'result': result,
             'execution_time': 0,
-            'message': None
+            'message': None,
         }
 
         self._notify_client(plugin, result_data)
@@ -292,9 +292,9 @@ class AssetManagerEngine(BaseEngine):
         statuses = {}
         results = {}
 
-        i=0
+        i = 0
         for asset_info in assets:
-            if i==0:
+            if i == 0:
                 options['clear_selection'] = True
             else:
                 options['clear_selection'] = False
@@ -305,9 +305,7 @@ class AssetManagerEngine(BaseEngine):
                 self.logger.error(
                     "Error selecting asset with version id {} \n error: {} "
                     "\n asset_info: {}".format(
-                        asset_info[asset_const.VERSION_ID],
-                        e,
-                        asset_info
+                        asset_info[asset_const.VERSION_ID], e, asset_info
                     )
                 )
 
@@ -315,7 +313,7 @@ class AssetManagerEngine(BaseEngine):
             statuses[asset_info[asset_const.ASSET_INFO_ID]] = bool_status
             results[asset_info[asset_const.ASSET_INFO_ID]] = result
 
-            i+=1
+            i += 1
 
         return statuses, results
 
@@ -344,7 +342,7 @@ class AssetManagerEngine(BaseEngine):
             'status': status,
             'result': result,
             'execution_time': 0,
-            'message': message
+            'message': message,
         }
 
         self._notify_client(plugin, result_data)
@@ -372,9 +370,7 @@ class AssetManagerEngine(BaseEngine):
                 self.logger.error(
                     "Error updating asset with version id {} \n error: {} "
                     "\n asset_info: {}".format(
-                        asset_info[asset_const.VERSION_ID],
-                        e,
-                        asset_info
+                        asset_info[asset_const.VERSION_ID], e, asset_info
                     )
                 )
             bool_status = constants.status_bool_mapping[status]
@@ -413,21 +409,22 @@ class AssetManagerEngine(BaseEngine):
             'status': status,
             'result': result,
             'execution_time': 0,
-            'message': message
+            'message': message,
         }
 
         if not options:
-            options={}
+            options = {}
         if plugin:
 
             plugin['plugin_data'] = asset_info
 
             plugin_result = self._run_plugin(
-                plugin, plugin_type,
+                plugin,
+                plugin_type,
                 data=plugin.get('plugin_data'),
                 options=plugin['options'],
                 context_data=None,
-                method=plugin['default_method']
+                method=plugin['default_method'],
             )
             if plugin_result:
                 status = plugin_result['status']
@@ -485,9 +482,7 @@ class AssetManagerEngine(BaseEngine):
                 self.logger.error(
                     "Error removing asset with version id {} \n error: {} "
                     "\n asset_info: {}".format(
-                        asset_info[asset_const.VERSION_ID],
-                        e,
-                        asset_info
+                        asset_info[asset_const.VERSION_ID], e, asset_info
                     )
                 )
 
@@ -519,15 +514,15 @@ class AssetManagerEngine(BaseEngine):
         plugin_category = load_plugin['pipeline']['category']
         plugin_host_type = load_plugin['pipeline']['host_type']
 
-        plugin={
+        plugin = {
             'category': plugin_category,
             'type': plugin_type.split(".")[-1],
             #'name': 'context selector', #We dont have this information
-            'name':None,
+            'name': None,
             'plugin': plugin_name,
             'widget': None,
             'options': plugin_options,
-            'default_method': plugin_method
+            'default_method': plugin_method,
         }
 
         start_time = time.time()
@@ -550,21 +545,22 @@ class AssetManagerEngine(BaseEngine):
             'status': status,
             'result': result,
             'execution_time': 0,
-            'message': message
+            'message': message,
         }
 
         if not options:
-            options={}
+            options = {}
         if plugin:
 
             # plugin['plugin_data'] = asset_info
 
             plugin_result = self._run_plugin(
-                plugin, plugin_type,
+                plugin,
+                plugin_type,
                 data=plugin_data,
                 options=plugin_options,
                 context_data=plugin_context_data,
-                method=plugin_method
+                method=plugin_method,
             )
             if plugin_result:
                 status = plugin_result['status']
@@ -602,7 +598,6 @@ class AssetManagerEngine(BaseEngine):
 
         return status, result
 
-
     def unload_assets(self, assets, options=None, plugin=None):
         '''
         Returns status dictionary and results dictionary keyed by the id for
@@ -623,9 +618,7 @@ class AssetManagerEngine(BaseEngine):
                 self.logger.error(
                     "Error removing asset with version id {} \n error: {} "
                     "\n asset_info: {}".format(
-                        asset_info[asset_const.VERSION_ID],
-                        e,
-                        asset_info
+                        asset_info[asset_const.VERSION_ID], e, asset_info
                     )
                 )
 
@@ -660,13 +653,12 @@ class AssetManagerEngine(BaseEngine):
             'status': status,
             'result': result,
             'execution_time': 0,
-            'message': None
+            'message': None,
         }
 
         self._notify_client(plugin, result_data)
 
         return status, result
-
 
     def change_version(self, asset_info, options, plugin=None):
         '''
@@ -700,7 +692,7 @@ class AssetManagerEngine(BaseEngine):
             'status': status,
             'result': result,
             'execution_time': 0,
-            'message': message
+            'message': message,
         }
 
         new_version_id = options['new_version_id']
@@ -719,9 +711,7 @@ class AssetManagerEngine(BaseEngine):
             message = str(
                 "Error removing asset with version id {} \n error: {} "
                 "\n asset_info: {}".format(
-                    asset_info[asset_const.VERSION_ID],
-                    e,
-                    asset_info
+                    asset_info[asset_const.VERSION_ID], e, asset_info
                 )
             )
             self.logger.error(message)
@@ -747,9 +737,7 @@ class AssetManagerEngine(BaseEngine):
             message = str(
                 "Error changing version of asset with version id {} \n "
                 "error: {} \n asset_info: {}".format(
-                    asset_info[asset_const.VERSION_ID],
-                    e,
-                    asset_info
+                    asset_info[asset_const.VERSION_ID], e, asset_info
                 )
             )
             self.logger.error(message)
@@ -822,11 +810,12 @@ class AssetManagerEngine(BaseEngine):
 
         elif plugin:
             plugin_result = self._run_plugin(
-                plugin, plugin_type,
+                plugin,
+                plugin_type,
                 data=plugin.get('plugin_data'),
                 options=plugin['options'],
                 context_data=None,
-                method=plugin['default_method']
+                method=plugin['default_method'],
             )
             if plugin_result:
                 status = plugin_result['status']
@@ -836,7 +825,8 @@ class AssetManagerEngine(BaseEngine):
                 raise Exception(
                     'An error occurred during the execution of the plugin {}'
                     '\n status: {} \n result: {}'.format(
-                        plugin['plugin'], status, result)
+                        plugin['plugin'], status, result
+                    )
                 )
 
         return result

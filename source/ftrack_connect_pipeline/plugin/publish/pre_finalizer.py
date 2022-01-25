@@ -12,6 +12,7 @@ class PublisherPreFinalizerPlugin(base.BasePreFinalizerPlugin):
     Base Publisher Pre Finalizer Plugin Class inherits from
     :class:`~ftrack_connect_pipeline.plugin.base.BasePreFinalizerPlugin`
     '''
+
     return_type = dict
     '''Required return type'''
     plugin_type = constants.PLUGIN_PUBLISHER_PRE_FINALIZER_TYPE
@@ -23,4 +24,3 @@ class PublisherPreFinalizerPlugin(base.BasePreFinalizerPlugin):
 
     def __init__(self, session):
         super(PublisherPreFinalizerPlugin, self).__init__(session)
-

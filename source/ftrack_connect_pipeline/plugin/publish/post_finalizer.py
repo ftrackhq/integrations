@@ -12,6 +12,7 @@ class PublisherPostFinalizerPlugin(base.BasePostFinalizerPlugin):
     Base Publisher Post Finalizer Plugin Class inherits from
     :class:`~ftrack_connect_pipeline.plugin.base.BasePostFinalizerPlugin`
     '''
+
     return_type = dict
     '''Required return type'''
     plugin_type = constants.PLUGIN_PUBLISHER_POST_FINALIZER_TYPE
@@ -23,4 +24,3 @@ class PublisherPostFinalizerPlugin(base.BasePostFinalizerPlugin):
 
     def __init__(self, session):
         super(PublisherPostFinalizerPlugin, self).__init__(session)
-

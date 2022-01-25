@@ -15,6 +15,7 @@ from functools import partial
 
 logger = logging.getLogger(__name__)
 
+
 def provide_host_information(host_id, definitions, host_name, event):
     '''
     Returns dictionary with host id, host name, context id and definition from
@@ -32,7 +33,7 @@ def provide_host_information(host_id, definitions, host_name, event):
         'host_id': host_id,
         'host_name': host_name,
         'context_id': context_id,
-        'definition': definitions
+        'definition': definitions,
     }
     return host_dict
 
@@ -87,11 +88,10 @@ class Host(object):
         )
 
         self._host_id = '{}-{}'.format(
-            '.'.join(self.host_types), uuid.uuid4().hex)
-
-        self.logger.debug(
-            'initializing {}'.format(self)
+            '.'.join(self.host_types), uuid.uuid4().hex
         )
+
+        self.logger.debug('initializing {}'.format(self))
         self._event_manager = event_manager
         self.register()
 
@@ -177,19 +177,18 @@ class Host(object):
             provide_host_information,
             self.host_id,
             validated_result,
-            self.host_name
+            self.host_name,
         )
 
         self._event_manager.subscribe(
-            constants.PIPELINE_DISCOVER_HOST,
-            handle_event
+            constants.PIPELINE_DISCOVER_HOST, handle_event
         )
 
         self._event_manager.subscribe(
             '{} and data.pipeline.host_id={}'.format(
                 constants.PIPELINE_HOST_RUN, self.host_id
             ),
-            self.run
+            self.run,
         )
         self.logger.debug('host {} ready.'.format(self.host_id))
 
@@ -207,16 +206,18 @@ class Host(object):
         )
 
         invalid_publishers_idxs = plugin_validator.validate_publishers_plugins(
-            data['publisher'])
+            data['publisher']
+        )
         if invalid_publishers_idxs:
             for idx in sorted(invalid_publishers_idxs, reverse=True):
                 data['publisher'].pop(idx)
 
         invalid_loaders_idxs = plugin_validator.validate_loaders_plugins(
-            data['loader'])
+            data['loader']
+        )
         if invalid_loaders_idxs:
             for idx in sorted(invalid_loaders_idxs, reverse=True):
-                    data['loader'].pop(idx)
+                data['loader'].pop(idx)
 
         return data
 
@@ -237,13 +238,10 @@ class Host(object):
                     'type': 'definition',
                     'host_type': self.host_types[-1],
                 }
-            }
+            },
         )
 
-        self._event_manager.publish(
-            event,
-            self.on_register_definition
-        )
+        self._event_manager.publish(event, self.on_register_definition)
 
     def reset(self):
         '''
@@ -252,9 +250,3 @@ class Host(object):
         self._host_type = []
         self._host_id = None
         self.__registry = {}
-
-
-
-
-
-

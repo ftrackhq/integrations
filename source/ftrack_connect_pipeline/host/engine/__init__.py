@@ -8,6 +8,7 @@ import copy
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.log.log_item import LogItem
 
+
 def getEngine(baseClass, engineType):
     '''
     Returns the Class or Subclass of the given *baseClass* that matches the
@@ -26,7 +27,7 @@ class BaseEngine(object):
     Base engine class.
     '''
 
-    engine_type='base'
+    engine_type = 'base'
     '''Engine type for this engine class'''
 
     @property
@@ -65,8 +66,14 @@ class BaseEngine(object):
         self.event_manager = event_manager
 
     def run_event(
-            self, plugin_name, plugin_type, host_type, data, options,
-            context_data, method
+        self,
+        plugin_name,
+        plugin_type,
+        host_type,
+        data,
+        options,
+        context_data,
+        method,
     ):
         '''
         Returns an :class:`ftrack_api.event.base.Event` with the topic
@@ -91,28 +98,34 @@ class BaseEngine(object):
 
         '''
         return ftrack_api.event.base.Event(
-                    topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
-                    data={
-                        'pipeline': {
-                            'plugin_name': plugin_name,
-                            'plugin_type': plugin_type,
-                            'method': method,
-                            'category': 'plugin',
-                            'host_type': host_type,
-                            'definition': self._definition['name'] if self._definition else None
-                        },
-                        'settings':
-                            {
-                                'data': data,
-                                'options': options,
-                                'context_data': context_data
-                            }
-                    }
-                )
+            topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
+            data={
+                'pipeline': {
+                    'plugin_name': plugin_name,
+                    'plugin_type': plugin_type,
+                    'method': method,
+                    'category': 'plugin',
+                    'host_type': host_type,
+                    'definition': self._definition['name']
+                    if self._definition
+                    else None,
+                },
+                'settings': {
+                    'data': data,
+                    'options': options,
+                    'context_data': context_data,
+                },
+            },
+        )
 
     def _run_plugin(
-            self, plugin, plugin_type, options=None, data=None, context_data=None,
-            method='run'
+        self,
+        plugin,
+        plugin_type,
+        options=None,
+        data=None,
+        context_data=None,
+        method='run',
     ):
         '''
         Returns the result of running the plugin with the event returned from
@@ -143,7 +156,7 @@ class BaseEngine(object):
             'status': constants.RUNNING_STATUS,
             'result': None,
             'execution_time': 0,
-            'message': None
+            'message': None,
         }
 
         self._notify_client(plugin, start_data)
@@ -153,13 +166,17 @@ class BaseEngine(object):
 
         for host_type in reversed(self._host_types):
             event = self.run_event(
-                plugin_name, plugin_type, host_type, data, options,
-                context_data, method
+                plugin_name,
+                plugin_type,
+                host_type,
+                data,
+                options,
+                context_data,
+                method,
             )
 
             plugin_result_data = self.session.event_hub.publish(
-                event,
-                synchronous=True
+                event, synchronous=True
             )
 
             if plugin_result_data:
@@ -174,7 +191,7 @@ class BaseEngine(object):
         '''
         Publish an :class:`ftrack_api.event.base.Event` with the topic
         :const:`~ftrack_connnect_pipeline.constants.PIPELINE_CLIENT_NOTIFICATION`
-        to notify the client of the given *plugin* result *result_data*. 
+        to notify the client of the given *plugin* result *result_data*.
         Also store plugin result in persistent database.
 
         *plugin* : Plugin definition, a dictionary with the plugin information.
@@ -193,9 +210,7 @@ class BaseEngine(object):
 
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_CLIENT_NOTIFICATION,
-            data={
-                'pipeline': result_data
-            }
+            data={'pipeline': result_data},
         )
 
         self.event_manager.publish(
@@ -207,7 +222,7 @@ class BaseEngine(object):
         Returns a :exc:`NotImplementedError`.
         '''
 
-        raise(NotImplementedError)
+        raise (NotImplementedError)
 
     def run(self, data):
         '''
@@ -226,11 +241,12 @@ class BaseEngine(object):
 
         if plugin:
             plugin_result = self._run_plugin(
-                plugin, plugin_type,
+                plugin,
+                plugin_type,
                 data=plugin.get('plugin_data'),
                 options=plugin['options'],
                 context_data=None,
-                method=method
+                method=method,
             )
             status = plugin_result['status']
             bool_status = constants.status_bool_mapping[status]
@@ -239,7 +255,8 @@ class BaseEngine(object):
                 raise Exception(
                     'An error occurred during the execution of the plugin {}'
                     '\n status: {} \n result: {}'.format(
-                        plugin['plugin'], status, result)
+                        plugin['plugin'], status, result
+                    )
                 )
 
         return result

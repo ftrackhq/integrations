@@ -48,7 +48,7 @@ def register(api_object, **kw):
         TestCollector,
         TestValidator,
         TestOutput,
-        TestFinalizer
+        TestFinalizer,
     ]
 
     for plugin in plugins:

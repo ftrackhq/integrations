@@ -77,9 +77,9 @@ class PluginDiscoverValidation(object):
             # context plugins
             try:
                 if not self.vaildate_definition_plugins(
-                        definition[constants.CONTEXTS],
-                        definition['name'],
-                        schema_type
+                    definition[constants.CONTEXTS],
+                    definition['name'],
+                    schema_type,
                 ):
                     valid_definition = False
             except Exception as e:
@@ -89,26 +89,30 @@ class PluginDiscoverValidation(object):
                 valid_definition = False
             try:
                 if not self.vaildate_definition_plugins(
-                        definition[constants.COMPONENTS],
-                        definition['name'],
-                        schema_type
+                    definition[constants.COMPONENTS],
+                    definition['name'],
+                    schema_type,
                 ):
                     valid_definition = False
             except Exception as e:
                 self.logger.error(
-                    'Could not validate publisher components steps: {}'.format(e)
+                    'Could not validate publisher components steps: {}'.format(
+                        e
+                    )
                 )
                 valid_definition = False
             try:
                 if not self.vaildate_definition_plugins(
-                        definition[constants.FINALIZERS],
-                        definition['name'],
-                        schema_type
+                    definition[constants.FINALIZERS],
+                    definition['name'],
+                    schema_type,
                 ):
                     valid_definition = False
             except Exception as e:
                 self.logger.error(
-                    'Could not validate publisher finalizers steps: {}'.format(e)
+                    'Could not validate publisher finalizers steps: {}'.format(
+                        e
+                    )
                 )
                 valid_definition = False
             if not valid_definition:
@@ -142,9 +146,9 @@ class PluginDiscoverValidation(object):
             # context plugins
             try:
                 if not self.vaildate_definition_plugins(
-                        definition[constants.CONTEXTS],
-                        definition['name'],
-                        schema_type
+                    definition[constants.CONTEXTS],
+                    definition['name'],
+                    schema_type,
                 ):
                     valid_definition = False
             except Exception as e:
@@ -154,9 +158,9 @@ class PluginDiscoverValidation(object):
                 valid_definition = False
             try:
                 if not self.vaildate_definition_plugins(
-                        definition[constants.COMPONENTS],
-                        definition['name'],
-                        schema_type
+                    definition[constants.COMPONENTS],
+                    definition['name'],
+                    schema_type,
                 ):
                     valid_definition = False
             except Exception as e:
@@ -166,9 +170,9 @@ class PluginDiscoverValidation(object):
                 valid_definition = False
             try:
                 if not self.vaildate_definition_plugins(
-                        definition[constants.FINALIZERS],
-                        definition['name'],
-                        schema_type
+                    definition[constants.FINALIZERS],
+                    definition['name'],
+                    schema_type,
                 ):
                     valid_definition = False
             except Exception as e:
@@ -188,9 +192,7 @@ class PluginDiscoverValidation(object):
 
         return idxs_to_pop or None
 
-    def vaildate_definition_plugins(
-            self, steps, definition_name, schema_type
-    ):
+    def vaildate_definition_plugins(self, steps, definition_name, schema_type):
         '''
         Validates plugins in the given *steps* running the
         :meth:`_discover_plugin`
@@ -209,10 +211,7 @@ class PluginDiscoverValidation(object):
                 stage_name = stage['name']
                 plugin_type = '{}.{}'.format(schema_type, stage_name)
                 for plugin in stage['plugins']:
-                    if not self._discover_plugin(
-                            plugin,
-                            plugin_type
-                    ):
+                    if not self._discover_plugin(plugin, plugin_type):
                         is_valid = False
                         self.logger.debug(
                             'Could not discover plugin {} of type {} for stage {}'
@@ -221,7 +220,7 @@ class PluginDiscoverValidation(object):
                                 plugin_type,
                                 stage_name,
                                 step['name'],
-                                definition_name
+                                definition_name,
                             )
                         )
         return is_valid
@@ -248,20 +247,17 @@ class PluginDiscoverValidation(object):
                     'plugin_name': plugin_name,
                     'plugin_type': plugin_type,
                     'category': 'plugin',
-                    'host_type': host_type
+                    'host_type': host_type,
                 }
             }
 
             event = ftrack_api.event.base.Event(
-                topic=constants.PIPELINE_DISCOVER_PLUGIN_TOPIC,
-                data=data
+                topic=constants.PIPELINE_DISCOVER_PLUGIN_TOPIC, data=data
             )
 
             plugin_result = self.session.event_hub.publish(
-                event,
-                synchronous=True
+                event, synchronous=True
             )
-
 
             if plugin_result:
                 plugin_result = plugin_result[0]
@@ -277,16 +273,14 @@ class PluginDiscoverValidation(object):
                     'status': constants.DEFAULT_STATUS,
                     'result': None,
                     'execution_time': 0,
-                    'message': "Plugin Ready"
+                    'message': "Plugin Ready",
                 }
                 event = ftrack_api.event.base.Event(
                     topic=constants.PIPELINE_DISCOVER_PLUGIN_TOPIC,
-                    data=status_event
+                    data=status_event,
                 )
 
-                self.session.event_hub.publish(
-                    event
-                )
+                self.session.event_hub.publish(event)
 
                 break
             self.logger.debug(

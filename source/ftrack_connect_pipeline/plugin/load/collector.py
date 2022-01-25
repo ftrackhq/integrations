@@ -10,6 +10,7 @@ class LoaderCollectorPlugin(base.BaseCollectorPlugin):
     Base Loader Collector Plugin Class inherits from
     :class:`~ftrack_connect_pipeline.plugin.base.BaseCollectorPlugin`
     '''
+
     return_type = list
     '''Required return type'''
     plugin_type = constants.PLUGIN_LOADER_COLLECTOR_TYPE

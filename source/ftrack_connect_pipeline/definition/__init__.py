@@ -43,7 +43,8 @@ def collect_and_validate(session, current_dir, host_type):
 
     # log final discovery result
     for key, value in list(data.items()):
-        logger.debug('Discovering definition took : {} : {}'.format(key, len(value)))
-
+        logger.debug(
+            'Discovering definition took : {} : {}'.format(key, len(value))
+        )
 
     return data

@@ -9,6 +9,7 @@ class AssetManagerClient(client.Client):
     '''
     Asset Manager Client Base Class
     '''
+
     definition_filter = 'asset_manager'
     '''Use only definitions that matches the definition_filter'''
 
@@ -28,16 +29,17 @@ class AssetManagerClient(client.Client):
         super(AssetManagerClient, self).change_host(host_connection)
 
         self.schemas = [
-            schema for schema in self.host_connection.definitions['schema']
+            schema
+            for schema in self.host_connection.definitions['schema']
             if schema.get('title').lower() == self.definition_filter
         ]
 
-        #Only one schema available for now, we Don't have a schema selector
+        # Only one schema available for now, we Don't have a schema selector
         # on the AM
         schema = self.schemas[0]
         schema_title = schema.get('title').lower()
         definitions = self.host_connection.definitions.get(schema_title)
-        #Only one definition for now, we don't have a definition schema on the
+        # Only one definition for now, we don't have a definition schema on the
         # AM
         self.change_definition(schema, definitions[0])
 
@@ -47,7 +49,7 @@ class AssetManagerClient(client.Client):
 
     def _reset_asset_list(self):
         '''Empty the :obj:`asset_entities_list`'''
-        self._asset_entities_list= []
+        self._asset_entities_list = []
 
     def discover_assets(self, plugin=None):
         '''
@@ -67,7 +69,7 @@ class AssetManagerClient(client.Client):
         data = {
             'method': 'discover_assets',
             'plugin': plugin,
-            'plugin_type': plugin_type
+            'plugin_type': plugin_type,
         }
         self.host_connection.run(
             data, self.engine_type, self._asset_discovered_callback
@@ -102,7 +104,7 @@ class AssetManagerClient(client.Client):
             'method': 'change_version',
             'plugin': None,
             'assets': asset_info,
-            'options': {'new_version_id': new_version_id}
+            'options': {'new_version_id': new_version_id},
         }
         self.host_connection.run(
             data, self.engine_type, self._change_version_callback
@@ -121,7 +123,7 @@ class AssetManagerClient(client.Client):
         data = {
             'method': 'select_assets',
             'plugin': None,
-            'assets': asset_info_list
+            'assets': asset_info_list,
         }
         self.host_connection.run(data, self.engine_type)
 
@@ -141,7 +143,7 @@ class AssetManagerClient(client.Client):
         data = {
             'method': 'remove_assets',
             'plugin': None,
-            'assets': asset_info_list
+            'assets': asset_info_list,
         }
         self.host_connection.run(
             data, self.engine_type, self._remove_assets_callback
@@ -169,7 +171,7 @@ class AssetManagerClient(client.Client):
             'method': 'update_assets',
             'plugin': plugin,
             'assets': asset_info_list,
-            'plugin_type': plugin_type
+            'plugin_type': plugin_type,
         }
         self.host_connection.run(
             data, self.engine_type, self._update_assets_callback
@@ -191,7 +193,7 @@ class AssetManagerClient(client.Client):
         data = {
             'method': 'load_assets',
             'plugin': None,
-            'assets': asset_info_list
+            'assets': asset_info_list,
         }
         self.host_connection.run(
             data, self.engine_type, self._load_assets_callback
@@ -213,7 +215,7 @@ class AssetManagerClient(client.Client):
         data = {
             'method': 'unload_assets',
             'plugin': None,
-            'assets': asset_info_list
+            'assets': asset_info_list,
         }
         self.host_connection.run(
             data, self.engine_type, self._unload_assets_callback
@@ -261,7 +263,14 @@ class AssetManagerClient(client.Client):
         :const:`~ftrack_connnect_pipeline.constants.asset.ASSET_INFO_ID`
         of an object in :obj:`asset_entities_list`
         '''
-        asset_info = next((sub for sub in self.asset_entities_list if sub[asset_const.ASSET_INFO_ID] == id), None)
+        asset_info = next(
+            (
+                sub
+                for sub in self.asset_entities_list
+                if sub[asset_const.ASSET_INFO_ID] == id
+            ),
+            None,
+        )
         if not asset_info:
             self.logger.warning('No asset info found for id {}'.format(id))
         return asset_info
@@ -280,7 +289,9 @@ class AssetManagerClient(client.Client):
             index = self.asset_entities_list.index(asset_info)
             if index is None:
                 continue
-            self.logger.debug('Removing id {} with index {}'.format(key, index))
+            self.logger.debug(
+                'Removing id {} with index {}'.format(key, index)
+            )
             self.asset_entities_list[index] = value
 
     def _remove_assets_callback(self, event):
@@ -297,7 +308,9 @@ class AssetManagerClient(client.Client):
             index = self.asset_entities_list.index(asset_info)
             if index is None:
                 continue
-            self.logger.debug('Removing id {} with index {}'.format(key, index))
+            self.logger.debug(
+                'Removing id {} with index {}'.format(key, index)
+            )
             self.asset_entities_list.pop(index)
 
     def _update_assets_callback(self, event):
@@ -313,7 +326,9 @@ class AssetManagerClient(client.Client):
             index = self.asset_entities_list.index(asset_info)
             if index is None:
                 continue
-            self.logger.debug('Updating id {} with index {}'.format(key, index))
+            self.logger.debug(
+                'Updating id {} with index {}'.format(key, index)
+            )
             self.asset_entities_list[index] = value.get(list(value.keys())[0])
 
     def _load_assets_callback(self, event):
@@ -329,7 +344,9 @@ class AssetManagerClient(client.Client):
             index = self.asset_entities_list.index(asset_info)
             if index is None:
                 continue
-            self.logger.debug('Updating id {} with index {}'.format(key, index))
+            self.logger.debug(
+                'Updating id {} with index {}'.format(key, index)
+            )
             # TODO: update this to update the asset_enitites_list as desired or
             #  remove it if not needed
             # self.asset_entities_list[index] = value.get(list(value.keys())[0])
@@ -347,7 +364,9 @@ class AssetManagerClient(client.Client):
             index = self.asset_entities_list.index(asset_info)
             if index is None:
                 continue
-            self.logger.debug('Updating id {} with index {}'.format(key, index))
+            self.logger.debug(
+                'Updating id {} with index {}'.format(key, index)
+            )
             # TODO: update this to update the asset_enitites_list as desired or
             #  remove it if not needed
             # self.asset_entities_list[index] = value.get(list(value.keys())[0])

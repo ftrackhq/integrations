@@ -26,4 +26,3 @@ _PLUGIN_ACTION_TYPE = 'action'
 _PLUGIN_DISCOVER_TYPE = 'discover'
 #: Generic plugin type for resolver plugins
 _PLUGIN_RESOLVER_TYPE = 'resolver'
-

@@ -7,6 +7,7 @@ import os
 import logging
 import copy
 from jsonref import JsonRef
+
 logger = logging.getLogger(__name__)
 
 
@@ -17,7 +18,9 @@ def resolve_schemas(data):
     *data* : Dictionary of json definitions and schemas generated at
     :func:`collect_definitions`
     '''
-    data['schema'] = [JsonRef.replace_refs(schema) for schema in data['schema']]
+    data['schema'] = [
+        JsonRef.replace_refs(schema) for schema in data['schema']
+    ]
     return data
 
 
@@ -51,32 +54,22 @@ def collect_definitions(lookup_dir):
 
     *lookup_dir* : Directory path to look for the definitions.
     '''
-    schemas = _collect_json(
-        os.path.join(lookup_dir, 'schema')
-    )
+    schemas = _collect_json(os.path.join(lookup_dir, 'schema'))
 
-    packages = _collect_json(
-        os.path.join(lookup_dir, 'package')
-    )
+    packages = _collect_json(os.path.join(lookup_dir, 'package'))
 
-    loaders = _collect_json(
-        os.path.join(lookup_dir, 'loader')
-    )
+    loaders = _collect_json(os.path.join(lookup_dir, 'loader'))
 
-    publishers = _collect_json(
-        os.path.join(lookup_dir, 'publisher')
-    )
+    publishers = _collect_json(os.path.join(lookup_dir, 'publisher'))
 
-    asset_managers = _collect_json(
-        os.path.join(lookup_dir, 'asset_manager')
-    )
+    asset_managers = _collect_json(os.path.join(lookup_dir, 'asset_manager'))
 
     data = {
         'schema': schemas or [],
         'publisher': publishers or [],
         'loader': loaders or [],
         'package': packages or [],
-        'asset_manager': asset_managers or []
+        'asset_manager': asset_managers or [],
     }
 
     return data
@@ -110,4 +103,3 @@ def _collect_json(source_path):
             loaded_jsons.append(data_store)
 
     return loaded_jsons
-

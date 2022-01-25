@@ -11,9 +11,12 @@ class ActionPluginValidation(BasePluginValidation):
     :class:`~ftrack_connect_pipeline.plugin.BasePluginValidation`
     '''
 
-    def __init__(self, plugin_name, required_output, return_type, return_value):
+    def __init__(
+        self, plugin_name, required_output, return_type, return_value
+    ):
         super(ActionPluginValidation, self).__init__(
-            plugin_name, required_output, return_type, return_value)
+            plugin_name, required_output, return_type, return_value
+        )
 
     def validate_required_output(self, result):
         '''
@@ -41,6 +44,7 @@ class BaseActionPlugin(BasePlugin):
     Base Action Plugin Class inherits from
     :class:`~ftrack_connect_pipeline.plugin.BasePlugin`
     '''
+
     return_type = list
     '''Required return type'''
     plugin_type = plugin._PLUGIN_ACTION_TYPE
@@ -51,8 +55,11 @@ class BaseActionPlugin(BasePlugin):
     def __init__(self, session):
         super(BaseActionPlugin, self).__init__(session)
         self.validator = ActionPluginValidation(
-            self.plugin_name, self._required_output, self.return_type,
-            self.return_value)
+            self.plugin_name,
+            self._required_output,
+            self.return_type,
+            self.return_value,
+        )
 
     def run(self, context_data=None, data=None, options=None):
         raise NotImplementedError('Missing run method.')

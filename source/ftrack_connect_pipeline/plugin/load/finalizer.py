@@ -10,6 +10,7 @@ class LoaderFinalizerPlugin(base.BaseFinalizerPlugin):
     Base Loader Finalizer Plugin Class inherits from
     :class:`~ftrack_connect_pipeline.plugin.base.BaseFinalizerPlugin`
     '''
+
     return_type = dict
     '''Required return type'''
     plugin_type = constants.PLUGIN_LOADER_FINALIZER_TYPE

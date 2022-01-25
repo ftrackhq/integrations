@@ -12,6 +12,7 @@ from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.log import LogDB
 from ftrack_connect_pipeline.log.log_item import LogItem
 
+
 class HostConnection(object):
     '''
     Host Connection Base class.
@@ -47,13 +48,17 @@ class HostConnection(object):
         context_identifiers = []
         if self.context_id:
 
-            entity = self.session.query('TypedContext where id is {}'.format(self.context_id)).first()
+            entity = self.session.query(
+                'TypedContext where id is {}'.format(self.context_id)
+            ).first()
             if entity:
                 # Task, Project,...
                 context_identifiers.append(entity.get('context_type').lower())
                 if 'type' in entity:
                     # Modeling, animation...
-                    context_identifiers.append(entity['type'].get('name').lower())
+                    context_identifiers.append(
+                        entity['type'].get('name').lower()
+                    )
                 # Name of the task or the project
                 context_identifiers.append(entity.get('name').lower())
 
@@ -62,14 +67,14 @@ class HostConnection(object):
             for schema_title in self._raw_host_data['definition'].keys():
                 result[schema_title] = self._filter_definitions(
                     context_identifiers,
-                    self._raw_host_data['definition'][schema_title]
+                    self._raw_host_data['definition'][schema_title],
                 )
             return result
 
         return self._raw_host_data['definition']
 
     def _filter_definitions(self, context_identifiers, definitions):
-        ''' Filter definitions on context idents and discoverable. '''
+        '''Filter definitions on context idents and discoverable.'''
         result = []
         for definition in definitions:
             match = False
@@ -93,7 +98,9 @@ class HostConnection(object):
                 self.logger.debug(
                     'Excluding definition {} - context identifiers {} '
                     'does not match schema discoverable: {}.'.format(
-                        definition.get('name'), context_identifiers, discoverable
+                        definition.get('name'),
+                        context_identifiers,
+                        discoverable,
                     )
                 )
 
@@ -157,13 +164,11 @@ class HostConnection(object):
                 'pipeline': {
                     'host_id': self.id,
                     'data': data,
-                    'engine_type': engine
+                    'engine_type': engine,
                 }
-            }
+            },
         )
-        self._event_manager.publish(
-            event, callback
-        )
+        self._event_manager.publish(event, callback)
 
 
 class Client(object):
@@ -211,7 +216,7 @@ class Client(object):
 
     @context_id.setter
     def context_id(self, context_id):
-        ''' Sets the context id. '''
+        '''Sets the context id.'''
         if not isinstance(context_id, string_types):
             raise ValueError('Context should be in form of a string.')
 
@@ -248,14 +253,20 @@ class Client(object):
     @property
     def logs(self):
         self._init_logs()
-        return self._logs.get_log_items(self.host_connection.id if
-            not self.host_connection is None else None)
+        return self._logs.get_log_items(
+            self.host_connection.id
+            if not self.host_connection is None
+            else None
+        )
 
     def _init_logs(self):
-        '''Delayed initialization of logs, when we know host ID. '''
+        '''Delayed initialization of logs, when we know host ID.'''
         if self._logs is None:
-            self._logs = LogDB(self.host_connection.id if
-            not self.host_connection is None else uuid.uuid4().hex)
+            self._logs = LogDB(
+                self.host_connection.id
+                if not self.host_connection is None
+                else uuid.uuid4().hex
+            )
 
     def __init__(self, event_manager):
         '''
@@ -339,8 +350,7 @@ class Client(object):
         )
 
         self._event_manager.publish(
-            discover_event,
-            callback=self._host_discovered
+            discover_event, callback=self._host_discovered
         )
 
     def run_definition(self, definition, engine_type):
@@ -350,9 +360,7 @@ class Client(object):
 
         Callback received at :meth:`_run_callback`
         '''
-        self.host_connection.run(
-            definition, engine_type, self._run_callback
-        )
+        self.host_connection.run(definition, engine_type, self._run_callback)
 
     def run_plugin(self, plugin_data, method, engine_type):
         '''
@@ -374,11 +382,9 @@ class Client(object):
         data = {
             'plugin': plugin_data,
             'plugin_type': plugin_type,
-            'method': method
+            'method': method,
         }
-        self.host_connection.run(
-            data, engine_type, self._run_callback
-        )
+        self.host_connection.run(data, engine_type, self._run_callback)
 
     def _run_callback(self, event):
         '''Callback of the :meth:`~ftrack_connect_pipeline.client.run_plugin'''
@@ -472,10 +478,9 @@ class Client(object):
         '''
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_CLIENT_NOTIFICATION,
-                self.host_connection.id
+                constants.PIPELINE_CLIENT_NOTIFICATION, self.host_connection.id
             ),
-            self._notify_client
+            self._notify_client,
         )
 
     def _notify_client(self, event):
@@ -503,14 +508,18 @@ class Client(object):
             self.logger.debug(
                 '\n plugin_name: {} \n status: {} \n result: {} \n '
                 'message: {} \n user_message: {} \n plugin_id: {}'.format(
-                    plugin_name, status, result, message, user_message,
-                    plugin_id
+                    plugin_name,
+                    status,
+                    result,
+                    message,
+                    user_message,
+                    plugin_id,
                 )
             )
 
         if (
-                status == constants.ERROR_STATUS or
-                status == constants.EXCEPTION_STATUS
+            status == constants.ERROR_STATUS
+            or status == constants.EXCEPTION_STATUS
         ):
             raise Exception(
                 'An error occurred during the execution of the '

@@ -13,6 +13,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
     '''
     Base Loader and Publisher Engine class.
     '''
+
     engine_type = 'loader_publisher'
     '''Engine type for this engine class'''
 
@@ -33,8 +34,15 @@ class BaseLoaderPublisherEngine(BaseEngine):
         )
 
     def run_stage(
-            self, stage_name, plugins, stage_context, stage_options, stage_data,
-            plugins_order=None, step_type=None, step_name=None
+        self,
+        stage_name,
+        plugins,
+        stage_context,
+        stage_options,
+        stage_data,
+        plugins_order=None,
+        step_type=None,
+        step_name=None,
     ):
         '''
         Returns the bool status and the result list of dictionaries of executing
@@ -66,7 +74,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
         # is why we only pass the data of the previous stage.
         data = stage_data
 
-        i=1
+        i = 1
         for plugin in plugins:
             self._notify_progress_client(
                 step_type=step_type,
@@ -75,7 +83,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 total_plugins=len(plugins),
                 current_plugin_index=i,
                 status=constants.RUNNING_STATUS,
-                results=None
+                results=None,
             )
 
             result = None
@@ -90,14 +98,17 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 default_method = 'init_nodes'
 
             plugin_result = self._run_plugin(
-                plugin, plugin_type,
+                plugin,
+                plugin_type,
                 data=data,
                 options=plugin_options,
                 context_data=stage_context,
-                method=default_method
+                method=default_method,
             )
 
-            bool_status = constants.status_bool_mapping[plugin_result['status']]
+            bool_status = constants.status_bool_mapping[
+                plugin_result['status']
+            ]
             if not bool_status:
                 stage_status = False
                 result = plugin_result['result']
@@ -124,17 +135,22 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 "message": plugin_result['message'],
                 "widget_ref": plugin_result['widget_ref'],
                 "host_id": plugin_result['host_id'],
-                "plugin_id": plugin_result['plugin_id']
+                "plugin_id": plugin_result['plugin_id'],
             }
 
             stage_results.append(plugin_dict)
             i += 1
         return stage_status, stage_results
 
-
     def run_step(
-            self, step_name, stages, step_context, step_options, step_data,
-            stages_order, step_type
+        self,
+        step_name,
+        stages,
+        step_context,
+        step_options,
+        step_data,
+        stages_order,
+        step_type,
     ):
         '''
         Returns the bool status and the result list of dictionaries of executing
@@ -167,10 +183,9 @@ class BaseLoaderPublisherEngine(BaseEngine):
         current_step_dict = {
             "name": step_name,
             "result": step_results,
-            "type": step_type
+            "type": step_type,
         }
         data.append(current_step_dict)
-
 
         for stage in stages:
             for stage_name in stages_order:
@@ -192,7 +207,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
                     stage_data=data,
                     plugins_order=None,
                     step_type=step_type,
-                    step_name=step_name
+                    step_name=step_name,
                 )
                 if not stage_status:
                     step_status = False
@@ -206,7 +221,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
                     "result": stage_result,
                     "status": stage_status,
                     "category": category,
-                    "type": type
+                    "type": type,
                 }
 
                 step_results.append(stage_dict)
@@ -215,24 +230,45 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 # run_definitions
                 if not step_status:
                     self._notify_progress_client(
-                        step_type, step_name, stage_name, None, None,
-                        constants.ERROR_STATUS, step_results
+                        step_type,
+                        step_name,
+                        stage_name,
+                        None,
+                        None,
+                        constants.ERROR_STATUS,
+                        step_results,
                     )
                     return step_status, step_results
                 else:
                     self._notify_progress_client(
-                        step_type, step_name, stage_name, None, None,
-                        constants.SUCCESS_STATUS, step_results
+                        step_type,
+                        step_name,
+                        stage_name,
+                        None,
+                        None,
+                        constants.SUCCESS_STATUS,
+                        step_results,
                     )
         self._notify_progress_client(
-            step_type, step_name, None, None, None,
-            constants.SUCCESS_STATUS, step_results
+            step_type,
+            step_name,
+            None,
+            None,
+            None,
+            constants.SUCCESS_STATUS,
+            step_results,
         )
         return step_status, step_results
 
     def _notify_progress_client(
-            self, step_type, step_name, stage_name, total_plugins,
-            current_plugin_index, status, results
+        self,
+        step_type,
+        step_name,
+        stage_name,
+        total_plugins,
+        current_plugin_index,
+        status,
+        results,
     ):
         '''
         Publish an :class:`ftrack_api.event.base.Event` with the topic
@@ -254,14 +290,12 @@ class BaseLoaderPublisherEngine(BaseEngine):
             'total_plugins': total_plugins,
             'current_plugin_index': current_plugin_index,
             'status': status,
-            'results': results
+            'results': results,
         }
 
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_CLIENT_PROGRESS_NOTIFICATION,
-            data={
-                'pipeline': data
-            }
+            data={'pipeline': data},
         )
 
         self.event_manager.publish(
@@ -320,7 +354,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
                     step_options=step_options,
                     step_data=step_data,
                     stages_order=step_stage_order,
-                    step_type=step_type
+                    step_type=step_type,
                 )
 
                 if not step_status:
@@ -335,25 +369,29 @@ class BaseLoaderPublisherEngine(BaseEngine):
                     "result": step_result,
                     "status": step_status,
                     "category": step_category,
-                    "type": step_type
+                    "type": step_type,
                 }
 
                 group_results.append(step_dict)
-                #Stop if context results are false to raise a proper error.
+                # Stop if context results are false to raise a proper error.
                 if not group_status:
                     break
 
             if not group_status:
                 raise Exception(
                     'An error occurred during the execution of the a {} and '
-                    'can not continue, please, check the plugin logs'.format(step_group)
+                    'can not continue, please, check the plugin logs'.format(
+                        step_group
+                    )
                 )
 
             if step_group == constants.CONTEXTS:
                 context_latest_step = group_results[-1]
                 context_latest_stage = context_latest_step.get('result')[-1]
                 context_latest_plugin = context_latest_stage.get('result')[-1]
-                context_latest_plugin_result = context_latest_plugin.get('result')
+                context_latest_plugin_result = context_latest_plugin.get(
+                    'result'
+                )
                 context_data = context_latest_plugin_result
 
             elif step_group == constants.COMPONENTS:
@@ -363,20 +401,26 @@ class BaseLoaderPublisherEngine(BaseEngine):
                     for component_stage in component_step.get("result"):
                         self.logger.debug(
                             "Checking stage name {} of type {}".format(
-                                component_stage.get("name"), component_stage.get("type")
+                                component_stage.get("name"),
+                                component_stage.get("type"),
                             )
                         )
-                        if not component_stage.get("type") in [constants.IMPORTER,
-                                                               constants.OUTPUT,
-                                                               constants.POST_IMPORT]:
+                        if not component_stage.get("type") in [
+                            constants.IMPORTER,
+                            constants.OUTPUT,
+                            constants.POST_IMPORT,
+                        ]:
                             self.logger.debug(
                                 "Removing stage name {} of type {}".format(
-                                    component_stage.get("name"), component_stage.get("type")
+                                    component_stage.get("name"),
+                                    component_stage.get("type"),
                                 )
                             )
-                            components_output[i]['result'].remove(component_stage)
+                            components_output[i]['result'].remove(
+                                component_stage
+                            )
                     i += 1
 
-        #TODO: maybe we could be returning the finalizers_result? or maybe not
+        # TODO: maybe we could be returning the finalizers_result? or maybe not
         # needed and just add it to a log or pass it to the notify client
         return True

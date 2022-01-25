@@ -9,6 +9,7 @@ import six
 import ftrack_api
 from ftrack_connect_pipeline.constants import asset as constants
 
+
 def get_parent_dependency_recursive(parent):
     dependencies = []
     if parent.entity_type == 'Project':
@@ -22,6 +23,7 @@ def get_parent_dependency_recursive(parent):
         dependencies.extend(get_parent_dependency_recursive(parent['parent']))
     return list(set(dependencies))
 
+
 def get_all_dependencies(entity):
     dependencies = []
     asset = entity
@@ -34,7 +36,7 @@ def get_all_dependencies(entity):
         asset = entity['asset']
     dependencies.extend(get_parent_dependency_recursive(asset['parent']))
     dependencies = list(set(dependencies))
-    #Check if a lower lavel of an asset is already in the list
+    # Check if a lower lavel of an asset is already in the list
     duplicated = []
     for dependency in dependencies:
         for child in dependency['children']:
@@ -47,7 +49,7 @@ def get_all_dependencies(entity):
 
 def generate_asset_info_dict_from_args(context_data, data, options, session):
     '''
-    Returns a diccionary constructed from the needed values of the given
+    Returns a dictionary constructed from the needed values of the given
     *context_data*, *data* and *options*
 
     *context_data* : Context dictionary of the current asset. Should contain the keys
@@ -91,18 +93,23 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
     #  asset of an assetbuild into a shot and is not useful to link tasks, because
     #  you could have 2 different modeling tasks for the same assetBuild.
 
-
     arguments_dict = {}
 
     arguments_dict[constants.ASSET_NAME] = context_data.get(
         'asset_name', 'No name found'
     )
-    arguments_dict[constants.ASSET_TYPE_NAME] = context_data.get(constants.ASSET_TYPE_NAME, '')
-    arguments_dict[constants.ASSET_ID] = context_data.get(constants.ASSET_ID, '')
+    arguments_dict[constants.ASSET_TYPE_NAME] = context_data.get(
+        constants.ASSET_TYPE_NAME, ''
+    )
+    arguments_dict[constants.ASSET_ID] = context_data.get(
+        constants.ASSET_ID, ''
+    )
     arguments_dict[constants.VERSION_NUMBER] = int(
         context_data.get(constants.VERSION_NUMBER, 0)
     )
-    arguments_dict[constants.VERSION_ID] = context_data.get(constants.VERSION_ID, '')
+    arguments_dict[constants.VERSION_ID] = context_data.get(
+        constants.VERSION_ID, ''
+    )
 
     arguments_dict[constants.LOAD_MODE] = options.get(
         constants.LOAD_MODE, 'Not Set'
@@ -125,19 +132,18 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
     context_name = asset_parent['name']
     arguments_dict[constants.CONTEXT_NAME] = context_name
 
-
     arguments_dict[constants.IS_LATEST_VERSION] = asset_version_entity[
         constants.IS_LATEST_VERSION
     ]
 
-    #Get dependencies
+    # Get dependencies
     dependencies = get_all_dependencies(asset_version_entity)
     arguments_dict[constants.DEPENDENCY_IDS] = [
         dependency['id'] for dependency in dependencies
     ]
     arguments_dict[constants.IS_DEPENDENCY] = False
 
-    #Save the asset info of each dependency
+    # Save the asset info of each dependency
     dependencies_asset_info = []
     for dependency in dependencies:
         entity = session.query(
@@ -191,8 +197,9 @@ class FtrackAssetInfo(dict):
     @property
     def asset_version_entity(self):
         if not self.session:
-            raise AttributeError('asset_info.session has to be set before query '
-                                 'version')
+            raise AttributeError(
+                'asset_info.session has to be set before query ' 'version'
+            )
         asset_version_entity = self.session.query(
             'select version from AssetVersion where id is "{}"'.format(
                 self[constants.VERSION_ID]
@@ -258,7 +265,9 @@ class FtrackAssetInfo(dict):
         if six.PY2:
             return json.loads(base64.b64decode(asset_info_options))
         else:
-            return json.loads(base64.b64decode(asset_info_options).decode('ascii'))
+            return json.loads(
+                base64.b64decode(asset_info_options).decode('ascii')
+            )
 
     def __getitem__(self, k):
         '''
@@ -349,23 +358,22 @@ class FtrackAssetInfo(dict):
             if dependency_asset_info not in self[constants.DEPENDENCIES]:
                 self[constants.DEPENDENCIES].append(dependency_asset_info)
 
-
     def _get_asset_versions_entities(self):
         '''
         Return all the versions of the current asset_id
         Raises AttributeError if session is not set.
         '''
         if not self.session:
-            raise AttributeError('asset_info.session has to be set before query '
-                                 'versions')
+            raise AttributeError(
+                'asset_info.session has to be set before versions '
+                'can be queried,'
+            )
         query = (
             'select is_latest_version, id, asset, components, components.name, '
             'components.id, version, asset , asset.name, asset.type.name from '
             'AssetVersion where asset.id is "{}" and components.name is "{}"'
             'order by version ascending'
-        ).format(
-            self[constants.ASSET_ID], self[constants.COMPONENT_NAME]
-        )
+        ).format(self[constants.ASSET_ID], self[constants.COMPONENT_NAME])
         versions = self.session.query(query).all()
         return versions
 
@@ -402,12 +410,17 @@ class FtrackAssetInfo(dict):
         asset_info_data = {}
         asset_entity = version_entity['asset']
 
-        asset_info_data[constants.CONTEXT_NAME] = asset_entity['parent']['name']
+        asset_info_data[constants.CONTEXT_NAME] = asset_entity['parent'][
+            'name'
+        ]
         asset_info_data[constants.ASSET_NAME] = asset_entity['name']
-        asset_info_data[constants.ASSET_TYPE_NAME] = asset_entity['type']['name']
+        asset_info_data[constants.ASSET_TYPE_NAME] = asset_entity['type'][
+            'name'
+        ]
         asset_info_data[constants.ASSET_ID] = asset_entity['id']
         asset_info_data[constants.VERSION_NUMBER] = int(
-            version_entity['version'])
+            version_entity['version']
+        )
         asset_info_data[constants.VERSION_ID] = version_entity['id']
         asset_info_data[constants.IS_LATEST_VERSION] = version_entity[
             constants.IS_LATEST_VERSION
@@ -415,7 +428,7 @@ class FtrackAssetInfo(dict):
 
         location = version_entity.session.pick_location()
 
-        #Get dependencies
+        # Get dependencies
         dependencies = get_all_dependencies(version_entity)
         asset_info_data[constants.DEPENDENCY_IDS] = [
             dependency['id'] for dependency in dependencies
@@ -458,12 +471,14 @@ class FtrackAssetInfo(dict):
         asset_info_data = {}
 
         asset_info_data[constants.CONTEXT_NAME] = asset_build['name']
-        #TODO: fill up all the other attributes based on the asset workflow we
+        # TODO: fill up all the other attributes based on the asset workflow we
         # decided. We need a task for that. Example, automatically know which
         # assset we should be getting based on the definition.
-        #We don't have the type, assetName, the version or the component
+        # We don't have the type, assetName, the version or the component
         asset_info_data[constants.ASSET_NAME] = 'No name found'
-        asset_info_data[constants.ASSET_TYPE_NAME] = asset_build['type']['name']
+        asset_info_data[constants.ASSET_TYPE_NAME] = asset_build['type'][
+            'name'
+        ]
         asset_info_data[constants.ASSET_ID] = asset_build['id']
         asset_info_data[constants.VERSION_NUMBER] = int(0)
         asset_info_data[constants.VERSION_ID] = ''

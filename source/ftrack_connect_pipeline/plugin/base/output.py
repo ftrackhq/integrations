@@ -11,7 +11,9 @@ class OutputPluginValidation(BasePluginValidation):
     :class:`~ftrack_connect_pipeline.plugin.BasePluginValidation`
     '''
 
-    def __init__(self, plugin_name, required_output, return_type, return_value):
+    def __init__(
+        self, plugin_name, required_output, return_type, return_value
+    ):
         super(OutputPluginValidation, self).__init__(
             plugin_name, required_output, return_type, return_value
         )
@@ -41,6 +43,7 @@ class BaseOutputPlugin(BasePlugin):
     Base Output Plugin Class inherits from
     :class:`~ftrack_connect_pipeline.plugin.BasePlugin`
     '''
+
     return_type = list
     '''Required return type'''
     plugin_type = plugin._PLUGIN_OUTPUT_TYPE
@@ -51,8 +54,10 @@ class BaseOutputPlugin(BasePlugin):
     def __init__(self, session):
         super(BaseOutputPlugin, self).__init__(session)
         self.validator = OutputPluginValidation(
-            self.plugin_name, self._required_output, self.return_type,
-            self.return_value
+            self.plugin_name,
+            self._required_output,
+            self.return_type,
+            self.return_value,
         )
 
     def run(self, context_data=None, data=None, options=None):
