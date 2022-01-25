@@ -287,12 +287,12 @@ class WidgetFactory(QtWidgets.QWidget):
         self.components_section.layout().addWidget(
             QtWidgets.QLabel(
                 'Components'
-                if definition['type'] == 'publisher'
+                if definition['type'] == core_constants.PUBLISHER
                 else 'Choose which component to open'
             )
         )
         self.components_section.layout().addWidget(self.components_obj.widget)
-        if definition['type'] == 'loader':
+        if definition['type'] == core_constants.LOADER:
             self.components_section.hide()
         main_obj.widget.layout().addWidget(self.components_section)
 
@@ -302,7 +302,7 @@ class WidgetFactory(QtWidgets.QWidget):
             QtWidgets.QLabel('Finalizers')
         )
         self.finalizers_section.layout().addWidget(self.finalizers_obj.widget)
-        if definition['type'] == 'loader' or not UI_OVERRIDES.get(
+        if definition['type'] == core_constants.LOADER or not UI_OVERRIDES.get(
             core_constants.FINALIZERS
         ).get('show', True):
             self.finalizers_section.hide()

@@ -222,9 +222,11 @@ class QtClient(client.Client, QtWidgets.QFrame):
             self.widget_factory.reset_type_widget_plugin()
             self.scroll.widget().deleteLater()
 
+        if self.client_name == 'open':
+            self.run_button.setText('OPEN ASSEMBLER')
+
         if not schema and not definition:
             self.definition_changed(None, 0)
-            self.run_button.setText('OPEN ASSEMBLER')
             return
 
         super(QtClient, self).change_definition(schema, definition)
@@ -239,7 +241,6 @@ class QtClient(client.Client, QtWidgets.QFrame):
             definition['name'], self.definition, component_names_filter
         )
         self.scroll.setWidget(self.definition_widget)
-        self.run_button.setText('OPEN ASSEMBLER')
 
     def definition_changed(self, definition, available_components_count):
         '''Can be overridden by child'''
@@ -273,7 +274,7 @@ class QtClient(client.Client, QtWidgets.QFrame):
     def _on_components_checked(self, available_components_count):
         self.run_button.setText(
             self.client_name.upper()
-            if available_components_count > 0
+            if self.client_name != 'open' or available_components_count > 0
             else 'OPEN ASSEMBLER'
         )
         self.definition_changed(self.definition, available_components_count)

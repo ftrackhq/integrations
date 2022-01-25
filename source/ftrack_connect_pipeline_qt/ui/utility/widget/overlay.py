@@ -101,6 +101,9 @@ class Overlay(QtWidgets.QFrame):
         while this overlay is active.
 
         '''
+        if not isinstance(event, QtCore.QEvent):
+            return False
+
         # Match sizing of parent.
         if obj == self.parent():
             if event.type() == QtCore.QEvent.Resize:
