@@ -165,6 +165,7 @@ class BaseEngine(object):
         result_data['status'] = constants.UNKNOWN_STATUS
 
         for host_type in reversed(self._host_types):
+
             event = self.run_event(
                 plugin_name,
                 plugin_type,
@@ -178,7 +179,6 @@ class BaseEngine(object):
             plugin_result_data = self.session.event_hub.publish(
                 event, synchronous=True
             )
-
             if plugin_result_data:
                 result_data = plugin_result_data[0]
                 break
