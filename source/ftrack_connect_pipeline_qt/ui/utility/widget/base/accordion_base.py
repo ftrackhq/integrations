@@ -76,22 +76,27 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         return self._content
 
     @property
+    def event_manager(self):
+        return self._event_manager
+
+    @property
     def session(self):
-        return self._session
+        return self._event_manager.session
 
     def __init__(
         self,
         select_mode,
         check_mode,
-        session=None,
+        event_manager=None,
         title=None,
         selected=False,
         checked=True,
+        collapsable=True,
         parent=None,
     ):
         super(AccordionBaseWidget, self).__init__(parent=parent)
 
-        self._session = session
+        self._event_manager = event_manager
         self._reference_widget = None
         self._collapsed = True
         self._checked = checked
@@ -105,6 +110,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self._check_mode = check_mode
         self._selected = selected
         self._checked = checked
+        self._collapsable = collapsable
 
         self._input_message = 'Initializing...'
         self._input_status = False
@@ -156,7 +162,9 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self.header.arrow.clicked.connect(self.on_header_arrow_clicked)
 
     def init_header(self, title):
-        self._header = AccordionHeaderWidget(self, title=title)
+        self._header = AccordionHeaderWidget(
+            self, title=title, collapsable=self._collapsable
+        )
         return self._header
 
     def _init_content(self, collapsed):
@@ -187,8 +195,9 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         return self._content.layout().itemAt(index).widget()
 
     def set_selected(self, selected):
-        self._selected = selected
-        self.update_accordion()
+        if self.isEnabled():
+            self._selected = selected
+            self.update_accordion()
 
     def set_checked(self, checked):
         self._checked = checked
@@ -302,7 +311,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
     def arrow(self):
         return self._arrow
 
-    def __init__(self, accordion, title=None, parent=None):
+    def __init__(self, accordion, title=None, collapsable=True, parent=None):
         super(AccordionHeaderWidget, self).__init__(parent=parent)
 
         self._accordion = accordion
@@ -314,6 +323,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self._arrow = None
 
         self.title = title
+        self._collapsable = collapsable
 
         self.pre_build()
         self.build()
@@ -374,6 +384,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
     def init_arrow(self, collapsed):
         self._arrow = ArrowMaterialIconWidget(None)
         self.update_arrow_icon(collapsed)
+        self._arrow.setVisible(self._collapsable)
         return self._arrow
 
     def mousePressEvent(self, event):

@@ -4,6 +4,10 @@ from functools import partial
 
 from Qt import QtWidgets, QtCore
 
+from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
+    CircularButton,
+)
+
 
 class DefinitionItem(QtWidgets.QPushButton):
     @property
@@ -30,6 +34,7 @@ class DefinitionSelector(QtWidgets.QWidget):
 
     definition_changed = QtCore.Signal(object, object, object)
     host_changed = QtCore.Signal(object)
+    refreshed = QtCore.Signal()
 
     @property
     def selected_host_connection(self):
@@ -168,10 +173,16 @@ class DefinitionSelectorButtons(DefinitionSelector):
     host_changed = QtCore.Signal(object)
     max_column = 3
 
-    def __init__(self, label_text, refresh_text, parent=None):
+    def __init__(self, client_name, parent=None):
         '''Initialize DefinitionSelector widget'''
-        self.label_text = label_text
-        self.refresh_text = refresh_text
+        self._client_name = client_name
+        if self._client_name != 'assembler':
+            self._label_text = "Choose what to {}".format(client_name.lower())
+            self._refresh_text = (
+                "CLEAR" if client_name.lower() == "publish" else "REFRESH"
+            )
+        else:
+            self._title_text = "Suggested dependencies"
         super(DefinitionSelectorButtons, self).__init__(parent=parent)
 
     def build(self):
@@ -187,14 +198,23 @@ class DefinitionSelectorButtons(DefinitionSelector):
         header_widget.layout().setContentsMargins(0, 0, 0, 0)
         header_widget.layout().setSpacing(0)
 
-        self.label_widget = QtWidgets.QLabel(self.label_text)
-        header_widget.layout().addWidget(self.label_widget)
-        header_widget.layout().addStretch()
+        if self._client_name != 'assembler':
+            self.label_widget = QtWidgets.QLabel(self._label_text)
+            header_widget.layout().addWidget(self.label_widget)
+            header_widget.layout().addStretch()
 
-        self.start_over_button = QtWidgets.QPushButton(self.refresh_text)
-        self.start_over_button.setObjectName('borderless')
-        self.start_over_button.clicked.connect(self.start_over)
-        header_widget.layout().addWidget(self.start_over_button)
+            self._refresh_button = QtWidgets.QPushButton(self._refresh_text)
+            self._refresh_button.setObjectName('borderless')
+            self._refresh_button.clicked.connect(self.refresh)
+            header_widget.layout().addWidget(self._refresh_button)
+        else:
+            self.title_widget = QtWidgets.QLabel(self._title_text)
+            self.title_widget.setObjectName('h1')
+            header_widget.layout().addWidget(self.title_widget)
+            header_widget.layout().addStretch()
+            self._refresh_button = CircularButton('sync', '#87E1EB')
+            self._refresh_button.clicked.connect(self.refresh)
+            header_widget.layout().addWidget(self._refresh_button)
 
         self.definitions_widget.layout().addWidget(header_widget)
 
@@ -210,6 +230,9 @@ class DefinitionSelectorButtons(DefinitionSelector):
 
         self.layout().addWidget(self.host_combobox)
         self.layout().addWidget(self.definitions_widget)
+        if self._client_name == 'assembler':
+            self.definition_buttons_widget.setVisible(False)
+
         self.no_definitions_label = QtWidgets.QLabel()
         self.layout().addWidget(self.no_definitions_label)
         self.no_definitions_label.setVisible(False)
@@ -264,7 +287,7 @@ class DefinitionSelectorButtons(DefinitionSelector):
                 text = '{}'.format(' '.join(item.get('name').split(' ')[:-1]))
                 component_names_filter = None  # Outlined openable components
                 enable = True
-                if self._definition_extensions_filter is not None:
+                if self._client_name == 'open':
                     # Open mode; Only provide the schemas, and components that
                     # can load the file extensions. Peek into versions and pre-select
                     # the one loader having the latest version
@@ -297,6 +320,7 @@ class DefinitionSelectorButtons(DefinitionSelector):
                     if component_names_filter is None:
                         # There were no openable components, try next definition
                         continue
+                if self._client_name != 'assembler':
                     # Check if any versions at all, find out asset type name from package
                     asset_type_short = None
                     asset_version = None
@@ -331,7 +355,7 @@ class DefinitionSelectorButtons(DefinitionSelector):
                         ):
                             latest_version = asset_version
                             index_latest_version = index
-                    if asset_version is None:
+                    if asset_version is None and self._client_name == 'open':
                         enable = False
                 if not self._definition_title_filter:
                     text = '{} - {}'.format(
@@ -350,12 +374,23 @@ class DefinitionSelectorButtons(DefinitionSelector):
                 )
                 definition_button.setToolTip(json.dumps(item, indent=4))
                 index += 1
-
+        if self._client_name == 'publish' and index_latest_version == -1:
+            index_latest_version = 0  # Select something
         if self.definition_buttons_widget.layout().count() == 0:
-            self.no_definitions_label.setText(
-                '<html><i>No pipeline loader definitions available to open files of type {}!'
-                '</i></html>'.format(self._definition_extensions_filter)
-            )
+            if self._client_name == 'open':
+                self.no_definitions_label.setText(
+                    '<html><i>No pipeline loader definitions available to open files of type {}!'
+                    '</i></html>'.format(self._definition_extensions_filter)
+                )
+            elif self._client_name == 'publish':
+                self.no_definitions_label.setText(
+                    '<html><i>No pipeline publisher definitions are available!</i></html>'
+                )
+            else:
+                self.no_definitions_label.setText(
+                    '<html><i>No pipeline loader definitions are available!</i></html>'
+                )
+
             self.no_definitions_label.setVisible(True)
             self.definition_changed.emit(
                 None, None, None
@@ -372,8 +407,8 @@ class DefinitionSelectorButtons(DefinitionSelector):
             self.button_group.buttons()[index_latest_version].click()
             self.no_definitions_label.setVisible(False)
         self.definition_buttons_widget.layout().addStretch()
-
-        self.definitions_widget.show()
+        if self._client_name != 'assembler':
+            self.definitions_widget.show()
 
     def _on_select_definition(self, definition_item):
         if definition_item:
@@ -411,5 +446,6 @@ class DefinitionSelectorButtons(DefinitionSelector):
         button = self.button_group.button(index)
         self._on_select_definition(button)
 
-    def start_over(self):
+    def refresh(self):
         self._on_select_definition(self.button_group.checkedButton())
+        self.refreshed.emit()

@@ -3,35 +3,13 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 import os
 
-from Qt import QtWidgets
-
-
 from ftrack_connect_pipeline_qt.client import QtClient
-
-
-class PromptDialog(QtWidgets.QDialog):
-    def __init__(self, message, parent=None):
-        super().__init__(parent)
-
-        self.setWindowTitle("ftrack Open")
-        self.buttonBox = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel
-        )
-        self.buttonBox.accepted.connect(self.accept)
-        self.buttonBox.rejected.connect(self.reject)
-
-        self.layout = QtWidgets.QVBoxLayout()
-        message = QtWidgets.QLabel(message)
-        self.layout.addWidget(message)
-        self.layout.addWidget(self.buttonBox)
-        self.setLayout(self.layout)
-
-        self.setProperty('background', 'default')
+from ftrack_connect_pipeline_qt.ui.utility.widget.prompt import PromptDialog
 
 
 class QtOpenClient(QtClient):
     '''
-    Base load widget class.
+    Base open widget class.
     '''
 
     definition_filter = 'loader'
@@ -57,14 +35,18 @@ class QtOpenClient(QtClient):
         '''React upon change of definition, or no versions/components(definitions) available.'''
         if available_components_count == 0:
             # We have no definitions or nothing previously published
-            # TODO: Search among work files and see if there is and crash scene from previous seession
-            dlg = PromptDialog('Nothing to open, assemble a new scene?', self)
+            # TODO: Search among work files and see if there is and crash scene from previous session
+            dlg = PromptDialog(
+                self.client_name.title(),
+                'Nothing to open, assemble a new scene?',
+                self,
+            )
             if dlg.exec_():
                 # Close and open assembler
                 self.hide()
                 raise NotImplementedError('Assembler open not implemented!')
         elif definition is not None and available_components_count == 1:
-            dlg = PromptDialog('Open latest?', self)
+            dlg = PromptDialog(self.client_name.title(), 'Open latest?', self)
             if dlg.exec_():
                 # Trig open
                 self.run_button.click()

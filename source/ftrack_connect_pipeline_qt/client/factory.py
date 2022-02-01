@@ -133,7 +133,8 @@ class WidgetFactory(QtWidgets.QWidget):
             return obj_override(name, data)
         return obj_override
 
-    def create_progress_widget(self):
+    @staticmethod
+    def create_progress_widget():
         # Check for overrides of the main widget, otherwise call the default one
         return UI_OVERRIDES.get('progress_widget')(None, None)
 
@@ -197,7 +198,8 @@ class WidgetFactory(QtWidgets.QWidget):
                     # create widget for the plugins, usually just one
                     if (
                         type_name == core_constants.CONTEXTS
-                        and self.client_name == 'open' != plugin['mode']
+                        and self.client_name == 'open'
+                        and plugin['mode'] != self.client_name
                     ):
                         # Differentiate open and imported context plugin widgets
                         continue
@@ -316,33 +318,6 @@ class WidgetFactory(QtWidgets.QWidget):
         self.post_build_definition()
 
         return main_obj.widget
-
-    def to_json_object(self):
-        out = self.working_definition
-        types = [
-            core_constants.CONTEXTS,
-            core_constants.COMPONENTS,
-            core_constants.FINALIZERS,
-        ]
-        for type_name in types:
-            for step in out[type_name]:
-                step_obj = self.get_registered_object(step, step['category'])
-                for stage in step['stages']:
-                    stage_obj = self.get_registered_object(
-                        stage, stage['category']
-                    )
-                    for plugin in stage['plugins']:
-                        plugin_widget = self.get_registered_widget_plugin(
-                            plugin
-                        )
-                        if plugin_widget:
-                            plugin.update(plugin_widget.to_json_object())
-                    if stage_obj:
-                        stage.update(stage_obj.to_json_object())
-                if step_obj:
-                    step.update(step_obj.to_json_object())
-
-        return out
 
     def post_build_definition(self):
         self.check_components()
@@ -701,3 +676,42 @@ class WidgetFactory(QtWidgets.QWidget):
             target_args=[version_id],
         )
         thread.start()
+
+    def to_json_object(self):
+        out = self.working_definition
+        types = [
+            core_constants.CONTEXTS,
+            core_constants.COMPONENTS,
+            core_constants.FINALIZERS,
+        ]
+        for type_name in types:
+            for step in out[type_name]:
+                step_obj = self.get_registered_object(step, step['category'])
+                for stage in step['stages']:
+                    stage_obj = self.get_registered_object(
+                        stage, stage['category']
+                    )
+                    for plugin in stage['plugins']:
+                        plugin_widget = self.get_registered_widget_plugin(
+                            plugin
+                        )
+                        if plugin_widget:
+                            plugin.update(plugin_widget.to_json_object())
+                    if stage_obj:
+                        stage.update(stage_obj.to_json_object())
+                if step_obj:
+                    step.update(step_obj.to_json_object())
+
+        return out
+
+
+class ImporterWidgetFactory(WidgetFactory):
+    '''Stripped down widget factory for importer/assembler'''
+
+    def __init__(self, event_manager, ui_types):
+        super(ImporterWidgetFactory, self).__init__(
+            event_manager, ui_types, 'assembler'
+        )
+
+    def set_definition(self, definition):
+        self.working_definition = definition

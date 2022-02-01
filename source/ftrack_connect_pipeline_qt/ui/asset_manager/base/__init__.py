@@ -60,6 +60,8 @@ class AssetManagerBaseWidget(QtWidgets.QWidget):
     def pre_build(self):
         '''Prepare general layout.'''
         self.setLayout(QtWidgets.QVBoxLayout(self))
+        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().setSpacing(0)
 
     def build(self):
         '''Build widgets and parent them.'''
@@ -93,12 +95,16 @@ class AssetListModel(QtCore.QAbstractTableModel):
     '''Custom asset list model'''
 
     @property
-    def session(self):
-        return self._session
+    def event_manager(self):
+        return self._event_manager
 
-    def __init__(self, session):
+    @property
+    def session(self):
+        return self._event_manager.session
+
+    def __init__(self, event_manager):
         super(AssetListModel, self).__init__()
-        self._session = session
+        self._event_manager = event_manager
         self.__asset_entities_list = []
 
     def rowCount(self, index=QtCore.QModelIndex):
@@ -138,7 +144,7 @@ class AssetListModel(QtCore.QAbstractTableModel):
 
 
 class AssetListWidget(QtWidgets.QWidget):
-    '''Custom asset list view'''
+    '''Generic asset list view'''
 
     _last_clicked = None
 
@@ -153,10 +159,9 @@ class AssetListWidget(QtWidgets.QWidget):
             if widget and isinstance(widget, AccordionBaseWidget):
                 yield widget
 
-    def __init__(self, model, asset_widget_class, parent=None):
+    def __init__(self, model, parent=None):
         super(AssetListWidget, self).__init__(parent=parent)
         self._model = model
-        self._asset_widget_class = asset_widget_class
         self.was_clicked = False
 
         self.pre_build()
@@ -180,20 +185,7 @@ class AssetListWidget(QtWidgets.QWidget):
 
     def rebuild(self):
         '''Clear widget and add all assets again from model.'''
-        for widget in reversed(list(self.assets)):
-            widget.setParent(None)
-            widget.deleteLater()
-        # TODO: Save selection state
-        for row in range(self.model.rowCount()):
-            asset_widget = self._asset_widget_class(
-                self.model.createIndex(row, 0, self.model), self.model.session
-            )
-            asset_info = self.model.data(asset_widget.index)
-            asset_widget.set_asset_info(asset_info)
-            self.layout().addWidget(asset_widget)
-            asset_widget.clicked.connect(
-                functools.partial(self.asset_clicked, asset_widget)
-            )
+        raise NotImplementedError()
 
     def reset(self):
         '''Remove all assets'''

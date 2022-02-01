@@ -43,6 +43,9 @@ class MaterialIconWidget(QtWidgets.QWidget):
         elif status in [constants.SUCCESS_STATUS]:
             icon_name = 'check-circle-outline'
             color = '79DFB6'
+        elif status in [constants.WARNING_STATUS]:
+            icon_name = 'alert'
+            color = 'FFBD5D'
         elif status in [constants.ERROR_STATUS, constants.EXCEPTION_STATUS]:
             icon_name = 'alert-circle-outline'
             color = 'FF7A73'

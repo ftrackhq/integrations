@@ -24,10 +24,9 @@ class Header(QtWidgets.QFrame):
         self.build()
 
     def pre_build(self):
-        self.main_layout = QtWidgets.QVBoxLayout()
-        # self.main_layout.setContentsMargins(0, 0, 0, 0)
-        self.main_layout.setAlignment(QtCore.Qt.AlignTop)
-        self.setLayout(self.main_layout)
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().setContentsMargins(8, 2, 7, 8)
+        self.layout().setAlignment(QtCore.Qt.AlignTop)
 
     def build(self):
         # Logo & User ID
@@ -53,7 +52,7 @@ class Header(QtWidgets.QFrame):
         self.id_container_layout.addWidget(self.user)
 
         # Add (Logo & User ID) & Message
-        self.main_layout.addWidget(self.id_container)
+        self.layout().addWidget(self.id_container)
 
 
 class Logo(QtWidgets.QLabel):
@@ -69,11 +68,10 @@ class Logo(QtWidgets.QLabel):
         self.build()
 
     def pre_build(self):
-        self.main_layout = QtWidgets.QHBoxLayout()
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
-        self.main_layout.setSpacing(0)
-        self.main_layout.setAlignment(QtCore.Qt.AlignTop)
-        self.setLayout(self.main_layout)
+        self.setLayout(QtWidgets.QHBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().setSpacing(0)
+        self.layout().setAlignment(QtCore.Qt.AlignTop)
 
     def build(self):
         logoPixmap = QtGui.QPixmap(':ftrack/image/default/ftrackLogoLabel')
@@ -104,10 +102,9 @@ class User(QtWidgets.QWidget):
         self.build()
 
     def pre_build(self):
-        self.main_layout = QtWidgets.QHBoxLayout()
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
-        self.main_layout.setAlignment(QtCore.Qt.AlignRight)
-        self.setLayout(self.main_layout)
+        self.setLayout(QtWidgets.QHBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().setAlignment(QtCore.Qt.AlignRight)
 
     def build(self):
         username = self.session.api_user
@@ -115,8 +112,7 @@ class User(QtWidgets.QWidget):
         self.image = thumbnail.User(self.session, parent=self)
         self.image.setFixedSize(35, 35)
 
-        self.main_layout.addWidget(self.image)
-        # self.main_layout.addWidget(self.label)
+        self.layout().addWidget(self.image)
 
         self.image.load(username)
 
@@ -147,12 +143,10 @@ class MessageBox(QtWidgets.QWidget):
         self.build()
 
     def pre_build(self):
-        self.main_layout = QtWidgets.QHBoxLayout()
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
-        self.main_layout.setSpacing(0)
-
-        self.main_layout.setAlignment(QtCore.Qt.AlignTop)
-        self.setLayout(self.main_layout)
+        self.setLayout(QtWidgets.QHBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().setSpacing(0)
+        self.layout().setAlignment(QtCore.Qt.AlignTop)
 
     def build(self):
         self.label = QtWidgets.QLabel(parent=self)
@@ -167,10 +161,10 @@ class MessageBox(QtWidgets.QWidget):
         self.label.hide()
         self.label.setObjectName('ftrack-header-message-info')
 
-        self.main_layout.addWidget(self.icon)
-        self.main_layout.addStretch()
+        self.layout().addWidget(self.icon)
+        self.layout().addStretch()
 
-        self.main_layout.addWidget(self.label)
+        self.layout().addWidget(self.label)
 
     def setMessage(self, message, level):
         '''Set *message* and *level*.'''

@@ -5,34 +5,6 @@ QLabel {
     border: none;
 }
 
-QComboBox {
-    border: 1px solid $gray;
-    border-radius: 2px;
-    padding: $input-padding;
-    background: $input-background;
-    selection-background-color: $gray-dark;
-    color: $text-color;
-
-    &:hover {
-        border-color: darken($gray-dark, 5%);
-    }
-
-    &:focus {
-        border: 1px solid $input-border-color-focus;
-    }
-}
-
-QComboBox::drop-down {
-    /*background-color: $white;*/
-    border: 0px;
-}
-
-QComboBox::down-arrow {
-    image: theme-image('checkbox_down_arrow');
-    width: 12px;
-    height: 12px;
-}
-
 AssetVersion/** Form elements */
 QLabel {
     color: $text-color;
@@ -112,18 +84,4 @@ QCheckBox::indicator:checked:disabled {
 
 QLineEdit[input="invalid"] {
     border: 1px solid darken(red, 50%);
-}
-
-AssetVersionSelector, VersionComboBox {
-    border: 1px solid $color-purple;
-    border-radius: 4px;
-    color: $color-purple;
-
-    &:hover {
-        border-color: darken($color-purple, 5%);
-    }
-
-    &:focus {
-        border: 1px solid $input-border-color-focus;
-    }
 }

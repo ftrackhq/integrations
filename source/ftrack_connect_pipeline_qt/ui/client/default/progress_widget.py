@@ -78,7 +78,6 @@ class PhaseButton(QtWidgets.QPushButton):
         self.icon_widget.set_status(status)
 
     def update_error_message(self, results):
-        # self.error_widget.show()
         message = None
         self.logged_errors = []
         if results:
@@ -120,6 +119,7 @@ class StatusButtonWidget(QtWidgets.QPushButton):
 
         self.status = None
         self._view_mode = view_mode or self.VIEW_EXPANDED_BUTTON
+
         self.build()
 
     def build(self):
@@ -174,6 +174,7 @@ class ProgressWidget(BaseUIWidget):
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
 
         self.content_widget = None
+        self.status_banner = None
         self._status_view_mode = status_view_mode
 
         super(ProgressWidget, self).__init__(
@@ -238,7 +239,8 @@ class ProgressWidget(BaseUIWidget):
 
     def set_status(self, status, message=None):
         self.widget.set_status(status, message=message)
-        self.status_banner.set_status(status, message=message)
+        if self.status_banner:
+            self.status_banner.set_status(status, message=message)
         self.set_status_widget_visibility(True)
 
     def set_status_widget_visibility(self, visibility=False):
@@ -255,6 +257,7 @@ class ProgressWidget(BaseUIWidget):
             if status != self.widget.get_status():
                 main_status_message = '{}: {}'.format(id_name, status_message)
                 self.widget.set_status(status, message=main_status_message)
-                self.status_banner.set_status(
-                    status, message=main_status_message
-                )
+                if self.status_banner:
+                    self.status_banner.set_status(
+                        status, message=main_status_message
+                    )

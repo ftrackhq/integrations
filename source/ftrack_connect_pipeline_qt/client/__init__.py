@@ -1,9 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
+from functools import partial
 
 from Qt import QtCore, QtWidgets
 
-from ftrack_connect_pipeline import client, constants
+from ftrack_connect_pipeline.client import Client, constants
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     header,
     definition_selector,
@@ -18,7 +19,7 @@ from ftrack_connect_pipeline_qt.ui import resource
 from ftrack_connect_pipeline_qt.ui import theme
 
 
-class QtClient(client.Client, QtWidgets.QFrame):
+class QtClient(Client, QtWidgets.QFrame):
     '''
     Base QT client widget class.
     '''
@@ -33,7 +34,7 @@ class QtClient(client.Client, QtWidgets.QFrame):
         '''Initialise with *event_manager* and
         *parent* widget'''
         QtWidgets.QFrame.__init__(self, parent=parent)
-        client.Client.__init__(self, event_manager)
+        Client.__init__(self, event_manager)
 
         if self.get_theme():
             self.setTheme(self.get_theme())
@@ -45,10 +46,13 @@ class QtClient(client.Client, QtWidgets.QFrame):
             )
         )
 
-        self.is_valid_asset_name = False
-        self.widget_factory = factory.WidgetFactory(
-            event_manager, self.ui_types, self.client_name
-        )
+        if self.client_name != 'assembler':
+            self.is_valid_asset_name = False
+            self.widget_factory = factory.WidgetFactory(
+                event_manager, self.ui_types, self.client_name
+            )
+
+        self.scroll = None
 
         self.pre_build()
         self.build()
@@ -104,18 +108,19 @@ class QtClient(client.Client, QtWidgets.QFrame):
         '''Prepare general layout.'''
         layout = QtWidgets.QVBoxLayout()
         layout.setAlignment(QtCore.Qt.AlignTop)
-        layout.setContentsMargins(7, 7, 7, 7)
-        layout.setSpacing(5)
+        layout.setContentsMargins(4, 1, 4, 1)
+        layout.setSpacing(2)
         self.setLayout(layout)
-        # self.setAutoFillBackground(True)
 
     def build(self):
         '''Build widgets and parent them.'''
         self.header = header.Header(self.session)
         self.layout().addWidget(self.header)
 
+        self._progress_widget = self.widget_factory.progress_widget.widget
+
         self.header.id_container_layout.insertWidget(
-            1, self.widget_factory.progress_widget.widget
+            1, self._progress_widget.widget
         )
 
         self.context_selector = ContextSelector(self.session)
@@ -124,27 +129,20 @@ class QtClient(client.Client, QtWidgets.QFrame):
         self.layout().addWidget(line.Line())
 
         self.host_and_definition_selector = (
-            definition_selector.DefinitionSelectorButtons(
-                "Choose what to {}".format(self.client_name.lower()),
-                'CLEAR'
-                if self.client_name.lower() == 'publish'
-                else 'REFRESH',
-            )
+            definition_selector.DefinitionSelectorButtons(self.client_name)
         )
-        self.host_and_definition_selector.start_over_button.clicked.connect(
-            self.widget_factory.progress_widget.set_status_widget_visibility
-        )
-        self.layout().addWidget(self.host_and_definition_selector)
+        self.host_and_definition_selector.refreshed.connect(self.refresh)
 
         self.scroll = QtWidgets.QScrollArea()
         self.scroll.setWidgetResizable(True)
         self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.layout().addWidget(self.scroll)
 
-        self.run_button = QtWidgets.QPushButton(
+        self.layout().addWidget(self.host_and_definition_selector)
+        self.layout().addWidget(self.scroll, 100)
+        # Leave to assembler to add AM here
+        self.run_button = RunButton(
             self.client_name.upper() if self.client_name else 'Run'
         )
-        self.run_button.setObjectName('large')
         self.layout().addWidget(self.run_button)
 
     def post_build(self):
@@ -158,18 +156,22 @@ class QtClient(client.Client, QtWidgets.QFrame):
         self.host_and_definition_selector.definition_changed.connect(
             self.change_definition
         )
-        self.run_button.clicked.connect(self._on_run_definition)
+        if self.client_name != 'assembler':
+            self.widget_factory.widget_asset_updated.connect(
+                self._on_widget_asset_updated
+            )
 
-        self.widget_factory.widget_asset_updated.connect(
-            self._on_widget_asset_updated
-        )
+            self.widget_factory.widget_run_plugin.connect(self._on_run_plugin)
+            self.widget_factory.components_checked.connect(
+                self._on_components_checked
+            )
+        else:
+            self._run_button_no_load.clicked.connect(partial(self.run, False))
 
-        self.widget_factory.widget_run_plugin.connect(self._on_run_plugin)
-        self.widget_factory.components_checked.connect(
-            self._on_components_checked
-        )
         if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
             self.host_and_definition_selector.host_combobox.hide()
+
+        self.run_button.clicked.connect(self.run)
 
     def _on_context_selector_context_changed(self, context_entity):
         '''Updates the option dictionary with provided *context* when
@@ -203,8 +205,7 @@ class QtClient(client.Client, QtWidgets.QFrame):
         self.context_changed.emit(context_id)
 
     def _clear_host_widget(self):
-        if self.scroll.widget():
-            self.widget_factory.reset_type_widget_plugin()
+        if self.scroll and self.scroll.widget():
             self.scroll.widget().deleteLater()
 
     def change_host(self, host_connection):
@@ -217,10 +218,7 @@ class QtClient(client.Client, QtWidgets.QFrame):
         Triggered when definition_changed is called from the host_selector.
         Generates the widgets interface from the given *schema* and *definition*
         '''
-
-        if self.scroll.widget():
-            self.widget_factory.reset_type_widget_plugin()
-            self.scroll.widget().deleteLater()
+        self._clear_host_widget()
 
         if self.client_name == 'open':
             self.run_button.setText('OPEN ASSEMBLER')
@@ -231,20 +229,25 @@ class QtClient(client.Client, QtWidgets.QFrame):
 
         super(QtClient, self).change_definition(schema, definition)
 
-        asset_type_name = self.current_package['asset_type_name']
+        if self.client_name != 'assembler':
+            asset_type_name = self.current_package['asset_type_name']
 
-        self.widget_factory.set_context(self.context_id, asset_type_name)
-        self.widget_factory.host_connection = self.host_connection
-        self.widget_factory.set_definition_type(self.definition['type'])
-        self.widget_factory.set_package(self.current_package)
-        self.definition_widget = self.widget_factory.build_definition_ui(
-            definition['name'], self.definition, component_names_filter
-        )
-        self.scroll.setWidget(self.definition_widget)
+            self.widget_factory.set_context(self.context_id, asset_type_name)
+            self.widget_factory.host_connection = self.host_connection
+            self.widget_factory.set_definition_type(self.definition['type'])
+            self.widget_factory.set_package(self.current_package)
+            self.definition_widget = self.widget_factory.build_definition_ui(
+                definition['name'], self.definition, component_names_filter
+            )
+            self.scroll.setWidget(self.definition_widget)
+        else:
+            # TODO: Filter loadable components on selected definition
+            pass
 
     def definition_changed(self, definition, available_components_count):
         '''Can be overridden by child'''
-        pass
+        if self.client_name == 'assembler':
+            self.refresh()
 
     def _on_widget_asset_updated(self, asset_name, asset_id, is_valid):
         self.is_valid_asset_name = is_valid
@@ -254,7 +257,7 @@ class QtClient(client.Client, QtWidgets.QFrame):
         plugin information and the *method* to be run has to be passed'''
         self.run_plugin(plugin_data, method, self.engine_type)
 
-    def _on_run_definition(self):
+    def run(self):
         '''Function called when click the run button'''
         if self.definition is None:
             # TODO: Open assembler
@@ -284,3 +287,15 @@ class QtClient(client.Client, QtWidgets.QFrame):
         # We pass the latest log which should be the recently added one.
         # Otherwise, we have no way to check which log we should be passing
         self.widget_factory.update_widget(self.logs[-1])
+
+    def refresh(self):
+        '''Called upon definition selector refresh button click.'''
+        if self.client_name != 'assembler':
+            self.widget_factory.progress_widget.set_status_widget_visibility(
+                False
+            )
+
+
+class RunButton(QtWidgets.QPushButton):
+    def __init__(self, label, parent=None):
+        super(RunButton, self).__init__(label, parent=parent)

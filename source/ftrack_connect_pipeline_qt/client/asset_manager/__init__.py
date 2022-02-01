@@ -2,8 +2,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-from functools import partial
-
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
 from ftrack_connect_pipeline.client.asset_manager import AssetManagerClient
@@ -19,7 +17,6 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
     ContextSelector,
 )
 from ftrack_connect_pipeline_qt.ui import theme
-from ftrack_connect_pipeline_qt.ui.asset_manager.base import AssetListWidget
 
 
 class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
@@ -27,10 +24,10 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     QtAssetManagerClient class.
     '''
 
-    definition_filter = 'asset_manager'
-    '''Use only definitions that matches the definition_filter'''
+    client_name = 'asset_manager'
+    definition_filter = 'asset_manager'  # Use only definitions that matches the definition_filter
 
-    def __init__(self, event_manager, parent=None):
+    def __init__(self, event_manager, parent=None, slave=False):
         '''Initialise AssetManagerClient with instance of
         :class:`~ftrack_connect_pipeline.event.EventManager`
         '''
@@ -39,19 +36,25 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 
         if self.get_theme():
             self.setTheme(self.get_theme())
-            if self.get_background_color():
+            if slave:
+                # Override AM background color
+                self.setProperty('background', 'transparent')
+            elif self.get_background_color():
                 self.setProperty('background', self.get_background_color())
 
         self.asset_manager_widget = AssetManagerWidget(event_manager)
         self.asset_manager_widget.set_asset_list(self.asset_entities_list)
         self.asset_manager_widget.refresh.connect(self._refresh_ui)
 
+        self._slave = slave
         self._host_connection = None
 
         self.pre_build()
         self.build()
         self.post_build()
-        self.add_hosts(self.discover_hosts())
+
+        if not self._slave:
+            self.add_hosts(self.discover_hosts())
 
     def setTheme(self, selected_theme):
         theme.applyFont()
@@ -64,6 +67,54 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     def get_background_color(self):
         '''Return the theme background color style. Can be overridden by child.'''
         return 'default'
+
+    def pre_build(self):
+        '''Prepare general layout.'''
+        layout = QtWidgets.QVBoxLayout()
+        layout.setContentsMargins(1, 1, 1, 1)
+        layout.setSpacing(1)
+        self.setLayout(layout)
+
+    def build(self):
+        '''Build widgets and parent them.'''
+        if not self._slave:
+            self.header = header.Header(self.session)
+            self.layout().addWidget(self.header)
+
+            self.context_selector = ContextSelector(self.session)
+            self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
+
+            self.layout().addWidget(line.Line())
+
+            self.host_selector = host_selector.HostSelector()
+            self.host_selector.setVisible(False)
+            self.layout().addWidget(self.host_selector)
+
+        self.scroll = QtWidgets.QScrollArea()
+        self.scroll.setWidgetResizable(True)
+        self.layout().addWidget(self.scroll)
+
+    def post_build(self):
+        '''Post Build ui method for events connections.'''
+        if not self._slave:
+            self.host_selector.host_changed.connect(self.change_host)
+
+        self.asset_manager_widget.widget_status_updated.connect(
+            self._on_widget_status_updated
+        )
+        self.asset_manager_widget.change_asset_version.connect(
+            self._on_change_asset_version
+        )
+
+        self.asset_manager_widget.select_assets.connect(self._on_select_assets)
+
+        self.asset_manager_widget.remove_assets.connect(self._on_remove_assets)
+
+        self.asset_manager_widget.update_assets.connect(self._on_update_assets)
+
+        self.asset_manager_widget.load_assets.connect(self._on_load_assets)
+
+        self.asset_manager_widget.unload_assets.connect(self._on_unload_assets)
 
     def add_hosts(self, host_connections):
         '''
@@ -89,51 +140,25 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         AssetManagerClient._host_discovered(self, event)
         self.host_selector.add_hosts(self.host_connections)
 
-    def pre_build(self):
-        '''Prepare general layout.'''
-        layout = QtWidgets.QVBoxLayout()
-        layout.setContentsMargins(1, 1, 1, 1)
-        layout.setSpacing(2)
-        self.setLayout(layout)
+    def change_host(self, host_connection):
+        '''
+        Triggered host is selected in the host_selector.
+        '''
 
-    def build(self):
-        '''Build widgets and parent them.'''
-        self.header = header.Header(self.session)
-        self.layout().addWidget(self.header)
+        self._reset_asset_list()
+        self.asset_manager_widget.set_asset_list(self.asset_entities_list)
+        if not host_connection:
+            return
 
-        self.context_selector = ContextSelector(self.session)
-        self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
+        AssetManagerClient.change_host(self, host_connection)
 
-        self.layout().addWidget(line.Line())
+        self.asset_manager_widget.host_connection = self.host_connection
 
-        self.host_selector = host_selector.HostSelector()
-        self.host_selector.setVisible(False)
-        self.layout().addWidget(self.host_selector)
+        self.discover_assets()
+        self.asset_manager_widget.engine_type = self.engine_type
+        self.asset_manager_widget.set_context_actions(self.menu_action_plugins)
 
-        self.scroll = QtWidgets.QScrollArea()
-        self.scroll.setWidgetResizable(True)
-        self.layout().addWidget(self.scroll)
-
-    def post_build(self):
-        '''Post Build ui method for events connections.'''
-        self.host_selector.host_changed.connect(self.change_host)
-
-        self.asset_manager_widget.widget_status_updated.connect(
-            self._on_widget_status_updated
-        )
-        self.asset_manager_widget.change_asset_version.connect(
-            self._on_change_asset_version
-        )
-
-        self.asset_manager_widget.select_assets.connect(self._on_select_assets)
-
-        self.asset_manager_widget.remove_assets.connect(self._on_remove_assets)
-
-        self.asset_manager_widget.update_assets.connect(self._on_update_assets)
-
-        self.asset_manager_widget.load_assets.connect(self._on_load_assets)
-
-        self.asset_manager_widget.unload_assets.connect(self._on_unload_assets)
+        self.scroll.setWidget(self.asset_manager_widget)
 
     def _on_widget_status_updated(self, data):
         '''Triggered when a widget emits the
@@ -218,26 +243,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         # or set up as loaded or something like that
         AssetManagerClient._unload_assets_callback(self, event)
         # self.asset_manager_widget.set_asset_list(self.asset_entities_list)
-
-    def change_host(self, host_connection):
-        '''
-        Triggered host is selected in the host_selector.
-        '''
-
-        self._reset_asset_list()
-        self.asset_manager_widget.set_asset_list(self.asset_entities_list)
-        if not host_connection:
-            return
-
-        AssetManagerClient.change_host(self, host_connection)
-
-        self.asset_manager_widget.host_connection = self.host_connection
-
-        self.discover_assets()
-        self.asset_manager_widget.engine_type = self.engine_type
-        self.asset_manager_widget.set_context_actions(self.menu_action_plugins)
-
-        self.scroll.setWidget(self.asset_manager_widget)
 
     def _asset_discovered_callback(self, event):
         '''

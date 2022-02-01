@@ -2,6 +2,10 @@ QFrame[background='transparent'], QDialog[background='transparent'] {
     background: transparent;
 }
 
+QFrame[background='ftrack'], QDialog[background='ftrack'] {
+    background: rgb(20,25,32);
+}
+
 QFrame[background='default'], QDialog[background='default'] {
     background: rgb(55,55,55);
 }

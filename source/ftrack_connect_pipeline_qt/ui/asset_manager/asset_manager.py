@@ -34,6 +34,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
     '''Base widget of the asset manager and assembler'''
 
     refresh = QtCore.Signal()
+    rebuild = QtCore.Signal()
     widget_status_updated = QtCore.Signal(object)
     change_asset_version = QtCore.Signal(object, object)
     select_assets = QtCore.Signal(object)
@@ -84,8 +85,8 @@ class AssetManagerWidget(AssetManagerBaseWidget):
     def build(self):
         super(AssetManagerWidget, self).build()
 
-        self._asset_list = AssetListWidget(
-            AssetListModel(self.event_manager.session), AssetWidget
+        self._asset_list = AssetManagerListWidget(
+            AssetListModel(self.event_manager), AssetWidget
         )
 
         asset_list_container = QtWidgets.QWidget()
@@ -97,8 +98,12 @@ class AssetManagerWidget(AssetManagerBaseWidget):
 
         self.scroll.setWidget(asset_list_container)
 
+    def post_build(self):
+        super(AssetManagerWidget, self).post_build()
+        self.rebuild.connect(self._on_rebuild)
+
     def set_asset_list(self, asset_entities_list):
-        '''Clears model and add asset entities'''
+        '''Clear model and add asset entities, will trigger list to be rebuilt.'''
         self._asset_list.reset()
         if asset_entities_list and 0 < len(asset_entities_list):
             self._asset_list.model.insertRows(0, asset_entities_list)
@@ -208,7 +213,10 @@ class AssetManagerWidget(AssetManagerBaseWidget):
 
     def _update_widget(self, event):
         '''*event* callback to update widget with the current status/value'''
-        self._asset_list.rebuild()
+        # Check if this is a asset discover notification
+        if event['data']['pipeline'].get('method') == 'discover_assets':
+            # This could be executed async, rebuild asset list through signal
+            self.rebuild.emit()
 
     def _listen_widget_updates(self):
         '''Subscribe to the PIPELINE_CLIENT_NOTIFICATION topic to call the
@@ -229,6 +237,9 @@ class AssetManagerWidget(AssetManagerBaseWidget):
 
     def _on_config(self):
         pass
+
+    def _on_rebuild(self):
+        self._asset_list.rebuild()
 
     def on_asset_change_version(self, index, value):
         '''
@@ -271,6 +282,33 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         self.unload_assets.emit(assets)
 
 
+class AssetManagerListWidget(AssetListWidget):
+    '''Custom asset manager list view'''
+
+    def __init__(self, model, asset_widget_class, parent=None):
+        super(AssetManagerListWidget, self).__init__(model, parent=parent)
+        self._asset_widget_class = asset_widget_class
+
+    def rebuild(self):
+        '''Clear widget and add all assets again from model.'''
+        for i in range(self.layout().count()):
+            widget = self.layout().itemAt(i).widget()
+            widget.setParent(None)
+            widget.deleteLater()
+        # TODO: Save selection state
+        for row in range(self.model.rowCount()):
+            index = self.model.createIndex(row, 0, self.model)
+            asset_info = self.model.data(index)
+            asset_widget = self._asset_widget_class(
+                index, self.model.event_manager
+            )
+            asset_widget.set_asset_info(asset_info)
+            self.layout().addWidget(asset_widget)
+            asset_widget.clicked.connect(
+                partial(self.asset_clicked, asset_widget)
+            )
+
+
 class AssetWidget(AccordionBaseWidget):
     '''Widget representation of a minimal asset representation'''
 
@@ -282,11 +320,11 @@ class AssetWidget(AccordionBaseWidget):
     def options_widget(self):
         return self._options_button
 
-    def __init__(self, index, session, title=None, parent=None):
+    def __init__(self, index, event_manager, title=None, parent=None):
         super(AssetWidget, self).__init__(
             AccordionBaseWidget.SELECT_MODE_LIST,
             AccordionBaseWidget.CHECK_MODE_NONE,
-            session=session,
+            event_manager=event_manager,
             title=title,
             checked=False,
             parent=parent,

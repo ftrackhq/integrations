@@ -1,4 +1,50 @@
 /** Combo Box. */
+
+QComboBox {
+    border: 1px solid $color-purple;
+    border-radius: 4px;
+    padding: $input-padding;
+    background: $input-background;
+    selection-background-color: $gray-dark;
+    color: $color-purple;
+
+    &:hover {
+        border-color: darken($color-purple, 5%);
+    }
+
+    &:focus {
+        border: 1px solid $input-border-color-focus;
+    }
+}
+
+QComboBox::drop-down {
+    /*background-color: red;*/
+    border: 0px;
+}
+
+QComboBox::down-arrow {
+    image: theme-image('combobox_down_arrow');
+    /*background-color: transparent;
+    color: $color-purple;*/
+    width: 12px;
+    height: 12px;
+}
+
+AssetVersionSelector, VersionComboBox {
+    border: 1px solid $color-purple;
+    border-radius: 4px;
+    color: $color-purple;
+
+    &:hover {
+        border-color: darken($color-purple, 5%);
+    }
+
+    &:focus {
+        border: 1px solid $input-border-color-focus;
+    }
+}
+
+
 QComboBox::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
