@@ -48,3 +48,9 @@ Thumbs.db
 *.mov
 *.wmv
 
+# scm version 
+source/ftrack_connect_plugin_manager/_version.py
+
+
+# builds
+build/**
