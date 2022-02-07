@@ -247,6 +247,7 @@ class AssetManagerEngine(BaseEngine):
                 status, result = self.remove_asset(asset_info, options, plugin)
             except Exception as e:
                 status = constants.ERROR_STATUS
+                self.logger.exception(e)
                 self.logger.error(
                     "Error removing asset with version id {} \n error: {} "
                     "\n asset_info: {}".format(
@@ -379,6 +380,7 @@ class AssetManagerEngine(BaseEngine):
                 status, result = self.update_asset(asset_info, options, plugin)
             except Exception as e:
                 status = constants.ERROR_STATUS
+                self.logger.exception(e)
                 self.logger.error(
                     "Error updating asset with version id {} \n error: {} "
                     "\n asset_info: {}".format(
@@ -491,6 +493,7 @@ class AssetManagerEngine(BaseEngine):
                 status, result = self.load_asset(asset_info, options, plugin)
             except Exception as e:
                 status = constants.ERROR_STATUS
+                self.logger.exception(e)
                 self.logger.error(
                     "Error removing asset with version id {} \n error: {} "
                     "\n asset_info: {}".format(
@@ -627,6 +630,7 @@ class AssetManagerEngine(BaseEngine):
                 status, result = self.unload_asset(asset_info, options, plugin)
             except Exception as e:
                 status = constants.ERROR_STATUS
+                self.logger.exception(e)
                 self.logger.error(
                     "Error removing asset with version id {} \n error: {} "
                     "\n asset_info: {}".format(
@@ -720,6 +724,7 @@ class AssetManagerEngine(BaseEngine):
             )
         except Exception as e:
             remove_status = constants.ERROR_STATUS
+            self.logger.exception(e)
             message = str(
                 "Error removing asset with version id {} \n error: {} "
                 "\n asset_info: {}".format(

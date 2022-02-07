@@ -125,7 +125,7 @@ class FtrackAssetBase(object):
 
         self._ftrack_object = None
 
-    def init_ftrack_object(self):
+    def init_ftrack_object(self, is_loaded=True):
         '''
         Sets and Returns the current :py:obj:`ftrack_object` for this class.
         '''

@@ -26,6 +26,7 @@ class AssetManagerClient(Client):
         self._reset_asset_list()
 
     def change_host(self, host_connection):
+        '''Asset manager host has been selected, fetch definition. Return False if no definitions.'''
         super(AssetManagerClient, self).change_host(host_connection)
 
         self.schemas = [
@@ -39,15 +40,19 @@ class AssetManagerClient(Client):
         schema = self.schemas[0]
         schema_title = schema.get('title').lower()
         definitions = self.host_connection.definitions.get(schema_title)
-        # Only one definition for now, we don't have a definition schema on the
-        # AM
-        self.change_definition(schema, definitions[0])
+        if len(definitions) > 0:
+            # Only one definition for now, we don't have a definition schema on the
+            # AM
+            self.change_definition(schema, definitions[0])
 
-        self.menu_action_plugins = self.definition.get('actions')
-        self.discover_plugins = self.definition.get('discover')
-        self.resolver_plugins = self.definition['resolvers'].get(
-            'resolve_dependencies'
-        )
+            self.menu_action_plugins = self.definition.get('actions')
+            self.discover_plugins = self.definition.get('discover')
+            self.resolver_plugins = self.definition['resolvers'].get(
+                'resolve_dependencies'
+            )
+            return True
+        else:
+            return False
 
     def _reset_asset_list(self):
         '''Empty the :obj:`asset_entities_list`'''
@@ -74,7 +79,7 @@ class AssetManagerClient(Client):
             'plugin_type': plugin_type,
         }
         self.host_connection.run(
-            data, self.engine_type, self._asset_discovered_callback
+            data, self.engine_type, callback=self._asset_discovered_callback
         )
 
     def _asset_discovered_callback(self, event):
@@ -109,7 +114,7 @@ class AssetManagerClient(Client):
             'options': {'new_version_id': new_version_id},
         }
         self.host_connection.run(
-            data, self.engine_type, self._change_version_callback
+            data, self.engine_type, callback=self._change_version_callback
         )
 
     def select_assets(self, asset_info_list):
@@ -148,7 +153,7 @@ class AssetManagerClient(Client):
             'assets': asset_info_list,
         }
         self.host_connection.run(
-            data, self.engine_type, self._remove_assets_callback
+            data, self.engine_type, callback=self._remove_assets_callback
         )
 
     def update_assets(self, asset_info_list, plugin):
@@ -176,7 +181,7 @@ class AssetManagerClient(Client):
             'plugin_type': plugin_type,
         }
         self.host_connection.run(
-            data, self.engine_type, self._update_assets_callback
+            data, self.engine_type, callback=self._update_assets_callback
         )
 
     def load_assets(self, asset_info_list):
@@ -198,7 +203,7 @@ class AssetManagerClient(Client):
             'assets': asset_info_list,
         }
         self.host_connection.run(
-            data, self.engine_type, self._load_assets_callback
+            data, self.engine_type, callback=self._load_assets_callback
         )
 
     def unload_assets(self, asset_info_list):
@@ -220,7 +225,7 @@ class AssetManagerClient(Client):
             'assets': asset_info_list,
         }
         self.host_connection.run(
-            data, self.engine_type, self._unload_assets_callback
+            data, self.engine_type, callback=self._unload_assets_callback
         )
 
     def resolve_dependencies(self, context_id, resolve_dependencies_callback):
@@ -254,7 +259,7 @@ class AssetManagerClient(Client):
             resolve_dependencies_callback(event['data'])
 
         self.host_connection.run(
-            data, self.engine_type, _resolve_dependencies_callback
+            data, self.engine_type, callback=_resolve_dependencies_callback
         )
 
     def _find_asset_info_by_id(self, id):

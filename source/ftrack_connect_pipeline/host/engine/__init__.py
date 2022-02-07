@@ -217,7 +217,7 @@ class BaseEngine(object):
             event,
         )
 
-    def run_definition(self, data):
+    def run_definition(self, data, delayed_load):
         '''
         Returns a :exc:`NotImplementedError`.
         '''

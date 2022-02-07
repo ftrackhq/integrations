@@ -106,6 +106,7 @@ class Host(object):
         '''
         data = event['data']['pipeline']['data']
         engine_type = event['data']['pipeline']['engine_type']
+        delayed_load = event['data']['pipeline']['delayed_load']
         package = data.get('package')
         asset_type_name = None
 
@@ -128,7 +129,7 @@ class Host(object):
             self._event_manager, self.host_types, self.host_id, asset_type_name
         )
         if package:
-            runner_result = engine_runner.run_definition(data)
+            runner_result = engine_runner.run_definition(data, delayed_load)
         else:
             runner_result = engine_runner.run(data)
         if runner_result == False:

@@ -64,7 +64,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
     def init_nodes(self, context_data=None, data=None, options=None):
         '''Alternative plugin metod to init all the nodes in the scene but not
         need to load the assets'''
-        ftrack_object = self.ftrack_asset.init_ftrack_object()
+        ftrack_object = self.ftrack_asset.init_ftrack_object(False)
 
         results = [ftrack_object]
         return results
@@ -120,7 +120,8 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         diff = self.new_data.difference(self.old_data)
 
         if asset_load_mode != 'Open' and self.method == 'run':
-            ftrack_object = self.ftrack_asset.init_ftrack_object()
+            ftrack_object = self.ftrack_asset.init_ftrack_object(True)
+
             #  Connect all the objects that are not dependencies
             self.ftrack_asset.connect_objects(diff)
             #  Check if dependencies already in the scene and what dependencies are missing

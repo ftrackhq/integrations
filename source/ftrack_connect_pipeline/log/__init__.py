@@ -51,7 +51,9 @@ class LogDB(object):
 
         self._database_path = self.get_database_path(host_id)
 
-        self._connection = sqlite3.connect(self._database_path)
+        self._connection = sqlite3.connect(
+            self._database_path, check_same_thread=False
+        )
         cur = self.connection.cursor()
 
         # Check if tables are created
