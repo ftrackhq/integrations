@@ -12,7 +12,7 @@ class QtLoaderClient(QtClient):
     '''
 
     definition_filter = 'loader'
-    client_name = 'load'
+    client_name = 'loader'
 
     def __init__(self, event_manager, parent=None):
 

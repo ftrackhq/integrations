@@ -23,6 +23,9 @@ class QtOpenClient(QtClient):
         super(QtOpenClient, self).__init__(event_manager, parent=parent)
         self.logger.debug('start qt opener')
 
+    def get_background_color(self):
+        return 'ftrack'
+
     def post_build(self):
         super(QtOpenClient, self).post_build()
         self.context_selector.entityChanged.connect(self._store_global_context)

@@ -29,6 +29,10 @@ QTextEdit, QLineEdit  {
     }
 }
 
+QCheckBox {
+    color: $text-color;
+}
+
 QCheckBox::indicator {
     image: theme-image('checkbox_unchecked');
 }

@@ -2,18 +2,18 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 import copy
-import os
+import json
 from functools import partial
 
 from Qt import QtCore, QtWidgets
 
 import qtawesome as qta
 
+from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.client import constants
 
 from ftrack_connect_pipeline_qt.client import QtClient
 
-from ftrack_connect_pipeline_qt.ui.utility.widget.prompt import PromptDialog
 from ftrack_connect_pipeline_qt.client import factory
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     header,
@@ -26,29 +26,18 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
 from ftrack_connect_pipeline_qt.ui.utility.widget.busy_indicator import (
     BusyIndicator,
 )
-from ftrack_connect_pipeline_qt.utils import BaseThread
-from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import (
-    Context,
-    AssetVersion,
-)
+from ftrack_connect_pipeline_qt.utils import BaseThread, str_version
+
 from ftrack_connect_pipeline_qt.client.asset_manager import (
     QtAssetManagerClient,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
-    AccordionBaseWidget,
-)
+
 from ftrack_connect_pipeline_qt.ui.asset_manager.base import (
     AssetListModel,
-    AssetListWidget,
 )
-from ftrack_connect_pipeline_qt.ui.asset_manager.asset_manager import (
-    AssetVersionStatusWidget,
-    ComponentAndVersionWidget,
-)
-from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
-from ftrack_connect_pipeline_qt import utils
-from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import (
-    MaterialIconWidget,
+from ftrack_connect_pipeline_qt.ui.assembler.assembler import (
+    ComponentListWidget,
+    ComponentWidget,
 )
 
 
@@ -60,11 +49,12 @@ class QtAssemblerClient(QtClient):
 
     client_name = 'assembler'
     definition_filter = 'loader'
+    hard_refresh = True  # Flag telling assembler that next refresh should include dependency resolve
 
     dependencies_resolved = QtCore.Signal(object)
 
     def __init__(self, event_manager, modes, parent=None):
-        self._modes = modes
+        self.modes = modes
         super(QtAssemblerClient, self).__init__(event_manager, parent=parent)
         self.logger.debug('start qt assembler')
 
@@ -79,7 +69,9 @@ class QtAssemblerClient(QtClient):
         self.header = header.Header(self.session)
         self.layout().addWidget(self.header)
 
-        self._progress_widget = factory.WidgetFactory.create_progress_widget()
+        self._progress_widget = factory.WidgetFactory.create_progress_widget(
+            self.client_name
+        )
         self.header.id_container_layout.insertWidget(
             1, self._progress_widget.widget
         )
@@ -92,7 +84,9 @@ class QtAssemblerClient(QtClient):
         self.host_and_definition_selector = (
             definition_selector.DefinitionSelectorButtons(self.client_name)
         )
-        self.host_and_definition_selector.refreshed.connect(self.refresh)
+        self.host_and_definition_selector.refreshed.connect(
+            partial(self.refresh, True)
+        )
 
         self.scroll = QtWidgets.QScrollArea()
         self.scroll.setWidgetResizable(True)
@@ -106,6 +100,8 @@ class QtAssemblerClient(QtClient):
         self._left_widget.layout().addWidget(self.host_and_definition_selector)
 
         self._left_widget.layout().addWidget(self.scroll, 1000)
+
+        self._component_list = None
 
         button_widget = QtWidgets.QWidget()
         button_widget.setLayout(QtWidgets.QHBoxLayout())
@@ -122,17 +118,10 @@ class QtAssemblerClient(QtClient):
         self._right_widget.layout().setSpacing(1)
 
         # Create and add the asset manager client
-        self._asset_manager = QtAssetManagerClient(
-            self.event_manager, slave=True
+        self.asset_manager = QtAssetManagerClient(
+            self.event_manager, assembler=True
         )
-        self._right_widget.layout().addWidget(self._asset_manager)
-
-        button_widget = QtWidgets.QWidget()
-        button_widget.setLayout(QtWidgets.QHBoxLayout())
-        button_widget.layout().addStretch()
-        self._remove_button = RemoveButton('REMOVE FROM SCENE')
-        button_widget.layout().addWidget(self._remove_button)
-        self._right_widget.layout().addWidget(button_widget)
+        self._right_widget.layout().addWidget(self.asset_manager, 100)
 
         # Create a splitter and add to client
         self.splitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
@@ -144,18 +133,28 @@ class QtAssemblerClient(QtClient):
     def post_build(self):
         super(QtAssemblerClient, self).post_build()
         self.dependencies_resolved.connect(self.on_dependencies_resolved)
+        self.asset_manager.assets_discovered.connect(self._assets_discovered)
 
     def change_host(self, host_connection):
         super(QtAssemblerClient, self).change_host(host_connection)
         # Feed the host to the asset manager
-        self._asset_manager.change_host(host_connection)
+        self.asset_manager.change_host(host_connection)
+
+    def change_definition(self, schema, definition, component_names_filter):
+        '''Not valid for assembler'''
+        pass
+
+    def _assets_discovered(self):
+        '''The assets in AM has been discovered, refresh at our end.'''
+        if self.hard_refresh:
+            self.refresh()
 
     def on_dependencies_resolved_async(self, result):
         self.dependencies_resolved.emit(result)
 
     def _resolve_dependencies(self, context_id):
         try:
-            return self._asset_manager.resolve_dependencies(
+            return self.asset_manager.resolve_dependencies(
                 context_id, self.on_dependencies_resolved_async
             )
         except:
@@ -163,40 +162,40 @@ class QtAssemblerClient(QtClient):
 
             print(traceback.format_exc())
 
-    def refresh(self):
+    def refresh(self, force_hard_refresh=False):
         super(QtAssemblerClient, self).refresh()
-        # Clear out current deps
-        if self.scroll.widget():
-            self.scroll.widget().deleteLater()
-        # Add spinner
-        _busy_v_container = QtWidgets.QWidget()
-        _busy_v_container.setLayout(QtWidgets.QVBoxLayout())
-        _busy_h_container = QtWidgets.QWidget()
-        _busy_h_container.setLayout(QtWidgets.QHBoxLayout())
-        self._busy_widget = BusyIndicator()
-        self._busy_widget.setMaximumSize(QtCore.QSize(30, 30))
-        _busy_h_container.layout().addWidget(self._busy_widget)
-        _busy_v_container.layout().addWidget(_busy_h_container)
-        self.scroll.setWidget(_busy_v_container)
-        self._busy_widget.start()
+        if force_hard_refresh:
+            self.hard_refresh = True
+        if self.hard_refresh:
+            # Clear out current deps
+            if self.scroll.widget():
+                self.scroll.widget().deleteLater()
+            # Add spinner
+            _busy_v_container = QtWidgets.QWidget()
+            _busy_v_container.setLayout(QtWidgets.QVBoxLayout())
+            _busy_h_container = QtWidgets.QWidget()
+            _busy_h_container.setLayout(QtWidgets.QHBoxLayout())
+            self._busy_widget = BusyIndicator()
+            self._busy_widget.setMaximumSize(QtCore.QSize(30, 30))
+            _busy_h_container.layout().addWidget(self._busy_widget)
+            _busy_v_container.layout().addWidget(_busy_h_container)
+            self.scroll.setWidget(_busy_v_container)
+            self._busy_widget.start()
 
-        # Resolve version this context is depending on in separate thread
-        thread = BaseThread(
-            name='resolve_dependencies_thread',
-            target=self._resolve_dependencies,
-            target_args=[self.context_selector.context_id],
-        )
-        thread.start()
+            # Resolve version this context is depending on in separate thread
+            thread = BaseThread(
+                name='resolve_dependencies_thread',
+                target=self._resolve_dependencies,
+                target_args=[self.context_selector.context_id],
+            )
+            thread.start()
+            self.hard_refresh = False
 
-    def str_version(self, v):
-        return '{}/{}({})'.format(
-            '/'.join(
-                ['{}'.format(link['name']) for link in v['task']['link']]
-            ),
-            v['asset']['name'],
-            v['asset']['type']['name'],
-            v['id'],
-        )
+    def reset(self):
+        '''Assembler is shown again after being hidden.'''
+        self.refresh(True)
+        self._progress_widget.hide_widget()
+        self._progress_widget.clear_components()
 
     def on_dependencies_resolved(self, result):
         self._busy_widget.stop()
@@ -232,14 +231,34 @@ class QtAssemblerClient(QtClient):
         # Process versions, filter against
         print(
             '@@@ resolved versions: {}'.format(
-                ','.join([self.str_version(v) for v in versions])
+                ','.join([str_version(v) for v in versions])
             )
         )
 
-        loader_definitions = self.host_and_definition_selector.definitions
+        # Fetch all definitions, append asset type name
+        loader_definitions = []
+        asset_type_name_short_mappings = {}
+        for definition in self.host_and_definition_selector.definitions:
+            for package in self.host_connection.definitions['package']:
+                if package['name'] == definition.get('package'):
+                    asset_type_name_short_mappings[
+                        definition['name']
+                    ] = package['asset_type_name']
+                    loader_definitions.append(definition)
+                    break
 
-        # print('@@@ loader_definitions: {}'.format('\n'.join([json.dumps(loader, indent=4) for loader in loader_definitions])))
-        print('@@@ # loader_definitions: {}'.format(len(loader_definitions)))
+        # import json
+        print(
+            '@@@ loader_definitions: {}'.format(
+                '\n'.join(
+                    [
+                        json.dumps(loader, indent=4)
+                        for loader in loader_definitions
+                    ]
+                )
+            )
+        )
+        # print('@@@ # loader_definitions: {}'.format(len(loader_definitions)))
 
         # For each version, figure out loadable components and store with
         # fragment of its possible loader definition(s)
@@ -253,8 +272,14 @@ class QtAssemblerClient(QtClient):
                 v['asset']['parent']['id'], v['asset']['name']
             ),
         ):
+            print('@@@ Processing: {}'.format(str_version(version)))
             for component in version['components']:
                 component_extension = component.get('file_type')
+                print(
+                    '@@@     Component: {}({})'.format(
+                        component['name'], component['file_type']
+                    )
+                )
                 if not component_extension:
                     self.logger.warning(
                         'Could not assemble version {} component {}; missing file type!'.format(
@@ -264,12 +289,32 @@ class QtAssemblerClient(QtClient):
                     continue
                 matching_definitions = None
                 for definition in loader_definitions:
+                    # Matches asset type?
+                    definition_asset_type_name_short = (
+                        asset_type_name_short_mappings[definition['name']]
+                    )
+                    if (
+                        definition_asset_type_name_short
+                        != version['asset']['type']['short']
+                    ):
+                        print(
+                            '@@@     Definition AT {} mismatch version {}!'.format(
+                                definition_asset_type_name_short,
+                                version['asset']['type']['short'],
+                            )
+                        )
+                        continue
                     definition_fragment = None
                     for d_component in definition.get('components', []):
                         if (
                             d_component['name'].lower()
                             != component['name'].lower()
                         ):
+                            print(
+                                '@@@     Definition component name {} mismatch!'.format(
+                                    d_component['name']
+                                )
+                            )
                             continue
                         for d_stage in d_component.get('stages', []):
                             if d_stage.get('name') == 'collector':
@@ -290,7 +335,6 @@ class QtAssemblerClient(QtClient):
                                         }
                                         for key in definition:
                                             if key not in [
-                                                'contexts',
                                                 'components',
                                             ]:
                                                 definition_fragment[
@@ -298,15 +342,67 @@ class QtAssemblerClient(QtClient):
                                                 ] = copy.deepcopy(
                                                     definition[key]
                                                 )
+                                                if (
+                                                    key
+                                                    == core_constants.CONTEXTS
+                                                ):
+                                                    # Remove open context
+                                                    for (
+                                                        stage
+                                                    ) in definition_fragment[
+                                                        key
+                                                    ][
+                                                        0
+                                                    ][
+                                                        'stages'
+                                                    ]:
+                                                        for plugin in stage[
+                                                            'plugins'
+                                                        ]:
+                                                            if (
+                                                                not 'options'
+                                                                in plugin
+                                                            ):
+                                                                plugin[
+                                                                    'options'
+                                                                ] = {}
+                                                            # Store version
+                                                            plugin['options'][
+                                                                'asset_name'
+                                                            ] = version[
+                                                                'asset'
+                                                            ][
+                                                                'name'
+                                                            ]
+                                                            plugin['options'][
+                                                                'asset_id'
+                                                            ] = version[
+                                                                'asset'
+                                                            ][
+                                                                'id'
+                                                            ]
+                                                            plugin['options'][
+                                                                'version_number'
+                                                            ] = version[
+                                                                'version'
+                                                            ]
+                                                            plugin['options'][
+                                                                'version_id'
+                                                            ] = version['id']
                                         break
+                                    else:
+                                        print(
+                                            '@@@     Accepted formats {} does not intersect with {}!'.format(
+                                                accepted_formats,
+                                                [component_extension],
+                                            )
+                                        )
                             if definition_fragment:
                                 break
                         if definition_fragment:
-                            break
-                    if definition_fragment:
-                        if matching_definitions is None:
-                            matching_definitions = []
-                        matching_definitions.append(definition_fragment)
+                            if matching_definitions is None:
+                                matching_definitions = []
+                            matching_definitions.append(definition_fragment)
                 if matching_definitions is not None:
                     components.append((component, matching_definitions))
 
@@ -318,10 +414,7 @@ class QtAssemblerClient(QtClient):
 
         # Create component list
         self._component_list = ComponentListWidget(
-            AssetListModel(self.event_manager),
-            ComponentWidget,
-            self._modes,
-            self._asset_manager.ui_types,
+            AssetListModel(self.event_manager), ComponentWidget, self
         )
         # self._asset_list.setStyleSheet('background-color: blue;')
 
@@ -330,13 +423,109 @@ class QtAssemblerClient(QtClient):
         # Will trigger list to be rebuilt.
         self._component_list.model.insertRows(0, components)
 
-    def run(self, load=True):
+    def setup_widget_factory(self, widget_factory, definition, context_id):
+        print(
+            '@@@ definition({},{},{})'.format(
+                widget_factory, json.dumps(definition, indent=4), context_id
+            )
+        )
+        widget_factory.set_definition(definition)
+        current_package = self.get_current_package(definition)
+        widget_factory.set_context(
+            context_id, current_package['asset_type_name']
+        )
+        widget_factory.host_connection = self._host_connection
+        widget_factory.set_definition_type(definition['type'])
+        widget_factory.set_package(current_package)
+
+    def run(self, delayed_load=False):
         '''Function called when click the run button'''
-        # Run loader on a batch of components
-        pass
+        # Load batch of components, any selected
+        component_widgets = self._component_list.selection(
+            empty_returns_all=True, as_widgets=True
+        )
+        if len(component_widgets) > 0:
+            # Each component contains a definition ready to run and a factory,
+            # run them one by one. Start by preparing progress widget
+            self._progress_widget.prepare_add_components()
+            self._progress_widget.set_status(
+                constants.RUNNING_STATUS, 'Initializing...'
+            )
+            for component_widget in component_widgets:
+                component = self._component_list.model.data(
+                    component_widget.index
+                )[0]
+                factory = component_widget.factory
+                factory.progress_widget = (
+                    self._progress_widget
+                )  # Have factory update main progress widget
+                self._progress_widget.add_version(component['version'])
+                factory.build_progress_ui(component)
+            self._progress_widget.components_added()
+
+            self._progress_widget.show_widget()
+            failed = 0
+            for component_widget in component_widgets:
+                # Prepare progress widget
+                component = self._component_list.model.data(
+                    component_widget.index
+                )[0]
+                self._progress_widget.set_status(
+                    constants.RUNNING_STATUS,
+                    'Loading {}...'.format(str_version(component['version'])),
+                )
+                definition = component_widget.definition
+                factory = component_widget.factory
+                factory.listen_widget_updates()
+
+                engine_type = definition['_config']['engine_type']
+                import json
+
+                print(
+                    '@@@ Running: {}'.format(json.dumps(definition, indent=4))
+                )
+
+                self.run_definition(definition, engine_type, delayed_load)
+                # Did it go well?
+                if factory.has_error:
+                    failed += 1
+                component_widget.factory.end_widget_updates()
+
+            succeeded = len(component_widgets) - failed
+            if succeeded > 0:
+                if failed == 0:
+                    self._progress_widget.set_status(
+                        constants.SUCCESS_STATUS,
+                        'Successfully {} {}/{} asset{}!'.format(
+                            'loaded' if not delayed_load else 'tracked',
+                            succeeded,
+                            len(component_widgets),
+                            's' if len(component_widgets) > 1 else '',
+                        ),
+                    )
+                else:
+                    self._progress_widget.set_status(
+                        constants.WARNING_STATUS,
+                        'Successfully {} {}/{} asset{}, {} failed - check logs for more information!'.format(
+                            'loaded' if not delayed_load else 'tracked',
+                            succeeded,
+                            len(component_widgets),
+                            's' if len(component_widgets) > 1 else '',
+                            failed,
+                        ),
+                    )
+                self.asset_manager.refresh_ui()
+            else:
+                self._progress_widget.set_status(
+                    constants.ERROR_STATUS,
+                    'Could not {} asset{} - check logs for more information!'.format(
+                        'loaded' if not delayed_load else 'tracked',
+                        's' if len(component_widgets) > 1 else '',
+                    ),
+                )
 
     def mousePressEvent(self, event):
-        if event.button() != QtCore.Qt.RightButton:
+        if event.button() != QtCore.Qt.RightButton and self._component_list:
             self._component_list.clear_selection()
         return super(QtAssemblerClient, self).mousePressEvent(event)
 
@@ -344,358 +533,4 @@ class QtAssemblerClient(QtClient):
 class LoadRunButton(QtWidgets.QPushButton):
     def __init__(self, label, parent=None):
         super(LoadRunButton, self).__init__(label, parent=parent)
-        self.setIcon(MaterialIconWidget('check'))
-
-
-class RemoveButton(QtWidgets.QPushButton):
-    def __init__(self, label, parent=None):
-        super(RemoveButton, self).__init__(label, parent=parent)
-        self.setIcon(MaterialIconWidget('close'))
-
-
-class ComponentListWidget(AssetListWidget):
-    '''Custom asset manager list view'''
-
-    def __init__(
-        self, model, asset_widget_class, modes, ui_types, parent=None
-    ):
-        super(ComponentListWidget, self).__init__(model, parent=parent)
-        self._asset_widget_class = asset_widget_class
-        self._modes = modes
-        self._ui_types = ui_types
-
-    def rebuild(self):
-        '''Add all assets(components) again from model.'''
-
-        # TODO: Save selection state
-
-        # Group by context
-        context_components = {}
-        prev_context_id = None
-        for row in range(self.model.rowCount()):
-            index = self.model.createIndex(row, 0, self.model)
-
-            (component, definitions) = self.model.data(index)
-
-            # print('@@@ got loadable component: {}({}), definitions: {}'.format(component['name'], component['id'],
-            #   '\n'.join(
-            #       [json.dumps(loader, indent=4) for
-            #        loader in definitions])))
-
-            context_id = component['version']['asset']['parent']['id']
-
-            # Add a grouping element?
-
-            if prev_context_id is None or context_id != prev_context_id:
-
-                context_entity = self.model.session.query(
-                    'select link, name, parent, parent.name from Context where id '
-                    'is "{}"'.format(context_id)
-                ).one()
-
-                widget = QtWidgets.QWidget()
-                widget.setLayout(QtWidgets.QHBoxLayout())
-                widget.layout().setContentsMargins(1, 1, 1, 1)
-                widget.layout().setSpacing(1)
-
-                # Append thumbnail
-                thumbnail_widget = Context(self.model.session)
-                # self.thumbnail_widget.setScaledContents(True)
-
-                thumbnail_widget.setMinimumWidth(50)
-                thumbnail_widget.setMinimumHeight(50)
-                thumbnail_widget.setMaximumWidth(50)
-                thumbnail_widget.setMaximumHeight(50)
-                thumbnail_widget.load(context_entity['id'])
-                widget.layout().addWidget(thumbnail_widget)
-
-                # Append a context label
-                entity_info = AssemblerEntityInfo()
-                entity_info.setMinimumHeight(60)
-                entity_info.setMaximumHeight(60)
-                entity_info.set_entity(context_entity)
-
-                widget.layout().addWidget(entity_info)
-
-                self.layout().addWidget(widget)
-
-            # Append component accordion
-
-            component_widget = self._asset_widget_class(
-                index, self._modes, self._ui_types, self.model.event_manager
-            )
-            component_widget.set_component_and_definitions(
-                component, definitions
-            )
-            self.layout().addWidget(component_widget)
-            component_widget.clicked.connect(
-                partial(self.asset_clicked, component_widget)
-            )
-
-        self.layout().addWidget(QtWidgets.QLabel(''), 1000)
-
-
-class ComponentWidget(AccordionBaseWidget):
-    '''Widget representation of a minimal asset representation'''
-
-    @property
-    def index(self):
-        return self._index
-
-    @property
-    def options_widget(self):
-        return self._options_button
-
-    loader_selected = QtCore.Signal(object)
-
-    def __init__(
-        self, index, modes, ui_types, event_manager, title=None, parent=None
-    ):
-        self._modes = modes
-        self._ui_types = ui_types
-        super(ComponentWidget, self).__init__(
-            AccordionBaseWidget.SELECT_MODE_LIST,
-            AccordionBaseWidget.CHECK_MODE_NONE,
-            event_manager=event_manager,
-            title=title,
-            checked=False,
-            collapsable=False,
-            parent=parent,
-        )
-        self._version_id = None
-        self._index = index
-
-    def init_status_widget(self):
-        self._status_widget = AssetVersionStatusWidget()
-        # self._status_widget.setObjectName('borderless')
-        return self._status_widget
-
-    def init_options_button(self):
-        self._options_button = OptionsButton(
-            'O', qta.icon('mdi6.cog', color='gray')
-        )
-        self._options_button.setObjectName('borderless')
-        self._options_button.clicked.connect(self._build_options)
-        return self._options_button
-
-    def init_header_content(self, header_layout, collapsed):
-        '''Add publish related widgets to the accordion header'''
-        header_layout.setContentsMargins(1, 1, 1, 1)
-        header_layout.setSpacing(2)
-
-        # Append thumbnail
-        self.thumbnail_widget = AssetVersion(self.session)
-        # self.thumbnail_widget.setScaledContents(True)
-
-        self.thumbnail_widget.setMinimumWidth(35)
-        self.thumbnail_widget.setMinimumHeight(18)
-        self.thumbnail_widget.setMaximumWidth(35)
-        self.thumbnail_widget.setMaximumHeight(18)
-        header_layout.addWidget(self.thumbnail_widget)
-
-        self._asset_name_widget = QtWidgets.QLabel()
-        self._asset_name_widget.setObjectName('h2')
-        header_layout.addWidget(self._asset_name_widget)
-        self._component_and_version_header_widget = ComponentAndVersionWidget(
-            True
-        )
-        header_layout.addWidget(self._component_and_version_header_widget)
-        header_layout.addWidget(self.init_status_widget())
-
-        header_layout.addStretch()
-
-        # Add loader selector
-        self._loader_selector = LoaderSelector()
-        self._loader_selector.currentIndexChanged.connect(
-            self._loader_selected
-        )
-        header_layout.addWidget(self._loader_selector)
-
-        # Mode selector, based on supplied DCC supported modes
-        self._mode_selector = ModeSelector()
-        for mode in self._modes:
-            self._mode_selector.addItem(mode, mode)
-        header_layout.addWidget(self._mode_selector)
-
-        # Options widget,initialize its factory
-        header_layout.addWidget(self.init_options_button())
-
-        self.widget_factory = factory.ImporterWidgetFactory(
-            self.event_manager, self._ui_types
-        )
-
-    def _loader_selected(self, index):
-        self.widget_factory.set_definition(
-            self._loader_selector.itemData(index)
-        )
-
-    def _build_options(self):
-        # Clear out overlay
-        for i in range(self._options_button.main_widget.layout().count()):
-            widget = (
-                self._options_button.main_widget.layout().itemAt(i).widget()
-            )
-            widget.setParent(None)
-            widget.deleteLater()
-        # Build overlay with factory
-
-        # Show overlay
-        self._options_button.on_click_callback()
-
-    def init_content(self, content_layout):
-        pass
-
-    def set_component_and_definitions(self, component, definitions):
-        '''Update widget from data'''
-        self.thumbnail_widget.load(component['version']['id'])
-
-        self._asset_name_widget.setText(
-            '{} '.format(component['version']['asset']['name'])
-        )
-        self._component_and_version_header_widget.set_component_filename(
-            '{}{}'.format(component['name'], component['file_type'])
-        )
-        self._component_and_version_header_widget.set_version(
-            component['version']['version']
-        )
-        self._component_and_version_header_widget.set_latest_version(
-            component['version']['is_latest_version']
-        )
-        # Deploy available loaders
-        # self._definitions = definitions
-
-        self._loader_selector.clear()
-        for definition in definitions:
-            self._loader_selector.addItem(definition['name'], definition)
-
-        if len(definitions) > 0:
-            # Select something
-            self._loader_selector.setCurrentIndex(0)
-        else:
-            # No loaders, disable entire component
-            self.setEnabled(False)
-
-    def on_collapse(self, collapsed):
-        '''Not collapsable'''
-        pass
-
-    def update_input(self, message, status):
-        '''Update the accordion input summary, should be overridden by child.'''
-        pass
-
-
-class AssemblerEntityInfo(QtWidgets.QWidget):
-    '''Entity path widget.'''
-
-    path_ready = QtCore.Signal(object)
-
-    def __init__(self, additional_widget=None, parent=None):
-        '''Instantiate the entity path widget.'''
-        super(AssemblerEntityInfo, self).__init__(parent=parent)
-
-        self._additional_widget = additional_widget
-
-        self.pre_build()
-        self.build()
-        self.post_build()
-
-    def pre_build(self):
-        self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().setContentsMargins(2, 12, 2, 2)
-        self.layout().setSpacing(2)
-
-    def build(self):
-        name_widget = QtWidgets.QWidget()
-        name_widget.setLayout(QtWidgets.QHBoxLayout())
-        name_widget.layout().setContentsMargins(2, 1, 2, 1)
-        name_widget.layout().setSpacing(2)
-
-        self._from_field = QtWidgets.QLabel('From:')
-        self._from_field.setObjectName('gray')
-        name_widget.layout().addWidget(self._from_field)
-        if self._additional_widget:
-            name_widget.layout().addWidget(self._additional_widget)
-        name_widget.layout().addStretch()
-        self.layout().addWidget(name_widget)
-
-        self._path_field = QtWidgets.QLabel()
-        self._path_field.setObjectName('h3')
-        self.layout().addWidget(self._path_field)
-
-        self.layout().addStretch()
-
-    def post_build(self):
-        self.path_ready.connect(self.on_path_ready)
-
-    def set_entity(self, entity):
-        '''Set the *entity* for this widget.'''
-        if not entity:
-            return
-        parent = entity['parent']
-        parents = [entity]
-        while parent is not None:
-            parents.append(parent)
-            parent = parent['parent']
-        parents.reverse()
-        self.path_ready.emit(parents)
-
-    def on_path_ready(self, parents):
-        '''Set current path to *names*.'''
-        self._path_field.setText(os.sep.join([p['name'] for p in parents[:]]))
-
-
-class LoaderSelector(QtWidgets.QComboBox):
-    def __init__(self):
-        super(LoaderSelector, self).__init__()
-
-
-class ModeSelector(QtWidgets.QComboBox):
-    def __init__(self):
-        super(ModeSelector, self).__init__()
-
-
-class OptionsButton(QtWidgets.QPushButton):
-    def __init__(self, title, icon, parent=None):
-        super(OptionsButton, self).__init__(parent=parent)
-        self.name = title
-        self._icon = icon
-
-        self.pre_build()
-        self.build()
-        self.post_build()
-
-    def pre_build(self):
-        self.setMinimumSize(30, 30)
-        self.setMaximumSize(30, 30)
-        self.setIcon(self._icon)
-        self.setFlat(True)
-
-    def build(self):
-        self.main_widget = QtWidgets.QWidget()
-        self.main_widget.setLayout(QtWidgets.QVBoxLayout())
-        self.main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
-        self.overlay_container = overlay.Overlay(self.main_widget)
-        self.overlay_container.setVisible(False)
-
-    def post_build(self):
-        # self.clicked.connect(self.on_click_callback)
-        pass
-
-    def on_click_callback(self):
-        main_window = utils.get_main_framework_window_from_widget(self)
-        if main_window:
-            self.overlay_container.setParent(main_window)
-        self.overlay_container.setVisible(True)
-
-    def add_validator_widget(self, widget):
-        self.main_widget.layout().addWidget(
-            QtWidgets.QLabel('<html><strong>Validators:<strong><html>')
-        )
-        self.main_widget.layout().addWidget(widget)
-
-    def add_output_widget(self, widget):
-        self.main_widget.layout().addWidget(QtWidgets.QLabel(''))
-        self.main_widget.layout().addWidget(
-            QtWidgets.QLabel('<html><strong>Output:<strong><html>')
-        )
-        self.main_widget.layout().addWidget(widget)
+        self.setIcon(qta.icon('mdi6.check', color='#5EAA8D'))

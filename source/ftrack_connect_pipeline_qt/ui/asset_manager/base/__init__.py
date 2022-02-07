@@ -12,6 +12,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
 )
+from ftrack_connect_pipeline_qt.ui.utility.widget.prompt import PromptDialog
 
 
 class AssetManagerBaseWidget(QtWidgets.QWidget):
@@ -41,7 +42,7 @@ class AssetManagerBaseWidget(QtWidgets.QWidget):
         '''Sets the engine_type with the given *value*'''
         self._engine_type = value
 
-    def __init__(self, event_manager, parent=None):
+    def __init__(self, assembler, event_manager, parent=None):
         '''Initialise AssetManagerWidget with *event_manager*
 
         *event_manager* should be the
@@ -50,6 +51,7 @@ class AssetManagerBaseWidget(QtWidgets.QWidget):
         '''
         super(AssetManagerBaseWidget, self).__init__(parent=parent)
 
+        self._assembler = assembler
         self._event_manager = event_manager
         self._engine_type = None
 
@@ -147,6 +149,7 @@ class AssetListWidget(QtWidgets.QWidget):
     '''Generic asset list view'''
 
     _last_clicked = None
+    selection_updated = QtCore.Signal(object)
 
     @property
     def model(self):
@@ -182,6 +185,7 @@ class AssetListWidget(QtWidgets.QWidget):
 
     def on_assets_added(self, parent, first, last):
         self.rebuild()
+        self.selection_updated.emit(self.selection())
 
     def rebuild(self):
         '''Clear widget and add all assets again from model.'''
@@ -192,26 +196,50 @@ class AssetListWidget(QtWidgets.QWidget):
         self.model.reset()
         self.rebuild()
 
-    def selection(self, warn_on_empty=True):
+    def selection(
+        self, warn_on_empty=False, empty_returns_all=False, as_widgets=False
+    ):
         result = []
         for widget in self.assets:
             if widget.selected:
-                result.append(self.model.data(widget.index))
-        if warn_on_empty and len(result) == 0:
-            QtWidgets.QMessageBox.critical(
-                None,
-                'Error!',
-                "Please select at least one asset!",
-                QtWidgets.QMessageBox.Abort,
-            )
+                if as_widgets:
+                    result.append(widget)
+                else:
+                    result.append(self.model.data(widget.index))
+        if len(result) == 0:
+            if empty_returns_all:
+                dlg = PromptDialog(
+                    'Assembler',
+                    'Load all?',
+                    self,
+                )
+                if dlg.exec_():
+                    for widget in self.assets:
+                        widget.set_selected(True)
+                        if as_widgets:
+                            result.append(widget)
+                        else:
+                            result.append(self.model.data(widget.index))
+            elif warn_on_empty:
+                QtWidgets.QMessageBox.critical(
+                    None,
+                    'Error!',
+                    "Please select at least one asset!",
+                    QtWidgets.QMessageBox.Abort,
+                )
         return result
 
     def clear_selection(self):
+        selection_modified = False
         for asset_widget in self.assets:
-            asset_widget.set_selected(False)
+            if asset_widget.set_selected(False):
+                selection_modified = True
+        if selection_modified:
+            self.selection_updated.emit(self.selection())
 
     def asset_clicked(self, asset_widget, event):
         '''An asset (accordion) were clicked in list, evaluate selection.'''
+        selection_modified = False
         modifiers = QtWidgets.QApplication.keyboardModifiers()
         if event.button() == QtCore.Qt.RightButton:
             return
@@ -234,11 +262,15 @@ class AssetListWidget(QtWidgets.QWidget):
                 )
                 for widget in self.assets:
                     if start_row < widget.index.row() < end_row:
-                        widget.set_selected(True)
+                        if widget.set_selected(True):
+                            selection_modified = True
         else:
             self.clear_selection()
-        asset_widget.set_selected(True)
+        if asset_widget.set_selected(True):
+            selection_modified = True
         self._last_clicked = asset_widget
+        if selection_modified:
+            self.selection_updated.emit(self.selection())
 
     def mousePressEvent(self, event):
         # Consume this event, so parent client does not de-select all

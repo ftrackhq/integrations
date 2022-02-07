@@ -26,9 +26,15 @@ QPushButton:pressed {
 }
 
 QPushButton:disabled {
-    border-color: darken($color-purple, 10%);
+    border-color: darken($color-purple, 50%);
     background-color: $gray-lighter;
-    color: lighten($text-color, 25%);
+    color: darken($text-color, 50%);
+}
+
+QPushButton:checked {
+    color: $color-purple;
+    background-color: $color-purple-dark;
+    font-weight: bold;
 }
 
 QPushButton#primary {
@@ -73,12 +79,6 @@ QToolButton:pressed {
     background-color:  $gray-lighter;
     color: white
 }
-
-DefinitionItem:checked,DefinitionItem:disabled {
-    color: $color-purple;
-    background-color: $color-purple-dark;
-}
-
 
 QFrame#new-asset-input[status=''] QPushButton {
     border: 1px; solid transparent;
@@ -134,6 +134,7 @@ QPushButton#status-widget-expanded-button[status='running_status'] QLabel {
 QPushButton[status='error_status'], QPushButton[status='exception_status'] {
     border: 1px solid #FF7A73;
 }
+
 QPushButton#status-widget-expanded-button[status='error_status'] QLabel, QPushButton#status-widget-expanded-button[status='exception_status'] QLabel {
     border: none;
     color: #FF7A73;
@@ -145,7 +146,7 @@ PhaseButton, PhaseButton QLabel {
 }
 
 RunButton {
-    color: $color-green;
+    color: $color-purple;
     font-size: 12px;
     padding: 6px;
 }
@@ -160,4 +161,10 @@ RemoveButton {
     color: $color-red;
     border: 1px solid $color-red;
     border-radius: 3px;
+}
+
+RemoveButton:disabled {
+    border-color: darken($gray, 50%);
+    background-color: $gray-lighter;
+    color: darken($text-color, 50%);
 }

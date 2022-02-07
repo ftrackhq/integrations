@@ -12,6 +12,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import (
     MaterialIconWidget,
 )
 from ftrack_connect_pipeline_qt.utils import set_property
+from ftrack_connect_pipeline_qt.utils import str_version
 
 
 class PhaseButton(QtWidgets.QPushButton):
@@ -210,15 +211,18 @@ class ProgressWidget(BaseUIWidget):
         self.overlay_container.setVisible(True)
         self.widget.setVisible(True)
 
-    def prepare_add_component(self):
+    def hide_widget(self):
+        self.widget.setVisible(False)
+
+    def prepare_add_components(self):
         self.clear_components()
         self.status_banner = StatusButtonWidget(
             StatusButtonWidget.VIEW_EXPANDED_BANNER
         )
         self.content_widget.layout().addWidget(self.status_banner)
 
-    def add_component(self, step_type, step_name):
-        id_name = "{}.{}".format(step_type, step_name)
+    def add_component(self, step_type, step_name, version_id=None):
+        id_name = "{}.{}.{}".format(version_id or '-', step_type, step_name)
         component_name = step_name
         component_button = PhaseButton(component_name, "Not started")
         self.component_widgets[id_name] = component_button
@@ -247,9 +251,20 @@ class ProgressWidget(BaseUIWidget):
         self.widget.setVisible(visibility)
 
     def update_component_status(
-        self, step_type, step_name, status, status_message, results
+        self, step_type, step_name, status, status_message, results, version_id
     ):
-        id_name = "{}.{}".format(step_type, step_name)
+        id_name = "{}.{}.{}".format(version_id or '-', step_type, step_name)
+        print(
+            '@@@ update_component_status({},{},{},{},{},{}); id_name: {}'.format(
+                step_type,
+                step_name,
+                status,
+                status_message,
+                results,
+                version_id,
+                id_name,
+            )
+        )
         if id_name in self.component_widgets:
             self.component_widgets[id_name].update_status(
                 status, status_message, results
@@ -261,3 +276,22 @@ class ProgressWidget(BaseUIWidget):
                     self.status_banner.set_status(
                         status, message=main_status_message
                     )
+
+
+class BatchProgressWidget(ProgressWidget):
+    def __init__(
+        self, name, fragment_data, parent=None, status_view_mode=None
+    ):
+        super(BatchProgressWidget, self).__init__(
+            name,
+            fragment_data,
+            parent=parent,
+            status_view_mode=status_view_mode,
+        )
+
+    def add_version(self, version):
+        version_widget = QtWidgets.QLabel(
+            str_version(version).replace('/', ' | ')
+        )
+        version_widget.setObjectName('h2')
+        self.content_widget.layout().addWidget(version_widget)

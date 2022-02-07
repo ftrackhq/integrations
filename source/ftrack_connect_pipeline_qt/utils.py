@@ -141,3 +141,22 @@ def set_property(widget, name, value):
     widget.style().unpolish(widget)
     widget.style().polish(widget)
     widget.update()
+
+
+def str_version(v):
+    return '{}/{}({})'.format(
+        '/'.join(['{}'.format(link['name']) for link in v['task']['link']]),
+        v['asset']['name'],
+        v['asset']['type']['name'],
+        v['id'],
+    )
+
+
+def clear_layout(layout):
+    while layout and layout.count():
+        item = layout.takeAt(0)
+        widget = item.widget()
+        if widget is not None:
+            widget.deleteLater()
+        else:
+            clear_layout(item.layout())

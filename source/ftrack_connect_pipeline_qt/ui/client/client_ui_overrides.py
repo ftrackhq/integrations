@@ -4,6 +4,7 @@ from ftrack_connect_pipeline import constants as core_constants
 
 UI_OVERRIDES = {
     'progress_widget': default_widgets.ProgressWidget,
+    'progress_widget.assembler': default_widgets.BatchProgressWidget,
     'main_widget': default_widgets.DefaultMainWidget,
     core_constants.CONTEXTS: {
         'step_container': default_widgets.DefaultStepContainerWidget,
@@ -13,9 +14,10 @@ UI_OVERRIDES = {
     },
     core_constants.COMPONENTS: {
         'step_container': default_widgets.DefaultStepContainerWidget,
-        'step_container.loader': override_widgets.RadioButtonStepContainerWidget,
-        'step_widget.loader': override_widgets.RadioButtonItemStepWidget,
-        'step_widget.publisher': override_widgets.AccordionStepWidget,
+        'step_container.open': override_widgets.RadioButtonStepContainerWidget,
+        'step_widget.open': override_widgets.RadioButtonItemStepWidget,
+        'step_widget.assembler': override_widgets.AccordionStepWidget,
+        'step_widget.publish': override_widgets.PublisherAccordionStepWidget,
         'stage_widget': default_widgets.DefaultStageWidget,
         # Example to override specific stage widget
         # 'stage_widget.collector': default_widgets.DefaultStageWidget,

@@ -49,7 +49,7 @@ class DynamicWidget(BaseOptionsWidget):
     def _register_widget(self, name, widget):
         '''Register *widget* with *name* and add it to main layout.'''
         widget_layout = QtWidgets.QHBoxLayout()
-        widget_layout.setContentsMargins(0, 0, 0, 0)
+        widget_layout.setContentsMargins(1, 2, 1, 2)
         widget_layout.setAlignment(QtCore.Qt.AlignTop)
         label = QtWidgets.QLabel(name)
 

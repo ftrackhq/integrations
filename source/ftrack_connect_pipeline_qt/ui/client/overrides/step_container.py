@@ -49,12 +49,16 @@ class AccordionStepContainerWidget(BaseUIWidget):
 
     def build(self):
         self._widget = AccordionWidget(
-            title="0 components selected", checkable=False
+            title="{}: 0 components selected".format(self._name),
+            checkable=False,
+            collapsed=False,
         )
 
     def update_selected_components(self, enabled, total):
         self._widget._title_frame._title_label.setText(
-            "{} of {} components selected".format(enabled, total)
+            "{}: {} of {} components selected".format(
+                self._name, enabled, total
+            )
         )
 
     def parent_widget(self, step_widget):

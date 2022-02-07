@@ -1,5 +1,6 @@
 import logging
 import json
+import copy
 from functools import partial
 
 from Qt import QtWidgets, QtCore
@@ -7,6 +8,7 @@ from Qt import QtWidgets, QtCore
 from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
     CircularButton,
 )
+from ftrack_connect_pipeline import constants as core_constants
 
 
 class DefinitionItem(QtWidgets.QPushButton):
@@ -40,13 +42,14 @@ class DefinitionSelector(QtWidgets.QWidget):
     def selected_host_connection(self):
         return self.host_combobox.itemData(self.host_combobox.currentIndex())
 
-    def __init__(self, parent=None):
+    def __init__(self, client_name, parent=None):
         '''Initialize DefinitionSelector widget'''
         super(DefinitionSelector, self).__init__(parent=parent)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
 
+        self._client_name = client_name
         self.host_connection = None
         self.schemas = None
         self._definition_title_filter = None
@@ -175,17 +178,23 @@ class DefinitionSelectorButtons(DefinitionSelector):
 
     def __init__(self, client_name, parent=None):
         '''Initialize DefinitionSelector widget'''
-        self._client_name = client_name
+        super(DefinitionSelectorButtons, self).__init__(
+            client_name, parent=parent
+        )
+
+    def build(self):
         if self._client_name != 'assembler':
-            self._label_text = "Choose what to {}".format(client_name.lower())
+            self._label_text = "Choose what to {}".format(
+                self._client_name.lower()
+            )
             self._refresh_text = (
-                "CLEAR" if client_name.lower() == "publish" else "REFRESH"
+                "CLEAR"
+                if self._client_name.lower() == "publish"
+                else "REFRESH"
             )
         else:
             self._title_text = "Suggested dependencies"
-        super(DefinitionSelectorButtons, self).__init__(parent=parent)
 
-    def build(self):
         self.host_combobox = QtWidgets.QComboBox()
 
         self.definitions_widget = QtWidgets.QWidget()
@@ -287,6 +296,29 @@ class DefinitionSelectorButtons(DefinitionSelector):
                 text = '{}'.format(' '.join(item.get('name').split(' ')[:-1]))
                 component_names_filter = None  # Outlined openable components
                 enable = True
+                if self._client_name.lower() in ['open', 'assembler']:
+                    mode_filter = (
+                        'open'
+                        if self._client_name.lower() == 'open'
+                        else 'import'
+                    )
+                    # Remove plugins not matching client
+                    # definition = copy.deepcopy(definition)
+                    types = [
+                        core_constants.CONTEXTS,
+                        core_constants.COMPONENTS,
+                        core_constants.FINALIZERS,
+                    ]
+                    for type_name in types:
+                        for step in item[type_name]:
+                            for stage in step['stages']:
+                                plugins_remove = []
+                                for plugin in stage['plugins']:
+                                    mode = (plugin.get('mode') or '').lower()
+                                    if mode != 'null' and mode != mode_filter:
+                                        plugins_remove.append(plugin)
+                                for plugin in plugins_remove:
+                                    stage['plugins'].remove(plugin)
                 if self._client_name == 'open':
                     # Open mode; Only provide the schemas, and components that
                     # can load the file extensions. Peek into versions and pre-select
@@ -374,8 +406,12 @@ class DefinitionSelectorButtons(DefinitionSelector):
                 )
                 definition_button.setToolTip(json.dumps(item, indent=4))
                 index += 1
-        if self._client_name == 'publish' and index_latest_version == -1:
-            index_latest_version = 0  # Select something
+        if (
+            index_latest_version == -1
+            and self._client_name == 'publish'
+            and len(self.button_group.buttons()) == 1
+        ):
+            index_latest_version = 0  # Select the one and only
         if self.definition_buttons_widget.layout().count() == 0:
             if self._client_name == 'open':
                 self.no_definitions_label.setText(
@@ -396,13 +432,14 @@ class DefinitionSelectorButtons(DefinitionSelector):
                 None, None, None
             )  # Tell client there are no definitions
         elif index_latest_version == -1:
-            # No versions
-            self.no_definitions_label.setText(
-                '<html><i>No version available to open!</i></html>'
-            )
-            self.definition_changed.emit(
-                None, None, None
-            )  # Tell client there are no versions
+            if self._client_name == 'open':
+                # No versions
+                self.no_definitions_label.setText(
+                    '<html><i>No version available to open!</i></html>'
+                )
+                self.definition_changed.emit(
+                    None, None, None
+                )  # Tell client there are no versions
         else:
             self.button_group.buttons()[index_latest_version].click()
             self.no_definitions_label.setVisible(False)

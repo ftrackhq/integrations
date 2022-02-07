@@ -51,6 +51,8 @@ class QtClient(Client, QtWidgets.QFrame):
             self.widget_factory = factory.WidgetFactory(
                 event_manager, self.ui_types, self.client_name
             )
+        else:
+            self.widget_factory = None
 
         self.scroll = None
 
@@ -117,7 +119,7 @@ class QtClient(Client, QtWidgets.QFrame):
         self.header = header.Header(self.session)
         self.layout().addWidget(self.header)
 
-        self._progress_widget = self.widget_factory.progress_widget.widget
+        self._progress_widget = self.widget_factory.progress_widget
 
         self.header.id_container_layout.insertWidget(
             1, self._progress_widget.widget
@@ -139,7 +141,7 @@ class QtClient(Client, QtWidgets.QFrame):
 
         self.layout().addWidget(self.host_and_definition_selector)
         self.layout().addWidget(self.scroll, 100)
-        # Leave to assembler to add AM here
+
         self.run_button = RunButton(
             self.client_name.upper() if self.client_name else 'Run'
         )
@@ -166,7 +168,7 @@ class QtClient(Client, QtWidgets.QFrame):
                 self._on_components_checked
             )
         else:
-            self._run_button_no_load.clicked.connect(partial(self.run, False))
+            self._run_button_no_load.clicked.connect(partial(self.run, True))
 
         if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
             self.host_and_definition_selector.host_combobox.hide()
@@ -229,25 +231,21 @@ class QtClient(Client, QtWidgets.QFrame):
 
         super(QtClient, self).change_definition(schema, definition)
 
-        if self.client_name != 'assembler':
-            asset_type_name = self.current_package['asset_type_name']
+        asset_type_name = self.current_package['asset_type_name']
 
-            self.widget_factory.set_context(self.context_id, asset_type_name)
-            self.widget_factory.host_connection = self.host_connection
-            self.widget_factory.set_definition_type(self.definition['type'])
-            self.widget_factory.set_package(self.current_package)
-            self.definition_widget = self.widget_factory.build_definition_ui(
-                definition['name'], self.definition, component_names_filter
-            )
-            self.scroll.setWidget(self.definition_widget)
-        else:
-            # TODO: Filter loadable components on selected definition
-            pass
+        self.widget_factory.set_context(self.context_id, asset_type_name)
+        self.widget_factory.host_connection = self.host_connection
+        self.widget_factory.listen_widget_updates()
+        self.widget_factory.set_definition_type(self.definition['type'])
+        self.widget_factory.set_package(self.current_package)
+        self.definition_widget = self.widget_factory.build_definition_ui(
+            self.definition, component_names_filter
+        )
+        self.scroll.setWidget(self.definition_widget)
 
     def definition_changed(self, definition, available_components_count):
         '''Can be overridden by child'''
-        if self.client_name == 'assembler':
-            self.refresh()
+        pass
 
     def _on_widget_asset_updated(self, asset_name, asset_id, is_valid):
         self.is_valid_asset_name = is_valid
@@ -286,7 +284,8 @@ class QtClient(Client, QtWidgets.QFrame):
         super(QtClient, self)._notify_client(event)
         # We pass the latest log which should be the recently added one.
         # Otherwise, we have no way to check which log we should be passing
-        self.widget_factory.update_widget(self.logs[-1])
+        if self.widget_factory:
+            self.widget_factory.update_widget(self.logs[-1])
 
     def refresh(self):
         '''Called upon definition selector refresh button click.'''

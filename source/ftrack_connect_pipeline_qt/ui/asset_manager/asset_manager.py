@@ -28,6 +28,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import (
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget.entity_info import EntityInfo
 from ftrack_connect_pipeline_qt.ui.utility.widget import line
+from ftrack_connect_pipeline_qt.utils import clear_layout
 
 
 class AssetManagerWidget(AssetManagerBaseWidget):
@@ -65,8 +66,10 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         self._host_connection = host_connection
         self._listen_widget_updates()
 
-    def __init__(self, event_manager, parent=None):
-        super(AssetManagerWidget, self).__init__(event_manager, parent=parent)
+    def __init__(self, assembler, event_manager, parent=None):
+        super(AssetManagerWidget, self).__init__(
+            assembler, event_manager, parent=parent
+        )
         self._host_connection = None
 
     def init_header_content(self, layout):
@@ -78,9 +81,14 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         self._refresh_button = CircularButton('sync', '#87E1EB')
         self._refresh_button.clicked.connect(self._on_refresh)
         layout.addWidget(self._refresh_button)
-        self._config_button = CircularButton('cog', '#87E1EB')
-        self._config_button.clicked.connect(self._on_config)
-        layout.addWidget(self._config_button)
+        if not self._assembler:
+            self._config_button = CircularButton('cog', '#87E1EB')
+            self._config_button.clicked.connect(self._on_config)
+            layout.addWidget(self._config_button)
+        else:
+            self._add_button = CircularButton('plus', '#87E1EB')
+            self._add_button.clicked.connect(self._on_add)
+            layout.addWidget(self._add_button)
 
     def build(self):
         super(AssetManagerWidget, self).build()
@@ -142,6 +150,8 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         self.menu = QtWidgets.QMenu(self)
         self.action_type_menu = {}
         for action_type, action_widgets in list(self.action_widgets.items()):
+            if not self._assembler and action_type == 'remove':
+                continue  # Can only remove from assembler
             if action_type not in list(self.action_type_menu.keys()):
                 type_menu = QtWidgets.QMenu(action_type.title(), self)
                 self.menu.addMenu(type_menu)
@@ -157,7 +167,9 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         '''
         Find and call the clicked function on the menu
         '''
-        plugin = action.data().replace(' ', '_')
+        plugin = action.data()
+        print('@@@ AM; menu_triggered({})'.format(plugin))
+        # plugin['name'].replace(' ', '_')
         ui_callback = plugin['ui_callback']
         if hasattr(self, ui_callback):
             callback_fn = getattr(self, ui_callback)
@@ -169,21 +181,23 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         Emits update_asset signal.
         Uses the given *plugin* to update the selected assets
         '''
-        self.update_assets.emit(self._asset_list.selection(), plugin)
+        self.update_assets.emit(
+            self._asset_list.selection(warn_on_empty=True), plugin
+        )
 
     def ctx_select(self, plugin):
         '''
         Triggered when select action menu been clicked.
         Emits select_asset signal.
         '''
-        self.select_assets.emit(self._asset_list.selection())
+        self.select_assets.emit(self._asset_list.selection(warn_on_empty=True))
 
     def ctx_remove(self, plugin):
         '''
         Triggered when remove action menu been clicked.
         Emits remove_asset signal.
         '''
-        self.remove_assets.emit(self._asset_list.selection())
+        self.remove_assets.emit(self._asset_list.selection(warn_on_empty=True))
 
     def ctx_load(self, plugin):
         # TODO: I think is better to not pass a Plugin, and use directly the
@@ -195,14 +209,14 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         Triggered when load action menu been clicked.
         Emits load_assets signal to load the selected assets in the scene.
         '''
-        self.load_assets.emit(self._asset_list.selection())
+        self.load_assets.emit(self._asset_list.selection(warn_on_empty=True))
 
     def ctx_unload(self, plugin):
         '''
         Triggered when unload action menu been clicked.
         Emits load_assets signal to unload the selected assets in the scene.
         '''
-        self.unload_assets.emit(self._asset_list.selection())
+        self.unload_assets.emit(self._asset_list.selection(warn_on_empty=True))
 
     def set_context_actions(self, actions):
         '''Set the :obj:`engine_type` into the asset_table_view and calls the
@@ -236,7 +250,10 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         self.refresh.emit()
 
     def _on_config(self):
-        pass
+        raise NotImplementedError('Open Assembler not implemented yet!')
+
+    def _on_add(self):
+        raise NotImplementedError('Open Importer not implemented yet!')
 
     def _on_rebuild(self):
         self._asset_list.rebuild()
@@ -291,10 +308,7 @@ class AssetManagerListWidget(AssetListWidget):
 
     def rebuild(self):
         '''Clear widget and add all assets again from model.'''
-        for i in range(self.layout().count()):
-            widget = self.layout().itemAt(i).widget()
-            widget.setParent(None)
-            widget.deleteLater()
+        clear_layout(self.layout())
         # TODO: Save selection state
         for row in range(self.model.rowCount()):
             index = self.model.createIndex(row, 0, self.model)
@@ -370,7 +384,14 @@ class AssetWidget(AccordionBaseWidget):
         ).one()
         self._status_widget.set_status(version['status'])
         self._load_mode = asset_info[asset_constants.LOAD_MODE]
-        self.set_indicator(self._load_mode is not None)
+        print(
+            '@@@ is_loaded: "{}"'.format(
+                asset_info.get(asset_constants.IS_LOADED)
+            )
+        )
+        self.set_indicator(
+            asset_info.get(asset_constants.IS_LOADED) in [True, 'True']
+        )
         self._component_path = (
             asset_info[asset_constants.COMPONENT_NAME] or '?.?'
         )

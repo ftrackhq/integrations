@@ -61,9 +61,14 @@ QMessageBox {
 }
 
 #h4 {
+    color: $color-white;
+    font-weight: bold;
+}
+
+/*#h4 {
     color: #444444;
     font-size: 9px;
-}
+}*/
 
 #gray {
     color: $gray;

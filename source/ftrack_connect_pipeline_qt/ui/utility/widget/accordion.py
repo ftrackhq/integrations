@@ -16,13 +16,15 @@ class AccordionWidget(QtWidgets.QWidget):
     def title(self):
         return self._title
 
-    def __init__(self, parent=None, title=None, checkable=False):
+    def __init__(
+        self, parent=None, title=None, checkable=False, collapsed=True
+    ):
         super(AccordionWidget, self).__init__(parent=parent)
 
         self._reference_widget = None
-        self._collapsed = True
+        self._collapsed = collapsed
         self._title_frame = None
-        self._content, self._content_layout = (None, None)
+        self._content, self.content_layout = (None, None)
         self._title = title
         self._widgets = {}
         self._inner_widget_status = {}
@@ -62,13 +64,13 @@ class AccordionWidget(QtWidgets.QWidget):
 
     def init_content(self, collapsed):
         self._content = QtWidgets.QWidget()
-        self._content_layout = QtWidgets.QVBoxLayout()
+        self.content_layout = QtWidgets.QVBoxLayout()
 
-        self._content.setLayout(self._content_layout)
+        self._content.setLayout(self.content_layout)
         self._content.setVisible(not collapsed)
 
-        self._content_layout.setContentsMargins(0, 0, 0, 0)
-        self._content_layout.setSpacing(0)
+        self.content_layout.setContentsMargins(0, 0, 0, 0)
+        self.content_layout.setSpacing(0)
 
         return self._content
 
@@ -99,7 +101,7 @@ class AccordionWidget(QtWidgets.QWidget):
         return self._title_frame.extra_buttons.get(title)
 
     def add_widget(self, widget):
-        self._content_layout.addWidget(widget)
+        self.content_layout.addWidget(widget)
         self._connect_inner_widgets(widget)
 
     def _connect_inner_widgets(self, widget):
@@ -117,10 +119,10 @@ class AccordionWidget(QtWidgets.QWidget):
             )
 
     def count_widgets(self):
-        return self._content_layout.count()
+        return self.content_layout.count()
 
     def get_witget_at(self, index):
-        return self._content_layout.itemAt(index).widget()
+        return self.content_layout.itemAt(index).widget()
 
     def init_collapsable(self):
         self._title_frame.clicked.connect(self.toggle_collapsed)
@@ -236,7 +238,7 @@ class AccordionTitleWidget(QtWidgets.QFrame):
 
     def init_title(self, title=None):
         self._title_label = QtWidgets.QLabel(title)
-        self._title_label.setObjectName('borderless')
+        self._title_label.setObjectName('h1')
 
         return self._title_label
 

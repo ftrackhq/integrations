@@ -5,6 +5,8 @@ import uuid
 
 from Qt import QtGui, QtCore, QtWidgets
 
+from ftrack_connect_pipeline_qt.ui.utility.widget import line
+
 
 class BaseUIWidget(object):
     '''
@@ -96,13 +98,15 @@ class BaseUIWidget(object):
             self.widget.layout().setSpacing(5)
             self.widget.setToolTip(self.description)
 
-    def parent_widget(self, widget):
+    def parent_widget(self, widget, add_line=False):
         '''Add the *widget*, setting me as the parent.'''
         if self.widget:
             if isinstance(widget, BaseUIWidget):
                 self.widget.layout().addWidget(widget.widget)
             else:
                 self.widget.layout().addWidget(widget)
+            if add_line:
+                self.widget.layout().addWidget(line.Line())
             if (
                 self.fragment_data
                 and self.fragment_data.get('visible', True) is False

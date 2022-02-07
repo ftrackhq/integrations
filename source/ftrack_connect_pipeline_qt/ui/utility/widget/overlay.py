@@ -16,10 +16,13 @@ class Overlay(QtWidgets.QFrame):
     receive interaction events from the user (e.g. focus).
     '''
 
-    def __init__(self, widget, parent=None):
+    def __init__(
+        self, widget, width_percentage=0.8, height_percentage=0.6, parent=None
+    ):
         '''Initialise overlay for target *parent*.'''
         super(Overlay, self).__init__(parent=parent)
-        # self.setObjectName('overlay')
+        self._width_percentage = width_percentage
+        self._height_percentage = height_percentage
 
         self.widget = QtWidgets.QFrame()
         self.widget.setProperty('background', 'default')
@@ -59,8 +62,8 @@ class Overlay(QtWidgets.QFrame):
     def resizeEvent(self, event):
         super(Overlay, self).resizeEvent(event)
         size = self.size()
-        widget_width = size.width() * 0.8
-        widget_height = size.height() * 0.6
+        widget_width = size.width() * self._width_percentage
+        widget_height = size.height() * self._height_percentage
         widget_x = int((size.width() - widget_width) / 2)
         widget_y = 40  # int(size.height()/2-widget_height/2)
         self.widget.resize(widget_width, widget_height)

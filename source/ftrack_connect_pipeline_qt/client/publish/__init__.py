@@ -11,7 +11,7 @@ class QtPublisherClient(QtClient):
     '''
 
     definition_filter = 'publisher'
-    client_name = 'Publish'
+    client_name = 'publish'
 
     def __init__(self, event_manager, parent=None):
 

@@ -1,8 +1,11 @@
 #! /usr/bin/env python
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
+from functools import partial
 
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
+
+import qtawesome as qta
 
 from ftrack_connect_pipeline.client.asset_manager import AssetManagerClient
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
@@ -24,10 +27,12 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     QtAssetManagerClient class.
     '''
 
+    assets_discovered = QtCore.Signal()
+
     client_name = 'asset_manager'
     definition_filter = 'asset_manager'  # Use only definitions that matches the definition_filter
 
-    def __init__(self, event_manager, parent=None, slave=False):
+    def __init__(self, event_manager, parent=None, assembler=False):
         '''Initialise AssetManagerClient with instance of
         :class:`~ftrack_connect_pipeline.event.EventManager`
         '''
@@ -36,24 +41,26 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 
         if self.get_theme():
             self.setTheme(self.get_theme())
-            if slave:
+            if assembler:
                 # Override AM background color
                 self.setProperty('background', 'transparent')
             elif self.get_background_color():
                 self.setProperty('background', self.get_background_color())
 
-        self.asset_manager_widget = AssetManagerWidget(event_manager)
+        self.asset_manager_widget = AssetManagerWidget(
+            assembler, event_manager
+        )
         self.asset_manager_widget.set_asset_list(self.asset_entities_list)
-        self.asset_manager_widget.refresh.connect(self._refresh_ui)
+        self.asset_manager_widget.refresh.connect(self.refresh_ui)
 
-        self._slave = slave
+        self._assembler = assembler
         self._host_connection = None
 
         self.pre_build()
         self.build()
         self.post_build()
 
-        if not self._slave:
+        if not self._assembler:
             self.add_hosts(self.discover_hosts())
 
     def setTheme(self, selected_theme):
@@ -77,7 +84,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 
     def build(self):
         '''Build widgets and parent them.'''
-        if not self._slave:
+        if not self._assembler:
             self.header = header.Header(self.session)
             self.layout().addWidget(self.header)
 
@@ -92,11 +99,20 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 
         self.scroll = QtWidgets.QScrollArea()
         self.scroll.setWidgetResizable(True)
-        self.layout().addWidget(self.scroll)
+        self.layout().addWidget(self.scroll, 100)
+
+        if self._assembler:
+            button_widget = QtWidgets.QWidget()
+            button_widget.setLayout(QtWidgets.QHBoxLayout())
+            button_widget.layout().addStretch()
+            self._remove_button = RemoveButton('REMOVE FROM SCENE')
+            self._remove_button.setEnabled(False)
+            button_widget.layout().addWidget(self._remove_button)
+            self.layout().layout().addWidget(button_widget)
 
     def post_build(self):
         '''Post Build ui method for events connections.'''
-        if not self._slave:
+        if not self._assembler:
             self.host_selector.host_changed.connect(self.change_host)
 
         self.asset_manager_widget.widget_status_updated.connect(
@@ -107,14 +123,16 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         )
 
         self.asset_manager_widget.select_assets.connect(self._on_select_assets)
-
         self.asset_manager_widget.remove_assets.connect(self._on_remove_assets)
-
         self.asset_manager_widget.update_assets.connect(self._on_update_assets)
-
         self.asset_manager_widget.load_assets.connect(self._on_load_assets)
-
         self.asset_manager_widget.unload_assets.connect(self._on_unload_assets)
+
+        if self._assembler:
+            self._remove_button.clicked.connect(self._remove_assets_clicked)
+            self.asset_manager_widget.asset_list.selection_updated.connect(
+                self._asset_selection_updated
+            )
 
     def add_hosts(self, host_connections):
         '''
@@ -150,7 +168,14 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         if not host_connection:
             return
 
-        AssetManagerClient.change_host(self, host_connection)
+        if not AssetManagerClient.change_host(self, host_connection):
+            QtWidgets.QMessageBox.warning(
+                self,
+                'Asset Manager',
+                'No asset manager definitions are available, please check your configuration!',
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
 
         self.asset_manager_widget.host_connection = self.host_connection
 
@@ -251,8 +276,9 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         '''
         AssetManagerClient._asset_discovered_callback(self, event)
         self.asset_manager_widget.set_asset_list(self.asset_entities_list)
+        self.assets_discovered.emit()
 
-    def _refresh_ui(self):
+    def refresh_ui(self):
         '''
         Refreshes the ui running the discover_assets()
         '''
@@ -260,7 +286,21 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             return
         self.discover_assets()
 
+    def _asset_selection_updated(self, selected_assets):
+        self._remove_button.setEnabled(len(selected_assets) > 0)
+
+    def _remove_assets_clicked(self):
+        self._on_remove_assets(
+            self.asset_manager_widget.asset_list.selection()
+        )
+
     def mousePressEvent(self, event):
         if event.button() != QtCore.Qt.RightButton:
             self.asset_manager_widget.asset_list.clear_selection()
         return super(QtAssetManagerClient, self).mousePressEvent(event)
+
+
+class RemoveButton(QtWidgets.QPushButton):
+    def __init__(self, label, parent=None):
+        super(RemoveButton, self).__init__(label, parent=parent)
+        self.setIcon(qta.icon('mdi6.close', color='#E74C3C'))

@@ -25,6 +25,9 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import (
     MaterialIconWidget,
 )
 from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
+from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import (
+    AccordionWidget,
+)
 
 
 def recursive_get_load_mode_container(widget):
@@ -194,6 +197,33 @@ class PublisherAccordion(AccordionBaseWidget):
 class AccordionStepWidget(BaseUIWidget):
     '''Widget representation of a boolean'''
 
+    def __init__(self, name, fragment_data, parent=None):
+        '''Initialise JsonBoolean with *name*, *schema_fragment*,
+        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
+
+        super(AccordionStepWidget, self).__init__(
+            name, fragment_data, parent=parent
+        )
+
+    def build(self):
+        self._widget = AccordionWidget(
+            title="{}".format(self._name), checkable=False, collapsed=False
+        )
+        self._widget.content_layout.setContentsMargins(0, 10, 0, 0)
+
+    def parent_widget(self, step_widget):
+        if self.widget:
+            if isinstance(step_widget, BaseUIWidget):
+                self.widget.add_widget(step_widget.widget)
+            else:
+                self.widget.add_widget(step_widget)
+        else:
+            self.logger.error("Please create a widget before parent")
+
+
+class PublisherAccordionStepWidget(BaseUIWidget):
+    '''Widget representation of a boolean'''
+
     @property
     def is_enabled(self):
         if self._widget:
@@ -209,7 +239,7 @@ class AccordionStepWidget(BaseUIWidget):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
 
-        super(AccordionStepWidget, self).__init__(
+        super(PublisherAccordionStepWidget, self).__init__(
             name, fragment_data, parent=parent
         )
 
@@ -454,9 +484,7 @@ class RadioButtonItemStepWidget(BaseUIWidget):
                 except Exception as e:
                     self.widget.setToolTip(str(e))
         else:
-            result += (
-                ': Component unavailable - please choose another version!'
-            )
+            result += ': unavailable'
         return result
 
     def set_enabled(self, enabled):

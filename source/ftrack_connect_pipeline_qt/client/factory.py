@@ -24,7 +24,7 @@ from ftrack_connect_pipeline_qt.ui.client.client_ui_overrides import (
 from ftrack_connect_pipeline_qt.ui.utility.widget import line
 
 
-class WidgetFactory(QtWidgets.QWidget):
+class WidgetFactoryBase(QtWidgets.QWidget):
     '''Main class to represent widgets from json schemas'''
 
     widget_status_updated = QtCore.Signal(object)
@@ -55,7 +55,15 @@ class WidgetFactory(QtWidgets.QWidget):
     def host_connection(self, host_connection):
         '''Sets :obj:`host_connection` with the given *host_connection*.'''
         self._host_connection = host_connection
-        self._listen_widget_updates()
+
+    @property
+    def version_id(self):
+        return self._version_id
+
+    @version_id.setter
+    def version_id(self, value):
+        '''(Batch) Set the current ID of the running version'''
+        self._version_id = value
 
     def __init__(self, event_manager, ui_types, client_name):
         '''Initialise WidgetFactory with *event_manager*, *ui*
@@ -67,7 +75,7 @@ class WidgetFactory(QtWidgets.QWidget):
         *ui_types* List of valid ux libraries.
 
         '''
-        super(WidgetFactory, self).__init__()
+        super(WidgetFactoryBase, self).__init__()
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -86,12 +94,14 @@ class WidgetFactory(QtWidgets.QWidget):
         self.original_definition = None
         self.working_definition = None
         self.components_obj = None
+        self.progress_widget = None
+        self._version_id = None
+        self._subscriber_id = None
+        self.has_error = False
 
         self.components = (
             []
         )  # Load; the available components of current version
-
-        self.progress_widget = self.create_progress_widget()
 
         self.on_query_asset_version_done.connect(self.check_components)
 
@@ -109,9 +119,7 @@ class WidgetFactory(QtWidgets.QWidget):
         '''Set :obj:`definition_type` with the given *definition_type*'''
         self.definition_type = definition_type
 
-    def get_override(
-        self, type_name, widget_type, name, data, definition_type
-    ):
+    def get_override(self, type_name, widget_type, name, data, client_name):
         '''
         From the given *type_name* and *widget_type* find the widget override
         in the client_ui_overrides.py file
@@ -125,7 +133,7 @@ class WidgetFactory(QtWidgets.QWidget):
             )
         if obj_override == constants.NOT_SET:
             obj_override = UI_OVERRIDES.get(type_name).get(
-                '{}.{}'.format(widget_type, definition_type), constants.NOT_SET
+                '{}.{}'.format(widget_type, client_name), constants.NOT_SET
             )
         if obj_override == constants.NOT_SET:
             obj_override = UI_OVERRIDES.get(type_name).get(widget_type)
@@ -134,9 +142,13 @@ class WidgetFactory(QtWidgets.QWidget):
         return obj_override
 
     @staticmethod
-    def create_progress_widget():
+    def create_progress_widget(client_name):
         # Check for overrides of the main widget, otherwise call the default one
-        return UI_OVERRIDES.get('progress_widget')(None, None)
+        client_key = 'progress_widget.{}'.format(client_name)
+        if client_name and client_key in UI_OVERRIDES:
+            return UI_OVERRIDES.get(client_key)(None, None)
+        else:
+            return UI_OVERRIDES.get('progress_widget')(None, None)
 
     def create_main_widget(self):
         '''
@@ -151,24 +163,30 @@ class WidgetFactory(QtWidgets.QWidget):
         '''
         Main loop to create the widgets UI overrides.
         '''
-        definition_type = definition.get('type')
         step_container_obj = self.get_override(
-            type_name, 'step_container', type_name, definition, definition_type
+            type_name,
+            'step_container',
+            type_name,
+            definition,
+            self.client_name,
         )
-
         for step in definition[type_name]:
             # Create widget for the step (a component, a finaliser...)
             step_category = step['category']
             step_type = step['type']
             step_name = step.get('name')
-            if step_type != 'finalizer' and step.get('visible', True) is True:
+            if (
+                self.progress_widget
+                and step_type != 'finalizer'
+                and step.get('visible', True) is True
+            ):
                 self.progress_widget.add_component(step_type, step_name)
             step_obj = self.get_override(
                 type_name,
                 '{}_widget'.format(step_category),
                 step_name,
                 step,
-                definition_type,
+                self.client_name,
             )
             if step_obj:
                 self.register_object(step, step_obj, step_category)
@@ -179,8 +197,18 @@ class WidgetFactory(QtWidgets.QWidget):
                 stage_name = stage.get('name')
                 if stage_name_filters and stage_name not in stage_name_filters:
                     continue
+                # @@@ DEBUG - skip creating dynamic widgets
+                if isinstance(
+                    step_obj, override_widgets.PublisherAccordionStepWidget
+                ):
+                    if (
+                        stage_type == core_constants.VALIDATOR
+                        or stage_type == core_constants.OUTPUT
+                    ):
+                        continue
                 if (
-                    step_type == 'finalizer'
+                    self.progress_widget
+                    and step_type == 'finalizer'
                     and stage.get('visible', True) is True
                 ):
                     self.progress_widget.add_component(step_type, stage_name)
@@ -189,20 +217,13 @@ class WidgetFactory(QtWidgets.QWidget):
                     '{}_widget'.format(stage_category),
                     stage_name,
                     stage,
-                    definition_type,
+                    self.client_name,
                 )
                 if stage_obj:
                     self.register_object(stage, stage_obj, stage_category)
 
                 for plugin in stage['plugins']:
                     # create widget for the plugins, usually just one
-                    if (
-                        type_name == core_constants.CONTEXTS
-                        and self.client_name == 'open'
-                        and plugin['mode'] != self.client_name
-                    ):
-                        # Differentiate open and imported context plugin widgets
-                        continue
                     plugin_type = plugin['type']
                     plugin_category = plugin['category']
                     plugin_name = plugin.get('name')
@@ -211,7 +232,7 @@ class WidgetFactory(QtWidgets.QWidget):
                         '{}_container'.format(plugin_category),
                         plugin_name,
                         plugin,
-                        definition_type,
+                        self.client_name,
                     )
                     # Here is where we inject the user custom widgets.
                     plugin_widget = self.fetch_plugin_widget(
@@ -222,11 +243,13 @@ class WidgetFactory(QtWidgets.QWidget):
                         plugin_widget.toggle_status(show=False)
                         plugin_widget.toggle_name(show=False)
                         plugin_container_obj.parent_widget(plugin_widget)
-                        stage_obj.parent_widget(plugin_container_obj)
+                        stage_obj.parent_widget(
+                            plugin_container_obj, add_line=True
+                        )
                     else:
                         stage_obj.parent_widget(plugin_widget)
                     if stage_type == core_constants.COLLECTOR and isinstance(
-                        step_obj, override_widgets.AccordionStepWidget
+                        step_obj, override_widgets.PublisherAccordionStepWidget
                     ):
                         # Connect input change to accordion
                         # TODO: support multiple collectors
@@ -236,7 +259,10 @@ class WidgetFactory(QtWidgets.QWidget):
                         # Eventual initial summary is lost prior to the signal connect, have widget do it again
                         plugin_widget.report_input()
 
-                if isinstance(step_obj, override_widgets.AccordionStepWidget):
+                if isinstance(
+                    step_obj, override_widgets.PublisherAccordionStepWidget
+                ):
+                    # Put validators and options in overlay
                     if stage_type == core_constants.VALIDATOR:
                         step_obj.parent_validator(stage_obj)
                         continue
@@ -251,11 +277,12 @@ class WidgetFactory(QtWidgets.QWidget):
                 step_container_obj.parent_widget(step_obj)
         return step_container_obj
 
-    def build_definition_ui(self, name, definition, component_names_filter):
+    def build_definition_ui(self, definition, component_names_filter):
         '''
         Given the provided definition, we generate the client UI.
         '''
-        self.progress_widget.prepare_add_component()
+        print('@@@ build_definition_ui({})'.format(definition['name']))
+        self.progress_widget.prepare_add_components()
         # Backup the original definition, as it will be extended by the user UI
         self.original_definition = copy.deepcopy(definition)
         self.working_definition = definition
@@ -480,6 +507,7 @@ class WidgetFactory(QtWidgets.QWidget):
                     return result
 
     def _update_progress_widget(self, event):
+        print('@@@ _update_progress_widget({})'.format(event))
         step_type = event['data']['pipeline']['step_type']
         step_name = event['data']['pipeline']['step_name']
         stage_name = event['data']['pipeline']['stage_name']
@@ -499,17 +527,33 @@ class WidgetFactory(QtWidgets.QWidget):
                 stage_name, current_plugin_index, total_plugins
             )
             self.progress_widget.update_component_status(
-                step_type, step_name_effective, status, status_message, results
+                step_type,
+                step_name_effective,
+                status,
+                status_message,
+                results,
+                self._version_id,
             )
         elif status == constants.ERROR_STATUS:
             status_message = "Failed"
             self.progress_widget.update_component_status(
-                step_type, step_name_effective, status, status_message, results
+                step_type,
+                step_name_effective,
+                status,
+                status_message,
+                results,
+                self._version_id,
             )
+            self.has_error = True
         elif status == constants.SUCCESS_STATUS:
             status_message = "Completed"
             self.progress_widget.update_component_status(
-                step_type, step_name_effective, status, status_message, results
+                step_type,
+                step_name_effective,
+                status,
+                status_message,
+                results,
+                self._version_id,
             )
 
     def update_widget(self, log_item):
@@ -550,7 +594,7 @@ class WidgetFactory(QtWidgets.QWidget):
             )
             widget.set_run_result(log_item.result)
 
-    def _listen_widget_updates(self):
+    def listen_widget_updates(self):
         '''
         Subscribe to the
         :const:`~ftrack_connnect_pipeline.constants.PIPELINE_CLIENT_NOTIFICATION`
@@ -558,13 +602,19 @@ class WidgetFactory(QtWidgets.QWidget):
         answer through the same topic
         '''
 
-        self.session.event_hub.subscribe(
+        self._subscriber_id = self.session.event_hub.subscribe(
             'topic={} and data.pipeline.host_id={}'.format(
                 core_constants.PIPELINE_CLIENT_PROGRESS_NOTIFICATION,
                 self.host_connection.id,
             ),
             self._update_progress_widget,
         )
+        self.has_error = False
+
+    def end_widget_updates(self):
+        '''Unsubscribe from :const:`~ftrack_connnect_pipeline.constants.PIPELINE_CLIENT_NOTIFICATION`'''
+        if self._subscriber_id:
+            self.session.event_hub.unsubscribe(self._subscriber_id)
 
     def _on_widget_status_updated(self, status):
         '''Emits signal widget_status_updated when any widget calls the
@@ -705,8 +755,16 @@ class WidgetFactory(QtWidgets.QWidget):
         return out
 
 
-class ImporterWidgetFactory(WidgetFactory):
-    '''Stripped down widget factory for importer/assembler'''
+class WidgetFactory(WidgetFactoryBase):
+    def __init__(self, event_manager, ui_types, client_name):
+        super(WidgetFactory, self).__init__(
+            event_manager, ui_types, client_name
+        )
+        self.progress_widget = self.create_progress_widget(self.client_name)
+
+
+class ImporterWidgetFactory(WidgetFactoryBase):
+    '''Augmented widget factory for importer/assembler'''
 
     def __init__(self, event_manager, ui_types):
         super(ImporterWidgetFactory, self).__init__(
@@ -715,3 +773,76 @@ class ImporterWidgetFactory(WidgetFactory):
 
     def set_definition(self, definition):
         self.working_definition = definition
+
+    def build_definition_ui(self, main_widget):
+        '''Based on the given definition, build options widget. Assume that
+        definition has been set in advance.'''
+
+        # Backup the original definition, as it will be extended by the user UI
+        self.original_definition = copy.deepcopy(self.working_definition)
+
+        # Create the components widget based on the definition
+        self.components_obj = self.create_typed_widget(
+            self.working_definition,
+            type_name=core_constants.COMPONENTS,
+        )
+
+        # Create the finalizers widget based on the definition
+        self.finalizers_obj = self.create_typed_widget(
+            self.working_definition, type_name=core_constants.FINALIZERS
+        )
+
+        main_widget.layout().addWidget(self.components_obj.widget)
+
+        finalizers_label = QtWidgets.QLabel('Finalizers')
+        main_widget.layout().addWidget(finalizers_label)
+        finalizers_label.setObjectName('h4')
+
+        main_widget.layout().addWidget(self.finalizers_obj.widget)
+
+        if not UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True):
+            self.finalizers_obj.hide()
+
+        main_widget.layout().addStretch()
+
+        # Check all components status of the current UI
+        self.post_build_definition()
+
+        return main_widget
+
+    def build_progress_ui(self, component):
+        '''Build only progress widget components, prepare to run.'''
+
+        types = [
+            core_constants.CONTEXTS,
+            core_constants.COMPONENTS,
+            core_constants.FINALIZERS,
+        ]
+
+        for type_name in types:
+            for step in self.working_definition[type_name]:
+                step_type = step['type']
+                step_name = step.get('name')
+                if (
+                    self.progress_widget
+                    and step_type != 'finalizer'
+                    and step.get('visible', True) is True
+                ):
+                    self.progress_widget.add_component(
+                        step_type,
+                        step_name,
+                        version_id=component['version']['id'],
+                    )
+                step_obj = self.get_registered_object(step, step['category'])
+                for stage in step['stages']:
+                    stage_name = stage.get('name')
+                    if (
+                        self.progress_widget
+                        and step_type == 'finalizer'
+                        and stage.get('visible', True) is True
+                    ):
+                        self.progress_widget.add_component(
+                            step_type,
+                            stage_name,
+                            version_id=component['version']['id'],
+                        )

@@ -195,9 +195,13 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         return self._content.layout().itemAt(index).widget()
 
     def set_selected(self, selected):
+        retval = False
         if self.isEnabled():
+            if self._selected != selected:
+                retval = True
             self._selected = selected
             self.update_accordion()
+        return retval
 
     def set_checked(self, checked):
         self._checked = checked
