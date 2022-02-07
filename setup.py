@@ -11,8 +11,7 @@ import subprocess
 
 from setuptools import find_packages, setup
 
-PLUGIN_NAME = 'ftrack-connect-plugin-manager'
-PLUGIN_VERSION_NAME = '{0}-{{}}'.format(PLUGIN_NAME)
+PLUGIN_NAME = 'ftrack-connect-plugin-manager-{}'
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 
@@ -24,7 +23,7 @@ README_PATH = os.path.join(ROOT_PATH, 'README.rst')
 
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
 
-STAGING_PATH = os.path.join(BUILD_PATH, PLUGIN_VERSION_NAME)
+STAGING_PATH = os.path.join(BUILD_PATH, PLUGIN_NAME)
 
 HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
 
@@ -34,7 +33,6 @@ version_template = '''
 
 __version__ = {version!r}
 '''
-
 
 
 class BuildPlugin(Command):
@@ -54,6 +52,7 @@ class BuildPlugin(Command):
         '''Run the build step.'''
         import setuptools_scm
         release = setuptools_scm.get_version(version_scheme='post-release')
+        print(release)
         VERSION = '.'.join(release.split('.')[:3])
         global STAGING_PATH
         STAGING_PATH = STAGING_PATH.format(VERSION)
@@ -61,7 +60,6 @@ class BuildPlugin(Command):
         '''Run the build step.'''
         # Clean staging path
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
-
 
         # Copy hook files
         shutil.copytree(
@@ -72,16 +70,17 @@ class BuildPlugin(Command):
         # Install local dependencies
         subprocess.check_call(
             [
-                sys.executable, '-m', 'pip', 'install','.','--target',  
+                sys.executable, '-m', 'pip', 'install', '.', '--target',
                 os.path.join(STAGING_PATH, 'dependencies')
             ]
         )
+        print(VERSION)
 
         # Generate plugin zip
         shutil.make_archive(
             os.path.join(
                 BUILD_PATH,
-                PLUGIN_VERSION_NAME.format(VERSION)
+                PLUGIN_NAME.format(VERSION)
             ),
             'zip',
             STAGING_PATH
@@ -90,11 +89,11 @@ class BuildPlugin(Command):
 
 # Configuration.
 setup(
-    name=PLUGIN_NAME,
+    name='ftrack-connect-plugin-manager',
     description='Base Class for handling application startup.',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
-    url='https://bitbucket.org/ftrack/ftrack-application-launcher',
+    url='https://bitbucket.org/ftrack-integrations/ftrack-connect-plugin-manager',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
