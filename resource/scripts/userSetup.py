@@ -89,7 +89,7 @@ def initialise():
     cmds.loadPlugin('ftrackMayaPlugin.py', quiet=True)
 
     from ftrack_connect_pipeline_maya.client import open
-    from ftrack_connect_pipeline_maya.client import load
+    from ftrack_connect_pipeline_maya.client import assembler
     from ftrack_connect_pipeline_maya.client import publish
     from ftrack_connect_pipeline_maya.client import asset_manager
     from ftrack_connect_pipeline_maya.client import log_viewer
@@ -98,9 +98,9 @@ def initialise():
     dialogs = []
 
     dialogs.append((open.MayaOpenDialog, 'Open'))
-    dialogs.append((load.MayaLoaderClient, 'Loader'))
-    dialogs.append((publish.MayaPublisherClient, 'Publisher'))
+    dialogs.append((assembler.MayaAssemblerDialog, 'Assembler'))
     dialogs.append((asset_manager.MayaAssetManagerClient, 'Asset Manager'))
+    dialogs.append((publish.MayaPublisherClient, 'Publisher'))
     dialogs.append((log_viewer.MayaLogViewerClient, 'Log Viewer'))
 
     ftrack_menu = get_ftrack_menu()
