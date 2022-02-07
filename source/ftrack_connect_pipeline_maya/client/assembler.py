@@ -11,6 +11,7 @@ import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_maya.constants as maya_constants
 from ftrack_connect_pipeline_maya.utils.custom_commands import get_maya_window
 
+
 class MayaAssemblerClient(QtAssemblerClient):
     '''Open client within dialog'''
 
@@ -21,7 +22,9 @@ class MayaAssemblerClient(QtAssemblerClient):
     ]
 
     def __init__(self, event_manager):
-        super(MayaAssemblerClient, self).__init__(event_manager, load_const.LOAD_MODES)
+        super(MayaAssemblerClient, self).__init__(
+            event_manager, load_const.LOAD_MODES
+        )
 
 
 class MayaAssemblerDialog(QtWidgets.QDialog):
@@ -54,7 +57,6 @@ class MayaAssemblerDialog(QtWidgets.QDialog):
 
     def build(self):
         self.layout().addWidget(self._client)
-
 
     def show(self):
         if self._shown:

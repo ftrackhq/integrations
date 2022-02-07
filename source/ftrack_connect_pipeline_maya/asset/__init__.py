@@ -77,7 +77,10 @@ class FtrackAssetNode(FtrackAssetBase):
 
             diff_values = []
             for k in node_asset_info:
-                if k in [asset_const.ASSET_VERSIONS_ENTITIES, asset_const.IS_LOADED]:
+                if k in [
+                    asset_const.ASSET_VERSIONS_ENTITIES,
+                    asset_const.IS_LOADED,
+                ]:
                     continue
                 if node_asset_info[k] != self.asset_info[k]:
                     # TODO: Check that only the key method is different, one will
@@ -94,11 +97,17 @@ class FtrackAssetNode(FtrackAssetBase):
                 asset_const.ASSET_INFO_ID,
                 asset_const.ASSET_INFO_OPTIONS,
             }:
-                print('@@@ NOT {} - key diff: {}!={}'.format(ftrack_object, set(diff_values), {
-                asset_const.REFERENCE_OBJECT,
-                asset_const.ASSET_INFO_ID,
-                asset_const.ASSET_INFO_OPTIONS,
-            }))
+                print(
+                    '@@@ NOT {} - key diff: {}!={}'.format(
+                        ftrack_object,
+                        set(diff_values),
+                        {
+                            asset_const.REFERENCE_OBJECT,
+                            asset_const.ASSET_INFO_ID,
+                            asset_const.ASSET_INFO_OPTIONS,
+                        },
+                    )
+                )
                 continue
 
             # TODO: ASSET link should be generic for all applications and should
@@ -111,9 +120,16 @@ class FtrackAssetNode(FtrackAssetBase):
                 result_object = ftrack_object
                 break
             else:
-                print('@@@ NOT {} - listConnections: {}'.format(ftrack_object, cmds.listConnections(
-                '{}.{}'.format(ftrack_object, asset_const.ASSET_LINK)
-            )))
+                print(
+                    '@@@ NOT {} - listConnections: {}'.format(
+                        ftrack_object,
+                        cmds.listConnections(
+                            '{}.{}'.format(
+                                ftrack_object, asset_const.ASSET_LINK
+                            )
+                        ),
+                    )
+                )
 
         self.logger.debug('Found existing object: {}'.format(result_object))
         return result_object
