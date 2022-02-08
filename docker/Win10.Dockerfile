@@ -39,7 +39,7 @@ RUN python -m pip install --upgrade pip
 
 # install connect
 WORKDIR /usr/src/app
-RUN git clone -b backlog/connect-2/story https://bitbucket.org/ftrack/ftrack-connect.git
+RUN git clone -b backlog/connect-2/ux/populate-assigned-tasks https://bitbucket.org/ftrack/ftrack-connect.git
 WORKDIR /usr/src/app/ftrack-connect
 RUN git fetch 
 RUN python -m pip install -r requirements.txt
