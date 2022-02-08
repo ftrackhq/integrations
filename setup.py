@@ -28,29 +28,7 @@ from setuptools_scm import get_version
 
 embedded_plugins = [
     # new/updated releases
-    'ftrack-application-launcher-1.0.1.zip',
-    'ftrack-connect-nuke-studio-2.5.0.zip',
-    'ftrack-connect-rv-5.0.zip',
-    'ftrack-connect-cinema-4d-0.2.1.zip'
-
-    #legacy integrations ported 
-    # 'ftrack-connect-nuke-1.4.0.zip',
-    # 'ftrack-connect-maya-1.4.0.zip',
-    # 'ftrack-connect-houdini-0.4.0.zip',
-    # 'ftrack-connect-3dsmax-0.5.0.zip',
-    # 'ftrack-connect-unreal-engine-1.1.0.zip',
-    # 'ftrack-connect-unity-engine-1.1.0.zip'
-
-    # # pipeline base
-    # 'ftrack-connect-pipeline-1.0.0rc1.zip',
-    # 'ftrack-connect-pipeline-qt-1.0.0rc1.zip',
-    # 'ftrack-connect-pipeline-definition-1.0.0rc1.zip',
-    # # pipeline integrations
-    # 'ftrack-connect-pipeline-maya-1.0.0rc1.zip',
-    # 'ftrack-connect-pipeline-nuke-1.0.0rc1.zip',
-    # 'ftrack-connect-pipeline-3dsmax-1.0.0rc1.zip',
-    # 'ftrack-connect-pipeline-houdini-1.0.0rc1.zip',
-    # 'ftrack-connect-pipeline-unreal-engine-1.0.0rc1.zip',
+    'ftrack-connect-plugin-manager-0.1.0.zip'
 ]
 
 
@@ -82,8 +60,7 @@ DOWNLOAD_PLUGIN_PATH = os.path.join(
     )
 )
 AWS_PLUGIN_DOWNLOAD_PATH = (
-    'https://s3-eu-west-1.amazonaws.com/'
-    'ftrack-deployment/ftrack-connect/plugins/'
+    'https://download.ftrack.com/ftrack-connect/plugins/'
 )
 
 # Read version from source.
