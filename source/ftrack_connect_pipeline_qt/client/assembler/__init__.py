@@ -53,8 +53,9 @@ class QtAssemblerClient(QtClient):
 
     dependencies_resolved = QtCore.Signal(object)
 
-    def __init__(self, event_manager, modes, parent=None):
+    def __init__(self, event_manager, modes, asset_list_model, parent=None):
         self.modes = modes
+        self._asset_list_model = asset_list_model
         super(QtAssemblerClient, self).__init__(event_manager, parent=parent)
         self.logger.debug('start qt assembler')
 
@@ -106,9 +107,11 @@ class QtAssemblerClient(QtClient):
         button_widget = QtWidgets.QWidget()
         button_widget.setLayout(QtWidgets.QHBoxLayout())
         button_widget.layout().addStretch()
-        self._run_button_no_load = LoadRunButton('ADD TO THE SCENE')
+        self._run_button_no_load = AddRunButton('ADD TO SCENE')
+        self._run_button_no_load.setMinimumHeight(32)
         button_widget.layout().addWidget(self._run_button_no_load)
-        self.run_button = LoadRunButton('ADD AND LOAD INTO THE SCENE')
+        self.run_button = LoadRunButton('LOAD INTO SCENE')
+        self.run_button.setMinimumHeight(32)
         button_widget.layout().addWidget(self.run_button)
         self._left_widget.layout().addWidget(button_widget)
 
@@ -119,7 +122,7 @@ class QtAssemblerClient(QtClient):
 
         # Create and add the asset manager client
         self.asset_manager = QtAssetManagerClient(
-            self.event_manager, assembler=True
+            self.event_manager, self._asset_list_model, is_assembler=True
         )
         self._right_widget.layout().addWidget(self.asset_manager, 100)
 
@@ -146,6 +149,11 @@ class QtAssemblerClient(QtClient):
 
     def _assets_discovered(self):
         '''The assets in AM has been discovered, refresh at our end.'''
+        print(
+            '@@@ QtAssemblerClient::_assets_discovered; self.hard_refresh: {}'.format(
+                self.hard_refresh
+            )
+        )
         if self.hard_refresh:
             self.refresh()
 
@@ -514,7 +522,7 @@ class QtAssemblerClient(QtClient):
                             failed,
                         ),
                     )
-                self.asset_manager.refresh_ui()
+                self.asset_manager.asset_manager_widget.rebuild.emit()
             else:
                 self._progress_widget.set_status(
                     constants.ERROR_STATUS,
@@ -530,7 +538,13 @@ class QtAssemblerClient(QtClient):
         return super(QtAssemblerClient, self).mousePressEvent(event)
 
 
+class AddRunButton(QtWidgets.QPushButton):
+    def __init__(self, label, parent=None):
+        super(AddRunButton, self).__init__(label, parent=parent)
+        # self.setIcon(qta.icon('mdi6.check', color='#5EAA8D'))
+
+
 class LoadRunButton(QtWidgets.QPushButton):
     def __init__(self, label, parent=None):
         super(LoadRunButton, self).__init__(label, parent=parent)
-        self.setIcon(qta.icon('mdi6.check', color='#5EAA8D'))
+        # self.setIcon(qta.icon('mdi6.check', color='#5EAA8D'))

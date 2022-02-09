@@ -10,6 +10,10 @@ QFrame[background='default'], QDialog[background='default'] {
     background: rgb(55,55,55);
 }
 
+QFrame[background='maya'], QDialog[background='maya'] {
+    background: rgb(66,66,66);
+}
+
 QFrame[background='nuke'], QDialog[background='nuke'] {
     background: rgb(50,50,50);
 }

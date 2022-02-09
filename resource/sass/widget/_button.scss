@@ -151,6 +151,12 @@ RunButton {
     padding: 6px;
 }
 
+AddRunButton {
+    color: $color-cyan;
+    border: 1px solid $color-cyan;
+    border-radius: 3px;
+}
+
 LoadRunButton {
     color: $color-green;
     border: 1px solid $color-green;

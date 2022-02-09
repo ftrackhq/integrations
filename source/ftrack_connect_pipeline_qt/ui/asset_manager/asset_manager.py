@@ -11,7 +11,6 @@ from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.constants import asset as asset_constants
 from ftrack_connect_pipeline_qt.ui.asset_manager.base import (
     AssetManagerBaseWidget,
-    AssetListModel,
     AssetListWidget,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
@@ -32,10 +31,11 @@ from ftrack_connect_pipeline_qt.utils import clear_layout
 
 
 class AssetManagerWidget(AssetManagerBaseWidget):
-    '''Base widget of the asset manager and assembler'''
+    '''Base widget of the asset manager and is_assembler'''
 
     refresh = QtCore.Signal()
     rebuild = QtCore.Signal()
+
     widget_status_updated = QtCore.Signal(object)
     change_asset_version = QtCore.Signal(object, object)
     select_assets = QtCore.Signal(object)
@@ -64,11 +64,13 @@ class AssetManagerWidget(AssetManagerBaseWidget):
     def host_connection(self, host_connection):
         '''Sets :obj:`host_connection` with the given *host_connection*.'''
         self._host_connection = host_connection
-        self._listen_widget_updates()
+        # self._listen_widget_updates()
 
-    def __init__(self, assembler, event_manager, parent=None):
+    def __init__(
+        self, is_assembler, event_manager, asset_list_model, parent=None
+    ):
         super(AssetManagerWidget, self).__init__(
-            assembler, event_manager, parent=parent
+            is_assembler, event_manager, asset_list_model, parent=parent
         )
         self._host_connection = None
 
@@ -79,9 +81,9 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         layout.addWidget(title)
         layout.addWidget(self.init_search())
         self._refresh_button = CircularButton('sync', '#87E1EB')
-        self._refresh_button.clicked.connect(self._on_refresh)
+        self._refresh_button.clicked.connect(self._on_rebuild)
         layout.addWidget(self._refresh_button)
-        if not self._assembler:
+        if not self._is_assembler:
             self._config_button = CircularButton('cog', '#87E1EB')
             self._config_button.clicked.connect(self._on_config)
             layout.addWidget(self._config_button)
@@ -94,7 +96,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         super(AssetManagerWidget, self).build()
 
         self._asset_list = AssetManagerListWidget(
-            AssetListModel(self.event_manager), AssetWidget
+            self._asset_list_model, AssetWidget
         )
 
         asset_list_container = QtWidgets.QWidget()
@@ -108,11 +110,11 @@ class AssetManagerWidget(AssetManagerBaseWidget):
 
     def post_build(self):
         super(AssetManagerWidget, self).post_build()
-        self.rebuild.connect(self._on_rebuild)
+        self.refresh.connect(self._on_refresh)
 
     def set_asset_list(self, asset_entities_list):
         '''Clear model and add asset entities, will trigger list to be rebuilt.'''
-        self._asset_list.reset()
+        self._asset_list_model.reset()
         if asset_entities_list and 0 < len(asset_entities_list):
             self._asset_list.model.insertRows(0, asset_entities_list)
 
@@ -150,8 +152,8 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         self.menu = QtWidgets.QMenu(self)
         self.action_type_menu = {}
         for action_type, action_widgets in list(self.action_widgets.items()):
-            if not self._assembler and action_type == 'remove':
-                continue  # Can only remove from assembler
+            if not self._is_assembler and action_type == 'remove':
+                continue  # Can only remove from is_assembler
             if action_type not in list(self.action_type_menu.keys()):
                 type_menu = QtWidgets.QMenu(action_type.title(), self)
                 self.menu.addMenu(type_menu)
@@ -168,7 +170,6 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         Find and call the clicked function on the menu
         '''
         plugin = action.data()
-        print('@@@ AM; menu_triggered({})'.format(plugin))
         # plugin['name'].replace(' ', '_')
         ui_callback = plugin['ui_callback']
         if hasattr(self, ui_callback):
@@ -228,6 +229,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
     def _update_widget(self, event):
         '''*event* callback to update widget with the current status/value'''
         # Check if this is a asset discover notification
+        print('@@@ _update_widget({})'.format(event))
         if event['data']['pipeline'].get('method') == 'discover_assets':
             # This could be executed async, rebuild asset list through signal
             self.rebuild.emit()
@@ -246,17 +248,18 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         )
 
     def _on_refresh(self):
-        '''Have client reload assets'''
-        self.refresh.emit()
+        '''Refresh the asset list from the model data.'''
+        self._asset_list.rebuild()
+
+    def _on_rebuild(self):
+        '''Query DCC for scene assets.'''
+        self.rebuild.emit()  # To be picked up by AM
 
     def _on_config(self):
         raise NotImplementedError('Open Assembler not implemented yet!')
 
     def _on_add(self):
         raise NotImplementedError('Open Importer not implemented yet!')
-
-    def _on_rebuild(self):
-        self._asset_list.rebuild()
 
     def on_asset_change_version(self, index, value):
         '''
@@ -308,6 +311,7 @@ class AssetManagerListWidget(AssetListWidget):
 
     def rebuild(self):
         '''Clear widget and add all assets again from model.'''
+        print('@@@ AssetManagerListWidget::rebuilt()')
         clear_layout(self.layout())
         # TODO: Save selection state
         for row in range(self.model.rowCount()):
@@ -384,11 +388,7 @@ class AssetWidget(AccordionBaseWidget):
         ).one()
         self._status_widget.set_status(version['status'])
         self._load_mode = asset_info[asset_constants.LOAD_MODE]
-        print(
-            '@@@ is_loaded: "{}"'.format(
-                asset_info.get(asset_constants.IS_LOADED)
-            )
-        )
+
         self.set_indicator(
             asset_info.get(asset_constants.IS_LOADED) in [True, 'True']
         )

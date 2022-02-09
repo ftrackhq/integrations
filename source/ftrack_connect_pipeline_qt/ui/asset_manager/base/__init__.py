@@ -7,6 +7,7 @@ import qtawesome as qta
 
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
+from ftrack_connect_pipeline.constants import asset as asset_const
 from ftrack_connect_pipeline import constants as core_const
 from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
@@ -16,7 +17,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.prompt import PromptDialog
 
 
 class AssetManagerBaseWidget(QtWidgets.QWidget):
-    '''Base widget of the asset manager and assembler'''
+    '''Base widget of the asset manager and is_assembler'''
 
     @property
     def event_manager(self):
@@ -42,7 +43,9 @@ class AssetManagerBaseWidget(QtWidgets.QWidget):
         '''Sets the engine_type with the given *value*'''
         self._engine_type = value
 
-    def __init__(self, assembler, event_manager, parent=None):
+    def __init__(
+        self, is_assembler, event_manager, asset_list_model, parent=None
+    ):
         '''Initialise AssetManagerWidget with *event_manager*
 
         *event_manager* should be the
@@ -51,8 +54,9 @@ class AssetManagerBaseWidget(QtWidgets.QWidget):
         '''
         super(AssetManagerBaseWidget, self).__init__(parent=parent)
 
-        self._assembler = assembler
+        self._is_assembler = is_assembler
         self._event_manager = event_manager
+        self._asset_list_model = asset_list_model
         self._engine_type = None
 
         self.pre_build()
@@ -96,6 +100,8 @@ class AssetManagerBaseWidget(QtWidgets.QWidget):
 class AssetListModel(QtCore.QAbstractTableModel):
     '''Custom asset list model'''
 
+    __asset_entities_list = []
+
     @property
     def event_manager(self):
         return self._event_manager
@@ -107,7 +113,11 @@ class AssetListModel(QtCore.QAbstractTableModel):
     def __init__(self, event_manager):
         super(AssetListModel, self).__init__()
         self._event_manager = event_manager
+
+    def reset(self):
+        self.beginResetModel()
         self.__asset_entities_list = []
+        self.endResetModel()
 
     def rowCount(self, index=QtCore.QModelIndex):
         return len(self.__asset_entities_list)
@@ -118,6 +128,9 @@ class AssetListModel(QtCore.QAbstractTableModel):
     def data(self, index, role=QtCore.Qt.DisplayRole):
         if role == QtCore.Qt.DisplayRole:
             return self.__asset_entities_list[index.row()]
+
+    def items(self):
+        return self.__asset_entities_list
 
     def insertRows(self, position, data, index=QtCore.QModelIndex):
         rows = len(data)
@@ -131,10 +144,31 @@ class AssetListModel(QtCore.QAbstractTableModel):
                 self.__asset_entities_list.append(data[row])
         self.endInsertRows()
 
-    def reset(self):
-        self.beginResetModel()
-        self.__asset_entities_list = []
-        self.endResetModel()
+    def getIndex(self, asset_info_id):
+        result = -1
+        for index, asset_info in enumerate(self.__asset_entities_list):
+            if asset_info[asset_const.ASSET_INFO_ID] == asset_info_id:
+                result = index
+                break
+        if result == -1:
+            self.logger.warning(
+                'No asset info found for id {}'.format(asset_info_id)
+            )
+        return result
+
+    def setData(self, position, asset_info, silent=False, roles=None):
+        print('@@@ AssetListModel({},{})'.format(position, asset_info))
+        self.__asset_entities_list[position] = asset_info
+        if not silent:
+            self.dataChanged.emit(position, position)
+
+    def removeRows(self, position, count=1, silent=False):
+        if not silent:
+            self.beginRemoveRows()
+        for n in range(count):
+            self.__asset_entities_list.pop(position)
+        if not silent:
+            self.endRemoveRows()
 
     def flags(self, index):
         if not index.isValid():
@@ -180,21 +214,20 @@ class AssetListWidget(QtWidgets.QWidget):
         pass
 
     def post_build(self):
-        self._model.rowsInserted.connect(self.on_assets_added)
-        self._model.modelReset.connect(self.rebuild)
+        # Do not distinguish between different model events,
+        # always rebuild entire list from scratch for now.
+        self._model.rowsInserted.connect(self._on_asset_data_changed)
+        self._model.modelReset.connect(self._on_asset_data_changed)
+        self._model.rowsRemoved.connect(self._on_asset_data_changed)
+        self._model.dataChanged.connect(self._on_asset_data_changed)
 
-    def on_assets_added(self, parent, first, last):
+    def _on_asset_data_changed(self, *args):
         self.rebuild()
         self.selection_updated.emit(self.selection())
 
     def rebuild(self):
         '''Clear widget and add all assets again from model.'''
         raise NotImplementedError()
-
-    def reset(self):
-        '''Remove all assets'''
-        self.model.reset()
-        self.rebuild()
 
     def selection(
         self, warn_on_empty=False, empty_returns_all=False, as_widgets=False
@@ -230,16 +263,16 @@ class AssetListWidget(QtWidgets.QWidget):
         return result
 
     def clear_selection(self):
-        selection_modified = False
+        selecti_on_asset_data_changed = False
         for asset_widget in self.assets:
             if asset_widget.set_selected(False):
-                selection_modified = True
-        if selection_modified:
+                selecti_on_asset_data_changed = True
+        if selecti_on_asset_data_changed:
             self.selection_updated.emit(self.selection())
 
     def asset_clicked(self, asset_widget, event):
         '''An asset (accordion) were clicked in list, evaluate selection.'''
-        selection_modified = False
+        selecti_on_asset_data_changed = False
         modifiers = QtWidgets.QApplication.keyboardModifiers()
         if event.button() == QtCore.Qt.RightButton:
             return
@@ -263,13 +296,13 @@ class AssetListWidget(QtWidgets.QWidget):
                 for widget in self.assets:
                     if start_row < widget.index.row() < end_row:
                         if widget.set_selected(True):
-                            selection_modified = True
+                            selecti_on_asset_data_changed = True
         else:
             self.clear_selection()
         if asset_widget.set_selected(True):
-            selection_modified = True
+            selecti_on_asset_data_changed = True
         self._last_clicked = asset_widget
-        if selection_modified:
+        if selecti_on_asset_data_changed:
             self.selection_updated.emit(self.selection())
 
     def mousePressEvent(self, event):
