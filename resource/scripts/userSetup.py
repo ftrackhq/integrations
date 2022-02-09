@@ -61,13 +61,15 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name='pipeline'):
     return submenu
 
 
-def _open_dialog(dialog_class, event_manager):
+def _open_dialog(dialog_class, event_manager, asset_list_model):
     '''Open *dialog_class* and create if not already existing.'''
     dialog_name = dialog_class
 
     if dialog_name not in created_dialogs:
         ftrack_dialog = dialog_class
-        created_dialogs[dialog_name] = ftrack_dialog(event_manager)
+        created_dialogs[dialog_name] = ftrack_dialog(
+            event_manager, asset_list_model
+        )
 
     created_dialogs[dialog_name].show()
 
@@ -87,6 +89,11 @@ def initialise():
     maya_host.MayaHost(event_manager)
 
     cmds.loadPlugin('ftrackMayaPlugin.py', quiet=True)
+
+    from ftrack_connect_pipeline_qt.ui.asset_manager.base import AssetListModel
+
+    # Shared asset manager model
+    asset_list_model = AssetListModel(event_manager)
 
     from ftrack_connect_pipeline_maya.client import open
     from ftrack_connect_pipeline_maya.client import assembler
@@ -117,7 +124,7 @@ def initialise():
             label=label,
             command=(
                 lambda x, dialog_class=dialog_class: _open_dialog(
-                    dialog_class, event_manager
+                    dialog_class, event_manager, asset_list_model
                 )
             ),
         )

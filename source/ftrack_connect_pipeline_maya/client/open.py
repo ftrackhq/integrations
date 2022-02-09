@@ -29,7 +29,7 @@ class MayaOpenDialog(QtWidgets.QDialog):
 
     _shown = False
 
-    def __init__(self, event_manager, parent=None):
+    def __init__(self, event_manager, unused_asset_list_model, parent=None):
         super(MayaOpenDialog, self).__init__(parent=get_maya_window())
         self._event_manager = event_manager
 

@@ -20,11 +20,16 @@ class MayaAssetManagerClient(MayaQWidgetDockableMixin, QtAssetManagerClient):
 
     '''Dockable maya load widget'''
 
-    def __init__(self, event_manager, parent=None):
+    def __init__(self, event_manager, asset_list_model, parent=None):
         super(MayaAssetManagerClient, self).__init__(
-            event_manager=event_manager, parent=parent
+            event_manager=event_manager,
+            asset_list_model=asset_list_model,
+            parent=parent,
         )
         self.setWindowTitle('Maya Pipeline Asset Manager')
+
+    def get_background_color(self):
+        return 'maya'
 
     def show(self):
         super(MayaAssetManagerClient, self).show(
