@@ -18,7 +18,7 @@ def get_log_directory():
     '''
 
     user_data_dir = appdirs.user_data_dir('ftrack-connect', 'ftrack')
-    log_directory = os.path.join(user_data_dir, 'log').encode('utf8')
+    log_directory = os.path.join(user_data_dir, 'log')
 
     if not os.path.exists(log_directory):
         try:
@@ -58,7 +58,7 @@ def configure_logging(
 
     log_directory = get_log_directory()
     logfile = os.path.join(
-        log_directory, '{0}.log'.format(logger_name).encode('utf8')
+        log_directory, '{0}.log'.format(logger_name)
     )
 
     # Sanitise the variable, checking the type.
