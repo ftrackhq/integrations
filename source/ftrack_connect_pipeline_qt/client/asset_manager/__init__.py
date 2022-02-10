@@ -109,6 +109,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             button_widget.setLayout(QtWidgets.QHBoxLayout())
             button_widget.layout().addStretch()
             self._remove_button = RemoveButton('REMOVE FROM SCENE')
+            self._remove_button.setMinimumHeight(32)
             self._remove_button.setEnabled(False)
             button_widget.layout().addWidget(self._remove_button)
             self.layout().addWidget(button_widget)

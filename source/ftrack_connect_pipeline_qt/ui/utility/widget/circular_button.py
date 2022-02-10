@@ -19,9 +19,17 @@ class CircularButton(QtWidgets.QPushButton):
 
         self.setStyleSheet(
             '''
+            color: {};
+            {}
+            '''.format(
+                color, self.get_border_style(color)
+            )
+        )
+
+    def get_border_style(self, color):
+        return '''
             border: 1px solid {};
             border-radius: 16px;
         '''.format(
-                color
-            )
+            color
         )

@@ -155,22 +155,38 @@ AddRunButton {
     color: $color-cyan;
     border: 1px solid $color-cyan;
     border-radius: 3px;
+    padding-left: 4px;
+    padding-right: 4px;
 }
 
 LoadRunButton {
     color: $color-green;
     border: 1px solid $color-green;
     border-radius: 3px;
+    padding-left: 4px;
+    padding-right: 4px;
 }
 
 RemoveButton {
     color: $color-red;
     border: 1px solid $color-red;
     border-radius: 3px;
+    padding-left: 4px;
+    padding-right: 4px;
 }
 
 RemoveButton:disabled {
     border-color: darken($gray, 50%);
     background-color: $gray-lighter;
     color: darken($text-color, 50%);
+}
+
+ContextButton {
+    background: $gray-dark;
+    border-radius: 15px;
+    border: none;
+    color: $text-color;
+    padding-left: 5px;
+    padding-right: 5px;
+    font-weight: bold;
 }

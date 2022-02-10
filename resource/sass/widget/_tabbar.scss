@@ -1,31 +1,34 @@
 /** Tab bar. */
 
 QTabWidget::pane {
-    border-top: 2px solid $gray-lighter;
-    background: $white-almost;
 }
 
 QTabWidget::tab-bar {
-    background: $white;
+    left: 0px;
+    background-color: red;
 }
 
 QTabBar {
-    background: $white;
+    border-bottom: 2px solid $gray-dark;
 }
 
 QTabBar::tab {
-    background: $white;
-    min-width: 60px;
-    padding: 8px 10px;
+    min-width: 170px;
+    padding: 8px 10px 9px 10px;
     color: $gray;
-    border-bottom: 2px solid $white;
-
+    border-bottom: none;
 }
 
-QTabBar#application-tab-bar::tab:selected {
-    background-position: bottom center;
-    background-repeat: none;
+QTabBar::tab:selected {
     color: $text-color;
-    border-bottom: 2px solid $brand-primary;
+    border-bottom: 2px solid $color-purple;
+}
 
+QTabBar::tab:hover {
+    color: $text-color;
+}
+
+AssemblerTabWidget QTabBar::tab {
+    font-size: 14px;
+    vertical-align: text-top;
 }

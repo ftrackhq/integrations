@@ -48,14 +48,11 @@ QFrame[indicator='off'] {
 }
 
 QFrame[background='selected'] {
-    background: '#444444';
+    background: '#1C2229';
 }
 
 QFrame[background='transparent'] {
     background: transparent;
 }
 
-AssetVersionStatusWidget {
-    border-radius: 8px;
-}
 

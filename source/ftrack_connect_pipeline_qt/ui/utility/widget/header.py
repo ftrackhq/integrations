@@ -13,11 +13,13 @@ NAME_CACHE = dict()
 class Header(QtWidgets.QFrame):
     '''Header widget with name and thumbnail.'''
 
-    def __init__(self, session, parent=None):
+    def __init__(self, session, title=None, parent=None):
         '''Instantiate the header widget for a user with *username*.'''
 
         super(Header, self).__init__(parent=parent)
+
         self.session = session
+        self._title = title
         self.setObjectName('ftrack-header-widget')
 
         self.pre_build()
@@ -37,18 +39,20 @@ class Header(QtWidgets.QFrame):
         self.id_container_layout.setAlignment(QtCore.Qt.AlignTop)
         self.id_container.setLayout(self.id_container_layout)
 
-        spacer = QtWidgets.QSpacerItem(
-            0,
-            0,
-            QtWidgets.QSizePolicy.Expanding,
-            QtWidgets.QSizePolicy.Minimum,
-        )
-
         self.logo = Logo(self)
+        if len(self._title or ''):
+            self._title_label = QtWidgets.QLabel(self._title)
+            self._title_label.setObjectName('h1')
+        self.content_container = QtWidgets.QWidget()
+        self.content_container.setLayout(QtWidgets.QHBoxLayout())
+        self.content_container.layout().setContentsMargins(0, 0, 0, 0)
+        self.content_container.layout().setSpacing(0)
         self.user = User(self.session, self)
 
         self.id_container_layout.addWidget(self.logo)
-        # self.id_container_layout.addItem(spacer)
+        if len(self._title or ''):
+            self.id_container_layout.addWidget(self._title_label)
+        self.id_container_layout.addWidget(self.content_container, 1000)
         self.id_container_layout.addWidget(self.user)
 
         # Add (Logo & User ID) & Message
@@ -78,7 +82,7 @@ class Logo(QtWidgets.QLabel):
         if not logoPixmap is None:
             self.setPixmap(
                 logoPixmap.scaled(
-                    QtCore.QSize(self.width(), 20),
+                    QtCore.QSize(self.width(), 15),
                     QtCore.Qt.KeepAspectRatio,
                     QtCore.Qt.SmoothTransformation,
                 )

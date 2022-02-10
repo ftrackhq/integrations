@@ -5,9 +5,6 @@ from functools import partial
 
 from Qt import QtWidgets, QtCore
 
-from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
-    CircularButton,
-)
 from ftrack_connect_pipeline import constants as core_constants
 
 
@@ -34,8 +31,9 @@ class DefinitionItem(QtWidgets.QPushButton):
 class DefinitionSelector(QtWidgets.QWidget):
     '''DefinitionSelector Base Class'''
 
-    definition_changed = QtCore.Signal(object, object, object)
+    hosts_discovered = QtCore.Signal(object)
     host_changed = QtCore.Signal(object)
+    definition_changed = QtCore.Signal(object, object, object)
     refreshed = QtCore.Signal()
 
     @property
@@ -80,6 +78,17 @@ class DefinitionSelector(QtWidgets.QWidget):
         self.definition_combobox.currentIndexChanged.connect(
             self._on_select_definition
         )
+
+    def add_hosts(self, host_connections):
+        for host_connection in host_connections:
+            self.host_combobox.addItem(host_connection.name, host_connection)
+            self.host_connections.append(host_connection)
+        if (
+            len(host_connections) == 1
+            and host_connections[0].context_id != None
+        ):
+            self.host_combobox.setCurrentIndex(1)
+        self.hosts_discovered.emit(host_connections)
 
     def change_host_index(self, index):
         self.host_combobox.setCurrentIndex(index)
@@ -145,16 +154,6 @@ class DefinitionSelector(QtWidgets.QWidget):
 
         self.definition_changed.emit(self.schema, self.definition)
 
-    def add_hosts(self, host_connections):
-        for host_connection in host_connections:
-            self.host_combobox.addItem(host_connection.name, host_connection)
-            self.host_connections.append(host_connection)
-        if (
-            len(host_connections) == 1
-            and host_connections[0].context_id != None
-        ):
-            self.host_combobox.setCurrentIndex(1)
-
     def set_definition_title_filter(self, title_filter):
         self._definition_title_filter = title_filter
 
@@ -183,17 +182,12 @@ class DefinitionSelectorButtons(DefinitionSelector):
         )
 
     def build(self):
-        if self._client_name != 'assembler':
-            self._label_text = "Choose what to {}".format(
-                self._client_name.lower()
-            )
-            self._refresh_text = (
-                "CLEAR"
-                if self._client_name.lower() == "publish"
-                else "REFRESH"
-            )
-        else:
-            self._title_text = "Suggested dependencies"
+        self._label_text = "Choose what to {}".format(
+            self._client_name.lower()
+        )
+        self._refresh_text = (
+            "CLEAR" if self._client_name.lower() == "publish" else "REFRESH"
+        )
 
         self.host_combobox = QtWidgets.QComboBox()
 
@@ -214,16 +208,9 @@ class DefinitionSelectorButtons(DefinitionSelector):
 
             self._refresh_button = QtWidgets.QPushButton(self._refresh_text)
             self._refresh_button.setObjectName('borderless')
-            self._refresh_button.clicked.connect(self.refresh)
             header_widget.layout().addWidget(self._refresh_button)
-        else:
-            self.title_widget = QtWidgets.QLabel(self._title_text)
-            self.title_widget.setObjectName('h1')
-            header_widget.layout().addWidget(self.title_widget)
-            header_widget.layout().addStretch()
-            self._refresh_button = CircularButton('sync', '#87E1EB')
-            self._refresh_button.clicked.connect(self.refresh)
-            header_widget.layout().addWidget(self._refresh_button)
+
+        header_widget.setVisible(self._client_name != 'assembler')
 
         self.definitions_widget.layout().addWidget(header_widget)
 
@@ -239,8 +226,9 @@ class DefinitionSelectorButtons(DefinitionSelector):
 
         self.layout().addWidget(self.host_combobox)
         self.layout().addWidget(self.definitions_widget)
-        if self._client_name == 'assembler':
-            self.definition_buttons_widget.setVisible(False)
+        self.definition_buttons_widget.setVisible(
+            self._client_name != 'assembler'
+        )
 
         self.no_definitions_label = QtWidgets.QLabel()
         self.layout().addWidget(self.no_definitions_label)
@@ -251,6 +239,8 @@ class DefinitionSelectorButtons(DefinitionSelector):
     def post_build(self):
         '''Connect the widget signals'''
         self.host_combobox.currentIndexChanged.connect(self._on_change_host)
+        if self._client_name != 'assembler':
+            self._refresh_button.clicked.connect(self.refresh)
 
     def _on_change_host(self, index):
         '''triggered when changing host selection to *index*'''

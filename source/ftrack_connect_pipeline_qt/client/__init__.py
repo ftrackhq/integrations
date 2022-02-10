@@ -110,8 +110,8 @@ class QtClient(Client, QtWidgets.QFrame):
         '''Prepare general layout.'''
         layout = QtWidgets.QVBoxLayout()
         layout.setAlignment(QtCore.Qt.AlignTop)
-        layout.setContentsMargins(4, 1, 4, 1)
-        layout.setSpacing(2)
+        layout.setContentsMargins(4, 0, 4, 0)
+        layout.setSpacing(1)
         self.setLayout(layout)
 
     def build(self):
@@ -119,10 +119,10 @@ class QtClient(Client, QtWidgets.QFrame):
         self.header = header.Header(self.session)
         self.layout().addWidget(self.header)
 
-        self._progress_widget = self.widget_factory.progress_widget
+        self.progress_widget = self.widget_factory.progress_widget
 
-        self.header.id_container_layout.insertWidget(
-            1, self._progress_widget.widget
+        self.header.content_container.layout().addWidget(
+            self.progress_widget.widget
         )
 
         self.context_selector = ContextSelector(self.session)

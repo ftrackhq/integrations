@@ -77,7 +77,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
     def init_header_content(self, layout):
         '''Create toolbar'''
         title = QtWidgets.QLabel('Tracked assets')
-        title.setObjectName('h1')
+        title.setObjectName('h2')
         layout.addWidget(title)
         layout.addWidget(self.init_search())
         self._refresh_button = CircularButton('sync', '#87E1EB')
@@ -360,7 +360,7 @@ class AssetWidget(AccordionBaseWidget):
         header_layout.setContentsMargins(1, 1, 1, 1)
         header_layout.setSpacing(2)
         self._asset_name_widget = QtWidgets.QLabel()
-        self._asset_name_widget.setObjectName('h2')
+        self._asset_name_widget.setObjectName('h4')
         header_layout.addWidget(self._asset_name_widget)
         self._component_and_version_header_widget = ComponentAndVersionWidget(
             True
@@ -553,6 +553,8 @@ class AssetVersionStatusWidget(QtWidgets.QFrame):
 
         self.pre_build()
         self.build()
+        self.setMinimumHeight(22)
+        self.setMaximumHeight(22)
 
     def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())

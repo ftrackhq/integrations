@@ -67,6 +67,7 @@
         <file alias='checkbox_unchecked_disabled'>image/dark/checkbox/checkbox_unchecked_disabled.png</file>
         <file alias='checkbox_checked_disabled'>image/dark/checkbox/checkbox_checked_disabled.png</file>
         <file alias='combobox_down_arrow'>image/dark/combobox/combobox_down_arrow.png</file>
+        <file alias='combobox_down_arrow_disabled'>image/dark/combobox/combobox_down_arrow_disabled.png</file>
     </qresource>
 
     <qresource prefix='ftrack/image/light/object_type'>
@@ -321,6 +322,7 @@
         <file alias='checkbox_unchecked_disabled'>image/dark/checkbox/checkbox_unchecked_disabled.png</file>
         <file alias='checkbox_checked_disabled'>image/dark/checkbox/checkbox_checked_disabled.png</file>
         <file alias='combobox_down_arrow'>image/dark/combobox/combobox_down_arrow.png</file>
+        <file alias='combobox_down_arrow_disabled'>image/dark/combobox/combobox_down_arrow_disabled.png</file>
     </qresource>
 
     <qresource prefix='ftrack/image/dark/object_type'>
