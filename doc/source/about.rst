@@ -7,7 +7,7 @@
 About
 *****
 
-Connect ships with a :ref:`ConnectWidget` made to visually manage your integrations,
+This plugin provide a ConnectWidget made to visually manage your integrations,
 which can be used to install and update them from local as well as remote sources.
 
 .. note::
@@ -72,6 +72,6 @@ The content of the json will have to contain a key named *integrations* which wi
     {
         "integrations":[
             "https://s3-eu-west-1.amazonaws.com/ftrack-deployment/ftrack-connect/plugins/ftrack-application-launcher-1.0.1.zip",
-            [etc....]
+            "etc...."
         ]
     }

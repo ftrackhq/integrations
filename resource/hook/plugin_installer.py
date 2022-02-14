@@ -80,7 +80,7 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self.apply_button.setIcon(QtGui.QIcon(qta.icon('mdi6.check')))
         self.apply_button.setDisabled(True)
 
-        self.reset_button = QtWidgets.QPushButton('Reset')
+        self.reset_button = QtWidgets.QPushButton('Clear selection')
         self.reset_button.setIcon(QtGui.QIcon(qta.icon('mdi6.lock-reset')))
         self.reset_button.setMaximumWidth(100)
 
