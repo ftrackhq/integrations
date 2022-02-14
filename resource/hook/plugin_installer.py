@@ -27,7 +27,7 @@ logger = logging.getLogger('ftrack_connect.plugin.plugin_installer')
 class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
     '''Show and manage plugin installations.'''
 
-    name = 'User Plugin Manager'
+    name = 'Plugins'
 
     installation_done = QtCore.Signal()
     installation_started = QtCore.Signal()
