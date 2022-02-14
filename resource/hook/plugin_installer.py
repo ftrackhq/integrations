@@ -47,18 +47,6 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
-        self.top_bar_layout = QtWidgets.QHBoxLayout()
-
-        self.plugin_path_label = QtWidgets.QLabel()
-        self.open_folder_button = QtWidgets.QPushButton('Open')
-        self.open_folder_button.setIcon(QtGui.QIcon(qta.icon('mdi6.folder-home')))
-
-        self.open_folder_button.setFixedWidth(150)
-
-        self.top_bar_layout.addWidget(self.plugin_path_label)
-        self.top_bar_layout.addWidget(self.open_folder_button)
-        self.layout().addLayout(self.top_bar_layout)
-
         self.search_bar = QtWidgets.QLineEdit()
         self.search_bar.setPlaceholderText('Search plugin...')
 
@@ -69,10 +57,6 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
             self.session
         )
         layout.addWidget(self.plugin_list_widget)
-
-        self.plugin_path_label.setText('Using: <i>{}</i>'.format(
-            self.plugin_list_widget.default_plugin_directory
-        ))
 
         # apply and reset button.
         button_layout = QtWidgets.QHBoxLayout()
@@ -102,7 +86,6 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self.apply_button.clicked.connect(self._on_apply_changes)
         self.reset_button.clicked.connect(self.refresh)
         self.search_bar.textChanged.connect(self.plugin_list_widget.proxy_model.setFilterFixedString)
-        self.open_folder_button.clicked.connect(self.openDefaultPluginDirectory)
 
         self.installation_started.connect(self.busyOverlay.show)
         self.installation_done.connect(self.busyOverlay.hide)
@@ -195,28 +178,6 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self.installation_done.emit()
         self.emit_downloaded_plugins(self._plugins_to_install)
         self.reset_plugin_list()
-
-
-    def openDefaultPluginDirectory(self):
-        '''Open default plugin directory in platform default file browser.'''
-
-        directory = self.plugin_list_widget.default_plugin_directory
-
-        if not os.path.exists(directory):
-            # Create directory if not existing.
-            try:
-                os.makedirs(directory)
-            except OSError:
-                messageBox = QtWidgets.QMessageBox(parent=self)
-                messageBox.setIcon(QtWidgets.QMessageBox.Warning)
-                messageBox.setText(
-                    u'Could not open or create default plugin '
-                    u'directory: {0}.'.format(directory)
-                )
-                messageBox.exec_()
-                return
-
-        ftrack_connect.util.open_directory(directory)
 
 
 def register(session, **kw):
