@@ -54,3 +54,8 @@ source/ftrack_connect_plugin_manager/_version.py
 
 # builds
 build/**
+
+# python
+.eggs/**
+build/**
+dist/**
