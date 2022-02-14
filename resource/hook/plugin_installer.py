@@ -40,7 +40,8 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
     def __init__(self, session, parent=None):
         '''Instantiate the actions widget.'''
         super(PluginInstaller, self).__init__(session, parent=parent)
-        self._plugins_to_install = []
+        self.reset_plugin_list()
+
         self.plugin_processor = PluginProcessor()
 
         layout = QtWidgets.QVBoxLayout()
@@ -116,16 +117,36 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         # refresh
         self.refresh()
 
+    def reset_plugin_list(self):
+        self._plugins_to_install = []
+
+    def emit_downloaded_plugins(self, plugins):
+        metadata = []
+
+        for plugin in plugins:
+            name = plugin.data(ROLES.PLUGIN_NAME)
+            version = plugin.data(ROLES.PLUGIN_VERSION)
+            metadata.append({'name': name, 'version': version})
+
+        ftrack_connect.usage.send_event(
+            self.session,
+            'INSTALLED-CONNECT-PLUGINS',
+            metadata,
+            asynchronous=False
+        )
+
     def enable_apply_button(self, item):
         '''Check the plugins state.'''
         self.apply_button.setDisabled(True)
-        num_items = self.plugin_list_widget.plugin_model.rowCount()
-        for i in range(num_items):
-            item = self.plugin_list_widget.plugin_model.item(i)
-            if item.checkState() == QtCore.Qt.Checked:
-                self._plugins_to_install.append(item)
-                self.apply_button.setEnabled(True)
-                break
+        items = []
+        for index in range(self.plugin_list_widget.plugin_model.rowCount()):
+            if self.plugin_list_widget.plugin_model.item(index).checkState() == QtCore.Qt.Checked:
+                items.append(self.plugin_list_widget.plugin_model.item(index))
+
+        self._plugins_to_install = items
+
+        if items:
+            self.apply_button.setEnabled(True)
 
         self.apply_button.setText(
             'Install {} Plugins'.format(
@@ -140,7 +161,7 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self.plugin_list_widget.populate_installed_plugins()
         self.plugin_list_widget.populate_download_plugins()
         self.enable_apply_button(None)
-        self._plugins_to_install = []
+        self.reset_plugin_list()
         self.refresh_done.emit()
 
     def _show_user_message(self):
@@ -172,6 +193,9 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
                 self.installation_in_progress.emit(item)
                 self.plugin_processor.process(item)
         self.installation_done.emit()
+        self.emit_downloaded_plugins(self._plugins_to_install)
+        self.reset_plugin_list()
+
 
     def openDefaultPluginDirectory(self):
         '''Open default plugin directory in platform default file browser.'''
