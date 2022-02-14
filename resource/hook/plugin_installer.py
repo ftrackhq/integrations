@@ -109,7 +109,7 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         for plugin in plugins:
             name = plugin.data(ROLES.PLUGIN_NAME)
             version = plugin.data(ROLES.PLUGIN_VERSION)
-            metadata.append({'name': name, 'version': version})
+            metadata.append({'name': str(name), 'version': str(version)})
 
         ftrack_connect.usage.send_event(
             self.session,
@@ -151,7 +151,8 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         '''Show final message to the user.'''
         self.blockingOverlay.setMessage(
             'Installation finished!\n \n'
-            'Please restart connect to pick up the changes.'
+            'Click to install more plugins or  \n'
+            'Quit and Restart connect to pick up the changes.'
         )
         self.blockingOverlay.confirmButton.show()
         self.blockingOverlay.show()
@@ -161,7 +162,7 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self.busyOverlay.setMessage(
             'Installing:\n\n{}\nVersion {} '.format(
                 item.data(ROLES.PLUGIN_NAME),
-                item.data(ROLES.PLUGIN_VERSION)
+                str(item.data(ROLES.PLUGIN_VERSION))
             )
         )
 
