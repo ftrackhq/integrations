@@ -40,7 +40,7 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
     def __init__(self, session, parent=None):
         '''Instantiate the actions widget.'''
         super(PluginInstaller, self).__init__(session, parent=parent)
-
+        self._plugins_to_install = []
         self.plugin_processor = PluginProcessor()
 
         layout = QtWidgets.QVBoxLayout()
@@ -76,7 +76,7 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         # apply and reset button.
         button_layout = QtWidgets.QHBoxLayout()
 
-        self.apply_button = QtWidgets.QPushButton('Apply changes')
+        self.apply_button = QtWidgets.QPushButton('Install Plugins')
         self.apply_button.setIcon(QtGui.QIcon(qta.icon('mdi6.check')))
         self.apply_button.setDisabled(True)
 
@@ -123,8 +123,15 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         for i in range(num_items):
             item = self.plugin_list_widget.plugin_model.item(i)
             if item.checkState() == QtCore.Qt.Checked:
+                self._plugins_to_install.append(item)
                 self.apply_button.setEnabled(True)
                 break
+
+        self.apply_button.setText(
+            'Install {} Plugins'.format(
+                len(self._plugins_to_install)
+            )
+        )
 
     @asynchronous
     def refresh(self):
@@ -133,6 +140,7 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self.plugin_list_widget.populate_installed_plugins()
         self.plugin_list_widget.populate_download_plugins()
         self.enable_apply_button(None)
+        self._plugins_to_install = []
         self.refresh_done.emit()
 
     def _show_user_message(self):
