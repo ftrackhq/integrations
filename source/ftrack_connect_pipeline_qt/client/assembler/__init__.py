@@ -123,7 +123,9 @@ class QtAssemblerClient(QtClient):
 
         # Set initial import mode, do not rebuild it as AM will trig it when it
         # has resolved dependencies
-        self.set_import_mode(self.IMPORT_MODE_DEPENDENCIES)
+        # self.set_import_mode(self.IMPORT_MODE_DEPENDENCIES)
+        self._tab_widget.setCurrentIndex(self.IMPORT_MODE_BROWSE)
+        self.set_import_mode(self.IMPORT_MODE_BROWSE)
 
         button_widget = QtWidgets.QWidget()
         button_widget.setLayout(QtWidgets.QHBoxLayout())
@@ -133,6 +135,7 @@ class QtAssemblerClient(QtClient):
         button_widget.layout().addWidget(self._run_button_no_load)
         self.run_button = LoadRunButton('LOAD INTO SCENE')
         self.run_button.setMinimumHeight(32)
+        self.run_button.setFocus()
         button_widget.layout().addWidget(self.run_button)
         self._left_widget.layout().addWidget(button_widget)
 
@@ -253,7 +256,7 @@ class QtAssemblerClient(QtClient):
                 factory.progress_widget = (
                     self.progress_widget
                 )  # Have factory update main progress widget
-                self.progress_widget.add_version(component['version'])
+                self.progress_widget.add_version(component)
                 factory.build_progress_ui(component)
             self.progress_widget.components_added()
 

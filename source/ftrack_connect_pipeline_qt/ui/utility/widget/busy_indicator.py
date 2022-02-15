@@ -24,6 +24,8 @@ class BusyIndicator(QtWidgets.QWidget):
         '''Start spinning if not already.'''
         if self._timer is None:
             self._timer = self.startTimer(self._timerInterval)
+        if not self.isVisible():
+            self.setVisible(True)
 
     def stop(self):
         '''Stop spinning if currently spinning.'''

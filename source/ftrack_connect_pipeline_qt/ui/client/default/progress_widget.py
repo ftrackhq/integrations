@@ -289,9 +289,12 @@ class BatchProgressWidget(ProgressWidget):
             status_view_mode=status_view_mode,
         )
 
-    def add_version(self, version):
+    def add_version(self, component):
         version_widget = QtWidgets.QLabel(
-            str_version(version).replace('/', ' | ')
+            '{} | {}'.format(
+                str_version(component['version']).replace('/', ' | '),
+                component['name'],
+            )
         )
         version_widget.setObjectName('h2')
         self.content_widget.layout().addWidget(version_widget)

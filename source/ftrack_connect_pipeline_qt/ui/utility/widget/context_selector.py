@@ -5,7 +5,9 @@ from Qt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline.utils import get_current_context_id
 from ftrack_connect_pipeline_qt.ui.utility.widget.entity_info import EntityInfo
-import ftrack_connect_pipeline_qt.ui.utility.widget.entity_browser as entityBrowser
+from ftrack_connect_pipeline_qt.ui.utility.widget.legacy_entity_browser import (
+    LegacyEntityBrowser,
+)
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import Context
 from ftrack_connect_pipeline_qt.utils import BaseThread
 
@@ -56,7 +58,7 @@ class ContextSelector(QtWidgets.QWidget):
         self.thumbnail_widget.setMaximumWidth(50)
         self.thumbnail_widget.setMaximumHeight(50)
 
-        self.entityBrowser = entityBrowser.EntityBrowser(self.session)
+        self.entityBrowser = LegacyEntityBrowser(self.session)
         self.entityBrowser.setMinimumWidth(600)
 
         self.entity_info = EntityInfo()

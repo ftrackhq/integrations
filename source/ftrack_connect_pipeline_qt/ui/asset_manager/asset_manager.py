@@ -306,10 +306,25 @@ class AssetManagerListWidget(AssetListWidget):
     '''Custom asset manager list view'''
 
     def __init__(self, model, asset_widget_class, parent=None):
-        super(AssetManagerListWidget, self).__init__(model, parent=parent)
         self._asset_widget_class = asset_widget_class
+        super(AssetManagerListWidget, self).__init__(model, parent=parent)
 
-    def rebuild(self):
+    def post_build(self):
+        super(AssetManagerListWidget, self).post_build()
+        # Do not distinguish between different model events,
+        # always rebuild entire list from scratch for now.
+        self._model.rowsInserted.connect(self._on_asset_data_changed)
+        self._model.modelReset.connect(self._on_asset_data_changed)
+        self._model.rowsRemoved.connect(self._on_asset_data_changed)
+        self._model.dataChanged.connect(self._on_asset_data_changed)
+
+    def _on_asset_data_changed(self, *args):
+        self.rebuild()
+        self.selection_updated.emit(self.selection())
+
+    def rebuild(
+        self,
+    ):
         '''Clear widget and add all assets again from model.'''
         print('@@@ AssetManagerListWidget::rebuilt()')
         clear_layout(self.layout())

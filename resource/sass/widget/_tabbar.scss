@@ -1,6 +1,11 @@
 /** Tab bar. */
 
+QTabWidget {
+    background: transparent;
+}
+
 QTabWidget::pane {
+    background: transparent;
 }
 
 QTabWidget::tab-bar {

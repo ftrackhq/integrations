@@ -1,13 +1,16 @@
 import os
 import json
-import copy
+import time
 import logging
+import copy
 
 import qtawesome as qta
 from functools import partial
 
 from Qt import QtCore, QtWidgets
 
+from ftrack_connect_pipeline import constants as core_constants
+from ftrack_connect_pipeline.client import constants
 from ftrack_connect_pipeline_qt.ui.asset_manager.base import (
     AssetListModel,
 )
@@ -32,6 +35,9 @@ from ftrack_connect_pipeline_qt.utils import (
     get_main_framework_window_from_widget,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
+from ftrack_connect_pipeline_qt.ui.utility.widget.busy_indicator import (
+    BusyIndicator,
+)
 
 
 class AssemblerBaseWidget(QtWidgets.QWidget):
@@ -41,6 +47,10 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
     def component_list(self):
         '''Return the collected object by the widget'''
         return self._component_list
+
+    @property
+    def session(self):
+        return self._assembler_client.session
 
     def __init__(self, assembler_client, parent=None):
         super(AssemblerBaseWidget, self).__init__(parent=parent)
@@ -59,7 +69,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
     def pre_build(self):
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setContentsMargins(1, 1, 1, 1)
-        self.layout().setSpacing(0)
+        self.layout().setSpacing(2)
         self.model = AssetListModel(self._assembler_client.event_manager)
 
     def build(self):
@@ -72,11 +82,223 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
     def refresh(self):
         if self.scroll.widget():
             self.scroll.widget().deleteLater()
+        self.model.reset()
+        self._assembler_client.progress_widget.hide_widget()
+
+        self._busy_widget.start()
+
+        # Wait for context to be loaded
+        self.get_context()
 
     def mousePressEvent(self, event):
         if event.button() != QtCore.Qt.RightButton and self._component_list:
             self._component_list.clear_selection()
         return super(AssemblerBaseWidget, self).mousePressEvent(event)
+
+    def get_context(self, wait=True):
+        '''Wait for current working context to be properly set, then return it.'''
+        while (
+            self._assembler_client.context_selector.context_id is None and wait
+        ):
+            time.sleep(0.5)
+        return self._assembler_client.context_selector.entity
+
+    def extract_components(self, versions, include_unloadable=False):
+        '''Build a list of loadable components from the supplied *versions*'''
+
+        # Fetch all definitions, append asset type name
+        loader_definitions = []
+        asset_type_name_short_mappings = {}
+        for (
+            definition
+        ) in self._assembler_client.host_and_definition_selector.definitions:
+            for package in self._assembler_client.host_connection.definitions[
+                'package'
+            ]:
+                if package['name'] == definition.get('package'):
+                    asset_type_name_short_mappings[
+                        definition['name']
+                    ] = package['asset_type_name']
+                    loader_definitions.append(definition)
+                    break
+
+        # import json
+        print(
+            '@@@ loader_definitions: {}'.format(
+                '\n'.join(
+                    [
+                        json.dumps(loader, indent=4)
+                        for loader in loader_definitions
+                    ]
+                )
+            )
+        )
+        # print('@@@ # loader_definitions: {}'.format(len(loader_definitions)))
+
+        # For each version, figure out loadable components and store with
+        # fragment of its possible loader definition(s)
+
+        components = []
+
+        # Group by context, sort by asset name
+        for version in sorted(
+            versions,
+            key=lambda v: '{}/{}'.format(
+                v['asset']['parent']['id'], v['asset']['name']
+            ),
+        ):
+            print('@@@ Processing: {}'.format(str_version(version)))
+            for component in version['components']:
+                component_extension = component.get('file_type')
+                print(
+                    '@@@     Component: {}({})'.format(
+                        component['name'], component['file_type']
+                    )
+                )
+                if not component_extension:
+                    self.logger.warning(
+                        'Could not assemble version {} component {}; missing file type!'.format(
+                            version['id'], component['id']
+                        )
+                    )
+                    continue
+                if include_unloadable:
+                    matching_definitions = []
+                else:
+                    matching_definitions = None
+                    for definition in loader_definitions:
+                        # Matches asset type?
+                        definition_asset_type_name_short = (
+                            asset_type_name_short_mappings[definition['name']]
+                        )
+                        if (
+                            definition_asset_type_name_short
+                            != version['asset']['type']['short']
+                        ):
+                            print(
+                                '@@@     Definition AT {} mismatch version {}!'.format(
+                                    definition_asset_type_name_short,
+                                    version['asset']['type']['short'],
+                                )
+                            )
+                            continue
+                        definition_fragment = None
+                        for d_component in definition.get('components', []):
+                            if (
+                                d_component['name'].lower()
+                                != component['name'].lower()
+                            ):
+                                print(
+                                    '@@@     Definition component name {} mismatch!'.format(
+                                        d_component['name']
+                                    )
+                                )
+                                continue
+                            for d_stage in d_component.get('stages', []):
+                                if d_stage.get('name') == 'collector':
+                                    for d_plugin in d_stage.get('plugins', []):
+                                        accepted_formats = d_plugin.get(
+                                            'options', {}
+                                        ).get('accepted_formats')
+                                        if not accepted_formats:
+                                            continue
+                                        if set(accepted_formats).intersection(
+                                            set([component_extension])
+                                        ):
+                                            # Construct fragment
+                                            definition_fragment = {
+                                                'components': [
+                                                    copy.deepcopy(d_component)
+                                                ]
+                                            }
+                                            for key in definition:
+                                                if key not in [
+                                                    'components',
+                                                ]:
+                                                    definition_fragment[
+                                                        key
+                                                    ] = copy.deepcopy(
+                                                        definition[key]
+                                                    )
+                                                    if (
+                                                        key
+                                                        == core_constants.CONTEXTS
+                                                    ):
+                                                        # Remove open context
+                                                        for (
+                                                            stage
+                                                        ) in definition_fragment[
+                                                            key
+                                                        ][
+                                                            0
+                                                        ][
+                                                            'stages'
+                                                        ]:
+                                                            for (
+                                                                plugin
+                                                            ) in stage[
+                                                                'plugins'
+                                                            ]:
+                                                                if (
+                                                                    not 'options'
+                                                                    in plugin
+                                                                ):
+                                                                    plugin[
+                                                                        'options'
+                                                                    ] = {}
+                                                                # Store version
+                                                                plugin[
+                                                                    'options'
+                                                                ][
+                                                                    'asset_name'
+                                                                ] = version[
+                                                                    'asset'
+                                                                ][
+                                                                    'name'
+                                                                ]
+                                                                plugin[
+                                                                    'options'
+                                                                ][
+                                                                    'asset_id'
+                                                                ] = version[
+                                                                    'asset'
+                                                                ][
+                                                                    'id'
+                                                                ]
+                                                                plugin[
+                                                                    'options'
+                                                                ][
+                                                                    'version_number'
+                                                                ] = version[
+                                                                    'version'
+                                                                ]
+                                                                plugin[
+                                                                    'options'
+                                                                ][
+                                                                    'version_id'
+                                                                ] = version[
+                                                                    'id'
+                                                                ]
+                                            break
+                                        else:
+                                            print(
+                                                '@@@     Accepted formats {} does not intersect with {}!'.format(
+                                                    accepted_formats,
+                                                    [component_extension],
+                                                )
+                                            )
+                                if definition_fragment:
+                                    break
+                            if definition_fragment:
+                                if matching_definitions is None:
+                                    matching_definitions = []
+                                matching_definitions.append(
+                                    definition_fragment
+                                )
+                if matching_definitions is not None:
+                    components.append((component, matching_definitions))
+
+        return components
 
 
 class AssemblerListBaseWidget(AssetListWidget):
@@ -109,6 +331,10 @@ class ComponentBaseWidget(AccordionBaseWidget):
     def factory(self):
         return self._widget_factory
 
+    @property
+    def session(self):
+        return self._assembler_widget.session
+
     loader_selected = QtCore.Signal(object)
 
     def __init__(
@@ -129,6 +355,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
 
     def init_status_widget(self):
         self._status_widget = AssetVersionStatusWidget()
+        self._status_widget.setMinimumWidth(60)
         # self._status_widget.setObjectName('borderless')
         return self._status_widget
 
@@ -284,6 +511,19 @@ class ComponentBaseWidget(AccordionBaseWidget):
         else:
             # No loaders, disable entire component
             self.setEnabled(False)
+
+        self._asset_name_widget.setText(
+            '{} '.format(component['version']['asset']['name'])
+        )
+        component_path = '{}{}'.format(
+            component['name'], component['file_type']
+        )
+        self._component_filename_widget.setText(
+            '- {}'.format(component_path.replace('\\', '/').split('/')[-1])
+        )
+
+        self.set_version(component['version']['version'])
+        self.set_latest_version(component['version']['is_latest_version'])
 
     def on_collapse(self, collapsed):
         '''Not collapsable'''

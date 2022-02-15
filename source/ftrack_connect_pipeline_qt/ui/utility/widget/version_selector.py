@@ -22,6 +22,7 @@ class VersionComboBox(QtWidgets.QComboBox):
         self.context_id = None
 
         self.asset_entity = None
+        self.setMaximumHeight(24)
 
     def set_asset_entity(self, asset_entity):
         self.asset_entity = asset_entity
@@ -29,6 +30,7 @@ class VersionComboBox(QtWidgets.QComboBox):
         self._add_version(self.asset_entity['latest_version'])
 
     def showPopup(self):
+        '''Override'''
         self.clear()
         versions = self.query_versions(
             self.context_id, self.asset_entity['id']

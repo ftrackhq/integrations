@@ -55,4 +55,35 @@ QFrame[background='transparent'] {
     background: transparent;
 }
 
+NavigationEntityButton {
+    background: $gray-dark;
+    border-radius: 12px;
+    border: none;
+    color: $text-color;
+    padding-left: 5px;
+    padding-right: 5px;
+    font-weight: bold;
+}
 
+NavigationEntityButton:hover {
+    background: $gray-lighter;
+}
+
+EntityWidget {
+    color: $text-color;
+    border-bottom: 1px dashed $border-color;
+    border-right: 1px dashed $border-color;
+}
+
+EntityWidget:hover {
+    background: $gray-lighter;
+}
+
+EntityWidget[state='selected'] {
+    background: $gray-lighter;
+}
+
+TypeWidget {
+    border: 1 dashed $gray-dark;
+    border-radius: 12px;
+}

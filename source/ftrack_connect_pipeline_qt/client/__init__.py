@@ -270,7 +270,7 @@ class QtClient(Client, QtWidgets.QFrame):
             return
         engine_type = serialized_data['_config']['engine_type']
         self.widget_factory.progress_widget.show_widget()
-        self.run_definition(serialized_data, engine_type)
+        self.run_definition(serialized_data, engine_type, False)
 
     def _on_components_checked(self, available_components_count):
         self.run_button.setText(

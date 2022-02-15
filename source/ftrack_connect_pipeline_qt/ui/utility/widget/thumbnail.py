@@ -7,8 +7,10 @@ import urllib.request, urllib.parse, urllib.error
 import urllib.request, urllib.error, urllib.parse
 
 from Qt import QtCore, QtGui, QtWidgets
+import shiboken2
 
-from ftrack_connect_pipeline_qt.utils import Worker
+# rom ftrack_connect_pipeline_qt.utils import Worker
+from ftrack_connect_pipeline_qt.utils import BaseThread
 
 # Cache of thumbnail images.
 IMAGE_CACHE = dict()
@@ -17,17 +19,21 @@ IMAGE_CACHE = dict()
 class Base(QtWidgets.QLabel):
     '''Widget to load thumbnails from ftrack server.'''
 
+    thumbnailFetched = QtCore.Signal(object)
+
     def __init__(self, session, parent=None):
         super(Base, self).__init__(parent)
         self.session = session
+        self._alive = True
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
 
-        self._worker = None
+        # self._worker = None
         self.__loadingReference = None
         self.pre_build()
+        self.post_build()
 
     def pre_build(self):
         self.thumbnailCache = {}
@@ -38,6 +44,9 @@ class Base(QtWidgets.QLabel):
             self.session.server_url + '/img/thumbnail2.png'
         )
 
+    def post_build(self):
+        self.thumbnailFetched.connect(self._downloaded)
+
     def load(self, reference):
         '''Load thumbnail from *reference* and display it.'''
 
@@ -45,25 +54,40 @@ class Base(QtWidgets.QLabel):
             self._updatePixmapData(IMAGE_CACHE[reference])
             return
 
-        if self._worker and self._worker.isRunning():
-            while self._worker:
-                app = QtWidgets.QApplication.instance()
-                app.processEvents()
+        # if self._worker and self._worker.isRunning():
+        #    while self._worker:
+        #        app = QtWidgets.QApplication.instance()
+        #        app.processEvents()
 
-        self._worker = Worker(self._download, args=[reference], parent=self)
+        thread = BaseThread(
+            name='get_thumbnail_thread',
+            target=self._download,
+            callback=self._downloaded_async,
+            target_args=[reference],
+        )
+        thread.start()
+
+        # self._worker = Worker(self._download, args=[reference], parent=self)
 
         self.__loadingReference = reference
-        self._worker.start()
+        # self._worker.start()
 
-        self._worker.finished.connect(self._workerFinished)
+        # self._worker.finished.connect(self._downloaded)
 
-    def _workerFinished(self):
+    def _downloaded_async(self, html):
+        if not shiboken2.isValid(self):
+            # Thumbnail widget has been destroyed
+            return
+        self.thumbnailFetched.emit(html)
+
+    def _downloaded(self, result):
         '''Handler worker finished event.'''
-        if self._worker:
-            IMAGE_CACHE[self.__loadingReference] = self._worker.result
-            self._updatePixmapData(self._worker.result)
+        if not shiboken2.isValid(self):
+            # Thumbnail widget has been destroyed
+            return
+        IMAGE_CACHE[self.__loadingReference] = result
+        self._updatePixmapData(result)
 
-        self._worker = None
         self.__loadingReference = None
 
     def _updatePixmapData(self, data):
@@ -119,6 +143,7 @@ class Base(QtWidgets.QLabel):
                 html = response.read()
 
             return html
+
         self.logger.warning('There is no url image to download')
         return None
 

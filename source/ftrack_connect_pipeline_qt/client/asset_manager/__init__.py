@@ -247,13 +247,16 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         data = event['data']
         do_refresh = None
         for key, value in data.items():
-            asset_info = value.get(list(value.keys())[0])
             index = self._asset_list_model.getIndex(key)
             if index is None:
                 continue
             self.logger.debug(
                 'Updating id {} with index {}'.format(key, index)
             )
+            asset_info = value.get(list(value.keys())[0])
+            print(
+                '@@@ _on_assets_updated; index: {},\n asset_info: {}, \n event: {}'
+            ).format(index, asset_info, event)
             self._asset_list_model.setData(index, asset_info, silent=True)
             do_refresh = True
         if do_refresh:

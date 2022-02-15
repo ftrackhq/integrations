@@ -3,9 +3,8 @@
 import functools
 import platform
 
-import qtawesome as qta
-
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
+import shiboken2
 
 from ftrack_connect_pipeline.constants import asset as asset_const
 from ftrack_connect_pipeline import constants as core_const
@@ -133,6 +132,7 @@ class AssetListModel(QtCore.QAbstractTableModel):
         return self.__asset_entities_list
 
     def insertRows(self, position, data, index=QtCore.QModelIndex):
+        print('@@@ insertRows({},{})'.format(position, data))
         rows = len(data)
         self.beginInsertRows(
             QtCore.QModelIndex(), position, position + rows - 1
@@ -214,16 +214,7 @@ class AssetListWidget(QtWidgets.QWidget):
         pass
 
     def post_build(self):
-        # Do not distinguish between different model events,
-        # always rebuild entire list from scratch for now.
-        self._model.rowsInserted.connect(self._on_asset_data_changed)
-        self._model.modelReset.connect(self._on_asset_data_changed)
-        self._model.rowsRemoved.connect(self._on_asset_data_changed)
-        self._model.dataChanged.connect(self._on_asset_data_changed)
-
-    def _on_asset_data_changed(self, *args):
-        self.rebuild()
-        self.selection_updated.emit(self.selection())
+        pass
 
     def rebuild(self):
         '''Clear widget and add all assets again from model.'''
@@ -263,6 +254,8 @@ class AssetListWidget(QtWidgets.QWidget):
         return result
 
     def clear_selection(self):
+        if not shiboken2.isValid(self):
+            return
         selecti_on_asset_data_changed = False
         for asset_widget in self.assets:
             if asset_widget.set_selected(False):

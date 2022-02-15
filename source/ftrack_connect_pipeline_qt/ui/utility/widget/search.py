@@ -8,6 +8,7 @@ from ftrack_connect_pipeline_qt import utils
 from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
     CircularButton,
 )
+from ftrack_connect_pipeline_qt.utils import clear_layout
 
 
 class Search(QtWidgets.QFrame):
@@ -19,11 +20,19 @@ class Search(QtWidgets.QFrame):
     search = QtCore.Signal()
     clear = QtCore.Signal()
 
-    def __init__(self, parent=None, collapsed=True):
+    @property
+    def text(self):
+        return self._input.text()
+
+    @text.setter
+    def text(self, value):
+        self._input.setText(value)
+
+    def __init__(self, parent=None, collapsed=True, collapsable=True):
         super(Search, self).__init__(parent=parent)
 
         self._collapsed = collapsed
-
+        self._collapsable = collapsable
         self.pre_build()
         self.build()
         self.post_build()
@@ -31,7 +40,7 @@ class Search(QtWidgets.QFrame):
     def pre_build(self):
         '''Prepare general layout.'''
         self.setLayout(QtWidgets.QHBoxLayout(self))
-        self.layout().setContentsMargins(1, 1, 1, 1)
+        self.layout().setContentsMargins(4, 1, 1, 1)
         self.layout().setSpacing(1)
         self.setMaximumHeight(33)
         self.setMinimumHeight(33)
@@ -46,10 +55,7 @@ class Search(QtWidgets.QFrame):
 
     def rebuild(self):
         # Remove current widgets, clear input
-        for i in reversed(range(self.layout().count())):
-            widget = self.layout().itemAt(i).widget()
-            if widget:
-                widget.setParent(None)
+        clear_layout(self.layout())
         if self._collapsed:
             # Just the circular search button
             self.layout().addStretch()
@@ -68,32 +74,39 @@ class Search(QtWidgets.QFrame):
             )
 
         self._search_button.clicked.connect(self._on_search)
-        self.layout().addWidget(self._search_button)
+        if self._collapsable:
+            self.layout().addWidget(self._search_button)
 
         if not self._collapsed:
             # A bordered input field filling all space, with input and a clear button
-            self._search_button.setStyleSheet('''border:none;''')
+            self._search_button.setStyleSheet(
+                '''border:none; background: transparent;'''
+            )
             self._input = QtWidgets.QLineEdit()
             self._input.textChanged.connect(self._on_input_changed)
+            self._input.setPlaceholderText("Type to search")
             self._input.setStyleSheet('border: none;')
             self._input.setFocus()
             self.layout().addWidget(self._input, 100)
             self._clear_button = CircularButton(
                 'close', '#555555', diameter=30
             )
-            self._clear_button.setStyleSheet('''border:none;''')
-            self._clear_button.clicked.connect(self._on_clear)
-            self.layout().addWidget(self._clear_button)
+            # self._clear_button.setStyleSheet('''border:none;''')
+            # self._clear_button.clicked.connect(self._on_clear)
+            # self.layout().addWidget(self._clear_button)
             self.setStyleSheet(
                 '''
                 border: 1px solid #555555;
                 border-radius: 16px;
             '''
             )
+            if not self._collapsable:
+                self.layout().addWidget(self._search_button)
 
     def _on_search(self):
-        self._collapsed = not self._collapsed
-        self.rebuild()
+        if self._collapsable:
+            self._collapsed = not self._collapsed
+            self.rebuild()
 
     def _on_input_changed(self):
         self.input_updated.emit(self._input.text())

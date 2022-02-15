@@ -55,9 +55,10 @@ QComboBox[ftrackCurrentIndexIsDefault="true"] {
 }
 
 AssetVersionSelector, VersionComboBox {
-    border: 1px solid $color-purple;
-    border-radius: 4px;
+    border: 1px solid $gray;
+    border-radius: 12px;
     color: $color-purple;
+    text-align:center;
 
     &:hover {
         border-color: darken($color-purple, 5%);
@@ -96,4 +97,5 @@ DefinitionSelector::down-arrow, ModeSelector::down-arrow {
 
 AssetVersionStatusWidget {
     border-radius: 11px;
+    text-align: center;
 }

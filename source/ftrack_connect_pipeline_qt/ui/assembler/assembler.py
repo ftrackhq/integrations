@@ -3,12 +3,13 @@
 import os
 import json
 import copy
-import logging
+import time
 
 import qtawesome as qta
 from functools import partial
 
 from Qt import QtCore, QtWidgets
+import shiboken2
 
 from ftrack_connect_pipeline.client import constants
 
@@ -18,6 +19,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import (
 from ftrack_connect_pipeline_qt.utils import (
     BaseThread,
     str_version,
+    center_widget,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
     CircularButton,
@@ -25,11 +27,9 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
 from ftrack_connect_pipeline_qt.ui.utility.widget.busy_indicator import (
     BusyIndicator,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget.context_browser import (
-    ContextBrowser,
+from ftrack_connect_pipeline_qt.ui.utility.widget.entity_browser import (
+    EntityBrowser,
 )
-
-from ftrack_connect_pipeline import constants as core_constants
 
 from ftrack_connect_pipeline_qt.ui.assembler.base import (
     AssemblerBaseWidget,
@@ -37,6 +37,9 @@ from ftrack_connect_pipeline_qt.ui.assembler.base import (
     ComponentBaseWidget,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
+from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import (
+    VersionComboBox,
+)
 
 
 class AssemblerDependenciesWidget(AssemblerBaseWidget):
@@ -68,20 +71,10 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
 
     def refresh(self):
         # Add spinner
-        super(AssemblerDependenciesWidget, self).refresh()
-
-        self.model.reset()
-
-        _busy_v_container = QtWidgets.QWidget()
-        _busy_v_container.setLayout(QtWidgets.QVBoxLayout())
-        _busy_h_container = QtWidgets.QWidget()
-        _busy_h_container.setLayout(QtWidgets.QHBoxLayout())
         self._busy_widget = BusyIndicator()
-        self._busy_widget.setMaximumSize(QtCore.QSize(30, 30))
-        _busy_h_container.layout().addWidget(self._busy_widget)
-        _busy_v_container.layout().addWidget(_busy_h_container)
-        self.scroll.setWidget(_busy_v_container)
-        self._busy_widget.start()
+        self.scroll.setWidget(center_widget(self._busy_widget, 30, 30))
+
+        super(AssemblerDependenciesWidget, self).refresh()
 
         # Resolve version this context is depending on in separate thread
         thread = BaseThread(
@@ -110,7 +103,6 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
         self.dependencies_resolved.emit(result)
 
     def on_dependencies_resolved(self, result):
-        self._busy_widget.stop()
 
         versions = None
         user_message = None
@@ -131,8 +123,6 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
                 constants.WARNING_STATUS, user_message
             )
 
-        self.scroll.widget().deleteLater()
-
         if len(versions or []) == 0:
             if user_message is None:
                 self._assembler_client.progress_widget.set_status(
@@ -147,180 +137,7 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
             )
         )
 
-        # Fetch all definitions, append asset type name
-        loader_definitions = []
-        asset_type_name_short_mappings = {}
-        for (
-            definition
-        ) in self._assembler_client.host_and_definition_selector.definitions:
-            for package in self._assembler_client.host_connection.definitions[
-                'package'
-            ]:
-                if package['name'] == definition.get('package'):
-                    asset_type_name_short_mappings[
-                        definition['name']
-                    ] = package['asset_type_name']
-                    loader_definitions.append(definition)
-                    break
-
-        # import json
-        print(
-            '@@@ loader_definitions: {}'.format(
-                '\n'.join(
-                    [
-                        json.dumps(loader, indent=4)
-                        for loader in loader_definitions
-                    ]
-                )
-            )
-        )
-        # print('@@@ # loader_definitions: {}'.format(len(loader_definitions)))
-
-        # For each version, figure out loadable components and store with
-        # fragment of its possible loader definition(s)
-
-        components = []
-
-        # Group by context, sort by asset name
-        for version in sorted(
-            versions,
-            key=lambda v: '{}/{}'.format(
-                v['asset']['parent']['id'], v['asset']['name']
-            ),
-        ):
-            print('@@@ Processing: {}'.format(str_version(version)))
-            for component in version['components']:
-                component_extension = component.get('file_type')
-                print(
-                    '@@@     Component: {}({})'.format(
-                        component['name'], component['file_type']
-                    )
-                )
-                if not component_extension:
-                    self.logger.warning(
-                        'Could not assemble version {} component {}; missing file type!'.format(
-                            version['id'], component['id']
-                        )
-                    )
-                    continue
-                matching_definitions = None
-                for definition in loader_definitions:
-                    # Matches asset type?
-                    definition_asset_type_name_short = (
-                        asset_type_name_short_mappings[definition['name']]
-                    )
-                    if (
-                        definition_asset_type_name_short
-                        != version['asset']['type']['short']
-                    ):
-                        print(
-                            '@@@     Definition AT {} mismatch version {}!'.format(
-                                definition_asset_type_name_short,
-                                version['asset']['type']['short'],
-                            )
-                        )
-                        continue
-                    definition_fragment = None
-                    for d_component in definition.get('components', []):
-                        if (
-                            d_component['name'].lower()
-                            != component['name'].lower()
-                        ):
-                            print(
-                                '@@@     Definition component name {} mismatch!'.format(
-                                    d_component['name']
-                                )
-                            )
-                            continue
-                        for d_stage in d_component.get('stages', []):
-                            if d_stage.get('name') == 'collector':
-                                for d_plugin in d_stage.get('plugins', []):
-                                    accepted_formats = d_plugin.get(
-                                        'options', {}
-                                    ).get('accepted_formats')
-                                    if not accepted_formats:
-                                        continue
-                                    if set(accepted_formats).intersection(
-                                        set([component_extension])
-                                    ):
-                                        # Construct fragment
-                                        definition_fragment = {
-                                            'components': [
-                                                copy.deepcopy(d_component)
-                                            ]
-                                        }
-                                        for key in definition:
-                                            if key not in [
-                                                'components',
-                                            ]:
-                                                definition_fragment[
-                                                    key
-                                                ] = copy.deepcopy(
-                                                    definition[key]
-                                                )
-                                                if (
-                                                    key
-                                                    == core_constants.CONTEXTS
-                                                ):
-                                                    # Remove open context
-                                                    for (
-                                                        stage
-                                                    ) in definition_fragment[
-                                                        key
-                                                    ][
-                                                        0
-                                                    ][
-                                                        'stages'
-                                                    ]:
-                                                        for plugin in stage[
-                                                            'plugins'
-                                                        ]:
-                                                            if (
-                                                                not 'options'
-                                                                in plugin
-                                                            ):
-                                                                plugin[
-                                                                    'options'
-                                                                ] = {}
-                                                            # Store version
-                                                            plugin['options'][
-                                                                'asset_name'
-                                                            ] = version[
-                                                                'asset'
-                                                            ][
-                                                                'name'
-                                                            ]
-                                                            plugin['options'][
-                                                                'asset_id'
-                                                            ] = version[
-                                                                'asset'
-                                                            ][
-                                                                'id'
-                                                            ]
-                                                            plugin['options'][
-                                                                'version_number'
-                                                            ] = version[
-                                                                'version'
-                                                            ]
-                                                            plugin['options'][
-                                                                'version_id'
-                                                            ] = version['id']
-                                        break
-                                    else:
-                                        print(
-                                            '@@@     Accepted formats {} does not intersect with {}!'.format(
-                                                accepted_formats,
-                                                [component_extension],
-                                            )
-                                        )
-                            if definition_fragment:
-                                break
-                        if definition_fragment:
-                            if matching_definitions is None:
-                                matching_definitions = []
-                            matching_definitions.append(definition_fragment)
-                if matching_definitions is not None:
-                    components.append((component, matching_definitions))
+        components = self.extract_components(versions)
 
         if len(components) == 0:
             self._assembler_client.progress_widget.set_status(
@@ -332,6 +149,9 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
         self._component_list = DependenciesListWidget(self)
         # self._asset_list.setStyleSheet('background-color: blue;')
 
+        self._busy_widget.stop()
+        self._busy_widget = None
+
         self.scroll.setWidget(self._component_list)
 
         # Will trigger list to be rebuilt.
@@ -339,9 +159,55 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
 
 
 class AssemblerBrowserWidget(AssemblerBaseWidget):
+
+    versionsFetched = QtCore.Signal(
+        object
+    )  # Emitted when a new chunk of versions has been loaded
+    allVersionsFetched = (
+        QtCore.Signal()
+    )  # Emitted when all versions has been fetched
+
+    @property
+    def context_path(self):
+        '''Return a list with context path elements, cache it to improve performance.'''
+        if (
+            not self._cached_context_path_id
+            or self._cached_context_path_id
+            != self._entity_browser.entity['id']
+        ):
+            self._cached_context_path = [
+                link['name'] for link in self._entity_browser.entity['link']
+            ]
+            self._cached_context_path_id = self._entity_browser.entity['id']
+        return self._cached_context_path
+
     def __init__(self, assembler_client, parent=None):
         super(AssemblerBrowserWidget, self).__init__(
             assembler_client, parent=parent
+        )
+        self._cached_context_path_id = None
+
+    def pre_build(self):
+        super(AssemblerBrowserWidget, self).pre_build()
+        # Fetch entity, might not be loaded yet
+        entity = self.get_context(False)
+        # if not entity:
+        #     # Need one entity, choose first active project
+        #     entity = self.session.query(
+        #         'select link, name, parent, parent.name from Project where status is active'
+        #     ).first()
+        #     if entity is None:
+        #         # Any project
+        #         entity = self.session.query(
+        #             'select link, name from Project'
+        #         ).first()
+        #         if entity is None:
+        #             self.layout().addWidget(
+        #                 'No entity given, and no project found!'
+        #             )
+        #             raise Exception('No entity given, and no project found!')
+        self._entity_browser = EntityBrowser(
+            entity, self._assembler_client, mode=EntityBrowser.MODE_CONTEXT
         )
 
     def build_header(self):
@@ -360,11 +226,10 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
         widget.layout().setContentsMargins(2, 2, 2, 2)
         widget.layout().setSpacing(4)
 
-        self._context_browser = ContextBrowser(
-            self._assembler_client.context_selector.entity,
-            self._assembler_client.session,
+        self._entity_browser_navigator = (
+            self._entity_browser.create_navigator()
         )
-        widget.layout().addWidget(self._context_browser)
+        widget.layout().addWidget(self._entity_browser_navigator)
 
         self._search = Search()
         self._search.input_updated.connect(self._on_search)
@@ -386,6 +251,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
         self._cb_show_non_compatible = QtWidgets.QCheckBox(
             'Show non-compatible assets'
         )
+        self._cb_show_non_compatible.setObjectName("gray")
         toolbar_widget.layout().addWidget(self._cb_show_non_compatible)
 
         toolbar_widget.layout().addWidget(QtWidgets.QLabel(), 100)
@@ -396,17 +262,109 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
 
         self._busy_widget = BusyIndicator()
         toolbar_widget.layout().addWidget(self._busy_widget)
-        self._busy_widget.setVisible(True)
+        self._busy_widget.setMinimumSize(QtCore.QSize(16, 16))
+        self._busy_widget.setVisible(False)
 
         self.layout().addWidget(toolbar_widget)
 
     def post_build(self):
         self._refresh_button.clicked.connect(self.refresh)
+        self._cb_show_non_compatible.clicked.connect(self.refresh)
+        self._entity_browser.entityChanged.connect(self.refresh)
+        self.versionsFetched.connect(self._on_versions_fetched)
+        self.allVersionsFetched.connect(self._on_all_versions_fetched)
 
     def refresh(self):
+        print('@@@ AssemblerBrowserWidget::refresh()')
         super(AssemblerBrowserWidget, self).refresh()
 
-    def _on_search(self):
+        if self._entity_browser.entity is None:
+            # First time set
+            self._entity_browser.set_entity(self.get_context())
+
+        # Create component list
+        self._component_list = BrowserListWidget(self)
+
+        self.scroll.setWidget(self._component_list)
+
+        # Find version beneath browsed entity, in chunks
+        self._limit = 10  # Amount of assets to fetch at a time
+
+        thread = BaseThread(
+            name='fetch_browsed_assets_thread',
+            target=self._fetch_versions,
+            target_args=[self._entity_browser.entity],
+        )
+        thread.start()
+
+    def _recursive_get_descendant_ids(self, context):
+        result = [context['id']]
+        for child in context['children']:
+            if child.entity_type != "Task":
+                result.extend(self._recursive_get_descendant_ids(child))
+        return result
+
+    def _fetch_versions(self, context):
+        '''Search ftrack for versions beneath the given *context_id*'''
+        print(
+            '@@@ AssemblerBrowserWidget::_fetch_versions({})'.format(context)
+        )
+        # Build list of parent ID's
+        parent_ids = self._recursive_get_descendant_ids(context)
+        self._tail = 0  # The current fetch position
+        while True:
+            versions = self.session.query(
+                'select id,task,version from AssetVersion where task.parent.id in '
+                '({0}) or task.id in ({0}) offset {1} limit {2}'.format(
+                    ','.join(
+                        [
+                            '"{}"'.format(context_id)
+                            for context_id in parent_ids
+                        ]
+                    ),
+                    self._tail,
+                    self._limit,
+                )
+            ).all()
+            if len(versions) == 0:
+                # We are done
+                self.allVersionsFetched.emit()
+                break
+            self.versionsFetched.emit(versions)
+            self._tail += len(versions)
+
+    def _on_versions_fetched(self, versions):
+        '''A chunk of versions has been obtained, filter > give setup and add to list'''
+        print(
+            '@@@ AssemblerBrowserWidget::_on_versions_fetched({})'.format(
+                len(versions)
+            )
+        )
+
+        components = self.extract_components(
+            versions,
+            include_unloadable=self._cb_show_non_compatible.isChecked(),
+        )
+
+        # Will trigger list to be rebuilt.
+        self.model.insertRows(self.model.rowCount(), components)
+
+    def _on_all_versions_fetched(self):
+        print(
+            '@@@ AssemblerBrowserWidget::_on_all_versions_fetched()'.format()
+        )
+        # if self._busy_widget and shiboken2.isValid(self._busy_widget):
+        self._busy_widget.stop()
+        self._busy_widget.setVisible(False)
+
+        if self.model.rowCount() == 0:
+            l = QtWidgets.QLabel('<html><i>No versions found!</i></html>')
+            l.setObjectName("gray")
+            self.scroll.setWidget(center_widget(l))
+        else:
+            self._component_list.finalize_list()
+
+    def _on_search(self, text):
         pass
 
 
@@ -418,6 +376,17 @@ class DependenciesListWidget(AssemblerListBaseWidget):
         super(DependenciesListWidget, self).__init__(
             assembler_widget, parent=parent
         )
+
+    def post_build(self):
+        super(DependenciesListWidget, self).post_build()
+        self._model.rowsInserted.connect(self._on_dependencies_added)
+        self._model.modelReset.connect(self._on_dependencies_added)
+        self._model.rowsRemoved.connect(self._on_dependencies_added)
+        self._model.dataChanged.connect(self._on_dependencies_added)
+
+    def _on_dependencies_added(self, *args):
+        self.rebuild()
+        self.selection_updated.emit(self.selection())
 
     def rebuild(self):
         '''Add all assets(components) again from model.'''
@@ -493,6 +462,35 @@ class BrowserListWidget(AssemblerListBaseWidget):
             assembler_widget, parent=parent
         )
 
+    def post_build(self):
+        super(BrowserListWidget, self).post_build()
+        self.model.rowsInserted.connect(self._on_components_added)
+
+    def _on_components_added(self, model, first, last):
+        '''Add components recently added from model to list.'''
+        for index in range(first, last + 1):
+            index = self.model.createIndex(index, 0, self.model)
+
+            (component, definitions) = self.model.data(index)
+
+            # Append component accordion
+
+            component_widget = self._asset_widget_class(
+                index, self._assembler_widget, self.model.event_manager
+            )
+            component_widget.set_component_and_definitions(
+                component, definitions
+            )
+            self.layout().addWidget(component_widget)
+            component_widget.clicked.connect(
+                partial(self.asset_clicked, component_widget)
+            )
+
+        self.selection_updated.emit(self.selection())
+
+    def finalize_list(self):
+        self.layout().addWidget(QtWidgets.QLabel(), 100)
+
 
 class DependencyComponentWidget(ComponentBaseWidget):
     '''Widget representation of a minimal asset representation'''
@@ -530,48 +528,17 @@ class DependencyComponentWidget(ComponentBaseWidget):
         return widget
 
     def get_version_widget(self):
-        widget = QtWidgets.QWidget()
-        widget.setLayout(QtWidgets.QHBoxLayout())
-        widget.layout().setContentsMargins(0, 0, 0, 0)
-        widget.layout().setSpacing(0)
-
-        # dash = QtWidgets.QLabel('-')
-        # dash.setObjectName('h4')
-        # widget.layout().addWidget(dash)
-
         self._version_nr_widget = QtWidgets.QLabel()
-        widget.layout().addWidget(self._version_nr_widget)
-
-        return widget
+        return self._version_nr_widget
 
     def set_version(self, version_nr):
-        if self._collapsed:
-            self._version_nr_widget.setText('v{}  '.format(str(version_nr)))
+        self._version_nr_widget.setText('v{}  '.format(str(version_nr)))
 
     def set_latest_version(self, is_latest_version):
         color = '#935BA2' if is_latest_version else '#FFBA5C'
         self._version_nr_widget.setStyleSheet(
             'color: {}; font-weight: bold;'.format(color)
         )
-
-    def set_component_and_definitions(self, component, definitions):
-        '''Update widget from data'''
-        super(DependencyComponentWidget, self).set_component_and_definitions(
-            component, definitions
-        )
-
-        self._asset_name_widget.setText(
-            '{} '.format(component['version']['asset']['name'])
-        )
-        component_path = '{}{}'.format(
-            component['name'], component['file_type']
-        )
-        self._component_filename_widget.setText(
-            '- {}'.format(component_path.replace('\\', '/').split('/')[-1])
-        )
-
-        self.set_version(component['version']['version'])
-        self.set_latest_version(component['version']['is_latest_version'])
 
 
 class BrowsedComponentWidget(ComponentBaseWidget):
@@ -586,13 +553,83 @@ class BrowsedComponentWidget(ComponentBaseWidget):
         self.setMinimumHeight(40)
 
     def get_thumbnail_height(self):
-        return 38
+        return 32
+
+    def get_ident_widget(self):
+        '''Asset name and component name.file_type'''
+        widget = QtWidgets.QWidget()
+        widget.setLayout(QtWidgets.QVBoxLayout())
+        widget.layout().setContentsMargins(0, 0, 0, 0)
+        widget.layout().setSpacing(0)
+
+        # Add context path, relative to browser context
+        self._path_widget = QtWidgets.QLabel()
+        self._path_widget.setObjectName("gray")
+
+        widget.layout().addWidget(self._path_widget)
+
+        lower_widget = QtWidgets.QWidget()
+        lower_widget.setLayout(QtWidgets.QHBoxLayout())
+        lower_widget.layout().setContentsMargins(0, 0, 0, 0)
+        lower_widget.layout().setSpacing(0)
+
+        self._asset_name_widget = QtWidgets.QLabel()
+        self._asset_name_widget.setObjectName('h4')
+
+        lower_widget.layout().addWidget(self._asset_name_widget)
+
+        self._component_filename_widget = QtWidgets.QLabel()
+        self._component_filename_widget.setObjectName('gray')
+
+        lower_widget.layout().addWidget(self._component_filename_widget)
+
+        lower_widget.layout().addWidget(QtWidgets.QLabel(), 100)
+
+        widget.layout().addWidget(lower_widget)
+
+        return widget
+
+    def get_version_widget(self):
+        self._version_nr_widget = AssemblerVersionComboBox(self.session)
+        return self._version_nr_widget
+
+    def set_version(self, version_nr):
+        pass
+
+    def set_latest_version(self, is_latest_version):
+        color = '#935BA2' if is_latest_version else '#FFBA5C'
+        self._version_nr_widget.setStyleSheet(
+            'color: {}; font-weight: bold;'.format(color)
+        )
+
+    def set_component_and_definitions(self, component, definitions):
+        super(BrowsedComponentWidget, self).set_component_and_definitions(
+            component, definitions
+        )
+        # Calculate path
+        parent_path = [
+            link['name'] for link in component['version']['task']['link']
+        ]
+        context_path = self._assembler_widget.context_path
+        index = 0
+        while parent_path[index].lower() == context_path[index].lower():
+            print(
+                '@@@ "{}"=="{}"'.format(
+                    parent_path[index].lower(), context_path[index].lower()
+                )
+            )
+            index += 1
+            if index == len(context_path):
+                break
+        self._path_widget.setText(' / '.join(parent_path[index:]))
+        self._version_nr_widget.set_context_id(self._context_id)
+        self._version_nr_widget.set_asset_entity(component['version']['asset'])
 
 
 class AssemblerEntityInfo(QtWidgets.QWidget):
     '''Entity path widget.'''
 
-    path_ready = QtCore.Signal(object)
+    pathReady = QtCore.Signal(object)
 
     def __init__(self, additional_widget=None, parent=None):
         '''Instantiate the entity path widget.'''
@@ -630,7 +667,7 @@ class AssemblerEntityInfo(QtWidgets.QWidget):
         self.layout().addStretch()
 
     def post_build(self):
-        self.path_ready.connect(self.on_path_ready)
+        self.pathReady.connect(self.on_path_ready)
 
     def set_entity(self, entity):
         '''Set the *entity* for this widget.'''
@@ -642,8 +679,16 @@ class AssemblerEntityInfo(QtWidgets.QWidget):
             parents.append(parent)
             parent = parent['parent']
         parents.reverse()
-        self.path_ready.emit(parents)
+        self.pathReady.emit(parents)
 
     def on_path_ready(self, parents):
         '''Set current path to *names*.'''
         self._path_field.setText(os.sep.join([p['name'] for p in parents[:]]))
+
+
+class AssemblerVersionComboBox(VersionComboBox):
+    def __init__(self, session, parent=None):
+        super(AssemblerVersionComboBox, self).__init__(session, parent=parent)
+
+    def _add_version(self, version):
+        self.addItem(str("v{}".format(version['version'])), version['id'])
