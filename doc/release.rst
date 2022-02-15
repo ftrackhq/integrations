@@ -5,13 +5,17 @@
 Releases
 ########
 
-.. release:: Upcoming
+
+.. release:: 2.0.0-rc-4
+    :date: 2022-01-15
+
+    .. change:: added
+
+        ftrack-connect-plugin-manager is now included in package.
 
     .. change:: fixed
 
         DMG can now be build without needing to code sign it.
-
-.. release:: Upcoming
 
     .. change:: fixed
 
