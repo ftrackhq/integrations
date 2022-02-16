@@ -1,16 +1,15 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-import os
 import logging
-import re
-from ftrack_connect_pipeline_maya import host as maya_host
-from ftrack_connect_pipeline_qt import event
+import functools
 from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline_qt import constants as qt_constants
+from ftrack_connect_pipeline_qt import event
+from ftrack_connect_pipeline_maya import host as maya_host
 
 import maya.cmds as cmds
 import maya.mel as mm
-import maya.utils
 
 import ftrack_api
 
@@ -34,7 +33,7 @@ configure_logging(
 logger = logging.getLogger('ftrack_connect_pipeline_maya')
 
 
-created_dialogs = dict()
+created_widgets = dict()
 
 
 def get_ftrack_menu(menu_name='ftrack', submenu_name='pipeline'):
@@ -60,20 +59,29 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name='pipeline'):
 
     return submenu
 
-
-def _open_dialog(dialog_class, event_manager):
-    '''Open *dialog_class* and create if not already existing.'''
-    dialog_name = dialog_class
-
-    if dialog_name not in created_dialogs:
-        ftrack_dialog = dialog_class
-        created_dialogs[dialog_name] = ftrack_dialog(event_manager)
-
-    created_dialogs[dialog_name].show()
+def _open_widget(event_manager, widgets, event):
+    '''Open Maya widget based on widget name in *event*, and create if not already
+    exists'''
+    widget_name = None
+    for (_widget_name, widget_class, unused_label) in widgets:
+        if _widget_name == event['data']['pipeline']['widget_name']:
+            widget_name = _widget_name
+            break
+    if widget_name:
+        if widget_name not in created_widgets:
+            ftrack_client = widget_class
+            created_widgets[widget_name] = ftrack_client(
+                event_manager
+            )
+        created_widgets[widget_name].show()
+    else:
+        raise Exception('Unknown client {}!'.format(
+            event['data']['pipeline']['widget_name'])
+        )
 
 
 def initialise():
-    # TODO : later we need to bring back here all the maya initialiations
+    # TODO : later we need to bring back here all the maya initialisations
     #  from ftrack-connect-maya
     # such as frame start / end etc....
 
@@ -84,9 +92,11 @@ def initialise():
         session=session, mode=constants.LOCAL_EVENT_MODE
     )
 
-    maya_host.MayaHost(event_manager)
+    host = maya_host.MayaHost(event_manager)
 
     cmds.loadPlugin('ftrackMayaPlugin.py', quiet=True)
+
+    # Enable loader and publisher only if is set to run local (default)
 
     from ftrack_connect_pipeline_maya.client import open
     from ftrack_connect_pipeline_maya.client import load
@@ -94,33 +104,46 @@ def initialise():
     from ftrack_connect_pipeline_maya.client import asset_manager
     from ftrack_connect_pipeline_maya.client import log_viewer
 
-    # Enable loader and publisher only if is set to run local (default)
-    dialogs = []
-
-    dialogs.append((open.MayaOpenDialog, 'Open'))
-    dialogs.append((load.MayaLoaderClient, 'Loader'))
-    dialogs.append((publish.MayaPublisherClient, 'Publisher'))
-    dialogs.append((asset_manager.MayaAssetManagerClient, 'Asset Manager'))
-    dialogs.append((log_viewer.MayaLogViewerClient, 'Log Viewer'))
+    widgets = list()
+    widgets.append(
+        (open.MayaOpenDialog, 'Open')
+    )
+    widgets.append(
+        ('load', load.MayaLoaderClient, 'Loader')
+    )
+    widgets.append(
+        ('publish', publish.MayaPublisherClient, 'Publisher')
+    )
+    widgets.append(
+        ('asset_manager', asset_manager.MayaAssetManagerClient, 'Asset Manager')
+    )
+    widgets.append(
+        ('log_viewer', log_viewer.MayaLogViewerClient, 'Log Viewer')
+    )
 
     ftrack_menu = get_ftrack_menu()
     # Register and hook the dialog in ftrack menu
-    for item in dialogs:
+    for item in widgets:
         if item == 'divider':
             cmds.menuItem(divider=True)
             continue
 
-        dialog_class, label = item
+        widget_name, unused_widget_class, label = item
 
         cmds.menuItem(
             parent=ftrack_menu,
             label=label,
-            command=(
-                lambda x, dialog_class=dialog_class: _open_dialog(
-                    dialog_class, event_manager
-                )
-            ),
+            command=(functools.partial(host.launch_widget, widget_name)),
         )
+
+    # Listen to client launch events
+    session.event_hub.subscribe(
+        'topic={} and data.pipeline.host_id={}'.format(
+            qt_constants.PIPELINE_WIDGET_LAUNCH,
+            host.host_id
+        ),
+        functools.partial(_open_widget, event_manager, widgets)
+    )
 
 
 cmds.evalDeferred('initialise()', lp=True)
