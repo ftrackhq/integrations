@@ -188,11 +188,22 @@ class AssetManagerEngine(BaseEngine):
                 context_data=None,
                 method=plugin['default_method'],
             )
+
             if plugin_result:
                 status = plugin_result['status']
-                result = plugin_result['result'].get(plugin['default_method'])
+                result = (plugin_result['result'] or {}).get(
+                    plugin['default_method']
+                )
+
+                if len(plugin_result.get('user_data')) > 0:
+                    # Supply user data (message) with result
+                    if not isinstance(result, tuple):
+                        result = (result, plugin_result['user_data'])
+
             bool_status = constants.status_bool_mapping[status]
+
             if not bool_status:
+
                 message = "Error executing the plugin: {}".format(plugin)
                 self.logger.error(message)
 
@@ -236,6 +247,7 @@ class AssetManagerEngine(BaseEngine):
                 status, result = self.remove_asset(asset_info, options, plugin)
             except Exception as e:
                 status = constants.ERROR_STATUS
+                self.logger.exception(e)
                 self.logger.error(
                     "Error removing asset with version id {} \n error: {} "
                     "\n asset_info: {}".format(
@@ -368,6 +380,7 @@ class AssetManagerEngine(BaseEngine):
                 status, result = self.update_asset(asset_info, options, plugin)
             except Exception as e:
                 status = constants.ERROR_STATUS
+                self.logger.exception(e)
                 self.logger.error(
                     "Error updating asset with version id {} \n error: {} "
                     "\n asset_info: {}".format(
@@ -480,6 +493,7 @@ class AssetManagerEngine(BaseEngine):
                 status, result = self.load_asset(asset_info, options, plugin)
             except Exception as e:
                 status = constants.ERROR_STATUS
+                self.logger.exception(e)
                 self.logger.error(
                     "Error removing asset with version id {} \n error: {} "
                     "\n asset_info: {}".format(
@@ -616,6 +630,7 @@ class AssetManagerEngine(BaseEngine):
                 status, result = self.unload_asset(asset_info, options, plugin)
             except Exception as e:
                 status = constants.ERROR_STATUS
+                self.logger.exception(e)
                 self.logger.error(
                     "Error removing asset with version id {} \n error: {} "
                     "\n asset_info: {}".format(
@@ -709,6 +724,7 @@ class AssetManagerEngine(BaseEngine):
             )
         except Exception as e:
             remove_status = constants.ERROR_STATUS
+            self.logger.exception(e)
             message = str(
                 "Error removing asset with version id {} \n error: {} "
                 "\n asset_info: {}".format(
@@ -804,6 +820,9 @@ class AssetManagerEngine(BaseEngine):
             else:
                 bool_status = constants.status_bool_mapping[status]
                 if not bool_status:
+                    import traceback
+
+                    traceback.print_stack()
                     raise Exception(
                         'An error occurred during the execution of '
                         'the method: {}'.format(method)

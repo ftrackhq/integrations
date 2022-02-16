@@ -171,6 +171,8 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
                 arguments_dict[constants.COMPONENT_ID] = component['id']
                 arguments_dict[constants.COMPONENT_PATH] = component_path
 
+    arguments_dict[constants.IS_LOADED] = False
+
     return arguments_dict
 
 
@@ -455,6 +457,8 @@ class FtrackAssetInfo(dict):
                             constants.COMPONENT_PATH
                         ] = component_path
 
+        asset_info_data[constants.IS_LOADED] = False
+
         return cls(asset_info_data)
 
     @classmethod
@@ -483,6 +487,7 @@ class FtrackAssetInfo(dict):
         asset_info_data[constants.VERSION_NUMBER] = int(0)
         asset_info_data[constants.VERSION_ID] = ''
         asset_info_data[constants.IS_LATEST_VERSION] = False
+        asset_info_data[constants.IS_LOADED] = False
         asset_info_data[constants.LOAD_MODE] = ''
         asset_info_data[constants.ASSET_INFO_OPTIONS] = ''
 

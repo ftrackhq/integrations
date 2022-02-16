@@ -81,6 +81,10 @@ DEPENDENCIES = 'dependencies'
 #: :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
 #: and the DCC ftrack plugin.
 CONTEXT_NAME = 'context_name'
+#: Is loaded constant identifier key for ftrack assets connected or used with
+#: :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
+#: and the DCC ftrack plugin.
+IS_LOADED = 'is_loaded'
 
 #: Identifier version of the asset constants and plugin.
 VERSION = '2.0'
@@ -107,4 +111,5 @@ KEYS = [
     IS_DEPENDENCY,
     DEPENDENCIES,
     CONTEXT_NAME,
+    IS_LOADED,
 ]

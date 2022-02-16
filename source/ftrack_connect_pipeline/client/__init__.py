@@ -82,17 +82,15 @@ class HostConnection(object):
             if not discoverable:
                 # Append if not discoverable, because that means should be
                 # discovered always as the Asset Manager or the logger
-                result.append(definition)
                 match = True
-                continue
-            # This is not in a list comprehension because it needs the break
-            # once found
-            for discover_name in discoverable:
-                if discover_name.lower() in context_identifiers:
-                    # Add definition as it matches
-                    result.append(definition)
-                    match = True
-                    break
+            else:
+                # This is not in a list comprehension because it needs the break
+                # once found
+                for discover_name in discoverable:
+                    if discover_name.lower() in context_identifiers:
+                        # Add definition as it matches
+                        match = True
+                        break
 
             if not match:
                 self.logger.debug(
@@ -103,6 +101,8 @@ class HostConnection(object):
                         discoverable,
                     )
                 )
+            if match:
+                result.append(definition)
 
         return result
 
@@ -137,7 +137,7 @@ class HostConnection(object):
         '''Initialise HostConnection with instance of
         :class:`~ftrack_connect_pipeline.event.EventManager` , and *host_data*
 
-        *host_data* : Diccionary containing the host information.
+        *host_data* : Dictionary containing the host information.
         :py:func:`~ftrack_connect_pipeline.host.provide_host_information`
 
         '''
@@ -152,11 +152,12 @@ class HostConnection(object):
 
         self.context_id = self._raw_host_data['context_id']
 
-    def run(self, data, engine, callback=None):
+    def run(self, data, engine, delayed_load=None, callback=None):
         '''
         Publish an event with the topic
         :py:const:`~ftrack_connect_pipeline.constants.PIPELINE_HOST_RUN`
-        with the given *data* and *engine*.
+        with the given *data* and *engine*. If *delayed_load* is true, only
+        the ftrack nodes will be created on imported instead of fully loaded.
         '''
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_HOST_RUN,
@@ -165,6 +166,7 @@ class HostConnection(object):
                     'host_id': self.id,
                     'data': data,
                     'engine_type': engine,
+                    'delayed_load': delayed_load,
                 }
             },
         )
@@ -353,14 +355,19 @@ class Client(object):
             discover_event, callback=self._host_discovered
         )
 
-    def run_definition(self, definition, engine_type):
+    def run_definition(self, definition, engine_type, delayed_load):
         '''
         Calls the :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
         to run the entire given *definition* with the given *engine_type*.
 
         Callback received at :meth:`_run_callback`
         '''
-        self.host_connection.run(definition, engine_type, self._run_callback)
+        self.host_connection.run(
+            definition,
+            engine_type,
+            delayed_load=delayed_load,
+            callback=self._run_callback,
+        )
 
     def run_plugin(self, plugin_data, method, engine_type):
         '''
@@ -384,7 +391,9 @@ class Client(object):
             'plugin_type': plugin_type,
             'method': method,
         }
-        self.host_connection.run(data, engine_type, self._run_callback)
+        self.host_connection.run(
+            data, engine_type, callback=self._run_callback
+        )
 
     def _run_callback(self, event):
         '''Callback of the :meth:`~ftrack_connect_pipeline.client.run_plugin'''
@@ -429,7 +438,7 @@ class Client(object):
         self._schema = schema
         self._definition = definition
 
-        self.current_package = self.get_current_package()
+        self.current_package = self.get_current_package(definition)
 
         self.change_engine(self.definition['_config']['engine_type'])
 
@@ -439,18 +448,18 @@ class Client(object):
         '''
         self._engine_type = engine_type
 
-    def get_current_package(self):
+    def get_current_package(self, definition):
         '''
         Returns the package of the current :obj:`definition`
         '''
-        if not self.host_connection or not self.definition:
+        if not self.host_connection or not definition:
             self.logger.error(
                 "please set the host connection and the definition first"
             )
             return
 
         for package in self.host_connection.definitions['package']:
-            if package['name'] == self.definition.get('package'):
+            if package['name'] == definition.get('package'):
                 return package
         return None
 

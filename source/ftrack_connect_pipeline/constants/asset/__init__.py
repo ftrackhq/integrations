@@ -7,5 +7,5 @@ FTRACK_OBJECT_NAME = '{}_ftrackdata'
 # loaded in the scene, and the asset will apear as unloaded. If false, the
 # ftrack node will be created as well but the asset will automatically be added
 # (or imported or referenced) in the scene.
-LOAD_AS_NODE_ONLY = True
+# LOAD_AS_NODE_ONLY = True
 from ftrack_connect_pipeline.constants.asset.v2 import *
