@@ -284,7 +284,6 @@ class AssetManagerClient(Client):
         :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
 
-
         data = {
             'method': 'remove_assets',
             'plugin': None,

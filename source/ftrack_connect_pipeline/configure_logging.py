@@ -57,9 +57,7 @@ def configure_logging(
     level = level or logging.INFO
 
     log_directory = get_log_directory()
-    logfile = os.path.join(
-        log_directory, '{0}.log'.format(logger_name)
-    )
+    logfile = os.path.join(log_directory, '{0}.log'.format(logger_name))
 
     # Sanitise the variable, checking the type.
     if not isinstance(extra_modules, (list, tuple, type(None))):
