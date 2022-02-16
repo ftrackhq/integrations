@@ -250,3 +250,19 @@ class Host(object):
         self._host_type = []
         self._host_id = None
         self.__registry = {}
+
+    def launch_widget(self, widget_name, source=None):
+        '''Send a widget launch event, to be picked up by DCC.'''
+        event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_WIDGET_LAUNCH,
+            data={
+                'pipeline': {
+                    'host_id': self._host_id,
+                    'widget_name': widget_name,
+                    'source': source,
+                }
+            },
+        )
+        self._event_manager.publish(
+            event,
+        )

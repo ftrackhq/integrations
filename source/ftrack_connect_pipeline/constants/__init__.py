@@ -89,6 +89,9 @@ PIPELINE_CLIENT_PROGRESS_NOTIFICATION = (
 #: :meth:`~ftrack_connect_pipeline.host.on_register_definition`
 PIPELINE_DISCOVER_HOST = '{}.host.discover'.format(_BASE_)
 
+# Launch a widget within a client
+PIPELINE_WIDGET_LAUNCH = '{}.client.launch'.format(_BASE_)
+
 # Avoid circular dependencies.
 from ftrack_connect_pipeline.constants.plugin.load import *
 from ftrack_connect_pipeline.constants.plugin.publish import *

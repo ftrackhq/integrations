@@ -171,7 +171,7 @@ class AssetManagerEngine(BaseEngine):
             'status': status,
             'result': result,
             'execution_time': 0,
-            'message': message
+            'message': message,
         }
 
         if not options:
@@ -181,11 +181,12 @@ class AssetManagerEngine(BaseEngine):
             plugin['plugin_data'] = {'context_id': context_id}
 
             plugin_result = self._run_plugin(
-                plugin, plugin_type,
+                plugin,
+                plugin_type,
                 data=plugin.get('plugin_data'),
                 options=plugin['options'],
                 context_data=None,
-                method=plugin['default_method']
+                method=plugin['default_method'],
             )
             if plugin_result:
                 status = plugin_result['status']
