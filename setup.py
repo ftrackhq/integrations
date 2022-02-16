@@ -60,7 +60,7 @@ DOWNLOAD_PLUGIN_PATH = os.path.join(
     )
 )
 AWS_PLUGIN_DOWNLOAD_PATH = (
-    'https://download.ftrack.com/ftrack-connect/plugins/'
+    'https://download.ftrack.com/ftrack-connect/integrations/'
 )
 
 # Read version from source.
