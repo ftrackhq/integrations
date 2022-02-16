@@ -144,7 +144,7 @@ def set_property(widget, name, value):
 
 
 def str_version(v):
-    return '{}/{}/v{}({})'.format(
+    return '{}/{}/{}/v{}({})'.format(
         '/'.join(['{}'.format(link['name']) for link in v['task']['link']]),
         v['asset']['name'],
         v['asset']['type']['name'],
@@ -166,14 +166,17 @@ def clear_layout(layout):
 def center_widget(w, width=None, height=None):
     v_container = QtWidgets.QWidget()
     v_container.setLayout(QtWidgets.QVBoxLayout())
-    v_container.layout().addWidget(QtWidgets.QLabel(), 100)
+    v_container.layout().addWidget(QtWidgets.QLabel(""), 100)
+
     h_container = QtWidgets.QWidget()
     h_container.setLayout(QtWidgets.QHBoxLayout())
     h_container.layout().addWidget(QtWidgets.QLabel(), 100)
     h_container.layout().addWidget(w)
-    if width and height:
+    if not width is None and not height is None:
         w.setMaximumSize(QtCore.QSize(width, height))
+        w.setMinimumSize(QtCore.QSize(width, height))
     h_container.layout().addWidget(QtWidgets.QLabel(), 100)
     v_container.layout().addWidget(h_container)
+
     v_container.layout().addWidget(QtWidgets.QLabel(), 100)
     return v_container

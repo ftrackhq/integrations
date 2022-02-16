@@ -1,6 +1,5 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2022 ftrack
-import platform
 
 from functools import partial
 
@@ -25,9 +24,14 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
 from ftrack_connect_pipeline_qt.ui.utility.widget.busy_indicator import (
     BusyIndicator,
 )
+from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import (
+    Dialog,
+    ApproveButton,
+    DenyButton,
+)
 
 
-class EntityBrowser(QtWidgets.QDialog):
+class EntityBrowser(Dialog):
     '''
     Dialog enabling entity/context browsing
 
@@ -61,32 +65,36 @@ class EntityBrowser(QtWidgets.QDialog):
 
     @property
     def session(self):
-        return self._client.session
+        return self._session
 
-    def __init__(self, entity, client, mode=MODE_CONTEXT):
-        super(EntityBrowser, self).__init__(parent=client)
+    def __init__(self, session, entity=None, mode=MODE_TASK, parent=None):
         self._entity = None  # The entity that has been set and applied
         self._intermediate_entity = (
             None  # The intermediate entity currently browsed
         )
         self._selected_entity = None  # The selected entity
-        self._client = client
+        self._session = session
         self._external_navigator = None
         self._prev_search_text = ""
         self.set_mode(mode)
 
-        self.pre_build()
-        self.build()
-        self.post_build()
+        super(EntityBrowser, self).__init__(parent=parent)
+
+        if entity is None:
+            if get_current_context_id():
+                entity = self.find_context_entity(get_current_context_id())
 
         self.set_entity(entity)
 
     def pre_build(self):
-        self.setLayout(QtWidgets.QVBoxLayout())
+        super(EntityBrowser, self).pre_build()
         # The navigator within dialog, showing intermediate entity
         self._navigator = EntityBrowserNavigator(self, is_browser=True)
 
-    def build(self):
+    def get_content_widget(self):
+        widget = QtWidgets.QWidget()
+        widget.setLayout(QtWidgets.QVBoxLayout())
+
         toolbar = QtWidgets.QWidget()
         toolbar.setLayout(QtWidgets.QHBoxLayout())
         toolbar.layout().setContentsMargins(0, 0, 0, 0)
@@ -97,7 +105,7 @@ class EntityBrowser(QtWidgets.QDialog):
         self._rebuild_button = CircularButton('sync', '#87E1EB')
         toolbar.layout().addWidget(self._rebuild_button)
 
-        self.layout().addWidget(toolbar)
+        widget.layout().addWidget(toolbar)
 
         self._search = Search(collapsed=False, collapsable=False)
         self._search.input_updated.connect(self._on_search)
@@ -107,42 +115,34 @@ class EntityBrowser(QtWidgets.QDialog):
         self._scroll.setWidgetResizable(True)
         self._scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
-        self.layout().addWidget(self._scroll, 100)
+        widget.layout().addWidget(self._scroll, 100)
 
-        buttonbar = QtWidgets.QWidget()
-        buttonbar.setLayout(QtWidgets.QHBoxLayout())
-        buttonbar.layout().setContentsMargins(0, 0, 0, 0)
-        buttonbar.layout().setSpacing(0)
+        return widget
 
-        buttonbar.layout().addWidget(QtWidgets.QLabel(), 100)
-        self._apply_button = ApplyButton("APPLY CONTEXT")
-        self._cancel_button = CancelButton("CANCEL")
+    def get_title(self):
+        return 'ftrack Entity Browser'
 
-        if platform.system().lower() != 'darwin':
-            buttonbar.layout().addWidget(self._apply_button)
-            buttonbar.layout().addWidget(self._cancel_button)
-        else:
-            buttonbar.layout().addWidget(self._cancel_button)
-            buttonbar.layout().addWidget(self._apply_button)
+    def get_approve_button(self):
+        return ApproveButton("APPLY CONTEXT", width=80)
 
-        self.layout().addWidget(buttonbar, 1)
+    def get_deny_button(self):
+        return DenyButton("CANCEL", width=80)
 
     def post_build(self):
+        super(EntityBrowser, self).post_build()
+
         self._navigator.changeEntity.connect(self.set_intermediate_entity)
         self._navigator.removeEntity.connect(
             self._set_parent_intermediate_entity
         )
 
         self._rebuild_button.clicked.connect(self.rebuild)
-        self._apply_button.clicked.connect(self._on_apply)
-        self._cancel_button.clicked.connect(self.reject)
+        self._approve_button.clicked.connect(self._on_apply)
+        self._deny_button.clicked.connect(self.reject)
 
         self.entitiesFetched.connect(self._on_entities_fetched)
 
-        self.setWindowTitle('ftrack Entity Browser')
         self.resize(650, 400)
-        # self.setWindowFlags(QtCore.Qt.CustomizeWindowHint)
-        self.setModal(True)
 
     def set_mode(self, mode):
         if not mode in [self.MODE_CONTEXT, self.MODE_TASK]:
@@ -161,19 +161,24 @@ class EntityBrowser(QtWidgets.QDialog):
         return self._external_navigator
 
     def set_entity(self, entity):
+        print(
+            '@@@ EntityBrowser::set_entity({}) Prev: {}'.format(
+                entity, self._entity
+            )
+        )
         prev_entity = self._entity
         self._entity = entity
         self.set_intermediate_entity(entity)
         if self._external_navigator is not None:
             self._external_navigator.refresh()
-        if entity != prev_entity:
+        if (entity or {}).get('id') != (prev_entity or {}).get('id'):
             if prev_entity is not None:
                 self.entityChanged.emit(entity)
             if self.isVisible():
                 self.rebuild()
 
     def set_intermediate_entity(self, entity=None):
-        print('@@@ EntityBrower::set_intermediate_entity({})'.format(entity))
+        print('@@@ EntityBrowser::set_intermediate_entity({})'.format(entity))
         self._intermediate_entity = entity
         self._prev_search_text = ""
         self._search.text = ""
@@ -194,7 +199,11 @@ class EntityBrowser(QtWidgets.QDialog):
     def show(self):
         '''Show dialog, on the entity supplied'''
         self.rebuild()
-        super(EntityBrowser, self).show()
+        return super(EntityBrowser, self).show()
+
+    def exec_(self):
+        self.rebuild()
+        return super(EntityBrowser, self).exec_()
 
     def _set_parent_intermediate_entity(self, entity):
         self.set_intermediate_entity(entity['parent'] if entity else None)
@@ -212,7 +221,6 @@ class EntityBrowser(QtWidgets.QDialog):
 
         self._busy_widget = BusyIndicator()
         self._scroll.setWidget(center_widget(self._busy_widget, 30, 30))
-        self._busy_widget.start()
 
         self.update()
 
@@ -249,7 +257,6 @@ class EntityBrowser(QtWidgets.QDialog):
 
     def _on_entities_fetched(self, entities):
         print('@@@ EntityBrowser::_on_entities_fetched({})'.format(entities))
-        self._busy_widget.stop()
 
         widget = QtWidgets.QWidget()
         widget.setLayout(QtWidgets.QVBoxLayout())
@@ -273,6 +280,9 @@ class EntityBrowser(QtWidgets.QDialog):
                     self.entity_widgets.append(sub_entity_widget)
 
         widget.layout().addWidget(QtWidgets.QLabel(), 100)
+
+        self._busy_widget.stop()
+
         self._scroll.setWidget(widget)
 
     def refresh(self):
@@ -313,11 +323,10 @@ class EntityBrowser(QtWidgets.QDialog):
                 has_selection = True
             elif self.mode == self.MODE_TASK:
                 has_selection = self._selected_entity.entity_type == 'Task'
-        self._apply_button.setEnabled(has_selection)
+        self._approve_button.setEnabled(has_selection)
 
     def _on_search(self, text):
         '''Filter list of entities - only include the ones matching text.'''
-        print('@@@ _on_search({})'.format(text))
         self.update()
 
     def _on_apply(self):
@@ -519,7 +528,7 @@ class EntityWidget(QtWidgets.QFrame):
     def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(3, 0, 0, 0)
-        self.layout().setSpacing(0)
+        self.layout().setSpacing(1)
 
     def build(self):
         self.thumbnail_widget = Context(self.entity.session)
@@ -624,7 +633,7 @@ class TypeWidget(QtWidgets.QFrame):
 
     def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().setContentsMargins(3, 0, 0, 0)
+        self.layout().setContentsMargins(3, 0, 7, 0)
         self.layout().setSpacing(0)
 
     def build(self):
@@ -670,15 +679,3 @@ class TypeWidget(QtWidgets.QFrame):
     def post_build(self):
         self.setMinimumHeight(25)
         self.setMaximumHeight(25)
-
-
-class CancelButton(QtWidgets.QPushButton):
-    def __init__(self, label, parent=None):
-        super(CancelButton, self).__init__(label, parent=parent)
-        self.setMinimumSize(QtCore.QSize(80, 25))
-
-
-class ApplyButton(QtWidgets.QPushButton):
-    def __init__(self, label, parent=None):
-        super(ApplyButton, self).__init__(label, parent=parent)
-        self.setMinimumSize(QtCore.QSize(80, 25))

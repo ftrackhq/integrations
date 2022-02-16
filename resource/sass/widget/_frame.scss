@@ -3,7 +3,7 @@ QFrame[background='transparent'], QDialog[background='transparent'] {
 }
 
 QFrame[background='ftrack'], QDialog[background='ftrack'] {
-    background: rgb(20,25,32);
+    background: $white-almost;
 }
 
 QFrame[background='default'], QDialog[background='default'] {
@@ -35,7 +35,17 @@ NewAssetInput[status=''] {
     border: 1px dashed transparent;
 }
 
-#bordered, AccordionBaseWidget {
+#bordered {
+    border: 1px dashed $border-color;
+}
+
+AccordionBaseWidget {
+    border-left: 1px dashed $border-color;
+    border-right: 1px dashed $border-color;
+    border-bottom: 1px dashed $border-color;
+}
+
+AccordionBaseWidget[first='true'] {
     border: 1px dashed $border-color;
 }
 
@@ -84,6 +94,6 @@ EntityWidget[state='selected'] {
 }
 
 TypeWidget {
-    border: 1 dashed $gray-dark;
+    border: 1 solid $gray-dark;
     border-radius: 12px;
 }

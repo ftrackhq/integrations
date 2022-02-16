@@ -130,9 +130,9 @@ class QtAssemblerClient(QtClient):
         button_widget = QtWidgets.QWidget()
         button_widget.setLayout(QtWidgets.QHBoxLayout())
         button_widget.layout().addStretch()
-        self._run_button_no_load = AddRunButton('ADD TO SCENE')
-        self._run_button_no_load.setMinimumHeight(32)
-        button_widget.layout().addWidget(self._run_button_no_load)
+        self.run_button_no_load = AddRunButton('ADD TO SCENE')
+        self.run_button_no_load.setMinimumHeight(32)
+        button_widget.layout().addWidget(self.run_button_no_load)
         self.run_button = LoadRunButton('LOAD INTO SCENE')
         self.run_button.setMinimumHeight(32)
         self.run_button.setFocus()
@@ -211,7 +211,7 @@ class QtAssemblerClient(QtClient):
         if force_hard_refresh:
             self.hard_refresh = True
         if self.hard_refresh:
-            self._assembler_widget.refresh()
+            self._assembler_widget.rebuild()
             self.hard_refresh = False
 
     def reset(self):

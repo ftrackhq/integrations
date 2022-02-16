@@ -12,7 +12,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget.prompt import PromptDialog
+from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import Dialog
 
 
 class AssetManagerBaseWidget(QtWidgets.QWidget):
@@ -208,7 +208,7 @@ class AssetListWidget(QtWidgets.QWidget):
     def pre_build(self):
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setContentsMargins(1, 1, 1, 1)
-        self.layout().setSpacing(1)
+        self.layout().setSpacing(0)
 
     def build(self):
         pass
@@ -232,10 +232,10 @@ class AssetListWidget(QtWidgets.QWidget):
                     result.append(self.model.data(widget.index))
         if len(result) == 0:
             if empty_returns_all:
-                dlg = PromptDialog(
-                    'Assembler',
-                    'Load all?',
-                    self,
+                dlg = Dialog(
+                    title='ftrack Assembler',
+                    question='Load all?',
+                    parent=self,
                 )
                 if dlg.exec_():
                     for widget in self.assets:

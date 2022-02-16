@@ -40,7 +40,7 @@ class Search(QtWidgets.QFrame):
     def pre_build(self):
         '''Prepare general layout.'''
         self.setLayout(QtWidgets.QHBoxLayout(self))
-        self.layout().setContentsMargins(4, 1, 1, 1)
+        self.layout().setContentsMargins(4, 1, 5, 1)
         self.layout().setSpacing(1)
         self.setMaximumHeight(33)
         self.setMinimumHeight(33)
@@ -107,6 +107,7 @@ class Search(QtWidgets.QFrame):
         if self._collapsable:
             self._collapsed = not self._collapsed
             self.rebuild()
+            self.input_updated.emit('')
 
     def _on_input_changed(self):
         self.input_updated.emit(self._input.text())

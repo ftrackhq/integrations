@@ -26,7 +26,7 @@ QPushButton:pressed {
 }
 
 QPushButton:disabled {
-    border-color: darken($color-purple, 50%);
+    border: none;
     background-color: $gray-lighter;
     color: darken($text-color, 50%);
 }
@@ -181,26 +181,27 @@ RemoveButton:disabled {
     color: darken($text-color, 50%);
 }
 
-CancelButton {
-    color: $gray;
-    border: none;
-    background: transparent;
-}
 
-CancelButton:hover {
-    background: transparent;
-}
-
-ApplyButton {
+ApproveButton {
     color: $color-purple;
     border: none;
     background: transparent;
 }
 
-ApplyButton:disabled {
+ApproveButton:disabled {
     background: transparent;
 }
 
-ApplyButton:hover {
+ApproveButton:hover {
+    background: transparent;
+}
+
+DenyButton {
+    color: $gray;
+    border: none;
+    background: transparent;
+}
+
+DenyButton:hover {
     background: transparent;
 }

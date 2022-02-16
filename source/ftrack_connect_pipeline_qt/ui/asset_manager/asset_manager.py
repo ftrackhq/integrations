@@ -19,8 +19,8 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import (
-    MaterialIconWidget,
+from ftrack_connect_pipeline_qt.utils import (
+    set_property,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import (
     AssetVersion as AssetVersionThumbnail,
@@ -326,7 +326,7 @@ class AssetManagerListWidget(AssetListWidget):
         self,
     ):
         '''Clear widget and add all assets again from model.'''
-        print('@@@ AssetManagerListWidget::rebuilt()')
+        print('@@@ AssetManagerListWidget::rebuild()')
         clear_layout(self.layout())
         # TODO: Save selection state
         for row in range(self.model.rowCount()):
@@ -335,6 +335,8 @@ class AssetManagerListWidget(AssetListWidget):
             asset_widget = self._asset_widget_class(
                 index, self.model.event_manager
             )
+            if row == 0:
+                set_property(asset_widget, 'first', 'true')
             asset_widget.set_asset_info(asset_info)
             self.layout().addWidget(asset_widget)
             asset_widget.clicked.connect(

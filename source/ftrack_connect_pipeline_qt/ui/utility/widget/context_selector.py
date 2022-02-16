@@ -5,8 +5,8 @@ from Qt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline.utils import get_current_context_id
 from ftrack_connect_pipeline_qt.ui.utility.widget.entity_info import EntityInfo
-from ftrack_connect_pipeline_qt.ui.utility.widget.legacy_entity_browser import (
-    LegacyEntityBrowser,
+from ftrack_connect_pipeline_qt.ui.utility.widget.entity_browser import (
+    EntityBrowser,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import Context
 from ftrack_connect_pipeline_qt.utils import BaseThread
@@ -58,7 +58,7 @@ class ContextSelector(QtWidgets.QWidget):
         self.thumbnail_widget.setMaximumWidth(50)
         self.thumbnail_widget.setMaximumHeight(50)
 
-        self.entityBrowser = LegacyEntityBrowser(self.session)
+        self.entityBrowser = EntityBrowser(self.session)
         self.entityBrowser.setMinimumWidth(600)
 
         self.entity_info = EntityInfo()
@@ -69,8 +69,8 @@ class ContextSelector(QtWidgets.QWidget):
 
         self.layout().addWidget(self.thumbnail_widget)
         self.layout().addWidget(self.entity_info)
-        self.layout().addWidget(QtWidgets.QLabel(), 10)
         self.layout().addWidget(self.entity_browse_button)
+        self.layout().addWidget(QtWidgets.QLabel(), 10)
 
     def set_thumbnail(self, entity):
         self.thumbnail_widget.load(entity['id'])
@@ -81,9 +81,6 @@ class ContextSelector(QtWidgets.QWidget):
         )
         self.entityChanged.connect(self.entity_info.set_entity)
         self.entityChanged.connect(self.set_thumbnail)
-        self.entityBrowser.selectionChanged.connect(
-            self._onEntityBrowserSelectionChanged
-        )
         self.setMaximumHeight(70)
 
     def set_default_context_id(self):
@@ -123,32 +120,11 @@ class ContextSelector(QtWidgets.QWidget):
     def _onEntityBrowseButtonClicked(self):
         '''Handle entity browse button clicked'''
         # Ensure browser points to parent of currently selected entity.
-        if self._entity is not None:
-            location = []
-            parent = self._entity['parent']
 
-            location.append(self._entity['id'])
-            if parent:
-                location.append(parent['id'])
-
-            while parent:
-                parent = parent['parent']
-                if parent:
-                    location.append(parent['id'])
-
-            location.reverse()
-            self.entityBrowser.setLocation(location)
+        self.entityBrowser.set_entity(
+            self._entity['parent'] if self._entity else None
+        )
 
         # Launch browser.
         if self.entityBrowser.exec_():
-            selected = self.entityBrowser.selected()
-            if selected:
-                self.set_entity(selected[0])
-            else:
-                self.set_entity(None)
-
-    def _onEntityBrowserSelectionChanged(self, selection):
-        '''Handle selection of entity in browser.'''
-        self.entityBrowser.acceptButton.setDisabled(True)
-        if len(selection) == 1:
-            self.entityBrowser.acceptButton.setDisabled(False)
+            self.set_entity(self.entityBrowser.entity)

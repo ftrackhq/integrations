@@ -168,7 +168,7 @@ class QtClient(Client, QtWidgets.QFrame):
                 self._on_components_checked
             )
         else:
-            self._run_button_no_load.clicked.connect(partial(self.run, True))
+            self.run_button_no_load.clicked.connect(partial(self.run, True))
 
         if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
             self.host_and_definition_selector.host_combobox.hide()

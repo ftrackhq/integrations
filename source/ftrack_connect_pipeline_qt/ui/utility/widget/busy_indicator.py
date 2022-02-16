@@ -7,7 +7,7 @@ from Qt import QtWidgets, QtCore, QtSvg, QtGui
 class BusyIndicator(QtWidgets.QWidget):
     '''Draw a busy indicator.'''
 
-    def __init__(self, parent=None):
+    def __init__(self, start=True, parent=None):
         '''Initialise indicator with optional *parent*.'''
         super(BusyIndicator, self).__init__(parent=parent)
         self._timer = None
@@ -17,8 +17,8 @@ class BusyIndicator(QtWidgets.QWidget):
         # TODO: Use properties to enable setting this colour via stylesheets.
         self._spinnerColor = QtGui.QColor(147, 91, 162)  # Color: '#935BA2'
         self._logo = ':ftrack/image/default/ftrackLogoColor'
-
-        self.start()
+        if start:
+            self.start()
 
     def start(self):
         '''Start spinning if not already.'''

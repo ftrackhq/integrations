@@ -304,6 +304,7 @@ class OpenContextWidget(BaseOptionsWidget):
 
     def _build_asset_selector(self):
         self._label = QtWidgets.QLabel("")
+        self._label.setObjectName("gray")
         self.main_layout.addWidget(self._label)
 
         self.asset_selector = AssetListSelector(self.session)
