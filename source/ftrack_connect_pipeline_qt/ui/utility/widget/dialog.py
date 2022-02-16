@@ -39,10 +39,17 @@ class Dialog(QtWidgets.QDialog):
     def pre_build(self):
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
-        self.layout().setSpacing(5)
+        self.layout().setSpacing(0)
 
     def build(self):
         ''' '''
+        self._title_label = TitleLabel()
+        self._title_label.setAlignment(QtCore.Qt.AlignCenter)
+        self._title_label.setObjectName('gray')
+        self.layout().addWidget(self._title_label)
+
+        self.layout().setSpacing(5)
+
         self.layout().addWidget(self.get_content_widget(), 100)
 
         buttonbar = QtWidgets.QWidget()
@@ -85,10 +92,15 @@ class Dialog(QtWidgets.QDialog):
         self.setWindowTitle(self.get_title())
         self.resize(250, 100)
         # self.setWindowFlags(QtCore.Qt.CustomizeWindowHint)
+        self.setWindowFlags(QtCore.Qt.SplashScreen)
         self.setModal(True)
 
     def get_title(self):
         return self._title
+
+    def setWindowTitle(self, title):
+        super(Dialog, self).setWindowTitle(title)
+        self._title_label.setText(title.upper())
 
 
 class DenyButton(QtWidgets.QPushButton):
@@ -101,3 +113,8 @@ class ApproveButton(QtWidgets.QPushButton):
     def __init__(self, label, width=40, height=35, parent=None):
         super(ApproveButton, self).__init__(label, parent=parent)
         self.setMinimumSize(QtCore.QSize(width, height))
+
+
+class TitleLabel(QtWidgets.QLabel):
+    def __init__(self, label="", parent=None):
+        super(TitleLabel, self).__init__(label, parent=parent)

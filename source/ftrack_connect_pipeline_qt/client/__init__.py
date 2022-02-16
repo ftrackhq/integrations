@@ -110,7 +110,7 @@ class QtClient(Client, QtWidgets.QFrame):
         '''Prepare general layout.'''
         layout = QtWidgets.QVBoxLayout()
         layout.setAlignment(QtCore.Qt.AlignTop)
-        layout.setContentsMargins(4, 0, 4, 0)
+        layout.setContentsMargins(4, 1, 4, 2)
         layout.setSpacing(1)
         self.setLayout(layout)
 

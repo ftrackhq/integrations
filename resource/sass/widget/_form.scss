@@ -5,13 +5,6 @@ QLabel {
     border: none;
 }
 
-AssetVersion/** Form elements */
-QLabel {
-    color: $text-color;
-    /*background-color: transparent;*/
-    border: none;
-}
-
 QTextEdit, QLineEdit  {
     border: 1px solid $gray-dark;
     border-radius: 2px;
@@ -88,4 +81,15 @@ QCheckBox::indicator:checked:disabled {
 
 QLineEdit[input="invalid"] {
     border: 1px solid darken(red, 50%);
+}
+
+AssetVersion/** Form elements */
+QLabel {
+    color: $text-color;
+    /*background-color: transparent;*/
+    border: none;
+}
+
+TitleLabel {
+    background: #0C1117;
 }

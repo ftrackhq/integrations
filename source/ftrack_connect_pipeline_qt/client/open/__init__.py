@@ -40,6 +40,7 @@ class QtOpenClient(QtClient):
             # We have no definitions or nothing previously published
             # TODO: Search among work files and see if there is and crash scene from previous session
             dlg = Dialog(
+                title=self.client_name.title(),
                 question='Nothing to open, assemble a new scene?',
                 parent=self,
             )
