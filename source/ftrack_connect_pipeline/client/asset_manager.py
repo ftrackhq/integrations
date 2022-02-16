@@ -45,7 +45,9 @@ class AssetManagerClient(client.Client):
 
         self.menu_action_plugins = self.definition.get('actions')
         self.discover_plugins = self.definition.get('discover')
-        self.resolver_plugins = self.definition['resolvers'].get('resolve_dependencies')
+        self.resolver_plugins = self.definition['resolvers'].get(
+            'resolve_dependencies'
+        )
 
     def _reset_asset_list(self):
         '''Empty the :obj:`asset_entities_list`'''
@@ -238,12 +240,12 @@ class AssetManagerClient(client.Client):
 
         resolver_plugin = self.resolver_plugins[0]
 
-        plugin_type =  '{}.{}'.format('asset_manager', resolver_plugin['type'])
+        plugin_type = '{}.{}'.format('asset_manager', resolver_plugin['type'])
         data = {
             'method': 'resolve_dependencies',
             'plugin': resolver_plugin,
             'context_id': context_id,
-            'plugin_type': plugin_type
+            'plugin_type': plugin_type,
         }
 
         def _resolve_dependencies_callback(event):
