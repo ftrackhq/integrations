@@ -12,11 +12,6 @@ class AssetManagerClient(Client):
 
     definition_filter = 'asset_manager'
     '''Use only definitions that matches the definition_filter'''
-    #
-    # @property
-    # def asset_entities_list(self):
-    #     '''Return the current list of asset_info'''
-    #     return self._asset_entities_list
 
     def __init__(self, event_manager):
         '''Initialise AssetManagerClient with instance of
