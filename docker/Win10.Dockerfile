@@ -57,3 +57,4 @@ RUN git fetch
 
 RUN python -m pip install -r requirements.txt
 RUN python setup.py bdist_msi
+RUN dir dist
