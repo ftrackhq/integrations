@@ -43,7 +43,7 @@ class MayaAssemblerDialog(QtWidgets.QDialog):
 
         self.setModal(True)
 
-        self.setWindowTitle('ftrack Assembler')
+        self.setWindowTitle('ftrack')
 
         self.resize(1000, 500)
 
