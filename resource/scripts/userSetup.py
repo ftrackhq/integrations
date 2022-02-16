@@ -59,7 +59,8 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name='pipeline'):
 
     return submenu
 
-def _open_widget(event_manager, widgets, event):
+
+def _open_widget(event_manager, asset_list_model, widgets, event):
     '''Open Maya widget based on widget name in *event*, and create if not already
     exists'''
     widget_name = None
@@ -71,12 +72,14 @@ def _open_widget(event_manager, widgets, event):
         if widget_name not in created_widgets:
             ftrack_client = widget_class
             created_widgets[widget_name] = ftrack_client(
-                event_manager
+                event_manager, asset_list_model
             )
         created_widgets[widget_name].show()
     else:
-        raise Exception('Unknown client {}!'.format(
-            event['data']['pipeline']['widget_name'])
+        raise Exception(
+            'Unknown widget {}!'.format(
+                event['data']['pipeline']['widget_name']
+            )
         )
 
 
@@ -96,30 +99,23 @@ def initialise():
 
     cmds.loadPlugin('ftrackMayaPlugin.py', quiet=True)
 
-    # Enable loader and publisher only if is set to run local (default)
+    from ftrack_connect_pipeline_qt.ui.asset_manager.base import AssetListModel
+
+    # Shared asset manager model
+    asset_list_model = AssetListModel(event_manager)
 
     from ftrack_connect_pipeline_maya.client import open
-    from ftrack_connect_pipeline_maya.client import load
+    from ftrack_connect_pipeline_maya.client import assembler
     from ftrack_connect_pipeline_maya.client import publish
     from ftrack_connect_pipeline_maya.client import asset_manager
     from ftrack_connect_pipeline_maya.client import log_viewer
 
     widgets = list()
-    widgets.append(
-        (open.MayaOpenDialog, 'Open')
-    )
-    widgets.append(
-        ('load', load.MayaLoaderClient, 'Loader')
-    )
-    widgets.append(
-        ('publish', publish.MayaPublisherClient, 'Publisher')
-    )
-    widgets.append(
-        ('asset_manager', asset_manager.MayaAssetManagerClient, 'Asset Manager')
-    )
-    widgets.append(
-        ('log_viewer', log_viewer.MayaLogViewerClient, 'Log Viewer')
-    )
+    widgets.append((open.MayaOpenDialog, 'Open'))
+    widgets.append((assembler.MayaAssemblerDialog, 'Assembler'))
+    widgets.append((asset_manager.MayaAssetManagerClient, 'Asset Manager'))
+    widgets.append((publish.MayaPublisherClient, 'Publisher'))
+    widgets.append((log_viewer.MayaLogViewerClient, 'Log Viewer'))
 
     ftrack_menu = get_ftrack_menu()
     # Register and hook the dialog in ftrack menu
@@ -139,10 +135,11 @@ def initialise():
     # Listen to client launch events
     session.event_hub.subscribe(
         'topic={} and data.pipeline.host_id={}'.format(
-            qt_constants.PIPELINE_WIDGET_LAUNCH,
-            host.host_id
+            qt_constants.PIPELINE_WIDGET_LAUNCH, host.host_id
         ),
-        functools.partial(_open_widget, event_manager, widgets)
+        functools.partial(
+            _open_widget, event_manager, asset_list_model, widgets
+        ),
     )
 
 

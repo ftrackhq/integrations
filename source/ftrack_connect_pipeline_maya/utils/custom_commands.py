@@ -1,7 +1,12 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
+from Qt import QtWidgets, QtCompat
+
+import maya.OpenMayaUI as OpenMayaUI
+
 import maya.cmds as cmds
+
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
 
 
@@ -52,3 +57,14 @@ def getReferenceNode(assetLink):
         return None
     else:
         return res
+
+
+def get_maya_window():
+    """Return the QMainWindow for the main Maya window."""
+
+    winptr = OpenMayaUI.MQtUtil.mainWindow()
+    if winptr is None:
+        raise RuntimeError('No Maya window found.')
+    window = QtCompat.wrapInstance(int(winptr))
+    assert isinstance(window, QtWidgets.QMainWindow)
+    return window

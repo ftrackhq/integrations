@@ -18,7 +18,7 @@ class MayaLogViewerClient(MayaQWidgetDockableMixin, QtLogViewerClient):
 
     '''Dockable maya load widget'''
 
-    def __init__(self, event_manager, parent=None):
+    def __init__(self, event_manager, unused_asset_list_model, parent=None):
         super(MayaLogViewerClient, self).__init__(
             event_manager=event_manager, parent=parent
         )
