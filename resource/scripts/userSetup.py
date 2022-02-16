@@ -143,9 +143,7 @@ def initialise():
         cmds.menuItem(
             parent=ftrack_menu,
             label=label,
-            command=(
-               functools.partial(event_manager.launch_client, host.host_id, widget_name)
-            )
+            command=(functools.partial(host.launch_widget, widget_name)),
         )
 
     # Listen to client launch events
