@@ -47,6 +47,22 @@ class FtrackAssetNode(FtrackAssetBase):
 
         return self.ftrack_object
 
+    def get_ftrack_object(self):
+        '''
+        Updates and return the ftrack ftrack_object for this class.
+        '''
+        ftrack_object = self.get_ftrack_object_from_scene()
+
+        if ftrack_object:
+            if not self.is_sync(ftrack_object):
+                ftrack_object = self._update_ftrack_object(ftrack_object)
+
+            self.ftrack_object = ftrack_object
+
+            return self.ftrack_object
+        else:
+            return None
+
     @staticmethod
     def get_parameters_dictionary(maya_obj):
         '''
@@ -80,6 +96,7 @@ class FtrackAssetNode(FtrackAssetBase):
                 if k in [
                     asset_const.ASSET_VERSIONS_ENTITIES,
                     asset_const.IS_LOADED,
+                    asset_const.SESSION,
                 ]:
                     continue
                 if node_asset_info[k] != self.asset_info[k]:
@@ -92,11 +109,13 @@ class FtrackAssetNode(FtrackAssetBase):
                     #     if node_asset_info[k].get('method') == 'init_nodes':
 
                     diff_values.append(k)
-            if set(diff_values) != {
-                asset_const.REFERENCE_OBJECT,
-                asset_const.ASSET_INFO_ID,
-                asset_const.ASSET_INFO_OPTIONS,
-            }:
+            if len(diff_values) > 0 and not set(diff_values).subset(
+                {
+                    asset_const.REFERENCE_OBJECT,
+                    asset_const.ASSET_INFO_ID,
+                    asset_const.ASSET_INFO_OPTIONS,
+                }
+            ):
                 print(
                     '@@@ NOT {} - key diff: {}!={}'.format(
                         ftrack_object,
@@ -114,22 +133,22 @@ class FtrackAssetNode(FtrackAssetBase):
             # be in the dicionary, now is not so we could be checking only the
             # keys, now we have to check the connection
             # Check the object is not already connected.
-            if not cmds.listConnections(
-                '{}.{}'.format(ftrack_object, asset_const.ASSET_LINK)
-            ):
-                result_object = ftrack_object
-                break
-            else:
-                print(
-                    '@@@ NOT {} - listConnections: {}'.format(
-                        ftrack_object,
-                        cmds.listConnections(
-                            '{}.{}'.format(
-                                ftrack_object, asset_const.ASSET_LINK
-                            )
-                        ),
-                    )
-                )
+            # if not cmds.listConnections(
+            #     '{}.{}'.format(ftrack_object, asset_const.ASSET_LINK)
+            # ):
+            #     result_object = ftrack_object
+            #     break
+            # else:
+            #     print(
+            #         '@@@ NOT {} - listConnections: {}'.format(
+            #             ftrack_object,
+            #             cmds.listConnections(
+            #                 '{}.{}'.format(
+            #                     ftrack_object, asset_const.ASSET_LINK
+            #                 )
+            #             ),
+            #         )
+            #     )
 
         self.logger.debug('Found existing object: {}'.format(result_object))
         return result_object

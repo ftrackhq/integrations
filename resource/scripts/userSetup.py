@@ -64,7 +64,7 @@ def _open_widget(event_manager, asset_list_model, widgets, event):
     '''Open Maya widget based on widget name in *event*, and create if not already
     exists'''
     widget_name = None
-    for (widget_class, _widget_name) in widgets:
+    for (_widget_name, widget_class, unused_label) in widgets:
         if _widget_name == event['data']['pipeline']['widget_name']:
             widget_name = _widget_name
             break
@@ -83,10 +83,15 @@ def _open_widget(event_manager, asset_list_model, widgets, event):
         )
 
 
+host = None
+
+
 def initialise():
     # TODO : later we need to bring back here all the maya initialisations
     #  from ftrack-connect-maya
     # such as frame start / end etc....
+
+    global host
 
     logger.debug('Setting up the menu')
     session = ftrack_api.Session(auto_connect_event_hub=False)
@@ -100,6 +105,7 @@ def initialise():
     cmds.loadPlugin('ftrackMayaPlugin.py', quiet=True)
 
     from ftrack_connect_pipeline_qt.ui.asset_manager.base import AssetListModel
+    from ftrack_connect_pipeline_qt import constants as qt_constants
 
     # Shared asset manager model
     asset_list_model = AssetListModel(event_manager)
@@ -111,11 +117,32 @@ def initialise():
     from ftrack_connect_pipeline_maya.client import log_viewer
 
     widgets = list()
-    widgets.append((open.MayaOpenDialog, 'Open'))
-    widgets.append((assembler.MayaAssemblerDialog, 'Assembler'))
-    widgets.append((asset_manager.MayaAssetManagerClient, 'Asset Manager'))
-    widgets.append((publish.MayaPublisherClient, 'Publisher'))
-    widgets.append((log_viewer.MayaLogViewerClient, 'Log Viewer'))
+    widgets.append((qt_constants.OPEN_WIDGET, open.MayaOpenDialog, 'Open'))
+    widgets.append(
+        (
+            qt_constants.ASSEMBLER_WIDGET,
+            assembler.MayaAssemblerDialog,
+            'Assembler',
+        )
+    )
+    widgets.append(
+        (
+            qt_constants.ASSET_MANAGER_WIDGET,
+            asset_manager.MayaAssetManagerClient,
+            'Asset Manager',
+        )
+    )
+    widgets.append(
+        (qt_constants.PUBLISH_WIDGET, publish.MayaPublisherClient, 'Publisher')
+    )
+    widgets.append(
+        (
+            qt_constants.LOG_VIEWER_WIDGET,
+            log_viewer.MayaLogViewerClient,
+            'Log Viewer',
+        )
+    )
+    widgets.append((qt_constants.DOC_WIDGET, None, 'Documentation'))
 
     ftrack_menu = get_ftrack_menu()
     # Register and hook the dialog in ftrack menu
@@ -124,11 +151,11 @@ def initialise():
             cmds.menuItem(divider=True)
             continue
 
-        unused_widget_class, widget_name = item
+        widget_name, unused_widget_class, label = item
 
         cmds.menuItem(
             parent=ftrack_menu,
-            label=widget_name,
+            label=label,
             command=(functools.partial(host.launch_widget, widget_name)),
         )
 
@@ -144,3 +171,10 @@ def initialise():
 
 
 cmds.evalDeferred('initialise()', lp=True)
+
+
+def launch_opener():
+    host.launch_widget(qt_constants.OPEN_WIDGET)
+
+
+cmds.evalDeferred('launch_opener()', lp=True)
