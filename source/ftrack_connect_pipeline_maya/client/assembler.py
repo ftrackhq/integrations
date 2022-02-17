@@ -21,9 +21,12 @@ class MayaAssemblerClient(QtAssemblerClient):
         maya_constants.UI_TYPE,
     ]
 
-    def __init__(self, event_manager, asset_list_model):
+    def __init__(self, event_manager, asset_list_model, parent_window):
         super(MayaAssemblerClient, self).__init__(
-            event_manager, load_const.LOAD_MODES, asset_list_model
+            event_manager,
+            load_const.LOAD_MODES,
+            asset_list_model,
+            parent_window,
         )
 
 
@@ -32,7 +35,7 @@ class MayaAssemblerDialog(QtWidgets.QDialog):
 
     _shown = False
 
-    def __init__(self, event_manager, asset_list_model, parent=None):
+    def __init__(self, event_manager, asset_list_model):
         super(MayaAssemblerDialog, self).__init__(parent=get_maya_window())
         self._event_manager = event_manager
         self._asset_list_model = asset_list_model
@@ -42,9 +45,7 @@ class MayaAssemblerDialog(QtWidgets.QDialog):
         self.rebuild()
 
         self.setModal(True)
-
         self.setWindowTitle('ftrack')
-
         self.resize(1000, 500)
 
     def rebuild(self):
@@ -53,7 +54,7 @@ class MayaAssemblerDialog(QtWidgets.QDialog):
 
     def pre_build(self):
         self._client = MayaAssemblerClient(
-            self._event_manager, self._asset_list_model
+            self._event_manager, self._asset_list_model, self
         )
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)

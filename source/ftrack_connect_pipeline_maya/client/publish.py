@@ -8,6 +8,8 @@ import ftrack_connect_pipeline_maya.constants as maya_constants
 
 from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 
+from ftrack_connect_pipeline_maya.utils.custom_commands import get_maya_window
+
 
 class MayaPublisherClient(MayaQWidgetDockableMixin, QtPublisherClient):
     ui_types = [
@@ -18,9 +20,9 @@ class MayaPublisherClient(MayaQWidgetDockableMixin, QtPublisherClient):
 
     '''Dockable maya load widget'''
 
-    def __init__(self, event_manager, unused_asset_list_model, parent=None):
+    def __init__(self, event_manager, unused_asset_list_model):
         super(MayaPublisherClient, self).__init__(
-            event_manager=event_manager, parent=parent
+            event_manager=event_manager, parent_window=get_maya_window()
         )
         self.setWindowTitle('Maya Pipeline Publisher')
         print(self)

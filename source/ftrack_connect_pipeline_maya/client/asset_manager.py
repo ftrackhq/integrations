@@ -9,6 +9,7 @@ import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_maya.constants as maya_constants
 
 from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
+from ftrack_connect_pipeline_maya.utils.custom_commands import get_maya_window
 
 
 class MayaAssetManagerClient(MayaQWidgetDockableMixin, QtAssetManagerClient):
@@ -20,11 +21,11 @@ class MayaAssetManagerClient(MayaQWidgetDockableMixin, QtAssetManagerClient):
 
     '''Dockable maya load widget'''
 
-    def __init__(self, event_manager, asset_list_model, parent=None):
+    def __init__(self, event_manager, asset_list_model):
         super(MayaAssetManagerClient, self).__init__(
             event_manager=event_manager,
             asset_list_model=asset_list_model,
-            parent=parent,
+            parent_window=get_maya_window(),
         )
         self.setWindowTitle('Maya Pipeline Asset Manager')
 

@@ -64,7 +64,7 @@ def _open_widget(event_manager, asset_list_model, widgets, event):
     '''Open Maya widget based on widget name in *event*, and create if not already
     exists'''
     widget_name = None
-    for (_widget_name, widget_class, unused_label) in widgets:
+    for (widget_class, _widget_name) in widgets:
         if _widget_name == event['data']['pipeline']['widget_name']:
             widget_name = _widget_name
             break
@@ -124,18 +124,18 @@ def initialise():
             cmds.menuItem(divider=True)
             continue
 
-        widget_name, unused_widget_class, label = item
+        unused_widget_class, widget_name = item
 
         cmds.menuItem(
             parent=ftrack_menu,
-            label=label,
+            label=widget_name,
             command=(functools.partial(host.launch_widget, widget_name)),
         )
 
     # Listen to client launch events
     session.event_hub.subscribe(
         'topic={} and data.pipeline.host_id={}'.format(
-            qt_constants.PIPELINE_WIDGET_LAUNCH, host.host_id
+            constants.PIPELINE_WIDGET_LAUNCH, host.host_id
         ),
         functools.partial(
             _open_widget, event_manager, asset_list_model, widgets
