@@ -120,7 +120,9 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         diff = self.new_data.difference(self.old_data)
 
         if asset_load_mode != 'Open' and self.method == 'run':
-            ftrack_object = self.ftrack_asset.init_ftrack_object(True)
+            ftrack_object = self.ftrack_asset.init_ftrack_object(
+                is_loaded=True
+            )
 
             #  Connect all the objects that are not dependencies
             self.ftrack_asset.connect_objects(diff)

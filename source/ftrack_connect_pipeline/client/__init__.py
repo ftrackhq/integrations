@@ -172,6 +172,22 @@ class HostConnection(object):
         )
         self._event_manager.publish(event, callback)
 
+    def launch_widget(self, widget_name, source=None):
+        '''Send a widget launch event, to be picked up by DCC.'''
+        event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_WIDGET_LAUNCH,
+            data={
+                'pipeline': {
+                    'host_id': self.id,
+                    'widget_name': widget_name,
+                    'source': source,
+                }
+            },
+        )
+        self._event_manager.publish(
+            event,
+        )
+
 
 class Client(object):
     '''

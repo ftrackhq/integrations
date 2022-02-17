@@ -132,6 +132,13 @@ class FtrackAssetBase(object):
         self.ftrack_object = None
         return self.ftrack_object
 
+    def get_ftrack_object(self):
+        '''
+        Sets and Returns the current :py:obj:`ftrack_object` for this class.
+        '''
+        self.ftrack_object = None
+        return self.ftrack_object
+
     def check_dependencies(self):
         '''Checks if there are already existing dependencies on the DCC app
         returns missing_ids, unconected_dependencies, untracked_dependencies
