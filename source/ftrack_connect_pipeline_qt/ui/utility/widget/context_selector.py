@@ -25,6 +25,7 @@ class ContextSelector(QtWidgets.QWidget):
 
     def __init__(
         self,
+        client,
         session,
         current_context_id=None,
         current_entity=None,
@@ -37,6 +38,7 @@ class ContextSelector(QtWidgets.QWidget):
         self._entity = current_entity
         self._context_id = current_context_id
         self.session = session
+        self._client = client
 
         self.pre_build()
         self.build()
@@ -58,7 +60,9 @@ class ContextSelector(QtWidgets.QWidget):
         self.thumbnail_widget.setMaximumWidth(50)
         self.thumbnail_widget.setMaximumHeight(50)
 
-        self.entityBrowser = EntityBrowser(self.session)
+        self.entityBrowser = EntityBrowser(
+            self._client.get_parent_window(), self.session
+        )
         self.entityBrowser.setMinimumWidth(600)
 
         self.entity_info = EntityInfo()

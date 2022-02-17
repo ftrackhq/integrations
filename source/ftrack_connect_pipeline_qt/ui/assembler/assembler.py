@@ -45,7 +45,8 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import (
 
 class AssemblerDependenciesWidget(AssemblerBaseWidget):
 
-    dependencies_resolved = QtCore.Signal(object)
+    dependencyResolveWarning = QtCore.Signal(object)
+    dependenciesResolved = QtCore.Signal(object)
 
     def __init__(self, assembler_client, parent=None):
         super(AssemblerDependenciesWidget, self).__init__(
@@ -68,14 +69,17 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
 
     def post_build(self):
         self._rebuild_button.clicked.connect(self.rebuild)
-        self.dependencies_resolved.connect(self.on_dependencies_resolved)
+        self.dependenciesResolved.connect(self.on_dependencies_resolved)
+        self.dependencyResolveWarning.connect(
+            self.on_dependency_resolve_warning
+        )
 
     def rebuild(self):
         print('@@@ AssemblerDependenciesWidget::rebuild()')
         # Create spinner
-        self._busy_widget = BusyIndicator()
+        self._busy_widget = BusyIndicator(start=False)
         self.scroll.setWidget(center_widget(self._busy_widget, 30, 30))
-        self._busy_widget.start()
+        self._busy_widget.setVisible(True)
 
         super(AssemblerDependenciesWidget, self).rebuild()
 
@@ -88,14 +92,9 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
         thread.start()
 
     def _resolve_dependencies(self, context_id):
-        try:
-            return self._assembler_client.asset_manager.resolve_dependencies(
-                context_id, self.on_dependencies_resolved_async
-            )
-        except:
-            import traceback
-
-            print(traceback.format_exc())
+        return self._assembler_client.asset_manager.resolve_dependencies(
+            context_id, self.on_dependencies_resolved_async
+        )
 
     def on_dependencies_resolved_async(self, result):
         if (
@@ -103,35 +102,33 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
             != self._assembler_client.IMPORT_MODE_DEPENDENCIES
         ):
             return
-        self.dependencies_resolved.emit(result)
 
-    def on_dependencies_resolved(self, result):
-
-        versions = None
+        resolved_versions = None
         user_message = None
         if isinstance(result, dict):
             # Versions without a user message
-            versions = result['versions']
+            resolved_versions = result['versions']
         else:
             if isinstance(result, tuple):
                 # With user message?
                 if isinstance(result[0], dict):
-                    versions = result[0].get('versions') or []
+                    resolved_version = result[0].get('versions') or []
                 if isinstance(result[1], dict):
                     user_data = result[1]
                     if 'message' in user_data:
                         user_message = user_data['message']
         if user_message:
-            self._assembler_client.progress_widget.set_status(
-                constants.WARNING_STATUS, user_message
-            )
+            self.dependencyResolveWarning.emit(user_message)
 
-        if len(versions or []) == 0:
+        if len(resolved_versions or []) == 0:
             if user_message is None:
-                self._assembler_client.progress_widget.set_status(
-                    constants.WARNING_STATUS, 'No dependencies found!'
-                )
+                self.dependencyResolveWarning.emit('No dependencies found!')
             return
+
+        versions = [
+            resolved_version['entity']
+            for resolved_version in resolved_versions
+        ]
 
         # Process versions, filter against
         print(
@@ -140,15 +137,22 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
             )
         )
 
-        components = self.extract_components(
-            [resolved_version['entity'] for resolved_version in versions]
-        )
+        components = self.extract_components(versions)
 
         if len(components) == 0:
-            self._assembler_client.progress_widget.set_status(
-                constants.WARNING_STATUS, 'No loadable dependencies found!'
+            self.dependencyResolveWarning.emit(
+                'No loadable dependencies found!'
             )
             return
+
+        self.dependenciesResolved.emit(components)
+
+    def on_dependency_resolve_warning(self, message):
+        self._assembler_client.progress_widget.set_status(
+            constants.WARNING_STATUS, message
+        )
+
+    def on_dependencies_resolved(self, components):
 
         # Create component list
         self._component_list = DependenciesListWidget(self)
@@ -213,10 +217,10 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
         #             )
         #             raise Exception('No entity given, and no project found!')
         self._entity_browser = EntityBrowser(
+            self._assembler_client.get_parent_window(),
             session=self._assembler_client.session,
             mode=EntityBrowser.MODE_CONTEXT,
             entity=entity,
-            parent=self._assembler_client,
         )
 
     def build_header(self):
@@ -282,6 +286,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
         self.componentsFetched.connect(self._on_components_fetched)
         self.allVersionsFetched.connect(self._on_all_versions_fetched)
         self._search.input_updated.connect(self._on_search)
+        self._search.setFocus()
 
     def rebuild(self):
         print('@@@ AssemblerBrowserWidget::rebuild()')
@@ -325,7 +330,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
         self._tail = 0  # The current fetch position
         while True:
             versions = self.session.query(
-                'select id,task,version from AssetVersion where task.parent.id in '
+                'select id,task,version from AssetVersion where is_latest_version=true and task.parent.id in '
                 '({0}) or task.id in ({0}) offset {1} limit {2}'.format(
                     ','.join(
                         [

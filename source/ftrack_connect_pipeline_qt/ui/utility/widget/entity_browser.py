@@ -67,7 +67,7 @@ class EntityBrowser(Dialog):
     def session(self):
         return self._session
 
-    def __init__(self, session, entity=None, mode=MODE_TASK, parent=None):
+    def __init__(self, parent, session, entity=None, mode=MODE_TASK):
         self._entity = None  # The entity that has been set and applied
         self._intermediate_entity = (
             None  # The intermediate entity currently browsed
@@ -78,7 +78,7 @@ class EntityBrowser(Dialog):
         self._prev_search_text = ""
         self.set_mode(mode)
 
-        super(EntityBrowser, self).__init__(parent=parent)
+        super(EntityBrowser, self).__init__(parent, prompt=None)
 
         if entity is None:
             if get_current_context_id():
@@ -109,7 +109,7 @@ class EntityBrowser(Dialog):
 
         self._search = Search(collapsed=False, collapsable=False)
         self._search.input_updated.connect(self._on_search)
-        self.layout().addWidget(self._search)
+        widget.layout().addWidget(self._search)
 
         self._scroll = QtWidgets.QScrollArea()
         self._scroll.setWidgetResizable(True)

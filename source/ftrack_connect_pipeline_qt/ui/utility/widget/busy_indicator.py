@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2014 ftrack
 
 from Qt import QtWidgets, QtCore, QtSvg, QtGui
+import shiboken2
 
 
 class BusyIndicator(QtWidgets.QWidget):
@@ -29,7 +30,7 @@ class BusyIndicator(QtWidgets.QWidget):
 
     def stop(self):
         '''Stop spinning if currently spinning.'''
-        if self._timer is not None:
+        if shiboken2.isValid(self) and self._timer is not None:
             self.killTimer(self._timer)
             self._timer = None
 

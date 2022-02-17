@@ -20,6 +20,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
     ContextSelector,
 )
 from ftrack_connect_pipeline_qt.ui import theme
+from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import Dialog
 
 
 class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
@@ -33,12 +34,18 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     definition_filter = 'asset_manager'  # Use only definitions that matches the definition_filter
 
     def __init__(
-        self, event_manager, asset_list_model, parent=None, is_assembler=False
+        self,
+        event_manager,
+        asset_list_model,
+        parent_window,
+        is_assembler=False,
+        parent=None,
     ):
         '''Initialise AssetManagerClient with instance of
         :class:`~ftrack_connect_pipeline.event.EventManager`
         '''
         self._asset_list_model = asset_list_model
+        self._parent_window = parent_window
 
         QtWidgets.QFrame.__init__(self, parent=parent)
         AssetManagerClient.__init__(self, event_manager)
@@ -51,19 +58,17 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             elif self.get_background_color():
                 self.setProperty('background', self.get_background_color())
 
-        self.asset_manager_widget = AssetManagerWidget(
-            is_assembler, event_manager, asset_list_model
-        )
+        self.is_assembler = is_assembler
+        self.asset_manager_widget = AssetManagerWidget(self, asset_list_model)
         self.asset_manager_widget.rebuild.connect(self.rebuild)
 
-        self._is_assembler = is_assembler
         self._host_connection = None
 
         self.pre_build()
         self.build()
         self.post_build()
 
-        if not self._is_assembler:
+        if not self.is_assembler:
             self.add_hosts(self.discover_hosts())
 
     def setTheme(self, selected_theme):
@@ -78,6 +83,10 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         '''Return the theme background color style. Can be overridden by child.'''
         return 'default'
 
+    def get_parent_window(self):
+        '''Return the dialog or DCC app window this client is within.'''
+        return self._parent_window
+
     def pre_build(self):
         '''Prepare general layout.'''
         layout = QtWidgets.QVBoxLayout()
@@ -87,11 +96,11 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 
     def build(self):
         '''Build widgets and parent them.'''
-        if not self._is_assembler:
+        if not self.is_assembler:
             self.header = header.Header(self.session)
             self.layout().addWidget(self.header)
 
-            self.context_selector = ContextSelector(self.session)
+            self.context_selector = ContextSelector(self, self.session)
             self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
 
             self.layout().addWidget(line.Line())
@@ -104,7 +113,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         self.scroll.setWidgetResizable(True)
         self.layout().addWidget(self.scroll, 100)
 
-        if self._is_assembler:
+        if self.is_assembler:
             button_widget = QtWidgets.QWidget()
             button_widget.setLayout(QtWidgets.QHBoxLayout())
             button_widget.layout().addStretch()
@@ -116,7 +125,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 
     def post_build(self):
         '''Post Build ui method for events connections.'''
-        if not self._is_assembler:
+        if not self.is_assembler:
             self.host_selector.host_changed.connect(self.change_host)
 
         self.asset_manager_widget.widget_status_updated.connect(
@@ -132,7 +141,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         self.asset_manager_widget.load_assets.connect(self._on_load_assets)
         self.asset_manager_widget.unload_assets.connect(self._on_unload_assets)
 
-        if self._is_assembler:
+        if self.is_assembler:
             self._remove_button.clicked.connect(self._remove_assets_clicked)
             self.asset_manager_widget.asset_list.selection_updated.connect(
                 self._asset_selection_updated
@@ -173,11 +182,10 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             return
 
         if not AssetManagerClient.change_host(self, host_connection):
-            QtWidgets.QMessageBox.warning(
-                self,
-                'Asset Manager',
-                'No asset manager definitions are available, please check your configuration!',
-                QtWidgets.QMessageBox.Ok,
+            Dialog(
+                self.get_parent_window(),
+                title='Asset Manager',
+                message='No asset manager definitions are available, please check your configuration!',
             )
             return
 

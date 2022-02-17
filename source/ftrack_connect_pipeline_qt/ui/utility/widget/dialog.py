@@ -15,18 +15,27 @@ class Dialog(QtWidgets.QDialog):
     A styled ftrack dialog box, defaults to a prompt (Yes-No) dialog
     '''
 
-    def __init__(self, question=None, title=None, parent=None):
+    def __init__(
+        self, parent, message=None, question=None, title=None, prompt=False
+    ):
+        print('@@@ Dialog(..,parent={})'.format(parent))
         super(Dialog, self).__init__(parent=parent)
+
+        self.setParent(parent)
 
         self.setTheme(self.get_theme())
         self.setProperty('background', 'ftrack')
 
-        self._question = question
+        self._message = message or question
         self._title = title or 'ftrack'
+        self._prompt = prompt
 
         self.pre_build()
         self.build()
         self.post_build()
+
+        if prompt is False:
+            self.exec_()
 
     def get_theme(self):
         '''Return the client theme, return None to disable themes. Can be overridden by child.'''
@@ -45,12 +54,18 @@ class Dialog(QtWidgets.QDialog):
         ''' '''
         self._title_label = TitleLabel()
         self._title_label.setAlignment(QtCore.Qt.AlignCenter)
-        self._title_label.setObjectName('gray')
+        self._title_label.setObjectName('titlebar')
         self.layout().addWidget(self._title_label)
+        self._title_label.setMinimumHeight(24)
 
         self.layout().setSpacing(5)
 
-        self.layout().addWidget(self.get_content_widget(), 100)
+        widget = QtWidgets.QWidget()
+        widget.setLayout(QtWidgets.QVBoxLayout())
+
+        widget.layout().addWidget(self.get_content_widget())
+
+        self.layout().addWidget(widget, 100)
 
         buttonbar = QtWidgets.QWidget()
         buttonbar.setLayout(QtWidgets.QHBoxLayout())
@@ -59,7 +74,8 @@ class Dialog(QtWidgets.QDialog):
 
         buttonbar.layout().addWidget(QtWidgets.QLabel(), 100)
         self._approve_button = self.get_approve_button()
-        self._deny_button = self.get_deny_button()
+        if not self._prompt is False:
+            self._deny_button = self.get_deny_button()
 
         if platform.system().lower() != 'darwin':
             if self._approve_button:
@@ -75,10 +91,10 @@ class Dialog(QtWidgets.QDialog):
         self.layout().addWidget(buttonbar, 1)
 
     def get_content_widget(self):
-        return center_widget(QtWidgets.QLabel(self._question))
+        return center_widget(QtWidgets.QLabel(self._message))
 
     def get_approve_button(self):
-        return ApproveButton('YES')
+        return ApproveButton('YES' if self._prompt is True else 'OK')
 
     def get_deny_button(self):
         return DenyButton('NO')
@@ -91,8 +107,11 @@ class Dialog(QtWidgets.QDialog):
 
         self.setWindowTitle(self.get_title())
         self.resize(250, 100)
-        # self.setWindowFlags(QtCore.Qt.CustomizeWindowHint)
-        self.setWindowFlags(QtCore.Qt.SplashScreen)
+        if not self._prompt is None:
+            self.setMaximumHeight(100)
+        self.setWindowFlags(
+            QtCore.Qt.SplashScreen | QtCore.Qt.WindowStaysOnTopHint
+        )
         self.setModal(True)
 
     def get_title(self):

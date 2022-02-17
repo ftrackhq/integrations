@@ -16,11 +16,14 @@ class QtOpenClient(QtClient):
     client_name = 'open'
 
     def __init__(
-        self, event_manager, definition_extensions_filter=None, parent=None
+        self,
+        event_manager,
+        parent_window,
+        definition_extensions_filter=None,
     ):
         if not definition_extensions_filter is None:
             self.definition_extensions_filter = definition_extensions_filter
-        super(QtOpenClient, self).__init__(event_manager, parent=parent)
+        super(QtOpenClient, self).__init__(event_manager, parent_window)
         self.logger.debug('start qt opener')
 
     def get_background_color(self):
@@ -31,8 +34,9 @@ class QtOpenClient(QtClient):
         self.context_selector.entityChanged.connect(self._store_global_context)
 
     def _store_global_context(self, entity):
-        os.environ['FTRACK_CONTEXTID'] = entity['id']
-        self.logger.warning('Global context is now: {}'.format(entity))
+        if os.environ.get('FTRACK_CONTEXTID') != entity['id']:
+            os.environ['FTRACK_CONTEXTID'] = entity['id']
+            self.logger.warning('Global context is now: {}'.format(entity))
 
     def definition_changed(self, definition, available_components_count):
         '''React upon change of definition, or no versions/components(definitions) available.'''
@@ -40,9 +44,10 @@ class QtOpenClient(QtClient):
             # We have no definitions or nothing previously published
             # TODO: Search among work files and see if there is and crash scene from previous session
             dlg = Dialog(
+                self.get_parent_window(),
                 title=self.client_name.title(),
                 question='Nothing to open, assemble a new scene?',
-                parent=self,
+                prompt=True,
             )
             if dlg.exec_():
                 # Close and open assembler
@@ -50,9 +55,9 @@ class QtOpenClient(QtClient):
                 raise NotImplementedError('Assembler open not implemented!')
         elif definition is not None and available_components_count == 1:
             dlg = Dialog(
+                self.get_parent_window(),
                 title=self.client_name.title(),
                 question='Open latest?',
-                parent=self,
             )
             if dlg.exec_():
                 # Trig open

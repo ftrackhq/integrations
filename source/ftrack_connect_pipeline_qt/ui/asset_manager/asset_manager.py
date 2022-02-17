@@ -28,6 +28,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import (
 from ftrack_connect_pipeline_qt.ui.utility.widget.entity_info import EntityInfo
 from ftrack_connect_pipeline_qt.ui.utility.widget import line
 from ftrack_connect_pipeline_qt.utils import clear_layout
+from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import Dialog
 
 
 class AssetManagerWidget(AssetManagerBaseWidget):
@@ -66,11 +67,13 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         self._host_connection = host_connection
         # self._listen_widget_updates()
 
-    def __init__(
-        self, is_assembler, event_manager, asset_list_model, parent=None
-    ):
+    def __init__(self, asset_manager_client, asset_list_model, parent=None):
+        self._asset_manager_client = asset_manager_client
         super(AssetManagerWidget, self).__init__(
-            is_assembler, event_manager, asset_list_model, parent=parent
+            asset_manager_client.is_assembler,
+            asset_manager_client.event_manager,
+            asset_list_model,
+            parent=parent,
         )
         self._host_connection = None
 
@@ -141,7 +144,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         '''Executes the context menu'''
         # Anything selected?
         widget_deselect = None
-        if len(self._asset_list.selection(warn_on_empty=False)) == 0:
+        if len(self._asset_list.selection()) == 0:
             # Temporaily select the clicked widget
             widget_deselect = self.childAt(event.x(), event.y())
             if widget_deselect:
@@ -176,29 +179,44 @@ class AssetManagerWidget(AssetManagerBaseWidget):
             callback_fn = getattr(self, ui_callback)
             callback_fn(plugin)
 
+    def check_selection(self, selected_assets):
+        if len(selected_assets) == 0:
+            Dialog(
+                self._asset_manager_client,
+                title='Error!',
+                message="Please select at least one asset!",
+            )
+            return False
+        else:
+            return True
+
     def ctx_update(self, plugin):
         '''
         Triggered when update action menu been clicked.
         Emits update_asset signal.
         Uses the given *plugin* to update the selected assets
         '''
-        self.update_assets.emit(
-            self._asset_list.selection(warn_on_empty=True), plugin
-        )
+        selection = self._asset_list.selection()
+        if self.check_selection(selection):
+            self.update_assets.emit(selection, plugin)
 
     def ctx_select(self, plugin):
         '''
         Triggered when select action menu been clicked.
         Emits select_asset signal.
         '''
-        self.select_assets.emit(self._asset_list.selection(warn_on_empty=True))
+        selection = self._asset_list.selection()
+        if self.check_selection(selection):
+            self.select_assets.emit(selection, plugin)
 
     def ctx_remove(self, plugin):
         '''
         Triggered when remove action menu been clicked.
         Emits remove_asset signal.
         '''
-        self.remove_assets.emit(self._asset_list.selection(warn_on_empty=True))
+        selection = self._asset_list.selection()
+        if self.check_selection(selection):
+            self.remove_assets.emit(selection, plugin)
 
     def ctx_load(self, plugin):
         # TODO: I think is better to not pass a Plugin, and use directly the
@@ -210,14 +228,18 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         Triggered when load action menu been clicked.
         Emits load_assets signal to load the selected assets in the scene.
         '''
-        self.load_assets.emit(self._asset_list.selection(warn_on_empty=True))
+        selection = self._asset_list.selection()
+        if self.check_selection(selection):
+            self.load_assets.emit(selection, plugin)
 
     def ctx_unload(self, plugin):
         '''
         Triggered when unload action menu been clicked.
         Emits load_assets signal to unload the selected assets in the scene.
         '''
-        self.unload_assets.emit(self._asset_list.selection(warn_on_empty=True))
+        selection = self._asset_list.selection()
+        if self.check_selection(selection):
+            self.unload_assets.emit(selection, plugin)
 
     def set_context_actions(self, actions):
         '''Set the :obj:`engine_type` into the asset_table_view and calls the

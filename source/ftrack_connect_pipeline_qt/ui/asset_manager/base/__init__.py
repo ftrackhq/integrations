@@ -220,9 +220,7 @@ class AssetListWidget(QtWidgets.QWidget):
         '''Clear widget and add all assets again from model.'''
         raise NotImplementedError()
 
-    def selection(
-        self, warn_on_empty=False, empty_returns_all=False, as_widgets=False
-    ):
+    def selection(self, as_widgets=False):
         result = []
         for widget in self.assets:
             if widget.selected:
@@ -230,37 +228,16 @@ class AssetListWidget(QtWidgets.QWidget):
                     result.append(widget)
                 else:
                     result.append(self.model.data(widget.index))
-        if len(result) == 0:
-            if empty_returns_all:
-                dlg = Dialog(
-                    title='ftrack Assembler',
-                    question='Load all?',
-                    parent=self,
-                )
-                if dlg.exec_():
-                    for widget in self.assets:
-                        widget.set_selected(True)
-                        if as_widgets:
-                            result.append(widget)
-                        else:
-                            result.append(self.model.data(widget.index))
-            elif warn_on_empty:
-                QtWidgets.QMessageBox.critical(
-                    None,
-                    'Error!',
-                    "Please select at least one asset!",
-                    QtWidgets.QMessageBox.Abort,
-                )
         return result
 
     def clear_selection(self):
         if not shiboken2.isValid(self):
             return
-        selecti_on_asset_data_changed = False
+        selection_asset_data_changed = False
         for asset_widget in self.assets:
             if asset_widget.set_selected(False):
-                selecti_on_asset_data_changed = True
-        if selecti_on_asset_data_changed:
+                selection_asset_data_changed = True
+        if selection_asset_data_changed:
             self.selection_updated.emit(self.selection())
 
     def asset_clicked(self, asset_widget, event):

@@ -30,11 +30,13 @@ class QtClient(Client, QtWidgets.QFrame):
 
     context_changed = QtCore.Signal(object)
 
-    def __init__(self, event_manager, parent=None):
+    def __init__(self, event_manager, parent_window, parent=None):
         '''Initialise with *event_manager* and
         *parent* widget'''
         QtWidgets.QFrame.__init__(self, parent=parent)
         Client.__init__(self, event_manager)
+
+        self._parent_window = parent_window
 
         if self.get_theme():
             self.setTheme(self.get_theme())
@@ -70,6 +72,10 @@ class QtClient(Client, QtWidgets.QFrame):
     def get_background_color(self):
         '''Return the theme background color style. Can be overridden by child.'''
         return 'default'
+
+    def get_parent_window(self):
+        '''Return the dialog or DCC app window this client is within.'''
+        return self._parent_window
 
     def add_hosts(self, host_connections):
         '''
@@ -125,7 +131,7 @@ class QtClient(Client, QtWidgets.QFrame):
             self.progress_widget.widget
         )
 
-        self.context_selector = ContextSelector(self.session)
+        self.context_selector = ContextSelector(self, self.session)
         self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
 
         self.layout().addWidget(line.Line())

@@ -10,7 +10,7 @@ from Qt import QtCore, QtWidgets
 import qtawesome as qta
 
 from ftrack_connect_pipeline.client import constants
-
+from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import Dialog
 from ftrack_connect_pipeline_qt.client import QtClient
 
 from ftrack_connect_pipeline_qt.client import factory
@@ -50,10 +50,10 @@ class QtAssemblerClient(QtClient):
     import_mode = -1
     hard_refresh = True  # Flag telling assembler that next refresh should include dependency resolve
 
-    def __init__(self, event_manager, modes, asset_list_model, parent=None):
+    def __init__(self, event_manager, modes, asset_list_model, parent_window):
         self.modes = modes
         self._asset_list_model = asset_list_model
-        super(QtAssemblerClient, self).__init__(event_manager, parent=parent)
+        super(QtAssemblerClient, self).__init__(event_manager, parent_window)
         self.logger.debug('start qt assembler')
 
     def get_background_color(self):
@@ -63,7 +63,10 @@ class QtAssemblerClient(QtClient):
         super(QtAssemblerClient, self).pre_build()
         # Create and add the asset manager client
         self.asset_manager = QtAssetManagerClient(
-            self.event_manager, self._asset_list_model, is_assembler=True
+            self.event_manager,
+            self._asset_list_model,
+            self.get_parent_window(),
+            is_assembler=True,
         )
 
     def build(self):
@@ -78,7 +81,7 @@ class QtAssemblerClient(QtClient):
             self.progress_widget.widget
         )
 
-        self.context_selector = ContextSelector(self.session)
+        self.context_selector = ContextSelector(self, self.session)
         self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
 
         # Have definition selector but invisible unless there are multiple hosts
@@ -123,9 +126,9 @@ class QtAssemblerClient(QtClient):
 
         # Set initial import mode, do not rebuild it as AM will trig it when it
         # has resolved dependencies
-        # self.set_import_mode(self.IMPORT_MODE_DEPENDENCIES)
-        self._tab_widget.setCurrentIndex(self.IMPORT_MODE_BROWSE)
-        self.set_import_mode(self.IMPORT_MODE_BROWSE)
+        # self.set_import_mode(self.IMPORT_MODE_BROWSE)
+        self._tab_widget.setCurrentIndex(self.IMPORT_MODE_DEPENDENCIES)
+        self.set_import_mode(self.IMPORT_MODE_DEPENDENCIES)
 
         button_widget = QtWidgets.QWidget()
         button_widget.setLayout(QtWidgets.QHBoxLayout())
@@ -239,8 +242,20 @@ class QtAssemblerClient(QtClient):
         '''Function called when click the run button'''
         # Load batch of components, any selected
         component_widgets = self._assembler_widget.component_list.selection(
-            empty_returns_all=True, as_widgets=True
+            as_widgets=True
         )
+        if len(component_widgets) == 0:
+            dlg = Dialog(
+                self.get_parent_window(),
+                title='ftrack Assembler',
+                question='Load all?',
+                prompt=True,
+            )
+            if dlg.exec_():
+                # Select and use all loadable - having definition
+                component_widgets = (
+                    self._assembler_widget.component_list.get_loadable()
+                )
         if len(component_widgets) > 0:
             # Each component contains a definition ready to run and a factory,
             # run them one by one. Start by preparing progress widget

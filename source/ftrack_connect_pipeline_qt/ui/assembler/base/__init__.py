@@ -81,8 +81,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.scroll, 1000)
 
     def rebuild(self):
-        if self.scroll.widget():
-            self.scroll.widget().deleteLater()
+
         self.model.reset()
         self._assembler_client.progress_widget.hide_widget()
 
@@ -151,6 +150,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
             ),
         ):
             print('@@@ Processing: {}'.format(str_version(version)))
+
             for component in version['components']:
                 component_extension = component.get('file_type')
                 print(
@@ -267,10 +267,18 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                                                             plugin['options'][
                                                                 'version_id'
                                                             ] = version['id']
+                                        print(
+                                            '@@@     {}.{} Match!'.format(
+                                                d_stage['name'],
+                                                d_plugin.get('name'),
+                                            )
+                                        )
                                         break
                                     else:
                                         print(
-                                            '@@@     Accepted formats {} does not intersect with {}!'.format(
+                                            '@@@     {}.{} Accepted formats {} does not intersect with {}!'.format(
+                                                d_stage['name'],
+                                                d_plugin.get('name'),
                                                 accepted_formats,
                                                 [component_extension],
                                             )
@@ -302,6 +310,14 @@ class AssemblerListBaseWidget(AssetListWidget):
     def rebuild(self):
         raise NotImplementedError()
 
+    def get_loadable(self):
+        result = []
+        for widget in self.assets:
+            if widget.definition is not None:
+                widget.set_selected(True)
+                result.append(widget)
+        return result
+
 
 class ComponentBaseWidget(AccordionBaseWidget):
     '''Widget representation of a minimal asset representation'''
@@ -316,7 +332,11 @@ class ComponentBaseWidget(AccordionBaseWidget):
 
     @property
     def definition(self):
-        return self._widget_factory.working_definition
+        return (
+            self._widget_factory.working_definition
+            if self._widget_factory
+            else None
+        )
 
     @property
     def factory(self):
