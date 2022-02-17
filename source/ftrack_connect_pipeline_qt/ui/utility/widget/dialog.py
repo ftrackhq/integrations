@@ -18,7 +18,6 @@ class Dialog(QtWidgets.QDialog):
     def __init__(
         self, parent, message=None, question=None, title=None, prompt=False
     ):
-        print('@@@ Dialog(..,parent={})'.format(parent))
         super(Dialog, self).__init__(parent=parent)
 
         self.setParent(parent)
@@ -91,7 +90,9 @@ class Dialog(QtWidgets.QDialog):
         self.layout().addWidget(buttonbar, 1)
 
     def get_content_widget(self):
-        return center_widget(QtWidgets.QLabel(self._message))
+        label = QtWidgets.QLabel(self._message)
+        label.setObjectName('h3')
+        return center_widget(label)
 
     def get_approve_button(self):
         return ApproveButton('YES' if self._prompt is True else 'OK')

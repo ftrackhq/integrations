@@ -125,8 +125,8 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                     break
 
         # import json
-        print(
-            '@@@ loader_definitions: {}'.format(
+        self._assembler_client.logger.debug(
+            'Available loader definitions: {}'.format(
                 '\n'.join(
                     [
                         json.dumps(loader, indent=4)
@@ -135,7 +135,6 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                 )
             )
         )
-        # print('@@@ # loader_definitions: {}'.format(len(loader_definitions)))
 
         # For each version, figure out loadable components and store with
         # fragment of its possible loader definition(s)
@@ -149,12 +148,16 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                 v['asset']['parent']['id'], v['asset']['name']
             ),
         ):
-            print('@@@ Processing: {}'.format(str_version(version)))
+            self._assembler_client.logger.debug(
+                'Processing version: {}'.format(
+                    str_version(version, with_id=True)
+                )
+            )
 
             for component in version['components']:
                 component_extension = component.get('file_type')
-                print(
-                    '@@@     Component: {}({})'.format(
+                self._assembler_client.logger.debug(
+                    '     Processing component: {}({})'.format(
                         component['name'], component['file_type']
                     )
                 )
@@ -175,8 +178,8 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                         definition_asset_type_name_short
                         != version['asset']['type']['short']
                     ):
-                        print(
-                            '@@@     Definition AT {} mismatch version {}!'.format(
+                        self._assembler_client.logger.debug(
+                            '        Definition asset type {} mismatch version {}!'.format(
                                 definition_asset_type_name_short,
                                 version['asset']['type']['short'],
                             )
@@ -188,8 +191,8 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                             d_component['name'].lower()
                             != component['name'].lower()
                         ):
-                            print(
-                                '@@@     Definition component name {} mismatch!'.format(
+                            self._assembler_client.logger.debug(
+                                '        Definition component name {} mismatch!'.format(
                                     d_component['name']
                                 )
                             )
@@ -267,16 +270,16 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                                                             plugin['options'][
                                                                 'version_id'
                                                             ] = version['id']
-                                        print(
-                                            '@@@     {}.{} Match!'.format(
+                                        self._assembler_client.logger.debug(
+                                            '     {}.{} Match!'.format(
                                                 d_stage['name'],
                                                 d_plugin.get('name'),
                                             )
                                         )
                                         break
                                     else:
-                                        print(
-                                            '@@@     {}.{} Accepted formats {} does not intersect with {}!'.format(
+                                        self._assembler_client.logger.debug(
+                                            '        {}.{} Accepted formats {} does not intersect with {}!'.format(
                                                 d_stage['name'],
                                                 d_plugin.get('name'),
                                                 accepted_formats,

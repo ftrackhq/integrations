@@ -12,6 +12,7 @@ from Qt import QtGui, QtCore, QtWidgets
 from ftrack_connect_pipeline import client, constants
 from ftrack_connect_pipeline.configure_logging import get_log_directory
 from ftrack_connect_pipeline.client.log_viewer import LogViewerClient
+from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.log_viewer import LogViewerWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget import header, host_selector
 
@@ -21,6 +22,7 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
     QtLogViewerClient class.
     '''
 
+    client_name = qt_constants.LOG_VIEWER_WIDGET
     definition_filter = 'log_viewer'
     '''Use only definitions that matches the definition_filter'''
 
@@ -50,6 +52,12 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
     def get_parent_window(self):
         '''Return the dialog or DCC app window this client is within.'''
         return self._parent_window
+
+    def is_docked(self):
+        return not self.client_name in [
+            qt_constants.OPEN_WIDGET,
+            qt_constants.ASSEMBLER_WIDGET,
+        ]
 
     def add_hosts(self, host_connections):
         '''

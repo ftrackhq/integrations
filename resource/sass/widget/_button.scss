@@ -159,6 +159,11 @@ AddRunButton {
     padding-right: 4px;
 }
 
+AddRunButton:hover {
+    color: lighten($color-cyan, 5%);
+    border: 1px solid lighten($color-cyan, 5%);
+}
+
 LoadRunButton {
     color: $color-green;
     border: 1px solid $color-green;
@@ -167,12 +172,22 @@ LoadRunButton {
     padding-right: 4px;
 }
 
+LoadRunButton:hover {
+    color: lighten($color-green, 5%);
+    border: 1px solid lighten($color-green, 5%);
+}
+
 RemoveButton {
     color: $color-red;
     border: 1px solid $color-red;
     border-radius: 3px;
     padding-left: 4px;
     padding-right: 4px;
+}
+
+RemoveButton:hover {
+    color: lighten($color-red, 5%);
+    border: 1px solid lighten($color-red, 5%);
 }
 
 RemoveButton:disabled {
@@ -186,6 +201,7 @@ ApproveButton {
     color: $color-purple;
     border: none;
     background: transparent;
+    font-size: larger;
 }
 
 ApproveButton:disabled {
@@ -200,6 +216,7 @@ DenyButton {
     color: $gray;
     border: none;
     background: transparent;
+    font-size: larger;
 }
 
 DenyButton:hover {

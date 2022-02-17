@@ -9,6 +9,7 @@ from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.constants import asset as asset_constants
+from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.asset_manager.base import (
     AssetManagerBaseWidget,
     AssetListWidget,
@@ -37,13 +38,13 @@ class AssetManagerWidget(AssetManagerBaseWidget):
     refresh = QtCore.Signal()
     rebuild = QtCore.Signal()
 
-    widget_status_updated = QtCore.Signal(object)
-    change_asset_version = QtCore.Signal(object, object)
-    select_assets = QtCore.Signal(object)
-    remove_assets = QtCore.Signal(object)
-    update_assets = QtCore.Signal(object, object)
-    load_assets = QtCore.Signal(object)
-    unload_assets = QtCore.Signal(object)
+    widgetStatusUpdated = QtCore.Signal(object)
+    changeAssetVersion = QtCore.Signal(object, object)
+    selectAssets = QtCore.Signal(object)
+    removeAssets = QtCore.Signal(object, object)
+    updateAssets = QtCore.Signal(object, object)
+    loadAssets = QtCore.Signal(object, object)
+    unloadAssets = QtCore.Signal(object, object)
 
     DEFAULT_ACTIONS = {
         'select': [{'ui_callback': 'ctx_select', 'name': 'select_asset'}],
@@ -90,16 +91,18 @@ class AssetManagerWidget(AssetManagerBaseWidget):
             self._config_button = CircularButton('cog', '#87E1EB')
             self._config_button.clicked.connect(self._on_config)
             layout.addWidget(self._config_button)
-        else:
-            self._add_button = CircularButton('plus', '#87E1EB')
-            self._add_button.clicked.connect(self._on_add)
-            layout.addWidget(self._add_button)
+        # else:
+        #    self._add_button = CircularButton('plus', '#87E1EB')
+        #    self._add_button.clicked.connect(self._on_add)
+        #    layout.addWidget(self._add_button)
 
     def build(self):
         super(AssetManagerWidget, self).build()
 
         self._asset_list = AssetManagerListWidget(
-            self._asset_list_model, AssetWidget
+            self._asset_list_model,
+            AssetWidget,
+            docked=self._asset_manager_client.is_docked(),
         )
 
         asset_list_container = QtWidgets.QWidget()
@@ -198,7 +201,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         '''
         selection = self._asset_list.selection()
         if self.check_selection(selection):
-            self.update_assets.emit(selection, plugin)
+            self.updateAssets.emit(selection, plugin)
 
     def ctx_select(self, plugin):
         '''
@@ -207,7 +210,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         '''
         selection = self._asset_list.selection()
         if self.check_selection(selection):
-            self.select_assets.emit(selection, plugin)
+            self.selectAssets.emit(selection, plugin)
 
     def ctx_remove(self, plugin):
         '''
@@ -216,7 +219,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         '''
         selection = self._asset_list.selection()
         if self.check_selection(selection):
-            self.remove_assets.emit(selection, plugin)
+            self.removeAssets.emit(selection, plugin)
 
     def ctx_load(self, plugin):
         # TODO: I think is better to not pass a Plugin, and use directly the
@@ -230,7 +233,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         '''
         selection = self._asset_list.selection()
         if self.check_selection(selection):
-            self.load_assets.emit(selection, plugin)
+            self.loadAssets.emit(selection, plugin)
 
     def ctx_unload(self, plugin):
         '''
@@ -239,7 +242,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         '''
         selection = self._asset_list.selection()
         if self.check_selection(selection):
-            self.unload_assets.emit(selection, plugin)
+            self.unloadAssets.emit(selection, plugin)
 
     def set_context_actions(self, actions):
         '''Set the :obj:`engine_type` into the asset_table_view and calls the
@@ -278,10 +281,10 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         self.rebuild.emit()  # To be picked up by AM
 
     def _on_config(self):
-        raise NotImplementedError('Open Assembler not implemented yet!')
+        self.host_connection.launch_widget(qt_constants.ASSEMBLER_WIDGET)
 
     def _on_add(self):
-        raise NotImplementedError('Open Importer not implemented yet!')
+        self.host_connection.launch_widget(qt_constants.ASSEMBLER_WIDGET)
 
     def on_asset_change_version(self, index, value):
         '''
@@ -291,45 +294,47 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         _asset_info = self._asset_list.model.getData(index.row())
         # Copy to avoid update automatically
         asset_info = _asset_info.copy()
-        self.change_asset_version.emit(asset_info, value)
+        self.changeAssetVersion.emit(asset_info, value)
 
     def on_select_assets(self, assets):
         '''
         Triggered when select action is clicked on the asset_table_view.
         '''
-        self.select_assets.emit(assets)
+        self.selectAssets.emit(assets)
 
     def on_remove_assets(self, assets):
         '''
         Triggered when remove action is clicked on the asset_table_view.
         '''
-        self.remove_assets.emit(assets)
+        self.removeAssets.emit(assets)
 
     def on_update_assets(self, assets, plugin):
         '''
         Triggered when update action is clicked on the asset_table_view.
         '''
-        self.update_assets.emit(assets, plugin)
+        self.updateAssets.emit(assets, plugin)
 
     def on_load_assets(self, assets):
         '''
         Triggered when load action is clicked on the asset_table_view.
         '''
-        self.load_assets.emit(assets)
+        self.loadAssets.emit(assets)
 
     def on_unload_assets(self, assets):
         '''
         Triggered when unload action is clicked on the asset_table_view.
         '''
-        self.unload_assets.emit(assets)
+        self.unloadAssets.emit(assets)
 
 
 class AssetManagerListWidget(AssetListWidget):
     '''Custom asset manager list view'''
 
-    def __init__(self, model, asset_widget_class, parent=None):
+    def __init__(self, model, asset_widget_class, docked=False, parent=None):
         self._asset_widget_class = asset_widget_class
+        self._docked = docked
         super(AssetManagerListWidget, self).__init__(model, parent=parent)
+        print('@@@ AssetManagerListWidget(..,docked:{})'.format(docked))
 
     def post_build(self):
         super(AssetManagerListWidget, self).post_build()
@@ -348,14 +353,13 @@ class AssetManagerListWidget(AssetListWidget):
         self,
     ):
         '''Clear widget and add all assets again from model.'''
-        print('@@@ AssetManagerListWidget::rebuild()')
         clear_layout(self.layout())
         # TODO: Save selection state
         for row in range(self.model.rowCount()):
             index = self.model.createIndex(row, 0, self.model)
             asset_info = self.model.data(index)
             asset_widget = self._asset_widget_class(
-                index, self.model.event_manager
+                index, self.model.event_manager, docked=self._docked
             )
             if row == 0:
                 set_property(asset_widget, 'first', 'true')
@@ -377,13 +381,16 @@ class AssetWidget(AccordionBaseWidget):
     def options_widget(self):
         return self._options_button
 
-    def __init__(self, index, event_manager, title=None, parent=None):
+    def __init__(
+        self, index, event_manager, title=None, docked=False, parent=None
+    ):
         super(AssetWidget, self).__init__(
             AccordionBaseWidget.SELECT_MODE_LIST,
             AccordionBaseWidget.CHECK_MODE_NONE,
             event_manager=event_manager,
             title=title,
             checked=False,
+            docked=docked,
             parent=parent,
         )
         self._version_id = None

@@ -161,11 +161,6 @@ class EntityBrowser(Dialog):
         return self._external_navigator
 
     def set_entity(self, entity):
-        print(
-            '@@@ EntityBrowser::set_entity({}) Prev: {}'.format(
-                entity, self._entity
-            )
-        )
         prev_entity = self._entity
         self._entity = entity
         self.set_intermediate_entity(entity)
@@ -178,7 +173,6 @@ class EntityBrowser(Dialog):
                 self.rebuild()
 
     def set_intermediate_entity(self, entity=None):
-        print('@@@ EntityBrowser::set_intermediate_entity({})'.format(entity))
         self._intermediate_entity = entity
         self._prev_search_text = ""
         self._search.text = ""
@@ -234,11 +228,6 @@ class EntityBrowser(Dialog):
 
     def _fetch_entities(self):
         intermediate_entity = self.intermediate_entity
-        print(
-            '@@@ EntityBrowser::_fetch_entities; self.intermediate_entity: {}'.format(
-                intermediate_entity
-            )
-        )
         entities = None
         if self.intermediate_entity is None:
             # List projects
@@ -256,8 +245,6 @@ class EntityBrowser(Dialog):
             self.entitiesFetched.emit(entities)
 
     def _on_entities_fetched(self, entities):
-        print('@@@ EntityBrowser::_on_entities_fetched({})'.format(entities))
-
         widget = QtWidgets.QWidget()
         widget.setLayout(QtWidgets.QVBoxLayout())
         widget.layout().setSpacing(0)

@@ -10,6 +10,7 @@ from Qt import QtCore, QtWidgets
 import qtawesome as qta
 
 from ftrack_connect_pipeline.client import constants
+from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import Dialog
 from ftrack_connect_pipeline_qt.client import QtClient
 
@@ -44,7 +45,7 @@ class QtAssemblerClient(QtClient):
     IMPORT_MODE_DEPENDENCIES = 0
     IMPORT_MODE_BROWSE = 1
 
-    client_name = 'assembler'
+    client_name = qt_constants.ASSEMBLER_WIDGET
     definition_filter = 'loader'
 
     import_mode = -1
@@ -165,6 +166,7 @@ class QtAssemblerClient(QtClient):
         )
         self._tab_widget.currentChanged.connect(self._on_tab_changed)
         self.asset_manager.assets_discovered.connect(self._assets_discovered)
+        self.run_button.setFocus()
 
     def _on_hosts_discovered(self, host_connects):
         self.host_and_definition_selector.setVisible(len(host_connects) > 1)
@@ -224,11 +226,6 @@ class QtAssemblerClient(QtClient):
         self.progress_widget.clear_components()
 
     def setup_widget_factory(self, widget_factory, definition, context_id):
-        print(
-            '@@@ setup_widget_factory({},{},{})'.format(
-                widget_factory, json.dumps(definition, indent=4), context_id
-            )
-        )
         widget_factory.set_definition(definition)
         current_package = self.get_current_package(definition)
         widget_factory.set_context(
@@ -284,7 +281,9 @@ class QtAssemblerClient(QtClient):
                 )[0]
                 self.progress_widget.set_status(
                     constants.RUNNING_STATUS,
-                    'Loading {}...'.format(str_version(component['version'])),
+                    'Loading {} / {}...'.format(
+                        str_version(component['version']), component['name']
+                    ),
                 )
                 definition = component_widget.definition
                 factory = component_widget.factory
@@ -293,8 +292,10 @@ class QtAssemblerClient(QtClient):
                 engine_type = definition['_config']['engine_type']
                 import json
 
-                print(
-                    '@@@ Running: {}'.format(json.dumps(definition, indent=4))
+                self.logger.info(
+                    'Running definition: {}'.format(
+                        json.dumps(definition, indent=4)
+                    )
                 )
 
                 self.run_definition(definition, engine_type, delayed_load)

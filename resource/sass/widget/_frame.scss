@@ -50,15 +50,19 @@ AccordionBaseWidget[first='true'] {
 }
 
 QFrame[indicator='on'] {
-    background: '#79DFB6';
+    background: #79DFB6;
 }
 
 QFrame[indicator='off'] {
-    background: '#404040';
+    background: #404040;
 }
 
 QFrame[background='selected'] {
-    background: '#1C2229';
+    background: $gray-lighter;
+}
+
+QFrame[background='selected_docked'] {
+    background: rgb(77,77,77);
 }
 
 QFrame[background='transparent'] {
@@ -86,10 +90,6 @@ EntityWidget {
 }
 
 EntityWidget:hover {
-    background: $gray-lighter;
-}
-
-EntityWidget[state='selected'] {
     background: $gray-lighter;
 }
 

@@ -77,6 +77,12 @@ class QtClient(Client, QtWidgets.QFrame):
         '''Return the dialog or DCC app window this client is within.'''
         return self._parent_window
 
+    def is_docked(self):
+        return not self.client_name in [
+            qt_constants.OPEN_WIDGET,
+            qt_constants.ASSEMBLER_WIDGET,
+        ]
+
     def add_hosts(self, host_connections):
         '''
         Adds the given *host_connections*
@@ -264,8 +270,10 @@ class QtClient(Client, QtWidgets.QFrame):
     def run(self):
         '''Function called when click the run button'''
         if self.definition is None:
-            # TODO: Open assembler
-            raise NotImplementedError('Assembler open not implemented!')
+            self.host_connection.launch_widget(qt_constants.ASSEMBLER_WIDGET)
+            if not self.is_docked():
+                self.get_parent_window().destroy()
+                return
         serialized_data = self.widget_factory.to_json_object()
         if not self.is_valid_asset_name:
             msg = "Can't publish without a valid asset name"

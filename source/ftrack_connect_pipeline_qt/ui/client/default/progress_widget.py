@@ -254,17 +254,6 @@ class ProgressWidget(BaseUIWidget):
         self, step_type, step_name, status, status_message, results, version_id
     ):
         id_name = "{}.{}.{}".format(version_id or '-', step_type, step_name)
-        print(
-            '@@@ update_component_status({},{},{},{},{},{}); id_name: {}'.format(
-                step_type,
-                step_name,
-                status,
-                status_message,
-                results,
-                version_id,
-                id_name,
-            )
-        )
         if id_name in self.component_widgets:
             self.component_widgets[id_name].update_status(
                 status, status_message, results

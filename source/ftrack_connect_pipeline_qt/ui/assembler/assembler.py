@@ -75,7 +75,6 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
         )
 
     def rebuild(self):
-        print('@@@ AssemblerDependenciesWidget::rebuild()')
         # Create spinner
         self._busy_widget = BusyIndicator(start=False)
         self.scroll.setWidget(center_widget(self._busy_widget, 30, 30))
@@ -131,9 +130,9 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
         ]
 
         # Process versions, filter against
-        print(
-            '@@@ resolved versions: {}'.format(
-                ','.join([str_version(v) for v in versions])
+        self._assembler_client.logger.info(
+            'Resolved versions: {}'.format(
+                ','.join([str_version(v, with_id=True) for v in versions])
             )
         )
 
@@ -286,10 +285,8 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
         self.componentsFetched.connect(self._on_components_fetched)
         self.allVersionsFetched.connect(self._on_all_versions_fetched)
         self._search.input_updated.connect(self._on_search)
-        self._search.setFocus()
 
     def rebuild(self):
-        print('@@@ AssemblerBrowserWidget::rebuild()')
         super(AssemblerBrowserWidget, self).rebuild()
 
         if self._entity_browser.entity is None:
@@ -322,8 +319,8 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
 
     def _fetch_versions(self, context):
         '''Search ftrack for versions beneath the given *context_id*'''
-        print(
-            '@@@ AssemblerBrowserWidget::_fetch_versions({})'.format(context)
+        self._assembler_widget.logger.info(
+            'Fetching versions beneath context: {}'.format(context)
         )
         # Build list of parent ID's
         parent_ids = self._recursive_get_descendant_ids(context)

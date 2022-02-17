@@ -7,7 +7,6 @@ from Qt import QtWidgets, QtCore, QtCompat, QtGui
 import shiboken2
 
 from ftrack_connect_pipeline.constants import asset as asset_const
-from ftrack_connect_pipeline import constants as core_const
 from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
@@ -144,7 +143,7 @@ class AssetListModel(QtCore.QAbstractTableModel):
                 self.__asset_entities_list.append(data[row])
         self.endInsertRows()
 
-    def getIndex(self, asset_info_id):
+    def getPosition(self, asset_info_id):
         result = -1
         for index, asset_info in enumerate(self.__asset_entities_list):
             if asset_info[asset_const.ASSET_INFO_ID] == asset_info_id:
@@ -156,8 +155,19 @@ class AssetListModel(QtCore.QAbstractTableModel):
             )
         return result
 
+    def getDataById(self, asset_info_id):
+        for index, asset_info in enumerate(self.__asset_entities_list):
+            if asset_info[asset_const.ASSET_INFO_ID] == asset_info_id:
+                return asset_info
+        self.logger.warning(
+            'No asset info found for id {}'.format(asset_info_id)
+        )
+        return None
+
     def setData(self, position, asset_info, silent=False, roles=None):
-        print('@@@ AssetListModel({},{})'.format(position, asset_info))
+        print(
+            '@@@ AssetListModel::setData({},{})'.format(position, asset_info)
+        )
         self.__asset_entities_list[position] = asset_info
         if not silent:
             self.dataChanged.emit(position, position)

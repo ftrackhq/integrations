@@ -92,25 +92,26 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         selected=False,
         checked=True,
         collapsable=True,
+        docked=False,
         parent=None,
     ):
         super(AccordionBaseWidget, self).__init__(parent=parent)
 
         self._event_manager = event_manager
         self._reference_widget = None
-        self._collapsed = True
-        self._checked = checked
         self._header = None
         self._content = None
         self._title = title
         self._widgets = {}
         self._inner_widget_status = {}
-
         self._select_mode = select_mode
         self._check_mode = check_mode
         self._selected = selected
         self._checked = checked
+        self._collapsed = True
+        self._checked = checked
         self._collapsable = collapsable
+        self._docked = docked
 
         self._input_message = 'Initializing...'
         self._input_status = False
@@ -284,7 +285,9 @@ class AccordionBaseWidget(QtWidgets.QFrame):
             set_property(
                 self,
                 'background',
-                'selected' if self._selected else 'transparent',
+                ('selected{}'.format('_docked' if self._docked else ''))
+                if self._selected
+                else 'transparent',
             )
 
 

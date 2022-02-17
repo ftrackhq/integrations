@@ -3,6 +3,7 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 from ftrack_connect_pipeline_qt.client import QtClient
+from ftrack_connect_pipeline_qt import constants as qt_constants
 
 
 class QtPublisherClient(QtClient):
@@ -10,10 +11,10 @@ class QtPublisherClient(QtClient):
     Base publish widget class.
     '''
 
-    definition_filter = 'publisher'
+    definition_filter = qt_constants.PUBLISH_WIDGET
     client_name = 'publish'
 
-    def __init__(self, parent_window, event_manager, parent=None):
+    def __init__(self, event_manager, parent_window, parent=None):
 
         super(QtPublisherClient, self).__init__(
             parent_window, event_manager, parent=parent

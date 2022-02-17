@@ -4,6 +4,7 @@
 from Qt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline.utils import get_current_context_id
+from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.utility.widget.entity_info import EntityInfo
 from ftrack_connect_pipeline_qt.ui.utility.widget.entity_browser import (
     EntityBrowser,
@@ -60,10 +61,13 @@ class ContextSelector(QtWidgets.QWidget):
         self.thumbnail_widget.setMaximumWidth(50)
         self.thumbnail_widget.setMaximumHeight(50)
 
-        self.entityBrowser = EntityBrowser(
-            self._client.get_parent_window(), self.session
-        )
-        self.entityBrowser.setMinimumWidth(600)
+        if self._client.client_name == qt_constants.OPEN_WIDGET:
+            self.entityBrowser = EntityBrowser(
+                self._client.get_parent_window(), self.session
+            )
+            self.entityBrowser.setMinimumWidth(600)
+        else:
+            self.entityBrowser = None
 
         self.entity_info = EntityInfo()
         self.entity_info.setMinimumHeight(60)
@@ -124,11 +128,17 @@ class ContextSelector(QtWidgets.QWidget):
     def _onEntityBrowseButtonClicked(self):
         '''Handle entity browse button clicked'''
         # Ensure browser points to parent of currently selected entity.
-
-        self.entityBrowser.set_entity(
-            self._entity['parent'] if self._entity else None
-        )
-
-        # Launch browser.
-        if self.entityBrowser.exec_():
-            self.set_entity(self.entityBrowser.entity)
+        if self.entityBrowser:
+            self.entityBrowser.set_entity(
+                self._entity['parent'] if self._entity else None
+            )
+            # Launch browser.
+            if self.entityBrowser.exec_():
+                self.set_entity(self.entityBrowser.entity)
+        else:
+            # Can only be done from opener
+            self._client.host_connection.launch_widget(
+                qt_constants.OPEN_WIDGET
+            )
+            if not self._client.is_docked():
+                self._client.get_parent_window().destroy()

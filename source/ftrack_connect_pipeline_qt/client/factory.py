@@ -281,7 +281,6 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         '''
         Given the provided definition, we generate the client UI.
         '''
-        print('@@@ build_definition_ui({})'.format(definition['name']))
         self.progress_widget.prepare_add_components()
         # Backup the original definition, as it will be extended by the user UI
         self.original_definition = copy.deepcopy(definition)
@@ -507,7 +506,6 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                     return result
 
     def _update_progress_widget(self, event):
-        print('@@@ _update_progress_widget({})'.format(event))
         step_type = event['data']['pipeline']['step_type']
         step_name = event['data']['pipeline']['step_name']
         stage_name = event['data']['pipeline']['stage_name']

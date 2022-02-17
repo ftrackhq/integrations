@@ -5,6 +5,7 @@ import os
 
 from ftrack_connect_pipeline_qt.client import QtClient
 from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import Dialog
+from ftrack_connect_pipeline_qt import constants as qt_constants
 
 
 class QtOpenClient(QtClient):
@@ -13,7 +14,7 @@ class QtOpenClient(QtClient):
     '''
 
     definition_filter = 'loader'
-    client_name = 'open'
+    client_name = qt_constants.OPEN_WIDGET
 
     def __init__(
         self,
@@ -23,6 +24,8 @@ class QtOpenClient(QtClient):
     ):
         if not definition_extensions_filter is None:
             self.definition_extensions_filter = definition_extensions_filter
+        self.ask_open_assembler = False
+        self.ask_open_latest = False
         super(QtOpenClient, self).__init__(event_manager, parent_window)
         self.logger.debug('start qt opener')
 
@@ -42,23 +45,6 @@ class QtOpenClient(QtClient):
         '''React upon change of definition, or no versions/components(definitions) available.'''
         if available_components_count == 0:
             # We have no definitions or nothing previously published
-            # TODO: Search among work files and see if there is and crash scene from previous session
-            dlg = Dialog(
-                self.get_parent_window(),
-                title=self.client_name.title(),
-                question='Nothing to open, assemble a new scene?',
-                prompt=True,
-            )
-            if dlg.exec_():
-                # Close and open assembler
-                self.hide()
-                raise NotImplementedError('Assembler open not implemented!')
+            self.ask_open_assembler = True
         elif definition is not None and available_components_count == 1:
-            dlg = Dialog(
-                self.get_parent_window(),
-                title=self.client_name.title(),
-                question='Open latest?',
-            )
-            if dlg.exec_():
-                # Trig open
-                self.run_button.click()
+            self.ask_open_latest = True

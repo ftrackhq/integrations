@@ -15,5 +15,12 @@ _BASE_ = 'ftrack.pipeline'
 
 MAIN_FRAMEWORK_WIDGET = 'main_framework_widget'
 
+OPEN_WIDGET = 'open'
+ASSEMBLER_WIDGET = 'assembler'
+ASSET_MANAGER_WIDGET = 'asset_manager'
+PUBLISH_WIDGET = 'publish'
+LOG_VIEWER_WIDGET = 'log_viewer'
+DOC_WIDGET = 'doc'
+
 # Avoid circular dependencies.
 from ftrack_connect_pipeline_qt.constants.icons import *
