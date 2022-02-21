@@ -22,7 +22,7 @@ class Dialog(QtWidgets.QDialog):
 
         self.setParent(parent)
 
-        self.setTheme(self.get_theme())
+        self.setTheme(self.getTheme())
         self.setProperty('background', 'ftrack')
 
         self._message = message or question
@@ -36,7 +36,7 @@ class Dialog(QtWidgets.QDialog):
         if prompt is False:
             self.exec_()
 
-    def get_theme(self):
+    def getTheme(self):
         '''Return the client theme, return None to disable themes. Can be overridden by child.'''
         return 'dark'
 

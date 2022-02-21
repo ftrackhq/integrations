@@ -54,11 +54,15 @@ class QtAssemblerClient(QtClient):
     def __init__(self, event_manager, modes, asset_list_model, parent_window):
         self.modes = modes
         self._asset_list_model = asset_list_model
+        self.widget_factory = None
         super(QtAssemblerClient, self).__init__(event_manager, parent_window)
         self.logger.debug('start qt assembler')
 
-    def get_background_color(self):
+    def getThemeBackgroundStyle(self):
         return 'ftrack'
+
+    def is_docked(self):
+        raise False
 
     def pre_build(self):
         super(QtAssemblerClient, self).pre_build()
@@ -167,6 +171,8 @@ class QtAssemblerClient(QtClient):
         self._tab_widget.currentChanged.connect(self._on_tab_changed)
         self.asset_manager.assets_discovered.connect(self._assets_discovered)
         self.run_button.setFocus()
+        self.run_button_no_load.clicked.connect(partial(self.run, True))
+        self.run_button.setVisible(True)
 
     def _on_hosts_discovered(self, host_connects):
         self.host_and_definition_selector.setVisible(len(host_connects) > 1)

@@ -1,10 +1,10 @@
 /** Table */
 QTableView {
-    border: 1px solid #dadada;
+    border: 1px solid $gray-dark;
     outline: 0;
     background: $white;
-
 }
+
 QTableView::item
 {
     border: 0px;
@@ -12,11 +12,18 @@ QTableView::item
     background: $white;
     color: $text-color;
 }
+
 QTableView::item:selected
 {
     background: $gray-lighter;
 }
 
 QHeaderView {
-    background-color: $gray-lighter;
+    color: $text-color;
+    background-color: $gray-darker;
+}
+
+QHeaderView::section {
+    border-right: 1px solid $gray-darker;
+    background-color: $gray-dark;
 }

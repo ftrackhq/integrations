@@ -52,13 +52,13 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         QtWidgets.QFrame.__init__(self, parent=parent)
         AssetManagerClient.__init__(self, event_manager)
 
-        if self.get_theme():
-            self.setTheme(self.get_theme())
+        if self.getTheme():
+            self.setTheme(self.getTheme())
             if is_assembler:
                 # Override AM background color
                 self.setProperty('background', 'transparent')
-            elif self.get_background_color():
-                self.setProperty('background', self.get_background_color())
+            elif self.getThemeBackgroundStyle():
+                self.setProperty('background', self.getThemeBackgroundStyle())
 
         self.is_assembler = is_assembler
         self.asset_manager_widget = AssetManagerWidget(self, asset_list_model)
@@ -77,11 +77,11 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         theme.applyFont()
         theme.applyTheme(self, selected_theme, 'plastique')
 
-    def get_theme(self):
+    def getTheme(self):
         '''Return the client theme, return None to disable themes. Can be overridden by child.'''
         return 'dark'
 
-    def get_background_color(self):
+    def getThemeBackgroundStyle(self):
         '''Return the theme background color style. Can be overridden by child.'''
         return 'default'
 

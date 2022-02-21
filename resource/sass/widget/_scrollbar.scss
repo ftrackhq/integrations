@@ -6,6 +6,13 @@ QScrollBar:vertical {
     margin: 0;
 }
 
+QScrollBar:horizontal {
+    border: 0;
+    background: transparent;
+    height: 12px;
+    margin: 0;
+}
+
 QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
     border: 0;
     border-radius: 4px;

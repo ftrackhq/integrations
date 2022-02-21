@@ -6,6 +6,7 @@ from functools import partial
 from Qt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline import constants as core_constants
+from ftrack_connect_pipeline_qt import constants as qt_constants
 
 
 class DefinitionItem(QtWidgets.QPushButton):
@@ -286,10 +287,14 @@ class DefinitionSelectorButtons(DefinitionSelector):
                 text = '{}'.format(' '.join(item.get('name').split(' ')[:-1]))
                 component_names_filter = None  # Outlined openable components
                 enable = True
-                if self._client_name.lower() in ['open', 'assembler']:
+                if self._client_name.lower() in [
+                    qt_constants.OPEN_WIDGET,
+                    qt_constants.ASSEMBLER_WIDGET,
+                ]:
                     mode_filter = (
-                        'open'
-                        if self._client_name.lower() == 'open'
+                        self._client_name.lower()
+                        if self._client_name.lower()
+                        != qt_constants.ASSEMBLER_WIDGET
                         else 'import'
                     )
                     # Remove plugins not matching client
@@ -309,7 +314,7 @@ class DefinitionSelectorButtons(DefinitionSelector):
                                         plugins_remove.append(plugin)
                                 for plugin in plugins_remove:
                                     stage['plugins'].remove(plugin)
-                if self._client_name == 'open':
+                if self._client_name == qt_constants.OPEN_WIDGET:
                     # Open mode; Only provide the schemas, and components that
                     # can load the file extensions. Peek into versions and pre-select
                     # the one loader having the latest version
@@ -342,7 +347,7 @@ class DefinitionSelectorButtons(DefinitionSelector):
                     if component_names_filter is None:
                         # There were no openable components, try next definition
                         continue
-                if self._client_name != 'assembler':
+                if self._client_name == qt_constants.OPEN_WIDGET:
                     # Check if any versions at all, find out asset type name from package
                     asset_type_short = None
                     asset_version = None
@@ -377,7 +382,10 @@ class DefinitionSelectorButtons(DefinitionSelector):
                         ):
                             latest_version = asset_version
                             index_latest_version = index
-                    if asset_version is None and self._client_name == 'open':
+                    if (
+                        asset_version is None
+                        and self._client_name == qt_constants.OPEN_WIDGET
+                    ):
                         enable = False
                 if not self._definition_title_filter:
                     text = '{} - {}'.format(
@@ -398,17 +406,17 @@ class DefinitionSelectorButtons(DefinitionSelector):
                 index += 1
         if (
             index_latest_version == -1
-            and self._client_name == 'publish'
+            and self._client_name == qt_constants.PUBLISH_WIDGET
             and len(self.button_group.buttons()) == 1
         ):
             index_latest_version = 0  # Select the one and only
         if self.definition_buttons_widget.layout().count() == 0:
-            if self._client_name == 'open':
+            if self._client_name == qt_constants.OPEN_WIDGET:
                 self.no_definitions_label.setText(
                     '<html><i>No pipeline loader definitions available to open files of type {}!'
                     '</i></html>'.format(self._definition_extensions_filter)
                 )
-            elif self._client_name == 'publish':
+            elif self._client_name == qt_constants.PUBLISH_WIDGET:
                 self.no_definitions_label.setText(
                     '<html><i>No pipeline publisher definitions are available!</i></html>'
                 )
@@ -422,7 +430,7 @@ class DefinitionSelectorButtons(DefinitionSelector):
                 None, None, None
             )  # Tell client there are no definitions
         elif index_latest_version == -1:
-            if self._client_name == 'open':
+            if self._client_name == qt_constants.OPEN_WIDGET:
                 # No versions
                 self.no_definitions_label.setText(
                     '<html><i>No version available to open!</i></html>'
@@ -434,7 +442,7 @@ class DefinitionSelectorButtons(DefinitionSelector):
             self.button_group.buttons()[index_latest_version].click()
             self.no_definitions_label.setVisible(False)
         self.definition_buttons_widget.layout().addStretch()
-        if self._client_name != 'assembler':
+        if self._client_name != qt_constants.ASSEMBLER_WIDGET:
             self.definitions_widget.show()
 
     def _on_select_definition(self, definition_item):

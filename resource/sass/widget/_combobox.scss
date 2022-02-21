@@ -71,7 +71,7 @@ AssetVersionSelector, VersionComboBox {
 
 
 
-DefinitionSelector, ModeSelector {
+DefinitionSelector, ModeSelector, FileSelector {
     border: 1px solid $gray-dark;
     border-radius: 11px;
     padding-left: 5px;
@@ -89,7 +89,7 @@ DefinitionSelector, ModeSelector {
     }
 }
 
-DefinitionSelector::down-arrow, ModeSelector::down-arrow {
+DefinitionSelector::down-arrow, ModeSelector::down-arrow, FileSelector::down-arrow {
     image: theme-image('combobox_down_arrow_disabled');
     width: 8px;
     height: 8px;

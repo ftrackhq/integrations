@@ -1,5 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
+import sys
 
 from Qt import QtCore, QtWidgets, QtGui
 
@@ -9,16 +10,25 @@ def applyFont(font=':/ftrack/font/main'):
     QtGui.QFontDatabase.addApplicationFont(font)
 
 
-def applyTheme(widget, theme='light', baseTheme=None):
+def applyTheme(widget, theme='fark', baseTheme=None):
     '''Apply *theme* to *widget*.'''
     # Set base style.
     # if baseTheme and QtWidgets.QApplication.style().objectName() != baseTheme:
     #    QtWidgets.QApplication.setStyle(baseTheme)
 
-    # Load stylesheet from resource file and apply.
-    fileObject = QtCore.QFile(':/ftrack/style/{0}'.format(theme))
-    fileObject.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text)
-    stream = QtCore.QTextStream(fileObject)
-    styleSheetContent = stream.readAll()
+    # if not QtCore.QFile(':/ftrack/font/main').exists():
+    #    raise Exception('TEST ! Font does not exist!')
 
-    widget.setStyleSheet(styleSheetContent)
+    # Load stylesheet from resource file and apply.
+    theme_path = ':/ftrack/style/{0}'.format(theme)
+    fileObject = QtCore.QFile(theme_path)
+    if fileObject.exists():
+        fileObject.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text)
+        stream = QtCore.QTextStream(fileObject)
+        styleSheetContent = stream.readAll()
+
+        widget.setStyleSheet(styleSheetContent)
+    else:
+        sys.stderr.write(
+            'ftrack theme "{}" could not be found!\n'.format(theme_path)
+        )

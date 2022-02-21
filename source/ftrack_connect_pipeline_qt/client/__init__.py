@@ -1,5 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
+import os
+import platform
 from functools import partial
 
 from Qt import QtCore, QtWidgets
@@ -15,7 +17,6 @@ from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
     ContextSelector,
 )
-from ftrack_connect_pipeline_qt.ui import resource
 from ftrack_connect_pipeline_qt.ui import theme
 
 
@@ -37,24 +38,17 @@ class QtClient(Client, QtWidgets.QFrame):
         Client.__init__(self, event_manager)
 
         self._parent_window = parent_window
+        self.is_valid_asset_name = False
 
-        if self.get_theme():
-            self.setTheme(self.get_theme())
-            if self.get_background_color():
-                self.setProperty('background', self.get_background_color())
+        if self.getTheme():
+            self.setTheme(self.getTheme())
+            if self.getThemeBackgroundStyle():
+                self.setProperty('background', self.getThemeBackgroundStyle())
         self.setObjectName(
             '{}_{}'.format(
                 qt_constants.MAIN_FRAMEWORK_WIDGET, self.__class__.__name__
             )
         )
-
-        if self.client_name != 'assembler':
-            self.is_valid_asset_name = False
-            self.widget_factory = factory.WidgetFactory(
-                event_manager, self.ui_types, self.client_name
-            )
-        else:
-            self.widget_factory = None
 
         self.scroll = None
 
@@ -65,11 +59,15 @@ class QtClient(Client, QtWidgets.QFrame):
             self.context_selector.set_context_id(self.context_id)
         self.add_hosts(self.discover_hosts())
 
-    def get_theme(self):
+    def getTheme(self):
         '''Return the client theme, return None to disable themes. Can be overridden by child.'''
         return 'dark'
 
-    def get_background_color(self):
+    def setTheme(self, selected_theme):
+        theme.applyFont()
+        theme.applyTheme(self, selected_theme, 'plastique')
+
+    def getThemeBackgroundStyle(self):
         '''Return the theme background color style. Can be overridden by child.'''
         return 'default'
 
@@ -78,10 +76,7 @@ class QtClient(Client, QtWidgets.QFrame):
         return self._parent_window
 
     def is_docked(self):
-        return not self.client_name in [
-            qt_constants.OPEN_WIDGET,
-            qt_constants.ASSEMBLER_WIDGET,
-        ]
+        raise NotImplementedError()
 
     def add_hosts(self, host_connections):
         '''
@@ -113,10 +108,6 @@ class QtClient(Client, QtWidgets.QFrame):
                 self.definition_extensions_filter
             )
         self.host_and_definition_selector.add_hosts(self.host_connections)
-
-    def setTheme(self, selected_theme):
-        theme.applyFont()
-        theme.applyTheme(self, selected_theme, 'plastique')
 
     def pre_build(self):
         '''Prepare general layout.'''
@@ -158,6 +149,7 @@ class QtClient(Client, QtWidgets.QFrame):
             self.client_name.upper() if self.client_name else 'Run'
         )
         self.layout().addWidget(self.run_button)
+        self.run_button.setVisible(False)
 
     def post_build(self):
         '''Post Build ui method for events connections.'''
@@ -170,17 +162,6 @@ class QtClient(Client, QtWidgets.QFrame):
         self.host_and_definition_selector.definition_changed.connect(
             self.change_definition
         )
-        if self.client_name != 'assembler':
-            self.widget_factory.widget_asset_updated.connect(
-                self._on_widget_asset_updated
-            )
-
-            self.widget_factory.widget_run_plugin.connect(self._on_run_plugin)
-            self.widget_factory.components_checked.connect(
-                self._on_components_checked
-            )
-        else:
-            self.run_button_no_load.clicked.connect(partial(self.run, True))
 
         if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
             self.host_and_definition_selector.host_combobox.hide()
@@ -234,9 +215,6 @@ class QtClient(Client, QtWidgets.QFrame):
         '''
         self._clear_host_widget()
 
-        if self.client_name == 'open':
-            self.run_button.setText('OPEN ASSEMBLER')
-
         if not schema and not definition:
             self.definition_changed(None, 0)
             return
@@ -269,11 +247,6 @@ class QtClient(Client, QtWidgets.QFrame):
 
     def run(self):
         '''Function called when click the run button'''
-        if self.definition is None:
-            self.host_connection.launch_widget(qt_constants.ASSEMBLER_WIDGET)
-            if not self.is_docked():
-                self.get_parent_window().destroy()
-                return
         serialized_data = self.widget_factory.to_json_object()
         if not self.is_valid_asset_name:
             msg = "Can't publish without a valid asset name"
@@ -287,11 +260,6 @@ class QtClient(Client, QtWidgets.QFrame):
         self.run_definition(serialized_data, engine_type, False)
 
     def _on_components_checked(self, available_components_count):
-        self.run_button.setText(
-            self.client_name.upper()
-            if self.client_name != 'open' or available_components_count > 0
-            else 'OPEN ASSEMBLER'
-        )
         self.definition_changed(self.definition, available_components_count)
 
     def _notify_client(self, event):
@@ -303,10 +271,35 @@ class QtClient(Client, QtWidgets.QFrame):
 
     def refresh(self):
         '''Called upon definition selector refresh button click.'''
-        if self.client_name != 'assembler':
+        if self.widget_factory:
             self.widget_factory.progress_widget.set_status_widget_visibility(
                 False
             )
+
+
+class QtDocumentationClient:
+    '''Client for opening Connect documentation'''
+
+    def __init__(self, unused_event_manager, unused_asset_list_model):
+        pass
+
+    def show(self):
+        DOC_URL = 'https://www.ftrack.com/en/portfolio/connect'
+        commands = None
+        if platform.system() == "Windows":
+            commands = ['start']
+        elif platform.system() == "Darwin":
+            commands = ['open']
+        else:
+            # Assume linux
+            commands = ['xdg-open']
+        commands.append(DOC_URL)
+        self.logger.debug(
+            'Launching documentation through system command: {}'.format(
+                commands
+            )
+        )
+        os.system(commands)
 
 
 class RunButton(QtWidgets.QPushButton):

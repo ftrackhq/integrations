@@ -80,12 +80,17 @@ class Search(QtWidgets.QFrame):
         if not self._collapsed:
             # A bordered input field filling all space, with input and a clear button
             self._search_button.setStyleSheet(
-                '''border:none; background: transparent;'''
+                '''
+                    border:none; 
+                    background: transparent;
+                '''
             )
             self._input = QtWidgets.QLineEdit()
             self._input.textChanged.connect(self._on_input_changed)
             self._input.setPlaceholderText("Type to search")
-            self._input.setStyleSheet('border: none;')
+            self._input.setStyleSheet(
+                '''border: none; background: transparent; '''
+            )
             self._input.setFocus()
             self.layout().addWidget(self._input, 100)
             self._clear_button = CircularButton(
