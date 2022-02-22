@@ -8,7 +8,7 @@ ftrack integration with NUKE STUDIO.
 Documentation
 *************
 
-Full documentation can be found at http://ftrack-connect-nuke-studio.rtd.ftrack.com/en/latest/
+Full documentation can be found at https://ftrack-connect-nuke-studio.readthedocs.io/en/latest/
 
 *********************
 Copyright and license
