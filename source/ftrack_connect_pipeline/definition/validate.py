@@ -71,122 +71,19 @@ def validate_asset_types(data, session):
         for type in session.query('select short from AssetType').all()
     ]
 
-    for package in data['package']:
-        if package['asset_type_name'] not in valid_assets_types:
-            logger.error(
-                'Package {} does use a non existing'
-                ' asset type: {}'.format(
-                    package['name'], package['asset_type_name']
-                )
-            )
-            copy_data['package'].remove(package)
-
-    return copy_data
-
-
-def validate_package_type(data):
-    '''
-    Validates that the loader and publisher definitions on the given *data*
-    match the asset types on the defined packages from the given *data*.
-
-    *data* : Dictionary of json definitions and schemas generated at
-    :func:`collect_definitions`
-    *session* : instance of :class:`ftrack_api.session.Session`
-    '''
-    # validate package
-    copy_data = copy.deepcopy(data)
-    valid_packages = [str(package['name']) for package in data['package']]
-    for entry in ['loader', 'publisher']:
-
-        # check package name in definitions
-        for definition in data[entry]:
-            if str(definition.get('package')) not in valid_packages:
-                logger.debug(
-                    '{} {}:{} use unknown package : {} , packages: {}'.format(
-                        entry,
-                        definition['host_type'],
-                        definition['name'],
-                        definition.get('package'),
-                        valid_packages,
-                    )
-                )
-                # pop definition
-                copy_data[entry].remove(definition)
-
-    return copy_data
-
-
-def validate_definition_components(data):
-    '''
-    Validates that the loader and publisher definitions on the given *data*
-    match the components defined on the packages from the given *data*.
-
-    *data* : Dictionary of json definitions and schemas generated at
-    :func:`collect_definitions`
-    '''
-    copy_data = copy.deepcopy(data)
-    # validate package vs definitions components
-    for package in data['package']:
-        package_component_names = [
-            component['name']
-            for component in package['components']
-            if component.get('required', True)
-        ]
+    for schema in data['schema']:
         for entry in ['loader', 'publisher']:
-            for definition in data[entry]:
-                if definition['package'] != package['name']:
-                    # this is not the package you are looking for....
-                    continue
-
-                definition_components_names = [
-                    component['name'] for component in definition['components']
-                ]
-
-                for name in package_component_names:
-                    if name not in definition_components_names:
-                        logger.debug(
-                            '{} {}:{} package {} components'
-                            ' are not matching : required components: {}, component: {}'.format(
-                                entry,
-                                definition['host_type'],
-                                definition['name'],
-                                definition['package'],
-                                name,
-                            )
-                        )
-                        copy_data[entry].remove(definition)
-                        break
-
-    # reverse lookup for definitions components in packages
-    for entry in ['loader', 'publisher']:
-        for definition in copy_data[entry]:
-            definition_components_names = [
-                component['name'] for component in definition['components']
-            ]
-            for package in data['package']:
-                if definition['package'] != package['name']:
-                    # this is not the package you are looking for....
-                    continue
-
-                package_component_names = [
-                    component['name'] for component in package['components']
-                ]
-
-                component_diff = set(definition_components_names).difference(
-                    set(package_component_names)
-                )
-                if len(component_diff) != 0:
-                    logger.debug(
-                        '{} {}:{} package {} components'
-                        ' are not matching : required components: {}, diff: {}'.format(
-                            entry,
-                            definition['host_type'],
-                            definition['name'],
-                            definition['package'],
-                            package_component_names,
-                            component_diff,
+            if schema['title'].lower() == entry:
+                if entry['asset_type'] not in valid_assets_types:
+                    logger.error(
+                        'Package {} does use a non existing'
+                        ' asset type: {}'.format(
+                            entry['name'], entry['asset_type']
                         )
                     )
-                    copy_data[entry].remove(definition)
+                    copy_data['schema'].pop(
+                        copy_data['schema'].index(entry)
+                    )
 
     return copy_data
+

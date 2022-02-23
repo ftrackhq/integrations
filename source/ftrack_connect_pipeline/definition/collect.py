@@ -56,8 +56,6 @@ def collect_definitions(lookup_dir):
     '''
     schemas = _collect_json(os.path.join(lookup_dir, 'schema'))
 
-    packages = _collect_json(os.path.join(lookup_dir, 'package'))
-
     loaders = _collect_json(os.path.join(lookup_dir, 'loader'))
 
     publishers = _collect_json(os.path.join(lookup_dir, 'publisher'))
@@ -68,7 +66,6 @@ def collect_definitions(lookup_dir):
         'schema': schemas or [],
         'publisher': publishers or [],
         'loader': loaders or [],
-        'package': packages or [],
         'asset_manager': asset_managers or [],
     }
 
