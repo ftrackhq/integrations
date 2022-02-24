@@ -6,6 +6,7 @@ import sys
 import re
 import glob
 import shutil
+import subprocess
 
 import tempfile
 import fileinput
@@ -13,14 +14,11 @@ import fileinput
 from setuptools import setup, find_packages, Command
 from setuptools.command.test import test as TestCommand
 from pkg_resources import parse_version
-import pip
+import setuptools_scm
 
-if parse_version(pip.__version__) < parse_version('19.3.0'):
-    raise ValueError('Pip should be version 19.3.0 or higher')
+release = setuptools_scm.get_version(version_scheme='post-release')
+VERSION = '.'.join(release.split('.')[:2])
 
-from pip._internal import main as pip_main
-
-FTRACK_LOCATION_COMPATIBILITY = '0.3.3'
 
 PLUGIN_NAME = 'ftrack-connect-rv-{0}'
 
@@ -55,15 +53,9 @@ STAGING_PATH = os.path.join(
 
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
 
-with open(os.path.join(
-    SOURCE_PATH, 'ftrack_connect_rv', '_version.py')
-) as _version_file:
-    VERSION = re.match(
-        r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
-    ).group(1)
-
 # Update staging path with the plugin version
 STAGING_PATH = STAGING_PATH.format(VERSION)
+
 
 class BuildPlugin(Command):
     '''Build plugin.'''
@@ -170,13 +162,11 @@ class BuildPlugin(Command):
 
         # Clean staging path.
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
-        pip_main.main(
-            [
-                'install',
-                '.',
-                '--target',
-                os.path.join(self.rvpkg_staging, 'dependencies')
-            ]
+
+
+        subprocess.check_call(
+            [sys.executable, '-m', 'pip', 'install','.','--target',
+            os.path.join(self.rvpkg_staging, 'dependencies')]
         )
 
         shutil.make_archive(
@@ -210,10 +200,18 @@ class PyTest(TestCommand):
         raise SystemExit(errno)
 
 
+
+version_template = '''
+# :coding: utf-8
+# :copyright: Copyright (c) 2017-2020 ftrack
+
+__version__ = {version!r}
+'''
+
+
 # Configuration.
 setup(
     name='ftrack-connect-rv',
-    version=VERSION,
     description='Repository for ftrack connect rv.',
     long_description=open(README_PATH).read(),
     keywords='',
@@ -222,6 +220,11 @@ setup(
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
     packages=find_packages(SOURCE_PATH),
+    use_scm_version={
+        'write_to': 'source/ftrack_connect_rv/_version.py',
+        'write_to_template': version_template,
+        'version_scheme': 'post-release'
+    },
     package_dir={
         '': 'source'
     },
@@ -229,15 +232,12 @@ setup(
         'sphinx >= 1.2.2, < 2',
         'sphinx_rtd_theme >= 0.1.6, < 2',
         'lowdown >= 0.1.0, < 1',
+        'setuptools>=45.0.0',
+        'setuptools_scm'
     ],
     install_requires=[
-        'ftrack-python-api >= 1, < 2',
-        'appdirs == 1.4.0',
-        (
-            'ftrack-location-compatibility @ https://bitbucket.org/'
-            'ftrack/ftrack-location-compatibility/get/{0}.zip#egg='
-            'ftrack-location-compatibility-{0}'
-        ).format(FTRACK_LOCATION_COMPATIBILITY)
+        'ftrack-python-api >= 2, < 3',
+        'appdirs == 1.4.0'
     ],
     tests_require=[
         'pytest >= 2.3.5, < 3'

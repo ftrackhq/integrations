@@ -8,36 +8,51 @@ Release Notes
 *************
 
 
-.. release:: Upcoming
+.. release:: 5.0
+    :date: 2021-09-07
 
-    ..change:: fixed
+    .. change:: changed
+
+        Port to python 3 and PySide2.
+
+    .. change:: changed
+
+        Refactor to support RV 20XX       
+    
+    .. change:: fixed
         :tags: Api
 
         Failed to jump to index error.
 
-.. release:: 4.0
-    :data: 2020-01-14
+.. warning::
 
-    ..change:: changed
+    From this version the support for ftrack-connect 1.X is dropped, and
+    only ftrack-conenct 2.0 will be supported up to the integration EOL.
+
+
+.. release:: 4.0
+    :date: 2020-01-14
+
+    .. change:: changed
 
         Moved from Qt Webkit to Qt WebEngine for Qt 5.12 / RV 7.5+
 
-    ..change:: changed
+    .. change:: changed
         :tags: Setup
 
         Exposing dependencies folder to resultan build folder
 
-    ..change:: changed
+    .. change:: changed
         :tags: Setup
 
         Build resultant folder renamed with the plugin name + version
 
-    ..change:: changed
+    .. change:: changed
         :tags: Setup
 
         ftrack-location-compatibility version updated to 0.3.3
 
-    ..change:: changed
+    .. change:: changed
         :tags: Setup
 
         Pip compatibility for version 19.3.0 or higher
