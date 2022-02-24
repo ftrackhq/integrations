@@ -109,7 +109,7 @@ class FtrackAssetNode(FtrackAssetBase):
                     #     if node_asset_info[k].get('method') == 'init_nodes':
 
                     diff_values.append(k)
-            if len(diff_values) > 0 and not set(diff_values).subset(
+            if len(diff_values) > 0 and not set(diff_values).issubset(
                 {
                     asset_const.REFERENCE_OBJECT,
                     asset_const.ASSET_INFO_ID,
@@ -149,6 +149,8 @@ class FtrackAssetNode(FtrackAssetBase):
             #             ),
             #         )
             #     )
+
+            result_object = ftrack_object
 
         self.logger.debug('Found existing object: {}'.format(result_object))
         return result_object

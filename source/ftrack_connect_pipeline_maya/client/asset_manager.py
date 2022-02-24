@@ -27,9 +27,9 @@ class MayaAssetManagerClient(MayaQWidgetDockableMixin, QtAssetManagerClient):
             asset_list_model=asset_list_model,
             parent_window=get_maya_window(),
         )
-        self.setWindowTitle('Maya Pipeline Asset Manager')
+        self.setWindowTitle('ftrack Connect')
 
-    def get_background_color(self):
+    def getThemeBackgroundStyle(self):
         return 'maya'
 
     def show(self):

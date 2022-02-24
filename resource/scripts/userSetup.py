@@ -64,9 +64,11 @@ def _open_widget(event_manager, asset_list_model, widgets, event):
     '''Open Maya widget based on widget name in *event*, and create if not already
     exists'''
     widget_name = None
-    for (_widget_name, widget_class, unused_label) in widgets:
+    widget_class = None
+    for (_widget_name, _widget_class, unused_label) in widgets:
         if _widget_name == event['data']['pipeline']['widget_name']:
             widget_name = _widget_name
+            widget_class = _widget_class
             break
     if widget_name:
         if widget_name not in created_widgets:
@@ -115,6 +117,7 @@ def initialise():
     from ftrack_connect_pipeline_maya.client import publish
     from ftrack_connect_pipeline_maya.client import asset_manager
     from ftrack_connect_pipeline_maya.client import log_viewer
+    from ftrack_connect_pipeline_qt import client
 
     widgets = list()
     widgets.append((qt_constants.OPEN_WIDGET, open.MayaOpenDialog, 'Open'))
@@ -133,16 +136,26 @@ def initialise():
         )
     )
     widgets.append(
-        (qt_constants.PUBLISH_WIDGET, publish.MayaPublisherClient, 'Publisher')
+        (
+            qt_constants.PUBLISHER_WIDGET,
+            publish.MayaPublisherClient,
+            'Publisher',
+        )
     )
     widgets.append(
         (
             qt_constants.LOG_VIEWER_WIDGET,
-            log_viewer.MayaLogViewerClient,
+            log_viewer.MayaLogViewerDialog,
             'Log Viewer',
         )
     )
-    widgets.append((qt_constants.DOC_WIDGET, None, 'Documentation'))
+    widgets.append(
+        (
+            qt_constants.DOC_WIDGET,
+            client.QtDocumentationClient,
+            'Documentation',
+        )
+    )
 
     ftrack_menu = get_ftrack_menu()
     # Register and hook the dialog in ftrack menu

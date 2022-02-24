@@ -1,9 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-import json
-import six
-import base64
+import maya.cmds as cmds
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
@@ -33,7 +31,9 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
     dependency_load_mode = load_const.REFERENCE_MODE
 
     def get_current_objects(self):
-        return maya_utils.get_current_scene_objects()
+        return cmds.executeInMainThreadWithResult(
+            maya_utils.get_current_scene_objects
+        )
 
 
 class LoaderImporterMayaWidget(

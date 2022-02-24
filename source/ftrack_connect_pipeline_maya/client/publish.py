@@ -24,8 +24,10 @@ class MayaPublisherClient(MayaQWidgetDockableMixin, QtPublisherClient):
         super(MayaPublisherClient, self).__init__(
             event_manager=event_manager, parent_window=get_maya_window()
         )
-        self.setWindowTitle('Maya Pipeline Publisher')
-        print(self)
+        self.setWindowTitle('ftrack Publisher')
+
+    def getThemeBackgroundStyle(self):
+        return 'maya'
 
     def show(self):
         super(MayaPublisherClient, self).show(

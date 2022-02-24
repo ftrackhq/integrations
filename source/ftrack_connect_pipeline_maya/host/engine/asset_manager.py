@@ -77,15 +77,6 @@ class MayaAssetManagerEngine(AssetManagerEngine):
 
         return status, result
 
-    def unload_asset(self, asset_info, options=None, plugin=None):
-        '''
-        Unloads the given *asset_info* from the scene.
-        Returns status and result
-        '''
-        self.remove_asset(
-            asset_info, options=options, plugin=plugin, keep_ftrack_node=True
-        )
-
     def remove_asset(
         self, asset_info, options=None, plugin=None, keep_ftrack_node=False
     ):
@@ -118,17 +109,6 @@ class MayaAssetManagerEngine(AssetManagerEngine):
 
         ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
 
-        print(
-            '@@@ AM engine; remove_asset({},{},{})\n\n result_data: {}\n\n ftrack_asset_object: {}\n\n, listConnections: "{}.{}"\n\n'.format(
-                asset_info,
-                options,
-                plugin,
-                result_data,
-                ftrack_asset_object,
-                ftrack_asset_object.ftrack_object,
-                asset_const.ASSET_LINK,
-            )
-        )
         reference_node = False
         nodes = (
             cmds.listConnections(
@@ -203,7 +183,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
 
         if (
             cmds.objExists(ftrack_asset_object.ftrack_object)
-            and not keep_ftrack_node
+            and keep_ftrack_node is False
         ):
             try:
                 cmds.delete(ftrack_asset_object.ftrack_object)

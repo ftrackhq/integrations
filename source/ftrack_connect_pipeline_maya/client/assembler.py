@@ -45,7 +45,7 @@ class MayaAssemblerDialog(QtWidgets.QDialog):
         self.rebuild()
 
         self.setModal(True)
-        self.setWindowTitle('ftrack')
+        self.setWindowTitle('ftrack Connect Assembler')
         self.resize(1000, 500)
 
     def rebuild(self):
