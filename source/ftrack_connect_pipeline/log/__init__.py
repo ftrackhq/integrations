@@ -149,6 +149,7 @@ class LogDB(object):
         Stores a :class:`~ftrack_connect_pipeline.log.log_item.LogItem` in
         persistent log database.
         '''
+        print('@@@ add_log_item({})'.format(log_item))
         try:
             cur = self.connection.cursor()
 

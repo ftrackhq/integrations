@@ -11,7 +11,8 @@ from ftrack_connect_pipeline.host import validation
 from ftrack_connect_pipeline import constants, utils
 
 from functools import partial
-
+from ftrack_connect_pipeline.log.log_item import LogItem
+from ftrack_connect_pipeline.log import LogDB
 
 logger = logging.getLogger(__name__)
 
@@ -90,6 +91,7 @@ class Host(object):
         self._host_id = '{}-{}'.format(
             '.'.join(self.host_types), uuid.uuid4().hex
         )
+        self._logs = None
 
         self.logger.debug('initializing {}'.format(self))
         self._event_manager = event_manager
@@ -222,6 +224,23 @@ class Host(object):
 
         return data
 
+    def _init_logs(self):
+        '''Delayed initialization of logs, when we know host ID.'''
+        if self._logs is None:
+            self._logs = LogDB(self._host_id)
+
+    def _on_client_notification(self, event):
+        '''
+        Callback of the
+        :const:`~ftrack_connect_pipeline.constants.PIPELINE_CLIENT_NOTIFICATION`
+         event. Stores a log item in host pipeline log DB.
+
+        *event*: :class:`ftrack_api.event.base.Event`
+        '''
+
+        self._init_logs()
+        self._logs.add_log_item(LogItem(event['data']['pipeline']))
+
     def register(self):
         '''
         Publishes the :class:`ftrack_api.event.base.Event` with the topic
@@ -243,6 +262,18 @@ class Host(object):
         )
 
         self._event_manager.publish(event, self.on_register_definition)
+
+        '''
+        Subscribe to topic
+        :const:`~ftrack_connect_pipeline.constants.PIPELINE_CLIENT_NOTIFICATION`
+        to receive client notifications from the host in :meth:`_notify_client`
+        '''
+        self.session.event_hub.subscribe(
+            'topic={} and data.pipeline.host_id={}'.format(
+                constants.PIPELINE_CLIENT_NOTIFICATION, self._host_id
+            ),
+            self._on_client_notification,
+        )
 
     def reset(self):
         '''

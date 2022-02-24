@@ -491,9 +491,8 @@ class Client(object):
         if self.host_connection:
             self._host_connection.context_id = context_id
 
-    def _add_log_item(self, log_item):
-        self._init_logs()
-        self._logs.add_log_item(log_item)
+    def _on_log_item_added(self, log_item):
+        pass
 
     def on_client_notification(self):
         '''
@@ -526,7 +525,7 @@ class Client(object):
         user_message = user_data.get('message')
         plugin_id = event['data']['pipeline'].get('plugin_id')
 
-        self._add_log_item(LogItem(event['data']['pipeline']))
+        self._on_log_item_added(LogItem(event['data']['pipeline']))
 
         if constants.status_bool_mapping[status]:
 
