@@ -88,7 +88,7 @@ class FtrackCopyExporterPreset(CopyPreset, FtrackProcessorPreset):
 
         # Add placeholders for default ftrack defaults
         # '####' this format can be used in sequence or single file.
-        self.properties()['ftrack']['component_pattern'] = '.%04d.{ext}'
+        self.properties()['ftrack']['component_pattern'] = '.%d.{ext}'
         self.properties()['ftrack']['component_name'] = 'Ingest'
         self.properties()['ftrack']['task_id'] = hash(self.__class__.__name__)
 

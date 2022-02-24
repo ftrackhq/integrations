@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 import hiero
 
-from ftrack_connect.session import get_shared_session
+from ftrack_connect_nuke_studio.session import get_shared_session
 
 
 class FtrackBase(object):
@@ -58,12 +58,12 @@ class FtrackBase(object):
         if self.illegal_character_substitute is None:
             return value
 
-        if isinstance(value, str):
+        if isinstance(value, bytes):
             value = value.decode('utf-8')
 
-        value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
-        value = re.sub('[^\w\.-]', self.illegal_character_substitute, value)
-        return unicode(value.strip().lower())
+        value = unicodedata.normalize('NFKD', value)
+        value = re.sub(u'[^\w\.-]', self.illegal_character_substitute, value)
+        return value.strip().lower()
 
     @property
     def hiero_version_tuple(self):

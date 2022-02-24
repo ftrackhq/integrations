@@ -7,6 +7,49 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: changed
+        :tags: Setup
+
+        Remove pyside2 installation's dependency. 
+
+    .. change:: changed
+        :tags: TaskPlugin
+        
+        Copy Exporter does not force 4 digit limits in sequence file names.
+
+
+.. release:: 2.5.0
+    :date: 2021-09-06
+    
+    .. change:: change
+        :tags: Discovery
+
+        Update hook for application launcher.
+    
+    .. change:: change
+        :tags: Discovery
+
+        Limit discovery to Nuke 13.+.
+
+    .. change:: change
+        :tags: Setup
+
+        Limit to python 3+ version.
+
+    .. change:: change
+        :tags: Api
+        
+        Update to python3 and pyside2.
+
+
+.. warning::
+
+    From this version the support for ftrack-connect 1.X is dropped, and
+    only ftrack-conenct 2.0 will be supported up to the integration EOL.
+
+
 .. release:: 2.4.1
     :date: 2020-09-15
 
