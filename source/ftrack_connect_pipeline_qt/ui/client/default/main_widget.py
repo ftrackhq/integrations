@@ -20,3 +20,7 @@ class DefaultMainWidget(BaseUIWidget):
         self._widget = QtWidgets.QWidget()
         main_layout = QtWidgets.QVBoxLayout()
         self.widget.setLayout(main_layout)
+
+    def post_build(self):
+        super(DefaultMainWidget, self).post_build()
+        self.widget.layout().setSpacing(0)

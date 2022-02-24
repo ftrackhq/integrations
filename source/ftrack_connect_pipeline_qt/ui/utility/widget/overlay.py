@@ -25,7 +25,7 @@ class Overlay(QtWidgets.QFrame):
         self._height_percentage = height_percentage
 
         self.widget = QtWidgets.QFrame()
-        self.widget.setProperty('background', 'default')
+        self.widget.setProperty('background', 'ftrack')
         self.widget.setLayout(QtWidgets.QVBoxLayout())
         self.widget.layout().setContentsMargins(1, 20, 1, 1)
         self.widget.layout().addWidget(widget)
@@ -34,13 +34,13 @@ class Overlay(QtWidgets.QFrame):
         self.widget.setParent(self)
 
         self.close_btn = QtWidgets.QPushButton('', self)
-        self.close_btn.setIcon(qta.icon('mdi6.close-thick', color='#D3d4D6'))
+        self.close_btn.setIcon(qta.icon('mdi6.close-thick', color='#D3d4D6', size=24))
         self.close_btn.setObjectName('borderless')
-        self.close_btn.setFixedSize(20, 20)
+        self.close_btn.setFixedSize(24, 24)
         self.close_btn.clicked.connect(self.close)
 
-        self.fill_color = QtGui.QColor(30, 30, 30, 200)
-        self.pen_color = QtGui.QColor("#333333")
+        self.fill_color = QtGui.QColor(26, 32, 39, 200)
+        self.pen_color = QtGui.QColor("#1A2027")
 
         # Install global event filter that will deal with matching parent size
         # and disabling parent interaction when overlay is visible.

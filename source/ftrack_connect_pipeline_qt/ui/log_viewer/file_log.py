@@ -5,6 +5,7 @@ import os
 import sys
 import subprocess
 import traceback
+import logging
 
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
@@ -26,18 +27,23 @@ class FileLogViewerWidget(QtWidgets.QWidget):
         '''
         super(FileLogViewerWidget, self).__init__(parent=parent)
 
+        self.logger = logging.getLogger(__name__)
+
         self.pre_build()
         self.build()
         self.post_build()
 
     def pre_build(self):
         '''Prepare general layout.'''
-        self._main_v_layout = QtWidgets.QVBoxLayout()
-        self.setLayout(self._main_v_layout)
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().setContentsMargins(2, 2, 2, 2)
+        self.layout().setSpacing(8)
 
     def build(self):
         '''Build widgets and parent them.'''
         toolbar_layout = QtWidgets.QHBoxLayout()
+        toolbar_layout.setContentsMargins(5, 5, 5, 5)
+        toolbar_layout.setSpacing(5)
 
         self._files_combobox = FileSelector()
         toolbar_layout.addWidget(self._files_combobox, 10)
@@ -116,17 +122,14 @@ class FileLogViewerWidget(QtWidgets.QWidget):
             )
 
     def _on_file_index_changed(self, selected_index):
-        print(
-            '@@@ FileLogViewerWidget::_on_file_index_changed({})'.format(
-                selected_index
+        if len(self._files_combobox.currentText() or '')>0:
+            file_path = os.path.join(
+                get_log_directory(), self._files_combobox.currentText()
             )
-        )
-        file_path = os.path.join(
-            get_log_directory(), self._files_combobox.currentText()
-        )
-        self._content_textarea.clear()
-        with open(file_path, "r") as f:
-            self._content_textarea.append(f.read())
+            self._content_textarea.clear()
+            self.logger.info('Loading log file: "{}"'.format(file_path))
+            with open(file_path, "r") as f:
+                self._content_textarea.append(f.read())
         # self._content_textarea.append(" ") # Make sure last line is displayed
 
     def _open_directory(self, path):

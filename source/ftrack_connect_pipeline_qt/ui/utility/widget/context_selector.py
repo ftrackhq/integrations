@@ -11,7 +11,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.entity_browser import (
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import Context
 from ftrack_connect_pipeline_qt.utils import BaseThread
-
+from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import CircularButton
 
 class ContextSelector(QtWidgets.QWidget):
     entityChanged = QtCore.Signal(object)
@@ -50,6 +50,8 @@ class ContextSelector(QtWidgets.QWidget):
 
     def pre_build(self):
         layout = QtWidgets.QHBoxLayout()
+        layout.setContentsMargins(5, 5, 5, 5)
+        layout.setSpacing(8)
         self.setLayout(layout)
 
     def build(self):
@@ -73,12 +75,12 @@ class ContextSelector(QtWidgets.QWidget):
         self.entity_info.setMinimumHeight(60)
         self.entity_info.setMaximumHeight(60)
 
-        self.entity_browse_button = QtWidgets.QPushButton('CHANGE')
+        self.entity_browse_button = CircularButton('pencil-outline', '#BF9AC9')
 
         self.layout().addWidget(self.thumbnail_widget)
         self.layout().addWidget(self.entity_info)
-        self.layout().addWidget(self.entity_browse_button)
         self.layout().addWidget(QtWidgets.QLabel(), 10)
+        self.layout().addWidget(self.entity_browse_button)
 
     def set_thumbnail(self, entity):
         self.thumbnail_widget.load(entity['id'])

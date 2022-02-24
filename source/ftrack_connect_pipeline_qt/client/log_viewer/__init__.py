@@ -23,6 +23,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
     header,
     tab,
 )
+from ftrack_connect_pipeline_qt.ui import resource
 from ftrack_connect_pipeline_qt.ui import theme
 
 
@@ -56,6 +57,7 @@ class QtLogViewerDialog(QtWidgets.QDialog):
     def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().setSpacing(1)
 
     def build(self):
         self.layout().addWidget(self.client)
@@ -153,8 +155,10 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
 
     def pre_build(self):
         '''Prepare general layout.'''
-        layout = QtWidgets.QVBoxLayout()
-        self.setLayout(layout)
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().setContentsMargins(1, 1, 1, 1)
+        self.layout().setSpacing(1)
+
 
         self._plugin_log_viewer_widget = PluginLogViewerWidget(
             self.event_manager
@@ -197,9 +201,9 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
         if index == 1:
             self._file_log_viewer_widget.refresh_ui()
 
-    def _add_log_item(self, log_item):
+    def _on_log_item_added(self, log_item):
         '''Override client function, update view.'''
-        self.log_item_added.emit(log_item)
+        self._refresh_ui()
 
     def _refresh_ui(self):
         '''

@@ -13,13 +13,14 @@ NAME_CACHE = dict()
 class Header(QtWidgets.QFrame):
     '''Header widget with name and thumbnail.'''
 
-    def __init__(self, session, title=None, parent=None):
+    def __init__(self, session, title=None, show_user=True, parent=None):
         '''Instantiate the header widget for a user with *username*.'''
 
         super(Header, self).__init__(parent=parent)
 
         self.session = session
         self._title = title
+        self._show_user = show_user
         self.setObjectName('ftrack-header-widget')
 
         self.pre_build()
@@ -42,7 +43,7 @@ class Header(QtWidgets.QFrame):
         self.logo = Logo(self)
         if len(self._title or ''):
             self._title_label = QtWidgets.QLabel(self._title)
-            self._title_label.setObjectName('h1')
+            self._title_label.setObjectName('h2')
         self.content_container = QtWidgets.QWidget()
         self.content_container.setLayout(QtWidgets.QHBoxLayout())
         self.content_container.layout().setContentsMargins(0, 0, 0, 0)
@@ -54,6 +55,7 @@ class Header(QtWidgets.QFrame):
             self.id_container_layout.addWidget(self._title_label)
         self.id_container_layout.addWidget(self.content_container, 1000)
         self.id_container_layout.addWidget(self.user)
+        self.user.setVisible(self._show_user)
 
         # Add (Logo & User ID) & Message
         self.layout().addWidget(self.id_container)
@@ -91,7 +93,7 @@ class Logo(QtWidgets.QLabel):
             self.setText("ftrack1")
 
 
-class User(QtWidgets.QWidget):
+class User(QtWidgets.QFrame):
     '''User name and logo widget.'''
 
     def __init__(self, session, parent=None):
@@ -131,7 +133,8 @@ class User(QtWidgets.QWidget):
                 user['first_name'], user['last_name']
             ).title()
 
-        # self.label.setText(NAME_CACHE[username])
+        self.setToolTip('Logged in as: {} to {}'.format(
+            self.session.api_user, self.session.server_url))
 
 
 class MessageBox(QtWidgets.QWidget):

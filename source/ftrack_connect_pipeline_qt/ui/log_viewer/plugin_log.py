@@ -51,12 +51,15 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
 
     def pre_build(self):
         '''Prepare general layout.'''
-        self._main_v_layout = QtWidgets.QVBoxLayout()
-        self.setLayout(self._main_v_layout)
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().setContentsMargins(2, 2, 2, 2)
+        self.layout().setSpacing(8)
 
     def build(self):
         '''Build widgets and parent them.'''
         toolbar_layout = QtWidgets.QHBoxLayout()
+        toolbar_layout.setContentsMargins(5, 5, 5, 5)
+        toolbar_layout.setSpacing(5)
 
         self._search = Search(collapsed=False, collapsable=False)
         toolbar_layout.addWidget(self._search, 10)

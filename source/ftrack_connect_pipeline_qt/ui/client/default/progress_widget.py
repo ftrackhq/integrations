@@ -11,6 +11,7 @@ from ftrack_connect_pipeline_qt import utils
 from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import (
     MaterialIconWidget,
 )
+from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 from ftrack_connect_pipeline_qt.utils import set_property
 from ftrack_connect_pipeline_qt.utils import str_version
 
@@ -59,15 +60,18 @@ class PhaseButton(QtWidgets.QPushButton):
 
         self.log_widget = QtWidgets.QWidget()
         self.log_widget.setLayout(QtWidgets.QVBoxLayout())
-        self.log_widget.layout().addSpacing(30)
+        self.log_widget.layout().addSpacing(10)
 
         self.log_text_edit = QtWidgets.QTextEdit()
-        self.log_widget.layout().addWidget(self.log_text_edit)
+        self.log_widget.layout().addWidget(self.log_text_edit, 10)
+        self._close_button = dialog.ApproveButton('OK')
+        self.log_widget.layout().addWidget(self._close_button)
         self.overlay_container = overlay.Overlay(self.log_widget)
         self.overlay_container.setVisible(False)
 
     def post_build(self):
         self.clicked.connect(self.show_log)
+        self._close_button.clicked.connect(self.overlay_container.close)
 
     def update_status(self, status, status_message, results):
         self.status_message_widget.setText(status_message)

@@ -1,15 +1,25 @@
 /** Table */
+QTableWidet {
+    gridline-color: $near-background;
+}
+
 QTableView {
+    gridline-color: $near-background;
     border: 1px solid $gray-dark;
     outline: 0;
-    background: $white;
+    background: $background;
+}
+
+QTableView::section
+{
+    border: none;
 }
 
 QTableView::item
 {
-    border: 0px;
+    border: none;
     padding: 5px;
-    background: $white;
+    background: $background;
     color: $text-color;
 }
 
@@ -20,10 +30,12 @@ QTableView::item:selected
 
 QHeaderView {
     color: $text-color;
-    background-color: $gray-darker;
+    background-color: $near-background;
+    border: none;
 }
 
 QHeaderView::section {
-    border-right: 1px solid $gray-darker;
-    background-color: $gray-dark;
+    border-style: none;
+    border-right: 1px solid $near-background;
+    background-color: $background;
 }

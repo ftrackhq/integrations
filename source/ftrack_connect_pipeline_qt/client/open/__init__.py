@@ -64,13 +64,14 @@ class QtOpenClient(QtClient):
         )
 
     def _on_components_checked(self, available_components_count):
+        super(QtOpenClient, self).definition_changed(
+            self.definition, available_components_count
+        )
         self.run_button.setText(
             'OPEN' if available_components_count > 0 else 'OPEN ASSEMBLER'
         )
         self.run_button.setVisible(True)
-        super(QtOpenClient, self).definition_changed(
-            self.definition, available_components_count
-        )
+
 
     def definition_changed(self, definition, available_components_count):
         '''React upon change of definition, or no versions/components(definitions) available.'''

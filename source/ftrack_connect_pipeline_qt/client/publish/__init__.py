@@ -12,8 +12,8 @@ class QtPublisherClient(QtClient):
     Base publish widget class.
     '''
 
-    definition_filter = qt_constants.PUBLISH_WIDGET
-    client_name = qt_constants.PUBLISH_WIDGET
+    definition_filter = qt_constants.PUBLISHER_WIDGET
+    client_name = qt_constants.PUBLISHER_WIDGET
 
     def __init__(self, event_manager, parent_window, parent=None):
         self.widget_factory = factory.WidgetFactory(
@@ -46,6 +46,7 @@ class QtPublisherClient(QtClient):
         self.widget_factory.components_checked.connect(
             self._on_components_checked
         )
+        self.setMinimumWidth(300)
 
     def change_definition(self, schema, definition, component_names_filter):
         self.run_button.setVisible(False)
@@ -54,8 +55,9 @@ class QtPublisherClient(QtClient):
         )
 
     def _on_components_checked(self, available_components_count):
-        self.run_button.setText(self.client_name.upper())
-        self.run_button.setVisible(available_components_count > 0)
+        print('@@@ QtPublisherClient::_on_components_checked({})'.format(available_components_count))
         super(QtPublisherClient, self).definition_changed(
             self.definition, available_components_count
         )
+        self.run_button.setVisible(available_components_count > 0)
+        self.run_button.setText('PUBLISH')

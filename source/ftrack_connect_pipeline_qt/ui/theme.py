@@ -10,7 +10,7 @@ def applyFont(font=':/ftrack/font/main'):
     QtGui.QFontDatabase.addApplicationFont(font)
 
 
-def applyTheme(widget, theme='fark', baseTheme=None):
+def applyTheme(widget, theme='dark', baseTheme=None):
     '''Apply *theme* to *widget*.'''
     # Set base style.
     # if baseTheme and QtWidgets.QApplication.style().objectName() != baseTheme:
@@ -30,5 +30,5 @@ def applyTheme(widget, theme='fark', baseTheme=None):
         widget.setStyleSheet(styleSheetContent)
     else:
         sys.stderr.write(
-            'ftrack theme "{}" could not be found!\n'.format(theme_path)
+            'ftrack theme "{}" could not be found! Make sure to import ui/resource.py.\n'.format(theme_path)
         )

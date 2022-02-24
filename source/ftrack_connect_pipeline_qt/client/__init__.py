@@ -11,12 +11,14 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
     header,
     definition_selector,
     line,
+    footer
 )
 from ftrack_connect_pipeline_qt.client import factory
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
     ContextSelector,
 )
+from ftrack_connect_pipeline_qt.ui import resource
 from ftrack_connect_pipeline_qt.ui import theme
 
 
@@ -111,11 +113,10 @@ class QtClient(Client, QtWidgets.QFrame):
 
     def pre_build(self):
         '''Prepare general layout.'''
-        layout = QtWidgets.QVBoxLayout()
-        layout.setAlignment(QtCore.Qt.AlignTop)
-        layout.setContentsMargins(4, 1, 4, 2)
-        layout.setSpacing(1)
-        self.setLayout(layout)
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().setAlignment(QtCore.Qt.AlignTop)
+        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().setSpacing(0)
 
     def build(self):
         '''Build widgets and parent them.'''
@@ -150,6 +151,8 @@ class QtClient(Client, QtWidgets.QFrame):
         )
         self.layout().addWidget(self.run_button)
         self.run_button.setVisible(False)
+
+        self.layout().addWidget(footer.Footer(self.session))
 
     def post_build(self):
         '''Post Build ui method for events connections.'''

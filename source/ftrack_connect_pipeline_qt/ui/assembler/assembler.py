@@ -22,12 +22,6 @@ from ftrack_connect_pipeline_qt.utils import (
     center_widget,
     set_property,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
-    CircularButton,
-)
-from ftrack_connect_pipeline_qt.ui.utility.widget.busy_indicator import (
-    BusyIndicator,
-)
 from ftrack_connect_pipeline_qt.ui.utility.widget.entity_browser import (
     EntityBrowser,
 )
@@ -37,7 +31,6 @@ from ftrack_connect_pipeline_qt.ui.assembler.base import (
     AssemblerListBaseWidget,
     ComponentBaseWidget,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
 from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import (
     VersionComboBox,
 )
@@ -53,33 +46,18 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
             assembler_client, parent=parent
         )
 
-    def build_header(self):
-        # With refresh button on the right hand side
-        header_widget = QtWidgets.QWidget()
-        header_widget.setLayout(QtWidgets.QVBoxLayout())
-        header_widget.layout().setContentsMargins(0, 0, 0, 0)
-
-        header_widget.layout().addStretch()
-        self._rebuild_button = CircularButton('sync', '#87E1EB')
-        header_widget.layout().addWidget(
-            self._rebuild_button, alignment=QtCore.Qt.AlignRight
-        )
-
-        self.layout().addWidget(header_widget)
-
     def post_build(self):
+        super(AssemblerDependenciesWidget, self).post_build()
         self._rebuild_button.clicked.connect(self.rebuild)
         self.dependenciesResolved.connect(self.on_dependencies_resolved)
         self.dependencyResolveWarning.connect(
             self.on_dependency_resolve_warning
         )
 
-    def rebuild(self):
-        # Create spinner
-        self._busy_widget = BusyIndicator(start=False)
-        self.scroll.setWidget(center_widget(self._busy_widget, 30, 30))
-        self._busy_widget.setVisible(True)
+    def _get_header_widget(self):
+        return QtWidgets.QLabel()
 
+    def rebuild(self):
         super(AssemblerDependenciesWidget, self).rebuild()
 
         # Resolve version this context is depending on in separate thread
@@ -96,55 +74,59 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
         )
 
     def on_dependencies_resolved_async(self, result):
-        if (
-            self._assembler_client.import_mode
-            != self._assembler_client.IMPORT_MODE_DEPENDENCIES
-        ):
-            return
+        try:
 
-        resolved_versions = None
-        user_message = None
-        if isinstance(result, dict):
-            # Versions without a user message
-            resolved_versions = result['versions']
-        else:
-            if isinstance(result, tuple):
-                # With user message?
-                if isinstance(result[0], dict):
-                    resolved_version = result[0].get('versions') or []
-                if isinstance(result[1], dict):
-                    user_data = result[1]
-                    if 'message' in user_data:
-                        user_message = user_data['message']
-        if user_message:
-            self.dependencyResolveWarning.emit(user_message)
+            if (
+                self._assembler_client.import_mode
+                != self._assembler_client.IMPORT_MODE_DEPENDENCIES
+            ):
+                return
 
-        if len(resolved_versions or []) == 0:
-            if user_message is None:
-                self.dependencyResolveWarning.emit('No dependencies found!')
-            return
+            resolved_versions = None
+            user_message = None
+            if isinstance(result, dict):
+                # Versions without a user message
+                resolved_versions = result['versions']
+            else:
+                if isinstance(result, tuple):
+                    # With user message?
+                    if isinstance(result[0], dict):
+                        resolved_version = result[0].get('versions') or []
+                    if isinstance(result[1], dict):
+                        user_data = result[1]
+                        if 'message' in user_data:
+                            user_message = user_data['message']
+            if user_message:
+                self.dependencyResolveWarning.emit(user_message)
 
-        versions = [
-            resolved_version['entity']
-            for resolved_version in resolved_versions
-        ]
+            if len(resolved_versions or []) == 0:
+                if user_message is None:
+                    self.dependencyResolveWarning.emit('No dependencies found!')
+                return
 
-        # Process versions, filter against
-        self._assembler_client.logger.info(
-            'Resolved versions: {}'.format(
-                ','.join([str_version(v, with_id=True) for v in versions])
+            versions = [
+                resolved_version['entity']
+                for resolved_version in resolved_versions
+            ]
+
+            # Process versions, filter against
+            self._assembler_client.logger.info(
+                'Resolved versions: {}'.format(
+                    ','.join([str_version(v, with_id=True) for v in versions])
+                )
             )
-        )
 
-        components = self.extract_components(versions)
+            components = self.extract_components(versions)
 
-        if len(components) == 0:
-            self.dependencyResolveWarning.emit(
-                'No loadable dependencies found!'
-            )
-            return
+            if len(components) == 0:
+                self.dependencyResolveWarning.emit(
+                    'No loadable dependencies found!'
+                )
+                return
 
-        self.dependenciesResolved.emit(components)
+            self.dependenciesResolved.emit(components)
+        finally:
+            self.stopBusyIndicator.emit()
 
     def on_dependency_resolve_warning(self, message):
         self._assembler_client.progress_widget.set_status(
@@ -156,9 +138,6 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
         # Create component list
         self._component_list = DependenciesListWidget(self)
         # self._asset_list.setStyleSheet('background-color: blue;')
-
-        self._busy_widget.stop()
-        self._busy_widget = None
 
         self.scroll.setWidget(self._component_list)
 
@@ -222,65 +201,15 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
             entity=entity,
         )
 
-    def build_header(self):
-        # Header with refresh button on the right hand side
-        header_widget = QtWidgets.QWidget()
-        header_widget.setLayout(QtWidgets.QVBoxLayout())
-        header_widget.layout().setContentsMargins(2, 2, 2, 2)
-        header_widget.layout().setSpacing(2)
-
-        label = QtWidgets.QLabel('Filter on context:')
-        label.setObjectName('gray')
-        self.layout().addWidget(label)
-
-        widget = QtWidgets.QWidget()
-        widget.setLayout(QtWidgets.QHBoxLayout())
-        widget.layout().setContentsMargins(2, 2, 2, 2)
-        widget.layout().setSpacing(4)
-
+    def _get_header_widget(self):
         self._entity_browser_navigator = (
             self._entity_browser.create_navigator()
         )
-        widget.layout().addWidget(self._entity_browser_navigator)
-
-        self._rebuild_button = CircularButton('sync', '#87E1EB')
-        widget.layout().addWidget(self._rebuild_button)
-
-        header_widget.layout().addWidget(widget)
-
-        self.layout().addWidget(header_widget)
-
-        # Add toolbar
-
-        toolbar_widget = QtWidgets.QWidget()
-        toolbar_widget.setLayout(QtWidgets.QHBoxLayout())
-        toolbar_widget.layout().setContentsMargins(0, 0, 0, 0)
-
-        self._cb_show_non_compatible = QtWidgets.QCheckBox(
-            'Show non-compatible assets'
-        )
-        self._cb_show_non_compatible.setObjectName("gray")
-        toolbar_widget.layout().addWidget(self._cb_show_non_compatible)
-
-        toolbar_widget.layout().addWidget(QtWidgets.QLabel(), 100)
-
-        self._search = Search()
-        toolbar_widget.layout().addWidget(self._search)
-
-        self._label_info = QtWidgets.QLabel('Listing assets')
-        self._label_info.setObjectName('gray')
-        toolbar_widget.layout().addWidget(self._label_info)
-
-        self._busy_widget = BusyIndicator(start=False)
-        toolbar_widget.layout().addWidget(self._busy_widget)
-        self._busy_widget.setMinimumSize(QtCore.QSize(16, 16))
-        self._busy_widget.setVisible(False)
-
-        self.layout().addWidget(toolbar_widget)
+        return  self._entity_browser_navigator
 
     def post_build(self):
+        super(AssemblerBrowserWidget, self).post_build()
         self._rebuild_button.clicked.connect(self.rebuild)
-        self._cb_show_non_compatible.clicked.connect(self.rebuild)
         self._entity_browser.entityChanged.connect(self.rebuild)
         self.componentsFetched.connect(self._on_components_fetched)
         self.allVersionsFetched.connect(self._on_all_versions_fetched)
@@ -319,7 +248,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
 
     def _fetch_versions(self, context):
         '''Search ftrack for versions beneath the given *context_id*'''
-        self._assembler_widget.logger.info(
+        self._assembler_client.logger.info(
             'Fetching versions beneath context: {}'.format(context)
         )
         # Build list of parent ID's
@@ -345,8 +274,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
                 break
 
             components = self.extract_components(
-                versions,
-                include_unloadable=self._cb_show_non_compatible.isChecked(),
+                versions
             )
 
             self.componentsFetched.emit(components)
@@ -408,7 +336,7 @@ class DependenciesListWidget(AssemblerListBaseWidget):
 
     def _on_dependencies_added(self, *args):
         self.rebuild()
-        self.selection_updated.emit(self.selection())
+        self.selectionUpdated.emit(self.selection())
 
     def rebuild(self):
         '''Add all assets(components) again from model.'''
@@ -435,8 +363,8 @@ class DependenciesListWidget(AssemblerListBaseWidget):
 
                 widget = QtWidgets.QWidget()
                 widget.setLayout(QtWidgets.QHBoxLayout())
-                widget.layout().setContentsMargins(1, 1, 1, 1)
-                widget.layout().setSpacing(1)
+                widget.layout().setContentsMargins(8, 0, 8, 0)
+                widget.layout().setSpacing(5)
 
                 # Append thumbnail
                 thumbnail_widget = Context(self.model.session)
@@ -464,8 +392,7 @@ class DependenciesListWidget(AssemblerListBaseWidget):
             component_widget = self._asset_widget_class(
                 index, self._assembler_widget, self.model.event_manager
             )
-            if index == 0:
-                set_property(component_widget, 'first', 'true')
+            set_property(component_widget, 'first', 'true' if row == 0 else 'false')
             component_widget.set_component_and_definitions(
                 component, definitions
             )
@@ -508,8 +435,7 @@ class BrowserListWidget(AssemblerListBaseWidget):
             component_widget = self._asset_widget_class(
                 index, self._assembler_widget, self.model.event_manager
             )
-            if row == 0:
-                set_property(component_widget, 'first', 'true')
+            set_property(component_widget, 'first', 'true' if row == 0 else 'false')
             component_widget.set_component_and_definitions(
                 component, definitions
             )
@@ -522,7 +448,7 @@ class BrowserListWidget(AssemblerListBaseWidget):
             )
             self._component_widgets.append(component_widget)
 
-        self.selection_updated.emit(self.selection())
+        self.selectionUpdated.emit(self.selection())
 
     def refresh(self, search_text):
         '''Update visibility based on search'''
@@ -576,8 +502,8 @@ class DependencyComponentWidget(ComponentBaseWidget):
         self._version_nr_widget = QtWidgets.QLabel()
         return self._version_nr_widget
 
-    def set_version(self, version_nr):
-        self._version_nr_widget.setText('v{}  '.format(str(version_nr)))
+    def set_version(self, version_entity):
+        self._version_nr_widget.setText('v{}  '.format(str(version_entity['version'])))
 
     def set_latest_version(self, is_latest_version):
         color = '#935BA2' if is_latest_version else '#FFBA5C'
@@ -604,8 +530,8 @@ class BrowsedComponentWidget(ComponentBaseWidget):
         '''Asset name and component name.file_type'''
         widget = QtWidgets.QWidget()
         widget.setLayout(QtWidgets.QVBoxLayout())
-        widget.layout().setContentsMargins(0, 0, 0, 0)
-        widget.layout().setSpacing(0)
+        widget.layout().setContentsMargins(5, 0, 0, 0)
+        widget.layout().setSpacing(2)
 
         # Add context path, relative to browser context
         self._path_widget = QtWidgets.QLabel()
@@ -628,7 +554,7 @@ class BrowsedComponentWidget(ComponentBaseWidget):
 
         lower_widget.layout().addWidget(self._component_filename_widget)
 
-        lower_widget.layout().addWidget(QtWidgets.QLabel(), 100)
+        lower_widget.layout().addWidget(QtWidgets.QLabel(), 10)
 
         widget.layout().addWidget(lower_widget)
 
@@ -636,13 +562,13 @@ class BrowsedComponentWidget(ComponentBaseWidget):
 
     def get_version_widget(self):
         self._version_nr_widget = AssemblerVersionComboBox(self.session)
-        self._version_nr_widget.currentIndexChanged.connect(
+        self._version_nr_widget.versionChanged.connect(
             self._on_version_changed
         )
         return self._version_nr_widget
 
-    def set_version(self, version_nr):
-        pass
+    def set_version(self, version_entity):
+        self._version_nr_widget.set_version_entity(version_entity)
 
     def set_latest_version(self, is_latest_version):
         color = '#935BA2' if is_latest_version else '#FFBA5C'
@@ -666,14 +592,13 @@ class BrowsedComponentWidget(ComponentBaseWidget):
                 break
         self._path_widget.setText(' / '.join(parent_path[index:]))
         self._version_nr_widget.set_context_id(self._context_id)
-        self._version_nr_widget.set_asset_entity(component['version']['asset'])
-
+        self.set_version(component['version'])
         self.__last_compatible_version = component['version']
 
-    def _on_version_changed(self, currentIndex):
+    def _on_version_changed(self, entity_version):
         print(
             '@@@ BrowsedComponentWidget::_on_version_changed({})'.format(
-                currentIndex
+                entity_version
             )
         )
 

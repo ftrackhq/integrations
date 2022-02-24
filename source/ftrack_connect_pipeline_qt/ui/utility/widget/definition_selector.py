@@ -406,7 +406,7 @@ class DefinitionSelectorButtons(DefinitionSelector):
                 index += 1
         if (
             index_latest_version == -1
-            and self._client_name == qt_constants.PUBLISH_WIDGET
+            and self._client_name == qt_constants.PUBLISHER_WIDGET
             and len(self.button_group.buttons()) == 1
         ):
             index_latest_version = 0  # Select the one and only
@@ -416,7 +416,7 @@ class DefinitionSelectorButtons(DefinitionSelector):
                     '<html><i>No pipeline loader definitions available to open files of type {}!'
                     '</i></html>'.format(self._definition_extensions_filter)
                 )
-            elif self._client_name == qt_constants.PUBLISH_WIDGET:
+            elif self._client_name == qt_constants.PUBLISHER_WIDGET:
                 self.no_definitions_label.setText(
                     '<html><i>No pipeline publisher definitions are available!</i></html>'
                 )

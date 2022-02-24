@@ -27,7 +27,7 @@ QComboBox::down-arrow {
 QComboBox::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
-    width: 8px;
+    min-width: 200px;
     padding: $input-padding;
     border: 0;
 }
@@ -69,7 +69,9 @@ AssetVersionSelector, VersionComboBox {
     }
 }
 
-
+AssemblerVersionComboBox {
+    border: 1px solid $color-purple;
+}
 
 DefinitionSelector, ModeSelector, FileSelector {
     border: 1px solid $gray-dark;
@@ -85,7 +87,7 @@ DefinitionSelector, ModeSelector, FileSelector {
     }
 
     &:focus {
-        border: 1px solid $input-border-color-focus;
+        border: 1px solid lighten($gray-dark, 5%);
     }
 }
 

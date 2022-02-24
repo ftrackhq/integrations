@@ -8,11 +8,6 @@ QPushButton, QMessageBox QPushButton {
     /*min-width: 80px;*/
 }
 
-OptionsButton {
-    padding: 0px;
-    margin: 0px;
-}
-
 QPushButton:hover {
     border-color: darken($color-purple, 5%);
     background-color: $color-purple-dark;
@@ -138,6 +133,20 @@ QPushButton[status='error_status'], QPushButton[status='exception_status'] {
 QPushButton#status-widget-expanded-button[status='error_status'] QLabel, QPushButton#status-widget-expanded-button[status='exception_status'] QLabel {
     border: none;
     color: #FF7A73;
+}
+
+
+OptionsButton {
+    padding: 0px;
+    margin: 0px;
+}
+
+OptionsButton:disabled {
+   background: none;
+}
+
+OptionsButton:disabled {
+   background: none;
 }
 
 PhaseButton, PhaseButton QLabel {

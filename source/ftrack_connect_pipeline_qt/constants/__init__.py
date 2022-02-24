@@ -18,7 +18,7 @@ MAIN_FRAMEWORK_WIDGET = 'main_framework_widget'
 OPEN_WIDGET = 'open'
 ASSEMBLER_WIDGET = 'assembler'
 ASSET_MANAGER_WIDGET = 'asset_manager'
-PUBLISH_WIDGET = 'publish'
+PUBLISHER_WIDGET = 'publisher'
 LOG_VIEWER_WIDGET = 'log_viewer'
 DOC_WIDGET = 'doc'
 

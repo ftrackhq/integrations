@@ -28,7 +28,9 @@ from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import (
     AccordionWidget,
 )
-
+from ftrack_connect_pipeline_qt.ui.utility.widget.options_button import (
+    OptionsButton,
+)
 
 def recursive_get_load_mode_container(widget):
     if not widget.layout():
@@ -48,9 +50,9 @@ def recursive_get_load_mode_container(widget):
     return load_mode_widget
 
 
-class OptionsButton(QtWidgets.QPushButton):
+class PublisherOptionsButton(OptionsButton):
     def __init__(self, title, icon, parent=None):
-        super(OptionsButton, self).__init__(parent=parent)
+        super(PublisherOptionsButton, self).__init__(parent=parent)
         self.name = title
         self._icon = icon
 
@@ -115,7 +117,7 @@ class PublisherAccordion(AccordionBaseWidget):
         return self._status_label
 
     def init_options_button(self):
-        self._options_button = OptionsButton(
+        self._options_button = PublisherOptionsButton(
             'O', qta.icon('mdi6.cog', color='gray')
         )
         self._options_button.setObjectName('borderless')

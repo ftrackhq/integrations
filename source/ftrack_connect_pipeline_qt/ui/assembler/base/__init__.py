@@ -1,3 +1,6 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2022 ftrack
+
 import os
 import json
 import time
@@ -38,10 +41,18 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
 from ftrack_connect_pipeline_qt.ui.utility.widget.busy_indicator import (
     BusyIndicator,
 )
-
+from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
+    CircularButton,
+)
+from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
+from ftrack_connect_pipeline_qt.ui.utility.widget.options_button import (
+    OptionsButton,
+)
 
 class AssemblerBaseWidget(QtWidgets.QWidget):
     '''Base assembler dependency or browse widget'''
+
+    stopBusyIndicator = QtCore.Signal()
 
     @property
     def component_list(self):
@@ -69,9 +80,58 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
 
     def pre_build(self):
         self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().setContentsMargins(1, 1, 1, 1)
-        self.layout().setSpacing(2)
+        self.layout().setContentsMargins(1, 0, 1, 0)
+        self.layout().setSpacing(0)
         self.model = AssetListModel(self._assembler_client.event_manager)
+
+    def build_header(self):
+        header_widget = QtWidgets.QWidget()
+        header_widget.setLayout(QtWidgets.QVBoxLayout())
+        header_widget.layout().setContentsMargins(4, 4, 4, 4)
+        header_widget.layout().setSpacing(2)
+
+        top_toolbar_widget = QtWidgets.QWidget()
+        top_toolbar_widget.setLayout(QtWidgets.QHBoxLayout())
+        top_toolbar_widget.layout().setContentsMargins(4, 4, 4, 4)
+        top_toolbar_widget.layout().setSpacing(4)
+
+        top_toolbar_widget.layout().addWidget(self._get_header_widget(), 10)
+
+        self._rebuild_button = CircularButton('sync', '#87E1EB')
+        top_toolbar_widget.layout().addWidget(self._rebuild_button)
+
+        header_widget.layout().addWidget(top_toolbar_widget)
+
+        self.layout().addWidget(header_widget)
+
+        # Add toolbar
+
+        bottom_toolbar_widget = QtWidgets.QWidget()
+        bottom_toolbar_widget.setLayout(QtWidgets.QHBoxLayout())
+        bottom_toolbar_widget.layout().setContentsMargins(4, 4, 4, 4)
+        bottom_toolbar_widget.layout().setSpacing(4)
+
+        self._cb_show_non_compatible = QtWidgets.QCheckBox(
+            'Show non-compatible assets'
+        )
+        self._cb_show_non_compatible.setObjectName("gray")
+        bottom_toolbar_widget.layout().addWidget(self._cb_show_non_compatible)
+
+        bottom_toolbar_widget.layout().addStretch()
+
+        self._search = Search()
+        bottom_toolbar_widget.layout().addWidget(self._search)
+
+        self._label_info = QtWidgets.QLabel('Listing assets')
+        self._label_info.setObjectName('gray')
+        bottom_toolbar_widget.layout().addWidget(self._label_info)
+
+        self._busy_widget = BusyIndicator(start=False)
+        self._busy_widget.setMinimumSize(QtCore.QSize(16, 16))
+        self._busy_widget.setVisible(False)
+        bottom_toolbar_widget.layout().addWidget(self._busy_widget)
+
+        header_widget.layout().addWidget(bottom_toolbar_widget)
 
     def build(self):
         self.scroll = QtWidgets.QScrollArea()
@@ -86,11 +146,20 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self._assembler_client.progress_widget.hide_widget()
 
         self._busy_widget.start()
+        self._busy_widget.setVisible(True)
 
         # Wait for context to be loaded
         self.get_context()
 
         self._loadable_count = 0
+
+    def post_build(self):
+        self._cb_show_non_compatible.clicked.connect(self.rebuild)
+        self.stopBusyIndicator.connect(self._stop_busy_indicator)
+
+    def _stop_busy_indicator(self):
+        self._busy_widget.stop()
+        self._busy_widget.setVisible(False)
 
     def mousePressEvent(self, event):
         if event.button() != QtCore.Qt.RightButton and self._component_list:
@@ -105,8 +174,10 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
             time.sleep(0.5)
         return self._assembler_client.context_selector.entity
 
-    def extract_components(self, versions, include_unloadable=False):
+    def extract_components(self, versions):
         '''Build a list of loadable components from the supplied *versions*'''
+
+        include_unloadable = self._cb_show_non_compatible.isChecked()
 
         # Fetch all definitions, append asset type name
         loader_definitions = []
@@ -374,7 +445,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         return self._status_widget
 
     def init_options_button(self):
-        self._options_button = OptionsButton(
+        self._options_button = ImporterOptionsButton(
             'O', qta.icon('mdi6.cog', color='gray')
         )
         self._options_button.setObjectName('borderless')
@@ -394,7 +465,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
 
     def init_header_content(self, header_layout, collapsed):
         '''Add publish related widgets to the accordion header'''
-        header_layout.setContentsMargins(1, 1, 1, 1)
+        header_layout.setContentsMargins(5, 1, 1, 1)
         header_layout.setSpacing(2)
 
         # Append thumbnail
@@ -538,7 +609,6 @@ class ComponentBaseWidget(AccordionBaseWidget):
             '- {}'.format(component_path.replace('\\', '/').split('/')[-1])
         )
 
-        self.set_version(component['version']['version'])
         self.set_latest_version(component['version']['is_latest_version'])
 
     def on_collapse(self, collapsed):
@@ -564,9 +634,9 @@ class ModeSelector(QtWidgets.QComboBox):
         self.setMaximumHeight(22)
 
 
-class OptionsButton(QtWidgets.QPushButton):
+class ImporterOptionsButton(OptionsButton):
     def __init__(self, title, icon, parent=None):
-        super(OptionsButton, self).__init__(parent=parent)
+        super(ImporterOptionsButton, self).__init__(parent=parent)
         self.name = title
         self._icon = icon
 

@@ -340,7 +340,8 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self.setMinimumHeight(24)
         self.move(QtCore.QPoint(24, 0))
         self.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().setContentsMargins(15, 0, 0, 0)
+        self.layout().setContentsMargins(2, 0, 5, 0)
+        self.layout().setSpacing(0)
 
     def build(self):
         self.layout().addWidget(
@@ -375,7 +376,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self._content = QtWidgets.QWidget()
         self._content.setLayout(QtWidgets.QHBoxLayout())
         self._content.layout().setContentsMargins(0, 0, 0, 0)
-        self._content.layout().setSpacing(1)
+        self._content.layout().setSpacing(0)
         self._accordion.init_header_content(
             self._content.layout(), self._accordion.collapsed
         )

@@ -20,6 +20,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
     definition_selector,
     line,
     tab,
+    footer,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
     ContextSelector,
@@ -66,6 +67,8 @@ class QtAssemblerClient(QtClient):
 
     def pre_build(self):
         super(QtAssemblerClient, self).pre_build()
+        self.header = header.Header(self.session, show_user=False)
+        self.header.setMinimumHeight(37)
         # Create and add the asset manager client
         self.asset_manager = QtAssetManagerClient(
             self.event_manager,
@@ -74,10 +77,18 @@ class QtAssemblerClient(QtClient):
             is_assembler=True,
         )
 
-    def build(self):
-        '''Build assembler widget.'''
-        self.header = header.Header(self.session, title="Scene Assembler")
-        self.layout().addWidget(self.header)
+
+    def build_left_widget(self):
+        '''  Left split pane content '''
+        #self.setStyleSheet('background-color: red;')
+
+        self._left_widget = QtWidgets.QWidget()
+        self._left_widget.setLayout(QtWidgets.QVBoxLayout())
+        self._left_widget.layout().setContentsMargins(0, 0, 0, 0)
+        self._left_widget.layout().setSpacing(0)
+
+        self._left_widget.layout().addWidget(self.header)
+        #self.header.setStyleSheet('background-color: black;')
 
         self.progress_widget = factory.WidgetFactory.create_progress_widget(
             self.client_name
@@ -86,9 +97,6 @@ class QtAssemblerClient(QtClient):
             self.progress_widget.widget
         )
 
-        self.context_selector = ContextSelector(self, self.session)
-        self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
-
         # Have definition selector but invisible unless there are multiple hosts
         self.host_and_definition_selector = (
             definition_selector.DefinitionSelectorButtons(self.client_name)
@@ -96,16 +104,7 @@ class QtAssemblerClient(QtClient):
         self.host_and_definition_selector.refreshed.connect(
             partial(self.refresh, True)
         )
-        self.layout().addWidget(self.host_and_definition_selector)
-
-        # self.layout().addWidget(line.Line())
-
-        # Left split pane content
-
-        self._left_widget = QtWidgets.QWidget()
-        self._left_widget.setLayout(QtWidgets.QVBoxLayout())
-        self._left_widget.layout().setContentsMargins(1, 1, 1, 1)
-        self._left_widget.layout().setSpacing(1)
+        self._left_widget.layout().addWidget(self.host_and_definition_selector)
 
         # Have a tabbed widget for the different import modes
 
@@ -115,15 +114,17 @@ class QtAssemblerClient(QtClient):
 
         self._dep_widget = QtWidgets.QWidget()
         self._dep_widget.setLayout(QtWidgets.QVBoxLayout())
-        self._dep_widget.layout().setContentsMargins(1, 1, 1, 1)
-        self._dep_widget.layout().setSpacing(1)
+        self._dep_widget.layout().setContentsMargins(0, 0, 0, 0)
+        self._dep_widget.layout().setSpacing(0)
+
+        #self._dep_widget.setStyleSheet('background-color: green;')
 
         self._tab_widget.addTab(self._dep_widget, 'Suggestions')
 
         self._browse_widget = QtWidgets.QWidget()
         self._browse_widget.setLayout(QtWidgets.QVBoxLayout())
-        self._browse_widget.layout().setContentsMargins(1, 1, 1, 1)
-        self._browse_widget.layout().setSpacing(1)
+        self._browse_widget.layout().setContentsMargins(0, 0, 0, 0)
+        self._browse_widget.layout().setSpacing(0)
 
         self._tab_widget.addTab(self._browse_widget, 'Browse')
 
@@ -147,21 +148,39 @@ class QtAssemblerClient(QtClient):
         button_widget.layout().addWidget(self.run_button)
         self._left_widget.layout().addWidget(button_widget)
 
-        # Right split pane content
+        #self._left_widget.setStyleSheet('background-color: yellow;')
+
+        return self._left_widget
+
+    def build_right_widget(self):
+        '''Right split pane content'''
 
         self._right_widget = QtWidgets.QWidget()
         self._right_widget.setLayout(QtWidgets.QVBoxLayout())
-        self._right_widget.layout().setContentsMargins(1, 1, 1, 1)
-        self._right_widget.layout().setSpacing(1)
+        self._right_widget.layout().setContentsMargins(0, 0, 0, 0)
+        self._right_widget.layout().setSpacing(0)
+
+        self.context_selector = ContextSelector(self, self.session)
+        self._right_widget.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
 
         self._right_widget.layout().addWidget(self.asset_manager, 100)
 
+        return self._right_widget
+
+    def build(self):
+        '''(Override) Build assembler widget.'''
+
         # Create a splitter and add to client
         self.splitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
-        self.splitter.addWidget(self._left_widget)
-        self.splitter.addWidget(self._right_widget)
-        self.layout().addWidget(self.splitter, 100)
+        self.splitter.addWidget(self.build_left_widget())
+        self.splitter.addWidget(self.build_right_widget())
+        self.splitter.setHandleWidth(1)
         self.splitter.setSizes([500, 300])
+
+        self.layout().addWidget(self.splitter, 100)
+
+        self.layout().addWidget(footer.Footer(self.session))
+
 
     def post_build(self):
         super(QtAssemblerClient, self).post_build()
@@ -169,7 +188,7 @@ class QtAssemblerClient(QtClient):
             self._on_hosts_discovered
         )
         self._tab_widget.currentChanged.connect(self._on_tab_changed)
-        self.asset_manager.assets_discovered.connect(self._assets_discovered)
+        self.asset_manager.assetsDiscovered.connect(self._assets_discovered)
         self.run_button.setFocus()
         self.run_button_no_load.clicked.connect(partial(self.run, True))
         self.run_button.setVisible(True)

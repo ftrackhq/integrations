@@ -75,7 +75,8 @@ class Dialog(QtWidgets.QDialog):
         self._approve_button = self.get_approve_button()
         if not self._prompt is False:
             self._deny_button = self.get_deny_button()
-
+        else:
+            self._deny_button = None
         if platform.system().lower() != 'darwin':
             if self._approve_button:
                 buttonbar.layout().addWidget(self._approve_button)

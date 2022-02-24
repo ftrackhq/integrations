@@ -9,7 +9,8 @@ from ftrack_connect_pipeline_qt.utils import BaseThread
 
 
 class VersionComboBox(QtWidgets.QComboBox):
-    versions_query_done = QtCore.Signal()
+    versionsQueryDone = QtCore.Signal()
+    versionChanged = QtCore.Signal(object)
 
     def __init__(self, session, parent=None):
         super(VersionComboBox, self).__init__(parent=parent)
@@ -20,14 +21,26 @@ class VersionComboBox(QtWidgets.QComboBox):
         self.setEditable(False)
         self.session = session
         self.context_id = None
-
         self.asset_entity = None
+        self._version_id = None
+
+        self.currentIndexChanged.connect(self._on_current_index_changed)
+
         self.setMaximumHeight(24)
+        self.setMinimumHeight(24)
 
     def set_asset_entity(self, asset_entity):
         self.asset_entity = asset_entity
+        self._version_nr = None
         self.clear()
         self._add_version(self.asset_entity['latest_version'])
+        self._version_id = self.asset_entity['latest_version']['id']
+
+    def set_version_entity(self, version_entity):
+        self.asset_entity = version_entity['asset']
+        self.clear()
+        self._add_version(version_entity)
+        self._version_id = version_entity['id']
 
     def showPopup(self):
         '''Override'''
@@ -36,7 +49,6 @@ class VersionComboBox(QtWidgets.QComboBox):
             self.context_id, self.asset_entity['id']
         )
         self.add_versions(versions)
-        self.setCurrentIndex(0)
         super(VersionComboBox, self).showPopup()
 
     def set_context_id(self, context_id):
@@ -53,14 +65,26 @@ class VersionComboBox(QtWidgets.QComboBox):
 
     def _add_version(self, version):
         self.addItem(
-            str("Version {}".format(version['version'])), version['id']
+            str('Version {}'.format(version['version'])), version['id']
         )
 
     def add_versions(self, versions):
-        for version in versions:
+        selected_index = 0
+        for index, version in enumerate(versions):
             self._add_version(version)
-        self.versions_query_done.emit()
+            if version['id'] == self._version_id:
+                selected_index = index
+        self.setCurrentIndex(selected_index)
+        self.versionsQueryDone.emit()
 
+    def _on_current_index_changed(self, index):
+        if self._version_id is not None:
+            version_id = self.itemData(index)
+            if version_id is not None and version_id != self._version_id:
+                self._version_id = version_id
+                self.versionChanged.emit(self.session.query(
+                    'AssetVersion where id={}'.format(version_id)
+                ).first())
 
 class VersionSelector(QtWidgets.QWidget):
 

@@ -94,6 +94,8 @@ class EntityBrowser(Dialog):
     def get_content_widget(self):
         widget = QtWidgets.QWidget()
         widget.setLayout(QtWidgets.QVBoxLayout())
+        widget.layout().setContentsMargins(1, 1, 1, 1)
+        widget.layout().setSpacing(5)
 
         toolbar = QtWidgets.QWidget()
         toolbar.setLayout(QtWidgets.QHBoxLayout())
@@ -386,17 +388,19 @@ class EntityBrowserNavigator(QtWidgets.QWidget):
         clear_layout(self.layout())
 
         # Rebuild widget
-        home_button = HomeContextButton()
-        home_button.clicked.connect(self._on_go_home)
-        self.layout().addWidget(home_button)
 
-        l_arrow = QtWidgets.QLabel()
-        l_arrow.setPixmap(
-            qta.icon('mdi6.chevron-right', color='#676B70').pixmap(
-                QtCore.QSize(16, 16)
+        if self._is_browser:
+            home_button = HomeContextButton()
+            home_button.clicked.connect(self._on_go_home)
+            self.layout().addWidget(home_button)
+
+            l_arrow = QtWidgets.QLabel()
+            l_arrow.setPixmap(
+                qta.icon('mdi6.chevron-right', color='#676B70').pixmap(
+                    QtCore.QSize(16, 16)
+                )
             )
-        )
-        self.layout().addWidget(l_arrow)
+            self.layout().addWidget(l_arrow)
 
         add_enabled = not self._is_browser
 
@@ -406,6 +410,7 @@ class EntityBrowserNavigator(QtWidgets.QWidget):
                 button.clicked.connect(
                     partial(self._on_entity_changed, button.link_entity)
                 )
+                set_property(button, 'first', 'true' if index == 0 else 'false')
                 if link['type'] != 'Project':
                     button.remove_button.clicked.connect(
                         partial(self._on_remove_entity, link)
@@ -581,7 +586,7 @@ class EntityWidget(QtWidgets.QFrame):
         self.setMaximumHeight(45)
 
     def mousePressEvent(self, event):
-        if not shiboken2.isValid(self):
+        if not shiboken2.isValid(self) or not shiboken2.isValid(EntityWidget):
             # Widget has been destroyed
             return
         self.clicked.emit()
