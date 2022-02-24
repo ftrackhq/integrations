@@ -77,10 +77,9 @@ class QtAssemblerClient(QtClient):
             is_assembler=True,
         )
 
-
     def build_left_widget(self):
-        '''  Left split pane content '''
-        #self.setStyleSheet('background-color: red;')
+        '''Left split pane content'''
+        # self.setStyleSheet('background-color: red;')
 
         self._left_widget = QtWidgets.QWidget()
         self._left_widget.setLayout(QtWidgets.QVBoxLayout())
@@ -88,7 +87,7 @@ class QtAssemblerClient(QtClient):
         self._left_widget.layout().setSpacing(0)
 
         self._left_widget.layout().addWidget(self.header)
-        #self.header.setStyleSheet('background-color: black;')
+        # self.header.setStyleSheet('background-color: black;')
 
         self.progress_widget = factory.WidgetFactory.create_progress_widget(
             self.client_name
@@ -117,7 +116,7 @@ class QtAssemblerClient(QtClient):
         self._dep_widget.layout().setContentsMargins(0, 0, 0, 0)
         self._dep_widget.layout().setSpacing(0)
 
-        #self._dep_widget.setStyleSheet('background-color: green;')
+        # self._dep_widget.setStyleSheet('background-color: green;')
 
         self._tab_widget.addTab(self._dep_widget, 'Suggestions')
 
@@ -148,7 +147,7 @@ class QtAssemblerClient(QtClient):
         button_widget.layout().addWidget(self.run_button)
         self._left_widget.layout().addWidget(button_widget)
 
-        #self._left_widget.setStyleSheet('background-color: yellow;')
+        # self._left_widget.setStyleSheet('background-color: yellow;')
 
         return self._left_widget
 
@@ -161,7 +160,9 @@ class QtAssemblerClient(QtClient):
         self._right_widget.layout().setSpacing(0)
 
         self.context_selector = ContextSelector(self, self.session)
-        self._right_widget.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
+        self._right_widget.layout().addWidget(
+            self.context_selector, QtCore.Qt.AlignTop
+        )
 
         self._right_widget.layout().addWidget(self.asset_manager, 100)
 
@@ -180,7 +181,6 @@ class QtAssemblerClient(QtClient):
         self.layout().addWidget(self.splitter, 100)
 
         self.layout().addWidget(footer.Footer(self.session))
-
 
     def post_build(self):
         super(QtAssemblerClient, self).post_build()

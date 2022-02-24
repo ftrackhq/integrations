@@ -87,7 +87,9 @@ class AssetManagerBaseWidget(QtWidgets.QWidget):
 
     def init_search(self):
         '''Create search box'''
-        self._search = Search(collapsed=self._is_assembler, collapsable=self._is_assembler)
+        self._search = Search(
+            collapsed=self._is_assembler, collapsable=self._is_assembler
+        )
         self._search.input_updated.connect(self.on_search)
         return self._search
 

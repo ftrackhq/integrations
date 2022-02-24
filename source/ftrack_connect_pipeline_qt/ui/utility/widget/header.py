@@ -133,8 +133,11 @@ class User(QtWidgets.QFrame):
                 user['first_name'], user['last_name']
             ).title()
 
-        self.setToolTip('Logged in as: {} to {}'.format(
-            self.session.api_user, self.session.server_url))
+        self.setToolTip(
+            'Logged in as: {} to {}'.format(
+                self.session.api_user, self.session.server_url
+            )
+        )
 
 
 class MessageBox(QtWidgets.QWidget):

@@ -159,7 +159,6 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
         self.layout().setContentsMargins(1, 1, 1, 1)
         self.layout().setSpacing(1)
 
-
         self._plugin_log_viewer_widget = PluginLogViewerWidget(
             self.event_manager
         )

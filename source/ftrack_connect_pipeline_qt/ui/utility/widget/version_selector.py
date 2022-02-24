@@ -82,9 +82,12 @@ class VersionComboBox(QtWidgets.QComboBox):
             version_id = self.itemData(index)
             if version_id is not None and version_id != self._version_id:
                 self._version_id = version_id
-                self.versionChanged.emit(self.session.query(
-                    'AssetVersion where id={}'.format(version_id)
-                ).first())
+                self.versionChanged.emit(
+                    self.session.query(
+                        'AssetVersion where id={}'.format(version_id)
+                    ).first()
+                )
+
 
 class VersionSelector(QtWidgets.QWidget):
 

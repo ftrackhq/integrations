@@ -410,7 +410,9 @@ class EntityBrowserNavigator(QtWidgets.QWidget):
                 button.clicked.connect(
                     partial(self._on_entity_changed, button.link_entity)
                 )
-                set_property(button, 'first', 'true' if index == 0 else 'false')
+                set_property(
+                    button, 'first', 'true' if index == 0 else 'false'
+                )
                 if link['type'] != 'Project':
                     button.remove_button.clicked.connect(
                         partial(self._on_remove_entity, link)

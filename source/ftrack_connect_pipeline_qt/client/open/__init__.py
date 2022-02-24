@@ -72,7 +72,6 @@ class QtOpenClient(QtClient):
         )
         self.run_button.setVisible(True)
 
-
     def definition_changed(self, definition, available_components_count):
         '''React upon change of definition, or no versions/components(definitions) available.'''
         if available_components_count == 0:

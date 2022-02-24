@@ -122,7 +122,7 @@ class FileLogViewerWidget(QtWidgets.QWidget):
             )
 
     def _on_file_index_changed(self, selected_index):
-        if len(self._files_combobox.currentText() or '')>0:
+        if len(self._files_combobox.currentText() or '') > 0:
             file_path = os.path.join(
                 get_log_directory(), self._files_combobox.currentText()
             )

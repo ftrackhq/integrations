@@ -38,17 +38,25 @@ class Footer(QtWidgets.QFrame):
                 label = 'Location: {}'.format(location['name'])
                 tooltip = 'Priority: {}.'.format(location.priority)
                 if location.accessor:
-                    label += ' | accessor: {}'.format(location.accessor.__module__)
+                    label += ' | accessor: {}'.format(
+                        location.accessor.__module__
+                    )
                     if hasattr(location.accessor, 'prefix'):
                         label += ' @ {}'.format(location.accessor.prefix)
                         tooltip += ' Files will be published and loaded within this base directory.'
                     else:
                         tooltip += ' Files will be published and loaded with this storage accessor.'
                 if location.structure:
-                    label += ' | structure: {}'.format(location.structure.__module__)
-                    tooltip += ' File structure will be dictated by this structure.'
+                    label += ' | structure: {}'.format(
+                        location.structure.__module__
+                    )
+                    tooltip += (
+                        ' File structure will be dictated by this structure.'
+                    )
             self._location_info_label = QtWidgets.QLabel(label)
-            self._location_info_label.setToolTip('{}\n{}'.format(label, tooltip))
+            self._location_info_label.setToolTip(
+                '{}\n{}'.format(label, tooltip)
+            )
             self.layout().addWidget(self._location_info_label)
 
         self.layout().addWidget(QtWidgets.QLabel(), 10)

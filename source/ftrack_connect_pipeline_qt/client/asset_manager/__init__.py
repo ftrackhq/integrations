@@ -24,17 +24,17 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
 from ftrack_connect_pipeline_qt.ui import resource
 from ftrack_connect_pipeline_qt.ui import theme
 from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import Dialog
-from ftrack_connect_pipeline_qt.utils import (
-    BaseThread,
-    set_property
-)
+from ftrack_connect_pipeline_qt.utils import BaseThread, set_property
+
 
 class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     '''
     QtAssetManagerClient class.
     '''
 
-    assetsDiscovered = QtCore.Signal() # Emitted when assets has been discovered and loaded
+    assetsDiscovered = (
+        QtCore.Signal()
+    )  # Emitted when assets has been discovered and loaded
 
     selectionUpdated = QtCore.Signal(object)
 
@@ -104,7 +104,9 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)
 
-        self.asset_manager_widget = AssetManagerWidget(self, self._asset_list_model)
+        self.asset_manager_widget = AssetManagerWidget(
+            self, self._asset_list_model
+        )
 
         if self.is_assembler:
             set_property(self, 'assembler', 'true')
@@ -314,7 +316,9 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
                 asset_info = self._asset_list_model.getDataById(key)
                 if asset_info is None:
                     continue
-                self.logger.debug('Updating id {} with loaded status'.format(key))
+                self.logger.debug(
+                    'Updating id {} with loaded status'.format(key)
+                )
                 # Set to loaded
                 print(
                     '@@@ _load_assets_callback; id: {},\n asset_info: {}, \n event: {}'.format(
@@ -327,7 +331,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
                 self.asset_manager_widget.refresh.emit()
         finally:
             self.asset_manager_widget.stopBusyIndicator.emit()
-
 
     def _on_update_assets(self, asset_info_list, plugin):
         '''
@@ -352,7 +355,9 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
                 pos = self._asset_list_model.getPosition(key)
                 if pos is None:
                     continue
-                self.logger.debug('Updating id {} @ position {}'.format(key, pos))
+                self.logger.debug(
+                    'Updating id {} @ position {}'.format(key, pos)
+                )
                 asset_info = value.get(list(value.keys())[0])
                 print(
                     '@@@ _update_assets_callback; pos: {},\n asset_info: {}, \n event: {}'.format(
@@ -392,7 +397,9 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
                 pos = self._asset_list_model.getPosition(key)
                 if pos is None:
                     continue
-                self.logger.debug('Updating id {} @ position {}'.format(key, pos))
+                self.logger.debug(
+                    'Updating id {} @ position {}'.format(key, pos)
+                )
                 asset_info = value.get(list(value.keys())[0])
                 print(
                     '@@@ _change_version_callback; pos: {},\n asset_info: {}, \n event: {}'.format(
@@ -431,7 +438,9 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
                 asset_info = self._asset_list_model.getDataById(key)
                 if asset_info is None:
                     continue
-                self.logger.debug('Updating id {} with loaded status'.format(key))
+                self.logger.debug(
+                    'Updating id {} with loaded status'.format(key)
+                )
                 # Set to loaded
                 print(
                     '@@@ _unload_assets_callback; id: {},\n asset_info: {}, \n event: {}'.format(
@@ -477,7 +486,9 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
                 pos = self._asset_list_model.getPosition(key)
                 if pos is None:
                     continue
-                self.logger.debug('Removing id {} with index {}'.format(key, pos))
+                self.logger.debug(
+                    'Removing id {} with index {}'.format(key, pos)
+                )
                 self._asset_list_model.removeRows(pos)
         finally:
             self.asset_manager_widget.stopBusyIndicator.emit()

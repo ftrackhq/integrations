@@ -30,5 +30,7 @@ def applyTheme(widget, theme='dark', baseTheme=None):
         widget.setStyleSheet(styleSheetContent)
     else:
         sys.stderr.write(
-            'ftrack theme "{}" could not be found! Make sure to import ui/resource.py.\n'.format(theme_path)
+            'ftrack theme "{}" could not be found! Make sure to import ui/resource.py.\n'.format(
+                theme_path
+            )
         )

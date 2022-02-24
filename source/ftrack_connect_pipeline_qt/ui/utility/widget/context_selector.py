@@ -11,7 +11,10 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.entity_browser import (
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import Context
 from ftrack_connect_pipeline_qt.utils import BaseThread
-from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import CircularButton
+from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
+    CircularButton,
+)
+
 
 class ContextSelector(QtWidgets.QWidget):
     entityChanged = QtCore.Signal(object)

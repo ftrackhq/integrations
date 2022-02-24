@@ -101,7 +101,9 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
 
             if len(resolved_versions or []) == 0:
                 if user_message is None:
-                    self.dependencyResolveWarning.emit('No dependencies found!')
+                    self.dependencyResolveWarning.emit(
+                        'No dependencies found!'
+                    )
                 return
 
             versions = [
@@ -205,7 +207,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
         self._entity_browser_navigator = (
             self._entity_browser.create_navigator()
         )
-        return  self._entity_browser_navigator
+        return self._entity_browser_navigator
 
     def post_build(self):
         super(AssemblerBrowserWidget, self).post_build()
@@ -273,9 +275,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
                 self.allVersionsFetched.emit()
                 break
 
-            components = self.extract_components(
-                versions
-            )
+            components = self.extract_components(versions)
 
             self.componentsFetched.emit(components)
 
@@ -392,7 +392,9 @@ class DependenciesListWidget(AssemblerListBaseWidget):
             component_widget = self._asset_widget_class(
                 index, self._assembler_widget, self.model.event_manager
             )
-            set_property(component_widget, 'first', 'true' if row == 0 else 'false')
+            set_property(
+                component_widget, 'first', 'true' if row == 0 else 'false'
+            )
             component_widget.set_component_and_definitions(
                 component, definitions
             )
@@ -435,7 +437,9 @@ class BrowserListWidget(AssemblerListBaseWidget):
             component_widget = self._asset_widget_class(
                 index, self._assembler_widget, self.model.event_manager
             )
-            set_property(component_widget, 'first', 'true' if row == 0 else 'false')
+            set_property(
+                component_widget, 'first', 'true' if row == 0 else 'false'
+            )
             component_widget.set_component_and_definitions(
                 component, definitions
             )
@@ -503,7 +507,9 @@ class DependencyComponentWidget(ComponentBaseWidget):
         return self._version_nr_widget
 
     def set_version(self, version_entity):
-        self._version_nr_widget.setText('v{}  '.format(str(version_entity['version'])))
+        self._version_nr_widget.setText(
+            'v{}  '.format(str(version_entity['version']))
+        )
 
     def set_latest_version(self, is_latest_version):
         color = '#935BA2' if is_latest_version else '#FFBA5C'

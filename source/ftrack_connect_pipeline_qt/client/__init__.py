@@ -11,7 +11,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
     header,
     definition_selector,
     line,
-    footer
+    footer,
 )
 from ftrack_connect_pipeline_qt.client import factory
 from ftrack_connect_pipeline_qt import constants as qt_constants

@@ -49,6 +49,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.options_button import (
     OptionsButton,
 )
 
+
 class AssemblerBaseWidget(QtWidgets.QWidget):
     '''Base assembler dependency or browse widget'''
 

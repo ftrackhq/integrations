@@ -32,6 +32,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.options_button import (
     OptionsButton,
 )
 
+
 def recursive_get_load_mode_container(widget):
     if not widget.layout():
         return

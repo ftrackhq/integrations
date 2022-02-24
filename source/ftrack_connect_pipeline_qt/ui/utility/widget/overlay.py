@@ -34,7 +34,9 @@ class Overlay(QtWidgets.QFrame):
         self.widget.setParent(self)
 
         self.close_btn = QtWidgets.QPushButton('', self)
-        self.close_btn.setIcon(qta.icon('mdi6.close-thick', color='#D3d4D6', size=24))
+        self.close_btn.setIcon(
+            qta.icon('mdi6.close-thick', color='#D3d4D6', size=24)
+        )
         self.close_btn.setObjectName('borderless')
         self.close_btn.setFixedSize(24, 24)
         self.close_btn.clicked.connect(self.close)

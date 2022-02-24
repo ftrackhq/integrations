@@ -55,7 +55,11 @@ class QtPublisherClient(QtClient):
         )
 
     def _on_components_checked(self, available_components_count):
-        print('@@@ QtPublisherClient::_on_components_checked({})'.format(available_components_count))
+        print(
+            '@@@ QtPublisherClient::_on_components_checked({})'.format(
+                available_components_count
+            )
+        )
         super(QtPublisherClient, self).definition_changed(
             self.definition, available_components_count
         )
