@@ -280,8 +280,8 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         # package is upgraded when installing a new version.
         configuration['options']['bdist_msi'] = {
             'upgrade_code': '{6068BD18-65D1-47FC-BE5E-06AA5189C9CB}',
-            'initial_target_dir': r'[ProgramFilesFolder]\{0}-{1}'.format(
-                'ftrack Connect', VERSION
+            'initial_target_dir': r'[ProgramFilesFolder]\{0}'.format(
+                'ftrack Connect'
             ),
             'data': {'Shortcut': shortcut_table},
             'all_users': True,
@@ -386,7 +386,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
         configuration['options']['bdist_dmg'] = {
             'applications_shortcut': False,
-            'volume_label': 'ftrack Connect {0}'.format(VERSION)
+            'volume_label': 'ftrack Connect'
         }
 
         include_files = [
