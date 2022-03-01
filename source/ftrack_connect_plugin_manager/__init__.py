@@ -149,8 +149,8 @@ class DndPluginList(QtWidgets.QFrame):
         )
 
         self.setAcceptDrops(True)
-        self.setProperty('ftrackDropZone', True)
-        self.setObjectName('ftrack-connect-publisher-browse-button')
+        # self.setProperty('ftrackDropZone', True)
+        # self.setObjectName('ftrack-connect-publisher-browse-button')
 
         self.main_layout = QtWidgets.QVBoxLayout()
         self.main_layout.setContentsMargins(0, 0, 0, 0)
