@@ -8,6 +8,14 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: changed
+        :tags: UX
+
+        Installed plugins are grayed out.
+
+
 .. release:: 0.1.1
     :date:: 2022-02-14  
     .. change:: new

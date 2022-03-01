@@ -182,6 +182,7 @@ class DndPluginList(QtWidgets.QFrame):
         plugin_item.setCheckable(True)
         plugin_item.setEditable(False)
         plugin_item.setSelectable(False)
+        plugin_item.setEnabled(True)
 
         plugin_item.setText('{} | {}'.format(data['name'], data['version']))
         plugin_item.setData(status, ROLES.PLUGIN_STATUS)
@@ -200,6 +201,7 @@ class DndPluginList(QtWidgets.QFrame):
                 plugin_item.setData(
                     file_path, ROLES.PLUGIN_INSTALL_PATH
                 )
+                plugin_item.setEnabled(False)
                 plugin_item.setCheckable(False)
 
             elif status in [STATUSES.NEW, STATUSES.DOWNLOAD]:
