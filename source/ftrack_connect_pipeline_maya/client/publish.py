@@ -39,3 +39,9 @@ class MayaPublisherClient(MayaQWidgetDockableMixin, QtPublisherClient):
             x=300,
             y=600,
         )
+
+    def closeEvent(self, *args):
+        return super(MayaPublisherClient, self).closeEvent(*args)
+
+    def hideEvent(self, *args):
+        return super(MayaPublisherClient, self).hideEvent(*args)

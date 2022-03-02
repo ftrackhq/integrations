@@ -7,7 +7,10 @@ from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt import event
 from ftrack_connect_pipeline_maya import host as maya_host
+from ftrack_connect_pipeline_qt.utils import BaseThread
+import time
 
+import maya.utils
 import maya.cmds as cmds
 import maya.mel as mm
 
@@ -65,7 +68,7 @@ def _open_widget(event_manager, asset_list_model, widgets, event):
     exists'''
     widget_name = None
     widget_class = None
-    for (_widget_name, _widget_class, unused_label) in widgets:
+    for (_widget_name, _widget_class, unused_label, unused_image) in widgets:
         if _widget_name == event['data']['pipeline']['widget_name']:
             widget_name = _widget_name
             widget_class = _widget_class
@@ -120,12 +123,15 @@ def initialise():
     from ftrack_connect_pipeline_qt import client
 
     widgets = list()
-    widgets.append((qt_constants.OPEN_WIDGET, open.MayaOpenDialog, 'Open'))
+    widgets.append(
+        (qt_constants.OPEN_WIDGET, open.MayaOpenDialog, 'Open', 'fileOpen')
+    )
     widgets.append(
         (
             qt_constants.ASSEMBLER_WIDGET,
             assembler.MayaAssemblerDialog,
             'Assembler',
+            'greasePencilImport',
         )
     )
     widgets.append(
@@ -133,6 +139,7 @@ def initialise():
             qt_constants.ASSET_MANAGER_WIDGET,
             asset_manager.MayaAssetManagerClient,
             'Asset Manager',
+            'volumeCube',
         )
     )
     widgets.append(
@@ -140,6 +147,7 @@ def initialise():
             qt_constants.PUBLISHER_WIDGET,
             publish.MayaPublisherClient,
             'Publisher',
+            'greasePencilExport',
         )
     )
     widgets.append(
@@ -147,6 +155,7 @@ def initialise():
             qt_constants.LOG_VIEWER_WIDGET,
             log_viewer.MayaLogViewerDialog,
             'Log Viewer',
+            'zoom',
         )
     )
     widgets.append(
@@ -154,6 +163,7 @@ def initialise():
             qt_constants.DOC_WIDGET,
             client.QtDocumentationClient,
             'Documentation',
+            'SP_FileIcon',
         )
     )
 
@@ -164,12 +174,13 @@ def initialise():
             cmds.menuItem(divider=True)
             continue
 
-        widget_name, unused_widget_class, label = item
+        widget_name, unused_widget_class, label, image = item
 
         cmds.menuItem(
             parent=ftrack_menu,
             label=label,
             command=(functools.partial(host.launch_widget, widget_name)),
+            image=":/{}.png".format(image),
         )
 
     # Listen to client launch events
@@ -182,12 +193,7 @@ def initialise():
         ),
     )
 
+    # host.launch_widget(qt_constants.OPEN_WIDGET)
+
 
 cmds.evalDeferred('initialise()', lp=True)
-
-
-def launch_opener():
-    host.launch_widget(qt_constants.OPEN_WIDGET)
-
-
-cmds.evalDeferred('launch_opener()', lp=True)

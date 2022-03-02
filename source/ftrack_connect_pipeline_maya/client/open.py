@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-from Qt import QtWidgets
+from Qt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline_qt.client.open import QtOpenClient
 import ftrack_connect_pipeline.constants as constants
@@ -40,7 +40,6 @@ class MayaOpenDialog(QtWidgets.QDialog):
         self.rebuild()
 
         self.setModal(True)
-
         self.setWindowTitle('ftrack Open')
         self.resize(450, 530)
 

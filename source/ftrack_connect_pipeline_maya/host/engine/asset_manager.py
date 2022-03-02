@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 import time
+import maya
 import maya.cmds as cmds
 
 from ftrack_connect_pipeline import constants
@@ -223,7 +224,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
 
         return status, result
 
-    def select_asset(self, asset_info, options=None, plugin=None):
+    def select_assets_sync(self, asset_info, options=None, plugin=None):
         '''
         Selects the given *asset_info* from the scene.
         *options* can contain clear_selection to clear the selection before
@@ -298,3 +299,9 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         self._notify_client(plugin, result_data)
 
         return status, result
+
+    def select_asset(self, asset_info, options=None, plugin=None):
+
+        return maya.utils.executeInMainThreadWithResult(
+            self.select_assets_sync, asset_info, options, plugin
+        )

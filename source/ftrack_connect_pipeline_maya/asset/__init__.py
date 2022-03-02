@@ -97,6 +97,7 @@ class FtrackAssetNode(FtrackAssetBase):
                     asset_const.ASSET_VERSIONS_ENTITIES,
                     asset_const.IS_LOADED,
                     asset_const.SESSION,
+                    asset_const.DEPENDENCIES,
                 ]:
                     continue
                 if node_asset_info[k] != self.asset_info[k]:
@@ -116,8 +117,8 @@ class FtrackAssetNode(FtrackAssetBase):
                     asset_const.ASSET_INFO_OPTIONS,
                 }
             ):
-                print(
-                    '@@@ NOT {} - key diff: {}!={}'.format(
+                self.logger.debug(
+                    '(Get ftrack object from scene) Not returning {}: - key diff: {}!={}'.format(
                         ftrack_object,
                         set(diff_values),
                         {
