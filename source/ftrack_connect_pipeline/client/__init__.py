@@ -1,6 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
-
+import os
 import time
 import logging
 import copy
@@ -180,6 +180,26 @@ class HostConnection(object):
                 'pipeline': {
                     'host_id': self.id,
                     'widget_name': widget_name,
+                    'source': source,
+                }
+            },
+        )
+        self._event_manager.publish(
+            event,
+        )
+
+    def set_context(self, context, source=None):
+        '''The context has change, send an event to picked up by clients.'''
+
+        if os.environ.get('FTRACK_CONTEXTID') != context['id']:
+            os.environ['FTRACK_CONTEXTID'] = context['id']
+            self.logger.warning('Global context is now: {}'.format(context))
+        event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_CONTEXT_CHANGE,
+            data={
+                'pipeline': {
+                    'host_id': self.id,
+                    'context_id': context['id'],
                     'source': source,
                 }
             },
@@ -492,6 +512,7 @@ class Client(object):
             self._host_connection.context_id = context_id
 
     def _on_log_item_added(self, log_item):
+        '''Called when a client notify event arrives.'''
         pass
 
     def on_client_notification(self):

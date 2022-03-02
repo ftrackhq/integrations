@@ -39,7 +39,7 @@ def get_all_dependencies(entity):
     # Check if a lower lavel of an asset is already in the list
     duplicated = []
     for dependency in dependencies:
-        for child in dependency['children']:
+        for child in dependency.get('children', []):
             if child in dependencies:
                 duplicated.append(dependency)
 

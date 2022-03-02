@@ -201,7 +201,7 @@ class AssetManagerEngine(BaseEngine):
                     plugin['default_method']
                 )
 
-                if len(plugin_result.get('user_data')) > 0:
+                if len(plugin_result.get('user_data') or {}) > 0:
                     # Supply user data (message) with result
                     if not isinstance(result, tuple):
                         result = (result, plugin_result['user_data'])
