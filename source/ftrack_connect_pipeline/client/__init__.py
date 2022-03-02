@@ -444,7 +444,6 @@ class Client(object):
         '''
         self._engine_type = engine_type
 
-
     def change_context(self, context_id):
         '''
         Assign the given *context_id* as the current :obj:`context_id` and to the

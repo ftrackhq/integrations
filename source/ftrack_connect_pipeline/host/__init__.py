@@ -151,7 +151,9 @@ class Host(object):
         validated_result = self.validate(raw_result)
 
         for key, value in list(validated_result.items()):
-            logger.warning('Valid packages : {} : {}'.format(key, len(value)))
+            logger.warning(
+                'Valid definitions : {} : {}'.format(key, len(value))
+            )
 
         self.__registry = validated_result
 
@@ -179,8 +181,7 @@ class Host(object):
         Validates the given *data* against the correspondant plugin validator.
         Returns a validated data.
 
-        *data* : Should be a validated and complete definitions, schema and
-        packages dictionary coming from
+        *data* : Should be a validated and complete definitions and schemas coming from
         :func:`ftrack_connect_pipeline_definition.resource.definitions.register.register_definitions`
         '''
         plugin_validator = validation.PluginDiscoverValidation(
