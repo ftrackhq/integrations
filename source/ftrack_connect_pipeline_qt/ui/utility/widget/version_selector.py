@@ -44,11 +44,12 @@ class VersionComboBox(QtWidgets.QComboBox):
 
     def showPopup(self):
         '''Override'''
-        self.clear()
         versions = self.query_versions(
             self.context_id, self.asset_entity['id']
         )
-        self.add_versions(versions)
+        if len(versions) != self.count():
+            self.clear()
+            self.add_versions(versions)
         super(VersionComboBox, self).showPopup()
 
     def set_context_id(self, context_id):

@@ -35,8 +35,10 @@ class QtLogViewerDialog(QtWidgets.QDialog):
             self.setTheme(self.getTheme())
             if self.getThemeBackgroundStyle():
                 self.setProperty('background', self.getThemeBackgroundStyle())
+        self.setProperty('docked', 'false')
 
         self.client = QtLogViewerClient(event_manager, None)
+
         self.shown = False
 
         self.pre_build()
@@ -160,10 +162,12 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
         self.layout().setSpacing(1)
 
         self._plugin_log_viewer_widget = PluginLogViewerWidget(
-            self.event_manager
+            self.get_parent_window(), self.event_manager
         )
 
-        self._file_log_viewer_widget = FileLogViewerWidget()
+        self._file_log_viewer_widget = FileLogViewerWidget(
+            self.get_parent_window()
+        )
 
     def build(self):
         '''Build widgets and parent them.'''

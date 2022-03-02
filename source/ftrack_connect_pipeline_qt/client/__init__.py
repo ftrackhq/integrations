@@ -2,7 +2,8 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 import os
 import platform
-from functools import partial
+import logging
+import subprocess
 
 from Qt import QtCore, QtWidgets
 
@@ -31,7 +32,7 @@ class QtClient(Client, QtWidgets.QFrame):
     # Text of the button to run the whole definition
     client_name = None
 
-    context_changed = QtCore.Signal(object)
+    contextChanged = QtCore.Signal(object)  # Client context has changed
 
     def __init__(self, event_manager, parent_window, parent=None):
         '''Initialise with *event_manager* and
@@ -46,6 +47,7 @@ class QtClient(Client, QtWidgets.QFrame):
             self.setTheme(self.getTheme())
             if self.getThemeBackgroundStyle():
                 self.setProperty('background', self.getThemeBackgroundStyle())
+        self.setProperty('docked', 'true' if self.is_docked() else 'false')
         self.setObjectName(
             '{}_{}'.format(
                 qt_constants.MAIN_FRAMEWORK_WIDGET, self.__class__.__name__
@@ -57,6 +59,7 @@ class QtClient(Client, QtWidgets.QFrame):
         self.pre_build()
         self.build()
         self.post_build()
+
         if self.context_id:
             self.context_selector.set_context_id(self.context_id)
         self.add_hosts(self.discover_hosts())
@@ -142,6 +145,7 @@ class QtClient(Client, QtWidgets.QFrame):
         self.scroll = QtWidgets.QScrollArea()
         self.scroll.setWidgetResizable(True)
         self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        # self.scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
 
         self.layout().addWidget(self.host_and_definition_selector)
         self.layout().addWidget(self.scroll, 100)
@@ -200,7 +204,7 @@ class QtClient(Client, QtWidgets.QFrame):
         on_context_change signal.
         '''
         super(QtClient, self).change_context(context_id)
-        self.context_changed.emit(context_id)
+        self.contextChanged.emit(context_id)
 
     def _clear_host_widget(self):
         if self.scroll and self.scroll.widget():
@@ -210,6 +214,7 @@ class QtClient(Client, QtWidgets.QFrame):
         '''Triggered when host_changed is called from the host_selector.'''
         self._clear_host_widget()
         super(QtClient, self).change_host(host_connection)
+        self.context_selector.host_changed(host_connection)
 
     def change_definition(self, schema, definition, component_names_filter):
         '''
@@ -241,7 +246,10 @@ class QtClient(Client, QtWidgets.QFrame):
         pass
 
     def _on_widget_asset_updated(self, asset_name, asset_id, is_valid):
-        self.is_valid_asset_name = is_valid
+        if asset_id is None:
+            self.is_valid_asset_name = is_valid
+        else:
+            self.is_valid_asset_name = True
 
     def _on_run_plugin(self, plugin_data, method):
         '''Function called to run one single plugin *plugin_data* with the
@@ -265,12 +273,9 @@ class QtClient(Client, QtWidgets.QFrame):
     def _on_components_checked(self, available_components_count):
         self.definition_changed(self.definition, available_components_count)
 
-    def _notify_client(self, event):
-        super(QtClient, self)._notify_client(event)
-        # We pass the latest log which should be the recently added one.
-        # Otherwise, we have no way to check which log we should be passing
+    def _on_log_item_added(self, log_item):
         if self.widget_factory:
-            self.widget_factory.update_widget(self.logs[-1])
+            self.widget_factory.update_widget(log_item)
 
     def refresh(self):
         '''Called upon definition selector refresh button click.'''
@@ -284,11 +289,12 @@ class QtDocumentationClient:
     '''Client for opening Connect documentation'''
 
     def __init__(self, unused_event_manager, unused_asset_list_model):
-        pass
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
 
     def show(self):
         DOC_URL = 'https://www.ftrack.com/en/portfolio/connect'
-        commands = None
         if platform.system() == "Windows":
             commands = ['start']
         elif platform.system() == "Darwin":
@@ -302,7 +308,7 @@ class QtDocumentationClient:
                 commands
             )
         )
-        os.system(commands)
+        subprocess.Popen(commands)
 
 
 class RunButton(QtWidgets.QPushButton):

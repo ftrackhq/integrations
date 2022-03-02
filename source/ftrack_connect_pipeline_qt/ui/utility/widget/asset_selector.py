@@ -56,8 +56,8 @@ class AssetListItem(QtWidgets.QWidget):
 class AssetList(QtWidgets.QListWidget):
     '''Widget presenting list of existing assets'''
 
-    assets_query_done = QtCore.Signal()
-    assets_added = QtCore.Signal()
+    assetsQueryDone = QtCore.Signal()
+    assetsAdded = QtCore.Signal()
 
     def __init__(self, session, parent=None):
         super(AssetList, self).__init__(parent=parent)
@@ -91,7 +91,7 @@ class AssetList(QtWidgets.QListWidget):
         '''Async, store assets and add through signal'''
         self.assets = assets
         # Add data placeholder for new asset input
-        self.assets_query_done.emit()
+        self.assetsQueryDone.emit()
 
     def refresh(self):
         '''Add fetched assets to list'''
@@ -109,7 +109,7 @@ class AssetList(QtWidgets.QListWidget):
             )
             self.addItem(list_item)
             self.setItemWidget(list_item, widget)
-        self.assets_added.emit()
+        self.assetsAdded.emit()
 
     def on_context_changed(self, context_id, asset_type_name):
         self.clear()
@@ -144,29 +144,41 @@ class NewAssetInput(QtWidgets.QFrame):
     def __init__(self, validator, placeholder_name):
         super(NewAssetInput, self).__init__()
 
+        self._validator = validator
+        self._placeholder_name = placeholder_name
+
+        self.pre_build()
+        self.build()
+        self.post_build()
+
+    def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(1, 1, 1, 1)
         self.layout().setSpacing(1)
+        self.setMaximumHeight(32)
 
+    def build(self):
         self.button = QtWidgets.QPushButton('NEW')
         self.button.setFixedSize(46, 32)
         self.button.setMaximumSize(46, 32)
-        self.button.clicked.connect(self.input_clicked)
 
         self.layout().addWidget(self.button)
 
         self.name = NewAssetNameInput()
-        self.name.setPlaceholderText(placeholder_name)
-        self.name.setValidator(validator)
+        self.name.setPlaceholderText(self._placeholder_name)
+        self.name.setValidator(self._validator)
         self.name.setSizePolicy(
             QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum
         )
-        self.name.clicked.connect(self.input_clicked)
         self.layout().addWidget(self.name, 1000)
 
         self.version_label = QtWidgets.QLabel('- Version 1')
         self.version_label.setObjectName("purple")
         self.layout().addWidget(self.version_label)
+
+    def post_build(self):
+        self.button.clicked.connect(self.input_clicked)
+        self.name.clicked.connect(self.input_clicked)
 
     def mousePressEvent(self, event):
         '''Override mouse press to emit signal.'''
@@ -199,9 +211,10 @@ class AssetListAndInput(QtWidgets.QWidget):
 
 
 class AssetSelector(QtWidgets.QWidget):
-    valid_asset_name = QtCore.QRegExp('[A-Za-z0-9_]+')
-    asset_changed = QtCore.Signal(object, object, object)
-    update_widget = QtCore.Signal(object)
+    VALID_ASSET_NAME = QtCore.QRegExp('[A-Za-z0-9_]+')
+
+    assetChanged = QtCore.Signal(object, object, object)
+    updateWidget = QtCore.Signal(object)
 
     def __init__(self, session, is_loader=False, parent=None):
         super(AssetSelector, self).__init__(parent=parent)
@@ -212,7 +225,7 @@ class AssetSelector(QtWidgets.QWidget):
         self.is_loader = is_loader
         self.session = session
 
-        self.validator = QtGui.QRegExpValidator(self.valid_asset_name)
+        self.validator = QtGui.QRegExpValidator(self.VALID_ASSET_NAME)
         self.placeholder_name = "Asset Name..."
 
         self.pre_build()
@@ -244,15 +257,15 @@ class AssetSelector(QtWidgets.QWidget):
 
     def post_build(self):
         self.asset_list.itemChanged.connect(self._current_asset_changed)
-        self.asset_list.assets_query_done.connect(self._refresh)
-        self.asset_list.assets_added.connect(self._pre_select_asset)
+        self.asset_list.assetsQueryDone.connect(self._refresh)
+        self.asset_list.assetsAdded.connect(self._pre_select_asset)
         self.asset_list.itemActivated.connect(self._list_selection_updated)
         self.asset_list.itemSelectionChanged.connect(
             self._list_selection_updated
         )
-        self.new_asset_input.clicked.connect(self._update_widget)
+        self.new_asset_input.clicked.connect(self._current_asset_changed)
         self.new_asset_input.name.textChanged.connect(self._new_asset_changed)
-        self.update_widget.connect(self._update_widget)
+        self.updateWidget.connect(self._update_widget)
 
     def _refresh(self):
         '''Add assets queried in separate thread to list.'''
@@ -270,32 +283,38 @@ class AssetSelector(QtWidgets.QWidget):
             self.asset_list.setCurrentRow(0)
             self.select_existing_label.show()
             self.asset_list.show()
+            self._current_asset_changed(self.asset_list.item(0))
         else:
             self.select_existing_label.hide()
             self.asset_list.hide()
+            self._current_asset_changed()
         self.list_and_input._size_changed()
 
     def _list_selection_updated(self):
         selected_index = self.asset_list.currentRow()
         if selected_index == -1:
             # Deselected, give focus to new asset input
-            self.update_widget.emit(None)
+            self.updateWidget.emit(None)
         else:
-            self.update_widget.emit(self.asset_list.assets[selected_index])
+            self._current_asset_changed(self.asset_list.assets[selected_index])
 
-    def _current_asset_changed(self, item):
+    def _current_asset_changed(self, item=None):
         '''An existing asset has been selected.'''
-        selected_index = self.asset_list.currentRow()
-        if selected_index > -1:
-            # A proper asset were selected
-            asset_entity = self.asset_list.assets[selected_index]
+        asset_entity = None
+        if not item is None:
+            selected_index = self.asset_list.currentRow()
+            if selected_index > -1:
+                # A proper asset were selected
+                asset_entity = self.asset_list.assets[selected_index]
+        if asset_entity:
             asset_name = asset_entity['name']
             is_valid_name = self.validate_name(asset_name)
-            self.asset_changed.emit(asset_name, asset_entity, is_valid_name)
-            self.update_widget.emit(asset_entity)
+            self.assetChanged.emit(asset_name, asset_entity, is_valid_name)
+            self.updateWidget.emit(asset_entity)
         else:
             # All items de-selected
-            self.update_widget.emit(None)
+            self._new_asset_changed()
+            self.updateWidget.emit(None)
 
     def _update_widget(self, selected_asset=None):
         '''Synchronize state of list with new asset input.'''
@@ -340,7 +359,7 @@ class AssetSelector(QtWidgets.QWidget):
     def _new_asset_changed(self):
         asset_name = self.new_asset_input.name.text()
         is_valid_name = self.validate_name(asset_name)
-        self.asset_changed.emit(asset_name, None, is_valid_name)
+        self.assetChanged.emit(asset_name, None, is_valid_name)
 
     def validate_name(self, asset_name):
         is_valid_bool = True

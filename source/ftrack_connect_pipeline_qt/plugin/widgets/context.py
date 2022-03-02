@@ -69,7 +69,7 @@ class PublishContextWidget(BaseOptionsWidget):
     def post_build(self):
         '''hook events'''
         super(PublishContextWidget, self).post_build()
-        self.asset_selector.asset_changed.connect(self._on_asset_changed)
+        self.asset_selector.assetChanged.connect(self._on_asset_changed)
         self.comments_input.textChanged.connect(self._on_comment_updated)
         self.status_selector.currentIndexChanged.connect(
             self._on_status_changed
@@ -95,9 +95,9 @@ class PublishContextWidget(BaseOptionsWidget):
         self.set_option_result(is_valid, key='is_valid_name')
         if asset_entity:
             self.set_option_result(asset_entity['id'], key='asset_id')
-            self.asset_changed.emit(asset_name, asset_entity['id'], is_valid)
+            self.assetChanged.emit(asset_name, asset_entity['id'], is_valid)
         else:
-            self.asset_changed.emit(asset_name, None, is_valid)
+            self.assetChanged.emit(asset_name, None, is_valid)
 
     def _build_asset_selector(self):
         '''Builds the asset_selector widget'''
@@ -228,7 +228,7 @@ class LoadContextWidget(BaseOptionsWidget):
         '''hook events'''
         super(LoadContextWidget, self).post_build()
         # self.asset_selector.assets_query_done.connect(self._pre_select_asset)
-        self.asset_selector.asset_changed.connect(self._on_asset_changed)
+        self.asset_selector.assetChanged.connect(self._on_asset_changed)
 
     def _on_asset_changed(
         self, asset_name, asset_entity, asset_version_id, version_num
@@ -239,8 +239,8 @@ class LoadContextWidget(BaseOptionsWidget):
         self.set_option_result(asset_entity['id'], key='asset_id')
         self.set_option_result(version_num, key='version_number')
         self.set_option_result(asset_version_id, key='version_id')
-        self.asset_changed.emit(asset_name, asset_entity['id'], True)
-        self.asset_version_changed.emit(asset_version_id)
+        self.assetChanged.emit(asset_name, asset_entity['id'], True)
+        self.assetVersionChanged.emit(asset_version_id)
 
     def _build_asset_selector(self):
         label = QtWidgets.QLabel("Choose which asset and version to load")
@@ -299,8 +299,8 @@ class OpenContextWidget(BaseOptionsWidget):
     def post_build(self):
         '''hook events'''
         super(OpenContextWidget, self).post_build()
-        self.asset_selector.asset_changed.connect(self._on_asset_changed)
-        self.asset_selector.asset_list.assets_added.connect(self._update_label)
+        self.asset_selector.assetChanged.connect(self._on_asset_changed)
+        self.asset_selector.asset_list.assetsAdded.connect(self._update_label)
 
     def _build_asset_selector(self):
         self._label = QtWidgets.QLabel("")
@@ -328,8 +328,9 @@ class OpenContextWidget(BaseOptionsWidget):
         self.set_option_result(asset_entity['id'], key='asset_id')
         self.set_option_result(version_num, key='version_number')
         self.set_option_result(asset_version_id, key='version_id')
-        self.asset_changed.emit(asset_name, asset_entity['id'], True)
-        self.asset_version_changed.emit(asset_version_id)
+
+        self.assetChanged.emit(asset_name, asset_entity['id'], True)
+        self.assetVersionChanged.emit(asset_version_id)
 
 
 class StatusSelector(QtWidgets.QComboBox):

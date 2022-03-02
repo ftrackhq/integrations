@@ -4,6 +4,7 @@ import copy
 import logging
 from functools import partial
 import uuid
+import json
 
 from Qt import QtCore, QtWidgets
 
@@ -27,12 +28,12 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import line
 class WidgetFactoryBase(QtWidgets.QWidget):
     '''Main class to represent widgets from json schemas'''
 
-    widget_status_updated = QtCore.Signal(object)
-    widget_context_updated = QtCore.Signal(object)
-    widget_asset_updated = QtCore.Signal(object, object, object)
-    widget_run_plugin = QtCore.Signal(object, object)
-    on_query_asset_version_done = QtCore.Signal()
-    components_checked = QtCore.Signal(object)
+    widgetStatusUpdated = QtCore.Signal(object)
+    widgetContextUpdated = QtCore.Signal(object)
+    widgetAssetUpdated = QtCore.Signal(object, object, object)
+    widgetRunPlugin = QtCore.Signal(object, object)
+    onQueryAssetVersionDone = QtCore.Signal()
+    componentsChecked = QtCore.Signal(object)
 
     host_types = None
     ui_types = None
@@ -99,11 +100,10 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         self._subscriber_id = None
         self.has_error = False
 
-        self.components = (
-            []
-        )  # Load; the available components of current version
+        #  Load; the available components of current version
+        self.components = None
 
-        self.on_query_asset_version_done.connect(self.check_components)
+        self.onQueryAssetVersionDone.connect(self.check_components)
 
     def set_context(self, context_id, asset_type_name):
         '''Set :obj:`context_id` and :obj:`asset_type_name` with the given
@@ -253,7 +253,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                     ):
                         # Connect input change to accordion
                         # TODO: support multiple collectors
-                        plugin_widget.input_changed.connect(
+                        plugin_widget.inputChanged.connect(
                             step_obj.collector_input_changed
                         )
                         # Eventual initial summary is lost prior to the signal connect, have widget do it again
@@ -445,13 +445,13 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 )
             )
 
-        widget.status_updated.connect(self._on_widget_status_updated)
-        widget.asset_changed.connect(self._on_widget_asset_changed)
-        widget.asset_version_changed.connect(self._asset_version_changed)
+        widget.statusUpdated.connect(self._on_widget_status_updated)
+        widget.assetVersionChanged.connect(self._asset_version_changed)  # Load
+        widget.assetChanged.connect(self._on_widget_asset_changed)  # Publish
 
         self.register_widget_plugin(plugin_data, widget)
 
-        widget.run_plugin_clicked.connect(
+        widget.runPluginClicked.connect(
             partial(self.on_widget_run_plugin, plugin_data)
         )
         if widget.auto_fetch_on_init:
@@ -617,11 +617,11 @@ class WidgetFactoryBase(QtWidgets.QWidget):
     def _on_widget_status_updated(self, status):
         '''Emits signal widget_status_updated when any widget calls the
         status_updated signal'''
-        self.widget_status_updated.emit(status)
+        self.widgetStatusUpdated.emit(status)
 
     def _on_widget_asset_changed(self, asset_name, asset_id, is_valid):
         '''Callback function called when asset has been modified on the widget'''
-        self.widget_asset_updated.emit(asset_name, asset_id, is_valid)
+        self.widgetAssetUpdated.emit(asset_name, asset_id, is_valid)
 
     def on_widget_run_plugin(self, plugin_data, method, plugin_options):
         '''
@@ -630,7 +630,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         is the method that has to be executed in the plugin, *plugin_options* is
         not used for now but are the current options that the plugin has.
         '''
-        self.widget_run_plugin.emit(plugin_data, method)
+        self.widgetRunPlugin.emit(plugin_data, method)
 
     def register_widget_plugin(self, plugin_data, widget):
         '''register the *widget* in the given *plugin_data*'''
@@ -665,33 +665,6 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         '''empty :obj:`type_widgets_ref`'''
         self._type_widgets_ref = {}
 
-    def check_components(self):
-        '''Set the component as unavailable if it isn't available on the server'''
-        if not self.components:
-            return
-        available_components = 0
-        for step in self.working_definition[core_constants.COMPONENTS]:
-            step_obj = self.get_registered_object(step, step['category'])
-            if not isinstance(
-                step_obj, default_widgets.DefaultStepWidget
-            ) and not isinstance(
-                step_obj, override_widgets.RadioButtonItemStepWidget
-            ):
-                self.logger.error(
-                    "{} should be instance of DefaultStepWidget ".format(
-                        step_obj.name
-                    )
-                )
-                continue
-            if step_obj.check_components(self.session, self.components):
-                available_components += 1
-        if isinstance(
-            self.components_obj,
-            override_widgets.RadioButtonStepContainerWidget,
-        ):
-            self.components_obj.pre_select()
-        self.components_checked.emit(available_components)
-
     def query_asset_version_from_version_id(self, version_id):
         asset_version_entity = self.session.query(
             'select components, components.name '
@@ -704,7 +677,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
             return
         components = asset_version_entity['components']
         self.components = components
-        self.on_query_asset_version_done.emit()
+        self.onQueryAssetVersionDone.emit()
         self.components_section.show()
         # If there is a Finalizer widget show the widget otherwise not.
         if (
@@ -724,6 +697,10 @@ class WidgetFactoryBase(QtWidgets.QWidget):
             target_args=[version_id],
         )
         thread.start()
+
+    def check_components(self):
+        '''Set the component as unavailable if it isn't available on the server'''
+        raise NotImplementedError()
 
     def to_json_object(self):
         out = self.working_definition
@@ -753,15 +730,50 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         return out
 
 
-class WidgetFactory(WidgetFactoryBase):
+class LoaderWidgetFactory(WidgetFactoryBase):
     def __init__(self, event_manager, ui_types, client_name):
-        super(WidgetFactory, self).__init__(
+        super(LoaderWidgetFactory, self).__init__(
+            event_manager, ui_types, client_name
+        )
+
+    def check_components(self):
+        available_components = 0
+        try:
+            if not self.components:
+                return
+            for step in self.working_definition[core_constants.COMPONENTS]:
+                step_obj = self.get_registered_object(step, step['category'])
+                if not isinstance(
+                    step_obj, default_widgets.DefaultStepWidget
+                ) and not isinstance(
+                    step_obj, override_widgets.RadioButtonItemStepWidget
+                ):
+                    self.logger.error(
+                        "{} should be instance of DefaultStepWidget ".format(
+                            step_obj.name
+                        )
+                    )
+                    continue
+                if step_obj.check_components(self.session, self.components):
+                    available_components += 1
+            if isinstance(
+                self.components_obj,
+                override_widgets.RadioButtonStepContainerWidget,
+            ):
+                self.components_obj.pre_select()
+        finally:
+            self.componentsChecked.emit(available_components)
+
+
+class OpenerWidgetFactory(LoaderWidgetFactory):
+    def __init__(self, event_manager, ui_types, client_name):
+        super(OpenerWidgetFactory, self).__init__(
             event_manager, ui_types, client_name
         )
         self.progress_widget = self.create_progress_widget(self.client_name)
 
 
-class ImporterWidgetFactory(WidgetFactoryBase):
+class ImporterWidgetFactory(LoaderWidgetFactory):
     '''Augmented widget factory for importer/assembler'''
 
     def __init__(self, event_manager, ui_types):
@@ -775,6 +787,11 @@ class ImporterWidgetFactory(WidgetFactoryBase):
     def build_definition_ui(self, main_widget):
         '''Based on the given definition, build options widget. Assume that
         definition has been set in advance.'''
+        self.logger.debug(
+            'build_definition_ui() working_definition: {}'.format(
+                json.dumps(self.working_definition, indent=4)
+            )
+        )
 
         # Backup the original definition, as it will be extended by the user UI
         self.original_definition = copy.deepcopy(self.working_definition)
@@ -844,3 +861,27 @@ class ImporterWidgetFactory(WidgetFactoryBase):
                             stage_name,
                             version_id=component['version']['id'],
                         )
+
+    def check_components(self):
+        if not self.components:
+            # Wait for version to be selected and loaded
+            return
+        super(OpenerWidgetFactory, self).check_components()
+
+
+class PublisherWidgetFactory(WidgetFactoryBase):
+    def __init__(self, event_manager, ui_types, client_name):
+        super(PublisherWidgetFactory, self).__init__(
+            event_manager, ui_types, client_name
+        )
+        self.progress_widget = self.create_progress_widget(self.client_name)
+
+    def check_components(self):
+        available_components = 0
+        try:
+            if self.working_definition:
+                available_components = len(
+                    self.working_definition[core_constants.COMPONENTS]
+                )
+        finally:
+            self.componentsChecked.emit(available_components)

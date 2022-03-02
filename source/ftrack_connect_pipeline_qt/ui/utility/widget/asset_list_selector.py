@@ -16,7 +16,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import (
 class AssetVersionListItem(QtWidgets.QFrame):
     '''Widget representing an asset within the'''
 
-    version_changed = QtCore.Signal()
+    versionChanged = QtCore.Signal()
 
     def __init__(self, context_id, asset, session):
         super(AssetVersionListItem, self).__init__()
@@ -68,15 +68,15 @@ class AssetVersionListItem(QtWidgets.QFrame):
         current_idx = self.version_combobox.currentIndex()
         self.current_version_id = self.version_combobox.itemData(current_idx)
         self.thumbnail_widget.load(self.current_version_id)
-        self.version_changed.emit()
+        self.versionChanged.emit()
 
 
 class AssetList(QtWidgets.QListWidget):
     '''Widget presenting list of existing assets'''
 
-    assets_query_done = QtCore.Signal()
-    assets_added = QtCore.Signal()
-    version_changed = QtCore.Signal(object)
+    assetsQueryDone = QtCore.Signal()
+    assetsAdded = QtCore.Signal()
+    versionChanged = QtCore.Signal(object)
 
     def __init__(self, session, parent=None):
         super(AssetList, self).__init__(parent=parent)
@@ -112,7 +112,7 @@ class AssetList(QtWidgets.QListWidget):
         '''Async, store assets and add through signal'''
         self.assets = assets
         # Add data placeholder for new asset input
-        self.assets_query_done.emit()
+        self.assetsQueryDone.emit()
 
     def refresh(self):
         '''Add fetched assets to list'''
@@ -123,7 +123,7 @@ class AssetList(QtWidgets.QListWidget):
                 asset_entity,
                 self.session,
             )
-            widget.version_changed.connect(
+            widget.versionChanged.connect(
                 partial(self._on_version_changed, widget)
             )
             list_item = QtWidgets.QListWidgetItem(self)
@@ -134,7 +134,7 @@ class AssetList(QtWidgets.QListWidget):
             )
             self.addItem(list_item)
             self.setItemWidget(list_item, widget)
-        self.assets_added.emit()
+        self.assetsAdded.emit()
 
     def on_context_changed(self, context_id, asset_type_name):
         self.clear()
@@ -148,7 +148,7 @@ class AssetList(QtWidgets.QListWidget):
         thread.start()
 
     def _on_version_changed(self, asset_item):
-        self.version_changed.emit(asset_item)
+        self.versionChanged.emit(asset_item)
 
 
 class AssetListAndInput(QtWidgets.QWidget):
@@ -175,7 +175,8 @@ class AssetListAndInput(QtWidgets.QWidget):
 
 class AssetListSelector(QtWidgets.QFrame):
     valid_asset_name = QtCore.QRegExp('[A-Za-z0-9_]+')
-    asset_changed = QtCore.Signal(object, object, object, object)
+
+    assetChanged = QtCore.Signal(object, object, object, object)
 
     def __init__(self, session, is_loader=False, parent=None):
         super(AssetListSelector, self).__init__(parent=parent)
@@ -206,9 +207,9 @@ class AssetListSelector(QtWidgets.QFrame):
 
     def post_build(self):
         self.asset_list.itemSelectionChanged.connect(self._list_item_changed)
-        self.asset_list.version_changed.connect(self._current_asset_changed)
-        self.asset_list.assets_query_done.connect(self._refresh)
-        self.asset_list.assets_added.connect(self._pre_select_asset)
+        self.asset_list.versionChanged.connect(self._current_asset_changed)
+        self.asset_list.assetsQueryDone.connect(self._refresh)
+        self.asset_list.assetsAdded.connect(self._pre_select_asset)
 
     def _refresh(self):
         '''Add assets queried in separate thread to list.'''
@@ -247,7 +248,7 @@ class AssetListSelector(QtWidgets.QFrame):
             asset_name = asset_entity['name']
             asset_version_id = asset_item.current_version_id
             version_num = asset_item.current_version_number
-            self.asset_changed.emit(
+            self.assetChanged.emit(
                 asset_name, asset_entity, asset_version_id, version_num
             )
 

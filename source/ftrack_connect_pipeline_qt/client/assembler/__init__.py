@@ -63,7 +63,7 @@ class QtAssemblerClient(QtClient):
         return 'ftrack'
 
     def is_docked(self):
-        raise False
+        return False
 
     def pre_build(self):
         super(QtAssemblerClient, self).pre_build()
@@ -89,8 +89,10 @@ class QtAssemblerClient(QtClient):
         self._left_widget.layout().addWidget(self.header)
         # self.header.setStyleSheet('background-color: black;')
 
-        self.progress_widget = factory.WidgetFactory.create_progress_widget(
-            self.client_name
+        self.progress_widget = (
+            factory.LoaderWidgetFactory.create_progress_widget(
+                self.client_name
+            )
         )
         self.header.content_container.layout().addWidget(
             self.progress_widget.widget
@@ -108,6 +110,7 @@ class QtAssemblerClient(QtClient):
         # Have a tabbed widget for the different import modes
 
         self._tab_widget = AssemblerTabWidget()
+        self._tab_widget.setFocusPolicy(QtCore.Qt.NoFocus)
 
         # Build dynamically to save resources if lengthy asset lists
 
@@ -261,7 +264,7 @@ class QtAssemblerClient(QtClient):
         widget_factory.set_package(current_package)
 
     def run(self, delayed_load=False):
-        '''Function called when click the run button'''
+        '''(Override) Function called when click the run button.'''
         # Load batch of components, any selected
         component_widgets = self._assembler_widget.component_list.selection(
             as_widgets=True
@@ -315,7 +318,6 @@ class QtAssemblerClient(QtClient):
                 factory.listen_widget_updates()
 
                 engine_type = definition['_config']['engine_type']
-                import json
 
                 self.logger.info(
                     'Running definition: {}'.format(

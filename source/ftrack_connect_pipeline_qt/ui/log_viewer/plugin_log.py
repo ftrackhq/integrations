@@ -13,10 +13,23 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
 from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
     CircularButton,
 )
+from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import Dialog
 
 
 class PluginLogViewerWidget(QtWidgets.QWidget):
     '''Main widget of the Log viewer'''
+
+    TEMPLATE = """
+    <div> <b>Status: </b>{status} </div> 
+    <div> <b>Host_id: </b>{host_id} </div> 
+    <div> <b>Widget_ref: </b>{widget_ref} </div> 
+    <div> <b>Execution_time: </b>{execution_time} sec.</div> 
+    <div> <b>Plugin_name: </b>{plugin_name} </div> 
+    <div> <b>Plugin_type: </b>{plugin_type} </div>
+    <p> <b>Result: </b>{result} </p>
+    <p> <b>Message: </b>{message} </p>
+    <p> <b>User Message: </b>{user_message} </p>
+    """
 
     @property
     def event_manager(self):
@@ -33,7 +46,7 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
         '''Returns results'''
         return self._results
 
-    def __init__(self, event_manager, parent=None):
+    def __init__(self, parent_window, event_manager, parent=None):
         '''Initialise LogViewerWidget with *event_manager*
 
         *event_manager* should be the
@@ -42,6 +55,7 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
         '''
         super(PluginLogViewerWidget, self).__init__(parent=parent)
 
+        self._parent_window = parent_window
         self._event_manager = event_manager
         self._results = []
 
@@ -98,16 +112,28 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
         '''
         Raises a dock widget with the log details.
         '''
-        self.dockWidget = LogViewerDetailWidget(self.event_manager, self)
 
         data = self.log_table_view.model().data(
             index, self.log_table_view.model().DATA_ROLE
         )
 
-        self.dockWidget.set_data(data)
-        self.dockWidget.setFloating(True)
+        formated_text = self.TEMPLATE.format(
+            status=data.status,
+            host_id=data.host_id,
+            widget_ref=data.widget_ref,
+            execution_time=data.execution_time,
+            plugin_name=data.plugin_name,
+            plugin_type=data.plugin_type,
+            result=data.result,
+            message=data.message,
+            user_message=data.user_message,
+        )
 
-        self.layout().addWidget(self.dockWidget)
+        Dialog(
+            self._parent_window,
+            title='View ftrack plugin log message',
+            message=formated_text,
+        )
 
 
 class LogDialogTableView(QtWidgets.QTableView):
@@ -168,19 +194,6 @@ class LogDialogTableView(QtWidgets.QTableView):
 
 
 class LogViewerDetailWidget(QtWidgets.QDockWidget):
-
-    template = """
-    <div> <b>Status: </b>{status} </div> 
-    <div> <b>Host_id: </b>{host_id} </div> 
-    <div> <b>Widget_ref: </b>{widget_ref} </div> 
-    <div> <b>Execution_time: </b>{execution_time} sec.</div> 
-    <div> <b>Plugin_name: </b>{plugin_name} </div> 
-    <div> <b>Plugin_type: </b>{plugin_type} </div>
-    <p> <b>Result: </b>{result} </p>
-    <p> <b>Message: </b>{message} </p>
-    <p> <b>User Message: </b>{user_message} </p>
-    """
-
     @property
     def event_manager(self):
         '''Returns event_manager'''

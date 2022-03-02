@@ -14,13 +14,14 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     Base class of a widget representation for options widgets
     '''
 
-    status_updated = QtCore.Signal(object)
-    asset_changed = QtCore.Signal(object, object, object)
     status_icons = constants.icons.status_icons
-    run_plugin_clicked = QtCore.Signal(object, object)
-    run_result_updated = QtCore.Signal(object)
-    asset_version_changed = QtCore.Signal(object)
-    input_changed = QtCore.Signal(object)
+
+    statusUpdated = QtCore.Signal(object)
+    assetChanged = QtCore.Signal(object, object, object)
+    runPluginClicked = QtCore.Signal(object, object)
+    runResultUpdated = QtCore.Signal(object)
+    assetVersionChanged = QtCore.Signal(object)
+    inputChanged = QtCore.Signal(object)
 
     # enable_run_plugin True will enable the run button to run the plugin run
     # function individually.
@@ -95,11 +96,11 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
     def set_status(self, status, message):
         '''emit the status_updated signal with the *status* and *message*'''
-        self.status_updated.emit((status, message))
+        self.statusUpdated.emit((status, message))
 
     def set_run_result(self, result):
         '''emit the run_result_updated signal with the *result*'''
-        self.run_result_updated.emit(result)
+        self.runResultUpdated.emit(result)
 
     def fetch_on_init(self, method='fetch'):
         '''Executes the fetch method of the plugin on the initialization time'''
@@ -199,8 +200,8 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
     def post_build(self):
         '''post build function , mostly used connect widgets events.'''
-        self.status_updated.connect(self._set_internal_status)
-        self.run_result_updated.connect(self._set_internal_run_result)
+        self.statusUpdated.connect(self._set_internal_status)
+        self.runResultUpdated.connect(self._set_internal_run_result)
 
     def set_asset_type_entity(self, asset_type_name):
         return asset_type_name
@@ -218,7 +219,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
     def on_run_plugin(self, method='run'):
         '''emit signal with the *method* that has to execute on the plugin'''
-        self.run_plugin_clicked.emit(method, self.to_json_object())
+        self.runPluginClicked.emit(method, self.to_json_object())
 
     def on_run_callback(self, result):
         '''Callback function for plugin execution'''
@@ -230,7 +231,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
     def report_input(self):
         '''To be overridden.'''
-        self.input_changed.emit({'status': None, 'message': ''})
+        self.inputChanged.emit({'status': None, 'message': ''})
 
     def to_json_object(self):
         '''Return a formatted json with the data from the current widget'''

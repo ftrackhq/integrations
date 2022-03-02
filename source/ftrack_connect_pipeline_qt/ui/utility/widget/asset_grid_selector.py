@@ -82,10 +82,11 @@ class AssetItem(QtWidgets.QPushButton):
 
 
 class AssetGridSelector(QtWidgets.QWidget):
-    assets_query_done = QtCore.Signal(object)
 
-    asset_changed = QtCore.Signal(object, object, object, object)
-    max_column = 4
+    MAX_COLUMNS = 4
+
+    assetChanged = QtCore.Signal(object, object, object, object)
+    assetsQueryDone = QtCore.Signal(object)
 
     def __init__(self, session, parent=None):
         super(AssetGridSelector, self).__init__(parent=parent)
@@ -109,7 +110,7 @@ class AssetGridSelector(QtWidgets.QWidget):
         pass
 
     def post_build(self):
-        self.assets_query_done.connect(self.add_items)
+        self.assetsQueryDone.connect(self.add_items)
 
     def _pre_select_asset(self, asset_item):
         asset_item.click()
@@ -154,7 +155,7 @@ class AssetGridSelector(QtWidgets.QWidget):
         return assets
 
     def add_assets_to_ui(self, assets):
-        self.assets_query_done.emit(assets)
+        self.assetsQueryDone.emit(assets)
 
     def add_items(self, assets):
         if 0 < len(assets):
@@ -172,12 +173,12 @@ class AssetGridSelector(QtWidgets.QWidget):
                     self._pre_select_asset(asset_item)
 
                 self.layout().addWidget(asset_item, row, column)
-                if column == self.max_column - 1:
+                if column == self.MAX_COLUMNS - 1:
                     row += 1
                     column = 0
                 else:
                     column += 1
-            while column < self.max_column - 1:
+            while column < self.MAX_COLUMNS - 1:
                 filler_label = QtWidgets.QLabel()
                 filler_label.setMinimumWidth(130)
                 self.layout().addWidget(filler_label, row, column)
@@ -197,7 +198,7 @@ class AssetGridSelector(QtWidgets.QWidget):
         asset_name = asset_item.asset['name']
         asset_version_id = asset_item.current_version_id
         version_num = asset_item.current_version_number
-        self.asset_changed.emit(
+        self.assetChanged.emit(
             asset_name,
             self.current_asset_entity,
             asset_version_id,

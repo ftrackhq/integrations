@@ -12,7 +12,9 @@ from ftrack_connect_pipeline_qt.utils import set_property
 
 
 class AccordionBaseWidget(QtWidgets.QFrame):
+
     clicked = QtCore.Signal(object)
+    doubleClicked = QtCore.Signal(object)
 
     SELECT_MODE_NONE = -1  # Not selectable
     # SELECT_MODE_CHECKBOX = 0    # Checkbox only
@@ -125,7 +127,6 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self._header.set_status(status, message)
 
     def pre_build(self):
-
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)
@@ -242,13 +243,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
             'indicator',
             ('on' if indication else 'off'),
         )
-
         self._indicator_widget.setVisible(True)
-
-    def mousePressEvent(self, event):
-        self.clicked.emit(event)
-        self.on_click(event)
-        return super(AccordionBaseWidget, self).mousePressEvent(event)
 
     def on_header_checkbox_checked(self):
         self._checked = self.header.checkbox.isChecked()
@@ -260,9 +255,6 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         if self._select_mode == self.SELECT_MODE_NONE:
             if event.button() != QtCore.Qt.RightButton:
                 self.toggle_collapsed()
-        # else:
-        #    # A potential selection event, leave for parent list to process
-        #    self.clicked.emit(event)
 
     def on_header_arrow_clicked(self, event):
         if self._select_mode == self.SELECT_MODE_LIST:
@@ -275,9 +267,24 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self.on_collapse(self.collapsed)
         self.content.setVisible(not self.collapsed)
 
+    def mousePressEvent(self, event):
+        self.clicked.emit(event)
+        self.on_click(event)
+        return super(AccordionBaseWidget, self).mousePressEvent(event)
+
     def on_click(self, event):
-        '''Accordion were pressed overall'''
+        '''Accordion were clicked, to be overridden by child.'''
         pass
+
+    def mouseDoubleClickEvent(self, event):
+        self.doubleClicked.emit(event)
+        self.on_double_click(event)
+        return super(AccordionBaseWidget, self).mouseDoubleClickEvent(event)
+
+    def on_double_click(self, event):
+        '''Accordion were double clicked'''
+
+        self.toggle_collapsed()
 
     def update_accordion(self):
         # Paint selection status
@@ -338,7 +345,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
 
     def pre_build(self):
         self.setMinimumHeight(24)
-        self.move(QtCore.QPoint(24, 0))
+        #    self.move(QtCore.QPoint(24, 0))
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(2, 0, 5, 0)
         self.layout().setSpacing(0)
@@ -350,7 +357,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
             )
         )
         self.layout().addWidget(self.init_title(self.title))
-        self.layout().addWidget(self.init_content())
+        self.layout().addWidget(self._init_content(), 10)
         self.layout().addWidget(self.init_arrow(self.accordion.collapsed))
 
     def post_build(self):
@@ -372,7 +379,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
             self._title_label.hide()
         return self._title_label
 
-    def init_content(self):
+    def _init_content(self):
         self._content = QtWidgets.QWidget()
         self._content.setLayout(QtWidgets.QHBoxLayout())
         self._content.layout().setContentsMargins(0, 0, 0, 0)

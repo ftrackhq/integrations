@@ -35,7 +35,7 @@ class EntityBrowser(Dialog):
     '''
     Dialog enabling entity/context browsing
 
-    Supports spawn from an external navigator browser.
+    Supports to be driven from an external detached navigator browser (assembler).
     '''
 
     MODE_ENTITY = 1  # Pick any entity in backend (NIY)
@@ -67,8 +67,11 @@ class EntityBrowser(Dialog):
     def session(self):
         return self._session
 
-    def __init__(self, parent, session, entity=None, mode=MODE_TASK):
+    def __init__(
+        self, parent, session, entity=None, mode=MODE_TASK, title=None
+    ):
         self._entity = None  # The entity that has been set and applied
+        self._title = title or 'ftrack Entity Browser'
         self._intermediate_entity = (
             None  # The intermediate entity currently browsed
         )
@@ -76,6 +79,7 @@ class EntityBrowser(Dialog):
         self._session = session
         self._external_navigator = None
         self._prev_search_text = ""
+
         self.set_mode(mode)
 
         super(EntityBrowser, self).__init__(parent, prompt=None)
@@ -110,7 +114,7 @@ class EntityBrowser(Dialog):
         widget.layout().addWidget(toolbar)
 
         self._search = Search(collapsed=False, collapsable=False)
-        self._search.input_updated.connect(self._on_search)
+        self._search.inputUpdated.connect(self._on_search)
         widget.layout().addWidget(self._search)
 
         self._scroll = QtWidgets.QScrollArea()
@@ -122,7 +126,7 @@ class EntityBrowser(Dialog):
         return widget
 
     def get_title(self):
-        return 'ftrack Entity Browser'
+        return self._title
 
     def get_approve_button(self):
         return ApproveButton("APPLY CONTEXT", width=80)
@@ -230,13 +234,12 @@ class EntityBrowser(Dialog):
 
     def _fetch_entities(self):
         intermediate_entity = self.intermediate_entity
-        entities = None
         if self.intermediate_entity is None:
             # List projects
             entities = self.session.query('select id, name from Project').all()
         else:
             entities = self.session.query(
-                'select id, name, children from Context where parent.id is {}'.format(
+                'select id,name,children from Context where parent.id is {}'.format(
                     intermediate_entity['id']
                 )
             ).all()
@@ -288,7 +291,7 @@ class EntityBrowser(Dialog):
         for entity_widget in self.entity_widgets:
             set_property(
                 entity_widget,
-                "state",
+                "background",
                 "selected"
                 if entity_widget.entity['id'] == entity['id']
                 else "",
@@ -521,8 +524,8 @@ class EntityWidget(QtWidgets.QFrame):
 
     def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().setContentsMargins(3, 0, 0, 0)
-        self.layout().setSpacing(1)
+        self.layout().setContentsMargins(3, 1, 1, 1)
+        self.layout().setSpacing(2)
 
     def build(self):
         self.thumbnail_widget = Context(self.entity.session)

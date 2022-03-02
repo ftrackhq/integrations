@@ -41,6 +41,7 @@ class Header(QtWidgets.QFrame):
         self.id_container.setLayout(self.id_container_layout)
 
         self.logo = Logo(self)
+        self.logo.setVisible(False)
         if len(self._title or ''):
             self._title_label = QtWidgets.QLabel(self._title)
             self._title_label.setObjectName('h2')

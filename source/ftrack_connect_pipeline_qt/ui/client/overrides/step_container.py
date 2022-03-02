@@ -109,7 +109,7 @@ class TabStepContainerWidget(DefaultStepContainerWidget):
             # Connect status of the widget
             inner_widgets = widget.findChildren(BaseOptionsWidget)
             for inner_widget in inner_widgets:
-                inner_widget.status_updated.connect(
+                inner_widget.statusUpdated.connect(
                     partial(self.update_inner_status, inner_widget, tab_idx)
                 )
 

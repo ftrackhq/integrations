@@ -64,10 +64,10 @@ NewAssetInput[status=''] {
 }
 
 AccordionBaseWidget {
+    border-top: 1px dashed $border-color;
 }
 
-AccordionBaseWidget[first='false'] {
-    border-top: 1px dashed $border-color;
+AccordionBaseWidget[first='true'] {
 }
 
 NavigationEntityButton {
@@ -105,6 +105,13 @@ TypeWidget {
     border-radius: 12px;
 }
 
+AssemblerDependencyContextLabel {
+}
+
 Footer QLabel {
     color: $near-background;
+}
+
+QFrame[docked='true'] Footer QLabel {
+    color: $gray-dark;
 }

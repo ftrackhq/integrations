@@ -3,8 +3,8 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 import os
 
+from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.client import QtClient
-from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import Dialog
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.client import factory
 
@@ -27,7 +27,7 @@ class QtOpenClient(QtClient):
             self.definition_extensions_filter = definition_extensions_filter
         self.ask_open_assembler = False
         self.ask_open_latest = False
-        self.widget_factory = factory.WidgetFactory(
+        self.widget_factory = factory.OpenerWidgetFactory(
             event_manager, self.ui_types, self.client_name
         )
         super(QtOpenClient, self).__init__(event_manager, parent_window)
@@ -37,25 +37,25 @@ class QtOpenClient(QtClient):
         return 'ftrack'
 
     def is_docked(self):
-        raise False
+        return False
 
     def post_build(self):
         super(QtOpenClient, self).post_build()
-        self.context_selector.entityChanged.connect(self._store_global_context)
+        self.context_selector.entityChanged.connect(self._set_context)
 
-        self.widget_factory.widget_asset_updated.connect(
+        self.widget_factory.widgetAssetUpdated.connect(
             self._on_widget_asset_updated
         )
 
-        self.widget_factory.widget_run_plugin.connect(self._on_run_plugin)
-        self.widget_factory.components_checked.connect(
+        self.widget_factory.widgetRunPlugin.connect(self._on_run_plugin)
+        self.widget_factory.componentsChecked.connect(
             self._on_components_checked
         )
 
-    def _store_global_context(self, entity):
-        if os.environ.get('FTRACK_CONTEXTID') != entity['id']:
-            os.environ['FTRACK_CONTEXTID'] = entity['id']
-            self.logger.warning('Global context is now: {}'.format(entity))
+    def _set_context(self, context):
+        if not self.host_connection:
+            return
+        self.host_connection.set_context(context)
 
     def change_definition(self, schema, definition, component_names_filter):
         self.run_button.setText('OPEN ASSEMBLER')
@@ -87,3 +87,9 @@ class QtOpenClient(QtClient):
                 self.get_parent_window().destroy()
                 return
         super(QtOpenClient, self).run()
+
+        if not self.widget_factory.has_error:
+            self.widget_factory.progress_widget.set_status(
+                constants.SUCCESS_STATUS,
+                'Successfully opened version!',
+            )

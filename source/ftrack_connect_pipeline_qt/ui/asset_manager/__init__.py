@@ -18,13 +18,13 @@ from ftrack_connect_pipeline_qt.ui.asset_manager.delegate.asset_manager import (
 class AssetManagerWidget(QtWidgets.QWidget):
     '''Main widget of the asset manager'''
 
-    widget_status_updated = QtCore.Signal(object)
-    change_asset_version = QtCore.Signal(object, object)
-    select_assets = QtCore.Signal(object)
-    remove_assets = QtCore.Signal(object)
-    update_assets = QtCore.Signal(object, object)
-    load_assets = QtCore.Signal(object)
-    unload_assets = QtCore.Signal(object)
+    widgetStatusUpdated = QtCore.Signal(object)
+    loadAssets = QtCore.Signal(object)
+    selectAssets = QtCore.Signal(object)
+    changeAssetVersion = QtCore.Signal(object, object)
+    updateAssets = QtCore.Signal(object, object)
+    unloadAssets = QtCore.Signal(object)
+    removeAssets = QtCore.Signal(object)
 
     @property
     def event_manager(self):
@@ -106,37 +106,37 @@ class AssetManagerWidget(QtWidgets.QWidget):
         ]
         # Copy to avoid update automatically
         asset_info = _asset_info.copy()
-        self.change_asset_version.emit(asset_info, value)
+        self.changeAssetVersion.emit(asset_info, value)
 
     def on_select_assets(self, assets):
         '''
         Triggered when select action is clicked on the asset_table_view.
         '''
-        self.select_assets.emit(assets)
+        self.selectAssets.emit(assets)
 
     def on_remove_assets(self, assets):
         '''
         Triggered when remove action is clicked on the asset_table_view.
         '''
-        self.remove_assets.emit(assets)
+        self.removeAssets.emit(assets)
 
     def on_update_assets(self, assets, plugin):
         '''
         Triggered when update action is clicked on the asset_table_view.
         '''
-        self.update_assets.emit(assets, plugin)
+        self.updateAssets.emit(assets, plugin)
 
     def on_load_assets(self, assets):
         '''
         Triggered when load action is clicked on the asset_table_view.
         '''
-        self.load_assets.emit(assets)
+        self.loadAssets.emit(assets)
 
     def on_unload_assets(self, assets):
         '''
         Triggered when unload action is clicked on the asset_table_view.
         '''
-        self.unload_assets.emit(assets)
+        self.unloadAssets.emit(assets)
 
     def set_asset_list(self, asset_entities_list):
         '''

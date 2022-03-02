@@ -210,7 +210,7 @@ ApproveButton {
     color: $color-purple;
     border: none;
     background: transparent;
-    font-size: larger;
+    font-size: 1.1em;
 }
 
 ApproveButton:disabled {
@@ -225,7 +225,7 @@ DenyButton {
     color: $gray;
     border: none;
     background: transparent;
-    font-size: larger;
+    font-size: 1.1em;
 }
 
 DenyButton:hover {

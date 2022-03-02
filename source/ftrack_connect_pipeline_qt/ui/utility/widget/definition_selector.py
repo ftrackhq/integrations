@@ -221,9 +221,12 @@ class DefinitionSelectorButtons(DefinitionSelector):
         self.definition_buttons_widget.layout().setContentsMargins(0, 0, 0, 0)
         self.definition_buttons_widget.layout().setSpacing(0)
 
-        self.definitions_widget.layout().addWidget(
-            self.definition_buttons_widget
-        )
+        scroll = QtWidgets.QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        scroll.setWidget(self.definition_buttons_widget)
+
+        self.definitions_widget.layout().addWidget(scroll)
 
         self.layout().addWidget(self.host_combobox)
         self.layout().addWidget(self.definitions_widget)

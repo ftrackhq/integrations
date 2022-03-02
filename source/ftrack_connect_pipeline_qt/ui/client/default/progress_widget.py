@@ -58,13 +58,14 @@ class PhaseButton(QtWidgets.QPushButton):
 
         self.layout().addLayout(v_layout, 100)
 
-        self.log_widget = QtWidgets.QWidget()
+        self.log_widget = QtWidgets.QFrame()
+        self.log_widget.setProperty('background', 'ftrack')
         self.log_widget.setLayout(QtWidgets.QVBoxLayout())
         self.log_widget.layout().addSpacing(10)
 
         self.log_text_edit = QtWidgets.QTextEdit()
         self.log_widget.layout().addWidget(self.log_text_edit, 10)
-        self._close_button = dialog.ApproveButton('OK')
+        self._close_button = dialog.ApproveButton('HIDE LOG')
         self.log_widget.layout().addWidget(self._close_button)
         self.overlay_container = overlay.Overlay(self.log_widget)
         self.overlay_container.setVisible(False)
@@ -138,7 +139,7 @@ class StatusButtonWidget(QtWidgets.QPushButton):
             self.setMinimumWidth(32)
             self.setMaximumWidth(32)
         else:
-            self.setMinimumWidth(300)
+            self.setMinimumWidth(200)
 
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(6, 6, 6, 6)
@@ -181,7 +182,6 @@ class ProgressWidget(BaseUIWidget):
         self.content_widget = None
         self.status_banner = None
         self._status_view_mode = status_view_mode
-
         super(ProgressWidget, self).__init__(
             name, fragment_data, parent=parent
         )
@@ -201,7 +201,9 @@ class ProgressWidget(BaseUIWidget):
 
         self.scroll.setWidget(self.content_widget)
 
-        self.overlay_container = overlay.Overlay(self.scroll)
+        self.overlay_container = overlay.Overlay(
+            self.scroll, height_percentage=0.8
+        )
         self.overlay_container.setVisible(False)
 
     def post_build(self):

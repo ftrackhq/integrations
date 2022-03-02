@@ -1,25 +1,39 @@
 /** Scroll bar */
-QScrollBar:vertical {               
+QScrollBar {
     border: 0;
-    background: transparent;
-    width: 12px;    
+    background: $background;
     margin: 0;
 }
 
+QScrollBar:vertical {
+    width: 12px;
+    background: $background;
+}
+
 QScrollBar:horizontal {
-    border: 0;
-    background: transparent;
     height: 12px;
-    margin: 0;
+    background: $background;
 }
 
 QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
     border: 0;
     border-radius: 4px;
-    background: #2F363F;
+    background: $scrollbar-handle;
     margin: 2px;
     min-width: 2px;
     min-height: 2px;
+}
+
+QFrame[docked='true'] QScrollBar {
+    background: transparent;
+}
+
+QFrame[docked='true'] QScrollBar::handle {
+    background: $gray-dark;
+}
+
+QFrame[docked='true'] QScrollBar::handle:hover {
+    background: $scrollbar-handle-docked;
 }
 
 QScrollBar::handle:vertical {

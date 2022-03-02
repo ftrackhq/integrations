@@ -21,7 +21,6 @@ from ftrack_connect_pipeline_qt.ui.asset_manager.asset_manager import (
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
     ContextSelector,
 )
-from ftrack_connect_pipeline_qt.ui import resource
 from ftrack_connect_pipeline_qt.ui import theme
 from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import Dialog
 from ftrack_connect_pipeline_qt.utils import BaseThread, set_property
@@ -68,6 +67,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
                 self.setProperty('background', 'transparent')
             elif self.getThemeBackgroundStyle():
                 self.setProperty('background', self.getThemeBackgroundStyle())
+        self.setProperty('docked', 'true' if self.is_docked() else 'false')
 
         self.pre_build()
         self.build()
@@ -93,10 +93,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         return self._parent_window
 
     def is_docked(self):
-        return not self.is_assembler and not self.client_name in [
-            qt_constants.OPEN_WIDGET,
-            qt_constants.ASSEMBLER_WIDGET,
-        ]
+        return not self.is_assembler
 
     def pre_build(self):
         '''Prepare general layout.'''
@@ -114,7 +111,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     def build(self):
         '''Build widgets and parent them.'''
         if not self.is_assembler:
-            self.header = header.Header(self.session, title='CONNECT')
+            self.header = header.Header(self.session)
             self.layout().addWidget(self.header)
 
             self.context_selector = ContextSelector(self, self.session)
@@ -125,6 +122,8 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             self.host_selector = host_selector.HostSelector()
             self.host_selector.setVisible(False)
             self.layout().addWidget(self.host_selector)
+        else:
+            self.context_selector = None
 
         self.scroll = QtWidgets.QScrollArea()
         self.scroll.setWidgetResizable(True)
@@ -213,6 +212,8 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             )
             return
 
+        if self.context_selector:
+            self.context_selector.host_changed(host_connection)
         self.asset_manager_widget.host_connection = self.host_connection
 
         self.rebuild()
@@ -241,6 +242,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         '''
         if not self.host_connection:
             return
+        # self.session._local_cache.clear()  # Make sure session cache is cleared out
         self.asset_manager_widget.set_busy(True)
         BaseThread(
             name='discover_assets_thread',
@@ -279,8 +281,12 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         BaseThread(
             name='select_assets_thread',
             target=self.select_assets,
+            callback=self._assets_selected,
             target_args=[asset_info_list],
         ).start()
+
+    def _assets_selected(self, *args):
+        self.asset_manager_widget.stopBusyIndicator.emit()
 
     def _asset_selection_updated(self, selected_assets):
         self.selectionUpdated.emit(selected_assets)
@@ -320,11 +326,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
                     'Updating id {} with loaded status'.format(key)
                 )
                 # Set to loaded
-                print(
-                    '@@@ _load_assets_callback; id: {},\n asset_info: {}, \n event: {}'.format(
-                        key, asset_info, event
-                    )
-                )
                 asset_info[asset_const.IS_LOADED] = True
                 do_refresh = True
             if do_refresh:
@@ -338,7 +339,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         '''
         self.asset_manager_widget.set_busy(True)
         BaseThread(
-            name='load_assets_thread',
+            name='update_assets_thread',
             target=self.update_assets,
             target_args=[asset_info_list, plugin],
         ).start()
@@ -352,19 +353,14 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             data = event['data']
             do_refresh = None
             for key, value in data.items():
-                pos = self._asset_list_model.getPosition(key)
-                if pos is None:
+                index = self._asset_list_model.getIndex(key)
+                if index is None:
                     continue
                 self.logger.debug(
-                    'Updating id {} @ position {}'.format(key, pos)
+                    'Updating id {} @ position {}'.format(key, index)
                 )
                 asset_info = value.get(list(value.keys())[0])
-                print(
-                    '@@@ _update_assets_callback; pos: {},\n asset_info: {}, \n event: {}'.format(
-                        pos, asset_info, event
-                    )
-                )
-                self._asset_list_model.setData(pos, asset_info, silent=True)
+                self._asset_list_model.setData(index, asset_info, silent=True)
                 do_refresh = True
             if do_refresh:
                 self.asset_manager_widget.refresh.emit()
@@ -394,19 +390,14 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             data = event['data']
             do_refresh = None
             for key, value in data.items():
-                pos = self._asset_list_model.getPosition(key)
-                if pos is None:
+                index = self._asset_list_model.getIndex(key)
+                if index is None:
                     continue
                 self.logger.debug(
-                    'Updating id {} @ position {}'.format(key, pos)
+                    'Updating id {} @ position {}'.format(key, index)
                 )
-                asset_info = value.get(list(value.keys())[0])
-                print(
-                    '@@@ _change_version_callback; pos: {},\n asset_info: {}, \n event: {}'.format(
-                        pos, asset_info, event
-                    )
-                )
-                self._asset_list_model.setData(pos, asset_info, silent=True)
+                asset_info = value
+                self._asset_list_model.setData(index, asset_info, silent=True)
                 do_refresh = True
             if do_refresh:
                 self.asset_manager_widget.refresh.emit()
@@ -437,16 +428,16 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             for key, value in data.items():
                 asset_info = self._asset_list_model.getDataById(key)
                 if asset_info is None:
+                    self.logger.warning(
+                        'Could not find recently unloaded asset: {} (event: {})'.format(
+                            key, event
+                        )
+                    )
                     continue
                 self.logger.debug(
                     'Updating id {} with loaded status'.format(key)
                 )
                 # Set to loaded
-                print(
-                    '@@@ _unload_assets_callback; id: {},\n asset_info: {}, \n event: {}'.format(
-                        key, asset_info, event
-                    )
-                )
                 asset_info[asset_const.IS_LOADED] = False
                 do_refresh = True
             if do_refresh:
@@ -457,9 +448,17 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     # Remove
 
     def _remove_assets_clicked(self):
-        self._on_remove_assets(
-            self.asset_manager_widget.asset_list.selection()
-        )
+        selection = self.asset_manager_widget.asset_list.selection()
+        if self.asset_manager_widget.check_selection(selection):
+            if Dialog(
+                self.get_parent_window(),
+                title='ftrack Asset manager',
+                question='Really remove {} asset{}?'.format(
+                    len(selection), 's' if len(selection) > 1 else ''
+                ),
+                prompt=True,
+            ).exec_():
+                self._on_remove_assets(selection)
 
     def _on_remove_assets(self, asset_info_list):
         '''
@@ -483,13 +482,13 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             data = event['data']
 
             for key, value in data.items():
-                pos = self._asset_list_model.getPosition(key)
-                if pos is None:
+                index = self._asset_list_model.getIndex(key)
+                if index is None:
                     continue
                 self.logger.debug(
-                    'Removing id {} with index {}'.format(key, pos)
+                    'Removing id {} with index {}'.format(key, index)
                 )
-                self._asset_list_model.removeRows(pos)
+                self._asset_list_model.removeRows(index)
         finally:
             self.asset_manager_widget.stopBusyIndicator.emit()
 

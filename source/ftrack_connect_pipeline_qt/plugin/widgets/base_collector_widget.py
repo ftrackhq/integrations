@@ -172,7 +172,14 @@ class BaseCollectorWidget(BaseOptionsWidget):
         selected_widget_items = self.list_widget.selectedItems()
         for item in selected_widget_items:
             self._options['collected_objects'].remove(item.text())
-            self._collected_objects.remove(item.text())
+            try:
+                self._collected_objects.remove(item.text())
+            except ValueError as ve:
+                self.logger.warning(
+                    'Could not remove "{}" from collected objects() Details: {}'.format(
+                        item.text(), self._collected_objects, ve
+                    )
+                )
             row = self.list_widget.row(item)
             self.list_widget.takeItem(row)
         self.report_input()
@@ -187,7 +194,7 @@ class BaseCollectorWidget(BaseOptionsWidget):
                 num_objects, 's' if num_objects > 1 else ''
             )
             status = True
-        self.input_changed.emit(
+        self.inputChanged.emit(
             {
                 'status': status,
                 'message': message,

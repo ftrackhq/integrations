@@ -16,7 +16,7 @@ class Search(QtWidgets.QFrame):
     Display a search box, that can be collapsed and expanded.
     '''
 
-    input_updated = QtCore.Signal(object)
+    inputUpdated = QtCore.Signal(object)
     search = QtCore.Signal()
     clear = QtCore.Signal()
 
@@ -112,10 +112,10 @@ class Search(QtWidgets.QFrame):
         if self._collapsable:
             self._collapsed = not self._collapsed
             self.rebuild()
-            self.input_updated.emit('')
+            self.inputUpdated.emit('')
 
     def _on_input_changed(self):
-        self.input_updated.emit(self._input.text())
+        self.inputUpdated.emit(self._input.text())
 
     def _on_clear(self):
         self._input.setText('')

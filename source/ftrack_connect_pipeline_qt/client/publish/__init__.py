@@ -2,6 +2,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
+from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.client import QtClient
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.client import factory
@@ -16,7 +17,7 @@ class QtPublisherClient(QtClient):
     client_name = qt_constants.PUBLISHER_WIDGET
 
     def __init__(self, event_manager, parent_window, parent=None):
-        self.widget_factory = factory.WidgetFactory(
+        self.widget_factory = factory.PublisherWidgetFactory(
             event_manager, self.ui_types, self.client_name
         )
         super(QtPublisherClient, self).__init__(
@@ -26,7 +27,7 @@ class QtPublisherClient(QtClient):
         self.logger.debug('start qt publisher')
 
     def is_docked(self):
-        raise True
+        return True
 
     def pre_build(self):
         '''
@@ -38,12 +39,12 @@ class QtPublisherClient(QtClient):
 
     def post_build(self):
         super(QtPublisherClient, self).post_build()
-        self.widget_factory.widget_asset_updated.connect(
+        self.widget_factory.widgetAssetUpdated.connect(
             self._on_widget_asset_updated
         )
 
-        self.widget_factory.widget_run_plugin.connect(self._on_run_plugin)
-        self.widget_factory.components_checked.connect(
+        self.widget_factory.widgetRunPlugin.connect(self._on_run_plugin)
+        self.widget_factory.componentsChecked.connect(
             self._on_components_checked
         )
         self.setMinimumWidth(300)
@@ -55,13 +56,17 @@ class QtPublisherClient(QtClient):
         )
 
     def _on_components_checked(self, available_components_count):
-        print(
-            '@@@ QtPublisherClient::_on_components_checked({})'.format(
-                available_components_count
-            )
-        )
         super(QtPublisherClient, self).definition_changed(
             self.definition, available_components_count
         )
-        self.run_button.setVisible(available_components_count > 0)
+        self.run_button.setVisible(True)
+        self.run_button.setEnabled(available_components_count > 0)
         self.run_button.setText('PUBLISH')
+
+    def run(self):
+        super(QtPublisherClient, self).run()
+        if not self.widget_factory.has_error:
+            self.widget_factory.progress_widget.set_status(
+                constants.SUCCESS_STATUS,
+                'Successfully published!',
+            )

@@ -34,6 +34,9 @@ from ftrack_connect_pipeline_qt.ui.assembler.base import (
 from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import (
     VersionComboBox,
 )
+from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import (
+    Dialog,
+)
 
 
 class AssemblerDependenciesWidget(AssemblerBaseWidget):
@@ -58,6 +61,7 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
         return QtWidgets.QLabel()
 
     def rebuild(self):
+        # self.session._local_cache.clear() # Make sure reset session cache
         super(AssemblerDependenciesWidget, self).rebuild()
 
         # Resolve version this context is depending on in separate thread
@@ -75,60 +79,73 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
 
     def on_dependencies_resolved_async(self, result):
         try:
+            try:
 
-            if (
-                self._assembler_client.import_mode
-                != self._assembler_client.IMPORT_MODE_DEPENDENCIES
-            ):
-                return
+                if (
+                    self._assembler_client.import_mode
+                    != self._assembler_client.IMPORT_MODE_DEPENDENCIES
+                ):
+                    return
 
-            resolved_versions = None
-            user_message = None
-            if isinstance(result, dict):
-                # Versions without a user message
-                resolved_versions = result['versions']
-            else:
-                if isinstance(result, tuple):
-                    # With user message?
-                    if isinstance(result[0], dict):
-                        resolved_version = result[0].get('versions') or []
-                    if isinstance(result[1], dict):
-                        user_data = result[1]
-                        if 'message' in user_data:
-                            user_message = user_data['message']
-            if user_message:
-                self.dependencyResolveWarning.emit(user_message)
+                resolved_versions = None
+                user_message = None
+                if isinstance(result, dict):
+                    # Versions without a user message
+                    resolved_versions = result['versions']
+                else:
+                    if isinstance(result, tuple):
+                        # With user message?
+                        if isinstance(result[0], dict):
+                            resolved_version = result[0].get('versions') or []
+                        if isinstance(result[1], dict):
+                            user_data = result[1]
+                            if 'message' in user_data:
+                                user_message = user_data['message']
+                if user_message:
+                    self.dependencyResolveWarning.emit(user_message)
 
-            if len(resolved_versions or []) == 0:
-                if user_message is None:
-                    self.dependencyResolveWarning.emit(
-                        'No dependencies found!'
+                if len(resolved_versions or []) == 0:
+                    if user_message is None:
+                        self.dependencyResolveWarning.emit(
+                            'No dependencies found!'
+                        )
+                    return
+
+                versions = [
+                    resolved_version['entity']
+                    for resolved_version in resolved_versions
+                ]
+
+                # Process versions, filter against
+                self._assembler_client.logger.info(
+                    'Resolved versions: {}'.format(
+                        ','.join(
+                            [str_version(v, with_id=True) for v in versions]
+                        )
                     )
-                return
-
-            versions = [
-                resolved_version['entity']
-                for resolved_version in resolved_versions
-            ]
-
-            # Process versions, filter against
-            self._assembler_client.logger.info(
-                'Resolved versions: {}'.format(
-                    ','.join([str_version(v, with_id=True) for v in versions])
                 )
-            )
 
-            components = self.extract_components(versions)
+                components = self.extract_components(versions)
 
-            if len(components) == 0:
-                self.dependencyResolveWarning.emit(
-                    'No loadable dependencies found!'
-                )
-                return
+                if (
+                    self._assembler_client.import_mode
+                    != self._assembler_client.IMPORT_MODE_DEPENDENCIES
+                ):
+                    return
 
-            self.dependenciesResolved.emit(components)
-        finally:
-            self.stopBusyIndicator.emit()
+                if len(components) == 0:
+                    self.dependencyResolveWarning.emit(
+                        'No loadable dependencies found!'
+                    )
+                    return
+
+                self.dependenciesResolved.emit(components)
+            finally:
+                self.stopBusyIndicator.emit()
+        except RuntimeError as re:
+            if str(re).find('Internal C++ object') == -1:
+                raise
+            # Ignore exception caused by a resolve that is not valid anymore
 
     def on_dependency_resolve_warning(self, message):
         self._assembler_client.progress_widget.set_status(
@@ -181,21 +198,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
         super(AssemblerBrowserWidget, self).pre_build()
         # Fetch entity, might not be loaded yet
         entity = self.get_context(False)
-        # if not entity:
-        #     # Need one entity, choose first active project
-        #     entity = self.session.query(
-        #         'select link, name, parent, parent.name from Project where status is active'
-        #     ).first()
-        #     if entity is None:
-        #         # Any project
-        #         entity = self.session.query(
-        #             'select link, name from Project'
-        #         ).first()
-        #         if entity is None:
-        #             self.layout().addWidget(
-        #                 'No entity given, and no project found!'
-        #             )
-        #             raise Exception('No entity given, and no project found!')
+
         self._entity_browser = EntityBrowser(
             self._assembler_client.get_parent_window(),
             session=self._assembler_client.session,
@@ -215,9 +218,10 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
         self._entity_browser.entityChanged.connect(self.rebuild)
         self.componentsFetched.connect(self._on_components_fetched)
         self.allVersionsFetched.connect(self._on_all_versions_fetched)
-        self._search.input_updated.connect(self._on_search)
+        self._search.inputUpdated.connect(self._on_search)
 
     def rebuild(self):
+        # self.session._local_cache.clear() # Make sure session cache is cleared out
         super(AssemblerBrowserWidget, self).rebuild()
 
         if self._entity_browser.entity is None:
@@ -226,6 +230,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
 
         # Create component list
         self._component_list = BrowserListWidget(self)
+        self._component_list.versionChanged.connect(self._on_version_changed)
 
         self.scroll.setWidget(self._component_list)
 
@@ -250,36 +255,59 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
 
     def _fetch_versions(self, context):
         '''Search ftrack for versions beneath the given *context_id*'''
-        self._assembler_client.logger.info(
-            'Fetching versions beneath context: {}'.format(context)
-        )
-        # Build list of parent ID's
-        parent_ids = self._recursive_get_descendant_ids(context)
-        self._tail = 0  # The current fetch position
-        while True:
-            versions = self.session.query(
-                'select id,task,version from AssetVersion where is_latest_version=true and task.parent.id in '
-                '({0}) or task.id in ({0}) offset {1} limit {2}'.format(
-                    ','.join(
-                        [
-                            '"{}"'.format(context_id)
-                            for context_id in parent_ids
-                        ]
-                    ),
-                    self._tail,
-                    self._limit,
-                )
-            ).all()
-            if len(versions) == 0:
-                # We are done
-                self.allVersionsFetched.emit()
-                break
+        try:
+            self._recent_context_browsed = context
+            self._assembler_client.logger.info(
+                'Fetching versions beneath context: {}'.format(context)
+            )
+            # Build list of parent ID's
+            parent_ids = self._recursive_get_descendant_ids(context)
+            self._tail = 0  # The current fetch position
+            while True:
+                versions = self.session.query(
+                    'select id,task,version from AssetVersion where is_latest_version=true and task.parent.id in '
+                    '({0}) or task.id in ({0}) offset {1} limit {2}'.format(
+                        ','.join(
+                            [
+                                '"{}"'.format(context_id)
+                                for context_id in parent_ids
+                            ]
+                        ),
+                        self._tail,
+                        self._limit,
+                    )
+                ).all()
 
-            components = self.extract_components(versions)
+                if (
+                    self._recent_context_browsed != context
+                    or self._assembler_client.import_mode
+                    != self._assembler_client.IMPORT_MODE_BROWSE
+                ):
+                    # User is fast, have already traveled to a new context
+                    return
 
-            self.componentsFetched.emit(components)
+                if len(versions) == 0:
+                    # We are done
+                    self.allVersionsFetched.emit()
+                    break
 
-            self._tail += len(versions)
+                components = self.extract_components(versions)
+
+                if (
+                    self._recent_context_browsed != context
+                    or self._assembler_client.import_mode
+                    != self._assembler_client.IMPORT_MODE_BROWSE
+                ):
+                    # User is fast, have already traveled to a new context
+                    return
+
+                self.componentsFetched.emit(components)
+
+                self._tail += len(versions)
+        except RuntimeError as re:
+            if str(re).find('Internal C++ object') == -1:
+                raise
+            # Ignore exception caused by a browse operation that is not valid anymore
 
     def _on_components_fetched(self, components):
         '''A chunk of versions has been obtained, filter > give setup and add to list'''
@@ -316,6 +344,59 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
     def _on_search(self, text):
         if self._component_list:
             self._component_list.on_search(text)
+
+    def _on_version_changed(self, widget, version_entity):
+        '''User request a change of version, check that the new version
+        has the component and it matches.'''
+        current_component = self._assembler_client.session.query(
+            'Component where id={}'.format(widget.component_id)
+        ).first()
+        component = self._assembler_client.session.query(
+            'Component where version.id={} and name={}'.format(
+                version_entity['id'], current_component['name']
+            )
+        ).first()
+        # Has the same component name?
+        error_message = None
+        if component is None:
+            error_message = (
+                "There is no component by the name {} at version {}!".format(
+                    current_component['name'], version_entity['version']
+                )
+            )
+        # Check file extension
+        if component['file_type'] != current_component['file_type']:
+            error_message = (
+                "There version {} component file type {} differs!".format(
+                    version_entity['version'], component['file_type']
+                )
+            )
+        if not error_message:
+            # Set the new component
+            matching_definitions = self.model.data(widget.index)[1]
+            # Replace version ID for importer
+            for definition in matching_definitions:
+                for context in definition['contexts']:
+                    for stage in context['stages']:
+                        if stage['name'] == 'context':
+                            for plugin in stage['plugins']:
+                                if 'options' in plugin:
+                                    options = plugin['options']
+                                    options['version_id'] = version_entity[
+                                        'id'
+                                    ]
+                                    options['version_number'] = version_entity[
+                                        'version'
+                                    ]
+            self.model.setData(widget.index, (component, matching_definitions))
+        else:
+            Dialog(
+                self._asset_manager_client,
+                title='Change Import Version',
+                message=error_message,
+            )
+            widget.set_version(current_component['version'])  # Revert
+            return
 
 
 class DependenciesListWidget(AssemblerListBaseWidget):
@@ -361,7 +442,7 @@ class DependenciesListWidget(AssemblerListBaseWidget):
                     'is "{}"'.format(context_id)
                 ).one()
 
-                widget = QtWidgets.QWidget()
+                widget = AssemblerDependencyContextLabel()
                 widget.setLayout(QtWidgets.QHBoxLayout())
                 widget.layout().setContentsMargins(8, 0, 8, 0)
                 widget.layout().setSpacing(5)
@@ -393,7 +474,9 @@ class DependenciesListWidget(AssemblerListBaseWidget):
                 index, self._assembler_widget, self.model.event_manager
             )
             set_property(
-                component_widget, 'first', 'true' if row == 0 else 'false'
+                component_widget,
+                'first',
+                'true' if row == 0 else 'false',
             )
             component_widget.set_component_and_definitions(
                 component, definitions
@@ -409,10 +492,11 @@ class DependenciesListWidget(AssemblerListBaseWidget):
 class BrowserListWidget(AssemblerListBaseWidget):
     '''Custom asset manager list view'''
 
+    versionChanged = QtCore.Signal(object, object)
+
     def __init__(self, assembler_widget, parent=None):
         self._asset_widget_class = BrowsedComponentWidget
         self.prev_search_text = None
-        self._component_widgets = []
         super(BrowserListWidget, self).__init__(
             assembler_widget, parent=parent
         )
@@ -424,47 +508,64 @@ class BrowserListWidget(AssemblerListBaseWidget):
     def post_build(self):
         super(BrowserListWidget, self).post_build()
         self.model.rowsInserted.connect(self._on_components_added)
+        self.model.dataChanged.connect(self._on_component_set)
 
-    def _on_components_added(self, model, first, last):
+    def _on_component_set(self, index_first, unused_index_last):
+        current_widget = self.get_widget(index_first)
+        updated_widget = self._build_widget(index_first)
+        updated_widget.selected = current_widget.selected
+        self.layout().replaceWidget(current_widget, updated_widget)
+
+        self.refresh()
+        self.selectionUpdated.emit(self.selection())
+
+    def _on_components_added(self, index, first, last):
         '''Add components recently added from model to list.'''
         for row in range(first, last + 1):
             index = self.model.createIndex(row, 0, self.model)
-
-            (component, definitions) = self.model.data(index)
-
-            # Append component accordion
-
-            component_widget = self._asset_widget_class(
-                index, self._assembler_widget, self.model.event_manager
-            )
-            set_property(
-                component_widget, 'first', 'true' if row == 0 else 'false'
-            )
-            component_widget.set_component_and_definitions(
-                component, definitions
-            )
             self.layout().insertWidget(
-                self.layout().count() - 1, component_widget
+                self.layout().count() - 1, self._build_widget(index)
             )
-
-            component_widget.clicked.connect(
-                partial(self.asset_clicked, component_widget)
-            )
-            self._component_widgets.append(component_widget)
-
+        self.refresh()
         self.selectionUpdated.emit(self.selection())
 
-    def refresh(self, search_text):
+    def _build_widget(self, index):
+        '''Build component accordion widget'''
+        (component, definitions) = self.model.data(index)
+        component_widget = self._asset_widget_class(
+            index, self._assembler_widget, self.model.event_manager
+        )
+        set_property(
+            component_widget,
+            'first',
+            'true' if index.row() == 0 else 'false',
+        )
+        component_widget.set_component_and_definitions(component, definitions)
+        component_widget.clicked.connect(
+            partial(self.asset_clicked, component_widget)
+        )
+        component_widget.versionChanged.connect(
+            partial(self._on_version_change, component_widget)
+        )
+        return component_widget
+
+    def refresh(self, search_text=None):
+        if search_text is None:
+            search_text = self.prev_search_text
         '''Update visibility based on search'''
-        for component_widget in self._component_widgets:
+        for component_widget in self.assets:
             component_widget.setVisible(
-                len(search_text) == 0 or component_widget.matches(search_text)
+                len(search_text or '') == 0
+                or component_widget.matches(search_text)
             )
 
     def on_search(self, text):
         if text != self.prev_search_text:
             self.refresh(text.lower())
             self.prev_search_text = text
+
+    def _on_version_change(self, widget, version_entity):
+        self.versionChanged.emit(widget, version_entity)
 
 
 class DependencyComponentWidget(ComponentBaseWidget):
@@ -503,7 +604,7 @@ class DependencyComponentWidget(ComponentBaseWidget):
         return widget
 
     def get_version_widget(self):
-        self._version_nr_widget = QtWidgets.QLabel()
+        self._version_nr_widget = QtWidgets.QLabel('?')
         return self._version_nr_widget
 
     def set_version(self, version_entity):
@@ -520,6 +621,8 @@ class DependencyComponentWidget(ComponentBaseWidget):
 
 class BrowsedComponentWidget(ComponentBaseWidget):
     '''Widget representation of a minimal asset representation'''
+
+    versionChanged = QtCore.Signal(object)
 
     def __init__(
         self, index, assembler_widget, event_manager, title=None, parent=None
@@ -573,6 +676,10 @@ class BrowsedComponentWidget(ComponentBaseWidget):
         )
         return self._version_nr_widget
 
+    def set_context_id(self, context_id):
+        super(BrowsedComponentWidget, self).set_context_id(context_id)
+        self._version_nr_widget.set_context_id(self._context_id)
+
     def set_version(self, version_entity):
         self._version_nr_widget.set_version_entity(version_entity)
 
@@ -597,16 +704,10 @@ class BrowsedComponentWidget(ComponentBaseWidget):
             if index == len(context_path):
                 break
         self._path_widget.setText(' / '.join(parent_path[index:]))
-        self._version_nr_widget.set_context_id(self._context_id)
-        self.set_version(component['version'])
-        self.__last_compatible_version = component['version']
 
     def _on_version_changed(self, entity_version):
-        print(
-            '@@@ BrowsedComponentWidget::_on_version_changed({})'.format(
-                entity_version
-            )
-        )
+        '''Another version has been selected, emit event.'''
+        self.versionChanged.emit(entity_version)
 
     def matches(self, search_text):
         '''Do a simple match if this search text matches my attributes'''
@@ -689,3 +790,8 @@ class AssemblerVersionComboBox(VersionComboBox):
 
     def _add_version(self, version):
         self.addItem(str("v{}".format(version['version'])), version['id'])
+
+
+class AssemblerDependencyContextLabel(QtWidgets.QFrame):
+    def __init__(self, parent=None):
+        super(AssemblerDependencyContextLabel, self).__init__(parent=parent)

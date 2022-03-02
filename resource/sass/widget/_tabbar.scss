@@ -18,7 +18,7 @@ QTabWidget::tab-bar {
 }
 
 QTabBar {
-    border-bottom: 2px solid $gray-dark;
+    border-bottom: 2px solid $gray-dark;d
     padding: 0px;
     margin: 0px;
 }
@@ -38,6 +38,9 @@ QTabBar::tab:selected {
 
 QTabBar::tab:hover {
     color: $text-color;
+}
+
+QTabBar::tab:focus {
 }
 
 AssemblerTabWidget QTabBar::tab {

@@ -4,6 +4,7 @@ QComboBox {
     border: 1px solid $color-purple;
     border-radius: 4px;
     padding: $input-padding;
+    margin-right: 10px;
     background: $input-background;
     selection-background-color: $gray-dark;
     color: $color-purple;
@@ -17,6 +18,12 @@ QComboBox {
     }
 }
 
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    padding: $input-padding;
+    border: 0;
+}
 
 QComboBox::down-arrow {
     image: theme-image('combobox_down_arrow');
@@ -24,19 +31,12 @@ QComboBox::down-arrow {
     height: 8px;
 }
 
-QComboBox::drop-down {
-    subcontrol-origin: padding;
-    subcontrol-position: top right;
-    min-width: 200px;
-    padding: $input-padding;
-    border: 0;
-}
-
 QComboBox QAbstractItemView {
     color: $text-color;
     outline: 0;
     /*border: 1px solid $input-border-color;*/
     border-radius: 2px;
+    background: $background;
     selection-background-color: $gray-lighter;
 }
 
@@ -55,7 +55,8 @@ QComboBox[ftrackCurrentIndexIsDefault="true"] {
 }
 
 AssetVersionSelector, VersionComboBox {
-    border: 1px solid $gray;
+    border: 1px solid $color-purple;
+    /*border: 1px solid $gray;*/
     border-radius: 12px;
     color: $color-purple;
     text-align:center;
@@ -70,7 +71,7 @@ AssetVersionSelector, VersionComboBox {
 }
 
 AssemblerVersionComboBox {
-    border: 1px solid $color-purple;
+
 }
 
 DefinitionSelector, ModeSelector, FileSelector {

@@ -418,6 +418,10 @@ class ComponentBaseWidget(AccordionBaseWidget):
         return self._widget_factory
 
     @property
+    def component_id(self):
+        return self._component_id
+
+    @property
     def session(self):
         return self._assembler_widget.session
 
@@ -462,6 +466,9 @@ class ComponentBaseWidget(AccordionBaseWidget):
 
     def get_version_widget(self):
         '''Widget containing version label or combobox.'''
+        raise NotImplementedError()
+
+    def set_version(self, version_entity):
         raise NotImplementedError()
 
     def init_header_content(self, header_layout, collapsed):
@@ -573,13 +580,17 @@ class ComponentBaseWidget(AccordionBaseWidget):
         # Clear out overlay, not needed anymore
         clear_layout(self._options_button.main_widget.layout())
 
+    def set_context_id(self, context_id):
+        self._context_id = context_id
+
     def init_content(self, content_layout):
         pass
 
     def set_component_and_definitions(self, component, definitions):
         '''Update widget from data'''
-        self._context_id = component['version']['task']['id']
+        self.set_context_id(component['version']['task']['id'])
         self._context_name = component['version']['task']['name']
+        self._component_id = component['id']
         self._component_name = component['name']
         self.thumbnail_widget.load(component['version']['id'])
         self._widget_factory.version_id = component['version']['id']
@@ -609,7 +620,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         self._component_filename_widget.setText(
             '- {}'.format(component_path.replace('\\', '/').split('/')[-1])
         )
-
+        self.set_version(component['version'])
         self.set_latest_version(component['version']['is_latest_version'])
 
     def on_collapse(self, collapsed):
