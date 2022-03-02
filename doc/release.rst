@@ -6,6 +6,13 @@ Releases
 ########
 
 
+.. release:: Upcoming
+
+   .. change:: changed
+
+        Installation path does not include Connect version.
+
+
 .. release:: 2.0.0-rc-4
     :date: 2022-01-15
 
