@@ -311,7 +311,6 @@ class Client(object):
         Initialise Client with instance of
         :class:`~ftrack_connect_pipeline.event.EventManager`
         '''
-        self._packages = {}
         self._current = {}
 
         self._context_id = utils.get_current_context_id()
@@ -321,7 +320,6 @@ class Client(object):
         self._logs = None
         self._schema = None
         self._definition = None
-        self.current_package = None
 
         self.__callback = None
         self.logger = logging.getLogger(
@@ -474,8 +472,6 @@ class Client(object):
         self._schema = schema
         self._definition = definition
 
-        self.current_package = self.get_current_package(definition)
-
         self.change_engine(self.definition['_config']['engine_type'])
 
     def change_engine(self, engine_type):
@@ -483,21 +479,6 @@ class Client(object):
         Assign the given *engine_type* as the current :obj:`engine_type`
         '''
         self._engine_type = engine_type
-
-    def get_current_package(self, definition):
-        '''
-        Returns the package of the current :obj:`definition`
-        '''
-        if not self.host_connection or not definition:
-            self.logger.error(
-                "please set the host connection and the definition first"
-            )
-            return
-
-        for package in self.host_connection.definitions['package']:
-            if package['name'] == definition.get('package'):
-                return package
-        return None
 
     def change_context(self, context_id):
         '''

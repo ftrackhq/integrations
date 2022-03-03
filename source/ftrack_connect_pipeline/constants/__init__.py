@@ -17,7 +17,7 @@ FINALIZERS = 'finalizers'
 #: Components step group.
 COMPONENTS = 'components'
 
-STEPS_ORDER = [CONTEXTS, COMPONENTS, FINALIZERS]
+STEP_GROUPS = [CONTEXTS, COMPONENTS, FINALIZERS]
 
 # Common steps types.
 #: Contexts step type.

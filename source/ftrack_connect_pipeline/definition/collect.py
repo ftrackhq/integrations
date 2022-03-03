@@ -49,14 +49,12 @@ def filter_definitions_by_host(data, host_type):
 
 def collect_definitions(lookup_dir):
     '''
-    Collect all the schemas, definitions and packages from the given
+    Collect all the schemas and definitions from the given
     *lookup_dir*
 
     *lookup_dir* : Directory path to look for the definitions.
     '''
     schemas = _collect_json(os.path.join(lookup_dir, 'schema'))
-
-    packages = _collect_json(os.path.join(lookup_dir, 'package'))
 
     loaders = _collect_json(os.path.join(lookup_dir, 'loader'))
 
@@ -68,7 +66,6 @@ def collect_definitions(lookup_dir):
         'schema': schemas or [],
         'publisher': publishers or [],
         'loader': loaders or [],
-        'package': packages or [],
         'asset_manager': asset_managers or [],
     }
 
