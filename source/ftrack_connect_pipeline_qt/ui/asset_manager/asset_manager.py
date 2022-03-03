@@ -800,8 +800,8 @@ class AssetWidget(AccordionBaseWidget):
 class AssetVersionSelector(QtWidgets.QComboBox):
     def __init__(self):
         super(AssetVersionSelector, self).__init__()
-        self.setMinimumHeight(25)
-        self.setMaximumHeight(25)
+        self.setMinimumHeight(22)
+        self.setMaximumHeight(22)
 
 
 class AssetVersionStatusWidget(QtWidgets.QFrame):

@@ -239,7 +239,7 @@ class ProgressWidget(BaseUIWidget):
         self.content_widget.layout().addWidget(component_button)
 
     def components_added(self):
-        self.content_widget.layout().addStretch()
+        self.content_widget.layout().addWidget(QtWidgets.QLabel(), 10)
 
     def clear_components(self):
         for i in reversed(range(self.content_widget.layout().count())):

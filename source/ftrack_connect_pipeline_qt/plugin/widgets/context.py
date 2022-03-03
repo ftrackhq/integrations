@@ -120,7 +120,7 @@ class PublishContextWidget(BaseOptionsWidget):
         self.status_selector = StatusSelector()
 
         self.status_layout.addWidget(self.asset_status_label)
-        self.status_layout.addWidget(self.status_selector)
+        self.status_layout.addWidget(self.status_selector, 10)
 
         self.status_layout.addStretch()
 
@@ -340,6 +340,8 @@ class StatusSelector(QtWidgets.QComboBox):
         super(StatusSelector, self).__init__()
         self.setEditable(False)
         self.setMinimumWidth(150)
+        self.setMinimumHeight(22)
+        self.setMaximumHeight(22)
 
     def set_statuses(self, statuses):
         '''Set statuses on the combo box'''
@@ -354,7 +356,7 @@ class StatusSelector(QtWidgets.QComboBox):
             '''
             QComboBox {
                 border: 1px solid %s;
-                border-radius: 10px;
+                border-radius: 3px;
                 color: %s;
             }
         '''

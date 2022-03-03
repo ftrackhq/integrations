@@ -4,7 +4,6 @@ QComboBox {
     border: 1px solid $color-purple;
     border-radius: 4px;
     padding: $input-padding;
-    margin-right: 10px;
     background: $input-background;
     selection-background-color: $gray-dark;
     color: $color-purple;
@@ -40,6 +39,10 @@ QComboBox QAbstractItemView {
     selection-background-color: $gray-lighter;
 }
 
+QFrame[docked='true'] QComboBox QAbstractItemView {
+    background: $gray-darker;
+}
+
 QComboBox QAbstractItemView::item {
     padding: $input-padding 0;
     background-color: $gray-dark;
@@ -54,10 +57,14 @@ QComboBox[ftrackCurrentIndexIsDefault="true"] {
     color: $text-color-light;
 }
 
+QComboBox[chip='true'] {
+    border-radius: 11px;
+}
+
 AssetVersionSelector, VersionComboBox {
     border: 1px solid $color-purple;
     /*border: 1px solid $gray;*/
-    border-radius: 12px;
+    border-radius: 11px;
     color: $color-purple;
     text-align:center;
 
@@ -71,20 +78,18 @@ AssetVersionSelector, VersionComboBox {
 }
 
 AssemblerVersionComboBox {
-
 }
 
 DefinitionSelector, ModeSelector, FileSelector {
     border: 1px solid $gray-dark;
-    border-radius: 11px;
-    padding-left: 5px;
-    background: $input-background;
+    border-radius: 3px;
+    background: transparent;
     selection-background-color: $gray-dark;
     color: $text-color;
     text-align: center;
 
     &:hover {
-        border-color: darken($gray-dark, 5%);
+        border-color: lighten($gray-dark, 5%);
     }
 
     &:focus {

@@ -67,7 +67,9 @@ class QtAssemblerClient(QtClient):
 
     def pre_build(self):
         super(QtAssemblerClient, self).pre_build()
-        self.header = header.Header(self.session, show_user=False)
+        self.header = header.Header(
+            self.session, title='CONNECT', show_user=False
+        )
         self.header.setMinimumHeight(37)
         # Create and add the asset manager client
         self.asset_manager = QtAssetManagerClient(
@@ -100,7 +102,9 @@ class QtAssemblerClient(QtClient):
 
         # Have definition selector but invisible unless there are multiple hosts
         self.host_and_definition_selector = (
-            definition_selector.DefinitionSelectorButtons(self.client_name)
+            definition_selector.DefinitionSelectorWidgetComboBox(
+                self.client_name
+            )
         )
         self.host_and_definition_selector.refreshed.connect(
             partial(self.refresh, True)

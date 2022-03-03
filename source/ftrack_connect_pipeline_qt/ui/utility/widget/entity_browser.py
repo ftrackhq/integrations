@@ -71,7 +71,6 @@ class EntityBrowser(Dialog):
         self, parent, session, entity=None, mode=MODE_TASK, title=None
     ):
         self._entity = None  # The entity that has been set and applied
-        self._title = title or 'ftrack Entity Browser'
         self._intermediate_entity = (
             None  # The intermediate entity currently browsed
         )
@@ -82,7 +81,9 @@ class EntityBrowser(Dialog):
 
         self.set_mode(mode)
 
-        super(EntityBrowser, self).__init__(parent, prompt=None)
+        super(EntityBrowser, self).__init__(
+            parent, prompt=None, title=title or 'ftrack Entity Browser'
+        )
 
         if entity is None:
             if get_current_context_id():
@@ -124,9 +125,6 @@ class EntityBrowser(Dialog):
         widget.layout().addWidget(self._scroll, 100)
 
         return widget
-
-    def get_title(self):
-        return self._title
 
     def get_approve_button(self):
         return ApproveButton("APPLY CONTEXT", width=80)

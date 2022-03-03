@@ -58,7 +58,7 @@ class ContextSelector(QtWidgets.QWidget):
 
     def pre_build(self):
         layout = QtWidgets.QHBoxLayout()
-        layout.setContentsMargins(5, 5, 5, 5)
+        layout.setContentsMargins(10, 1, 10, 1)
         layout.setSpacing(8)
         self.setLayout(layout)
 

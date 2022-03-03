@@ -111,7 +111,9 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     def build(self):
         '''Build widgets and parent them.'''
         if not self.is_assembler:
-            self.header = header.Header(self.session)
+            self.header = header.Header(
+                self.session, title='CONNECT', show_publisher=True
+            )
             self.layout().addWidget(self.header)
 
             self.context_selector = ContextSelector(self, self.session)
@@ -143,6 +145,8 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 
     def post_build(self):
         '''Post Build ui method for events connections.'''
+        if not self.is_assembler:
+            self.header.publishClicked.connect(self._open_publisher)
         self.asset_manager_widget.rebuild.connect(self.rebuild)
 
         if not self.is_assembler:
@@ -491,6 +495,9 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
                 self._asset_list_model.removeRows(index)
         finally:
             self.asset_manager_widget.stopBusyIndicator.emit()
+
+    def _open_publisher(self):
+        self.host_connection.launch_widget(qt_constants.PUBLISHER_WIDGET)
 
     def mousePressEvent(self, event):
         if event.button() != QtCore.Qt.RightButton:

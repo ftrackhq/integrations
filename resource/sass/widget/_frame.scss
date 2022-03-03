@@ -70,6 +70,11 @@ AccordionBaseWidget {
 AccordionBaseWidget[first='true'] {
 }
 
+PublisherAccordionStepWidget {
+    border-left: 1px dashed $border-color;
+    border-right: 1px dashed $border-color;
+}
+
 NavigationEntityButton {
     background: #1F252B;
     border-radius: 12px;

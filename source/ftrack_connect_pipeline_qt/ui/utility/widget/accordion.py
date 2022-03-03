@@ -238,7 +238,7 @@ class AccordionTitleWidget(QtWidgets.QFrame):
 
     def init_title(self, title=None):
         self._title_label = QtWidgets.QLabel(title)
-        self._title_label.setObjectName('h1')
+        self._title_label.setObjectName('h2')
 
         return self._title_label
 

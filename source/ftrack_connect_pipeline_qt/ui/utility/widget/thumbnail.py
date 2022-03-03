@@ -21,10 +21,11 @@ class Base(QtWidgets.QLabel):
 
     thumbnailFetched = QtCore.Signal(object)
 
-    def __init__(self, session, parent=None):
+    def __init__(self, session, scale=True, parent=None):
         super(Base, self).__init__(parent)
         self.session = session
         self._alive = True
+        self._scale = scale
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -99,10 +100,13 @@ class Base(QtWidgets.QLabel):
 
     def _scaleAndSetPixmap(self, pixmap):
         '''Scale and set *pixmap*.'''
-        scaledPixmap = pixmap.scaledToWidth(
-            self.width(), mode=QtCore.Qt.SmoothTransformation
-        )
-        self.setPixmap(scaledPixmap)
+        if self._scale:
+            scaled_pixmap = pixmap.scaledToWidth(
+                self.width(), mode=QtCore.Qt.SmoothTransformation
+            )
+        else:
+            scaled_pixmap = pixmap
+        self.setPixmap(scaled_pixmap)
 
     def _safeDownload(self, url, opener_callback, timeout=5):
         '''Check *url* through the given *openener_callback*.
@@ -199,11 +203,14 @@ class Context(Base):
 
     def _scaleAndSetPixmap(self, pixmap):
         '''Scale and set *pixmap*.'''
-        scaled_pixmap = pixmap.scaled(
-            self.size(),
-            QtCore.Qt.KeepAspectRatio,
-            QtCore.Qt.SmoothTransformation,
-        )
+        if self._scale:
+            scaled_pixmap = pixmap.scaled(
+                self.size(),
+                QtCore.Qt.KeepAspectRatio,
+                QtCore.Qt.SmoothTransformation,
+            )
+        else:
+            scaled_pixmap = pixmap
         self.setPixmap(scaled_pixmap)
 
 
@@ -235,11 +242,14 @@ class AssetVersion(Base):
 
     def _scaleAndSetPixmap(self, pixmap):
         '''Scale and set *pixmap*.'''
-        scaled_pixmap = pixmap.scaled(
-            self.size(),
-            QtCore.Qt.KeepAspectRatio,
-            QtCore.Qt.SmoothTransformation,
-        )
+        if self._scale:
+            scaled_pixmap = pixmap.scaled(
+                self.size(),
+                QtCore.Qt.KeepAspectRatio,
+                QtCore.Qt.SmoothTransformation,
+            )
+        else:
+            scaled_pixmap = pixmap
         self.setPixmap(scaled_pixmap)
 
 

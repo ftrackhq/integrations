@@ -159,6 +159,7 @@ class NewAssetInput(QtWidgets.QFrame):
 
     def build(self):
         self.button = QtWidgets.QPushButton('NEW')
+        self.button.setStyleSheet('background: transparent;')
         self.button.setFixedSize(46, 32)
         self.button.setMaximumSize(46, 32)
 
@@ -237,10 +238,10 @@ class AssetSelector(QtWidgets.QWidget):
         self.setLayout(main_layout)
 
     def build(self):
-        self.select_existing_label = QtWidgets.QLabel()
-        self.select_existing_label.setObjectName('gray')
-        self.select_existing_label.setWordWrap(True)
-        self.layout().addWidget(self.select_existing_label)
+        self._label = QtWidgets.QLabel()
+        self._label.setObjectName('gray')
+        self._label.setWordWrap(True)
+        self.layout().addWidget(self._label)
 
         self.list_and_input = AssetListAndInput()
 
@@ -274,18 +275,18 @@ class AssetSelector(QtWidgets.QWidget):
     def _pre_select_asset(self):
         '''Assets have been loaded, select most suitable asset to start with'''
         if self.asset_list.count() > 0:
-            self.select_existing_label.setText(
+            self._label.setText(
                 'We found {} assets already '
                 'published on this task. Choose which one to version up or create '
                 'a new asset'.format(self.asset_list.count())
             )
 
             self.asset_list.setCurrentRow(0)
-            self.select_existing_label.show()
+            self._label.show()
             self.asset_list.show()
             self._current_asset_changed(self.asset_list.item(0))
         else:
-            self.select_existing_label.hide()
+            self._label.setText('Enter asset name')
             self.asset_list.hide()
             self._current_asset_changed()
         self.list_and_input._size_changed()

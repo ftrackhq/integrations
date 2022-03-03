@@ -118,12 +118,17 @@ class QtClient(Client, QtWidgets.QFrame):
         '''Prepare general layout.'''
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setAlignment(QtCore.Qt.AlignTop)
-        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().setContentsMargins(0, 0, 0, 5)
         self.layout().setSpacing(0)
 
     def build(self):
         '''Build widgets and parent them.'''
-        self.header = header.Header(self.session)
+        self.header = header.Header(
+            self.session,
+            title='CONNECT'
+            if self.client_name == qt_constants.OPEN_WIDGET
+            else '',
+        )
         self.layout().addWidget(self.header)
 
         self.progress_widget = self.widget_factory.progress_widget
@@ -138,7 +143,9 @@ class QtClient(Client, QtWidgets.QFrame):
         self.layout().addWidget(line.Line())
 
         self.host_and_definition_selector = (
-            definition_selector.DefinitionSelectorButtons(self.client_name)
+            definition_selector.DefinitionSelectorWidgetComboBox(
+                self.client_name
+            )
         )
         self.host_and_definition_selector.refreshed.connect(self.refresh)
 

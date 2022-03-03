@@ -32,7 +32,7 @@ from ftrack_connect_pipeline_qt.ui.asset_manager.asset_manager import (
     ComponentAndVersionWidget,
 )
 from ftrack_connect_pipeline_qt.utils import (
-    BaseThread,
+    set_property,
     str_version,
     clear_layout,
     get_main_framework_window_from_widget,
@@ -47,6 +47,9 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
 from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
 from ftrack_connect_pipeline_qt.ui.utility.widget.options_button import (
     OptionsButton,
+)
+from ftrack_connect_pipeline_qt.ui.utility.widget.definition_selector import (
+    DefinitionSelector,
 )
 
 
@@ -98,9 +101,6 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
 
         top_toolbar_widget.layout().addWidget(self._get_header_widget(), 10)
 
-        self._rebuild_button = CircularButton('sync', '#87E1EB')
-        top_toolbar_widget.layout().addWidget(self._rebuild_button)
-
         header_widget.layout().addWidget(top_toolbar_widget)
 
         self.layout().addWidget(header_widget)
@@ -118,14 +118,17 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self._cb_show_non_compatible.setObjectName("gray")
         bottom_toolbar_widget.layout().addWidget(self._cb_show_non_compatible)
 
-        bottom_toolbar_widget.layout().addStretch()
+        bottom_toolbar_widget.layout().addWidget(QtWidgets.QLabel(), 10)
+
+        self._label_info = QtWidgets.QLabel('')
+        self._label_info.setObjectName('gray')
+        bottom_toolbar_widget.layout().addWidget(self._label_info)
 
         self._search = Search()
         bottom_toolbar_widget.layout().addWidget(self._search)
 
-        self._label_info = QtWidgets.QLabel('Listing assets')
-        self._label_info.setObjectName('gray')
-        bottom_toolbar_widget.layout().addWidget(self._label_info)
+        self._rebuild_button = CircularButton('sync', '#87E1EB')
+        bottom_toolbar_widget.layout().addWidget(self._rebuild_button)
 
         self._busy_widget = BusyIndicator(start=False)
         self._busy_widget.setMinimumSize(QtCore.QSize(16, 16))
@@ -147,7 +150,10 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self._assembler_client.progress_widget.hide_widget()
 
         self._busy_widget.start()
+        self._rebuild_button.setVisible(False)
         self._busy_widget.setVisible(True)
+
+        self._label_info.setText('Listing assets...')
 
         # Wait for context to be loaded
         self.get_context()
@@ -161,6 +167,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
     def _stop_busy_indicator(self):
         self._busy_widget.stop()
         self._busy_widget.setVisible(False)
+        self._rebuild_button.setVisible(True)
 
     def mousePressEvent(self, event):
         if event.button() != QtCore.Qt.RightButton and self._component_list:
@@ -420,13 +427,18 @@ class ComponentBaseWidget(AccordionBaseWidget):
         self.thumbnail_widget = AssetVersion(self.session)
         # self.thumbnail_widget.setScaledContents(True)
 
-        thumb_width = (self.get_thumbnail_height() * 16) / 9
+        thumb_width = self.get_thumbnail_height()
         self.thumbnail_widget.setMinimumWidth(int(thumb_width))
         self.thumbnail_widget.setMinimumHeight(self.get_thumbnail_height())
         self.thumbnail_widget.setMaximumWidth(int(thumb_width))
         self.thumbnail_widget.setMaximumHeight(self.get_thumbnail_height())
         header_layout.addWidget(self.thumbnail_widget)
 
+        print(
+            '@@@ widht: {}; height: {}'.format(
+                int(thumb_width), self.get_thumbnail_height()
+            )
+        )
         header_layout.addWidget(self.get_ident_widget(), 100)
 
         header_layout.addWidget(self.get_version_widget())
@@ -437,6 +449,9 @@ class ComponentBaseWidget(AccordionBaseWidget):
 
         # Add loader selector
         self._definition_selector = DefinitionSelector()
+        self._definition_selector.setMinimumHeight(22)
+        self._definition_selector.setMaximumHeight(22)
+        set_property(self._definition_selector, 'chip', 'true')
         self._definition_selector.currentIndexChanged.connect(
             self._definition_selected
         )
@@ -444,6 +459,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
 
         # Mode selector, based on supplied DCC supported modes
         self._mode_selector = ModeSelector()
+        set_property(self._mode_selector, 'chip', 'true')
         self._modes = [
             mode
             for mode in list(
@@ -570,13 +586,6 @@ class ComponentBaseWidget(AccordionBaseWidget):
     def update_input(self, message, status):
         '''Update the accordion input summary, should be overridden by child.'''
         pass
-
-
-class DefinitionSelector(QtWidgets.QComboBox):
-    def __init__(self):
-        super(DefinitionSelector, self).__init__()
-        self.setMinimumHeight(22)
-        self.setMaximumHeight(22)
 
 
 class ModeSelector(QtWidgets.QComboBox):

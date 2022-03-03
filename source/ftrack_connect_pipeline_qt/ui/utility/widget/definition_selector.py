@@ -29,7 +29,7 @@ class DefinitionItem(QtWidgets.QPushButton):
         self.setMinimumWidth(80)
 
 
-class DefinitionSelector(QtWidgets.QWidget):
+class DefinitionSelectorWidgetBase(QtWidgets.QWidget):
     '''DefinitionSelector Base Class'''
 
     hosts_discovered = QtCore.Signal(object)
@@ -43,7 +43,7 @@ class DefinitionSelector(QtWidgets.QWidget):
 
     def __init__(self, client_name, parent=None):
         '''Initialize DefinitionSelector widget'''
-        super(DefinitionSelector, self).__init__(parent=parent)
+        super(DefinitionSelectorWidgetBase, self).__init__(parent=parent)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
@@ -165,8 +165,8 @@ class DefinitionSelector(QtWidgets.QWidget):
         self._on_select_definition(index)
 
 
-class DefinitionSelectorButtons(DefinitionSelector):
-    '''DefinitionSelector Base Class'''
+class DefinitionSelectorWidgetButtons(DefinitionSelectorWidgetBase):
+    '''DefinitionSelector as buttons on a row'''
 
     definition_changed = QtCore.Signal(object, object, object)
     host_changed = QtCore.Signal(object)
@@ -174,7 +174,7 @@ class DefinitionSelectorButtons(DefinitionSelector):
 
     def __init__(self, client_name, parent=None):
         '''Initialize DefinitionSelector widget'''
-        super(DefinitionSelectorButtons, self).__init__(
+        super(DefinitionSelectorWidgetButtons, self).__init__(
             client_name, parent=parent
         )
 
@@ -361,7 +361,7 @@ class DefinitionSelectorButtons(DefinitionSelector):
                                 self.host_connection.context_id,
                                 asset_type_name,
                             )
-                        )
+                        ).first()
                         if asset_version and (
                             latest_version is None
                             or latest_version['date'] < asset_version['date']
@@ -470,3 +470,292 @@ class DefinitionSelectorButtons(DefinitionSelector):
     def refresh(self):
         self._on_select_definition(self.button_group.checkedButton())
         self.refreshed.emit()
+
+
+class DefinitionSelectorWidgetComboBox(DefinitionSelectorWidgetBase):
+    '''DefinitionSelector Base Class'''
+
+    definition_changed = QtCore.Signal(object, object, object)
+    host_changed = QtCore.Signal(object)
+
+    def __init__(self, client_name, parent=None):
+        '''Initialize DefinitionSelector widget'''
+        super(DefinitionSelectorWidgetComboBox, self).__init__(
+            client_name, parent=parent
+        )
+
+    def build(self):
+        self._label_text = "Choose what to {}".format(
+            self._client_name.lower().replace('publisher', 'publish')
+        )
+        self._refresh_text = (
+            "CLEAR" if self._client_name.lower() == "publish" else "REFRESH"
+        )
+
+        self.host_combobox = QtWidgets.QComboBox()
+
+        self.definitions_widget = QtWidgets.QWidget()
+
+        self.definitions_widget.setLayout(QtWidgets.QVBoxLayout())
+        self.definitions_widget.layout().setContentsMargins(0, 0, 0, 0)
+
+        header_widget = QtWidgets.QWidget()
+        header_widget.setLayout(QtWidgets.QHBoxLayout())
+        header_widget.layout().setContentsMargins(0, 0, 0, 0)
+        header_widget.layout().setSpacing(0)
+
+        if self._client_name != 'assembler':
+            self.label_widget = QtWidgets.QLabel(self._label_text)
+            header_widget.layout().addWidget(self.label_widget)
+            header_widget.layout().addStretch()
+
+            self._refresh_button = QtWidgets.QPushButton(self._refresh_text)
+            self._refresh_button.setObjectName('borderless')
+            header_widget.layout().addWidget(self._refresh_button)
+
+        header_widget.setVisible(self._client_name != 'assembler')
+
+        self.definitions_widget.layout().addWidget(header_widget)
+
+        self._definition_selector = DefinitionSelector()
+
+        self.definitions_widget.layout().addWidget(self._definition_selector)
+
+        self.layout().addWidget(self.host_combobox)
+        self.layout().addWidget(self.definitions_widget)
+        self.definitions_widget.setVisible(self._client_name != 'assembler')
+
+        self.no_definitions_label = QtWidgets.QLabel()
+        self.layout().addWidget(self.no_definitions_label)
+        self.no_definitions_label.setVisible(False)
+
+        self.host_combobox.addItem('- Select host -')
+
+    def post_build(self):
+        '''Connect the widget signals'''
+        self.host_combobox.currentIndexChanged.connect(self._on_change_host)
+        self._definition_selector.currentIndexChanged.connect(
+            self._on_change_definition
+        )
+        if self._client_name != 'assembler':
+            self._refresh_button.clicked.connect(self.refresh)
+
+    def _on_change_host(self, index):
+        '''triggered when changing host selection to *index*'''
+        self.clear_definitions()
+        self.host_connection = self.host_combobox.itemData(index)
+        self.host_changed.emit(self.host_connection)
+
+        if not self.host_connection:
+            self.logger.debug('No data for selected host')
+            return
+
+        self.schemas = self.host_connection.definitions['schema']
+        self._populate_definitions()
+
+    def clear_definitions(self):
+        self._definition_selector.clear()
+
+    def _populate_definitions(self):
+
+        self.definitions = []
+
+        latest_version = None  # The current latest version
+        index_latest_version = -1
+
+        for schema in self.schemas:
+            schema_title = schema.get('title').lower()
+            if self._definition_title_filter:
+                if schema_title != self._definition_title_filter:
+                    continue
+            items = self.host_connection.definitions.get(schema_title)
+            self.definitions = items
+
+            index = 0
+            for item in items:
+                # Remove ' Publisher/Loader'
+                text = '{}'.format(' '.join(item.get('name').split(' ')[:-1]))
+                component_names_filter = None  # Outlined openable components
+                enable = True
+                if self._client_name.lower() in [
+                    qt_constants.OPEN_WIDGET,
+                    qt_constants.ASSEMBLER_WIDGET,
+                ]:
+                    mode_filter = (
+                        self._client_name.lower()
+                        if self._client_name.lower()
+                        != qt_constants.ASSEMBLER_WIDGET
+                        else 'import'
+                    )
+                    # Remove plugins not matching client
+                    # definition = copy.deepcopy(definition)
+                    types = [
+                        core_constants.CONTEXTS,
+                        core_constants.COMPONENTS,
+                        core_constants.FINALIZERS,
+                    ]
+                    for type_name in types:
+                        for step in item[type_name]:
+                            for stage in step['stages']:
+                                plugins_remove = []
+                                for plugin in stage['plugins']:
+                                    mode = (plugin.get('mode') or '').lower()
+                                    if mode != 'null' and mode != mode_filter:
+                                        plugins_remove.append(plugin)
+                                for plugin in plugins_remove:
+                                    stage['plugins'].remove(plugin)
+                if self._client_name == qt_constants.OPEN_WIDGET:
+                    # Open mode; Only provide the schemas, and components that
+                    # can load the file extensions. Peek into versions and pre-select
+                    # the one loader having the latest version
+                    for component_step in item['components']:
+                        can_open_component = False
+                        file_formats = component_step['file_formats']
+                        if set(file_formats).intersection(
+                            set(self._definition_extensions_filter)
+                        ):
+                            can_open_component = True
+                        for stage in component_step['stages']:
+                            for plugin in stage['plugins']:
+                                if plugin.get('type') == 'importer':
+                                    if not 'options' in plugin:
+                                        plugin['options'] = {}
+                                    plugin['options']['load_mode'] = 'Open'
+                        if can_open_component:
+                            if component_names_filter is None:
+                                component_names_filter = set()
+                            component_names_filter.add(component_step['name'])
+                        else:
+                            # Make sure it's not visible or executed
+                            component_step['visible'] = False
+                            component_step['enabled'] = False
+                    if component_names_filter is None:
+                        # There were no openable components, try next definition
+                        continue
+                if self._client_name == qt_constants.OPEN_WIDGET:
+                    # Check if any versions at all, find out asset type name from package
+                    asset_type_short = item['asset_type']
+                    asset_version = None
+                    # Package is referring to asset type code, find out name
+                    asset_type_name = None
+                    asset_type = self.host_connection.session.query(
+                        'AssetType where short={}'.format(asset_type_short)
+                    ).first()
+                    if asset_type:
+                        asset_type_name = asset_type['name']
+                    else:
+                        self.logger.warning(
+                            'Cannot identify asset type name from short: {}'.format(
+                                asset_type_short
+                            )
+                        )
+                    if asset_type_name:
+                        asset_version = self.host_connection.session.query(
+                            'AssetVersion where '
+                            'task.id={} and asset.type.name="{}" and is_latest_version=true'.format(
+                                self.host_connection.context_id,
+                                asset_type_name,
+                            )
+                        ).first()
+                        if asset_version and (
+                            latest_version is None
+                            or latest_version['date'] < asset_version['date']
+                        ):
+                            latest_version = asset_version
+                            index_latest_version = index
+                    if (
+                        asset_version is None
+                        and self._client_name == qt_constants.OPEN_WIDGET
+                    ):
+                        enable = False
+                if not self._definition_title_filter:
+                    text = '{} - {}'.format(
+                        schema.get('title'), item.get('name')
+                    )
+
+                self._definition_selector.addItem(
+                    text.upper(), (item, component_names_filter)
+                )
+
+                index += 1
+        if (
+            index_latest_version == -1
+            and self._client_name == qt_constants.PUBLISHER_WIDGET
+            and self._definition_selector.count() == 1
+        ):
+            index_latest_version = 0  # Select the one and only
+        if self._definition_selector.count() == 0:
+            if self._client_name == qt_constants.OPEN_WIDGET:
+                self.no_definitions_label.setText(
+                    '<html><i>No pipeline loader definitions available to open files of type {}!'
+                    '</i></html>'.format(self._definition_extensions_filter)
+                )
+            elif self._client_name == qt_constants.PUBLISHER_WIDGET:
+                self.no_definitions_label.setText(
+                    '<html><i>No pipeline publisher definitions are available!</i></html>'
+                )
+            else:
+                self.no_definitions_label.setText(
+                    '<html><i>No pipeline loader definitions are available!</i></html>'
+                )
+
+            self.no_definitions_label.setVisible(True)
+            self.definition_changed.emit(
+                None, None, None
+            )  # Tell client there are no definitions
+        elif index_latest_version == -1:
+            if self._client_name == qt_constants.OPEN_WIDGET:
+                # No versions
+                self.no_definitions_label.setText(
+                    '<html><i>No version available to open!</i></html>'
+                )
+                self.definition_changed.emit(
+                    None, None, None
+                )  # Tell client there are no versions
+        else:
+            self._definition_selector.setCurrentIndex(index_latest_version)
+            self.no_definitions_label.setVisible(False)
+        if self._client_name != qt_constants.ASSEMBLER_WIDGET:
+            self.definitions_widget.show()
+
+    def _on_change_definition(self, index):
+        (
+            self.definition,
+            self.component_names_filter,
+        ) = self._definition_selector.itemData(index)
+        self._definition_selector.setToolTip(
+            json.dumps(self.definition, indent=4)
+        )
+        if not self.definition:
+            self.logger.debug('No data for selected definition')
+            self.definition_changed.emit(None, None, None)
+            return
+
+        for schema in self.schemas:
+            if (
+                self.definition.get('type').lower()
+                == schema.get('title').lower()
+            ):
+                self.schema = schema
+                break
+        self.definition_changed.emit(
+            self.schema, self.definition, self.component_names_filter
+        )
+
+    def get_current_definition_index(self):
+        return self._definition_selector.currentIndex()
+
+    def set_current_definition_index(self, index):
+        if self._definition_selector.currentIndex() != index:
+            self._definition_selector.setCurrentIndex(index)
+        else:
+            self._on_change_definition(index)
+
+    def refresh(self):
+        self._on_change_definition(self._definition_selector.currentIndex())
+        self.refreshed.emit()
+
+
+class DefinitionSelector(QtWidgets.QComboBox):
+    def __init__(self):
+        super(DefinitionSelector, self).__init__()

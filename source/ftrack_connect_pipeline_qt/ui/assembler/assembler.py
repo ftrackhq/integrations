@@ -234,8 +234,6 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
 
         self.scroll.setWidget(self._component_list)
 
-        self._label_info.setText('Listing assets')
-
         # Find version beneath browsed entity, in chunks
         self._limit = 5  # Amount of assets to fetch at a time
 
@@ -317,11 +315,12 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
         self.update()
 
     def _on_all_versions_fetched(self):
-        self._busy_widget.stop()
-        self._busy_widget.setVisible(False)
+        self.stopBusyIndicator.emit()
 
         if self.model.rowCount() == 0:
-            l = QtWidgets.QLabel('<html><i>No assets found!</i></html>')
+            l = QtWidgets.QLabel(
+                '<html><i>No assets found, please refine your search!</i></html>'
+            )
             l.setObjectName("gray-darker")
             self.scroll.setWidget(center_widget(l))
             self._label_info.setText('No assets found')
@@ -444,24 +443,24 @@ class DependenciesListWidget(AssemblerListBaseWidget):
 
                 widget = AssemblerDependencyContextLabel()
                 widget.setLayout(QtWidgets.QHBoxLayout())
-                widget.layout().setContentsMargins(8, 0, 8, 0)
-                widget.layout().setSpacing(5)
+                widget.layout().setContentsMargins(8, 10, 8, 0)
+                widget.layout().setSpacing(2)
 
                 # Append thumbnail
                 thumbnail_widget = Context(self.model.session)
                 # self.thumbnail_widget.setScaledContents(True)
 
-                thumbnail_widget.setMinimumWidth(50)
-                thumbnail_widget.setMinimumHeight(50)
-                thumbnail_widget.setMaximumWidth(50)
-                thumbnail_widget.setMaximumHeight(50)
+                thumbnail_widget.setMinimumWidth(40)
+                thumbnail_widget.setMinimumHeight(40)
+                thumbnail_widget.setMaximumWidth(40)
+                thumbnail_widget.setMaximumHeight(40)
                 thumbnail_widget.load(context_entity['id'])
                 widget.layout().addWidget(thumbnail_widget)
 
                 # Append a context label
                 entity_info = AssemblerEntityInfo()
-                entity_info.setMinimumHeight(60)
-                entity_info.setMaximumHeight(60)
+                entity_info.setMinimumHeight(40)
+                entity_info.setMaximumHeight(40)
                 entity_info.set_entity(context_entity)
 
                 widget.layout().addWidget(entity_info)
@@ -580,7 +579,7 @@ class DependencyComponentWidget(ComponentBaseWidget):
         self.setMinimumHeight(25)
 
     def get_thumbnail_height(self):
-        return 18
+        return 24
 
     def get_ident_widget(self):
         '''Asset name and component name.file_type'''
@@ -741,7 +740,7 @@ class AssemblerEntityInfo(QtWidgets.QWidget):
 
     def pre_build(self):
         self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().setContentsMargins(5, 12, 2, 2)
+        self.layout().setContentsMargins(5, 2, 2, 2)
         self.layout().setSpacing(2)
 
     def build(self):
@@ -751,7 +750,7 @@ class AssemblerEntityInfo(QtWidgets.QWidget):
         name_widget.layout().setSpacing(2)
 
         self._from_field = QtWidgets.QLabel('From:')
-        self._from_field.setObjectName('gray')
+        self._from_field.setObjectName('gray-darker')
         name_widget.layout().addWidget(self._from_field)
         if self._additional_widget:
             name_widget.layout().addWidget(self._additional_widget)
@@ -759,7 +758,7 @@ class AssemblerEntityInfo(QtWidgets.QWidget):
         self.layout().addWidget(name_widget)
 
         self._path_field = QtWidgets.QLabel()
-        self._path_field.setObjectName('h3')
+        self._path_field.setObjectName('gray')
         self.layout().addWidget(self._path_field)
 
         self.layout().addStretch()
