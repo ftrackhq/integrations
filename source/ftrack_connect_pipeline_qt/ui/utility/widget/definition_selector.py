@@ -103,11 +103,7 @@ class DefinitionSelector(QtWidgets.QWidget):
             self.logger.debug('No data for selected host')
             return
 
-        self.schemas = [
-            schema
-            for schema in self.host_connection.definitions['schema']
-            if schema.get('title').lower() != 'package'
-        ]
+        self.schemas = self.host_connection.definitions['schema']
 
         self._populate_definitions()
 
@@ -252,11 +248,7 @@ class DefinitionSelectorButtons(DefinitionSelector):
             self.logger.debug('No data for selected host')
             return
 
-        self.schemas = [
-            schema
-            for schema in self.host_connection.definitions['schema']
-            if schema.get('title').lower() != 'package'
-        ]
+        self.schemas = self.host_connection.definitions['schema']
         self._populate_definitions()
 
     def clear_definitions(self):
@@ -313,43 +305,34 @@ class DefinitionSelectorButtons(DefinitionSelector):
                     # Open mode; Only provide the schemas, and components that
                     # can load the file extensions. Peek into versions and pre-select
                     # the one loader having the latest version
-                    for component in item['components']:
+                    for component_step in item['components']:
                         can_open_component = False
-                        for stage in component['stages']:
+                        file_formats = component_step['file_formats']
+                        if set(file_formats).intersection(
+                            set(self._definition_extensions_filter)
+                        ):
+                            can_open_component = True
+                        for stage in component_step['stages']:
                             for plugin in stage['plugins']:
-                                if 'accepted_formats' in plugin.get(
-                                    'options', {}
-                                ):
-                                    accepted_formats = plugin['options'][
-                                        'accepted_formats'
-                                    ]
-                                    if set(accepted_formats).intersection(
-                                        set(self._definition_extensions_filter)
-                                    ):
-                                        can_open_component = True
-                                elif plugin.get('type') == 'importer':
+                                if plugin.get('type') == 'importer':
                                     if not 'options' in plugin:
                                         plugin['options'] = {}
                                     plugin['options']['load_mode'] = 'Open'
                         if can_open_component:
                             if component_names_filter is None:
                                 component_names_filter = set()
-                            component_names_filter.add(component['name'])
+                            component_names_filter.add(component_step['name'])
                         else:
                             # Make sure it's not visible or executed
-                            component['visible'] = False
-                            component['enabled'] = False
+                            component_step['visible'] = False
+                            component_step['enabled'] = False
                     if component_names_filter is None:
                         # There were no openable components, try next definition
                         continue
                 if self._client_name != 'assembler':
                     # Check if any versions at all, find out asset type name from package
-                    asset_type_short = None
+                    asset_type_short = item['asset_type']
                     asset_version = None
-                    for package in self.host_connection.definitions['package']:
-                        if package['name'] == item.get('package'):
-                            asset_type_short = package['asset_type_name']
-                            break
                     # Package is referring to asset type code, find out name
                     asset_type_name = None
                     asset_type = self.host_connection.session.query(

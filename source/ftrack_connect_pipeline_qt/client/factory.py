@@ -111,10 +111,6 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         self.context_id = context_id
         self.asset_type_name = asset_type_name
 
-    def set_package(self, package):
-        '''Set :obj:`package` with the given *package*'''
-        self.package = package
-
     def set_definition_type(self, definition_type):
         '''Set :obj:`definition_type` with the given *definition_type*'''
         self.definition_type = definition_type

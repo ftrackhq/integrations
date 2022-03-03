@@ -109,20 +109,9 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         '''Build a list of loadable components from the supplied *versions*'''
 
         # Fetch all definitions, append asset type name
-        loader_definitions = []
-        asset_type_name_short_mappings = {}
-        for (
-            definition
-        ) in self._assembler_client.host_and_definition_selector.definitions:
-            for package in self._assembler_client.host_connection.definitions[
-                'package'
-            ]:
-                if package['name'] == definition.get('package'):
-                    asset_type_name_short_mappings[
-                        definition['name']
-                    ] = package['asset_type_name']
-                    loader_definitions.append(definition)
-                    break
+        loader_definitions = (
+            self._assembler_client.host_and_definition_selector.definitions
+        )
 
         # import json
         print(
@@ -135,7 +124,6 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                 )
             )
         )
-        # print('@@@ # loader_definitions: {}'.format(len(loader_definitions)))
 
         # For each version, figure out loadable components and store with
         # fragment of its possible loader definition(s)
@@ -168,9 +156,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                 matching_definitions = None
                 for definition in loader_definitions:
                     # Matches asset type?
-                    definition_asset_type_name_short = (
-                        asset_type_name_short_mappings[definition['name']]
-                    )
+                    definition_asset_type_name_short = definition['asset_type']
                     if (
                         definition_asset_type_name_short
                         != version['asset']['type']['short']
@@ -194,97 +180,49 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                                 )
                             )
                             continue
-                        for d_stage in d_component.get('stages', []):
-                            if d_stage.get('name') == 'collector':
-                                for d_plugin in d_stage.get('plugins', []):
-                                    accepted_formats = d_plugin.get(
-                                        'options', {}
-                                    ).get('accepted_formats')
-                                    if not accepted_formats:
-                                        continue
-                                    if set(accepted_formats).intersection(
-                                        set([component_extension])
-                                    ):
-                                        # Construct fragment
-                                        definition_fragment = {
-                                            'components': [
-                                                copy.deepcopy(d_component)
-                                            ]
-                                        }
-                                        for key in definition:
-                                            if key not in [
-                                                'components',
-                                            ]:
-                                                definition_fragment[
-                                                    key
-                                                ] = copy.deepcopy(
-                                                    definition[key]
-                                                )
-                                                if (
-                                                    key
-                                                    == core_constants.CONTEXTS
-                                                ):
-                                                    # Remove open context
-                                                    for (
-                                                        stage
-                                                    ) in definition_fragment[
-                                                        key
-                                                    ][
-                                                        0
-                                                    ][
-                                                        'stages'
-                                                    ]:
-                                                        for plugin in stage[
-                                                            'plugins'
-                                                        ]:
-                                                            if (
-                                                                not 'options'
-                                                                in plugin
-                                                            ):
-                                                                plugin[
-                                                                    'options'
-                                                                ] = {}
-                                                            # Store version
-                                                            plugin['options'][
-                                                                'asset_name'
-                                                            ] = version[
-                                                                'asset'
-                                                            ][
-                                                                'name'
-                                                            ]
-                                                            plugin['options'][
-                                                                'asset_id'
-                                                            ] = version[
-                                                                'asset'
-                                                            ][
-                                                                'id'
-                                                            ]
-                                                            plugin['options'][
-                                                                'version_number'
-                                                            ] = version[
-                                                                'version'
-                                                            ]
-                                                            plugin['options'][
-                                                                'version_id'
-                                                            ] = version['id']
-                                        print(
-                                            '@@@     {}.{} Match!'.format(
-                                                d_stage['name'],
-                                                d_plugin.get('name'),
-                                            )
-                                        )
-                                        break
-                                    else:
-                                        print(
-                                            '@@@     {}.{} Accepted formats {} does not intersect with {}!'.format(
-                                                d_stage['name'],
-                                                d_plugin.get('name'),
-                                                accepted_formats,
-                                                [component_extension],
-                                            )
-                                        )
-                            if definition_fragment:
-                                break
+                        file_formats = d_component['file_formats']
+                        if set(file_formats).intersection(
+                            set([component_extension])
+                        ):
+                            # Construct fragment
+                            definition_fragment = {
+                                'components': [copy.deepcopy(d_component)]
+                            }
+                            for key in definition:
+                                if key not in [
+                                    'components',
+                                ]:
+                                    definition_fragment[key] = copy.deepcopy(
+                                        definition[key]
+                                    )
+                                    if key == core_constants.CONTEXTS:
+                                        # Remove open context
+                                        for stage in definition_fragment[key][
+                                            0
+                                        ]['stages']:
+                                            for plugin in stage['plugins']:
+                                                if not 'options' in plugin:
+                                                    plugin['options'] = {}
+                                                # Store version
+                                                plugin['options'][
+                                                    'asset_name'
+                                                ] = version['asset']['name']
+                                                plugin['options'][
+                                                    'asset_id'
+                                                ] = version['asset']['id']
+                                                plugin['options'][
+                                                    'version_number'
+                                                ] = version['version']
+                                                plugin['options'][
+                                                    'version_id'
+                                                ] = version['id']
+                        else:
+                            print(
+                                '@@@     Definition file formats {} does not intersect with {}!'.format(
+                                    file_formats,
+                                    [component_extension],
+                                )
+                            )
                         if definition_fragment:
                             if matching_definitions is None:
                                 matching_definitions = []
