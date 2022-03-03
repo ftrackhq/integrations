@@ -55,6 +55,7 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
             'Check the plugins you want to install or add your local plugins by dropping them on the list below'
         )
         label.setWordWrap(True)
+        label.setMargin(5)
         self.layout().addWidget(label)
 
         # plugin list
