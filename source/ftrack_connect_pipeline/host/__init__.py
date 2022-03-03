@@ -106,9 +106,9 @@ class Host(object):
         *event* : Published from the client host connection at
         :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
         '''
+
         data = event['data']['pipeline']['data']
         engine_type = event['data']['pipeline']['engine_type']
-        delayed_load = event['data']['pipeline']['delayed_load']
         asset_type_name = data.get('asset_type')
 
         Engine = self.engines.get(engine_type)
@@ -116,15 +116,17 @@ class Host(object):
             self._event_manager, self.host_types, self.host_id, asset_type_name
         )
 
-        if engine_type in ['Publisher', 'Loader']:
+        if not 'plugin' in data:
+            # Run a definition
             try:
                 validation.validate_schema(self.__registry['schema'], data)
             except Exception as error:
                 self.logger.error(
                     "Can't validate the data {} error: {}".format(data, error)
                 )
-
-            runner_result = engine_runner.run_definition(data, delayed_load)
+            runner_result = engine_runner.run_definition(
+                data, event['data']['pipeline']['delayed_load']
+            )
         else:
             runner_result = engine_runner.run(data)
 

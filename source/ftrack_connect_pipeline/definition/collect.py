@@ -77,7 +77,7 @@ def _collect_json(source_path):
     Return a json encoded list of all the json files discovered in the given
     *source_path*.
     '''
-    logger.debug('looking for dernitions in : {}'.format(source_path))
+    logger.debug('looking for definitions in : {}'.format(source_path))
 
     json_files = []
     for root, dirnames, filenames in os.walk(source_path):

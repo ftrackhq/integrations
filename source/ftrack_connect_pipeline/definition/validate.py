@@ -43,12 +43,15 @@ def validate_schema(data, session):
                 for definition in data[entry]:
                     copy_data[entry].remove(definition)
                     if schema['title'].lower() != 'asset_manager':
-                        if definition['asset_type'] not in valid_assets_types:
+                        if (
+                            definition.get('asset_type')
+                            not in valid_assets_types
+                        ):
                             logger.error(
                                 'Definition {} does use a non existing'
                                 ' asset type: {}'.format(
                                     definition['name'],
-                                    definition['asset_type'],
+                                    definition.get('asset_type'),
                                 )
                             )
                             continue

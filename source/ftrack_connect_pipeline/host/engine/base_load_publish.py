@@ -315,6 +315,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
         *delayed_load* : If true, only ftrack nodes will be created leaving the
         import for later.
         '''
+
         self._definition = data
         self._delayed_load = delayed_load
 
