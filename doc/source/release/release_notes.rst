@@ -13,6 +13,11 @@ Release Notes
     .. change:: changed
         :tags: UX
 
+        Installed plugins are grayed out.
+
+    .. change:: changed
+        :tags: UX
+
         Remove dashed borders and add label to explain install methods.
 
 
