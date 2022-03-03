@@ -107,16 +107,14 @@ class Host(object):
         data = event['data']['pipeline']['data']
         engine_type = event['data']['pipeline']['engine_type']
         delayed_load = event['data']['pipeline']['delayed_load']
-        package = data.get('package')
-        asset_type_name = None
+        asset_type_name = data.get('asset_type')
 
-        if package:
-            # we are in Load/Publish land....
-            # We do this check before the load_publish engine, to validate the
-            # schema and because we need the asset type to load the engine.
-            asset_type_name = self.get_asset_type_from_packages(
-                self.__registry['package'], package
-            )
+        Engine = self.engines.get(engine_type)
+        engine_runner = Engine(
+            self._event_manager, self.host_types, self.host_id, asset_type_name
+        )
+
+        if engine_type in ['Publisher', 'Loader']:
             try:
                 validation.validate_schema(self.__registry['schema'], data)
             except Exception as error:
@@ -124,30 +122,13 @@ class Host(object):
                     "Can't validate the data {} error: {}".format(data, error)
                 )
 
-        Engine = self.engines.get(engine_type)
-        engine_runner = Engine(
-            self._event_manager, self.host_types, self.host_id, asset_type_name
-        )
-        if package:
             runner_result = engine_runner.run_definition(data, delayed_load)
         else:
             runner_result = engine_runner.run(data)
+
         if runner_result == False:
             self.logger.error("Couldn't publish the data {}".format(data))
         return runner_result
-
-    def get_asset_type_from_packages(self, packages, data_package):
-        '''
-        Returns the asset type if the given *data_package* is in the given
-        *packages*
-
-        *packages* : Validatet packages
-
-        *data_package* : package got from the data in the :meth:`run`
-        '''
-        for package in packages:
-            if package['name'] == data_package:
-                return package['asset_type_name']
 
     def on_register_definition(self, event):
         '''
@@ -170,7 +151,9 @@ class Host(object):
         validated_result = self.validate(raw_result)
 
         for key, value in list(validated_result.items()):
-            logger.warning('Valid packages : {} : {}'.format(key, len(value)))
+            logger.warning(
+                'Valid definitions : {} : {}'.format(key, len(value))
+            )
 
         self.__registry = validated_result
 
@@ -198,8 +181,7 @@ class Host(object):
         Validates the given *data* against the correspondant plugin validator.
         Returns a validated data.
 
-        *data* : Should be a validated and complete definitions, schema and
-        packages dictionary coming from
+        *data* : Should be a validated and complete definitions and schemas coming from
         :func:`ftrack_connect_pipeline_definition.resource.definitions.register.register_definitions`
         '''
         plugin_validator = validation.PluginDiscoverValidation(

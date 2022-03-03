@@ -320,7 +320,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
         context_data = None
         components_output = []
-        for step_group in constants.STEPS_ORDER:
+        for step_group in constants.STEP_GROUPS:
             group_steps = data[step_group]
             group_results = []
 
@@ -336,10 +336,14 @@ class BaseLoaderPublisherEngine(BaseEngine):
                 step_stage_order = step['stage_order']
                 step_category = step['category']
                 step_type = step['type']
-                step_options = []
+                step_options = {}
 
                 if step_group == constants.COMPONENTS:
                     step_options = {'component_name': step_name}
+                    if 'file_formats' in step:
+                        step_options['file_formats'] = step[
+                            'file_formats'
+                        ]  # Pass on to collector
 
                 if not step_enabled:
                     self.logger.debug(
