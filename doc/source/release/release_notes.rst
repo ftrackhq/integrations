@@ -15,6 +15,11 @@ Release Notes
 
         Installed plugins are grayed out.
 
+    .. change:: changed
+        :tags: UX
+
+        Remove dashed borders and add label to explain install methods.
+
 
 .. release:: 0.1.1
     :date:: 2022-02-14  

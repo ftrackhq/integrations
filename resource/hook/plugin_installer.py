@@ -51,6 +51,12 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self.search_bar.setPlaceholderText('Search plugin...')
 
         self.layout().addWidget(self.search_bar)
+        label = QtWidgets.QLabel(
+            'Check the plugins you want to install or add your local plugins by dropping them on the list below'
+        )
+        label.setWordWrap(True)
+        label.setMargin(5)
+        self.layout().addWidget(label)
 
         # plugin list
         self.plugin_list_widget = DndPluginList(
@@ -67,7 +73,7 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
 
         self.reset_button = QtWidgets.QPushButton('Clear selection')
         self.reset_button.setIcon(QtGui.QIcon(qta.icon('mdi6.lock-reset')))
-        self.reset_button.setMaximumWidth(100)
+        self.reset_button.setMaximumWidth(120)
 
         button_layout.addWidget(self.apply_button)
         button_layout.addWidget(self.reset_button)
