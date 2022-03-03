@@ -255,13 +255,9 @@ class QtAssemblerClient(QtClient):
 
     def setup_widget_factory(self, widget_factory, definition, context_id):
         widget_factory.set_definition(definition)
-        current_package = self.get_current_package(definition)
-        widget_factory.set_context(
-            context_id, current_package['asset_type_name']
-        )
+        widget_factory.set_context(context_id, definition['asset_type'])
         widget_factory.host_connection = self._host_connection
         widget_factory.set_definition_type(definition['type'])
-        widget_factory.set_package(current_package)
 
     def run(self, delayed_load=False):
         '''(Override) Function called when click the run button.'''

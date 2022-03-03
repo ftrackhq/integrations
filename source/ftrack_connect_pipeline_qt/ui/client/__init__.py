@@ -69,16 +69,17 @@ class BaseUIWidget(object):
         self._parent = parent
 
         self.name = name
-        self.description = None
-        if self.fragment_data:
-            self.description = self.fragment_data.get(
-                'description', 'No description provided'
-            )
         self._widget = None
         self._widget_id = uuid.uuid4().hex
         self._is_optional = False
         self._is_enabled = True
-
+        self.description = None
+        self._is_selected = True
+        if self.fragment_data:
+            self.description = self.fragment_data.get(
+                'description', 'No description provided'
+            )
+            self._is_selected = self.fragment_data.get('selected', True)
         self.pre_build()
         self.build()
         self.post_build()

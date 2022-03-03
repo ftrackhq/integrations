@@ -229,13 +229,12 @@ class QtClient(Client, QtWidgets.QFrame):
 
         super(QtClient, self).change_definition(schema, definition)
 
-        asset_type_name = self.current_package['asset_type_name']
+        asset_type_name = definition['asset_type']
 
         self.widget_factory.set_context(self.context_id, asset_type_name)
         self.widget_factory.host_connection = self.host_connection
         self.widget_factory.listen_widget_updates()
         self.widget_factory.set_definition_type(self.definition['type'])
-        self.widget_factory.set_package(self.current_package)
         self.definition_widget = self.widget_factory.build_definition_ui(
             self.definition, component_names_filter
         )

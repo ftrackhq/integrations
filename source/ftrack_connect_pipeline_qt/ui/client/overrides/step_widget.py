@@ -102,12 +102,13 @@ class PublisherAccordion(AccordionBaseWidget):
     def options_widget(self):
         return self._options_button
 
-    def __init__(self, parent=None, title=None, checkable=False):
+    def __init__(self, parent=None, title=None, checkable=False, checked=True):
         super(PublisherAccordion, self).__init__(
             AccordionBaseWidget.SELECT_MODE_NONE,
             AccordionBaseWidget.CHECK_MODE_CHECKBOX
             if checkable
             else AccordionBaseWidget.CHECK_MODE_CHECKBOX_DISABLED,
+            checked=checked,
             title=title,
             parent=parent,
         )
@@ -251,7 +252,9 @@ class PublisherAccordionStepWidget(BaseUIWidget):
 
     def build(self):
         self._widget = PublisherAccordion(
-            title=self.name, checkable=self.is_optional
+            title=self.name,
+            checkable=self.is_optional,
+            checked=self._is_selected,
         )
 
     def parent_validator(self, step_widget):
