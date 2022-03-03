@@ -183,8 +183,6 @@ class QtAssemblerClient(QtClient):
 
         self.layout().addWidget(self.splitter, 100)
 
-        self.layout().addWidget(footer.Footer(self.session))
-
     def post_build(self):
         super(QtAssemblerClient, self).post_build()
         self.host_and_definition_selector.hosts_discovered.connect(

@@ -64,8 +64,7 @@ class QtPublisherClient(QtClient):
         self.run_button.setText('PUBLISH')
 
     def run(self):
-        super(QtPublisherClient, self).run()
-        if not self.widget_factory.has_error:
+        if super(QtPublisherClient, self).run():
             self.widget_factory.progress_widget.set_status(
                 constants.SUCCESS_STATUS,
                 'Successfully published!',

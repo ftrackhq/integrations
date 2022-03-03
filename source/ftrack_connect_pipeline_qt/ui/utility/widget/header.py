@@ -134,11 +134,34 @@ class User(QtWidgets.QFrame):
                 user['first_name'], user['last_name']
             ).title()
 
-        self.setToolTip(
-            'Logged in as: {} to {}'.format(
-                self.session.api_user, self.session.server_url
-            )
-        )
+        tooltip = 'Logged in as: {}'.format(self.session.api_user)
+        tooltip += '\n'
+        tooltip += 'Server: {}'.format(self.session.server_url)
+        tooltip += '\n'
+        location = self.session.pick_location()
+        if location:
+            tooltip += 'Location: {}'.format(location['name'])
+            tooltip = 'Priority: {}.'.format(location.priority)
+            if location.accessor:
+                tooltip += ' | accessor: {}'.format(
+                    location.accessor.__module__
+                )
+                if hasattr(location.accessor, 'prefix'):
+                    tooltip += ' @ {}'.format(location.accessor.prefix)
+                    tooltip += ' Files will be published and loaded within this base directory.'
+                else:
+                    tooltip += ' Files will be published and loaded with this storage accessor.'
+            if location.structure:
+                tooltip += ' | structure: {}'.format(
+                    location.structure.__module__
+                )
+                tooltip += (
+                    ' File structure will be dictated by this structure.'
+                )
+        else:
+            tooltip += 'Location: - not set -'
+        tooltip += '\n'
+        self.setToolTip(tooltip)
 
 
 class MessageBox(QtWidgets.QWidget):

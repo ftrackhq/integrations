@@ -27,6 +27,7 @@ class QtOpenClient(QtClient):
             self.definition_extensions_filter = definition_extensions_filter
         self.ask_open_assembler = False
         self.ask_open_latest = False
+        self._can_open = False
         self.widget_factory = factory.OpenerWidgetFactory(
             event_manager, self.ui_types, self.client_name
         )
@@ -59,6 +60,7 @@ class QtOpenClient(QtClient):
 
     def change_definition(self, schema, definition, component_names_filter):
         self.run_button.setText('OPEN ASSEMBLER')
+        self._can_open = False
         super(QtOpenClient, self).change_definition(
             schema, definition, component_names_filter
         )
@@ -67,9 +69,8 @@ class QtOpenClient(QtClient):
         super(QtOpenClient, self).definition_changed(
             self.definition, available_components_count
         )
-        self.run_button.setText(
-            'OPEN' if available_components_count > 0 else 'OPEN ASSEMBLER'
-        )
+        self._can_open = available_components_count > 0
+        self.run_button.setText('OPEN' if self._can_open else 'OPEN ASSEMBLER')
         self.run_button.setVisible(True)
 
     def definition_changed(self, definition, available_components_count):
@@ -81,14 +82,12 @@ class QtOpenClient(QtClient):
             self.ask_open_latest = True
 
     def run(self):
-        if self.definition is None:
+        if not self._can_open:
             self.host_connection.launch_widget(qt_constants.ASSEMBLER_WIDGET)
             if not self.is_docked():
                 self.get_parent_window().destroy()
-                return
-        super(QtOpenClient, self).run()
-
-        if not self.widget_factory.has_error:
+            return
+        if super(QtOpenClient, self).run():
             self.widget_factory.progress_widget.set_status(
                 constants.SUCCESS_STATUS,
                 'Successfully opened version!',

@@ -156,8 +156,6 @@ class QtClient(Client, QtWidgets.QFrame):
         self.layout().addWidget(self.run_button)
         self.run_button.setVisible(False)
 
-        self.layout().addWidget(footer.Footer(self.session))
-
     def post_build(self):
         '''Post Build ui method for events connections.'''
         self.context_selector.entityChanged.connect(
@@ -264,10 +262,11 @@ class QtClient(Client, QtWidgets.QFrame):
                 constants.ERROR_STATUS, msg
             )
             self.logger.error(msg)
-            return
+            return False
         engine_type = serialized_data['_config']['engine_type']
         self.widget_factory.progress_widget.show_widget()
         self.run_definition(serialized_data, engine_type, False)
+        return not self.widget_factory.has_error
 
     def _on_components_checked(self, available_components_count):
         self.definition_changed(self.definition, available_components_count)
