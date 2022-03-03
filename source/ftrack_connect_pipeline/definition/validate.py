@@ -42,7 +42,7 @@ def validate_schema(data, session):
             if schema['title'].lower() == entry:
                 for definition in data[entry]:
                     copy_data[entry].remove(definition)
-                    if schema['title'].lower() == 'publisher':
+                    if schema['title'].lower() != 'asset_manager':
                         if definition['asset_type'] not in valid_assets_types:
                             logger.error(
                                 'Definition {} does use a non existing'
