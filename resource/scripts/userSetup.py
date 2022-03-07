@@ -117,8 +117,9 @@ def initialise():
 
     from ftrack_connect_pipeline_maya.client import open
     from ftrack_connect_pipeline_maya.client import assembler
-    from ftrack_connect_pipeline_maya.client import publish
+    from ftrack_connect_pipeline_maya.client import save
     from ftrack_connect_pipeline_maya.client import asset_manager
+    from ftrack_connect_pipeline_maya.client import publish
     from ftrack_connect_pipeline_maya.client import log_viewer
     from ftrack_connect_pipeline_qt import client
 
@@ -140,6 +141,14 @@ def initialise():
             asset_manager.MayaAssetManagerClient,
             'Asset Manager',
             'volumeCube',
+        )
+    )
+    widgets.append(
+        (
+            qt_constants.DOC_WIDGET,
+            save.QtSaveClient,
+            'Save Scene',
+            'fileSave',
         )
     )
     widgets.append(

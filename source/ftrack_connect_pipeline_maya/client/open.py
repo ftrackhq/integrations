@@ -37,7 +37,7 @@ class MayaOpenDialog(QtWidgets.QDialog):
 
         self._client = None
 
-        self.rebuild()
+        # self.rebuild()
 
         self.setModal(True)
         self.setWindowTitle('ftrack Open')
@@ -59,10 +59,10 @@ class MayaOpenDialog(QtWidgets.QDialog):
         if self._shown:
             # Widget has been shown before, reset client
             self._client.setParent(None)
-            self.rebuild()
-
+            self._client = None
         super(MayaOpenDialog, self).show()
         self._shown = True
+        self.rebuild()
         if self._client.ask_open_assembler:
             # TODO: Search among work files and see if there is and crash scene from previous session
             dlg = Dialog(
