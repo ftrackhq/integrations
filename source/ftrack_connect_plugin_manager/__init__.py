@@ -249,6 +249,7 @@ class DndPluginList(QtWidgets.QFrame):
 
             # enable it by default if we are updating
             stored_item.setCheckable(True)
+            stored_item.setEnabled(True)
             stored_item.setCheckState(QtCore.Qt.Checked)
 
     def plugin_is_available(self, plugin_data):
