@@ -11,7 +11,6 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
 )
 
-
 class BaseUIWidget(object):
     '''
     Base class of a widget representation from json schema types

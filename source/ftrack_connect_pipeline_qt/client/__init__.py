@@ -42,6 +42,8 @@ class QtClient(Client, QtWidgets.QFrame):
 
         self._parent_window = parent_window
         self.is_valid_asset_name = False
+        self._shown = False
+        self._postoned_change_definition = None
 
         if self.getTheme():
             self.setTheme(self.getTheme())
@@ -226,6 +228,10 @@ class QtClient(Client, QtWidgets.QFrame):
         Triggered when definition_changed is called from the host_selector.
         Generates the widgets interface from the given *schema* and *definition*
         '''
+        if not self._shown:
+            self._postoned_change_definition = (schema, definition, component_names_filter)
+            return
+
         self._clear_host_widget()
 
         if not schema and not definition:
@@ -288,6 +294,13 @@ class QtClient(Client, QtWidgets.QFrame):
             self.widget_factory.progress_widget.set_status_widget_visibility(
                 False
             )
+
+    def showEvent(self, event):
+        if self._postoned_change_definition:
+            (schema, definition, component_names_filter) = self._postoned_change_definition
+            self.change_definition(schema, definition, component_names_filter)
+        self._shown = True
+        event.accept()
 
 
 class QtDocumentationClient:

@@ -54,16 +54,13 @@ class AccordionPluginContainerWidget(BaseUIWidget):
         super(AccordionPluginContainerWidget, self).__init__(
             name, fragment_data, parent=parent
         )
-        import json
 
     def build(self):
         self._widget = PluginAccordion(title=self.name, checkable=True)
 
     def parent_widget(self, widget):
         if self.widget:
-            if isinstance(widget, BaseUIWidget):
-                self.widget.add_widget(widget.widget)
-            else:
-                self.widget.add_widget(widget)
+            widget = (widget.widget if isinstance(widget, BaseUIWidget) else widget)
+            self.widget.add_widget(widget)
         else:
             self.logger.error("Please create a widget before parent")
