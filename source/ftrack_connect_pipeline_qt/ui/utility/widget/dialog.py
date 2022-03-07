@@ -2,8 +2,6 @@ import platform
 
 from functools import partial
 
-import qtawesome as qta
-
 from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect_pipeline_qt.utils import center_widget

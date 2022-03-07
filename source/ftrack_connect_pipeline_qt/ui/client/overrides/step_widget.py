@@ -2,8 +2,6 @@
 # :copyright: Copyright (c) 2014-2021 ftrack
 from functools import partial
 
-import qtawesome as qta
-
 from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline_qt import constants
@@ -21,9 +19,7 @@ from ftrack_connect_pipeline_qt.plugin.widgets.load_widget import (
 from ftrack_connect_pipeline_qt.ui.utility.widget import line
 from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
 from ftrack_connect_pipeline_qt import utils
-from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import (
-    MaterialIconWidget,
-)
+from ftrack_connect_pipeline_qt.ui.utility.widget import icon
 from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import (
     AccordionWidget,
@@ -110,6 +106,7 @@ class PublisherAccordion(AccordionBaseWidget):
             else AccordionBaseWidget.CHECK_MODE_CHECKBOX_DISABLED,
             checked=checked,
             title=title,
+            visible=False,
             parent=parent,
         )
 
@@ -120,13 +117,13 @@ class PublisherAccordion(AccordionBaseWidget):
 
     def init_options_button(self):
         self._options_button = PublisherOptionsButton(
-            'O', qta.icon('mdi6.cog', color='gray')
+            'O', icon.MaterialIcon('settings', color='gray')
         )
         self._options_button.setObjectName('borderless')
         return self._options_button
 
     def init_status_icon(self):
-        self._status_icon = MaterialIconWidget('check')
+        self._status_icon = icon.MaterialIconWidget('check')
         self._status_icon.setObjectName('borderless')
         return self._status_icon
 
@@ -191,7 +188,7 @@ class PublisherAccordion(AccordionBaseWidget):
         self._status_icon.setVisible(not status is None)
         if not status is None:
             self._status_icon.set_icon(
-                'check' if status else 'alert-circle-outline',
+                'check' if status else 'error_outline',
                 color='gray'
                 if not self.checkable or not self.checked
                 else ('green' if status else 'orange'),
@@ -217,10 +214,14 @@ class AccordionStepWidget(BaseUIWidget):
 
     def parent_widget(self, step_widget):
         if self.widget:
-            if isinstance(step_widget, BaseUIWidget):
-                self.widget.add_widget(step_widget.widget)
-            else:
-                self.widget.add_widget(step_widget)
+            widget = (
+                step_widget.widget
+                if isinstance(step_widget, BaseUIWidget)
+                else step_widget
+            )
+            self.widget.add_widget(widget)
+            if isinstance(widget, AccordionBaseWidget):
+                widget.setVisible(True)
         else:
             self.logger.error("Please create a widget before parent")
 
@@ -278,10 +279,14 @@ class PublisherAccordionStepWidget(BaseUIWidget):
     def parent_widget(self, step_widget):
         '''Override'''
         if self.widget:
-            if isinstance(step_widget, BaseUIWidget):
-                self.widget.add_widget(step_widget.widget)
-            else:
-                self.widget.add_widget(step_widget)
+            widget = (
+                step_widget.widget
+                if isinstance(step_widget, BaseUIWidget)
+                else step_widget
+            )
+            self.widget.add_widget(widget)
+            if isinstance(widget, AccordionBaseWidget):
+                widget.setVisible(True)
         else:
             self.logger.error("Please create a widget before parent")
 
@@ -364,10 +369,12 @@ class OptionsStepWidget(DefaultStepWidget):
             options_idx = self.widget.layout().indexOf(
                 self.show_options_button
             )
-            if isinstance(widget, BaseUIWidget):
-                self.widget.layout().insertWidget((options_idx), widget.widget)
-            else:
-                self.widget.layout().insertWidget((options_idx), widget)
+            insert_widget = (
+                widget.widget if isinstance(widget, BaseUIWidget) else widget
+            )
+            self.widget.layout().insertWidget((options_idx), insert_widget)
+            if isinstance(insert_widget, AccordionBaseWidget):
+                insert_widget.setVisible(True)
         else:
             self.logger.error("Please create a widget before parent")
 

@@ -7,8 +7,6 @@ from functools import partial
 
 from Qt import QtCore, QtWidgets
 
-import qtawesome as qta
-
 from ftrack_connect_pipeline.client import constants
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import Dialog
@@ -371,10 +369,8 @@ class AssemblerTabWidget(tab.TabWidget):
 class AddRunButton(QtWidgets.QPushButton):
     def __init__(self, label, parent=None):
         super(AddRunButton, self).__init__(label, parent=parent)
-        # self.setIcon(qta.icon('mdi6.check', color='#5EAA8D'))
 
 
 class LoadRunButton(QtWidgets.QPushButton):
     def __init__(self, label, parent=None):
         super(LoadRunButton, self).__init__(label, parent=parent)
-        # self.setIcon(qta.icon('mdi6.check', color='#5EAA8D'))

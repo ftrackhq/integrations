@@ -5,7 +5,6 @@ from functools import partial
 
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
-import qtawesome as qta
 from ftrack_connect_pipeline.constants import asset as asset_const
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline.client.asset_manager import AssetManagerClient
@@ -14,6 +13,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
     header,
     host_selector,
     line,
+    icon,
 )
 from ftrack_connect_pipeline_qt.ui.asset_manager.asset_manager import (
     AssetManagerWidget,
@@ -508,4 +508,4 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 class RemoveButton(QtWidgets.QPushButton):
     def __init__(self, label, parent=None):
         super(RemoveButton, self).__init__(label, parent=parent)
-        self.setIcon(qta.icon('mdi6.close', color='#E74C3C'))
+        self.setIcon(icon.MaterialIcon('close', color='#E74C3C'))

@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2015 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 
 from Qt import QtCore, QtWidgets, QtGui
 
@@ -109,7 +109,8 @@ class Logo(QtWidgets.QLabel):
 
     def build(self):
         # logoPixmap = QtGui.QPixmap(':ftrack/image/default/ftrackLogoLabel')
-        logoPixmap = QtGui.QPixmap(':ftrack/image/default/connectLogoDark')
+        resource_path = ':ftrack/image/default/connectLogoDark'
+        logoPixmap = QtGui.QPixmap(resource_path)
         if not logoPixmap is None:
             self.setPixmap(
                 logoPixmap.scaled(
@@ -119,7 +120,7 @@ class Logo(QtWidgets.QLabel):
                 )
             )
         else:
-            self.setText("ftrack1")
+            self.setText("ftrack")
 
 
 class User(QtWidgets.QFrame):

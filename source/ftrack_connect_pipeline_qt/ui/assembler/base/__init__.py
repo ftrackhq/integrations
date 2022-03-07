@@ -7,9 +7,6 @@ import time
 import logging
 import copy
 
-import qtawesome as qta
-from functools import partial
-
 from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline import constants as core_constants
@@ -51,6 +48,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.options_button import (
 from ftrack_connect_pipeline_qt.ui.utility.widget.definition_selector import (
     DefinitionSelector,
 )
+from ftrack_connect_pipeline_qt.ui.utility.widget import icon
 
 
 class AssemblerBaseWidget(QtWidgets.QWidget):
@@ -398,7 +396,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
 
     def init_options_button(self):
         self._options_button = ImporterOptionsButton(
-            'O', qta.icon('mdi6.cog', color='gray')
+            'O', icon.MaterialIcon('settings', color='gray')
         )
         self._options_button.setObjectName('borderless')
         self._options_button.clicked.connect(self._build_options)
@@ -427,7 +425,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         self.thumbnail_widget = AssetVersion(self.session)
         # self.thumbnail_widget.setScaledContents(True)
 
-        thumb_width = int((self.get_thumbnail_height()*16)/9)
+        thumb_width = int((self.get_thumbnail_height() * 16) / 9)
         self.thumbnail_widget.setMinimumWidth(thumb_width)
         self.thumbnail_widget.setMinimumHeight(self.get_thumbnail_height())
         self.thumbnail_widget.setMaximumWidth(thumb_width)

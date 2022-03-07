@@ -5,11 +5,9 @@ import json
 import copy
 import time
 
-import qtawesome as qta
 from functools import partial
 
 from Qt import QtCore, QtWidgets
-import shiboken2
 
 from ftrack_connect_pipeline.client import constants
 

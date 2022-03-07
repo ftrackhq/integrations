@@ -1,11 +1,11 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2021 ftrack
 
-import qtawesome as qta
-
 from Qt import QtGui, QtCore, QtWidgets
 
 from ftrack_connect_pipeline_qt import utils
+
+from ftrack_connect_pipeline_qt.ui.utility.widget import icon
 
 
 class Overlay(QtWidgets.QFrame):
@@ -34,9 +34,7 @@ class Overlay(QtWidgets.QFrame):
         self.widget.setParent(self)
 
         self.close_btn = QtWidgets.QPushButton('', self)
-        self.close_btn.setIcon(
-            qta.icon('mdi6.close-thick', color='#D3d4D6', size=24)
-        )
+        self.close_btn.setIcon(icon.MaterialIcon('close', color='#D3d4D6'))
         self.close_btn.setObjectName('borderless')
         self.close_btn.setFixedSize(24, 24)
         self.close_btn.clicked.connect(self.close)

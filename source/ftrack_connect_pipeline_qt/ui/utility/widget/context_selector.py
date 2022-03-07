@@ -85,7 +85,9 @@ class ContextSelector(QtWidgets.QWidget):
         self.entity_info.setMinimumHeight(60)
         self.entity_info.setMaximumHeight(60)
 
-        self.entity_browse_button = CircularButton('pencil-outline', '#BF9AC9')
+        self.entity_browse_button = CircularButton(
+            'edit', '#BF9AC9', variant='outlined'
+        )
 
         self.layout().addWidget(self.thumbnail_widget)
         self.layout().addWidget(self.entity_info)
@@ -177,8 +179,9 @@ class ContextSelector(QtWidgets.QWidget):
                 self.set_entity(self.entityBrowser.entity)
         else:
             # Can only be done from opener
+            if not self._client.is_docked():
+                self._client.get_parent_window().hide()
+                self._client.get_parent_window().destroy()
             self._client.host_connection.launch_widget(
                 qt_constants.OPEN_WIDGET
             )
-            if not self._client.is_docked():
-                self._client.get_parent_window().destroy()

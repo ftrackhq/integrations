@@ -22,8 +22,9 @@ class PluginAccordion(AccordionBaseWidget):
             AccordionBaseWidget.CHECK_MODE_CHECKBOX
             if checkable
             else AccordionBaseWidget.CHECK_MODE_CHECKBOX_DISABLED,
-            parent=parent,
+            visible=False,
             title=title,
+            parent=parent,
         )
 
     def init_header_content(self, layout, collapsed):

@@ -3,8 +3,6 @@
 
 from functools import partial
 
-import qtawesome as qta
-
 from Qt import QtWidgets, QtCore, QtGui
 
 import shiboken2
@@ -29,6 +27,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import (
     ApproveButton,
     DenyButton,
 )
+from ftrack_connect_pipeline_qt.ui.utility.widget import icon
 
 
 class EntityBrowser(Dialog):
@@ -397,7 +396,7 @@ class EntityBrowserNavigator(QtWidgets.QWidget):
 
             l_arrow = QtWidgets.QLabel()
             l_arrow.setPixmap(
-                qta.icon('mdi6.chevron-right', color='#676B70').pixmap(
+                icon.MaterialIcon('chevron-right', color='#676B70').pixmap(
                     QtCore.QSize(16, 16)
                 )
             )
@@ -423,9 +422,9 @@ class EntityBrowserNavigator(QtWidgets.QWidget):
                 if index < len(self.entity['link']) - 1:
                     l_arrow = QtWidgets.QLabel()
                     l_arrow.setPixmap(
-                        qta.icon('mdi6.chevron-right', color='#676B70').pixmap(
-                            QtCore.QSize(16, 16)
-                        )
+                        icon.MaterialIcon(
+                            'chevron-right', color='#676B70'
+                        ).pixmap(QtCore.QSize(16, 16))
                     )
                     self.layout().addWidget(l_arrow)
 
@@ -433,7 +432,7 @@ class EntityBrowserNavigator(QtWidgets.QWidget):
             if self.entity:
                 l_arrow = QtWidgets.QLabel()
                 l_arrow.setPixmap(
-                    qta.icon('mdi6.chevron-right', color='#676B70').pixmap(
+                    icon.MaterialIcon('chevron-right', color='#676B70').pixmap(
                         QtCore.QSize(16, 16)
                     )
                 )
@@ -486,8 +485,9 @@ class NavigationEntityButton(QtWidgets.QFrame):
         if self.link_entity['type'] != 'Project':
             self.layout().addStretch()
             self.remove_button = QtWidgets.QPushButton(
-                qta.icon('mdi6.close', color='#94979a', size=8), ""
+                icon.MaterialIcon('close', color='#94979a'), ""
             )
+            self.remove_button.setFixedSize(8, 8)
             self.remove_button.setStyleSheet(
                 'border: none; background: transparent;'
             )
@@ -569,7 +569,7 @@ class EntityWidget(QtWidgets.QFrame):
         if self.entity.entity_type != 'Task':
             l_arrow = QtWidgets.QLabel()
             l_arrow.setPixmap(
-                qta.icon('mdi6.chevron-right', color='#676B70').pixmap(
+                icon.MaterialIcon('chevron-right', color='#676B70').pixmap(
                     QtCore.QSize(16, 16)
                 )
             )
@@ -598,7 +598,7 @@ class EntityWidget(QtWidgets.QFrame):
 
 class AddContextButton(CircularButton):
     def __init__(self, parent=None):
-        super(AddContextButton, self).__init__('plus', '#eee', parent=parent)
+        super(AddContextButton, self).__init__('add', '#eee', parent=parent)
 
     def get_border_style(self, color):
         return '''            
@@ -652,14 +652,14 @@ class TypeWidget(QtWidgets.QFrame):
             elif self._entity.entity_type == "Task":
                 icon_name = "briefcase-check-outline"
             l_icon.setPixmap(
-                qta.icon(
-                    'mdi6.{}'.format(icon_name), color='#BF9AC9', size=16
-                ).pixmap(QtCore.QSize(16, 16))
+                icon.MaterialIcon(icon_name, color='#BF9AC9').pixmap(
+                    QtCore.QSize(16, 16)
+                )
             )
         else:
             l_icon.setPixmap(
-                qta.icon(
-                    'mdi6.file-check-outline',
+                icon.MaterialIcon(
+                    'file-check-outline',
                     color=self._entity['type']['color'],
                 ).pixmap(QtCore.QSize(14, 14))
             )

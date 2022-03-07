@@ -8,7 +8,7 @@ from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
 from ftrack_connect_pipeline_qt import utils
-from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import (
+from ftrack_connect_pipeline_qt.ui.utility.widget.icon import (
     MaterialIconWidget,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
@@ -59,6 +59,7 @@ class PhaseButton(QtWidgets.QPushButton):
         self.layout().addLayout(v_layout, 100)
 
         self.log_widget = QtWidgets.QFrame()
+        self.log_widget.setVisible(False)
         self.log_widget.setProperty('background', 'ftrack')
         self.log_widget.setLayout(QtWidgets.QVBoxLayout())
         self.log_widget.layout().addSpacing(10)
@@ -110,6 +111,7 @@ class PhaseButton(QtWidgets.QPushButton):
         else:
             self.log_text_edit.setText("No errors found")
         self.overlay_container.setVisible(True)
+        self.log_widget.setVisible(True)
         self.overlay_container.resize(self.parent().size())
 
 

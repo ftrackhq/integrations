@@ -85,6 +85,7 @@ class QtOpenClient(QtClient):
         if not self._can_open:
             self.host_connection.launch_widget(qt_constants.ASSEMBLER_WIDGET)
             if not self.is_docked():
+                self.get_parent_window().hide()
                 self.get_parent_window().destroy()
             return
         if super(QtOpenClient, self).run():

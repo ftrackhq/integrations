@@ -25,6 +25,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
 )
 from ftrack_connect_pipeline_qt.ui import resource
 from ftrack_connect_pipeline_qt.ui import theme
+from ftrack_connect_pipeline_qt.ui.utility.widget import icon
 
 
 class QtLogViewerDialog(QtWidgets.QDialog):
@@ -58,7 +59,7 @@ class QtLogViewerDialog(QtWidgets.QDialog):
 
     def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().setContentsMargins(0, 0, 0, 5)
         self.layout().setSpacing(1)
 
     def build(self):

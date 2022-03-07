@@ -5,7 +5,7 @@ from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline import constants as pipeline_constants
-from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import (
+from ftrack_connect_pipeline_qt.ui.utility.widget.icon import (
     MaterialIconWidget,
 )
 from ftrack_connect_pipeline_qt.utils import set_property
@@ -95,10 +95,13 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         checked=True,
         collapsable=True,
         docked=False,
+        visible=True,
         parent=None,
     ):
         super(AccordionBaseWidget, self).__init__(parent=parent)
 
+        if visible is False:
+            self.setVisible(False)
         self._event_manager = event_manager
         self._reference_widget = None
         self._header = None
@@ -391,9 +394,9 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
 
     def update_arrow_icon(self, collapsed):
         if collapsed:
-            icon_name = 'chevron-down'
+            icon_name = 'keyboard_arrow_down'
         else:
-            icon_name = 'chevron-up'
+            icon_name = 'keyboard_arrow_up'
         self._arrow.set_icon(name=icon_name)
 
     def init_arrow(self, collapsed):

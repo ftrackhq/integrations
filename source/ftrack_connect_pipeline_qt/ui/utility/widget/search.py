@@ -1,6 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2021 ftrack
-import qtawesome as qta
+# :copyright: Copyright (c) 2014-2021 ftrac
 
 from Qt import QtGui, QtCore, QtWidgets
 
@@ -61,7 +60,7 @@ class Search(QtWidgets.QFrame):
             self.layout().addStretch()
             self._input = None
             self.setStyleSheet('''border:none;''')
-            self._search_button = CircularButton('magnify', '#999999')
+            self._search_button = CircularButton('search', '#999999')
             self._search_button.setStyleSheet(
                 '''
                 border: 1px solid #555555;
@@ -70,7 +69,7 @@ class Search(QtWidgets.QFrame):
             )
         else:
             self._search_button = CircularButton(
-                'magnify', '#999999', diameter=30
+                'search', '#999999', diameter=30
             )
 
         self._search_button.clicked.connect(self._on_search)

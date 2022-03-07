@@ -246,8 +246,8 @@ class AssetSelector(QtWidgets.QWidget):
         self.list_and_input = AssetListAndInput()
 
         self.asset_list = AssetList(self.session)
+        self.asset_list.setVisible(False)
         self.list_and_input.add_asset_list(self.asset_list)
-
         # Create new asset
         self.new_asset_input = NewAssetInput(
             self.validator, self.placeholder_name

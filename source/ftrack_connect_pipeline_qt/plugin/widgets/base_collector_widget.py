@@ -3,11 +3,11 @@
 
 from functools import partial
 
-import qtawesome as qta
-
 from Qt import QtWidgets, QtGui
 
 from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
+
+from ftrack_connect_pipeline_qt.ui.utility.widget import icon
 
 
 class BaseCollectorWidget(BaseOptionsWidget):
@@ -60,7 +60,7 @@ class BaseCollectorWidget(BaseOptionsWidget):
         add_widget.setLayout(QtWidgets.QHBoxLayout())
         add_widget.layout().addStretch()
         self.add_button = QtWidgets.QPushButton(
-            qta.icon('mdi6.plus', color='#BF9AC9'), "ADD SELECTED"
+            icon.MaterialIcon('add', color='#BF9AC9'), "ADD SELECTED"
         )
         self.add_button.setObjectName('borderless')
         add_widget.layout().addWidget(self.add_button)

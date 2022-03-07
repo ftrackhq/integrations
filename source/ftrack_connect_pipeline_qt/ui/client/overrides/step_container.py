@@ -63,10 +63,14 @@ class AccordionStepContainerWidget(BaseUIWidget):
 
     def parent_widget(self, step_widget):
         if self.widget:
-            if isinstance(step_widget, BaseUIWidget):
-                self.widget.add_widget(step_widget.widget)
-            else:
-                self.widget.add_widget(step_widget)
+            widget = (
+                step_widget.widget
+                if isinstance(step_widget, BaseUIWidget)
+                else step_widget
+            )
+            self.widget.add_widget(widget)
+            if isinstance(widget, AccordionBaseWidget):
+                widget.setVisible(True)
         else:
             self.logger.error("Please create a widget before parent")
 
@@ -125,6 +129,8 @@ class TabStepContainerWidget(DefaultStepContainerWidget):
                     checkbox.stateChanged.connect(
                         partial(self._toggle_tab_state, tab_idx, step_widget)
                     )
+            if isinstance(widget, AccordionBaseWidget):
+                widget.setVisible(True)
         else:
             self.logger.error("Please create a widget before parent")
 
