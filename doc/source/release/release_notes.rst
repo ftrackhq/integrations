@@ -10,6 +10,11 @@ Release Notes
 
 .. release:: Upcoming
 
+    .. change:: fixed
+        :tags: UX
+
+        Installed plugins cannot be disabled from updating.
+
     .. change:: changed
         :tags: UX
 
