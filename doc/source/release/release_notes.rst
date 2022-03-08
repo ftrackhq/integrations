@@ -8,7 +8,13 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 0.1.2
+    :date: 2022-03-08
+
+    .. change:: changed
+        :tags: Docs
+
+        Fix and improve documentation.
 
     .. change:: fixed
         :tags: UX
