@@ -400,6 +400,7 @@ class EntityBrowserNavigator(QtWidgets.QWidget):
                     QtCore.QSize(16, 16)
                 )
             )
+            l_arrow.setMinimumSize(QtCore.QSize(16, 16))
             self.layout().addWidget(l_arrow)
 
         add_enabled = not self._is_browser
@@ -426,6 +427,7 @@ class EntityBrowserNavigator(QtWidgets.QWidget):
                             'chevron-right', color='#676B70'
                         ).pixmap(QtCore.QSize(16, 16))
                     )
+                    l_arrow.setMinimumSize(QtCore.QSize(16, 16))
                     self.layout().addWidget(l_arrow)
 
         if add_enabled:
@@ -436,6 +438,7 @@ class EntityBrowserNavigator(QtWidgets.QWidget):
                         QtCore.QSize(16, 16)
                     )
                 )
+                l_arrow.setMinimumSize(QtCore.QSize(16, 16))
                 self.layout().addWidget(l_arrow)
 
             add_button = AddContextButton()
@@ -477,7 +480,7 @@ class NavigationEntityButton(QtWidgets.QFrame):
     def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(3, 0, 0, 0)
-        self.layout().setSpacing(0)
+        self.layout().setSpacing(2)
 
     def build(self):
         label = QtWidgets.QLabel(self.link_entity['name'])
@@ -487,7 +490,7 @@ class NavigationEntityButton(QtWidgets.QFrame):
             self.remove_button = QtWidgets.QPushButton(
                 icon.MaterialIcon('close', color='#94979a'), ""
             )
-            self.remove_button.setFixedSize(8, 8)
+            self.remove_button.setFixedSize(6, 6)
             self.remove_button.setStyleSheet(
                 'border: none; background: transparent;'
             )
@@ -573,6 +576,7 @@ class EntityWidget(QtWidgets.QFrame):
                     QtCore.QSize(16, 16)
                 )
             )
+            l_arrow.setMinimumSize(QtCore.QSize(16, 16))
             self.layout().addWidget(l_arrow)
 
     def post_build(self):
@@ -629,28 +633,25 @@ class TypeWidget(QtWidgets.QFrame):
     def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(3, 0, 7, 0)
-        self.layout().setSpacing(0)
+        self.layout().setSpacing(2)
 
     def build(self):
         l_icon = QtWidgets.QLabel()
 
         if self._entity.entity_type != 'Task':
-            icon_name = "help-circle"
-
+            icon_name = "help_outline"
             if self._entity.entity_type == 'Project':
                 icon_name = "home"
             elif self._entity.entity_type == 'Folder':
                 icon_name = "folder"
             elif self._entity.entity_type == 'Episode':
-                icon_name = "play-box-multiple"
+                icon_name = "smart_display"
             elif self._entity.entity_type == 'Sequence':
-                icon_name = "folder"
+                icon_name = "movie"
             elif self._entity.entity_type == 'Shot':
                 icon_name = "movie"
             elif self._entity.entity_type == "AssetBuild":
-                icon_name = "package-variant-closed"
-            elif self._entity.entity_type == "Task":
-                icon_name = "briefcase-check-outline"
+                icon_name = "table_chart"
             l_icon.setPixmap(
                 icon.MaterialIcon(icon_name, color='#BF9AC9').pixmap(
                     QtCore.QSize(16, 16)
@@ -659,7 +660,8 @@ class TypeWidget(QtWidgets.QFrame):
         else:
             l_icon.setPixmap(
                 icon.MaterialIcon(
-                    'file-check-outline',
+                    'assignment_turned_in',
+                    variant='outlined',
                     color=self._entity['type']['color'],
                 ).pixmap(QtCore.QSize(14, 14))
             )

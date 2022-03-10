@@ -1,10 +1,10 @@
 /** Table */
 QTableWidet {
-    gridline-color: $near-background;
+    gridline-color: $alt-background;
 }
 
 QTableView {
-    gridline-color: $near-background;
+    gridline-color: $alt-background;
     border: 1px solid $gray-dark;
     outline: 0;
     background: $background;
@@ -30,12 +30,12 @@ QTableView::item:selected
 
 QHeaderView {
     color: $text-color;
-    background-color: $near-background;
+    background-color: $alt-background;
     border: none;
 }
 
 QHeaderView::section {
     border-style: none;
-    border-right: 1px solid $near-background;
+    border-right: 1px solid alt-background;
     background-color: $background;
 }

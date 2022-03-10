@@ -51,6 +51,13 @@ class QtPublisherClient(QtClient):
 
     def change_definition(self, schema, definition, component_names_filter):
         self.run_button.setVisible(False)
+        if not self._shown:
+            self._postponed_change_definition = (
+                schema,
+                definition,
+                component_names_filter,
+            )
+            return
         super(QtPublisherClient, self).change_definition(
             schema, definition, component_names_filter
         )

@@ -29,8 +29,12 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         '''(Optional) To be overridden by child'''
         pass
 
-    def init_header_content(self, header_layout, collapsed):
+    def init_header_content(self, header_widget, collapsed):
         '''To be overridden by child'''
+        header_layout = QtWidgets.QHBoxLayout()
+        header_widget.setLayout(header_layout)
+        header_layout.setContentsMargins(0, 0, 0, 0)
+        header_layout.setSpacing(0)
         header_layout.addStretch()
 
     def init_content(self, content_layout):
@@ -384,11 +388,8 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
 
     def _init_content(self):
         self._content = QtWidgets.QWidget()
-        self._content.setLayout(QtWidgets.QHBoxLayout())
-        self._content.layout().setContentsMargins(0, 0, 0, 0)
-        self._content.layout().setSpacing(0)
         self._accordion.init_header_content(
-            self._content.layout(), self._accordion.collapsed
+            self._content, self._accordion.collapsed
         )
         return self._content
 

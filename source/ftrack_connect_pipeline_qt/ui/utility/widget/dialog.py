@@ -14,14 +14,20 @@ class Dialog(QtWidgets.QDialog):
     '''
 
     def __init__(
-        self, parent, message=None, question=None, title=None, prompt=False
+        self,
+        parent,
+        message=None,
+        question=None,
+        title=None,
+        prompt=False,
+        modal=True,
     ):
         super(Dialog, self).__init__(parent=parent)
 
         self.setParent(parent)
 
         self.setTheme(self.getTheme())
-        self.setProperty('background', 'ftrack')
+        # self.setProperty('background', 'ftrack')
 
         self._message = message or question
         self._title = title or 'ftrack'
@@ -48,7 +54,8 @@ class Dialog(QtWidgets.QDialog):
         self.layout().setSpacing(0)
 
     def build(self):
-        ''' '''
+        '''Can be overridden by custom dialogs.'''
+
         self._title_label = TitleLabel()
         self._title_label.setAlignment(QtCore.Qt.AlignCenter)
         self._title_label.setObjectName('titlebar')

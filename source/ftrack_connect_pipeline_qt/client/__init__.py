@@ -43,7 +43,7 @@ class QtClient(Client, QtWidgets.QFrame):
         self._parent_window = parent_window
         self.is_valid_asset_name = False
         self._shown = False
-        self._postoned_change_definition = None
+        self._postponed_change_definition = None
 
         if self.getTheme():
             self.setTheme(self.getTheme())
@@ -228,10 +228,8 @@ class QtClient(Client, QtWidgets.QFrame):
         Triggered when definition_changed is called from the host_selector.
         Generates the widgets interface from the given *schema* and *definition*
         '''
-        if not self._shown:
-            self._postoned_change_definition = (schema, definition, component_names_filter)
-            return
 
+        self._component_names_filter = component_names_filter
         self._clear_host_widget()
 
         if not schema and not definition:
@@ -285,8 +283,9 @@ class QtClient(Client, QtWidgets.QFrame):
         self.definition_changed(self.definition, available_components_count)
 
     def _on_log_item_added(self, log_item):
-        if self.widget_factory:
-            self.widget_factory.update_widget(log_item)
+        pass
+        # if self.widget_factory:
+        #    self.widget_factory.update_widget(log_item)
 
     def refresh(self):
         '''Called upon definition selector refresh button click.'''
@@ -296,8 +295,12 @@ class QtClient(Client, QtWidgets.QFrame):
             )
 
     def showEvent(self, event):
-        if self._postoned_change_definition:
-            (schema, definition, component_names_filter) = self._postoned_change_definition
+        if self._postponed_change_definition:
+            (
+                schema,
+                definition,
+                component_names_filter,
+            ) = self._postponed_change_definition
             self.change_definition(schema, definition, component_names_filter)
         self._shown = True
         event.accept()

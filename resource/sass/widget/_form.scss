@@ -19,6 +19,7 @@ QTextEdit, QLineEdit  {
 
     &:disabled {
         border-color: darken($gray-dark, 10%);
+        color: $gray;
     }
 
     &:focus {
@@ -26,9 +27,21 @@ QTextEdit, QLineEdit  {
     }
 }
 
-
 QTextEdit[input="invalid"], QLineEdit[input="invalid"] {
     border: 1px solid darken(red, 50%);
+}
+
+NewAssetInput[status='focused'] QLineEdit {
+    border: 1px solid $gray-dark;
+}
+
+NewAssetInput[status='unfocused'] QLineEdit {
+    border: none;
+    color: $gray;
+}
+
+NewAssetInput QLineEdit {
+    border: 1px solid $gray-dark;
 }
 
 QCheckBox::indicator {
@@ -56,4 +69,9 @@ QLabel {
 
 TitleLabel {
     background: #0C1117;
+}
+
+WarningLabel {
+    color: #707040;
+    font-style: italic;
 }

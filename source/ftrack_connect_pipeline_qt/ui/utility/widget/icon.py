@@ -94,7 +94,7 @@ class MaterialIconWidget(QtWidgets.QWidget):
             icon_name = 'help'
             color = '303030'
         elif status in [constants.RUNNING_STATUS]:
-            icon_name = 'loading'
+            icon_name = 'hourglass_bottom'
             color = '87E1EB'
         elif status in [constants.SUCCESS_STATUS]:
             icon_name = 'check-circle-outline'

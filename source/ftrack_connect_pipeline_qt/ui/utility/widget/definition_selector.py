@@ -554,6 +554,7 @@ class DefinitionSelectorWidgetComboBox(DefinitionSelectorWidgetBase):
         self._populate_definitions()
 
     def clear_definitions(self):
+        self._definition_selector.currentIndexChanged.disconnect()
         self._definition_selector.clear()
 
     def _populate_definitions(self):
@@ -571,7 +572,9 @@ class DefinitionSelectorWidgetComboBox(DefinitionSelectorWidgetBase):
             items = self.host_connection.definitions.get(schema_title)
             self.definitions = items
 
-            index = 0
+            self._definition_selector.addItem("", None)
+            index = 1
+
             for item in items:
                 # Remove ' Publisher/Loader'
                 text = '{}'.format(' '.join(item.get('name').split(' ')[:-1]))
@@ -681,10 +684,13 @@ class DefinitionSelectorWidgetComboBox(DefinitionSelectorWidgetBase):
         if (
             index_latest_version == -1
             and self._client_name == qt_constants.PUBLISHER_WIDGET
-            and self._definition_selector.count() == 1
+            and self._definition_selector.count() == 2
         ):
-            index_latest_version = 0  # Select the one and only
-        if self._definition_selector.count() == 0:
+            index_latest_version = 1  # Select the one and only
+        self._definition_selector.currentIndexChanged.connect(
+            self._on_change_definition
+        )
+        if self._definition_selector.count() == 1:
             if self._client_name == qt_constants.OPEN_WIDGET:
                 self.no_definitions_label.setText(
                     '<html><i>No pipeline loader definitions available to open files of type {}!'
@@ -700,18 +706,20 @@ class DefinitionSelectorWidgetComboBox(DefinitionSelectorWidgetBase):
                 )
 
             self.no_definitions_label.setVisible(True)
-            self.definition_changed.emit(
-                None, None, None
-            )  # Tell client there are no definitions
+            # self.definition_changed.emit(
+            #    None, None, None
+            # )  # Tell client there are no definitions
+            self._definition_selector.setCurrentIndex(0)
         elif index_latest_version == -1:
             if self._client_name == qt_constants.OPEN_WIDGET:
                 # No versions
                 self.no_definitions_label.setText(
                     '<html><i>No version available to open!</i></html>'
                 )
-                self.definition_changed.emit(
-                    None, None, None
-                )  # Tell client there are no versions
+                self._definition_selector.setCurrentIndex(0)
+                # self.definition_changed.emit(
+                #    None, None, None
+                # )  # Tell client there are no versions
         else:
             self._definition_selector.setCurrentIndex(index_latest_version)
             self.no_definitions_label.setVisible(False)
@@ -719,13 +727,19 @@ class DefinitionSelectorWidgetComboBox(DefinitionSelectorWidgetBase):
             self.definitions_widget.show()
 
     def _on_change_definition(self, index):
-        (
-            self.definition,
-            self.component_names_filter,
-        ) = self._definition_selector.itemData(index)
-        self._definition_selector.setToolTip(
-            json.dumps(self.definition, indent=4)
-        )
+        if index > 0:
+            (
+                self.definition,
+                self.component_names_filter,
+            ) = self._definition_selector.itemData(index)
+            self._definition_selector.setToolTip(
+                json.dumps(self.definition, indent=4)
+            )
+        else:
+            self._definition_selector.setToolTip(
+                'Please select an importer definition.'
+            )
+            self.definition = self.component_names_filter = None
         if not self.definition:
             self.logger.debug('No data for selected definition')
             self.definition_changed.emit(None, None, None)

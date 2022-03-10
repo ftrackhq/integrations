@@ -207,6 +207,8 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
 
         components = []
 
+        location = self.session.pick_location()
+
         # Group by context, sort by asset name
         for version in sorted(
             versions,
@@ -315,7 +317,13 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                 else:
                     self._loadable_count += 1
                 if matching_definitions is not None:
-                    components.append((component, matching_definitions))
+                    components.append(
+                        (
+                            component,
+                            matching_definitions,
+                            location.get_component_availability(component),
+                        )
+                    )
 
         return components
 
@@ -340,7 +348,7 @@ class AssemblerListBaseWidget(AssetListWidget):
 
 
 class ComponentBaseWidget(AccordionBaseWidget):
-    '''Widget representation of a minimal asset representation'''
+    '''Widget representation of a minimal assembler asset representation'''
 
     @property
     def index(self):
@@ -387,6 +395,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         )
         self._version_id = None
         self._index = index
+        self._adjust_height()
 
     def init_status_widget(self):
         self._status_widget = AssetVersionStatusWidget()
@@ -416,29 +425,39 @@ class ComponentBaseWidget(AccordionBaseWidget):
     def set_version(self, version_entity):
         raise NotImplementedError()
 
-    def init_header_content(self, header_layout, collapsed):
+    def init_header_content(self, header_widget, collapsed):
         '''Add publish related widgets to the accordion header'''
-        header_layout.setContentsMargins(5, 1, 1, 1)
-        header_layout.setSpacing(2)
+        header_layout = QtWidgets.QVBoxLayout()
+        header_layout.setContentsMargins(0, 0, 0, 0)
+        header_layout.setSpacing(0)
+        header_widget.setLayout(header_layout)
+
+        upper_widget = QtWidgets.QWidget()
+        upper_layout = QtWidgets.QHBoxLayout()
+        upper_layout.setContentsMargins(5, 1, 1, 1)
+        upper_layout.setSpacing(2)
+        upper_widget.setLayout(upper_layout)
 
         # Append thumbnail
         self.thumbnail_widget = AssetVersion(self.session)
         # self.thumbnail_widget.setScaledContents(True)
 
-        thumb_width = int((self.get_thumbnail_height() * 16) / 9)
+        thumb_width = (
+            self.get_thumbnail_height()
+        )  # int((self.get_thumbnail_height() * 4) / 3)
         self.thumbnail_widget.setMinimumWidth(thumb_width)
         self.thumbnail_widget.setMinimumHeight(self.get_thumbnail_height())
         self.thumbnail_widget.setMaximumWidth(thumb_width)
         self.thumbnail_widget.setMaximumHeight(self.get_thumbnail_height())
-        header_layout.addWidget(self.thumbnail_widget)
+        upper_layout.addWidget(self.thumbnail_widget)
 
-        header_layout.addWidget(self.get_ident_widget(), 100)
+        upper_layout.addWidget(self.get_ident_widget(), 100)
 
-        header_layout.addWidget(self.get_version_widget())
+        upper_layout.addWidget(self.get_version_widget())
 
-        header_layout.addWidget(self.init_status_widget())
+        upper_layout.addWidget(self.init_status_widget())
 
-        header_layout.addStretch()
+        upper_layout.addStretch()
 
         # Add loader selector
         self._definition_selector = DefinitionSelector()
@@ -448,7 +467,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         self._definition_selector.currentIndexChanged.connect(
             self._definition_selected
         )
-        header_layout.addWidget(self._definition_selector)
+        upper_layout.addWidget(self._definition_selector)
 
         # Mode selector, based on supplied DCC supported modes
         self._mode_selector = ModeSelector()
@@ -464,15 +483,36 @@ class ComponentBaseWidget(AccordionBaseWidget):
             if mode != 'Open':
                 self._mode_selector.addItem(mode, mode)
         self._mode_selector.currentIndexChanged.connect(self._mode_selected)
-        header_layout.addWidget(self._mode_selector)
+        upper_layout.addWidget(self._mode_selector)
 
         # Options widget,initialize its factory
-        header_layout.addWidget(self.init_options_button())
+        upper_layout.addWidget(self.init_options_button())
 
         self._widget_factory = factory.ImporterWidgetFactory(
             self.event_manager,
             self._assembler_widget._assembler_client.ui_types,
         )
+
+        header_layout.addWidget(upper_widget)
+
+        self._warning_message_widget = QtWidgets.QWidget()
+        lower_layout = QtWidgets.QHBoxLayout()
+        lower_layout.setContentsMargins(1, 1, 1, 1)
+        lower_layout.setSpacing(1)
+        self._warning_message_widget.setLayout(lower_layout)
+
+        warning_icon_label = QtWidgets.QLabel()
+        warning_icon_label.setPixmap(
+            icon.MaterialIcon('warning', color='yellow').pixmap(
+                QtCore.QSize(16, 16)
+            )
+        )
+        lower_layout.addWidget(warning_icon_label)
+        self._warning_label = WarningLabel()
+        lower_layout.addWidget(self._warning_label, 100)
+
+        self._warning_message_widget.setVisible(False)
+        header_layout.addWidget(self._warning_message_widget)
 
     def _definition_selected(self, index):
         '''Loader definition were selected,'''
@@ -533,6 +573,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         self._context_id = context_id
 
     def init_content(self, content_layout):
+        # No content in this accordion for now
         pass
 
     def set_component_and_definitions(self, component, definitions):
@@ -579,6 +620,25 @@ class ComponentBaseWidget(AccordionBaseWidget):
     def update_input(self, message, status):
         '''Update the accordion input summary, should be overridden by child.'''
         pass
+
+    def get_height(self):
+        raise NotImplementedError()
+
+    def _adjust_height(self):
+        self.setMinimumHeight(
+            self.get_height() + (20 if self._warning_label.isVisible() else 0)
+        )
+        self.setMaximumHeight(
+            self.get_height() + (20 if self._warning_label.isVisible() else 0)
+        )
+
+    def set_warning_message(self, message):
+        if len(message or '') > 0:
+            self._warning_label.setText(message)
+            self._warning_message_widget.setVisible(True)
+        else:
+            self._warning_message_widget.setVisible(False)
+        self._adjust_height()
 
 
 class ModeSelector(QtWidgets.QComboBox):
@@ -641,3 +701,8 @@ class ImporterOptionsButton(OptionsButton):
             QtWidgets.QLabel('<html><strong>Output:<strong><html>')
         )
         self.main_widget.layout().addWidget(widget)
+
+
+class WarningLabel(QtWidgets.QLabel):
+    def __init__(self):
+        super(WarningLabel, self).__init__()

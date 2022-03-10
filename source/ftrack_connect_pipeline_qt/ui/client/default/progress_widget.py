@@ -164,10 +164,6 @@ class StatusButtonWidget(QtWidgets.QPushButton):
         set_property(self, 'status', self.status.lower())
         color = self.status_icon.set_status(self.status, size=24)
         self.message_label.setStyleSheet('color: #{}'.format(color))
-        # for widget in [self, self.message_label]:
-        #    widget.style().unpolish(widget)
-        #    widget.style().polish(widget)
-        #    widget.update()
 
 
 class ProgressWidget(BaseUIWidget):

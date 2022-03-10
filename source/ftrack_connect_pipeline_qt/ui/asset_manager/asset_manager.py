@@ -1,10 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
-
-from functools import partial
-import six
-import base64
 import json
+from functools import partial
+
 
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
@@ -531,8 +529,12 @@ class AssetWidget(AccordionBaseWidget):
         # self._status_widget.setObjectName('borderless')
         return self._status_widget
 
-    def init_header_content(self, header_layout, collapsed):
+    def init_header_content(self, header_widget, collapsed):
         '''Add publish related widgets to the accordion header'''
+        header_layout = QtWidgets.QHBoxLayout()
+        header_widget.setLayout(header_layout)
+        header_layout.setContentsMargins(0, 0, 0, 0)
+        header_layout.setSpacing(0)
         header_layout.setContentsMargins(5, 1, 0, 1)
         header_layout.setSpacing(0)
 

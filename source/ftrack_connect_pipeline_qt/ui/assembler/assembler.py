@@ -426,7 +426,7 @@ class DependenciesListWidget(AssemblerListBaseWidget):
         for row in range(self.model.rowCount()):
             index = self.model.createIndex(row, 0, self.model)
 
-            (component, definitions) = self.model.data(index)
+            (component, definitions, availability) = self.model.data(index)
 
             context_id = component['version']['task']['id']
 
@@ -478,6 +478,10 @@ class DependenciesListWidget(AssemblerListBaseWidget):
             component_widget.set_component_and_definitions(
                 component, definitions
             )
+            if availability < 100.0:
+                component_widget.set_warning_message(
+                    'Not available in your current location - please transfer over!'
+                )
             self.layout().addWidget(component_widget)
             component_widget.clicked.connect(
                 partial(self.asset_clicked, component_widget)
@@ -528,7 +532,7 @@ class BrowserListWidget(AssemblerListBaseWidget):
 
     def _build_widget(self, index):
         '''Build component accordion widget'''
-        (component, definitions) = self.model.data(index)
+        (component, definitions, availability) = self.model.data(index)
         component_widget = self._asset_widget_class(
             index, self._assembler_widget, self.model.event_manager
         )
@@ -538,6 +542,10 @@ class BrowserListWidget(AssemblerListBaseWidget):
             'true' if index.row() == 0 else 'false',
         )
         component_widget.set_component_and_definitions(component, definitions)
+        if availability < 100.0 or True:
+            component_widget.set_warning_message(
+                'Not available in your current location - please transfer over!'
+            )
         component_widget.clicked.connect(
             partial(self.asset_clicked, component_widget)
         )
@@ -574,10 +582,12 @@ class DependencyComponentWidget(ComponentBaseWidget):
         super(DependencyComponentWidget, self).__init__(
             index, assembler_widget, event_manager, title=title, parent=parent
         )
-        self.setMinimumHeight(25)
+
+    def get_height(self):
+        return 32
 
     def get_thumbnail_height(self):
-        return 24
+        return 32
 
     def get_ident_widget(self):
         '''Asset name and component name.file_type'''
@@ -627,7 +637,9 @@ class BrowsedComponentWidget(ComponentBaseWidget):
         super(BrowsedComponentWidget, self).__init__(
             index, assembler_widget, event_manager, title=title, parent=parent
         )
-        self.setMinimumHeight(40)
+
+    def get_height(self):
+        return 40
 
     def get_thumbnail_height(self):
         return 32

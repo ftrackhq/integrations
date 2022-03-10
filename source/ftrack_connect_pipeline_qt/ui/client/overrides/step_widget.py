@@ -127,14 +127,18 @@ class PublisherAccordion(AccordionBaseWidget):
         self._status_icon.setObjectName('borderless')
         return self._status_icon
 
-    def init_header_content(self, layout, collapsed):
+    def init_header_content(self, header_widget, collapsed):
         '''Add publish related widgets to the accordion header'''
-        layout.addWidget(self.init_status_label())
-        layout.addStretch()
-        layout.addWidget(line.Line(horizontal=True))
-        layout.addWidget(self.init_options_button())
-        layout.addWidget(line.Line(horizontal=True))
-        layout.addWidget(self.init_status_icon())
+        header_layout = QtWidgets.QHBoxLayout()
+        header_widget.setLayout(header_layout)
+        header_layout.setContentsMargins(0, 0, 0, 0)
+        header_layout.setSpacing(0)
+        header_layout.addWidget(self.init_status_label())
+        header_layout.addStretch()
+        header_layout.addWidget(line.Line(horizontal=True))
+        header_layout.addWidget(self.init_options_button())
+        header_layout.addWidget(line.Line(horizontal=True))
+        header_layout.addWidget(self.init_status_icon())
 
     def add_widget(self, widget):
         super(PublisherAccordion, self).add_widget(widget)
@@ -448,6 +452,7 @@ class RadioButtonItemStepWidget(BaseUIWidget):
         super(RadioButtonItemStepWidget, self).__init__(
             name, fragment_data, parent=parent
         )
+        self._unavailable_reason = ''
         self._component = None
 
     def build(self):
@@ -459,7 +464,7 @@ class RadioButtonItemStepWidget(BaseUIWidget):
     def post_build(self):
         self.widget.layout().setContentsMargins(2, 2, 2, 2)
 
-    def check_components(self, session, components):
+    def check_components(self, session, components, file_formats=None):
         self._component = None
         self._session = session
         for component in components:
@@ -467,17 +472,24 @@ class RadioButtonItemStepWidget(BaseUIWidget):
                 self._component = component
                 break
         if not self._component:
-            self.set_unavailable()
+            self.set_unavailable('')
             return False
         else:
-            self.set_available()
+            if (
+                file_formats is None
+                or self._component['file_type'] in file_formats
+            ):
+                self.set_available()
+            else:
+                self.set_unavailable('Cannot open this format.')
             return True
 
-    def set_unavailable(self):
+    def set_unavailable(self, reason):
         self.button.setEnabled(False)
         self.set_enabled(False)
         if self.button.isChecked():
             self.button.setChecked(False)
+        self._unavailable_reason = reason
 
     def set_available(self):
         self.button.setEnabled(True)
@@ -486,18 +498,34 @@ class RadioButtonItemStepWidget(BaseUIWidget):
     def get_label(self):
         '''Return the label for parent combobox'''
         result = '{}'.format(self.name)
-        if self.is_available:
-            if self._component:
-                # Fetch path
-                try:
-                    location = self._session.pick_location()
+        if self.is_available and self._component:
+            # Fetch path
+            try:
+                location = self._session.pick_location()
+                # Is component in this location
+                if (
+                    len(
+                        self._session.query(
+                            'ComponentLocation where component.id={} and location.id={}'.format(
+                                self._component['id'] + "1", location['id']
+                            )
+                        ).all()
+                    )
+                    > 0
+                ):
                     self.button.setToolTip(
                         location.get_filesystem_path(self._component)
                     )
-                except Exception as e:
-                    self.widget.setToolTip(str(e))
-        else:
-            result += ': unavailable'
+                else:
+                    self.set_available(
+                        'Missing in this location ({})!'.format(
+                            location['name']
+                        )
+                    )
+            except Exception as e:
+                self.widget.setToolTip(str(e))
+        if len(self._unavailable_reason or '') > 0:
+            result += ': {}'.format(self._unavailable_reason)
         return result
 
     def set_enabled(self, enabled):

@@ -160,12 +160,13 @@ class NewAssetInput(QtWidgets.QFrame):
     def build(self):
         self.button = QtWidgets.QPushButton('NEW')
         self.button.setStyleSheet('background: transparent;')
-        self.button.setFixedSize(46, 32)
-        self.button.setMaximumSize(46, 32)
+        self.button.setFixedSize(46, 31)
+        self.button.setMaximumSize(46, 31)
 
         self.layout().addWidget(self.button)
 
         self.name = NewAssetNameInput()
+        # self.name.setStyleSheet('border: 1px solid $gray-dark;')
         self.name.setPlaceholderText(self._placeholder_name)
         self.name.setValidator(self._validator)
         self.name.setSizePolicy(
@@ -322,11 +323,16 @@ class AssetSelector(QtWidgets.QWidget):
         self.asset_list.ensurePolished()
         if selected_asset is not None:
             # Bring focus to list, remove focus from new asset input
-            set_property(self.new_asset_input, 'status', '')
+            set_property(self.new_asset_input, 'status', 'unfocused')
+            self.new_asset_input.button.setEnabled(False)
+            self.new_asset_input.name.setEnabled(False)
+            self.new_asset_input.name.deselect()
         else:
             # Deselect all assets in list, bring focus to new asset input
             self.asset_list.setCurrentRow(-1)
             set_property(self.new_asset_input, 'status', 'focused')
+            self.new_asset_input.button.setEnabled(True)
+            self.new_asset_input.name.setEnabled(True)
         self.new_asset_input.button.setEnabled(selected_asset is not None)
 
     def set_context(self, context_id, asset_type_name):

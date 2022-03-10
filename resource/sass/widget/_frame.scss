@@ -55,8 +55,8 @@ NewAssetInput[status='focused'] {
     border: 1px dashed $color-purple;
 }
 
-NewAssetInput[status=''] {
-    border: 1px dashed transparent;
+NewAssetInput[status='unfocused'] {
+    border: 1px solid transparent;
 }
 
 #bordered {
@@ -114,7 +114,7 @@ AssemblerDependencyContextLabel {
 }
 
 Footer QLabel {
-    color: $near-background;
+    color: $alt-background;
 }
 
 QFrame[docked='true'] Footer QLabel {

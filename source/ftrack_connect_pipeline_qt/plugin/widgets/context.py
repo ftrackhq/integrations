@@ -85,7 +85,7 @@ class PublishContextWidget(BaseOptionsWidget):
     def _on_comment_updated(self):
         '''Updates the option dictionary with current text when
         textChanged of comments_input event is triggered'''
-        current_text = self.comments_input.text()
+        current_text = self.comments_input.toPlainText()
         self.set_option_result(current_text, key='comment')
 
     def _on_asset_changed(self, asset_name, asset_entity, is_valid):
@@ -141,12 +141,15 @@ class PublishContextWidget(BaseOptionsWidget):
         self.coments_layout.setAlignment(QtCore.Qt.AlignTop)
 
         comment_label = QtWidgets.QLabel('Description')
-        self.comments_input = QtWidgets.QLineEdit()
+        self.comments_input = QtWidgets.QTextEdit()
+        self.comments_input.setMaximumHeight(40)
         self.comments_input.setPlaceholderText("Type a description...")
         self.coments_layout.addWidget(comment_label)
         self.coments_layout.addWidget(self.comments_input)
 
-        self.set_option_result(self.comments_input.text(), key='comment')
+        self.set_option_result(
+            self.comments_input.toPlainText(), key='comment'
+        )
         return self.coments_layout
 
     def emit_statuses(self, statuses):

@@ -32,7 +32,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
     widgetContextUpdated = QtCore.Signal(object)
     widgetAssetUpdated = QtCore.Signal(object, object, object)
     widgetRunPlugin = QtCore.Signal(object, object)
-    onQueryAssetVersionDone = QtCore.Signal()
+    onQueryAssetVersionDone = QtCore.Signal(object)
     componentsChecked = QtCore.Signal(object)
 
     host_types = None
@@ -342,7 +342,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         return main_obj.widget
 
     def post_build_definition(self):
-        self.check_components()
+        self.check_components(None)
         self.update_selected_components(True)
         for step in self.working_definition[core_constants.COMPONENTS]:
             step_obj = self.get_registered_object(step, step['category'])
@@ -550,43 +550,43 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 self._version_id,
             )
 
-    def update_widget(self, log_item):
-        '''*event* callback to update widget with the current status/value'''
-        if not log_item.widget_ref:
-            self.logger.debug(
-                'No widget_ref on the log item. log_item: {}'.format(log_item)
-            )
-            return
-        widget = self.widgets.get(log_item.widget_ref)
-        if not widget:
-            self.logger.debug(
-                'Widget ref :{} not found for host_id {} ! '.format(
-                    log_item.widget_ref, log_item.host_id
-                )
-            )
-            return
-
-        if log_item.status:
-            self.logger.debug(
-                'updating widget: {} Status: {}, Message: {}, User Message: {}'.format(
-                    widget,
-                    log_item.status,
-                    log_item.message,
-                    log_item.user_message,
-                )
-            )
-            if log_item.user_message:
-                widget.set_status(log_item.status, log_item.user_message)
-            else:
-                widget.set_status(log_item.status, log_item.message)
-
-        if log_item.result:
-            self.logger.debug(
-                'updating widget: {} with run result {}'.format(
-                    widget, log_item.result
-                )
-            )
-            widget.set_run_result(log_item.result)
+    # def update_widget(self, log_item):
+    #     '''*event* callback to update widget with the current status/value'''
+    #     if not log_item.widget_ref:
+    #         self.logger.debug(
+    #             'No widget_ref on the log item. log_item: {}'.format(log_item)
+    #         )
+    #         return
+    #     widget = self.widgets.get(log_item.widget_ref)
+    #     if not widget:
+    #         self.logger.debug(
+    #             'Widget ref :{} not found for host_id {} ! '.format(
+    #                 log_item.widget_ref, log_item.host_id
+    #             )
+    #         )
+    #         return
+    #
+    #     if log_item.status:
+    #         self.logger.debug(
+    #             'updating widget: {} Status: {}, Message: {}, User Message: {}'.format(
+    #                 widget,
+    #                 log_item.status,
+    #                 log_item.message,
+    #                 log_item.user_message,
+    #             )
+    #         )
+    #         if log_item.user_message:
+    #             widget.set_status(log_item.status, log_item.user_message)
+    #         else:
+    #             widget.set_status(log_item.status, log_item.message)
+    #
+    #     if log_item.result:
+    #         self.logger.debug(
+    #             'updating widget: {} with run result {}'.format(
+    #                 widget, log_item.result
+    #             )
+    #         )
+    #         widget.set_run_result(log_item.result)
 
     def listen_widget_updates(self):
         '''
@@ -670,10 +670,11 @@ class WidgetFactoryBase(QtWidgets.QWidget):
 
     def _query_asset_version_callback(self, asset_version_entity):
         if not asset_version_entity:
+            self.onQueryAssetVersionDone.emit(None)
             return
         components = asset_version_entity['components']
         self.components = components
-        self.onQueryAssetVersionDone.emit()
+        self.onQueryAssetVersionDone.emit(asset_version_entity)
         self.components_section.show()
         # If there is a Finalizer widget show the widget otherwise not.
         if (
@@ -684,7 +685,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
 
     def _asset_version_changed(self, version_id):
         '''Callback function triggered when a asset version has changed'''
-        self.version_id = version_id
+        # self.version_id = version_id
 
         thread = BaseThread(
             name='get_asset_version_entity_thread',
@@ -694,7 +695,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         )
         thread.start()
 
-    def check_components(self):
+    def check_components(self, asset_version_entity):
         '''Set the component as unavailable if it isn't available on the server'''
         raise NotImplementedError()
 
@@ -732,10 +733,13 @@ class LoaderWidgetFactory(WidgetFactoryBase):
             event_manager, ui_types, client_name
         )
 
-    def check_components(self):
+    def check_components(self, asset_version_entity):
+        import traceback
+
+        print(traceback.print_stack())
         available_components = 0
         try:
-            if not self.components:
+            if not self.components or asset_version_entity is None:
                 return
             for step in self.working_definition[core_constants.COMPONENTS]:
                 step_obj = self.get_registered_object(step, step['category'])
@@ -750,7 +754,10 @@ class LoaderWidgetFactory(WidgetFactoryBase):
                         )
                     )
                     continue
-                if step_obj.check_components(self.session, self.components):
+                file_formats = None
+                if step_obj.check_components(
+                    self.session, self.components, file_formats=file_formats
+                ):
                     available_components += 1
             if isinstance(
                 self.components_obj,
@@ -858,11 +865,11 @@ class ImporterWidgetFactory(LoaderWidgetFactory):
                             version_id=component['version']['id'],
                         )
 
-    def check_components(self):
+    def check_components(self, asset_version_entity):
         if not self.components:
             # Wait for version to be selected and loaded
             return
-        super(OpenerWidgetFactory, self).check_components()
+        super(OpenerWidgetFactory, self).check_components(asset_version_entity)
 
 
 class PublisherWidgetFactory(WidgetFactoryBase):
@@ -872,7 +879,7 @@ class PublisherWidgetFactory(WidgetFactoryBase):
         )
         self.progress_widget = self.create_progress_widget(self.client_name)
 
-    def check_components(self):
+    def check_components(self, unused_asset_version_entity):
         available_components = 0
         try:
             if self.working_definition:
