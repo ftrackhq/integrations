@@ -542,7 +542,7 @@ class BrowserListWidget(AssemblerListBaseWidget):
             'true' if index.row() == 0 else 'false',
         )
         component_widget.set_component_and_definitions(component, definitions)
-        if availability < 100.0 or True:
+        if availability < 100.0:
             component_widget.set_warning_message(
                 'Not available in your current location - please transfer over!'
             )
