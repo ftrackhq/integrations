@@ -136,28 +136,34 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
         constants.IS_LATEST_VERSION
     ]
 
-    # Get dependencies
-    dependencies = get_all_dependencies(asset_version_entity)
+    dependencies = asset_version_entity['uses_versions']
     arguments_dict[constants.DEPENDENCY_IDS] = [
         dependency['id'] for dependency in dependencies
     ]
     arguments_dict[constants.IS_DEPENDENCY] = False
 
-    # Save the asset info of each dependency
-    dependencies_asset_info = []
-    for dependency in dependencies:
-        entity = session.query(
-            "TypedContext where id is {}".format(dependency['id'])
-        ).first()
-        if not entity:
-            continue
-        if entity.entity_type == 'Sequence':
-            continue
-        if entity.entity_type == 'Shot' or entity.entity_type == 'AssetBuild':
-            dependency_asset_info = FtrackAssetInfo.from_context(entity)
-            dependency_asset_info[constants.IS_DEPENDENCY] = True
-            dependencies_asset_info.append(dependency_asset_info)
-    arguments_dict[constants.DEPENDENCIES] = dependencies_asset_info
+    # Get context dependencies
+    # dependencies = get_all_dependencies(asset_version_entity)
+    # arguments_dict[constants.DEPENDENCY_IDS] = [
+    #     dependency['id'] for dependency in dependencies
+    # ]
+    # arguments_dict[constants.IS_DEPENDENCY] = False
+    #
+    # # Save the asset info of each dependency
+    # dependencies_asset_info = []
+    # for dependency in dependencies:
+    #     entity = session.query(
+    #         "TypedContext where id is {}".format(dependency['id'])
+    #     ).first()
+    #     if not entity:
+    #         continue
+    #     if entity.entity_type == 'Sequence':
+    #         continue
+    #     if entity.entity_type == 'Shot' or entity.entity_type == 'AssetBuild':
+    #         dependency_asset_info = FtrackAssetInfo.from_context(entity)
+    #         dependency_asset_info[constants.IS_DEPENDENCY] = True
+    #         dependencies_asset_info.append(dependency_asset_info)
+    # arguments_dict[constants.DEPENDENCIES] = dependencies_asset_info
 
     location = session.pick_location()
 
@@ -343,22 +349,22 @@ class FtrackAssetInfo(dict):
             self._session = default
         super(FtrackAssetInfo, self).setdefault(k, default)
 
-    def _fetch_dependencies(self):
-        dependencies = get_all_dependencies(self.asset_version_entity)
-        return dependencies
-
-    def update_dependencies(self, session):
-        self._session = session
-        dependencies = self._fetch_dependencies()
-        if not dependencies or not self[constants.DEPENDENCIES]:
-            self[constants.DEPENDENCIES] = []
-        for dependency in dependencies:
-            dependency_asset_info = self.from_context(dependency)
-            dependency_asset_info[constants.IS_DEPENDENCY] = True
-            if dependency['id'] not in self[constants.DEPENDENCY_IDS]:
-                self[constants.DEPENDENCY_IDS].append(dependency['id'])
-            if dependency_asset_info not in self[constants.DEPENDENCIES]:
-                self[constants.DEPENDENCIES].append(dependency_asset_info)
+    # def _fetch_dependencies(self):
+    #     dependencies = get_all_dependencies(self.asset_version_entity)
+    #     return dependencies
+    #
+    # def update_dependencies(self, session):
+    #     self._session = session
+    #     dependencies = self._fetch_dependencies()
+    #     if not dependencies or not self[constants.DEPENDENCIES]:
+    #         self[constants.DEPENDENCIES] = []
+    #     for dependency in dependencies:
+    #         dependency_asset_info = self.from_context(dependency)
+    #         dependency_asset_info[constants.IS_DEPENDENCY] = True
+    #         if dependency['id'] not in self[constants.DEPENDENCY_IDS]:
+    #             self[constants.DEPENDENCY_IDS].append(dependency['id'])
+    #         if dependency_asset_info not in self[constants.DEPENDENCIES]:
+    #             self[constants.DEPENDENCIES].append(dependency_asset_info)
 
     def _get_asset_versions_entities(self):
         '''
