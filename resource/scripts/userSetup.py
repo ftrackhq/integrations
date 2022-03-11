@@ -39,7 +39,7 @@ logger = logging.getLogger('ftrack_connect_pipeline_maya')
 created_widgets = dict()
 
 
-def get_ftrack_menu(menu_name='ftrack', submenu_name='pipeline'):
+def get_ftrack_menu(menu_name='ftrack', submenu_name=None):
     '''Get the current ftrack menu, create it if does not exists.'''
     gMainWindow = mm.eval('$temp1=$gMainWindow')
 
@@ -51,16 +51,18 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name='pipeline'):
             menu_name, parent=gMainWindow, tearOff=True, label=menu_name
         )
 
-    if cmds.menuItem(
-        submenu_name, exists=True, parent=menu, label=submenu_name
-    ):
-        submenu = submenu_name
+    if submenu_name:
+        if cmds.menuItem(
+            submenu_name, exists=True, parent=menu, label=submenu_name
+        ):
+            submenu = submenu_name
+        else:
+            submenu = cmds.menuItem(
+                submenu_name, subMenu=True, label=submenu_name, parent=menu
+            )
+        return submenu
     else:
-        submenu = cmds.menuItem(
-            submenu_name, subMenu=True, label=submenu_name, parent=menu
-        )
-
-    return submenu
+        return menu
 
 
 def _open_widget(event_manager, asset_list_model, widgets, event):

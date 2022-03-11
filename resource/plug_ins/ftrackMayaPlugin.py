@@ -36,9 +36,9 @@ class FtrackAssetNode(OpenMayaMPx.MPxNode):
     a_session = OpenMaya.MObject()
     a_asset_info_id = OpenMaya.MObject()
     a_dependency_ids = OpenMaya.MObject()
-    a_dependencies = OpenMaya.MObject()
-    a_is_dependency = OpenMaya.MObject()
-    a_context_name = OpenMaya.MObject()
+    # a_dependencies = OpenMaya.MObject()
+    # a_is_dependency = OpenMaya.MObject()
+    # a_context_name = OpenMaya.MObject()
     a_is_loaded = OpenMaya.MObject()
 
     def __init__(self):
@@ -79,20 +79,20 @@ def nodeInitializer():
     t_attr.setHidden(False)
     t_attr.setStorable(True)
 
-    FtrackAssetNode.a_dependencies = t_attr.create(
-        asset_const.DEPENDENCIES, 'dep', OpenMaya.MFnData.kStringArray
-    )
-    t_attr.setHidden(False)
-    t_attr.setStorable(True)
+    # FtrackAssetNode.a_dependencies = t_attr.create(
+    #    asset_const.DEPENDENCIES, 'dep', OpenMaya.MFnData.kStringArray
+    # )
+    # t_attr.setHidden(False)
+    # t_attr.setStorable(True)
 
-    FtrackAssetNode.a_is_dependency = booleanAttr.create(
-        asset_const.IS_DEPENDENCY,
-        'isdep',
-        OpenMaya.MFnNumericData.kBoolean,
-        False,
-    )
-    booleanAttr.setHidden(False)
-    booleanAttr.setStorable(True)
+    # FtrackAssetNode.a_is_dependency = booleanAttr.create(
+    #    asset_const.IS_DEPENDENCY,
+    #    'isdep',
+    #    OpenMaya.MFnNumericData.kBoolean,
+    #    False,
+    # )
+    # booleanAttr.setHidden(False)
+    # booleanAttr.setStorable(True)
 
     FtrackAssetNode.a_asset_id = t_attr.create(
         asset_const.ASSET_ID, 'aid', OpenMaya.MFnData.kString
@@ -100,11 +100,11 @@ def nodeInitializer():
     t_attr.setStorable(True)
     t_attr.setHidden(False)
 
-    FtrackAssetNode.a_context_name = t_attr.create(
-        asset_const.CONTEXT_NAME, 'cxn', OpenMaya.MFnData.kString
-    )
-    t_attr.setHidden(False)
-    t_attr.setStorable(True)
+    # FtrackAssetNode.a_context_name = t_attr.create(
+    #    asset_const.CONTEXT_NAME, 'cxn', OpenMaya.MFnData.kString
+    # )
+    # t_attr.setHidden(False)
+    # t_attr.setStorable(True)
 
     FtrackAssetNode.a_asset_name = t_attr.create(
         asset_const.ASSET_NAME, 'an', OpenMaya.MFnData.kString
@@ -218,9 +218,9 @@ def nodeInitializer():
     FtrackAssetNode.addAttribute(FtrackAssetNode.a_session)
     FtrackAssetNode.addAttribute(FtrackAssetNode.a_asset_info_id)
     FtrackAssetNode.addAttribute(FtrackAssetNode.a_dependency_ids)
-    FtrackAssetNode.addAttribute(FtrackAssetNode.a_dependencies)
-    FtrackAssetNode.addAttribute(FtrackAssetNode.a_is_dependency)
-    FtrackAssetNode.addAttribute(FtrackAssetNode.a_context_name)
+    # FtrackAssetNode.addAttribute(FtrackAssetNode.a_dependencies)
+    # FtrackAssetNode.addAttribute(FtrackAssetNode.a_is_dependency)
+    # FtrackAssetNode.addAttribute(FtrackAssetNode.a_context_name)
     FtrackAssetNode.addAttribute(FtrackAssetNode.a_is_loaded)
 
 
