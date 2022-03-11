@@ -67,7 +67,9 @@ class PublisherOptionsButton(OptionsButton):
         self.main_widget = QtWidgets.QWidget()
         self.main_widget.setLayout(QtWidgets.QVBoxLayout())
         self.main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
-        self.overlay_container = overlay.Overlay(self.main_widget)
+        self.overlay_container = overlay.Overlay(
+            self.main_widget, height_percentage=0.8
+        )
         self.overlay_container.setVisible(False)
 
     def post_build(self):

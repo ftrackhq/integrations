@@ -59,7 +59,7 @@ class AssetVersionListItem(QtWidgets.QFrame):
             self._current_version_changed
         )
 
-    def _current_version_changed(self, current_Findex):
+    def _current_version_changed(self, current_index):
         if current_index == -1:
             return
         self.current_version_number = (

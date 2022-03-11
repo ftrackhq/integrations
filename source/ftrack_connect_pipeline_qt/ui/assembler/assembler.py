@@ -347,7 +347,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
         has the component and it matches.'''
         current_component = self._assembler_client.session.query(
             'Component where id={}'.format(widget.component_id)
-        ).first()
+        ).one()
         component = self._assembler_client.session.query(
             'Component where version.id={} and name={}'.format(
                 version_entity['id'], current_component['name']
@@ -357,14 +357,14 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
         error_message = None
         if component is None:
             error_message = (
-                "There is no component by the name {} at version {}!".format(
+                'There is no component by the name {} at version {}!'.format(
                     current_component['name'], version_entity['version']
                 )
             )
         # Check file extension
-        if component['file_type'] != current_component['file_type']:
+        elif component['file_type'] != current_component['file_type']:
             error_message = (
-                "There version {} component file type {} differs!".format(
+                'The version {} component file type "{}" differs!'.format(
                     version_entity['version'], component['file_type']
                 )
             )
@@ -385,10 +385,18 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
                                     options['version_number'] = version_entity[
                                         'version'
                                     ]
-            self.model.setData(widget.index, (component, matching_definitions))
+            location = self.session.pick_location()
+            self.model.setData(
+                widget.index,
+                (
+                    component,
+                    matching_definitions,
+                    location.get_component_availability(component),
+                ),
+            )
         else:
             Dialog(
-                self._asset_manager_client,
+                self._assembler_client,
                 title='Change Import Version',
                 message=error_message,
             )

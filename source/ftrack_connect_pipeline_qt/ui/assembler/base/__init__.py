@@ -183,7 +183,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
     def extract_components(self, versions):
         '''Build a list of loadable components from the supplied *versions*'''
 
-        include_unloadable = self._cb_show_non_compatible.isChecked()
+        include_all = self._cb_show_non_compatible.isChecked()
 
         # Fetch all definitions, append asset type name
         loader_definitions = (
@@ -232,6 +232,13 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                 if not component_extension:
                     self.logger.warning(
                         'Could not assemble version {} component {}; missing file type!'.format(
+                            version['id'], component['id']
+                        )
+                    )
+                    continue
+                elif not include_all and component['name'] == 'snapshot':
+                    self.logger.warning(
+                        'Not assembling version {} snapshot component {}!'.format(
                             version['id'], component['id']
                         )
                     )
@@ -312,7 +319,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                                 matching_definitions = []
                             matching_definitions.append(definition_fragment)
                 if matching_definitions is None:
-                    if include_unloadable:
+                    if include_all:
                         matching_definitions = []
                 else:
                     self._loadable_count += 1
@@ -626,10 +633,10 @@ class ComponentBaseWidget(AccordionBaseWidget):
 
     def _adjust_height(self):
         self.setMinimumHeight(
-            self.get_height() + (20 if self._warning_label.isVisible() else 0)
+            self.get_height() + (25 if self._warning_label.isVisible() else 0)
         )
         self.setMaximumHeight(
-            self.get_height() + (20 if self._warning_label.isVisible() else 0)
+            self.get_height() + (25 if self._warning_label.isVisible() else 0)
         )
 
     def set_warning_message(self, message):

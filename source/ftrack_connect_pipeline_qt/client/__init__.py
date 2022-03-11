@@ -283,9 +283,8 @@ class QtClient(Client, QtWidgets.QFrame):
         self.definition_changed(self.definition, available_components_count)
 
     def _on_log_item_added(self, log_item):
-        pass
-        # if self.widget_factory:
-        #    self.widget_factory.update_widget(log_item)
+        if self.widget_factory:
+            self.widget_factory.update_widget(log_item)
 
     def refresh(self):
         '''Called upon definition selector refresh button click.'''

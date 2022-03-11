@@ -40,6 +40,10 @@ NewAssetInput[status='unfocused'] QLineEdit {
     color: $gray;
 }
 
+NewAssetInput[status='unfocused'] QLabel {
+    color: $gray;
+}
+
 NewAssetInput QLineEdit {
     border: 1px solid $gray-dark;
 }

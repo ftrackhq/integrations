@@ -69,6 +69,14 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     def selected(self):
         return self._selected
 
+    @selected.setter
+    def selected(self, value):
+        self._selected = value
+
+    @property
+    def selected(self):
+        return self._selected
+
     @property
     def checked(self):
         return self._checked
