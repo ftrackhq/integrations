@@ -127,58 +127,58 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
             #  Connect all the objects that are not dependencies
             self.ftrack_asset.connect_objects(diff)
             #  Check if dependencies already in the scene and what dependencies are missing
-            (
-                missing_ids,
-                unconnected_dependencies,
-                untracked_dependencies,
-            ) = self.ftrack_asset.check_dependencies()
-            if missing_ids:
-                #  if missing dependencies create them
-                dependency_objects = self.create_dependency_objects(
-                    missing_ids
-                )
-                unconnected_dependencies.extend(dependency_objects)
-            if unconnected_dependencies:
-                #  connect all the dependencies new and old
-                self.ftrack_asset.connect_dependencies(
-                    unconnected_dependencies
-                )
+            # (
+            #    missing_ids,
+            #    unconnected_dependencies,
+            #    untracked_dependencies,
+            # ) = self.ftrack_asset.check_dependencies()
+            # if missing_ids:
+            #    #  if missing dependencies create them
+            #    dependency_objects = self.create_dependency_objects(
+            #        missing_ids
+            #    )
+            #    unconnected_dependencies.extend(dependency_objects)
+            # if unconnected_dependencies:
+            #    #  connect all the dependencies new and old
+            #    self.ftrack_asset.connect_dependencies(
+            #        unconnected_dependencies
+            #    )
             # Before save delete only the main ftrackNode
 
         return super_result
 
-    def create_dependency_objects(self, missing_dependencies):
-        dependency_objects = []
-        for dependency_id in missing_dependencies:
-            entity = self.session.query(
-                "TypedContext where id is {}".format(dependency_id)
-            ).first()
-            if not entity:
-                continue
-            if entity.entity_type == 'Sequence':
-                # TODO: think about how to do this one
-                # We don't have the assetBuild, task, assetName, the version or the
-                # component
-                # This one is in case we want to link a sequence inside a project for
-                # example.
-                pass
-            if (
-                entity.entity_type == 'Shot'
-                or entity.entity_type == 'AssetBuild'
-            ):
-                dependency_asset_info = (
-                    asset_info.FtrackAssetInfo.from_context(entity)
-                )
-                # This should be depending on the DCC
-                dependency_asset_info[
-                    asset_const.LOAD_MODE
-                ] = self.dependency_load_mode
-                dependency_asset_info[asset_const.IS_DEPENDENCY] = True
-                dependency_ftrack_asset = self.create_ftrack_asset_class(
-                    dependency_asset_info
-                )
-                dependency_object = (
-                    dependency_ftrack_asset.init_ftrack_object()
-                )
-                dependency_objects.append(dependency_object)
-        return dependency_objects
+    # def create_dependency_objects(self, missing_dependencies):
+    #     dependency_objects = []
+    #     for dependency_id in missing_dependencies:
+    #         entity = self.session.query(
+    #             "TypedContext where id is {}".format(dependency_id)
+    #         ).first()
+    #         if not entity:
+    #             continue
+    #         if entity.entity_type == 'Sequence':
+    #             # TODO: think about how to do this one
+    #             # We don't have the assetBuild, task, assetName, the version or the
+    #             # component
+    #             # This one is in case we want to link a sequence inside a project for
+    #             # example.
+    #             pass
+    #         if (
+    #             entity.entity_type == 'Shot'
+    #             or entity.entity_type == 'AssetBuild'
+    #         ):
+    #             dependency_asset_info = (
+    #                 asset_info.FtrackAssetInfo.from_context(entity)
+    #             )
+    #             # This should be depending on the DCC
+    #             dependency_asset_info[
+    #                 asset_const.LOAD_MODE
+    #             ] = self.dependency_load_mode
+    #             dependency_asset_info[asset_const.IS_DEPENDENCY] = True
+    #             dependency_ftrack_asset = self.create_ftrack_asset_class(
+    #                 dependency_asset_info
+    #             )
+    #             dependency_object = (
+    #                 dependency_ftrack_asset.init_ftrack_object()
+    #             )
+    #             dependency_objects.append(dependency_object)
+    #     return dependency_objects

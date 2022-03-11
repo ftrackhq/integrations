@@ -129,8 +129,8 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
 
     asset = asset_version_entity['asset']
     asset_parent = asset['parent']
-    context_name = asset_parent['name']
-    arguments_dict[constants.CONTEXT_NAME] = context_name
+    # context_name = asset_parent['name']
+    # arguments_dict[constants.CONTEXT_NAME] = context_name
 
     arguments_dict[constants.IS_LATEST_VERSION] = asset_version_entity[
         constants.IS_LATEST_VERSION
@@ -140,7 +140,7 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
     arguments_dict[constants.DEPENDENCY_IDS] = [
         dependency['id'] for dependency in dependencies
     ]
-    arguments_dict[constants.IS_DEPENDENCY] = False
+    # arguments_dict[constants.IS_DEPENDENCY] = False
 
     # Get context dependencies
     # dependencies = get_all_dependencies(asset_version_entity)
@@ -296,8 +296,8 @@ class FtrackAssetInfo(dict):
         if k == constants.SESSION:
             if self.session:
                 value = self.session
-        if k == constants.DEPENDENCIES:
-            value = self._check_asset_info_dependencies(value)
+        # if k == constants.DEPENDENCIES:
+        #    value = self._check_asset_info_dependencies(value)
         return value
 
     def __setitem__(self, k, v):
@@ -331,8 +331,8 @@ class FtrackAssetInfo(dict):
             # Make sure that in case is returning None, set the default value
             if new_value:
                 value = new_value
-        if k == constants.DEPENDENCIES:
-            value = self._check_asset_info_dependencies(value)
+        # if k == constants.DEPENDENCIES:
+        #    value = self._check_asset_info_dependencies(value)
         return value
 
     def setdefault(self, k, default=None):
@@ -418,9 +418,9 @@ class FtrackAssetInfo(dict):
         asset_info_data = {}
         asset_entity = version_entity['asset']
 
-        asset_info_data[constants.CONTEXT_NAME] = asset_entity['parent'][
-            'name'
-        ]
+        # asset_info_data[constants.CONTEXT_NAME] = asset_entity['parent'][
+        #    'name'
+        # ]
         asset_info_data[constants.ASSET_NAME] = asset_entity['name']
         asset_info_data[constants.ASSET_TYPE_NAME] = asset_entity['type'][
             'name'
@@ -437,11 +437,11 @@ class FtrackAssetInfo(dict):
         location = version_entity.session.pick_location()
 
         # Get dependencies
-        dependencies = get_all_dependencies(version_entity)
+        dependencies = version_entity['uses_versions']
         asset_info_data[constants.DEPENDENCY_IDS] = [
             dependency['id'] for dependency in dependencies
         ]
-        asset_info_data[constants.IS_DEPENDENCY] = False
+        # asset_info_data[constants.IS_DEPENDENCY] = False
 
         asset_info_data[constants.ASSET_INFO_ID] = uuid.uuid4().hex
 
@@ -480,7 +480,7 @@ class FtrackAssetInfo(dict):
         '''
         asset_info_data = {}
 
-        asset_info_data[constants.CONTEXT_NAME] = asset_build['name']
+        # asset_info_data[constants.CONTEXT_NAME] = asset_build['name']
         # TODO: fill up all the other attributes based on the asset workflow we
         # decided. We need a task for that. Example, automatically know which
         # assset we should be getting based on the definition.
