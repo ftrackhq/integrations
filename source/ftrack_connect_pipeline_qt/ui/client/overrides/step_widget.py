@@ -506,14 +506,8 @@ class RadioButtonItemStepWidget(BaseUIWidget):
                 location = self._session.pick_location()
                 # Is component in this location
                 if (
-                    len(
-                        self._session.query(
-                            'ComponentLocation where component.id={} and location.id={}'.format(
-                                self._component['id'] + "1", location['id']
-                            )
-                        ).all()
-                    )
-                    > 0
+                    location.get_component_availability(self._component)
+                    == 100.0
                 ):
                     self.button.setToolTip(
                         location.get_filesystem_path(self._component)

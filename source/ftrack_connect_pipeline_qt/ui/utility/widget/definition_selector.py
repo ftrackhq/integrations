@@ -344,7 +344,9 @@ class DefinitionSelectorWidgetButtons(DefinitionSelectorWidgetBase):
                     # Package is referring to asset type code, find out name
                     asset_type_name = None
                     asset_type = self.host_connection.session.query(
-                        'AssetType where short={}'.format(asset_type_short)
+                        'name from AssetType where short={}'.format(
+                            asset_type_short
+                        )
                     ).first()
                     if asset_type:
                         asset_type_name = asset_type['name']

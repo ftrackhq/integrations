@@ -127,9 +127,7 @@ class QtClient(Client, QtWidgets.QFrame):
         '''Build widgets and parent them.'''
         self.header = header.Header(
             self.session,
-            title='CONNECT'
-            if self.client_name == qt_constants.OPEN_WIDGET
-            else '',
+            title='CONNECT',
         )
         self.layout().addWidget(self.header)
 

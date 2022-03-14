@@ -17,6 +17,7 @@ MAIN_FRAMEWORK_WIDGET = 'main_framework_widget'
 
 OPEN_WIDGET = 'open'
 ASSEMBLER_WIDGET = 'assembler'
+SAVE_WIDGET = 'save'
 ASSET_MANAGER_WIDGET = 'asset_manager'
 PUBLISHER_WIDGET = 'publisher'
 LOG_VIEWER_WIDGET = 'log_viewer'

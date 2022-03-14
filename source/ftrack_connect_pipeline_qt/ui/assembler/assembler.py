@@ -107,6 +107,7 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
                         self.dependencyResolveWarning.emit(
                             'No dependencies found!'
                         )
+                    self._label_info.setText('No assets found.')
                     return
 
                 versions = [
@@ -135,6 +136,7 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
                     self.dependencyResolveWarning.emit(
                         'No loadable dependencies found!'
                     )
+                    self._label_info.setText('No loadable assets found.')
                     return
 
                 self.dependenciesResolved.emit(components)
@@ -332,6 +334,8 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
                     's' if self.model.rowCount() > 1 else '',
                 )
             )
+        else:
+            self._label_info.setText('No assets found.')
 
         self._assembler_client.run_button_no_load.setEnabled(
             self._loadable_count > 0
@@ -346,10 +350,12 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
         '''User request a change of version, check that the new version
         has the component and it matches.'''
         current_component = self._assembler_client.session.query(
-            'Component where id={}'.format(widget.component_id)
+            'name, file_type from Component where id={}'.format(
+                widget.component_id
+            )
         ).one()
         component = self._assembler_client.session.query(
-            'Component where version.id={} and name={}'.format(
+            'name, file_type from Component where version.id={} and name={}'.format(
                 version_entity['id'], current_component['name']
             )
         ).first()
@@ -483,13 +489,13 @@ class DependenciesListWidget(AssemblerListBaseWidget):
                 'first',
                 'true' if row == 0 else 'false',
             )
-            component_widget.set_component_and_definitions(
-                component, definitions
-            )
             if availability < 100.0:
                 component_widget.set_warning_message(
                     'Not available in your current location - please transfer over!'
                 )
+            component_widget.set_component_and_definitions(
+                component, definitions
+            )
             self.layout().addWidget(component_widget)
             component_widget.clicked.connect(
                 partial(self.asset_clicked, component_widget)
@@ -549,11 +555,12 @@ class BrowserListWidget(AssemblerListBaseWidget):
             'first',
             'true' if index.row() == 0 else 'false',
         )
-        component_widget.set_component_and_definitions(component, definitions)
         if availability < 100.0:
             component_widget.set_warning_message(
                 'Not available in your current location - please transfer over!'
             )
+        component_widget.set_component_and_definitions(component, definitions)
+
         component_widget.clicked.connect(
             partial(self.asset_clicked, component_widget)
         )
@@ -647,7 +654,7 @@ class BrowsedComponentWidget(ComponentBaseWidget):
         )
 
     def get_height(self):
-        return 40
+        return 32
 
     def get_thumbnail_height(self):
         return 32

@@ -232,6 +232,10 @@ DenyButton:hover {
     background: transparent;
 }
 
-NewAssetInput[status='focused'] QButton:disabled {
-    color: $text-color;
+NewAssetInput[status='focused'] QPushButton {
+    background: transparent;
+}
+
+NewAssetInput QPushButton:disabled {
+    color: white;
 }

@@ -49,10 +49,17 @@ class AssetVersionListItem(QtWidgets.QFrame):
         self.version_combobox.set_asset_entity(self.asset)
         self.version_combobox.setMaximumHeight(20)
         self.layout().addWidget(self.version_combobox)
+
         self.current_version_id = self.asset['latest_version']['id']
         self.current_version_number = self.asset['latest_version']['version']
 
         self.layout().addStretch()
+
+        self.version_info_label = QtWidgets.QLabel()
+        self.version_info_label.setObjectName('gray')
+        self.layout().addWidget(self.version_info_label)
+
+        self._update_publisher_info(self.asset['latest_version'])
 
     def post_build(self):
         self.version_combobox.currentIndexChanged.connect(
@@ -68,7 +75,21 @@ class AssetVersionListItem(QtWidgets.QFrame):
         current_idx = self.version_combobox.currentIndex()
         self.current_version_id = self.version_combobox.itemData(current_idx)
         self.thumbnail_widget.load(self.current_version_id)
+        self._update_publisher_info(
+            self.session.query(
+                'AssetVersion where id={}'.format(self.current_version_id)
+            ).one()
+        )
         self.versionChanged.emit()
+
+    def _update_publisher_info(self, asset_version):
+        self.version_info_label.setText(
+            '{} {} @ {}'.format(
+                asset_version['user']['first_name'],
+                asset_version['user']['last_name'],
+                asset_version['date'].strftime('%y-%m-%d %H:%M'),
+            )
+        )
 
 
 class AssetList(QtWidgets.QListWidget):

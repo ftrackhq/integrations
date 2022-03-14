@@ -207,7 +207,7 @@ class EntityBrowser(Dialog):
 
     def find_context_entity(self, context_id):
         context_entity = self.session.query(
-            'select link, name , parent, parent.name from Context where id '
+            'select link, name, parent, parent.name from Context where id '
             'is "{}"'.format(context_id)
         ).one()
         return context_entity
@@ -236,7 +236,7 @@ class EntityBrowser(Dialog):
             entities = self.session.query('select id, name from Project').all()
         else:
             entities = self.session.query(
-                'select id,name,children from Context where parent.id is {}'.format(
+                'select id, name, children from Context where parent.id is {}'.format(
                     intermediate_entity['id']
                 )
             ).all()
@@ -479,8 +479,8 @@ class NavigationEntityButton(QtWidgets.QFrame):
 
     def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().setContentsMargins(3, 0, 0, 0)
-        self.layout().setSpacing(2)
+        self.layout().setContentsMargins(3, 0, 3, 0)
+        self.layout().setSpacing(4)
 
     def build(self):
         label = QtWidgets.QLabel(self.link_entity['name'])
@@ -492,7 +492,14 @@ class NavigationEntityButton(QtWidgets.QFrame):
             )
             self.remove_button.setFixedSize(6, 6)
             self.remove_button.setStyleSheet(
-                'border: none; background: transparent;'
+                '''
+            QPushButton {
+                border: none; background: transparent;
+            }
+            QPushButton:hover {
+                background: gray;
+            }
+'''
             )
             self.layout().addWidget(self.remove_button)
 

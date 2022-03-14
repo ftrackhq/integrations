@@ -670,8 +670,10 @@ class AssetWidget(AccordionBaseWidget):
                 self._thumbnail_widget = AssetVersionThumbnail(self.session)
                 self._thumbnail_widget.load(self._version_id)
                 self._thumbnail_widget.setScaledContents(True)
-                self._thumbnail_widget.setMinimumSize(69, 48)
-                self._thumbnail_widget.setMaximumSize(69, 48)
+                self._thumbnail_widget.setMinimumHeight(50)
+                self._thumbnail_widget.setMaximumHeight(50)
+                self._thumbnail_widget.setMinimumWidth(90)
+                self._thumbnail_widget.setMaximumWidth(90)
                 context_widget.layout().addWidget(self._thumbnail_widget)
 
                 self._component_and_version_widget = ComponentAndVersionWidget(

@@ -443,6 +443,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         upper_layout = QtWidgets.QHBoxLayout()
         upper_layout.setContentsMargins(5, 1, 1, 1)
         upper_layout.setSpacing(2)
+        upper_widget.setMinimumHeight(25)
         upper_widget.setLayout(upper_layout)
 
         # Append thumbnail
@@ -500,7 +501,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
             self._assembler_widget._assembler_client.ui_types,
         )
 
-        header_layout.addWidget(upper_widget)
+        header_layout.addWidget(upper_widget, 10)
 
         self._warning_message_widget = QtWidgets.QWidget()
         lower_layout = QtWidgets.QHBoxLayout()
@@ -518,8 +519,8 @@ class ComponentBaseWidget(AccordionBaseWidget):
         self._warning_label = WarningLabel()
         lower_layout.addWidget(self._warning_label, 100)
 
-        self._warning_message_widget.setVisible(False)
         header_layout.addWidget(self._warning_message_widget)
+        self._warning_message_widget.setVisible(False)
 
     def _definition_selected(self, index):
         '''Loader definition were selected,'''
@@ -607,6 +608,10 @@ class ComponentBaseWidget(AccordionBaseWidget):
         else:
             # No loaders, disable entire component
             self.setEnabled(False)
+            if len(self._warning_label.text()) == 0:
+                self.set_warning_message(
+                    'No loader found compatible with this asset.'
+                )
 
         self._asset_name_widget.setText(
             '{} '.format(component['version']['asset']['name'])
@@ -632,12 +637,13 @@ class ComponentBaseWidget(AccordionBaseWidget):
         raise NotImplementedError()
 
     def _adjust_height(self):
-        self.setMinimumHeight(
-            self.get_height() + (25 if self._warning_label.isVisible() else 0)
+        widget_height = self.get_height() + (
+            18 if len(self._warning_label.text()) > 0 else 0
         )
-        self.setMaximumHeight(
-            self.get_height() + (25 if self._warning_label.isVisible() else 0)
-        )
+        self.header.setMinimumHeight(widget_height)
+        self.header.setMaximumHeight(widget_height)
+        self.setMinimumHeight(widget_height)
+        self.setMaximumHeight(widget_height)
 
     def set_warning_message(self, message):
         if len(message or '') > 0:

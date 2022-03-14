@@ -58,6 +58,7 @@ NewAssetInput[status='focused'] {
 
 NewAssetInput[status='unfocused'] {
     border: 1px solid transparent;
+    background: transparent;
 }
 
 #bordered {
@@ -100,6 +101,10 @@ EntityWidget {
     color: $text-color;
     border-bottom: 1px dashed $border-color;
     border-right: 1px dashed $border-color;
+}
+
+EntityWidget[background='selected'] {
+    background: $gray-lighter;
 }
 
 EntityWidget:hover {

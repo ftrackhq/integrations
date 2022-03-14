@@ -12,7 +12,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import line
 from ftrack_connect_pipeline_qt.ui.utility.widget.asset_grid_selector import (
     AssetGridSelector,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget.asset_list_selector import (
+from ftrack_connect_pipeline_qt.ui.utility.widget.asset_version_list_selector import (
     AssetListSelector,
 )
 from ftrack_connect_pipeline_qt.utils import BaseThread
@@ -168,12 +168,12 @@ class PublishContextWidget(BaseOptionsWidget):
     def _get_statuses(self):
         '''Returns the status of the selected assetVersion'''
         context_entity = self.session.query(
-            'select link, name , parent, parent.name from Context where id '
+            'select link, name, parent, parent.name from Context where id '
             'is "{}"'.format(self.context_id)
         ).one()
 
         project = self.session.query(
-            'select name , parent, parent.name from Context where id is "{}"'.format(
+            'select name, parent, parent.name from Context where id is "{}"'.format(
                 context_entity['link'][0]['id']
             )
         ).one()

@@ -9,7 +9,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import AssetVersion
 from ftrack_connect_pipeline_qt.utils import set_property
 
 
-class AssetListItem(QtWidgets.QWidget):
+class AssetListItem(QtWidgets.QFrame):
     '''Widget representing an asset within the'''
 
     def __init__(self, asset, session):
@@ -23,14 +23,14 @@ class AssetListItem(QtWidgets.QWidget):
 
     def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().setContentsMargins(1, 1, 1, 1)
+        self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(3)
 
     def build(self):
         self.thumbnail_widget = AssetVersion(self.session)
         self.thumbnail_widget.setScaledContents(True)
-        self.thumbnail_widget.setMinimumSize(46, 32)
-        self.thumbnail_widget.setMaximumSize(46, 32)
+        self.thumbnail_widget.setMinimumSize(57, 32)
+        self.thumbnail_widget.setMaximumSize(57, 32)
         self.layout().addWidget(self.thumbnail_widget)
         self.thumbnail_widget.load(self.asset['latest_version']['id'])
 
@@ -160,8 +160,8 @@ class NewAssetInput(QtWidgets.QFrame):
     def build(self):
         self.button = QtWidgets.QPushButton('NEW')
         self.button.setStyleSheet('background: transparent;')
-        self.button.setFixedSize(46, 31)
-        self.button.setMaximumSize(46, 31)
+        self.button.setFixedSize(58, 31)
+        self.button.setMaximumSize(58, 31)
 
         self.layout().addWidget(self.button)
 
