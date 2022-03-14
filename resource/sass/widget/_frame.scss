@@ -3,7 +3,7 @@ QFrame[background='transparent'], QDialog[background='transparent'] {
 }
 
 QFrame[background='ftrack'], QDialog[background='ftrack'] {
-    background: $white-almost;
+    background: $background;
 }
 
 QFrame[background='default'], QDialog[background='default'] {
@@ -22,6 +22,30 @@ QFrame[background='houdini'], QDialog[background='houdini'] {
     background: rgb(55,55,55);
 }
 
+QtAssetManagerClient[assembler='true'] {
+    background-color: #1A2027;
+}
+
+QFrame[indicator='on'] {
+    background: #79DFB6;
+}
+
+QFrame[indicator='off'] {
+    background: #404040;
+}
+
+QFrame[background='selected'] {
+    background: $gray-lighter;
+}
+
+QFrame[background='selected_docked'] {
+    background: rgb(77,77,77);
+}
+
+QFrame[background='transparent'] {
+    background: transparent;
+}
+
 
 Line {
     border: 1px dashed $border-color;
@@ -29,10 +53,12 @@ Line {
 
 NewAssetInput[status='focused'] {
     border: 1px dashed $color-purple;
+    background: rgb(77,77,77);
 }
 
-NewAssetInput[status=''] {
-    border: 1px dashed transparent;
+NewAssetInput[status='unfocused'] {
+    border: 1px solid transparent;
+    background: transparent;
 }
 
 #bordered {
@@ -40,39 +66,31 @@ NewAssetInput[status=''] {
 }
 
 AccordionBaseWidget {
-    border-left: 1px dashed $border-color;
-    border-right: 1px dashed $border-color;
-    border-bottom: 1px dashed $border-color;
+    border-top: 1px dashed $border-color;
 }
 
 AccordionBaseWidget[first='true'] {
-    border: 1px dashed $border-color;
 }
 
-QFrame[indicator='on'] {
-    background: '#79DFB6';
-}
-
-QFrame[indicator='off'] {
-    background: '#404040';
-}
-
-QFrame[background='selected'] {
-    background: '#1C2229';
-}
-
-QFrame[background='transparent'] {
-    background: transparent;
+PublisherAccordionStepWidget {
+    border-left: 1px dashed $border-color;
+    border-right: 1px dashed $border-color;
 }
 
 NavigationEntityButton {
-    background: $gray-dark;
+    background: #1F252B;
     border-radius: 12px;
     border: none;
     color: $text-color;
     padding-left: 5px;
     padding-right: 5px;
     font-weight: bold;
+}
+
+NavigationEntityButton[first='true'] {
+    background: transparent;
+    border-radius: 12px;
+    border: 1px dashed $border-color;
 }
 
 NavigationEntityButton:hover {
@@ -85,15 +103,26 @@ EntityWidget {
     border-right: 1px dashed $border-color;
 }
 
-EntityWidget:hover {
+EntityWidget[background='selected'] {
     background: $gray-lighter;
 }
 
-EntityWidget[state='selected'] {
+EntityWidget:hover {
     background: $gray-lighter;
 }
 
 TypeWidget {
     border: 1 solid $gray-dark;
     border-radius: 12px;
+}
+
+AssemblerDependencyContextLabel {
+}
+
+Footer QLabel {
+    color: $alt-background;
+}
+
+QFrame[docked='true'] Footer QLabel {
+    color: $gray-dark;
 }

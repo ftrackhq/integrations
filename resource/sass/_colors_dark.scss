@@ -16,12 +16,13 @@ $color-dark-3: #131920; //
 
 
 // Grays
-$gray-darker:           #6D7075; // #222
 $gray-dark:             #303030;
+$gray-darker:           #6D7075; // #222
 $gray:                  #999999;
 $gray-light:            #D3d4D6;
-$gray-lighter:          #1F252B;
-$white-almost:          rgb(20,25,32); // ftrack background color
+$gray-lighter:          #1F242B; // #1F252B;
+$alt-background:        #191d22;
+$background:            #131920; // ftrack background color
 $white:                 $color-dark-2;
 
 
@@ -55,3 +56,6 @@ $inset-bg:              $gray-lighter;
 $inset-border-color:    $gray-light;
 
 $input-border-color:    $gray-dark;
+
+$scrollbar-handle:          #2F363F;
+$scrollbar-handle-docked:   #777777;

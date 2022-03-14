@@ -12,7 +12,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import line
 from ftrack_connect_pipeline_qt.ui.utility.widget.asset_grid_selector import (
     AssetGridSelector,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget.asset_list_selector import (
+from ftrack_connect_pipeline_qt.ui.utility.widget.asset_version_list_selector import (
     AssetListSelector,
 )
 from ftrack_connect_pipeline_qt.utils import BaseThread
@@ -69,7 +69,7 @@ class PublishContextWidget(BaseOptionsWidget):
     def post_build(self):
         '''hook events'''
         super(PublishContextWidget, self).post_build()
-        self.asset_selector.asset_changed.connect(self._on_asset_changed)
+        self.asset_selector.assetChanged.connect(self._on_asset_changed)
         self.comments_input.textChanged.connect(self._on_comment_updated)
         self.status_selector.currentIndexChanged.connect(
             self._on_status_changed
@@ -85,7 +85,7 @@ class PublishContextWidget(BaseOptionsWidget):
     def _on_comment_updated(self):
         '''Updates the option dictionary with current text when
         textChanged of comments_input event is triggered'''
-        current_text = self.comments_input.text()
+        current_text = self.comments_input.toPlainText()
         self.set_option_result(current_text, key='comment')
 
     def _on_asset_changed(self, asset_name, asset_entity, is_valid):
@@ -95,9 +95,9 @@ class PublishContextWidget(BaseOptionsWidget):
         self.set_option_result(is_valid, key='is_valid_name')
         if asset_entity:
             self.set_option_result(asset_entity['id'], key='asset_id')
-            self.asset_changed.emit(asset_name, asset_entity['id'], is_valid)
+            self.assetChanged.emit(asset_name, asset_entity['id'], is_valid)
         else:
-            self.asset_changed.emit(asset_name, None, is_valid)
+            self.assetChanged.emit(asset_name, None, is_valid)
 
     def _build_asset_selector(self):
         '''Builds the asset_selector widget'''
@@ -120,7 +120,7 @@ class PublishContextWidget(BaseOptionsWidget):
         self.status_selector = StatusSelector()
 
         self.status_layout.addWidget(self.asset_status_label)
-        self.status_layout.addWidget(self.status_selector)
+        self.status_layout.addWidget(self.status_selector, 10)
 
         self.status_layout.addStretch()
 
@@ -141,12 +141,15 @@ class PublishContextWidget(BaseOptionsWidget):
         self.coments_layout.setAlignment(QtCore.Qt.AlignTop)
 
         comment_label = QtWidgets.QLabel('Description')
-        self.comments_input = QtWidgets.QLineEdit()
+        self.comments_input = QtWidgets.QTextEdit()
+        self.comments_input.setMaximumHeight(40)
         self.comments_input.setPlaceholderText("Type a description...")
         self.coments_layout.addWidget(comment_label)
         self.coments_layout.addWidget(self.comments_input)
 
-        self.set_option_result(self.comments_input.text(), key='comment')
+        self.set_option_result(
+            self.comments_input.toPlainText(), key='comment'
+        )
         return self.coments_layout
 
     def emit_statuses(self, statuses):
@@ -165,12 +168,12 @@ class PublishContextWidget(BaseOptionsWidget):
     def _get_statuses(self):
         '''Returns the status of the selected assetVersion'''
         context_entity = self.session.query(
-            'select link, name , parent, parent.name from Context where id '
+            'select link, name, parent, parent.name from Context where id '
             'is "{}"'.format(self.context_id)
         ).one()
 
         project = self.session.query(
-            'select name , parent, parent.name from Context where id is "{}"'.format(
+            'select name, parent, parent.name from Context where id is "{}"'.format(
                 context_entity['link'][0]['id']
             )
         ).one()
@@ -228,7 +231,7 @@ class LoadContextWidget(BaseOptionsWidget):
         '''hook events'''
         super(LoadContextWidget, self).post_build()
         # self.asset_selector.assets_query_done.connect(self._pre_select_asset)
-        self.asset_selector.asset_changed.connect(self._on_asset_changed)
+        self.asset_selector.assetChanged.connect(self._on_asset_changed)
 
     def _on_asset_changed(
         self, asset_name, asset_entity, asset_version_id, version_num
@@ -239,8 +242,8 @@ class LoadContextWidget(BaseOptionsWidget):
         self.set_option_result(asset_entity['id'], key='asset_id')
         self.set_option_result(version_num, key='version_number')
         self.set_option_result(asset_version_id, key='version_id')
-        self.asset_changed.emit(asset_name, asset_entity['id'], True)
-        self.asset_version_changed.emit(asset_version_id)
+        self.assetChanged.emit(asset_name, asset_entity['id'], True)
+        self.assetVersionChanged.emit(asset_version_id)
 
     def _build_asset_selector(self):
         label = QtWidgets.QLabel("Choose which asset and version to load")
@@ -299,8 +302,8 @@ class OpenContextWidget(BaseOptionsWidget):
     def post_build(self):
         '''hook events'''
         super(OpenContextWidget, self).post_build()
-        self.asset_selector.asset_changed.connect(self._on_asset_changed)
-        self.asset_selector.asset_list.assets_added.connect(self._update_label)
+        self.asset_selector.assetChanged.connect(self._on_asset_changed)
+        self.asset_selector.asset_list.assetsAdded.connect(self._update_label)
 
     def _build_asset_selector(self):
         self._label = QtWidgets.QLabel("")
@@ -328,8 +331,9 @@ class OpenContextWidget(BaseOptionsWidget):
         self.set_option_result(asset_entity['id'], key='asset_id')
         self.set_option_result(version_num, key='version_number')
         self.set_option_result(asset_version_id, key='version_id')
-        self.asset_changed.emit(asset_name, asset_entity['id'], True)
-        self.asset_version_changed.emit(asset_version_id)
+
+        self.assetChanged.emit(asset_name, asset_entity['id'], True)
+        self.assetVersionChanged.emit(asset_version_id)
 
 
 class StatusSelector(QtWidgets.QComboBox):
@@ -339,6 +343,8 @@ class StatusSelector(QtWidgets.QComboBox):
         super(StatusSelector, self).__init__()
         self.setEditable(False)
         self.setMinimumWidth(150)
+        self.setMinimumHeight(22)
+        self.setMaximumHeight(22)
 
     def set_statuses(self, statuses):
         '''Set statuses on the combo box'''
@@ -353,7 +359,7 @@ class StatusSelector(QtWidgets.QComboBox):
             '''
             QComboBox {
                 border: 1px solid %s;
-                border-radius: 10px;
+                border-radius: 3px;
                 color: %s;
             }
         '''

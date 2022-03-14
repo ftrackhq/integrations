@@ -1,11 +1,11 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2022 ftrack
+
 import os
 import json
 import time
 import logging
 import copy
-
-import qtawesome as qta
-from functools import partial
 
 from Qt import QtCore, QtWidgets
 
@@ -29,7 +29,7 @@ from ftrack_connect_pipeline_qt.ui.asset_manager.asset_manager import (
     ComponentAndVersionWidget,
 )
 from ftrack_connect_pipeline_qt.utils import (
-    BaseThread,
+    set_property,
     str_version,
     clear_layout,
     get_main_framework_window_from_widget,
@@ -38,10 +38,23 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
 from ftrack_connect_pipeline_qt.ui.utility.widget.busy_indicator import (
     BusyIndicator,
 )
+from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
+    CircularButton,
+)
+from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
+from ftrack_connect_pipeline_qt.ui.utility.widget.options_button import (
+    OptionsButton,
+)
+from ftrack_connect_pipeline_qt.ui.utility.widget.definition_selector import (
+    DefinitionSelector,
+)
+from ftrack_connect_pipeline_qt.ui.utility.widget import icon
 
 
 class AssemblerBaseWidget(QtWidgets.QWidget):
     '''Base assembler dependency or browse widget'''
+
+    stopBusyIndicator = QtCore.Signal()
 
     @property
     def component_list(self):
@@ -69,9 +82,58 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
 
     def pre_build(self):
         self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().setContentsMargins(1, 1, 1, 1)
-        self.layout().setSpacing(2)
+        self.layout().setContentsMargins(1, 0, 1, 0)
+        self.layout().setSpacing(0)
         self.model = AssetListModel(self._assembler_client.event_manager)
+
+    def build_header(self):
+        header_widget = QtWidgets.QWidget()
+        header_widget.setLayout(QtWidgets.QVBoxLayout())
+        header_widget.layout().setContentsMargins(4, 4, 4, 4)
+        header_widget.layout().setSpacing(2)
+
+        top_toolbar_widget = QtWidgets.QWidget()
+        top_toolbar_widget.setLayout(QtWidgets.QHBoxLayout())
+        top_toolbar_widget.layout().setContentsMargins(4, 4, 4, 4)
+        top_toolbar_widget.layout().setSpacing(4)
+
+        top_toolbar_widget.layout().addWidget(self._get_header_widget(), 10)
+
+        header_widget.layout().addWidget(top_toolbar_widget)
+
+        self.layout().addWidget(header_widget)
+
+        # Add toolbar
+
+        bottom_toolbar_widget = QtWidgets.QWidget()
+        bottom_toolbar_widget.setLayout(QtWidgets.QHBoxLayout())
+        bottom_toolbar_widget.layout().setContentsMargins(4, 4, 4, 4)
+        bottom_toolbar_widget.layout().setSpacing(4)
+
+        self._cb_show_non_compatible = QtWidgets.QCheckBox(
+            'Show non-compatible assets'
+        )
+        self._cb_show_non_compatible.setObjectName("gray")
+        bottom_toolbar_widget.layout().addWidget(self._cb_show_non_compatible)
+
+        bottom_toolbar_widget.layout().addWidget(QtWidgets.QLabel(), 10)
+
+        self._label_info = QtWidgets.QLabel('')
+        self._label_info.setObjectName('gray')
+        bottom_toolbar_widget.layout().addWidget(self._label_info)
+
+        self._search = Search()
+        bottom_toolbar_widget.layout().addWidget(self._search)
+
+        self._rebuild_button = CircularButton('sync', '#87E1EB')
+        bottom_toolbar_widget.layout().addWidget(self._rebuild_button)
+
+        self._busy_widget = BusyIndicator(start=False)
+        self._busy_widget.setMinimumSize(QtCore.QSize(16, 16))
+        self._busy_widget.setVisible(False)
+        bottom_toolbar_widget.layout().addWidget(self._busy_widget)
+
+        header_widget.layout().addWidget(bottom_toolbar_widget)
 
     def build(self):
         self.scroll = QtWidgets.QScrollArea()
@@ -86,11 +148,24 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self._assembler_client.progress_widget.hide_widget()
 
         self._busy_widget.start()
+        self._rebuild_button.setVisible(False)
+        self._busy_widget.setVisible(True)
+
+        self._label_info.setText('Listing assets...')
 
         # Wait for context to be loaded
         self.get_context()
 
         self._loadable_count = 0
+
+    def post_build(self):
+        self._cb_show_non_compatible.clicked.connect(self.rebuild)
+        self.stopBusyIndicator.connect(self._stop_busy_indicator)
+
+    def _stop_busy_indicator(self):
+        self._busy_widget.stop()
+        self._busy_widget.setVisible(False)
+        self._rebuild_button.setVisible(True)
 
     def mousePressEvent(self, event):
         if event.button() != QtCore.Qt.RightButton and self._component_list:
@@ -105,8 +180,10 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
             time.sleep(0.5)
         return self._assembler_client.context_selector.entity
 
-    def extract_components(self, versions, include_unloadable=False):
+    def extract_components(self, versions):
         '''Build a list of loadable components from the supplied *versions*'''
+
+        include_all = self._cb_show_non_compatible.isChecked()
 
         # Fetch all definitions, append asset type name
         loader_definitions = (
@@ -114,8 +191,8 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         )
 
         # import json
-        print(
-            '@@@ loader_definitions: {}'.format(
+        self._assembler_client.logger.debug(
+            'Available loader definitions: {}'.format(
                 '\n'.join(
                     [
                         json.dumps(loader, indent=4)
@@ -130,6 +207,8 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
 
         components = []
 
+        location = self.session.pick_location()
+
         # Group by context, sort by asset name
         for version in sorted(
             versions,
@@ -137,18 +216,29 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                 v['asset']['parent']['id'], v['asset']['name']
             ),
         ):
-            print('@@@ Processing: {}'.format(str_version(version)))
+            self._assembler_client.logger.debug(
+                'Processing version: {}'.format(
+                    str_version(version, with_id=True)
+                )
+            )
 
             for component in version['components']:
                 component_extension = component.get('file_type')
-                print(
-                    '@@@     Component: {}({})'.format(
+                self._assembler_client.logger.debug(
+                    '     Processing component: {}({})'.format(
                         component['name'], component['file_type']
                     )
                 )
                 if not component_extension:
                     self.logger.warning(
                         'Could not assemble version {} component {}; missing file type!'.format(
+                            version['id'], component['id']
+                        )
+                    )
+                    continue
+                elif not include_all and component['name'] == 'snapshot':
+                    self.logger.warning(
+                        'Not assembling version {} snapshot component {}!'.format(
                             version['id'], component['id']
                         )
                     )
@@ -161,8 +251,8 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                         definition_asset_type_name_short
                         != version['asset']['type']['short']
                     ):
-                        print(
-                            '@@@     Definition AT {} mismatch version {}!'.format(
+                        self._assembler_client.logger.debug(
+                            '        Definition asset type {} mismatch version {}!'.format(
                                 definition_asset_type_name_short,
                                 version['asset']['type']['short'],
                             )
@@ -174,12 +264,13 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                             d_component['name'].lower()
                             != component['name'].lower()
                         ):
-                            print(
-                                '@@@     Definition component name {} mismatch!'.format(
+                            self._assembler_client.logger.debug(
+                                '        Definition component name {} mismatch!'.format(
                                     d_component['name']
                                 )
                             )
                             continue
+
                         file_formats = d_component['file_formats']
                         if set(file_formats).intersection(
                             set([component_extension])
@@ -217,8 +308,8 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                                                     'version_id'
                                                 ] = version['id']
                         else:
-                            print(
-                                '@@@     Definition file formats {} does not intersect with {}!'.format(
+                            self._assembler_client.logger.debug(
+                                '        Accepted formats {} does not intersect with {}!'.format(
                                     file_formats,
                                     [component_extension],
                                 )
@@ -228,12 +319,18 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                                 matching_definitions = []
                             matching_definitions.append(definition_fragment)
                 if matching_definitions is None:
-                    if include_unloadable:
+                    if include_all:
                         matching_definitions = []
                 else:
                     self._loadable_count += 1
                 if matching_definitions is not None:
-                    components.append((component, matching_definitions))
+                    components.append(
+                        (
+                            component,
+                            matching_definitions,
+                            location.get_component_availability(component),
+                        )
+                    )
 
         return components
 
@@ -258,7 +355,7 @@ class AssemblerListBaseWidget(AssetListWidget):
 
 
 class ComponentBaseWidget(AccordionBaseWidget):
-    '''Widget representation of a minimal asset representation'''
+    '''Widget representation of a minimal assembler asset representation'''
 
     @property
     def index(self):
@@ -281,6 +378,10 @@ class ComponentBaseWidget(AccordionBaseWidget):
         return self._widget_factory
 
     @property
+    def component_id(self):
+        return self._component_id
+
+    @property
     def session(self):
         return self._assembler_widget.session
 
@@ -301,6 +402,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         )
         self._version_id = None
         self._index = index
+        self._adjust_height()
 
     def init_status_widget(self):
         self._status_widget = AssetVersionStatusWidget()
@@ -309,8 +411,8 @@ class ComponentBaseWidget(AccordionBaseWidget):
         return self._status_widget
 
     def init_options_button(self):
-        self._options_button = OptionsButton(
-            'O', qta.icon('mdi6.cog', color='gray')
+        self._options_button = ImporterOptionsButton(
+            'O', icon.MaterialIcon('settings', color='gray')
         )
         self._options_button.setObjectName('borderless')
         self._options_button.clicked.connect(self._build_options)
@@ -327,39 +429,57 @@ class ComponentBaseWidget(AccordionBaseWidget):
         '''Widget containing version label or combobox.'''
         raise NotImplementedError()
 
-    def init_header_content(self, header_layout, collapsed):
+    def set_version(self, version_entity):
+        raise NotImplementedError()
+
+    def init_header_content(self, header_widget, collapsed):
         '''Add publish related widgets to the accordion header'''
-        header_layout.setContentsMargins(1, 1, 1, 1)
-        header_layout.setSpacing(2)
+        header_layout = QtWidgets.QVBoxLayout()
+        header_layout.setContentsMargins(0, 0, 0, 0)
+        header_layout.setSpacing(0)
+        header_widget.setLayout(header_layout)
+
+        upper_widget = QtWidgets.QWidget()
+        upper_layout = QtWidgets.QHBoxLayout()
+        upper_layout.setContentsMargins(5, 1, 1, 1)
+        upper_layout.setSpacing(2)
+        upper_widget.setMinimumHeight(25)
+        upper_widget.setLayout(upper_layout)
 
         # Append thumbnail
         self.thumbnail_widget = AssetVersion(self.session)
         # self.thumbnail_widget.setScaledContents(True)
 
-        thumb_width = (self.get_thumbnail_height() * 16) / 9
-        self.thumbnail_widget.setMinimumWidth(int(thumb_width))
+        thumb_width = (
+            self.get_thumbnail_height()
+        )  # int((self.get_thumbnail_height() * 4) / 3)
+        self.thumbnail_widget.setMinimumWidth(thumb_width)
         self.thumbnail_widget.setMinimumHeight(self.get_thumbnail_height())
-        self.thumbnail_widget.setMaximumWidth(int(thumb_width))
+        self.thumbnail_widget.setMaximumWidth(thumb_width)
         self.thumbnail_widget.setMaximumHeight(self.get_thumbnail_height())
-        header_layout.addWidget(self.thumbnail_widget)
+        upper_layout.addWidget(self.thumbnail_widget)
 
-        header_layout.addWidget(self.get_ident_widget(), 100)
+        upper_layout.addWidget(self.get_ident_widget(), 100)
 
-        header_layout.addWidget(self.get_version_widget())
+        upper_layout.addWidget(self.get_version_widget())
 
-        header_layout.addWidget(self.init_status_widget())
+        upper_layout.addWidget(self.init_status_widget())
 
-        header_layout.addStretch()
+        upper_layout.addStretch()
 
         # Add loader selector
         self._definition_selector = DefinitionSelector()
+        self._definition_selector.setMinimumHeight(22)
+        self._definition_selector.setMaximumHeight(22)
+        set_property(self._definition_selector, 'chip', 'true')
         self._definition_selector.currentIndexChanged.connect(
             self._definition_selected
         )
-        header_layout.addWidget(self._definition_selector)
+        upper_layout.addWidget(self._definition_selector)
 
         # Mode selector, based on supplied DCC supported modes
         self._mode_selector = ModeSelector()
+        set_property(self._mode_selector, 'chip', 'true')
         self._modes = [
             mode
             for mode in list(
@@ -371,15 +491,36 @@ class ComponentBaseWidget(AccordionBaseWidget):
             if mode != 'Open':
                 self._mode_selector.addItem(mode, mode)
         self._mode_selector.currentIndexChanged.connect(self._mode_selected)
-        header_layout.addWidget(self._mode_selector)
+        upper_layout.addWidget(self._mode_selector)
 
         # Options widget,initialize its factory
-        header_layout.addWidget(self.init_options_button())
+        upper_layout.addWidget(self.init_options_button())
 
         self._widget_factory = factory.ImporterWidgetFactory(
             self.event_manager,
             self._assembler_widget._assembler_client.ui_types,
         )
+
+        header_layout.addWidget(upper_widget, 10)
+
+        self._warning_message_widget = QtWidgets.QWidget()
+        lower_layout = QtWidgets.QHBoxLayout()
+        lower_layout.setContentsMargins(1, 1, 1, 1)
+        lower_layout.setSpacing(1)
+        self._warning_message_widget.setLayout(lower_layout)
+
+        warning_icon_label = QtWidgets.QLabel()
+        warning_icon_label.setPixmap(
+            icon.MaterialIcon('warning', color='yellow').pixmap(
+                QtCore.QSize(16, 16)
+            )
+        )
+        lower_layout.addWidget(warning_icon_label)
+        self._warning_label = WarningLabel()
+        lower_layout.addWidget(self._warning_label, 100)
+
+        header_layout.addWidget(self._warning_message_widget)
+        self._warning_message_widget.setVisible(False)
 
     def _definition_selected(self, index):
         '''Loader definition were selected,'''
@@ -436,13 +577,18 @@ class ComponentBaseWidget(AccordionBaseWidget):
         # Clear out overlay, not needed anymore
         clear_layout(self._options_button.main_widget.layout())
 
+    def set_context_id(self, context_id):
+        self._context_id = context_id
+
     def init_content(self, content_layout):
+        # No content in this accordion for now
         pass
 
     def set_component_and_definitions(self, component, definitions):
         '''Update widget from data'''
-        self._context_id = component['version']['task']['id']
+        self.set_context_id(component['version']['task']['id'])
         self._context_name = component['version']['task']['name']
+        self._component_id = component['id']
         self._component_name = component['name']
         self.thumbnail_widget.load(component['version']['id'])
         self._widget_factory.version_id = component['version']['id']
@@ -462,6 +608,10 @@ class ComponentBaseWidget(AccordionBaseWidget):
         else:
             # No loaders, disable entire component
             self.setEnabled(False)
+            if len(self._warning_label.text()) == 0:
+                self.set_warning_message(
+                    'No loader found compatible with this asset.'
+                )
 
         self._asset_name_widget.setText(
             '{} '.format(component['version']['asset']['name'])
@@ -472,8 +622,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         self._component_filename_widget.setText(
             '- {}'.format(component_path.replace('\\', '/').split('/')[-1])
         )
-
-        self.set_version(component['version']['version'])
+        self.set_version(component['version'])
         self.set_latest_version(component['version']['is_latest_version'])
 
     def on_collapse(self, collapsed):
@@ -484,12 +633,25 @@ class ComponentBaseWidget(AccordionBaseWidget):
         '''Update the accordion input summary, should be overridden by child.'''
         pass
 
+    def get_height(self):
+        raise NotImplementedError()
 
-class DefinitionSelector(QtWidgets.QComboBox):
-    def __init__(self):
-        super(DefinitionSelector, self).__init__()
-        self.setMinimumHeight(22)
-        self.setMaximumHeight(22)
+    def _adjust_height(self):
+        widget_height = self.get_height() + (
+            18 if len(self._warning_label.text()) > 0 else 0
+        )
+        self.header.setMinimumHeight(widget_height)
+        self.header.setMaximumHeight(widget_height)
+        self.setMinimumHeight(widget_height)
+        self.setMaximumHeight(widget_height)
+
+    def set_warning_message(self, message):
+        if len(message or '') > 0:
+            self._warning_label.setText(message)
+            self._warning_message_widget.setVisible(True)
+        else:
+            self._warning_message_widget.setVisible(False)
+        self._adjust_height()
 
 
 class ModeSelector(QtWidgets.QComboBox):
@@ -499,9 +661,9 @@ class ModeSelector(QtWidgets.QComboBox):
         self.setMaximumHeight(22)
 
 
-class OptionsButton(QtWidgets.QPushButton):
+class ImporterOptionsButton(OptionsButton):
     def __init__(self, title, icon, parent=None):
-        super(OptionsButton, self).__init__(parent=parent)
+        super(ImporterOptionsButton, self).__init__(parent=parent)
         self.name = title
         self._icon = icon
 
@@ -552,3 +714,8 @@ class OptionsButton(QtWidgets.QPushButton):
             QtWidgets.QLabel('<html><strong>Output:<strong><html>')
         )
         self.main_widget.layout().addWidget(widget)
+
+
+class WarningLabel(QtWidgets.QLabel):
+    def __init__(self):
+        super(WarningLabel, self).__init__()

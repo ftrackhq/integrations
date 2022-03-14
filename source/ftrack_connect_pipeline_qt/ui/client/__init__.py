@@ -7,6 +7,10 @@ from Qt import QtGui, QtCore, QtWidgets
 
 from ftrack_connect_pipeline_qt.ui.utility.widget import line
 
+from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
+    AccordionBaseWidget,
+)
+
 
 class BaseUIWidget(object):
     '''
@@ -102,10 +106,10 @@ class BaseUIWidget(object):
     def parent_widget(self, widget, add_line=False):
         '''Add the *widget*, setting me as the parent.'''
         if self.widget:
-            if isinstance(widget, BaseUIWidget):
-                self.widget.layout().addWidget(widget.widget)
-            else:
-                self.widget.layout().addWidget(widget)
+            widget = (
+                widget.widget if isinstance(widget, BaseUIWidget) else widget
+            )
+            self.widget.layout().addWidget(widget)
             if add_line:
                 self.widget.layout().addWidget(line.Line())
             if (
@@ -113,6 +117,8 @@ class BaseUIWidget(object):
                 and self.fragment_data.get('visible', True) is False
             ):
                 self._widget.setVisible(False)
+            elif isinstance(widget, AccordionBaseWidget):
+                widget.setVisible(True)
         else:
             self.logger.error("Please create a widget before parent")
 

@@ -10,10 +10,72 @@ import subprocess
 from Qt import QtGui, QtCore, QtWidgets
 
 from ftrack_connect_pipeline import client, constants
-from ftrack_connect_pipeline.configure_logging import get_log_directory
 from ftrack_connect_pipeline.client.log_viewer import LogViewerClient
-from ftrack_connect_pipeline_qt.ui.log_viewer import LogViewerWidget
-from ftrack_connect_pipeline_qt.ui.utility.widget import header, host_selector
+from ftrack_connect_pipeline_qt import constants as qt_constants
+from ftrack_connect_pipeline_qt.ui.log_viewer.plugin_log import (
+    PluginLogViewerWidget,
+)
+from ftrack_connect_pipeline_qt.ui.log_viewer.file_log import (
+    FileLogViewerWidget,
+)
+from ftrack_connect_pipeline_qt.ui.utility.widget import (
+    host_selector,
+    header,
+    tab,
+)
+from ftrack_connect_pipeline_qt.ui import resource
+from ftrack_connect_pipeline_qt.ui import theme
+from ftrack_connect_pipeline_qt.ui.utility.widget import icon
+
+
+class QtLogViewerDialog(QtWidgets.QDialog):
+    def __init__(self, event_manager, parent=None):
+        super(QtLogViewerDialog, self).__init__(parent=parent)
+
+        if self.getTheme():
+            self.setTheme(self.getTheme())
+            if self.getThemeBackgroundStyle():
+                self.setProperty('background', self.getThemeBackgroundStyle())
+        self.setProperty('docked', 'false')
+
+        self.client = QtLogViewerClient(event_manager, None)
+
+        self.shown = False
+
+        self.pre_build()
+        self.build()
+        self.post_build()
+
+    def getTheme(self):
+        '''Return the client theme, return None to disable themes. Can be overridden by child.'''
+        return 'dark'
+
+    def setTheme(self, selected_theme):
+        theme.applyFont()
+        theme.applyTheme(self, selected_theme, 'plastique')
+
+    def getThemeBackgroundStyle(self):
+        return 'ftrack'
+
+    def pre_build(self):
+        self.setLayout(QtWidgets.QHBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 5)
+        self.layout().setSpacing(1)
+
+    def build(self):
+        self.layout().addWidget(self.client)
+
+    def post_build(self):
+        self.setWindowTitle('ftrack Log viewer')
+        self.resize(750, 630)
+        self.setModal(True)
+
+    def show(self):
+        if self.shown:
+            # Widget has been shown before, reset client
+            pass
+        super(QtLogViewerDialog, self).show()
+        self.shown = True
 
 
 class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
@@ -21,6 +83,10 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
     QtLogViewerClient class.
     '''
 
+    # LOG_MODE_PLUGIN = 0
+    # LOG_MODE_FILE = 1
+
+    client_name = qt_constants.LOG_VIEWER_WIDGET
     definition_filter = 'log_viewer'
     '''Use only definitions that matches the definition_filter'''
 
@@ -34,11 +100,10 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
         communicate to the event server.
         '''
         self._parent_window = parent_window
+        # self._log_mode = QtLogViewerClient.LOG_MODE_PLUGIN
 
         QtWidgets.QWidget.__init__(self, parent=parent)
         LogViewerClient.__init__(self, event_manager)
-
-        self.log_viewer_widget = LogViewerWidget(event_manager)
 
         self._host_connection = None
 
@@ -50,6 +115,9 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
     def get_parent_window(self):
         '''Return the dialog or DCC app window this client is within.'''
         return self._parent_window
+
+    def is_docked(self):
+        False
 
     def add_hosts(self, host_connections):
         '''
@@ -74,53 +142,7 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
         LogViewerClient._host_discovered(self, event)
         self.host_selector.add_hosts(self.host_connections)
 
-    def pre_build(self):
-        '''Prepare general layout.'''
-        layout = QtWidgets.QVBoxLayout()
-        self.setLayout(layout)
-
-    def build(self):
-        '''Build widgets and parent them.'''
-        self.header = header.Header(self.session)
-        self.layout().addWidget(self.header)
-
-        self.host_selector = host_selector.HostSelector()
-        self.layout().addWidget(self.host_selector)
-
-        self.refresh_button = QtWidgets.QPushButton('Refresh')
-        self.refresh_button.setSizePolicy(
-            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
-        )
-        self.layout().addWidget(
-            self.refresh_button, alignment=QtCore.Qt.AlignRight
-        )
-
-        self.scroll = QtWidgets.QScrollArea()
-        self.scroll.setWidgetResizable(True)
-        self.layout().addWidget(self.scroll)
-
-        self.open_log_folder_button = QtWidgets.QPushButton(
-            'Open log directory'
-        )
-
-        self.layout().addWidget(self.open_log_folder_button)
-
-    def update_log_items(self):
-        '''Connect to persistent log storage and fetch records.'''
-        self.log_viewer_widget.set_log_items(self.logs)
-
-    def post_build(self):
-        '''Post Build ui method for events connections.'''
-        self.host_selector.host_changed.connect(self.change_host)
-        self.refresh_button.clicked.connect(self._refresh_ui)
-        self.open_log_folder_button.clicked.connect(
-            self._on_logging_button_clicked
-        )
-        self.log_item_added.connect(self.update_log_items)
-
-    def _add_log_item(self, log_item):
-        '''Override client function, update view.'''
-        self.log_item_added.emit(log_item)
+        self.host_selector.setVisible(len(self.host_connections) > 1)
 
     def change_host(self, host_connection):
         '''
@@ -134,48 +156,62 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
 
         self.update_log_items()
 
-        self.scroll.setWidget(self.log_viewer_widget)
+    def pre_build(self):
+        '''Prepare general layout.'''
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().setContentsMargins(1, 1, 1, 1)
+        self.layout().setSpacing(1)
 
-    def _on_logging_button_clicked(self):
-        '''Handle logging button clicked.'''
-        directory = get_log_directory()
-        self.open_directory(directory)
+        self._plugin_log_viewer_widget = PluginLogViewerWidget(
+            self.get_parent_window(), self.event_manager
+        )
 
-    def open_directory(self, path):
-        '''Open a filesystem directory from *path* in the OS file browser.
+        self._file_log_viewer_widget = FileLogViewerWidget(
+            self.get_parent_window()
+        )
 
-        If *path* is a file, the parent directory will be opened. Depending on OS
-        support the file will be pre-selected.
+    def build(self):
+        '''Build widgets and parent them.'''
+        self.header = header.Header(self.session)
+        self.layout().addWidget(self.header)
 
-        .. note::
+        self.host_selector = host_selector.HostSelector()
+        self.layout().addWidget(self.host_selector)
+        self.host_selector.setVisible(False)
 
-            This function does not support file sequence expressions. The path must
-            be either an existing file or directory that is valid on the current
-            platform.
+        # Add tabbed pane
+        self._tab_widget = tab.TabWidget()
 
-        '''
-        if os.path.isfile(path):
-            directory = os.path.dirname(path)
-        else:
-            directory = path
+        self._tab_widget.addTab(self._plugin_log_viewer_widget, 'Plugin log')
 
-        if sys.platform == 'win32':
-            subprocess.Popen(['start', directory], shell=True)
+        self._tab_widget.addTab(self._file_log_viewer_widget, 'File log')
 
-        elif sys.platform == 'darwin':
-            if os.path.isfile(path):
-                # File exists and can be opened with a selection.
-                subprocess.Popen(['open', '-R', path])
+        self.layout().addWidget(self._tab_widget)
 
-            else:
-                subprocess.Popen(['open', directory])
+    def update_log_items(self):
+        '''Connect to persistent log storage and fetch records.'''
+        self._plugin_log_viewer_widget.set_log_items(self.logs)
 
-        else:
-            subprocess.Popen(['xdg-open', directory])
+    def post_build(self):
+        '''Post Build ui method for events connections.'''
+        self.host_selector.host_changed.connect(self.change_host)
+        self._plugin_log_viewer_widget.refresh_button.clicked.connect(
+            self._refresh_ui
+        )
+        self.log_item_added.connect(self.update_log_items)
+        self._tab_widget.currentChanged.connect(self._on_tab_changed)
+
+    def _on_tab_changed(self, index):
+        if index == 1:
+            self._file_log_viewer_widget.refresh_ui()
+
+    def _on_log_item_added(self, log_item):
+        '''Override client function, update view.'''
+        self._refresh_ui()
 
     def _refresh_ui(self):
         '''
-        Refreshes the ui seting the :obj:`logs` items to the
+        Refreshes the ui setting the :obj:`logs` items to the
         :obj:`log_viewer_widget`
         '''
         if not self.host_connection:

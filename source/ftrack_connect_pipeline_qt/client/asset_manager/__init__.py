@@ -5,13 +5,15 @@ from functools import partial
 
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
-import qtawesome as qta
-
+from ftrack_connect_pipeline.constants import asset as asset_const
+from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline.client.asset_manager import AssetManagerClient
+
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     header,
     host_selector,
     line,
+    icon,
 )
 from ftrack_connect_pipeline_qt.ui.asset_manager.asset_manager import (
     AssetManagerWidget,
@@ -21,6 +23,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
 )
 from ftrack_connect_pipeline_qt.ui import theme
 from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import Dialog
+from ftrack_connect_pipeline_qt.utils import BaseThread, set_property
 
 
 class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
@@ -28,9 +31,13 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     QtAssetManagerClient class.
     '''
 
-    assets_discovered = QtCore.Signal()
+    assetsDiscovered = (
+        QtCore.Signal()
+    )  # Emitted when assets has been discovered and loaded
 
-    client_name = 'asset_manager'
+    selectionUpdated = QtCore.Signal(object)
+
+    client_name = qt_constants.ASSET_MANAGER_WIDGET
     definition_filter = 'asset_manager'  # Use only definitions that matches the definition_filter
 
     def __init__(
@@ -50,19 +57,17 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         QtWidgets.QFrame.__init__(self, parent=parent)
         AssetManagerClient.__init__(self, event_manager)
 
-        if self.get_theme():
-            self.setTheme(self.get_theme())
+        self.is_assembler = is_assembler
+        self._host_connection = None
+
+        if self.getTheme():
+            self.setTheme(self.getTheme())
             if is_assembler:
                 # Override AM background color
                 self.setProperty('background', 'transparent')
-            elif self.get_background_color():
-                self.setProperty('background', self.get_background_color())
-
-        self.is_assembler = is_assembler
-        self.asset_manager_widget = AssetManagerWidget(self, asset_list_model)
-        self.asset_manager_widget.rebuild.connect(self.rebuild)
-
-        self._host_connection = None
+            elif self.getThemeBackgroundStyle():
+                self.setProperty('background', self.getThemeBackgroundStyle())
+        self.setProperty('docked', 'true' if self.is_docked() else 'false')
 
         self.pre_build()
         self.build()
@@ -75,11 +80,11 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         theme.applyFont()
         theme.applyTheme(self, selected_theme, 'plastique')
 
-    def get_theme(self):
+    def getTheme(self):
         '''Return the client theme, return None to disable themes. Can be overridden by child.'''
         return 'dark'
 
-    def get_background_color(self):
+    def getThemeBackgroundStyle(self):
         '''Return the theme background color style. Can be overridden by child.'''
         return 'default'
 
@@ -87,17 +92,28 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         '''Return the dialog or DCC app window this client is within.'''
         return self._parent_window
 
+    def is_docked(self):
+        return not self.is_assembler
+
     def pre_build(self):
         '''Prepare general layout.'''
-        layout = QtWidgets.QVBoxLayout()
-        layout.setContentsMargins(1, 1, 1, 1)
-        layout.setSpacing(1)
-        self.setLayout(layout)
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().setSpacing(0)
+
+        self.asset_manager_widget = AssetManagerWidget(
+            self, self._asset_list_model
+        )
+
+        if self.is_assembler:
+            set_property(self, 'assembler', 'true')
 
     def build(self):
         '''Build widgets and parent them.'''
         if not self.is_assembler:
-            self.header = header.Header(self.session)
+            self.header = header.Header(
+                self.session, title='CONNECT', show_publisher=True
+            )
             self.layout().addWidget(self.header)
 
             self.context_selector = ContextSelector(self, self.session)
@@ -108,6 +124,8 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             self.host_selector = host_selector.HostSelector()
             self.host_selector.setVisible(False)
             self.layout().addWidget(self.host_selector)
+        else:
+            self.context_selector = None
 
         self.scroll = QtWidgets.QScrollArea()
         self.scroll.setWidgetResizable(True)
@@ -122,30 +140,39 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             self._remove_button.setEnabled(False)
             button_widget.layout().addWidget(self._remove_button)
             self.layout().addWidget(button_widget)
+        else:
+            self._remove_button = None
 
     def post_build(self):
         '''Post Build ui method for events connections.'''
         if not self.is_assembler:
+            self.header.publishClicked.connect(self._open_publisher)
+        self.asset_manager_widget.rebuild.connect(self.rebuild)
+
+        if not self.is_assembler:
             self.host_selector.host_changed.connect(self.change_host)
 
-        self.asset_manager_widget.widget_status_updated.connect(
+        self.asset_manager_widget.widgetStatusUpdated.connect(
             self._on_widget_status_updated
         )
-        self.asset_manager_widget.change_asset_version.connect(
+        self.asset_manager_widget.changeAssetVersion.connect(
             self._on_change_asset_version
         )
 
-        self.asset_manager_widget.select_assets.connect(self._on_select_assets)
-        self.asset_manager_widget.remove_assets.connect(self._on_remove_assets)
-        self.asset_manager_widget.update_assets.connect(self._on_update_assets)
-        self.asset_manager_widget.load_assets.connect(self._on_load_assets)
-        self.asset_manager_widget.unload_assets.connect(self._on_unload_assets)
+        self.asset_manager_widget.selectAssets.connect(self._on_select_assets)
+        self.asset_manager_widget.removeAssets.connect(self._on_remove_assets)
+        self.asset_manager_widget.updateAssets.connect(self._on_update_assets)
+        self.asset_manager_widget.loadAssets.connect(self._on_load_assets)
+        self.asset_manager_widget.unloadAssets.connect(self._on_unload_assets)
 
         if self.is_assembler:
             self._remove_button.clicked.connect(self._remove_assets_clicked)
-            self.asset_manager_widget.asset_list.selection_updated.connect(
+            self.asset_manager_widget.asset_list.selectionUpdated.connect(
                 self._asset_selection_updated
             )
+
+        self.selectionUpdated.connect(self._on_asset_selection_updated)
+        self.setMinimumWidth(300)
 
     def add_hosts(self, host_connections):
         '''
@@ -189,6 +216,8 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             )
             return
 
+        if self.context_selector:
+            self.context_selector.host_changed(host_connection)
         self.asset_manager_widget.host_connection = self.host_connection
 
         self.rebuild()
@@ -217,25 +246,34 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         '''
         if not self.host_connection:
             return
-        self.discover_assets()
+        # self.session._local_cache.clear()  # Make sure session cache is cleared out
+        self.asset_manager_widget.set_busy(True)
+        BaseThread(
+            name='discover_assets_thread',
+            target=self.discover_assets,
+            target_args=(),
+        ).start()
 
     def _asset_discovered_callback(self, event):
         '''
         Callback function of the discover_assets. Sets the updated
-        asset_entities_list.
+        asset_entities_list. Is run async.
         '''
-        print('@@@ _asset_discovered_callback;')
-        if not event['data']:
-            self.assets_discovered.emit()
-            return
-        asset_entities_list = []
-        for ftrack_asset in event['data']:
-            if ftrack_asset not in self._asset_list_model.items():
-                ftrack_asset['session'] = self.session
-                asset_entities_list.append(ftrack_asset)
+        self.logger.info('Discovered assets: {}'.format(event))
+        try:
+            if not event['data']:
+                self.assetsDiscovered.emit()
+                return
+            asset_entities_list = []
+            for ftrack_asset in event['data']:
+                if ftrack_asset not in self._asset_list_model.items():
+                    ftrack_asset['session'] = self.session
+                    asset_entities_list.append(ftrack_asset)
 
-        self.asset_manager_widget.set_asset_list(asset_entities_list)
-        self.assets_discovered.emit()
+            self.asset_manager_widget.set_asset_list(asset_entities_list)
+            self.assetsDiscovered.emit()
+        finally:
+            self.asset_manager_widget.stopBusyIndicator.emit()
 
     # Select
 
@@ -243,32 +281,24 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         '''
         Triggered when select action is clicked on the ui.
         '''
-        self.select_assets(asset_info_list)
+        self.asset_manager_widget.set_busy(True)
+        BaseThread(
+            name='select_assets_thread',
+            target=self.select_assets,
+            callback=self._assets_selected,
+            target_args=[asset_info_list],
+        ).start()
+
+    def _assets_selected(self, *args):
+        self.asset_manager_widget.stopBusyIndicator.emit()
 
     def _asset_selection_updated(self, selected_assets):
-        self._remove_button.setEnabled(len(selected_assets) > 0)
+        self.selectionUpdated.emit(selected_assets)
+        self.asset_manager_widget.stopBusyIndicator.emit()
 
-    def _on_assets_updated(self, event):
-        '''Generic asset update'''
-        if not event['data']:
-            return
-        data = event['data']
-        do_refresh = None
-        for key, value in data.items():
-            index = self._asset_list_model.getIndex(key)
-            if index is None:
-                continue
-            self.logger.debug(
-                'Updating id {} with index {}'.format(key, index)
-            )
-            asset_info = value.get(list(value.keys())[0])
-            print(
-                '@@@ _on_assets_updated; index: {},\n asset_info: {}, \n event: {}'
-            ).format(index, asset_info, event)
-            self._asset_list_model.setData(index, asset_info, silent=True)
-            do_refresh = True
-        if do_refresh:
-            self.asset_manager_widget.refresh.emit()
+    def _on_asset_selection_updated(self, selected_assets):
+        if self.is_assembler:
+            self._remove_button.setEnabled(len(selected_assets) > 0)
 
     # Load
 
@@ -276,28 +306,70 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         '''
         Triggered when load action is clicked on the ui.
         '''
-        self.load_assets(asset_info_list)
+        self.asset_manager_widget.set_busy(True)
+        BaseThread(
+            name='load_assets_thread',
+            target=self.load_assets,
+            target_args=[asset_info_list],
+        ).start()
 
     def _load_assets_callback(self, event):
         '''
         Callback function of the load_assets. Updates the ui.
         '''
-        self._on_assets_updated(event)
-
-    # Update
+        try:
+            if not event['data']:
+                return
+            data = event['data']
+            do_refresh = None
+            for key, value in data.items():
+                asset_info = self._asset_list_model.getDataById(key)
+                if asset_info is None:
+                    continue
+                self.logger.debug(
+                    'Updating id {} with loaded status'.format(key)
+                )
+                # Set to loaded
+                asset_info[asset_const.IS_LOADED] = True
+                do_refresh = True
+            if do_refresh:
+                self.asset_manager_widget.refresh.emit()
+        finally:
+            self.asset_manager_widget.stopBusyIndicator.emit()
 
     def _on_update_assets(self, asset_info_list, plugin):
         '''
         Triggered when update action is clicked on the ui.
         '''
-        self.update_assets(asset_info_list, plugin)
+        self.asset_manager_widget.set_busy(True)
+        BaseThread(
+            name='update_assets_thread',
+            target=self.update_assets,
+            target_args=[asset_info_list, plugin],
+        ).start()
 
     def _update_assets_callback(self, event):
         '''
         Callback of the :meth:`update_assets`
         Updates the current asset_entities_list
         '''
-        self._on_assets_updated(event)
+        try:
+            data = event['data']
+            do_refresh = None
+            for key, value in data.items():
+                index = self._asset_list_model.getIndex(key)
+                if index is None:
+                    continue
+                self.logger.debug(
+                    'Updating id {} @ position {}'.format(key, index)
+                )
+                asset_info = value.get(list(value.keys())[0])
+                self._asset_list_model.setData(index, asset_info, silent=True)
+                do_refresh = True
+            if do_refresh:
+                self.asset_manager_widget.refresh.emit()
+        finally:
+            self.asset_manager_widget.stopBusyIndicator.emit()
 
     # Change version
 
@@ -305,13 +377,36 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         '''
         Triggered when a version of the asset has changed on the ui.
         '''
-        self.change_version(asset_info, new_version_id)
+        self.asset_manager_widget.set_busy(True)
+        BaseThread(
+            name='change_asset_version_thread',
+            target=self.change_version,
+            target_args=[asset_info, new_version_id],
+        ).start()
 
     def _change_version_callback(self, event):
         '''
         Callback function of the change_version. Updates the ui.
         '''
-        self._on_assets_updated(event)
+        try:
+            if not event['data']:
+                return
+            data = event['data']
+            do_refresh = None
+            for key, value in data.items():
+                index = self._asset_list_model.getIndex(key)
+                if index is None:
+                    continue
+                self.logger.debug(
+                    'Updating id {} @ position {}'.format(key, index)
+                )
+                asset_info = value
+                self._asset_list_model.setData(index, asset_info, silent=True)
+                do_refresh = True
+            if do_refresh:
+                self.asset_manager_widget.refresh.emit()
+        finally:
+            self.asset_manager_widget.stopBusyIndicator.emit()
 
     # Unload
 
@@ -319,48 +414,90 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         '''
         Triggered when unload action is clicked on the ui.
         '''
-        self.unload_assets(asset_info_list)
+        self.asset_manager_widget.set_busy(True)
+        BaseThread(
+            name='unload_assets_thread',
+            target=self.unload_assets,
+            target_args=[asset_info_list],
+        ).start()
 
     def _unload_assets_callback(self, event):
         '''
-        Callback function of the unload_assets. Updates the ui.
+        Callback function of the load_assets. Updates the ui.
         '''
-        self._on_assets_updated(event)
+        try:
+            if not event['data']:
+                return
+            data = event['data']
+            for key, value in data.items():
+                asset_info = self._asset_list_model.getDataById(key)
+                if asset_info is None:
+                    self.logger.warning(
+                        'Could not find recently unloaded asset: {} (event: {})'.format(
+                            key, event
+                        )
+                    )
+                    continue
+                self.logger.debug(
+                    'Updating id {} with loaded status'.format(key)
+                )
+                # Set to loaded
+                asset_info[asset_const.IS_LOADED] = False
+                do_refresh = True
+            if do_refresh:
+                self.asset_manager_widget.refresh.emit()
+        finally:
+            self.asset_manager_widget.stopBusyIndicator.emit()
 
     # Remove
 
     def _remove_assets_clicked(self):
-        self._on_remove_assets(
-            self.asset_manager_widget.asset_list.selection()
-        )
+        selection = self.asset_manager_widget.asset_list.selection()
+        if self.asset_manager_widget.check_selection(selection):
+            if Dialog(
+                self.get_parent_window(),
+                title='ftrack Asset manager',
+                question='Really remove {} asset{}?'.format(
+                    len(selection), 's' if len(selection) > 1 else ''
+                ),
+                prompt=True,
+            ).exec_():
+                self._on_remove_assets(selection)
 
     def _on_remove_assets(self, asset_info_list):
         '''
         Triggered when remove action is clicked on the ui.
         '''
-        self.remove_assets(asset_info_list)
+        self.asset_manager_widget.set_busy(True)
+        BaseThread(
+            name='remove_assets_thread',
+            target=self.remove_assets,
+            target_args=[asset_info_list],
+        ).start()
 
     def _remove_assets_callback(self, event):
         '''
         Callback function of the remove_asset. Sets the updated
         asset_entities_list.
         '''
-        if not event['data']:
-            return
-        data = event['data']
+        try:
+            if not event['data']:
+                return
+            data = event['data']
 
-        do_refresh = None
-        for key, value in data.items():
-            index = self._asset_list_model.getIndex(key)
-            if index is None:
-                continue
-            self.logger.debug(
-                'Updating id {} with index {}'.format(key, index)
-            )
-            self._asset_list_model.removeRows(index, silent=True)
-            do_refresh = True
-        if do_refresh:
-            self.asset_manager_widget.refresh.emit()
+            for key, value in data.items():
+                index = self._asset_list_model.getIndex(key)
+                if index is None:
+                    continue
+                self.logger.debug(
+                    'Removing id {} with index {}'.format(key, index)
+                )
+                self._asset_list_model.removeRows(index)
+        finally:
+            self.asset_manager_widget.stopBusyIndicator.emit()
+
+    def _open_publisher(self):
+        self.host_connection.launch_widget(qt_constants.PUBLISHER_WIDGET)
 
     def mousePressEvent(self, event):
         if event.button() != QtCore.Qt.RightButton:
@@ -371,4 +508,4 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 class RemoveButton(QtWidgets.QPushButton):
     def __init__(self, label, parent=None):
         super(RemoveButton, self).__init__(label, parent=parent)
-        self.setIcon(qta.icon('mdi6.close', color='#E74C3C'))
+        self.setIcon(icon.MaterialIcon('close', color='#E74C3C'))

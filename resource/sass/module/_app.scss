@@ -30,6 +30,7 @@ QPixmap{
 QScrollArea {
     border: none;
     background-color: transparent;
+    padding: 0px;
 }
 
 QScrollArea QWidget {
@@ -86,7 +87,4 @@ QMessageBox {
     border: none;
 }
 
-#titlebar {
-    background: #1f252b;
-}
 

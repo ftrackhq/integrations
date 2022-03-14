@@ -22,7 +22,7 @@ class EntityInfo(QtWidgets.QWidget):
 
     def pre_build(self):
         self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().setContentsMargins(2, 12, 2, 2)
+        self.layout().setContentsMargins(2, 17, 2, 2)
         self.layout().setSpacing(2)
 
     def build(self):

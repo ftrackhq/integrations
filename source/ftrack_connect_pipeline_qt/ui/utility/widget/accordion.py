@@ -1,5 +1,4 @@
 from functools import partial
-import qtawesome as qta
 
 from Qt import QtWidgets, QtCore, QtGui
 
@@ -8,7 +7,7 @@ from ftrack_connect_pipeline import constants as pipeline_constants
 from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
 from ftrack_connect_pipeline_qt import utils
-from ftrack_connect_pipeline_qt.ui.utility.widget import line
+from ftrack_connect_pipeline_qt.ui.utility.widget import line, icon
 
 
 class AccordionWidget(QtWidgets.QWidget):
@@ -107,14 +106,14 @@ class AccordionWidget(QtWidgets.QWidget):
     def _connect_inner_widgets(self, widget):
         if issubclass(widget.__class__, BaseOptionsWidget):
             self._widgets[widget] = widget
-            widget.status_updated.connect(
+            widget.statusUpdated.connect(
                 partial(self.update_inner_status, widget)
             )
             return
         inner_widgets = widget.findChildren(BaseOptionsWidget)
         self._widgets[widget] = inner_widgets
         for inner_widget in inner_widgets:
-            inner_widget.status_updated.connect(
+            inner_widget.statusUpdated.connect(
                 partial(self.update_inner_status, inner_widget)
             )
 
@@ -238,7 +237,7 @@ class AccordionTitleWidget(QtWidgets.QFrame):
 
     def init_title(self, title=None):
         self._title_label = QtWidgets.QLabel(title)
-        self._title_label.setObjectName('h1')
+        self._title_label.setObjectName('h2')
 
         return self._title_label
 
@@ -334,14 +333,14 @@ class AccordionStatus(QtWidgets.QLabel):
     def __init__(self, parent=None):
         super(AccordionStatus, self).__init__(parent=parent)
         # icon = self.status_icons[constants.DEFAULT_STATUS]
-        icon = qta.icon('mdi6.check', color='gray')
+        mat_icon = icon.MaterialIcon('check', color='gray')
         self.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
-        self.setPixmap(icon.pixmap(QtCore.QSize(16, 16)))
+        self.setPixmap(mat_icon.pixmap(QtCore.QSize(16, 16)))
 
     def set_status(self, status, message=None):
         # icon = self.status_icons[status]
-        icon = qta.icon('mdi6.check', color='gray')
-        self.setPixmap(icon.pixmap(QtCore.QSize(16, 16)))
+        mat_icon = icon.MaterialIcon('check', color='gray')
+        self.setPixmap(mat_icon.pixmap(QtCore.QSize(16, 16)))
         if message:
             self.setToolTip(str(message))
 

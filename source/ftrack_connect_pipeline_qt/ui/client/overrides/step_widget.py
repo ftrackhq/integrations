@@ -2,8 +2,6 @@
 # :copyright: Copyright (c) 2014-2021 ftrack
 from functools import partial
 
-import qtawesome as qta
-
 from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline_qt import constants
@@ -21,12 +19,13 @@ from ftrack_connect_pipeline_qt.plugin.widgets.load_widget import (
 from ftrack_connect_pipeline_qt.ui.utility.widget import line
 from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
 from ftrack_connect_pipeline_qt import utils
-from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import (
-    MaterialIconWidget,
-)
+from ftrack_connect_pipeline_qt.ui.utility.widget import icon
 from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import (
     AccordionWidget,
+)
+from ftrack_connect_pipeline_qt.ui.utility.widget.options_button import (
+    OptionsButton,
 )
 
 
@@ -48,9 +47,9 @@ def recursive_get_load_mode_container(widget):
     return load_mode_widget
 
 
-class OptionsButton(QtWidgets.QPushButton):
+class PublisherOptionsButton(OptionsButton):
     def __init__(self, title, icon, parent=None):
-        super(OptionsButton, self).__init__(parent=parent)
+        super(PublisherOptionsButton, self).__init__(parent=parent)
         self.name = title
         self._icon = icon
 
@@ -68,7 +67,9 @@ class OptionsButton(QtWidgets.QPushButton):
         self.main_widget = QtWidgets.QWidget()
         self.main_widget.setLayout(QtWidgets.QVBoxLayout())
         self.main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
-        self.overlay_container = overlay.Overlay(self.main_widget)
+        self.overlay_container = overlay.Overlay(
+            self.main_widget, height_percentage=0.8
+        )
         self.overlay_container.setVisible(False)
 
     def post_build(self):
@@ -107,6 +108,7 @@ class PublisherAccordion(AccordionBaseWidget):
             else AccordionBaseWidget.CHECK_MODE_CHECKBOX_DISABLED,
             checked=checked,
             title=title,
+            visible=False,
             parent=parent,
         )
 
@@ -116,25 +118,29 @@ class PublisherAccordion(AccordionBaseWidget):
         return self._status_label
 
     def init_options_button(self):
-        self._options_button = OptionsButton(
-            'O', qta.icon('mdi6.cog', color='gray')
+        self._options_button = PublisherOptionsButton(
+            'O', icon.MaterialIcon('settings', color='gray')
         )
         self._options_button.setObjectName('borderless')
         return self._options_button
 
     def init_status_icon(self):
-        self._status_icon = MaterialIconWidget('check')
+        self._status_icon = icon.MaterialIconWidget('check')
         self._status_icon.setObjectName('borderless')
         return self._status_icon
 
-    def init_header_content(self, layout, collapsed):
+    def init_header_content(self, header_widget, collapsed):
         '''Add publish related widgets to the accordion header'''
-        layout.addWidget(self.init_status_label())
-        layout.addStretch()
-        layout.addWidget(line.Line(horizontal=True))
-        layout.addWidget(self.init_options_button())
-        layout.addWidget(line.Line(horizontal=True))
-        layout.addWidget(self.init_status_icon())
+        header_layout = QtWidgets.QHBoxLayout()
+        header_widget.setLayout(header_layout)
+        header_layout.setContentsMargins(0, 0, 0, 0)
+        header_layout.setSpacing(0)
+        header_layout.addWidget(self.init_status_label())
+        header_layout.addStretch()
+        header_layout.addWidget(line.Line(horizontal=True))
+        header_layout.addWidget(self.init_options_button())
+        header_layout.addWidget(line.Line(horizontal=True))
+        header_layout.addWidget(self.init_status_icon())
 
     def add_widget(self, widget):
         super(PublisherAccordion, self).add_widget(widget)
@@ -162,14 +168,14 @@ class PublisherAccordion(AccordionBaseWidget):
     def _connect_inner_widgets(self, widget):
         if issubclass(widget.__class__, BaseOptionsWidget):
             self._widgets[widget] = widget
-            widget.status_updated.connect(
+            widget.statusUpdated.connect(
                 partial(self.update_inner_status, widget)
             )
             return
         inner_widgets = widget.findChildren(BaseOptionsWidget)
         self._widgets[widget] = inner_widgets
         for inner_widget in inner_widgets:
-            inner_widget.status_updated.connect(
+            inner_widget.statusUpdated.connect(
                 partial(self.update_inner_status, inner_widget)
             )
 
@@ -188,7 +194,7 @@ class PublisherAccordion(AccordionBaseWidget):
         self._status_icon.setVisible(not status is None)
         if not status is None:
             self._status_icon.set_icon(
-                'check' if status else 'alert-circle-outline',
+                'check' if status else 'error_outline',
                 color='gray'
                 if not self.checkable or not self.checked
                 else ('green' if status else 'orange'),
@@ -214,10 +220,14 @@ class AccordionStepWidget(BaseUIWidget):
 
     def parent_widget(self, step_widget):
         if self.widget:
-            if isinstance(step_widget, BaseUIWidget):
-                self.widget.add_widget(step_widget.widget)
-            else:
-                self.widget.add_widget(step_widget)
+            widget = (
+                step_widget.widget
+                if isinstance(step_widget, BaseUIWidget)
+                else step_widget
+            )
+            self.widget.add_widget(widget)
+            if isinstance(widget, AccordionBaseWidget):
+                widget.setVisible(True)
         else:
             self.logger.error("Please create a widget before parent")
 
@@ -275,10 +285,14 @@ class PublisherAccordionStepWidget(BaseUIWidget):
     def parent_widget(self, step_widget):
         '''Override'''
         if self.widget:
-            if isinstance(step_widget, BaseUIWidget):
-                self.widget.add_widget(step_widget.widget)
-            else:
-                self.widget.add_widget(step_widget)
+            widget = (
+                step_widget.widget
+                if isinstance(step_widget, BaseUIWidget)
+                else step_widget
+            )
+            self.widget.add_widget(widget)
+            if isinstance(widget, AccordionBaseWidget):
+                widget.setVisible(True)
         else:
             self.logger.error("Please create a widget before parent")
 
@@ -361,10 +375,12 @@ class OptionsStepWidget(DefaultStepWidget):
             options_idx = self.widget.layout().indexOf(
                 self.show_options_button
             )
-            if isinstance(widget, BaseUIWidget):
-                self.widget.layout().insertWidget((options_idx), widget.widget)
-            else:
-                self.widget.layout().insertWidget((options_idx), widget)
+            insert_widget = (
+                widget.widget if isinstance(widget, BaseUIWidget) else widget
+            )
+            self.widget.layout().insertWidget((options_idx), insert_widget)
+            if isinstance(insert_widget, AccordionBaseWidget):
+                insert_widget.setVisible(True)
         else:
             self.logger.error("Please create a widget before parent")
 
@@ -438,6 +454,7 @@ class RadioButtonItemStepWidget(BaseUIWidget):
         super(RadioButtonItemStepWidget, self).__init__(
             name, fragment_data, parent=parent
         )
+        self._unavailable_reason = ''
         self._component = None
 
     def build(self):
@@ -449,7 +466,7 @@ class RadioButtonItemStepWidget(BaseUIWidget):
     def post_build(self):
         self.widget.layout().setContentsMargins(2, 2, 2, 2)
 
-    def check_components(self, session, components):
+    def check_components(self, session, components, file_formats=None):
         self._component = None
         self._session = session
         for component in components:
@@ -457,17 +474,24 @@ class RadioButtonItemStepWidget(BaseUIWidget):
                 self._component = component
                 break
         if not self._component:
-            self.set_unavailable()
+            self.set_unavailable('')
             return False
         else:
-            self.set_available()
+            if (
+                file_formats is None
+                or self._component['file_type'] in file_formats
+            ):
+                self.set_available()
+            else:
+                self.set_unavailable('Cannot open this format.')
             return True
 
-    def set_unavailable(self):
+    def set_unavailable(self, reason):
         self.button.setEnabled(False)
         self.set_enabled(False)
         if self.button.isChecked():
             self.button.setChecked(False)
+        self._unavailable_reason = reason
 
     def set_available(self):
         self.button.setEnabled(True)
@@ -476,18 +500,28 @@ class RadioButtonItemStepWidget(BaseUIWidget):
     def get_label(self):
         '''Return the label for parent combobox'''
         result = '{}'.format(self.name)
-        if self.is_available:
-            if self._component:
-                # Fetch path
-                try:
-                    location = self._session.pick_location()
+        if self.is_available and self._component:
+            # Fetch path
+            try:
+                location = self._session.pick_location()
+                # Is component in this location
+                if (
+                    location.get_component_availability(self._component)
+                    == 100.0
+                ):
                     self.button.setToolTip(
                         location.get_filesystem_path(self._component)
                     )
-                except Exception as e:
-                    self.widget.setToolTip(str(e))
-        else:
-            result += ': unavailable'
+                else:
+                    self.set_available(
+                        'Missing in this location ({})!'.format(
+                            location['name']
+                        )
+                    )
+            except Exception as e:
+                self.widget.setToolTip(str(e))
+        if len(self._unavailable_reason or '') > 0:
+            result += ': {}'.format(self._unavailable_reason)
         return result
 
     def set_enabled(self, enabled):

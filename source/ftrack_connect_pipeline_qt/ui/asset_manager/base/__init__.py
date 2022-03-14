@@ -7,7 +7,6 @@ from Qt import QtWidgets, QtCore, QtCompat, QtGui
 import shiboken2
 
 from ftrack_connect_pipeline.constants import asset as asset_const
-from ftrack_connect_pipeline import constants as core_const
 from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
@@ -27,10 +26,6 @@ class AssetManagerBaseWidget(QtWidgets.QWidget):
     def session(self):
         '''Returns Session'''
         return self.event_manager.session
-
-    def init_header_content(self, layout):
-        '''To be overridden by child'''
-        layout.addStretch()
 
     @property
     def engine_type(self):
@@ -68,12 +63,17 @@ class AssetManagerBaseWidget(QtWidgets.QWidget):
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)
 
+    def build_header(self, layout):
+        '''To be overridden by child'''
+        layout.addStretch()
+
     def build(self):
         '''Build widgets and parent them.'''
-
         self._header = QtWidgets.QWidget()
-        self._header.setLayout(QtWidgets.QHBoxLayout())
-        self.init_header_content(self._header.layout())
+        self._header.setLayout(QtWidgets.QVBoxLayout())
+        self._header.layout().setContentsMargins(1, 1, 1, 10)
+        self._header.layout().setSpacing(4)
+        self.build_header(self._header.layout())
         self.layout().addWidget(self._header)
 
         self.scroll = QtWidgets.QScrollArea()
@@ -87,12 +87,14 @@ class AssetManagerBaseWidget(QtWidgets.QWidget):
 
     def init_search(self):
         '''Create search box'''
-        self._search = Search()
-        self._search.input_updated.connect(self.on_search)
+        self._search = Search(
+            collapsed=self._is_assembler, collapsable=self._is_assembler
+        )
+        self._search.inputUpdated.connect(self.on_search)
         return self._search
 
     def on_search(self, text):
-        '''Search in the current model.'''
+        '''Search in the current model, to be implemented by child.'''
         pass
 
 
@@ -131,44 +133,47 @@ class AssetListModel(QtCore.QAbstractTableModel):
     def items(self):
         return self.__asset_entities_list
 
-    def insertRows(self, position, data, index=QtCore.QModelIndex):
-        print('@@@ insertRows({},{})'.format(position, data))
+    def insertRows(self, row, data, index=None):
         rows = len(data)
-        self.beginInsertRows(
-            QtCore.QModelIndex(), position, position + rows - 1
-        )
+        self.beginInsertRows(self.createIndex(row, 0), row, row + rows - 1)
         for row in range(rows):
-            if position + row < len(self.__asset_entities_list):
-                self.__asset_entities_list.insert(position + row, data[row])
+            if row + row < len(self.__asset_entities_list):
+                self.__asset_entities_list.insert(row + row, data[row])
             else:
                 self.__asset_entities_list.append(data[row])
         self.endInsertRows()
 
     def getIndex(self, asset_info_id):
-        result = -1
-        for index, asset_info in enumerate(self.__asset_entities_list):
+        row = -1
+        for _row, asset_info in enumerate(self.__asset_entities_list):
             if asset_info[asset_const.ASSET_INFO_ID] == asset_info_id:
-                result = index
+                row = _row
                 break
-        if result == -1:
+        if row == -1:
             self.logger.warning(
                 'No asset info found for id {}'.format(asset_info_id)
             )
-        return result
+        return self.createIndex(row, 0)
 
-    def setData(self, position, asset_info, silent=False, roles=None):
-        print('@@@ AssetListModel({},{})'.format(position, asset_info))
-        self.__asset_entities_list[position] = asset_info
-        if not silent:
-            self.dataChanged.emit(position, position)
+    def getDataById(self, asset_info_id):
+        for index, asset_info in enumerate(self.__asset_entities_list):
+            if asset_info[asset_const.ASSET_INFO_ID] == asset_info_id:
+                return asset_info
+        self.logger.warning(
+            'No asset info found for id {}'.format(asset_info_id)
+        )
+        return None
 
-    def removeRows(self, position, count=1, silent=False):
+    def setData(self, index, asset_info, silent=False, roles=None):
+        self.__asset_entities_list[index.row()] = asset_info
         if not silent:
-            self.beginRemoveRows()
+            self.dataChanged.emit(index, index)
+
+    def removeRows(self, index, count=1):
+        self.beginRemoveRows(index, index.row(), count)
         for n in range(count):
-            self.__asset_entities_list.pop(position)
-        if not silent:
-            self.endRemoveRows()
+            self.__asset_entities_list.pop(index.row())
+        self.endRemoveRows()
 
     def flags(self, index):
         if not index.isValid():
@@ -183,7 +188,9 @@ class AssetListWidget(QtWidgets.QWidget):
     '''Generic asset list view'''
 
     _last_clicked = None
-    selection_updated = QtCore.Signal(object)
+
+    selectionUpdated = QtCore.Signal(object)
+    refreshed = QtCore.Signal()
 
     @property
     def model(self):
@@ -207,7 +214,7 @@ class AssetListWidget(QtWidgets.QWidget):
 
     def pre_build(self):
         self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().setContentsMargins(1, 1, 1, 1)
+        self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)
 
     def build(self):
@@ -238,7 +245,7 @@ class AssetListWidget(QtWidgets.QWidget):
             if asset_widget.set_selected(False):
                 selection_asset_data_changed = True
         if selection_asset_data_changed:
-            self.selection_updated.emit(self.selection())
+            self.selectionUpdated.emit(self.selection())
 
     def asset_clicked(self, asset_widget, event):
         '''An asset (accordion) were clicked in list, evaluate selection.'''
@@ -273,7 +280,12 @@ class AssetListWidget(QtWidgets.QWidget):
             selecti_on_asset_data_changed = True
         self._last_clicked = asset_widget
         if selecti_on_asset_data_changed:
-            self.selection_updated.emit(self.selection())
+            self.selectionUpdated.emit(self.selection())
+
+    def get_widget(self, index):
+        for widget in self.assets:
+            if widget.index.row() == index.row():
+                return widget
 
     def mousePressEvent(self, event):
         # Consume this event, so parent client does not de-select all

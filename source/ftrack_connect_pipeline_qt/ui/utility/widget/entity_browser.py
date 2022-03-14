@@ -3,8 +3,6 @@
 
 from functools import partial
 
-import qtawesome as qta
-
 from Qt import QtWidgets, QtCore, QtGui
 
 import shiboken2
@@ -29,13 +27,14 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import (
     ApproveButton,
     DenyButton,
 )
+from ftrack_connect_pipeline_qt.ui.utility.widget import icon
 
 
 class EntityBrowser(Dialog):
     '''
     Dialog enabling entity/context browsing
 
-    Supports spawn from an external navigator browser.
+    Supports to be driven from an external detached navigator browser (assembler).
     '''
 
     MODE_ENTITY = 1  # Pick any entity in backend (NIY)
@@ -67,7 +66,9 @@ class EntityBrowser(Dialog):
     def session(self):
         return self._session
 
-    def __init__(self, parent, session, entity=None, mode=MODE_TASK):
+    def __init__(
+        self, parent, session, entity=None, mode=MODE_TASK, title=None
+    ):
         self._entity = None  # The entity that has been set and applied
         self._intermediate_entity = (
             None  # The intermediate entity currently browsed
@@ -76,9 +77,12 @@ class EntityBrowser(Dialog):
         self._session = session
         self._external_navigator = None
         self._prev_search_text = ""
+
         self.set_mode(mode)
 
-        super(EntityBrowser, self).__init__(parent, prompt=None)
+        super(EntityBrowser, self).__init__(
+            parent, prompt=None, title=title or 'ftrack Entity Browser'
+        )
 
         if entity is None:
             if get_current_context_id():
@@ -94,6 +98,8 @@ class EntityBrowser(Dialog):
     def get_content_widget(self):
         widget = QtWidgets.QWidget()
         widget.setLayout(QtWidgets.QVBoxLayout())
+        widget.layout().setContentsMargins(1, 1, 1, 1)
+        widget.layout().setSpacing(5)
 
         toolbar = QtWidgets.QWidget()
         toolbar.setLayout(QtWidgets.QHBoxLayout())
@@ -108,7 +114,7 @@ class EntityBrowser(Dialog):
         widget.layout().addWidget(toolbar)
 
         self._search = Search(collapsed=False, collapsable=False)
-        self._search.input_updated.connect(self._on_search)
+        self._search.inputUpdated.connect(self._on_search)
         widget.layout().addWidget(self._search)
 
         self._scroll = QtWidgets.QScrollArea()
@@ -118,9 +124,6 @@ class EntityBrowser(Dialog):
         widget.layout().addWidget(self._scroll, 100)
 
         return widget
-
-    def get_title(self):
-        return 'ftrack Entity Browser'
 
     def get_approve_button(self):
         return ApproveButton("APPLY CONTEXT", width=80)
@@ -161,11 +164,6 @@ class EntityBrowser(Dialog):
         return self._external_navigator
 
     def set_entity(self, entity):
-        print(
-            '@@@ EntityBrowser::set_entity({}) Prev: {}'.format(
-                entity, self._entity
-            )
-        )
         prev_entity = self._entity
         self._entity = entity
         self.set_intermediate_entity(entity)
@@ -178,7 +176,6 @@ class EntityBrowser(Dialog):
                 self.rebuild()
 
     def set_intermediate_entity(self, entity=None):
-        print('@@@ EntityBrowser::set_intermediate_entity({})'.format(entity))
         self._intermediate_entity = entity
         self._prev_search_text = ""
         self._search.text = ""
@@ -210,7 +207,7 @@ class EntityBrowser(Dialog):
 
     def find_context_entity(self, context_id):
         context_entity = self.session.query(
-            'select link, name , parent, parent.name from Context where id '
+            'select link, name, parent, parent.name from Context where id '
             'is "{}"'.format(context_id)
         ).one()
         return context_entity
@@ -234,12 +231,6 @@ class EntityBrowser(Dialog):
 
     def _fetch_entities(self):
         intermediate_entity = self.intermediate_entity
-        print(
-            '@@@ EntityBrowser::_fetch_entities; self.intermediate_entity: {}'.format(
-                intermediate_entity
-            )
-        )
-        entities = None
         if self.intermediate_entity is None:
             # List projects
             entities = self.session.query('select id, name from Project').all()
@@ -256,8 +247,6 @@ class EntityBrowser(Dialog):
             self.entitiesFetched.emit(entities)
 
     def _on_entities_fetched(self, entities):
-        print('@@@ EntityBrowser::_on_entities_fetched({})'.format(entities))
-
         widget = QtWidgets.QWidget()
         widget.setLayout(QtWidgets.QVBoxLayout())
         widget.layout().setSpacing(0)
@@ -299,7 +288,7 @@ class EntityBrowser(Dialog):
         for entity_widget in self.entity_widgets:
             set_property(
                 entity_widget,
-                "state",
+                "background",
                 "selected"
                 if entity_widget.entity['id'] == entity['id']
                 else "",
@@ -399,17 +388,20 @@ class EntityBrowserNavigator(QtWidgets.QWidget):
         clear_layout(self.layout())
 
         # Rebuild widget
-        home_button = HomeContextButton()
-        home_button.clicked.connect(self._on_go_home)
-        self.layout().addWidget(home_button)
 
-        l_arrow = QtWidgets.QLabel()
-        l_arrow.setPixmap(
-            qta.icon('mdi6.chevron-right', color='#676B70').pixmap(
-                QtCore.QSize(16, 16)
+        if self._is_browser:
+            home_button = HomeContextButton()
+            home_button.clicked.connect(self._on_go_home)
+            self.layout().addWidget(home_button)
+
+            l_arrow = QtWidgets.QLabel()
+            l_arrow.setPixmap(
+                icon.MaterialIcon('chevron-right', color='#676B70').pixmap(
+                    QtCore.QSize(16, 16)
+                )
             )
-        )
-        self.layout().addWidget(l_arrow)
+            l_arrow.setMinimumSize(QtCore.QSize(16, 16))
+            self.layout().addWidget(l_arrow)
 
         add_enabled = not self._is_browser
 
@@ -418,6 +410,9 @@ class EntityBrowserNavigator(QtWidgets.QWidget):
                 button = NavigationEntityButton(link)
                 button.clicked.connect(
                     partial(self._on_entity_changed, button.link_entity)
+                )
+                set_property(
+                    button, 'first', 'true' if index == 0 else 'false'
                 )
                 if link['type'] != 'Project':
                     button.remove_button.clicked.connect(
@@ -428,20 +423,22 @@ class EntityBrowserNavigator(QtWidgets.QWidget):
                 if index < len(self.entity['link']) - 1:
                     l_arrow = QtWidgets.QLabel()
                     l_arrow.setPixmap(
-                        qta.icon('mdi6.chevron-right', color='#676B70').pixmap(
-                            QtCore.QSize(16, 16)
-                        )
+                        icon.MaterialIcon(
+                            'chevron-right', color='#676B70'
+                        ).pixmap(QtCore.QSize(16, 16))
                     )
+                    l_arrow.setMinimumSize(QtCore.QSize(16, 16))
                     self.layout().addWidget(l_arrow)
 
         if add_enabled:
             if self.entity:
                 l_arrow = QtWidgets.QLabel()
                 l_arrow.setPixmap(
-                    qta.icon('mdi6.chevron-right', color='#676B70').pixmap(
+                    icon.MaterialIcon('chevron-right', color='#676B70').pixmap(
                         QtCore.QSize(16, 16)
                     )
                 )
+                l_arrow.setMinimumSize(QtCore.QSize(16, 16))
                 self.layout().addWidget(l_arrow)
 
             add_button = AddContextButton()
@@ -482,8 +479,8 @@ class NavigationEntityButton(QtWidgets.QFrame):
 
     def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().setContentsMargins(3, 0, 0, 0)
-        self.layout().setSpacing(0)
+        self.layout().setContentsMargins(3, 0, 3, 0)
+        self.layout().setSpacing(4)
 
     def build(self):
         label = QtWidgets.QLabel(self.link_entity['name'])
@@ -491,10 +488,18 @@ class NavigationEntityButton(QtWidgets.QFrame):
         if self.link_entity['type'] != 'Project':
             self.layout().addStretch()
             self.remove_button = QtWidgets.QPushButton(
-                qta.icon('mdi6.close', color='#94979a', size=8), ""
+                icon.MaterialIcon('close', color='#94979a'), ""
             )
+            self.remove_button.setFixedSize(6, 6)
             self.remove_button.setStyleSheet(
-                'border: none; background: transparent;'
+                '''
+            QPushButton {
+                border: none; background: transparent;
+            }
+            QPushButton:hover {
+                background: gray;
+            }
+'''
             )
             self.layout().addWidget(self.remove_button)
 
@@ -527,8 +532,8 @@ class EntityWidget(QtWidgets.QFrame):
 
     def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().setContentsMargins(3, 0, 0, 0)
-        self.layout().setSpacing(1)
+        self.layout().setContentsMargins(3, 1, 1, 1)
+        self.layout().setSpacing(2)
 
     def build(self):
         self.thumbnail_widget = Context(self.entity.session)
@@ -574,10 +579,11 @@ class EntityWidget(QtWidgets.QFrame):
         if self.entity.entity_type != 'Task':
             l_arrow = QtWidgets.QLabel()
             l_arrow.setPixmap(
-                qta.icon('mdi6.chevron-right', color='#676B70').pixmap(
+                icon.MaterialIcon('chevron-right', color='#676B70').pixmap(
                     QtCore.QSize(16, 16)
                 )
             )
+            l_arrow.setMinimumSize(QtCore.QSize(16, 16))
             self.layout().addWidget(l_arrow)
 
     def post_build(self):
@@ -594,7 +600,7 @@ class EntityWidget(QtWidgets.QFrame):
         self.setMaximumHeight(45)
 
     def mousePressEvent(self, event):
-        if not shiboken2.isValid(self):
+        if not shiboken2.isValid(self) or not shiboken2.isValid(EntityWidget):
             # Widget has been destroyed
             return
         self.clicked.emit()
@@ -603,7 +609,7 @@ class EntityWidget(QtWidgets.QFrame):
 
 class AddContextButton(CircularButton):
     def __init__(self, parent=None):
-        super(AddContextButton, self).__init__('plus', '#eee', parent=parent)
+        super(AddContextButton, self).__init__('add', '#eee', parent=parent)
 
     def get_border_style(self, color):
         return '''            
@@ -634,37 +640,35 @@ class TypeWidget(QtWidgets.QFrame):
     def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(3, 0, 7, 0)
-        self.layout().setSpacing(0)
+        self.layout().setSpacing(2)
 
     def build(self):
         l_icon = QtWidgets.QLabel()
 
         if self._entity.entity_type != 'Task':
-            icon_name = "help-circle"
-
+            icon_name = "help_outline"
             if self._entity.entity_type == 'Project':
                 icon_name = "home"
             elif self._entity.entity_type == 'Folder':
                 icon_name = "folder"
             elif self._entity.entity_type == 'Episode':
-                icon_name = "play-box-multiple"
+                icon_name = "smart_display"
             elif self._entity.entity_type == 'Sequence':
-                icon_name = "folder"
+                icon_name = "movie"
             elif self._entity.entity_type == 'Shot':
                 icon_name = "movie"
             elif self._entity.entity_type == "AssetBuild":
-                icon_name = "package-variant-closed"
-            elif self._entity.entity_type == "Task":
-                icon_name = "briefcase-check-outline"
+                icon_name = "table_chart"
             l_icon.setPixmap(
-                qta.icon(
-                    'mdi6.{}'.format(icon_name), color='#BF9AC9', size=16
-                ).pixmap(QtCore.QSize(16, 16))
+                icon.MaterialIcon(icon_name, color='#BF9AC9').pixmap(
+                    QtCore.QSize(16, 16)
+                )
             )
         else:
             l_icon.setPixmap(
-                qta.icon(
-                    'mdi6.file-check-outline',
+                icon.MaterialIcon(
+                    'assignment_turned_in',
+                    variant='outlined',
                     color=self._entity['type']['color'],
                 ).pixmap(QtCore.QSize(14, 14))
             )

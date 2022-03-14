@@ -1,6 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2021 ftrack
-import qtawesome as qta
+# :copyright: Copyright (c) 2014-2021 ftrac
 
 from Qt import QtGui, QtCore, QtWidgets
 
@@ -16,7 +15,7 @@ class Search(QtWidgets.QFrame):
     Display a search box, that can be collapsed and expanded.
     '''
 
-    input_updated = QtCore.Signal(object)
+    inputUpdated = QtCore.Signal(object)
     search = QtCore.Signal()
     clear = QtCore.Signal()
 
@@ -61,7 +60,7 @@ class Search(QtWidgets.QFrame):
             self.layout().addStretch()
             self._input = None
             self.setStyleSheet('''border:none;''')
-            self._search_button = CircularButton('magnify', '#999999')
+            self._search_button = CircularButton('search', '#999999')
             self._search_button.setStyleSheet(
                 '''
                 border: 1px solid #555555;
@@ -70,7 +69,7 @@ class Search(QtWidgets.QFrame):
             )
         else:
             self._search_button = CircularButton(
-                'magnify', '#999999', diameter=30
+                'search', '#999999', diameter=30
             )
 
         self._search_button.clicked.connect(self._on_search)
@@ -80,12 +79,17 @@ class Search(QtWidgets.QFrame):
         if not self._collapsed:
             # A bordered input field filling all space, with input and a clear button
             self._search_button.setStyleSheet(
-                '''border:none; background: transparent;'''
+                '''
+                    border:none; 
+                    background: transparent;
+                '''
             )
             self._input = QtWidgets.QLineEdit()
             self._input.textChanged.connect(self._on_input_changed)
             self._input.setPlaceholderText("Type to search")
-            self._input.setStyleSheet('border: none;')
+            self._input.setStyleSheet(
+                '''border: none; background: transparent; '''
+            )
             self._input.setFocus()
             self.layout().addWidget(self._input, 100)
             self._clear_button = CircularButton(
@@ -107,10 +111,10 @@ class Search(QtWidgets.QFrame):
         if self._collapsable:
             self._collapsed = not self._collapsed
             self.rebuild()
-            self.input_updated.emit('')
+            self.inputUpdated.emit('')
 
     def _on_input_changed(self):
-        self.input_updated.emit(self._input.text())
+        self.inputUpdated.emit(self._input.text())
 
     def _on_clear(self):
         self._input.setText('')

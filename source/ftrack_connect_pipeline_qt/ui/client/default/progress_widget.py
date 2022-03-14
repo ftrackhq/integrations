@@ -8,9 +8,10 @@ from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
 from ftrack_connect_pipeline_qt import utils
-from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import (
+from ftrack_connect_pipeline_qt.ui.utility.widget.icon import (
     MaterialIconWidget,
 )
+from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 from ftrack_connect_pipeline_qt.utils import set_property
 from ftrack_connect_pipeline_qt.utils import str_version
 
@@ -57,17 +58,22 @@ class PhaseButton(QtWidgets.QPushButton):
 
         self.layout().addLayout(v_layout, 100)
 
-        self.log_widget = QtWidgets.QWidget()
+        self.log_widget = QtWidgets.QFrame()
+        self.log_widget.setVisible(False)
+        self.log_widget.setProperty('background', 'ftrack')
         self.log_widget.setLayout(QtWidgets.QVBoxLayout())
-        self.log_widget.layout().addSpacing(30)
+        self.log_widget.layout().addSpacing(10)
 
         self.log_text_edit = QtWidgets.QTextEdit()
-        self.log_widget.layout().addWidget(self.log_text_edit)
+        self.log_widget.layout().addWidget(self.log_text_edit, 10)
+        self._close_button = dialog.ApproveButton('HIDE LOG')
+        self.log_widget.layout().addWidget(self._close_button)
         self.overlay_container = overlay.Overlay(self.log_widget)
         self.overlay_container.setVisible(False)
 
     def post_build(self):
         self.clicked.connect(self.show_log)
+        self._close_button.clicked.connect(self.overlay_container.close)
 
     def update_status(self, status, status_message, results):
         self.status_message_widget.setText(status_message)
@@ -105,6 +111,7 @@ class PhaseButton(QtWidgets.QPushButton):
         else:
             self.log_text_edit.setText("No errors found")
         self.overlay_container.setVisible(True)
+        self.log_widget.setVisible(True)
         self.overlay_container.resize(self.parent().size())
 
 
@@ -134,7 +141,7 @@ class StatusButtonWidget(QtWidgets.QPushButton):
             self.setMinimumWidth(32)
             self.setMaximumWidth(32)
         else:
-            self.setMinimumWidth(300)
+            self.setMinimumWidth(200)
 
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(6, 6, 6, 6)
@@ -157,10 +164,6 @@ class StatusButtonWidget(QtWidgets.QPushButton):
         set_property(self, 'status', self.status.lower())
         color = self.status_icon.set_status(self.status, size=24)
         self.message_label.setStyleSheet('color: #{}'.format(color))
-        # for widget in [self, self.message_label]:
-        #    widget.style().unpolish(widget)
-        #    widget.style().polish(widget)
-        #    widget.update()
 
 
 class ProgressWidget(BaseUIWidget):
@@ -177,7 +180,6 @@ class ProgressWidget(BaseUIWidget):
         self.content_widget = None
         self.status_banner = None
         self._status_view_mode = status_view_mode
-
         super(ProgressWidget, self).__init__(
             name, fragment_data, parent=parent
         )
@@ -197,7 +199,9 @@ class ProgressWidget(BaseUIWidget):
 
         self.scroll.setWidget(self.content_widget)
 
-        self.overlay_container = overlay.Overlay(self.scroll)
+        self.overlay_container = overlay.Overlay(
+            self.scroll, height_percentage=0.8
+        )
         self.overlay_container.setVisible(False)
 
     def post_build(self):
@@ -233,7 +237,7 @@ class ProgressWidget(BaseUIWidget):
         self.content_widget.layout().addWidget(component_button)
 
     def components_added(self):
-        self.content_widget.layout().addStretch()
+        self.content_widget.layout().addWidget(QtWidgets.QLabel(), 10)
 
     def clear_components(self):
         for i in reversed(range(self.content_widget.layout().count())):
@@ -254,17 +258,6 @@ class ProgressWidget(BaseUIWidget):
         self, step_type, step_name, status, status_message, results, version_id
     ):
         id_name = "{}.{}.{}".format(version_id or '-', step_type, step_name)
-        print(
-            '@@@ update_component_status({},{},{},{},{},{}); id_name: {}'.format(
-                step_type,
-                step_name,
-                status,
-                status_message,
-                results,
-                version_id,
-                id_name,
-            )
-        )
         if id_name in self.component_widgets:
             self.component_widgets[id_name].update_status(
                 status, status_message, results

@@ -2,8 +2,6 @@ import platform
 
 from functools import partial
 
-import qtawesome as qta
-
 from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect_pipeline_qt.utils import center_widget
@@ -16,15 +14,20 @@ class Dialog(QtWidgets.QDialog):
     '''
 
     def __init__(
-        self, parent, message=None, question=None, title=None, prompt=False
+        self,
+        parent,
+        message=None,
+        question=None,
+        title=None,
+        prompt=False,
+        modal=True,
     ):
-        print('@@@ Dialog(..,parent={})'.format(parent))
         super(Dialog, self).__init__(parent=parent)
 
         self.setParent(parent)
 
-        self.setTheme(self.get_theme())
-        self.setProperty('background', 'ftrack')
+        self.setTheme(self.getTheme())
+        # self.setProperty('background', 'ftrack')
 
         self._message = message or question
         self._title = title or 'ftrack'
@@ -37,7 +40,7 @@ class Dialog(QtWidgets.QDialog):
         if prompt is False:
             self.exec_()
 
-    def get_theme(self):
+    def getTheme(self):
         '''Return the client theme, return None to disable themes. Can be overridden by child.'''
         return 'dark'
 
@@ -51,7 +54,8 @@ class Dialog(QtWidgets.QDialog):
         self.layout().setSpacing(0)
 
     def build(self):
-        ''' '''
+        '''Can be overridden by custom dialogs.'''
+
         self._title_label = TitleLabel()
         self._title_label.setAlignment(QtCore.Qt.AlignCenter)
         self._title_label.setObjectName('titlebar')
@@ -76,7 +80,8 @@ class Dialog(QtWidgets.QDialog):
         self._approve_button = self.get_approve_button()
         if not self._prompt is False:
             self._deny_button = self.get_deny_button()
-
+        else:
+            self._deny_button = None
         if platform.system().lower() != 'darwin':
             if self._approve_button:
                 buttonbar.layout().addWidget(self._approve_button)
@@ -91,7 +96,9 @@ class Dialog(QtWidgets.QDialog):
         self.layout().addWidget(buttonbar, 1)
 
     def get_content_widget(self):
-        return center_widget(QtWidgets.QLabel(self._message))
+        label = QtWidgets.QLabel(self._message)
+        label.setObjectName('h3')
+        return center_widget(label)
 
     def get_approve_button(self):
         return ApproveButton('YES' if self._prompt is True else 'OK')

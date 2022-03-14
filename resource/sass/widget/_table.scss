@@ -1,22 +1,41 @@
 /** Table */
-QTableView {
-    border: 1px solid #dadada;
-    outline: 0;
-    background: $white;
-
+QTableWidet {
+    gridline-color: $alt-background;
 }
+
+QTableView {
+    gridline-color: $alt-background;
+    border: 1px solid $gray-dark;
+    outline: 0;
+    background: $background;
+}
+
+QTableView::section
+{
+    border: none;
+}
+
 QTableView::item
 {
-    border: 0px;
+    border: none;
     padding: 5px;
-    background: $white;
+    background: $background;
     color: $text-color;
 }
+
 QTableView::item:selected
 {
     background: $gray-lighter;
 }
 
 QHeaderView {
-    background-color: $gray-lighter;
+    color: $text-color;
+    background-color: $alt-background;
+    border: none;
+}
+
+QHeaderView::section {
+    border-style: none;
+    border-right: 1px solid alt-background;
+    background-color: $background;
 }

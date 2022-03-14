@@ -3,19 +3,21 @@
 
 from Qt import QtWidgets, QtCore
 
-from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import (
-    MaterialIconWidget,
+from ftrack_connect_pipeline_qt.ui.utility.widget.icon import (
+    MaterialIcon,
 )
 
 
 class CircularButton(QtWidgets.QPushButton):
-    def __init__(self, icon_name, color, diameter=32, parent=None):
+    def __init__(
+        self, icon_name, color, diameter=32, variant=None, parent=None
+    ):
         super(CircularButton, self).__init__(parent)
 
         self.setMaximumSize(QtCore.QSize(diameter, diameter))
         self.setMinimumSize(QtCore.QSize(diameter, diameter))
 
-        self.setIcon(MaterialIconWidget(icon_name, color=color).icon)
+        self.setIcon(MaterialIcon(icon_name, variant=variant, color=color))
 
         self.setStyleSheet(
             '''

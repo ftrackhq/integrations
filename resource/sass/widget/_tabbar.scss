@@ -1,11 +1,15 @@
 /** Tab bar. */
 
 QTabWidget {
-    background: transparent;
+    padding: 0px;
+    border: none;
+    margin: -10px -10px -10px -10px;
 }
 
 QTabWidget::pane {
-    background: transparent;
+    padding: 0px;
+    margin: -2px -2px -2px -2px;
+    border: none;
 }
 
 QTabWidget::tab-bar {
@@ -14,14 +18,17 @@ QTabWidget::tab-bar {
 }
 
 QTabBar {
-    border-bottom: 2px solid $gray-dark;
+    border-bottom: 2px solid $gray-dark;d
+    padding: 0px;
+    margin: 0px;
 }
 
 QTabBar::tab {
-    min-width: 170px;
+    min-width: 120px;
     padding: 8px 10px 9px 10px;
     color: $gray;
     border-bottom: none;
+    font-size: 12px;
 }
 
 QTabBar::tab:selected {
@@ -33,7 +40,11 @@ QTabBar::tab:hover {
     color: $text-color;
 }
 
+QTabBar::tab:focus {
+}
+
 AssemblerTabWidget QTabBar::tab {
+    min-width: 170px;
     font-size: 14px;
     vertical-align: text-top;
 }

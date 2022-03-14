@@ -2,7 +2,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
+from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.client import QtClient
+from ftrack_connect_pipeline_qt import constants as qt_constants
+from ftrack_connect_pipeline_qt.client import factory
 
 
 class QtPublisherClient(QtClient):
@@ -10,21 +13,66 @@ class QtPublisherClient(QtClient):
     Base publish widget class.
     '''
 
-    definition_filter = 'publisher'
-    client_name = 'publish'
+    definition_filter = qt_constants.PUBLISHER_WIDGET
+    client_name = qt_constants.PUBLISHER_WIDGET
 
     def __init__(self, event_manager, parent_window, parent=None):
-
+        self.widget_factory = factory.PublisherWidgetFactory(
+            event_manager, self.ui_types, self.client_name
+        )
         super(QtPublisherClient, self).__init__(
             event_manager, parent_window, parent=parent
         )
         self.setWindowTitle('Standalone Pipeline Publisher')
         self.logger.debug('start qt publisher')
 
+    def is_docked(self):
+        return True
+
     def pre_build(self):
         '''
         .. note::
-            We want to hidde the finalizers on the publisher but not on
+            We want to hide the finalizers on the publisher but not on
             the loader, so we extend the schema_name_mapping dictionary.
         '''
         super(QtPublisherClient, self).pre_build()
+
+    def post_build(self):
+        super(QtPublisherClient, self).post_build()
+        self.widget_factory.widgetAssetUpdated.connect(
+            self._on_widget_asset_updated
+        )
+
+        self.widget_factory.widgetRunPlugin.connect(self._on_run_plugin)
+        self.widget_factory.componentsChecked.connect(
+            self._on_components_checked
+        )
+        self.setMinimumWidth(300)
+
+    def change_definition(self, schema, definition, component_names_filter):
+        self.run_button.setVisible(False)
+        if not self._shown:
+            self._postponed_change_definition = (
+                schema,
+                definition,
+                component_names_filter,
+            )
+            return
+        super(QtPublisherClient, self).change_definition(
+            schema, definition, component_names_filter
+        )
+
+    def _on_components_checked(self, available_components_count):
+        super(QtPublisherClient, self).definition_changed(
+            self.definition, available_components_count
+        )
+        self.run_button.setVisible(True)
+        self.run_button.setEnabled(available_components_count > 0)
+        self.run_button.setText('PUBLISH')
+
+    def run(self):
+        if super(QtPublisherClient, self).run():
+            self.widget_factory.progress_widget.set_status(
+                constants.SUCCESS_STATUS,
+                'Successfully published!',
+            )

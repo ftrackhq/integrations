@@ -1,14 +1,14 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
-from functools import partial
-import six
-import base64
+# :copyright: Copyright (c) 2014-2022 ftrack
 import json
+from functools import partial
+
 
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.constants import asset as asset_constants
+from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.asset_manager.base import (
     AssetManagerBaseWidget,
     AssetListWidget,
@@ -19,9 +19,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
 )
-from ftrack_connect_pipeline_qt.utils import (
-    set_property,
-)
+from ftrack_connect_pipeline_qt.utils import set_property, str_version
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import (
     AssetVersion as AssetVersionThumbnail,
 )
@@ -29,21 +27,27 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.entity_info import EntityInfo
 from ftrack_connect_pipeline_qt.ui.utility.widget import line
 from ftrack_connect_pipeline_qt.utils import clear_layout
 from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import Dialog
+from ftrack_connect_pipeline_qt.ui.utility.widget.busy_indicator import (
+    BusyIndicator,
+)
+from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ApproveButton
 
 
 class AssetManagerWidget(AssetManagerBaseWidget):
     '''Base widget of the asset manager and is_assembler'''
 
-    refresh = QtCore.Signal()
-    rebuild = QtCore.Signal()
+    refresh = QtCore.Signal()  # Refresh asset list from model
+    rebuild = QtCore.Signal()  # Fetch assets from DCC and update model
 
-    widget_status_updated = QtCore.Signal(object)
-    change_asset_version = QtCore.Signal(object, object)
-    select_assets = QtCore.Signal(object)
-    remove_assets = QtCore.Signal(object)
-    update_assets = QtCore.Signal(object, object)
-    load_assets = QtCore.Signal(object)
-    unload_assets = QtCore.Signal(object)
+    widgetStatusUpdated = QtCore.Signal(object)
+    changeAssetVersion = QtCore.Signal(object, object)
+    selectAssets = QtCore.Signal(object, object)
+    removeAssets = QtCore.Signal(object, object)
+    updateAssets = QtCore.Signal(object, object)
+    loadAssets = QtCore.Signal(object, object)
+    unloadAssets = QtCore.Signal(object, object)
+
+    stopBusyIndicator = QtCore.Signal()
 
     DEFAULT_ACTIONS = {
         'select': [{'ui_callback': 'ctx_select', 'name': 'select_asset'}],
@@ -77,29 +81,90 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         )
         self._host_connection = None
 
-    def init_header_content(self, layout):
-        '''Create toolbar'''
+    def _build_docked_header(self, layout):
+        row1 = QtWidgets.QWidget()
+        row1.setLayout(QtWidgets.QHBoxLayout())
+        row1.layout().setContentsMargins(5, 5, 5, 5)
+        row1.layout().setSpacing(6)
+
         title = QtWidgets.QLabel('Tracked assets')
         title.setObjectName('h2')
-        layout.addWidget(title)
-        layout.addWidget(self.init_search())
-        self._refresh_button = CircularButton('sync', '#87E1EB')
-        self._refresh_button.clicked.connect(self._on_rebuild)
-        layout.addWidget(self._refresh_button)
-        if not self._is_assembler:
-            self._config_button = CircularButton('cog', '#87E1EB')
-            self._config_button.clicked.connect(self._on_config)
-            layout.addWidget(self._config_button)
-        else:
-            self._add_button = CircularButton('plus', '#87E1EB')
-            self._add_button.clicked.connect(self._on_add)
-            layout.addWidget(self._add_button)
+        row1.layout().addWidget(title)
+
+        row1.layout().addWidget(QtWidgets.QLabel(), 10)
+
+        self._config_button = ApproveButton('ADD / REMOVE ASSETS')
+        self._config_button.clicked.connect(self._on_config)
+        row1.layout().addWidget(self._config_button)
+
+        layout.addWidget(row1)
+
+        row2 = QtWidgets.QWidget()
+        row2.setLayout(QtWidgets.QHBoxLayout())
+        row2.layout().setContentsMargins(5, 5, 5, 5)
+        row2.layout().setSpacing(6)
+
+        row2.layout().addWidget(self.init_search())
+
+        self._rebuild_button = CircularButton('sync', '#87E1EB')
+        row2.layout().addWidget(self._rebuild_button)
+
+        self._busy_widget = BusyIndicator(start=False)
+        self._busy_widget.setMinimumSize(QtCore.QSize(24, 24))
+        self._busy_widget.setVisible(False)
+        row2.layout().addWidget(self._busy_widget)
+
+        layout.addWidget(row2)
+
+    def _build_assembler_header(self, layout):
+
+        row1 = QtWidgets.QWidget()
+        row1.setLayout(QtWidgets.QHBoxLayout())
+        row1.layout().setContentsMargins(5, 5, 5, 5)
+        row1.layout().setSpacing(6)
+
+        title = QtWidgets.QLabel('Tracked assets')
+        title.setObjectName('h2')
+        row1.layout().addWidget(title)
+
+        row1.layout().addWidget(self.init_search())
+
+        self._rebuild_button = CircularButton('sync', '#87E1EB')
+        row1.layout().addWidget(self._rebuild_button)
+
+        layout.addWidget(row1)
+
+        row2 = QtWidgets.QWidget()
+        row2.setLayout(QtWidgets.QHBoxLayout())
+        row2.layout().setContentsMargins(5, 5, 5, 5)
+        row2.layout().setSpacing(6)
+
+        row2.layout().addWidget(QtWidgets.QLabel(), 10)
+
+        self._label_info = QtWidgets.QLabel('Listing 0 assets')
+        self._label_info.setObjectName('gray')
+        row2.layout().addWidget(self._label_info)
+
+        self._busy_widget = BusyIndicator(start=False)
+        self._busy_widget.setMinimumSize(QtCore.QSize(16, 16))
+        self._busy_widget.setVisible(False)
+        row2.layout().addWidget(self._busy_widget)
+
+        layout.addWidget(row2)
+
+    def build_header(self, layout):
+        '''To be overridden by child'''
+        self._build_docked_header(
+            layout
+        ) if not self._is_assembler else self._build_assembler_header(layout)
 
     def build(self):
         super(AssetManagerWidget, self).build()
 
         self._asset_list = AssetManagerListWidget(
-            self._asset_list_model, AssetWidget
+            self._asset_list_model,
+            AssetWidget,
+            docked=self._asset_manager_client.is_docked(),
         )
 
         asset_list_container = QtWidgets.QWidget()
@@ -113,13 +178,35 @@ class AssetManagerWidget(AssetManagerBaseWidget):
 
     def post_build(self):
         super(AssetManagerWidget, self).post_build()
+        self._rebuild_button.clicked.connect(self._on_rebuild)
         self.refresh.connect(self._on_refresh)
+        self.stopBusyIndicator.connect(self._on_stop_busy_indicator)
+        self._asset_list.refreshed.connect(self._on_asset_list_refreshed)
+        self._asset_list.changeAssetVersion.connect(
+            self._on_change_asset_version
+        )
 
     def set_asset_list(self, asset_entities_list):
         '''Clear model and add asset entities, will trigger list to be rebuilt.'''
         self._asset_list_model.reset()
         if asset_entities_list and 0 < len(asset_entities_list):
             self._asset_list.model.insertRows(0, asset_entities_list)
+
+    def set_busy(self, busy):
+        if busy:
+            self._busy_widget.start()
+            self._busy_widget.setVisible(True)
+        else:
+            self._busy_widget.stop()
+            self._busy_widget.setVisible(False)
+
+    def _on_stop_busy_indicator(self):
+        self.set_busy(False)
+
+    def on_search(self, text):
+        '''Search in the current model.'''
+        if self._asset_list:
+            self._asset_list.on_search(text)
 
     def create_actions(self, actions):
         '''Creates all the actions for the context menu.'''
@@ -145,12 +232,12 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         # Anything selected?
         widget_deselect = None
         if len(self._asset_list.selection()) == 0:
-            # Temporaily select the clicked widget
-            widget_deselect = self.childAt(event.x(), event.y())
-            if widget_deselect:
-                widget_deselect = widget_deselect.childAt(event.x(), event.y())
-                if widget_deselect:
-                    widget_deselect.header.checkbox.setChecked(True)
+            # Select the clicked widget
+            widget_select = self.childAt(event.x(), event.y())
+            if widget_select:
+                widget_select = widget_select.childAt(event.x(), event.y())
+                if widget_select:
+                    widget_select.setSelected(True)
 
         self.menu = QtWidgets.QMenu(self)
         self.action_type_menu = {}
@@ -190,16 +277,6 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         else:
             return True
 
-    def ctx_update(self, plugin):
-        '''
-        Triggered when update action menu been clicked.
-        Emits update_asset signal.
-        Uses the given *plugin* to update the selected assets
-        '''
-        selection = self._asset_list.selection()
-        if self.check_selection(selection):
-            self.update_assets.emit(selection, plugin)
-
     def ctx_select(self, plugin):
         '''
         Triggered when select action menu been clicked.
@@ -207,16 +284,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         '''
         selection = self._asset_list.selection()
         if self.check_selection(selection):
-            self.select_assets.emit(selection, plugin)
-
-    def ctx_remove(self, plugin):
-        '''
-        Triggered when remove action menu been clicked.
-        Emits remove_asset signal.
-        '''
-        selection = self._asset_list.selection()
-        if self.check_selection(selection):
-            self.remove_assets.emit(selection, plugin)
+            self.selectAssets.emit(selection, plugin)
 
     def ctx_load(self, plugin):
         # TODO: I think is better to not pass a Plugin, and use directly the
@@ -230,7 +298,25 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         '''
         selection = self._asset_list.selection()
         if self.check_selection(selection):
-            self.load_assets.emit(selection, plugin)
+            self.loadAssets.emit(selection, plugin)
+
+    def ctx_update(self, plugin):
+        '''
+        Triggered when update action menu been clicked.
+        Emits update_asset signal.
+        Uses the given *plugin* to update the selected assets
+        '''
+        selection = self._asset_list.selection()
+        if self.check_selection(selection):
+            if Dialog(
+                self._asset_manager_client.get_parent_window(),
+                title='ftrack Asset manager',
+                question='Really update {} asset{} to latest version?'.format(
+                    len(selection), 's' if len(selection) > 1 else ''
+                ),
+                prompt=True,
+            ).exec_():
+                self.updateAssets.emit(selection, plugin)
 
     def ctx_unload(self, plugin):
         '''
@@ -239,7 +325,32 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         '''
         selection = self._asset_list.selection()
         if self.check_selection(selection):
-            self.unload_assets.emit(selection, plugin)
+            if Dialog(
+                self._asset_manager_client.get_parent_window(),
+                title='ftrack Asset manager',
+                question='Really unload {} asset{}?'.format(
+                    len(selection), 's' if len(selection) > 1 else ''
+                ),
+                prompt=True,
+            ).exec_():
+                self.unloadAssets.emit(selection, plugin)
+
+    def ctx_remove(self, plugin):
+        '''
+        Triggered when remove action menu been clicked.
+        Emits remove_asset signal.
+        '''
+        selection = self._asset_list.selection()
+        if self.check_selection(selection):
+            if Dialog(
+                self._asset_manager_client.get_parent_window(),
+                title='ftrack Asset manager',
+                question='Really remove {} asset{}?'.format(
+                    len(selection), 's' if len(selection) > 1 else ''
+                ),
+                prompt=True,
+            ).exec_():
+                self.removeAssets.emit(selection, plugin)
 
     def set_context_actions(self, actions):
         '''Set the :obj:`engine_type` into the asset_table_view and calls the
@@ -251,7 +362,6 @@ class AssetManagerWidget(AssetManagerBaseWidget):
     def _update_widget(self, event):
         '''*event* callback to update widget with the current status/value'''
         # Check if this is a asset discover notification
-        print('@@@ _update_widget({})'.format(event))
         if event['data']['pipeline'].get('method') == 'discover_assets':
             # This could be executed async, rebuild asset list through signal
             self.rebuild.emit()
@@ -273,62 +383,62 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         '''Refresh the asset list from the model data.'''
         self._asset_list.rebuild()
 
+    def _on_asset_list_refreshed(self):
+        '''List has refreshed from model'''
+        if self._is_assembler:
+            self._label_info.setText(
+                'Listing {} asset{}'.format(
+                    self._asset_list.model.rowCount(),
+                    's' if self._asset_list.model.rowCount() > 1 else '',
+                )
+            )
+        self._asset_manager_client.selectionUpdated.emit(
+            self._asset_list.selection()
+        )
+
     def _on_rebuild(self):
         '''Query DCC for scene assets.'''
         self.rebuild.emit()  # To be picked up by AM
 
     def _on_config(self):
-        raise NotImplementedError('Open Assembler not implemented yet!')
+        self.host_connection.launch_widget(qt_constants.ASSEMBLER_WIDGET)
 
     def _on_add(self):
-        raise NotImplementedError('Open Importer not implemented yet!')
+        self.host_connection.launch_widget(qt_constants.ASSEMBLER_WIDGET)
 
-    def on_asset_change_version(self, index, value):
+    def _on_change_asset_version(self, asset_info, version_entity):
         '''
         Triggered when a version of the asset has changed on the
-        :obj:`version_cb_delegate`
+        :obj:`version_cb_delegate`. Prompt user.
         '''
-        _asset_info = self._asset_list.model.getData(index.row())
-        # Copy to avoid update automatically
-        asset_info = _asset_info.copy()
-        self.change_asset_version.emit(asset_info, value)
-
-    def on_select_assets(self, assets):
-        '''
-        Triggered when select action is clicked on the asset_table_view.
-        '''
-        self.select_assets.emit(assets)
-
-    def on_remove_assets(self, assets):
-        '''
-        Triggered when remove action is clicked on the asset_table_view.
-        '''
-        self.remove_assets.emit(assets)
-
-    def on_update_assets(self, assets, plugin):
-        '''
-        Triggered when update action is clicked on the asset_table_view.
-        '''
-        self.update_assets.emit(assets, plugin)
-
-    def on_load_assets(self, assets):
-        '''
-        Triggered when load action is clicked on the asset_table_view.
-        '''
-        self.load_assets.emit(assets)
-
-    def on_unload_assets(self, assets):
-        '''
-        Triggered when unload action is clicked on the asset_table_view.
-        '''
-        self.unload_assets.emit(assets)
+        current_version = self.session.query(
+            'AssetVersion where id={}'.format(
+                asset_info[asset_constants.VERSION_ID]
+            )
+        ).first()
+        if Dialog(
+            self._asset_manager_client.get_parent_window(),
+            title='ftrack Asset manager',
+            question='Change version of {} to v{}?'.format(
+                str_version(current_version), version_entity['version']
+            ),
+            prompt=True,
+        ).exec_():
+            self.changeAssetVersion.emit(
+                asset_info.copy(), version_entity['id']
+            )
 
 
 class AssetManagerListWidget(AssetListWidget):
     '''Custom asset manager list view'''
 
-    def __init__(self, model, asset_widget_class, parent=None):
+    changeAssetVersion = QtCore.Signal(object, object)
+
+    def __init__(self, model, asset_widget_class, docked=False, parent=None):
         self._asset_widget_class = asset_widget_class
+        self._docked = docked
+        self.prev_search_text = ''
+
         super(AssetManagerListWidget, self).__init__(model, parent=parent)
 
     def post_build(self):
@@ -342,32 +452,54 @@ class AssetManagerListWidget(AssetListWidget):
 
     def _on_asset_data_changed(self, *args):
         self.rebuild()
-        self.selection_updated.emit(self.selection())
 
     def rebuild(
         self,
     ):
         '''Clear widget and add all assets again from model.'''
-        print('@@@ AssetManagerListWidget::rebuild()')
         clear_layout(self.layout())
         # TODO: Save selection state
         for row in range(self.model.rowCount()):
             index = self.model.createIndex(row, 0, self.model)
             asset_info = self.model.data(index)
             asset_widget = self._asset_widget_class(
-                index, self.model.event_manager
+                index, self.model.event_manager, docked=self._docked
             )
-            if row == 0:
-                set_property(asset_widget, 'first', 'true')
+            set_property(
+                asset_widget, 'first', 'true' if row == 0 else 'false'
+            )
             asset_widget.set_asset_info(asset_info)
             self.layout().addWidget(asset_widget)
             asset_widget.clicked.connect(
                 partial(self.asset_clicked, asset_widget)
             )
+            asset_widget.changeAssetVersion.connect(
+                self._on_change_asset_version
+            )
+        self.refresh()
+        self.refreshed.emit()
+
+    def _on_change_asset_version(self, index, version_entity):
+        self.changeAssetVersion.emit(self.model.data(index), version_entity)
+
+    def refresh(self, search_text=None):
+        if search_text is None:
+            search_text = self.prev_search_text
+        for asset_widget in self.assets:
+            asset_widget.setVisible(
+                len(search_text) == 0 or asset_widget.matches(search_text)
+            )
+
+    def on_search(self, text):
+        if text != self.prev_search_text:
+            self.refresh(text.lower())
+            self.prev_search_text = text
 
 
 class AssetWidget(AccordionBaseWidget):
     '''Widget representation of a minimal asset representation'''
+
+    changeAssetVersion = QtCore.Signal(object, object)
 
     @property
     def index(self):
@@ -377,13 +509,16 @@ class AssetWidget(AccordionBaseWidget):
     def options_widget(self):
         return self._options_button
 
-    def __init__(self, index, event_manager, title=None, parent=None):
+    def __init__(
+        self, index, event_manager, title=None, docked=False, parent=None
+    ):
         super(AssetWidget, self).__init__(
             AccordionBaseWidget.SELECT_MODE_LIST,
             AccordionBaseWidget.CHECK_MODE_NONE,
             event_manager=event_manager,
             title=title,
             checked=False,
+            docked=docked,
             parent=parent,
         )
         self._version_id = None
@@ -394,17 +529,48 @@ class AssetWidget(AccordionBaseWidget):
         # self._status_widget.setObjectName('borderless')
         return self._status_widget
 
-    def init_header_content(self, header_layout, collapsed):
+    def init_header_content(self, header_widget, collapsed):
         '''Add publish related widgets to the accordion header'''
-        header_layout.setContentsMargins(1, 1, 1, 1)
-        header_layout.setSpacing(2)
+        header_layout = QtWidgets.QHBoxLayout()
+        header_widget.setLayout(header_layout)
+        header_layout.setContentsMargins(0, 0, 0, 0)
+        header_layout.setSpacing(0)
+        header_layout.setContentsMargins(5, 1, 0, 1)
+        header_layout.setSpacing(0)
+
+        widget = QtWidgets.QWidget()
+        widget.setLayout(QtWidgets.QVBoxLayout())
+        widget.layout().setContentsMargins(0, 0, 0, 0)
+        widget.layout().setSpacing(2)
+
+        # Add context path, relative to browser context
+        self._path_widget = QtWidgets.QLabel()
+        self._path_widget.setStyleSheet('font-size: 9px;')
+        self._path_widget.setObjectName("gray-darker")
+
+        widget.layout().addWidget(self._path_widget)
+
+        lower_widget = QtWidgets.QWidget()
+        lower_widget.setLayout(QtWidgets.QHBoxLayout())
+        lower_widget.layout().setContentsMargins(0, 0, 0, 0)
+        lower_widget.layout().setSpacing(0)
+
         self._asset_name_widget = QtWidgets.QLabel()
         self._asset_name_widget.setObjectName('h4')
-        header_layout.addWidget(self._asset_name_widget)
+        lower_widget.layout().addWidget(self._asset_name_widget)
         self._component_and_version_header_widget = ComponentAndVersionWidget(
             True
         )
-        header_layout.addWidget(self._component_and_version_header_widget)
+        lower_widget.layout().addWidget(
+            self._component_and_version_header_widget
+        )
+
+        lower_widget.layout().addWidget(QtWidgets.QLabel(), 10)
+
+        widget.layout().addWidget(lower_widget)
+
+        header_layout.addWidget(widget)
+
         header_layout.addStretch()
         header_layout.addWidget(self.init_status_widget())
 
@@ -416,15 +582,19 @@ class AssetWidget(AccordionBaseWidget):
     def set_asset_info(self, asset_info):
         '''Update widget from data'''
         self._version_id = asset_info[asset_constants.VERSION_ID]
+        version = self.session.query(
+            'AssetVersion where id={}'.format(self._version_id)
+        ).one()
+        # Calculate path
+        parent_path = [link['name'] for link in version['task']['link']]
+        self._path_widget.setText(' / '.join(parent_path))
         self._asset_name_widget.setText(
             '{} '.format(asset_info[asset_constants.ASSET_NAME])
         )
         self._versions_collection = asset_info[
             asset_constants.ASSET_VERSIONS_ENTITIES
         ]
-        version = self.session.query(
-            'AssetVersion where id={}'.format(self._version_id)
-        ).one()
+        self._version_nr = version['version']
         self._status_widget.set_status(version['status'])
         self._load_mode = asset_info[asset_constants.LOAD_MODE]
 
@@ -445,12 +615,34 @@ class AssetWidget(AccordionBaseWidget):
             self._is_latest_version
         )
         self._load_mode = asset_info[asset_constants.LOAD_MODE]
-        self._version_dependency_ids = asset_info[
-            asset_constants.DEPENDENCY_IDS
-        ]
         self._asset_info_options = asset_info[
             asset_constants.ASSET_INFO_OPTIONS
         ]
+        # Info
+        self._published_by = version['user']
+        self._published_date = version['date']
+        # Deps
+        self._version_dependency_ids = asset_info[
+            asset_constants.DEPENDENCY_IDS
+        ]
+
+    def matches(self, search_text):
+        '''Do a simple match if this search text matches my attributes'''
+        if self._path_widget.text().lower().find(search_text) > -1:
+            return True
+        if self._asset_name_widget.text().lower().find(search_text) > -1:
+            return True
+        if (self._component_path or '').lower().find(search_text) > -1:
+            return True
+        if (
+            '{} {} {}'.format(
+                self._published_by['first_name'],
+                self._published_by['last_name'],
+                self._published_by['email'],
+            )
+        ).lower().find(search_text) > -1:
+            return True
+        return False
 
     def on_collapse(self, collapsed):
         '''Dynamically populate asset expanded view'''
@@ -478,8 +670,10 @@ class AssetWidget(AccordionBaseWidget):
                 self._thumbnail_widget = AssetVersionThumbnail(self.session)
                 self._thumbnail_widget.load(self._version_id)
                 self._thumbnail_widget.setScaledContents(True)
-                self._thumbnail_widget.setMinimumSize(69, 48)
-                self._thumbnail_widget.setMaximumSize(69, 48)
+                self._thumbnail_widget.setMinimumHeight(50)
+                self._thumbnail_widget.setMaximumHeight(50)
+                self._thumbnail_widget.setMinimumWidth(90)
+                self._thumbnail_widget.setMaximumWidth(90)
                 context_widget.layout().addWidget(self._thumbnail_widget)
 
                 self._component_and_version_widget = ComponentAndVersionWidget(
@@ -488,15 +682,14 @@ class AssetWidget(AccordionBaseWidget):
                 self._component_and_version_widget.set_component_filename(
                     self._component_path
                 )
-
-                self._component_and_version_widget.version_selector.clear()
-                for asset_version in self._versions_collection:
-                    self._component_and_version_widget.version_selector.addItem(
-                        'v{}'.format(asset_version['version']),
-                        asset_version['id'],
-                    )
+                self._component_and_version_widget.set_version(
+                    self._version_nr, versions=self._versions_collection
+                )
                 self._component_and_version_widget.set_latest_version(
                     self._is_latest_version
+                )
+                self._component_and_version_widget.version_selector.currentIndexChanged.connect(
+                    self._on_version_selected
                 )
 
                 # Add context info with version selection
@@ -510,7 +703,7 @@ class AssetWidget(AccordionBaseWidget):
 
             self.add_widget(context_widget)
 
-            self.add_widget(line.Line())
+            # self.add_widget(line.Line())
 
             load_info_label = QtWidgets.QLabel(
                 '<html>Added as a <font color="white">{}</font> with <font color="white">'
@@ -526,6 +719,21 @@ class AssetWidget(AccordionBaseWidget):
             self.add_widget(load_info_label)
             load_info_label.setToolTip(
                 json.dumps(self._asset_info_options, indent=2)
+            )
+            self.add_widget(
+                QtWidgets.QLabel(
+                    '<html>Published by: <font color="white">{} {}</font></html>'.format(
+                        self._published_by['first_name'],
+                        self._published_by['last_name'],
+                    )
+                )
+            )
+            self.add_widget(
+                QtWidgets.QLabel(
+                    '<html>Publish date: <font color="white">{}</font></html>'.format(
+                        self._published_date
+                    )
+                )
             )
 
             if 0 < len(self._version_dependency_ids or []):
@@ -580,10 +788,24 @@ class AssetWidget(AccordionBaseWidget):
         '''Update the accordion input summary, should be overridden by child.'''
         pass
 
+    def _on_version_selected(self, index):
+        '''Change version of asset.'''
+        version = self.session.query(
+            'AssetVersion where id={}'.format(
+                self._component_and_version_widget.version_selector.itemData(
+                    index
+                )
+            )
+        ).first()
+        if version['id'] != self._version_id:
+            self.changeAssetVersion.emit(self.index, version)
+
 
 class AssetVersionSelector(QtWidgets.QComboBox):
     def __init__(self):
         super(AssetVersionSelector, self).__init__()
+        self.setMinimumHeight(22)
+        self.setMaximumHeight(22)
 
 
 class AssetVersionStatusWidget(QtWidgets.QFrame):
@@ -640,10 +862,11 @@ class ComponentAndVersionWidget(QtWidgets.QWidget):
 
     def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
-        self.layout().setSpacing(0)
+        self.layout().setContentsMargins(1, 1, 1, 1)
+        self.layout().setSpacing(2)
 
     def build(self):
+
         self._component_filename_widget = QtWidgets.QLabel()
         self._component_filename_widget.setObjectName('gray')
         self.layout().addWidget(self._component_filename_widget)
@@ -654,7 +877,6 @@ class ComponentAndVersionWidget(QtWidgets.QWidget):
             self.layout().addWidget(self._version_nr_widget)
         else:
             self._version_selector = AssetVersionSelector()
-            self._version_selector.setMaximumHeight(20)
             self.layout().addWidget(self._version_selector)
 
     def post_build(self):
@@ -665,7 +887,7 @@ class ComponentAndVersionWidget(QtWidgets.QWidget):
         if self._collapsed:
             self._version_nr_widget.setStyleSheet('color: {}'.format(color))
         else:
-            self._version_selector.setStyleSheet(
+            self.version_selector.setStyleSheet(
                 '''
                 color: {0};
                 border: 1px solid {0};
@@ -676,9 +898,18 @@ class ComponentAndVersionWidget(QtWidgets.QWidget):
 
     def set_component_filename(self, component_path):
         self._component_filename_widget.setText(
-            '({})'.format(component_path.replace('\\', '/').split('/')[-1])
+            '- {}'.format(component_path.replace('\\', '/').split('/')[-1])
         )
 
-    def set_version(self, version_nr):
+    def set_version(self, version_nr, versions=None):
         if self._collapsed:
             self._version_nr_widget.setText('v{}'.format(str(version_nr)))
+        else:
+            self.version_selector.clear()
+            for index, asset_version in enumerate(versions):
+                self.version_selector.addItem(
+                    'v{}'.format(asset_version['version']),
+                    asset_version['id'],
+                )
+                if asset_version['version'] == version_nr:
+                    self.version_selector.setCurrentIndex(index)

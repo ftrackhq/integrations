@@ -1,4 +1,8 @@
 /** Dialog */
 QDialog {
-    background-color: $white-almost;
+    background-color: $background;
+}
+
+Dialog {
+    background-color: $alt-background;
 }

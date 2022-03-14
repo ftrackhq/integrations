@@ -5,14 +5,16 @@ from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline import constants as pipeline_constants
-from ftrack_connect_pipeline_qt.ui.utility.widget.material_icon import (
+from ftrack_connect_pipeline_qt.ui.utility.widget.icon import (
     MaterialIconWidget,
 )
 from ftrack_connect_pipeline_qt.utils import set_property
 
 
 class AccordionBaseWidget(QtWidgets.QFrame):
+
     clicked = QtCore.Signal(object)
+    doubleClicked = QtCore.Signal(object)
 
     SELECT_MODE_NONE = -1  # Not selectable
     # SELECT_MODE_CHECKBOX = 0    # Checkbox only
@@ -27,8 +29,12 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         '''(Optional) To be overridden by child'''
         pass
 
-    def init_header_content(self, header_layout, collapsed):
+    def init_header_content(self, header_widget, collapsed):
         '''To be overridden by child'''
+        header_layout = QtWidgets.QHBoxLayout()
+        header_widget.setLayout(header_layout)
+        header_layout.setContentsMargins(0, 0, 0, 0)
+        header_layout.setSpacing(0)
         header_layout.addStretch()
 
     def init_content(self, content_layout):
@@ -63,6 +69,14 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     def selected(self):
         return self._selected
 
+    @selected.setter
+    def selected(self, value):
+        self._selected = value
+
+    @property
+    def selected(self):
+        return self._selected
+
     @property
     def checked(self):
         return self._checked
@@ -92,25 +106,29 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         selected=False,
         checked=True,
         collapsable=True,
+        docked=False,
+        visible=True,
         parent=None,
     ):
         super(AccordionBaseWidget, self).__init__(parent=parent)
 
+        if visible is False:
+            self.setVisible(False)
         self._event_manager = event_manager
         self._reference_widget = None
-        self._collapsed = True
-        self._checked = checked
         self._header = None
         self._content = None
         self._title = title
         self._widgets = {}
         self._inner_widget_status = {}
-
         self._select_mode = select_mode
         self._check_mode = check_mode
         self._selected = selected
         self._checked = checked
+        self._collapsed = True
+        self._checked = checked
         self._collapsable = collapsable
+        self._docked = docked
 
         self._input_message = 'Initializing...'
         self._input_status = False
@@ -124,7 +142,6 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self._header.set_status(status, message)
 
     def pre_build(self):
-
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)
@@ -241,13 +258,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
             'indicator',
             ('on' if indication else 'off'),
         )
-
         self._indicator_widget.setVisible(True)
-
-    def mousePressEvent(self, event):
-        self.clicked.emit(event)
-        self.on_click(event)
-        return super(AccordionBaseWidget, self).mousePressEvent(event)
 
     def on_header_checkbox_checked(self):
         self._checked = self.header.checkbox.isChecked()
@@ -259,9 +270,6 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         if self._select_mode == self.SELECT_MODE_NONE:
             if event.button() != QtCore.Qt.RightButton:
                 self.toggle_collapsed()
-        # else:
-        #    # A potential selection event, leave for parent list to process
-        #    self.clicked.emit(event)
 
     def on_header_arrow_clicked(self, event):
         if self._select_mode == self.SELECT_MODE_LIST:
@@ -274,9 +282,24 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self.on_collapse(self.collapsed)
         self.content.setVisible(not self.collapsed)
 
+    def mousePressEvent(self, event):
+        self.clicked.emit(event)
+        self.on_click(event)
+        return super(AccordionBaseWidget, self).mousePressEvent(event)
+
     def on_click(self, event):
-        '''Accordion were pressed overall'''
+        '''Accordion were clicked, to be overridden by child.'''
         pass
+
+    def mouseDoubleClickEvent(self, event):
+        self.doubleClicked.emit(event)
+        self.on_double_click(event)
+        return super(AccordionBaseWidget, self).mouseDoubleClickEvent(event)
+
+    def on_double_click(self, event):
+        '''Accordion were double clicked'''
+
+        self.toggle_collapsed()
 
     def update_accordion(self):
         # Paint selection status
@@ -284,7 +307,9 @@ class AccordionBaseWidget(QtWidgets.QFrame):
             set_property(
                 self,
                 'background',
-                'selected' if self._selected else 'transparent',
+                ('selected{}'.format('_docked' if self._docked else ''))
+                if self._selected
+                else 'transparent',
             )
 
 
@@ -335,9 +360,10 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
 
     def pre_build(self):
         self.setMinimumHeight(24)
-        self.move(QtCore.QPoint(24, 0))
+        #    self.move(QtCore.QPoint(24, 0))
         self.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().setContentsMargins(15, 0, 0, 0)
+        self.layout().setContentsMargins(2, 0, 5, 0)
+        self.layout().setSpacing(0)
 
     def build(self):
         self.layout().addWidget(
@@ -346,7 +372,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
             )
         )
         self.layout().addWidget(self.init_title(self.title))
-        self.layout().addWidget(self.init_content())
+        self.layout().addWidget(self._init_content(), 10)
         self.layout().addWidget(self.init_arrow(self.accordion.collapsed))
 
     def post_build(self):
@@ -368,21 +394,18 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
             self._title_label.hide()
         return self._title_label
 
-    def init_content(self):
+    def _init_content(self):
         self._content = QtWidgets.QWidget()
-        self._content.setLayout(QtWidgets.QHBoxLayout())
-        self._content.layout().setContentsMargins(0, 0, 0, 0)
-        self._content.layout().setSpacing(1)
         self._accordion.init_header_content(
-            self._content.layout(), self._accordion.collapsed
+            self._content, self._accordion.collapsed
         )
         return self._content
 
     def update_arrow_icon(self, collapsed):
         if collapsed:
-            icon_name = 'chevron-down'
+            icon_name = 'keyboard_arrow_down'
         else:
-            icon_name = 'chevron-up'
+            icon_name = 'keyboard_arrow_up'
         self._arrow.set_icon(name=icon_name)
 
     def init_arrow(self, collapsed):
