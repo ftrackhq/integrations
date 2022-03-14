@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 
 from ftrack_connect_pipeline_qt.client.publish import QtPublisherClient
 import ftrack_connect_pipeline.constants as constants
@@ -24,8 +24,10 @@ class MayaPublisherClient(MayaQWidgetDockableMixin, QtPublisherClient):
         super(MayaPublisherClient, self).__init__(
             event_manager=event_manager, parent_window=get_maya_window()
         )
-        self.setWindowTitle('Maya Pipeline Publisher')
-        print(self)
+        self.setWindowTitle('ftrack Publisher')
+
+    def getThemeBackgroundStyle(self):
+        return 'maya'
 
     def show(self):
         super(MayaPublisherClient, self).show(
@@ -37,3 +39,9 @@ class MayaPublisherClient(MayaQWidgetDockableMixin, QtPublisherClient):
             x=300,
             y=600,
         )
+
+    def closeEvent(self, *args):
+        return super(MayaPublisherClient, self).closeEvent(*args)
+
+    def hideEvent(self, *args):
+        return super(MayaPublisherClient, self).hideEvent(*args)

@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 import time
+import maya
 import maya.cmds as cmds
 
 from ftrack_connect_pipeline import constants
@@ -77,7 +78,9 @@ class MayaAssetManagerEngine(AssetManagerEngine):
 
         return status, result
 
-    def remove_asset(self, asset_info, options=None, plugin=None):
+    def remove_asset(
+        self, asset_info, options=None, plugin=None, keep_ftrack_node=False
+    ):
         '''
         Removes the given *asset_info* from the scene.
         Returns status and result
@@ -96,7 +99,9 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         result_data = {
             'plugin_name': plugin_name,
             'plugin_type': plugin_type,
-            'method': 'remove_asset',
+            'method': 'remove_asset'
+            if not keep_ftrack_node
+            else 'unload_asset',
             'status': status,
             'result': result,
             'execution_time': 0,
@@ -106,11 +111,15 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
 
         reference_node = False
-        for node in cmds.listConnections(
-            '{}.{}'.format(
-                ftrack_asset_object.ftrack_object, asset_const.ASSET_LINK
+        nodes = (
+            cmds.listConnections(
+                '{}.{}'.format(
+                    ftrack_asset_object.ftrack_object, asset_const.ASSET_LINK
+                )
             )
-        ):
+            or []
+        )
+        for node in nodes:
             if cmds.nodeType(node) == 'reference':
                 reference_node = maya_utils.getReferenceNode(node)
                 if reference_node:
@@ -144,11 +153,6 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                 self._notify_client(plugin, result_data)
                 return status, result
         else:
-            nodes = cmds.listConnections(
-                '{}.{}'.format(
-                    ftrack_asset_object.ftrack_object, asset_const.ASSET_LINK
-                )
-            )
             for node in nodes:
                 self.logger.debug("Removing object: {}".format(node))
                 try:
@@ -178,7 +182,10 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                     self._notify_client(plugin, result_data)
                     return status, result
 
-        if cmds.objExists(ftrack_asset_object.ftrack_object):
+        if (
+            cmds.objExists(ftrack_asset_object.ftrack_object)
+            and keep_ftrack_node is False
+        ):
             try:
                 cmds.delete(ftrack_asset_object.ftrack_object)
                 result.append(str(ftrack_asset_object.ftrack_object))
@@ -217,7 +224,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
 
         return status, result
 
-    def select_asset(self, asset_info, options=None, plugin=None):
+    def select_assets_sync(self, asset_info, options=None, plugin=None):
         '''
         Selects the given *asset_info* from the scene.
         *options* can contain clear_selection to clear the selection before
@@ -292,3 +299,9 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         self._notify_client(plugin, result_data)
 
         return status, result
+
+    def select_asset(self, asset_info, options=None, plugin=None):
+
+        return maya.utils.executeInMainThreadWithResult(
+            self.select_assets_sync, asset_info, options, plugin
+        )

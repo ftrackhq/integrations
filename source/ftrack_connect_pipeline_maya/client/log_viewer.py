@@ -1,37 +1,15 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-from ftrack_connect_pipeline_qt.client.log_viewer import QtLogViewerClient
-import ftrack_connect_pipeline.constants as constants
-import ftrack_connect_pipeline_qt.constants as qt_constants
-import ftrack_connect_pipeline_maya.constants as maya_constants
+from ftrack_connect_pipeline_qt.client.log_viewer import QtLogViewerDialog
 
-from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 from ftrack_connect_pipeline_maya.utils.custom_commands import get_maya_window
 
 
-class MayaLogViewerClient(MayaQWidgetDockableMixin, QtLogViewerClient):
-    ui_types = [
-        constants.UI_TYPE,
-        qt_constants.UI_TYPE,
-        maya_constants.UI_TYPE,
-    ]
+class MayaLogViewerDialog(QtLogViewerDialog):
+    '''Maya log viewer dialog'''
 
-    '''Dockable maya load widget'''
-
-    def __init__(self, event_manager, unused_asset_list_model):
-        super(MayaLogViewerClient, self).__init__(
-            event_manager=event_manager, parent_window=get_maya_window()
-        )
-        self.setWindowTitle('Maya Pipeline Log Viewer')
-
-    def show(self):
-        super(MayaLogViewerClient, self).show(
-            dockable=True,
-            floating=False,
-            area='right',
-            width=200,
-            height=300,
-            x=300,
-            y=600,
+    def __init__(self, event_manager, unused_asset_list_model, parent=None):
+        super(MayaLogViewerDialog, self).__init__(
+            event_manager, parent=get_maya_window()
         )

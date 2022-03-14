@@ -1,13 +1,15 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-from Qt import QtWidgets
+from Qt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline_qt.client.open import QtOpenClient
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_maya.constants as maya_constants
 from ftrack_connect_pipeline_maya.utils.custom_commands import get_maya_window
+from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import Dialog
+from ftrack_connect_pipeline_qt import constants as qt_constants
 
 
 class MayaOpenClient(QtOpenClient):
@@ -33,12 +35,12 @@ class MayaOpenDialog(QtWidgets.QDialog):
         super(MayaOpenDialog, self).__init__(parent=get_maya_window())
         self._event_manager = event_manager
 
+        # Make sure we stays on top of Maya
+        self.setWindowFlags(QtCore.Qt.Tool)
         self._client = None
 
-        self.rebuild()
-
-        self.setModal(True)
-
+        # self.rebuild()
+        # self.setModal(True)
         self.setWindowTitle('ftrack Open')
         self.resize(450, 530)
 
@@ -58,7 +60,30 @@ class MayaOpenDialog(QtWidgets.QDialog):
         if self._shown:
             # Widget has been shown before, reset client
             self._client.setParent(None)
-            self.rebuild()
-
+            self._client = None
         super(MayaOpenDialog, self).show()
         self._shown = True
+        self.rebuild()
+        if self._client.ask_open_assembler:
+            # TODO: Search among work files and see if there is and crash scene from previous session
+            dlg = Dialog(
+                self,
+                title='ftrack',
+                question='Nothing to open, assemble a new scene?',
+                prompt=True,
+            )
+            if dlg.exec_():
+                # Close and open assembler
+                self.destroy()
+                self._client.host_connection.launch_widget(
+                    qt_constants.ASSEMBLER_WIDGET
+                )
+        elif self._client.ask_open_latest:
+            dlg = Dialog(
+                self,
+                title='ftrack',
+                question='Open latest?',
+            )
+            if dlg.exec_():
+                # Trig open
+                self.run_button.click()
