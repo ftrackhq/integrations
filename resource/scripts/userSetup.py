@@ -90,15 +90,10 @@ def _open_widget(event_manager, asset_list_model, widgets, event):
         )
 
 
-host = None
-
-
 def initialise():
     # TODO : later we need to bring back here all the maya initialisations
     #  from ftrack-connect-maya
     # such as frame start / end etc....
-
-    global host
 
     logger.debug('Setting up the menu')
     session = ftrack_api.Session(auto_connect_event_hub=False)

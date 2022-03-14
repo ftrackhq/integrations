@@ -130,27 +130,6 @@ class FtrackAssetNode(FtrackAssetBase):
                 )
                 continue
 
-            # TODO: ASSET link should be generic for all applications and should
-            # be in the dicionary, now is not so we could be checking only the
-            # keys, now we have to check the connection
-            # Check the object is not already connected.
-            # if not cmds.listConnections(
-            #     '{}.{}'.format(ftrack_object, asset_const.ASSET_LINK)
-            # ):
-            #     result_object = ftrack_object
-            #     break
-            # else:
-            #     print(
-            #         '@@@ NOT {} - listConnections: {}'.format(
-            #             ftrack_object,
-            #             cmds.listConnections(
-            #                 '{}.{}'.format(
-            #                     ftrack_object, asset_const.ASSET_LINK
-            #                 )
-            #             ),
-            #         )
-            #     )
-
             result_object = ftrack_object
 
         self.logger.debug('Found existing object: {}'.format(result_object))
