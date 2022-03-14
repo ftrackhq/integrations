@@ -147,9 +147,9 @@ def initialise():
     )
     widgets.append(
         (
-            qt_constants.DOC_WIDGET,
+            qt_constants.SAVE_WIDGET,
             save.QtSaveClient,
-            'Save Scene',
+            'Save Snapshot',
             'fileSave',
         )
     )

@@ -72,8 +72,9 @@ def get_maya_window():
 
 
 def save_snapshot(filename, context_id, session, ask_load=False):
-
-    work_path_base = os.environ.get('FTRACK_CONNECT_WORK_PATH')
+    '''Save scene locally, with the next version number based on latest version
+    in ftrack.'''
+    snapshot_path_base = os.environ.get('FTRACK_SNAPSHOT_PATH')
 
     context = session.query('Context where id={}'.format(context_id)).first()
 
@@ -104,9 +105,11 @@ def save_snapshot(filename, context_id, session, ask_load=False):
     if latest_asset_version:
         next_version_number = latest_asset_version['version'] + 1
 
-    if work_path_base:
+    if snapshot_path_base:
         # Build path down to context
-        work_path = os.sep.join([work_path_base] + structure_names + ['work'])
+        work_path = os.sep.join(
+            [snapshot_path_base] + structure_names + ['work']
+        )
     else:
         # Try to query location system (future)
         try:
@@ -114,13 +117,13 @@ def save_snapshot(filename, context_id, session, ask_load=False):
             work_path = location.get_filesystem_path(context)
         except:
             # Ok, use default location
-            work_path_base = os.path.join(
+            snapshot_path_base = os.path.join(
                 os.path.expanduser('~'),
                 'Documents',
                 'ftrack_work_path',
             )
             # Build path down to context
-            work_path = os.sep.join([work_path_base] + structure_names)
+            work_path = os.sep.join([snapshot_path_base] + structure_names)
 
     if work_path is not None:
         if not os.path.exists(work_path):
