@@ -1,6 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
-
+import os
 import time
 import logging
 import copy
@@ -172,6 +172,42 @@ class HostConnection(object):
         )
         self._event_manager.publish(event, callback)
 
+    def launch_widget(self, widget_name, source=None):
+        '''Send a widget launch event, to be picked up by DCC.'''
+        event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_WIDGET_LAUNCH,
+            data={
+                'pipeline': {
+                    'host_id': self.id,
+                    'widget_name': widget_name,
+                    'source': source,
+                }
+            },
+        )
+        self._event_manager.publish(
+            event,
+        )
+
+    def set_context(self, context, source=None):
+        '''The context has change, send an event to picked up by clients.'''
+
+        if os.environ.get('FTRACK_CONTEXTID') != context['id']:
+            os.environ['FTRACK_CONTEXTID'] = context['id']
+            self.logger.warning('Global context is now: {}'.format(context))
+        event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_CONTEXT_CHANGE,
+            data={
+                'pipeline': {
+                    'host_id': self.id,
+                    'context_id': context['id'],
+                    'source': source,
+                }
+            },
+        )
+        self._event_manager.publish(
+            event,
+        )
+
 
 class Client(object):
     '''
@@ -183,7 +219,7 @@ class Client(object):
     definition_filter = None
     '''Use only definitions that matches the definition_filter'''
     definition_extensions_filter = None
-    '''(Open) Only show definitions capable of accept these filename extensions. '''
+    '''(Open) Only show definitions and components capable of accept these filename extensions. '''
 
     def __repr__(self):
         return '<Client:{0}>'.format(self.ui_types)
@@ -456,9 +492,9 @@ class Client(object):
         if self.host_connection:
             self._host_connection.context_id = context_id
 
-    def _add_log_item(self, log_item):
-        self._init_logs()
-        self._logs.add_log_item(log_item)
+    def _on_log_item_added(self, log_item):
+        '''Called when a client notify event arrives.'''
+        pass
 
     def on_client_notification(self):
         '''
@@ -491,7 +527,7 @@ class Client(object):
         user_message = user_data.get('message')
         plugin_id = event['data']['pipeline'].get('plugin_id')
 
-        self._add_log_item(LogItem(event['data']['pipeline']))
+        self._on_log_item_added(LogItem(event['data']['pipeline']))
 
         if constants.status_bool_mapping[status]:
 

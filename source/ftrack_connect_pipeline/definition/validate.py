@@ -1,6 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
-
+# :copyright: Copyright (c) 2014-2022 ftrack
 import copy
 import json
 import python_jsonschema_objects as pjo
@@ -43,12 +42,15 @@ def validate_schema(data, session):
                 for definition in data[entry]:
                     copy_data[entry].remove(definition)
                     if schema['title'].lower() != 'asset_manager':
-                        if definition['asset_type'] not in valid_assets_types:
+                        if (
+                            definition.get('asset_type')
+                            not in valid_assets_types
+                        ):
                             logger.error(
                                 'Definition {} does use a non existing'
                                 ' asset type: {}'.format(
                                     definition['name'],
-                                    definition['asset_type'],
+                                    definition.get('asset_type'),
                                 )
                             )
                             continue

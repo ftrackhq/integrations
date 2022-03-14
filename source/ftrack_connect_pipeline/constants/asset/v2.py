@@ -65,22 +65,6 @@ ASSET_INFO_ID = 'asset_info_id'
 #: :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
 #: and the DCC ftrack plugin.
 DEPENDENCY_IDS = 'dependency_ids'
-# #: Dependencies constant identifier key for ftrack assets connected or used with
-# #: :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
-# #: and the DCC ftrack plugin.
-# DEPENDENCIES = 'dependencies'
-#: Is dependency constant identifier key for ftrack assets connected or used with
-#: :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
-#: and the DCC ftrack plugin.
-IS_DEPENDENCY = 'is_dependency'
-#: Dependencies constant identifier key for ftrack assets connected or used with
-#: :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
-#: and the DCC ftrack plugin.
-DEPENDENCIES = 'dependencies'
-#: Context name constant identifier key for ftrack assets connected or used with
-#: :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
-#: and the DCC ftrack plugin.
-CONTEXT_NAME = 'context_name'
 #: Is loaded constant identifier key for ftrack assets connected or used with
 #: :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
 #: and the DCC ftrack plugin.
@@ -108,8 +92,8 @@ KEYS = [
     SESSION,
     ASSET_INFO_ID,
     DEPENDENCY_IDS,
-    IS_DEPENDENCY,
-    DEPENDENCIES,
-    CONTEXT_NAME,
+    # IS_DEPENDENCY,
+    # DEPENDENCIES,
+    # CONTEXT_NAME,
     IS_LOADED,
 ]

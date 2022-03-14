@@ -90,7 +90,10 @@ PIPELINE_CLIENT_PROGRESS_NOTIFICATION = (
 PIPELINE_DISCOVER_HOST = '{}.host.discover'.format(_BASE_)
 
 # Launch a widget within a client
-PIPELINE_WIDGET_LAUNCH = '{}.client.launch'.format(_BASE_)
+PIPELINE_WIDGET_LAUNCH = '{}.widget.launch'.format(_BASE_)
+
+# The main context has changed
+PIPELINE_CONTEXT_CHANGE = '{}.context.change'.format(_BASE_)
 
 # Avoid circular dependencies.
 from ftrack_connect_pipeline.constants.plugin.load import *
