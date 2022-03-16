@@ -8,12 +8,6 @@
 Release Notes
 *************
 
-
-
-
-
-
-
 .. release:: Upcoming
 
     .. change:: changed
