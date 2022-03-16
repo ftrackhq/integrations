@@ -12,3 +12,15 @@ def get_current_context_id():
     )
 
     return context_id
+
+
+def str_version(v, with_id=False, force_version_nr=None, delimiter='/'):
+    return '{}/{}/{}/v{}{}'.format(
+        v['task']['project']['name'],
+        '/'.join(
+            ['{}'.format(link['name']) for link in v['task']['link'][1:]]
+        ),
+        v['asset']['name'],
+        force_version_nr or v['version'],
+        ('({})'.format(v['id']) if with_id else ''),
+    ).replace('/', delimiter)
