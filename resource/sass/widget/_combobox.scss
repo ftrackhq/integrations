@@ -80,7 +80,7 @@ AssetVersionSelector, VersionComboBox {
 AssemblerVersionComboBox {
 }
 
-DefinitionSelector, ModeSelector, FileSelector {
+ModeSelector, FileSelector {
     border: 1px solid $gray-dark;
     border-radius: 3px;
     background: transparent;

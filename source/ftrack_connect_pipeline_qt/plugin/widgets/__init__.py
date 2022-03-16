@@ -231,7 +231,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
     def report_input(self):
         '''To be overridden.'''
-        self.inputChanged.emit({'status': None, 'message': ''})
+        self.inputChanged.emit({'status': True, 'message': ''})
 
     def to_json_object(self):
         '''Return a formatted json with the data from the current widget'''

@@ -143,16 +143,6 @@ def set_property(widget, name, value):
     widget.update()
 
 
-def str_version(v, with_id=False, force_version_nr=None):
-    return '{}/{}/{}/v{}{}'.format(
-        '/'.join(['{}'.format(link['name']) for link in v['task']['link']]),
-        v['asset']['name'],
-        v['asset']['type']['name'],
-        force_version_nr or v['version'],
-        ('({})'.format(v['id']) if with_id else ''),
-    )
-
-
 def clear_layout(layout):
     while layout and layout.count():
         item = layout.takeAt(0)

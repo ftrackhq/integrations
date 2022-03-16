@@ -28,9 +28,9 @@ from ftrack_connect_pipeline_qt.ui.asset_manager.asset_manager import (
     AssetVersionStatusWidget,
     ComponentAndVersionWidget,
 )
+from ftrack_connect_pipeline.utils import str_version
 from ftrack_connect_pipeline_qt.utils import (
     set_property,
-    str_version,
     clear_layout,
     get_main_framework_window_from_widget,
 )
@@ -151,7 +151,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self._rebuild_button.setVisible(False)
         self._busy_widget.setVisible(True)
 
-        self._label_info.setText('Listing assets...')
+        self._label_info.setText('Fetching...')
 
         # Wait for context to be loaded
         self.get_context()
@@ -586,14 +586,15 @@ class ComponentBaseWidget(AccordionBaseWidget):
 
     def set_component_and_definitions(self, component, definitions):
         '''Update widget from data'''
-        self.set_context_id(component['version']['task']['id'])
-        self._context_name = component['version']['task']['name']
+        version_entity = component['version']
+        self.set_context_id(version_entity['task']['id'])
+        self._context_name = version_entity['task']['name']
         self._component_id = component['id']
         self._component_name = component['name']
-        self.thumbnail_widget.load(component['version']['id'])
-        self._widget_factory.version_id = component['version']['id']
+        self.thumbnail_widget.load(version_entity['id'])
+        self._widget_factory.version_id = version_entity['id']
 
-        self._status_widget.set_status(component['version']['status'])
+        self._status_widget.set_status(version_entity['status'])
 
         # Deploy available loaders
         # self._definitions = definitions
@@ -614,7 +615,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
                 )
 
         self._asset_name_widget.setText(
-            '{} '.format(component['version']['asset']['name'])
+            '{} '.format(version_entity['asset']['name'])
         )
         component_path = '{}{}'.format(
             component['name'], component['file_type']
@@ -622,8 +623,16 @@ class ComponentBaseWidget(AccordionBaseWidget):
         self._component_filename_widget.setText(
             '- {}'.format(component_path.replace('\\', '/').split('/')[-1])
         )
-        self.set_version(component['version'])
-        self.set_latest_version(component['version']['is_latest_version'])
+        self.set_version(version_entity)
+        self.set_latest_version(version_entity['is_latest_version'])
+
+        self.setToolTip(
+            'Published by: {} {} @ {}'.format(
+                version_entity['user']['first_name'],
+                version_entity['user']['last_name'],
+                version_entity['date'].strftime('%y-%m-%d %H:%M'),
+            )
+        )
 
     def on_collapse(self, collapsed):
         '''Not collapsable'''

@@ -74,5 +74,9 @@ class QtPublisherClient(QtClient):
         if super(QtPublisherClient, self).run():
             self.widget_factory.progress_widget.set_status(
                 constants.SUCCESS_STATUS,
-                'Successfully published!',
+                'Successfully published {}!'.format(
+                    self.definition['name'][
+                        : self.definition['name'].rfind(' ')
+                    ].lower()
+                ),
             )

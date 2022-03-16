@@ -230,6 +230,7 @@ class EntityBrowser(Dialog):
         thread.start()
 
     def _fetch_entities(self):
+        '''Fetch projects/child entities in background thread.'''
         intermediate_entity = self.intermediate_entity
         if self.intermediate_entity is None:
             # List projects
@@ -600,11 +601,17 @@ class EntityWidget(QtWidgets.QFrame):
         self.setMaximumHeight(45)
 
     def mousePressEvent(self, event):
-        if not shiboken2.isValid(self) or not shiboken2.isValid(EntityWidget):
-            # Widget has been destroyed
-            return
-        self.clicked.emit()
-        return super(EntityWidget, self).mousePressEvent(event)
+        try:
+            if not shiboken2.isValid(self) or not shiboken2.isValid(
+                super(EntityWidget, self)
+            ):
+                # Widget has been destroyed
+                return
+            self.clicked.emit()
+            return super(EntityWidget, self).mousePressEvent(event)
+        except RuntimeError as re:
+            if str(re).find('Internal C++ object') == -1:
+                raise
 
 
 class AddContextButton(CircularButton):

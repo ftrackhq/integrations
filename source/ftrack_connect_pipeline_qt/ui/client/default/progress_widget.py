@@ -13,7 +13,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.icon import (
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 from ftrack_connect_pipeline_qt.utils import set_property
-from ftrack_connect_pipeline_qt.utils import str_version
+from ftrack_connect_pipeline.utils import str_version
 
 
 class PhaseButton(QtWidgets.QPushButton):

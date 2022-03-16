@@ -23,7 +23,8 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
     ContextSelector,
 )
-from ftrack_connect_pipeline_qt.utils import str_version, clear_layout
+from ftrack_connect_pipeline.utils import str_version
+from ftrack_connect_pipeline_qt.utils import clear_layout
 
 from ftrack_connect_pipeline_qt.client.asset_manager import (
     QtAssetManagerClient,

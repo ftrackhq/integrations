@@ -19,7 +19,8 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
 )
-from ftrack_connect_pipeline_qt.utils import set_property, str_version
+from ftrack_connect_pipeline.utils import str_version
+from ftrack_connect_pipeline_qt.utils import set_property
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import (
     AssetVersion as AssetVersionThumbnail,
 )

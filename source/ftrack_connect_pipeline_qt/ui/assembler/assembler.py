@@ -14,9 +14,9 @@ from ftrack_connect_pipeline.client import constants
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import (
     Context,
 )
+from ftrack_connect_pipeline.utils import str_version
 from ftrack_connect_pipeline_qt.utils import (
     BaseThread,
-    str_version,
     center_widget,
     set_property,
 )
@@ -136,7 +136,7 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
                     self.dependencyResolveWarning.emit(
                         'No loadable dependencies found!'
                     )
-                    self._label_info.setText('No loadable assets found.')
+                    self._label_info.setText('No loadable dependencies found.')
                     return
 
                 self.dependenciesResolved.emit(components)
@@ -162,6 +162,13 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
 
         # Will trigger list to be rebuilt.
         self.model.insertRows(0, components)
+
+        self._label_info.setText(
+            'Listing {} {}'.format(
+                self.model.rowCount(),
+                'dependencies' if self.model.rowCount() > 1 else 'dependency',
+            )
+        )
 
 
 class AssemblerBrowserWidget(AssemblerBaseWidget):
@@ -727,7 +734,9 @@ class BrowsedComponentWidget(ComponentBaseWidget):
             index += 1
             if index == len(context_path):
                 break
-        self._path_widget.setText(' / '.join(parent_path[index:]))
+        sub_path = parent_path[index:]
+        self._path_widget.setText(' / '.join(sub_path))
+        self._path_widget.setVisible(len(sub_path) > 0)
 
     def _on_version_changed(self, entity_version):
         '''Another version has been selected, emit event.'''
