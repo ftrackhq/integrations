@@ -149,8 +149,8 @@ class DndPluginList(QtWidgets.QFrame):
         )
 
         self.setAcceptDrops(True)
-        self.setProperty('ftrackDropZone', True)
-        self.setObjectName('ftrack-connect-publisher-browse-button')
+        # self.setProperty('ftrackDropZone', True)
+        # self.setObjectName('ftrack-connect-publisher-browse-button')
 
         self.main_layout = QtWidgets.QVBoxLayout()
         self.main_layout.setContentsMargins(0, 0, 0, 0)
@@ -182,6 +182,7 @@ class DndPluginList(QtWidgets.QFrame):
         plugin_item.setCheckable(True)
         plugin_item.setEditable(False)
         plugin_item.setSelectable(False)
+        plugin_item.setEnabled(True)
 
         plugin_item.setText('{} | {}'.format(data['name'], data['version']))
         plugin_item.setData(status, ROLES.PLUGIN_STATUS)
@@ -200,6 +201,7 @@ class DndPluginList(QtWidgets.QFrame):
                 plugin_item.setData(
                     file_path, ROLES.PLUGIN_INSTALL_PATH
                 )
+                plugin_item.setEnabled(False)
                 plugin_item.setCheckable(False)
 
             elif status in [STATUSES.NEW, STATUSES.DOWNLOAD]:
@@ -247,6 +249,7 @@ class DndPluginList(QtWidgets.QFrame):
 
             # enable it by default if we are updating
             stored_item.setCheckable(True)
+            stored_item.setEnabled(True)
             stored_item.setCheckState(QtCore.Qt.Checked)
 
     def plugin_is_available(self, plugin_data):

@@ -1,11 +1,11 @@
 ..
     :copyright: Copyright (c) 2021 ftrack
 
-###########################
-ftrack application launcher
-###########################
+#############################
+ftrack connect plugin manager
+#############################
 
-Welcome to ftrack-application-launcher's documentation.
+Welcome to ftrack-connect-plugin-manager's documentation.
 
 
 Articles
