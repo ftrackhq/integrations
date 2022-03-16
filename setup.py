@@ -27,7 +27,7 @@ from setuptools_scm import get_version
 
 embedded_plugins = [
     # new/updated releases
-    'ftrack-connect-plugin-manager-0.1.1.zip'
+    'ftrack-connect-plugin-manager-0.1.2.zip'
 ]
 
 
