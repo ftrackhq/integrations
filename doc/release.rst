@@ -5,6 +5,11 @@
 Releases
 ########
 
+.. release:: Upcoming
+
+    .. change:: changed
+
+        Update icon set based on new style.
 
 .. release:: 2.0.0-rc-4
     :date: 2022-01-15
