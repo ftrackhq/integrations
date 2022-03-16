@@ -1,23 +1,17 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-from ftrack_connect_pipeline_qt.client.log_viewer import QtLogViewerClient
-import ftrack_connect_pipeline.constants as constants
-import ftrack_connect_pipeline_qt.constants as qt_constants
-import ftrack_connect_pipeline_nuke.constants as nuke_constants
+from Qt import QtWidgets
+
+from ftrack_connect_pipeline_qt.client.log_viewer import QtLogViewerDialog
 
 
-class NukeLogViewerClient(QtLogViewerClient):
-    ui_types = [
-        constants.UI_TYPE,
-        qt_constants.UI_TYPE,
-        nuke_constants.UI_TYPE,
-    ]
+class NukeLogViewerDialog(QtLogViewerDialog):
 
-    '''Dockable maya load widget'''
+    '''Nuke log viewer dialog'''
 
-    def __init__(self, event_manager, parent=None):
-        super(NukeLogViewerClient, self).__init__(
-            event_manager=event_manager, parent=parent
+    def __init__(self, event_manager, unused_asset_list_model, parent=None):
+        super(NukeLogViewerDialog, self).__init__(
+            event_manager=event_manager,
+            parent=parent or QtWidgets.QApplication.activeWindow(),
         )
-        self.setWindowTitle('Nuke Pipeline Log Viewer')

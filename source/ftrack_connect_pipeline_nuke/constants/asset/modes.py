@@ -10,7 +10,7 @@ REFERENCE_MODE = 'Reference'
 
 
 LOAD_MODES = {
-    OPEN_MODE: nuke_utils.open_scene,
-    IMPORT_MODE: nuke_utils.import_scene,
-    REFERENCE_MODE: nuke_utils.reference_scene,
+    OPEN_MODE: nuke_utils.open_script,
+    IMPORT_MODE: nuke_utils.import_script,
+    REFERENCE_MODE: nuke_utils.reference_script,
 }

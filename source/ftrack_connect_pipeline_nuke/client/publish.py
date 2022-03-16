@@ -1,6 +1,8 @@
 # # :coding: utf-8
 # # :copyright: Copyright (c) 2019 ftrack
 
+from Qt import QtWidgets, QtCore
+
 from ftrack_connect_pipeline_qt.client.publish import QtPublisherClient
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
@@ -14,13 +16,14 @@ class NukePublisherClient(QtPublisherClient):
         nuke_constants.UI_TYPE,
     ]
 
-    '''Dockable maya load widget'''
+    '''Dockable nuke publish widget'''
 
-    def __init__(self, event_manager, parent=None):
+    def __init__(self, event_manager, unused_asset_list_model):
         super(NukePublisherClient, self).__init__(
-            event_manager=event_manager, parent=parent
+            event_manager=event_manager,
+            parent_window=QtWidgets.QApplication.activeWindow(),
         )
         self.setWindowTitle('Nuke Pipeline Publisher')
 
-    def get_background_color(self):
+    def getThemeBackgroundStyle(self):
         return 'nuke'

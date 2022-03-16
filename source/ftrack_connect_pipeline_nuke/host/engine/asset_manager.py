@@ -80,7 +80,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
 
         return status, result
 
-    def remove_asset(self, asset_info, options=None, plugin=None):
+    def remove_asset(
+        self, asset_info, options=None, plugin=None, keep_ftrack_node=False
+    ):
         '''
         Removes the given *asset_info* from the scene.
         Returns status and result
@@ -99,7 +101,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         result_data = {
             'plugin_name': plugin_name,
             'plugin_type': plugin_type,
-            'method': 'remove_asset',
+            'method': 'remove_asset'
+            if not keep_ftrack_node
+            else 'unload_asset',
             'status': status,
             'result': result,
             'execution_time': 0,
@@ -164,17 +168,21 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                 self._notify_client(plugin, result_data)
                 return status, result
 
-        try:
-            str_node = str(ftrack_asset_object.ftrack_object)
-            nuke.delete(ftrack_object)
-            result.append(str_node)
-            status = constants.SUCCESS_STATUS
-        except Exception as error:
-            message = str(
-                'Could not delete the ftrack_object, error: {}'.format(error)
-            )
-            self.logger.error(message)
-            status = constants.ERROR_STATUS
+        if not keep_ftrack_node:
+            try:
+                str_node = str(ftrack_asset_object.ftrack_object)
+                self.logger.debug("removing : {}".format(str_node))
+                nuke.delete(ftrack_object)
+                result.append(str_node)
+                status = constants.SUCCESS_STATUS
+            except Exception as error:
+                message = str(
+                    'Could not delete the ftrack_object, error: {}'.format(
+                        error
+                    )
+                )
+                self.logger.error(message)
+                status = constants.ERROR_STATUS
 
         bool_status = constants.status_bool_mapping[status]
         if not bool_status:

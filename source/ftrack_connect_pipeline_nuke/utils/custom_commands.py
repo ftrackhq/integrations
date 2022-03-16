@@ -93,7 +93,7 @@ def get_nodes_with_ftrack_tab():
     return dependencies
 
 
-def reference_scene(path, options=None):
+def reference_script(path, options=None):
     '''
     Create LiveGroup from the givem *path*
     '''
@@ -103,7 +103,7 @@ def reference_scene(path, options=None):
     return node
 
 
-def open_scene(path, options=None):
+def open_script(path, options=None):
     '''
     Open nuke scene from the given *path*
     '''
@@ -111,7 +111,7 @@ def open_scene(path, options=None):
     return result
 
 
-def import_scene(path, options=None):
+def import_script(path, options=None):
     '''
     Import the scene from the given *path*
     '''
@@ -132,3 +132,113 @@ def get_all_write_nodes():
 def cleanSelection():
     for node in nuke.selectedNodes():
         node['selected'].setValue(False)
+
+
+def save_snapshot(filename, context_id, session, ask_load=False):
+    '''Save scene locally, with the next version number based on latest version
+    in ftrack.'''
+    snapshot_path_base = os.environ.get('FTRACK_SNAPSHOT_PATH')
+
+    context = session.query('Context where id={}'.format(context_id)).first()
+
+    if context is None:
+        raise Exception(
+            'Could not save snapshot - unknown context: {}!'.format(context_id)
+        )
+
+    if filename is None:
+        # TODO: use task type <> asset type mappings
+        filename = context['type']['name']  # Modeling, compositing...
+
+    result = False
+    message = None
+
+    structure_names = [context['project']['name']] + [
+        item['name'] for item in context['link'][1:]
+    ]
+
+    # Find latest version number
+    next_version_number = 1
+    latest_asset_version = session.query(
+        'AssetVersion where '
+        'task.id={} and is_latest_version=true'.format(context_id)
+    ).first()
+    if latest_asset_version:
+        next_version_number = latest_asset_version['version'] + 1
+
+    if snapshot_path_base:
+        # Build path down to context
+        snapshot_path = os.sep.join(
+            [snapshot_path_base] + structure_names + ['work']
+        )
+    else:
+        # Try to query location system (future)
+        try:
+            location = session.pick_location()
+            snapshot_path = location.get_filesystem_path(context)
+        except:
+            # Ok, use default location
+            snapshot_path_base = os.path.join(
+                os.path.expanduser('~'),
+                'Documents',
+                'ftrack_work_path',
+            )
+            # Build path down to context
+            snapshot_path = os.sep.join([snapshot_path_base] + structure_names)
+
+    if snapshot_path is not None:
+        if not os.path.exists(snapshot_path):
+            os.makedirs(snapshot_path)
+        if not os.path.exists(snapshot_path):
+            return (
+                None,
+                'Could not create snapshot directory: {}!'.format(
+                    snapshot_path
+                ),
+            )
+        # Make sure we do not overwrite existing work done
+        snapshot_path = os.path.join(
+            snapshot_path, '%s_v%03d.nk' % (filename, next_version_number)
+        )
+        do_load = False
+        if ask_load and os.path.exists(snapshot_path):
+            # Attempt to ask user
+            try:
+                from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import (
+                    Dialog,
+                )
+
+                dlg = Dialog(
+                    None,
+                    title='ftrack Nuke Save',
+                    question='Load existing local snapshot({})?'.format(
+                        os.path.basename(snapshot_path)
+                    ),
+                    prompt=True,
+                )
+                if dlg.exec_():
+                    do_load = True
+
+            except ImportError:
+                pass
+        if not do_load:
+            while os.path.exists(snapshot_path):
+                next_version_number += 1
+                snapshot_path = os.path.join(
+                    os.path.dirname(snapshot_path),
+                    '%s_v%03d.nk' % (filename, next_version_number),
+                )
+
+            # Save Maya scene to this path
+            nuke.scriptSaveAs(snapshot_path, overwrite=1)
+            message = 'Saved Nuke script @ "{}"'.format(snapshot_path)
+            result = snapshot_path
+        else:
+            nuke.scriptClear()
+            nuke.scriptOpen(snapshot_path)
+            message = 'Opened Nuke script @ "{}"'.format(snapshot_path)
+            result = snapshot_path
+    else:
+        message = 'Could not evaluate local snapshot path!'
+
+    return result, message
