@@ -468,7 +468,8 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         'html.parser',
         'cgi',
         'concurrent',
-        'concurrent.futures'
+        'concurrent.futures',
+        'darkdetect'
     ])
 
     configuration['options']['build_exe'] = {
@@ -487,7 +488,8 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             "encodings",
             'http',
             'urllib.parser',
-            'webbrowser'
+            'webbrowser',
+            'darkdetect'
         ],
         'excludes': [
             "dbm.gnu",
