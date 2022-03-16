@@ -35,8 +35,10 @@ class MayaAssemblerDialog(QtWidgets.QDialog):
 
     _shown = False
 
-    def __init__(self, event_manager, asset_list_model):
-        super(MayaAssemblerDialog, self).__init__(parent=get_maya_window())
+    def __init__(self, event_manager, asset_list_model, parent=None):
+        super(MayaAssemblerDialog, self).__init__(
+            parent=parent or get_maya_window()
+        )
         self._event_manager = event_manager
         self._asset_list_model = asset_list_model
 

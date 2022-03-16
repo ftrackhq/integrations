@@ -18,7 +18,7 @@ class MayaPublisherClient(MayaQWidgetDockableMixin, QtPublisherClient):
         maya_constants.UI_TYPE,
     ]
 
-    '''Dockable maya load widget'''
+    '''Dockable maya publish widget'''
 
     def __init__(self, event_manager, unused_asset_list_model):
         super(MayaPublisherClient, self).__init__(
@@ -39,9 +39,3 @@ class MayaPublisherClient(MayaQWidgetDockableMixin, QtPublisherClient):
             x=300,
             y=600,
         )
-
-    def closeEvent(self, *args):
-        return super(MayaPublisherClient, self).closeEvent(*args)
-
-    def hideEvent(self, *args):
-        return super(MayaPublisherClient, self).hideEvent(*args)

@@ -32,15 +32,15 @@ class MayaOpenDialog(QtWidgets.QDialog):
     _shown = False
 
     def __init__(self, event_manager, unused_asset_list_model, parent=None):
-        super(MayaOpenDialog, self).__init__(parent=get_maya_window())
+        super(MayaOpenDialog, self).__init__(
+            parent=parent or get_maya_window()
+        )
         self._event_manager = event_manager
 
         # Make sure we stays on top of Maya
         self.setWindowFlags(QtCore.Qt.Tool)
         self._client = None
 
-        # self.rebuild()
-        # self.setModal(True)
         self.setWindowTitle('ftrack Open')
         self.resize(450, 530)
 

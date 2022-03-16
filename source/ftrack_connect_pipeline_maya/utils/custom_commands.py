@@ -107,14 +107,14 @@ def save_snapshot(filename, context_id, session, ask_load=False):
 
     if snapshot_path_base:
         # Build path down to context
-        work_path = os.sep.join(
+        snapshot_path = os.sep.join(
             [snapshot_path_base] + structure_names + ['work']
         )
     else:
         # Try to query location system (future)
         try:
             location = session.pick_location()
-            work_path = location.get_filesystem_path(context)
+            snapshot_path = location.get_filesystem_path(context)
         except:
             # Ok, use default location
             snapshot_path_base = os.path.join(
@@ -123,22 +123,22 @@ def save_snapshot(filename, context_id, session, ask_load=False):
                 'ftrack_work_path',
             )
             # Build path down to context
-            work_path = os.sep.join([snapshot_path_base] + structure_names)
+            snapshot_path = os.sep.join([snapshot_path_base] + structure_names)
 
-    if work_path is not None:
-        if not os.path.exists(work_path):
-            os.makedirs(work_path)
-        if not os.path.exists(work_path):
+    if snapshot_path is not None:
+        if not os.path.exists(snapshot_path):
+            os.makedirs(snapshot_path)
+        if not os.path.exists(snapshot_path):
             return (
                 None,
-                'Could not create work directory: {}!'.format(work_path),
+                'Could not create work directory: {}!'.format(snapshot_path),
             )
         # Make sure we do not overwrite existing work done
-        work_path = os.path.join(
-            work_path, '%s_v%03d' % (filename, next_version_number)
+        snapshot_path = os.path.join(
+            snapshot_path, '%s_v%03d.mb' % (filename, next_version_number)
         )
         do_load = False
-        if ask_load and os.path.exists(work_path):
+        if ask_load and os.path.exists(snapshot_path):
             # Attempt to ask user
             try:
                 from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import (
@@ -149,7 +149,7 @@ def save_snapshot(filename, context_id, session, ask_load=False):
                     None,
                     title='ftrack Maya Save',
                     question='Load existing local snapshot({})?'.format(
-                        os.path.basename(work_path)
+                        os.path.basename(snapshot_path)
                     ),
                     prompt=True,
                 )
@@ -159,22 +159,22 @@ def save_snapshot(filename, context_id, session, ask_load=False):
             except ImportError:
                 pass
         if not do_load:
-            while os.path.exists(work_path):
+            while os.path.exists(snapshot_path):
                 next_version_number += 1
-                work_path = os.path.join(
-                    work_path,
-                    '%s_v%03d' % (filename, next_version_number),
+                snapshot_path = os.path.join(
+                    os.path.dirname(snapshot_path),
+                    '%s_v%03d.mb' % (filename, next_version_number),
                 )
 
             # Save Maya scene to this path
-            cmds.file(rename=work_path)
+            cmds.file(rename=snapshot_path)
             cmds.file(save=True)
-            message = 'Saved Maya scene @ "{}"'.format(work_path)
-            result = work_path
+            message = 'Saved Maya scene @ "{}"'.format(snapshot_path)
+            result = snapshot_path
         else:
-            cmds.file(work_path, open=True, f=True)
-            message = 'Opened Maya scene @ "{}"'.format(work_path)
-            result = work_path
+            cmds.file(snapshot_path, open=True, f=True)
+            message = 'Opened Maya scene @ "{}"'.format(snapshot_path)
+            result = snapshot_path
     else:
         message = 'Could not evaluate local snapshot path!'
 

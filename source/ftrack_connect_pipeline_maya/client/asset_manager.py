@@ -19,7 +19,7 @@ class MayaAssetManagerClient(MayaQWidgetDockableMixin, QtAssetManagerClient):
         maya_constants.UI_TYPE,
     ]
 
-    '''Dockable maya load widget'''
+    '''Dockable maya asset manager widget'''
 
     def __init__(self, event_manager, asset_list_model):
         super(MayaAssetManagerClient, self).__init__(

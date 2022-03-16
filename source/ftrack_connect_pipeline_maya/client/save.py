@@ -17,7 +17,7 @@ class QtSaveClient:
 
     def show(self):
 
-        self.logger.info('Attempting to save local snapshot..')
+        self.logger.info('Attempting to save local Maya snapshot..')
         work_path, message = maya_utils.save_snapshot(
             None,
             utils.get_current_context_id(),
