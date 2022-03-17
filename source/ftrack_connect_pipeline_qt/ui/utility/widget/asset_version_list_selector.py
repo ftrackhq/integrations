@@ -56,7 +56,7 @@ class AssetVersionListItem(QtWidgets.QFrame):
         self.layout().addStretch()
 
         self.version_info_label = QtWidgets.QLabel()
-        self.version_info_label.setObjectName('gray')
+        self.version_info_label.setObjectName('gray-darker')
         self.layout().addWidget(self.version_info_label)
 
         self._update_publisher_info(self.asset['latest_version'])

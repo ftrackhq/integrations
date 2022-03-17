@@ -66,6 +66,7 @@ class QtAssemblerClient(QtClient):
 
     def pre_build(self):
         super(QtAssemblerClient, self).pre_build()
+        self.layout().setContentsMargins(16, 16, 16, 16)
         self.header = header.Header(
             self.session, title='CONNECT', show_user=False
         )
@@ -143,6 +144,7 @@ class QtAssemblerClient(QtClient):
 
         button_widget = QtWidgets.QWidget()
         button_widget.setLayout(QtWidgets.QHBoxLayout())
+        button_widget.layout().setContentsMargins(2, 2, 16, 2)
         button_widget.layout().addStretch()
         self.run_button_no_load = AddRunButton('ADD TO SCENE')
         self.run_button_no_load.setMinimumHeight(32)

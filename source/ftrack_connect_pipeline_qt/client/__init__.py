@@ -29,8 +29,12 @@ class QtClient(Client, QtWidgets.QFrame):
     '''
 
     ui_types = [constants.UI_TYPE, qt_constants.UI_TYPE]
+
     # Text of the button to run the whole definition
     client_name = None
+
+    # Have assembler match on file extension (relaxed)
+    assembler_match_extension = False
 
     contextChanged = QtCore.Signal(object)  # Client context has changed
 

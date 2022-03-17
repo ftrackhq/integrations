@@ -65,6 +65,14 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
     def session(self):
         return self._assembler_client.session
 
+    @property
+    def match_component_names(self):
+        return self._rb_match_component_name.isChecked()
+
+    @property
+    def show_non_compatible_assets(self):
+        return self._cb_show_non_compatible.isChecked()
+
     def __init__(self, assembler_client, parent=None):
         super(AssemblerBaseWidget, self).__init__(parent=parent)
         self._assembler_client = assembler_client
@@ -108,10 +116,30 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         bottom_toolbar_widget = QtWidgets.QWidget()
         bottom_toolbar_widget.setLayout(QtWidgets.QHBoxLayout())
         bottom_toolbar_widget.layout().setContentsMargins(4, 4, 4, 4)
-        bottom_toolbar_widget.layout().setSpacing(4)
+        bottom_toolbar_widget.layout().setSpacing(6)
 
-        self._cb_show_non_compatible = QtWidgets.QCheckBox(
-            'Show non-compatible assets'
+        self._bg_match = QtWidgets.QButtonGroup(self)
+        self._rb_match_component_name = QtWidgets.QRadioButton(
+            'Component name match'
+        )
+        self._rb_match_component_name.setToolTip(
+            'Matching assets strictly on component names as defined in loader definitions.'
+        )
+        self._bg_match.addButton(self._rb_match_component_name)
+        bottom_toolbar_widget.layout().addWidget(self._rb_match_component_name)
+
+        self._rb_match_extension = QtWidgets.QRadioButton('File format match')
+        self._rb_match_extension.setToolTip(
+            'Matching assets on supported file formats as defined in loader definitions(relaxed).'
+        )
+        self._bg_match.addButton(self._rb_match_extension)
+        bottom_toolbar_widget.layout().addWidget(self._rb_match_extension)
+
+        bottom_toolbar_widget.layout().addWidget(QtWidgets.QLabel(' '))
+
+        self._cb_show_non_compatible = QtWidgets.QCheckBox('Show all')
+        self._cb_show_non_compatible.setToolTip(
+            'Show all assets, regardless if they can be loaded or not.'
         )
         self._cb_show_non_compatible.setObjectName("gray")
         bottom_toolbar_widget.layout().addWidget(self._cb_show_non_compatible)
@@ -119,7 +147,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         bottom_toolbar_widget.layout().addWidget(QtWidgets.QLabel(), 10)
 
         self._label_info = QtWidgets.QLabel('')
-        self._label_info.setObjectName('gray')
+        self._label_info.setObjectName('gray-darker')
         bottom_toolbar_widget.layout().addWidget(self._label_info)
 
         self._search = Search()
@@ -144,6 +172,12 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
 
     def rebuild(self):
 
+        self._rb_match_component_name.setEnabled(
+            not self._cb_show_non_compatible.isChecked()
+        )
+        self._rb_match_extension.setEnabled(
+            not self._cb_show_non_compatible.isChecked()
+        )
         self.model.reset()
         self._assembler_client.progress_widget.hide_widget()
 
@@ -160,6 +194,12 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
 
     def post_build(self):
         self._cb_show_non_compatible.clicked.connect(self.rebuild)
+        if self._assembler_client.assembler_match_extension:
+            self._rb_match_extension.setChecked(True)
+        else:
+            self._rb_match_component_name.setChecked(True)
+        self._rb_match_component_name.clicked.connect(self.rebuild)
+        self._rb_match_extension.clicked.connect(self.rebuild)
         self.stopBusyIndicator.connect(self._stop_busy_indicator)
 
     def _stop_busy_indicator(self):
@@ -182,8 +222,6 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
 
     def extract_components(self, versions):
         '''Build a list of loadable components from the supplied *versions*'''
-
-        include_all = self._cb_show_non_compatible.isChecked()
 
         # Fetch all definitions, append asset type name
         loader_definitions = (
@@ -236,13 +274,21 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                         )
                     )
                     continue
-                elif not include_all and component['name'] == 'snapshot':
-                    self.logger.warning(
-                        'Not assembling version {} snapshot component {}!'.format(
-                            version['id'], component['id']
+                elif not self.show_non_compatible_assets:
+                    if component['name'] == 'snapshot':
+                        self.logger.warning(
+                            'Not assembling version {} snapshot component {}!'.format(
+                                version['id'], component['id']
+                            )
                         )
-                    )
-                    continue
+                        continue
+                    elif component['name'].startswith('ftrackreview-'):
+                        self.logger.warning(
+                            'Not assembling version {} ftrackreview component {}!'.format(
+                                version['id'], component['id']
+                            )
+                        )
+                        continue
                 matching_definitions = None
                 for definition in loader_definitions:
                     # Matches asset type?
@@ -260,17 +306,20 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                         continue
                     definition_fragment = None
                     for d_component in definition.get('components', []):
+                        component_name_effective = d_component['name']
                         if (
-                            d_component['name'].lower()
+                            component_name_effective.lower()
                             != component['name'].lower()
                         ):
-                            self._assembler_client.logger.debug(
-                                '        Definition component name {} mismatch!'.format(
-                                    d_component['name']
+                            if self.match_component_names:
+                                self._assembler_client.logger.debug(
+                                    '        Definition component name {} mismatch!'.format(
+                                        d_component['name']
+                                    )
                                 )
-                            )
-                            continue
-
+                                continue
+                            else:
+                                component_name_effective = component['name']
                         file_formats = d_component['file_formats']
                         if set(file_formats).intersection(
                             set([component_extension])
@@ -279,6 +328,9 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                             definition_fragment = {
                                 'components': [copy.deepcopy(d_component)]
                             }
+                            definition_fragment['components'][0][
+                                'name'
+                            ] = component_name_effective
                             for key in definition:
                                 if key not in [
                                     'components',
@@ -309,7 +361,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                                                 ] = version['id']
                         else:
                             self._assembler_client.logger.debug(
-                                '        Accepted formats {} does not intersect with {}!'.format(
+                                '        File formats {} does not intersect with {}!'.format(
                                     file_formats,
                                     [component_extension],
                                 )
@@ -319,16 +371,19 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                                 matching_definitions = []
                             matching_definitions.append(definition_fragment)
                 if matching_definitions is None:
-                    if include_all:
+                    if self.show_non_compatible_assets:
                         matching_definitions = []
                 else:
                     self._loadable_count += 1
                 if matching_definitions is not None:
+                    availability = location.get_component_availability(
+                        component
+                    )
                     components.append(
                         (
                             component,
                             matching_definitions,
-                            location.get_component_availability(component),
+                            availability,
                         )
                     )
 

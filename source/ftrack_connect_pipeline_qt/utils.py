@@ -144,7 +144,7 @@ def set_property(widget, name, value):
 
 
 def clear_layout(layout):
-    while layout and layout.count():
+    while layout is not None and layout.count():
         item = layout.takeAt(0)
         widget = item.widget()
         if widget is not None:

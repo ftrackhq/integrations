@@ -1,5 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2022 ftrack
+import time
 
 from functools import partial
 
@@ -44,7 +45,10 @@ class EntityBrowser(Dialog):
     entityChanged = QtCore.Signal(
         object
     )  # External; a new context has been set
+    rebuildEntityBrowser = QtCore.Signal()
     entitiesFetched = QtCore.Signal(object)
+
+    working = False
 
     @property
     def entity(self):
@@ -134,6 +138,8 @@ class EntityBrowser(Dialog):
     def post_build(self):
         super(EntityBrowser, self).post_build()
 
+        self.rebuildEntityBrowser.connect(self.rebuild)
+
         self._navigator.changeEntity.connect(self.set_intermediate_entity)
         self._navigator.removeEntity.connect(
             self._set_parent_intermediate_entity
@@ -145,7 +151,7 @@ class EntityBrowser(Dialog):
 
         self.entitiesFetched.connect(self._on_entities_fetched)
 
-        self.resize(650, 400)
+        self.resize(700, 450)
 
     def set_mode(self, mode):
         if not mode in [self.MODE_CONTEXT, self.MODE_TASK]:
@@ -160,7 +166,7 @@ class EntityBrowser(Dialog):
         self._external_navigator.changeEntity.connect(self._browse_parent)
         self._external_navigator.addEntity.connect(self._add_entity)
         self._external_navigator.removeEntity.connect(self._set_parent_entity)
-        self._external_navigator.refresh()
+        self._external_navigator.refreshNavigator.emit()
         return self._external_navigator
 
     def set_entity(self, entity):
@@ -168,38 +174,47 @@ class EntityBrowser(Dialog):
         self._entity = entity
         self.set_intermediate_entity(entity)
         if self._external_navigator is not None:
-            self._external_navigator.refresh()
+            self._external_navigator.refreshNavigator.emit()
         if (entity or {}).get('id') != (prev_entity or {}).get('id'):
             if prev_entity is not None:
                 self.entityChanged.emit(entity)
             if self.isVisible():
-                self.rebuild()
+                self.rebuildEntityBrowser.emit()
 
     def set_intermediate_entity(self, entity=None):
+        if self.working:
+            return
         self._intermediate_entity = entity
         self._prev_search_text = ""
         self._search.text = ""
         self._selected_entity = entity
         if self.isVisible():
-            self.rebuild()
+            self.rebuildEntityBrowser.emit()
 
     def _browse_parent(self, entity):
+        if self.working:
+            return
         self.set_intermediate_entity(entity['parent'] if entity else None)
         self.show()
 
     def _add_entity(self):
+        if self.working:
+            return
         self.show()
 
     def _set_parent_entity(self, entity):
+        if self.working:
+            return
+        time.sleep(0.2)
         self.set_entity(entity['parent'] if entity else None)
 
     def show(self):
         '''Show dialog, on the entity supplied'''
-        self.rebuild()
+        self.rebuildEntityBrowser.emit()
         return super(EntityBrowser, self).show()
 
     def exec_(self):
-        self.rebuild()
+        self.rebuildEntityBrowser.emit()
         return super(EntityBrowser, self).exec_()
 
     def _set_parent_intermediate_entity(self, entity):
@@ -213,8 +228,10 @@ class EntityBrowser(Dialog):
         return context_entity
 
     def rebuild(self):
+        if self.working:
+            return
         '''Rebuild navigator and browsing content based on current intermediate entity'''
-        self._navigator.refresh()
+        self._navigator.refreshNavigator.emit()
 
         self._busy_widget = BusyIndicator()
         self._scroll.setWidget(center_widget(self._busy_widget, 30, 30))
@@ -227,53 +244,78 @@ class EntityBrowser(Dialog):
             target=self._fetch_entities,
             target_args=(),
         )
+        self.working = True
         thread.start()
 
     def _fetch_entities(self):
         '''Fetch projects/child entities in background thread.'''
-        intermediate_entity = self.intermediate_entity
-        if self.intermediate_entity is None:
-            # List projects
-            entities = self.session.query('select id, name from Project').all()
-        else:
-            entities = self.session.query(
-                'select id, name, children from Context where parent.id is {}'.format(
-                    intermediate_entity['id']
-                )
-            ).all()
-        # Still on the same entity?
-        if (self.intermediate_entity or {}).get('id') == (
-            intermediate_entity or {}
-        ).get('id'):
+        signal_emitted = False
+        try:
+            intermediate_entity = self.intermediate_entity
+            if self.intermediate_entity is None:
+                # List projects
+                entities = self.session.query(
+                    'select id, name from Project'
+                ).all()
+            else:
+                entities = self.session.query(
+                    'select id, name, children from Context where parent.id is {}'.format(
+                        intermediate_entity['id']
+                    )
+                ).all()
+            # Still on the same entity?
+            # if (self.intermediate_entity or {}).get('id') == (
+            #    intermediate_entity or {}
+            # ).get('id'):
             self.entitiesFetched.emit(entities)
+            signal_emitted = True
+        finally:
+            if not signal_emitted:
+                # Crashed, stop working to unblock
+                self.working = False
 
     def _on_entities_fetched(self, entities):
-        widget = QtWidgets.QWidget()
-        widget.setLayout(QtWidgets.QVBoxLayout())
-        widget.layout().setSpacing(0)
+        try:
+            widget = QtWidgets.QWidget()
+            widget.setLayout(QtWidgets.QVBoxLayout())
+            widget.layout().setSpacing(0)
 
-        self.entity_widgets = []
-        for entity in entities:
-            entity_widget = EntityWidget(entity, False)
-            entity_widget.clicked.connect(
-                partial(self._entity_selected, entity)
-            )
-            widget.layout().addWidget(entity_widget)
-            self.entity_widgets.append(entity_widget)
-            for sub_entity in entity['children']:
-                if sub_entity.entity_type == 'Task':
-                    sub_entity_widget = EntityWidget(sub_entity, True)
-                    sub_entity_widget.clicked.connect(
-                        partial(self._entity_selected, sub_entity)
+            self.entity_widgets = []
+            if self.intermediate_entity.get('parent') is not None:
+                parent_entity_widget = EntityWidget(
+                    self.intermediate_entity['parent'], False, is_parent=True
+                )
+                parent_entity_widget.clicked.connect(
+                    partial(
+                        self._entity_selected,
+                        self.intermediate_entity['parent'],
                     )
-                    widget.layout().addWidget(sub_entity_widget)
-                    self.entity_widgets.append(sub_entity_widget)
+                )
+                widget.layout().addWidget(parent_entity_widget)
+                self.entity_widgets.append(parent_entity_widget)
+            for entity in entities:
+                entity_widget = EntityWidget(entity, False)
+                entity_widget.clicked.connect(
+                    partial(self._entity_selected, entity)
+                )
+                widget.layout().addWidget(entity_widget)
+                self.entity_widgets.append(entity_widget)
+                for sub_entity in entity['children']:
+                    if sub_entity.entity_type == 'Task':
+                        sub_entity_widget = EntityWidget(sub_entity, True)
+                        sub_entity_widget.clicked.connect(
+                            partial(self._entity_selected, sub_entity)
+                        )
+                        widget.layout().addWidget(sub_entity_widget)
+                        self.entity_widgets.append(sub_entity_widget)
 
-        widget.layout().addWidget(QtWidgets.QLabel(), 100)
+            widget.layout().addWidget(QtWidgets.QLabel(), 100)
 
-        self._busy_widget.stop()
+            self._busy_widget.stop()
 
-        self._scroll.setWidget(widget)
+            self._scroll.setWidget(widget)
+        finally:
+            self.working = False
 
     def refresh(self):
         '''Filter visible entities on search.'''
@@ -321,6 +363,8 @@ class EntityBrowser(Dialog):
 
     def _on_apply(self):
         '''Set the immediate entity and close dialog'''
+        if self.working:
+            return
         self.set_entity(self._selected_entity)
         self.done(1)
 
@@ -336,6 +380,7 @@ class EntityBrowserNavigator(QtWidgets.QWidget):
     addEntity = (
         QtCore.Signal()
     )  # The plus sign button has been clicked (external navigator only)
+    refreshNavigator = QtCore.Signal()
 
     @property
     def entity(self):
@@ -371,21 +416,25 @@ class EntityBrowserNavigator(QtWidgets.QWidget):
         self.post_build()
 
     def pre_build(self):
-        self.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
-        self.layout().setSpacing(0)
+        self.setLayout(self.create_layout())
+
+    def create_layout(self):
+        layout = QtWidgets.QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        return layout
 
     def build(self):
         pass
 
-    # def set_thumbnail(self, entity):
-    #    self.thumbnail_widget.load(entity['id'])
-
     def post_build(self):
         self.setMaximumHeight(36)
+        self.refreshNavigator.connect(self.refresh)
 
     def refresh(self):
         '''Rebuild the navigator'''
+        time.sleep(0.2)  # Wait for widgets to finish process
+
         clear_layout(self.layout())
 
         # Rebuild widget
@@ -416,7 +465,7 @@ class EntityBrowserNavigator(QtWidgets.QWidget):
                     button, 'first', 'true' if index == 0 else 'false'
                 )
                 if link['type'] != 'Project':
-                    button.remove_button.clicked.connect(
+                    button.remove_button.released.connect(
                         partial(self._on_remove_entity, link)
                     )
                 self.layout().addWidget(button)
@@ -491,7 +540,7 @@ class NavigationEntityButton(QtWidgets.QFrame):
             self.remove_button = QtWidgets.QPushButton(
                 icon.MaterialIcon('close', color='#94979a'), ""
             )
-            self.remove_button.setFixedSize(6, 6)
+            self.remove_button.setFixedSize(8, 8)
             self.remove_button.setStyleSheet(
                 '''
             QPushButton {
@@ -523,9 +572,10 @@ class EntityWidget(QtWidgets.QFrame):
 
     clicked = QtCore.Signal()
 
-    def __init__(self, entity, is_sub_task, parent=None):
+    def __init__(self, entity, is_sub_task, parent=None, is_parent=False):
         super(EntityWidget, self).__init__(parent=parent)
         self.entity = entity
+        self.is_parent = is_parent
         self.is_sub_task = is_sub_task
         self.pre_build()
         self.build()
@@ -542,7 +592,8 @@ class EntityWidget(QtWidgets.QFrame):
         self.thumbnail_widget.setMinimumHeight(40)
         self.thumbnail_widget.setMaximumWidth(71)
         self.thumbnail_widget.setMaximumHeight(40)
-        self.thumbnail_widget.load(self.entity['id'])
+        if not self.is_parent:
+            self.thumbnail_widget.load(self.entity['id'])
         self.layout().addWidget(self.thumbnail_widget)
 
         central_widget = QtWidgets.QWidget()
@@ -551,8 +602,10 @@ class EntityWidget(QtWidgets.QFrame):
         central_widget.layout().setSpacing(0)
 
         # Context name
-        label = QtWidgets.QLabel(self.entity['name'])
-        label.setObjectName("h3")
+        label = QtWidgets.QLabel(
+            self.entity['name'] if not self.is_parent else '..'
+        )
+        label.setObjectName('h3' if not self.is_parent else 'h2')
         central_widget.layout().addWidget(label)
 
         lower_widget = QtWidgets.QWidget()
@@ -560,7 +613,7 @@ class EntityWidget(QtWidgets.QFrame):
         lower_widget.layout().setContentsMargins(3, 0, 0, 0)
         lower_widget.layout().setSpacing(0)
 
-        if self.is_sub_task:
+        if self.is_sub_task and not self.is_parent:
             # Sub path
             sub_path = QtWidgets.QLabel(
                 '.. / {}'.format(self.entity['parent']['name'])
@@ -568,8 +621,9 @@ class EntityWidget(QtWidgets.QFrame):
             sub_path.setObjectName('gray')
             lower_widget.layout().addWidget(sub_path)
 
-        type_widget = TypeWidget(self.entity)
-        lower_widget.layout().addWidget(type_widget)
+        if not self.is_parent:
+            type_widget = TypeWidget(self.entity)
+            lower_widget.layout().addWidget(type_widget)
 
         lower_widget.layout().addWidget(QtWidgets.QLabel(), 100)
 
@@ -577,7 +631,7 @@ class EntityWidget(QtWidgets.QFrame):
 
         self.layout().addWidget(central_widget, 100)
 
-        if self.entity.entity_type != 'Task':
+        if self.entity.entity_type != 'Task' and not self.is_parent:
             l_arrow = QtWidgets.QLabel()
             l_arrow.setPixmap(
                 icon.MaterialIcon('chevron-right', color='#676B70').pixmap(
@@ -597,8 +651,8 @@ class EntityWidget(QtWidgets.QFrame):
                 }'''
                 % (self.entity['status']['color'])
             )
-        self.setMinimumHeight(45)
-        self.setMaximumHeight(45)
+        self.setMinimumHeight(45 if not self.is_parent else 20)
+        self.setMaximumHeight(45 if not self.is_parent else 20)
 
     def mousePressEvent(self, event):
         try:
