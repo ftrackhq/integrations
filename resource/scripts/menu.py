@@ -198,5 +198,7 @@ def initialise():
     app = QtWidgets.QApplication.instance()
     app.aboutToQuit.connect(on_nuke_exit)
 
+    host.launch_widget(qt_constants.OPEN_WIDGET)
+
 
 initialise()

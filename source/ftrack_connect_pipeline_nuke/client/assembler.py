@@ -20,6 +20,10 @@ class NukeAssemblerClient(QtAssemblerClient):
         nuke_constants.UI_TYPE,
     ]
 
+    assembler_match_extension = (
+        True  # Allow nuke to resolve in a more relaxed way
+    )
+
     def __init__(self, event_manager, asset_list_model, parent_window):
         super(NukeAssemblerClient, self).__init__(
             event_manager,
