@@ -13,6 +13,11 @@ Release Notes
     .. change:: changed
         :tags: Event
 
+        Emit new usage_events in batches.
+
+    .. change:: changed
+        :tags: Event
+
         Provide usage event with operating system in use.
 
 
