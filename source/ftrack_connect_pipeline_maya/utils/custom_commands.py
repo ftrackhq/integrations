@@ -71,7 +71,7 @@ def get_maya_window():
     return window
 
 
-def save_snapshot(filename, context_id, session, ask_load=False):
+def save_snapshot(filename, context_id, session):
     '''Save scene locally, with the next version number based on latest version
     in ftrack.'''
     snapshot_path_base = os.environ.get('FTRACK_SNAPSHOT_PATH')
@@ -137,44 +137,19 @@ def save_snapshot(filename, context_id, session, ask_load=False):
         snapshot_path = os.path.join(
             snapshot_path, '%s_v%03d.mb' % (filename, next_version_number)
         )
-        do_load = False
-        if ask_load and os.path.exists(snapshot_path):
-            # Attempt to ask user
-            try:
-                from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import (
-                    Dialog,
-                )
 
-                dlg = Dialog(
-                    None,
-                    title='ftrack Maya Save',
-                    question='Load existing local snapshot({})?'.format(
-                        os.path.basename(snapshot_path)
-                    ),
-                    prompt=True,
-                )
-                if dlg.exec_():
-                    do_load = True
+        while os.path.exists(snapshot_path):
+            next_version_number += 1
+            snapshot_path = os.path.join(
+                os.path.dirname(snapshot_path),
+                '%s_v%03d.mb' % (filename, next_version_number),
+            )
 
-            except ImportError:
-                pass
-        if not do_load:
-            while os.path.exists(snapshot_path):
-                next_version_number += 1
-                snapshot_path = os.path.join(
-                    os.path.dirname(snapshot_path),
-                    '%s_v%03d.mb' % (filename, next_version_number),
-                )
-
-            # Save Maya scene to this path
-            cmds.file(rename=snapshot_path)
-            cmds.file(save=True)
-            message = 'Saved Maya scene @ "{}"'.format(snapshot_path)
-            result = snapshot_path
-        else:
-            cmds.file(snapshot_path, open=True, f=True)
-            message = 'Opened Maya scene @ "{}"'.format(snapshot_path)
-            result = snapshot_path
+        # Save Maya scene to this path
+        cmds.file(rename=snapshot_path)
+        cmds.file(save=True)
+        message = 'Saved Maya scene @ "{}"'.format(snapshot_path)
+        result = snapshot_path
     else:
         message = 'Could not evaluate local snapshot path!'
 
