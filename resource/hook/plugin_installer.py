@@ -9,6 +9,7 @@ cwd = os.path.dirname(__file__)
 sources = os.path.abspath(os.path.join(cwd, '..', 'dependencies'))
 sys.path.append(sources)
 
+import platform
 import ftrack_api
 from Qt import QtWidgets, QtCore, QtGui
 import qtawesome as qta
@@ -113,15 +114,18 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         metadata = []
 
         for plugin in plugins:
-            name = plugin.data(ROLES.PLUGIN_NAME)
-            version = plugin.data(ROLES.PLUGIN_VERSION)
-            metadata.append({'name': str(name), 'version': str(version)})
+            name = str(plugin.data(ROLES.PLUGIN_NAME))
+            version = str(plugin.data(ROLES.PLUGIN_VERSION))
+            os = str(platform.platform())
+
+            plugin_data = {'name': name, 'version': version, 'os': os}
+            metadata.append(plugin_data)
 
         ftrack_connect.usage.send_event(
             self.session,
             'INSTALLED-CONNECT-PLUGINS',
             metadata,
-            asynchronous=False
+            asynchronous=True
         )
 
     def enable_apply_button(self, item):
