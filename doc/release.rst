@@ -5,6 +5,11 @@
 Releases
 ########
 
+.. release:: Upcoming
+
+    .. change:: changed
+
+        Update icon set based on new style.
 
 .. release:: Upcoming
 
