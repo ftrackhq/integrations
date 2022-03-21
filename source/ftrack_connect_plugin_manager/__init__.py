@@ -12,7 +12,7 @@ from distutils.version import LooseVersion
 import appdirs
 import json
 
-from Qt import QtWidgets, QtCore, QtGui
+from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 import qtawesome as qta
 
 from ftrack_connect.ui.widget.overlay import BlockingOverlay
