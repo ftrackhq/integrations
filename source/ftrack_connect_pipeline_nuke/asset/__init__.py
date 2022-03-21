@@ -71,7 +71,7 @@ class FtrackAssetTab(FtrackAssetBase):
     @staticmethod
     def get_parameters_dictionary(scene_node):
         '''
-        Returns a diccionary with the keys and values of the given *scene_node*
+        Returns a dictionary with the keys and values of the given *scene_node*
         parameters
         '''
         param_dict = {}
