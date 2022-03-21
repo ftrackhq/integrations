@@ -7,7 +7,7 @@ QFrame[background='ftrack'], QDialog[background='ftrack'] {
 }
 
 QFrame[background='default'], QDialog[background='default'] {
-    background: rgb(55,55,55);
+    background: $background-docked;
 }
 
 QFrame[background='maya'], QDialog[background='maya'] {
@@ -35,11 +35,11 @@ QFrame[indicator='off'] {
 }
 
 QFrame[background='selected'] {
-    background: $gray-lighter;
+    background: $background-selected;
 }
 
 QFrame[background='selected_docked'] {
-    background: rgb(77,77,77);
+    background: $background-selected-docked;
 }
 
 QFrame[background='transparent'] {
@@ -104,7 +104,7 @@ EntityWidget {
 }
 
 EntityWidget[background='selected'] {
-    background: $gray-lighter;
+    background: $background-selected;
 }
 
 EntityWidget:hover {

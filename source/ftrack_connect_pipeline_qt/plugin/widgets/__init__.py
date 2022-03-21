@@ -132,7 +132,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
         *session* :  instance of :class:`ftrack_api.session.Session`
 
-        *data* : Data diccionary for the current widget
+        *data* : Data dictionary for the current widget
 
         *name* : Name of the current widget
 

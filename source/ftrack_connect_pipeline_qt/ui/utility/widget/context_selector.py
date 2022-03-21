@@ -72,14 +72,14 @@ class ContextSelector(QtWidgets.QWidget):
         self.thumbnail_widget.setMaximumHeight(50)
 
         if self._client.client_name == qt_constants.OPEN_WIDGET:
-            self.entityBrowser = EntityBrowser(
+            self.entity_browser = EntityBrowser(
                 self._client.get_parent_window(),
                 self.session,
                 title='CHOOSE TASK',
             )
-            self.entityBrowser.setMinimumWidth(600)
+            self.entity_browser.setMinimumWidth(600)
         else:
-            self.entityBrowser = None
+            self.entity_browser = None
 
         self.entity_info = EntityInfo()
         self.entity_info.setMinimumHeight(60)
@@ -101,8 +101,8 @@ class ContextSelector(QtWidgets.QWidget):
         self.entity_browse_button.clicked.connect(
             self._onEntityBrowseButtonClicked
         )
-        self.entityChanged.connect(self.entity_info.set_entity)
-        self.entityChanged.connect(self.set_thumbnail)
+        # self.entityChanged.connect(self.entity_info.set_entity)
+        # self.entityChanged.connect(self.set_thumbnail)
         self.setMaximumHeight(70)
 
     def host_changed(self, host_connection):
@@ -110,7 +110,7 @@ class ContextSelector(QtWidgets.QWidget):
         if self._subscribe_id is not None:
             self.session.unsubscribe(self._subscribe_id)
             self._subscribe_id = None
-        if self.entityBrowser is None:  # Not do this for opener
+        if self.entity_browser is None:  # Not do this for opener
             self._subscribe_id = self.session.event_hub.subscribe(
                 'topic={} and data.pipeline.host_id={}'.format(
                     constants.PIPELINE_CONTEXT_CHANGE, host_connection.id
@@ -170,13 +170,13 @@ class ContextSelector(QtWidgets.QWidget):
     def _onEntityBrowseButtonClicked(self):
         '''Handle entity browse button clicked'''
         # Ensure browser points to parent of currently selected entity.
-        if self.entityBrowser:
-            self.entityBrowser.set_entity(
+        if self.entity_browser:
+            self.entity_browser.set_entity(
                 self._entity['parent'] if self._entity else None
             )
             # Launch browser.
-            if self.entityBrowser.exec_():
-                self.set_entity(self.entityBrowser.entity)
+            if self.entity_browser.exec_():
+                self.set_entity(self.entity_browser.entity)
         else:
             # Can only be done from opener
             if not self._client.is_docked():

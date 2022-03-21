@@ -4,8 +4,8 @@ QComboBox {
     border: 1px solid $color-purple;
     border-radius: 4px;
     padding: $input-padding;
-    background: $input-background;
-    selection-background-color: $gray-dark;
+    background: transparent;
+    selection-background-color: $background-selected;
     color: $color-purple;
 
     &:hover {
@@ -15,6 +15,10 @@ QComboBox {
     &:focus {
         border: 1px solid $input-border-color-focus;
     }
+}
+
+QFrame[docked='true'] QComboBox {
+    selection-background-color: $background-selected-docked;
 }
 
 QComboBox::drop-down {
@@ -36,21 +40,27 @@ QComboBox QAbstractItemView {
     /*border: 1px solid $input-border-color;*/
     border-radius: 2px;
     background: $background;
-    selection-background-color: $gray-lighter;
+    selection-background-color: $background-selected;
 }
 
 QFrame[docked='true'] QComboBox QAbstractItemView {
-    background: $gray-darker;
+    background: $background-docked;
+    selection-background-color: $background-selected-docked;
+}
+
+QFrame[docked='true'] QComboBox QAbstractItemView {
+    /*background: $gray-darker;*/
+    background: $background-docked;
 }
 
 QComboBox QAbstractItemView::item {
     padding: $input-padding 0;
-    background-color: $gray-dark;
+    /*background-color: $gray-dark;*/
 }
 
 QComboBox QAbstractItemView::item:selected {
-    background-color: $gray-lighter;
     color: $text-color;
+    background-color: $background-selected;
 }
 
 QComboBox[ftrackCurrentIndexIsDefault="true"] {

@@ -106,7 +106,7 @@ class DynamicWidget(BaseOptionsWidget):
 
     def build(self):
         '''build function widgets based on the type of the vaule of every
-        element in the options diccionary'''
+        element in the options dictionary'''
         super(DynamicWidget, self).build()
 
         for key, value in list(self.options.items()):

@@ -62,6 +62,8 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
         # self.session._local_cache.clear() # Make sure reset session cache
         super(AssemblerDependenciesWidget, self).rebuild()
 
+        self.scroll.setWidget(QtWidgets.QLabel(''))
+
         # Resolve version this context is depending on in separate thread
         thread = BaseThread(
             name='resolve_dependencies_thread',
