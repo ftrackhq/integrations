@@ -394,9 +394,9 @@ class BasePlugin(object):
         Runs the method passed in the given
         *event* ['data']['pipeline']['method'].
 
-        Returns a diccionary with the result information of the called method.
+        Returns a dictionary with the result information of the called method.
 
-        *event* : Diccionary returned when the event topic
+        *event* : Dictionary returned when the event topic
         :const:`~ftrack_connect_pipeline.constants.PIPELINE_RUN_PLUGIN_TOPIC` is
         called.
 

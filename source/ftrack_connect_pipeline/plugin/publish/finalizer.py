@@ -93,7 +93,7 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
         required information as component, reviewable, thumbnail, etc... And
         commits the ftrack session.
 
-        Returns a diccionary with the result information of the called method.
+        Returns a dictionary with the result information of the called method.
 
         *event* : Diccionary returned when the event topic
         :const:`~ftrack_connect_pipeline.constants.PIPELINE_RUN_PLUGIN_TOPIC` is
