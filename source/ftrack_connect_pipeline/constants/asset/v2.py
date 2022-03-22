@@ -9,6 +9,10 @@ ASSET_ID = 'asset_id'
 #: :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
 #: and the DCC ftrack plugin.
 ASSET_NAME = 'asset_name'
+#: Parent name (Usually AssetBuild) constant identifier key for ftrack assets connected or used with
+#: :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
+#: and the DCC ftrack plugin.
+PARENT_NAME = 'parent_name'
 #: Asset type constant identifier key for ftrack assets connected or used with
 #: :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
 #: and the DCC ftrack plugin.
@@ -78,6 +82,7 @@ VERSION = '2.0'
 KEYS = [
     ASSET_ID,
     ASSET_NAME,
+    PARENT_NAME,
     ASSET_TYPE_NAME,
     VERSION_ID,
     VERSION_NUMBER,
