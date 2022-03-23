@@ -22,7 +22,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
     ContextSelector,
 )
 from ftrack_connect_pipeline_qt.ui import theme
-from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import Dialog
+from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
 from ftrack_connect_pipeline_qt.utils import BaseThread, set_property
 
 
@@ -210,7 +210,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             return
 
         if not AssetManagerClient.change_host(self, host_connection):
-            Dialog(
+            ModalDialog(
                 self.get_parent_window(),
                 title='Asset Manager',
                 message='No asset manager definitions are available, please check your configuration!',
@@ -455,7 +455,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     def _remove_assets_clicked(self):
         selection = self.asset_manager_widget.asset_list.selection()
         if self.asset_manager_widget.check_selection(selection):
-            if Dialog(
+            if ModalDialog(
                 self.get_parent_window(),
                 title='ftrack Asset manager',
                 question='Really remove {} asset{}?'.format(

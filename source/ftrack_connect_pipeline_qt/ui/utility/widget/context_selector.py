@@ -20,7 +20,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
 
 class ContextSelector(QtWidgets.QWidget):
 
-    entityChanged = QtCore.Signal(object)
+    entityChanged = QtCore.Signal(object, object)
 
     @property
     def entity(self):
@@ -75,7 +75,7 @@ class ContextSelector(QtWidgets.QWidget):
             self.entity_browser = EntityBrowser(
                 self._client.get_parent_window(),
                 self.session,
-                title='CHOOSE TASK',
+                title='CHOOSE TASK (WORKING CONTEXT)',
             )
             self.entity_browser.setMinimumWidth(600)
         else:
@@ -99,10 +99,8 @@ class ContextSelector(QtWidgets.QWidget):
 
     def post_build(self):
         self.entity_browse_button.clicked.connect(
-            self._onEntityBrowseButtonClicked
+            self._on_entity_browse_button_clicked
         )
-        # self.entityChanged.connect(self.entity_info.set_entity)
-        # self.entityChanged.connect(self.set_thumbnail)
         self.setMaximumHeight(70)
 
     def host_changed(self, host_connection):
@@ -128,7 +126,7 @@ class ContextSelector(QtWidgets.QWidget):
                     context['name'], context['id']
                 )
             )
-            self.set_entity(context)
+            self.set_entity(context, True)
 
     def set_default_context_id(self):
         '''Reset the context ID back to default.'''
@@ -141,12 +139,12 @@ class ContextSelector(QtWidgets.QWidget):
         current_entity = entity or self._entity
         self.set_entity(current_entity)
 
-    def set_entity(self, entity):
+    def set_entity(self, entity, global_context_change=False):
         '''Set the *entity* for the view.'''
         if not entity:
             return
         self._entity = entity
-        self.entityChanged.emit(entity)
+        self.entityChanged.emit(entity, global_context_change)
         self.entity_info.set_entity(entity)
         self._context_id = entity['id']
 
@@ -167,7 +165,7 @@ class ContextSelector(QtWidgets.QWidget):
             )
             thread.start()
 
-    def _onEntityBrowseButtonClicked(self):
+    def _on_entity_browse_button_clicked(self):
         '''Handle entity browse button clicked'''
         # Ensure browser points to parent of currently selected entity.
         if self.entity_browser:
@@ -178,10 +176,9 @@ class ContextSelector(QtWidgets.QWidget):
             if self.entity_browser.exec_():
                 self.set_entity(self.entity_browser.entity)
         else:
-            # Can only be done from opener
             if not self._client.is_docked():
                 self._client.get_parent_window().hide()
                 self._client.get_parent_window().destroy()
             self._client.host_connection.launch_widget(
-                qt_constants.OPEN_WIDGET
+                qt_constants.CHANGE_CONTEXT_WIDGET
             )

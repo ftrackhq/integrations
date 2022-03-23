@@ -10,7 +10,55 @@ from ftrack_connect_pipeline_qt.ui import theme
 
 class Dialog(QtWidgets.QDialog):
     '''
-    A styled ftrack dialog box, defaults to a prompt (Yes-No) dialog
+    A basic dialog window, intended to live on top of DCC app main window.F
+    Supports to be shaded when a modal dialog is put in front.
+    '''
+
+    @property
+    def darken(self):
+        return self._darken
+
+    @darken.setter
+    def darken(self, value):
+        self._darken = value
+        if self._darken:
+            self._overlay_widget = OverlayWidget(self)
+            self._overlay_widget.move(0, 0)
+            self._overlay_widget.resize(self.size())
+            self._overlay_widget.show()
+        else:
+            if self._overlay_widget:
+                self._overlay_widget.close()
+
+    def __init__(self, parent):
+        super(Dialog, self).__init__(parent=parent)
+        self._overlay_widget = None
+
+
+class OverlayWidget(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super(OverlayWidget, self).__init__(parent=parent)
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+        self._fill_color = QtGui.QColor(0, 0, 0, 128)
+
+    def paintEvent(self, event):
+        super(OverlayWidget, self).paintEvent(event)
+        # Get current window size and paint a semi transparent dark overlay across widget
+        size = self.size()
+        painter = QtGui.QPainter()
+        painter.begin(self)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
+        painter.setPen(self._fill_color)
+        painter.setBrush(self._fill_color)
+        painter.drawRect(0, 0, size.width(), size.height())
+        painter.end()
+
+
+class ModalDialog(QtWidgets.QDialog):
+    '''
+    A styled modal ftrack dialog box, intended to live on top of a base dialog.
+    Behaviour defaults to a prompt (Yes-No) dialog.
     '''
 
     def __init__(
@@ -22,7 +70,7 @@ class Dialog(QtWidgets.QDialog):
         prompt=False,
         modal=True,
     ):
-        super(Dialog, self).__init__(parent=parent)
+        super(ModalDialog, self).__init__(parent=parent)
 
         self.setParent(parent)
 
@@ -125,8 +173,13 @@ class Dialog(QtWidgets.QDialog):
         return self._title
 
     def setWindowTitle(self, title):
-        super(Dialog, self).setWindowTitle(title)
+        super(ModalDialog, self).setWindowTitle(title)
         self._title_label.setText(title.upper())
+
+    def setVisible(self, visible):
+        if isinstance(self.parentWidget(), Dialog):
+            self.parentWidget().darken = visible
+        super(ModalDialog, self).setVisible(visible)
 
 
 class DenyButton(QtWidgets.QPushButton):

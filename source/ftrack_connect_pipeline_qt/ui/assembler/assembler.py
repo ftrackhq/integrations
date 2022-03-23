@@ -33,7 +33,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import (
     VersionComboBox,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import (
-    Dialog,
+    ModalDialog,
 )
 
 
@@ -410,7 +410,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
                 ),
             )
         else:
-            Dialog(
+            ModalDialog(
                 self._assembler_client,
                 title='Change Import Version',
                 message=error_message,

@@ -9,7 +9,7 @@ from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline.client import constants
 from ftrack_connect_pipeline_qt import constants as qt_constants
-from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import Dialog
+from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
 from ftrack_connect_pipeline_qt.client import QtClient
 
 from ftrack_connect_pipeline_qt.client import factory
@@ -144,7 +144,7 @@ class QtAssemblerClient(QtClient):
 
         button_widget = QtWidgets.QWidget()
         button_widget.setLayout(QtWidgets.QHBoxLayout())
-        button_widget.layout().setContentsMargins(2, 2, 16, 2)
+        button_widget.layout().setContentsMargins(2, 4, 8, 0)
         button_widget.layout().addStretch()
         self.run_button_no_load = AddRunButton('ADD TO SCENE')
         self.run_button_no_load.setMinimumHeight(32)
@@ -190,7 +190,7 @@ class QtAssemblerClient(QtClient):
 
     def post_build(self):
         super(QtAssemblerClient, self).post_build()
-        self.host_and_definition_selector.hosts_discovered.connect(
+        self.host_and_definition_selector.hostsDiscovered.connect(
             self._on_hosts_discovered
         )
         self._tab_widget.currentChanged.connect(self._on_tab_changed)
@@ -269,7 +269,7 @@ class QtAssemblerClient(QtClient):
             as_widgets=True
         )
         if len(component_widgets) == 0:
-            dlg = Dialog(
+            dlg = ModalDialog(
                 self.get_parent_window(),
                 title='ftrack Assembler',
                 question='Load all?',

@@ -180,13 +180,15 @@ class FilterClass(QtCore.QObject):
 
     def eventFilter(self, obj, event):
         '''Suppress all events.'''
-        retval = self._blocker()
+        retval = False
+        if self._blocker() and (isinstance(event, QtGui.QInputEvent)):
+            retval = True
         return retval
 
 
 @contextlib.contextmanager
-def block_events(widget=None, blocker=None):
-    '''Supress any QT events during execution of this context (with clause).'''
+def block_input_events(widget=None, blocker=None):
+    '''Suppress any QT events during execution of this context (with clause).'''
 
     def always_block():
         return True
@@ -213,7 +215,4 @@ class InputEventBlockingWidget(QtWidgets.QWidget):
         retval = False
         if self._blocker() and (isinstance(event, QtGui.QInputEvent)):
             retval = True
-            # import nuke
-            # nuke.tprint(
-            #    '@@@       InputEventBlockingWidget::eventFilter({},{}); retval: {}'.format(obj, event, retval))
         return retval

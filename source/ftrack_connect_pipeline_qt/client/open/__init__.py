@@ -53,10 +53,14 @@ class QtOpenClient(QtClient):
             self._on_components_checked
         )
 
-    def _set_context(self, context):
+    def _set_context(self, context, global_context_change):
         if not self.host_connection:
             return
         self.host_connection.set_context(context)
+        if global_context_change:
+            self.host_and_definition_selector.clear_definitions()
+            self.host_and_definition_selector.populate_definitions()
+            self._clear_widget()
 
     def change_definition(self, schema, definition, component_names_filter):
         self.run_button.setText('OPEN ASSEMBLER')

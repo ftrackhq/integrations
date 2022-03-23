@@ -21,11 +21,12 @@ class Search(QtWidgets.QFrame):
 
     @property
     def text(self):
-        return self._input.text()
+        return self._input.text() if self._input else ''
 
     @text.setter
     def text(self, value):
-        self._input.setText(value)
+        if self._input:
+            self._input.setText(value)
 
     def __init__(self, parent=None, collapsed=True, collapsable=True):
         super(Search, self).__init__(parent=parent)
@@ -50,7 +51,7 @@ class Search(QtWidgets.QFrame):
 
     def post_build(self):
         '''Post Build ui method for events connections.'''
-        pass
+        self._search_button.clicked.connect(self._on_search)
 
     def rebuild(self):
         # Remove current widgets, clear input
@@ -72,7 +73,6 @@ class Search(QtWidgets.QFrame):
                 'search', '#999999', diameter=30
             )
 
-        self._search_button.clicked.connect(self._on_search)
         if self._collapsable:
             self.layout().addWidget(self._search_button)
 
@@ -85,6 +85,7 @@ class Search(QtWidgets.QFrame):
                 '''
             )
             self._input = QtWidgets.QLineEdit()
+            self._input.setReadOnly(False)
             self._input.textChanged.connect(self._on_input_changed)
             self._input.setPlaceholderText("Type to search")
             self._input.setStyleSheet(
@@ -92,9 +93,9 @@ class Search(QtWidgets.QFrame):
             )
             self._input.setFocus()
             self.layout().addWidget(self._input, 100)
-            self._clear_button = CircularButton(
-                'close', '#555555', diameter=30
-            )
+            # self._clear_button = CircularButton(
+            #    'close', '#555555', diameter=30
+            # )
             # self._clear_button.setStyleSheet('''border:none;''')
             # self._clear_button.clicked.connect(self._on_clear)
             # self.layout().addWidget(self._clear_button)

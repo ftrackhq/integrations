@@ -93,8 +93,12 @@ NavigationEntityButton[first='true'] {
     border: 1px dashed $border-color;
 }
 
-NavigationEntityButton:hover {
-    background: $gray-lighter;
+NavigationEntityButton:hover, EntityWidget:hover, AccordionBaseWidget:hover {
+    background: $alt-background;
+}
+
+QFrame[docked='true'] NavigationEntityButton:hover, EntityWidget:hover, AccordionBaseWidget:hover {
+    background: rgb(66,66,66);
 }
 
 EntityWidget {
@@ -105,10 +109,6 @@ EntityWidget {
 
 EntityWidget[background='selected'] {
     background: $background-selected;
-}
-
-EntityWidget:hover {
-    background: $gray-lighter;
 }
 
 TypeWidget {

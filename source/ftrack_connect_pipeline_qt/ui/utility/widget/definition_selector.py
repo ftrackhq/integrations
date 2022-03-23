@@ -32,7 +32,7 @@ class DefinitionItem(QtWidgets.QPushButton):
 class DefinitionSelectorWidgetBase(QtWidgets.QWidget):
     '''DefinitionSelector Base Class'''
 
-    hosts_discovered = QtCore.Signal(object)
+    hostsDiscovered = QtCore.Signal(object)
     host_changed = QtCore.Signal(object)
     definition_changed = QtCore.Signal(object, object, object)
     refreshed = QtCore.Signal()
@@ -89,13 +89,13 @@ class DefinitionSelectorWidgetBase(QtWidgets.QWidget):
             and host_connections[0].context_id != None
         ):
             self.host_combobox.setCurrentIndex(1)
-        self.hosts_discovered.emit(host_connections)
+        self.hostsDiscovered.emit(host_connections)
 
     def change_host_index(self, index):
         self.host_combobox.setCurrentIndex(index)
 
     def _on_change_host(self, index):
-        '''triggered when chaging host selection to *index*'''
+        '''triggered when changing host selection to *index*'''
         self.definition_combobox.clear()
         self.host_connection = self.host_combobox.itemData(index)
         self.host_changed.emit(self.host_connection)
@@ -106,9 +106,9 @@ class DefinitionSelectorWidgetBase(QtWidgets.QWidget):
 
         self.schemas = self.host_connection.definitions['schema']
 
-        self._populate_definitions()
+        self.populate_definitions()
 
-    def _populate_definitions(self):
+    def populate_definitions(self):
         self.definition_combobox.addItem('- Select Definition -')
         self.definitions = []
         for schema in self.schemas:
@@ -127,11 +127,7 @@ class DefinitionSelectorWidgetBase(QtWidgets.QWidget):
                     )
                 self.definition_combobox.addItem(text, item)
 
-        if len(self.definitions) == 1:
-            self.definition_combobox.setCurrentIndex(1)
-            self.definition_combobox.hide()
-        else:
-            self.definition_combobox.show()
+        self.definition_combobox.show()
 
     def _on_select_definition(self, index):
         self.definition = self.definition_combobox.itemData(index)
@@ -253,7 +249,7 @@ class DefinitionSelectorWidgetButtons(DefinitionSelectorWidgetBase):
             return
 
         self.schemas = self.host_connection.definitions['schema']
-        self._populate_definitions()
+        self.populate_definitions()
 
     def clear_definitions(self):
         buttons = self.button_group.buttons()
@@ -261,7 +257,7 @@ class DefinitionSelectorWidgetButtons(DefinitionSelectorWidgetBase):
             self.button_group.removeButton(button)
             button.deleteLater()
 
-    def _populate_definitions(self):
+    def populate_definitions(self):
 
         self.definitions = []
 
@@ -553,13 +549,13 @@ class DefinitionSelectorWidgetComboBox(DefinitionSelectorWidgetBase):
             return
 
         self.schemas = self.host_connection.definitions['schema']
-        self._populate_definitions()
+        self.populate_definitions()
 
     def clear_definitions(self):
         self._definition_selector.currentIndexChanged.disconnect()
         self._definition_selector.clear()
 
-    def _populate_definitions(self):
+    def populate_definitions(self):
 
         self.definitions = []
 

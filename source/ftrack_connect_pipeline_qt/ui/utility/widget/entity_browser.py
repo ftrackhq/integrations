@@ -24,14 +24,14 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.busy_indicator import (
     BusyIndicator,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import (
-    Dialog,
+    ModalDialog,
     ApproveButton,
     DenyButton,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget import icon
 
 
-class EntityBrowser(Dialog):
+class EntityBrowser(ModalDialog):
     '''
     Dialog enabling entity/context browsing
 
@@ -222,6 +222,7 @@ class EntityBrowser(Dialog):
         return super(EntityBrowser, self).show()
 
     def exec_(self):
+        self._navigator.refreshNavigator.emit()
         self.rebuildEntityBrowser.emit()
         return super(EntityBrowser, self).exec_()
 
@@ -309,12 +310,22 @@ class EntityBrowser(Dialog):
                         self.intermediate_entity['parent'],
                     )
                 )
+                parent_entity_widget.doubleClicked.connect(
+                    partial(
+                        self._entity_selected,
+                        self.intermediate_entity['parent'],
+                        True,
+                    )
+                )
                 entities_widget.layout().addWidget(parent_entity_widget)
                 self.entity_widgets.append(parent_entity_widget)
             for entity in entities:
                 entity_widget = EntityWidget(entity, False, self)
                 entity_widget.clicked.connect(
                     partial(self._entity_selected, entity)
+                )
+                entity_widget.doubleClicked.connect(
+                    partial(self._entity_selected, entity, True)
                 )
                 entities_widget.layout().addWidget(entity_widget)
                 self.entity_widgets.append(entity_widget)
@@ -346,7 +357,7 @@ class EntityBrowser(Dialog):
                 or entity_widget.entity['name'].lower().find(text) > -1
             )
 
-    def _entity_selected(self, entity):
+    def _entity_selected(self, entity, double_click=False):
         self._selected_entity = entity
         for entity_widget in self.entity_widgets:
             set_property(
@@ -366,6 +377,9 @@ class EntityBrowser(Dialog):
             thread.start()
         else:
             self.update()
+            if double_click:
+                if self.mode == EntityBrowser.MODE_TASK:
+                    self._on_apply()
 
     def _on_set_intermediate_entity(self, entity):
         time.sleep(0.3)
@@ -634,6 +648,7 @@ class EntityWidget(QtWidgets.QFrame):
     '''A button representing a context within the navigator.'''
 
     clicked = QtCore.Signal()
+    doubleClicked = QtCore.Signal()
 
     def __init__(
         self, entity, is_sub_task, entity_browser, parent=None, is_parent=False
@@ -658,7 +673,7 @@ class EntityWidget(QtWidgets.QFrame):
         self.thumbnail_widget.setMinimumHeight(40)
         self.thumbnail_widget.setMaximumWidth(71)
         self.thumbnail_widget.setMaximumHeight(40)
-        if not self.is_parent and False:
+        if not self.is_parent:
             self.thumbnail_widget.load(self.entity['id'])
         self.layout().addWidget(self.thumbnail_widget)
 
@@ -730,6 +745,10 @@ class EntityWidget(QtWidgets.QFrame):
         if not self._entity_browser.working:
             self.clicked.emit()
         return retval
+
+    def mouseDoubleClickEvent(self, event):
+        self.doubleClicked.emit()
+        return super(EntityWidget, self).mouseDoubleClickEvent(event)
 
 
 class AddContextButton(CircularButton):
