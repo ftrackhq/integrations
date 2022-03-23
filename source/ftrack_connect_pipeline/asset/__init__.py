@@ -241,6 +241,7 @@ class FtrackAssetBase(object):
             new_asset_info[asset_const.REFERENCE_OBJECT] = self.asset_info[
                 asset_const.REFERENCE_OBJECT
             ]
+            new_asset_info[asset_const.IS_LOADED] = True
 
             if not new_asset_info:
                 self.logger.warning("Asset version couldn't change")
