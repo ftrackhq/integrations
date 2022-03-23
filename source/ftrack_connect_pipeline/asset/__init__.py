@@ -144,7 +144,7 @@ class FtrackAssetBase(object):
     def _get_unique_ftrack_object_name(self):
         '''Returns a unique scene name for the current asset_name'''
         ftrack_object_name = asset_const.FTRACK_OBJECT_NAME.format(
-            self.asset_info[asset_const.PARENT_NAME], self.asset_info[asset_const.ASSET_NAME]
+            self.asset_info[asset_const.PARENT_NAME], self.asset_info[asset_const.ASSET_NAME], self.asset_info[asset_const.ASSET_INFO_ID]
         )
         return ftrack_object_name
 
