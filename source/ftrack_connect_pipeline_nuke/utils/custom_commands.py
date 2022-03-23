@@ -12,6 +12,10 @@ import logging
 import nuke
 import nukescripts
 
+from ftrack_connect_pipeline.utils import (
+    get_snapshot_save_path,
+    get_current_context_id,
+)
 from ftrack_connect_pipeline_nuke.constants import asset as asset_const
 
 logger = logging.getLogger(__name__)
@@ -134,85 +138,74 @@ def cleanSelection():
         node['selected'].setValue(False)
 
 
-def save_snapshot(filename, context_id, session):
-    '''Save scene locally, with the next version number based on latest version
+def init_nuke(session, from_context=False):
+    fps = None
+    if from_context:
+        context = session.query(
+            'Context where id={}'.format(get_current_context_id())
+        ).first()
+        if context is None:
+            logger.error(
+                'Cannot initialize Nuke timeline - no such context: {}'.format(
+                    get_current_context_id()
+                )
+            )
+            return
+        shot = None
+        if context.entity_type == 'Shot':
+            shot = context
+        elif context.entity_type == 'Task':
+            parent = context['parent']
+            if parent.entity_type == 'Shot':
+                shot = parent
+        if not shot:
+            logger.warning(
+                'Cannot initialize Nuke timeline - no shot related to context: {}'.format(
+                    get_current_context_id()
+                )
+            )
+            return
+        elif (
+            not 'fstart' in shot['custom_attributes']
+            or not 'fend' in shot['custom_attributes']
+        ):
+            logger.warning(
+                'Cannot initialize Nuke timeline - no fstart or fend shot custom attributes available'.format()
+            )
+            return
+        start_frame = int(shot['custom_attributes']['fstart'])
+        end_frame = int(shot['custom_attributes']['fend'])
+        if 'fps' in shot['custom_attributes']:
+            fps = float(shot['custom_attributes']['fps'])
+    else:
+        # Set default values from environments.
+        start_frame = os.environ.get('FS', 0)
+        end_frame = os.environ.get('FE', 100)
+        if 'FPS' in os.environ:
+            fps = float(os.environ['FPS'])
+
+    nuke.root().knob("lock_range").setValue(False)
+    logger.info('Setting start frame : {}'.format(start_frame))
+    nuke.knob('root.first_frame', str(start_frame))
+    logger.info('Setting end frame : {}'.format(end_frame))
+    nuke.knob('root.last_frame', str(end_frame))
+    nuke.root().knob("lock_range").setValue(True)
+    if fps is not None:
+        logger.info('Setting FPS : {}'.format(fps))
+        nuke.root().knob("fps").setValue(fps)
+
+
+def save_snapshot(context_id, session):
+    '''Save snapshot script locally, with the next version number based on latest version
     in ftrack.'''
-    snapshot_path_base = os.environ.get('FTRACK_SNAPSHOT_PATH')
 
-    context = session.query('Context where id={}'.format(context_id)).first()
+    snapshot_path, message = get_snapshot_save_path(context_id, session)
 
-    if context is None:
-        raise Exception(
-            'Could not save snapshot - unknown context: {}!'.format(context_id)
-        )
+    if snapshot_path is None:
+        return (False, message)
 
-    if filename is None:
-        # TODO: use task type <> asset type mappings
-        filename = context['type']['name']  # Modeling, compositing...
-
-    result = False
-    message = None
-
-    structure_names = [context['project']['name']] + [
-        item['name'] for item in context['link'][1:]
-    ]
-
-    # Find latest version number
-    next_version_number = 1
-    latest_asset_version = session.query(
-        'AssetVersion where '
-        'task.id={} and is_latest_version=true'.format(context_id)
-    ).first()
-    if latest_asset_version:
-        next_version_number = latest_asset_version['version'] + 1
-
-    if snapshot_path_base:
-        # Build path down to context
-        snapshot_path = os.sep.join(
-            [snapshot_path_base] + structure_names + ['work']
-        )
-    else:
-        # Try to query location system (future)
-        try:
-            location = session.pick_location()
-            snapshot_path = location.get_filesystem_path(context)
-        except:
-            # Ok, use default location
-            snapshot_path_base = os.path.join(
-                os.path.expanduser('~'),
-                'Documents',
-                'ftrack_work_path',
-            )
-            # Build path down to context
-            snapshot_path = os.sep.join([snapshot_path_base] + structure_names)
-
-    if snapshot_path is not None:
-        if not os.path.exists(snapshot_path):
-            os.makedirs(snapshot_path)
-        if not os.path.exists(snapshot_path):
-            return (
-                None,
-                'Could not create snapshot directory: {}!'.format(
-                    snapshot_path
-                ),
-            )
-        # Make sure we do not overwrite existing work done
-        snapshot_path = os.path.join(
-            snapshot_path, '%s_v%03d.nk' % (filename, next_version_number)
-        )
-
-        while os.path.exists(snapshot_path):
-            next_version_number += 1
-            snapshot_path = os.path.join(
-                os.path.dirname(snapshot_path),
-                '%s_v%03d.nk' % (filename, next_version_number),
-            )
-
-        # Save Maya scene to this path
-        nuke.scriptSaveAs(snapshot_path, overwrite=1)
-        message = 'Saved Nuke script @ "{}"'.format(snapshot_path)
-        result = snapshot_path
-    else:
-        message = 'Could not evaluate local snapshot path!'
+    nuke.scriptSaveAs(snapshot_path, overwrite=1)
+    message = 'Saved Nuke script @ "{}"'.format(snapshot_path)
+    result = snapshot_path
 
     return result, message

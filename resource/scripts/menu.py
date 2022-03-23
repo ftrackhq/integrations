@@ -4,6 +4,7 @@
 import functools
 import logging
 import sys
+import traceback
 
 import nuke
 import nukescripts
@@ -26,6 +27,7 @@ from ftrack_connect_pipeline_nuke.client import log_viewer
 from ftrack_connect_pipeline_qt import client
 
 from ftrack_connect_pipeline_nuke.menu import build_menu_widgets
+from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
 
 from ftrack_connect_pipeline_qt.ui.asset_manager.base import AssetListModel
 
@@ -74,8 +76,10 @@ def handle_exception(exc_type, exc_value, exc_traceback):
         return
 
     nuke.tprint(
-        "[ERROR] Uncaught exception: {} {} {}".format(
-            exc_type, exc_value, exc_traceback
+        "[ERROR] Uncaught Nuke exception: {}".format(
+            '\n'.join(
+                traceback.format_exception(exc_type, exc_value, exc_traceback)
+            )
         )
     )
 
@@ -120,8 +124,6 @@ def _open_widget(event_manager, asset_list_model, widgets, event):
 
 
 def initialise():
-    # TODO : later we need to bring back here all the nuke initialiations
-    #  from ftrack-connect-nuke such as frame start / end etc....
 
     logger.debug('Setting up the menu')
     session = ftrack_api.Session(auto_connect_event_hub=False)
@@ -138,6 +140,14 @@ def initialise():
     widgets = list()
     widgets.append(
         (qt_constants.OPEN_WIDGET, open.NukeOpenDialog, 'Open', 'fileOpen')
+    )
+    widgets.append(
+        (
+            qt_constants.CHANGE_CONTEXT_WIDGET,
+            client.QtChangeContextClient,
+            'Change context',
+            '',
+        )
     )
     widgets.append(
         (
@@ -159,7 +169,7 @@ def initialise():
         (
             qt_constants.SAVE_WIDGET,
             save.QtSaveClient,
-            'Save Snapshot',
+            'Save Script',
             '',
         )
     )
@@ -211,6 +221,8 @@ def initialise():
 
     app = QtWidgets.QApplication.instance()
     app.aboutToQuit.connect(on_nuke_exit)
+
+    nuke_utils.init_nuke(session)
 
     host.launch_widget(qt_constants.OPEN_WIDGET)
 

@@ -9,7 +9,7 @@ from ftrack_connect_pipeline_qt.client.open import QtOpenClient
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_nuke.constants as nuke_constants
-from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import Dialog
+from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 
 
 class NukeOpenClient(QtOpenClient):
@@ -26,7 +26,7 @@ class NukeOpenClient(QtOpenClient):
         super(NukeOpenClient, self).__init__(event_manager, parent_window)
 
 
-class NukeOpenDialog(QtWidgets.QFrame):
+class NukeOpenDialog(dialog.Dialog):
     '''Nuke open dialog'''
 
     _shown = False
@@ -67,7 +67,7 @@ class NukeOpenDialog(QtWidgets.QFrame):
         self.rebuild()
         if self._client.ask_open_assembler:
             # TODO: Search among work files and see if there is and crash scene from previous session
-            dlg = Dialog(
+            dlg = dialog.ModalDialog(
                 self,
                 title='ftrack',
                 question='Nothing to open, assemble a new script?',
@@ -80,7 +80,7 @@ class NukeOpenDialog(QtWidgets.QFrame):
                     qt_constants.ASSEMBLER_WIDGET
                 )
         elif self._client.ask_open_latest:
-            dlg = Dialog(
+            dlg = dialog.ModalDialog(
                 self,
                 title='ftrack',
                 question='Open latest?',

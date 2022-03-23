@@ -9,6 +9,7 @@ from ftrack_connect_pipeline_qt.client.assembler import QtAssemblerClient
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_nuke.constants as nuke_constants
+from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 
 
 class NukeAssemblerClient(QtAssemblerClient):
@@ -21,7 +22,7 @@ class NukeAssemblerClient(QtAssemblerClient):
     ]
 
     assembler_match_extension = (
-        True  # Allow nuke to resolve in a more relaxed way
+        True  # Allow nuke to resolve assets in a more relaxed way
     )
 
     def __init__(self, event_manager, asset_list_model, parent_window):
@@ -33,7 +34,7 @@ class NukeAssemblerClient(QtAssemblerClient):
         )
 
 
-class NukeAssemblerDialog(QtWidgets.QDialog):
+class NukeAssemblerDialog(dialog.Dialog):
     '''Nuke assembler & importer dialog'''
 
     _shown = False
