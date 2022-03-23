@@ -33,10 +33,7 @@ class FtrackAssetNode(FtrackAssetBase):
         updates the ftrack_object if it's not. In case there is no ftrack_object
         in the scene this function creates a new one.
         '''
-        ftrack_object = (
-            self.get_ftrack_object_from_scene()
-            or self.create_new_ftrack_object()
-        )
+        ftrack_object = self.create_new_ftrack_object()
 
         self.asset_info[asset_const.IS_LOADED] = is_loaded
 
@@ -83,56 +80,20 @@ class FtrackAssetNode(FtrackAssetBase):
         Return the ftrack_object from the current asset_version if it exists in
         the scene.
         '''
-        result_object = None
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
         for ftrack_object in ftrack_asset_nodes:
             param_dict = self.get_parameters_dictionary(ftrack_object)
             node_asset_info = FtrackAssetInfo(param_dict)
-            if node_asset_info.is_deprecated:
-                raise DeprecationWarning("Can not read v1 ftrack asset plugin")
+            if node_asset_info[asset_const.ASSET_INFO_ID] == self.asset_info[asset_const.ASSET_INFO_ID]:
+                self.logger.debug('Found existing object: {}'.format(ftrack_object))
+                return ftrack_object
 
-            diff_values = []
-            for k in node_asset_info:
-                if k in [
-                    asset_const.ASSET_VERSIONS_ENTITIES,
-                    asset_const.IS_LOADED,
-                    asset_const.SESSION
-                ]:
-                    continue
-                if node_asset_info[k] != self.asset_info[k]:
-                    # TODO: Check that only the key method is different, one will
-                    #  be init_scene_modes and the other will be run. But all the
-                    #  other options should be the same
-                    #  Meanwhile ASSET_INFO_OPTIONS added on the list of not needed
-
-                    # if k == asset_const.ASSET_INFO_OPTIONS:
-                    #     if node_asset_info[k].get('method') == 'init_nodes':
-
-                    diff_values.append(k)
-            if len(diff_values) > 0 and not set(diff_values).issubset(
-                {
-                    asset_const.REFERENCE_OBJECT,
-                    asset_const.ASSET_INFO_ID,
-                    asset_const.ASSET_INFO_OPTIONS,
-                }
-            ):
-                self.logger.debug(
-                    '(Get ftrack object from scene) Not returning {}: - key diff: {}!={}'.format(
-                        ftrack_object,
-                        set(diff_values),
-                        {
-                            asset_const.REFERENCE_OBJECT,
-                            asset_const.ASSET_INFO_ID,
-                            asset_const.ASSET_INFO_OPTIONS,
-                        },
-                    )
-                )
-                continue
-
-            result_object = ftrack_object
-
-        self.logger.debug('Found existing object: {}'.format(result_object))
-        return result_object
+        self.logger.debug(
+            "Couldn't found anexisting object for the asset info id: {}".format(
+                self.asset_info[asset_const.ASSET_INFO_ID]
+            )
+        )
+        return None
 
     def _check_ftrack_object_sync(self, ftrack_object):
         '''
@@ -167,13 +128,10 @@ class FtrackAssetNode(FtrackAssetBase):
             FtrackAssetNode, self
         )._get_unique_ftrack_object_name()
 
-        count = 0
-        while 1:
-            if cmds.objExists(ftrack_object_name):
-                ftrack_object_name = ftrack_object_name + str(count)
-                count = count + 1
-            else:
-                break
+        if cmds.objExists(ftrack_object_name):
+            self.logger.error("ftrack object already exists in the scene")
+            raise RuntimeError("{} already exists in the scene".format(ftrack_object_name))
+
         return ftrack_object_name
 
     def connect_objects(self, objects):
