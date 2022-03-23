@@ -8,7 +8,7 @@ import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_maya.constants as maya_constants
 from ftrack_connect_pipeline_maya.utils.custom_commands import get_maya_window
-from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import Dialog
+from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
 from ftrack_connect_pipeline_qt import constants as qt_constants
 
 
@@ -66,7 +66,7 @@ class MayaOpenDialog(QtWidgets.QDialog):
         self.rebuild()
         if self._client.ask_open_assembler:
             # TODO: Search among work files and see if there is and crash scene from previous session
-            dlg = Dialog(
+            dlg = ModalDialog(
                 self,
                 title='ftrack',
                 question='Nothing to open, assemble a new scene?',
@@ -79,7 +79,7 @@ class MayaOpenDialog(QtWidgets.QDialog):
                     qt_constants.ASSEMBLER_WIDGET
                 )
         elif self._client.ask_open_latest:
-            dlg = Dialog(
+            dlg = ModalDialog(
                 self,
                 title='ftrack',
                 question='Open latest?',
