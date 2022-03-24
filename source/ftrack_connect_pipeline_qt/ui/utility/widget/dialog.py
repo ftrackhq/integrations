@@ -40,7 +40,7 @@ class OverlayWidget(QtWidgets.QWidget):
         super(OverlayWidget, self).__init__(parent=parent)
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-        self._fill_color = QtGui.QColor(0, 0, 0, 128)
+        self._fill_color = QtGui.QColor(19, 25, 32, 169)
 
     def paintEvent(self, event):
         super(OverlayWidget, self).paintEvent(event)

@@ -218,7 +218,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             return
 
         if self.context_selector:
-            self.context_selector.host_changed(host_connection)
+            self.context_selector.hostChanged(host_connection)
         self.asset_manager_widget.host_connection = self.host_connection
 
         self.rebuild()

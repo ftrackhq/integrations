@@ -130,7 +130,10 @@ class QtClient(Client, QtWidgets.QFrame):
         '''Prepare general layout.'''
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setAlignment(QtCore.Qt.AlignTop)
-        self.layout().setContentsMargins(0, 0, 0, 5)
+        if self.is_docked():
+            self.layout().setContentsMargins(0, 0, 0, 5)
+        else:
+            self.layout().setContentsMargins(16, 16, 16, 16)
         self.layout().setSpacing(0)
 
     def build(self):

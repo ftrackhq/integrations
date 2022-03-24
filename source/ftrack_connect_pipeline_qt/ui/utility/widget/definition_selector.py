@@ -33,8 +33,8 @@ class DefinitionSelectorWidgetBase(QtWidgets.QWidget):
     '''DefinitionSelector Base Class'''
 
     hostsDiscovered = QtCore.Signal(object)
-    host_changed = QtCore.Signal(object)
-    definition_changed = QtCore.Signal(object, object, object)
+    hostChanged = QtCore.Signal(object)
+    definitionChanged = QtCore.Signal(object, object, object)
     refreshed = QtCore.Signal()
 
     @property
@@ -98,7 +98,7 @@ class DefinitionSelectorWidgetBase(QtWidgets.QWidget):
         '''triggered when changing host selection to *index*'''
         self.definition_combobox.clear()
         self.host_connection = self.host_combobox.itemData(index)
-        self.host_changed.emit(self.host_connection)
+        self.hostChanged.emit(self.host_connection)
 
         if not self.host_connection:
             self.logger.debug('No data for selected host')
@@ -134,7 +134,7 @@ class DefinitionSelectorWidgetBase(QtWidgets.QWidget):
 
         if not self.definition:
             self.logger.debug('No data for selected definition')
-            self.definition_changed.emit(None, None)
+            self.definitionChanged.emit(None, None)
             return
 
         for schema in self.schemas:
@@ -145,7 +145,7 @@ class DefinitionSelectorWidgetBase(QtWidgets.QWidget):
                 self.schema = schema
                 break
 
-        self.definition_changed.emit(self.schema, self.definition)
+        self.definitionChanged.emit(self.schema, self.definition)
 
     def set_definition_title_filter(self, title_filter):
         self._definition_title_filter = title_filter
@@ -164,8 +164,8 @@ class DefinitionSelectorWidgetBase(QtWidgets.QWidget):
 class DefinitionSelectorWidgetButtons(DefinitionSelectorWidgetBase):
     '''DefinitionSelector as buttons on a row'''
 
-    definition_changed = QtCore.Signal(object, object, object)
-    host_changed = QtCore.Signal(object)
+    definitionChanged = QtCore.Signal(object, object, object)
+    hostChanged = QtCore.Signal(object)
     max_column = 3
 
     def __init__(self, client_name, parent=None):
@@ -242,7 +242,7 @@ class DefinitionSelectorWidgetButtons(DefinitionSelectorWidgetBase):
         '''triggered when changing host selection to *index*'''
         self.clear_definitions()
         self.host_connection = self.host_combobox.itemData(index)
-        self.host_changed.emit(self.host_connection)
+        self.hostChanged.emit(self.host_connection)
 
         if not self.host_connection:
             self.logger.debug('No data for selected host')
@@ -410,7 +410,7 @@ class DefinitionSelectorWidgetButtons(DefinitionSelectorWidgetBase):
                 )
 
             self.no_definitions_label.setVisible(True)
-            self.definition_changed.emit(
+            self.definitionChanged.emit(
                 None, None, None
             )  # Tell client there are no definitions
         elif index_latest_version == -1:
@@ -419,7 +419,7 @@ class DefinitionSelectorWidgetButtons(DefinitionSelectorWidgetBase):
                 self.no_definitions_label.setText(
                     '<html><i>No version available to open!</i></html>'
                 )
-                self.definition_changed.emit(
+                self.definitionChanged.emit(
                     None, None, None
                 )  # Tell client there are no versions
         else:
@@ -443,7 +443,7 @@ class DefinitionSelectorWidgetButtons(DefinitionSelectorWidgetBase):
             self.definition = None
         if not self.definition:
             self.logger.debug('No data for selected definition')
-            self.definition_changed.emit(None, None, None)
+            self.definitionChanged.emit(None, None, None)
             return
 
         for schema in self.schemas:
@@ -454,7 +454,7 @@ class DefinitionSelectorWidgetButtons(DefinitionSelectorWidgetBase):
                 self.schema = schema
                 break
 
-        self.definition_changed.emit(
+        self.definitionChanged.emit(
             self.schema, self.definition, self.component_names_filter
         )
 

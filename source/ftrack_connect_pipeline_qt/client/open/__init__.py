@@ -82,7 +82,7 @@ class QtOpenClient(QtClient):
         if available_components_count == 0:
             # We have no definitions or nothing previously published
             self.ask_open_assembler = True
-        elif definition is not None and available_components_count == 1:
+        elif definition is not None and available_components_count >= 1:
             self.ask_open_latest = True
 
     def run(self):
