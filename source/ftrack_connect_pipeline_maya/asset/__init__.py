@@ -33,10 +33,7 @@ class FtrackAssetNode(FtrackAssetBase):
         updates the ftrack_object if it's not. In case there is no ftrack_object
         in the scene this function creates a new one.
         '''
-        ftrack_object = (
-            self.get_ftrack_object_from_scene()
-            or self.create_new_ftrack_object()
-        )
+        ftrack_object = self.create_new_ftrack_object()
 
         self.asset_info[asset_const.IS_LOADED] = is_loaded
 
@@ -83,57 +80,20 @@ class FtrackAssetNode(FtrackAssetBase):
         Return the ftrack_object from the current asset_version if it exists in
         the scene.
         '''
-        result_object = None
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
         for ftrack_object in ftrack_asset_nodes:
             param_dict = self.get_parameters_dictionary(ftrack_object)
             node_asset_info = FtrackAssetInfo(param_dict)
-            if node_asset_info.is_deprecated:
-                raise DeprecationWarning("Can not read v1 ftrack asset plugin")
+            if node_asset_info[asset_const.ASSET_INFO_ID] == self.asset_info[asset_const.ASSET_INFO_ID]:
+                self.logger.debug('Found existing object: {}'.format(ftrack_object))
+                return ftrack_object
 
-            diff_values = []
-            for k in node_asset_info:
-                if k in [
-                    asset_const.ASSET_VERSIONS_ENTITIES,
-                    asset_const.IS_LOADED,
-                    asset_const.SESSION,
-                    # asset_const.DEPENDENCIES,
-                ]:
-                    continue
-                if node_asset_info[k] != self.asset_info[k]:
-                    # TODO: Check that only the key method is different, one will
-                    # be init_scene_modes and the other will be run. But all the
-                    # other options should be the same
-                    # Meanwhile ASSET_INFO_OPTIONS added on the list of not needed
-
-                    # if k == asset_const.ASSET_INFO_OPTIONS:
-                    #     if node_asset_info[k].get('method') == 'init_nodes':
-
-                    diff_values.append(k)
-            if len(diff_values) > 0 and not set(diff_values).issubset(
-                {
-                    asset_const.REFERENCE_OBJECT,
-                    asset_const.ASSET_INFO_ID,
-                    asset_const.ASSET_INFO_OPTIONS,
-                }
-            ):
-                self.logger.debug(
-                    '(Get ftrack object from scene) Not returning {}: - key diff: {}!={}'.format(
-                        ftrack_object,
-                        set(diff_values),
-                        {
-                            asset_const.REFERENCE_OBJECT,
-                            asset_const.ASSET_INFO_ID,
-                            asset_const.ASSET_INFO_OPTIONS,
-                        },
-                    )
-                )
-                continue
-
-            result_object = ftrack_object
-
-        self.logger.debug('Found existing object: {}'.format(result_object))
-        return result_object
+        self.logger.debug(
+            "Couldn't found anexisting object for the asset info id: {}".format(
+                self.asset_info[asset_const.ASSET_INFO_ID]
+            )
+        )
+        return None
 
     def _check_ftrack_object_sync(self, ftrack_object):
         '''
@@ -155,82 +115,6 @@ class FtrackAssetNode(FtrackAssetBase):
 
         return synced
 
-    def update_dependencies(self):
-        self.asset_info.update_dependencies(self.event_manager.session)
-
-    # def check_dependencies(self):
-    #     self.update_dependencies()
-    #     return self._check_dependencies()
-    #
-    # def _check_dependencies(self):
-    #     '''
-    #     Check dependencies in the scene. Catagorize them as
-    #     connected_dependency which means that is connected to the current
-    #     ftrack object, untracked_dependency which means that is connected to the
-    #     current ftrack object but not tracked in the ftrack platform,
-    #     unconected_dependency which means that is in the scene but is not
-    #     connected to any ftrackObject and missing_dependeny which means is in
-    #     the ftrack platform but not in the scene.
-    #     '''
-    #     missing_dependency_ids = []
-    #     uncontected_dependency_ids = []
-    #     connected_dependency_ids = []
-    #     untracked_dependency_nodes = []
-    #     uncontected_dependency_nodes = []
-    #     if not self.asset_info.get(asset_const.DEPENDENCY_IDS):
-    #         return None, None, None
-    #
-    #     ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
-    #     for ftrack_dependency_object in ftrack_asset_nodes:
-    #         node_asset_info = self.get_asset_info_from_node(
-    #             ftrack_dependency_object
-    #         )
-    #         if not node_asset_info.get(asset_const.IS_DEPENDENCY):
-    #             continue
-    #         connections = cmds.listConnections(
-    #             '{}.message'.format(ftrack_dependency_object)
-    #         )
-    #         if self.ftrack_object in connections:
-    #             connected_dependency_ids.append(
-    #                 node_asset_info.get(asset_const.ASSET_ID)
-    #             )
-    #             if node_asset_info.get(
-    #                 asset_const.ASSET_ID
-    #             ) not in self.asset_info.get(asset_const.DEPENDENCY_IDS):
-    #                 # TODO: we could add an attribute to the node to tag it as
-    #                 # untracked so we can later change the collor or something
-    #                 # like that in the AM an untracked asset ftrack node is a
-    #                 # node that is connected as a dependency of our node, but is
-    #                 # not in the ftrack platform
-    #                 untracked_dependency_nodes.append(ftrack_dependency_object)
-    #             continue
-    #         for connection in connections:
-    #             if cmds.objectType(
-    #                 connection, isType=asset_const.FTRACK_PLUGIN_TYPE
-    #             ):
-    #                 continue
-    #
-    #         if node_asset_info.get(
-    #             asset_const.ASSET_ID
-    #         ) in self.asset_info.get(asset_const.DEPENDENCY_IDS):
-    #             uncontected_dependency_ids.append(
-    #                 node_asset_info.get(asset_const.ASSET_ID)
-    #             )
-    #             uncontected_dependency_nodes.append(ftrack_dependency_object)
-    #
-    #     for id in self.asset_info.get(asset_const.DEPENDENCY_IDS):
-    #         if (
-    #             id not in uncontected_dependency_ids
-    #             and id not in connected_dependency_ids
-    #         ):
-    #             missing_dependency_ids.append(id)
-    #
-    #     return (
-    #         missing_dependency_ids,
-    #         uncontected_dependency_nodes,
-    #         untracked_dependency_nodes,
-    #     )
-
     def get_asset_info_from_node(self, ftrack_object):
         param_dict = self.get_parameters_dictionary(ftrack_object)
         asset_info = FtrackAssetInfo(param_dict)
@@ -244,13 +128,11 @@ class FtrackAssetNode(FtrackAssetBase):
             FtrackAssetNode, self
         )._get_unique_ftrack_object_name()
 
-        count = 0
-        while 1:
-            if cmds.objExists(ftrack_object_name):
-                ftrack_object_name = ftrack_object_name + str(count)
-                count = count + 1
-            else:
-                break
+        if cmds.objExists(ftrack_object_name):
+            error_message = "{} already exists in the scene".format(ftrack_object_name)
+            self.logger.error(error_message)
+            raise RuntimeError(error_message)
+
         return ftrack_object_name
 
     def connect_objects(self, objects):
@@ -258,12 +140,6 @@ class FtrackAssetNode(FtrackAssetBase):
         Parent the given *objects* under current ftrack_object
         '''
         for obj in objects:
-            # if cmds.objectType(obj, isType=asset_const.FTRACK_PLUGIN_TYPE):
-            #    is_dependency = cmds.getAttr(obj, ln=asset_const.IS_DEPENDENCY)
-            #    if is_dependency:
-            #        continue
-            # TODO: check that the object is not connected to a FtrackNode, in
-            # this case we don't want to contect it to this node
             if cmds.lockNode(obj, q=True)[0]:
                 cmds.lockNode(obj, l=False)
 
@@ -275,20 +151,6 @@ class FtrackAssetNode(FtrackAssetBase):
                     '{}.{}'.format(self.ftrack_object, asset_const.ASSET_LINK),
                     '{}.ftrack'.format(obj),
                 )
-
-    #    def connect_dependencies(self, dependencies):
-    #        '''
-    #        Parent the given *objects* under current ftrack_object
-    #        '''
-    #        i = 0
-    #        for dependency_object in dependencies:
-    #            cmds.connectAttr(
-    #                '{}.message'.format(dependency_object),
-    #                '{}.{}[{}]'.format(
-    #                    self.ftrack_object, asset_const.DEPENDENCIES, i
-    #                ),
-    #            )
-    #            i += 1
 
     def get_load_mode_from_ftrack_object(self, obj):
         '''Return the load mode used to import the given *obj*.'''
@@ -324,8 +186,8 @@ class FtrackAssetNode(FtrackAssetBase):
                     l=True,
                 )
             elif (
-                k == asset_const.ASSET_VERSIONS_ENTITIES
-                or k == asset_const.SESSION
+                    k == asset_const.ASSET_VERSIONS_ENTITIES or
+                    k == asset_const.SESSION
             ):
                 cmds.setAttr(
                     '{}.{}'.format(ftrack_object, k),
@@ -333,18 +195,10 @@ class FtrackAssetNode(FtrackAssetBase):
                     type="string",
                     l=True,
                 )
-            elif (
-                k
-                == asset_const.IS_LATEST_VERSION
-                # or k == asset_const.IS_DEPENDENCY
-            ):
+            elif k == asset_const.IS_LATEST_VERSION:
                 cmds.setAttr('{}.{}'.format(ftrack_object, k), bool(v), l=True)
 
-            elif (
-                k
-                == asset_const.DEPENDENCY_IDS
-                # or k == asset_const.DEPENDENCIES
-            ):
+            elif k == asset_const.DEPENDENCY_IDS:
                 cmds.setAttr(
                     '{}.{}'.format(ftrack_object, k),
                     *([len(v)] + v),
