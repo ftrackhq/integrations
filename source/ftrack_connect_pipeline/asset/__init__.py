@@ -148,7 +148,7 @@ class FtrackAssetBase(object):
             self.asset_info[asset_const.ASSET_INFO_ID][-2:]
         )
         ftrack_object_name = asset_const.FTRACK_OBJECT_NAME.format(
-            self.asset_info[asset_const.CONTEXT_PATH], short_id
+            self.asset_info[asset_const.CONTEXT_PATH].replace(":","_"), short_id
         )
         return ftrack_object_name
 
