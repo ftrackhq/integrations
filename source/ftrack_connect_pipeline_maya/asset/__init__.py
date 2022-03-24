@@ -129,8 +129,9 @@ class FtrackAssetNode(FtrackAssetBase):
         )._get_unique_ftrack_object_name()
 
         if cmds.objExists(ftrack_object_name):
-            self.logger.error("ftrack object already exists in the scene")
-            raise RuntimeError("{} already exists in the scene".format(ftrack_object_name))
+            error_message = "{} already exists in the scene".format(ftrack_object_name)
+            self.logger.error(error_message)
+            raise RuntimeError(error_message)
 
         return ftrack_object_name
 
@@ -184,7 +185,10 @@ class FtrackAssetNode(FtrackAssetBase):
                     type="string",
                     l=True,
                 )
-            elif k == asset_const.ASSET_VERSIONS_ENTITIES or k == asset_const.SESSION:
+            elif (
+                    k == asset_const.ASSET_VERSIONS_ENTITIES or
+                    k == asset_const.SESSION
+            ):
                 cmds.setAttr(
                     '{}.{}'.format(ftrack_object, k),
                     str(v),

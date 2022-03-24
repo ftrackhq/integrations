@@ -22,7 +22,7 @@ class FtrackAssetNode(OpenMayaMPx.MPxNode):
     a_asset_link = OpenMaya.MObject()
     a_asset_id = OpenMaya.MObject()
     a_asset_name = OpenMaya.MObject()
-    a_parent_name = OpenMaya.MObject()
+    a_context_path = OpenMaya.MObject()
     a_asset_type = OpenMaya.MObject()
     a_version_id = OpenMaya.MObject()
     a_version_number = OpenMaya.MObject()
@@ -83,8 +83,8 @@ def nodeInitializer():
     t_attr.setStorable(True)
     t_attr.setHidden(False)
 
-    FtrackAssetNode.a_parent_name = t_attr.create(
-       asset_const.PARENT_NAME, 'pan', OpenMaya.MFnData.kString
+    FtrackAssetNode.a_context_path = t_attr.create(
+       asset_const.CONTEXT_PATH, 'cop', OpenMaya.MFnData.kString
     )
     t_attr.setHidden(False)
     t_attr.setStorable(True)
@@ -187,7 +187,7 @@ def nodeInitializer():
     FtrackAssetNode.addAttribute(FtrackAssetNode.a_asset_link)
     FtrackAssetNode.addAttribute(FtrackAssetNode.a_asset_id)
     FtrackAssetNode.addAttribute(FtrackAssetNode.a_asset_name)
-    FtrackAssetNode.addAttribute(FtrackAssetNode.a_parent_name)
+    FtrackAssetNode.addAttribute(FtrackAssetNode.a_context_path)
     FtrackAssetNode.addAttribute(FtrackAssetNode.a_asset_type)
     FtrackAssetNode.addAttribute(FtrackAssetNode.a_version_id)
     FtrackAssetNode.addAttribute(FtrackAssetNode.a_version_number)
